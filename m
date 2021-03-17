@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CDE33E54C
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3E333E550
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232039AbhCQBCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 21:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
+        id S232126AbhCQBCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:02:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232455AbhCQBAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232457AbhCQBAS (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 16 Mar 2021 21:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15DEA64FCA;
-        Wed, 17 Mar 2021 01:00:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CE7B65007;
+        Wed, 17 Mar 2021 01:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942816;
-        bh=SIHhCZxrnfKiMp4P1TEUPAcpCiMriRCZ0H/FHgexX0Y=;
+        s=k20201202; t=1615942817;
+        bh=RMOjAYX1vm174Y9ksn1z6Hf+kiX9gRDRZjgDW5Hq9zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VB6/BNQbv3Bu8eyei2NnuK9xbDydTgUEkpABjD3QIpNkzEars9FIblzR4j7QLYRLC
-         zm+kCW2lu/DLTihSsG8BhApo/Gji5uA3tmjgi0x1XpJFNs8J/FPzI/T78s4bhtaoIj
-         AoI51gzHRpHLMQsUMu5TD/Qdup0L5MOeQqJg/Z0jRKad6JEL5KAK7SlrdkgLWKcSfk
-         gFtx5n+qRwpgeXMfv7P+2UBSV1Q+v1nJ1+l9jfSvi0cU2VhOvNzUOtAGF7b1Tqo0Vz
-         I2mamTkrcV4S/BNmao/SnLwafPSWcvx13BvsKTiJMKtR+EdfoDAlyOeu8HG7a1qvq4
-         erUJ1o0zaXx2g==
+        b=DWPAhOGacG/ssDHEzOGnpNd92/2kJ5HOrZlgNbH2GxoUUkemIBLPZYDddnG6mmygm
+         I1KQ7f4QGvDkW86Mi7uLorRcSuQjAdQ5cJVZe0XDrGzLp2D9s5LUGAZUyURFVWkR4C
+         1/jqDxYcSKUCglg5row723xha1fjJaA7MCWOWfzK//QmWPvjGe76HFk9fs6lBwzy5N
+         EW7qiFxTk1N/b1L3CJ3P1bhCuOmHArqtgN9CNNgzZT4da7cntFagbwS/1TrLn5dY9W
+         /8sRVVtZJHG0S6e3W+2+yDbUyP+gtv/kd20lmG6h/V1KkxoyQkFO3LUVAZssPEQ9Qs
+         I5CN+2M0refAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Efremov <efremov@linux.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 06/14] sun/niu: fix wrong RXMAC_BC_FRM_CNT_COUNT count
-Date:   Tue, 16 Mar 2021 21:00:00 -0400
-Message-Id: <20210317010008.727496-6-sashal@kernel.org>
+Cc:     Timo Rothenpieler <timo@rothenpieler.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 07/14] nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
+Date:   Tue, 16 Mar 2021 21:00:01 -0400
+Message-Id: <20210317010008.727496-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317010008.727496-1-sashal@kernel.org>
 References: <20210317010008.727496-1-sashal@kernel.org>
@@ -42,33 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Timo Rothenpieler <timo@rothenpieler.org>
 
-[ Upstream commit 155b23e6e53475ca3b8c2a946299b4d4dd6a5a1e ]
+[ Upstream commit a0590473c5e6c4ef17c3132ad08fbad170f72d55 ]
 
-RXMAC_BC_FRM_CNT_COUNT added to mp->rx_bcasts twice in a row
-in niu_xmac_interrupt(). Remove the second addition.
+This follows what was done in 8c2fabc6542d9d0f8b16bd1045c2eda59bdcde13.
+With the default being m, it's impossible to build the module into the
+kernel.
 
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Timo Rothenpieler <timo@rothenpieler.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/niu.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/nfs/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sun/niu.c b/drivers/net/ethernet/sun/niu.c
-index 85f3a2c0d4dd..cc3b025ab7a7 100644
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -3948,8 +3948,6 @@ static void niu_xmac_interrupt(struct niu *np)
- 		mp->rx_mcasts += RXMAC_MC_FRM_CNT_COUNT;
- 	if (val & XRXMAC_STATUS_RXBCAST_CNT_EXP)
- 		mp->rx_bcasts += RXMAC_BC_FRM_CNT_COUNT;
--	if (val & XRXMAC_STATUS_RXBCAST_CNT_EXP)
--		mp->rx_bcasts += RXMAC_BC_FRM_CNT_COUNT;
- 	if (val & XRXMAC_STATUS_RXHIST1_CNT_EXP)
- 		mp->rx_hist_cnt1 += RXMAC_HIST_CNT1_COUNT;
- 	if (val & XRXMAC_STATUS_RXHIST2_CNT_EXP)
+diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+index c3428767332c..55ebf9f4a824 100644
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -132,7 +132,7 @@ config PNFS_OBJLAYOUT
+ config PNFS_FLEXFILE_LAYOUT
+ 	tristate
+ 	depends on NFS_V4_1 && NFS_V3
+-	default m
++	default NFS_V4
+ 
+ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
+ 	string "NFSv4.1 Implementation ID Domain"
 -- 
 2.30.1
 
