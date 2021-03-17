@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7BA33F203
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 14:59:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB5B33F20C
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 15:00:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231488AbhCQN7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Mar 2021 09:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
+        id S231617AbhCQN7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Mar 2021 09:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231134AbhCQN6u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Mar 2021 09:58:50 -0400
+        id S231470AbhCQN7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Mar 2021 09:59:39 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A1F864E05;
-        Wed, 17 Mar 2021 13:58:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FB3C64F5E;
+        Wed, 17 Mar 2021 13:59:39 +0000 (UTC)
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
         by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94)
         (envelope-from <maz@kernel.org>)
-        id 1lMWhE-002Ddf-0x; Wed, 17 Mar 2021 13:58:48 +0000
-Date:   Wed, 17 Mar 2021 13:58:47 +0000
-Message-ID: <87ft0tj2zs.wl-maz@kernel.org>
+        id 1lMWi1-002Deb-4X; Wed, 17 Mar 2021 13:59:37 +0000
+Date:   Wed, 17 Mar 2021 13:59:36 +0000
+Message-ID: <87eegdj2yf.wl-maz@kernel.org>
 From:   Marc Zyngier <maz@kernel.org>
 To:     Suzuki K Poulose <suzuki.poulose@arm.com>
 Cc:     stable@vger.kernel.org, catalin.marinas@arm.com, will@kernel.org,
         alexandru.elisei@arm.com, christoffer.dall@arm.com
 Subject: Re: [PATCH] KVM: arm64: nvhe: Save the SPE context early
-In-Reply-To: <20210317115031.4124163-1-suzuki.poulose@arm.com>
-References: <161579814447215@kroah.com>
-        <20210317115031.4124163-1-suzuki.poulose@arm.com>
+In-Reply-To: <20210316183353.4081445-1-suzuki.poulose@arm.com>
+References: <16157981451454@kroah.com>
+        <20210316183353.4081445-1-suzuki.poulose@arm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
  (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -44,7 +44,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 17 Mar 2021 11:50:31 +0000,
+On Tue, 16 Mar 2021 18:33:53 +0000,
 Suzuki K Poulose <suzuki.poulose@arm.com> wrote:
 > 
 > commit b96b0c5de685df82019e16826a282d53d86d112c upstream
@@ -65,15 +65,13 @@ Suzuki K Poulose <suzuki.poulose@arm.com> wrote:
 > Fix this by moving the SPE buffer handling early enough.
 > The restore path is doing the right thing.
 > 
-> Cc: stable@vger.kernel.org # v4.19
+> Cc: stable@vger.kernel.org # v5.4-
 > Cc: Christoffer Dall <christoffer.dall@arm.com>
 > Cc: Marc Zyngier <maz@kernel.org>
 > Cc: Will Deacon <will@kernel.org>
 > Cc: Catalin Marinas <catalin.marinas@arm.com>
 > Cc: Mark Rutland <mark.rutland@arm.com>
 > Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-> 
 > Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 
 Acked-by: Marc Zyngier <maz@kernel.org>
