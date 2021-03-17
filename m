@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D91BE33E3B2
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5513533E3AF
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231582AbhCQA5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:57:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34484 "EHLO mail.kernel.org"
+        id S231592AbhCQA5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231250AbhCQA4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:56:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D56D64F8F;
-        Wed, 17 Mar 2021 00:56:46 +0000 (UTC)
+        id S231260AbhCQA4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:56:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE42C64FA7;
+        Wed, 17 Mar 2021 00:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942607;
-        bh=gOMOVCnoTGjPjB6RH8Q4v6SnzGKeivtoZ0N8xUOMArQ=;
+        s=k20201202; t=1615942608;
+        bh=+CwnKyllOnrKa6GKwufWTwtdhNse9QcWlCOa11yIUbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGpIOq6s1Wugj//CkhjRukT4akETZJRTSh8mUBW5Pup+QGhnJbveQem120m6sBsqv
-         rfgPZ0vXIxs/xFSd61WhgPYzTEkBKQXtT6xRUHNUWDNUQuig544hri5AqjIkqDhAs+
-         E+Z+N+WPjIqCJ/AInu8JwQ8+S924wNaJtlPkMm30evK6vpxQI9uY1fpyvUoMOiL1uh
-         E8L4CoJo/C3LfFLJ2Z+1YA/RTtvmpvNSNTIGJfZUn/Iglq7gUJ2dr8Fw/t0/dp+7c6
-         8f5M54cDMFyuEMnxGCoEPgw1XJ5Z0C+GR3Lso0XL4OfLe1yDlYMc8LBF1Va2cs6yn9
-         09qAoKthzX9XA==
+        b=FzB3UF37P6VKgKGYhzI8+Hq+qs4GiWpUC2lfz5VqnvQ+hIIQxoeV2ohu9a/VTFnLE
+         BEDN19BCf206lLXjWUpOk3Y+FQDsvSCgEapAc3APF4lNNspcQZhCo7vzoFWta3Gz4H
+         8AswIufCYRf9OUIDheivU1tmh0yF76++ZpjwEEgDSGHjDrQjxxGYKa/YsUwDHfQT6N
+         yhP+Pxh31J5QczA0IgtWWOQKbn4ZVIQGEfpj8FOu0QCT5mdH/dfCZfpDF0kiXkdG5X
+         h0dcADjO9Sdzeljrp7C8+vz3y26vXQoSP/Rkn/OJJyU+AUdLlhWTrO5oMaJigIugiM
+         XdZpQ3/5ejh6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Wagner <dwagner@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Martin Wilck <mwilck@suse.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 57/61] block: Suppress uevent for hidden device when removed
-Date:   Tue, 16 Mar 2021 20:55:31 -0400
-Message-Id: <20210317005536.724046-57-sashal@kernel.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 58/61] io_uring: cancel deferred requests in try_cancel
+Date:   Tue, 16 Mar 2021 20:55:32 -0400
+Message-Id: <20210317005536.724046-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -42,48 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Wagner <dwagner@suse.de>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 9ec491447b90ad6a4056a9656b13f0b3a1e83043 ]
+[ Upstream commit e1915f76a8981f0a750cf56515df42582a37c4b0 ]
 
-register_disk() suppress uevents for devices with the GENHD_FL_HIDDEN
-but enables uevents at the end again in order to announce disk after
-possible partitions are created.
+As io_uring_cancel_files() and others let SQO to run between
+io_uring_try_cancel_requests(), SQO may generate new deferred requests,
+so it's safer to try to cancel them in it.
 
-When the device is removed the uevents are still on and user land sees
-'remove' messages for devices which were never 'add'ed to the system.
-
-  KERNEL[95481.571887] remove   /devices/virtual/nvme-fabrics/ctl/nvme5/nvme0c5n1 (block)
-
-Let's suppress the uevents for GENHD_FL_HIDDEN by not enabling the
-uevents at all.
-
-Signed-off-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Martin Wilck <mwilck@suse.com>
-Link: https://lore.kernel.org/r/20210311151917.136091-1-dwagner@suse.de
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/genhd.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/io_uring.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 07a0ef741de1..12940cfa68af 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -658,10 +658,8 @@ static void register_disk(struct device *parent, struct gendisk *disk,
- 		kobject_create_and_add("holders", &ddev->kobj);
- 	disk->slave_dir = kobject_create_and_add("slaves", &ddev->kobj);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 241313278e5a..89708ffc1c2b 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8848,11 +8848,11 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+ 	return ret;
+ }
  
--	if (disk->flags & GENHD_FL_HIDDEN) {
--		dev_set_uevent_suppress(ddev, 0);
-+	if (disk->flags & GENHD_FL_HIDDEN)
- 		return;
--	}
+-static void io_cancel_defer_files(struct io_ring_ctx *ctx,
++static bool io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 				  struct task_struct *task,
+ 				  struct files_struct *files)
+ {
+-	struct io_defer_entry *de = NULL;
++	struct io_defer_entry *de;
+ 	LIST_HEAD(list);
  
- 	disk_scan_partitions(disk);
+ 	spin_lock_irq(&ctx->completion_lock);
+@@ -8863,6 +8863,8 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 		}
+ 	}
+ 	spin_unlock_irq(&ctx->completion_lock);
++	if (list_empty(&list))
++		return false;
  
+ 	while (!list_empty(&list)) {
+ 		de = list_first_entry(&list, struct io_defer_entry, list);
+@@ -8872,6 +8874,7 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+ 		io_req_complete(de->req, -ECANCELED);
+ 		kfree(de);
+ 	}
++	return true;
+ }
+ 
+ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
+@@ -8898,6 +8901,7 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
+ 			}
+ 		}
+ 
++		ret |= io_cancel_defer_files(ctx, task, files);
+ 		ret |= io_poll_remove_all(ctx, task, files);
+ 		ret |= io_kill_timeouts(ctx, task, files);
+ 		ret |= io_run_task_work();
+@@ -8976,8 +8980,6 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 		io_sq_thread_park(ctx->sq_data);
+ 	}
+ 
+-	io_cancel_defer_files(ctx, task, files);
+-
+ 	io_uring_cancel_files(ctx, task, files);
+ 	if (!files)
+ 		io_uring_try_cancel_requests(ctx, task, NULL);
 -- 
 2.30.1
 
