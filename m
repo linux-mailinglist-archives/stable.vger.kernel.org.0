@@ -2,140 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1037933F4ED
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 17:04:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A420233F4EA
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 17:04:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232151AbhCQQER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Mar 2021 12:04:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37938 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231995AbhCQQDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231962AbhCQQDm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Mar 2021 12:03:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4718364F7E;
-        Wed, 17 Mar 2021 15:18:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615994299;
-        bh=xw75j8gkD9MFLwxR81md81e1o7okLIPVF5k8jy85Mbk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bb7SxuHsEtbKNpovbATpafagBqyc6yyd5F+uY2iTmOhdxhtI041PKfUWSztSuwau8
-         j+ZezIkhQIzzaL7DvvwFzuumDtOYsU1MLO7aILgW00X2nr5sBeiAdNmrEyux6hwy2+
-         vkK1kLrI+2MmQGIjQHraSUcoljJlrF9/g2zTnp/s=
-Date:   Wed, 17 Mar 2021 16:18:16 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+Received: from mx2.suse.de ([195.135.220.15]:59796 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232049AbhCQQDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Mar 2021 12:03:38 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E0111ABD7;
+        Wed, 17 Mar 2021 15:18:34 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id A69F91F2B76; Wed, 17 Mar 2021 16:18:34 +0100 (CET)
+Date:   Wed, 17 Mar 2021 16:18:34 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>,
+        oss-security@lists.openwall.com, Theodore Ts'o <tytso@mit.edu>,
+        Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
+        Wolfgang Frisch <wolfgang.frisch@suse.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 00/78] 4.9.262-rc1 review
-Message-ID: <YFIduHUgBJsn63rh@kroah.com>
-References: <20210315135212.060847074@linuxfoundation.org>
- <11774be7-0738-1a23-f186-0875b9e82ef6@gmail.com>
+Subject: Re: [oss-security] CVE-2021-3428 Linux kernel: integer overflow in
+ ext4_es_cache_extent
+Message-ID: <20210317151834.GE2541@quack2.suse.cz>
+References: <CAKx+4-oZ3YabEpWXYSs8LccRc8PcC_o2fbg7V5FpLT+nVBn66w@mail.gmail.com>
+ <YFHVuDKj+oMwxBZX@kroah.com>
+ <YFH414+hBOyl1Bw7@eldamar.lan>
+ <YFH981qaFJdMeyHA@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <11774be7-0738-1a23-f186-0875b9e82ef6@gmail.com>
+In-Reply-To: <YFH981qaFJdMeyHA@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 01:42:20PM -0700, Florian Fainelli wrote:
-> 
-> 
-> On 3/15/2021 6:51 AM, gregkh@linuxfoundation.org wrote:
-> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > This is the start of the stable review cycle for the 4.9.262 release.
-> > There are 78 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed, 17 Mar 2021 13:51:58 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.262-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> On ARCH_BRCMSTB using 32-bit and 64-bit kernels, still seeing the
-> following futex warning, unfortunately simply running the function
-> tracers does not allow me to trigger the warning, so I am having a hard
-> time coming up with a simple reproducer:
-> 
-> *** 0[   66.551916] ------------[ cut here ]------------
-> [   66.557855] WARNING: CPU: 3 PID: 1628 at kernel/futex.c:1584
-> do_futex+0x800/0x974
-> [   66.565457] Modules linked in: brcmv3d(O) wakeup_drv(O) bcmdriver(PO)
-> [   66.572048]
-> [   66.573609] CPU: 3 PID: 1628 Comm: boot Tainted: P           O
-> 4.9.262-1.22pre-g4c1466bf10ac #2
-> [   66.582693] Hardware name: BCX972160DV (DT)
-> [   66.586936] task: ffffffc07ae92280 task.stack: ffffffc0016ec000
-> [   66.592923] PC is at do_futex+0x800/0x974
-> [   66.596992] LR is at do_futex+0x784/0x974
-> [   66.601057] pc : [<ffffff800810f470>] lr : [<ffffff800810f3f4>]
-> pstate: 600001c5
-> [   66.608547] sp : ffffffc0016efd10
-> [   66.611912] x29: ffffffc0016efd10 x28: 0000000000000000
-> [   66.617313] x27: 000000000000065c x26: ffffffc0016efdf8
-> [   66.622713] x25: ffffffc079bf9090 x24: 000000008000065c
-> [   66.628112] x23: ffffffc0016ec000 x22: 0000000000000000
-> [   66.633511] x21: 000000000d72fbb0 x20: ffffffc079bf9080
-> [   66.638912] x19: 0000000000000001 x18: 0000000000000000
-> [   66.644313] x17: 0000007f845adfe8 x16: ffffff800810f5e4
-> [   66.649713] x15: 000017d28638a692 x14: 00055d4a5b4a1ca0
-> [   66.655114] x13: 000000000000012d x12: 0000000000000018
-> [   66.660514] x11: 000000001f758ce6 x10: 0000000000000042
-> [   66.665915] x9 : 003b9aca00000000 x8 : 0000000000000062
-> [   66.671314] x7 : 0000000000007070 x6 : 0000000000000000
-> [   66.676714] x5 : ffffffc079bf90b8 x4 : 0000000000000000
-> [   66.682112] x3 : 0000000000000001 x2 : 0000000000000000
-> [   66.687512] x1 : 0000000000000000 x0 : ffffff8009b0f7dd
-> [   66.692909]
-> [   66.694444] ---[ end trace cc7627749f0e27f6 ]---
-> [   66.699114] Call trace:
-> [   66.701614] Exception stack(0xffffffc0016efb10 to 0xffffffc0016efc40)
-> [   66.708121] fb00:                                   0000000000000001
-> 0000007fffffffff
-> [   66.712143] arm-scmi brcm_scmi@0: mbox timed out in resp(caller:
-> scmi_perf_level_set+0x80/0xc0)
-> [   66.712155] cpufreq: __target_index: Failed to change cpu frequency: -110
-> [   66.731690] fb20: ffffffc0016efd10 ffffff800810f470 00000000600001c5
-> 000000000000003d
-> [   66.739624] fb40: ffffffc079bf9090 ffffffc0016efdf8 000000000000065c
-> ffffff8009a26000
-> [   66.747559] fb60: ffffffc0016efb80 ffffff80080ddbec ffffffc0016efb90
-> ffffff80080cf2ac
-> [   66.755492] fb80: ffffff80099f6000 ffffff80080de170 ffffffc0016efc50
-> ffffff80080c88e8
-> [   66.763426] fba0: ffffffc07a6da280 ffffffc07a6da4a0 ffffffc0016efbc0
-> ffffff80083d531c
-> [   66.771360] fbc0: ffffffc0016efc00 ffffff800808e5c4 0000000000000008
-> 00000000000409ff
-> [   66.779295] fbe0: ffffff8009b0f7dd 0000000000000000 0000000000000000
-> 0000000000000001
-> [   66.787227] fc00: 0000000000000000 ffffffc079bf90b8 0000000000000000
-> 0000000000007070
-> [   66.795160] fc20: 0000000000000062 003b9aca00000000 0000000000000042
-> 000000001f758ce6
-> [   66.803095] [<ffffff800810f470>] do_futex+0x800/0x974
-> [   66.808211] [<ffffff800810f740>] SyS_futex+0x15c/0x184
-> [   66.813415] [<ffffff8008083180>] el0_svc_naked+0x34/0x38
-> 
-> other than that:
-> 
-> Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Hi!
 
-I thought the patches from Ben would help resolve this, but it looks
-like something else is still needed :(
+On Wed 17-03-21 14:02:43, Greg Kroah-Hartman wrote:
+> On Wed, Mar 17, 2021 at 01:40:55PM +0100, Salvatore Bonaccorso wrote:
+> > On Wed, Mar 17, 2021 at 11:11:04AM +0100, Greg KH wrote:
+> > > On Wed, Mar 17, 2021 at 11:21:23AM +0530, Rohit Keshri wrote:
+> > > > Hello Team,
+> > > > 
+> > > > A flaw was found in the Linux kernel. A denial of service problem is
+> > > > identified if an extent tree is corrupted in a crafted ext4 filesystem in
+> > > > fs/ext4/extents.c in ext4_es_cache_extent. Fabricating an integer overflow,
+> > > > A local attacker with a special user privilege may cause a system crash
+> > > > problem which can lead to an availability threat.
+> > > 
+> > > Please include what kernel version things like this were "found in" and
+> > > when it was fixed, otherwise you force everyone to go scramble just to
+> > > find that this was reported in July of 2020 and fixed then in the 5.9
+> > > kernel release and has already been backported to all relevant stable
+> > > kernel releases in August of last year.
 
-thanks for testing and letting me know.
+I absolutely second this. Please include in report if the problem is
+already fixed and which commit fixed it. Because I've just spent 20 minutes
+this morning searching my mailboxes because I remembered I've been fixing a
+problem that very much resembled this report but it took me a while to find
+our bugzilla... And it was me who actually fixed the bug a few months ago
+so I knew what to look for. When I have to deal with similar situation for
+problems I never heard of before it's even bigger waste of time and in some
+cases I'm not even sure I found the right problem.
 
-greg k-h
+> > > In other words, no one running an updated kernel version from kernel.org
+> > > is vulnerable today, right?  Are you saying that specific distro kernels
+> > > are vulnerable to this?  If so, which ones?
+> > 
+> > It might be missing in some stable trees from a quick check. I just
+> > checked the SUSE bug and it lists the following three relevant
+> > commits, whilst the last one seems the relevant one:
+> > 
+> > d176b1f62f24 "ext4: handle error of ext4_setup_system_zone() on remount"
+> > bf9a379d0980 "ext4: don't allow overlapping system zones"
+> > ce9f24cccdc0 "ext4: check journal inode extents more carefully"
+> > 
+> > ce9f24cccdc0 was indeed included in 5.9-rc2, and backported to
+> > 
+> > v5.7.18: 3b654d118548ef2bb212dca361a5d1d19707822d ext4: check journal inode extents more carefully
+> > v5.8.4: cfa678021a1bb6b5ce4aa45c865f2d3167646f89 ext4: check journal inode extents more carefully
+> > v5.9-rc2: ce9f24cccdc019229b70a5c15e2b09ad9c0ab5d1 ext4: check journal inode extents more carefully
+> > 
+> > Then though it has 
+> G> 
+> > Fixes: 0a944e8a6c66 ("ext4: don't perform block validity checks on the journal inode")
+> > 
+> > and 0a944e8a6c66 itself was backported to some of the stable series as
+> > well, I found:
+> > 
+> > v3.16.85: 71bfaf9e30125ec5b408fd328e412abf3b23214d ext4: don't perform block validity checks on the journal inode
+> > v4.14.178: fc3293a80acc469fbabc91bfbf2e65dc84377dc7 ext4: don't perform block validity checks on the journal inode
+> > v4.19.73: 97fbf573460e56ddf172614f70cdfa2af03b20ea ext4: don't perform block validity checks on the journal inode
+> > v4.4.221: 571fa68cacdf5fa70a6fdb71bda051f822d3cfb6 ext4: don't perform block validity checks on the journal inode
+> > v4.9.221: 2130aae807893cff163404bf6f6f6a4906dd14a1 ext4: don't perform block validity checks on the journal inode
+> > v5.2-rc2: 0a944e8a6c66ca04c7afbaa17e22bf208a8b37f0 ext4: don't perform block validity checks on the journal inode
+> > 
+> > So in the current still supported stable series, in 4.9.221, 4.14.178 and
+> > 4.19.73.
+> > 
+> > I just tried the reproducer from
+> > https://bugzilla.suse.com/show_bug.cgi?id=1173485 on a system with 4.19.177
+> > which so has not yet the 0a944e8a6c66 ("ext4: don't perform block validity
+> > checks on the journal inode") fix backported and it indeed causes:
+> > 
+> > [  224.003978] ------------[ cut here ]------------
+> > [  224.005052] kernel BUG at fs/ext4/extents_status.c:762!
+> > [  224.006659] invalid opcode: 0000 [#1] SMP PTI
+> > [  224.008378] CPU: 0 PID: 594 Comm: mount Not tainted 4.19.0-15-amd64 #1 Debian 4.19.177-1
+> > [  224.011292] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+> > [  224.014043] RIP: 0010:ext4_es_cache_extent+0xfe/0x100 [ext4]
+> > [  224.015770] Code: 48 8b 45 00 48 8b 7d 08 48 83 c5 18 48 89 e2 4c 89 e6 e8 a5 15 d8 d2 48 8b 45 00 48 85 c0 75 e4 e9 54 ff ff ff e8 a2 65 3f d2 <0f> 0b 0f 1f 44 00 00 41 55 49 89 fd 41 54 55 48 89 d5 53 89 f3 0f
+> > [  224.019834] RSP: 0018:ffffa7a840b8f958 EFLAGS: 00010213
+> > [  224.021034] RAX: 07ffffffffffffff RBX: 0000000000007ffd RCX: 0000ffffffffffff
+> > [  224.022658] RDX: 0000000000007fff RSI: 00000000ffffffff RDI: ffff940d78a78968
+> > [  224.024283] RBP: 0000000000007fff R08: 1000ffffffffffff R09: 00000000000002c9
+> > [  224.025913] R10: 00000000000002c9 R11: 0000000000000041 R12: ffff940d78a78968
+> > [  224.027549] R13: 00000000ffffffff R14: ffffffffffffffff R15: 00000000ffffffff
+> > [  224.029179] FS:  00007fe8d33fb100(0000) GS:ffff940d7ba00000(0000) knlGS:0000000000000000
+> > [  224.031011] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [  224.032354] CR2: 000056074c755878 CR3: 0000000135184001 CR4: 00000000001606f0
+> > [  224.033990] Call Trace:
+> > [  224.034634]  ext4_cache_extents+0x63/0xd0 [ext4]
+> > [  224.035712]  __read_extent_tree_block+0x111/0x160 [ext4]
+> > [  224.036665]  ? __kmalloc+0x180/0x220
+> > [  224.037343]  ? ext4_find_extent+0x144/0x320 [ext4]
+> > [  224.038247]  ext4_find_extent+0x144/0x320 [ext4]
+> > [  224.039144]  ext4_ext_map_blocks+0x6a/0xda0 [ext4]
+> > [  224.040063]  ? schedule+0x28/0x80
+> > [  224.040747]  ? __wait_on_bit+0x58/0x90
+> > [  224.041476]  ext4_map_blocks+0x2e4/0x5f0 [ext4]
+> > [  224.042350]  ? ext4_data_block_valid+0x1d/0x20 [ext4]
+> > [  224.043313]  ? __ext4_ext_check+0x238/0x3a0 [ext4]
+> > [  224.044261]  _ext4_get_block+0x8e/0x110 [ext4]
+> > [  224.045158]  ? unlock_new_inode+0x4e/0x60
+> > [  224.045960]  generic_block_bmap+0x4b/0x70
+> > [  224.046765]  jbd2_journal_init_inode+0x11/0xb0 [jbd2]
+> > [  224.047794]  ext4_fill_super+0x3052/0x3c70 [ext4]
+> > [  224.048730]  ? bdev_name.isra.6+0x2a/0xa0
+> > [  224.049530]  ? ext4_calculate_overhead+0x490/0x490 [ext4]
+> > [  224.050555]  ? snprintf+0x49/0x60
+> > [  224.051234]  ? ext4_calculate_overhead+0x490/0x490 [ext4]
+> > [  224.052309]  ? mount_bdev+0x177/0x1b0
+> > [  224.053074]  ? ext4_calculate_overhead+0x490/0x490 [ext4]
+> > [  224.054146]  mount_bdev+0x177/0x1b0
+> > [  224.054858]  mount_fs+0x3e/0x150
+> > [  224.055533]  vfs_kern_mount.part.36+0x54/0x120
+> > [  224.056394]  do_mount+0x20e/0xcc0
+> > [  224.057022]  ? _copy_from_user+0x37/0x60
+> > [  224.057781]  ? memdup_user+0x4b/0x70
+> > [  224.058530]  ksys_mount+0xb6/0xd0
+> > [  224.059231]  __x64_sys_mount+0x21/0x30
+> > [  224.059949]  do_syscall_64+0x53/0x110
+> > [  224.060631]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> > [  224.061531] RIP: 0033:0x7fe8d35f9fea
+> > [  224.062255] Code: 48 8b 0d a9 0e 0c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 0e 0c 00 f7 d8 64 89 01 48
+> > [  224.065741] RSP: 002b:00007ffcd2022e38 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
+> > [  224.067223] RAX: ffffffffffffffda RBX: 000056074c748fb0 RCX: 00007fe8d35f9fea
+> > [  224.068620] RDX: 000056074c751050 RSI: 000056074c7491e0 RDI: 000056074c7491c0
+> > [  224.069987] RBP: 00007fe8d39471c4 R08: 0000000000000000 R09: 0000000000000000
+> > [  224.071399] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+> > [  224.072764] R13: 0000000000000000 R14: 000056074c7491c0 R15: 000056074c751050
+> > [  224.074101] Modules linked in: loop sctp binfmt_misc crct10dif_pclmul crc32_pclmul ghash_clmulni_intel button virtio_console virtio_balloon evdev qemu_fw_cfg joydev pcspkr serio_raw nfsd auth_rpcgss nfs_acl lockd grace sunrpc ip_tables x_tables autofs4 ext4 crc16 mbcache jbd2 fscrypto ecb hid_generic usbhid hid btrfs xor zstd_decompress zstd_compress xxhash raid6_pq libcrc32c crc32c_generic dm_mod ata_generic virtio_net net_failover failover virtio_blk crc32c_intel ata_piix libata uhci_hcd ehci_pci ehci_hcd scsi_mod floppy aesni_intel usbcore psmouse aes_x86_64 crypto_simd cryptd glue_helper i2c_piix4 virtio_pci virtio_ring virtio usb_common
+> > [  224.084374] ---[ end trace a93d957244af62ea ]---
+> > [  224.085298] RIP: 0010:ext4_es_cache_extent+0xfe/0x100 [ext4]
+> > [  224.086402] Code: 48 8b 45 00 48 8b 7d 08 48 83 c5 18 48 89 e2 4c 89 e6 e8 a5 15 d8 d2 48 8b 45 00 48 85 c0 75 e4 e9 54 ff ff ff e8 a2 65 3f d2 <0f> 0b 0f 1f 44 00 00 41 55 49 89 fd 41 54 55 48 89 d5 53 89 f3 0f
+> > [  224.089834] RSP: 0018:ffffa7a840b8f958 EFLAGS: 00010213
+> > [  224.090832] RAX: 07ffffffffffffff RBX: 0000000000007ffd RCX: 0000ffffffffffff
+> > [  224.092181] RDX: 0000000000007fff RSI: 00000000ffffffff RDI: ffff940d78a78968
+> > [  224.093539] RBP: 0000000000007fff R08: 1000ffffffffffff R09: 00000000000002c9
+> > [  224.094899] R10: 00000000000002c9 R11: 0000000000000041 R12: ffff940d78a78968
+> > [  224.096264] R13: 00000000ffffffff R14: ffffffffffffffff R15: 00000000ffffffff
+> > [  224.097586] FS:  00007fe8d33fb100(0000) GS:ffff940d7ba00000(0000) knlGS:0000000000000000
+> > [  224.099144] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [  224.100284] CR2: 000056074c755878 CR3: 0000000135184001 CR4: 00000000001606f0
+> > 
+> > So likely the 4.9.y, 4.14.y and 4.19.y still have the bug?  Is this correct? I
+> > only quickly skimmed over the report, but this seems to be the case.
+> 
+> It's hard to tell if those older kernels have this issue as the fix for
+> this does not apply at all, and even SUSE didn't backport the change as
+> it didn't seem relevant to them.
+
+Yes, they do have the problem. In fact I'm just testing a backport to 4.4
+kernel (which is as far as I can be bothered to backport this). We (as in
+SUSE) actually did backport the fixes to all "proactively maintained"
+branches at the time fixes were merged upstream. Which also included
+SLE15-SP1 based on 4.12 kernel.
+
+> But I'll gladly take backports if someone wants to provide them :)
+
+I'll check whether the backports I have do apply to -stable branches and
+forward them to you.
+
+> Do distros consider "mounting untrusted ext4 filesystem images" a valid
+> thing to worry about?  If so, that is against what the ext4 developers
+> have said in the past from what I recall, so that might be good to get
+> straightened out, and maybe why SUSE didn't assign a CVE for this...
+
+This is kind of a grey area. On one hand ext4 developers make it clear that
+mounting untrusted images is not safe. That's also why we (as in SUSE)
+didn't bother with CVE for the bug when it was originally found. On the
+other hand the reality is that especially for desktop / laptop users this
+can easily happen (most users have automount of plugged-in storage enabled
+in their desktop environment). So if ext4 developers learn about a problem,
+they try to fix it and in SUSE we tend to backport those fixes to all
+"community" distros that are still actively maintained. For server distros
+it's a judgement call as there mounting untrusted fs images is much less
+probable.
+
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
