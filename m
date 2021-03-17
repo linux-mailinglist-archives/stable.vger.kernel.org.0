@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 571BA33E399
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 054D233E394
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230439AbhCQA5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33420 "EHLO mail.kernel.org"
+        id S230129AbhCQA5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:57:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230408AbhCQA4W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:56:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85CDD64F9C;
-        Wed, 17 Mar 2021 00:56:21 +0000 (UTC)
+        id S230410AbhCQA4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:56:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B049464FAE;
+        Wed, 17 Mar 2021 00:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942582;
-        bh=gCSM7zXPV0rFpWt6rmRxAH+zhgyqSS6xO4K+3HZN9OE=;
+        s=k20201202; t=1615942583;
+        bh=loSHwK2MBX8jk4o2QA+i+HmRZZgkfxNoedrsqCKiIZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L6fFwkcUzmDubFhWJ/VqmOsrYaKy+Jm6XtJHNKnTh5/E8v3siO3bFOjGGj2pDH712
-         Gn+L31qpIzqBRcOv4O+t1EpebdFCcHVv+IrhJ0wOUGEPNabOCaKsWrfgJ+nOxolBir
-         q95qud5sbYmAjn6/4bq2xE2ogzkNzHOCyhOsbH4iwigC1iEbT0YMolvChqvz76mAW1
-         Qf8OFHWLpeUbzv/fNSYCAOYUkc+f2gywh9axeIcBS7u75n73HOmcIiOgtIhoEYZXom
-         Sl2ZfLv4HgBtMbPDOsj4d/qJQYBtw3upPXn6v9odElryu/xtLLMQ00tWd2U2UxbVud
-         B4wuLfvR4LZRw==
+        b=YV2Lg8y2uwicFNZI0+8HxVgreKQNKHt5gHOZhHohVRtb3GjcL4cGWLuNhR3IRPOxl
+         Wy0FmNGSMwcQ1SfPKT8KfTxFqSjor9TGqTAU83YsjWOw+8uR6/GM1u2YvU1z4m/KTc
+         lzEZ23bhLfTXdAaxC9bFxVj9oaYF+xzqo5nFgcincx4ctHkMbCL1vfJYdKCdnzJpEO
+         x949tcv0r4LhSh/o/AM6bELfogHKJ2W5JUEAr17H23YmJXnZoG/1UezH61Ni2YQ3mc
+         jPJrlTAFkqUH/+vtpdfNR0LrZoYEmx+2P2ppxyBcSwpbVNNCXCKf3lDJCTW80vT5UT
+         MaILj/xqvq6Bw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "Erhard F." <erhard_f@mailbox.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.11 38/61] u64_stats,lockdep: Fix u64_stats_init() vs lockdep
-Date:   Tue, 16 Mar 2021 20:55:12 -0400
-Message-Id: <20210317005536.724046-38-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 39/61] kselftest: arm64: Fix exit code of sve-ptrace
+Date:   Tue, 16 Mar 2021 20:55:13 -0400
+Message-Id: <20210317005536.724046-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -43,62 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit d5b0e0677bfd5efd17c5bbb00156931f0d41cb85 ]
+[ Upstream commit 07e644885bf6727a48db109fad053cb43f3c9859 ]
 
-Jakub reported that:
+We track if sve-ptrace encountered a failure in a variable but don't
+actually use that value when we exit the program, do so.
 
-    static struct net_device *rtl8139_init_board(struct pci_dev *pdev)
-    {
-	    ...
-	    u64_stats_init(&tp->rx_stats.syncp);
-	    u64_stats_init(&tp->tx_stats.syncp);
-	    ...
-    }
-
-results in lockdep getting confused between the RX and TX stats lock.
-This is because u64_stats_init() is an inline calling seqcount_init(),
-which is a macro using a static variable to generate a lockdep class.
-
-By wrapping that in an inline, we negate the effect of the macro and
-fold the static key variable, hence the confusion.
-
-Fix by also making u64_stats_init() a macro for the case where it
-matters, leaving the other case an inline for argument validation
-etc.
-
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Debugged-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: "Erhard F." <erhard_f@mailbox.org>
-Link: https://lkml.kernel.org/r/YEXicy6+9MksdLZh@hirez.programming.kicks-ass.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210309190304.39169-1-broonie@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/u64_stats_sync.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ tools/testing/selftests/arm64/fp/sve-ptrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
-index c6abb79501b3..e81856c0ba13 100644
---- a/include/linux/u64_stats_sync.h
-+++ b/include/linux/u64_stats_sync.h
-@@ -115,12 +115,13 @@ static inline void u64_stats_inc(u64_stats_t *p)
- }
- #endif
+diff --git a/tools/testing/selftests/arm64/fp/sve-ptrace.c b/tools/testing/selftests/arm64/fp/sve-ptrace.c
+index b2282be6f938..612d3899614a 100644
+--- a/tools/testing/selftests/arm64/fp/sve-ptrace.c
++++ b/tools/testing/selftests/arm64/fp/sve-ptrace.c
+@@ -332,5 +332,5 @@ int main(void)
  
-+#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
-+#define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
-+#else
- static inline void u64_stats_init(struct u64_stats_sync *syncp)
- {
--#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
--	seqcount_init(&syncp->seq);
--#endif
- }
-+#endif
+ 	ksft_print_cnts();
  
- static inline void u64_stats_update_begin(struct u64_stats_sync *syncp)
- {
+-	return 0;
++	return ret;
+ }
 -- 
 2.30.1
 
