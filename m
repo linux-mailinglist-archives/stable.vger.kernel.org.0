@@ -2,160 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B97A133EFCD
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 12:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C6B33EFEA
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 13:01:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230051AbhCQLuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Mar 2021 07:50:52 -0400
-Received: from foss.arm.com ([217.140.110.172]:58196 "EHLO foss.arm.com"
+        id S231389AbhCQMA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Mar 2021 08:00:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231452AbhCQLuk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Mar 2021 07:50:40 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BF636D6E;
-        Wed, 17 Mar 2021 04:50:39 -0700 (PDT)
-Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id B10773F70D;
-        Wed, 17 Mar 2021 04:50:38 -0700 (PDT)
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     stable@vger.kernel.org
-Cc:     suzuki.poulose@arm.com, maz@kernel.org, catalin.marinas@arm.com,
-        will@kernel.org, alexandru.elisei@arm.com, christoffer.dall@arm.com
-Subject: [PATCH] KVM: arm64: nvhe: Save the SPE context early
-Date:   Wed, 17 Mar 2021 11:50:31 +0000
-Message-Id: <20210317115031.4124163-1-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <161579814447215@kroah.com>
-References: <161579814447215@kroah.com>
+        id S230057AbhCQMAA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Mar 2021 08:00:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B21464F3E;
+        Wed, 17 Mar 2021 11:59:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615982400;
+        bh=xSVBdXu5VPRqnvQvB+ZgwMaBE4RPbLYCP8O+B3jDrpQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XS9O7WOpbB3AHU/Zlbo4rooZVcbzMmA5zP5JUCna0khkKLo8SXUU/wAAuhfGhhtWp
+         tpn68QwZPtfJylrre9dacscdrIalbEJC7zWbYUqp/vxKQ+J8f7hD+D3MrTv4I8dYw9
+         hj/2h9D+IRNhFqtdBYYEhSJweoyd/Gzvg4lK2VuQmCFBzBK+x1S481EpR9/+D8d1dI
+         D7CCyFuh/AH7BkBD68n4Res62DS1ca8Hjqy/WlrcVtsB2Gsz/XSY0XmTDKmwDUthhX
+         Y4BV1eIAjE2VIoBiB3l+6Ar+NEzQ78qlxF8wsdx0FZYgyt/KSV15K9pWbIs10C78VY
+         kifPvH5YIHxEg==
+From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+To:     Bjorn Helgaas <helgaas@kernel.org>, linux-pci@vger.kernel.org
+Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        =?UTF-8?q?R=C3=B6tti?= 
+        <espressobinboardarmbiantempmailaddress@posteo.de>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] PCI: Add Max Payload Size quirk for ASMedia ASM1062 SATA controller
+Date:   Wed, 17 Mar 2021 12:59:24 +0100
+Message-Id: <20210317115924.31885-1-kabel@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b96b0c5de685df82019e16826a282d53d86d112c upstream
+The ASMedia ASM1062 SATA controller causes an External Abort on
+controllers which support Max Payload Size >= 512. It happens with
+Aardvark PCIe controller (tested on Turris MOX) and also with DesignWare
+controller (armada8k, tested on CN9130-CRB):
 
-The nVHE KVM hyp drains and disables the SPE buffer, before
-entering the guest, as the EL1&0 translation regime
-is going to be loaded with that of the guest.
+  ata1: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+  ata1.00: ATA-9: WDC WD40EFRX-68WT0N0, 80.00A80, max UDMA/133
+  ata1.00: 7814037168 sectors, multi 0: LBA48 NCQ (depth 32), AA
+  ERROR:   Unhandled External Abort received on 0x80000000 at EL3!
+  ERROR:    exception reason=1 syndrome=0x92000210
+  PANIC at PC : 0x00000000040273bc
 
-But this operation is performed way too late, because :
- - The owning translation regime of the SPE buffer
-   is transferred to EL2. (MDCR_EL2_E2PB == 0)
- - The guest Stage1 is loaded.
+Limiting Max Payload Size to 256 bytes solves this problem.
 
-Thus the flush could use the host EL1 virtual address,
-but use the EL2 translations instead of host EL1, for writing
-out any cached data.
+On Turris MOX this problem first appeared when the pci-aardvark
+controller started using the pci-emul-bridge API, in commit 8a3ebd8de328
+("PCI: aardvark: Implement emulated root PCI bridge config space").
 
-Fix this by moving the SPE buffer handling early enough.
-The restore path is doing the right thing.
+On armada8k this was always a problem because it has HW root bridge.
 
-Cc: stable@vger.kernel.org # v4.19
-Cc: Christoffer Dall <christoffer.dall@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Reported-by: Rötti <espressobinboardarmbiantempmailaddress@posteo.de>
+Cc: Pali Rohár <pali@kernel.org>
+Cc: stable@vger.kernel.org
 ---
- arch/arm64/include/asm/kvm_hyp.h |  3 +++
- arch/arm64/kvm/hyp/debug-sr.c    | 24 +++++++++++++++---------
- arch/arm64/kvm/hyp/switch.c      |  4 +++-
- 3 files changed, 21 insertions(+), 10 deletions(-)
+ drivers/pci/quirks.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
-index 384c34397619..5f52d6d670e9 100644
---- a/arch/arm64/include/asm/kvm_hyp.h
-+++ b/arch/arm64/include/asm/kvm_hyp.h
-@@ -144,6 +144,9 @@ void __sysreg32_restore_state(struct kvm_vcpu *vcpu);
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 653660e3ba9e..a561136efb08 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3251,6 +3251,11 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+ 			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+ 			 PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
++/*
++ * For some reason DECLARE_PCI_FIXUP_HEADER does not work with pci-aardvark
++ * controller. We have to use DECLARE_PCI_FIXUP_EARLY.
++ */
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_ASMEDIA, 0x0612, fixup_mpss_256);
  
- void __debug_switch_to_guest(struct kvm_vcpu *vcpu);
- void __debug_switch_to_host(struct kvm_vcpu *vcpu);
-+void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+
- 
- void __fpsimd_save_state(struct user_fpsimd_state *fp_regs);
- void __fpsimd_restore_state(struct user_fpsimd_state *fp_regs);
-diff --git a/arch/arm64/kvm/hyp/debug-sr.c b/arch/arm64/kvm/hyp/debug-sr.c
-index 50009766e5e5..3c5414633bb7 100644
---- a/arch/arm64/kvm/hyp/debug-sr.c
-+++ b/arch/arm64/kvm/hyp/debug-sr.c
-@@ -149,6 +149,21 @@ static void __hyp_text __debug_restore_state(struct kvm_vcpu *vcpu,
- 	write_sysreg(ctxt->sys_regs[MDCCINT_EL1], mdccint_el1);
- }
- 
-+void __hyp_text __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu)
-+{
-+	/*
-+	 * Non-VHE: Disable and flush SPE data generation
-+	 * VHE: The vcpu can run, but it can't hide.
-+	 */
-+	__debug_save_spe_nvhe(&vcpu->arch.host_debug_state.pmscr_el1);
-+
-+}
-+
-+void __hyp_text __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu)
-+{
-+	__debug_restore_spe_nvhe(vcpu->arch.host_debug_state.pmscr_el1);
-+}
-+
- void __hyp_text __debug_switch_to_guest(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_cpu_context *host_ctxt;
-@@ -156,13 +171,6 @@ void __hyp_text __debug_switch_to_guest(struct kvm_vcpu *vcpu)
- 	struct kvm_guest_debug_arch *host_dbg;
- 	struct kvm_guest_debug_arch *guest_dbg;
- 
--	/*
--	 * Non-VHE: Disable and flush SPE data generation
--	 * VHE: The vcpu can run, but it can't hide.
--	 */
--	if (!has_vhe())
--		__debug_save_spe_nvhe(&vcpu->arch.host_debug_state.pmscr_el1);
--
- 	if (!(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY))
- 		return;
- 
-@@ -182,8 +190,6 @@ void __hyp_text __debug_switch_to_host(struct kvm_vcpu *vcpu)
- 	struct kvm_guest_debug_arch *host_dbg;
- 	struct kvm_guest_debug_arch *guest_dbg;
- 
--	if (!has_vhe())
--		__debug_restore_spe_nvhe(vcpu->arch.host_debug_state.pmscr_el1);
- 
- 	if (!(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY))
- 		return;
-diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
-index 15312e429b7d..1d16ce0b7e0d 100644
---- a/arch/arm64/kvm/hyp/switch.c
-+++ b/arch/arm64/kvm/hyp/switch.c
-@@ -560,6 +560,7 @@ int __hyp_text __kvm_vcpu_run_nvhe(struct kvm_vcpu *vcpu)
- 	guest_ctxt = &vcpu->arch.ctxt;
- 
- 	__sysreg_save_state_nvhe(host_ctxt);
-+	__debug_save_host_buffers_nvhe(vcpu);
- 
- 	__activate_traps(vcpu);
- 	__activate_vm(kern_hyp_va(vcpu->kvm));
-@@ -599,11 +600,12 @@ int __hyp_text __kvm_vcpu_run_nvhe(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.flags & KVM_ARM64_FP_ENABLED)
- 		__fpsimd_save_fpexc32(vcpu);
- 
-+	__debug_switch_to_host(vcpu);
- 	/*
- 	 * This must come after restoring the host sysregs, since a non-VHE
- 	 * system may enable SPE here and make use of the TTBRs.
- 	 */
--	__debug_switch_to_host(vcpu);
-+	__debug_restore_host_buffers_nvhe(vcpu);
- 
- 	return exit_code;
- }
+ /*
+  * Intel 5000 and 5100 Memory controllers have an erratum with read completion
 -- 
-2.24.1
+2.26.2
 
