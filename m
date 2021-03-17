@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 972BA33E443
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:01:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 560D033E445
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbhCQA65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:58:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37408 "EHLO mail.kernel.org"
+        id S232211AbhCQA66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:58:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231834AbhCQA55 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231833AbhCQA55 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 16 Mar 2021 20:57:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 964DF64FAB;
-        Wed, 17 Mar 2021 00:57:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1106164FBC;
+        Wed, 17 Mar 2021 00:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942669;
-        bh=zXDvDrsI7DZqLvWUzsmNVMneCGiNA5TIvblrEDA+K/k=;
+        s=k20201202; t=1615942670;
+        bh=yFRTegtSzKBQvthZpm4ZsW52ysmmsTXaRrKe02Y/fdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dT2aK8CosXSVaVSskmCptDDLhSKYoH+fG+4OB0oQ+aBrJ+CHMT05b2CuBui0Ii5p1
-         4RBKT+rj1waWdNnfRbb6TUWrgaPLMg+ycdpj5ZF9vBLU33g7ztZ/OYD3mZ2lywMnMF
-         qJOaTX8YG0M+zDKARtrO+GDMultMPUsff1DU68pprOvh9Togz82bYureBC6IgS9UAk
-         NRmrFJPn5WPoX9+uWnqTvhuG9R+wiDWSvvFoifwzDjtaKe65pn/hg8bfom+P7WQR75
-         vmtihmSeH7/PvTAppfRsnlxAruDQxlqOhOiNEKbqpoHtgd3RgOfn4iajQKx6Y8mtU9
-         KDqYxrFIAkI5g==
+        b=kTdbgv5/b9+NT8PhPjAJ/YFELDSZtmL1dDltz9sRrmcGEyFA7mjR0VFu6KfnVbATF
+         W0kkhPT9sRWt6TwwrcCH7HHnenOKKZIdXTa8PEqdVXU8iIme+aVqSVr9sb6WoAPYHW
+         SR69+FBWWelCEmFVIpXZdj/I6QOIXk5Qt4dKPWcAce1N52bcV0HrTK37JpXtujmEZF
+         8V0gvrnNhpBHFiqDONhN6+vfbBO25dQE71RYOXLmg65/nuqU2G9hg3RpVocVzFgqSF
+         yfCNj44OvS5Yrlk4gFXwx/D6F+bjdW3rqC2sJTD7Wz490aLiNqG4UgX9XicvtwFxoe
+         Pqo/DLoFZtiqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
+Cc:     Hannes Reinecke <hare@suse.de>, Sagi Grimberg <sagi@grimberg.me>,
         James Smart <jsmart2021@gmail.com>,
         Daniel Wagner <dwagner@suse.de>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 45/54] nvme-fc: set NVME_REQ_CANCELLED in nvme_fc_terminate_exchange()
-Date:   Tue, 16 Mar 2021 20:56:44 -0400
-Message-Id: <20210317005654.724862-45-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 46/54] nvme-fc: return NVME_SC_HOST_ABORTED_CMD when a command has been aborted
+Date:   Tue, 16 Mar 2021 20:56:45 -0400
+Message-Id: <20210317005654.724862-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
@@ -47,35 +46,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 3c7aafbc8d3d4d90430dfa126847a796c3e4ecfc ]
+[ Upstream commit ae3afe6308b43bbf49953101d4ba2c1c481133a8 ]
 
-nvme_fc_terminate_exchange() is being called when exchanges are
-being deleted, and as such we should be setting the NVME_REQ_CANCELLED
-flag to have identical behaviour on all transports.
+When a command has been aborted we should return NVME_SC_HOST_ABORTED_CMD
+to be consistent with the other transports.
 
 Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Reviewed-by: James Smart <jsmart2021@gmail.com>
 Reviewed-by: Daniel Wagner <dwagner@suse.de>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/fc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 5ead217ac2bc..a107032da3c2 100644
+index a107032da3c2..8bc0bd4bd7ab 100644
 --- a/drivers/nvme/host/fc.c
 +++ b/drivers/nvme/host/fc.c
-@@ -2443,6 +2443,7 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
- 	struct nvme_fc_ctrl *ctrl = to_fc_ctrl(nctrl);
- 	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(req);
+@@ -1956,7 +1956,7 @@ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
+ 				sizeof(op->rsp_iu), DMA_FROM_DEVICE);
  
-+	op->nreq.flags |= NVME_REQ_CANCELLED;
- 	__nvme_fc_abort_op(ctrl, op);
- 	return true;
- }
+ 	if (opstate == FCPOP_STATE_ABORTED)
+-		status = cpu_to_le16(NVME_SC_HOST_PATH_ERROR << 1);
++		status = cpu_to_le16(NVME_SC_HOST_ABORTED_CMD << 1);
+ 	else if (freq->status) {
+ 		status = cpu_to_le16(NVME_SC_HOST_PATH_ERROR << 1);
+ 		dev_info(ctrl->ctrl.device,
 -- 
 2.30.1
 
