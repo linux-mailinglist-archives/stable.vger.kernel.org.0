@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5513533E3AF
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3103133E3B3
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231592AbhCQA5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231600AbhCQA5U (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Mar 2021 20:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34382 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231260AbhCQA4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:56:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE42C64FA7;
-        Wed, 17 Mar 2021 00:56:47 +0000 (UTC)
+        id S231270AbhCQA4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:56:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D16C164FB5;
+        Wed, 17 Mar 2021 00:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942608;
-        bh=+CwnKyllOnrKa6GKwufWTwtdhNse9QcWlCOa11yIUbI=;
+        s=k20201202; t=1615942609;
+        bh=3/wl8SqK+8bZkv/ztqqTvLskLEFzNzPzMf7mkkqotEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzB3UF37P6VKgKGYhzI8+Hq+qs4GiWpUC2lfz5VqnvQ+hIIQxoeV2ohu9a/VTFnLE
-         BEDN19BCf206lLXjWUpOk3Y+FQDsvSCgEapAc3APF4lNNspcQZhCo7vzoFWta3Gz4H
-         8AswIufCYRf9OUIDheivU1tmh0yF76++ZpjwEEgDSGHjDrQjxxGYKa/YsUwDHfQT6N
-         yhP+Pxh31J5QczA0IgtWWOQKbn4ZVIQGEfpj8FOu0QCT5mdH/dfCZfpDF0kiXkdG5X
-         h0dcADjO9Sdzeljrp7C8+vz3y26vXQoSP/Rkn/OJJyU+AUdLlhWTrO5oMaJigIugiM
-         XdZpQ3/5ejh6Q==
+        b=lpY0nwDYYUtCNhmcAE4XqVd9Alri20lV1u667kBUO0hRD8n5zV2YRJwFO5q/RdGCf
+         HvT1QlogfwhyHPK30J7kA2areDnkUxExN1N1IxgPK/Jwey6ge7CItiibfzXo+zBdX0
+         l6g0Vn1GnOcrquvFhUe3R4epPptMLQF+fRgIrehhMCfGAjN/uqreDyCcqa5TCd1qSV
+         WlaCKl2oPCVb70CKTXv4q0yfqHewDUpr4zufnPpM0MtdOnl5hUVQxaKi6+loppEuih
+         +t/a6oIknlP7+JzjvtF0SsfMCk+B6arNj1PMcsWTOk/F6/rkLrdWR9iFExEh9yoJ9o
+         Llw0u7+0rY1mA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 58/61] io_uring: cancel deferred requests in try_cancel
-Date:   Tue, 16 Mar 2021 20:55:32 -0400
-Message-Id: <20210317005536.724046-58-sashal@kernel.org>
+Cc:     Fenghua Yu <fenghua.yu@intel.com>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Jacob Pan <jacob.jun.pan@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 59/61] mm/fork: clear PASID for new mm
+Date:   Tue, 16 Mar 2021 20:55:33 -0400
+Message-Id: <20210317005536.724046-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -42,73 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit e1915f76a8981f0a750cf56515df42582a37c4b0 ]
+[ Upstream commit 82e69a121be4b1597ce758534816a8ee04c8b761 ]
 
-As io_uring_cancel_files() and others let SQO to run between
-io_uring_try_cancel_requests(), SQO may generate new deferred requests,
-so it's safer to try to cancel them in it.
+When a new mm is created, its PASID should be cleared, i.e.  the PASID is
+initialized to its init state 0 on both ARM and X86.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This patch was part of the series introducing mm->pasid, but got lost
+along the way [1].  It still makes sense to have it, because each address
+space has a different PASID.  And the IOMMU code in
+iommu_sva_alloc_pasid() expects the pasid field of a new mm struct to be
+cleared.
+
+[1] https://lore.kernel.org/linux-iommu/YDgh53AcQHT+T3L0@otcwcpicx3.sc.intel.com/
+
+Link: https://lkml.kernel.org/r/20210302103837.2562625-1-jean-philippe@linaro.org
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ include/linux/mm_types.h | 1 +
+ kernel/fork.c            | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 241313278e5a..89708ffc1c2b 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8848,11 +8848,11 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
- 	return ret;
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 07d9acb5b19c..61c77cfff8c2 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -23,6 +23,7 @@
+ #endif
+ #define AT_VECTOR_SIZE (2*(AT_VECTOR_SIZE_ARCH + AT_VECTOR_SIZE_BASE + 1))
+ 
++#define INIT_PASID	0
+ 
+ struct address_space;
+ struct mem_cgroup;
+diff --git a/kernel/fork.c b/kernel/fork.c
+index d66cd1014211..808af2cc8ab6 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -994,6 +994,13 @@ static void mm_init_owner(struct mm_struct *mm, struct task_struct *p)
+ #endif
  }
  
--static void io_cancel_defer_files(struct io_ring_ctx *ctx,
-+static bool io_cancel_defer_files(struct io_ring_ctx *ctx,
- 				  struct task_struct *task,
- 				  struct files_struct *files)
++static void mm_init_pasid(struct mm_struct *mm)
++{
++#ifdef CONFIG_IOMMU_SUPPORT
++	mm->pasid = INIT_PASID;
++#endif
++}
++
+ static void mm_init_uprobes_state(struct mm_struct *mm)
  {
--	struct io_defer_entry *de = NULL;
-+	struct io_defer_entry *de;
- 	LIST_HEAD(list);
- 
- 	spin_lock_irq(&ctx->completion_lock);
-@@ -8863,6 +8863,8 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
- 		}
- 	}
- 	spin_unlock_irq(&ctx->completion_lock);
-+	if (list_empty(&list))
-+		return false;
- 
- 	while (!list_empty(&list)) {
- 		de = list_first_entry(&list, struct io_defer_entry, list);
-@@ -8872,6 +8874,7 @@ static void io_cancel_defer_files(struct io_ring_ctx *ctx,
- 		io_req_complete(de->req, -ECANCELED);
- 		kfree(de);
- 	}
-+	return true;
- }
- 
- static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
-@@ -8898,6 +8901,7 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 			}
- 		}
- 
-+		ret |= io_cancel_defer_files(ctx, task, files);
- 		ret |= io_poll_remove_all(ctx, task, files);
- 		ret |= io_kill_timeouts(ctx, task, files);
- 		ret |= io_run_task_work();
-@@ -8976,8 +8980,6 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 		io_sq_thread_park(ctx->sq_data);
- 	}
- 
--	io_cancel_defer_files(ctx, task, files);
--
- 	io_uring_cancel_files(ctx, task, files);
- 	if (!files)
- 		io_uring_try_cancel_requests(ctx, task, NULL);
+ #ifdef CONFIG_UPROBES
+@@ -1024,6 +1031,7 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
+ 	mm_init_cpumask(mm);
+ 	mm_init_aio(mm);
+ 	mm_init_owner(mm, p);
++	mm_init_pasid(mm);
+ 	RCU_INIT_POINTER(mm->exe_file, NULL);
+ 	mmu_notifier_subscriptions_init(mm);
+ 	init_tlb_flush_pending(mm);
 -- 
 2.30.1
 
