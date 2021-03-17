@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C213C33E53C
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B24C33E53E
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231578AbhCQBCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 21:02:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41678 "EHLO mail.kernel.org"
+        id S231719AbhCQBCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231548AbhCQA76 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:59:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C742264F9C;
-        Wed, 17 Mar 2021 00:59:57 +0000 (UTC)
+        id S231714AbhCQBAA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 21:00:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7ACB64FA8;
+        Wed, 17 Mar 2021 00:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942798;
-        bh=RMOjAYX1vm174Y9ksn1z6Hf+kiX9gRDRZjgDW5Hq9zA=;
+        s=k20201202; t=1615942799;
+        bh=O+bGaQbgppl7EBlZBXLS8rnc8WcSz3t4LTbgzH+Wb1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVPQRgYNlVr7rUlJZWeN4plQR/kBT0Ps2XuI9kIPLY7yY8qkWxPYxUXLPyV+b0G4j
-         LPDA49eF6MHe/u4ZlZq5xmvgTPM8D10PA1ukQeT4N01Qq7JjVXPP1vQTE+HmpoC8Mx
-         fYs5+bD2+jVbnMkH0E8/YBLm0Sqw4dDrLcP8CNyI/tUSSYPgpnyj660li5tjQ73+f2
-         9gQd7EhXAaV6snwfSphoNo5jlAL0oVo3h2jPaXBnjEzKHW3GXW/QWiqllC0NHOMguI
-         rSx2rie599iv45D5w655Ix2MTLquqxmEER9/5mbRkyv4YgVkg/+Bbv5BoeVLNqygS3
-         CsNxkgpSa4dXw==
+        b=ENtrAVPQ1q8CzsljIKq6RNO6Sqvu5YCXMUtPJq3fmOsggQPfV6Yo14o4rEXDZ7NUb
+         EWq5ybkPSG/6hXPYpcvwLeE4gAiv8WG5MNNr7+Wk3WBmVC7aDcvyHU5ISEYp/7xtUD
+         2W5OFZJb0pRuKmQWURlaFKY2gbia2/pWVV4S3N7eA1cir78E2fhFS1/i8gF0rRARH1
+         r980PdvIdFvXOfddPX8jzFJIE2QCGRvldSiTPmQ2pSoGHjblm9DNfhnv4B1yRHx5bR
+         3ETPUhIkhsBoV6IPTLVB6IuzHegt+c9Gz+Wau2DOudYHQOyRHeLnEfI4bGD16gFQ1F
+         AM+9TTapghyYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Timo Rothenpieler <timo@rothenpieler.org>,
+Cc:     Frank Sorenson <sorenson@redhat.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 08/16] nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
-Date:   Tue, 16 Mar 2021 20:59:39 -0400
-Message-Id: <20210317005948.727250-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 09/16] NFS: Correct size calculation for create reply length
+Date:   Tue, 16 Mar 2021 20:59:40 -0400
+Message-Id: <20210317005948.727250-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005948.727250-1-sashal@kernel.org>
 References: <20210317005948.727250-1-sashal@kernel.org>
@@ -42,34 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timo Rothenpieler <timo@rothenpieler.org>
+From: Frank Sorenson <sorenson@redhat.com>
 
-[ Upstream commit a0590473c5e6c4ef17c3132ad08fbad170f72d55 ]
+[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
 
-This follows what was done in 8c2fabc6542d9d0f8b16bd1045c2eda59bdcde13.
-With the default being m, it's impossible to build the module into the
-kernel.
+CREATE requests return a post_op_fh3, rather than nfs_fh3. The
+post_op_fh3 includes an extra word to indicate 'handle_follows'.
 
-Signed-off-by: Timo Rothenpieler <timo@rothenpieler.org>
+Without that additional word, create fails when full 64-byte
+filehandles are in use.
+
+Add NFS3_post_op_fh_sz, and correct the size calculation for
+NFS3_createres_sz.
+
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs3xdr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
-index c3428767332c..55ebf9f4a824 100644
---- a/fs/nfs/Kconfig
-+++ b/fs/nfs/Kconfig
-@@ -132,7 +132,7 @@ config PNFS_OBJLAYOUT
- config PNFS_FLEXFILE_LAYOUT
- 	tristate
- 	depends on NFS_V4_1 && NFS_V3
--	default m
-+	default NFS_V4
- 
- config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
- 	string "NFSv4.1 Implementation ID Domain"
+diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
+index 267126d32ec0..4a68837e92ea 100644
+--- a/fs/nfs/nfs3xdr.c
++++ b/fs/nfs/nfs3xdr.c
+@@ -33,6 +33,7 @@
+  */
+ #define NFS3_fhandle_sz		(1+16)
+ #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
++#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
+ #define NFS3_sattr_sz		(15)
+ #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
+ #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
+@@ -70,7 +71,7 @@
+ #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1)
+ #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3)
+ #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
+-#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
++#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
+ #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2)
 -- 
 2.30.1
 
