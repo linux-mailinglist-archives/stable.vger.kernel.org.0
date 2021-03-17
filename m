@@ -2,84 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA1933E74D
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 04:01:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 167D233E752
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 04:01:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229578AbhCQDAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 23:00:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46166 "EHLO
+        id S229506AbhCQDBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 23:01:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229506AbhCQDAF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 23:00:05 -0400
-Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B240C06174A;
-        Tue, 16 Mar 2021 20:00:05 -0700 (PDT)
-Received: by mail-il1-x12e.google.com with SMTP id z9so131181ilb.4;
-        Tue, 16 Mar 2021 20:00:05 -0700 (PDT)
+        with ESMTP id S229791AbhCQDBH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 23:01:07 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A9AC06174A;
+        Tue, 16 Mar 2021 20:01:06 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id ga23-20020a17090b0397b02900c0b81bbcd4so2446714pjb.0;
+        Tue, 16 Mar 2021 20:01:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=silnVe9ISkW1MzdW3HoXebDGYh3xBxheNKdrdq0TAHE=;
-        b=rP8ZdkFZawbfswT7Onpdqepr56qVNKTao93gvDECs8qr6vJXCQYMtWOYA3oVwCTeV3
-         V9+I5MKblSUojnxBr3j+2/2pS2tcmw/hI+7Mh9xqJNBJ2mg7mCQuu8F1mMufMHQisor8
-         3TVBnjGrOwet+KpAR6tA7K7Yoqyk+fH0wuNOnBZkF44sLihoQyudFmiEDdnwtHVYTXV6
-         vP88TjNH3S08DutsqTMjtG1J0M0Eht3wCPTzomqQDBZ98ftAoyNm2FU73eFmL7Xi2BKO
-         i4INm7DPCJQ6KyGf/lUxcKldN0JXh/oqrX9MUkgdKmmsNxlgXSnhyu/paVOFEqwQF2gD
-         4TTQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=SdsTMooi92NRcHVBy2PnTkunRKL2Xu7qbGA9O+vVbVs=;
+        b=qvudIyZjNxfmcqJ1XR4pcxRCER9jHiYC34auqQtUwvQvh+AUwZrzaP1UW1rZu7v0Kn
+         P1JlU+QDEDF+Zp5laM3KXXphoFlZOjapBwGWmi84XRPNws0BjB+uh9csDWgWJMOsbPZb
+         FrCCldrbdd5Aw9xdIcIq2+nOXZBzsfTPweZ5hbiz0Mot2FZ9Mq0UzRvjY/adkT6/+pqk
+         OhftmJWRw3WcmFLgmv6gNec+UCu/mv+gdZellopMNBDQOzBysBF0aoiEVojzSlljuGH/
+         3nUsIMXMYJtbVeKd+IFULk5Kkv5PoZ1zJqmFJ6xrnvZbUnk+I3Q2zBEESu6m9cowNF7M
+         w+CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=silnVe9ISkW1MzdW3HoXebDGYh3xBxheNKdrdq0TAHE=;
-        b=UxSefEbQnxBZOSIZYC5J/8IigRkNtEVTsO1LcDS9IY+5arI/cOyY9+541CbmAaRXHF
-         ZwWWIgf6dViEQKBvSdNy374pdyGbw6idoR7FG+f7H9ra6wxK6OyZZBtAp1cmIHVXQWlm
-         OCgxXmbqxb42Q9s5pytKFIR4kDllTMoWMbgL24ZE30Qjr1Crz1fOTqS6citMs9MigJTr
-         9kJEmWWNmPsOZHBH8GT/9eJiXIyYaZxmGEtkRVt+0ELqkoWRVZgZ4OrL9hUBcV34A2Ne
-         0RqHx1jVYSBRL/DQPWVvuBFZAfEaGroCf8dVRWsxR2jeX8rIkgUMwEWGm2n/hRlBUM6m
-         lWYg==
-X-Gm-Message-State: AOAM532nNXnVQJjvNKtEAsITqP+6wLv67+6Pjv6Q0L9XQjhlUWCtS7lB
-        b3uLRwD7T2/p4xLtApwey2I=
-X-Google-Smtp-Source: ABdhPJxRfWXJ6DCi/JauAexIp+ABW5OmcGRW79NcFDdjsxojd3CA7i7KZZ267AdCrIFFZ/le6oF3Hg==
-X-Received: by 2002:a05:6e02:190a:: with SMTP id w10mr395392ilu.39.1615950004730;
-        Tue, 16 Mar 2021 20:00:04 -0700 (PDT)
-Received: from book ([2601:445:8200:6c90::4210])
-        by smtp.gmail.com with ESMTPSA id y6sm10438122ily.50.2021.03.16.20.00.03
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=SdsTMooi92NRcHVBy2PnTkunRKL2Xu7qbGA9O+vVbVs=;
+        b=jZqNV0jaekDqHrlR69ZL/1MMaYvQdBWMV5WUhcGAzESdPIox9oZaUUF6823nJ0Oc/m
+         JTh/aQC3lQsirXZAUr65y1CeeuXLCt8TutyxdaDFHUfcPkgQ4qsvB3bVEysJAV2Xkg52
+         ZDmQChbHKmQxlEwDntnae062oYqQTOwu4fbSQDH2GxO88AJhUYjr1MqQxQytpL/yx3WV
+         A2IgkX7jzh6QHOu9oyn6HNrkIwSGyj/pizpMP2vi4x5dlOLXGtRjxlkTRUq4hy2R5gH2
+         84aG4bDDqrttyCVgyxyJPxZ/DblmAGcCxR21YVysBY0nVLLB+BtW2Jp4Ux9MWpwKL46a
+         292g==
+X-Gm-Message-State: AOAM530tw8rJb7PwmtCHicDOYmiQ+39xt6Cxahjp/UsjPYCRFBea0av+
+        IZVfZbtz/U5QE0BNkTYfPhwSW5hIlf0=
+X-Google-Smtp-Source: ABdhPJygtjhw+ic8c3Bnu+X2wB5MuPCx14rV4Jh11mM8p1vyMoYtcjLGHxCb9CMaA1Mxl7tDwq1Vfw==
+X-Received: by 2002:a17:902:be0c:b029:e6:f0b:91ab with SMTP id r12-20020a170902be0cb02900e60f0b91abmr2388344pls.2.1615950065463;
+        Tue, 16 Mar 2021 20:01:05 -0700 (PDT)
+Received: from google.com ([101.235.31.111])
+        by smtp.gmail.com with ESMTPSA id gm10sm684536pjb.4.2021.03.16.20.01.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Mar 2021 20:00:04 -0700 (PDT)
-Date:   Tue, 16 Mar 2021 22:00:02 -0500
-From:   Ross Schmidt <ross.schm.dev@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 000/168] 5.4.106-rc1 review
-Message-ID: <20210317030002.GB6466@book>
-References: <20210315135550.333963635@linuxfoundation.org>
+        Tue, 16 Mar 2021 20:01:04 -0700 (PDT)
+Sender: Namhyung Kim <namhyung@gmail.com>
+Date:   Wed, 17 Mar 2021 12:01:00 +0900
+From:   Namhyung Kim <namhyung@kernel.org>
+To:     kan.liang@linux.intel.com
+Cc:     peterz@infradead.org, mingo@kernel.org,
+        linux-kernel@vger.kernel.org, vincent.weaver@maine.edu,
+        eranian@google.com, ak@linux.intel.com, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] perf/x86/intel: Fix a crash caused by zero PEBS
+ status
+Message-ID: <YFFw7OvwqN/KVzvp@google.com>
+References: <1615555298-140216-1-git-send-email-kan.liang@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <1615555298-140216-1-git-send-email-kan.liang@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 02:53:52PM +0100, gregkh@linuxfoundation.org wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Fri, Mar 12, 2021 at 05:21:37AM -0800, kan.liang@linux.intel.com wrote:
+> From: Kan Liang <kan.liang@linux.intel.com>
 > 
-> This is the start of the stable review cycle for the 5.4.106 release.
-> There are 168 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
+> A repeatable crash can be triggered by the perf_fuzzer on some Haswell
+> system.
+> https://lore.kernel.org/lkml/7170d3b-c17f-1ded-52aa-cc6d9ae999f4@maine.edu/
+> 
+> For some old CPUs (HSW and earlier), the PEBS status in a PEBS record
+> may be mistakenly set to 0. To minimize the impact of the defect, the
+> commit was introduced to try to avoid dropping the PEBS record for some
+> cases. It adds a check in the intel_pmu_drain_pebs_nhm(), and updates
+> the local pebs_status accordingly. However, it doesn't correct the PEBS
+> status in the PEBS record, which may trigger the crash, especially for
+> the large PEBS.
+> 
+> It's possible that all the PEBS records in a large PEBS have the PEBS
+> status 0. If so, the first get_next_pebs_record_by_bit() in the
+> __intel_pmu_pebs_event() returns NULL. The at = NULL. Since it's a large
+> PEBS, the 'count' parameter must > 1. The second
+> get_next_pebs_record_by_bit() will crash.
+> 
+> Besides the local pebs_status, correct the PEBS status in the PEBS
+> record as well.
+> 
+> Fixes: 01330d7288e0 ("perf/x86: Allow zero PEBS status with only single active event")
+> Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+> Cc: stable@vger.kernel.org
 
-Compiled and booted with no regressions on x86_64.
+Tested-by: Namhyung Kim <namhyung@kernel.org>
 
-Tested-by: Ross Schmidt <ross.schm.dev@gmail.com>
+Thanks,
+Namhyung
 
 
-thanks,
-
-Ross
+> ---
+>  arch/x86/events/intel/ds.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
+> index 7ebae18..bcf4fa5 100644
+> --- a/arch/x86/events/intel/ds.c
+> +++ b/arch/x86/events/intel/ds.c
+> @@ -2010,7 +2010,7 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs, struct perf_sample_d
+>  		 */
+>  		if (!pebs_status && cpuc->pebs_enabled &&
+>  			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
+> -			pebs_status = cpuc->pebs_enabled;
+> +			pebs_status = p->status = cpuc->pebs_enabled;
+>  
+>  		bit = find_first_bit((unsigned long *)&pebs_status,
+>  					x86_pmu.max_pebs_events);
+> -- 
+> 2.7.4
+> 
