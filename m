@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409AD33E430
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F015E33E413
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232138AbhCQA6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:58:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
+        id S231343AbhCQA6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:58:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231671AbhCQA53 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:57:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B048264FB5;
-        Wed, 17 Mar 2021 00:57:27 +0000 (UTC)
+        id S231685AbhCQA5b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:57:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57EC664F8F;
+        Wed, 17 Mar 2021 00:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942648;
-        bh=LMlAkPh0AFAChpebs9ayhYBjTS7ZxN6DVOA23qX1478=;
+        s=k20201202; t=1615942651;
+        bh=06AdV+JkCI79bqE8VrXjJjhz6t24lXG9Wq7P9wAxE/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJTIFEQ/LWnAi5KGEkoO94ajWcHWlcUeO6PvXzBsmstSTUplz2WEit++cpzuVq/ai
-         Ty+Ern7UAoE5Q16QM2H3y0qt2dmKlQ2VaUhOEdXEJ4KS0z8Mvbz/3jdWvCoRy1h32i
-         aQtFissygBtMBi2De/zGc7Xy+kUagyG4itXeodjuaQlz8a3HTrRrD6R754iAt9ZDPY
-         w9QKWTTzjHYqqdn1pVxFfu0HUpEJ+8EzxpTrUA57DlLHTQ9Iu6soEQ67b3pFZtynnB
-         qZBb/jfBD2uZPn0QpJ6ctTJfkK/vgP4AFIaAVwAUYvEIOljMYtxsbEqTP2FI2Re0yE
-         ru32gkK5c/NCg==
+        b=hiu0QVDIXB6Zk4tYqAZ/Wf/VWDnXMBqiLm54n+wXP006vH9LQSHec9AhWdVYigmzv
+         poIuoIyUt3YYCZqKbGjYBE1FICpD0siFSbF1jytohMhNv2sTE1iccS5gMoySh738p1
+         NynY3lBaTGUcX0zKZGkhB4aI6YZAF0+wLzf1kKtKblf6NZonkkEGzBFl9cywWMAFmk
+         Vq9NGgWpn6mJDGdOIB+7yZFa7rotvhnICjgmtjsAMcPcr7HQJHpusM/TEqxKcwmpGj
+         235iE4tHxGjWunr9hfAZ9fpZC++/XnC6Od6GZxEm0JIVtxlywFDmN39GZrCrlEUFI1
+         H3aZEzNyCqydQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tong Zhang <ztong0001@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 27/54] atm: idt77252: fix null-ptr-dereference
-Date:   Tue, 16 Mar 2021 20:56:26 -0400
-Message-Id: <20210317005654.724862-27-sashal@kernel.org>
+Cc:     Paul Cercueil <paul@crapouillou.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 29/54] irqchip/ingenic: Add support for the JZ4760
+Date:   Tue, 16 Mar 2021 20:56:28 -0400
+Message-Id: <20210317005654.724862-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
@@ -43,46 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 4416e98594dc04590ebc498fc4e530009535c511 ]
+[ Upstream commit 5fbecd2389f48e1415799c63130d0cdce1cf3f60 ]
 
-this one is similar to the phy_data allocation fix in uPD98402, the
-driver allocate the idt77105_priv and store to dev_data but later
-dereference using dev->dev_data, which will cause null-ptr-dereference.
+Add support for the interrupt controller found in the JZ4760 SoC, which
+works exactly like the one in the JZ4770.
 
-fix this issue by changing dev_data to phy_data so that PRIV(dev) can
-work correctly.
-
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210307172014.73481-2-paul@crapouillou.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/idt77105.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-ingenic-tcu.c | 1 +
+ drivers/irqchip/irq-ingenic.c     | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/atm/idt77105.c b/drivers/atm/idt77105.c
-index 3c081b6171a8..bfca7b8a6f31 100644
---- a/drivers/atm/idt77105.c
-+++ b/drivers/atm/idt77105.c
-@@ -262,7 +262,7 @@ static int idt77105_start(struct atm_dev *dev)
+diff --git a/drivers/irqchip/irq-ingenic-tcu.c b/drivers/irqchip/irq-ingenic-tcu.c
+index 7a7222d4c19c..b938d1d04d96 100644
+--- a/drivers/irqchip/irq-ingenic-tcu.c
++++ b/drivers/irqchip/irq-ingenic-tcu.c
+@@ -179,5 +179,6 @@ static int __init ingenic_tcu_irq_init(struct device_node *np,
+ }
+ IRQCHIP_DECLARE(jz4740_tcu_irq, "ingenic,jz4740-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(jz4725b_tcu_irq, "ingenic,jz4725b-tcu", ingenic_tcu_irq_init);
++IRQCHIP_DECLARE(jz4760_tcu_irq, "ingenic,jz4760-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(jz4770_tcu_irq, "ingenic,jz4770-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(x1000_tcu_irq, "ingenic,x1000-tcu", ingenic_tcu_irq_init);
+diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
+index b61a8901ef72..ea36bb00be80 100644
+--- a/drivers/irqchip/irq-ingenic.c
++++ b/drivers/irqchip/irq-ingenic.c
+@@ -155,6 +155,7 @@ static int __init intc_2chip_of_init(struct device_node *node,
  {
- 	unsigned long flags;
- 
--	if (!(dev->dev_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
-+	if (!(dev->phy_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
- 		return -ENOMEM;
- 	PRIV(dev)->dev = dev;
- 	spin_lock_irqsave(&idt77105_priv_lock, flags);
-@@ -337,7 +337,7 @@ static int idt77105_stop(struct atm_dev *dev)
-                 else
-                     idt77105_all = walk->next;
- 	        dev->phy = NULL;
--                dev->dev_data = NULL;
-+                dev->phy_data = NULL;
-                 kfree(walk);
-                 break;
-             }
+ 	return ingenic_intc_of_init(node, 2);
+ }
++IRQCHIP_DECLARE(jz4760_intc, "ingenic,jz4760-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4770_intc, "ingenic,jz4770-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4775_intc, "ingenic,jz4775-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4780_intc, "ingenic,jz4780-intc", intc_2chip_of_init);
 -- 
 2.30.1
 
