@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50FCC33E352
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:57:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAAAC33E356
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbhCQA4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:56:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33060 "EHLO mail.kernel.org"
+        id S229886AbhCQA4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:56:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230136AbhCQA4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:56:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0569664F9C;
-        Wed, 17 Mar 2021 00:56:00 +0000 (UTC)
+        id S230186AbhCQA4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:56:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5088764F9E;
+        Wed, 17 Mar 2021 00:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942561;
-        bh=N8mUPfhIURrlI4VLLvEay4gWGYNCB3IFf3F9N1JEDNc=;
+        s=k20201202; t=1615942563;
+        bh=yVGfVRO7Xj7U+lHvrEE+sQIiCYb5eGK2AG3Ak+dYvGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qlQP0/yoa0upLephLwGqHFNXREt32ygDHS8PQ9rdc2VO+vCsWrTiPQ7/Xd4ZOspZ3
-         9JtZg345mR+gj8zvZ3ADC5lAbJ59832LrsfThnaUFsUpMDvaR4QD1n9t3wmS+yH+Or
-         Zq6ooVr8KzsMJmwriXPBXjM+GevHIOGaUg6pMa81ZzSteakneih2nd2LWKE4Cxi2OL
-         FLUG9jreapCnnLlbguC7wYOP/bHJWsiJOUlULAo1si3E90KEbTkHRd3j74OcgUkJen
-         F1z17L20HX3+upv16gp6go1QBknLe0t4I2uTMXy/TdKJbz56MjDCI1tPCgLqJWMQCa
-         LoHdQa9j3hW7w==
+        b=L0AZ/9MLUwlMIYT6UsngqtZv+mK+GsI95Lg4pXnTIKVKK+94YDQUl/ge8ws5lFE9U
+         goKbMDEF1QUEMBH1kDBA+uEOQgLN8FOZbmyUmKzzx8/T0tcOaUWhoLVksVDxeFv2ap
+         Rk9vFFYKcCeoMW6EGRVtKbUEAsG+CDjsFArm9zGhK05zCI17ZNAf/qa2zjY2OI2S3f
+         kDDvzhmRW7EckA+VrXbnX0KnFzKksNg9YJgsNJEX2zpBJ93vqptrLCYWF5QJIYbXvR
+         Pnp4FnqU28ctRAkhpcmkRYia95Ms+dTftvq5wdIxoXUGnTNrVHQ1D/fpU9ZeNriSg5
+         nsL0XsuZvqmSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 20/61] gpiolib: acpi: Add missing IRQF_ONESHOT
-Date:   Tue, 16 Mar 2021 20:54:54 -0400
-Message-Id: <20210317005536.724046-20-sashal@kernel.org>
+Cc:     Timo Rothenpieler <timo@rothenpieler.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 21/61] nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
+Date:   Tue, 16 Mar 2021 20:54:55 -0400
+Message-Id: <20210317005536.724046-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -44,39 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Timo Rothenpieler <timo@rothenpieler.org>
 
-[ Upstream commit 6e5d5791730b55a1f987e1db84b078b91eb49e99 ]
+[ Upstream commit a0590473c5e6c4ef17c3132ad08fbad170f72d55 ]
 
-fixed the following coccicheck:
-./drivers/gpio/gpiolib-acpi.c:176:7-27: ERROR: Threaded IRQ with no
-primary handler requested without IRQF_ONESHOT
+This follows what was done in 8c2fabc6542d9d0f8b16bd1045c2eda59bdcde13.
+With the default being m, it's impossible to build the module into the
+kernel.
 
-Make sure threaded IRQs without a primary handler are always request
-with IRQF_ONESHOT
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Timo Rothenpieler <timo@rothenpieler.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-acpi.c | 2 +-
+ fs/nfs/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index e37a57d0a2f0..86efa2d9bf7f 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -174,7 +174,7 @@ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
- 	int ret, value;
+diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+index e2a488d403a6..14a72224b657 100644
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -127,7 +127,7 @@ config PNFS_BLOCK
+ config PNFS_FLEXFILE_LAYOUT
+ 	tristate
+ 	depends on NFS_V4_1 && NFS_V3
+-	default m
++	default NFS_V4
  
- 	ret = request_threaded_irq(event->irq, NULL, event->handler,
--				   event->irqflags, "ACPI:Event", event);
-+				   event->irqflags | IRQF_ONESHOT, "ACPI:Event", event);
- 	if (ret) {
- 		dev_err(acpi_gpio->chip->parent,
- 			"Failed to setup interrupt handler for %d\n",
+ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
+ 	string "NFSv4.1 Implementation ID Domain"
 -- 
 2.30.1
 
