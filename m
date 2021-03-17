@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1BB033E31A
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B61A333E323
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:56:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbhCQA4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230154AbhCQA4C (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Mar 2021 20:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60882 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229847AbhCQAzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:55:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5182964F9C;
-        Wed, 17 Mar 2021 00:55:46 +0000 (UTC)
+        id S229851AbhCQAzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:55:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EF2264F8C;
+        Wed, 17 Mar 2021 00:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942547;
-        bh=j0VWpzhOAI8HqLLffwva5Dt5zc1p+P+m4FCZv+YU9c0=;
+        s=k20201202; t=1615942548;
+        bh=8lIR2o4v18WR/2YlHYIn96RC4k9ZocX631GO7STRiBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r255aiGusOJwFChEMIVJzGoMSvZ4sGfssOSgWhDvuuSk565icNo4J1BxTUklsEXfW
-         L5ByC+k1+tfY9NSjSsGh6g5EZjRA3Cmw88j5k+X77NHun0P3oGhQ9YxheAleI5rCLM
-         X339cttRR7/6NLrIvMxgJ2/ftlrm1w1fPSthZyRTRSxrOubz2lW/WuJpC2heD5Q2IE
-         ya86UK+OhQt6ab1WD4XalNKZV1w8DjtEKouZ1AAo4JuOJ8h2OK5EUlPWvd0c5AMvbI
-         yRnYPgcCDviIshNkmmpnZh7lEf4FRZO3cS501YbnglMskZJ+8lqWchOP1EETCBnQ+d
-         3H5GjkC71vYWA==
+        b=QzVAUuj68j1wv13I6kZoYqbz+0WoFQfQWjwufMboy+QlEoBYo392BQUdURQKF3Efl
+         tW9+7mIZMHQO6EkvUDT6eKCV48VjptWgJJ4wecRBrvej/l6b9DWrqPU5SaD16wdbYM
+         tl40plS0XfTzODoDvaZA/2axlH57nPtOie0FVYsbUi4a4q90kr+z6A04BJxYAvYoHj
+         yE8nVQkXBxGEwkv4DZNyPgRDO8R82hmfKX1Yj3hkSzS5C0Gj3mccr3PuYeJOAmcpun
+         apb54EmTquyptKtKi/OOHK8JskYwYDi7LDf4CiQFxdtzt71StFV51RrKnicw/1DZGh
+         clX3mN89y3g/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hayes Wang <hayeswang@realtek.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 08/61] Revert "r8152: adjust the settings about MAC clock speed down for RTL8153"
-Date:   Tue, 16 Mar 2021 20:54:42 -0400
-Message-Id: <20210317005536.724046-8-sashal@kernel.org>
+Cc:     Mark Pearson <markpearson@lenovo.com>,
+        Philipp Leskovitz <philipp.leskovitz@secunet.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.11 09/61] ALSA: hda: ignore invalid NHLT table
+Date:   Tue, 16 Mar 2021 20:54:43 -0400
+Message-Id: <20210317005536.724046-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -43,109 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Mark Pearson <markpearson@lenovo.com>
 
-[ Upstream commit 4b5dc1a94d4f92b5845e98bd9ae344b26d933aad ]
+[ Upstream commit a14a6219996ee6f6e858d83b11affc7907633687 ]
 
-This reverts commit 134f98bcf1b898fb9d6f2b91bc85dd2e5478b4b8.
+On some Lenovo systems if the microphone is disabled in the BIOS
+only the NHLT table header is created, with no data. This means
+the endpoints field is not correctly set to zero - leading to an
+unintialised variable and hence invalid descriptors are parsed
+leading to page faults.
 
-The r8153_mac_clk_spd() is used for RTL8153A only, because the register
-table of RTL8153B is different from RTL8153A. However, this function would
-be called when RTL8153B calls r8153_first_init() and r8153_enter_oob().
-That causes RTL8153B becomes unstable when suspending and resuming. The
-worst case may let the device stop working.
+The Lenovo firmware team is addressing this, but adding a check
+preventing invalid tables being parsed is worthwhile.
 
-Besides, revert this commit to disable MAC clock speed down for RTL8153A.
-It would avoid the known issue when enabling U1. The data of the first
-control transfer may be wrong when exiting U1.
+Tested on a Lenovo T14.
 
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-by: Philipp Leskovitz <philipp.leskovitz@secunet.com>
+Reported-by: Philipp Leskovitz <philipp.leskovitz@secunet.com>
+Signed-off-by: Mark Pearson <markpearson@lenovo.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210302141003.7342-1-markpearson@lenovo.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 35 ++++++-----------------------------
- 1 file changed, 6 insertions(+), 29 deletions(-)
+ sound/hda/intel-nhlt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 67cd6986634f..fd5ca11c4cbb 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -3016,29 +3016,6 @@ static void __rtl_set_wol(struct r8152 *tp, u32 wolopts)
- 		device_set_wakeup_enable(&tp->udev->dev, false);
- }
+diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
+index d053beccfaec..e2237239d922 100644
+--- a/sound/hda/intel-nhlt.c
++++ b/sound/hda/intel-nhlt.c
+@@ -39,6 +39,11 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
+ 	if (!nhlt)
+ 		return 0;
  
--static void r8153_mac_clk_spd(struct r8152 *tp, bool enable)
--{
--	/* MAC clock speed down */
--	if (enable) {
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL,
--			       ALDPS_SPDWN_RATIO);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2,
--			       EEE_SPDWN_RATIO);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3,
--			       PKT_AVAIL_SPDWN_EN | SUSPEND_SPDWN_EN |
--			       U1U2_SPDWN_EN | L1_SPDWN_EN);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4,
--			       PWRSAVE_SPDWN_EN | RXDV_SPDWN_EN | TX10MIDLE_EN |
--			       TP100_SPDWN_EN | TP500_SPDWN_EN | EEE_SPDWN_EN |
--			       TP1000_SPDWN_EN);
--	} else {
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
--	}
--}
--
- static void r8153_u1u2en(struct r8152 *tp, bool enable)
- {
- 	u8 u1u2[8];
-@@ -3338,11 +3315,9 @@ static void rtl8153_runtime_enable(struct r8152 *tp, bool enable)
- 	if (enable) {
- 		r8153_u1u2en(tp, false);
- 		r8153_u2p3en(tp, false);
--		r8153_mac_clk_spd(tp, true);
- 		rtl_runtime_suspend_enable(tp, true);
- 	} else {
- 		rtl_runtime_suspend_enable(tp, false);
--		r8153_mac_clk_spd(tp, false);
- 
- 		switch (tp->version) {
- 		case RTL_VER_03:
-@@ -4678,7 +4653,6 @@ static void r8153_first_init(struct r8152 *tp)
- {
- 	u32 ocp_data;
- 
--	r8153_mac_clk_spd(tp, false);
- 	rxdy_gated_en(tp, true);
- 	r8153_teredo_off(tp);
- 
-@@ -4729,8 +4703,6 @@ static void r8153_enter_oob(struct r8152 *tp)
- {
- 	u32 ocp_data;
- 
--	r8153_mac_clk_spd(tp, true);
--
- 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL);
- 	ocp_data &= ~NOW_IS_OOB;
- 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
-@@ -5456,10 +5428,15 @@ static void r8153_init(struct r8152 *tp)
- 
- 	ocp_write_word(tp, MCU_TYPE_USB, USB_CONNECT_TIMER, 0x0001);
- 
-+	/* MAC clock speed down */
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
++	if (nhlt->header.length <= sizeof(struct acpi_table_header)) {
++		dev_warn(dev, "Invalid DMIC description table\n");
++		return 0;
++	}
 +
- 	r8153_power_cut_en(tp, false);
- 	rtl_runtime_suspend_enable(tp, false);
- 	r8153_u1u2en(tp, true);
--	r8153_mac_clk_spd(tp, false);
- 	usb_enable_lpm(tp->udev);
+ 	for (j = 0, epnt = nhlt->desc; j < nhlt->endpoint_count; j++,
+ 	     epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length)) {
  
- 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_CONFIG6);
 -- 
 2.30.1
 
