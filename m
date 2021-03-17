@@ -2,228 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF0E533EABC
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 08:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3FEF33EB28
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 09:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229712AbhCQHqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Mar 2021 03:46:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:26483 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230250AbhCQHq3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Mar 2021 03:46:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615967188;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=82gmeAJsvP4hK9AfOTVe8qBR5dhZKAxAXp6V3rDGDkI=;
-        b=R7cDexOkAuV+eFkKc8u7JPkbwKz1694hK+oTeS1xUEM9fNwE/lFWVRmT/lCCoiHIYNEc/e
-        UO+1R4fqOBf/vZ9ZTHRNT5McmzbxH5aKDUM32YbaoYpQVMm5+o5JxGjtu7Fne67dgrHqib
-        JJIkv+p8KPpWffpZNfaYuj5ytJ8TT1Q=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-469-t9-fT-LXORartMY9Jt65cw-1; Wed, 17 Mar 2021 03:46:26 -0400
-X-MC-Unique: t9-fT-LXORartMY9Jt65cw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A938D81746B;
-        Wed, 17 Mar 2021 07:46:24 +0000 (UTC)
-Received: from dhcp-12-105.nay.redhat.com (unknown [10.66.61.33])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0B7183805;
-        Wed, 17 Mar 2021 07:46:22 +0000 (UTC)
-From:   Yi Zhang <yi.zhang@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     jgg@nvidia.com,
-        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH] RDMA/srp: Fix support for unpopulated and unbalanced NUMA nodes
-Date:   Wed, 17 Mar 2021 15:45:34 +0800
-Message-Id: <20210317074532.26312-1-yi.zhang@redhat.com>
+        id S229490AbhCQIPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Mar 2021 04:15:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229510AbhCQIPS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Mar 2021 04:15:18 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACDC1C06174A;
+        Wed, 17 Mar 2021 01:15:17 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id 12so917050wmf.5;
+        Wed, 17 Mar 2021 01:15:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2C2nS2FuL5jIhqAY/uOCR718M7JpaJd6K5UxD7QBZ0c=;
+        b=gKEcCTAzqvl6UcV0JWtxYfgS4mkNy0j7CKcuoZN0yc1FuCnS7UWDHaH9tUkIbPWw8S
+         PpWTOg/bdzs8nexa2qdaE4CwxflXq8MOZ0fUIqJRjktExHNx5L+73lmykE64Bx2iU1pw
+         jqSR6Hzcmd95d8FUroe/k5CvPz5IdtNDSgA/qi0Nqa+2AFSoE2eCC++keWgca+yhdKZF
+         KD8KLfVtPkPGKPmqo+n7ksyh9WFH5pqf+nGP5mUzc3gymPo3yUvOQo/MFVrfCvBUgx3A
+         GmH7VSxJx0RNhcec/1D8osxwGFnCzouAYDOTwKzmLvzTTbvX/7tuwGUFntIhTgZfj9NY
+         2fuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2C2nS2FuL5jIhqAY/uOCR718M7JpaJd6K5UxD7QBZ0c=;
+        b=IEApST4Z2fEgoSRxE0VBp236IUuOlqEG2qrCnq9Vlt+48O/nCWfP0g+u3//B2wNDRp
+         1nQnxA5ow/q3odR0flVbtK6oT5LiF3EM8ns1+BxXXk4OJpK5h7CsA/ojMTHC8hU0Oafo
+         wX9GIhAOaOZYpXLXfova3sUfPuSYo5prTFUaTYZYl+MZ12TNp4c2YWbKuQ2/SCULC/sk
+         fe5XbUyBi1OsMcoqXcU+RdWIujS7Toi90Y/XUPDLQYuHfcNSXo/k5PfjDrOYS1ir4Q5W
+         9Ri/7VWqFPmBxmgeTyDwFNdJOON5s6aBGEK7RpImF06aEAQdu0bNYcUr5X4D488r1p8o
+         /J1g==
+X-Gm-Message-State: AOAM532p85Oq9/yTSnRV8Zptpy+wV8OoTgu7sp2xHPdA8kl/ZyplFxWO
+        t3XZjP3OAi6xyXqdXxGYNiQ=
+X-Google-Smtp-Source: ABdhPJzX4WCDwk6IxuS01Nm/yXC+ACwGHPPl9kypRe2EEfWymsCJ9UtVYQFLKhDE/japhuJA+VrwPw==
+X-Received: by 2002:a1c:a916:: with SMTP id s22mr2568037wme.82.1615968914088;
+        Wed, 17 Mar 2021 01:15:14 -0700 (PDT)
+Received: from ?IPv6:2003:ea:8f1f:bb00:c04c:c4a7:d0c5:8ae7? (p200300ea8f1fbb00c04cc4a7d0c58ae7.dip0.t-ipconnect.de. [2003:ea:8f1f:bb00:c04c:c4a7:d0c5:8ae7])
+        by smtp.googlemail.com with ESMTPSA id s84sm1694787wme.11.2021.03.17.01.15.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 17 Mar 2021 01:15:13 -0700 (PDT)
+Subject: Re: [PATCH net-next 1/1] net: phy: fix invalid phy id when probe
+ using C22
+To:     Wong Vee Khee <vee.khee.wong@intel.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Voon Weifeng <voon.weifeng@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>
+References: <20210316085748.3017-1-vee.khee.wong@intel.com>
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+Message-ID: <eba4f81c-adc0-61d1-8cb9-4c0c5995bc49@gmail.com>
+Date:   Wed, 17 Mar 2021 09:15:03 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+In-Reply-To: <20210316085748.3017-1-vee.khee.wong@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+On 16.03.2021 09:57, Wong Vee Khee wrote:
+> When using Clause-22 to probe for PHY devices such as the Marvell
+> 88E2110, PHY ID with value 0 is read from the MII PHYID registers
+> which caused the PHY framework failed to attach the Marvell PHY
+> driver.
+> 
 
-This patch fixed one kernel NULL pointer issue with blktests srp/005
+The issue occurs with a MAC driver that sets MDIO bus capability
+flag MDIOBUS_C22_C45, like stmmac? Or what is the affected MAC
+driver?
 
-----------
+And if you state it's a fix, a Fixes tag would be needed.
 
-From: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
-
-commit 2b5715fc17386a6223490d5b8f08d031999b0c0b upstream.
-
-The current code computes a number of channels per SRP target and spreads
-them equally across all online NUMA nodes.  Each channel is then assigned
-a CPU within this node.
-
-In the case of unbalanced, or even unpopulated nodes, some channels do not
-get a CPU associated and thus do not get connected.  This causes the SRP
-connection to fail.
-
-This patch solves the issue by rewriting channel computation and
-allocation:
-
-- Drop channel to node/CPU association as it had no real effect on
-  locality but added unnecessary complexity.
-
-- Tweak the number of channels allocated to reduce CPU contention when
-  possible:
-  - Up to one channel per CPU (instead of up to 4 by node)
-  - At least 4 channels per node, unless ch_count module parameter is
-    used.
-
-Link: https://lore.kernel.org/r/9cb4d9d3-30ad-2276-7eff-e85f7ddfb411@suse.com
-Signed-off-by: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/infiniband/ulp/srp/ib_srp.c | 110 ++++++++++++----------------
- 1 file changed, 45 insertions(+), 65 deletions(-)
-
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 5492b66a8153..31f8aa2c40ed 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3628,7 +3628,7 @@ static ssize_t srp_create_target(struct device *dev,
- 	struct srp_rdma_ch *ch;
- 	struct srp_device *srp_dev = host->srp_dev;
- 	struct ib_device *ibdev = srp_dev->dev;
--	int ret, node_idx, node, cpu, i;
-+	int ret, i, ch_idx;
- 	unsigned int max_sectors_per_mr, mr_per_cmd = 0;
- 	bool multich = false;
- 	uint32_t max_iu_len;
-@@ -3753,81 +3753,61 @@ static ssize_t srp_create_target(struct device *dev,
- 		goto out;
- 
- 	ret = -ENOMEM;
--	if (target->ch_count == 0)
-+	if (target->ch_count == 0) {
- 		target->ch_count =
--			max_t(unsigned int, num_online_nodes(),
--			      min(ch_count ?:
--					  min(4 * num_online_nodes(),
--					      ibdev->num_comp_vectors),
--				  num_online_cpus()));
-+			min(ch_count ?:
-+				max(4 * num_online_nodes(),
-+				    ibdev->num_comp_vectors),
-+				num_online_cpus());
-+	}
-+
- 	target->ch = kcalloc(target->ch_count, sizeof(*target->ch),
- 			     GFP_KERNEL);
- 	if (!target->ch)
- 		goto out;
- 
--	node_idx = 0;
--	for_each_online_node(node) {
--		const int ch_start = (node_idx * target->ch_count /
--				      num_online_nodes());
--		const int ch_end = ((node_idx + 1) * target->ch_count /
--				    num_online_nodes());
--		const int cv_start = node_idx * ibdev->num_comp_vectors /
--				     num_online_nodes();
--		const int cv_end = (node_idx + 1) * ibdev->num_comp_vectors /
--				   num_online_nodes();
--		int cpu_idx = 0;
--
--		for_each_online_cpu(cpu) {
--			if (cpu_to_node(cpu) != node)
--				continue;
--			if (ch_start + cpu_idx >= ch_end)
--				continue;
--			ch = &target->ch[ch_start + cpu_idx];
--			ch->target = target;
--			ch->comp_vector = cv_start == cv_end ? cv_start :
--				cv_start + cpu_idx % (cv_end - cv_start);
--			spin_lock_init(&ch->lock);
--			INIT_LIST_HEAD(&ch->free_tx);
--			ret = srp_new_cm_id(ch);
--			if (ret)
--				goto err_disconnect;
-+	for (ch_idx = 0; ch_idx < target->ch_count; ++ch_idx) {
-+		ch = &target->ch[ch_idx];
-+		ch->target = target;
-+		ch->comp_vector = ch_idx % ibdev->num_comp_vectors;
-+		spin_lock_init(&ch->lock);
-+		INIT_LIST_HEAD(&ch->free_tx);
-+		ret = srp_new_cm_id(ch);
-+		if (ret)
-+			goto err_disconnect;
- 
--			ret = srp_create_ch_ib(ch);
--			if (ret)
--				goto err_disconnect;
-+		ret = srp_create_ch_ib(ch);
-+		if (ret)
-+			goto err_disconnect;
- 
--			ret = srp_alloc_req_data(ch);
--			if (ret)
--				goto err_disconnect;
-+		ret = srp_alloc_req_data(ch);
-+		if (ret)
-+			goto err_disconnect;
- 
--			ret = srp_connect_ch(ch, max_iu_len, multich);
--			if (ret) {
--				char dst[64];
--
--				if (target->using_rdma_cm)
--					snprintf(dst, sizeof(dst), "%pIS",
--						 &target->rdma_cm.dst);
--				else
--					snprintf(dst, sizeof(dst), "%pI6",
--						 target->ib_cm.orig_dgid.raw);
--				shost_printk(KERN_ERR, target->scsi_host,
--					     PFX "Connection %d/%d to %s failed\n",
--					     ch_start + cpu_idx,
--					     target->ch_count, dst);
--				if (node_idx == 0 && cpu_idx == 0) {
--					goto free_ch;
--				} else {
--					srp_free_ch_ib(target, ch);
--					srp_free_req_data(target, ch);
--					target->ch_count = ch - target->ch;
--					goto connected;
--				}
--			}
-+		ret = srp_connect_ch(ch, max_iu_len, multich);
-+		if (ret) {
-+			char dst[64];
- 
--			multich = true;
--			cpu_idx++;
-+			if (target->using_rdma_cm)
-+				snprintf(dst, sizeof(dst), "%pIS",
-+					&target->rdma_cm.dst);
-+			else
-+				snprintf(dst, sizeof(dst), "%pI6",
-+					target->ib_cm.orig_dgid.raw);
-+			shost_printk(KERN_ERR, target->scsi_host,
-+				PFX "Connection %d/%d to %s failed\n",
-+				ch_idx,
-+				target->ch_count, dst);
-+			if (ch_idx == 0) {
-+				goto free_ch;
-+			} else {
-+				srp_free_ch_ib(target, ch);
-+				srp_free_req_data(target, ch);
-+				target->ch_count = ch - target->ch;
-+				goto connected;
-+			}
- 		}
--		node_idx++;
-+		multich = true;
- 	}
- 
- connected:
--- 
-2.21.0
+> Fixed this by adding a check of PHY ID equals to all zeroes.
+> 
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Voon Weifeng <voon.weifeng@intel.com>
+> Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
+> ---
+>  drivers/net/phy/phy_device.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+> index a009d1769b08..f1afc00fcba2 100644
+> --- a/drivers/net/phy/phy_device.c
+> +++ b/drivers/net/phy/phy_device.c
+> @@ -820,8 +820,8 @@ static int get_phy_c22_id(struct mii_bus *bus, int addr, u32 *phy_id)
+>  
+>  	*phy_id |= phy_reg;
+>  
+> -	/* If the phy_id is mostly Fs, there is no device there */
+> -	if ((*phy_id & 0x1fffffff) == 0x1fffffff)
+> +	/* If the phy_id is mostly Fs or all zeroes, there is no device there */
+> +	if (((*phy_id & 0x1fffffff) == 0x1fffffff) || (*phy_id == 0))
+>  		return -ENODEV;
+>  
+>  	return 0;
+> 
 
