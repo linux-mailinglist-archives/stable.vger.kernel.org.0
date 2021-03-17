@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C594D33E474
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:01:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8A6133E475
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbhCQA74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230330AbhCQA74 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Mar 2021 20:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232235AbhCQA7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232238AbhCQA7B (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 16 Mar 2021 20:59:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46AD764FFD;
-        Wed, 17 Mar 2021 00:58:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DD3164F94;
+        Wed, 17 Mar 2021 00:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942724;
-        bh=+3BuXxYaXsFpdLnpNv938r7h4FCYprLWZIvWS455Uv8=;
+        s=k20201202; t=1615942726;
+        bh=m05uKoHPXx4Jy8SfL08GslsTqZbcXfvyQiP0aGQwkLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dm6xA++8uco461bCANGzfSScxweBwo0midiyd1rFri4AX/gaZUcc1gbV8eft6kqXj
-         OdbsfsL6L0BCyoEmAw4+jpIXOWDeM0TD9z1D0LlEGSNR0IRFPwhlDOlEDL3v7GQ/R0
-         B3hq+n37gZukojzPmfFONfoBTN8d35Q8HVLCV59nvqkpR5xlTWmiSJK/lDpg1fCQxu
-         AozzfbqlpydQ5yooygpwqZo44QGRGWceLfgV+le3RGoZBWHv2t0TdxkaCjPtzhuzps
-         uv21fVe2jM45vi7nxWE0V3g3HmCVJUeuVvVHbRbuiF6Uggu3sGMDUzOE3ttMrNUPfM
-         4LyzE6rDjNjwQ==
+        b=WTfY/izRnH8OU+vEtRU/DXUg0qu94CdrZhobwWGsQzfWbjl9YXE6+UaoRHOPOv/wy
+         rRIkonjJMCZ3/xpkIAQxGlOVeZhTYt+bbS+660wAvJf+7p9n3ObjKB13q/MjBPRBbn
+         hXn/y3yn/KOhLYnbhSm7ltZ0CGmLoBpQqDHpLdB6qjSGlD4RYzBnqV4gX3EqNUJd2a
+         k9Qcvk2pP16Z9KIW6Y3U0nBn+vo8tXBrxdkiy72lYzX2wQ6hsDHGmDOBkjMjFvM6Y/
+         iey980ZCRD8cWFv7UIewkgTL6fd7TJ9pajGdqY8ZvLGx4YUzYFHPgAjuloEGa9opR/
+         lrRFZ0upCaH/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "J. Bruce Fields" <bfields@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 34/37] nfs: we don't support removing system.nfs4_acl
-Date:   Tue, 16 Mar 2021 20:57:59 -0400
-Message-Id: <20210317005802.725825-34-sashal@kernel.org>
+Cc:     Daniel Wagner <dwagner@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Martin Wilck <mwilck@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 35/37] block: Suppress uevent for hidden device when removed
+Date:   Tue, 16 Mar 2021 20:58:00 -0400
+Message-Id: <20210317005802.725825-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005802.725825-1-sashal@kernel.org>
 References: <20210317005802.725825-1-sashal@kernel.org>
@@ -42,38 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-[ Upstream commit 4f8be1f53bf615102d103c0509ffa9596f65b718 ]
+[ Upstream commit 9ec491447b90ad6a4056a9656b13f0b3a1e83043 ]
 
-The NFSv4 protocol doesn't have any notion of reomoving an attribute, so
-removexattr(path,"system.nfs4_acl") doesn't make sense.
+register_disk() suppress uevents for devices with the GENHD_FL_HIDDEN
+but enables uevents at the end again in order to announce disk after
+possible partitions are created.
 
-There's no documented return value.  Arguably it could be EOPNOTSUPP but
-I'm a little worried an application might take that to mean that we
-don't support ACLs or xattrs.  How about EINVAL?
+When the device is removed the uevents are still on and user land sees
+'remove' messages for devices which were never 'add'ed to the system.
 
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+  KERNEL[95481.571887] remove   /devices/virtual/nvme-fabrics/ctl/nvme5/nvme0c5n1 (block)
+
+Let's suppress the uevents for GENHD_FL_HIDDEN by not enabling the
+uevents at all.
+
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Martin Wilck <mwilck@suse.com>
+Link: https://lore.kernel.org/r/20210311151917.136091-1-dwagner@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ block/genhd.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 30e44b33040a..fa181c3ba5cd 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5754,6 +5754,9 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
- 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
- 	int ret, i;
+diff --git a/block/genhd.c b/block/genhd.c
+index 604f0a2cbc9a..2f6f341a8fbb 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -637,10 +637,8 @@ static void register_disk(struct device *parent, struct gendisk *disk,
+ 	disk->part0.holder_dir = kobject_create_and_add("holders", &ddev->kobj);
+ 	disk->slave_dir = kobject_create_and_add("slaves", &ddev->kobj);
  
-+	/* You can't remove system.nfs4_acl: */
-+	if (buflen == 0)
-+		return -EINVAL;
- 	if (!nfs4_server_supports_acls(server))
- 		return -EOPNOTSUPP;
- 	if (npages > ARRAY_SIZE(pages))
+-	if (disk->flags & GENHD_FL_HIDDEN) {
+-		dev_set_uevent_suppress(ddev, 0);
++	if (disk->flags & GENHD_FL_HIDDEN)
+ 		return;
+-	}
+ 
+ 	/* No minors to use for partitions */
+ 	if (!disk_part_scan_enabled(disk))
 -- 
 2.30.1
 
