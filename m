@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A6F33E4E5
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:02:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96C1F33E4E8
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:02:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbhCQBAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 21:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40970 "EHLO mail.kernel.org"
+        id S232678AbhCQBAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:00:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232452AbhCQA7o (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231211AbhCQA7o (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 16 Mar 2021 20:59:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3B7F64FBC;
-        Wed, 17 Mar 2021 00:59:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEDEB64FAE;
+        Wed, 17 Mar 2021 00:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942783;
-        bh=Hu7eLsX0xzzWq8Az1HGRu3h9HNzL7mi7VCU2Z64f044=;
+        s=k20201202; t=1615942784;
+        bh=Z5Gk/GqZ8EDM2F88R9AbiJDBFO3W9Putmc7msa4fjZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cB0LuZBo3+74PwFzXbpniIujspfJnMmlXfj/vgGZgOs2Nh4SYllnsZPx2HFQmaL1/
-         ZdVekNeWQh6oooEgndMAy4QZhlAUorWacyQU9Ob3pdmS50gpBLbBFFN5dH7ha756Xm
-         vh8kpIbHfau/lGwCFNfc6eUX1u/6i+ss7AY0b/PnM5+p3ni+AiUoU/o3edl0LTf+OO
-         qx2uHiRzkrxGqDsNk5llHS3+vm/1c1D9iYsliOegwSOTfJQKMU9PSVkFzjIP8Yjx1f
-         Oa9cR8I1eIqE74/tl6DSg/p2e4jjfHk2+TxkKTWizAqV484PYt2PSlwsxnaNnAV9Xh
-         8WOpodbIXmIiQ==
+        b=WgbAQ+FZCnIfrmdV1n2XA3spNOlFMKm7Xt4kiUK0cmodJb6enrMba4tB/tbvGHJXo
+         8KY+3UEcEhWogagjluHVOnOZaL83EYEhbqAbLj9UJ4wBI8z0mM4Ca+zOdVkcSMjUku
+         DgO0egcKpTbjM+zx3wLEq2tBwuRlpCpS8gRKEMEbADwFOjwUmtlXCj6cJCbdsOF5AS
+         QnUKyz9zUqPclor9HWWz1fqgcxCpn7P+GRmBUU0B0AbAiLXXTLght2WP+9fROTM6kE
+         Nyflgkb5uk0LKJngHFmS8ej3cOev/1q2wcr6F0Rfhsa7DNlb4gvB0PeS6ZCCnkHHYL
+         Rwrpb9jRBiXSg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 18/21] drm/radeon: fix AGP dependency
-Date:   Tue, 16 Mar 2021 20:59:17 -0400
-Message-Id: <20210317005920.726931-18-sashal@kernel.org>
+Cc:     "J. Bruce Fields" <bfields@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 19/21] nfs: we don't support removing system.nfs4_acl
+Date:   Tue, 16 Mar 2021 20:59:18 -0400
+Message-Id: <20210317005920.726931-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005920.726931-1-sashal@kernel.org>
 References: <20210317005920.726931-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,33 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit cba2afb65cb05c3d197d17323fee4e3c9edef9cd ]
+[ Upstream commit 4f8be1f53bf615102d103c0509ffa9596f65b718 ]
 
-When AGP is compiled as module radeon must be compiled as module as
-well.
+The NFSv4 protocol doesn't have any notion of reomoving an attribute, so
+removexattr(path,"system.nfs4_acl") doesn't make sense.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+There's no documented return value.  Arguably it could be EOPNOTSUPP but
+I'm a little worried an application might take that to mean that we
+don't support ACLs or xattrs.  How about EINVAL?
+
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/nfs4proc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index 83cb2a88c204..595d0c96ba89 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -156,6 +156,7 @@ source "drivers/gpu/drm/arm/Kconfig"
- config DRM_RADEON
- 	tristate "ATI Radeon"
- 	depends on DRM && PCI && MMU
-+	depends on AGP || !AGP
- 	select FW_LOADER
-         select DRM_KMS_HELPER
-         select DRM_TTM
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index cbfea2c7d516..6d6c5123cbb6 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5255,6 +5255,9 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
+ 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
+ 	int ret, i;
+ 
++	/* You can't remove system.nfs4_acl: */
++	if (buflen == 0)
++		return -EINVAL;
+ 	if (!nfs4_server_supports_acls(server))
+ 		return -EOPNOTSUPP;
+ 	if (npages > ARRAY_SIZE(pages))
 -- 
 2.30.1
 
