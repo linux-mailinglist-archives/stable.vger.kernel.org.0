@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66EA633E433
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0364B33E5DF
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229896AbhCQA6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:58:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
+        id S230217AbhCQBUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:20:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231650AbhCQA50 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:57:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B0E464FB4;
-        Wed, 17 Mar 2021 00:57:25 +0000 (UTC)
+        id S231679AbhCQA5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:57:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A3D664FC7;
+        Wed, 17 Mar 2021 00:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942646;
-        bh=NRiYaLksz1O3cwEDkbwixLF9qqbvoY9KuChBsaKZ3Hw=;
+        s=k20201202; t=1615942649;
+        bh=v4aQ1C+PHdEewD1wIyzJBQ9dILGTKmpEYaUkaBDltbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQXxDgWK0IJOdwZF+z/WP5v+nOFYPBp9VQ5p5A86unTNzlAQn10UyWcfgIYta42Cs
-         PyMxJsH70m/U6wP2oL0I0un0/5oT5gwPnKs4HLKJMb9BJVkuCfxsFLA9SP7j+ege0x
-         No4hjDoxD/BDawNPGAyZZ/1UYnSG1hl6u7p+Ej0iOM4oLzNOCOxkNQ550Ync01JD4e
-         +p6lnslS+Z/ZKEGXAP0NsrNm02ScX7n2O6LisuPEA/4ZM8zRetDu0wHYw5LqREoMGt
-         N/fjOXwOT3lPRSouB4d0FS9KE3a5W7b47x/egfT1pDZ8ucf7FYc4PwTJoesfSIeW2R
-         qIesBpk/tLCMQ==
+        b=qWtQYK8xMZttJa6+tsZvRgK+4JlQxCK7ZNKk1llp/dzPAmhfDgH0ZNT9WRe6/xzDR
+         IT9BhFwhz3kc8OiNeT9ipy6lmK4lZKhi7Pm9ZKgc6liWnF1nxzE4X/8VveeOVWvSwo
+         gt5i5L+xr4njE5837nuLnwasyATfjCVubbdkg9hF5wUL1Vh8dG+mtrZOnuUfAozjRL
+         67Zdfse0pHU8/1OVc1FmPvXKVfpjqpm/VRkUCOKv52bLeEXldBDFqHmMQmjmVhCiFb
+         uywSV7E+/a58MRaDtvhIxi//S90gygYMWmVWZl3snhl6JIDg3kEWt2qneg2M8zAl6R
+         XnAmvH3FFlxmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Marginean <alexandru.marginean@nxp.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Jason Liu <jason.hui.liu@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 25/54] net: enetc: set MAC RX FIFO to recommended value
-Date:   Tue, 16 Mar 2021 20:56:24 -0400
-Message-Id: <20210317005654.724862-25-sashal@kernel.org>
+Cc:     Paulo Alcantara <pc@cjr.nz>, Aurelien Aptel <aaptel@suse.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.10 28/54] cifs: change noisy error message to FYI
+Date:   Tue, 16 Mar 2021 20:56:27 -0400
+Message-Id: <20210317005654.724862-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
@@ -45,56 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Marginean <alexandru.marginean@nxp.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit 1b2395dfff5bb40228a187f21f577cd90673d344 ]
+[ Upstream commit e3d100eae44b42f309c1366efb8397368f1cf8ed ]
 
-On LS1028A, the MAC RX FIFO defaults to the value 2, which is too high
-and may lead to RX lock-up under traffic at a rate higher than 6 Gbps.
-Set it to 1 instead, as recommended by the hardware design team and by
-later versions of the ENETC block guide.
+A customer has reported that their dmesg were being flooded by
 
-Signed-off-by: Alex Marginean <alexandru.marginean@nxp.com>
-Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Reviewed-by: Jason Liu <jason.hui.liu@nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  CIFS: VFS: \\server Cancelling wait for mid xxx cmd: a
+  CIFS: VFS: \\server Cancelling wait for mid yyy cmd: b
+  CIFS: VFS: \\server Cancelling wait for mid zzz cmd: c
+
+because some processes that were performing statfs(2) on the share had
+been interrupted due to their automount setup when certain users
+logged in and out.
+
+Change it to FYI as they should be mostly informative rather than
+error messages.
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_hw.h | 2 ++
- drivers/net/ethernet/freescale/enetc/enetc_pf.c | 6 ++++++
- 2 files changed, 8 insertions(+)
+ fs/cifs/transport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_hw.h b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-index 014ca6ae121f..b70a36ff9543 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-@@ -232,6 +232,8 @@ enum enetc_bdr_type {TX, RX};
- #define ENETC_PM0_MAXFRM	0x8014
- #define ENETC_SET_TX_MTU(val)	((val) << 16)
- #define ENETC_SET_MAXFRM(val)	((val) & 0xffff)
-+#define ENETC_PM0_RX_FIFO	0x801c
-+#define ENETC_PM0_RX_FIFO_VAL	1
- 
- #define ENETC_PM_IMDIO_BASE	0x8030
- 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index 796e3d6f23f0..6ebaff9043b8 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -495,6 +495,12 @@ static void enetc_configure_port_mac(struct enetc_hw *hw)
- 
- 	enetc_port_wr(hw, ENETC_PM1_CMD_CFG, ENETC_PM0_CMD_PHY_TX_EN |
- 		      ENETC_PM0_CMD_TXP	| ENETC_PM0_PROMISC);
-+
-+	/* On LS1028A, the MAC RX FIFO defaults to 2, which is too high
-+	 * and may lead to RX lock-up under traffic. Set it to 1 instead,
-+	 * as recommended by the hardware team.
-+	 */
-+	enetc_port_wr(hw, ENETC_PM0_RX_FIFO, ENETC_PM0_RX_FIFO_VAL);
- }
- 
- static void enetc_mac_config(struct enetc_hw *hw, phy_interface_t phy_mode)
+diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
+index 9391cd17a2b5..fc9278ca26c0 100644
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -1167,7 +1167,7 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
+ 	}
+ 	if (rc != 0) {
+ 		for (; i < num_rqst; i++) {
+-			cifs_server_dbg(VFS, "Cancelling wait for mid %llu cmd: %d\n",
++			cifs_server_dbg(FYI, "Cancelling wait for mid %llu cmd: %d\n",
+ 				 midQ[i]->mid, le16_to_cpu(midQ[i]->command));
+ 			send_cancel(server, &rqst[i], midQ[i]);
+ 			spin_lock(&GlobalMid_Lock);
 -- 
 2.30.1
 
