@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEE7133E3A2
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1562333E3AB
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbhCQA5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34420 "EHLO mail.kernel.org"
+        id S231566AbhCQA5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:57:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231244AbhCQA4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231240AbhCQA4r (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 16 Mar 2021 20:56:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB5264F9B;
-        Wed, 17 Mar 2021 00:56:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43B2C64FB4;
+        Wed, 17 Mar 2021 00:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942604;
-        bh=gR+XjA2GvUDUPqy8DoHaelmXBzQE5a6V+SzzSf7OFhg=;
+        s=k20201202; t=1615942605;
+        bh=nV3ayq95eKEymLPuLam7wmH8009qcnNKR9AP8PNetRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YDuWHPukzx3dW+QmXS5vIejl2dWpJuiVFGA8wpyNMjvSd7N5xapyQtz6dN/DQbsRO
-         a5eV3dkqt7svR9FVqDj0OxxvKC+b3koRGSQl8w5zzUGxyoT8sLM3Ilm+RZq/vieXvn
-         YmbE/xZu/Zi2MrVMU/kO5FWKhx1XX3UO6KKDw6T24rkYJO3Ql/We8hZ2qpXW7S0NFy
-         YaB7PWwf0zjq4dYBuJwU32YYpG55G7DgowxfqAhc6fGGNxlp7ImO4CPdD+3Q4f0gNU
-         LJ77lE5Rxg3lGWvRi/iu/QJSdSVHrKsspdQDrNxao2l58OAvYBCjj2gLmEJJbW1jEZ
-         idIOh7G0OfaZg==
+        b=by7Wz0rtUe23BC96qIKRl5B3Mbave+A49NYtYvZ2P9KBmxw6uatAoW1tMuK2HscK1
+         riLdeYVhm1zQPyTBkeYYfXk25s6emMInLDJ4jcoL2kwAl050RL8EteZ8zwn//r7vxj
+         0xto9U7PdH4twEGZuwOFlq8NoE5MvaKT9zjg1Eqqs5luNpmCllGkEKGIR1wyb/BdA7
+         XMvKG0EQfZMtBioNjvHrX7cX0lg6JowwLGi+K0V1iDoiTmHiJqCtEosTFKNoU2JqKr
+         93sWdYevo5wWtZsAyTE2fB7xT3nIDn9TZJavu3yR9oRc+KLiqJSIR4NLSz7gJlQQII
+         g42fs5wdWytpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.11 55/61] nvme-pci: add the DISABLE_WRITE_ZEROES quirk for a Samsung PM1725a
-Date:   Tue, 16 Mar 2021 20:55:29 -0400
-Message-Id: <20210317005536.724046-55-sashal@kernel.org>
+Cc:     "J. Bruce Fields" <bfields@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 56/61] nfs: we don't support removing system.nfs4_acl
+Date:   Tue, 16 Mar 2021 20:55:30 -0400
+Message-Id: <20210317005536.724046-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -42,72 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit abbb5f5929ec6c52574c430c5475c158a65c2a8c ]
+[ Upstream commit 4f8be1f53bf615102d103c0509ffa9596f65b718 ]
 
-This adds a quirk for Samsung PM1725a drive which fixes timeouts and
-I/O errors due to the fact that the controller does not properly
-handle the Write Zeroes command, dmesg log:
+The NFSv4 protocol doesn't have any notion of reomoving an attribute, so
+removexattr(path,"system.nfs4_acl") doesn't make sense.
 
-nvme nvme0: I/O 528 QID 10 timeout, aborting
-nvme nvme0: I/O 529 QID 10 timeout, aborting
-nvme nvme0: I/O 530 QID 10 timeout, aborting
-nvme nvme0: I/O 531 QID 10 timeout, aborting
-nvme nvme0: I/O 532 QID 10 timeout, aborting
-nvme nvme0: I/O 533 QID 10 timeout, aborting
-nvme nvme0: I/O 534 QID 10 timeout, aborting
-nvme nvme0: I/O 535 QID 10 timeout, aborting
-nvme nvme0: Abort status: 0x0
-nvme nvme0: Abort status: 0x0
-nvme nvme0: Abort status: 0x0
-nvme nvme0: Abort status: 0x0
-nvme nvme0: Abort status: 0x0
-nvme nvme0: Abort status: 0x0
-nvme nvme0: Abort status: 0x0
-nvme nvme0: Abort status: 0x0
-nvme nvme0: I/O 528 QID 10 timeout, reset controller
-nvme nvme0: controller is down; will reset: CSTS=0x3, PCI_STATUS=0x10
-nvme nvme0: Device not ready; aborting reset, CSTS=0x3
-nvme nvme0: Device not ready; aborting reset, CSTS=0x3
-nvme nvme0: Removing after probe failure status: -19
-nvme0n1: detected capacity change from 6251233968 to 0
-blk_update_request: I/O error, dev nvme0n1, sector 32776 op 0x1:(WRITE) flags 0x3000 phys_seg 6 prio class 0
-blk_update_request: I/O error, dev nvme0n1, sector 113319936 op 0x9:(WRITE_ZEROES) flags 0x800 phys_seg 0 prio class 0
-Buffer I/O error on dev nvme0n1p2, logical block 1, lost async page write
-blk_update_request: I/O error, dev nvme0n1, sector 113319680 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
-Buffer I/O error on dev nvme0n1p2, logical block 2, lost async page write
-blk_update_request: I/O error, dev nvme0n1, sector 113319424 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
-Buffer I/O error on dev nvme0n1p2, logical block 3, lost async page write
-blk_update_request: I/O error, dev nvme0n1, sector 113319168 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
-Buffer I/O error on dev nvme0n1p2, logical block 4, lost async page write
-blk_update_request: I/O error, dev nvme0n1, sector 113318912 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
-Buffer I/O error on dev nvme0n1p2, logical block 5, lost async page write
-blk_update_request: I/O error, dev nvme0n1, sector 113318656 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
-Buffer I/O error on dev nvme0n1p2, logical block 6, lost async page write
-blk_update_request: I/O error, dev nvme0n1, sector 113318400 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
-blk_update_request: I/O error, dev nvme0n1, sector 113318144 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
-blk_update_request: I/O error, dev nvme0n1, sector 113317888 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+There's no documented return value.  Arguably it could be EOPNOTSUPP but
+I'm a little worried an application might take that to mean that we
+don't support ACLs or xattrs.  How about EINVAL?
 
-Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/nfs4proc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 806a5d071ef6..514dfd630035 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3242,6 +3242,7 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
- 	{ PCI_DEVICE(0x144d, 0xa822),   /* Samsung PM1725a */
- 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY |
-+				NVME_QUIRK_DISABLE_WRITE_ZEROES|
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_DEVICE(0x1987, 0x5016),	/* Phison E16 */
- 		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index fc8bbfd9beb3..2bd64bfcc11a 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5896,6 +5896,9 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
+ 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
+ 	int ret, i;
+ 
++	/* You can't remove system.nfs4_acl: */
++	if (buflen == 0)
++		return -EINVAL;
+ 	if (!nfs4_server_supports_acls(server))
+ 		return -EOPNOTSUPP;
+ 	if (npages > ARRAY_SIZE(pages))
 -- 
 2.30.1
 
