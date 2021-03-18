@@ -2,70 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F59A340A2E
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 17:26:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EFC3340A6D
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 17:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231929AbhCRQ0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 12:26:13 -0400
-Received: from out28-99.mail.aliyun.com ([115.124.28.99]:54566 "EHLO
-        out28-99.mail.aliyun.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231225AbhCRQZ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 12:25:56 -0400
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.108678|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0111474-0.000705085-0.988147;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047187;MF=zhouyanjie@wanyeetech.com;NM=1;PH=DS;RN=9;RT=9;SR=0;TI=SMTPD_---.JmuzqJv_1616084746;
-Received: from zhouyanjie-virtual-machine.localdomain(mailfrom:zhouyanjie@wanyeetech.com fp:SMTPD_---.JmuzqJv_1616084746)
-          by smtp.aliyun-inc.com(10.147.41.138);
-          Fri, 19 Mar 2021 00:25:52 +0800
-From:   =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20=28Zhou=20Yanjie=29?= 
-        <zhouyanjie@wanyeetech.com>
-To:     wsa@kernel.org, paul@crapouillou.net
-Cc:     stable@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dongsheng.qiu@ingenic.com, aric.pzqi@ingenic.com,
-        sernia.zhou@foxmail.com
-Subject: [PATCH] I2C: JZ4780: Fix bug for Ingenic X1000.
-Date:   Fri, 19 Mar 2021 00:25:43 +0800
-Message-Id: <1616084743-112402-2-git-send-email-zhouyanjie@wanyeetech.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1616084743-112402-1-git-send-email-zhouyanjie@wanyeetech.com>
-References: <1616084743-112402-1-git-send-email-zhouyanjie@wanyeetech.com>
+        id S230509AbhCRQnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 12:43:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35438 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232069AbhCRQmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 12:42:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7255D64E20;
+        Thu, 18 Mar 2021 16:42:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616085771;
+        bh=6gXB2FWqFCIJGxnEQusd1j2r934ubPSgjAWKKMgxyGE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JKeDwqoVTZ4oHT4WTN7DgZ9cPLeanqv2IHDDpA3PuXByeB1i93SHENdeSpoV0DIRy
+         +DQIz5heGAZ2Eu3TKbNcXpaf8VHxM964pVCwdFGY1rcdrwkyhZVfcB7b/78Ocy2h4A
+         4tVRQuF7rhYnqN7g+YhDsGmdiYYWG9FSIZCpvMX6os4bcx6UT4nRUSAg7npTW5kTAu
+         7q66x8+Vl0yjMewf2Yej2l3TQAb3yKl7JqFbttn5N4d46fXyFeQhJBN+mGjZZhRZvf
+         hDLTUGOqy2V+8wI3r9FlcWhzxUTtb68aLPSZNDwFvLIr9c/ADNM6kcUO04+13SjwsB
+         +fp40dX/SPb2Q==
+Date:   Thu, 18 Mar 2021 12:42:50 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Thomas Backlund <tmb@tmb.nu>, "# 3.4.x" <stable@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: stable request
+Message-ID: <YFODCo5hbvO+Vp5x@sashalap>
+References: <d5c825ba-cdcb-29eb-c434-83ef4db05ee0@tmb.nu>
+ <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
+ <1e6eb02b-e699-d1ff-9cfb-4ef77255e244@tmb.nu>
+ <9493dced-908e-a9bd-009a-6b20a8422ec1@tmb.nu>
+ <CAMj1kXHzEEU2-mVxVD8g=P_Py_WJMOn0q8m+k-txUUioS+2ajQ@mail.gmail.com>
+ <YFNPiHAvEwDpGLrv@sashalap>
+ <CAMj1kXG_D_Aw+kyrz7ShMuPaMhpnMhTRZ8tsqKUf0koq_UPSnw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXG_D_Aw+kyrz7ShMuPaMhpnMhTRZ8tsqKUf0koq_UPSnw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Only send "X1000_I2C_DC_STOP" when last byte, or it will cause
-error when I2C write operation.
+On Thu, Mar 18, 2021 at 03:15:35PM +0100, Ard Biesheuvel wrote:
+>On Thu, 18 Mar 2021 at 14:03, Sasha Levin <sashal@kernel.org> wrote:
+>> What about anything older than 5.10? Looks like it's needed there too?
+>>
+>
+>Yes, 4.19 and 5.4 should probably get this too. They should apply with
+>minimal effort, afaict. The only conflicting change is
+>34fdce6981b96920ced4e0ee56e9db3fb03a33f0, which changed
+>
+>--- a/arch/x86/crypto/aesni-intel_asm.S
+>+++ b/arch/x86/crypto/aesni-intel_asm.S
+>@@ -2758,7 +2758,7 @@ SYM_FUNC_START(aesni_xts_crypt8)
+>        pxor INC, STATE4
+>        movdqu IV, 0x30(OUTP)
+>
+>-       CALL_NOSPEC %r11
+>+       CALL_NOSPEC r11
+>
+>        movdqu 0x00(OUTP), INC
+>        pxor INC, STATE1
+>@@ -2803,7 +2803,7 @@ SYM_FUNC_START(aesni_xts_crypt8)
+>        _aesni_gf128mul_x_ble()
+>        movups IV, (IVP)
+>
+>-       CALL_NOSPEC %r11
+>+       CALL_NOSPEC r11
+>
+>        movdqu 0x40(OUTP), INC
+>        pxor INC, STATE1
+>
+>but those CALL_NOSPEC calls are being removed by this patch anyway, so
+>that shouldn't matter.
 
-Fixes: 21575a7a8d4c ("I2C: JZ4780: Add support for the X1000.")
+Hm, I'm seeing a lot more conflicts on 5.4 that I'm not too comfortable
+with resolving.
 
-Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
----
- drivers/i2c/busses/i2c-jz4780.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+I should be taking just these two, right?
 
-diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-index 8509c5f..1ad093a 100644
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -520,13 +520,12 @@ static irqreturn_t jz4780_i2c_irq(int irqno, void *dev_id)
- 
- 			i2c_sta = jz4780_i2c_readw(i2c, JZ4780_I2C_STA);
- 
--			while ((i2c_sta & JZ4780_I2C_STA_TFNF) &&
--					(i2c->wt_len > 0)) {
-+			while ((i2c_sta & JZ4780_I2C_STA_TFNF) && (i2c->wt_len > 0)) {
- 				i2c_sta = jz4780_i2c_readw(i2c, JZ4780_I2C_STA);
- 				data = *i2c->wbuf;
- 				data &= ~JZ4780_I2C_DC_READ;
--				if ((!i2c->stop_hold) && (i2c->cdata->version >=
--						ID_X1000))
-+				if ((i2c->wt_len == 1) && (!i2c->stop_hold) &&
-+						(i2c->cdata->version >= ID_X1000))
- 					data |= X1000_I2C_DC_STOP;
- 				jz4780_i2c_writew(i2c, JZ4780_I2C_DC, data);
- 				i2c->wbuf++;
+	032d049ea0f4 ("crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg")
+	86ad60a65f29 ("crypto: x86/aes-ni-xts - use direct calls to and 4-way stride")
+
 -- 
-2.7.4
-
+Thanks,
+Sasha
