@@ -2,129 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 615C8340DA0
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 19:58:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B6D6340E26
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 20:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230021AbhCRS6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 14:58:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57066 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232674AbhCRS6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 14:58:13 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14B77C06174A;
-        Thu, 18 Mar 2021 11:58:13 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id v2so2049259pgk.11;
-        Thu, 18 Mar 2021 11:58:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=xBIgRnYWQtRwE9QtCvp+KHIBmP9kBbKy+SrEtU2y3qQ=;
-        b=DbnBZS59P8ThzX9E3IqHqpcDFrNZShZyvnN0hUSOD3iXTBlA2hIu/71IHy/R4+F4kI
-         JukEY8kd9za8ZpZxEtsexxi3DnykgF5P1/9KGlMf3tPqtZVJrnRvgRNpuMBCUyHyySNm
-         O/Q6pdYBRv7YDtlBB9vB/jtBHSi7xEvFIQgSz4WhOez+ZCywFM4kWv0QbeNQm2iYXgEY
-         qxSJiGtSlfCntmEnOJpCUCRO6k5jehp493N9jKQYUYGkBegDS1CmJKiLdMixU62zvsIu
-         oNpdILs93EvvGW3PF0AA+kyaMQw/OXr96bhZE14Bsl83JeywqFiPGQjJrIy2+TAGnLNH
-         sKww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=xBIgRnYWQtRwE9QtCvp+KHIBmP9kBbKy+SrEtU2y3qQ=;
-        b=FPKB1/JttMVCcs2gUUS7VPUojcuoYr5f8zMIeoH8FbQNy0j+9dl4LkmTkHK5MTRFLH
-         Q+iPiOyt7Dtc9G4vkd55ZDPIAdZD2PsUVuJNFuHVbqrg5Ixq4/iwwvclJ2HLLVFJdC7L
-         +Md6sbsGvj2bCu5M0Zun+D6AHO2gOkZt+W+ismUA6YeejrTGtlYj/mGPPKuphhpqGqjq
-         09JtLCvX0ib8pnYx86v1UvHI7ELIoNo3vAoKLVQbWTOd6Wq6DhT92F6NzxTYqE5tP9gi
-         tcuafuy8wXB8J7AvzL8OB77J+5xgAMhL0fYOyv/A/xvK3CSTjbmPhnT2syQslaqwZkQp
-         IzWA==
-X-Gm-Message-State: AOAM531p/rarRAIFYZ6PiQlyDwlcT2HrMj1xaI1FrZ8cs5rN33w38Zbf
-        ueLaXY2oX7XjrlBmSSpjPD8=
-X-Google-Smtp-Source: ABdhPJz0OlEo8YsjOGPfoOqtFr3/5TRoo4H6GQaspwuyBcAls631WvdEBzHROZ61QqiHu6+N0YVMRA==
-X-Received: by 2002:a65:5bc6:: with SMTP id o6mr7985950pgr.127.1616093892323;
-        Thu, 18 Mar 2021 11:58:12 -0700 (PDT)
-Received: from [10.230.29.202] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id b140sm3145269pfb.98.2021.03.18.11.58.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 18 Mar 2021 11:58:11 -0700 (PDT)
-Subject: Re: [PATCH net V2 1/1] net: phy: fix invalid phy id when probe using
- C22
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Wong Vee Khee <vee.khee.wong@intel.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Voon Weifeng <weifeng.voon@intel.com>,
-        Ong Boon Leong <boon.leong.ong@intel.com>
-References: <20210318090937.26465-1-vee.khee.wong@intel.com>
- <b63c5068-1203-fcb6-560d-1d2419bb39b0@gmail.com>
- <c921bf7f-e4d1-eefa-c5ae-024d5e8a4845@gmail.com> <YFOYclhA75hjmQHY@kroah.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <665e347d-b4fc-b893-0317-3d04624fc1ba@gmail.com>
-Date:   Thu, 18 Mar 2021 11:58:07 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.8.1
+        id S232674AbhCRTYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 15:24:36 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8986 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232479AbhCRTY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 15:24:26 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12IJ4QQu010615;
+        Thu, 18 Mar 2021 15:24:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Zuf1kKKkAwwOU6IO1L4Z2Ge+i5zj86VHl5I8TZpPZlw=;
+ b=A+YL7cxMQ07QD44OFEWsELEBW72UmN/ouupKsZebTbzWW58iTsPm0ZLUdSHzox54/Mqm
+ iSsRCvfmPWzxgKy7NdzLLkelnfNJa2DYvMJQHmo1IVSQKILWkn/9HbHJ45YD4uj7PwZM
+ egiEdRF+md3vxlCcF4vZlGUPxLWmCDsBpRbVXJwfrnKqP5wYyv/8jhC3mawWGXbJn63v
+ nQ8C6NB64hlwlD9AQm2oQHzSA1xMDdbusAzL49+TXZTqZpGFAgLD0glcRkTIG3UxCHtl
+ zf8nh/vaxhnl01hwPgoG5WTKnbsMjlaN144UAjJCfBifPforvCthGwveMEGnlm8UZWS+ gg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37c6tfd4fm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 15:24:22 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12IJ4fFi011213;
+        Thu, 18 Mar 2021 15:24:22 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37c6tfd4ew-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 15:24:21 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12IJMMkq027092;
+        Thu, 18 Mar 2021 19:24:20 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 378n18anwd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 19:24:20 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12IJOH1a36962566
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 18 Mar 2021 19:24:17 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 52C30A4040;
+        Thu, 18 Mar 2021 19:24:17 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8D3B8A404D;
+        Thu, 18 Mar 2021 19:24:16 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.84.212])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 18 Mar 2021 19:24:16 +0000 (GMT)
+Date:   Thu, 18 Mar 2021 20:24:14 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH v4 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+Message-ID: <20210318202414.16f3350d.pasic@linux.ibm.com>
+In-Reply-To: <d98ab0e1-dca3-0ea7-2478-387e3698900e@linux.ibm.com>
+References: <20210310150559.8956-1-akrowiak@linux.ibm.com>
+        <20210310150559.8956-2-akrowiak@linux.ibm.com>
+        <20210318001729.06cdb8d6.pasic@linux.ibm.com>
+        <d98ab0e1-dca3-0ea7-2478-387e3698900e@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <YFOYclhA75hjmQHY@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-18_12:2021-03-17,2021-03-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ lowpriorityscore=0 phishscore=0 priorityscore=1501 mlxscore=0
+ suspectscore=0 bulkscore=0 clxscore=1015 adultscore=0 impostorscore=0
+ malwarescore=0 mlxlogscore=758 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2103180135
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 18 Mar 2021 13:54:06 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-
-On 3/18/2021 11:14 AM, Greg KH wrote:
-> On Thu, Mar 18, 2021 at 09:02:22AM -0700, Florian Fainelli wrote:
->>
->>
->> On 3/18/2021 6:25 AM, Heiner Kallweit wrote:
->>> On 18.03.2021 10:09, Wong Vee Khee wrote:
->>>> When using Clause-22 to probe for PHY devices such as the Marvell
->>>> 88E2110, PHY ID with value 0 is read from the MII PHYID registers
->>>> which caused the PHY framework failed to attach the Marvell PHY
->>>> driver.
->>>>
->>>> Fixed this by adding a check of PHY ID equals to all zeroes.
->>>>
->>>
->>> I was wondering whether we have, and may break, use cases where a PHY,
->>> for whatever reason, reports PHY ID 0, but works with the genphy
->>> driver. And indeed in swphy_read_reg() we return PHY ID 0, therefore
->>> the patch may break the fixed phy.
->>> Having said that I think your patch is ok, but we need a change of
->>> the PHY ID reported by swphy_read_reg() first.
->>> At a first glance changing the PHY ID to 0x00000001 in swphy_read_reg()
->>> should be sufficient. This value shouldn't collide with any real world
->>> PHY ID.
->>
->> It most likely would not, but it could be considered an ABI breakage,
->> unless we filter out what we report to user-space via SIOGCMIIREG and
->> /sys/class/mdio_bus/*/*/phy_id
->>
->> Ideally we would have assigned an unique PHY OUI to the fixed PHY but
->> that would have required registering Linux as a vendor, and the process
->> is not entirely clear to me about how to go about doing that.
+> > Is it guaranteed that matrix_mdev can't be NULL here? If yes, please
+> > remind me of the mechanism that ensures this.  
 > 
-> If you need me to do that under the umbrella of the Linux Foundation,
-> I'll be glad to do so if you point me at the proper group to do that
-> with.
-> 
-> We did this for a few years with the USB-IF and have a vendor id
-> assigned to us for Linux through them, until they kicked us out because.
-> But as the number is in a global namespace, it can't be reused so we
-> keep it :)
+> The matrix_mdev is set as drvdata when the mdev is created and
+> is only cleared when the mdev is removed. Likewise, this function
+> is a callback defined by by vfio in the vfio_ap_matrix_ops structure
+> when the matrix_dev is registered and is intended to handle ioctl
+> calls from userspace during the lifetime of the mdev. 
 
-We would still be creating what is technically an user-space interface
-breakage since prior to a given kernel version we would return 0 for
-that PHY OUI, and after another point it would be something different. I
-don't know what software out there may be expecting to find 0 and not
-determine that the PHY was fixed already because it is under
-/sys/class/mdio_bus/fixed-0
--- 
-Florian
+Yes, I've checked that these are all callbacks in the same struct, so
+the callbacks are all registered simultaneously, i.e. the ioctl callback
+gettin gregistered only when drv_data is already set is not the case.
+If there isn't a mechanism in core mdev, then I think we better be
+careful.  I don't see what would guarantee the pointer is always in the
+vfio_ap code. 
+
+> While I can't
+> speak definitively to the guarantee, I think it is extremely unlikely
+> that matrix_mdev would be NULL at this point. On the other hand,
+> it wouldn't hurt to check for NULL and log an error or warning
+> message (I prefer an error here) if NULL.
+
+If we aren't absolutely sure this pointer is going to be always a valid
+one, let's check it!
+
+Regards,
+Halil
