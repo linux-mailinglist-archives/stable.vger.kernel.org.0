@@ -2,115 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0DC6340598
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 13:35:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF70A340632
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 13:57:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229908AbhCRMfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 08:35:03 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:52158 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbhCRMei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 08:34:38 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 32A641C0B7D; Thu, 18 Mar 2021 13:34:36 +0100 (CET)
-Date:   Thu, 18 Mar 2021 13:34:35 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 5.10 041/290] net: enetc: force the RGMII speed and
- duplex instead of operating in inband mode
-Message-ID: <20210318123435.GA8812@duo.ucw.cz>
-References: <20210315135541.921894249@linuxfoundation.org>
- <20210315135543.317947345@linuxfoundation.org>
+        id S231137AbhCRM5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 08:57:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55394 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231288AbhCRM5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 08:57:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C892464E28;
+        Thu, 18 Mar 2021 12:57:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616072222;
+        bh=QM1fCH9+yvE1msPa2fUjwKePuiAxlHmW2l1xQy/WFqc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OPwlrSaIcEpUkAMbAGSntvmHL6qLaPXpOw/TEnMZApdmFurbtBjSqn3xeWfiQgWTy
+         v1LXKWuKD7lUeFLThyxsXw6Sjke2/kkJ+ODDAFOi9kZtF+amXwVV87GJ6FSyTE499G
+         lUbNeUcMYzltvYkwyYNkFHNaYhKO2lNgJ0kqiGAEJuRWNqK1SksqCzNvKtxA03Y0AB
+         bHf2NxWjpIhPImyOqoQ8TPD6pJmHfwuP7WivR6QlrdMSkaxoCLisc9AS8tuCyB9Xwc
+         Z/V8bG7nY0e8G3Wt+jy2UWw3eFay2xBBh5ChVCir1j+37kUiId/PWKupOHZSkv+zVZ
+         0gn8tags78KSg==
+Date:   Thu, 18 Mar 2021 08:57:00 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     Vladimir Murzin <vladimir.murzin@arm.com>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        catalin.marinas@arm.com, maz@kernel.org, dbrazdil@google.com
+Subject: Re: [PATCH v2][for-stable-v5.11] arm64: Unconditionally set virtual
+ cpu id registers
+Message-ID: <YFNOHKX6V4dkwWIp@sashalap>
+References: <20210316134319.89472-1-vladimir.murzin@arm.com>
+ <20210317132614.GB5225@willie-the-truck>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210315135543.317947345@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210317132614.GB5225@willie-the-truck>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Mar 17, 2021 at 01:26:15PM +0000, Will Deacon wrote:
+>On Tue, Mar 16, 2021 at 01:43:19PM +0000, Vladimir Murzin wrote:
+>> Commit 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
+>> reorganized el2 setup in such way that virtual cpu id registers set
+>> only in nVHE, yet they used (and need) to be set irrespective VHE
+>> support.
+>>
+>> Fixes: 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
+>> Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+>> ---
+>> Changelog
+>>
+>>   v1 -> v2
+>>      - Drop the reference to 32bit guests from commit message (per Marc)
+>>
+>> There is no upstream fix since issue went away due to code there has
+>> been reworked in 5.12: nVHE comes first, so virtual cpu id register
+>> are always set.
+>>
+>> Maintainers, please, Ack.
+>>
+>>  arch/arm64/include/asm/el2_setup.h | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+>Acked-by: Will Deacon <will@kernel.org>
+>
+>It's a bit weird to have a patch in stable that isn't upstream, but I don't
+>see a better option here.
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, I'd agree here - the commits that would need to be backported look
+way too invasive.
 
-Hi!
+I've queued it up, thanks.
 
-> It has been reported that RGMII is broken in fixed-link, and that is not
-> surprising considering the fact that no PHY is attached to the MAC in
-> that case, but a switch.
-
-Okay, but there's something wrong in the code.
-
-> This brings us to the topic of the patch: the enetc driver should have
-> not enabled the optional in-band status signaling for RGMII unconditional=
-ly,
-> but should have forced the speed and duplex to what was resolved by
-> phylink.
-
-> +++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-> @@ -494,13 +494,20 @@ static void enetc_configure_port_mac(str
-> =20
->  static void enetc_mac_config(struct enetc_hw *hw, phy_interface_t phy_mo=
-de)
->  {
-=2E..
-> +	u32 val;
-> +
-> +	if (phy_interface_mode_is_rgmii(phy_mode)) {
-> +		val =3D enetc_port_rd(hw, ENETC_PM0_IF_MODE);
-> +		val &=3D ~ENETC_PM0_IFM_EN_AUTO;
-> +		val &=3D ENETC_PM0_IFM_IFMODE_MASK;
-> +		val |=3D ENETC_PM0_IFM_IFMODE_GMII | ENETC_PM0_IFM_RG;
-> +		enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
-> +	}
-
-val clears ENETC_PM0_IFM_EN_AUTO bit, then the bit is cleared again,
-preserving just IFMODE bits, then ors the IFMODE bits with new values.
-
-I believe this is needed:
-
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-									Pavel
-
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/=
-ethernet/freescale/enetc/enetc_pf.c
-index 83187cd59fdd..446ad4c43fab 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -499,7 +499,7 @@ static void enetc_mac_config(struct enetc_hw *hw, phy_i=
-nterface_t phy_mode)
- 	if (phy_interface_mode_is_rgmii(phy_mode)) {
- 		val =3D enetc_port_rd(hw, ENETC_PM0_IF_MODE);
- 		val &=3D ~ENETC_PM0_IFM_EN_AUTO;
--		val &=3D ENETC_PM0_IFM_IFMODE_MASK;
-+		val &=3D ~ENETC_PM0_IFM_IFMODE_MASK;
- 		val |=3D ENETC_PM0_IFM_IFMODE_GMII | ENETC_PM0_IFM_RG;
- 		enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
- 	}
-
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYFNI2wAKCRAw5/Bqldv6
-8rfmAKC+2NLtn0Ev4aQO2XeCotEz714UeACgwwExRyN/HyzwIze9/gxKal/+z8U=
-=wAOP
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+-- 
+Thanks,
+Sasha
