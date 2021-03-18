@@ -2,123 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D073406CC
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 14:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E921340791
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 15:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229951AbhCRN0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 09:26:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40830 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229634AbhCRN0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 09:26:03 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB9CC06174A;
-        Thu, 18 Mar 2021 06:26:02 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id j4-20020a05600c4104b029010c62bc1e20so3357433wmi.3;
-        Thu, 18 Mar 2021 06:26:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=tn903V/DZ3bhwc3O5vkyieGLvXdfPZU7y2pYkPz0YuQ=;
-        b=QnQB6KwIrslc7thN0KjQxwacqIVgDz4nf1Mw/mWSWzRt8wzS22lWmfdKBTCYbHp9rW
-         Qu2oOA5eOw4c7ctyerlcu3EfoWY4RauocxDhVCZw0yyv41Wld2lnMVpWYpN5BtG6bU7M
-         1cXkzrYGOeYhtFkRoG84ZM1M5/YAgcSqTFR1pqW7TLna5+ZvxaCtdtBqu39OkXngCO9H
-         gQ38mugjm2jc6U5tz0TqmRSHi6cy14hn1wNmuB9qvZy85hXKD1rJxxC5Bli/K2OyCgPh
-         SFf3YkM2neKMcovP94yI2TIC9MX2hq6zpRxj/JWGP0WXxABOQ8ekxSV6QINee0j69zWX
-         grBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=tn903V/DZ3bhwc3O5vkyieGLvXdfPZU7y2pYkPz0YuQ=;
-        b=ZdjDxLh18ppoAHwHdE/HmBesYexIBrkgZ9EDk2xX54HBR3PidoyfvaIDVXAK+Ct4X2
-         hZ0xcbDcRWI4i0h5S8n3bn+IS+CJNBtxYfDonPZ9sFmxr/3iIHQ+fBAjhJwA+iTUQ+l7
-         trFlhf+0IXTqe2mippbqRnnnQEyt/4hmLVCYPBwNv1//DLbWptVNAgOrehAz1vdQ+W8j
-         pUm/97gf1j5qTbswyGwCEveiyK7gziTvTLXlChIm2EcoxVupJe2aIPS+lcGhRx4ijFK4
-         J0LBBzpu14KMGPw4JS09YJzKTlFheR+AWmEOX0+JIXHa+554GvXWukVq6ARZrARAWXgf
-         QR0A==
-X-Gm-Message-State: AOAM533Cg5x1HSqLfdBLlWj/L3R0kzapBbK0I9nz7Zvh2zmja5rXGQ9l
-        GkqE2tH75wkaqV9aL5VBJi8=
-X-Google-Smtp-Source: ABdhPJyfN0WSzgknqqEqBL2HY6BYfc7/QTb10jfmJ3dFp117hTlN1bgJtqZul9cUO7yW3KrgE1nRLA==
-X-Received: by 2002:a1c:498b:: with SMTP id w133mr3824751wma.134.1616073961339;
-        Thu, 18 Mar 2021 06:26:01 -0700 (PDT)
-Received: from ?IPv6:2003:ea:8f1f:bb00:8d2c:8cc:6c7f:1a84? (p200300ea8f1fbb008d2c08cc6c7f1a84.dip0.t-ipconnect.de. [2003:ea:8f1f:bb00:8d2c:8cc:6c7f:1a84])
-        by smtp.googlemail.com with ESMTPSA id u8sm3060529wrr.42.2021.03.18.06.26.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 18 Mar 2021 06:26:00 -0700 (PDT)
-To:     Wong Vee Khee <vee.khee.wong@intel.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Voon Weifeng <weifeng.voon@intel.com>,
-        Ong Boon Leong <boon.leong.ong@intel.com>
-References: <20210318090937.26465-1-vee.khee.wong@intel.com>
-From:   Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH net V2 1/1] net: phy: fix invalid phy id when probe using
- C22
-Message-ID: <b63c5068-1203-fcb6-560d-1d2419bb39b0@gmail.com>
-Date:   Thu, 18 Mar 2021 14:25:54 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S231317AbhCROQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 10:16:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231408AbhCROPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 10:15:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D48564F24;
+        Thu, 18 Mar 2021 14:15:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616076947;
+        bh=gaH7KOpqa0mh8Td2vFO8Q9uJaIe40TCSMBkbNqSg+R0=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=L++pIO1kLRARcA+NCpzuHGudtAdtwgx2QLANmUyb3vndLyelFxURtMJh3EJBQ05ja
+         s5ArnWcHWLflLAauq87tku82sGhdB2vqsuI823kwWRbuBz1Fx5j6NEiU8FEOQKOGu7
+         hn+8jXRL8QhHInG9ebGu8v9HwNgzbkuH/hylpUSFU4kCbuDtnm7XQh/OoXK5IkyDoe
+         lR4oYd5LpCzcZkPF22JZPq5auyFvYzhWX/136pWiBuRw2gDjw1XebCrbatX2dOOo8T
+         FagaOvdUaHybUkDd1+p+COA4vhg3PJeN9KG8VpqhpC4aFM3UAb7FS3sKv+6dQac6SR
+         i5BFeCykBm6rw==
+Received: by mail-ot1-f41.google.com with SMTP id h6-20020a0568300346b02901b71a850ab4so5315405ote.6;
+        Thu, 18 Mar 2021 07:15:47 -0700 (PDT)
+X-Gm-Message-State: AOAM531H4UjQf45VLZlhwNVBr1Kt/e5gSaX70M/jwnLOYyzVEDoGUh+G
+        aDqaZs/VROn+UARKZahaXZCrEWP53GUaujuKqAk=
+X-Google-Smtp-Source: ABdhPJzAnAlsSlpVebKZ3lyjrI7JeKROhZXVtYuFJrV41ko7Liu7GFD25Xz0rbl8O7HOAbrna5TulhXfcOlP5V1bjxM=
+X-Received: by 2002:a9d:42c:: with SMTP id 41mr7407978otc.108.1616076946466;
+ Thu, 18 Mar 2021 07:15:46 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210318090937.26465-1-vee.khee.wong@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <d5c825ba-cdcb-29eb-c434-83ef4db05ee0@tmb.nu> <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
+ <1e6eb02b-e699-d1ff-9cfb-4ef77255e244@tmb.nu> <9493dced-908e-a9bd-009a-6b20a8422ec1@tmb.nu>
+ <CAMj1kXHzEEU2-mVxVD8g=P_Py_WJMOn0q8m+k-txUUioS+2ajQ@mail.gmail.com> <YFNPiHAvEwDpGLrv@sashalap>
+In-Reply-To: <YFNPiHAvEwDpGLrv@sashalap>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Thu, 18 Mar 2021 15:15:35 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXG_D_Aw+kyrz7ShMuPaMhpnMhTRZ8tsqKUf0koq_UPSnw@mail.gmail.com>
+Message-ID: <CAMj1kXG_D_Aw+kyrz7ShMuPaMhpnMhTRZ8tsqKUf0koq_UPSnw@mail.gmail.com>
+Subject: Re: stable request
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Thomas Backlund <tmb@tmb.nu>, "# 3.4.x" <stable@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 18.03.2021 10:09, Wong Vee Khee wrote:
-> When using Clause-22 to probe for PHY devices such as the Marvell
-> 88E2110, PHY ID with value 0 is read from the MII PHYID registers
-> which caused the PHY framework failed to attach the Marvell PHY
-> driver.
-> 
-> Fixed this by adding a check of PHY ID equals to all zeroes.
-> 
+On Thu, 18 Mar 2021 at 14:03, Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Tue, Mar 16, 2021 at 01:35:40PM +0100, Ard Biesheuvel wrote:
+> >On Tue, 16 Mar 2021 at 13:28, Thomas Backlund <tmb@tmb.nu> wrote:
+> >>
+> >>
+> >> Den 16.3.2021 kl. 14:15, skrev Thomas Backlund:
+> >> >
+> >> > Den 16.3.2021 kl. 12:17, skrev Ard Biesheuvel:
+> >> >> On Tue, 16 Mar 2021 at 10:21, Thomas Backlund <tmb@tmb.nu> wrote:
+> >> >>> Den 16.3.2021 kl. 08:37, skrev Ard Biesheuvel:
+> >> >>>> Please consider backporting commit
+> >> >>>>
+> >> >>>> 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
+> >> >>>> crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+> >> >>>>
+> >> >>>> to stable. It addresses a rather substantial retpoline-related
+> >> >>>> performance regression in the AES-NI XTS code, which is a widely used
+> >> >>>> disk encryption algorithm on x86.
+> >> >>>>
+> >> >>> To get all the nice bits, we added the following in Mageia 5.10 / 5.11
+> >> >>> series kerenels (the 2 first is needed to get the third to apply/build
+> >> >>> nicely):
+> >> >>>
+> >> >> I will leave it up to the -stable maintainers to decide, but I will
+> >> >> point out that none of the additional patches fix any bugs, so this
+> >> >> may violate the stable kernel rules. In fact, I deliberately split the
+> >> >> XTS changes into two  patches so that the first one could be
+> >> >> backported individually.
+> >> >
+> >> > Yes, I understand that.
+> >> >
+> >> > but commit
+> >> >
+> >> > 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
+> >> > crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+> >> >
+> >> > only applies cleanly on 5.11.
+> >> >
+> >> >
+> >> > So if it's wanted in 5.10 you need the 2 others too... unless you intend to provide a tested backport...
+> >> > and IIRC GregKH prefers 1:1 matching of patches between -stable and linus tree unless they are too intrusive.
+> >> >
+> >> >
+> >> > As for the last one I seem to remember comments that it too was part of the "affects performance", but I might be remembering wrong... and since you are Author of them I assume you know better about the facts :)
+> >> >
+> >> >
+> >> > That's why I listed them as an extra "hopefully helfpful" info and datapoint that they work...
+> >> > We have been carrying them in 5.10 series since we rebased to 5.10.8 on January 17th, 2021
+> >> >
+> >> >
+> >> > but in the end it's up to the -stable maintainers as you point out...
+> >>
+> >>
+> >> and now  I re-checked...
+> >>
+> >> Only the first is needed to get your fix to apply cleanly on 5.10
+> >>
+> >>
+> >> the second came in as a pre-req for the fourth patch...
+> >>
+> >
+> >OK so that would be
+> >
+> >032d049ea0f45b45c21f3f02b542aa18bc6b6428
+> >Uros Bizjak <ubizjak@gmail.com>
+> >crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
+> >
+> >which is already in 5.11, but needs to be backported as well for the
+> >originally requested backport to apply cleanly to 5.10 and earlier.
+> >
+> >Thanks for digging that up.
+>
+> Queued up for 5.10 and 5.11.
+>
+> What about anything older than 5.10? Looks like it's needed there too?
+>
 
-I was wondering whether we have, and may break, use cases where a PHY,
-for whatever reason, reports PHY ID 0, but works with the genphy
-driver. And indeed in swphy_read_reg() we return PHY ID 0, therefore
-the patch may break the fixed phy.
-Having said that I think your patch is ok, but we need a change of
-the PHY ID reported by swphy_read_reg() first.
-At a first glance changing the PHY ID to 0x00000001 in swphy_read_reg()
-should be sufficient. This value shouldn't collide with any real world
-PHY ID.
+Yes, 4.19 and 5.4 should probably get this too. They should apply with
+minimal effort, afaict. The only conflicting change is
+34fdce6981b96920ced4e0ee56e9db3fb03a33f0, which changed
 
-> Fixes: ee951005e95e ("net: phy: clean up get_phy_c22_id() invalid ID handling")
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Voon Weifeng <voon.weifeng@intel.com>
-> Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
-> ---
-> v2 changelog:
->  - added fixes tag
->  - marked for net instead of net-next
-> ---
->  drivers/net/phy/phy_device.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-> index cc38e326405a..c12c30254c11 100644
-> --- a/drivers/net/phy/phy_device.c
-> +++ b/drivers/net/phy/phy_device.c
-> @@ -809,8 +809,8 @@ static int get_phy_c22_id(struct mii_bus *bus, int addr, u32 *phy_id)
->  
->  	*phy_id |= phy_reg;
->  
-> -	/* If the phy_id is mostly Fs, there is no device there */
-> -	if ((*phy_id & 0x1fffffff) == 0x1fffffff)
-> +	/* If the phy_id is mostly Fs or all zeroes, there is no device there */
-> +	if (((*phy_id & 0x1fffffff) == 0x1fffffff) || (*phy_id == 0))
->  		return -ENODEV;
->  
->  	return 0;
-> 
+--- a/arch/x86/crypto/aesni-intel_asm.S
++++ b/arch/x86/crypto/aesni-intel_asm.S
+@@ -2758,7 +2758,7 @@ SYM_FUNC_START(aesni_xts_crypt8)
+        pxor INC, STATE4
+        movdqu IV, 0x30(OUTP)
 
+-       CALL_NOSPEC %r11
++       CALL_NOSPEC r11
+
+        movdqu 0x00(OUTP), INC
+        pxor INC, STATE1
+@@ -2803,7 +2803,7 @@ SYM_FUNC_START(aesni_xts_crypt8)
+        _aesni_gf128mul_x_ble()
+        movups IV, (IVP)
+
+-       CALL_NOSPEC %r11
++       CALL_NOSPEC r11
+
+        movdqu 0x40(OUTP), INC
+        pxor INC, STATE1
+
+but those CALL_NOSPEC calls are being removed by this patch anyway, so
+that shouldn't matter.
