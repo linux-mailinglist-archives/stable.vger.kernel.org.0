@@ -2,115 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FEE340C82
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 19:09:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD6F3340C8F
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 19:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229467AbhCRSJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 14:09:17 -0400
-Received: from mga18.intel.com ([134.134.136.126]:62667 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232555AbhCRSJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 14:09:09 -0400
-IronPort-SDR: F3iOQZVVCQgu89NM0jdxDyRwg+QR/hYh0R+jB1MRbZ7rkbb7h4H3ubU0Obk9IYhTQgp28aSC5O
- SD3PSyvP6xiw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9927"; a="177334345"
-X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="177334345"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 11:09:08 -0700
-IronPort-SDR: GtM4yFDaXV3w4heKIccONaAJu1dfyd3Lzkaifu9fScWXnkFCiFVCt0ZX6hfSJ32bzWIYosz+uV
- C+yqqTN7ifZQ==
-X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="606279899"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 11:09:07 -0700
-Date:   Thu, 18 Mar 2021 20:09:03 +0200
-From:   Imre Deak <imre.deak@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] drm/i915: Disable LTTPR support when the LTTPR
- rev < 1.4
-Message-ID: <20210318180903.GH4128033@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20210317184901.4029798-1-imre.deak@intel.com>
- <20210317184901.4029798-4-imre.deak@intel.com>
- <YFOVKoReLkmB7ZuQ@intel.com>
+        id S232292AbhCRSL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 14:11:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21600 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232440AbhCRSLw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 14:11:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616091103;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=WP7PnNSr4BR9a1LVBwXMPx5QETfjMgS7zmkwK2xedWo=;
+        b=NzuKqqOgrrUtipYBhPeU5Q2FEHhzzOLJUkwgSvy7fVhSymfgrNFNZeW8yX7s6zdwVRKp0t
+        SXS1DfZMqHjO8P0DjYeW+UyV//InAzIxZE47n97mSfIxDl/Pt+7N7uua+tPubwTafqJm80
+        s8r7cTQuv8yF3GUxHbl3txA9rC4Kp+g=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-22-9rP6FESVNlSyT0A9bex5lg-1; Thu, 18 Mar 2021 14:11:41 -0400
+X-MC-Unique: 9rP6FESVNlSyT0A9bex5lg-1
+Received: by mail-wr1-f72.google.com with SMTP id f3so20471315wrt.14
+        for <stable@vger.kernel.org>; Thu, 18 Mar 2021 11:11:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=WP7PnNSr4BR9a1LVBwXMPx5QETfjMgS7zmkwK2xedWo=;
+        b=H4J+69gt8qRbv+hV9dAmbnchBQaZZ9WuLpovOuwhmnfTzq/OWLh9sBNGghhcOLjcEy
+         s3JUqnPvtXt09dJK1RxufzQa+lGUUJ6YrHjGOQ0pS6Jk3EkWgzvP1gSyv6zsr8rXXVwR
+         ZUPTNtr9pAlTU57+AQL4o/TVkHQmOB4dMbIqXywL58z7NBDo48pwdYxNxEhg1Ed8mTfp
+         hua2cuUqcyUe+NluntA+k/cng2gFHc5wtTHn0GmHy+GLyVUVpHw5BqzE9H8d8H+qfTwb
+         AuJYUOrM53ZnDlGJsSbFJG4/8uRI+WI7dvAvi+t+W4ZIWSzm5sojK4//xcoJXFnNxbmv
+         DLJw==
+X-Gm-Message-State: AOAM533Rma1IQL+zeFR4oBU7N9WSsg1yezP6HzxegZMbl+BvOPSXl9fk
+        FaxfAxVYnKfAVkK5sqzCfRmNfb6AmDjGPCziM9H8navykMX1topYt2uxnpbm23ADtnR1tbROE2o
+        qDIxlRSr0WWvnvLRK
+X-Received: by 2002:a5d:6810:: with SMTP id w16mr510494wru.333.1616091099218;
+        Thu, 18 Mar 2021 11:11:39 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwFTfjChgFyUXnBDg4awB1ZFX0fIcyN9S9XgyGks/aa0h+c9tuWlTuolWTJOqxYehca3p6+ug==
+X-Received: by 2002:a5d:6810:: with SMTP id w16mr510479wru.333.1616091099081;
+        Thu, 18 Mar 2021 11:11:39 -0700 (PDT)
+Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
+        by smtp.gmail.com with ESMTPSA id s8sm3686155wrn.97.2021.03.18.11.11.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Mar 2021 11:11:38 -0700 (PDT)
+Date:   Thu, 18 Mar 2021 14:11:35 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        gdawar.xilinx@gmail.com, jasowang@redhat.com,
+        lingshan.zhu@intel.com, lvivier@redhat.com, mst@redhat.com,
+        parav@nvidia.com, sgarzare@redhat.com, stable@vger.kernel.org,
+        tangbin@cmss.chinamobile.com, xianting_tian@126.com
+Subject: [GIT PULL] vhost: cleanups and fixes
+Message-ID: <20210318141135-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YFOVKoReLkmB7ZuQ@intel.com>
+X-Mutt-Fcc: =sent
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 18, 2021 at 08:00:10PM +0200, Ville Syrjälä wrote:
-> On Wed, Mar 17, 2021 at 08:49:01PM +0200, Imre Deak wrote:
-> > By the specification the 0xF0000 - 0xF02FF range is only valid if the
-> > LTTPR revision at 0xF0000 is at least 1.4. Disable the LTTPR support
-> > otherwise.
-> > 
-> > Fixes: 7b2a4ab8b0ef ("drm/i915: Switch to LTTPR transparent mode link training")
-> > Cc: <stable@vger.kernel.org> # v5.11
-> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > Signed-off-by: Imre Deak <imre.deak@intel.com>
-> > ---
-> >  .../gpu/drm/i915/display/intel_dp_link_training.c  | 14 ++++++++++----
-> >  1 file changed, 10 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > index d8d90903226f..d92eb192c89d 100644
-> > --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > @@ -100,17 +100,23 @@ static bool intel_dp_read_lttpr_common_caps(struct intel_dp *intel_dp)
-> >  		return false;
-> >  
-> >  	if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
-> > -					  intel_dp->lttpr_common_caps) < 0) {
-> > -		intel_dp_reset_lttpr_common_caps(intel_dp);
-> > -		return false;
-> > -	}
-> > +					  intel_dp->lttpr_common_caps) < 0)
-> > +		goto reset_caps;
-> 
-> BTW just noticed this oddball thing in the spec:
-> "DPTX shall read specific registers within the LTTPR field (DPCD
->  Addresses F0000h through F0004h; see Table 2-198) to determine
->  whether any LTTPR(s) are present and if so, how many. This read
->  shall be in the form of a 5-byte native AUX Read transaction."
-> 
-> Why exactly 5 bytes? I have no idea. Doesn't really make sense.
-> Just wondering if we really need to respect that and some LTTPRs
-> would fsck things up if we read more...
+The following changes since commit 16c10bede8b3d8594279752bf53153491f3f944f:
 
-I pointed this out to spec people and the new version (2.1) will require
-this to be 8 bytes. But yes, I do hope no existing ones depend on this
-being 5 bytes.
+  virtio-input: add multi-touch support (2021-02-23 07:52:59 -0500)
 
-> Anyways
-> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> 
-> >  
-> >  	drm_dbg_kms(&dp_to_i915(intel_dp)->drm,
-> >  		    "LTTPR common capabilities: %*ph\n",
-> >  		    (int)sizeof(intel_dp->lttpr_common_caps),
-> >  		    intel_dp->lttpr_common_caps);
-> >  
-> > +	/* The minimum value of LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV is 1.4 */
-> > +	if (intel_dp->lttpr_common_caps[0] < 0x14)
-> > +		goto reset_caps;
-> > +
-> >  	return true;
-> > +
-> > +reset_caps:
-> > +	intel_dp_reset_lttpr_common_caps(intel_dp);
-> > +	return false;
-> >  }
-> >  
-> >  static bool
-> > -- 
-> > 2.25.1
-> 
-> -- 
-> Ville Syrjälä
-> Intel
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 0bde59c1723a29e294765c96dbe5c7fb639c2f96:
+
+  vhost-vdpa: set v->config_ctx to NULL if eventfd_ctx_fdget() fails (2021-03-14 18:10:07 -0400)
+
+----------------------------------------------------------------
+virtio: fixes, cleanups
+
+Some fixes and cleanups all over the place.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Gautam Dawar (1):
+      vhost_vdpa: fix the missing irq_bypass_unregister_producer() invocation
+
+Jason Wang (1):
+      vdpa: set the virtqueue num during register
+
+Laurent Vivier (1):
+      vhost: Fix vhost_vq_reset()
+
+Parav Pandit (1):
+      vdpa_sim: Skip typecasting from void*
+
+Stefano Garzarella (2):
+      vhost-vdpa: fix use-after-free of v->config_ctx
+      vhost-vdpa: set v->config_ctx to NULL if eventfd_ctx_fdget() fails
+
+Tang Bin (1):
+      virtio-mmio: Use to_virtio_mmio_device() to simply code
+
+Xianting Tian (1):
+      virtio: remove export for virtio_config_{enable, disable}
+
+ drivers/vdpa/ifcvf/ifcvf_main.c      |  5 ++---
+ drivers/vdpa/mlx5/net/mlx5_vnet.c    |  4 ++--
+ drivers/vdpa/vdpa.c                  | 18 ++++++++++--------
+ drivers/vdpa/vdpa_sim/vdpa_sim.c     |  2 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c |  5 ++---
+ drivers/vhost/vdpa.c                 | 20 +++++++++++---------
+ drivers/vhost/vhost.c                |  2 +-
+ drivers/virtio/virtio.c              |  6 ++----
+ drivers/virtio/virtio_mmio.c         |  3 +--
+ include/linux/vdpa.h                 | 10 +++++-----
+ include/linux/virtio.h               |  2 --
+ 11 files changed, 37 insertions(+), 40 deletions(-)
+
