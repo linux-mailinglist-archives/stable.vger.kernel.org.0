@@ -2,111 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B75A7340C60
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 19:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D075340C72
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 19:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229469AbhCRSAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 14:00:41 -0400
-Received: from mga06.intel.com ([134.134.136.31]:49331 "EHLO mga06.intel.com"
+        id S232468AbhCRSGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 14:06:03 -0400
+Received: from mga01.intel.com ([192.55.52.88]:3929 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229958AbhCRSAN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 14:00:13 -0400
-IronPort-SDR: OoA5zWGDsGZFyxylXDR8bkDQd2KHbP0NQllAup8SmNbZbX7/VL3jdM083fGtfVNQYxkBumKdRR
- Iuk6Aw6vsqMg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9927"; a="251095424"
+        id S232431AbhCRSFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 14:05:31 -0400
+IronPort-SDR: gEENWhIh/THKkd44cAmYxFGIcJvs5lXhMs3pzyTIqEO5H3jIO+YNP/gBKuOE0P5Zl55R983IMK
+ 3i2B9KmUnuyw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9927"; a="209747166"
 X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="251095424"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 11:00:13 -0700
-IronPort-SDR: ro7YVxnXiCp+zBgYJ81Sxdp29Ts51zPhsrULw/SY+//gT7PHrNUvNgW2VLfCGtY0q6rgj9khfe
- rH88PaEbggdA==
-X-ExtLoop1: 1
+   d="scan'208";a="209747166"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 11:05:29 -0700
+IronPort-SDR: 3/+8XQA6e+LNogfzwvMcoRWl6Ipael3saBWTyh3ZDRIhMn5bCEcAuj3nTFaGN9kXqjxLR/eJup
+ duna0w000XSg==
 X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="450570890"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
-  by orsmga001.jf.intel.com with SMTP; 18 Mar 2021 11:00:10 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 18 Mar 2021 20:00:10 +0200
-Date:   Thu, 18 Mar 2021 20:00:10 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Imre Deak <imre.deak@intel.com>
+   d="scan'208";a="413184224"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 11:05:27 -0700
+Date:   Thu, 18 Mar 2021 20:05:23 +0200
+From:   Imre Deak <imre.deak@intel.com>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
 Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] drm/i915: Disable LTTPR support when the LTTPR
- rev < 1.4
-Message-ID: <YFOVKoReLkmB7ZuQ@intel.com>
-References: <20210317184901.4029798-1-imre.deak@intel.com>
- <20210317184901.4029798-4-imre.deak@intel.com>
+Subject: Re: [PATCH v2 2/3] drm/i915: Disable LTTPR support when the DPCD rev
+ < 1.4
+Message-ID: <20210318180523.GF4128033@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20210317184901.4029798-3-imre.deak@intel.com>
+ <20210317190149.4032966-1-imre.deak@intel.com>
+ <YFOUgp1QvipUwSGR@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210317184901.4029798-4-imre.deak@intel.com>
-X-Patchwork-Hint: comment
+In-Reply-To: <YFOUgp1QvipUwSGR@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 17, 2021 at 08:49:01PM +0200, Imre Deak wrote:
-> By the specification the 0xF0000 - 0xF02FF range is only valid if the
-> LTTPR revision at 0xF0000 is at least 1.4. Disable the LTTPR support
-> otherwise.
+On Thu, Mar 18, 2021 at 07:57:22PM +0200, Ville Syrjälä wrote:
+> On Wed, Mar 17, 2021 at 09:01:49PM +0200, Imre Deak wrote:
+> > By the specification the 0xF0000-0xF02FF range is only valid when the
+> > DPCD revision is 1.4 or higher. Disable LTTPR support if this isn't so.
+> > 
+> > Trying to detect LTTPRs returned corrupted values for the above DPCD
+> > range at least on a Skylake host with an LG 43UD79-B monitor with a DPCD
+> > revision 1.2 connected.
+> > 
+> > v2: Add the actual version check.
+> > 
+> > Fixes: 7b2a4ab8b0ef ("drm/i915: Switch to LTTPR transparent mode link training")
+> > Cc: <stable@vger.kernel.org> # v5.11
+> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> > ---
+> >  drivers/gpu/drm/i915/display/intel_dp.c       |  4 +-
+> >  .../drm/i915/display/intel_dp_link_training.c | 48 ++++++++++++++-----
+> >  .../drm/i915/display/intel_dp_link_training.h |  2 +-
+> >  3 files changed, 39 insertions(+), 15 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+> > index b6b5776f5a66..873684da0cd4 100644
+> > --- a/drivers/gpu/drm/i915/display/intel_dp.c
+> > +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+> > @@ -3711,9 +3711,7 @@ intel_dp_get_dpcd(struct intel_dp *intel_dp)
+> >  {
+> >  	int ret;
+> >  
+> > -	intel_dp_lttpr_init(intel_dp);
+> > -
+> > -	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd))
+> > +	if (intel_dp_init_lttpr_and_dprx_caps(intel_dp) < 0)
+> >  		return false;
+> >  
+> >  	/*
+> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+> > index c0e25c75c105..5a821d644e9c 100644
+> > --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+> > +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+> > @@ -35,6 +35,11 @@ intel_dp_dump_link_status(struct drm_device *drm,
+> >  		    link_status[3], link_status[4], link_status[5]);
+> >  }
+> >  
+> > +static void intel_dp_reset_lttpr_common_caps(struct intel_dp *intel_dp)
+> > +{
+> > +	memset(&intel_dp->lttpr_common_caps, 0, sizeof(intel_dp->lttpr_common_caps));
+> > +}
+> > +
+> >  static void intel_dp_reset_lttpr_count(struct intel_dp *intel_dp)
+> >  {
+> >  	intel_dp->lttpr_common_caps[DP_PHY_REPEATER_CNT -
+> > @@ -96,8 +101,7 @@ static bool intel_dp_read_lttpr_common_caps(struct intel_dp *intel_dp)
+> >  
+> >  	if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
+> >  					  intel_dp->lttpr_common_caps) < 0) {
+> > -		memset(intel_dp->lttpr_common_caps, 0,
+> > -		       sizeof(intel_dp->lttpr_common_caps));
+> > +		intel_dp_reset_lttpr_common_caps(intel_dp);
+> >  		return false;
+> >  	}
+> >  
+> > @@ -119,30 +123,49 @@ intel_dp_set_lttpr_transparent_mode(struct intel_dp *intel_dp, bool enable)
+> >  }
+> >  
+> >  /**
+> > - * intel_dp_lttpr_init - detect LTTPRs and init the LTTPR link training mode
+> > + * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
+> >   * @intel_dp: Intel DP struct
+> >   *
+> > - * Read the LTTPR common capabilities, switch to non-transparent link training
+> > - * mode if any is detected and read the PHY capabilities for all detected
+> > - * LTTPRs. In case of an LTTPR detection error or if the number of
+> > + * Read the LTTPR common and DPRX capabilities and switch to non-transparent
+> > + * link training mode if any is detected and read the PHY capabilities for all
+> > + * detected LTTPRs. In case of an LTTPR detection error or if the number of
+> >   * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
+> >   * transparent mode link training mode.
+> >   *
+> >   * Returns:
+> > - *   >0  if LTTPRs were detected and the non-transparent LT mode was set
+> > + *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
+> > + *       DPRX capabilities are read out.
+> >   *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
+> > - *       detection failure and the transparent LT mode was set
+> > + *       detection failure and the transparent LT mode was set. The DPRX
+> > + *       capabilities are read out.
+> > + *   <0  Reading out the DPRX capabilities failed.
+> >   */
+> > -int intel_dp_lttpr_init(struct intel_dp *intel_dp)
+> > +int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
+> >  {
+> >  	int lttpr_count;
+> >  	bool ret;
+> >  	int i;
+> >  
+> >  	ret = intel_dp_read_lttpr_common_caps(intel_dp);
+> > +
+> > +	/* The DPTX shall read the DRPX caps after LTTPR detection. */
+> > +	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
+> > +		intel_dp_reset_lttpr_common_caps(intel_dp);
+> > +		return -EIO;
+> > +	}
+> > +
+> >  	if (!ret)
+> >  		return 0;
+> >  
+> > +	/*
+> > +	 * The 0xF0000-0xF02FF range is only valid if the DPCD revision is
+> > +	 * at least 1.4.
+> > +	 */
+> > +	if (intel_dp->dpcd[DP_DPCD_REV] < 0x14) {
+> > +		intel_dp_reset_lttpr_common_caps(intel_dp);
+> > +		return 0;
+> > +	}
 > 
-> Fixes: 7b2a4ab8b0ef ("drm/i915: Switch to LTTPR transparent mode link training")
-> Cc: <stable@vger.kernel.org> # v5.11
-> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Signed-off-by: Imre Deak <imre.deak@intel.com>
-> ---
->  .../gpu/drm/i915/display/intel_dp_link_training.c  | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
+> Slight chicken vs. egg I guess. Seems ok
+
+Yes, reading 0xF0000-0xF0007 has a side effect and I suppose the LTTPRs
+could change something in the returned DPRX caps, depending on whether
+the read happened or not.
+
+> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 > 
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> index d8d90903226f..d92eb192c89d 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> @@ -100,17 +100,23 @@ static bool intel_dp_read_lttpr_common_caps(struct intel_dp *intel_dp)
->  		return false;
->  
->  	if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
-> -					  intel_dp->lttpr_common_caps) < 0) {
-> -		intel_dp_reset_lttpr_common_caps(intel_dp);
-> -		return false;
-> -	}
-> +					  intel_dp->lttpr_common_caps) < 0)
-> +		goto reset_caps;
-
-BTW just noticed this oddball thing in the spec:
-"DPTX shall read specific registers within the LTTPR field (DPCD
- Addresses F0000h through F0004h; see Table 2-198) to determine
- whether any LTTPR(s) are present and if so, how many. This read
- shall be in the form of a 5-byte native AUX Read transaction."
-
-Why exactly 5 bytes? I have no idea. Doesn't really make sense.
-Just wondering if we really need to respect that and some LTTPRs
-would fsck things up if we read more...
-
-Anyways
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-
->  
->  	drm_dbg_kms(&dp_to_i915(intel_dp)->drm,
->  		    "LTTPR common capabilities: %*ph\n",
->  		    (int)sizeof(intel_dp->lttpr_common_caps),
->  		    intel_dp->lttpr_common_caps);
->  
-> +	/* The minimum value of LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV is 1.4 */
-> +	if (intel_dp->lttpr_common_caps[0] < 0x14)
-> +		goto reset_caps;
-> +
->  	return true;
-> +
-> +reset_caps:
-> +	intel_dp_reset_lttpr_common_caps(intel_dp);
-> +	return false;
->  }
->  
->  static bool
+> > +
+> >  	lttpr_count = drm_dp_lttpr_count(intel_dp->lttpr_common_caps);
+> >  	/*
+> >  	 * Prevent setting LTTPR transparent mode explicitly if no LTTPRs are
+> > @@ -182,7 +205,7 @@ int intel_dp_lttpr_init(struct intel_dp *intel_dp)
+> >  
+> >  	return lttpr_count;
+> >  }
+> > -EXPORT_SYMBOL(intel_dp_lttpr_init);
+> > +EXPORT_SYMBOL(intel_dp_init_lttpr_and_dprx_caps);
+> >  
+> >  static u8 dp_voltage_max(u8 preemph)
+> >  {
+> > @@ -817,7 +840,10 @@ void intel_dp_start_link_train(struct intel_dp *intel_dp,
+> >  	 * TODO: Reiniting LTTPRs here won't be needed once proper connector
+> >  	 * HW state readout is added.
+> >  	 */
+> > -	int lttpr_count = intel_dp_lttpr_init(intel_dp);
+> > +	int lttpr_count = intel_dp_init_lttpr_and_dprx_caps(intel_dp);
+> > +
+> > +	if (lttpr_count < 0)
+> > +		return;
+> >  
+> >  	if (!intel_dp_link_train_all_phys(intel_dp, crtc_state, lttpr_count))
+> >  		intel_dp_schedule_fallback_link_training(intel_dp, crtc_state);
+> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.h b/drivers/gpu/drm/i915/display/intel_dp_link_training.h
+> > index 6a1f76bd8c75..9cb7c28027f0 100644
+> > --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.h
+> > +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.h
+> > @@ -11,7 +11,7 @@
+> >  struct intel_crtc_state;
+> >  struct intel_dp;
+> >  
+> > -int intel_dp_lttpr_init(struct intel_dp *intel_dp);
+> > +int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp);
+> >  
+> >  void intel_dp_get_adjust_train(struct intel_dp *intel_dp,
+> >  			       const struct intel_crtc_state *crtc_state,
+> > -- 
+> > 2.25.1
+> 
 > -- 
-> 2.25.1
-
--- 
-Ville Syrjälä
-Intel
+> Ville Syrjälä
+> Intel
