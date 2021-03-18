@@ -2,237 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F53B3410BD
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 00:18:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 668A9341141
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 00:55:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230510AbhCRXSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 19:18:21 -0400
-Received: from mga14.intel.com ([192.55.52.115]:59460 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231327AbhCRXRy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 19:17:54 -0400
-IronPort-SDR: UfdjQZeWOtKXhZ0hF9eDFMS0JKLHPNzQkLf9XvHQW1qBpE/sHok61PkDh4zAVXtYf+v6AFLvht
- /dfJ3GFbYADw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9927"; a="189163945"
-X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="189163945"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 16:17:54 -0700
-IronPort-SDR: JBRA5cS8Mw+fh0J1hjdspjJJYVPiCoZZYcgr7HxegipoIM+6IYkSyqxwYo5kpDz8g+UHrsbkOh
- HnuanII/P5TQ==
-X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="406549132"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 16:17:52 -0700
-Date:   Fri, 19 Mar 2021 01:17:49 +0200
-From:   Imre Deak <imre.deak@intel.com>
-To:     "Almahallawy, Khaled" <khaled.almahallawy@intel.com>
-Cc:     "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
-        "lyude@redhat.com" <lyude@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "mail@bodograumann.de" <mail@bodograumann.de>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "santiago.zarate@suse.com" <santiago.zarate@suse.com>,
-        "tiwai@suse.de" <tiwai@suse.de>
-Subject: Re: [PATCH v2 1/3] drm/i915/ilk-glk: Fix link training on links with
- LTTPRs
-Message-ID: <20210318231749.GA23036@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20210317184901.4029798-1-imre.deak@intel.com>
- <20210317184901.4029798-2-imre.deak@intel.com>
- <YFOO4FOmOB8yp3me@intel.com>
- <20210318174907.GE4128033@ideak-desk.fi.intel.com>
- <20210318180645.GG4128033@ideak-desk.fi.intel.com>
- <e1e9f9ea76071af914b37352fc201d09f378a55b.camel@intel.com>
+        id S233230AbhCRXzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 19:55:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230368AbhCRXyn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 19:54:43 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B256C061762
+        for <stable@vger.kernel.org>; Thu, 18 Mar 2021 16:54:43 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id q5so4612453pfh.10
+        for <stable@vger.kernel.org>; Thu, 18 Mar 2021 16:54:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8WJ6qFjujuk84HtZNxKJ3XhHk2SJ/KWCJ14sG1Kz83s=;
+        b=CdkMN8s18bbHU7BWYnXpDrRJmP+p4loTeWJJyqcx4HuZvW1Vda8z98Y2ASlcHTIJGT
+         kfGOknuMJnd5wDtVN36rhZHHw/YqtK0aGw06udFaXsPxfcgyueVtA7HHrkGtkhobE5G7
+         5dNTO5PUp7Y4vbrkQ5AISjIAmImTZQcvd/6NA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8WJ6qFjujuk84HtZNxKJ3XhHk2SJ/KWCJ14sG1Kz83s=;
+        b=hdBNPHT4OfdjG7aP0mSfZWr6HNy0H+lKlaC/tYiQsGZirZDnQ4R6UZa+dID515vg9H
+         x8K1Be6UEPYLB7kysiP3s6JU5Y79SU0Mm2q/+2DxXKq+RQK4a2yG2rH6esCvG48CQNyh
+         BzaXlI3H2XxOFeg66mgZ1ZHs4wO0BUbBkNqfHVA3qedejJ3tzgjcSUUYXRg02fgEBuPJ
+         kiyrHtr6xCbmQo7Hns3e9/HJDeHq9zu6oUAZHwHUS2B71h3nvJhTzjoEoFmIMw5vvc3X
+         qS4eg8TX0xjQ+ekWN3Qmf3lfk7RbSgJOfu2bUfqEvdLN61h5jsTjgKPJFmDdojd3At67
+         ENUw==
+X-Gm-Message-State: AOAM533cIKXkvg2C7o78OGLmb62hJNPX7KJB2JniBxMde3kq4g5FfWZI
+        nkPXRGHC1a8faadj4YrkZy0jzERw8BJvyQ==
+X-Google-Smtp-Source: ABdhPJxXmm1o5PbpOMlqhlmpnaK9uuEh/v/JENGCPwg/wnedfsiovOHRc3DPwhGQCHSShTfkWFXJGg==
+X-Received: by 2002:a62:e119:0:b029:1f8:9345:a099 with SMTP id q25-20020a62e1190000b02901f89345a099mr6618116pfh.21.1616111682271;
+        Thu, 18 Mar 2021 16:54:42 -0700 (PDT)
+Received: from drinkcat2.tpe.corp.google.com ([2401:fa00:1:b:dc70:2def:a801:e21b])
+        by smtp.gmail.com with ESMTPSA id t7sm3295816pfg.69.2021.03.18.16.54.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Mar 2021 16:54:41 -0700 (PDT)
+From:   Nicolas Boichat <drinkcat@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     Nicolas Boichat <drinkcat@chromium.org>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christopher Li <sparse@chrisli.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        clang-built-linux@googlegroups.com, linux-arch@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-sparse@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: [for-stable-4.19 PATCH 0/2] Backport patches to fix KASAN+LKDTM with recent clang on ARM64
+Date:   Fri, 19 Mar 2021 07:54:14 +0800
+Message-Id: <20210318235416.794798-1-drinkcat@chromium.org>
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <e1e9f9ea76071af914b37352fc201d09f378a55b.camel@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 12:04:54AM +0200, Almahallawy, Khaled wrote:
-> On Thu, 2021-03-18 at 20:06 +0200, Imre Deak wrote:
-> > On Thu, Mar 18, 2021 at 07:49:13PM +0200, Imre Deak wrote:
-> > > On Thu, Mar 18, 2021 at 07:33:20PM +0200, Ville Syrjälä wrote:
-> > > > On Wed, Mar 17, 2021 at 08:48:59PM +0200, Imre Deak wrote:
-> > > > > The spec requires to use at least 3.2ms for the AUX timeout
-> > > > > period if
-> > > > > there are LT-tunable PHY Repeaters on the link (2.11.2). An
-> > > > > upcoming
-> > > > > spec update makes this more specific, by requiring a 3.2ms
-> > > > > minimum
-> > > > > timeout period for the LTTPR detection reading the 0xF0000-
-> > > > > 0xF0007
-> > > > > range (3.6.5.1).
-> > > >
-> > > > I'm pondering if we could reduce the timeout after having
-> > > > determined
-> > > > wherther LTTPRs are present or not? But maybe that wouldn't
-> > > > really speed
-> > > > up anything since we can't reduce the timeout until after
-> > > > detecting
-> > > > *something*. And once there is something there we shouldn't
-> > > > really get
-> > > > any more timeouts I guess. So probably a totally stupid idea.
-> > >
-> > > Right, if something is connected it would take anyway as much time
-> > > as it
-> > > takes for the sink to reply whether or not we decreased the
-> > > timeout.
-> > >
-> > > However if nothing is connected, we have the excessive timeout
-> > > Khaled
-> > > already noticed (160 * 4ms = 6.4 sec on ICL+). I think to improve
-> > > that
-> > > we could scale the total number of retries by making it
-> > > total_timeout/platform_specific_timeout (letting total_timeout=2sec
-> > > for
-> > > instance) or just changing the drm retry logic to be time based
-> > > instead
-> > > of the number of retries we use atm.
-> >
-> > Doh, reducing simply the HW timeouts would be enough to fix this.
-> 
-> What about Lyude's suggestion (
-> https://patchwork.freedesktop.org/patch/420369/#comment_756572)
-> to drop the retries in intel_dp_aux_xfer()
-> /* Must try at least 3 times according to DP spec */
-> for (try = 0; try < 5; try++) {
-> 
-> And use only the retries in drm_dpcd_access?
 
-I think it would work if we can make the retries configurable and set it
-to
-	retries = total_timeout / platform_specific_timeout_per_retry
+Backport 2 patches that are required to make KASAN+LKDTM work
+with recent clang (patch 2/2 has a complete description).
+Tested on our chromeos-4.19 branch.
 
-where total_timeout would be something reasonable like 1 sec.
+Patch 1/2 is context conflict only, and 2/2 is a clean backport.
 
-> 
-> Thanks
-> Khaled
-> 
-> >
-> > > > Anyways, this seems about the only thing we can do given the
-> > > > limited
-> > > > hw capabilities.
-> > > > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > >
-> > > > > Accordingly disable LTTPR detection until GLK, where the
-> > > > > maximum timeout
-> > > > > we can set is only 1.6ms.
-> > > > >
-> > > > > Link training in the non-transparent mode is known to fail at
-> > > > > least on
-> > > > > some SKL systems with a WD19 dock on the link, which exposes an
-> > > > > LTTPR
-> > > > > (see the References below). While this could have different
-> > > > > reasons
-> > > > > besides the too short AUX timeout used, not detecting LTTPRs
-> > > > > (and so not
-> > > > > using the non-transparent LT mode) fixes link training on these
-> > > > > systems.
-> > > > >
-> > > > > While at it add a code comment about the platform specific
-> > > > > maximum
-> > > > > timeout values.
-> > > > >
-> > > > > v2: Add a comment about the g4x maximum timeout as well.
-> > > > > (Ville)
-> > > > >
-> > > > > Reported-by: Takashi Iwai <tiwai@suse.de>
-> > > > > Reported-and-tested-by: Santiago Zarate <
-> > > > > santiago.zarate@suse.com>
-> > > > > Reported-and-tested-by: Bodo Graumann <mail@bodograumann.de>
-> > > > > References:
-> > > > > https://gitlab.freedesktop.org/drm/intel/-/issues/3166
-> > > > > Fixes: b30edfd8d0b4 ("drm/i915: Switch to LTTPR non-transparent
-> > > > > mode link training")
-> > > > > Cc: <stable@vger.kernel.org> # v5.11
-> > > > > Cc: Takashi Iwai <tiwai@suse.de>
-> > > > > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > Signed-off-by: Imre Deak <imre.deak@intel.com>
-> > > > > ---
-> > > > >  drivers/gpu/drm/i915/display/intel_dp_aux.c       |  7 +++++++
-> > > > >  .../gpu/drm/i915/display/intel_dp_link_training.c | 15
-> > > > > ++++++++++++---
-> > > > >  2 files changed, 19 insertions(+), 3 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> > > > > b/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> > > > > index eaebf123310a..10fe17b7280d 100644
-> > > > > --- a/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> > > > > +++ b/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> > > > > @@ -133,6 +133,7 @@ static u32 g4x_get_aux_send_ctl(struct
-> > > > > intel_dp *intel_dp,
-> > > > >  else
-> > > > >  precharge = 5;
-> > > > >
-> > > > > +/* Max timeout value on G4x-BDW: 1.6ms */
-> > > > >  if (IS_BROADWELL(dev_priv))
-> > > > >  timeout = DP_AUX_CH_CTL_TIME_OUT_600us;
-> > > > >  else
-> > > > > @@ -159,6 +160,12 @@ static u32 skl_get_aux_send_ctl(struct
-> > > > > intel_dp *intel_dp,
-> > > > >  enum phy phy = intel_port_to_phy(i915, dig_port-
-> > > > > >base.port);
-> > > > >  u32 ret;
-> > > > >
-> > > > > +/*
-> > > > > + * Max timeout values:
-> > > > > + * SKL-GLK: 1.6ms
-> > > > > + * CNL: 3.2ms
-> > > > > + * ICL+: 4ms
-> > > > > + */
-> > > > >  ret = DP_AUX_CH_CTL_SEND_BUSY |
-> > > > >        DP_AUX_CH_CTL_DONE |
-> > > > >        DP_AUX_CH_CTL_INTERRUPT |
-> > > > > diff --git
-> > > > > a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > > > > b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > > > > index 19ba7c7cbaab..c0e25c75c105 100644
-> > > > > --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > > > > +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > > > > @@ -82,6 +82,18 @@ static void
-> > > > > intel_dp_read_lttpr_phy_caps(struct intel_dp *intel_dp,
-> > > > >
-> > > > >  static bool intel_dp_read_lttpr_common_caps(struct intel_dp
-> > > > > *intel_dp)
-> > > > >  {
-> > > > > +struct drm_i915_private *i915 = dp_to_i915(intel_dp);
-> > > > > +
-> > > > > +if (intel_dp_is_edp(intel_dp))
-> > > > > +return false;
-> > > > > +
-> > > > > +/*
-> > > > > + * Detecting LTTPRs must be avoided on platforms with
-> > > > > an AUX timeout
-> > > > > + * period < 3.2ms. (see DP Standard v2.0, 2.11.2,
-> > > > > 3.6.6.1).
-> > > > > + */
-> > > > > +if (INTEL_GEN(i915) < 10)
-> > > > > +return false;
-> > > > > +
-> > > > >  if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
-> > > > >    intel_dp-
-> > > > > >lttpr_common_caps) < 0) {
-> > > > >  memset(intel_dp->lttpr_common_caps, 0,
-> > > > > @@ -127,9 +139,6 @@ int intel_dp_lttpr_init(struct intel_dp
-> > > > > *intel_dp)
-> > > > >  bool ret;
-> > > > >  int i;
-> > > > >
-> > > > > -if (intel_dp_is_edp(intel_dp))
-> > > > > -return 0;
-> > > > > -
-> > > > >  ret = intel_dp_read_lttpr_common_caps(intel_dp);
-> > > > >  if (!ret)
-> > > > >  return 0;
-> > > > > --
-> > > > > 2.25.1
-> > > >
-> > > > --
-> > > > Ville Syrjälä
-> > > > Intel
+These patches have been merged to 5.4 stable already. We might
+need to backport to older stable branches, but this is what I
+could test for now.
+
+
+Mark Rutland (1):
+  lkdtm: don't move ctors to .rodata
+
+Thomas Gleixner (1):
+  vmlinux.lds.h: Create section for protection against instrumentation
+
+ arch/powerpc/kernel/vmlinux.lds.S |  1 +
+ drivers/misc/lkdtm/Makefile       |  2 +-
+ drivers/misc/lkdtm/rodata.c       |  2 +-
+ include/asm-generic/sections.h    |  3 ++
+ include/asm-generic/vmlinux.lds.h | 10 ++++++
+ include/linux/compiler.h          | 54 +++++++++++++++++++++++++++++++
+ include/linux/compiler_types.h    |  4 +++
+ scripts/mod/modpost.c             |  2 +-
+ 8 files changed, 75 insertions(+), 3 deletions(-)
+
+-- 
+2.31.0.rc2.261.g7f71774620-goog
+
