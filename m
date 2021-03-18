@@ -2,168 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 353C5340C1C
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 18:49:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0DDC340C2F
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 18:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232211AbhCRRtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 13:49:21 -0400
-Received: from mga01.intel.com ([192.55.52.88]:2186 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232256AbhCRRtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 13:49:13 -0400
-IronPort-SDR: W1DQYFKj/9HimaOYgRZGL0dJIcDXpneqF5KmvecLV7bo3Z4lGeR9J9b8ydqMxNJco610r0CG7u
- FB7CVoZOlrTw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9927"; a="209743314"
-X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="209743314"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 10:49:13 -0700
-IronPort-SDR: NrABQQERM7IR7mFDD01+6q8xPbEBEwqdaxa5C4htThsWPWbQDNHAC+cdnCf01vP6qLWfzTOuc0
- Mkvqpqt1wj9A==
-X-IronPort-AV: E=Sophos;i="5.81,259,1610438400"; 
-   d="scan'208";a="413179265"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 10:49:11 -0700
-Date:   Thu, 18 Mar 2021 19:49:07 +0200
-From:   Imre Deak <imre.deak@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, Takashi Iwai <tiwai@suse.de>,
-        Santiago Zarate <santiago.zarate@suse.com>,
-        Bodo Graumann <mail@bodograumann.de>, stable@vger.kernel.org,
-        Khaled Almahallawy <khaled.almahallawy@intel.com>
-Subject: Re: [PATCH v2 1/3] drm/i915/ilk-glk: Fix link training on links with
- LTTPRs
-Message-ID: <20210318174907.GE4128033@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20210317184901.4029798-1-imre.deak@intel.com>
- <20210317184901.4029798-2-imre.deak@intel.com>
- <YFOO4FOmOB8yp3me@intel.com>
+        id S230173AbhCRRyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 13:54:16 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20560 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231701AbhCRRyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 13:54:12 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12IHYGmd110707;
+        Thu, 18 Mar 2021 13:54:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qLCwOqi9nd43vs0sC/0uaogdbKlQGtsnrdpGyMt5BJs=;
+ b=isZDdiLBECrzDrBfVyYWnCyjmp7QYlffD7yjzpfqfI75oPT3bfQKDV3pUwIWqzSQAjeL
+ xF2H5wUrhb9TCx+bLH1FFXq+5bQEuL6iUHr4IrCU6vGiscHx6WdwHDJkZeICaqsyQKf8
+ IvmhU/r9xPdPT9Z7QhOMWDKSDswBqELWT99REn1BNy4k3UuaW80lok3cguXpmscYqCMN
+ 0/Xtg18FkFBVZV9uj8y7hCqGzu93bIzI58n62/m+FUS+j3mjBbAPt38p42KDV7uImWjx
+ omds7FNgzJqZIcSdQRhQfrU9OGa2pJL3oo/GlYhewWchBIPGUobWZ7TayC5qvKdtGjJy ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37by16g5us-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 13:54:10 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12IHYjXl112318;
+        Thu, 18 Mar 2021 13:54:10 -0400
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37by16g5uj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 13:54:10 -0400
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12IHq5xV006661;
+        Thu, 18 Mar 2021 17:54:09 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma04wdc.us.ibm.com with ESMTP id 378n19gekv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 17:54:09 +0000
+Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12IHs8tN32637184
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 18 Mar 2021 17:54:09 GMT
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E298FAE05F;
+        Thu, 18 Mar 2021 17:54:08 +0000 (GMT)
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E19CAE05C;
+        Thu, 18 Mar 2021 17:54:07 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.150.254])
+        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 18 Mar 2021 17:54:07 +0000 (GMT)
+Subject: Re: [PATCH v4 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+References: <20210310150559.8956-1-akrowiak@linux.ibm.com>
+ <20210310150559.8956-2-akrowiak@linux.ibm.com>
+ <20210318001729.06cdb8d6.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <d98ab0e1-dca3-0ea7-2478-387e3698900e@linux.ibm.com>
+Date:   Thu, 18 Mar 2021 13:54:06 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YFOO4FOmOB8yp3me@intel.com>
+In-Reply-To: <20210318001729.06cdb8d6.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-18_09:2021-03-17,2021-03-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ impostorscore=0 suspectscore=0 mlxlogscore=999 clxscore=1015 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 spamscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103180124
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 18, 2021 at 07:33:20PM +0200, Ville Syrjälä wrote:
-> On Wed, Mar 17, 2021 at 08:48:59PM +0200, Imre Deak wrote:
-> > The spec requires to use at least 3.2ms for the AUX timeout period if
-> > there are LT-tunable PHY Repeaters on the link (2.11.2). An upcoming
-> > spec update makes this more specific, by requiring a 3.2ms minimum
-> > timeout period for the LTTPR detection reading the 0xF0000-0xF0007
-> > range (3.6.5.1).
-> 
-> I'm pondering if we could reduce the timeout after having determined
-> wherther LTTPRs are present or not? But maybe that wouldn't really speed
-> up anything since we can't reduce the timeout until after detecting
-> *something*. And once there is something there we shouldn't really get
-> any more timeouts I guess. So probably a totally stupid idea.
 
-Right, if something is connected it would take anyway as much time as it
-takes for the sink to reply whether or not we decreased the timeout.
 
-However if nothing is connected, we have the excessive timeout Khaled
-already noticed (160 * 4ms = 6.4 sec on ICL+). I think to improve that
-we could scale the total number of retries by making it
-total_timeout/platform_specific_timeout (letting total_timeout=2sec for
-instance) or just changing the drm retry logic to be time based instead
-of the number of retries we use atm. 
-
-> Anyways, this seems about the only thing we can do given the limited
-> hw capabilities.
-> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On 3/17/21 7:17 PM, Halil Pasic wrote:
+> On Wed, 10 Mar 2021 10:05:59 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 >
-> > Accordingly disable LTTPR detection until GLK, where the maximum timeout
-> > we can set is only 1.6ms.
-> > 
-> > Link training in the non-transparent mode is known to fail at least on
-> > some SKL systems with a WD19 dock on the link, which exposes an LTTPR
-> > (see the References below). While this could have different reasons
-> > besides the too short AUX timeout used, not detecting LTTPRs (and so not
-> > using the non-transparent LT mode) fixes link training on these systems.
-> > 
-> > While at it add a code comment about the platform specific maximum
-> > timeout values.
-> > 
-> > v2: Add a comment about the g4x maximum timeout as well. (Ville)
-> > 
-> > Reported-by: Takashi Iwai <tiwai@suse.de>
-> > Reported-and-tested-by: Santiago Zarate <santiago.zarate@suse.com>
-> > Reported-and-tested-by: Bodo Graumann <mail@bodograumann.de>
-> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/3166
-> > Fixes: b30edfd8d0b4 ("drm/i915: Switch to LTTPR non-transparent mode link training")
-> > Cc: <stable@vger.kernel.org> # v5.11
-> > Cc: Takashi Iwai <tiwai@suse.de>
-> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > Signed-off-by: Imre Deak <imre.deak@intel.com>
-> > ---
-> >  drivers/gpu/drm/i915/display/intel_dp_aux.c       |  7 +++++++
-> >  .../gpu/drm/i915/display/intel_dp_link_training.c | 15 ++++++++++++---
-> >  2 files changed, 19 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux.c b/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> > index eaebf123310a..10fe17b7280d 100644
-> > --- a/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> > +++ b/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> > @@ -133,6 +133,7 @@ static u32 g4x_get_aux_send_ctl(struct intel_dp *intel_dp,
-> >  	else
-> >  		precharge = 5;
-> >  
-> > +	/* Max timeout value on G4x-BDW: 1.6ms */
-> >  	if (IS_BROADWELL(dev_priv))
-> >  		timeout = DP_AUX_CH_CTL_TIME_OUT_600us;
-> >  	else
-> > @@ -159,6 +160,12 @@ static u32 skl_get_aux_send_ctl(struct intel_dp *intel_dp,
-> >  	enum phy phy = intel_port_to_phy(i915, dig_port->base.port);
-> >  	u32 ret;
-> >  
-> > +	/*
-> > +	 * Max timeout values:
-> > +	 * SKL-GLK: 1.6ms
-> > +	 * CNL: 3.2ms
-> > +	 * ICL+: 4ms
-> > +	 */
-> >  	ret = DP_AUX_CH_CTL_SEND_BUSY |
-> >  	      DP_AUX_CH_CTL_DONE |
-> >  	      DP_AUX_CH_CTL_INTERRUPT |
-> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > index 19ba7c7cbaab..c0e25c75c105 100644
-> > --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> > @@ -82,6 +82,18 @@ static void intel_dp_read_lttpr_phy_caps(struct intel_dp *intel_dp,
-> >  
-> >  static bool intel_dp_read_lttpr_common_caps(struct intel_dp *intel_dp)
-> >  {
-> > +	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
-> > +
-> > +	if (intel_dp_is_edp(intel_dp))
-> > +		return false;
-> > +
-> > +	/*
-> > +	 * Detecting LTTPRs must be avoided on platforms with an AUX timeout
-> > +	 * period < 3.2ms. (see DP Standard v2.0, 2.11.2, 3.6.6.1).
-> > +	 */
-> > +	if (INTEL_GEN(i915) < 10)
-> > +		return false;
-> > +
-> >  	if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
-> >  					  intel_dp->lttpr_common_caps) < 0) {
-> >  		memset(intel_dp->lttpr_common_caps, 0,
-> > @@ -127,9 +139,6 @@ int intel_dp_lttpr_init(struct intel_dp *intel_dp)
-> >  	bool ret;
-> >  	int i;
-> >  
-> > -	if (intel_dp_is_edp(intel_dp))
-> > -		return 0;
-> > -
-> >  	ret = intel_dp_read_lttpr_common_caps(intel_dp);
-> >  	if (!ret)
-> >  		return 0;
-> > -- 
-> > 2.25.1
-> 
-> -- 
-> Ville Syrjälä
-> Intel
+>> -		ret = vfio_ap_mdev_reset_queues(mdev);
+>> +		matrix_mdev = mdev_get_drvdata(mdev);
+> Is it guaranteed that matrix_mdev can't be NULL here? If yes, please
+> remind me of the mechanism that ensures this.
+
+The matrix_mdev is set as drvdata when the mdev is created and
+is only cleared when the mdev is removed. Likewise, this function
+is a callback defined by by vfio in the vfio_ap_matrix_ops structure
+when the matrix_dev is registered and is intended to handle ioctl
+calls from userspace during the lifetime of the mdev. While I can't
+speak definitively to the guarantee, I think it is extremely unlikely
+that matrix_mdev would be NULL at this point. On the other hand,
+it wouldn't hurt to check for NULL and log an error or warning
+message (I prefer an error here) if NULL.
+
+>
+>> +
+>> +		/*
+>> +		 * If the KVM pointer is in the process of being set, wait until
+>> +		 * the process has completed.
+>> +		 */
+>> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
+>> +			       matrix_mdev->kvm_busy == false,
+>> +			       mutex_unlock(&matrix_dev->lock),
+>> +			       mutex_lock(&matrix_dev->lock));
+>> +
+>> +		if (matrix_mdev->kvm)
+>> +			ret = vfio_ap_mdev_reset_queues(mdev);
+>> +		else
+>> +			ret = -ENODEV;
+> Didn't we agree to make the call to vfio_ap_mdev_reset_queues()
+> unconditional again (for reference please take look at
+> Message-ID: <64afa72c-2d6a-2ca1-e576-34e15fa579ed@linux.ibm.com>)?
+
+Yes, we did agree to that and I changed it at the time. That change
+got lost somehow; I'll reinstate it.
+
+>
+> Regards,
+> Halil
+
