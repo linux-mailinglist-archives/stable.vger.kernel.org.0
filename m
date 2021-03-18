@@ -2,85 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D17123401D9
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 10:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB661340209
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 10:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229618AbhCRJUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 05:20:41 -0400
-Received: from mx3.molgen.mpg.de ([141.14.17.11]:44301 "EHLO mx1.molgen.mpg.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229634AbhCRJUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 05:20:25 -0400
-Received: from [192.168.0.3] (ip5f5aea9f.dynamic.kabel-deutschland.de [95.90.234.159])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 7AAEF2064AF11;
-        Thu, 18 Mar 2021 10:20:16 +0100 (CET)
-Subject: Re: [PATCH] Revert "iommu/amd: Fix performance counter
- initialization"
-To:     Alexander Monakov <amonakov@ispras.ru>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Cc:     Joerg Roedel <joro@8bytes.org>, Tj <ml.linux@elloe.vision>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        David Coe <david.coe@live.co.uk>,
-        iommu@lists.linux-foundation.org, stable@vger.kernel.org,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20210303121156.76621-1-pmenzel@molgen.mpg.de>
- <a803de32-eec8-a0b1-69e6-43259ba5c656@amd.com>
- <alpine.LNX.2.20.13.2103031648190.15170@monopod.intra.ispras.ru>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-Message-ID: <0a910a80-5783-1f3d-a8ea-5e10cba0e206@molgen.mpg.de>
-Date:   Thu, 18 Mar 2021 10:20:16 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        id S229736AbhCRJ1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 05:27:40 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:13569 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229793AbhCRJ1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 05:27:24 -0400
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4F1M7D2LmwzPjd9;
+        Thu, 18 Mar 2021 17:24:56 +0800 (CST)
+Received: from [127.0.0.1] (10.175.101.122) by DGGEMS404-HUB.china.huawei.com
+ (10.3.19.204) with Microsoft SMTP Server id 14.3.498.0; Thu, 18 Mar 2021
+ 17:27:12 +0800
+Content-Type: multipart/alternative;
+        boundary="===============7796649689138363090=="
 MIME-Version: 1.0
-In-Reply-To: <alpine.LNX.2.20.13.2103031648190.15170@monopod.intra.ispras.ru>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Date:   Thu, 18 Mar 2021 17:27:12 +0800
+From:   <hulkrobot@huawei.com>
+To:     <stable@vger.kernel.org>
+CC:     <gregkh@linuxfoundation.org>
+Subject: =?utf-8?q?=5Blinux-stable-rc_CI=5D_Test_report_for_4=2E19=2E181/arm64?=
+Message-ID: <109d76e4-2f3c-4ece-a6ae-a08a070e3e06@DGGEMS404-HUB.china.huawei.com>
+X-Originating-IP: [10.175.101.122]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Jörg, dear Suravee,
+--===============7796649689138363090==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
 
+S2VybmVsIHJlcG86IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwv
+Z2l0L3N0YWJsZS9saW51eC1zdGFibGUtcmMuZ2l0CkJyYW5jaDogbGludXgtNC4xOS55CkFyY2g6
+IGFybTY0ClZlcnNpb246IDQuMTkuMTgxCkNvbW1pdDogYWMzYWY0YmVhYzQzOWViY2NkMTc3NDZj
+OWYyZmQyMjdlODgxMDdhYQ0KQ29tcGlsZXI6IGdjYyB2ZXJzaW9uIDcuMy4wIChHQ0MpCi0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tCkZhaWxlZCBjYXNlcyA6Cmx0cCB0ZXN0X3JvYmluZDI0Cmx0cCB0ZXN0X3JvYmluZDI1
+Cmx0cCB0ZXN0X3JvYmluZDI2Cmx0cCB0ZXN0X3JvYmluZDI3Cmx0cCB0ZXN0X3JvYmluZDI4Ci0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tClRlc3RjYXNlIFJlc3VsdCBTdW1tYXJ5Ogp0b3RhbF9udW06IDQ3MjYKc3VjY2Vl
+ZF9udW06IDQ3MjEKZmFpbGVkX251bTogNQp0aW1lb3V0X251bTogMAotLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpUZXN0
+ZWQtYnk6IEh1bGsgUm9ib3QgPGh1bGtyb2JvdEBodWF3ZWkuY29tPg==
 
-Am 03.03.21 um 15:10 schrieb Alexander Monakov:
-> On Wed, 3 Mar 2021, Suravee Suthikulpanit wrote:
-> 
->>> Additionally, alternative proposed solutions [1] were not considered or
->>> discussed.
->>>
->>> [1]:https://lore.kernel.org/linux-iommu/alpine.LNX.2.20.13.2006030935570.3181@monopod.intra.ispras.ru/
->>
->> This check has been introduced early on to detect a HW issue for
->> certain platforms in the past, where the performance counters are not
->> accessible and would result in silent failure when try to use the
->> counters. This is considered legacy code, and can be removed if we
->> decide to no longer provide sanity check for such case.
-> 
-> Which platforms? There is no such information in the code or the commit
-> messages that introduced this.
-> 
-> According to AMD's documentation, presence of performance counters is
-> indicated by "PCSup" bit in the "EFR" register. I don't think the driver
-> should second-guess that. If there were platforms where the CPU or the
-> firmware lied to the OS (EFR[PCSup] was 1, but counters were not present),
-> I think that should have been handled in a more explicit manner, e.g.
-> via matching broken CPUs by cpuid.
-
-Suravee, could you please answer the questions?
-
-Jörg, I know you are probably busy, but the patch was applied to the 
-stable series (v5.11.7). There are still too many question open 
-regarding the patch, and Suravee has not yet addressed the comments. 
-It’d be great, if you could revert it.
-
-
-Kind regards,
-
-Paul
-
-Could you please
+--===============7796649689138363090==--
