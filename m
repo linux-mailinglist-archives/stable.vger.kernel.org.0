@@ -2,123 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6F3340C8F
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 19:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66561340CA3
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 19:15:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232292AbhCRSL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 14:11:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21600 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232440AbhCRSLw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 14:11:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616091103;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=WP7PnNSr4BR9a1LVBwXMPx5QETfjMgS7zmkwK2xedWo=;
-        b=NzuKqqOgrrUtipYBhPeU5Q2FEHhzzOLJUkwgSvy7fVhSymfgrNFNZeW8yX7s6zdwVRKp0t
-        SXS1DfZMqHjO8P0DjYeW+UyV//InAzIxZE47n97mSfIxDl/Pt+7N7uua+tPubwTafqJm80
-        s8r7cTQuv8yF3GUxHbl3txA9rC4Kp+g=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-22-9rP6FESVNlSyT0A9bex5lg-1; Thu, 18 Mar 2021 14:11:41 -0400
-X-MC-Unique: 9rP6FESVNlSyT0A9bex5lg-1
-Received: by mail-wr1-f72.google.com with SMTP id f3so20471315wrt.14
-        for <stable@vger.kernel.org>; Thu, 18 Mar 2021 11:11:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=WP7PnNSr4BR9a1LVBwXMPx5QETfjMgS7zmkwK2xedWo=;
-        b=H4J+69gt8qRbv+hV9dAmbnchBQaZZ9WuLpovOuwhmnfTzq/OWLh9sBNGghhcOLjcEy
-         s3JUqnPvtXt09dJK1RxufzQa+lGUUJ6YrHjGOQ0pS6Jk3EkWgzvP1gSyv6zsr8rXXVwR
-         ZUPTNtr9pAlTU57+AQL4o/TVkHQmOB4dMbIqXywL58z7NBDo48pwdYxNxEhg1Ed8mTfp
-         hua2cuUqcyUe+NluntA+k/cng2gFHc5wtTHn0GmHy+GLyVUVpHw5BqzE9H8d8H+qfTwb
-         AuJYUOrM53ZnDlGJsSbFJG4/8uRI+WI7dvAvi+t+W4ZIWSzm5sojK4//xcoJXFnNxbmv
-         DLJw==
-X-Gm-Message-State: AOAM533Rma1IQL+zeFR4oBU7N9WSsg1yezP6HzxegZMbl+BvOPSXl9fk
-        FaxfAxVYnKfAVkK5sqzCfRmNfb6AmDjGPCziM9H8navykMX1topYt2uxnpbm23ADtnR1tbROE2o
-        qDIxlRSr0WWvnvLRK
-X-Received: by 2002:a5d:6810:: with SMTP id w16mr510494wru.333.1616091099218;
-        Thu, 18 Mar 2021 11:11:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwFTfjChgFyUXnBDg4awB1ZFX0fIcyN9S9XgyGks/aa0h+c9tuWlTuolWTJOqxYehca3p6+ug==
-X-Received: by 2002:a5d:6810:: with SMTP id w16mr510479wru.333.1616091099081;
-        Thu, 18 Mar 2021 11:11:39 -0700 (PDT)
-Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
-        by smtp.gmail.com with ESMTPSA id s8sm3686155wrn.97.2021.03.18.11.11.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Mar 2021 11:11:38 -0700 (PDT)
-Date:   Thu, 18 Mar 2021 14:11:35 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        gdawar.xilinx@gmail.com, jasowang@redhat.com,
-        lingshan.zhu@intel.com, lvivier@redhat.com, mst@redhat.com,
-        parav@nvidia.com, sgarzare@redhat.com, stable@vger.kernel.org,
-        tangbin@cmss.chinamobile.com, xianting_tian@126.com
-Subject: [GIT PULL] vhost: cleanups and fixes
-Message-ID: <20210318141135-mutt-send-email-mst@kernel.org>
+        id S232519AbhCRSOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 14:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38580 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230442AbhCRSON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 14:14:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFCD364F1D;
+        Thu, 18 Mar 2021 18:14:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616091253;
+        bh=WJXaBc1cx6NHSgO4bTyGgYj1KQJ1lQp91QwR6cje2b8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0CdMRYcTVzwIzuvqKX7REkGrA7lLw6QB9kaqCtYe8SQmyisxQLhEGAAI6jtNPhS6x
+         k5u7m0E2kXjDtPzgV3rFCfo0gTglUgfKrjbqolTtAOyBsKnVSdxQ2Dnlt64BkOJdI7
+         qvpKf+QjCpQRo/er2C7inkYOG8LK+tF1KIbEEW6w=
+Date:   Thu, 18 Mar 2021 19:14:10 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>
+Subject: Re: [PATCH net V2 1/1] net: phy: fix invalid phy id when probe using
+ C22
+Message-ID: <YFOYclhA75hjmQHY@kroah.com>
+References: <20210318090937.26465-1-vee.khee.wong@intel.com>
+ <b63c5068-1203-fcb6-560d-1d2419bb39b0@gmail.com>
+ <c921bf7f-e4d1-eefa-c5ae-024d5e8a4845@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mutt-Fcc: =sent
+In-Reply-To: <c921bf7f-e4d1-eefa-c5ae-024d5e8a4845@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following changes since commit 16c10bede8b3d8594279752bf53153491f3f944f:
+On Thu, Mar 18, 2021 at 09:02:22AM -0700, Florian Fainelli wrote:
+> 
+> 
+> On 3/18/2021 6:25 AM, Heiner Kallweit wrote:
+> > On 18.03.2021 10:09, Wong Vee Khee wrote:
+> >> When using Clause-22 to probe for PHY devices such as the Marvell
+> >> 88E2110, PHY ID with value 0 is read from the MII PHYID registers
+> >> which caused the PHY framework failed to attach the Marvell PHY
+> >> driver.
+> >>
+> >> Fixed this by adding a check of PHY ID equals to all zeroes.
+> >>
+> > 
+> > I was wondering whether we have, and may break, use cases where a PHY,
+> > for whatever reason, reports PHY ID 0, but works with the genphy
+> > driver. And indeed in swphy_read_reg() we return PHY ID 0, therefore
+> > the patch may break the fixed phy.
+> > Having said that I think your patch is ok, but we need a change of
+> > the PHY ID reported by swphy_read_reg() first.
+> > At a first glance changing the PHY ID to 0x00000001 in swphy_read_reg()
+> > should be sufficient. This value shouldn't collide with any real world
+> > PHY ID.
+> 
+> It most likely would not, but it could be considered an ABI breakage,
+> unless we filter out what we report to user-space via SIOGCMIIREG and
+> /sys/class/mdio_bus/*/*/phy_id
+> 
+> Ideally we would have assigned an unique PHY OUI to the fixed PHY but
+> that would have required registering Linux as a vendor, and the process
+> is not entirely clear to me about how to go about doing that.
 
-  virtio-input: add multi-touch support (2021-02-23 07:52:59 -0500)
+If you need me to do that under the umbrella of the Linux Foundation,
+I'll be glad to do so if you point me at the proper group to do that
+with.
 
-are available in the Git repository at:
+We did this for a few years with the USB-IF and have a vendor id
+assigned to us for Linux through them, until they kicked us out because.
+But as the number is in a global namespace, it can't be reused so we
+keep it :)
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+thanks,
 
-for you to fetch changes up to 0bde59c1723a29e294765c96dbe5c7fb639c2f96:
-
-  vhost-vdpa: set v->config_ctx to NULL if eventfd_ctx_fdget() fails (2021-03-14 18:10:07 -0400)
-
-----------------------------------------------------------------
-virtio: fixes, cleanups
-
-Some fixes and cleanups all over the place.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Gautam Dawar (1):
-      vhost_vdpa: fix the missing irq_bypass_unregister_producer() invocation
-
-Jason Wang (1):
-      vdpa: set the virtqueue num during register
-
-Laurent Vivier (1):
-      vhost: Fix vhost_vq_reset()
-
-Parav Pandit (1):
-      vdpa_sim: Skip typecasting from void*
-
-Stefano Garzarella (2):
-      vhost-vdpa: fix use-after-free of v->config_ctx
-      vhost-vdpa: set v->config_ctx to NULL if eventfd_ctx_fdget() fails
-
-Tang Bin (1):
-      virtio-mmio: Use to_virtio_mmio_device() to simply code
-
-Xianting Tian (1):
-      virtio: remove export for virtio_config_{enable, disable}
-
- drivers/vdpa/ifcvf/ifcvf_main.c      |  5 ++---
- drivers/vdpa/mlx5/net/mlx5_vnet.c    |  4 ++--
- drivers/vdpa/vdpa.c                  | 18 ++++++++++--------
- drivers/vdpa/vdpa_sim/vdpa_sim.c     |  2 +-
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c |  5 ++---
- drivers/vhost/vdpa.c                 | 20 +++++++++++---------
- drivers/vhost/vhost.c                |  2 +-
- drivers/virtio/virtio.c              |  6 ++----
- drivers/virtio/virtio_mmio.c         |  3 +--
- include/linux/vdpa.h                 | 10 +++++-----
- include/linux/virtio.h               |  2 --
- 11 files changed, 37 insertions(+), 40 deletions(-)
-
+greg k-h
