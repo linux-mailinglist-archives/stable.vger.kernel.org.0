@@ -2,93 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 114AF34050A
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 13:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0A4034058F
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 13:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbhCRMAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 08:00:33 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:13195 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229908AbhCRMAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 08:00:23 -0400
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F1QWn1C5wzmYLc;
-        Thu, 18 Mar 2021 19:57:57 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 18 Mar 2021 20:00:20 +0800
-Subject: Re: [PATCH 4.14 00/95] 4.14.226-rc1 review
-To:     <gregkh@linuxfoundation.org>, <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210315135740.245494252@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <39278f2a-ef03-fc33-e81b-c8063d0d64ef@huawei.com>
-Date:   Thu, 18 Mar 2021 20:00:20 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S229703AbhCRMcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 08:32:21 -0400
+Received: from mail-m17635.qiye.163.com ([59.111.176.35]:39232 "EHLO
+        mail-m17635.qiye.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229943AbhCRMbz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 08:31:55 -0400
+Received: from [0.0.0.0] (unknown [14.154.29.151])
+        by mail-m17635.qiye.163.com (Hmail) with ESMTPA id C37BD400325;
+        Thu, 18 Mar 2021 20:31:49 +0800 (CST)
+Subject: Re: [PATCH] scsi: ses: Fix crash caused by kfree an invalid pointer
+To:     jejb@linux.ibm.com, martin.petersen@oracle.com
+Cc:     linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+References: <20201128122302.9490-1-dinghui@sangfor.com.cn>
+ <c5deac044ac409e32d9ad9968ce0dcbc996bfc7a.camel@linux.ibm.com>
+From:   Ding Hui <dinghui@sangfor.com.cn>
+Message-ID: <34c15b48-c131-abd5-d4a5-1c273d25c0bf@sangfor.com.cn>
+Date:   Thu, 18 Mar 2021 20:31:45 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+In-Reply-To: <c5deac044ac409e32d9ad9968ce0dcbc996bfc7a.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgYFAkeWUFZS1VLWVdZKFlBSE83V1ktWUFJV1kPCR
+        oVCBIfWUFZTUNIGhlJGBgaHUNCVkpNSk1LTEtMSktLQkpVEwETFhoSFyQUDg9ZV1kWGg8SFR0UWU
+        FZT0tIVUpKS0hKTFVLWQY+
+X-HM-Sender-Digest: e1kMHhlZQR0aFwgeV1kSHx4VD1lBWUc6Kzo6Lhw*Vj8SLU4yKAEzSxIO
+        ShEKFEJVSlVKTUpNS0xLTEpLT0lNVTMWGhIXVR8SFRwTDhI7CBoVHB0UCVUYFBZVGBVFWVdZEgtZ
+        QVlKT1VKTk9VSUJVSk5KWVdZCAFZQUlDTU43Bg++
+X-HM-Tid: 0a7845521313d991kuwsc37bd400325
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/3/15 21:56, gregkh@linuxfoundation.org wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On 2020/11/29 7:27, James Bottomley wrote:
+> ---8>8>8><8<8<8--------
+> From: James Bottomley <James.Bottomley@HansenPartnership.com>
+> Subject: [PATCH] scsi: ses: don't attach if enclosure has no components
 > 
-> This is the start of the stable review cycle for the 4.14.226 release.
-> There are 95 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> An enclosure with no components can't usefully be operated by the
+> driver (since effectively it has nothing to manage), so report the
+> problem and don't attach.  Not attaching also fixes an oops which
+> could occur if the driver tries to manage a zero component enclosure.
 > 
-> Responses should be made by Wed, 17 Mar 2021 13:57:24 +0000.
-> Anything received after that time might be too late.
+> Reported-by: Ding Hui <dinghui@sangfor.com.cn>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+> ---
+>   drivers/scsi/ses.c | 5 +++++
+>   1 file changed, 5 insertions(+)
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.226-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
+> diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
+> index c2afba2a5414..9624298b9c89 100644
+> --- a/drivers/scsi/ses.c
+> +++ b/drivers/scsi/ses.c
+> @@ -690,6 +690,11 @@ static int ses_intf_add(struct device *cdev,
+>   		    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE)
+>   			components += type_ptr[1];
+>   	}
+> +	if (components == 0) {
+> +		sdev_printk(KERN_ERR, sdev, "enclosure has no enumerated components\n");
+> +		goto err_free;
+> +	}
+> +
+>   	ses_dev->page1 = buf;
+>   	ses_dev->page1_len = len;
+>   	buf = NULL;
 > 
-> thanks,
-> 
-> greg k-h
-> 
+Can I ask you to resubmit your patch ("scsi: ses: don't attach if 
+enclosure has no components") to kernel, thanks
 
-Tested on x86 for 4.14.226,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.14.y
-Version: 4.14.226
-Commit: cb83ddcd5332fcc3efd52ba994976efc4dd6061e
-Compiler: gcc version 7.3.0 (GCC)
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 4714
-passed: 4710
-failed: 4
---------------------------------------------------------------------
-Failed cases:
-ltp test_robind07
-ltp test_robind13
-ltp test_robind14
-ltp test_robind15
-
-The 4 failed cases are caused by insufficient disk space in the test 
-environment, no kernel failures
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+-- 
+Thanks,
+- Ding Hui
