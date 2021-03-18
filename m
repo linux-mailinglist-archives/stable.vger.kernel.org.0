@@ -2,105 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A3233FF1B
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 06:55:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E4733FF29
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 07:01:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbhCRFzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 01:55:08 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:13188 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229796AbhCRFym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 01:54:42 -0400
-Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F1GPp4K3CzmZH9;
-        Thu, 18 Mar 2021 13:52:14 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 18 Mar 2021 13:54:34 +0800
-Subject: Re: [PATCH 4.14 00/95] 4.14.226-rc1 review
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "pavel@denx.de" <pavel@denx.de>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "f.fainelli@gmail.com" <f.fainelli@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20210315135740.245494252@linuxfoundation.org>
- <c0902934-ea11-ba1e-fa2d-b05897aab4b3@huawei.com>
- <YFIh6ZyWb2JtCu6H@kroah.com>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <f2328179-00d9-41e0-6bd8-7bd39b025563@huawei.com>
-Date:   Thu, 18 Mar 2021 13:54:34 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S229618AbhCRGAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 02:00:49 -0400
+Received: from mga05.intel.com ([192.55.52.43]:32755 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229454AbhCRGAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 02:00:11 -0400
+IronPort-SDR: BSxKdS/sAntxzgpgiWZMjuY7uCVaPm3G799KXhcoqW0kGJbZakuvWNXyNWAU15lXrTb4bR2NkY
+ WzXIthAH2L2w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9926"; a="274664966"
+X-IronPort-AV: E=Sophos;i="5.81,257,1610438400"; 
+   d="scan'208";a="274664966"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2021 23:00:10 -0700
+IronPort-SDR: R4xHaaQ9RLYh3b1dz6IdmtQ7dCjPC/HYsfZndAyNyx2+GkohRHH59zNy6tXvQO/LZ3LFiNBd2U
+ Y+8NL/7IvQOQ==
+X-IronPort-AV: E=Sophos;i="5.81,257,1610438400"; 
+   d="scan'208";a="412942689"
+Received: from twinkler-lnx.jer.intel.com ([10.12.91.138])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2021 23:00:08 -0700
+From:   Tomas Winkler <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        linux-kernel@vger.kernel.org,
+        Tomas Winkler <tomas.winkler@intel.com>, stable@vger.kernel.org
+Subject: [char-misc-next] mei: allow map and unmap of client dma buffer only for disconnected client
+Date:   Thu, 18 Mar 2021 07:59:59 +0200
+Message-Id: <20210318055959.305627-1-tomas.winkler@intel.com>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
-In-Reply-To: <YFIh6ZyWb2JtCu6H@kroah.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Allow map and unmap of the client dma buffer only when the client is not
+connected. The functions return -EPROTO if the client is already connected.
+This is to fix the race when traffic may start or stop when buffer
+is not available.
 
+Cc: <stable@vger.kernel.org> #v5.11+
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/misc/mei/client.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-On 2021/3/17 23:36, Greg KH wrote:
-> On Tue, Mar 16, 2021 at 02:35:36PM +0800, Samuel Zou wrote:
->>
->>
->> On 2021/3/15 21:56, gregkh@linuxfoundation.org wrote:
->>> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>
->>> This is the start of the stable review cycle for the 4.14.226 release.
->>> There are 95 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Wed, 17 Mar 2021 13:57:24 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>> https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.226-rc1.gz
->>> or in the git tree and branch at:
->>> git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->>>
->>
->> Tested on x86 for 4.14.226-rc1,
->>
->> Kernel repo:
->> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->> Branch: linux-4.14.y
->> Version: 4.14.226-rc1
->> Commit: 57cc62fb2d2b8e81c02cb9197e303c7782dee4cd
->> Compiler: gcc version 7.3.0 (GCC)
->>
->> x86 (No kernel failures)
->> --------------------------------------------------------------------
->> Testcase Result Summary:
->> total_num: 4728
->> succeed_num: 4727
->> failed_num: 1
-> 
-> What does this "failed_num" mean?
-> 
-> thanks,
-> 
-> greg k-h
+diff --git a/drivers/misc/mei/client.c b/drivers/misc/mei/client.c
+index 4378a9b25848..2cc370adb238 100644
+--- a/drivers/misc/mei/client.c
++++ b/drivers/misc/mei/client.c
+@@ -2286,8 +2286,8 @@ int mei_cl_dma_alloc_and_map(struct mei_cl *cl, const struct file *fp,
+ 	if (buffer_id == 0)
+ 		return -EINVAL;
+ 
+-	if (!mei_cl_is_connected(cl))
+-		return -ENODEV;
++	if (mei_cl_is_connected(cl))
++		return -EPROTO;
+ 
+ 	if (cl->dma_mapped)
+ 		return -EPROTO;
+@@ -2327,9 +2327,7 @@ int mei_cl_dma_alloc_and_map(struct mei_cl *cl, const struct file *fp,
+ 
+ 	mutex_unlock(&dev->device_lock);
+ 	wait_event_timeout(cl->wait,
+-			   cl->dma_mapped ||
+-			   cl->status ||
+-			   !mei_cl_is_connected(cl),
++			   cl->dma_mapped || cl->status,
+ 			   mei_secs_to_jiffies(MEI_CL_CONNECT_TIMEOUT));
+ 	mutex_lock(&dev->device_lock);
+ 
+@@ -2376,8 +2374,9 @@ int mei_cl_dma_unmap(struct mei_cl *cl, const struct file *fp)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	if (!mei_cl_is_connected(cl))
+-		return -ENODEV;
++	/* do not allow unmap for connected client */
++	if (mei_cl_is_connected(cl))
++		return -EPROTO;
+ 
+ 	if (!cl->dma_mapped)
+ 		return -EPROTO;
+@@ -2405,9 +2404,7 @@ int mei_cl_dma_unmap(struct mei_cl *cl, const struct file *fp)
+ 
+ 	mutex_unlock(&dev->device_lock);
+ 	wait_event_timeout(cl->wait,
+-			   !cl->dma_mapped ||
+-			   cl->status ||
+-			   !mei_cl_is_connected(cl),
++			   !cl->dma_mapped || cl->status,
+ 			   mei_secs_to_jiffies(MEI_CL_CONNECT_TIMEOUT));
+ 	mutex_lock(&dev->device_lock);
+ 
+-- 
+2.26.3
 
-total_num: The number of total testcases
-succeed_num: The number of succeed testcases
-failed_num: The number of failed testcases
-
-Maybe I can revise the description in the next email.
