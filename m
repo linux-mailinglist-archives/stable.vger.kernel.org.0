@@ -2,156 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E921340791
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 15:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB3D340833
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 15:55:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231317AbhCROQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 10:16:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231408AbhCROPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 10:15:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D48564F24;
-        Thu, 18 Mar 2021 14:15:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616076947;
-        bh=gaH7KOpqa0mh8Td2vFO8Q9uJaIe40TCSMBkbNqSg+R0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=L++pIO1kLRARcA+NCpzuHGudtAdtwgx2QLANmUyb3vndLyelFxURtMJh3EJBQ05ja
-         s5ArnWcHWLflLAauq87tku82sGhdB2vqsuI823kwWRbuBz1Fx5j6NEiU8FEOQKOGu7
-         hn+8jXRL8QhHInG9ebGu8v9HwNgzbkuH/hylpUSFU4kCbuDtnm7XQh/OoXK5IkyDoe
-         lR4oYd5LpCzcZkPF22JZPq5auyFvYzhWX/136pWiBuRw2gDjw1XebCrbatX2dOOo8T
-         FagaOvdUaHybUkDd1+p+COA4vhg3PJeN9KG8VpqhpC4aFM3UAb7FS3sKv+6dQac6SR
-         i5BFeCykBm6rw==
-Received: by mail-ot1-f41.google.com with SMTP id h6-20020a0568300346b02901b71a850ab4so5315405ote.6;
-        Thu, 18 Mar 2021 07:15:47 -0700 (PDT)
-X-Gm-Message-State: AOAM531H4UjQf45VLZlhwNVBr1Kt/e5gSaX70M/jwnLOYyzVEDoGUh+G
-        aDqaZs/VROn+UARKZahaXZCrEWP53GUaujuKqAk=
-X-Google-Smtp-Source: ABdhPJzAnAlsSlpVebKZ3lyjrI7JeKROhZXVtYuFJrV41ko7Liu7GFD25Xz0rbl8O7HOAbrna5TulhXfcOlP5V1bjxM=
-X-Received: by 2002:a9d:42c:: with SMTP id 41mr7407978otc.108.1616076946466;
- Thu, 18 Mar 2021 07:15:46 -0700 (PDT)
+        id S231431AbhCROyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 10:54:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59982 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231273AbhCROye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 10:54:34 -0400
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75C88C06174A;
+        Thu, 18 Mar 2021 07:54:34 -0700 (PDT)
+Received: by mail-ot1-x32d.google.com with SMTP id w21-20020a9d63950000b02901ce7b8c45b4so5436917otk.5;
+        Thu, 18 Mar 2021 07:54:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Bp34zom1zCvJJrQquMcXUW0jeMnP2aq6CD78ogiP0Gg=;
+        b=N/hLIGGWKagKZiQNA6QggikiYl1d3csncrZHpWMWsoGJ40oMpSo+ZS1SYXRnGRtTJl
+         cT98pJswvaKyVrXdW8Z3Zbl3d0j2XmLkYUEOxA6HOwZpywNHOi0IaMmvlfF8KhobId1m
+         SIpRG8RnBYr8jdiJKRIzRvKAP/4U9cWCCRZVW1FkgH43URX1yrZmXtes2mIcTVJDXccp
+         BeSpJnXb6c4SAmLRvDzIxS4+YTHFEqKf8uRCHPmDC5xj+hZI27ybayUDbT34WL71XGLD
+         RXdKx5jNjiLoSWELtEaJKz0Z2hkK1dSUF072DVDlVTz5c9Mz92XIFZ3KusoBWnNurF5k
+         EBEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=Bp34zom1zCvJJrQquMcXUW0jeMnP2aq6CD78ogiP0Gg=;
+        b=AZC9NIUPG5xwgTW4oplFa9iC7w3PfoV29Yvol68bjNUAp1uag1SLshxaqw99ftmZB1
+         86op5MJmmR8ThdU5qX0LWkBQdqN68TbDrcUm0tmfTxjH3dn5WkzR+9HemJDbf5YaD6df
+         j3jS70H0Q2AcNi5wcEThqBuC6gmigdBaT7LOuqYkwqxIsKZUv2qkdNGP2ilQL8UyqcLi
+         NWSod4yGB3nC7Bx7MUQhhvbc/svcnyo9MBQ/nSl1N96YCRsA9ppbfgJRiIvK4Ke/i1mW
+         pkkOXgP4IIP0yJBvAYRm4A/DDRP4KTRz6m2ZyDES7xwpU9ANYzBoxtEoeGJMhxJoAyZV
+         kJgw==
+X-Gm-Message-State: AOAM5320edAobAxEYQ1CfdyV9lEs6ZLOSIAmfi/JzdZGVfi3YhqkiTSW
+        Fh3TBYndmVWYWrmGs7urIGL4E7R/PyQ=
+X-Google-Smtp-Source: ABdhPJxjCIJZL4UJvbiTw2bq/H2XfxlAELvPLeryETt8w7pptwdwWI95fcm9k+XeNP3PqKu60BSRDQ==
+X-Received: by 2002:a9d:1ea2:: with SMTP id n31mr8101277otn.370.1616079273635;
+        Thu, 18 Mar 2021 07:54:33 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id k9sm510720ots.24.2021.03.18.07.54.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 18 Mar 2021 07:54:33 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH v1] usb: typec: tcpm: Skip sink_cap query only when VDM sm
+ is busy
+To:     Badhri Jagan Sridharan <badhri@google.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210318064805.3747831-1-badhri@google.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <771d9847-6e0b-0aa1-e514-2558b4a59637@roeck-us.net>
+Date:   Thu, 18 Mar 2021 07:54:30 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <d5c825ba-cdcb-29eb-c434-83ef4db05ee0@tmb.nu> <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
- <1e6eb02b-e699-d1ff-9cfb-4ef77255e244@tmb.nu> <9493dced-908e-a9bd-009a-6b20a8422ec1@tmb.nu>
- <CAMj1kXHzEEU2-mVxVD8g=P_Py_WJMOn0q8m+k-txUUioS+2ajQ@mail.gmail.com> <YFNPiHAvEwDpGLrv@sashalap>
-In-Reply-To: <YFNPiHAvEwDpGLrv@sashalap>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 18 Mar 2021 15:15:35 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXG_D_Aw+kyrz7ShMuPaMhpnMhTRZ8tsqKUf0koq_UPSnw@mail.gmail.com>
-Message-ID: <CAMj1kXG_D_Aw+kyrz7ShMuPaMhpnMhTRZ8tsqKUf0koq_UPSnw@mail.gmail.com>
-Subject: Re: stable request
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Thomas Backlund <tmb@tmb.nu>, "# 3.4.x" <stable@vger.kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210318064805.3747831-1-badhri@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 18 Mar 2021 at 14:03, Sasha Levin <sashal@kernel.org> wrote:
->
-> On Tue, Mar 16, 2021 at 01:35:40PM +0100, Ard Biesheuvel wrote:
-> >On Tue, 16 Mar 2021 at 13:28, Thomas Backlund <tmb@tmb.nu> wrote:
-> >>
-> >>
-> >> Den 16.3.2021 kl. 14:15, skrev Thomas Backlund:
-> >> >
-> >> > Den 16.3.2021 kl. 12:17, skrev Ard Biesheuvel:
-> >> >> On Tue, 16 Mar 2021 at 10:21, Thomas Backlund <tmb@tmb.nu> wrote:
-> >> >>> Den 16.3.2021 kl. 08:37, skrev Ard Biesheuvel:
-> >> >>>> Please consider backporting commit
-> >> >>>>
-> >> >>>> 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
-> >> >>>> crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
-> >> >>>>
-> >> >>>> to stable. It addresses a rather substantial retpoline-related
-> >> >>>> performance regression in the AES-NI XTS code, which is a widely used
-> >> >>>> disk encryption algorithm on x86.
-> >> >>>>
-> >> >>> To get all the nice bits, we added the following in Mageia 5.10 / 5.11
-> >> >>> series kerenels (the 2 first is needed to get the third to apply/build
-> >> >>> nicely):
-> >> >>>
-> >> >> I will leave it up to the -stable maintainers to decide, but I will
-> >> >> point out that none of the additional patches fix any bugs, so this
-> >> >> may violate the stable kernel rules. In fact, I deliberately split the
-> >> >> XTS changes into two  patches so that the first one could be
-> >> >> backported individually.
-> >> >
-> >> > Yes, I understand that.
-> >> >
-> >> > but commit
-> >> >
-> >> > 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
-> >> > crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
-> >> >
-> >> > only applies cleanly on 5.11.
-> >> >
-> >> >
-> >> > So if it's wanted in 5.10 you need the 2 others too... unless you intend to provide a tested backport...
-> >> > and IIRC GregKH prefers 1:1 matching of patches between -stable and linus tree unless they are too intrusive.
-> >> >
-> >> >
-> >> > As for the last one I seem to remember comments that it too was part of the "affects performance", but I might be remembering wrong... and since you are Author of them I assume you know better about the facts :)
-> >> >
-> >> >
-> >> > That's why I listed them as an extra "hopefully helfpful" info and datapoint that they work...
-> >> > We have been carrying them in 5.10 series since we rebased to 5.10.8 on January 17th, 2021
-> >> >
-> >> >
-> >> > but in the end it's up to the -stable maintainers as you point out...
-> >>
-> >>
-> >> and now  I re-checked...
-> >>
-> >> Only the first is needed to get your fix to apply cleanly on 5.10
-> >>
-> >>
-> >> the second came in as a pre-req for the fourth patch...
-> >>
-> >
-> >OK so that would be
-> >
-> >032d049ea0f45b45c21f3f02b542aa18bc6b6428
-> >Uros Bizjak <ubizjak@gmail.com>
-> >crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
-> >
-> >which is already in 5.11, but needs to be backported as well for the
-> >originally requested backport to apply cleanly to 5.10 and earlier.
-> >
-> >Thanks for digging that up.
->
-> Queued up for 5.10 and 5.11.
->
-> What about anything older than 5.10? Looks like it's needed there too?
->
+On 3/17/21 11:48 PM, Badhri Jagan Sridharan wrote:
+> When port partner responds "Not supported" to the DiscIdentity command,
+> VDM state machine can remain in NVDM_STATE_ERR_TMOUT and this causes
+> querying sink cap to be skipped indefinitely. Hence check for
+> vdm_sm_running instead of checking for VDM_STATE_DONE.
+> 
+> Fixes: 8dc4bd073663f ("usb: typec: tcpm: Add support for Sink Fast Role SWAP(FRS)")
+> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
 
-Yes, 4.19 and 5.4 should probably get this too. They should apply with
-minimal effort, afaict. The only conflicting change is
-34fdce6981b96920ced4e0ee56e9db3fb03a33f0, which changed
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
---- a/arch/x86/crypto/aesni-intel_asm.S
-+++ b/arch/x86/crypto/aesni-intel_asm.S
-@@ -2758,7 +2758,7 @@ SYM_FUNC_START(aesni_xts_crypt8)
-        pxor INC, STATE4
-        movdqu IV, 0x30(OUTP)
+> ---
+>  drivers/usb/typec/tcpm/tcpm.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+> index 11d0c40bc47d..39e068d60755 100644
+> --- a/drivers/usb/typec/tcpm/tcpm.c
+> +++ b/drivers/usb/typec/tcpm/tcpm.c
+> @@ -5219,7 +5219,7 @@ static void tcpm_enable_frs_work(struct kthread_work *work)
+>  		goto unlock;
+>  
+>  	/* Send when the state machine is idle */
+> -	if (port->state != SNK_READY || port->vdm_state != VDM_STATE_DONE || port->send_discover)
+> +	if (port->state != SNK_READY || port->vdm_sm_running || port->send_discover)
+>  		goto resched;
+>  
+>  	port->upcoming_state = GET_SINK_CAP;
+> 
 
--       CALL_NOSPEC %r11
-+       CALL_NOSPEC r11
-
-        movdqu 0x00(OUTP), INC
-        pxor INC, STATE1
-@@ -2803,7 +2803,7 @@ SYM_FUNC_START(aesni_xts_crypt8)
-        _aesni_gf128mul_x_ble()
-        movups IV, (IVP)
-
--       CALL_NOSPEC %r11
-+       CALL_NOSPEC r11
-
-        movdqu 0x40(OUTP), INC
-        pxor INC, STATE1
-
-but those CALL_NOSPEC calls are being removed by this patch anyway, so
-that shouldn't matter.
