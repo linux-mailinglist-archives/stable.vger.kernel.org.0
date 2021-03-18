@@ -2,83 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5458340170
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 10:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D17123401D9
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 10:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbhCRJFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 05:05:55 -0400
-Received: from mga03.intel.com ([134.134.136.65]:10982 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229512AbhCRJFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 05:05:30 -0400
-IronPort-SDR: I4QSBcDttPm3Dqga/8UFFnI+e/0J5I80LDy88Lxz19hIP7Rk9Q9pVq1xq/42W18uMJhA2eYmsu
- gObtBFt26vWg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9926"; a="189680237"
-X-IronPort-AV: E=Sophos;i="5.81,258,1610438400"; 
-   d="scan'208";a="189680237"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 02:05:30 -0700
-IronPort-SDR: hk1yorJL8O8FykbM/JjTKrcSQC9oqv23EYpanBd3nw0Fr62+mSv+J4CUl6v+bPqFCf1dHfpnmp
- j97KseJ5l6Ag==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,258,1610438400"; 
-   d="scan'208";a="372645266"
-Received: from glass.png.intel.com ([10.158.65.59])
-  by orsmga003.jf.intel.com with ESMTP; 18 Mar 2021 02:05:27 -0700
-From:   Wong Vee Khee <vee.khee.wong@intel.com>
-To:     Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Voon Weifeng <weifeng.voon@intel.com>,
-        Ong Boon Leong <boon.leong.ong@intel.com>
-Subject: [PATCH net V2 1/1] net: phy: fix invalid phy id when probe using C22
-Date:   Thu, 18 Mar 2021 17:09:37 +0800
-Message-Id: <20210318090937.26465-1-vee.khee.wong@intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S229618AbhCRJUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 05:20:41 -0400
+Received: from mx3.molgen.mpg.de ([141.14.17.11]:44301 "EHLO mx1.molgen.mpg.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229634AbhCRJUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 05:20:25 -0400
+Received: from [192.168.0.3] (ip5f5aea9f.dynamic.kabel-deutschland.de [95.90.234.159])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 7AAEF2064AF11;
+        Thu, 18 Mar 2021 10:20:16 +0100 (CET)
+Subject: Re: [PATCH] Revert "iommu/amd: Fix performance counter
+ initialization"
+To:     Alexander Monakov <amonakov@ispras.ru>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Cc:     Joerg Roedel <joro@8bytes.org>, Tj <ml.linux@elloe.vision>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        David Coe <david.coe@live.co.uk>,
+        iommu@lists.linux-foundation.org, stable@vger.kernel.org,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+References: <20210303121156.76621-1-pmenzel@molgen.mpg.de>
+ <a803de32-eec8-a0b1-69e6-43259ba5c656@amd.com>
+ <alpine.LNX.2.20.13.2103031648190.15170@monopod.intra.ispras.ru>
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+Message-ID: <0a910a80-5783-1f3d-a8ea-5e10cba0e206@molgen.mpg.de>
+Date:   Thu, 18 Mar 2021 10:20:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
+In-Reply-To: <alpine.LNX.2.20.13.2103031648190.15170@monopod.intra.ispras.ru>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When using Clause-22 to probe for PHY devices such as the Marvell
-88E2110, PHY ID with value 0 is read from the MII PHYID registers
-which caused the PHY framework failed to attach the Marvell PHY
-driver.
+Dear Jörg, dear Suravee,
 
-Fixed this by adding a check of PHY ID equals to all zeroes.
 
-Fixes: ee951005e95e ("net: phy: clean up get_phy_c22_id() invalid ID handling")
-Cc: stable@vger.kernel.org
-Reviewed-by: Voon Weifeng <voon.weifeng@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
----
-v2 changelog:
- - added fixes tag
- - marked for net instead of net-next
----
- drivers/net/phy/phy_device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Am 03.03.21 um 15:10 schrieb Alexander Monakov:
+> On Wed, 3 Mar 2021, Suravee Suthikulpanit wrote:
+> 
+>>> Additionally, alternative proposed solutions [1] were not considered or
+>>> discussed.
+>>>
+>>> [1]:https://lore.kernel.org/linux-iommu/alpine.LNX.2.20.13.2006030935570.3181@monopod.intra.ispras.ru/
+>>
+>> This check has been introduced early on to detect a HW issue for
+>> certain platforms in the past, where the performance counters are not
+>> accessible and would result in silent failure when try to use the
+>> counters. This is considered legacy code, and can be removed if we
+>> decide to no longer provide sanity check for such case.
+> 
+> Which platforms? There is no such information in the code or the commit
+> messages that introduced this.
+> 
+> According to AMD's documentation, presence of performance counters is
+> indicated by "PCSup" bit in the "EFR" register. I don't think the driver
+> should second-guess that. If there were platforms where the CPU or the
+> firmware lied to the OS (EFR[PCSup] was 1, but counters were not present),
+> I think that should have been handled in a more explicit manner, e.g.
+> via matching broken CPUs by cpuid.
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index cc38e326405a..c12c30254c11 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -809,8 +809,8 @@ static int get_phy_c22_id(struct mii_bus *bus, int addr, u32 *phy_id)
- 
- 	*phy_id |= phy_reg;
- 
--	/* If the phy_id is mostly Fs, there is no device there */
--	if ((*phy_id & 0x1fffffff) == 0x1fffffff)
-+	/* If the phy_id is mostly Fs or all zeroes, there is no device there */
-+	if (((*phy_id & 0x1fffffff) == 0x1fffffff) || (*phy_id == 0))
- 		return -ENODEV;
- 
- 	return 0;
--- 
-2.25.1
+Suravee, could you please answer the questions?
 
+Jörg, I know you are probably busy, but the patch was applied to the 
+stable series (v5.11.7). There are still too many question open 
+regarding the patch, and Suravee has not yet addressed the comments. 
+It’d be great, if you could revert it.
+
+
+Kind regards,
+
+Paul
+
+Could you please
