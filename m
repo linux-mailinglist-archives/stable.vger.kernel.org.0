@@ -2,52 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB661340209
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 10:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 400EB34021A
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 10:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229736AbhCRJ1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 05:27:40 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:13569 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229793AbhCRJ1Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 05:27:24 -0400
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4F1M7D2LmwzPjd9;
-        Thu, 18 Mar 2021 17:24:56 +0800 (CST)
-Received: from [127.0.0.1] (10.175.101.122) by DGGEMS404-HUB.china.huawei.com
- (10.3.19.204) with Microsoft SMTP Server id 14.3.498.0; Thu, 18 Mar 2021
- 17:27:12 +0800
-Content-Type: multipart/alternative;
-        boundary="===============7796649689138363090=="
+        id S229739AbhCRJcl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 05:32:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34164 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229640AbhCRJcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 05:32:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D300864F38;
+        Thu, 18 Mar 2021 09:32:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616059944;
+        bh=vNGR7hzP8F1F+55lYKLLJCozj3S16v54WJfSeeW6bZE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WQOSF7Ph/faVBfig5CzmvMRfW8V0VfjvxhHJhhl0zG0xb/xIK6gwV/zoqQRyO3L3K
+         qQHVAbAA+Hu0Y3onQ7SuQbDEj26uvAzSnfvfAyR1RvWaJnABtHoGsfV220pnvFQSQr
+         dBYTZcwTgMVDPuTFtOlfgufJ+8OLWDjH+2yArrCI=
+Date:   Thu, 18 Mar 2021 10:32:21 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     hulkrobot@huawei.com
+Cc:     stable@vger.kernel.org
+Subject: Re: [linux-stable-rc CI] Test report for 4.19.181/arm64
+Message-ID: <YFMeJb8yrbkd1amZ@kroah.com>
+References: <109d76e4-2f3c-4ece-a6ae-a08a070e3e06@DGGEMS404-HUB.china.huawei.com>
 MIME-Version: 1.0
-Date:   Thu, 18 Mar 2021 17:27:12 +0800
-From:   <hulkrobot@huawei.com>
-To:     <stable@vger.kernel.org>
-CC:     <gregkh@linuxfoundation.org>
-Subject: =?utf-8?q?=5Blinux-stable-rc_CI=5D_Test_report_for_4=2E19=2E181/arm64?=
-Message-ID: <109d76e4-2f3c-4ece-a6ae-a08a070e3e06@DGGEMS404-HUB.china.huawei.com>
-X-Originating-IP: [10.175.101.122]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <109d76e4-2f3c-4ece-a6ae-a08a070e3e06@DGGEMS404-HUB.china.huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---===============7796649689138363090==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+On Thu, Mar 18, 2021 at 05:27:12PM +0800, hulkrobot@huawei.com wrote:
+> Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> Branch: linux-4.19.y
+> Arch: arm64
+> Version: 4.19.181
+> Commit: ac3af4beac439ebccd17746c9f2fd227e88107aa
+> Compiler: gcc version 7.3.0 (GCC)
+> --------------------------------------------------------------------
+> Failed cases :
+> ltp test_robind24
+> ltp test_robind25
+> ltp test_robind26
+> ltp test_robind27
+> ltp test_robind28
+> --------------------------------------------------------------------
+> Testcase Result Summary:
+> total_num: 4726
+> succeed_num: 4721
+> failed_num: 5
+> timeout_num: 0
+> --------------------------------------------------------------------
+> Tested-by: Hulk Robot <hulkrobot@huawei.com>
 
-S2VybmVsIHJlcG86IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwv
-Z2l0L3N0YWJsZS9saW51eC1zdGFibGUtcmMuZ2l0CkJyYW5jaDogbGludXgtNC4xOS55CkFyY2g6
-IGFybTY0ClZlcnNpb246IDQuMTkuMTgxCkNvbW1pdDogYWMzYWY0YmVhYzQzOWViY2NkMTc3NDZj
-OWYyZmQyMjdlODgxMDdhYQ0KQ29tcGlsZXI6IGdjYyB2ZXJzaW9uIDcuMy4wIChHQ0MpCi0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tCkZhaWxlZCBjYXNlcyA6Cmx0cCB0ZXN0X3JvYmluZDI0Cmx0cCB0ZXN0X3JvYmluZDI1
-Cmx0cCB0ZXN0X3JvYmluZDI2Cmx0cCB0ZXN0X3JvYmluZDI3Cmx0cCB0ZXN0X3JvYmluZDI4Ci0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tClRlc3RjYXNlIFJlc3VsdCBTdW1tYXJ5Ogp0b3RhbF9udW06IDQ3MjYKc3VjY2Vl
-ZF9udW06IDQ3MjEKZmFpbGVkX251bTogNQp0aW1lb3V0X251bTogMAotLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpUZXN0
-ZWQtYnk6IEh1bGsgUm9ib3QgPGh1bGtyb2JvdEBodWF3ZWkuY29tPg==
+Ok, but what does this mean?
 
---===============7796649689138363090==--
+Can you bisect to find the offending commits?
+
+testing without intrepretation is just noise :(
+
+greg k-h
