@@ -2,168 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6773E341146
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 00:55:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D347D34114E
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 01:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230510AbhCRXzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 19:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36606 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232281AbhCRXys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 19:54:48 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D66C06174A
-        for <stable@vger.kernel.org>; Thu, 18 Mar 2021 16:54:48 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id h20so2092091plr.4
-        for <stable@vger.kernel.org>; Thu, 18 Mar 2021 16:54:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=7hUuphUSwp1IoZeGVtvLATDDtgHRmQpDvtY9aJO+C/Q=;
-        b=KUrUcrQrNMyP4vVIk00GJ9UR/kv5wCQ6sYLjVFcZumfp056yrovv+rmcbLMFD7r4WJ
-         2IuE3rahTrsrxcMK0MmGPrL/noOhZAP5ZRKdw6TPSjkSOK97u5bIqusIhVhgNBMEfXZr
-         Z5OpVdRVkB8Li4Jqi+I6lFqZD325YA6BxTvBU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=7hUuphUSwp1IoZeGVtvLATDDtgHRmQpDvtY9aJO+C/Q=;
-        b=YcTOPZ57DQ4Zfd+UNm2BYBHFMrm3FDiFiGOUYLbhqrfL31h3ciKw3fpVlUTgDAcwwG
-         4Q+8IGNIgAwAsICLWkmRNVu3GHmV4OHo5vUaItWeo1QOq8DZLAXdzITUlI+GFV28n3Wi
-         qjFIiH+nt/wkmjyXncp93aGJjQZXVjhccFgP4Ae3ZFwWEDnGmIGoUXA0R+5KO3OLZrwH
-         K0G7S6Ub6kdUB+l/t5dr7MVfv1QzMnZjK8SMR1WKGFPay7Up39hppopfdZVjHhiaVC+g
-         jvBO+OpbADEYS8xqzn5oazjJvxM1X/w/mSAYsMiC2v/ioq5H5xV1Qva+cEM35DdHjCvf
-         O4TQ==
-X-Gm-Message-State: AOAM532AqJnr/pdMQ/TUpGFpyGA1S9kmXQG/U/dtpdmq6xh9Mq7mCeey
-        obueUpRviQb1kipDfdtVjAfBtMOIVizjag==
-X-Google-Smtp-Source: ABdhPJxEFbPoNbqBo5FUAFc2XNJkbxgPUgEohAG8JnSDGCHwb0wDbvjCKEWKhxcq947wl/fJ1wmKzA==
-X-Received: by 2002:a17:90a:f2d2:: with SMTP id gt18mr6833009pjb.210.1616111688131;
-        Thu, 18 Mar 2021 16:54:48 -0700 (PDT)
-Received: from drinkcat2.tpe.corp.google.com ([2401:fa00:1:b:dc70:2def:a801:e21b])
-        by smtp.gmail.com with ESMTPSA id t7sm3295816pfg.69.2021.03.18.16.54.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Mar 2021 16:54:47 -0700 (PDT)
-From:   Nicolas Boichat <drinkcat@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: [for-stable-4.19 PATCH 2/2] lkdtm: don't move ctors to .rodata
-Date:   Fri, 19 Mar 2021 07:54:16 +0800
-Message-Id: <20210319075410.for-stable-4.19.2.I0387622b15d84eed675e48a0ba3be9c03b9f9e97@changeid>
-X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
-In-Reply-To: <20210318235416.794798-1-drinkcat@chromium.org>
-References: <20210318235416.794798-1-drinkcat@chromium.org>
+        id S231327AbhCSAAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 20:00:11 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45968 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230316AbhCSAAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Mar 2021 20:00:02 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12INY35d094321;
+        Thu, 18 Mar 2021 20:00:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ivTiJWbGDsEtE3GvdJeKaLJ5TjbJ9stwGEwR143CR7w=;
+ b=RKiQrzy448vuACAHjwq4aeriwig8JXHgtaYGwc67qD+TIE22Ks2tG/F5pNM3otFCKxN2
+ InzPo6mWJICPay498RXM24kqaRsCu3eJW40IPY92k6Jlu1hyINzQ1v3yahRtBx5es74+
+ F8GxAnzZikBPRk/Ic/VCdjjJBUqtgDPFv4HyPb70+eADGDRSbTVzi/FA1DUM/MBqHPeR
+ 74TrH9dwR8Smo2Tff54GN1egM02nsCeeL7oEGvjAXUFExTfzbDw77S61tjjyl7b9uxk5
+ dbPTtFuvTwq70hLZjUdgk9caGCnEPqSu/XbCsKuXAv9bU04yiLn75HzTz9H2NWyMnHC4 rg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37c302j5p6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 20:00:01 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12INZKDh096838;
+        Thu, 18 Mar 2021 20:00:01 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37c302j5my-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 20:00:01 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12INujVx028122;
+        Thu, 18 Mar 2021 23:59:59 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 37b30p22nr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 23:59:59 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12INxcNO36831642
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 18 Mar 2021 23:59:39 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EBC76AE059;
+        Thu, 18 Mar 2021 23:59:55 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2DE48AE057;
+        Thu, 18 Mar 2021 23:59:55 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.84.212])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 18 Mar 2021 23:59:55 +0000 (GMT)
+Date:   Fri, 19 Mar 2021 00:59:53 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH v4 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+Message-ID: <20210319005953.7e6425bd.pasic@linux.ibm.com>
+In-Reply-To: <ab9d54a1-afe7-caca-4e5e-99fca9ea2972@linux.ibm.com>
+References: <20210310150559.8956-1-akrowiak@linux.ibm.com>
+        <20210310150559.8956-2-akrowiak@linux.ibm.com>
+        <20210318001729.06cdb8d6.pasic@linux.ibm.com>
+        <ab9d54a1-afe7-caca-4e5e-99fca9ea2972@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-18_18:2021-03-17,2021-03-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ clxscore=1015 mlxlogscore=999 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 suspectscore=0 spamscore=0 mlxscore=0 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103180169
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+On Thu, 18 Mar 2021 14:38:53 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-commit 3f618ab3323407ee4c6a6734a37eb6e9663ebfb9 upstream.
+> On 3/17/21 7:17 PM, Halil Pasic wrote:
+> > On Wed, 10 Mar 2021 10:05:59 -0500
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> >  
+> >> -		ret = vfio_ap_mdev_reset_queues(mdev);
+> >> +		matrix_mdev = mdev_get_drvdata(mdev);  
+> > Is it guaranteed that matrix_mdev can't be NULL here? If yes, please
+> > remind me of the mechanism that ensures this.
+> >  
+> >> +
+> >> +		/*
+> >> +		 * If the KVM pointer is in the process of being set, wait until
+> >> +		 * the process has completed.
+> >> +		 */
+> >> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
+> >> +			       matrix_mdev->kvm_busy == false,
+> >> +			       mutex_unlock(&matrix_dev->lock),
+> >> +			       mutex_lock(&matrix_dev->lock));
+> >> +
+> >> +		if (matrix_mdev->kvm)
+> >> +			ret = vfio_ap_mdev_reset_queues(mdev);
+> >> +		else
+> >> +			ret = -ENODEV;  
+> > Didn't we agree to make the call to vfio_ap_mdev_reset_queues()
+> > unconditional again (for reference please take look at
+> > Message-ID: <64afa72c-2d6a-2ca1-e576-34e15fa579ed@linux.ibm.com>)?  
+> 
+> How about this:
 
-When building with KASAN and LKDTM, clang may implictly generate an
-asan.module_ctor function in the LKDTM rodata object. The Makefile moves
-the lkdtm_rodata_do_nothing() function into .rodata by renaming the
-file's .text section to .rodata, and consequently also moves the ctor
-function into .rodata, leading to a boot time crash (splat below) when
-the ctor is invoked by do_ctors().
+Looks good. I will check the mdev code if the checkeck is really
+needed. I'm curious when the sysfs files associated with a new mdev are
+created. My guess is that this one comes in via a device specific file
+(not the parent like in case of the create), and that those may be
+created after the create. But we can get rid of the check any time so I
+really don't see it as something that would preclude merging this.
 
-Let's prevent this by marking the function as noinstr rather than
-notrace, and renaming the file's .noinstr.text to .rodata. Marking the
-function as noinstr will prevent tracing and kprobes, and will inhibit
-any undesireable compiler instrumentation.
+Regards,
+Halil
 
-The ctor function (if any) will be placed in .text and will work
-correctly.
-
-Example splat before this patch is applied:
-
-[    0.916359] Unable to handle kernel execute from non-executable memory at virtual address ffffa0006b60f5ac
-[    0.922088] Mem abort info:
-[    0.922828]   ESR = 0x8600000e
-[    0.923635]   EC = 0x21: IABT (current EL), IL = 32 bits
-[    0.925036]   SET = 0, FnV = 0
-[    0.925838]   EA = 0, S1PTW = 0
-[    0.926714] swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000427b3000
-[    0.928489] [ffffa0006b60f5ac] pgd=000000023ffff003, p4d=000000023ffff003, pud=000000023fffe003, pmd=0068000042000f01
-[    0.931330] Internal error: Oops: 8600000e [#1] PREEMPT SMP
-[    0.932806] Modules linked in:
-[    0.933617] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.10.0-rc7 #2
-[    0.935620] Hardware name: linux,dummy-virt (DT)
-[    0.936924] pstate: 40400005 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-[    0.938609] pc : asan.module_ctor+0x0/0x14
-[    0.939759] lr : do_basic_setup+0x4c/0x70
-[    0.940889] sp : ffff27b600177e30
-[    0.941815] x29: ffff27b600177e30 x28: 0000000000000000
-[    0.943306] x27: 0000000000000000 x26: 0000000000000000
-[    0.944803] x25: 0000000000000000 x24: 0000000000000000
-[    0.946289] x23: 0000000000000001 x22: 0000000000000000
-[    0.947777] x21: ffffa0006bf4a890 x20: ffffa0006befb6c0
-[    0.949271] x19: ffffa0006bef9358 x18: 0000000000000068
-[    0.950756] x17: fffffffffffffff8 x16: 0000000000000000
-[    0.952246] x15: 0000000000000000 x14: 0000000000000000
-[    0.953734] x13: 00000000838a16d5 x12: 0000000000000001
-[    0.955223] x11: ffff94000da74041 x10: dfffa00000000000
-[    0.956715] x9 : 0000000000000000 x8 : ffffa0006b60f5ac
-[    0.958199] x7 : f9f9f9f9f9f9f9f9 x6 : 000000000000003f
-[    0.959683] x5 : 0000000000000040 x4 : 0000000000000000
-[    0.961178] x3 : ffffa0006bdc15a0 x2 : 0000000000000005
-[    0.962662] x1 : 00000000000000f9 x0 : ffffa0006bef9350
-[    0.964155] Call trace:
-[    0.964844]  asan.module_ctor+0x0/0x14
-[    0.965895]  kernel_init_freeable+0x158/0x198
-[    0.967115]  kernel_init+0x14/0x19c
-[    0.968104]  ret_from_fork+0x10/0x30
-[    0.969110] Code: 00000003 00000000 00000000 00000000 (00000000)
-[    0.970815] ---[ end trace b5339784e20d015c ]---
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Kees Cook <keescook@chromium.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20201207170533.10738-1-mark.rutland@arm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
----
-
- drivers/misc/lkdtm/Makefile | 2 +-
- drivers/misc/lkdtm/rodata.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/misc/lkdtm/Makefile b/drivers/misc/lkdtm/Makefile
-index cce47a15a79f..aeb960cb096d 100644
---- a/drivers/misc/lkdtm/Makefile
-+++ b/drivers/misc/lkdtm/Makefile
-@@ -13,7 +13,7 @@ KCOV_INSTRUMENT_rodata.o	:= n
- 
- OBJCOPYFLAGS :=
- OBJCOPYFLAGS_rodata_objcopy.o	:= \
--			--rename-section .text=.rodata,alloc,readonly,load
-+			--rename-section .noinstr.text=.rodata,alloc,readonly,load
- targets += rodata.o rodata_objcopy.o
- $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
- 	$(call if_changed,objcopy)
-diff --git a/drivers/misc/lkdtm/rodata.c b/drivers/misc/lkdtm/rodata.c
-index 58d180af72cf..baacb876d1d9 100644
---- a/drivers/misc/lkdtm/rodata.c
-+++ b/drivers/misc/lkdtm/rodata.c
-@@ -5,7 +5,7 @@
-  */
- #include "lkdtm.h"
- 
--void notrace lkdtm_rodata_do_nothing(void)
-+void noinstr lkdtm_rodata_do_nothing(void)
- {
- 	/* Does nothing. We just want an architecture agnostic "return". */
- }
--- 
-2.31.0.rc2.261.g7f71774620-goog
+> 
+> static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+>                      unsigned int cmd, unsigned long arg)
+> {
+>      int ret = 0;
+>      struct ap_matrix_mdev *matrix_mdev;
+> 
+>      ...
+>      case VFIO_DEVICE_RESET:
+>          matrix_mdev = mdev_get_drvdata(mdev);
+>          WARN(!matrix_mdev, "Driver data missing from mdev!!");
+> 
+>          if (matrix_mdev) {
+>              /*
+>               * If the KVM pointer is in the process of being set, wait 
+> until
+>               * the process has completed.
+>               */
+>              wait_event_cmd(matrix_mdev->wait_for_kvm,
+>                         matrix_mdev->kvm_busy == false,
+> mutex_unlock(&matrix_dev->lock),
+> mutex_lock(&matrix_dev->lock));
+> 
+>              ret = vfio_ap_mdev_reset_queues(mdev);
+>          }
+>          break;
+>      ...
+> 
+>      return ret;
+> }
+> 
+> >
+> > Regards,
+> > Halil  
+> 
 
