@@ -2,76 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F03340133
-	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 09:51:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5458340170
+	for <lists+stable@lfdr.de>; Thu, 18 Mar 2021 10:06:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbhCRIvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Mar 2021 04:51:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:40434 "EHLO mx2.suse.de"
+        id S229640AbhCRJFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Mar 2021 05:05:55 -0400
+Received: from mga03.intel.com ([134.134.136.65]:10982 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229558AbhCRIu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Mar 2021 04:50:57 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 22201AC17;
-        Thu, 18 Mar 2021 08:50:56 +0000 (UTC)
-From:   Mian Yousaf Kaukab <ykaukab@suse.de>
-To:     jaswinder.singh@linaro.org, ilias.apalodimas@linaro.org,
-        davem@davemloft.net, kuba@kernel.org, masahisa.kojima@linaro.org,
-        osaki.yoshitoyo@socionext.com
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Mian Yousaf Kaukab <ykaukab@suse.de>, stable@vger.kernel.org
-Subject: [PATCH net] netsec: restore phy power state after controller reset
-Date:   Thu, 18 Mar 2021 09:50:26 +0100
-Message-Id: <20210318085026.30475-1-ykaukab@suse.de>
-X-Mailer: git-send-email 2.26.2
+        id S229512AbhCRJFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Mar 2021 05:05:30 -0400
+IronPort-SDR: I4QSBcDttPm3Dqga/8UFFnI+e/0J5I80LDy88Lxz19hIP7Rk9Q9pVq1xq/42W18uMJhA2eYmsu
+ gObtBFt26vWg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9926"; a="189680237"
+X-IronPort-AV: E=Sophos;i="5.81,258,1610438400"; 
+   d="scan'208";a="189680237"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2021 02:05:30 -0700
+IronPort-SDR: hk1yorJL8O8FykbM/JjTKrcSQC9oqv23EYpanBd3nw0Fr62+mSv+J4CUl6v+bPqFCf1dHfpnmp
+ j97KseJ5l6Ag==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,258,1610438400"; 
+   d="scan'208";a="372645266"
+Received: from glass.png.intel.com ([10.158.65.59])
+  by orsmga003.jf.intel.com with ESMTP; 18 Mar 2021 02:05:27 -0700
+From:   Wong Vee Khee <vee.khee.wong@intel.com>
+To:     Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>
+Subject: [PATCH net V2 1/1] net: phy: fix invalid phy id when probe using C22
+Date:   Thu, 18 Mar 2021 17:09:37 +0800
+Message-Id: <20210318090937.26465-1-vee.khee.wong@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 8e850f25b581 ("net: socionext: Stop PHY before resetting
-netsec") netsec_netdev_init() power downs phy before resetting the
-controller. However, the state is not restored once the reset is
-complete. As a result it is not possible to bring up network on a
-platform with Broadcom BCM5482 phy.
+When using Clause-22 to probe for PHY devices such as the Marvell
+88E2110, PHY ID with value 0 is read from the MII PHYID registers
+which caused the PHY framework failed to attach the Marvell PHY
+driver.
 
-Fix the issue by restoring phy power state after controller reset is
-complete.
+Fixed this by adding a check of PHY ID equals to all zeroes.
 
-Fixes: 8e850f25b581 ("net: socionext: Stop PHY before resetting netsec")
+Fixes: ee951005e95e ("net: phy: clean up get_phy_c22_id() invalid ID handling")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Reviewed-by: Voon Weifeng <voon.weifeng@intel.com>
+Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
 ---
- drivers/net/ethernet/socionext/netsec.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+v2 changelog:
+ - added fixes tag
+ - marked for net instead of net-next
+---
+ drivers/net/phy/phy_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
-index 3c53051bdacf..200785e703c8 100644
---- a/drivers/net/ethernet/socionext/netsec.c
-+++ b/drivers/net/ethernet/socionext/netsec.c
-@@ -1715,14 +1715,17 @@ static int netsec_netdev_init(struct net_device *ndev)
- 		goto err1;
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index cc38e326405a..c12c30254c11 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -809,8 +809,8 @@ static int get_phy_c22_id(struct mii_bus *bus, int addr, u32 *phy_id)
  
- 	/* set phy power down */
--	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR) |
--		BMCR_PDOWN;
--	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
-+	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR);
-+	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR,
-+			 data | BMCR_PDOWN);
+ 	*phy_id |= phy_reg;
  
- 	ret = netsec_reset_hardware(priv, true);
- 	if (ret)
- 		goto err2;
+-	/* If the phy_id is mostly Fs, there is no device there */
+-	if ((*phy_id & 0x1fffffff) == 0x1fffffff)
++	/* If the phy_id is mostly Fs or all zeroes, there is no device there */
++	if (((*phy_id & 0x1fffffff) == 0x1fffffff) || (*phy_id == 0))
+ 		return -ENODEV;
  
-+	/* Restore phy power state */
-+	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
-+
- 	spin_lock_init(&priv->desc_ring[NETSEC_RING_TX].lock);
- 	spin_lock_init(&priv->desc_ring[NETSEC_RING_RX].lock);
- 
+ 	return 0;
 -- 
-2.26.2
+2.25.1
 
