@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C3A341C9B
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D63341C95
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbhCSMVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59618 "EHLO mail.kernel.org"
+        id S231637AbhCSMVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:21:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231357AbhCSMVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:21:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A5A364F6C;
-        Fri, 19 Mar 2021 12:21:10 +0000 (UTC)
+        id S231473AbhCSMVO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:21:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39F8064E6B;
+        Fri, 19 Mar 2021 12:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156471;
-        bh=piqb8IFu8cYpYWKPzRz1pQJeqJ3yVKyHw0s/IpyRvx4=;
+        s=korg; t=1616156473;
+        bh=X1wwdFM5WtvcEG+7IaS7I6fTZxYiQTN2BDMJV391pzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQMM4mjUSEN9WJ6mpMtXH6uq1r8r4qfO3YXs0nt5I5NwDxMhgA5eQ5od4vRMyGXH4
-         JIFcGu/hQGORbYCFOxfM5KdnncJIXKeoUmqngrqHd4RuQHzwwqcy5Rv1vi1+wtqLH+
-         JcV96BMx7J6hzlxhTAghanx4XaYh14tcYx5gCncQ=
+        b=rFryo5Trh08f3fShx3MCE0R1lJQ/RvXT00dKXKfYBbLL7WpQm92d9kb4KyXWzNu5d
+         5K27kMtjFX24f2dUymyarzX8IWhzQBROd+kCZfT28YwipsFWRapjLBuIqopYG+bOTJ
+         3GxXo+jfCztXnBdErZe0GmwAvTemzwWw0ITp3SZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.11 27/31] fuse: fix live lock in fuse_iget()
-Date:   Fri, 19 Mar 2021 13:19:21 +0100
-Message-Id: <20210319121748.078936087@linuxfoundation.org>
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.11 28/31] Revert "nfsd4: remove check_conflicting_opens warning"
+Date:   Fri, 19 Mar 2021 13:19:22 +0100
+Message-Id: <20210319121748.110813942@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
 References: <20210319121747.203523570@linuxfoundation.org>
@@ -39,52 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-commit 775c5033a0d164622d9d10dd0f0a5531639ed3ed upstream.
+commit 4aa5e002034f0701c3335379fd6c22d7f3338cce upstream.
 
-Commit 5d069dbe8aaf ("fuse: fix bad inode") replaced make_bad_inode()
-in fuse_iget() with a private implementation fuse_make_bad().
+This reverts commit 50747dd5e47b "nfsd4: remove check_conflicting_opens
+warning", as a prerequisite for reverting 94415b06eb8a, which has a
+serious bug.
 
-The private implementation fails to remove the bad inode from inode
-cache, so the retry loop with iget5_locked() finds the same bad inode
-and marks it bad forever.
-
-kmsg snip:
-
-[ ] rcu: INFO: rcu_sched self-detected stall on CPU
-...
-[ ]  ? bit_wait_io+0x50/0x50
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? find_inode.isra.32+0x60/0xb0
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5_nowait+0x65/0x90
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5.part.36+0x2e/0x80
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  iget5_locked+0x21/0x80
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  fuse_iget+0x96/0x1b0
-
-Fixes: 5d069dbe8aaf ("fuse: fix bad inode")
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/fuse_i.h |    1 +
+ fs/nfsd/nfs4state.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -863,6 +863,7 @@ static inline u64 fuse_get_attr_version(
- 
- static inline void fuse_make_bad(struct inode *inode)
- {
-+	remove_inode_hash(inode);
- 	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
- }
- 
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -4957,6 +4957,7 @@ static int nfsd4_check_conflicting_opens
+ 		writes--;
+ 	if (fp->fi_fds[O_RDWR])
+ 		writes--;
++	WARN_ON_ONCE(writes < 0);
+ 	if (writes > 0)
+ 		return -EAGAIN;
+ 	spin_lock(&fp->fi_lock);
 
 
