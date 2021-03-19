@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F6E341C64
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F39B6341C6D
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230010AbhCSMUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58474 "EHLO mail.kernel.org"
+        id S231148AbhCSMUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:20:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230411AbhCSMUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CC1764F65;
-        Fri, 19 Mar 2021 12:20:19 +0000 (UTC)
+        id S231146AbhCSMUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E305F64F6C;
+        Fri, 19 Mar 2021 12:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156419;
-        bh=0WUz7ExhoeU5E9tBpK+ViFg/1w5fhR5zj2NSQgMzYWk=;
+        s=korg; t=1616156432;
+        bh=qWFoHpBrF4dpwXN2n6df7Y62R8OLa8PApV3+Z+/BPsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rx3KJjL+poOdxl3nre+mihGvT6BlbICW36rqgSCVLimXiLOg/qJPGuMUitFNoL9Qv
-         WyStvKPX3yLkJgmgzssUjYYq1ZoIx9C1fyIqrpVWd82KznXZaLuN3tE0BQw21pXfTq
-         5NnXOU6C31ME9hgZHqMnCrhh1KP2XPJlfxbTAN4c=
+        b=sTNx4zCORIhzm2MfiyuS2Z6mRVUb28fX+AQLL+xfWCasgCk/zVi4rY6xYC0ZLAmEW
+         37+nN2MlMU8JR4PzQqHi1NSlmcXH5ifoFotVr6l3ZqmmWIuIuJaBMz/PJ40t9cfmvg
+         mBZhRoEKk7U7NoS90a7ItNG1CJVIi0SGS+Km3ckU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Yi Zhang <yi.zhang@redhat.com>
-Subject: [PATCH 5.10 08/13] RDMA/srp: Fix support for unpopulated and unbalanced NUMA nodes
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 11/31] io_uring: clear IOCB_WAITQ for non -EIOCBQUEUED return
 Date:   Fri, 19 Mar 2021 13:19:05 +0100
-Message-Id: <20210319121745.370839960@linuxfoundation.org>
+Message-Id: <20210319121747.564169989@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
-References: <20210319121745.112612545@linuxfoundation.org>
+In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
+References: <20210319121747.203523570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,179 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 2b5715fc17386a6223490d5b8f08d031999b0c0b upstream.
+[ Upstream commit b5b0ecb736f1ce1e68eb50613c0cfecff10198eb ]
 
-The current code computes a number of channels per SRP target and spreads
-them equally across all online NUMA nodes.  Each channel is then assigned
-a CPU within this node.
+The callback can only be armed, if we get -EIOCBQUEUED returned. It's
+important that we clear the WAITQ bit for other cases, otherwise we can
+queue for async retry and filemap will assume that we're armed and
+return -EAGAIN instead of just blocking for the IO.
 
-In the case of unbalanced, or even unpopulated nodes, some channels do not
-get a CPU associated and thus do not get connected.  This causes the SRP
-connection to fail.
-
-This patch solves the issue by rewriting channel computation and
-allocation:
-
-- Drop channel to node/CPU association as it had no real effect on
-  locality but added unnecessary complexity.
-
-- Tweak the number of channels allocated to reduce CPU contention when
-  possible:
-  - Up to one channel per CPU (instead of up to 4 by node)
-  - At least 4 channels per node, unless ch_count module parameter is
-    used.
-
-Link: https://lore.kernel.org/r/9cb4d9d3-30ad-2276-7eff-e85f7ddfb411@suse.com
-Signed-off-by: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org # 5.9+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c |  116 ++++++++++++++----------------------
- 1 file changed, 48 insertions(+), 68 deletions(-)
+ fs/io_uring.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3624,7 +3624,7 @@ static ssize_t srp_create_target(struct
- 	struct srp_rdma_ch *ch;
- 	struct srp_device *srp_dev = host->srp_dev;
- 	struct ib_device *ibdev = srp_dev->dev;
--	int ret, node_idx, node, cpu, i;
-+	int ret, i, ch_idx;
- 	unsigned int max_sectors_per_mr, mr_per_cmd = 0;
- 	bool multich = false;
- 	uint32_t max_iu_len;
-@@ -3749,81 +3749,61 @@ static ssize_t srp_create_target(struct
- 		goto out;
- 
- 	ret = -ENOMEM;
--	if (target->ch_count == 0)
-+	if (target->ch_count == 0) {
- 		target->ch_count =
--			max_t(unsigned int, num_online_nodes(),
--			      min(ch_count ?:
--					  min(4 * num_online_nodes(),
--					      ibdev->num_comp_vectors),
--				  num_online_cpus()));
-+			min(ch_count ?:
-+				max(4 * num_online_nodes(),
-+				    ibdev->num_comp_vectors),
-+				num_online_cpus());
-+	}
-+
- 	target->ch = kcalloc(target->ch_count, sizeof(*target->ch),
- 			     GFP_KERNEL);
- 	if (!target->ch)
- 		goto out;
- 
--	node_idx = 0;
--	for_each_online_node(node) {
--		const int ch_start = (node_idx * target->ch_count /
--				      num_online_nodes());
--		const int ch_end = ((node_idx + 1) * target->ch_count /
--				    num_online_nodes());
--		const int cv_start = node_idx * ibdev->num_comp_vectors /
--				     num_online_nodes();
--		const int cv_end = (node_idx + 1) * ibdev->num_comp_vectors /
--				   num_online_nodes();
--		int cpu_idx = 0;
--
--		for_each_online_cpu(cpu) {
--			if (cpu_to_node(cpu) != node)
--				continue;
--			if (ch_start + cpu_idx >= ch_end)
--				continue;
--			ch = &target->ch[ch_start + cpu_idx];
--			ch->target = target;
--			ch->comp_vector = cv_start == cv_end ? cv_start :
--				cv_start + cpu_idx % (cv_end - cv_start);
--			spin_lock_init(&ch->lock);
--			INIT_LIST_HEAD(&ch->free_tx);
--			ret = srp_new_cm_id(ch);
--			if (ret)
--				goto err_disconnect;
--
--			ret = srp_create_ch_ib(ch);
--			if (ret)
--				goto err_disconnect;
--
--			ret = srp_alloc_req_data(ch);
--			if (ret)
--				goto err_disconnect;
--
--			ret = srp_connect_ch(ch, max_iu_len, multich);
--			if (ret) {
--				char dst[64];
--
--				if (target->using_rdma_cm)
--					snprintf(dst, sizeof(dst), "%pIS",
--						 &target->rdma_cm.dst);
--				else
--					snprintf(dst, sizeof(dst), "%pI6",
--						 target->ib_cm.orig_dgid.raw);
--				shost_printk(KERN_ERR, target->scsi_host,
--					     PFX "Connection %d/%d to %s failed\n",
--					     ch_start + cpu_idx,
--					     target->ch_count, dst);
--				if (node_idx == 0 && cpu_idx == 0) {
--					goto free_ch;
--				} else {
--					srp_free_ch_ib(target, ch);
--					srp_free_req_data(target, ch);
--					target->ch_count = ch - target->ch;
--					goto connected;
--				}
-+	for (ch_idx = 0; ch_idx < target->ch_count; ++ch_idx) {
-+		ch = &target->ch[ch_idx];
-+		ch->target = target;
-+		ch->comp_vector = ch_idx % ibdev->num_comp_vectors;
-+		spin_lock_init(&ch->lock);
-+		INIT_LIST_HEAD(&ch->free_tx);
-+		ret = srp_new_cm_id(ch);
-+		if (ret)
-+			goto err_disconnect;
-+
-+		ret = srp_create_ch_ib(ch);
-+		if (ret)
-+			goto err_disconnect;
-+
-+		ret = srp_alloc_req_data(ch);
-+		if (ret)
-+			goto err_disconnect;
-+
-+		ret = srp_connect_ch(ch, max_iu_len, multich);
-+		if (ret) {
-+			char dst[64];
-+
-+			if (target->using_rdma_cm)
-+				snprintf(dst, sizeof(dst), "%pIS",
-+					&target->rdma_cm.dst);
-+			else
-+				snprintf(dst, sizeof(dst), "%pI6",
-+					target->ib_cm.orig_dgid.raw);
-+			shost_printk(KERN_ERR, target->scsi_host,
-+				PFX "Connection %d/%d to %s failed\n",
-+				ch_idx,
-+				target->ch_count, dst);
-+			if (ch_idx == 0) {
-+				goto free_ch;
-+			} else {
-+				srp_free_ch_ib(target, ch);
-+				srp_free_req_data(target, ch);
-+				target->ch_count = ch - target->ch;
-+				goto connected;
- 			}
--
--			multich = true;
--			cpu_idx++;
- 		}
--		node_idx++;
-+		multich = true;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c18e4a334614..262fd4cfd3ad 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3587,6 +3587,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 		goto out_free;
+ 	} else if (ret > 0 && ret < io_size) {
+ 		/* we got some bytes, but not all. retry. */
++		kiocb->ki_flags &= ~IOCB_WAITQ;
+ 		goto retry;
  	}
- 
- connected:
+ done:
+-- 
+2.30.1
+
 
 
