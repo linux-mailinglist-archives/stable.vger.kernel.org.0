@@ -2,220 +2,290 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E763422DE
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 18:10:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F14DD342339
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 18:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbhCSRJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 13:09:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33324 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230114AbhCSRJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 13:09:11 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F8DC06175F
-        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 10:09:11 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id r12so10887942ejr.5
-        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 10:09:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=4XvJz1yvJrZuTXeAiRraqR6H4CHgURI4MtE7jiLzPOk=;
-        b=XarRGwcWIQ16asNYRIN+OBBFSQbr+UF0t8f4oOs3gkf1ZxCF/cMoLUZiWU53/d6geM
-         zColXt4y3uDTYVs8Xp16YsMaHPCAfSPY7GProo7++RE5bOiSLUYZtJHFk9FpJnwtBdDG
-         OAfixKilTnh3Ikj32k75jjlOjIxtPSCiTh8kY=
+        id S230263AbhCSRZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 13:25:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:53000 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229925AbhCSRZR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 13:25:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616174716;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CXLDsLPoubbGp67OogE9XornHlWLqBqoYkBToHUCuGI=;
+        b=ibjph8URka3JRcX++jDSPg1zul+gSt8sGYqHJbyq++KSNBOmu4PtOND/aiJg36rpESVH55
+        /9aFN2jgUwTGk/ju51AnssPtenza9tuNzyEqlwTiN15CUKTI8XXZUfdAYRcylK/rcsAE9v
+        rt07hQF5SfmgUsgFYR00QKUsaBp9Rfc=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-334-AeXmr4ntMGu1S7UzCxn60g-1; Fri, 19 Mar 2021 13:25:11 -0400
+X-MC-Unique: AeXmr4ntMGu1S7UzCxn60g-1
+Received: by mail-qt1-f197.google.com with SMTP id f26so296651qtq.17
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 10:25:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4XvJz1yvJrZuTXeAiRraqR6H4CHgURI4MtE7jiLzPOk=;
-        b=NGhTQ2aAWYGueOgxK7BiolHNEk9VtojIDoymlpdwPCnbqLyJfBdYvxBYWjAfhgnaG/
-         v760Gk8ItRJZEmojPq76MPEfJIX4gTR/slOQN/8FRp8PdV3cEUwHuTp7BNwFBLpWs0LL
-         09wtjVf5q/+WNCkThZM/NWlTR1tlxrDJmGSSWDFjtLBOKL159uFoIe77Qqc7CVQ6VPa0
-         g0DBsYDqcejiZZwLugXva+A95cEz7UuJTxeX3k4sz3JtZFxp2xjQZu2RSw64qx/RavMk
-         yTEAri8neEUlAk4OA5xDgRhrwaSP4CFj4uC6jS4H7etxSBrenB/4tdBgHChlWqDLiNPq
-         s6yA==
-X-Gm-Message-State: AOAM5323khZv/j3y3FoBFafHTXRSSiYFjZu3OE9FnsKjwcOyC7p9Wiiu
-        aHVbhYBgYLpZiPcYOl4IUhpg9g==
-X-Google-Smtp-Source: ABdhPJxY72lDGytr4Sh/Y05Crj+TMzCocgucyyNYkZ6md6jVnB1X3WV/J0eviOEvkPSI5EAG3opLjQ==
-X-Received: by 2002:a17:906:7d82:: with SMTP id v2mr5540650ejo.524.1616173749918;
-        Fri, 19 Mar 2021 10:09:09 -0700 (PDT)
-Received: from alco.lan ([80.71.134.83])
-        by smtp.gmail.com with ESMTPSA id be27sm4506050edb.47.2021.03.19.10.09.09
+        h=x-gm-message-state:message-id:subject:from:reply-to:to:cc:date
+         :in-reply-to:references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=CXLDsLPoubbGp67OogE9XornHlWLqBqoYkBToHUCuGI=;
+        b=sTUR1tDNCxBRU8lrE0oXoKHbucZtUv/U3sWBI5DMunT8RKG0YmlLbBa3V43U56flXn
+         nxbrd4Plcfl2uywdiwvqwmoiJyMlIXWwGqinqvLh8dQjTTrgBke7kWbeuWribD/RoMV8
+         mEyFKz9TYhswXffU6QkjuuyYmaEYVCF/lxZmkD0x57ti4MhHsMtdjUxnCJjuEy4objRx
+         ONjdeo1ZF97aDK5HVRZlda+9GAkeippa0Xy/2wCpSbThAT8OC0NuLfQxMWkhmhA7gJNq
+         oUHbOSo9+AWUDIksA+ifMrCfsj9+pN8uzH65+9i6vOr2MvNfmc8LD48ktb/YOIplJRJq
+         In+A==
+X-Gm-Message-State: AOAM532DHDzEUMrHRVxwnrm9hzWSwlhfMgnrOC09yhzKzyc/+4zvC8r3
+        jAc/XpMOMpb2yGXUgG5gDgbUk4TKW8UzwHJ89Vs/QpoIW1UnuFjslFnmoCss96FfdnzIw/MARAp
+        iM2AG49tZucsz4blv
+X-Received: by 2002:a05:620a:16dc:: with SMTP id a28mr10483836qkn.442.1616174711247;
+        Fri, 19 Mar 2021 10:25:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx2PNSNgacEAxGh8jQ+yratSe0lj4CTdS+H9WCqhb0qDBaoyoNsaXhesCCJsm0Js0YryqbGcw==
+X-Received: by 2002:a05:620a:16dc:: with SMTP id a28mr10483806qkn.442.1616174711008;
+        Fri, 19 Mar 2021 10:25:11 -0700 (PDT)
+Received: from Whitewolf.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id 18sm5119562qkr.90.2021.03.19.10.25.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Mar 2021 10:09:09 -0700 (PDT)
-From:   Ricardo Ribalda <ribalda@chromium.org>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        tfiga@chromium.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH v8 01/19] media: v4l2-ioctl: Fix check_ext_ctrls
-Date:   Fri, 19 Mar 2021 18:08:48 +0100
-Message-Id: <20210319170906.278238-2-ribalda@chromium.org>
-X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
-In-Reply-To: <20210319170906.278238-1-ribalda@chromium.org>
-References: <20210319170906.278238-1-ribalda@chromium.org>
+        Fri, 19 Mar 2021 10:25:09 -0700 (PDT)
+Message-ID: <ce79f22e1f7f7e6bf4424e5f9d2d657d8215480d.camel@redhat.com>
+Subject: Re: [PATCH v2 1/3] drm/i915/ilk-glk: Fix link training on links
+ with LTTPRs
+From:   Lyude Paul <lyude@redhat.com>
+Reply-To: lyude@redhat.com
+To:     imre.deak@intel.com,
+        "Almahallawy, Khaled" <khaled.almahallawy@intel.com>
+Cc:     "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "mail@bodograumann.de" <mail@bodograumann.de>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "santiago.zarate@suse.com" <santiago.zarate@suse.com>,
+        "tiwai@suse.de" <tiwai@suse.de>
+Date:   Fri, 19 Mar 2021 13:25:08 -0400
+In-Reply-To: <20210318231749.GA23036@ideak-desk.fi.intel.com>
+References: <20210317184901.4029798-1-imre.deak@intel.com>
+         <20210317184901.4029798-2-imre.deak@intel.com> <YFOO4FOmOB8yp3me@intel.com>
+         <20210318174907.GE4128033@ideak-desk.fi.intel.com>
+         <20210318180645.GG4128033@ideak-desk.fi.intel.com>
+         <e1e9f9ea76071af914b37352fc201d09f378a55b.camel@intel.com>
+         <20210318231749.GA23036@ideak-desk.fi.intel.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Drivers that do not use the ctrl-framework use this function instead.
+On Fri, 2021-03-19 at 01:17 +0200, Imre Deak wrote:
+> On Fri, Mar 19, 2021 at 12:04:54AM +0200, Almahallawy, Khaled wrote:
+> > On Thu, 2021-03-18 at 20:06 +0200, Imre Deak wrote:
+> > > On Thu, Mar 18, 2021 at 07:49:13PM +0200, Imre Deak wrote:
+> > > > On Thu, Mar 18, 2021 at 07:33:20PM +0200, Ville Syrjälä wrote:
+> > > > > On Wed, Mar 17, 2021 at 08:48:59PM +0200, Imre Deak wrote:
+> > > > > > The spec requires to use at least 3.2ms for the AUX timeout
+> > > > > > period if
+> > > > > > there are LT-tunable PHY Repeaters on the link (2.11.2). An
+> > > > > > upcoming
+> > > > > > spec update makes this more specific, by requiring a 3.2ms
+> > > > > > minimum
+> > > > > > timeout period for the LTTPR detection reading the 0xF0000-
+> > > > > > 0xF0007
+> > > > > > range (3.6.5.1).
+> > > > > 
+> > > > > I'm pondering if we could reduce the timeout after having
+> > > > > determined
+> > > > > wherther LTTPRs are present or not? But maybe that wouldn't
+> > > > > really speed
+> > > > > up anything since we can't reduce the timeout until after
+> > > > > detecting
+> > > > > *something*. And once there is something there we shouldn't
+> > > > > really get
+> > > > > any more timeouts I guess. So probably a totally stupid idea.
+> > > > 
+> > > > Right, if something is connected it would take anyway as much time
+> > > > as it
+> > > > takes for the sink to reply whether or not we decreased the
+> > > > timeout.
+> > > > 
+> > > > However if nothing is connected, we have the excessive timeout
+> > > > Khaled
+> > > > already noticed (160 * 4ms = 6.4 sec on ICL+). I think to improve
+> > > > that
+> > > > we could scale the total number of retries by making it
+> > > > total_timeout/platform_specific_timeout (letting total_timeout=2sec
+> > > > for
+> > > > instance) or just changing the drm retry logic to be time based
+> > > > instead
+> > > > of the number of retries we use atm.
+> > > 
+> > > Doh, reducing simply the HW timeouts would be enough to fix this.
+> > 
+> > What about Lyude's suggestion (
+> > https://patchwork.freedesktop.org/patch/420369/#comment_756572)
+> > to drop the retries in intel_dp_aux_xfer()
+> > /* Must try at least 3 times according to DP spec */
+> > for (try = 0; try < 5; try++) {
+> > 
+> > And use only the retries in drm_dpcd_access?
+> 
+> I think it would work if we can make the retries configurable and set it
+> to
+>         retries = total_timeout / platform_specific_timeout_per_retry
+> 
+> where total_timeout would be something reasonable like 1 sec.
 
-Fix the following issues:
+I actually think I'm more open to the idea of configurable retries after
+learning that apparently this is a thing that the i2c subsystem does - so
+there's more precedence for it in the rest of the kernel than I originally
+thought.
 
-- Do not check for multiple classes when getting the DEF_VAL.
-- Return -EINVAL for request_api calls
-- Default value cannot be changed, return EINVAL as soon as possible.
-- Return the right error_idx
-[If an error is found when validating the list of controls passed with
-VIDIOC_G_EXT_CTRLS, then error_idx shall be set to ctrls->count to
-indicate to userspace that no actual hardware was touched.
-It would have been much nicer of course if error_idx could point to the
-control index that failed the validation, but sadly that's not how the
-API was designed.]
+I'm still curious if we need these extra retries in here though - there seems to
+be one set of retries that is actually platform specific, and then just a random
+set of 5 retries that don't seem to have anything to do with platform specific
+behavior - so I think it'd still be worth giving a shot at getting rid of that
 
-Fixes v4l2-compliance:
-Control ioctls (Input 0):
-        warn: v4l2-test-controls.cpp(834): error_idx should be equal to count
-        warn: v4l2-test-controls.cpp(855): error_idx should be equal to count
-		fail: v4l2-test-controls.cpp(813): doioctl(node, VIDIOC_G_EXT_CTRLS, &ctrls)
-	test VIDIOC_G/S/TRY_EXT_CTRLS: FAIL
-Buffer ioctls (Input 0):
-		fail: v4l2-test-buffers.cpp(1994): ret != EINVAL && ret != EBADR && ret != ENOTTY
-	test Requests: FAIL
+> 
+> > 
+> > Thanks
+> > Khaled
+> > 
+> > > 
+> > > > > Anyways, this seems about the only thing we can do given the
+> > > > > limited
+> > > > > hw capabilities.
+> > > > > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > > 
+> > > > > > Accordingly disable LTTPR detection until GLK, where the
+> > > > > > maximum timeout
+> > > > > > we can set is only 1.6ms.
+> > > > > > 
+> > > > > > Link training in the non-transparent mode is known to fail at
+> > > > > > least on
+> > > > > > some SKL systems with a WD19 dock on the link, which exposes an
+> > > > > > LTTPR
+> > > > > > (see the References below). While this could have different
+> > > > > > reasons
+> > > > > > besides the too short AUX timeout used, not detecting LTTPRs
+> > > > > > (and so not
+> > > > > > using the non-transparent LT mode) fixes link training on these
+> > > > > > systems.
+> > > > > > 
+> > > > > > While at it add a code comment about the platform specific
+> > > > > > maximum
+> > > > > > timeout values.
+> > > > > > 
+> > > > > > v2: Add a comment about the g4x maximum timeout as well.
+> > > > > > (Ville)
+> > > > > > 
+> > > > > > Reported-by: Takashi Iwai <tiwai@suse.de>
+> > > > > > Reported-and-tested-by: Santiago Zarate <
+> > > > > > santiago.zarate@suse.com>
+> > > > > > Reported-and-tested-by: Bodo Graumann <mail@bodograumann.de>
+> > > > > > References:
+> > > > > > https://gitlab.freedesktop.org/drm/intel/-/issues/3166
+> > > > > > Fixes: b30edfd8d0b4 ("drm/i915: Switch to LTTPR non-transparent
+> > > > > > mode link training")
+> > > > > > Cc: <stable@vger.kernel.org> # v5.11
+> > > > > > Cc: Takashi Iwai <tiwai@suse.de>
+> > > > > > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > > > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> > > > > > ---
+> > > > > >  drivers/gpu/drm/i915/display/intel_dp_aux.c       |  7 +++++++
+> > > > > >  .../gpu/drm/i915/display/intel_dp_link_training.c | 15
+> > > > > > ++++++++++++---
+> > > > > >  2 files changed, 19 insertions(+), 3 deletions(-)
+> > > > > > 
+> > > > > > diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux.c
+> > > > > > b/drivers/gpu/drm/i915/display/intel_dp_aux.c
+> > > > > > index eaebf123310a..10fe17b7280d 100644
+> > > > > > --- a/drivers/gpu/drm/i915/display/intel_dp_aux.c
+> > > > > > +++ b/drivers/gpu/drm/i915/display/intel_dp_aux.c
+> > > > > > @@ -133,6 +133,7 @@ static u32 g4x_get_aux_send_ctl(struct
+> > > > > > intel_dp *intel_dp,
+> > > > > >  else
+> > > > > >  precharge = 5;
+> > > > > > 
+> > > > > > +/* Max timeout value on G4x-BDW: 1.6ms */
+> > > > > >  if (IS_BROADWELL(dev_priv))
+> > > > > >  timeout = DP_AUX_CH_CTL_TIME_OUT_600us;
+> > > > > >  else
+> > > > > > @@ -159,6 +160,12 @@ static u32 skl_get_aux_send_ctl(struct
+> > > > > > intel_dp *intel_dp,
+> > > > > >  enum phy phy = intel_port_to_phy(i915, dig_port-
+> > > > > > > base.port);
+> > > > > >  u32 ret;
+> > > > > > 
+> > > > > > +/*
+> > > > > > + * Max timeout values:
+> > > > > > + * SKL-GLK: 1.6ms
+> > > > > > + * CNL: 3.2ms
+> > > > > > + * ICL+: 4ms
+> > > > > > + */
+> > > > > >  ret = DP_AUX_CH_CTL_SEND_BUSY |
+> > > > > >        DP_AUX_CH_CTL_DONE |
+> > > > > >        DP_AUX_CH_CTL_INTERRUPT |
+> > > > > > diff --git
+> > > > > > a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+> > > > > > b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+> > > > > > index 19ba7c7cbaab..c0e25c75c105 100644
+> > > > > > --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+> > > > > > +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+> > > > > > @@ -82,6 +82,18 @@ static void
+> > > > > > intel_dp_read_lttpr_phy_caps(struct intel_dp *intel_dp,
+> > > > > > 
+> > > > > >  static bool intel_dp_read_lttpr_common_caps(struct intel_dp
+> > > > > > *intel_dp)
+> > > > > >  {
+> > > > > > +struct drm_i915_private *i915 = dp_to_i915(intel_dp);
+> > > > > > +
+> > > > > > +if (intel_dp_is_edp(intel_dp))
+> > > > > > +return false;
+> > > > > > +
+> > > > > > +/*
+> > > > > > + * Detecting LTTPRs must be avoided on platforms with
+> > > > > > an AUX timeout
+> > > > > > + * period < 3.2ms. (see DP Standard v2.0, 2.11.2,
+> > > > > > 3.6.6.1).
+> > > > > > + */
+> > > > > > +if (INTEL_GEN(i915) < 10)
+> > > > > > +return false;
+> > > > > > +
+> > > > > >  if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
+> > > > > >    intel_dp-
+> > > > > > > lttpr_common_caps) < 0) {
+> > > > > >  memset(intel_dp->lttpr_common_caps, 0,
+> > > > > > @@ -127,9 +139,6 @@ int intel_dp_lttpr_init(struct intel_dp
+> > > > > > *intel_dp)
+> > > > > >  bool ret;
+> > > > > >  int i;
+> > > > > > 
+> > > > > > -if (intel_dp_is_edp(intel_dp))
+> > > > > > -return 0;
+> > > > > > -
+> > > > > >  ret = intel_dp_read_lttpr_common_caps(intel_dp);
+> > > > > >  if (!ret)
+> > > > > >  return 0;
+> > > > > > --
+> > > > > > 2.25.1
+> > > > > 
+> > > > > --
+> > > > > Ville Syrjälä
+> > > > > Intel
+> 
 
-Cc: stable@vger.kernel.org
-Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
-Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
----
- drivers/media/v4l2-core/v4l2-ioctl.c | 60 ++++++++++++++++++----------
- 1 file changed, 39 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 31d1342e61e8..7b5ebdd329e8 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -908,7 +908,7 @@ static void v4l_print_default(const void *arg, bool write_only)
- 	pr_cont("driver-specific ioctl\n");
- }
- 
--static int check_ext_ctrls(struct v4l2_ext_controls *c, int allow_priv)
-+static bool check_ext_ctrls(struct v4l2_ext_controls *c, unsigned long ioctl)
- {
- 	__u32 i;
- 
-@@ -917,23 +917,41 @@ static int check_ext_ctrls(struct v4l2_ext_controls *c, int allow_priv)
- 	for (i = 0; i < c->count; i++)
- 		c->controls[i].reserved2[0] = 0;
- 
--	/* V4L2_CID_PRIVATE_BASE cannot be used as control class
--	   when using extended controls.
--	   Only when passed in through VIDIOC_G_CTRL and VIDIOC_S_CTRL
--	   is it allowed for backwards compatibility.
--	 */
--	if (!allow_priv && c->which == V4L2_CID_PRIVATE_BASE)
--		return 0;
--	if (!c->which)
--		return 1;
-+	switch (c->which) {
-+	case V4L2_CID_PRIVATE_BASE:
-+		/*
-+		 * V4L2_CID_PRIVATE_BASE cannot be used as control class
-+		 * when using extended controls.
-+		 * Only when passed in through VIDIOC_G_CTRL and VIDIOC_S_CTRL
-+		 * is it allowed for backwards compatibility.
-+		 */
-+		if (ioctl == VIDIOC_G_CTRL || ioctl == VIDIOC_S_CTRL)
-+			return false;
-+		break;
-+	case V4L2_CTRL_WHICH_DEF_VAL:
-+		/* Default value cannot be changed */
-+		if (ioctl == VIDIOC_S_EXT_CTRLS ||
-+		    ioctl == VIDIOC_TRY_EXT_CTRLS) {
-+			c->error_idx = c->count;
-+			return false;
-+		}
-+		return true;
-+	case V4L2_CTRL_WHICH_CUR_VAL:
-+		return true;
-+	case V4L2_CTRL_WHICH_REQUEST_VAL:
-+		c->error_idx = c->count;
-+		return false;
-+	}
-+
- 	/* Check that all controls are from the same control class. */
- 	for (i = 0; i < c->count; i++) {
- 		if (V4L2_CTRL_ID2WHICH(c->controls[i].id) != c->which) {
--			c->error_idx = i;
--			return 0;
-+			c->error_idx = ioctl == VIDIOC_TRY_EXT_CTRLS ? i :
-+								      c->count;
-+			return false;
- 		}
- 	}
--	return 1;
-+	return true;
- }
- 
- static int check_fmt(struct file *file, enum v4l2_buf_type type)
-@@ -2229,7 +2247,7 @@ static int v4l_g_ctrl(const struct v4l2_ioctl_ops *ops,
- 	ctrls.controls = &ctrl;
- 	ctrl.id = p->id;
- 	ctrl.value = p->value;
--	if (check_ext_ctrls(&ctrls, 1)) {
-+	if (check_ext_ctrls(&ctrls, VIDIOC_G_CTRL)) {
- 		int ret = ops->vidioc_g_ext_ctrls(file, fh, &ctrls);
- 
- 		if (ret == 0)
-@@ -2263,7 +2281,7 @@ static int v4l_s_ctrl(const struct v4l2_ioctl_ops *ops,
- 	ctrls.controls = &ctrl;
- 	ctrl.id = p->id;
- 	ctrl.value = p->value;
--	if (check_ext_ctrls(&ctrls, 1))
-+	if (check_ext_ctrls(&ctrls, VIDIOC_S_CTRL))
- 		return ops->vidioc_s_ext_ctrls(file, fh, &ctrls);
- 	return -EINVAL;
- }
-@@ -2285,8 +2303,8 @@ static int v4l_g_ext_ctrls(const struct v4l2_ioctl_ops *ops,
- 					vfd, vfd->v4l2_dev->mdev, p);
- 	if (ops->vidioc_g_ext_ctrls == NULL)
- 		return -ENOTTY;
--	return check_ext_ctrls(p, 0) ? ops->vidioc_g_ext_ctrls(file, fh, p) :
--					-EINVAL;
-+	return check_ext_ctrls(p, VIDIOC_G_EXT_CTRLS) ?
-+				ops->vidioc_g_ext_ctrls(file, fh, p) : -EINVAL;
- }
- 
- static int v4l_s_ext_ctrls(const struct v4l2_ioctl_ops *ops,
-@@ -2306,8 +2324,8 @@ static int v4l_s_ext_ctrls(const struct v4l2_ioctl_ops *ops,
- 					vfd, vfd->v4l2_dev->mdev, p);
- 	if (ops->vidioc_s_ext_ctrls == NULL)
- 		return -ENOTTY;
--	return check_ext_ctrls(p, 0) ? ops->vidioc_s_ext_ctrls(file, fh, p) :
--					-EINVAL;
-+	return check_ext_ctrls(p, VIDIOC_S_EXT_CTRLS) ?
-+				ops->vidioc_s_ext_ctrls(file, fh, p) : -EINVAL;
- }
- 
- static int v4l_try_ext_ctrls(const struct v4l2_ioctl_ops *ops,
-@@ -2327,8 +2345,8 @@ static int v4l_try_ext_ctrls(const struct v4l2_ioctl_ops *ops,
- 					  vfd, vfd->v4l2_dev->mdev, p);
- 	if (ops->vidioc_try_ext_ctrls == NULL)
- 		return -ENOTTY;
--	return check_ext_ctrls(p, 0) ? ops->vidioc_try_ext_ctrls(file, fh, p) :
--					-EINVAL;
-+	return check_ext_ctrls(p, VIDIOC_TRY_EXT_CTRLS) ?
-+			ops->vidioc_try_ext_ctrls(file, fh, p) : -EINVAL;
- }
- 
- /*
 -- 
-2.31.0.rc2.261.g7f71774620-goog
+Sincerely,
+   Lyude Paul (she/her)
+   Software Engineer at Red Hat
+   
+Note: I deal with a lot of emails and have a lot of bugs on my plate. If you've
+asked me a question, are waiting for a review/merge on a patch, etc. and I
+haven't responded in a while, please feel free to send me another email to check
+on my status. I don't bite!
 
