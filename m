@@ -2,89 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2385D341F0D
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 15:13:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E5E341F4C
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 15:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230092AbhCSOM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 10:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59584 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230024AbhCSOM2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 10:12:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EE6964F1C;
-        Fri, 19 Mar 2021 14:12:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616163148;
-        bh=KXrGBUZMFLNiZaXs6Vj0EbHwh4Z0nzxPzhvXI/SodMk=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=Pyt6Qdr3WqCIu0e6GqHh45t9pGVNMM59AxCBgOyGSKQ55RtKA/59m2AyZ7+8jIxiR
-         goZM3PXaii0xSNLa6U0Hv27Ebq/7+RikB/jd/qRoltIb4zP+/ALXVcK42r63oNwX74
-         DQdaTZ3VO7dZsj9LfRQrmcwiFperaIluCmuyOJC0HExcv7QwUcGymmKCBJBIzZ+Na1
-         wDtosKhmlgvb7qQXB93DkvFtG9Edth++PVg0fwcdorDwSQFa6xMrRFGZ5WbxgNPuWU
-         7zERUls3brSy2Ur3Q9ZXHmuyFBMktv0WMHbHFM2NIdnYxRkRFO44xVuoB2yxYi5Juf
-         xjPG2oJZ2dgqQ==
-Date:   Fri, 19 Mar 2021 15:12:12 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.11 13/31] net: bonding: fix error return code of
- bond_neigh_init()
-In-Reply-To: <20210319121747.622717971@linuxfoundation.org>
-Message-ID: <alpine.LRH.2.00.2103191511500.19651@gjva.wvxbf.pm>
-References: <20210319121747.203523570@linuxfoundation.org> <20210319121747.622717971@linuxfoundation.org>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        id S229914AbhCSOXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 10:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230092AbhCSOX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 10:23:26 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93499C06174A
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 07:23:25 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id u4so12204798ljo.6
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 07:23:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=FcpBXAQ/CG/c/YyGOcvEAE2p+BizH5O1mCXwXk+GeD0=;
+        b=ctNiwQ/jCVx/hknbgaWXALpgIf/zzE4qAHLB1fegNSLyq8hnCzPIAPk9taHEAHrDEY
+         r970Snum56lgdd43h0fOU4g4tl+5CJ71nGaPva+kHbzlICFAFi2/4RNI8Ys6tJSHhDJw
+         UxGRaBYkrM5efkVjOkGPo9lF83TTfkunN5hijmDEN9yGkOGf4S8WjSX61oBPEC5DAnCG
+         QwHiLdsxoDK2gUStihkP729/tgNmTC2HyDu7cVQ3BDYc+9RYCNkJmwv2Z0SvkSj94zzX
+         EX9ICST0DE+pMCSw+SS+HJ+NZ8bxOLr6Urqeo88L48UBJKOAOuhhgOFyRoLv30YQjIRj
+         Mi6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=FcpBXAQ/CG/c/YyGOcvEAE2p+BizH5O1mCXwXk+GeD0=;
+        b=Fz5h9vzh9P/jeEjBxoVi1RJ5v9Az4ri8h9CC0Da3+DmWawWg5/khEG+2bTlCOjJP/b
+         gP9/vx33436oahXrcFWxX3dAvs9Qe8jUtvThmVHLwbJytck6Eev7e2f8+nAJLLnVNyCl
+         fd/NSgAlV2iOX+skC/XbLDrTDFErMEJTsML+FxqvmjPD6GDpzHznYx+Xqq2q0fQAngAe
+         E4DvGTTy2XMi09FlEjCjJdInfLP/cZg7znl/1tghRXhMYc49I+o1IIr4FUQhMde1Dnqp
+         Jn1OjoyiGMy1yem3SxTIE0Puzy6m9uVg4h7LzyURt9/3FMUIEiv00Lce4PGtZic3Lo20
+         DYgg==
+X-Gm-Message-State: AOAM530vCrColKLvPqBEEpIPG7CnatugRlM5e8W55N3EggKv2rpfDYX9
+        +XLttnYIPeHuxRyNcQ5p957/1fmViSwZRuFRxV8=
+X-Google-Smtp-Source: ABdhPJzFPjL/7/pa4nkyyzlR/cy1Wg9LDVwMFcrzIzs9rLDqCzn2rtzeF3QJ7fUerlWwabNn2tAVG787zk7taCAVrgk=
+X-Received: by 2002:a2e:9c97:: with SMTP id x23mr1151675lji.310.1616163804138;
+ Fri, 19 Mar 2021 07:23:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: by 2002:a19:ca52:0:0:0:0:0 with HTTP; Fri, 19 Mar 2021 07:23:23
+ -0700 (PDT)
+Reply-To: chrrismark11@yahoo.com
+From:   "MR.CHRIS MARK" <cchrsmarj@gmail.com>
+Date:   Fri, 19 Mar 2021 15:23:23 +0100
+Message-ID: <CAHCdjt-UvqrtFpGka4po9-py5c6D52uiHLQN99hCJzS8nusJgg@mail.gmail.com>
+Subject: Re:Greetings.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 19 Mar 2021, Greg Kroah-Hartman wrote:
+Hello,
+             I have a project that will profit you and I, please reply
+ASAP with your Names and Mobile Phone for full details.
 
-> From: Jia-Ju Bai <baijiaju1990@gmail.com>
-> 
-> [ Upstream commit 2055a99da8a253a357bdfd359b3338ef3375a26c ]
-> 
-> When slave is NULL or slave_ops->ndo_neigh_setup is NULL, no error
-> return code of bond_neigh_init() is assigned.
-> To fix this bug, ret is assigned with -EINVAL in these cases.
-> 
-> Fixes: 9e99bfefdbce ("bonding: fix bond_neigh_init()")
-> Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/net/bonding/bond_main.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-> index 5fe5232cc3f3..fba6b6d1b430 100644
-> --- a/drivers/net/bonding/bond_main.c
-> +++ b/drivers/net/bonding/bond_main.c
-> @@ -3917,11 +3917,15 @@ static int bond_neigh_init(struct neighbour *n)
->  
->  	rcu_read_lock();
->  	slave = bond_first_slave_rcu(bond);
-> -	if (!slave)
-> +	if (!slave) {
-> +		ret = -EINVAL;
->  		goto out;
-> +	}
->  	slave_ops = slave->dev->netdev_ops;
-> -	if (!slave_ops->ndo_neigh_setup)
-> +	if (!slave_ops->ndo_neigh_setup) {
-> +		ret = -EINVAL;
->  		goto out;
-> +	}
 
-This patch is completely broken and breaks bonding functionality 
-altogether for me.
-
--- 
-Jiri Kosina
-SUSE Labs
+MR.CHRIS MARK
