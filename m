@@ -2,130 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DDC8341BD4
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 12:56:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7CB8341BFF
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbhCSL4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 07:56:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
+        id S229785AbhCSMLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229638AbhCSLzx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 07:55:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0932460233;
-        Fri, 19 Mar 2021 11:55:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616154952;
-        bh=xEggSgwLTsxsRSBCrktgETXhVT4kXbKFtICLOdi9pY4=;
+        id S229736AbhCSMKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:10:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E2DA64F04;
+        Fri, 19 Mar 2021 12:10:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616155834;
+        bh=loxjt5Kt1K2yJiDF3zmLfNFmkIuApn0Q5LY4uyTMqxY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AvllA/pNHM01eptUHALZqK7jqyXMvVBQyy3Hx/6pWSGz2zC6ZVyEFWmPuJSVPDd3R
-         6I77gkfy9yLXyZfPIB0HjJtdc62tYVEuDd1/RNd7GoPlKTTQRniu0+Gv41CynFYGdq
-         0DdY5Uh7Znaay4BVVuRq/Q79Ak9ueJzm9S6+Bvr8=
-Date:   Fri, 19 Mar 2021 12:55:50 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Alexandre Chartre <alexandre.chartre@oracle.com>
-Cc:     Nicolas Boichat <drinkcat@chromium.org>, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christopher Li <sparse@chrisli.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-sparse@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [for-stable-4.19 PATCH 1/2] vmlinux.lds.h: Create section for
- protection against instrumentation
-Message-ID: <YFSRRux3FHJVgWXt@kroah.com>
-References: <20210318235416.794798-1-drinkcat@chromium.org>
- <20210319075410.for-stable-4.19.1.I222f801866f71be9f7d85e5b10665cd4506d78ec@changeid>
- <YFR/fQIePjDQcO5W@kroah.com>
- <b5d3d0ed-953e-083d-15f6-4a1e3ed95428@oracle.com>
+        b=L0BGQkpPD4e9cML7GxYxIFTJyZRJQbLG/0doBUkvuRoEKsxONb3zRKIJaOzzI04S/
+         8VBsIa7tkfaiiOiSSxqenurFTUe7dtw99KnWmVGN9kgPvt4eIw2+MD0ZNfKWoco+3o
+         ykLRVXtASVvkV9OSxZl9dHrrh3C1IF2LZR/JdRRxcpqhf+tSY5g6WlqXaORnYNA1mM
+         rryBlAb7SoAmo0r47MzNvZzLLFaz3BL2lVKsL7sSi38VQu/Y+SfTUFOqIlQt1s453x
+         jF7F1PZmIUNJccjkCa5BvKj6y+FJZHr8E978svSMIPHfXanMJykdn+8y7W479Nbml3
+         cc7nctj3AU5zA==
+Date:   Fri, 19 Mar 2021 08:10:33 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     Thomas Backlund <tmb@tmb.nu>, Ard Biesheuvel <ardb@kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: stable request
+Message-ID: <YFSUuRCbjmpdSOhW@sashalap>
+References: <d5c825ba-cdcb-29eb-c434-83ef4db05ee0@tmb.nu>
+ <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
+ <1e6eb02b-e699-d1ff-9cfb-4ef77255e244@tmb.nu>
+ <9493dced-908e-a9bd-009a-6b20a8422ec1@tmb.nu>
+ <CAMj1kXHzEEU2-mVxVD8g=P_Py_WJMOn0q8m+k-txUUioS+2ajQ@mail.gmail.com>
+ <YFNPiHAvEwDpGLrv@sashalap>
+ <a39ebdf9-c7c3-990f-3d9d-81f138e55d94@tmb.nu>
+ <YFSB3iLXC/DDtN1U@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <b5d3d0ed-953e-083d-15f6-4a1e3ed95428@oracle.com>
+In-Reply-To: <YFSB3iLXC/DDtN1U@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 12:20:22PM +0100, Alexandre Chartre wrote:
-> 
-> On 3/19/21 11:39 AM, Greg Kroah-Hartman wrote:
-> > On Fri, Mar 19, 2021 at 07:54:15AM +0800, Nicolas Boichat wrote:
-> > > From: Thomas Gleixner <tglx@linutronix.de>
-> > > 
-> > > commit 6553896666433e7efec589838b400a2a652b3ffa upstream.
-> > > 
-> > > Some code pathes, especially the low level entry code, must be protected
-> > > against instrumentation for various reasons:
-> > > 
-> > >   - Low level entry code can be a fragile beast, especially on x86.
-> > > 
-> > >   - With NO_HZ_FULL RCU state needs to be established before using it.
-> > > 
-> > > Having a dedicated section for such code allows to validate with tooling
-> > > that no unsafe functions are invoked.
-> > > 
-> > > Add the .noinstr.text section and the noinstr attribute to mark
-> > > functions. noinstr implies notrace. Kprobes will gain a section check
-> > > later.
-> > > 
-> > > Provide also a set of markers: instrumentation_begin()/end()
-> > > 
-> > > These are used to mark code inside a noinstr function which calls
-> > > into regular instrumentable text section as safe.
-> > > 
-> > > The instrumentation markers are only active when CONFIG_DEBUG_ENTRY is
-> > > enabled as the end marker emits a NOP to prevent the compiler from merging
-> > > the annotation points. This means the objtool verification requires a
-> > > kernel compiled with this option.
-> > > 
-> > > Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> > > Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
-> > > Acked-by: Peter Zijlstra <peterz@infradead.org>
-> > > Link: https://lkml.kernel.org/r/20200505134100.075416272@linutronix.de
-> > > 
-> > > [Nicolas: context conflicts in:
-> > > 	arch/powerpc/kernel/vmlinux.lds.S
-> > > 	include/asm-generic/vmlinux.lds.h
-> > > 	include/linux/compiler.h
-> > > 	include/linux/compiler_types.h]
-> > > Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-> > 
-> > Did you build this on x86?
-> > 
-> > I get the following build error:
-> > 
-> > ld:./arch/x86/kernel/vmlinux.lds:20: syntax error
-> > 
-> > And that line looks like:
-> > 
-> >   . = ALIGN(8); *(.text.hot .text.hot.*) *(.text .text.fixup) *(.text.unlikely .text.unlikely.*) *(.text.unknown .text.unknown.*) . = ALIGN(8); __noinstr_text_start = .; *(.__attribute__((noinline)) __attribute__((no_instrument_function)) __attribute((__section__(".noinstr.text"))).text) __noinstr_text_end = .; *(.text..refcount) *(.ref.text) *(.meminit.text*) *(.memexit.text*)
-> > 
-> 
-> In the NOINSTR_TEXT macro, noinstr is expanded with the value of the noinstr
-> macro from linux/compiler_types.h while it shouldn't.
-> 
-> The problem is possibly that the noinstr macro is defined for assembly. Make
-> sure that the macro is not defined for assembly e.g.:
-> 
-> #ifndef __ASSEMBLY__
-> 
-> /* Section for code which can't be instrumented at all */
-> #define noinstr								\
-> 	noinline notrace __attribute((__section__(".noinstr.text")))
-> 
-> #endif
+On Fri, Mar 19, 2021 at 11:50:06AM +0100, Greg KH wrote:
+>On Fri, Mar 19, 2021 at 07:35:44AM +0000, Thomas Backlund wrote:
+>> Den 18-03-2021 kl. 15:03, skrev Sasha Levin:
+>> >
+>> > On Tue, Mar 16, 2021 at 01:35:40PM +0100, Ard Biesheuvel wrote:
+>> >> On Tue, 16 Mar 2021 at 13:28, Thomas Backlund <tmb@tmb.nu> wrote:
+>> >>>
+>> >>>
+>> >>> Den 16.3.2021 kl. 14:15, skrev Thomas Backlund:
+>> >>>>
+>> >>>> Den 16.3.2021 kl. 12:17, skrev Ard Biesheuvel:
+>> >>>>> On Tue, 16 Mar 2021 at 10:21, Thomas Backlund <tmb@tmb.nu> wrote:
+>> >>>>>> Den 16.3.2021 kl. 08:37, skrev Ard Biesheuvel:
+>> >>>>>>> Please consider backporting commit
+>> >>>>>>>
+>> >>>>>>> 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
+>> >>>>>>> crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+>>
+>>
+>> >
+>> > Queued up for 5.10 and 5.11.
+>> >
+>>
+>> I dont see:
+>> 86ad60a65f29 ("crypto: x86/aes-ni-xts - use direct calls to and 4-way
+>> stride")
+>>
+>> in 5.11 queue.
+>
+>Now added by me, Sasha might have forgotten to push his queue...
 
-This implies that the backport is incorrect, so I'll wait for an updated
-version...
+Thanks Greg, yes - it was sitting locally waiting for my build tests to
+finish.
 
-thanks,
-
-greg k-h
+-- 
+Thanks,
+Sasha
