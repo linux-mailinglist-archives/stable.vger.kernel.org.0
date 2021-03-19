@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF07341C1B
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68C02341C23
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:19:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbhCSMTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:19:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56288 "EHLO mail.kernel.org"
+        id S230040AbhCSMTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:19:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229942AbhCSMSb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:18:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAD3064F65;
-        Fri, 19 Mar 2021 12:18:30 +0000 (UTC)
+        id S229912AbhCSMSu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DADC64F6A;
+        Fri, 19 Mar 2021 12:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156311;
-        bh=Fo0pfmx0aidznHmhCzQmpg/bP3IcJy+3sTRaidkbwtg=;
+        s=korg; t=1616156318;
+        bh=5CsTMcn3v44sIFL1IS2cb4O7xu4wo6KSRHC8DCYwOkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYz9yXdqjqBbzCk7M9E8WMsZeANwHNw+TBUB0Wm9vcFZDdSmkQLfIUvC2ucWl7K4q
-         MhKpiVSkc644KoaI79KgPP69yVtR68/jAjqVopFMGwiZO2EjRk0lIcP+//5a8HI/qN
-         0vkeNrIHo8/xFWmnKfO0jHwUg4/PPsMxnuIJ4D5s=
+        b=gASIP4ZlDLGjG6CU3WsrqYi7KV9e5VjEY8F+35J+GtnFOhUoe6hvQBoSr8VSIjGjk
+         khTvEoLd3LiK/2bi+xgg9cYGqJ5K5lQ6zQxgniMSEfxTQxnE8yokFs+cnJ1DiFdBN5
+         rNRvc+Ec7P+RCgcZdlxhq4XiZpO2kfYsDNGEVhlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wolfgang Frisch <wolfgang.frisch@suse.com>,
-        Lukas Czerner <lczerner@redhat.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 1/8] ext4: check journal inode extents more carefully
-Date:   Fri, 19 Mar 2021 13:18:20 +0100
-Message-Id: <20210319121744.160321264@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christoffer Dall <christoffer.dall@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 2/8] KVM: arm64: nvhe: Save the SPE context early
+Date:   Fri, 19 Mar 2021 13:18:21 +0100
+Message-Id: <20210319121744.191089441@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121744.114946147@linuxfoundation.org>
 References: <20210319121744.114946147@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,296 +45,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit ce9f24cccdc019229b70a5c15e2b09ad9c0ab5d1 upstream.
+commit b96b0c5de685df82019e16826a282d53d86d112c upstream
 
-Currently, system zones just track ranges of block, that are "important"
-fs metadata (bitmaps, group descriptors, journal blocks, etc.). This
-however complicates how extent tree (or indirect blocks) can be checked
-for inodes that actually track such metadata - currently the journal
-inode but arguably we should be treating quota files or resize inode
-similarly. We cannot run __ext4_ext_check() on such metadata inodes when
-loading their extents as that would immediately trigger the validity
-checks and so we just hack around that and special-case the journal
-inode. This however leads to a situation that a journal inode which has
-extent tree of depth at least one can have invalid extent tree that gets
-unnoticed until ext4_cache_extents() crashes.
+The nVHE KVM hyp drains and disables the SPE buffer, before
+entering the guest, as the EL1&0 translation regime
+is going to be loaded with that of the guest.
 
-To overcome this limitation, track inode number each system zone belongs
-to (0 is used for zones not belonging to any inode). We can then verify
-inode number matches the expected one when verifying extent tree and
-thus avoid the false errors. With this there's no need to to
-special-case journal inode during extent tree checking anymore so remove
-it.
+But this operation is performed way too late, because :
+ - The owning translation regime of the SPE buffer
+   is transferred to EL2. (MDCR_EL2_E2PB == 0)
+ - The guest Stage1 is loaded.
 
-Fixes: 0a944e8a6c66 ("ext4: don't perform block validity checks on the journal inode")
-Reported-by: Wolfgang Frisch <wolfgang.frisch@suse.com>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-4-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Thus the flush could use the host EL1 virtual address,
+but use the EL2 translations instead of host EL1, for writing
+out any cached data.
+
+Fix this by moving the SPE buffer handling early enough.
+The restore path is doing the right thing.
+
+Cc: stable@vger.kernel.org # v4.19
+Cc: Christoffer Dall <christoffer.dall@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/block_validity.c |   43 ++++++++++++++++++++++---------------------
- fs/ext4/ext4.h           |    6 +++---
- fs/ext4/extents.c        |   16 ++++++----------
- fs/ext4/indirect.c       |    6 ++----
- fs/ext4/inode.c          |    5 ++---
- fs/ext4/mballoc.c        |    4 ++--
- 6 files changed, 37 insertions(+), 43 deletions(-)
+ arch/arm64/include/asm/kvm_hyp.h |  3 +++
+ arch/arm64/kvm/hyp/debug-sr.c    | 24 +++++++++++++++---------
+ arch/arm64/kvm/hyp/switch.c      |  4 +++-
+ 3 files changed, 21 insertions(+), 10 deletions(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -24,6 +24,7 @@ struct ext4_system_zone {
- 	struct rb_node	node;
- 	ext4_fsblk_t	start_blk;
- 	unsigned int	count;
-+	u32		ino;
- };
+diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
+index 384c34397619..5f52d6d670e9 100644
+--- a/arch/arm64/include/asm/kvm_hyp.h
++++ b/arch/arm64/include/asm/kvm_hyp.h
+@@ -144,6 +144,9 @@ void __sysreg32_restore_state(struct kvm_vcpu *vcpu);
  
- static struct kmem_cache *ext4_system_zone_cachep;
-@@ -45,7 +46,8 @@ void ext4_exit_system_zone(void)
- static inline int can_merge(struct ext4_system_zone *entry1,
- 		     struct ext4_system_zone *entry2)
- {
--	if ((entry1->start_blk + entry1->count) == entry2->start_blk)
-+	if ((entry1->start_blk + entry1->count) == entry2->start_blk &&
-+	    entry1->ino == entry2->ino)
- 		return 1;
- 	return 0;
- }
-@@ -66,7 +68,7 @@ static void release_system_zone(struct e
-  */
- static int add_system_zone(struct ext4_system_blocks *system_blks,
- 			   ext4_fsblk_t start_blk,
--			   unsigned int count)
-+			   unsigned int count, u32 ino)
- {
- 	struct ext4_system_zone *new_entry, *entry;
- 	struct rb_node **n = &system_blks->root.rb_node, *node;
-@@ -89,6 +91,7 @@ static int add_system_zone(struct ext4_s
- 		return -ENOMEM;
- 	new_entry->start_blk = start_blk;
- 	new_entry->count = count;
-+	new_entry->ino = ino;
- 	new_node = &new_entry->node;
+ void __debug_switch_to_guest(struct kvm_vcpu *vcpu);
+ void __debug_switch_to_host(struct kvm_vcpu *vcpu);
++void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu);
++void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu);
++
  
- 	rb_link_node(new_node, parent, n);
-@@ -145,7 +148,7 @@ static void debug_print_tree(struct ext4
- static int ext4_data_block_valid_rcu(struct ext4_sb_info *sbi,
- 				     struct ext4_system_blocks *system_blks,
- 				     ext4_fsblk_t start_blk,
--				     unsigned int count)
-+				     unsigned int count, ino_t ino)
- {
- 	struct ext4_system_zone *entry;
- 	struct rb_node *n;
-@@ -169,7 +172,7 @@ static int ext4_data_block_valid_rcu(str
- 			n = n->rb_right;
- 		else {
- 			sbi->s_es->s_last_error_block = cpu_to_le64(start_blk);
--			return 0;
-+			return entry->ino == ino;
- 		}
- 	}
- 	return 1;
-@@ -204,17 +207,16 @@ static int ext4_protect_reserved_inode(s
- 		if (n == 0) {
- 			i++;
- 		} else {
--			if (!ext4_data_block_valid_rcu(sbi, system_blks,
--						map.m_pblk, n)) {
--				ext4_error(sb, "blocks %llu-%llu from inode %u "
-+			err = add_system_zone(system_blks, map.m_pblk, n, ino);
-+			if (err < 0) {
-+				if (err == -EFSCORRUPTED) {
-+					ext4_error(sb,
-+					   "blocks %llu-%llu from inode %u "
- 					   "overlap system zone", map.m_pblk,
- 					   map.m_pblk + map.m_len - 1, ino);
--				err = -EFSCORRUPTED;
-+				}
- 				break;
- 			}
--			err = add_system_zone(system_blks, map.m_pblk, n);
--			if (err < 0)
--				break;
- 			i += n;
- 		}
- 	}
-@@ -259,19 +261,19 @@ int ext4_setup_system_zone(struct super_
- 		    ((i < 5) || ((i % flex_size) == 0)))
- 			add_system_zone(system_blks,
- 					ext4_group_first_block_no(sb, i),
--					ext4_bg_num_gdb(sb, i) + 1);
-+					ext4_bg_num_gdb(sb, i) + 1, 0);
- 		gdp = ext4_get_group_desc(sb, i, NULL);
- 		ret = add_system_zone(system_blks,
--				ext4_block_bitmap(sb, gdp), 1);
-+				ext4_block_bitmap(sb, gdp), 1, 0);
- 		if (ret)
- 			goto err;
- 		ret = add_system_zone(system_blks,
--				ext4_inode_bitmap(sb, gdp), 1);
-+				ext4_inode_bitmap(sb, gdp), 1, 0);
- 		if (ret)
- 			goto err;
- 		ret = add_system_zone(system_blks,
- 				ext4_inode_table(sb, gdp),
--				sbi->s_itb_per_group);
-+				sbi->s_itb_per_group, 0);
- 		if (ret)
- 			goto err;
- 	}
-@@ -320,7 +322,7 @@ void ext4_release_system_zone(struct sup
- 		call_rcu(&system_blks->rcu, ext4_destroy_system_zone);
+ void __fpsimd_save_state(struct user_fpsimd_state *fp_regs);
+ void __fpsimd_restore_state(struct user_fpsimd_state *fp_regs);
+diff --git a/arch/arm64/kvm/hyp/debug-sr.c b/arch/arm64/kvm/hyp/debug-sr.c
+index 50009766e5e5..3c5414633bb7 100644
+--- a/arch/arm64/kvm/hyp/debug-sr.c
++++ b/arch/arm64/kvm/hyp/debug-sr.c
+@@ -149,6 +149,21 @@ static void __hyp_text __debug_restore_state(struct kvm_vcpu *vcpu,
+ 	write_sysreg(ctxt->sys_regs[MDCCINT_EL1], mdccint_el1);
  }
  
--int ext4_data_block_valid(struct ext4_sb_info *sbi, ext4_fsblk_t start_blk,
-+int ext4_inode_block_valid(struct inode *inode, ext4_fsblk_t start_blk,
- 			  unsigned int count)
++void __hyp_text __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * Non-VHE: Disable and flush SPE data generation
++	 * VHE: The vcpu can run, but it can't hide.
++	 */
++	__debug_save_spe_nvhe(&vcpu->arch.host_debug_state.pmscr_el1);
++
++}
++
++void __hyp_text __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu)
++{
++	__debug_restore_spe_nvhe(vcpu->arch.host_debug_state.pmscr_el1);
++}
++
+ void __hyp_text __debug_switch_to_guest(struct kvm_vcpu *vcpu)
  {
- 	struct ext4_system_blocks *system_blks;
-@@ -332,9 +334,9 @@ int ext4_data_block_valid(struct ext4_sb
- 	 * mount option.
- 	 */
- 	rcu_read_lock();
--	system_blks = rcu_dereference(sbi->system_blks);
--	ret = ext4_data_block_valid_rcu(sbi, system_blks, start_blk,
--					count);
-+	system_blks = rcu_dereference(EXT4_SB(inode->i_sb)->system_blks);
-+	ret = ext4_data_block_valid_rcu(EXT4_SB(inode->i_sb), system_blks,
-+					start_blk, count, inode->i_ino);
- 	rcu_read_unlock();
- 	return ret;
- }
-@@ -354,8 +356,7 @@ int ext4_check_blockref(const char *func
- 	while (bref < p+max) {
- 		blk = le32_to_cpu(*bref++);
- 		if (blk &&
--		    unlikely(!ext4_data_block_valid(EXT4_SB(inode->i_sb),
--						    blk, 1))) {
-+		    unlikely(!ext4_inode_block_valid(inode, blk, 1))) {
- 			es->s_last_error_block = cpu_to_le64(blk);
- 			ext4_error_inode(inode, function, line, blk,
- 					 "invalid block");
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3180,9 +3180,9 @@ extern void ext4_release_system_zone(str
- extern int ext4_setup_system_zone(struct super_block *sb);
- extern int __init ext4_init_system_zone(void);
- extern void ext4_exit_system_zone(void);
--extern int ext4_data_block_valid(struct ext4_sb_info *sbi,
--				 ext4_fsblk_t start_blk,
--				 unsigned int count);
-+extern int ext4_inode_block_valid(struct inode *inode,
-+				  ext4_fsblk_t start_blk,
-+				  unsigned int count);
- extern int ext4_check_blockref(const char *, unsigned int,
- 			       struct inode *, __le32 *, unsigned int);
+ 	struct kvm_cpu_context *host_ctxt;
+@@ -156,13 +171,6 @@ void __hyp_text __debug_switch_to_guest(struct kvm_vcpu *vcpu)
+ 	struct kvm_guest_debug_arch *host_dbg;
+ 	struct kvm_guest_debug_arch *guest_dbg;
  
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -377,7 +377,7 @@ static int ext4_valid_extent(struct inod
- 	 */
- 	if (lblock + len <= lblock)
- 		return 0;
--	return ext4_data_block_valid(EXT4_SB(inode->i_sb), block, len);
-+	return ext4_inode_block_valid(inode, block, len);
- }
+-	/*
+-	 * Non-VHE: Disable and flush SPE data generation
+-	 * VHE: The vcpu can run, but it can't hide.
+-	 */
+-	if (!has_vhe())
+-		__debug_save_spe_nvhe(&vcpu->arch.host_debug_state.pmscr_el1);
+-
+ 	if (!(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY))
+ 		return;
  
- static int ext4_valid_extent_idx(struct inode *inode,
-@@ -385,7 +385,7 @@ static int ext4_valid_extent_idx(struct
- {
- 	ext4_fsblk_t block = ext4_idx_pblock(ext_idx);
+@@ -182,8 +190,6 @@ void __hyp_text __debug_switch_to_host(struct kvm_vcpu *vcpu)
+ 	struct kvm_guest_debug_arch *host_dbg;
+ 	struct kvm_guest_debug_arch *guest_dbg;
  
--	return ext4_data_block_valid(EXT4_SB(inode->i_sb), block, 1);
-+	return ext4_inode_block_valid(inode, block, 1);
- }
+-	if (!has_vhe())
+-		__debug_restore_spe_nvhe(vcpu->arch.host_debug_state.pmscr_el1);
  
- static int ext4_valid_extent_entries(struct inode *inode,
-@@ -542,14 +542,10 @@ __read_extent_tree_block(const char *fun
- 	}
- 	if (buffer_verified(bh) && !(flags & EXT4_EX_FORCE_CACHE))
- 		return bh;
--	if (!ext4_has_feature_journal(inode->i_sb) ||
--	    (inode->i_ino !=
--	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum))) {
--		err = __ext4_ext_check(function, line, inode,
--				       ext_block_hdr(bh), depth, pblk);
--		if (err)
--			goto errout;
--	}
-+	err = __ext4_ext_check(function, line, inode,
-+			       ext_block_hdr(bh), depth, pblk);
-+	if (err)
-+		goto errout;
- 	set_buffer_verified(bh);
+ 	if (!(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY))
+ 		return;
+diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
+index 15312e429b7d..1d16ce0b7e0d 100644
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -560,6 +560,7 @@ int __hyp_text __kvm_vcpu_run_nvhe(struct kvm_vcpu *vcpu)
+ 	guest_ctxt = &vcpu->arch.ctxt;
+ 
+ 	__sysreg_save_state_nvhe(host_ctxt);
++	__debug_save_host_buffers_nvhe(vcpu);
+ 
+ 	__activate_traps(vcpu);
+ 	__activate_vm(kern_hyp_va(vcpu->kvm));
+@@ -599,11 +600,12 @@ int __hyp_text __kvm_vcpu_run_nvhe(struct kvm_vcpu *vcpu)
+ 	if (vcpu->arch.flags & KVM_ARM64_FP_ENABLED)
+ 		__fpsimd_save_fpexc32(vcpu);
+ 
++	__debug_switch_to_host(vcpu);
  	/*
- 	 * If this is a leaf block, cache all of its entries
---- a/fs/ext4/indirect.c
-+++ b/fs/ext4/indirect.c
-@@ -842,8 +842,7 @@ static int ext4_clear_blocks(handle_t *h
- 	else if (ext4_should_journal_data(inode))
- 		flags |= EXT4_FREE_BLOCKS_FORGET;
+ 	 * This must come after restoring the host sysregs, since a non-VHE
+ 	 * system may enable SPE here and make use of the TTBRs.
+ 	 */
+-	__debug_switch_to_host(vcpu);
++	__debug_restore_host_buffers_nvhe(vcpu);
  
--	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), block_to_free,
--				   count)) {
-+	if (!ext4_inode_block_valid(inode, block_to_free, count)) {
- 		EXT4_ERROR_INODE(inode, "attempt to clear invalid "
- 				 "blocks %llu len %lu",
- 				 (unsigned long long) block_to_free, count);
-@@ -1005,8 +1004,7 @@ static void ext4_free_branches(handle_t
- 			if (!nr)
- 				continue;		/* A hole */
- 
--			if (!ext4_data_block_valid(EXT4_SB(inode->i_sb),
--						   nr, 1)) {
-+			if (!ext4_inode_block_valid(inode, nr, 1)) {
- 				EXT4_ERROR_INODE(inode,
- 						 "invalid indirect mapped "
- 						 "block %lu (level %d)",
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -421,8 +421,7 @@ static int __check_block_validity(struct
- 	    (inode->i_ino ==
- 	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
- 		return 0;
--	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
--				   map->m_len)) {
-+	if (!ext4_inode_block_valid(inode, map->m_pblk, map->m_len)) {
- 		ext4_error_inode(inode, func, line, map->m_pblk,
- 				 "lblock %lu mapped to illegal pblock %llu "
- 				 "(length %d)", (unsigned long) map->m_lblk,
-@@ -5072,7 +5071,7 @@ struct inode *__ext4_iget(struct super_b
- 
- 	ret = 0;
- 	if (ei->i_file_acl &&
--	    !ext4_data_block_valid(EXT4_SB(sb), ei->i_file_acl, 1)) {
-+	    !ext4_inode_block_valid(inode, ei->i_file_acl, 1)) {
- 		ext4_error_inode(inode, function, line, 0,
- 				 "iget: bad extended attribute block %llu",
- 				 ei->i_file_acl);
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -2990,7 +2990,7 @@ ext4_mb_mark_diskspace_used(struct ext4_
- 	block = ext4_grp_offs_to_block(sb, &ac->ac_b_ex);
- 
- 	len = EXT4_C2B(sbi, ac->ac_b_ex.fe_len);
--	if (!ext4_data_block_valid(sbi, block, len)) {
-+	if (!ext4_inode_block_valid(ac->ac_inode, block, len)) {
- 		ext4_error(sb, "Allocating blocks %llu-%llu which overlap "
- 			   "fs metadata", block, block+len);
- 		/* File system mounted not to panic on error
-@@ -4755,7 +4755,7 @@ void ext4_free_blocks(handle_t *handle,
- 
- 	sbi = EXT4_SB(sb);
- 	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
--	    !ext4_data_block_valid(sbi, block, count)) {
-+	    !ext4_inode_block_valid(inode, block, count)) {
- 		ext4_error(sb, "Freeing blocks not in datazone - "
- 			   "block = %llu, count = %lu", block, count);
- 		goto error_return;
+ 	return exit_code;
+ }
+-- 
+2.30.1
+
 
 
