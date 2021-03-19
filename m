@@ -2,247 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 317FF341C4C
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B45A3341C86
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230310AbhCSMUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57192 "EHLO mail.kernel.org"
+        id S231243AbhCSMVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:21:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230288AbhCSMTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:19:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67C3B64F7A;
-        Fri, 19 Mar 2021 12:19:38 +0000 (UTC)
+        id S231313AbhCSMVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:21:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACECC64F65;
+        Fri, 19 Mar 2021 12:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156378;
-        bh=bktjT3G+lT+ddgh3MDSN/2fx84thvMcOV0Akpz5gwSU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJBzfDy3br6nAwFyywGdi1jAppWXNjLXdbnwgqvUnP6QXPu1uTNJcWxr0Y7JWenEa
-         vFxCDUB3PpdCH8hZP6UPxtzyR5N6o6cD2ayLtoMe4RQADI9EY42wdUSHPLtM8svAl6
-         MKut7jaSpPQ1XIVu148xFm1VTqyGo5w/pTKz+GsE=
+        s=korg; t=1616156461;
+        bh=p+L8uf7MxH16BIO37BZ5oGmOh5GkKGlL5aeK2jkGGyI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VOYqAI3NnJs40T6l3LKJBoQ0/oENC7PgqawbWdCydr6gwNpj17a5CuD0geuIBlb8V
+         LbAZh43t9Iu8EaZMi444DOTPryRQmXN219YobZ5cZKisid06qbsd97xyLMqhiZMzJt
+         aMFir5ifWwhjjAWAZhevSs++566QtNbKkrHz4CTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Uros Bizjak <ubizjak@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ard Biesheuvel <ardb@google.com>
-Subject: [PATCH 5.4 15/18] crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
-Date:   Fri, 19 Mar 2021 13:18:53 +0100
-Message-Id: <20210319121745.975439460@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.11 00/31] 5.11.8-rc1 review
+Date:   Fri, 19 Mar 2021 13:18:54 +0100
+Message-Id: <20210319121747.203523570@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121745.449875976@linuxfoundation.org>
-References: <20210319121745.449875976@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.8-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.11.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.11.8-rc1
+X-KernelTest-Deadline: 2021-03-21T12:17+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uros Bizjak <ubizjak@gmail.com>
+This is the start of the stable review cycle for the 5.11.8 release.
+There are 31 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 032d049ea0f45b45c21f3f02b542aa18bc6b6428 upstream.
+Responses should be made by Sun, 21 Mar 2021 12:17:37 +0000.
+Anything received after that time might be too late.
 
-CMP $0,%reg can't set overflow flag, so we can use shorter TEST %reg,%reg
-instruction when only zero and sign flags are checked (E,L,LE,G,GE conditions).
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.8-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
+and the diffstat can be found below.
 
-Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Ard Biesheuvel <ardb@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/crypto/aesni-intel_asm.S        |   20 ++++++++++----------
- arch/x86/crypto/aesni-intel_avx-x86_64.S |   20 ++++++++++----------
- 2 files changed, 20 insertions(+), 20 deletions(-)
+thanks,
 
---- a/arch/x86/crypto/aesni-intel_asm.S
-+++ b/arch/x86/crypto/aesni-intel_asm.S
-@@ -319,7 +319,7 @@ _initial_blocks_\@:
- 
- 	# Main loop - Encrypt/Decrypt remaining blocks
- 
--	cmp	$0, %r13
-+	test	%r13, %r13
- 	je	_zero_cipher_left_\@
- 	sub	$64, %r13
- 	je	_four_cipher_left_\@
-@@ -438,7 +438,7 @@ _multiple_of_16_bytes_\@:
- 
- 	mov PBlockLen(%arg2), %r12
- 
--	cmp $0, %r12
-+	test %r12, %r12
- 	je _partial_done\@
- 
- 	GHASH_MUL %xmm8, %xmm13, %xmm9, %xmm10, %xmm11, %xmm5, %xmm6
-@@ -475,7 +475,7 @@ _T_8_\@:
- 	add	$8, %r10
- 	sub	$8, %r11
- 	psrldq	$8, %xmm0
--	cmp	$0, %r11
-+	test	%r11, %r11
- 	je	_return_T_done_\@
- _T_4_\@:
- 	movd	%xmm0, %eax
-@@ -483,7 +483,7 @@ _T_4_\@:
- 	add	$4, %r10
- 	sub	$4, %r11
- 	psrldq	$4, %xmm0
--	cmp	$0, %r11
-+	test	%r11, %r11
- 	je	_return_T_done_\@
- _T_123_\@:
- 	movd	%xmm0, %eax
-@@ -620,7 +620,7 @@ _get_AAD_blocks\@:
- 
- 	/* read the last <16B of AAD */
- _get_AAD_rest\@:
--	cmp	   $0, %r11
-+	test	   %r11, %r11
- 	je	   _get_AAD_done\@
- 
- 	READ_PARTIAL_BLOCK %r10, %r11, \TMP1, \TMP7
-@@ -641,7 +641,7 @@ _get_AAD_done\@:
- .macro PARTIAL_BLOCK CYPH_PLAIN_OUT PLAIN_CYPH_IN PLAIN_CYPH_LEN DATA_OFFSET \
- 	AAD_HASH operation
- 	mov 	PBlockLen(%arg2), %r13
--	cmp	$0, %r13
-+	test	%r13, %r13
- 	je	_partial_block_done_\@	# Leave Macro if no partial blocks
- 	# Read in input data without over reading
- 	cmp	$16, \PLAIN_CYPH_LEN
-@@ -693,7 +693,7 @@ _no_extra_mask_1_\@:
- 	PSHUFB_XMM	%xmm2, %xmm3
- 	pxor	%xmm3, \AAD_HASH
- 
--	cmp	$0, %r10
-+	test	%r10, %r10
- 	jl	_partial_incomplete_1_\@
- 
- 	# GHASH computation for the last <16 Byte block
-@@ -728,7 +728,7 @@ _no_extra_mask_2_\@:
- 	PSHUFB_XMM %xmm2, %xmm9
- 	pxor	%xmm9, \AAD_HASH
- 
--	cmp	$0, %r10
-+	test	%r10, %r10
- 	jl	_partial_incomplete_2_\@
- 
- 	# GHASH computation for the last <16 Byte block
-@@ -748,7 +748,7 @@ _encode_done_\@:
- 	PSHUFB_XMM	%xmm2, %xmm9
- .endif
- 	# output encrypted Bytes
--	cmp	$0, %r10
-+	test	%r10, %r10
- 	jl	_partial_fill_\@
- 	mov	%r13, %r12
- 	mov	$16, %r13
-@@ -2731,7 +2731,7 @@ ENDPROC(aesni_ctr_enc)
-  */
- ENTRY(aesni_xts_crypt8)
- 	FRAME_BEGIN
--	cmpb $0, %cl
-+	testb %cl, %cl
- 	movl $0, %ecx
- 	movl $240, %r10d
- 	leaq _aesni_enc4, %r11
---- a/arch/x86/crypto/aesni-intel_avx-x86_64.S
-+++ b/arch/x86/crypto/aesni-intel_avx-x86_64.S
-@@ -370,7 +370,7 @@ _initial_num_blocks_is_0\@:
- 
- 
- _initial_blocks_encrypted\@:
--        cmp     $0, %r13
-+        test    %r13, %r13
-         je      _zero_cipher_left\@
- 
-         sub     $128, %r13
-@@ -529,7 +529,7 @@ _multiple_of_16_bytes\@:
-         vmovdqu HashKey(arg2), %xmm13
- 
-         mov PBlockLen(arg2), %r12
--        cmp $0, %r12
-+        test %r12, %r12
-         je _partial_done\@
- 
- 	#GHASH computation for the last <16 Byte block
-@@ -574,7 +574,7 @@ _T_8\@:
-         add     $8, %r10
-         sub     $8, %r11
-         vpsrldq $8, %xmm9, %xmm9
--        cmp     $0, %r11
-+        test    %r11, %r11
-         je     _return_T_done\@
- _T_4\@:
-         vmovd   %xmm9, %eax
-@@ -582,7 +582,7 @@ _T_4\@:
-         add     $4, %r10
-         sub     $4, %r11
-         vpsrldq     $4, %xmm9, %xmm9
--        cmp     $0, %r11
-+        test    %r11, %r11
-         je     _return_T_done\@
- _T_123\@:
-         vmovd     %xmm9, %eax
-@@ -626,7 +626,7 @@ _get_AAD_blocks\@:
- 	cmp     $16, %r11
- 	jge     _get_AAD_blocks\@
- 	vmovdqu \T8, \T7
--	cmp     $0, %r11
-+	test    %r11, %r11
- 	je      _get_AAD_done\@
- 
- 	vpxor   \T7, \T7, \T7
-@@ -645,7 +645,7 @@ _get_AAD_rest8\@:
- 	vpxor   \T1, \T7, \T7
- 	jmp     _get_AAD_rest8\@
- _get_AAD_rest4\@:
--	cmp     $0, %r11
-+	test    %r11, %r11
- 	jle      _get_AAD_rest0\@
- 	mov     (%r10), %eax
- 	movq    %rax, \T1
-@@ -750,7 +750,7 @@ _done_read_partial_block_\@:
- .macro PARTIAL_BLOCK GHASH_MUL CYPH_PLAIN_OUT PLAIN_CYPH_IN PLAIN_CYPH_LEN DATA_OFFSET \
-         AAD_HASH ENC_DEC
-         mov 	PBlockLen(arg2), %r13
--        cmp	$0, %r13
-+        test	%r13, %r13
-         je	_partial_block_done_\@	# Leave Macro if no partial blocks
-         # Read in input data without over reading
-         cmp	$16, \PLAIN_CYPH_LEN
-@@ -802,7 +802,7 @@ _no_extra_mask_1_\@:
-         vpshufb	%xmm2, %xmm3, %xmm3
-         vpxor	%xmm3, \AAD_HASH, \AAD_HASH
- 
--        cmp	$0, %r10
-+        test	%r10, %r10
-         jl	_partial_incomplete_1_\@
- 
-         # GHASH computation for the last <16 Byte block
-@@ -837,7 +837,7 @@ _no_extra_mask_2_\@:
-         vpshufb %xmm2, %xmm9, %xmm9
-         vpxor	%xmm9, \AAD_HASH, \AAD_HASH
- 
--        cmp	$0, %r10
-+        test	%r10, %r10
-         jl	_partial_incomplete_2_\@
- 
-         # GHASH computation for the last <16 Byte block
-@@ -857,7 +857,7 @@ _encode_done_\@:
-         vpshufb	%xmm2, %xmm9, %xmm9
- .endif
-         # output encrypted Bytes
--        cmp	$0, %r10
-+        test	%r10, %r10
-         jl	_partial_fill_\@
-         mov	%r13, %r12
-         mov	$16, %r13
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.11.8-rc1
+
+Ard Biesheuvel <ardb@kernel.org>
+    crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: b53: Support setting learning on port
+
+J. Bruce Fields <bfields@redhat.com>
+    Revert "nfsd4: a client's own opens needn't prevent delegations"
+
+J. Bruce Fields <bfields@redhat.com>
+    Revert "nfsd4: remove check_conflicting_opens warning"
+
+Amir Goldstein <amir73il@gmail.com>
+    fuse: fix live lock in fuse_iget()
+
+Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+    RDMA/srp: Fix support for unpopulated and unbalanced NUMA nodes
+
+Vladimir Murzin <vladimir.murzin@arm.com>
+    arm64: Unconditionally set virtual cpu id registers
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf, selftests: Fix up some test_verifier cases for unprivileged
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Add sanity check for upper ptr_limit
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Simplify alu_limit masking for pointer arithmetic
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Fix off-by-one for area size in creating mask to left
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Prohibit alu ops for pointer types not defining ptr_limit
+
+Bob Peterson <rpeterso@redhat.com>
+    gfs2: bypass signal_our_withdraw if no journal
+
+Bob Peterson <rpeterso@redhat.com>
+    gfs2: move freeze glock outside the make_fs_rw and _ro functions
+
+Bob Peterson <rpeterso@redhat.com>
+    gfs2: Add common helper for holding and releasing the freeze glock
+
+Frieder Schrempf <frieder.schrempf@kontron.de>
+    regulator: pca9450: Clear PRESET_EN bit to fix BUCK1/2/3 voltage setting
+
+Frieder Schrempf <frieder.schrempf@kontron.de>
+    regulator: pca9450: Enable system reset on WDOG_B assertion
+
+Frieder Schrempf <frieder.schrempf@kontron.de>
+    regulator: pca9450: Add SD_VSEL GPIO for LDO5
+
+Jia-Ju Bai <baijiaju1990@gmail.com>
+    net: bonding: fix error return code of bond_neigh_init()
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    gpiolib: Read "gpio-line-names" from a firmware node
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring: clear IOCB_WAITQ for non -EIOCBQUEUED return
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: simplify do_read return parsing
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring: don't keep looping for more events if we can't flush overflow
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: refactor io_cqring_wait
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: refactor scheduling in io_cqring_wait
+
+Florian Westphal <fw@strlen.de>
+    mptcp: dispose initial struct socket when its subflow is closed
+
+Florian Westphal <fw@strlen.de>
+    mptcp: pm: add lockdep assertions
+
+Geliang Tang <geliangtang@gmail.com>
+    mptcp: send ack for every add_addr
+
+Sean Christopherson <seanjc@google.com>
+    KVM: x86/mmu: Set SPTE_AD_WRPROT_ONLY_MASK if and only if PML is enabled
+
+Sean Christopherson <seanjc@google.com>
+    KVM: x86/mmu: Expand on the comment in kvm_vcpu_ad_need_write_protect()
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring: don't attempt IO reissue from the ring exit path
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm64/include/asm/el2_setup.h                 |   4 +-
+ arch/x86/crypto/aesni-intel_asm.S                  | 115 +++++++++++++--------
+ arch/x86/crypto/aesni-intel_glue.c                 |  25 +++--
+ arch/x86/kvm/mmu/mmu_internal.h                    |  13 ++-
+ drivers/gpio/gpiolib.c                             |  12 +--
+ drivers/infiniband/ulp/srp/ib_srp.c                | 110 ++++++++------------
+ drivers/net/bonding/bond_main.c                    |   8 +-
+ drivers/net/dsa/b53/b53_common.c                   |  18 ++++
+ drivers/net/dsa/b53/b53_regs.h                     |   1 +
+ drivers/net/dsa/bcm_sf2.c                          |  15 +--
+ drivers/regulator/pca9450-regulator.c              |  30 ++++++
+ fs/fuse/fuse_i.h                                   |   1 +
+ fs/gfs2/ops_fstype.c                               |  33 +++---
+ fs/gfs2/recovery.c                                 |   8 +-
+ fs/gfs2/super.c                                    |  45 +-------
+ fs/gfs2/util.c                                     |  58 +++++++++--
+ fs/gfs2/util.h                                     |   3 +
+ fs/io_uring.c                                      |  84 ++++++++-------
+ fs/locks.c                                         |   3 -
+ fs/nfsd/nfs4state.c                                |  53 +++-------
+ include/linux/regulator/pca9450.h                  |  10 ++
+ kernel/bpf/verifier.c                              |  33 +++---
+ net/mptcp/pm.c                                     |   5 +-
+ net/mptcp/pm_netlink.c                             |  23 +++--
+ net/mptcp/protocol.c                               |  20 +++-
+ net/mptcp/protocol.h                               |   5 +
+ .../selftests/bpf/verifier/bounds_deduction.c      |  27 +++--
+ tools/testing/selftests/bpf/verifier/map_ptr.c     |   4 +
+ tools/testing/selftests/bpf/verifier/unpriv.c      |  15 ++-
+ .../selftests/bpf/verifier/value_ptr_arith.c       |  23 ++++-
+ 31 files changed, 472 insertions(+), 336 deletions(-)
 
 
