@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1AED341C88
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8B92341C6C
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231209AbhCSMVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:21:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59498 "EHLO mail.kernel.org"
+        id S231134AbhCSMUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:20:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231393AbhCSMVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:21:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 235396146D;
-        Fri, 19 Mar 2021 12:20:57 +0000 (UTC)
+        id S230525AbhCSMUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 637D964F6C;
+        Fri, 19 Mar 2021 12:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156458;
-        bh=ckCEMwkTdHRUK+3A65B6sHIP4/kzvgiVMTUppH3d7tE=;
+        s=korg; t=1616156429;
+        bh=sCMkvCqPmTJ24Ic4kxeLx+gcO9ngMfso4B3PQOYl3KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0KeuyBasyPAPk6KdzZ0lg+KdxL4gAFLR7jkVpjWBHJ+80mOZmYS8zmfMAjEFd7tI
-         D0opEaWe0zQIh6WAVS6P6jni+WQXPP+aHDrcXSJOdh59dq25dk1ODB/SJwqhrznTPj
-         KgC1+rtdZR57ieKqIYnIepz93ZYyWtEkfP/KPL1A=
+        b=FOaC55kayGrLNYLZXD4s2zrOgv0EdDHKnqFHAF5IAhZy4KbuE2m22USNzpFyK+EJF
+         qFQYgNzv62WVJIUJ32PQwdV5g/ElfjLZPi+IqxHB+0jO4zOUmYWcmXznQcGXFo2XFJ
+         iol+otX/nqKiJVcykKq7bDFUrS46AVumBntM098E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 09/31] io_uring: dont keep looping for more events if we cant flush overflow
-Date:   Fri, 19 Mar 2021 13:19:03 +0100
-Message-Id: <20210319121747.504718297@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 10/31] io_uring: simplify do_read return parsing
+Date:   Fri, 19 Mar 2021 13:19:04 +0100
+Message-Id: <20210319121747.534509392@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
 References: <20210319121747.203523570@linuxfoundation.org>
@@ -39,69 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit ca0a26511c679a797f86589894a4523db36d833e ]
+[ Upstream commit 57cd657b8272a66277c139e7bbdc8b86057cb415 ]
 
-It doesn't make sense to wait for more events to come in, if we can't
-even flush the overflow we already have to the ring. Return -EBUSY for
-that condition, just like we do for attempts to submit with overflow
-pending.
+do_read() returning 0 bytes read (not -EAGAIN/etc.) is not an important
+enough of a case to prioritise it. Fold it into ret < 0 check, so we get
+rid of an extra if and make it a bit more readable.
 
-Cc: stable@vger.kernel.org # 5.11
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7621978e9fc8..cab380a337e4 100644
+index cab380a337e4..c18e4a334614 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1823,18 +1823,22 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
- 	return all_flushed;
- }
+@@ -3518,7 +3518,6 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 	else
+ 		kiocb->ki_flags |= IOCB_NOWAIT;
  
--static void io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
-+static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
- 				     struct task_struct *tsk,
- 				     struct files_struct *files)
- {
-+	bool ret = true;
-+
- 	if (test_bit(0, &ctx->cq_check_overflow)) {
- 		/* iopoll syncs against uring_lock, not completion_lock */
- 		if (ctx->flags & IORING_SETUP_IOPOLL)
- 			mutex_lock(&ctx->uring_lock);
--		__io_cqring_overflow_flush(ctx, force, tsk, files);
-+		ret = __io_cqring_overflow_flush(ctx, force, tsk, files);
- 		if (ctx->flags & IORING_SETUP_IOPOLL)
- 			mutex_unlock(&ctx->uring_lock);
+-
+ 	/* If the file doesn't support async, just async punt */
+ 	no_async = force_nonblock && !io_file_supports_async(req->file, READ);
+ 	if (no_async)
+@@ -3530,9 +3529,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 
+ 	ret = io_iter_do_read(req, iter);
+ 
+-	if (!ret) {
+-		goto done;
+-	} else if (ret == -EIOCBQUEUED) {
++	if (ret == -EIOCBQUEUED) {
+ 		ret = 0;
+ 		goto out_free;
+ 	} else if (ret == -EAGAIN) {
+@@ -3546,7 +3543,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
+ 		iov_iter_revert(iter, io_size - iov_iter_count(iter));
+ 		ret = 0;
+ 		goto copy_iov;
+-	} else if (ret < 0) {
++	} else if (ret <= 0) {
+ 		/* make sure -ERESTARTSYS -> -EINTR is done */
+ 		goto done;
  	}
-+
-+	return ret;
- }
- 
- static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
-@@ -7280,11 +7284,16 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	iowq.nr_timeouts = atomic_read(&ctx->cq_timeouts);
- 	trace_io_uring_cqring_wait(ctx, min_events);
- 	do {
--		io_cqring_overflow_flush(ctx, false, NULL, NULL);
-+		/* if we can't even flush overflow, don't wait for more */
-+		if (!io_cqring_overflow_flush(ctx, false, NULL, NULL)) {
-+			ret = -EBUSY;
-+			break;
-+		}
- 		prepare_to_wait_exclusive(&ctx->wait, &iowq.wq,
- 						TASK_INTERRUPTIBLE);
- 		ret = io_cqring_wait_schedule(ctx, &iowq, &timeout);
- 		finish_wait(&ctx->wait, &iowq.wq);
-+		cond_resched();
- 	} while (ret > 0);
- 
- 	restore_saved_sigmask_unless(ret == -EINTR);
 -- 
 2.30.1
 
