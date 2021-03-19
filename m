@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B312341C22
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:19:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 210F8341C25
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbhCSMTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:19:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56588 "EHLO mail.kernel.org"
+        id S230063AbhCSMTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:19:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229908AbhCSMSt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:18:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F255364F6C;
-        Fri, 19 Mar 2021 12:18:48 +0000 (UTC)
+        id S229934AbhCSMTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:19:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C60D64F6A;
+        Fri, 19 Mar 2021 12:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156329;
-        bh=W278K22NAGMhaWXqvkY9hju1VL1DJt1Qq1Lg7croF9w=;
+        s=korg; t=1616156332;
+        bh=KEpTMrMSJtlb0og6uLjfX+B730L9RzNRFcWa+QJBmHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXAPkSkoMaUaZ65TWApcCCBpLtjBbJ9xBE8PgUnGrh3tH9W9/p2vP3+iq7jGsUBYs
-         6Su/PH63qIatBNTyJDilBSSOklVUuL30FlYJOoBo3ZwY8LnMhtB7L+TzOBYkOh1iU8
-         ft324XJteemVSZQVgnuB1RlFBu6yjtE63i6hPoto=
+        b=u1Lmy0Nh9ngmK7zLOHU2W1616Etn7PrIktvKku4+32q29ZuJWDl4ahp/hcx8nAJwR
+         mJY6ZZv9zZ9OlHCxM66t/YxtbRQbulUeR0OBYZwNMCUu9mvmzMuLMSKwlmRRNCaB6L
+         PhmVBlKzM1RfL3BMSO8Bj/+DnL3oy9LT5k+I7k+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.19 6/8] bpf: Add sanity check for upper ptr_limit
-Date:   Fri, 19 Mar 2021 13:18:25 +0100
-Message-Id: <20210319121744.310785208@linuxfoundation.org>
+        stable@vger.kernel.org, Ilario Gelmetti <iochesonome@gmail.com>,
+        DENG Qingfang <dqfext@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 7/8] net: dsa: tag_mtk: fix 802.1ad VLAN egress
+Date:   Fri, 19 Mar 2021 13:18:26 +0100
+Message-Id: <20210319121744.340668743@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121744.114946147@linuxfoundation.org>
 References: <20210319121744.114946147@linuxfoundation.org>
@@ -40,58 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Krysiuk <piotras@gmail.com>
+From: DENG Qingfang <dqfext@gmail.com>
 
-commit 1b1597e64e1a610c7a96710fc4717158e98a08b3 upstream.
+commit 9200f515c41f4cbaeffd8fdd1d8b6373a18b1b67 upstream.
 
-Given we know the max possible value of ptr_limit at the time of retrieving
-the latter, add basic assertions, so that the verifier can bail out if
-anything looks odd and reject the program. Nothing triggered this so far,
-but it also does not hurt to have these.
+A different TPID bit is used for 802.1ad VLAN frames.
 
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
-Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+Reported-by: Ilario Gelmetti <iochesonome@gmail.com>
+Fixes: f0af34317f4b ("net: dsa: mediatek: combine MediaTek tag with VLAN tag")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/bpf/verifier.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2734,24 +2734,29 @@ static int retrieve_ptr_limit(const stru
+---
+ net/dsa/tag_mtk.c |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+--- a/net/dsa/tag_mtk.c
++++ b/net/dsa/tag_mtk.c
+@@ -20,6 +20,7 @@
+ #define MTK_HDR_LEN		4
+ #define MTK_HDR_XMIT_UNTAGGED		0
+ #define MTK_HDR_XMIT_TAGGED_TPID_8100	1
++#define MTK_HDR_XMIT_TAGGED_TPID_88A8	2
+ #define MTK_HDR_RECV_SOURCE_PORT_MASK	GENMASK(2, 0)
+ #define MTK_HDR_XMIT_DP_BIT_MASK	GENMASK(5, 0)
+ #define MTK_HDR_XMIT_SA_DIS		BIT(6)
+@@ -28,8 +29,8 @@ static struct sk_buff *mtk_tag_xmit(stru
+ 				    struct net_device *dev)
  {
- 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
- 			    (opcode == BPF_SUB && !off_is_neg);
--	u32 off;
-+	u32 off, max;
+ 	struct dsa_port *dp = dsa_slave_to_port(dev);
++	u8 xmit_tpid;
+ 	u8 *mtk_tag;
+-	bool is_vlan_skb = true;
+ 	unsigned char *dest = eth_hdr(skb)->h_dest;
+ 	bool is_multicast_skb = is_multicast_ether_addr(dest) &&
+ 				!is_broadcast_ether_addr(dest);
+@@ -40,13 +41,20 @@ static struct sk_buff *mtk_tag_xmit(stru
+ 	 * the both special and VLAN tag at the same time and then look up VLAN
+ 	 * table with VID.
+ 	 */
+-	if (!skb_vlan_tagged(skb)) {
++	switch (skb->protocol) {
++	case htons(ETH_P_8021Q):
++		xmit_tpid = MTK_HDR_XMIT_TAGGED_TPID_8100;
++		break;
++	case htons(ETH_P_8021AD):
++		xmit_tpid = MTK_HDR_XMIT_TAGGED_TPID_88A8;
++		break;
++	default:
+ 		if (skb_cow_head(skb, MTK_HDR_LEN) < 0)
+ 			return NULL;
  
- 	switch (ptr_reg->type) {
- 	case PTR_TO_STACK:
-+		/* Offset 0 is out-of-bounds, but acceptable start for the
-+		 * left direction, see BPF_REG_FP.
-+		 */
-+		max = MAX_BPF_STACK + mask_to_left;
- 		off = ptr_reg->off + ptr_reg->var_off.value;
- 		if (mask_to_left)
- 			*ptr_limit = MAX_BPF_STACK + off;
- 		else
- 			*ptr_limit = -off - 1;
--		return 0;
-+		return *ptr_limit >= max ? -ERANGE : 0;
- 	case PTR_TO_MAP_VALUE:
-+		max = ptr_reg->map_ptr->value_size;
- 		if (mask_to_left) {
- 			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
- 		} else {
- 			off = ptr_reg->smin_value + ptr_reg->off;
- 			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
- 		}
--		return 0;
-+		return *ptr_limit >= max ? -ERANGE : 0;
- 	default:
- 		return -EINVAL;
++		xmit_tpid = MTK_HDR_XMIT_UNTAGGED;
+ 		skb_push(skb, MTK_HDR_LEN);
+ 		memmove(skb->data, skb->data + MTK_HDR_LEN, 2 * ETH_ALEN);
+-		is_vlan_skb = false;
+ 	}
+ 
+ 	mtk_tag = skb->data + 2 * ETH_ALEN;
+@@ -54,8 +62,7 @@ static struct sk_buff *mtk_tag_xmit(stru
+ 	/* Mark tag attribute on special tag insertion to notify hardware
+ 	 * whether that's a combined special tag with 802.1Q header.
+ 	 */
+-	mtk_tag[0] = is_vlan_skb ? MTK_HDR_XMIT_TAGGED_TPID_8100 :
+-		     MTK_HDR_XMIT_UNTAGGED;
++	mtk_tag[0] = xmit_tpid;
+ 	mtk_tag[1] = (1 << dp->index) & MTK_HDR_XMIT_DP_BIT_MASK;
+ 
+ 	/* Disable SA learning for multicast frames */
+@@ -63,7 +70,7 @@ static struct sk_buff *mtk_tag_xmit(stru
+ 		mtk_tag[1] |= MTK_HDR_XMIT_SA_DIS;
+ 
+ 	/* Tag control information is kept for 802.1Q */
+-	if (!is_vlan_skb) {
++	if (xmit_tpid == MTK_HDR_XMIT_UNTAGGED) {
+ 		mtk_tag[2] = 0;
+ 		mtk_tag[3] = 0;
  	}
 
 
