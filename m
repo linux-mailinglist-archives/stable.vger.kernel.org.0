@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9246341C56
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA058341C7F
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229921AbhCSMUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57836 "EHLO mail.kernel.org"
+        id S231343AbhCSMVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:21:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230469AbhCSMUH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5B0A6146D;
-        Fri, 19 Mar 2021 12:20:06 +0000 (UTC)
+        id S231154AbhCSMUv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8B0964F6E;
+        Fri, 19 Mar 2021 12:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156407;
-        bh=ldZOt7oy4sZjIwRp8iepEZYsNaklvxzI9ufI1+ek65A=;
+        s=korg; t=1616156451;
+        bh=nY6YsqPYxFmKHe2OjtlwfkshWJEhQXXf+JGu0beZnkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJ0p8DBzE4XcNdFZDOl+33nVBc0vLkgyJwwzhEiQ15BnVcXvV5UrLwq4Lnp5dlVEF
-         dP/dmKiTA35Vshu0Uw5hHAoujm6GN1Ehp+PcRP1AWD5W13BIOHAr977lrty9zGwPah
-         QL1263OQ7FQlGFEcUA43VJPFJAnTCFLMITrVBtQ4=
+        b=TuoKzhyC0RU8ZLFr6nmFMM7V9UUppXmyrOmMRN67vXEqJpkESFqV7zeKnZTiQ9jik
+         jhz3lJNi8J6aQvcB3VjQBAMi5TH3SpCeoqHyzJuyafdvyGkUZq7jASf4guCc3gAASf
+         evoD4T75Hr8otd7P/oU0k7GiW+gQPku+3/iHM/3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 03/13] bpf: Prohibit alu ops for pointer types not defining ptr_limit
+        stable@vger.kernel.org, Christoph Paasch <cpaasch@apple.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Florian Westphal <fw@strlen.de>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 06/31] mptcp: dispose initial struct socket when its subflow is closed
 Date:   Fri, 19 Mar 2021 13:19:00 +0100
-Message-Id: <20210319121745.221072000@linuxfoundation.org>
+Message-Id: <20210319121747.415250250@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
-References: <20210319121745.112612545@linuxfoundation.org>
+In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
+References: <20210319121747.203523570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Krysiuk <piotras@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit f232326f6966cf2a1d1db7bc917a4ce5f9f55f76 upstream.
+[ Upstream commit 17aee05dc8822e354f5ad2d68ee39e3ba4b6acf2 ]
 
-The purpose of this patch is to streamline error propagation and in particular
-to propagate retrieve_ptr_limit() errors for pointer types that are not defining
-a ptr_limit such that register-based alu ops against these types can be rejected.
+Christoph Paasch reported following crash:
+dst_release underflow
+WARNING: CPU: 0 PID: 1319 at net/core/dst.c:175 dst_release+0xc1/0xd0 net/core/dst.c:175
+CPU: 0 PID: 1319 Comm: syz-executor217 Not tainted 5.11.0-rc6af8e85128b4d0d24083c5cac646e891227052e0c #70
+Call Trace:
+ rt_cache_route+0x12e/0x140 net/ipv4/route.c:1503
+ rt_set_nexthop.constprop.0+0x1fc/0x590 net/ipv4/route.c:1612
+ __mkroute_output net/ipv4/route.c:2484 [inline]
+...
 
-The main rationale is that a gap has been identified by Piotr in the existing
-protection against speculatively out-of-bounds loads, for example, in case of
-ctx pointers, unprivileged programs can still perform pointer arithmetic. This
-can be abused to execute speculatively out-of-bounds loads without restrictions
-and thus extract contents of kernel memory.
+The worker leaves msk->subflow alone even when it
+happened to close the subflow ssk associated with it.
 
-Fix this by rejecting unprivileged programs that attempt any pointer arithmetic
-on unprotected pointer types. The two affected ones are pointer to ctx as well
-as pointer to map. Field access to a modified ctx' pointer is rejected at a
-later point in time in the verifier, and 7c6967326267 ("bpf: Permit map_ptr
-arithmetic with opcode add and offset 0") only relevant for root-only use cases.
-Risk of unprivileged program breakage is considered very low.
-
-Fixes: 7c6967326267 ("bpf: Permit map_ptr arithmetic with opcode add and offset 0")
-Fixes: b2157399cc98 ("bpf: prevent out-of-bounds speculation")
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
-Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 866f26f2a9c33b ("mptcp: always graft subflow socket to parent")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/157
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Suggested-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ net/mptcp/protocol.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5406,6 +5406,7 @@ static int sanitize_ptr_alu(struct bpf_v
- 	u32 alu_state, alu_limit;
- 	struct bpf_reg_state tmp;
- 	bool ret;
-+	int err;
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 64b8a49652ae..7345df40385a 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2100,6 +2100,14 @@ static struct sock *mptcp_subflow_get_retrans(const struct mptcp_sock *msk)
+ 	return backup;
+ }
  
- 	if (can_skip_alu_sanitation(env, insn))
- 		return 0;
-@@ -5421,10 +5422,13 @@ static int sanitize_ptr_alu(struct bpf_v
- 	alu_state |= ptr_is_dst_reg ?
- 		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
- 
--	if (retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg))
--		return 0;
--	if (update_alu_sanitation_state(aux, alu_state, alu_limit))
--		return -EACCES;
-+	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
-+	if (err < 0)
-+		return err;
++static void mptcp_dispose_initial_subflow(struct mptcp_sock *msk)
++{
++	if (msk->subflow) {
++		iput(SOCK_INODE(msk->subflow));
++		msk->subflow = NULL;
++	}
++}
 +
-+	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
-+	if (err < 0)
-+		return err;
- do_sim:
- 	/* Simulate and find potential out-of-bounds access under
- 	 * speculative execution from truncation as a result of
-@@ -5540,7 +5544,7 @@ static int adjust_ptr_min_max_vals(struc
- 	case BPF_ADD:
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
- 		if (ret < 0) {
--			verbose(env, "R%d tried to add from different maps or paths\n", dst);
-+			verbose(env, "R%d tried to add from different maps, paths, or prohibited types\n", dst);
- 			return ret;
- 		}
- 		/* We can take a fixed offset as long as it doesn't overflow
-@@ -5595,7 +5599,7 @@ static int adjust_ptr_min_max_vals(struc
- 	case BPF_SUB:
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
- 		if (ret < 0) {
--			verbose(env, "R%d tried to sub from different maps or paths\n", dst);
-+			verbose(env, "R%d tried to sub from different maps, paths, or prohibited types\n", dst);
- 			return ret;
- 		}
- 		if (dst_reg == off_reg) {
+ /* subflow sockets can be either outgoing (connect) or incoming
+  * (accept).
+  *
+@@ -2144,6 +2152,9 @@ void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 
+ 	if (ssk == msk->last_snd)
+ 		msk->last_snd = NULL;
++
++	if (msk->subflow && ssk == msk->subflow->sk)
++		mptcp_dispose_initial_subflow(msk);
+ }
+ 
+ static unsigned int mptcp_sync_mss(struct sock *sk, u32 pmtu)
+@@ -2533,12 +2544,6 @@ static void __mptcp_destroy_sock(struct sock *sk)
+ 
+ 	might_sleep();
+ 
+-	/* dispose the ancillatory tcp socket, if any */
+-	if (msk->subflow) {
+-		iput(SOCK_INODE(msk->subflow));
+-		msk->subflow = NULL;
+-	}
+-
+ 	/* be sure to always acquire the join list lock, to sync vs
+ 	 * mptcp_finish_join().
+ 	 */
+@@ -2563,6 +2568,7 @@ static void __mptcp_destroy_sock(struct sock *sk)
+ 	sk_stream_kill_queues(sk);
+ 	xfrm_sk_free_policy(sk);
+ 	sk_refcnt_debug_release(sk);
++	mptcp_dispose_initial_subflow(msk);
+ 	sock_put(sk);
+ }
+ 
+-- 
+2.30.1
+
 
 
