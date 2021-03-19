@@ -2,145 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D54341C2F
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CFB9341C26
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230192AbhCSMTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:19:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
+        id S230056AbhCSMTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:19:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229979AbhCSMTG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:19:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F73E64F6E;
-        Fri, 19 Mar 2021 12:18:53 +0000 (UTC)
+        id S229933AbhCSMTB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:19:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D623664F65;
+        Fri, 19 Mar 2021 12:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156334;
-        bh=Xsv6uBz+2BuWLAQLzEeuYikoPDZ+SQRqq5W5nIPI5Es=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcTYDBunPllT3+XbkezFiY3S+stXMf33QtdyhEKsEWnLLBHI1vqtP7I5AvenjQZha
-         fqPFpjXFHpbkiXp9+vqHMNCXRcmAmb8aU/Y5MXPZduTZpvNifgj3qtH00S9+QSVuhd
-         VC++YidiCz3Bj8EdhJl9BOqF+OXVgcRELQX02nV0=
+        s=korg; t=1616156341;
+        bh=eqlRLtR8Cu3pIlMmS2OHmOP/L+Bt94bG7J8FhpfX61M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=zTdg3de6tiBxmnzFDRAHrQ16/czjBw0t7Zeo4w+7jOqir4BFTRJbLyWvAVd5XmTri
+         V1Cb/NqkzregIGatLzabCKxdoFITMihHHpdIdUxTaLfzgXtsMVVrYUpeWuoo/DQFwd
+         ORLEQtn9mLTuuuhz5/ulPtBHyMxm6phW0bDz7MMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 8/8] net: dsa: b53: Support setting learning on port
-Date:   Fri, 19 Mar 2021 13:18:27 +0100
-Message-Id: <20210319121744.371636297@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/18] 5.4.107-rc1 review
+Date:   Fri, 19 Mar 2021 13:18:38 +0100
+Message-Id: <20210319121745.449875976@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121744.114946147@linuxfoundation.org>
-References: <20210319121744.114946147@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.107-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.107-rc1
+X-KernelTest-Deadline: 2021-03-21T12:17+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+This is the start of the stable review cycle for the 5.4.107 release.
+There are 18 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit f9b3827ee66cfcf297d0acd6ecf33653a5f297ef upstream.
+Responses should be made by Sun, 21 Mar 2021 12:17:37 +0000.
+Anything received after that time might be too late.
 
-Add support for being able to set the learning attribute on port, and
-make sure that the standalone ports start up with learning disabled.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.107-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-We can remove the code in bcm_sf2 that configured the ports learning
-attribute because we want the standalone ports to have learning disabled
-by default and port 7 cannot be bridged, so its learning attribute will
-not change past its initial configuration.
+thanks,
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+greg k-h
 
----
- drivers/net/dsa/b53/b53_common.c |   19 +++++++++++++++++++
- drivers/net/dsa/b53/b53_regs.h   |    1 +
- drivers/net/dsa/bcm_sf2.c        |    5 -----
- 3 files changed, 20 insertions(+), 5 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -507,12 +507,27 @@ void b53_imp_vlan_setup(struct dsa_switc
- }
- EXPORT_SYMBOL(b53_imp_vlan_setup);
- 
-+static void b53_port_set_learning(struct b53_device *dev, int port,
-+				  bool learning)
-+{
-+	u16 reg;
-+
-+	b53_read16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, &reg);
-+	if (learning)
-+		reg &= ~BIT(port);
-+	else
-+		reg |= BIT(port);
-+	b53_write16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, reg);
-+}
-+
- int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
- {
- 	struct b53_device *dev = ds->priv;
- 	unsigned int cpu_port = ds->ports[port].cpu_dp->index;
- 	u16 pvlan;
- 
-+	b53_port_set_learning(dev, port, false);
-+
- 	/* Clear the Rx and Tx disable bits and set to no spanning tree */
- 	b53_write8(dev, B53_CTRL_PAGE, B53_PORT_CTRL(port), 0);
- 
-@@ -620,6 +635,7 @@ static void b53_enable_cpu_port(struct b
- 	b53_write8(dev, B53_CTRL_PAGE, B53_PORT_CTRL(port), port_ctrl);
- 
- 	b53_brcm_hdr_setup(dev->ds, port);
-+	b53_port_set_learning(dev, port, false);
- }
- 
- static void b53_enable_mib(struct b53_device *dev)
-@@ -1517,6 +1533,8 @@ int b53_br_join(struct dsa_switch *ds, i
- 	b53_write16(dev, B53_PVLAN_PAGE, B53_PVLAN_PORT_MASK(port), pvlan);
- 	dev->ports[port].vlan_ctl_mask = pvlan;
- 
-+	b53_port_set_learning(dev, port, true);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(b53_br_join);
-@@ -1564,6 +1582,7 @@ void b53_br_leave(struct dsa_switch *ds,
- 		vl->untag |= BIT(port) | BIT(cpu_port);
- 		b53_set_vlan_entry(dev, pvid, vl);
- 	}
-+	b53_port_set_learning(dev, port, false);
- }
- EXPORT_SYMBOL(b53_br_leave);
- 
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -115,6 +115,7 @@
- #define B53_UC_FLOOD_MASK		0x32
- #define B53_MC_FLOOD_MASK		0x34
- #define B53_IPMC_FLOOD_MASK		0x36
-+#define B53_DIS_LEARNING		0x3c
- 
- /*
-  * Override Ports 0-7 State on devices with xMII interfaces (8 bit)
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -173,11 +173,6 @@ static int bcm_sf2_port_setup(struct dsa
- 	reg &= ~P_TXQ_PSM_VDD(port);
- 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
- 
--	/* Enable learning */
--	reg = core_readl(priv, CORE_DIS_LEARN);
--	reg &= ~BIT(port);
--	core_writel(priv, reg, CORE_DIS_LEARN);
--
- 	/* Enable Broadcom tags for that port if requested */
- 	if (priv->brcm_tag_mask & BIT(port))
- 		b53_brcm_hdr_setup(ds, port);
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.107-rc1
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: b53: Support setting learning on port
+
+DENG Qingfang <dqfext@gmail.com>
+    net: dsa: tag_mtk: fix 802.1ad VLAN egress
+
+Ard Biesheuvel <ardb@kernel.org>
+    crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+
+Uros Bizjak <ubizjak@gmail.com>
+    crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
+
+Kees Cook <keescook@chromium.org>
+    crypto: x86 - Regularize glue function prototypes
+
+Amir Goldstein <amir73il@gmail.com>
+    fuse: fix live lock in fuse_iget()
+
+Colin Xu <colin.xu@intel.com>
+    drm/i915/gvt: Fix vfio_edid issue for BXT/APL
+
+Colin Xu <colin.xu@intel.com>
+    drm/i915/gvt: Fix port number for BDW on EDID region setup
+
+Colin Xu <colin.xu@intel.com>
+    drm/i915/gvt: Fix virtual display setup for BXT/APL
+
+Colin Xu <colin.xu@intel.com>
+    drm/i915/gvt: Fix mmio handler break on BXT/APL.
+
+Colin Xu <colin.xu@intel.com>
+    drm/i915/gvt: Set SNOOP for PAT3 on BXT/APL to workaround GPU BB hang
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: scrub: Don't check free space before marking a block group RO
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf, selftests: Fix up some test_verifier cases for unprivileged
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Add sanity check for upper ptr_limit
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Simplify alu_limit masking for pointer arithmetic
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Fix off-by-one for area size in creating mask to left
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf: Prohibit alu ops for pointer types not defining ptr_limit
+
+Suzuki K Poulose <suzuki.poulose@arm.com>
+    KVM: arm64: nvhe: Save the SPE context early
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm64/include/asm/kvm_hyp.h                   |   3 +
+ arch/arm64/kvm/hyp/debug-sr.c                      |  24 ++-
+ arch/arm64/kvm/hyp/switch.c                        |  13 +-
+ arch/x86/crypto/aesni-intel_asm.S                  | 137 +++++++------
+ arch/x86/crypto/aesni-intel_avx-x86_64.S           |  20 +-
+ arch/x86/crypto/aesni-intel_glue.c                 |  54 +++---
+ arch/x86/crypto/camellia_aesni_avx2_glue.c         |  74 ++++---
+ arch/x86/crypto/camellia_aesni_avx_glue.c          |  72 ++++---
+ arch/x86/crypto/camellia_glue.c                    |  45 +++--
+ arch/x86/crypto/cast6_avx_glue.c                   |  68 +++----
+ arch/x86/crypto/glue_helper.c                      |  23 ++-
+ arch/x86/crypto/serpent_avx2_glue.c                |  65 +++----
+ arch/x86/crypto/serpent_avx_glue.c                 |  63 +++---
+ arch/x86/crypto/serpent_sse2_glue.c                |  30 +--
+ arch/x86/crypto/twofish_avx_glue.c                 |  75 ++++----
+ arch/x86/crypto/twofish_glue_3way.c                |  37 ++--
+ arch/x86/include/asm/crypto/camellia.h             |  63 +++---
+ arch/x86/include/asm/crypto/glue_helper.h          |  18 +-
+ arch/x86/include/asm/crypto/serpent-avx.h          |  20 +-
+ arch/x86/include/asm/crypto/serpent-sse2.h         |  28 ++-
+ arch/x86/include/asm/crypto/twofish.h              |  19 +-
+ crypto/cast6_generic.c                             |  18 +-
+ crypto/serpent_generic.c                           |   6 +-
+ drivers/gpu/drm/i915/gvt/display.c                 | 212 +++++++++++++++++++++
+ drivers/gpu/drm/i915/gvt/handlers.c                |  40 +++-
+ drivers/gpu/drm/i915/gvt/mmio.c                    |   5 +
+ drivers/gpu/drm/i915/gvt/vgpu.c                    |   5 +-
+ drivers/net/dsa/b53/b53_common.c                   |  18 ++
+ drivers/net/dsa/b53/b53_regs.h                     |   1 +
+ drivers/net/dsa/bcm_sf2.c                          |   5 -
+ fs/btrfs/block-group.c                             |  48 +++--
+ fs/btrfs/block-group.h                             |   3 +-
+ fs/btrfs/relocation.c                              |   2 +-
+ fs/btrfs/scrub.c                                   |  21 +-
+ fs/fuse/fuse_i.h                                   |   1 +
+ include/crypto/cast6.h                             |   4 +-
+ include/crypto/serpent.h                           |   4 +-
+ include/crypto/xts.h                               |   2 -
+ kernel/bpf/verifier.c                              |  33 ++--
+ net/dsa/tag_mtk.c                                  |  19 +-
+ .../selftests/bpf/verifier/bounds_deduction.c      |  27 ++-
+ tools/testing/selftests/bpf/verifier/unpriv.c      |  15 +-
+ .../selftests/bpf/verifier/value_ptr_arith.c       |  23 ++-
+ 44 files changed, 920 insertions(+), 547 deletions(-)
 
 
