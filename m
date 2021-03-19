@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5964C341C9D
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B13341C9F
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231183AbhCSMVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231218AbhCSMVv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Mar 2021 08:21:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60418 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231434AbhCSMV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:21:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 107E864F74;
-        Fri, 19 Mar 2021 12:21:28 +0000 (UTC)
+        id S231442AbhCSMVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:21:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7927264F72;
+        Fri, 19 Mar 2021 12:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156489;
-        bh=ku6UCkzG6k0qIJeLH6CK6P17peVO/1vMx6GQEsgIhuc=;
+        s=korg; t=1616156491;
+        bh=MpSJKd9BjNGBC8GLwiKMzUKdtXHwXJNj6Z5vol6Rn6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cd46iN9EeY0bcu1Jh3ABia7LxNix77w6Iz9WWpFu1NY3cC+D79rPyLZfsVSb0ZfY1
-         +NJLC7E3wAPZ7LNgDEEEpModzdP2Syw4Jm5O6DjvoqL6tg/N1VFOe0qNOSEWcgwpEp
-         gGsYRF2XI2+PpOBTgdFrlqWhN4BfMClnMZFNdW+M=
+        b=SMzs4ZHERQ3aX18rG/YkkFR7KNgtI3sNA9W3ULfjuLsqlMbaZ89J8UqigbRpIKpPz
+         a4O66s3ERh73jGLqXDHxOu0RwfPmJqu75a6foHfWLJrzZNvlhlSbTPEr4QtXKAUVma
+         eErvwC/pMrq4xLOZpS2Dfbtz07rus1jzGbzsryPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+50a8a9cf8127f2c6f5df@syzkaller.appspotmail.com,
-        Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 19/31] gfs2: bypass signal_our_withdraw if no journal
-Date:   Fri, 19 Mar 2021 13:19:13 +0100
-Message-Id: <20210319121747.822193917@linuxfoundation.org>
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.11 20/31] bpf: Prohibit alu ops for pointer types not defining ptr_limit
+Date:   Fri, 19 Mar 2021 13:19:14 +0100
+Message-Id: <20210319121747.854374700@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
 References: <20210319121747.203523570@linuxfoundation.org>
@@ -42,64 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Piotr Krysiuk <piotras@gmail.com>
 
-[ Upstream commit d5bf630f355d8c532bef2347cf90e8ae60a5f1bd ]
+commit f232326f6966cf2a1d1db7bc917a4ce5f9f55f76 upstream.
 
-Before this patch, function signal_our_withdraw referenced the journal
-inode immediately. But corrupt file systems may have some invalid
-journals, in which case our attempt to read it in will withdraw and the
-resulting signal_our_withdraw would dereference the NULL value.
+The purpose of this patch is to streamline error propagation and in particular
+to propagate retrieve_ptr_limit() errors for pointer types that are not defining
+a ptr_limit such that register-based alu ops against these types can be rejected.
 
-This patch adds a check to signal_our_withdraw so that if the journal
-has not yet been initialized, it simply returns and does the old-style
-withdraw.
+The main rationale is that a gap has been identified by Piotr in the existing
+protection against speculatively out-of-bounds loads, for example, in case of
+ctx pointers, unprivileged programs can still perform pointer arithmetic. This
+can be abused to execute speculatively out-of-bounds loads without restrictions
+and thus extract contents of kernel memory.
 
-Thanks, Andy Price, for his analysis.
+Fix this by rejecting unprivileged programs that attempt any pointer arithmetic
+on unprotected pointer types. The two affected ones are pointer to ctx as well
+as pointer to map. Field access to a modified ctx' pointer is rejected at a
+later point in time in the verifier, and 7c6967326267 ("bpf: Permit map_ptr
+arithmetic with opcode add and offset 0") only relevant for root-only use cases.
+Risk of unprivileged program breakage is considered very low.
 
-Reported-by: syzbot+50a8a9cf8127f2c6f5df@syzkaller.appspotmail.com
-Fixes: 601ef0d52e96 ("gfs2: Force withdraw to replay journals and wait for it to finish")
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7c6967326267 ("bpf: Permit map_ptr arithmetic with opcode add and offset 0")
+Fixes: b2157399cc98 ("bpf: prevent out-of-bounds speculation")
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/util.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ kernel/bpf/verifier.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/fs/gfs2/util.c b/fs/gfs2/util.c
-index 8d3c670c990f..dc4985429cf2 100644
---- a/fs/gfs2/util.c
-+++ b/fs/gfs2/util.c
-@@ -119,17 +119,22 @@ void gfs2_freeze_unlock(struct gfs2_holder *freeze_gh)
- static void signal_our_withdraw(struct gfs2_sbd *sdp)
- {
- 	struct gfs2_glock *live_gl = sdp->sd_live_gh.gh_gl;
--	struct inode *inode = sdp->sd_jdesc->jd_inode;
--	struct gfs2_inode *ip = GFS2_I(inode);
--	struct gfs2_glock *i_gl = ip->i_gl;
--	u64 no_formal_ino = ip->i_no_formal_ino;
-+	struct inode *inode;
-+	struct gfs2_inode *ip;
-+	struct gfs2_glock *i_gl;
-+	u64 no_formal_ino;
- 	int log_write_allowed = test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
- 	int ret = 0;
- 	int tries;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5462,6 +5462,7 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	u32 alu_state, alu_limit;
+ 	struct bpf_reg_state tmp;
+ 	bool ret;
++	int err;
  
--	if (test_bit(SDF_NORECOVERY, &sdp->sd_flags))
-+	if (test_bit(SDF_NORECOVERY, &sdp->sd_flags) || !sdp->sd_jdesc)
- 		return;
+ 	if (can_skip_alu_sanitation(env, insn))
+ 		return 0;
+@@ -5477,10 +5478,13 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	alu_state |= ptr_is_dst_reg ?
+ 		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
  
-+	inode = sdp->sd_jdesc->jd_inode;
-+	ip = GFS2_I(inode);
-+	i_gl = ip->i_gl;
-+	no_formal_ino = ip->i_no_formal_ino;
+-	if (retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg))
+-		return 0;
+-	if (update_alu_sanitation_state(aux, alu_state, alu_limit))
+-		return -EACCES;
++	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
++	if (err < 0)
++		return err;
 +
- 	/* Prevent any glock dq until withdraw recovery is complete */
- 	set_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags);
- 	/*
--- 
-2.30.1
-
++	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
++	if (err < 0)
++		return err;
+ do_sim:
+ 	/* Simulate and find potential out-of-bounds access under
+ 	 * speculative execution from truncation as a result of
+@@ -5596,7 +5600,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	case BPF_ADD:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+ 		if (ret < 0) {
+-			verbose(env, "R%d tried to add from different maps or paths\n", dst);
++			verbose(env, "R%d tried to add from different maps, paths, or prohibited types\n", dst);
+ 			return ret;
+ 		}
+ 		/* We can take a fixed offset as long as it doesn't overflow
+@@ -5651,7 +5655,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	case BPF_SUB:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+ 		if (ret < 0) {
+-			verbose(env, "R%d tried to sub from different maps or paths\n", dst);
++			verbose(env, "R%d tried to sub from different maps, paths, or prohibited types\n", dst);
+ 			return ret;
+ 		}
+ 		if (dst_reg == off_reg) {
 
 
