@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12796341C98
+	by mail.lfdr.de (Postfix) with ESMTP id AFD92341C99
 	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231448AbhCSMVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:21:47 -0400
+        id S231453AbhCSMVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:21:48 -0400
 Received: from mail.kernel.org ([198.145.29.99]:60248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231317AbhCSMVT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:21:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 808AF6146D;
-        Fri, 19 Mar 2021 12:21:18 +0000 (UTC)
+        id S231352AbhCSMVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:21:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CB6864F70;
+        Fri, 19 Mar 2021 12:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156479;
-        bh=XKDqBZZfl+KZQVlMjVScLpjaVVbp4NEIbL8ssPi90og=;
+        s=korg; t=1616156481;
+        bh=r/bVGHenP7XBqQv+m6bF6cw2Ci3EIukOx+aKQItQ/7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NBnzNm5iNUkn4Mt8l+lNCuh+87sj3t6zOJOXjeP7s8tpY4HeeiTgSg+eK6sXVU3HQ
-         //lLU1pxhuZSb9lDawwa8XWM1O3e1WBzFc2tsjKZ+xT6ml7l35cY8eDiNbLJ3WN5nr
-         21DLjSLE0k10r7ZFkC4KxesFQnW+5j/L4bVXrZY0=
+        b=omkAoBdpl5TxhgwfLfPPUyC++hEQD1YnfpVmrzGHtdUCzlsg2px50FQIXKj/MNU8w
+         osFr76iNr0aEuOUwLEj294dxdYIR/l+CzOwezfbJmSsQ6d2HQ6RvR+1xYW+39HrSQo
+         Qs3veh9A1AMVOkAZ3nBJ7foy6RViVTRdsdhcde68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.11 30/31] net: dsa: b53: Support setting learning on port
-Date:   Fri, 19 Mar 2021 13:19:24 +0100
-Message-Id: <20210319121748.182764766@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.11 31/31] crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+Date:   Fri, 19 Mar 2021 13:19:25 +0100
+Message-Id: <20210319121748.211622571@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
 References: <20210319121747.203523570@linuxfoundation.org>
@@ -40,120 +40,271 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit f9b3827ee66cfcf297d0acd6ecf33653a5f297ef upstream.
+commit 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1 upstream.
 
-Add support for being able to set the learning attribute on port, and
-make sure that the standalone ports start up with learning disabled.
+The XTS asm helper arrangement is a bit odd: the 8-way stride helper
+consists of back-to-back calls to the 4-way core transforms, which
+are called indirectly, based on a boolean that indicates whether we
+are performing encryption or decryption.
 
-We can remove the code in bcm_sf2 that configured the ports learning
-attribute because we want the standalone ports to have learning disabled
-by default and port 7 cannot be bridged, so its learning attribute will
-not change past its initial configuration.
+Given how costly indirect calls are on x86, let's switch to direct
+calls, and given how the 8-way stride doesn't really add anything
+substantial, use a 4-way stride instead, and make the asm core
+routine deal with any multiple of 4 blocks. Since 512 byte sectors
+or 4 KB blocks are the typical quantities XTS operates on, increase
+the stride exported to the glue helper to 512 bytes as well.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+As a result, the number of indirect calls is reduced from 3 per 64 bytes
+of in/output to 1 per 512 bytes of in/output, which produces a 65% speedup
+when operating on 1 KB blocks (measured on a Intel(R) Core(TM) i7-8650U CPU)
+
+Fixes: 9697fa39efd3f ("x86/retpoline/crypto: Convert crypto assembler indirect jumps")
+Tested-by: Eric Biggers <ebiggers@google.com> # x86_64
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/dsa/b53/b53_common.c |   18 ++++++++++++++++++
- drivers/net/dsa/b53/b53_regs.h   |    1 +
- drivers/net/dsa/bcm_sf2.c        |   15 +--------------
- 3 files changed, 20 insertions(+), 14 deletions(-)
+ arch/x86/crypto/aesni-intel_asm.S  |  115 ++++++++++++++++++++++---------------
+ arch/x86/crypto/aesni-intel_glue.c |   25 ++++----
+ 2 files changed, 84 insertions(+), 56 deletions(-)
 
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -510,6 +510,19 @@ void b53_imp_vlan_setup(struct dsa_switc
- }
- EXPORT_SYMBOL(b53_imp_vlan_setup);
- 
-+static void b53_port_set_learning(struct b53_device *dev, int port,
-+				  bool learning)
-+{
-+	u16 reg;
-+
-+	b53_read16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, &reg);
-+	if (learning)
-+		reg &= ~BIT(port);
-+	else
-+		reg |= BIT(port);
-+	b53_write16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, reg);
-+}
-+
- int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
- {
- 	struct b53_device *dev = ds->priv;
-@@ -523,6 +536,7 @@ int b53_enable_port(struct dsa_switch *d
- 	cpu_port = dsa_to_port(ds, port)->cpu_dp->index;
- 
- 	b53_br_egress_floods(ds, port, true, true);
-+	b53_port_set_learning(dev, port, false);
- 
- 	if (dev->ops->irq_enable)
- 		ret = dev->ops->irq_enable(dev, port);
-@@ -656,6 +670,7 @@ static void b53_enable_cpu_port(struct b
- 	b53_brcm_hdr_setup(dev->ds, port);
- 
- 	b53_br_egress_floods(dev->ds, port, true, true);
-+	b53_port_set_learning(dev, port, false);
- }
- 
- static void b53_enable_mib(struct b53_device *dev)
-@@ -1839,6 +1854,8 @@ int b53_br_join(struct dsa_switch *ds, i
- 	b53_write16(dev, B53_PVLAN_PAGE, B53_PVLAN_PORT_MASK(port), pvlan);
- 	dev->ports[port].vlan_ctl_mask = pvlan;
- 
-+	b53_port_set_learning(dev, port, true);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(b53_br_join);
-@@ -1886,6 +1903,7 @@ void b53_br_leave(struct dsa_switch *ds,
- 		vl->untag |= BIT(port) | BIT(cpu_port);
- 		b53_set_vlan_entry(dev, pvid, vl);
- 	}
-+	b53_port_set_learning(dev, port, false);
- }
- EXPORT_SYMBOL(b53_br_leave);
- 
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -115,6 +115,7 @@
- #define B53_UC_FLOOD_MASK		0x32
- #define B53_MC_FLOOD_MASK		0x34
- #define B53_IPMC_FLOOD_MASK		0x36
-+#define B53_DIS_LEARNING		0x3c
+--- a/arch/x86/crypto/aesni-intel_asm.S
++++ b/arch/x86/crypto/aesni-intel_asm.S
+@@ -2715,25 +2715,18 @@ SYM_FUNC_END(aesni_ctr_enc)
+ 	pxor CTR, IV;
  
  /*
-  * Override Ports 0-7 State on devices with xMII interfaces (8 bit)
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -222,23 +222,10 @@ static int bcm_sf2_port_setup(struct dsa
- 	reg &= ~P_TXQ_PSM_VDD(port);
- 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
+- * void aesni_xts_crypt8(const struct crypto_aes_ctx *ctx, u8 *dst,
+- *			 const u8 *src, bool enc, le128 *iv)
++ * void aesni_xts_encrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
++ *			  const u8 *src, unsigned int len, le128 *iv)
+  */
+-SYM_FUNC_START(aesni_xts_crypt8)
++SYM_FUNC_START(aesni_xts_encrypt)
+ 	FRAME_BEGIN
+-	testb %cl, %cl
+-	movl $0, %ecx
+-	movl $240, %r10d
+-	leaq _aesni_enc4, %r11
+-	leaq _aesni_dec4, %rax
+-	cmovel %r10d, %ecx
+-	cmoveq %rax, %r11
  
--	/* Enable learning */
--	reg = core_readl(priv, CORE_DIS_LEARN);
--	reg &= ~BIT(port);
--	core_writel(priv, reg, CORE_DIS_LEARN);
--
- 	/* Enable Broadcom tags for that port if requested */
--	if (priv->brcm_tag_mask & BIT(port)) {
-+	if (priv->brcm_tag_mask & BIT(port))
- 		b53_brcm_hdr_setup(ds, port);
+ 	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
+ 	movups (IVP), IV
  
--		/* Disable learning on ASP port */
--		if (port == 7) {
--			reg = core_readl(priv, CORE_DIS_LEARN);
--			reg |= BIT(port);
--			core_writel(priv, reg, CORE_DIS_LEARN);
--		}
--	}
+ 	mov 480(KEYP), KLEN
+-	addq %rcx, KEYP
+ 
++.Lxts_enc_loop4:
+ 	movdqa IV, STATE1
+ 	movdqu 0x00(INP), INC
+ 	pxor INC, STATE1
+@@ -2757,71 +2750,103 @@ SYM_FUNC_START(aesni_xts_crypt8)
+ 	pxor INC, STATE4
+ 	movdqu IV, 0x30(OUTP)
+ 
+-	CALL_NOSPEC r11
++	call _aesni_enc4
+ 
+ 	movdqu 0x00(OUTP), INC
+ 	pxor INC, STATE1
+ 	movdqu STATE1, 0x00(OUTP)
+ 
+-	_aesni_gf128mul_x_ble()
+-	movdqa IV, STATE1
+-	movdqu 0x40(INP), INC
+-	pxor INC, STATE1
+-	movdqu IV, 0x40(OUTP)
 -
- 	/* Configure Traffic Class to QoS mapping, allow each priority to map
- 	 * to a different queue number
- 	 */
+ 	movdqu 0x10(OUTP), INC
+ 	pxor INC, STATE2
+ 	movdqu STATE2, 0x10(OUTP)
+ 
+-	_aesni_gf128mul_x_ble()
+-	movdqa IV, STATE2
+-	movdqu 0x50(INP), INC
+-	pxor INC, STATE2
+-	movdqu IV, 0x50(OUTP)
+-
+ 	movdqu 0x20(OUTP), INC
+ 	pxor INC, STATE3
+ 	movdqu STATE3, 0x20(OUTP)
+ 
+-	_aesni_gf128mul_x_ble()
+-	movdqa IV, STATE3
+-	movdqu 0x60(INP), INC
+-	pxor INC, STATE3
+-	movdqu IV, 0x60(OUTP)
+-
+ 	movdqu 0x30(OUTP), INC
+ 	pxor INC, STATE4
+ 	movdqu STATE4, 0x30(OUTP)
+ 
+ 	_aesni_gf128mul_x_ble()
+-	movdqa IV, STATE4
+-	movdqu 0x70(INP), INC
+-	pxor INC, STATE4
+-	movdqu IV, 0x70(OUTP)
+ 
+-	_aesni_gf128mul_x_ble()
++	add $64, INP
++	add $64, OUTP
++	sub $64, LEN
++	ja .Lxts_enc_loop4
++
+ 	movups IV, (IVP)
+ 
+-	CALL_NOSPEC r11
++	FRAME_END
++	ret
++SYM_FUNC_END(aesni_xts_encrypt)
++
++/*
++ * void aesni_xts_decrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
++ *			  const u8 *src, unsigned int len, le128 *iv)
++ */
++SYM_FUNC_START(aesni_xts_decrypt)
++	FRAME_BEGIN
++
++	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
++	movups (IVP), IV
++
++	mov 480(KEYP), KLEN
++	add $240, KEYP
++
++.Lxts_dec_loop4:
++	movdqa IV, STATE1
++	movdqu 0x00(INP), INC
++	pxor INC, STATE1
++	movdqu IV, 0x00(OUTP)
++
++	_aesni_gf128mul_x_ble()
++	movdqa IV, STATE2
++	movdqu 0x10(INP), INC
++	pxor INC, STATE2
++	movdqu IV, 0x10(OUTP)
++
++	_aesni_gf128mul_x_ble()
++	movdqa IV, STATE3
++	movdqu 0x20(INP), INC
++	pxor INC, STATE3
++	movdqu IV, 0x20(OUTP)
++
++	_aesni_gf128mul_x_ble()
++	movdqa IV, STATE4
++	movdqu 0x30(INP), INC
++	pxor INC, STATE4
++	movdqu IV, 0x30(OUTP)
++
++	call _aesni_dec4
+ 
+-	movdqu 0x40(OUTP), INC
++	movdqu 0x00(OUTP), INC
+ 	pxor INC, STATE1
+-	movdqu STATE1, 0x40(OUTP)
++	movdqu STATE1, 0x00(OUTP)
+ 
+-	movdqu 0x50(OUTP), INC
++	movdqu 0x10(OUTP), INC
+ 	pxor INC, STATE2
+-	movdqu STATE2, 0x50(OUTP)
++	movdqu STATE2, 0x10(OUTP)
+ 
+-	movdqu 0x60(OUTP), INC
++	movdqu 0x20(OUTP), INC
+ 	pxor INC, STATE3
+-	movdqu STATE3, 0x60(OUTP)
++	movdqu STATE3, 0x20(OUTP)
+ 
+-	movdqu 0x70(OUTP), INC
++	movdqu 0x30(OUTP), INC
+ 	pxor INC, STATE4
+-	movdqu STATE4, 0x70(OUTP)
++	movdqu STATE4, 0x30(OUTP)
++
++	_aesni_gf128mul_x_ble()
++
++	add $64, INP
++	add $64, OUTP
++	sub $64, LEN
++	ja .Lxts_dec_loop4
++
++	movups IV, (IVP)
+ 
+ 	FRAME_END
+ 	ret
+-SYM_FUNC_END(aesni_xts_crypt8)
++SYM_FUNC_END(aesni_xts_decrypt)
+ 
+ #endif
+--- a/arch/x86/crypto/aesni-intel_glue.c
++++ b/arch/x86/crypto/aesni-intel_glue.c
+@@ -97,6 +97,12 @@ asmlinkage void aesni_cbc_dec(struct cry
+ #define AVX_GEN2_OPTSIZE 640
+ #define AVX_GEN4_OPTSIZE 4096
+ 
++asmlinkage void aesni_xts_encrypt(const struct crypto_aes_ctx *ctx, u8 *out,
++				  const u8 *in, unsigned int len, u8 *iv);
++
++asmlinkage void aesni_xts_decrypt(const struct crypto_aes_ctx *ctx, u8 *out,
++				  const u8 *in, unsigned int len, u8 *iv);
++
+ #ifdef CONFIG_X86_64
+ 
+ static void (*aesni_ctr_enc_tfm)(struct crypto_aes_ctx *ctx, u8 *out,
+@@ -104,9 +110,6 @@ static void (*aesni_ctr_enc_tfm)(struct
+ asmlinkage void aesni_ctr_enc(struct crypto_aes_ctx *ctx, u8 *out,
+ 			      const u8 *in, unsigned int len, u8 *iv);
+ 
+-asmlinkage void aesni_xts_crypt8(const struct crypto_aes_ctx *ctx, u8 *out,
+-				 const u8 *in, bool enc, le128 *iv);
+-
+ /* asmlinkage void aesni_gcm_enc()
+  * void *ctx,  AES Key schedule. Starts on a 16 byte boundary.
+  * struct gcm_context_data.  May be uninitialized.
+@@ -547,14 +550,14 @@ static void aesni_xts_dec(const void *ct
+ 	glue_xts_crypt_128bit_one(ctx, dst, src, iv, aesni_dec);
+ }
+ 
+-static void aesni_xts_enc8(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
++static void aesni_xts_enc32(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
+ {
+-	aesni_xts_crypt8(ctx, dst, src, true, iv);
++	aesni_xts_encrypt(ctx, dst, src, 32 * AES_BLOCK_SIZE, (u8 *)iv);
+ }
+ 
+-static void aesni_xts_dec8(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
++static void aesni_xts_dec32(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
+ {
+-	aesni_xts_crypt8(ctx, dst, src, false, iv);
++	aesni_xts_decrypt(ctx, dst, src, 32 * AES_BLOCK_SIZE, (u8 *)iv);
+ }
+ 
+ static const struct common_glue_ctx aesni_enc_xts = {
+@@ -562,8 +565,8 @@ static const struct common_glue_ctx aesn
+ 	.fpu_blocks_limit = 1,
+ 
+ 	.funcs = { {
+-		.num_blocks = 8,
+-		.fn_u = { .xts = aesni_xts_enc8 }
++		.num_blocks = 32,
++		.fn_u = { .xts = aesni_xts_enc32 }
+ 	}, {
+ 		.num_blocks = 1,
+ 		.fn_u = { .xts = aesni_xts_enc }
+@@ -575,8 +578,8 @@ static const struct common_glue_ctx aesn
+ 	.fpu_blocks_limit = 1,
+ 
+ 	.funcs = { {
+-		.num_blocks = 8,
+-		.fn_u = { .xts = aesni_xts_dec8 }
++		.num_blocks = 32,
++		.fn_u = { .xts = aesni_xts_dec32 }
+ 	}, {
+ 		.num_blocks = 1,
+ 		.fn_u = { .xts = aesni_xts_dec }
 
 
