@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B18341C96
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12796341C98
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229877AbhCSMVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231448AbhCSMVr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Mar 2021 08:21:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59928 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231183AbhCSMVQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:21:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA42564F79;
-        Fri, 19 Mar 2021 12:21:15 +0000 (UTC)
+        id S231317AbhCSMVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:21:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 808AF6146D;
+        Fri, 19 Mar 2021 12:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156476;
-        bh=tA2R1Xyov1vbbxO8oGGXj5HDDCZK3v8CM/aY/QGS8Y4=;
+        s=korg; t=1616156479;
+        bh=XKDqBZZfl+KZQVlMjVScLpjaVVbp4NEIbL8ssPi90og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tpCVpDbsSVCHS/38frqBj56ykpRkTfADrZsaurr7eVl9BNy+4D6mVL80/I2A35wKV
-         Dm+jvnFeScxB5aFBBs6pj8+1E7zCeVos1BHA43do6fvsYM1XC8c1kE5WExeKChQF/D
-         oTr/iXZxSzRY9c70BWCJFnpAyldFlEGC8boER7jI=
+        b=NBnzNm5iNUkn4Mt8l+lNCuh+87sj3t6zOJOXjeP7s8tpY4HeeiTgSg+eK6sXVU3HQ
+         //lLU1pxhuZSb9lDawwa8XWM1O3e1WBzFc2tsjKZ+xT6ml7l35cY8eDiNbLJ3WN5nr
+         21DLjSLE0k10r7ZFkC4KxesFQnW+5j/L4bVXrZY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timo Rothenpieler <timo@rothenpieler.org>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.11 29/31] Revert "nfsd4: a clients own opens neednt prevent delegations"
-Date:   Fri, 19 Mar 2021 13:19:23 +0100
-Message-Id: <20210319121748.147629081@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.11 30/31] net: dsa: b53: Support setting learning on port
+Date:   Fri, 19 Mar 2021 13:19:24 +0100
+Message-Id: <20210319121748.182764766@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
 References: <20210319121747.203523570@linuxfoundation.org>
@@ -40,138 +40,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 6ee65a773096ab3f39d9b00311ac983be5bdeb7c upstream.
+commit f9b3827ee66cfcf297d0acd6ecf33653a5f297ef upstream.
 
-This reverts commit 94415b06eb8aed13481646026dc995f04a3a534a.
+Add support for being able to set the learning attribute on port, and
+make sure that the standalone ports start up with learning disabled.
 
-That commit claimed to allow a client to get a read delegation when it
-was the only writer.  Actually it allowed a client to get a read
-delegation when *any* client has a write open!
+We can remove the code in bcm_sf2 that configured the ports learning
+attribute because we want the standalone ports to have learning disabled
+by default and port 7 cannot be bridged, so its learning attribute will
+not change past its initial configuration.
 
-The main problem is that it's depending on nfs4_clnt_odstate structures
-that are actually only maintained for pnfs exports.
-
-This causes clients to miss writes performed by other clients, even when
-there have been intervening closes and opens, violating close-to-open
-cache consistency.
-
-We can do this a different way, but first we should just revert this.
-
-I've added pynfs 4.1 test DELEG19 to test for this, as I should have
-done originally!
-
-Cc: stable@vger.kernel.org
-Reported-by: Timo Rothenpieler <timo@rothenpieler.org>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/locks.c          |    3 --
- fs/nfsd/nfs4state.c |   54 +++++++++++++---------------------------------------
- 2 files changed, 14 insertions(+), 43 deletions(-)
 
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -1808,9 +1808,6 @@ check_conflicting_open(struct file *filp
+---
+ drivers/net/dsa/b53/b53_common.c |   18 ++++++++++++++++++
+ drivers/net/dsa/b53/b53_regs.h   |    1 +
+ drivers/net/dsa/bcm_sf2.c        |   15 +--------------
+ 3 files changed, 20 insertions(+), 14 deletions(-)
+
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -510,6 +510,19 @@ void b53_imp_vlan_setup(struct dsa_switc
+ }
+ EXPORT_SYMBOL(b53_imp_vlan_setup);
  
- 	if (flags & FL_LAYOUT)
- 		return 0;
--	if (flags & FL_DELEG)
--		/* We leave these checks to the caller. */
--		return 0;
++static void b53_port_set_learning(struct b53_device *dev, int port,
++				  bool learning)
++{
++	u16 reg;
++
++	b53_read16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, &reg);
++	if (learning)
++		reg &= ~BIT(port);
++	else
++		reg |= BIT(port);
++	b53_write16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, reg);
++}
++
+ int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
+ {
+ 	struct b53_device *dev = ds->priv;
+@@ -523,6 +536,7 @@ int b53_enable_port(struct dsa_switch *d
+ 	cpu_port = dsa_to_port(ds, port)->cpu_dp->index;
  
- 	if (arg == F_RDLCK)
- 		return inode_is_open_for_write(inode) ? -EAGAIN : 0;
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -4945,32 +4945,6 @@ static struct file_lock *nfs4_alloc_init
- 	return fl;
+ 	b53_br_egress_floods(ds, port, true, true);
++	b53_port_set_learning(dev, port, false);
+ 
+ 	if (dev->ops->irq_enable)
+ 		ret = dev->ops->irq_enable(dev, port);
+@@ -656,6 +670,7 @@ static void b53_enable_cpu_port(struct b
+ 	b53_brcm_hdr_setup(dev->ds, port);
+ 
+ 	b53_br_egress_floods(dev->ds, port, true, true);
++	b53_port_set_learning(dev, port, false);
  }
  
--static int nfsd4_check_conflicting_opens(struct nfs4_client *clp,
--						struct nfs4_file *fp)
--{
--	struct nfs4_clnt_odstate *co;
--	struct file *f = fp->fi_deleg_file->nf_file;
--	struct inode *ino = locks_inode(f);
--	int writes = atomic_read(&ino->i_writecount);
+ static void b53_enable_mib(struct b53_device *dev)
+@@ -1839,6 +1854,8 @@ int b53_br_join(struct dsa_switch *ds, i
+ 	b53_write16(dev, B53_PVLAN_PAGE, B53_PVLAN_PORT_MASK(port), pvlan);
+ 	dev->ports[port].vlan_ctl_mask = pvlan;
+ 
++	b53_port_set_learning(dev, port, true);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(b53_br_join);
+@@ -1886,6 +1903,7 @@ void b53_br_leave(struct dsa_switch *ds,
+ 		vl->untag |= BIT(port) | BIT(cpu_port);
+ 		b53_set_vlan_entry(dev, pvid, vl);
+ 	}
++	b53_port_set_learning(dev, port, false);
+ }
+ EXPORT_SYMBOL(b53_br_leave);
+ 
+--- a/drivers/net/dsa/b53/b53_regs.h
++++ b/drivers/net/dsa/b53/b53_regs.h
+@@ -115,6 +115,7 @@
+ #define B53_UC_FLOOD_MASK		0x32
+ #define B53_MC_FLOOD_MASK		0x34
+ #define B53_IPMC_FLOOD_MASK		0x36
++#define B53_DIS_LEARNING		0x3c
+ 
+ /*
+  * Override Ports 0-7 State on devices with xMII interfaces (8 bit)
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -222,23 +222,10 @@ static int bcm_sf2_port_setup(struct dsa
+ 	reg &= ~P_TXQ_PSM_VDD(port);
+ 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
+ 
+-	/* Enable learning */
+-	reg = core_readl(priv, CORE_DIS_LEARN);
+-	reg &= ~BIT(port);
+-	core_writel(priv, reg, CORE_DIS_LEARN);
 -
--	if (fp->fi_fds[O_WRONLY])
--		writes--;
--	if (fp->fi_fds[O_RDWR])
--		writes--;
--	WARN_ON_ONCE(writes < 0);
--	if (writes > 0)
--		return -EAGAIN;
--	spin_lock(&fp->fi_lock);
--	list_for_each_entry(co, &fp->fi_clnt_odstate, co_perfile) {
--		if (co->co_client != clp) {
--			spin_unlock(&fp->fi_lock);
--			return -EAGAIN;
+ 	/* Enable Broadcom tags for that port if requested */
+-	if (priv->brcm_tag_mask & BIT(port)) {
++	if (priv->brcm_tag_mask & BIT(port))
+ 		b53_brcm_hdr_setup(ds, port);
+ 
+-		/* Disable learning on ASP port */
+-		if (port == 7) {
+-			reg = core_readl(priv, CORE_DIS_LEARN);
+-			reg |= BIT(port);
+-			core_writel(priv, reg, CORE_DIS_LEARN);
 -		}
 -	}
--	spin_unlock(&fp->fi_lock);
--	return 0;
--}
 -
- static struct nfs4_delegation *
- nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
- 		    struct nfs4_file *fp, struct nfs4_clnt_odstate *odstate)
-@@ -4990,12 +4964,9 @@ nfs4_set_delegation(struct nfs4_client *
- 
- 	nf = find_readable_file(fp);
- 	if (!nf) {
--		/*
--		 * We probably could attempt another open and get a read
--		 * delegation, but for now, don't bother until the
--		 * client actually sends us one.
--		 */
--		return ERR_PTR(-EAGAIN);
-+		/* We should always have a readable file here */
-+		WARN_ON_ONCE(1);
-+		return ERR_PTR(-EBADF);
- 	}
- 	spin_lock(&state_lock);
- 	spin_lock(&fp->fi_lock);
-@@ -5025,19 +4996,11 @@ nfs4_set_delegation(struct nfs4_client *
- 	if (!fl)
- 		goto out_clnt_odstate;
- 
--	status = nfsd4_check_conflicting_opens(clp, fp);
--	if (status) {
--		locks_free_lock(fl);
--		goto out_clnt_odstate;
--	}
- 	status = vfs_setlease(fp->fi_deleg_file->nf_file, fl->fl_type, &fl, NULL);
- 	if (fl)
- 		locks_free_lock(fl);
- 	if (status)
- 		goto out_clnt_odstate;
--	status = nfsd4_check_conflicting_opens(clp, fp);
--	if (status)
--		goto out_clnt_odstate;
- 
- 	spin_lock(&state_lock);
- 	spin_lock(&fp->fi_lock);
-@@ -5119,6 +5082,17 @@ nfs4_open_delegation(struct svc_fh *fh,
- 				goto out_no_deleg;
- 			if (!cb_up || !(oo->oo_flags & NFS4_OO_CONFIRMED))
- 				goto out_no_deleg;
-+			/*
-+			 * Also, if the file was opened for write or
-+			 * create, there's a good chance the client's
-+			 * about to write to it, resulting in an
-+			 * immediate recall (since we don't support
-+			 * write delegations):
-+			 */
-+			if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
-+				goto out_no_deleg;
-+			if (open->op_create == NFS4_OPEN_CREATE)
-+				goto out_no_deleg;
- 			break;
- 		default:
- 			goto out_no_deleg;
+ 	/* Configure Traffic Class to QoS mapping, allow each priority to map
+ 	 * to a different queue number
+ 	 */
 
 
