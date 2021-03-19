@@ -2,173 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9822634187E
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 10:36:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB1F34188F
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 10:40:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229747AbhCSJgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 05:36:15 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54267 "EHLO
+        id S229736AbhCSJjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 05:39:33 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:42641 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229618AbhCSJfx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 05:35:53 -0400
+        by vger.kernel.org with ESMTP id S229844AbhCSJjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 05:39:15 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 75B3D15B3;
-        Fri, 19 Mar 2021 05:35:52 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 19 Mar 2021 05:35:52 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 183CC155E;
+        Fri, 19 Mar 2021 05:39:15 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 19 Mar 2021 05:39:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=RCfuueNAjMgqPIWlOXQoNKx2Gwo
-        Tp8S7Mwap+HYgGFk=; b=OcOPM1QWm2flpFI1DefepVAYFAZokBOEdeuYaE6uqm6
-        SP2jM6eEypRk0b95seXl+QeHNa8RZXh8PckZ03l/YFAsL1Q845vtpG47BeeANOYO
-        xjwdvX0QF5lv2vKOAhnSDfKQF2fyVzu8qXiJgQCYxxTryXEmlhflImGXCvH6Okjz
-        BBNYL1tbaYyU1fLuj7I8ovw4oo/BFvZrDVl0ATPa+I1OSua0gDseb1AF864yWa6r
-        6y9bE69CFW3ZPxnTWV5q6w4u7D56C62S9GqFQHdeS2q4NqdG+1JexNPOwC8SOvvJ
-        HMbPXZe/WPLOJqj+hkJ0EZAA2YIWQ3RaSwS0yBoan1A==
+        :content-type:in-reply-to; s=fm3; bh=kO9EIFbwcecS2o10zQbVodVtOmf
+        mhTFCB7/k828bLoM=; b=YLYiim/tX8bPjk6AuPLON+srkfCq/Lqn4e3GY5TcmBd
+        sOvBH65cXWxq792sw8n5J/XrI/Uh1w9NAr7tgXED9NkrGgl2m8jttm6cbz9fq95c
+        iXFM51S1tclmjcKX3N38gGPpdWzL67v+tmgUp0+N3AzwN5cLj6T6i6DXreLJXAmu
+        4Qylc2Xh1Jy8cq5Gd6ESSCvv0+UuZu3ObJiUq6tD5AhN0EwpgfFt8eTBSaBYkbOU
+        yKtk9zp9MTH5tSXE56NrpLZDMNt7YWl947MK0PWWPvvEM1NVX9WuImHrWNbg0HcT
+        CPWxSnPW1UUXD8S2dC2hyUydRrP5mpS/LbIVuBNgUiw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RCfuue
-        NAjMgqPIWlOXQoNKx2GwoTp8S7Mwap+HYgGFk=; b=Ic2lRIeUJAWuNnVkIJ/vKR
-        G4gHqUHl6G78jOkUy0qjXji+P42OpcafTWKblyPXO+oalTI5kefx4SdjsqFrXHlz
-        XOENrTz+qf/mYSAAnHtccXOD031tcRZ1utzMTfW6aMMF5rrX32L4WYojMFtgPKWh
-        pLx/gk2xpXqkyX7bzWe8IdnCdM/sIyh00vJpbRWcOrZvM3jCpVL+cRKOTVQSIUL6
-        mGl+4mx2Y1UW4TaAq2NRPifXT4qZEncLS859laWudbioUduTadZXJSyVRAwnJN46
-        8OGOXspXDLFGSLaAAoa60AygsqksMt9pXHZbkEyxqTU7aQU1Axo1CuZVDWYY4xHg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=kO9EIF
+        bwcecS2o10zQbVodVtOmfmhTFCB7/k828bLoM=; b=O8KkvYtrXIGVAlip+J5f5l
+        v5NJMogcAmJnDWqshdFnYnMXLGB81wkWLapHzXi9FYtg9b32AKsU299YPNcAmLRB
+        m2ZipM0vXyIw4xn88mVoAhq/se92o8DYgGHeaSzVJv/Gcav9a0r5TDF8QOh1FixF
+        KZoyAIHhY3r3IvQSmA6KJ6HJ4izGXMSIxgxYSA4fSowurwtYVGcLd2WJXqR3orJK
+        F59dt2xlSufMkcyWQuGa8tJS9Jr/TDEqnCaT5Aju67ffpfkaFx/XY7Kl5/41euSM
+        icp/AiIzNvTi/KPF4vcK9FQbvQFJ60kpCwkCArwN38kgVPxAAzgL9XlUhFiUxFmw
         ==
-X-ME-Sender: <xms:d3BUYLYfEeWKrcZr0LDXa8C6pfvGXcyOdp_t21kZSOlS90HIIWQg7g>
-    <xme:d3BUYKYghkLgP9xlk8d1nnwdDE9hcdguztJr2X3N2Mc3NUGeRxdIrjguT9gBVZxCE
-    RG3qodxH-zpCA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefkedgtdehucetufdoteggodetrfdotf
+X-ME-Sender: <xms:QnFUYPn5oTRmjmmTmaZxm1hykdJdhmifPItlTep9hg6WaSxSp38A-Q>
+    <xme:QnFUYC1BD5c00-BpZq6BrUWrglK87IwKgejAd9XZockrcoGIE8FibFebuTI1uOq9K
+    0VNXeGPnGMOyQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefkedgtdeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsth
-    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhm
-X-ME-Proxy: <xmx:d3BUYN9i2dhed42bJFJzX63ZX9i3FxtzgHDAH3TJJYPYDQwj2WfjyQ>
-    <xmx:d3BUYBrf2m9QE00xjInwtU9K7Kn8y-N9oC0eaxatCzR_jwNXy58vYg>
-    <xmx:d3BUYGoe3rgdTSpD5nW2s9wByEZ2p-Mbuy75BS06uIW_bIC6kFeFkA>
-    <xmx:eHBUYN3OosG7fV6Ca0XLx41IBJVr4RUouy8ej0xSYCgv3psK2Ya0Ew>
+    cujfgurhepfffhvffukfhfgggtuggjsehttdortddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpedvvdetke
+    fhgeejudeuueelfeethfeivefhheetveevhefhueduheegieefkeekgeenucffohhmrghi
+    nhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenuc
+    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvghes
+    khhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:QnFUYFqG6Rgec7g4g5vTFUXc35rdxMShGBfGysryo923_SI_HeTswA>
+    <xmx:QnFUYHl8_pW6GxwYCdhb5M5fDnfhvDbCNlSSsJsBQ5hnEbfNspZIMQ>
+    <xmx:QnFUYN15_2pfAVr-_3G5QBT4LbMHlwDTp_LGaZCqKyXkB-7rT7Y8SQ>
+    <xmx:QnFUYO898aREQY4nL4i9vx59piCU7_TokEwIkRvgNtzL-9xkpX4ZwQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 94E9F24005B;
-        Fri, 19 Mar 2021 05:35:51 -0400 (EDT)
-Date:   Fri, 19 Mar 2021 10:35:49 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id 04260108005C;
+        Fri, 19 Mar 2021 05:39:13 -0400 (EDT)
+Date:   Fri, 19 Mar 2021 10:39:12 +0100
 From:   Greg KH <greg@kroah.com>
-To:     David Sterba <dsterba@suse.com>
-Cc:     stable@vger.kernel.org, fdmanana@suse.com,
-        linux-btrfs@vger.kernel.org, wqu@suse.com
-Subject: Re: [PATCH 5.4] btrfs: scrub: Don't check free space before marking
- a block group RO
-Message-ID: <YFRwdX42UDBdIaDh@kroah.com>
-References: <20210317095151.19777-1-dsterba@suse.com>
+To:     Colin Xu <colin.xu@intel.com>
+Cc:     stable@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        zhenyuw@linux.intel.com
+Subject: Re: [PATCH 5/5] drm/i915/gvt: Fix vfio_edid issue for BXT/APL
+Message-ID: <YFRxQIExRDRMUhmI@kroah.com>
+References: <cover.1615946755.git.colin.xu@intel.com>
+ <982acc6579f652db9ed67f042453c302055b0692.1615946755.git.colin.xu@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210317095151.19777-1-dsterba@suse.com>
+In-Reply-To: <982acc6579f652db9ed67f042453c302055b0692.1615946755.git.colin.xu@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 17, 2021 at 10:51:51AM +0100, David Sterba wrote:
-> From: Qu Wenruo <wqu@suse.com>
+On Wed, Mar 17, 2021 at 10:55:04AM +0800, Colin Xu wrote:
+> commit 4ceb06e7c336f4a8d3f3b6ac9a4fea2e9c97dc07 upstream
 > 
-> [ Upstream commit b12de52896c0e8213f70e3a168fde9e6eee95909 ]
+> BXT/APL has different isr/irr/hpd regs compared with other GEN9. If not
+> setting these regs bits correctly according to the emulated monitor
+> (currently a DP on PORT_B), although gvt still triggers a virtual HPD
+> event, the guest driver won't detect a valid HPD pulse thus no full
+> display detection will be executed to read the updated EDID.
 > 
-> [BUG]
-> When running btrfs/072 with only one online CPU, it has a pretty high
-> chance to fail:
+> With this patch, the vfio_edid is enabled again on BXT/APL, which is
+> previously disabled.
 > 
->   btrfs/072 12s ... _check_dmesg: something found in dmesg (see xfstests-dev/results//btrfs/072.dmesg)
->   - output mismatch (see xfstests-dev/results//btrfs/072.out.bad)
->       --- tests/btrfs/072.out     2019-10-22 15:18:14.008965340 +0800
->       +++ /xfstests-dev/results//btrfs/072.out.bad      2019-11-14 15:56:45.877152240 +0800
->       @@ -1,2 +1,3 @@
->        QA output created by 072
->        Silence is golden
->       +Scrub find errors in "-m dup -d single" test
->       ...
-> 
-> And with the following call trace:
-> 
->   BTRFS info (device dm-5): scrub: started on devid 1
->   ------------[ cut here ]------------
->   BTRFS: Transaction aborted (error -27)
->   WARNING: CPU: 0 PID: 55087 at fs/btrfs/block-group.c:1890 btrfs_create_pending_block_groups+0x3e6/0x470 [btrfs]
->   CPU: 0 PID: 55087 Comm: btrfs Tainted: G        W  O      5.4.0-rc1-custom+ #13
->   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
->   RIP: 0010:btrfs_create_pending_block_groups+0x3e6/0x470 [btrfs]
->   Call Trace:
->    __btrfs_end_transaction+0xdb/0x310 [btrfs]
->    btrfs_end_transaction+0x10/0x20 [btrfs]
->    btrfs_inc_block_group_ro+0x1c9/0x210 [btrfs]
->    scrub_enumerate_chunks+0x264/0x940 [btrfs]
->    btrfs_scrub_dev+0x45c/0x8f0 [btrfs]
->    btrfs_ioctl+0x31a1/0x3fb0 [btrfs]
->    do_vfs_ioctl+0x636/0xaa0
->    ksys_ioctl+0x67/0x90
->    __x64_sys_ioctl+0x43/0x50
->    do_syscall_64+0x79/0xe0
->    entry_SYSCALL_64_after_hwframe+0x49/0xbe
->   ---[ end trace 166c865cec7688e7 ]---
-> 
-> [CAUSE]
-> The error number -27 is -EFBIG, returned from the following call chain:
-> btrfs_end_transaction()
-> |- __btrfs_end_transaction()
->    |- btrfs_create_pending_block_groups()
->       |- btrfs_finish_chunk_alloc()
->          |- btrfs_add_system_chunk()
-> 
-> This happens because we have used up all space of
-> btrfs_super_block::sys_chunk_array.
-> 
-> The root cause is, we have the following bad loop of creating tons of
-> system chunks:
-> 
-> 1. The only SYSTEM chunk is being scrubbed
->    It's very common to have only one SYSTEM chunk.
-> 2. New SYSTEM bg will be allocated
->    As btrfs_inc_block_group_ro() will check if we have enough space
->    after marking current bg RO. If not, then allocate a new chunk.
-> 3. New SYSTEM bg is still empty, will be reclaimed
->    During the reclaim, we will mark it RO again.
-> 4. That newly allocated empty SYSTEM bg get scrubbed
->    We go back to step 2, as the bg is already mark RO but still not
->    cleaned up yet.
-> 
-> If the cleaner kthread doesn't get executed fast enough (e.g. only one
-> CPU), then we will get more and more empty SYSTEM chunks, using up all
-> the space of btrfs_super_block::sys_chunk_array.
-> 
-> [FIX]
-> Since scrub/dev-replace doesn't always need to allocate new extent,
-> especially chunk tree extent, so we don't really need to do chunk
-> pre-allocation.
-> 
-> To break above spiral, here we introduce a new parameter to
-> btrfs_inc_block_group(), @do_chunk_alloc, which indicates whether we
-> need extra chunk pre-allocation.
-> 
-> For relocation, we pass @do_chunk_alloc=true, while for scrub, we pass
-> @do_chunk_alloc=false.
-> This should keep unnecessary empty chunks from popping up for scrub.
-> 
-> Also, since there are two parameters for btrfs_inc_block_group_ro(),
-> add more comment for it.
-> 
-> Reviewed-by: Filipe Manana <fdmanana@suse.com>
-> Signed-off-by: Qu Wenruo <wqu@suse.com>
-> Signed-off-by: David Sterba <dsterba@suse.com>
+> Fixes: 642403e3599e ("drm/i915/gvt: Temporarily disable vfio_edid for BXT/APL")
+> Signed-off-by: Colin Xu <colin.xu@intel.com>
+> Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+> Link: http://patchwork.freedesktop.org/patch/msgid/20201201060329.142375-1-colin.xu@intel.com
+> Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+> (cherry picked from commit 4ceb06e7c336f4a8d3f3b6ac9a4fea2e9c97dc07)
+> Signed-off-by: Colin Xu <colin.xu@intel.com>
+> Cc: <stable@vger.kernel.org> # 5.4.y
 > ---
-> 
-> There's a report for 5.4 and the patch applies with a minor fixup
-> without dependencies.
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=210447
+>  drivers/gpu/drm/i915/gvt/display.c | 83 ++++++++++++++++++++++--------
+>  drivers/gpu/drm/i915/gvt/vgpu.c    |  2 +-
+>  2 files changed, 62 insertions(+), 23 deletions(-)
 
-Thanks, now queued up.
+Can you also send a backport for 5.10.y for this patch as it is needed
+there as well?
+
+thanks,
 
 greg k-h
