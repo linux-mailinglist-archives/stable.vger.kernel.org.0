@@ -2,116 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 463C23418B2
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 10:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D1FB3418C0
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 10:50:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229770AbhCSJp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 05:45:57 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:34873 "EHLO
+        id S229751AbhCSJtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 05:49:42 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:39633 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229785AbhCSJp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 05:45:27 -0400
-Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3D65E5C010F;
-        Fri, 19 Mar 2021 05:45:24 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229870AbhCSJte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 05:49:34 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 94D475C016C;
+        Fri, 19 Mar 2021 05:49:33 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute7.internal (MEProxy); Fri, 19 Mar 2021 05:45:24 -0400
+  by compute4.internal (MEProxy); Fri, 19 Mar 2021 05:49:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=sf4eKuH1Dm4nnkXWvtyBMir/RJ6
-        /FP6niWSIhyuVtYs=; b=Zu+VPnbQKat7HGyyYv8T4OEAJ0XapBTJrbcgiTgaOXn
-        Rg3PMur5EZNF4Vpok02O2mD7Rqf0+0gA07DZ0y6UswB1XYlm57MvXiQgNfsRq5GR
-        AeLFmK1JD8EwUFgnUs9wdzsYHs5xhrhOhK4mOcB7LReFla8bs2VPqs1+mZbopMlg
-        0620kJ0g+/jpBQuybMIq28WwVSZlRQ0k/pTV0e80BDlz17o1V6zGCVVdCYgR5OSJ
-        rLWzZaHGd4+p6iOk3cuVx9GWAViZN2RPhx3hJ8ggHT95PbTXobyCPT3Qtsl5TSyj
-        WtURE/faOipLJCdCi2pEbRMaeJCDKrCkUZ2lnqKZIWA==
+        :content-type:in-reply-to; s=fm3; bh=Ng0nFiGEVMvEryWs2w8rhUsr+WC
+        YrQP0KMiTjlelp2Q=; b=lVcyggtu5yQy1Y6ZCsD9zN9DjjFE5oDMxWdp1q2Ps9V
+        M5cwdzUaqDCaxxUTUHMLTIRN+jL/AV/2YnnjHCOptVl9R1S8STParzum/AgcbDJ/
+        1uJZpT3Bwu4/pcbJDp+nk1w7wi0DKnsyQkxjkAbJAAJneN3EsJAPXSykVwqmqZeO
+        Lj1e1RfHMOtbUj6baK/1XSTufufUYcbyAQUrCg+eEetTh4wLb95q84CUcmQs24Ww
+        RvHqxhHMMrL1ifisMVS/m5lpZBElxJkvsAQH4YLSq2OpvxDrc4X0HZ+j1q4v6uAU
+        qlKpNZiHMHgNlZUmhxEw6K2ik/Pc30R7HTaNUDgS4sA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=sf4eKu
-        H1Dm4nnkXWvtyBMir/RJ6/FP6niWSIhyuVtYs=; b=N8MLLoSba7kQ7FvaY7z0b3
-        tUh11hUptAGL7sUkrxHpAT8zBTSjA+MRXutQmrzELZ4R7SuldkYEAiJpC7Xn6Q1V
-        QZ3jPoijgAi0mtElk3NSfOk2U8sxJZ6IfrOlvE44G1a216MW7AVMZjFs2lkKnNYo
-        EpC79YeNA8N4jGCVuTVpKwVYZyhNVLh0Bq3lpPTJtJQLv0Bz/4sD/e98LJ9SIBez
-        meDVXOLxTqckJVafPyTr9LMLBnsNhSZQMMBY8QQz7F2Q5uTpk0KKl5CzGFIFJqIO
-        ELRnU1uGINnLpBNfpVjCrhxnkXvwImyT9t4psptDBiQofiOlmUm0B+mr+nN+WUzA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Ng0nFi
+        GEVMvEryWs2w8rhUsr+WCYrQP0KMiTjlelp2Q=; b=bvnXb97x+Pz7IDwBq65ihQ
+        xE5GgbFPfVB4OEmtaEF2ZY6mC+tDL4/9fQhPR0YI4zEYKQIM88aEpDT63uBGXOnM
+        dZbR7kEBp/h1oz2HsZ7J7KvjWMpBtK2lPXpXzcfiWpo1liXIePHQdMirpvunly7m
+        n95cG4zlJJO8Dd2DgVAiS8+rt0UGECTvdMk0GbYNtezrkSyUaU2JaSepvkP00swJ
+        GguLqG3EJ36qGtahRKqqKA1JYcW89iJor8Xbc0sK/eJgNAOuv8QxdxyuUOR63CN3
+        qFYguMFbdgsYChBmfTgT4IktEJoe7U937TxV8ekt28awJLilJu+7+oToSF1jz6Ow
         ==
-X-ME-Sender: <xms:s3JUYLRq8fhgeq43WzV9pcDK2Dwp7_evwjL25Z6C9XblWBh3wf4YNA>
-    <xme:s3JUYMunDcOOSnG2r6g9SsANUfXrZg0AjuCScnQdzJZBADD7_BW01rrnF02sJQlmU
-    CVrvPh_9N1Cew>
+X-ME-Sender: <xms:rXNUYNrxLPCcsWjfmT7WSZ4LV-doSot7NmBgcWrG0y1YyFqM7CvkfA>
+    <xme:rXNUYPrxWu1bxLDK0lNmVdXL_aDfSIyS4zK9FqXvF_wQpg10Pn_-y5p4P0g9BV2qu
+    1vKnh5em2J2mQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefkedgtdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    cujfgurhepfffhvffukfhfgggtuggjsehttdortddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevhefgje
+    eitdfffefhvdegleeigeejgeeiffekieffjeeflefhieegtefhudejueenucfkphepkeef
     rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
     hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:s3JUYNvI2at8J28xMRMmiD49W1OSLTME0pvWLl2A0Ct9Rg1AJdDk6A>
-    <xmx:s3JUYCw0vquiyrwIdZ6n_WCuGq_rLNb1GKr8u77Iq7b9o-78IYP22Q>
-    <xmx:s3JUYDjIalIwesFXZh3KhdSdD_37sl6xiawwdIwKydN-Gso-6Jfh0Q>
-    <xmx:tHJUYC8SYjM_vql8Aucw7VGdrFpZNGLsHrI9-zrZiYPYjvUvq98cFw>
+X-ME-Proxy: <xmx:rXNUYKP795qjSz4j7PWF1QZinQjoWPe0bQjeNqYM5GxyBFNi05eTEw>
+    <xmx:rXNUYI4C0mC952M2tWnOpQj_jP0Tm2zK5HW-bbi1DFPDGAHCdHWq0g>
+    <xmx:rXNUYM5u4qIRECPaB3lkGV1zMjrUFps5GxV8ZTsTOkLNUM-s6rt6CQ>
+    <xmx:rXNUYMFHk1RVVpdyYUDrveVJ79J94q9z1jwp8_zBoX7jFZyQjaVzcA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6C38E24005B;
-        Fri, 19 Mar 2021 05:45:23 -0400 (EDT)
-Date:   Fri, 19 Mar 2021 10:45:21 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id B162324005A;
+        Fri, 19 Mar 2021 05:49:32 -0400 (EDT)
+Date:   Fri, 19 Mar 2021 10:49:30 +0100
 From:   Greg KH <greg@kroah.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Will Deacon <will@kernel.org>,
-        Vladimir Murzin <vladimir.murzin@arm.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        catalin.marinas@arm.com, maz@kernel.org, dbrazdil@google.com
-Subject: Re: [PATCH v2][for-stable-v5.11] arm64: Unconditionally set virtual
- cpu id registers
-Message-ID: <YFRysSLvd8Ekdl5f@kroah.com>
-References: <20210316134319.89472-1-vladimir.murzin@arm.com>
- <20210317132614.GB5225@willie-the-truck>
- <YFNOHKX6V4dkwWIp@sashalap>
+To:     Yi Zhang <yi.zhang@redhat.com>
+Cc:     stable@vger.kernel.org, jgg@nvidia.com,
+        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: Re: [PATCH] RDMA/srp: Fix support for unpopulated and unbalanced
+ NUMA nodes
+Message-ID: <YFRzqoqcieMeyQNq@kroah.com>
+References: <20210317074532.26312-1-yi.zhang@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YFNOHKX6V4dkwWIp@sashalap>
+In-Reply-To: <20210317074532.26312-1-yi.zhang@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 18, 2021 at 08:57:00AM -0400, Sasha Levin wrote:
-> On Wed, Mar 17, 2021 at 01:26:15PM +0000, Will Deacon wrote:
-> > On Tue, Mar 16, 2021 at 01:43:19PM +0000, Vladimir Murzin wrote:
-> > > Commit 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
-> > > reorganized el2 setup in such way that virtual cpu id registers set
-> > > only in nVHE, yet they used (and need) to be set irrespective VHE
-> > > support.
-> > > 
-> > > Fixes: 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
-> > > Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
-> > > ---
-> > > Changelog
-> > > 
-> > >   v1 -> v2
-> > >      - Drop the reference to 32bit guests from commit message (per Marc)
-> > > 
-> > > There is no upstream fix since issue went away due to code there has
-> > > been reworked in 5.12: nVHE comes first, so virtual cpu id register
-> > > are always set.
-> > > 
-> > > Maintainers, please, Ack.
-> > > 
-> > >  arch/arm64/include/asm/el2_setup.h | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > Acked-by: Will Deacon <will@kernel.org>
-> > 
-> > It's a bit weird to have a patch in stable that isn't upstream, but I don't
-> > see a better option here.
+On Wed, Mar 17, 2021 at 03:45:34PM +0800, Yi Zhang wrote:
+> From: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
 > 
-> Yes, I'd agree here - the commits that would need to be backported look
-> way too invasive.
-> 
-> I've queued it up, thanks.
+> This patch fixed one kernel NULL pointer issue with blktests srp/005
 
-I don't see it, so I've added it as well...
+Now queued up to 5.11.y and 5.10.y, if you want it in older kernels,
+please provide a working backport.
 
-thanks,
+thanks!
 
 greg k-h
