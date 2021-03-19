@@ -2,70 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC21F341A0E
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:31:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FD9341A1D
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:33:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229787AbhCSKbE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 06:31:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48944 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhCSKa6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 06:30:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C39BD64F6A;
-        Fri, 19 Mar 2021 10:30:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616149856;
-        bh=Z8G9b0YhKmHAC/dsDd8uBtltIE2j/sLVWNIpgG6WJJs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xujaYl2UO4yAhjivMeasc/K7AMKAZYukltlPK9eUV2Hk6vPFir8C5ZUKniVfiMWFY
-         5s5N24LbdQ/U8UWyJD7Jx77v72RE1V1dtZuM1f7GiBsvXxApyzhPEJ3JVLwsyoCpDi
-         Ecf4p8l2BM3aylZmvJyOPMEwpFmHHLKtCysblAPw=
-Date:   Fri, 19 Mar 2021 11:30:53 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nicolas Boichat <drinkcat@chromium.org>
-Cc:     stable@vger.kernel.org,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christopher Li <sparse@chrisli.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Kees Cook <keescook@chromium.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        clang-built-linux@googlegroups.com, linux-arch@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-sparse@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [for-stable-4.19 PATCH 0/2] Backport patches to fix KASAN+LKDTM
- with recent clang on ARM64
-Message-ID: <YFR9XavlXEL6Z/7l@kroah.com>
-References: <20210318235416.794798-1-drinkcat@chromium.org>
+        id S229941AbhCSKdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 06:33:13 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:48359 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229524AbhCSKcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 06:32:51 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id D203C1603;
+        Fri, 19 Mar 2021 06:32:50 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Fri, 19 Mar 2021 06:32:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=8gucYTvp7x2/B0oG/OUcBwA0zrC
+        1U7rEi/7Qrp41oeY=; b=XI+LIQOWbegppsUuzzr+iDfwx3cNGzDL6d+TNam4HIf
+        Z1LpxoaMslhDSyWA750IR1dwPR/pffzkPYBy+OzzUoYE9NXCUzf52zd4WWU9CPq3
+        b6frx6eFHaTkqoarSDBf8efAGV2tP9IquIgQUYMpoX8iSa6dt+7L/M+Eb6v53jxd
+        rybtfyYDLyWx8vBSRLdPQW0b3EDrCHPIXYQXcd7ioOXvFiT2QurTOzW2YZoK5BZS
+        ySUCEWxC5qQLxeESISGTT3SBfzNbyNcBU3WJAiB5Mt1RxDL+dJsBkgwjsC10QIh5
+        MVcT9zKICqS0KN1kHjpAsTTE+OD89mYMvwy6dij++oQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8gucYT
+        vp7x2/B0oG/OUcBwA0zrC1U7rEi/7Qrp41oeY=; b=eSIEfZLxaJAL47VK48o1TZ
+        vnXI3CDz2TTK5pUgUYFGb2ZlS/3GoF8DqdLGW9AMBAdv/y29l4TpBrao+nGC+fD6
+        5IV2HsyIUo4KJcwmnqgdeONMgINVo8IvVEbMToI3rKglCtSY8lYOQhyB6WYT66FP
+        RGJ+ZPGBIODH5ChbhOxOb3t6OM3RlisTfPp1hPrv0+ldiu6QszxFe2Td7OyL5LJ0
+        dgnPcBAgIcxVg9NZ6YguW+8fZxhgeNhnw6x6VUuMJM1SGOKVeKOaXFw38fK2EFdE
+        S0wyJxj4EcVvOdbIsEbb2veC6FHxiZcSPYEF73PDEW1KkP1uJKTZq1KbwXeZseng
+        ==
+X-ME-Sender: <xms:0X1UYOsEajTgaZKzGjbLmQNwAJhu8Iq74lHawdhK2u7mtmaSxdGjHQ>
+    <xme:0X1UYDdWKSwMAUwsZymjsMPDoo3VDxayk0vqG9pipr9fzbxijBG7JvTkgnd3u9gY5
+    LvxKz3foJNrgw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefkedgudekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:0X1UYJx3IxUnuV4if88CXuGER17ZgnEImjPiQbOt5EtWSTBAd1pqUQ>
+    <xmx:0X1UYJOBQ65ruzU1oDKzOZXlZ96h5OSNL9BLWWQpyonfCaEFMUobMw>
+    <xmx:0X1UYO8B8AJcGIvbxGvXBqBhR0evaUiXLth9pPMZjX1qvmRa4u1rng>
+    <xmx:0n1UYFmu8q2X0CHNI_y9a7LtSnrZI_t246Hjd9UVz-iVxqqwOU3XWQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E75B924005E;
+        Fri, 19 Mar 2021 06:32:48 -0400 (EDT)
+Date:   Fri, 19 Mar 2021 11:32:47 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ard Biesheuvel <ardb@google.com>
+Cc:     stable@vger.kernel.org, linux-crypto@vger.kernel.org, tmb@tmb.nu,
+        sashal@kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH for-stable-5.4] crypto: x86/aes-ni-xts - use direct calls
+ to and 4-way stride
+Message-ID: <YFR9z5xqrsq0gZAS@kroah.com>
+References: <20210318174151.2164335-1-ardb@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210318235416.794798-1-drinkcat@chromium.org>
+In-Reply-To: <20210318174151.2164335-1-ardb@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 07:54:14AM +0800, Nicolas Boichat wrote:
+On Thu, Mar 18, 2021 at 05:41:51PM +0000, Ard Biesheuvel wrote:
+> From: Ard Biesheuvel <ardb@kernel.org>
 > 
-> Backport 2 patches that are required to make KASAN+LKDTM work
-> with recent clang (patch 2/2 has a complete description).
-> Tested on our chromeos-4.19 branch.
+> Upstream commit 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
 > 
-> Patch 1/2 is context conflict only, and 2/2 is a clean backport.
+> The XTS asm helper arrangement is a bit odd: the 8-way stride helper
+> consists of back-to-back calls to the 4-way core transforms, which
+> are called indirectly, based on a boolean that indicates whether we
+> are performing encryption or decryption.
 > 
-> These patches have been merged to 5.4 stable already. We might
-> need to backport to older stable branches, but this is what I
-> could test for now.
+> Given how costly indirect calls are on x86, let's switch to direct
+> calls, and given how the 8-way stride doesn't really add anything
+> substantial, use a 4-way stride instead, and make the asm core
+> routine deal with any multiple of 4 blocks. Since 512 byte sectors
+> or 4 KB blocks are the typical quantities XTS operates on, increase
+> the stride exported to the glue helper to 512 bytes as well.
+> 
+> As a result, the number of indirect calls is reduced from 3 per 64 bytes
+> of in/output to 1 per 512 bytes of in/output, which produces a 65% speedup
+> when operating on 1 KB blocks (measured on a Intel(R) Core(TM) i7-8650U CPU)
+> 
+> Fixes: 9697fa39efd3f ("x86/retpoline/crypto: Convert crypto assembler indirect jumps")
+> Tested-by: Eric Biggers <ebiggers@google.com> # x86_64
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> [ardb: rebase onto stable/linux-5.4.y]
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> ---
+> 
+> Please apply on top of backports of
+> 
+> 9c1e8836edbb crypto: x86 - Regularize glue function prototypes
+> 032d049ea0f4 crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
 
-Both now queued up, thanks.
+Now queued up, thanks.
 
 greg k-h
