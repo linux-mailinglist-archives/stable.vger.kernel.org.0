@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD6B7341C8B
+	by mail.lfdr.de (Postfix) with ESMTP id 243F0341C89
 	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231307AbhCSMVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231483AbhCSMVT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Mar 2021 08:21:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59570 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230389AbhCSMVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:21:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8FB064F70;
-        Fri, 19 Mar 2021 12:21:05 +0000 (UTC)
+        id S231401AbhCSMVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:21:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E4064F6A;
+        Fri, 19 Mar 2021 12:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156466;
-        bh=Xcc8nWtyMx5sPP+4P1k1eqlJ2Cjeaazg4/FReZxbHAA=;
+        s=korg; t=1616156468;
+        bh=yzUNqevlFbXe2wFS/Q4U2Es4UX4t22eR83ywGh0/E+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqM3K4M+hTmjUA2ELWSEyFexKQhjxF9kp2CTGkXLaO1XuVbzwsy1wcssAK2+2pSNp
-         HA8e/dc5j0Ltdhn/WSgyvtmId2ROL3NJ+oXd33zoDzRD3Pbmu8xlIb0VZDl4MrZvP5
-         jle52on9M6c0UGAJ8EBMi5fducJAJnQ3Hnif0TZY=
+        b=zaAKZpMlGwzWbvfxgVzeZR++/kqqlBKPaW28eTBidYEw1x5D2MiJhX2Cvbfh5WbIm
+         xxJq4sSAEDb0/EzHZWzQ0FfWqtGvBw6vZdh8wdpGnFL+wafjk3bq4P7cUA6d2L7eBh
+         wJ2Phh4U4tgzuyAunXao7+6gFIc8e1hN08MkLpoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.11 25/31] arm64: Unconditionally set virtual cpu id registers
-Date:   Fri, 19 Mar 2021 13:19:19 +0100
-Message-Id: <20210319121748.016916968@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Yi Zhang <yi.zhang@redhat.com>
+Subject: [PATCH 5.11 26/31] RDMA/srp: Fix support for unpopulated and unbalanced NUMA nodes
+Date:   Fri, 19 Mar 2021 13:19:20 +0100
+Message-Id: <20210319121748.047018321@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
 References: <20210319121747.203523570@linuxfoundation.org>
@@ -39,48 +42,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Murzin <vladimir.murzin@arm.com>
+From: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
 
-Commit 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
-reorganized el2 setup in such way that virtual cpu id registers set
-only in nVHE, yet they used (and need) to be set irrespective VHE
-support.
+commit 2b5715fc17386a6223490d5b8f08d031999b0c0b upstream.
 
-Fixes: 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
-Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Acked-by: Will Deacon <will@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+The current code computes a number of channels per SRP target and spreads
+them equally across all online NUMA nodes.  Each channel is then assigned
+a CPU within this node.
+
+In the case of unbalanced, or even unpopulated nodes, some channels do not
+get a CPU associated and thus do not get connected.  This causes the SRP
+connection to fail.
+
+This patch solves the issue by rewriting channel computation and
+allocation:
+
+- Drop channel to node/CPU association as it had no real effect on
+  locality but added unnecessary complexity.
+
+- Tweak the number of channels allocated to reduce CPU contention when
+  possible:
+  - Up to one channel per CPU (instead of up to 4 by node)
+  - At least 4 channels per node, unless ch_count module parameter is
+    used.
+
+Link: https://lore.kernel.org/r/9cb4d9d3-30ad-2276-7eff-e85f7ddfb411@suse.com
+Signed-off-by: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Yi Zhang <yi.zhang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/el2_setup.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c |  116 ++++++++++++++----------------------
+ 1 file changed, 48 insertions(+), 68 deletions(-)
 
---- a/arch/arm64/include/asm/el2_setup.h
-+++ b/arch/arm64/include/asm/el2_setup.h
-@@ -111,7 +111,7 @@
- .endm
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -3628,7 +3628,7 @@ static ssize_t srp_create_target(struct
+ 	struct srp_rdma_ch *ch;
+ 	struct srp_device *srp_dev = host->srp_dev;
+ 	struct ib_device *ibdev = srp_dev->dev;
+-	int ret, node_idx, node, cpu, i;
++	int ret, i, ch_idx;
+ 	unsigned int max_sectors_per_mr, mr_per_cmd = 0;
+ 	bool multich = false;
+ 	uint32_t max_iu_len;
+@@ -3753,81 +3753,61 @@ static ssize_t srp_create_target(struct
+ 		goto out;
  
- /* Virtual CPU ID registers */
--.macro __init_el2_nvhe_idregs
-+.macro __init_el2_idregs
- 	mrs	x0, midr_el1
- 	mrs	x1, mpidr_el1
- 	msr	vpidr_el2, x0
-@@ -163,6 +163,7 @@
- 	__init_el2_stage2
- 	__init_el2_gicv3
- 	__init_el2_hstr
-+	__init_el2_idregs
+ 	ret = -ENOMEM;
+-	if (target->ch_count == 0)
++	if (target->ch_count == 0) {
+ 		target->ch_count =
+-			max_t(unsigned int, num_online_nodes(),
+-			      min(ch_count ?:
+-					  min(4 * num_online_nodes(),
+-					      ibdev->num_comp_vectors),
+-				  num_online_cpus()));
++			min(ch_count ?:
++				max(4 * num_online_nodes(),
++				    ibdev->num_comp_vectors),
++				num_online_cpus());
++	}
++
+ 	target->ch = kcalloc(target->ch_count, sizeof(*target->ch),
+ 			     GFP_KERNEL);
+ 	if (!target->ch)
+ 		goto out;
  
- 	/*
- 	 * When VHE is not in use, early init of EL2 needs to be done here.
-@@ -171,7 +172,6 @@
- 	 * will be done via the _EL1 system register aliases in __cpu_setup.
- 	 */
- .ifeqs "\mode", "nvhe"
--	__init_el2_nvhe_idregs
- 	__init_el2_nvhe_cptr
- 	__init_el2_nvhe_sve
- 	__init_el2_nvhe_prepare_eret
+-	node_idx = 0;
+-	for_each_online_node(node) {
+-		const int ch_start = (node_idx * target->ch_count /
+-				      num_online_nodes());
+-		const int ch_end = ((node_idx + 1) * target->ch_count /
+-				    num_online_nodes());
+-		const int cv_start = node_idx * ibdev->num_comp_vectors /
+-				     num_online_nodes();
+-		const int cv_end = (node_idx + 1) * ibdev->num_comp_vectors /
+-				   num_online_nodes();
+-		int cpu_idx = 0;
+-
+-		for_each_online_cpu(cpu) {
+-			if (cpu_to_node(cpu) != node)
+-				continue;
+-			if (ch_start + cpu_idx >= ch_end)
+-				continue;
+-			ch = &target->ch[ch_start + cpu_idx];
+-			ch->target = target;
+-			ch->comp_vector = cv_start == cv_end ? cv_start :
+-				cv_start + cpu_idx % (cv_end - cv_start);
+-			spin_lock_init(&ch->lock);
+-			INIT_LIST_HEAD(&ch->free_tx);
+-			ret = srp_new_cm_id(ch);
+-			if (ret)
+-				goto err_disconnect;
+-
+-			ret = srp_create_ch_ib(ch);
+-			if (ret)
+-				goto err_disconnect;
+-
+-			ret = srp_alloc_req_data(ch);
+-			if (ret)
+-				goto err_disconnect;
+-
+-			ret = srp_connect_ch(ch, max_iu_len, multich);
+-			if (ret) {
+-				char dst[64];
+-
+-				if (target->using_rdma_cm)
+-					snprintf(dst, sizeof(dst), "%pIS",
+-						 &target->rdma_cm.dst);
+-				else
+-					snprintf(dst, sizeof(dst), "%pI6",
+-						 target->ib_cm.orig_dgid.raw);
+-				shost_printk(KERN_ERR, target->scsi_host,
+-					     PFX "Connection %d/%d to %s failed\n",
+-					     ch_start + cpu_idx,
+-					     target->ch_count, dst);
+-				if (node_idx == 0 && cpu_idx == 0) {
+-					goto free_ch;
+-				} else {
+-					srp_free_ch_ib(target, ch);
+-					srp_free_req_data(target, ch);
+-					target->ch_count = ch - target->ch;
+-					goto connected;
+-				}
++	for (ch_idx = 0; ch_idx < target->ch_count; ++ch_idx) {
++		ch = &target->ch[ch_idx];
++		ch->target = target;
++		ch->comp_vector = ch_idx % ibdev->num_comp_vectors;
++		spin_lock_init(&ch->lock);
++		INIT_LIST_HEAD(&ch->free_tx);
++		ret = srp_new_cm_id(ch);
++		if (ret)
++			goto err_disconnect;
++
++		ret = srp_create_ch_ib(ch);
++		if (ret)
++			goto err_disconnect;
++
++		ret = srp_alloc_req_data(ch);
++		if (ret)
++			goto err_disconnect;
++
++		ret = srp_connect_ch(ch, max_iu_len, multich);
++		if (ret) {
++			char dst[64];
++
++			if (target->using_rdma_cm)
++				snprintf(dst, sizeof(dst), "%pIS",
++					&target->rdma_cm.dst);
++			else
++				snprintf(dst, sizeof(dst), "%pI6",
++					target->ib_cm.orig_dgid.raw);
++			shost_printk(KERN_ERR, target->scsi_host,
++				PFX "Connection %d/%d to %s failed\n",
++				ch_idx,
++				target->ch_count, dst);
++			if (ch_idx == 0) {
++				goto free_ch;
++			} else {
++				srp_free_ch_ib(target, ch);
++				srp_free_req_data(target, ch);
++				target->ch_count = ch - target->ch;
++				goto connected;
+ 			}
+-
+-			multich = true;
+-			cpu_idx++;
+ 		}
+-		node_idx++;
++		multich = true;
+ 	}
+ 
+ connected:
 
 
