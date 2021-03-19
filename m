@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A443E341C81
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9246341C56
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231173AbhCSMVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:21:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59102 "EHLO mail.kernel.org"
+        id S229921AbhCSMUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231126AbhCSMUt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 521E96146D;
-        Fri, 19 Mar 2021 12:20:48 +0000 (UTC)
+        id S230469AbhCSMUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5B0A6146D;
+        Fri, 19 Mar 2021 12:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156448;
-        bh=Xl0GnYlS++rdo/imaGNZlPFHSGqgcPjokDVxiOQmvwM=;
+        s=korg; t=1616156407;
+        bh=ldZOt7oy4sZjIwRp8iepEZYsNaklvxzI9ufI1+ek65A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKADrYeK+Za+39OOGL8bMkHXYazAtPApvdM32agI4A0f/XOHktI59k4TZKxxB/0gC
-         6coMAkc5nqM+x76wrIN0J9CicO4yF6a9ZWpRTq/7/fMt3x+VGr5q2IM+2xS3FF8aYG
-         czAl7rMfZbKI/fs+JkGUB/Y0pkgpu276XS7BCpBQ=
+        b=sJ0p8DBzE4XcNdFZDOl+33nVBc0vLkgyJwwzhEiQ15BnVcXvV5UrLwq4Lnp5dlVEF
+         dP/dmKiTA35Vshu0Uw5hHAoujm6GN1Ehp+PcRP1AWD5W13BIOHAr977lrty9zGwPah
+         QL1263OQ7FQlGFEcUA43VJPFJAnTCFLMITrVBtQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 05/31] mptcp: pm: add lockdep assertions
-Date:   Fri, 19 Mar 2021 13:18:59 +0100
-Message-Id: <20210319121747.386027429@linuxfoundation.org>
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 03/13] bpf: Prohibit alu ops for pointer types not defining ptr_limit
+Date:   Fri, 19 Mar 2021 13:19:00 +0100
+Message-Id: <20210319121745.221072000@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
-References: <20210319121747.203523570@linuxfoundation.org>
+In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
+References: <20210319121745.112612545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,138 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Piotr Krysiuk <piotras@gmail.com>
 
-[ Upstream commit 3abc05d9ef6fe989706b679e1e6371d6360d3db4 ]
+commit f232326f6966cf2a1d1db7bc917a4ce5f9f55f76 upstream.
 
-Add a few assertions to make sure functions are called with the needed
-locks held.
-Two functions gain might_sleep annotations because they contain
-conditional calls to functions that sleep.
+The purpose of this patch is to streamline error propagation and in particular
+to propagate retrieve_ptr_limit() errors for pointer types that are not defining
+a ptr_limit such that register-based alu ops against these types can be rejected.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The main rationale is that a gap has been identified by Piotr in the existing
+protection against speculatively out-of-bounds loads, for example, in case of
+ctx pointers, unprivileged programs can still perform pointer arithmetic. This
+can be abused to execute speculatively out-of-bounds loads without restrictions
+and thus extract contents of kernel memory.
+
+Fix this by rejecting unprivileged programs that attempt any pointer arithmetic
+on unprotected pointer types. The two affected ones are pointer to ctx as well
+as pointer to map. Field access to a modified ctx' pointer is rejected at a
+later point in time in the verifier, and 7c6967326267 ("bpf: Permit map_ptr
+arithmetic with opcode add and offset 0") only relevant for root-only use cases.
+Risk of unprivileged program breakage is considered very low.
+
+Fixes: 7c6967326267 ("bpf: Permit map_ptr arithmetic with opcode add and offset 0")
+Fixes: b2157399cc98 ("bpf: prevent out-of-bounds speculation")
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/pm.c         |  2 ++
- net/mptcp/pm_netlink.c | 13 +++++++++++++
- net/mptcp/protocol.c   |  4 ++++
- net/mptcp/protocol.h   |  5 +++++
- 4 files changed, 24 insertions(+)
+ kernel/bpf/verifier.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/net/mptcp/pm.c b/net/mptcp/pm.c
-index 5463d7c8c931..1c01c3bcbf5a 100644
---- a/net/mptcp/pm.c
-+++ b/net/mptcp/pm.c
-@@ -20,6 +20,8 @@ int mptcp_pm_announce_addr(struct mptcp_sock *msk,
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5406,6 +5406,7 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	u32 alu_state, alu_limit;
+ 	struct bpf_reg_state tmp;
+ 	bool ret;
++	int err;
  
- 	pr_debug("msk=%p, local_id=%d", msk, addr->id);
+ 	if (can_skip_alu_sanitation(env, insn))
+ 		return 0;
+@@ -5421,10 +5422,13 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	alu_state |= ptr_is_dst_reg ?
+ 		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
  
-+	lockdep_assert_held(&msk->pm.lock);
+-	if (retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg))
+-		return 0;
+-	if (update_alu_sanitation_state(aux, alu_state, alu_limit))
+-		return -EACCES;
++	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
++	if (err < 0)
++		return err;
 +
- 	if (add_addr) {
- 		pr_warn("addr_signal error, add_addr=%d", add_addr);
- 		return -EINVAL;
-diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-index b81ce0ea1f8b..71c41b948861 100644
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -134,6 +134,8 @@ select_local_address(const struct pm_nl_pernet *pernet,
- {
- 	struct mptcp_pm_addr_entry *entry, *ret = NULL;
- 
-+	msk_owned_by_me(msk);
-+
- 	rcu_read_lock();
- 	__mptcp_flush_join_list(msk);
- 	list_for_each_entry_rcu(entry, &pernet->local_addr_list, list) {
-@@ -191,6 +193,8 @@ lookup_anno_list_by_saddr(struct mptcp_sock *msk,
- {
- 	struct mptcp_pm_add_entry *entry;
- 
-+	lockdep_assert_held(&msk->pm.lock);
-+
- 	list_for_each_entry(entry, &msk->pm.anno_list, list) {
- 		if (addresses_equal(&entry->addr, addr, false))
- 			return entry;
-@@ -266,6 +270,8 @@ static bool mptcp_pm_alloc_anno_list(struct mptcp_sock *msk,
- 	struct sock *sk = (struct sock *)msk;
- 	struct net *net = sock_net(sk);
- 
-+	lockdep_assert_held(&msk->pm.lock);
-+
- 	if (lookup_anno_list_by_saddr(msk, &entry->addr))
- 		return false;
- 
-@@ -408,6 +414,9 @@ void mptcp_pm_nl_add_addr_send_ack(struct mptcp_sock *msk)
- {
- 	struct mptcp_subflow_context *subflow;
- 
-+	msk_owned_by_me(msk);
-+	lockdep_assert_held(&msk->pm.lock);
-+
- 	if (!mptcp_pm_should_add_signal(msk))
- 		return;
- 
-@@ -443,6 +452,8 @@ void mptcp_pm_nl_rm_addr_received(struct mptcp_sock *msk)
- 
- 	pr_debug("address rm_id %d", msk->pm.rm_id);
- 
-+	msk_owned_by_me(msk);
-+
- 	if (!msk->pm.rm_id)
- 		return;
- 
-@@ -478,6 +489,8 @@ void mptcp_pm_nl_rm_subflow_received(struct mptcp_sock *msk, u8 rm_id)
- 
- 	pr_debug("subflow rm_id %d", rm_id);
- 
-+	msk_owned_by_me(msk);
-+
- 	if (!rm_id)
- 		return;
- 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 056846eb2e5b..64b8a49652ae 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2186,6 +2186,8 @@ static void __mptcp_close_subflow(struct mptcp_sock *msk)
- {
- 	struct mptcp_subflow_context *subflow, *tmp;
- 
-+	might_sleep();
-+
- 	list_for_each_entry_safe(subflow, tmp, &msk->conn_list, node) {
- 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
- 
-@@ -2529,6 +2531,8 @@ static void __mptcp_destroy_sock(struct sock *sk)
- 
- 	pr_debug("msk=%p", msk);
- 
-+	might_sleep();
-+
- 	/* dispose the ancillatory tcp socket, if any */
- 	if (msk->subflow) {
- 		iput(SOCK_INODE(msk->subflow));
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 18fef4273bdc..c374345ad134 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -286,6 +286,11 @@ struct mptcp_sock {
- #define mptcp_for_each_subflow(__msk, __subflow)			\
- 	list_for_each_entry(__subflow, &((__msk)->conn_list), node)
- 
-+static inline void msk_owned_by_me(const struct mptcp_sock *msk)
-+{
-+	sock_owned_by_me((const struct sock *)msk);
-+}
-+
- static inline struct mptcp_sock *mptcp_sk(const struct sock *sk)
- {
- 	return (struct mptcp_sock *)sk;
--- 
-2.30.1
-
++	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
++	if (err < 0)
++		return err;
+ do_sim:
+ 	/* Simulate and find potential out-of-bounds access under
+ 	 * speculative execution from truncation as a result of
+@@ -5540,7 +5544,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	case BPF_ADD:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+ 		if (ret < 0) {
+-			verbose(env, "R%d tried to add from different maps or paths\n", dst);
++			verbose(env, "R%d tried to add from different maps, paths, or prohibited types\n", dst);
+ 			return ret;
+ 		}
+ 		/* We can take a fixed offset as long as it doesn't overflow
+@@ -5595,7 +5599,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	case BPF_SUB:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+ 		if (ret < 0) {
+-			verbose(env, "R%d tried to sub from different maps or paths\n", dst);
++			verbose(env, "R%d tried to sub from different maps, paths, or prohibited types\n", dst);
+ 			return ret;
+ 		}
+ 		if (dst_reg == off_reg) {
 
 
