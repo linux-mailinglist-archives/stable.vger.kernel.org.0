@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA1E341C84
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6FD2341C6A
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231256AbhCSMVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:21:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59462 "EHLO mail.kernel.org"
+        id S230523AbhCSMUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230316AbhCSMU4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A489964F6C;
-        Fri, 19 Mar 2021 12:20:55 +0000 (UTC)
+        id S230481AbhCSMU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AB8664FA1;
+        Fri, 19 Mar 2021 12:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156456;
-        bh=1MTkm042vse54eIC6ZhlMiYR+9AAHpZ7IZqZypRxE/c=;
+        s=korg; t=1616156414;
+        bh=iNLNdrtmsO6DnAhgiLpQNILkfvso9NVdSQ4vT0zKqQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ln85ZeT2fv6GowZk4XOgfbmsjbdXIKsuA1YE/o4f6EVp3Ktuzs5qwRE8QczHtvmnY
-         BaNL9KWsvhW9/PyRaOlRl0qCHaA6nnQxFg5EjmPZTZoRO2v56MA+C41z4iRV2JDsAS
-         uoJcXSX+cSbHjchEb2jESUmo5XQPLA/nHCi0QwPg=
+        b=oNSX46Jxys4in4WRVBT0zW+napGdU4eaEcqEquhu/j3Gk9tgrQLUpWkIYlDNs0Jnk
+         Mgrtle8OufmhkNznYEapewWD+9RYi0dyP5EwIR1glFgyUZkl1wLO7cU5xpayqjGRVy
+         mI1ZnX5/DwWgaxz9Eb10LJ8rkovW5k1RjZ4yqInA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 08/31] io_uring: refactor io_cqring_wait
-Date:   Fri, 19 Mar 2021 13:19:02 +0100
-Message-Id: <20210319121747.475187738@linuxfoundation.org>
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 06/13] bpf: Add sanity check for upper ptr_limit
+Date:   Fri, 19 Mar 2021 13:19:03 +0100
+Message-Id: <20210319121745.310254598@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
-References: <20210319121747.203523570@linuxfoundation.org>
+In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
+References: <20210319121745.112612545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,86 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Piotr Krysiuk <piotras@gmail.com>
 
-[ Upstream commit eeb60b9ab4000d20261973642dfc9fb0e4b5d073 ]
+commit 1b1597e64e1a610c7a96710fc4717158e98a08b3 upstream.
 
-It's easy to make a mistake in io_cqring_wait() because for all
-break/continue clauses we need to watch for prepare/finish_wait to be
-used correctly. Extract all those into a new helper
-io_cqring_wait_schedule(), and transforming the loop into simple series
-of func calls: prepare(); check_and_schedule(); finish();
+Given we know the max possible value of ptr_limit at the time of retrieving
+the latter, add basic assertions, so that the verifier can bail out if
+anything looks odd and reject the program. Nothing triggered this so far,
+but it also does not hurt to have these.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c | 43 ++++++++++++++++++++++---------------------
- 1 file changed, 22 insertions(+), 21 deletions(-)
+ kernel/bpf/verifier.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3e610ac062a3..7621978e9fc8 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7208,6 +7208,25 @@ static int io_run_task_work_sig(void)
- 	return -EINTR;
- }
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5333,10 +5333,14 @@ static int retrieve_ptr_limit(const stru
+ {
+ 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
+ 			    (opcode == BPF_SUB && !off_is_neg);
+-	u32 off;
++	u32 off, max;
  
-+/* when returns >0, the caller should retry */
-+static inline int io_cqring_wait_schedule(struct io_ring_ctx *ctx,
-+					  struct io_wait_queue *iowq,
-+					  signed long *timeout)
-+{
-+	int ret;
-+
-+	/* make sure we run task_work before checking for signals */
-+	ret = io_run_task_work_sig();
-+	if (ret || io_should_wake(iowq))
-+		return ret;
-+	/* let the caller flush overflows, retry */
-+	if (test_bit(0, &ctx->cq_check_overflow))
-+		return 1;
-+
-+	*timeout = schedule_timeout(*timeout);
-+	return !*timeout ? -ETIME : 1;
-+}
-+
- /*
-  * Wait until events become available, if we don't already have some. The
-  * application must reap them itself, as they reside on the shared cq ring.
-@@ -7264,27 +7283,9 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 		io_cqring_overflow_flush(ctx, false, NULL, NULL);
- 		prepare_to_wait_exclusive(&ctx->wait, &iowq.wq,
- 						TASK_INTERRUPTIBLE);
--		/* make sure we run task_work before checking for signals */
--		ret = io_run_task_work_sig();
--		if (ret > 0) {
--			finish_wait(&ctx->wait, &iowq.wq);
--			continue;
--		}
--		else if (ret < 0)
--			break;
--		if (io_should_wake(&iowq))
--			break;
--		if (test_bit(0, &ctx->cq_check_overflow)) {
--			finish_wait(&ctx->wait, &iowq.wq);
--			continue;
--		}
--		timeout = schedule_timeout(timeout);
--		if (timeout == 0) {
--			ret = -ETIME;
--			break;
--		}
--	} while (1);
--	finish_wait(&ctx->wait, &iowq.wq);
-+		ret = io_cqring_wait_schedule(ctx, &iowq, &timeout);
-+		finish_wait(&ctx->wait, &iowq.wq);
-+	} while (ret > 0);
- 
- 	restore_saved_sigmask_unless(ret == -EINTR);
- 
--- 
-2.30.1
-
+ 	switch (ptr_reg->type) {
+ 	case PTR_TO_STACK:
++		/* Offset 0 is out-of-bounds, but acceptable start for the
++		 * left direction, see BPF_REG_FP.
++		 */
++		max = MAX_BPF_STACK + mask_to_left;
+ 		/* Indirect variable offset stack access is prohibited in
+ 		 * unprivileged mode so it's not handled here.
+ 		 */
+@@ -5345,15 +5349,16 @@ static int retrieve_ptr_limit(const stru
+ 			*ptr_limit = MAX_BPF_STACK + off;
+ 		else
+ 			*ptr_limit = -off - 1;
+-		return 0;
++		return *ptr_limit >= max ? -ERANGE : 0;
+ 	case PTR_TO_MAP_VALUE:
++		max = ptr_reg->map_ptr->value_size;
+ 		if (mask_to_left) {
+ 			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
+ 		} else {
+ 			off = ptr_reg->smin_value + ptr_reg->off;
+ 			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
+ 		}
+-		return 0;
++		return *ptr_limit >= max ? -ERANGE : 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
 
 
