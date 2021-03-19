@@ -2,125 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8C9342644
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 20:34:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D1834265A
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 20:38:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230489AbhCSTeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 15:34:16 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43084 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230468AbhCSTeC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 15:34:02 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12JJXPfb185144;
-        Fri, 19 Mar 2021 15:34:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=BwR/PoVTo9a9RrveTk09NWZ9rzgYeR3qcNKMc+06fAc=;
- b=k6iyNW7lOx4jxjYV8wujKorWFBq6atDH1oGI6IkgT3fOmX0VrBGCy01hYcfnrudKzgDn
- +v5DImm9FqU9Me5dO7nS/AaQ9omJaLY2sFDsfeO1Vv7orWrOKLYobK9Y3Xkktah3sfgA
- azv44LkqxDetULBJfTMR7HpexdUnUTIugXOsvZ5tIdRYk/3ok56gNxWrMTwaJ6dbVtW5
- VEx8+NCh+0rP/PF5mvc9fCTsp1Mu7j41EG0CKKkcLDcVzB6EHMRcOCYtjYGPbAuC6EG7
- Q7W4dBvSXOw42CxhM4XAkCyhgKwvXgj0jG7zwjJr9XMzfRfFin2HF2gmf+H2uTTOXUxX hA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37byr4pt0x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 Mar 2021 15:34:01 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12JJY1v3186300;
-        Fri, 19 Mar 2021 15:34:01 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37byr4pt0g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 Mar 2021 15:34:01 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12JJWxGo013358;
-        Fri, 19 Mar 2021 19:33:59 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 37crcrgevj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 Mar 2021 19:33:59 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12JJXuRh42664376
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 19 Mar 2021 19:33:56 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5032CA405F;
-        Fri, 19 Mar 2021 19:33:56 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D49A5A405C;
-        Fri, 19 Mar 2021 19:33:55 +0000 (GMT)
-Received: from ibm-vm.ibmuc.com (unknown [9.145.2.56])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 19 Mar 2021 19:33:55 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        id S230235AbhCSTh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 15:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37446 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230221AbhCSThn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 15:37:43 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0469C06174A;
+        Fri, 19 Mar 2021 12:37:42 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id u19so4380302pgh.10;
+        Fri, 19 Mar 2021 12:37:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=v8FFu4w7ajc54C071qzFJ084aus6dbCbNWWcn/Lqj8s=;
+        b=k99NLMwAdJ48xyBFgFR7XN7G2cdL5HwosJH63bmj2rmuRq9xjaaei01/XXxQgw1nWX
+         LxkKANicvgkSWjj1Ob2NxbqavekG0GZUYH1Iox5gDa6UajryEbhj51S4o3Br944UFvQX
+         CO6CZBkKq36MFEB5MeauffS651Dizu/LJUsXDgON/PktSnMUvwuj0LlZaKny4ENJ3DtZ
+         YhBYGzIdUmW6LONA7+Nyrg4Rj5BZbBsuYTnD26WflG8EgvJAsp6Qu0S5ki5s5GgdLiJy
+         YOZb2Cw4duyLqiOhyscNt5Q2LMnzCiklZNT41Ao4V7TOTDjcLsiZlSu/fgibrWPz/Jo8
+         UIvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=v8FFu4w7ajc54C071qzFJ084aus6dbCbNWWcn/Lqj8s=;
+        b=QW1sKE9dGNHEkriD4589R2nlUZ2Y0RyEwN4BIxrXhHkgTiOLYV6OgR7fgz1I2UJU3Q
+         VqAPxedbjPqmkWoW7fAvSqMdrnUhv2+j0FJ+sgMuLqdpY4KZ4WPFRKuQFJXlz3MNZxOg
+         Bg3xfo8v+L58WaeFbHgEKdklyNjMNbsLe0fTOAFhV4ofGEzMcGv1HPblZFU/sOb0QyAo
+         6XS5Vqc27WAWSSrx7NUt+MU6UY91msEDLoAHaZoTHAnYiR75So3hkhkC7v5CTr2tpocZ
+         mvr9Q+NWxHe6HQE0ghqaF+uJwl0AbLBfA2iW4gePetX6R5HM70PgblypfCukCNLFtLlh
+         eglA==
+X-Gm-Message-State: AOAM530j9MKklwbwoiiTdGiVnoKuFr6gJleBC/jweGo6oy0rHAzfSYBB
+        V4urjeDHR8xw5FizubyMvo0QNJHB6ak=
+X-Google-Smtp-Source: ABdhPJzCOl63EPzPWgrvKBOuGr4yF8s6BQhQtgp3NEhLFkYq2m2xNKu6KpFqKOVSGRfodmS1NDZ+Mg==
+X-Received: by 2002:a65:4c0b:: with SMTP id u11mr3903130pgq.332.1616182661491;
+        Fri, 19 Mar 2021 12:37:41 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id w15sm6123488pfn.84.2021.03.19.12.37.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Mar 2021 12:37:41 -0700 (PDT)
+Subject: Re: [PATCH 5.4 00/18] 5.4.107-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         stable@vger.kernel.org
-Subject: [PATCH v1 2/2] s390/kvm: VSIE: fix MVPG handling for prefixing and MSO
-Date:   Fri, 19 Mar 2021 20:33:54 +0100
-Message-Id: <20210319193354.399587-3-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210319193354.399587-1-imbrenda@linux.ibm.com>
-References: <20210319193354.399587-1-imbrenda@linux.ibm.com>
+References: <20210319121745.449875976@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <31cf9567-592d-632f-13a0-567c5c3823c9@gmail.com>
+Date:   Fri, 19 Mar 2021 12:37:29 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-19_10:2021-03-19,2021-03-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
- priorityscore=1501 impostorscore=0 mlxscore=0 phishscore=0 mlxlogscore=999
- malwarescore=0 bulkscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103190130
+In-Reply-To: <20210319121745.449875976@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Prefixing needs to be applied to the guest real address to translate it
-into a guest absolute address.
 
-The value of MSO needs to be added to a guest-absolute address in order to
-obtain the host-virtual.
 
-Fixes: 223ea46de9e79 ("s390/kvm: VSIE: correctly handle MVPG when in VSIE")
-Cc: stable@vger.kernel.org
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+On 3/19/2021 5:18 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.107 release.
+> There are 18 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 21 Mar 2021 12:17:37 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.107-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 48aab6290a77..92864f9b3d84 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1002,7 +1002,7 @@ static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
- static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- {
- 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
--	unsigned long pei_dest, pei_src, src, dest, mask;
-+	unsigned long pei_dest, pei_src, r1, r2, src, dest, mask, mso, prefix;
- 	u64 *pei_block = &vsie_page->scb_o->mcic;
- 	int edat, rc_dest, rc_src;
- 	union ctlreg0 cr0;
-@@ -1010,9 +1010,13 @@ static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	cr0.val = vcpu->arch.sie_block->gcr[0];
- 	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
- 	mask = _kvm_s390_logical_to_effective(&scb_s->gpsw, PAGE_MASK);
-+	mso = READ_ONCE(vsie_page->scb_o->mso) & ~(1UL << 20);
-+	prefix = scb_s->prefix << GUEST_PREFIX_SHIFT;
- 
--	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
--	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
-+	r1 = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16);
-+	r2 = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20);
-+	dest = _kvm_s390_real_to_abs(prefix, r1 & mask) + mso;
-+	src = _kvm_s390_real_to_abs(prefix, r2 & mask) + mso;
- 
- 	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
- 	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.26.2
-
+Florian
