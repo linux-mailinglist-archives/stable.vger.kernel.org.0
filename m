@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5198341C62
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 210F8341C82
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231266AbhCSMUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57894 "EHLO mail.kernel.org"
+        id S230367AbhCSMVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:21:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230186AbhCSMUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F9E064F6A;
-        Fri, 19 Mar 2021 12:20:09 +0000 (UTC)
+        id S230461AbhCSMUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 414DD64F65;
+        Fri, 19 Mar 2021 12:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156410;
-        bh=t96mLTVSsoU+VGTxUjCVyH3Wde5yGzm7Mrm6Aj8ShBM=;
+        s=korg; t=1616156453;
+        bh=e7ZskurLN2Zjvhw3VZ8qsP3ILAnSTgu0xQhLUQkjq04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfVNiBsPkvzxisfmJZA8jvkLGNsGeFWc6NBnWp/7MlBtV7cG/nZiuGxnGop1pTtzO
-         VfkYBNat6ba9b3LWFXa/wW7+UmvaaFAUO97ND2ChuV/fgolMwRCxqx4dGcxek70o7m
-         fritmH7GiFzFgpvrhUBFFJis75GctyFjdFyiJLe4=
+        b=GzLIE8FQsr8zZ3Vqy/TpCVlHF04qd5osXp5zIPiYz3Y0Q+t5Kt8+BbjJhQniitw7p
+         Z3Ud0AsY9LfuSEx/KSBSoFkpYDLyTHfFcEXvBwp0E0fp37zwl9LaXUkRufEjxDaGMU
+         ASLwU/XZShd7XwINCYU7xVB2DfhCQ1xc2H2b8Ls8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 04/13] bpf: Fix off-by-one for area size in creating mask to left
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 07/31] io_uring: refactor scheduling in io_cqring_wait
 Date:   Fri, 19 Mar 2021 13:19:01 +0100
-Message-Id: <20210319121745.250830886@linuxfoundation.org>
+Message-Id: <20210319121747.445396723@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
-References: <20210319121745.112612545@linuxfoundation.org>
+In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
+References: <20210319121747.203523570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Krysiuk <piotras@gmail.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 10d2bb2e6b1d8c4576c56a748f697dbeb8388899 upstream.
+[ Upstream commit c1d5a224683b333ddbe278e455d639ccd4f5ca2b ]
 
-retrieve_ptr_limit() computes the ptr_limit for registers with stack and
-map_value type. ptr_limit is the size of the memory area that is still
-valid / in-bounds from the point of the current position and direction
-of the operation (add / sub). This size will later be used for masking
-the operation such that attempting out-of-bounds access in the speculative
-domain is redirected to remain within the bounds of the current map value.
+schedule_timeout() with timeout=MAX_SCHEDULE_TIMEOUT is guaranteed to
+work just as schedule(), so instead of hand-coding it based on arguments
+always use the timeout version and simplify code.
 
-When masking to the right the size is correct, however, when masking to
-the left, the size is off-by-one which would lead to an incorrect mask
-and thus incorrect arithmetic operation in the non-speculative domain.
-Piotr found that if the resulting alu_limit value is zero, then the
-BPF_MOV32_IMM() from the fixup_bpf_calls() rewrite will end up loading
-0xffffffff into AX instead of sign-extending to the full 64 bit range,
-and as a result, this allows abuse for executing speculatively out-of-
-bounds loads against 4GB window of address space and thus extracting the
-contents of kernel memory via side-channel.
-
-Fixes: 979d63d50c0c ("bpf: prevent out of bounds speculation on pointer arithmetic")
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
-Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5342,13 +5342,13 @@ static int retrieve_ptr_limit(const stru
- 		 */
- 		off = ptr_reg->off + ptr_reg->var_off.value;
- 		if (mask_to_left)
--			*ptr_limit = MAX_BPF_STACK + off;
-+			*ptr_limit = MAX_BPF_STACK + off + 1;
- 		else
- 			*ptr_limit = -off;
- 		return 0;
- 	case PTR_TO_MAP_VALUE:
- 		if (mask_to_left) {
--			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
-+			*ptr_limit = ptr_reg->umax_value + ptr_reg->off + 1;
- 		} else {
- 			off = ptr_reg->smin_value + ptr_reg->off;
- 			*ptr_limit = ptr_reg->map_ptr->value_size - off;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 68508f010b90..3e610ac062a3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7226,9 +7226,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 		.to_wait	= min_events,
+ 	};
+ 	struct io_rings *rings = ctx->rings;
+-	struct timespec64 ts;
+-	signed long timeout = 0;
+-	int ret = 0;
++	signed long timeout = MAX_SCHEDULE_TIMEOUT;
++	int ret;
+ 
+ 	do {
+ 		io_cqring_overflow_flush(ctx, false, NULL, NULL);
+@@ -7252,6 +7251,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 	}
+ 
+ 	if (uts) {
++		struct timespec64 ts;
++
+ 		if (get_timespec64(&ts, uts))
+ 			return -EFAULT;
+ 		timeout = timespec64_to_jiffies(&ts);
+@@ -7277,14 +7278,10 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 			finish_wait(&ctx->wait, &iowq.wq);
+ 			continue;
+ 		}
+-		if (uts) {
+-			timeout = schedule_timeout(timeout);
+-			if (timeout == 0) {
+-				ret = -ETIME;
+-				break;
+-			}
+-		} else {
+-			schedule();
++		timeout = schedule_timeout(timeout);
++		if (timeout == 0) {
++			ret = -ETIME;
++			break;
+ 		}
+ 	} while (1);
+ 	finish_wait(&ctx->wait, &iowq.wq);
+-- 
+2.30.1
+
 
 
