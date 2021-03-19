@@ -2,111 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8FD9341A1D
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF4E341A20
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:34:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbhCSKdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 06:33:13 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:48359 "EHLO
+        id S229751AbhCSKdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 06:33:45 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:42981 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229524AbhCSKcv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 06:32:51 -0400
+        by vger.kernel.org with ESMTP id S229921AbhCSKdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 06:33:33 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id D203C1603;
-        Fri, 19 Mar 2021 06:32:50 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 75DBC134B;
+        Fri, 19 Mar 2021 06:33:32 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 19 Mar 2021 06:32:51 -0400
+  by compute4.internal (MEProxy); Fri, 19 Mar 2021 06:33:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=8gucYTvp7x2/B0oG/OUcBwA0zrC
-        1U7rEi/7Qrp41oeY=; b=XI+LIQOWbegppsUuzzr+iDfwx3cNGzDL6d+TNam4HIf
-        Z1LpxoaMslhDSyWA750IR1dwPR/pffzkPYBy+OzzUoYE9NXCUzf52zd4WWU9CPq3
-        b6frx6eFHaTkqoarSDBf8efAGV2tP9IquIgQUYMpoX8iSa6dt+7L/M+Eb6v53jxd
-        rybtfyYDLyWx8vBSRLdPQW0b3EDrCHPIXYQXcd7ioOXvFiT2QurTOzW2YZoK5BZS
-        ySUCEWxC5qQLxeESISGTT3SBfzNbyNcBU3WJAiB5Mt1RxDL+dJsBkgwjsC10QIh5
-        MVcT9zKICqS0KN1kHjpAsTTE+OD89mYMvwy6dij++oQ==
+        :content-type:in-reply-to; s=fm3; bh=JfFHTg/BWux+nPcjdimtHrbbKaV
+        mylHLXlbA6N7S8P8=; b=VHj1JYaCqDNHVHkWuEK9IwjqIjv9yka5RZuZRZ/6pUa
+        Gp8743B+CgbXkf21B4MXExpqDcJptCI5Cl2HdW18qpi1XSUjWv2lZQ/pmHPYZyJF
+        8Q4VHZpV6P+tax4aKZw/xi6aHBc1BmNV44c+MMWqiKI1dIuO9RMTv8JCFg+lj6Rz
+        7kkS7UxuV+zdiYUF+Rf3z3B46r8FE98NIlJfM2yhHvAS1PmMOgtEaRESSqx3tz8j
+        XNUT6Ek4wsaW9dAizgl5fRXVuqs/IuuhbbufCElsbiyoeP4UTjLYZ9pxmA4Yt5IC
+        Blp0KxjI1Zy7IqVN/FaENlhHdqrKqHd8f48RfvPm8oQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8gucYT
-        vp7x2/B0oG/OUcBwA0zrC1U7rEi/7Qrp41oeY=; b=eSIEfZLxaJAL47VK48o1TZ
-        vnXI3CDz2TTK5pUgUYFGb2ZlS/3GoF8DqdLGW9AMBAdv/y29l4TpBrao+nGC+fD6
-        5IV2HsyIUo4KJcwmnqgdeONMgINVo8IvVEbMToI3rKglCtSY8lYOQhyB6WYT66FP
-        RGJ+ZPGBIODH5ChbhOxOb3t6OM3RlisTfPp1hPrv0+ldiu6QszxFe2Td7OyL5LJ0
-        dgnPcBAgIcxVg9NZ6YguW+8fZxhgeNhnw6x6VUuMJM1SGOKVeKOaXFw38fK2EFdE
-        S0wyJxj4EcVvOdbIsEbb2veC6FHxiZcSPYEF73PDEW1KkP1uJKTZq1KbwXeZseng
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JfFHTg
+        /BWux+nPcjdimtHrbbKaVmylHLXlbA6N7S8P8=; b=wKRwnN89CoUNKlW0PVjxlz
+        kRJPHL45VgI9yRTMJ9ITXf0MrsN/qs8ZbLI5Up7zPCzUyy5rZtwocLDILpXDud08
+        zisxxpxxhKNEhEoejVZESxGAOqlUTc74uDn0/W7EpgfHxp/xHLvS74vQik4LW6Xa
+        o+lNrhLaVPOADzN9fAnqAifMAyG3TBkYqa/yoyPM0teayE+bjQ2ch7s2COzmtcS8
+        0sTRfieqVrBw+Dg4DMMAP1RyWJiOkjeY4hmhPsAoXOyGrLYz8cY1yud2X3m3mAc+
+        ZTtYPHv5+Mxhg65eFQNMELNd54gxlK5OdgFBpczeOwFuaY6YfKDQNIlryvlY9+hQ
         ==
-X-ME-Sender: <xms:0X1UYOsEajTgaZKzGjbLmQNwAJhu8Iq74lHawdhK2u7mtmaSxdGjHQ>
-    <xme:0X1UYDdWKSwMAUwsZymjsMPDoo3VDxayk0vqG9pipr9fzbxijBG7JvTkgnd3u9gY5
-    LvxKz3foJNrgw>
+X-ME-Sender: <xms:-31UYCjqPRWhINRFce3NjfMTZdQxyjz9EKC4M3VuwG44mul4Pr4gdw>
+    <xme:-31UYDC_koBDw6oLHxNr46cGuyeVlLffwpvLj95VJfm6onfVPgh6CfHbQJcI_Hy-u
+    HtuJtXbm4XFgA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefkedgudekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
     mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
     fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrih
     hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:0X1UYJx3IxUnuV4if88CXuGER17ZgnEImjPiQbOt5EtWSTBAd1pqUQ>
-    <xmx:0X1UYJOBQ65ruzU1oDKzOZXlZ96h5OSNL9BLWWQpyonfCaEFMUobMw>
-    <xmx:0X1UYO8B8AJcGIvbxGvXBqBhR0evaUiXLth9pPMZjX1qvmRa4u1rng>
-    <xmx:0n1UYFmu8q2X0CHNI_y9a7LtSnrZI_t246Hjd9UVz-iVxqqwOU3XWQ>
+X-ME-Proxy: <xmx:-31UYKHf4G1_UvxpZV4pn_iLY92myysWFIrQnSsjEqgtcjXstZ9Buw>
+    <xmx:-31UYLRJ-dyqvv_fV7cnPUVE-DiDAu3QF10PtxZf2exbF66JW1dX-g>
+    <xmx:-31UYPzdj1RkCprLjVCCzxngsZU7SYAYI0QuplKoAdrYgc1wiYd7Sg>
+    <xmx:_H1UYK8uopcMSRI32zmPJpeMjbdub9otMi4ApkuzxhIRB5xpLR1xvg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E75B924005E;
-        Fri, 19 Mar 2021 06:32:48 -0400 (EDT)
-Date:   Fri, 19 Mar 2021 11:32:47 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8F53D24005A;
+        Fri, 19 Mar 2021 06:33:31 -0400 (EDT)
+Date:   Fri, 19 Mar 2021 11:33:30 +0100
 From:   Greg KH <greg@kroah.com>
-To:     Ard Biesheuvel <ardb@google.com>
-Cc:     stable@vger.kernel.org, linux-crypto@vger.kernel.org, tmb@tmb.nu,
-        sashal@kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH for-stable-5.4] crypto: x86/aes-ni-xts - use direct calls
- to and 4-way stride
-Message-ID: <YFR9z5xqrsq0gZAS@kroah.com>
-References: <20210318174151.2164335-1-ardb@google.com>
+To:     DENG Qingfang <dqfext@gmail.com>
+Cc:     stable@vger.kernel.org, netdev@vger.kernel.org,
+        Ilario Gelmetti <iochesonome@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH stable 5.4.y, 4.19.y] net: dsa: tag_mtk: fix 802.1ad VLAN
+ egress
+Message-ID: <YFR9+hKJTn09MHUm@kroah.com>
+References: <20210318052935.1434546-1-dqfext@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210318174151.2164335-1-ardb@google.com>
+In-Reply-To: <20210318052935.1434546-1-dqfext@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 18, 2021 at 05:41:51PM +0000, Ard Biesheuvel wrote:
-> From: Ard Biesheuvel <ardb@kernel.org>
+On Thu, Mar 18, 2021 at 01:29:35PM +0800, DENG Qingfang wrote:
+> [ Upstream commit 9200f515c41f4cbaeffd8fdd1d8b6373a18b1b67 ]
 > 
-> Upstream commit 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
+> A different TPID bit is used for 802.1ad VLAN frames.
 > 
-> The XTS asm helper arrangement is a bit odd: the 8-way stride helper
-> consists of back-to-back calls to the 4-way core transforms, which
-> are called indirectly, based on a boolean that indicates whether we
-> are performing encryption or decryption.
-> 
-> Given how costly indirect calls are on x86, let's switch to direct
-> calls, and given how the 8-way stride doesn't really add anything
-> substantial, use a 4-way stride instead, and make the asm core
-> routine deal with any multiple of 4 blocks. Since 512 byte sectors
-> or 4 KB blocks are the typical quantities XTS operates on, increase
-> the stride exported to the glue helper to 512 bytes as well.
-> 
-> As a result, the number of indirect calls is reduced from 3 per 64 bytes
-> of in/output to 1 per 512 bytes of in/output, which produces a 65% speedup
-> when operating on 1 KB blocks (measured on a Intel(R) Core(TM) i7-8650U CPU)
-> 
-> Fixes: 9697fa39efd3f ("x86/retpoline/crypto: Convert crypto assembler indirect jumps")
-> Tested-by: Eric Biggers <ebiggers@google.com> # x86_64
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> [ardb: rebase onto stable/linux-5.4.y]
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> Reported-by: Ilario Gelmetti <iochesonome@gmail.com>
+> Fixes: f0af34317f4b ("net: dsa: mediatek: combine MediaTek tag with VLAN tag")
+> Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
 > ---
-> 
-> Please apply on top of backports of
-> 
-> 9c1e8836edbb crypto: x86 - Regularize glue function prototypes
-> 032d049ea0f4 crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
+>  net/dsa/tag_mtk.c | 19 +++++++++++++------
+>  1 file changed, 13 insertions(+), 6 deletions(-)
 
-Now queued up, thanks.
+Thanks for the backport, now queued up.
 
 greg k-h
