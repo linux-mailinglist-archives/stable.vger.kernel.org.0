@@ -2,96 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D07A341E3A
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 14:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86246341E4E
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 14:31:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbhCSN3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 09:29:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
+        id S230259AbhCSNap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 09:30:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230008AbhCSN3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 09:29:18 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE79C061760;
-        Fri, 19 Mar 2021 06:29:11 -0700 (PDT)
-Date:   Fri, 19 Mar 2021 13:29:09 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1616160550;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=T2Etk9/6pxYPV9+0mqaTWRaKTYLDsWYbpKisiaXPbD4=;
-        b=BVFBjiy+v/h3blktLsLKPPyy7htycAzeMqtzEUFgDAbmssihe0MIHnABss2obtD01yUQ6O
-        xTudMi+cIHRmlTYyko1lb5MDJtKnBwXG83dF4q22q+TjB6hXp/ASgW8sMGBMhtBEh90e70
-        RT+Hl+Oud34dKEYOTX+3Q93vlepLWGQCQ8appDHMdGy/GUNEIzd9QqY1EXEfUXK7Hv/PMT
-        vNAItwgwdNkSOyJRrTk26QqD5GQLGNMuhX6DpAbErlxnI97U+8CMgRkJF8GJddhPO1vuxH
-        742bBmFx/zHKorXnK3pItwjKslUojro1VygOHvlpNrh/3jKWOCnCkp/mp440QQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1616160550;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=T2Etk9/6pxYPV9+0mqaTWRaKTYLDsWYbpKisiaXPbD4=;
-        b=CftzSy+5ViyUco3whQxhlLsLFnQ1Yh4SRSiQmZ/nadIVeaE7abrogdxoAnGdDyj88qs3R4
-        se0XI8VnLF2eHbBQ==
-From:   "tip-bot2 for Shawn Guo" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: efi/urgent] efivars: respect EFI_UNSUPPORTED return from firmware
-Cc:     <stable@vger.kernel.org>, Shawn Guo <shawn.guo@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
+        with ESMTP id S230310AbhCSNa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 09:30:29 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F73C06175F
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 06:30:29 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id m20-20020a7bcb940000b029010cab7e5a9fso7311868wmi.3
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 06:30:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=rqxxjU+wnwYGxcIxMIjRQhxf9BngsTqESHU7cWQvFn8=;
+        b=hstLdqtNpgte2teshQgLp4jcH+bAmgbWUC1tt01NDEu34dQlqudsRenJKjc3dvabkk
+         uE9W+PdVJ5wsu55q7PkkVzpWVJPTth//+Jv8/CIYw2rXsAVyiY/SNMnA40kb1xuOKUU0
+         tuhwAZq2VMMJg6IScvK7TtCXGBIN28yf5aCd0z/YixVCT3Z5/83hg8TEj+gY6c8dQHmo
+         fEj4uRxgA25iQY9bz36/erSl983strDL4wd11vc6Iht1qz3XAXYqijHCa3LSR36XiHFm
+         A+/ZzfcroSa/1vuzqSxnUXwPW3M4MZ8X8/Z2HiVegSeGZB7h5JUMwcyr+DzODbfHR9VI
+         MJRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=rqxxjU+wnwYGxcIxMIjRQhxf9BngsTqESHU7cWQvFn8=;
+        b=hYCpngsn7xyb5osTg4wYkxA5sP0Eyzn/HCiBJIBiMvyKrPUWWg6xvNoGTmdUB9OHTX
+         ZW1QkNWZdLBYW4mMPmMaDciqcC8U56lPWl+71AApuVxBfdpntIe+HEceZTiUCA/kCCwk
+         Mp1gbqzBeUdL9IvW3UuuXHBrTdlQ5jgrU45/629jhsSGufMuMPu4lLViwC1HFVmaKic3
+         d6gzLXjx+RmXNwgshVKBUlmtnL/nfLM1nRQ+viTmGHE6/xZItW/wa/GJQ0w14UMV3EM8
+         Zg3VZOaZGom6v/gbo5qrRJV5nCSGGV2XVisccCQB8Js0mzUTF3S4CUASk+/+ue7LwfDx
+         kiew==
+X-Gm-Message-State: AOAM532QqLO+bqO9JfhrZ/7WoiNbLqcapQbIZk/Q1SfAMbltZsFHbN10
+        7HsXwd5+tPxN2euZdfxXjBnENg==
+X-Google-Smtp-Source: ABdhPJzYvk8uCKPJKGOQFMvJG0I07hajcvaqheb9rFcjVgyB2PxJHrRQCRGH+Q0cFo4RWSKNO9F2Tg==
+X-Received: by 2002:a1c:e084:: with SMTP id x126mr3765734wmg.37.1616160627793;
+        Fri, 19 Mar 2021 06:30:27 -0700 (PDT)
+Received: from google.com (216.131.76.34.bc.googleusercontent.com. [34.76.131.216])
+        by smtp.gmail.com with ESMTPSA id j13sm7731425wrt.29.2021.03.19.06.30.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Mar 2021 06:30:27 -0700 (PDT)
+Date:   Fri, 19 Mar 2021 13:30:23 +0000
+From:   David Brazdil <dbrazdil@google.com>
+To:     selinux@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Alistair Delva <adelva@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] selinux: vsock: Set SID for socket returned by
+ accept()
+Message-ID: <YFSnb/kGpn7xPPR8@google.com>
+References: <20210319130541.2188184-1-dbrazdil@google.com>
 MIME-Version: 1.0
-Message-ID: <161616054960.398.616542925097476806.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210319130541.2188184-1-dbrazdil@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the efi/urgent branch of tip:
-
-Commit-ID:     483028edacab374060d93955382b4865a9e07cba
-Gitweb:        https://git.kernel.org/tip/483028edacab374060d93955382b4865a9e07cba
-Author:        Shawn Guo <shawn.guo@linaro.org>
-AuthorDate:    Wed, 17 Mar 2021 14:36:06 +08:00
-Committer:     Ard Biesheuvel <ardb@kernel.org>
-CommitterDate: Wed, 17 Mar 2021 09:40:24 +01:00
-
-efivars: respect EFI_UNSUPPORTED return from firmware
-
-As per UEFI spec 2.8B section 8.2, EFI_UNSUPPORTED may be returned by
-EFI variable runtime services if no variable storage is supported by
-firmware.  In this case, there is no point for kernel to continue
-efivars initialization.  That said, efivar_init() should fail by
-returning an error code, so that efivarfs will not be mounted on
-/sys/firmware/efi/efivars at all.  Otherwise, user space like efibootmgr
-will be confused by the EFIVARFS_MAGIC seen there, while EFI variable
-calls cannot be made successfully.
-
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
----
- drivers/firmware/efi/vars.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/firmware/efi/vars.c b/drivers/firmware/efi/vars.c
-index 41c1d00..abdc8a6 100644
---- a/drivers/firmware/efi/vars.c
-+++ b/drivers/firmware/efi/vars.c
-@@ -485,6 +485,10 @@ int efivar_init(int (*func)(efi_char16_t *, efi_guid_t, unsigned long, void *),
- 			}
- 
- 			break;
-+		case EFI_UNSUPPORTED:
-+			err = -EOPNOTSUPP;
-+			status = EFI_NOT_FOUND;
-+			break;
- 		case EFI_NOT_FOUND:
- 			break;
- 		default:
+On Fri, Mar 19, 2021 at 01:05:41PM +0000, David Brazdil wrote:
+> For AF_VSOCK, accept() currently returns sockets that are unlabelled.
+> Other socket families derive the child's SID from the SID of the parent
+> and the SID of the incoming packet. This is typically done as the
+> connected socket is placed in the queue that accept() removes from.
+> 
+> Reuse the existing 'security_sk_clone' hook to copy the SID from the
+> parent (server) socket to the child. There is no packet SID in this
+> case.
+> 
+> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Cc: <stable@vger.kernel.org>
+> Signed-off-by: David Brazdil <dbrazdil@google.com>
+> ---
+> Tested on Android AOSP and Fedora 33 with v5.12-rc3.
+> Unit test is available here:
+>   https://github.com/SELinuxProject/selinux-testsuite/pull/75
+> 
+> Changes since v1:
+>   * reuse security_sk_clone instead of adding a new hook
+> 
+>  net/vmw_vsock/af_vsock.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 5546710d8ac1..bc7fb9bf3351 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -755,6 +755,7 @@ static struct sock *__vsock_create(struct net *net,
+>  		vsk->buffer_size = psk->buffer_size;
+>  		vsk->buffer_min_size = psk->buffer_min_size;
+>  		vsk->buffer_max_size = psk->buffer_max_size;
+> +		security_sk_clone(parent, sk);
+>  	} else {
+>  		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+>  		vsk->owner = get_current_cred();
+> -- 
+> 2.31.0.rc2.261.g7f71774620-goog
+> 
