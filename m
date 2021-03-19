@@ -2,109 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 757F1341A3B
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:40:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0A88341A63
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbhCSKkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 06:40:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50382 "EHLO mail.kernel.org"
+        id S229805AbhCSKtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 06:49:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhCSKkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 06:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5CF464E6B;
-        Fri, 19 Mar 2021 10:39:59 +0000 (UTC)
+        id S229648AbhCSKsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 06:48:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD8DD64DDA;
+        Fri, 19 Mar 2021 10:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616150400;
-        bh=upXug4xn2cSMI3wX/C88hwIqnigSyE+kWd7XvhtAWx0=;
+        s=korg; t=1616150927;
+        bh=jxXXsWLmNgSKyex1sIRe54fbKbfd0erKWr8OR0LmtkQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fQb6LIQ+LxulZcdqI5di1q2vhaiBCfkZzN/03rB+k9dHwWyRKyPN/OOsr8N61AUbo
-         G3jMqaXi6SkyXAdKwTI7qhfei+qX80s/hsKBQhHzn1eaPqbDtXf652VHZ/ku150Gmx
-         xZ1JdJjteMr9mPTKNoaojWKGPIZgJD50OblpFWD4=
-Date:   Fri, 19 Mar 2021 11:39:57 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nicolas Boichat <drinkcat@chromium.org>
-Cc:     stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christopher Li <sparse@chrisli.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-sparse@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [for-stable-4.19 PATCH 1/2] vmlinux.lds.h: Create section for
- protection against instrumentation
-Message-ID: <YFR/fQIePjDQcO5W@kroah.com>
-References: <20210318235416.794798-1-drinkcat@chromium.org>
- <20210319075410.for-stable-4.19.1.I222f801866f71be9f7d85e5b10665cd4506d78ec@changeid>
+        b=a81CTAcVyNDwFr8Pzgb89foiQFaWgRbEqo1DHippvg6XnVBeMq2Xkh3yZ/6if1gOV
+         1bSgocOGUCit5fOv8gO0Rfs4VnGFVyeVud3uYMkuWVDT2YsPskA7YNGyw3yH9cQt02
+         Evv87PBv9svdebhW7YCSj+iv7n3c9wiOJG+1ZSLk=
+Date:   Fri, 19 Mar 2021 11:48:45 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, sashal@kernel.org
+Subject: Re: [PATCH stable 0/6] net: dsa: b53: Correct learning for
+ standalone ports
+Message-ID: <YFSBjd8N98xcFHYc@kroah.com>
+References: <20210317003549.3964522-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210319075410.for-stable-4.19.1.I222f801866f71be9f7d85e5b10665cd4506d78ec@changeid>
+In-Reply-To: <20210317003549.3964522-1-f.fainelli@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 07:54:15AM +0800, Nicolas Boichat wrote:
-> From: Thomas Gleixner <tglx@linutronix.de>
+On Tue, Mar 16, 2021 at 05:35:43PM -0700, Florian Fainelli wrote:
+> Hi Greg, Sasha, Jaakub and David,
 > 
-> commit 6553896666433e7efec589838b400a2a652b3ffa upstream.
+> This patch series contains backports for a change that recently made it
+> upstream as f9b3827ee66cfcf297d0acd6ecf33653a5f297ef ("net: dsa: b53:
+> Support setting learning on port") however that commit depends on
+> infrastructure that landed in v5.12-rc1.
 > 
-> Some code pathes, especially the low level entry code, must be protected
-> against instrumentation for various reasons:
+> The way this was fixed in the netdev group's net tree is slightly
+> different from how it should be backported to stable trees which is why
+> you will find a patch for each branch in the thread started by this
+> cover letter. The commit used as a Fixes: base dates back from when the
+> driver was first introduced into the tree since this should have been
+> fixed from day one ideally.
 > 
->  - Low level entry code can be a fragile beast, especially on x86.
-> 
->  - With NO_HZ_FULL RCU state needs to be established before using it.
-> 
-> Having a dedicated section for such code allows to validate with tooling
-> that no unsafe functions are invoked.
-> 
-> Add the .noinstr.text section and the noinstr attribute to mark
-> functions. noinstr implies notrace. Kprobes will gain a section check
-> later.
-> 
-> Provide also a set of markers: instrumentation_begin()/end()
-> 
-> These are used to mark code inside a noinstr function which calls
-> into regular instrumentable text section as safe.
-> 
-> The instrumentation markers are only active when CONFIG_DEBUG_ENTRY is
-> enabled as the end marker emits a NOP to prevent the compiler from merging
-> the annotation points. This means the objtool verification requires a
-> kernel compiled with this option.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
-> Acked-by: Peter Zijlstra <peterz@infradead.org>
-> Link: https://lkml.kernel.org/r/20200505134100.075416272@linutronix.de
-> 
-> [Nicolas: context conflicts in:
-> 	arch/powerpc/kernel/vmlinux.lds.S
-> 	include/asm-generic/vmlinux.lds.h
-> 	include/linux/compiler.h
-> 	include/linux/compiler_types.h]
-> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+> Let me know if this does not apply for some reason. The changes from 4.9
+> through 4.19 are nearly identical and then from 5.4 through 5.11 are
+> about the same.
 
-Did you build this on x86?
-
-I get the following build error:
-
-ld:./arch/x86/kernel/vmlinux.lds:20: syntax error
-
-And that line looks like:
-
- . = ALIGN(8); *(.text.hot .text.hot.*) *(.text .text.fixup) *(.text.unlikely .text.unlikely.*) *(.text.unknown .text.unknown.*) . = ALIGN(8); __noinstr_text_start = .; *(.__attribute__((noinline)) __attribute__((no_instrument_function)) __attribute((__section__(".noinstr.text"))).text) __noinstr_text_end = .; *(.text..refcount) *(.ref.text) *(.meminit.text*) *(.memexit.text*)
-
-So I'm going to drop both of these patches from the queue.
-
-thanks,
+All now applied, thanks!
 
 greg k-h
