@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D121341C30
+	by mail.lfdr.de (Postfix) with ESMTP id D9724341C31
 	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230195AbhCSMTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:19:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56874 "EHLO mail.kernel.org"
+        id S230199AbhCSMTk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:19:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230090AbhCSMTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:19:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EE6B64E6B;
-        Fri, 19 Mar 2021 12:19:09 +0000 (UTC)
+        id S230113AbhCSMTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:19:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D7E064F6A;
+        Fri, 19 Mar 2021 12:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156349;
-        bh=SE75/lYRPOieO1CqQorbNFtQEubIVY0pkknrxHEdQqg=;
+        s=korg; t=1616156352;
+        bh=G/gmAbyYrQIMV8vgdqik79euEX33GWriLIGeQvjLnNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2721kd6nPfFRzTu09I1s3rMSW5mnH1bcemVwZv5r2HJouNvMkZBGqSxrIDH9kTMB
-         J6vqkwlS1zMUNMifMNDCXLDhlEH2OAucoD60AvDXR5ZRt7dPrse1a4Q8rD8rif068G
-         IzH0JXWPdoLcyrUnf2NwT1azBgOKJBMY+cHuyNYE=
+        b=hlKu8WicUp1JBS3d7Yc+aAMNB6ROevCUs07c0Z+3Q/8PR7IvfpsublPuDY7ywlsUm
+         lsiTnOALzaGvy4Dix/EIbrT+1/Vk+x6ipP7SYNbagJ5A5vky+YMRBMKcrdrLJls9sY
+         rI0NM8DjDNjm9EW2eoX2ZRicN6oFmDJ5moq1bFLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 03/18] bpf: Fix off-by-one for area size in creating mask to left
-Date:   Fri, 19 Mar 2021 13:18:41 +0100
-Message-Id: <20210319121745.563006347@linuxfoundation.org>
+Subject: [PATCH 5.4 04/18] bpf: Simplify alu_limit masking for pointer arithmetic
+Date:   Fri, 19 Mar 2021 13:18:42 +0100
+Message-Id: <20210319121745.598741986@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121745.449875976@linuxfoundation.org>
 References: <20210319121745.449875976@linuxfoundation.org>
@@ -42,52 +42,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Piotr Krysiuk <piotras@gmail.com>
 
-commit 10d2bb2e6b1d8c4576c56a748f697dbeb8388899 upstream.
+commit b5871dca250cd391885218b99cc015aca1a51aea upstream.
 
-retrieve_ptr_limit() computes the ptr_limit for registers with stack and
-map_value type. ptr_limit is the size of the memory area that is still
-valid / in-bounds from the point of the current position and direction
-of the operation (add / sub). This size will later be used for masking
-the operation such that attempting out-of-bounds access in the speculative
-domain is redirected to remain within the bounds of the current map value.
+Instead of having the mov32 with aux->alu_limit - 1 immediate, move this
+operation to retrieve_ptr_limit() instead to simplify the logic and to
+allow for subsequent sanity boundary checks inside retrieve_ptr_limit().
+This avoids in future that at the time of the verifier masking rewrite
+we'd run into an underflow which would not sign extend due to the nature
+of mov32 instruction.
 
-When masking to the right the size is correct, however, when masking to
-the left, the size is off-by-one which would lead to an incorrect mask
-and thus incorrect arithmetic operation in the non-speculative domain.
-Piotr found that if the resulting alu_limit value is zero, then the
-BPF_MOV32_IMM() from the fixup_bpf_calls() rewrite will end up loading
-0xffffffff into AX instead of sign-extending to the full 64 bit range,
-and as a result, this allows abuse for executing speculatively out-of-
-bounds loads against 4GB window of address space and thus extracting the
-contents of kernel memory via side-channel.
-
-Fixes: 979d63d50c0c ("bpf: prevent out of bounds speculation on pointer arithmetic")
 Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
 Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -4277,13 +4277,13 @@ static int retrieve_ptr_limit(const stru
+@@ -4277,16 +4277,16 @@ static int retrieve_ptr_limit(const stru
  		 */
  		off = ptr_reg->off + ptr_reg->var_off.value;
  		if (mask_to_left)
--			*ptr_limit = MAX_BPF_STACK + off;
-+			*ptr_limit = MAX_BPF_STACK + off + 1;
+-			*ptr_limit = MAX_BPF_STACK + off + 1;
++			*ptr_limit = MAX_BPF_STACK + off;
  		else
- 			*ptr_limit = -off;
+-			*ptr_limit = -off;
++			*ptr_limit = -off - 1;
  		return 0;
  	case PTR_TO_MAP_VALUE:
  		if (mask_to_left) {
--			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
-+			*ptr_limit = ptr_reg->umax_value + ptr_reg->off + 1;
+-			*ptr_limit = ptr_reg->umax_value + ptr_reg->off + 1;
++			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
  		} else {
  			off = ptr_reg->smin_value + ptr_reg->off;
- 			*ptr_limit = ptr_reg->map_ptr->value_size - off;
+-			*ptr_limit = ptr_reg->map_ptr->value_size - off;
++			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
+ 		}
+ 		return 0;
+ 	default:
+@@ -9081,7 +9081,7 @@ static int fixup_bpf_calls(struct bpf_ve
+ 			off_reg = issrc ? insn->src_reg : insn->dst_reg;
+ 			if (isneg)
+ 				*patch++ = BPF_ALU64_IMM(BPF_MUL, off_reg, -1);
+-			*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit - 1);
++			*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit);
+ 			*patch++ = BPF_ALU64_REG(BPF_SUB, BPF_REG_AX, off_reg);
+ 			*patch++ = BPF_ALU64_REG(BPF_OR, BPF_REG_AX, off_reg);
+ 			*patch++ = BPF_ALU64_IMM(BPF_NEG, BPF_REG_AX, 0);
 
 
