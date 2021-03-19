@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70658341C67
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6886C341C6E
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230398AbhCSMUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58496 "EHLO mail.kernel.org"
+        id S230024AbhCSMUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:20:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230316AbhCSMUW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C00DB6146D;
-        Fri, 19 Mar 2021 12:20:21 +0000 (UTC)
+        id S231203AbhCSMUf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F02D64F6C;
+        Fri, 19 Mar 2021 12:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156422;
-        bh=HdbIVlhi+KrHLSVZ2TLqcSo72xulVN1bqgio34ZDE6g=;
+        s=korg; t=1616156434;
+        bh=k3AIAoWRW2AFOZrmZV1wcG4bLUB9af+kPPR0gRULy1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPAWOsm1I5n9niXHflUnk6luHuFYj2ig9/kvEQvXMqy9ClHKxQ35akFN7jxcwf10A
-         vlynLU9+aCv8ph4UeK44tY10dVzU7gVjau85bdnaVauXirLRhHAMshknMHHFC3W9fF
-         dW7msEsSIIsncDfU1k97YdBiltax9UjgkhM6Cvhg=
+        b=mO1Qy9UMKQv/xhV5lkmuLB4T+X5mxQeYO6EQgDooOtUGXcCqDSBKSObX3sabU6kPO
+         VkkhO7YKa5kJtYvHEDw96uVKvHTY0L0KALXmO6v/R2s4t2zweeG7EqgEcZcQ372Ysx
+         IYOcUvf231dgCbC+nKp1nZ6t2ELtsPjVnC/lxCSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 09/13] fuse: fix live lock in fuse_iget()
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Roman Guskov <rguskov@dh-electronics.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 12/31] gpiolib: Read "gpio-line-names" from a firmware node
 Date:   Fri, 19 Mar 2021 13:19:06 +0100
-Message-Id: <20210319121745.408809708@linuxfoundation.org>
+Message-Id: <20210319121747.594813307@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
-References: <20210319121745.112612545@linuxfoundation.org>
+In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
+References: <20210319121747.203523570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 775c5033a0d164622d9d10dd0f0a5531639ed3ed upstream.
+[ Upstream commit b41ba2ec54a70908067034f139aa23d0dd2985ce ]
 
-Commit 5d069dbe8aaf ("fuse: fix bad inode") replaced make_bad_inode()
-in fuse_iget() with a private implementation fuse_make_bad().
+On STM32MP1, the GPIO banks are subnodes of pin-controller@50002000,
+see arch/arm/boot/dts/stm32mp151.dtsi. The driver for
+pin-controller@50002000 is in drivers/pinctrl/stm32/pinctrl-stm32.c
+and iterates over all of its DT subnodes when registering each GPIO
+bank gpiochip. Each gpiochip has:
 
-The private implementation fails to remove the bad inode from inode
-cache, so the retry loop with iget5_locked() finds the same bad inode
-and marks it bad forever.
+  - gpio_chip.parent = dev,
+    where dev is the device node of the pin controller
+  - gpio_chip.of_node = np,
+    which is the OF node of the GPIO bank
 
-kmsg snip:
+Therefore, dev_fwnode(chip->parent) != of_fwnode_handle(chip.of_node),
+i.e. pin-controller@50002000 != pin-controller@50002000/gpio@5000*000.
 
-[ ] rcu: INFO: rcu_sched self-detected stall on CPU
-...
-[ ]  ? bit_wait_io+0x50/0x50
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? find_inode.isra.32+0x60/0xb0
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5_nowait+0x65/0x90
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5.part.36+0x2e/0x80
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  iget5_locked+0x21/0x80
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  fuse_iget+0x96/0x1b0
+The original code behaved correctly, as it extracted the "gpio-line-names"
+from of_fwnode_handle(chip.of_node) = pin-controller@50002000/gpio@5000*000.
 
-Fixes: 5d069dbe8aaf ("fuse: fix bad inode")
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To achieve the same behaviour, read property from the firmware node.
+
+Fixes: 7cba1a4d5e162 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
+Reported-by: Marek Vasut <marex@denx.de>
+Reported-by: Roman Guskov <rguskov@dh-electronics.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/fuse_i.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpio/gpiolib.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -862,6 +862,7 @@ static inline u64 fuse_get_attr_version(
- 
- static inline void fuse_make_bad(struct inode *inode)
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index e4cfa27f6893..3451572166f2 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -365,22 +365,18 @@ static int gpiochip_set_desc_names(struct gpio_chip *gc)
+  *
+  * Looks for device property "gpio-line-names" and if it exists assigns
+  * GPIO line names for the chip. The memory allocated for the assigned
+- * names belong to the underlying software node and should not be released
++ * names belong to the underlying firmware node and should not be released
+  * by the caller.
+  */
+ static int devprop_gpiochip_set_names(struct gpio_chip *chip)
  {
-+	remove_inode_hash(inode);
- 	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
- }
+ 	struct gpio_device *gdev = chip->gpiodev;
+-	struct device *dev = chip->parent;
++	struct fwnode_handle *fwnode = dev_fwnode(&gdev->dev);
+ 	const char **names;
+ 	int ret, i;
+ 	int count;
  
+-	/* GPIO chip may not have a parent device whose properties we inspect. */
+-	if (!dev)
+-		return 0;
+-
+-	count = device_property_string_array_count(dev, "gpio-line-names");
++	count = fwnode_property_string_array_count(fwnode, "gpio-line-names");
+ 	if (count < 0)
+ 		return 0;
+ 
+@@ -394,7 +390,7 @@ static int devprop_gpiochip_set_names(struct gpio_chip *chip)
+ 	if (!names)
+ 		return -ENOMEM;
+ 
+-	ret = device_property_read_string_array(dev, "gpio-line-names",
++	ret = fwnode_property_read_string_array(fwnode, "gpio-line-names",
+ 						names, count);
+ 	if (ret < 0) {
+ 		dev_warn(&gdev->dev, "failed to read GPIO line names\n");
+-- 
+2.30.1
+
 
 
