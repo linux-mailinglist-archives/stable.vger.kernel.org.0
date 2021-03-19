@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210F8341C25
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:19:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D54341C2F
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230063AbhCSMTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:19:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56624 "EHLO mail.kernel.org"
+        id S230192AbhCSMTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:19:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229934AbhCSMTD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:19:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C60D64F6A;
-        Fri, 19 Mar 2021 12:18:51 +0000 (UTC)
+        id S229979AbhCSMTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:19:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F73E64F6E;
+        Fri, 19 Mar 2021 12:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156332;
-        bh=KEpTMrMSJtlb0og6uLjfX+B730L9RzNRFcWa+QJBmHc=;
+        s=korg; t=1616156334;
+        bh=Xsv6uBz+2BuWLAQLzEeuYikoPDZ+SQRqq5W5nIPI5Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1Lmy0Nh9ngmK7zLOHU2W1616Etn7PrIktvKku4+32q29ZuJWDl4ahp/hcx8nAJwR
-         mJY6ZZv9zZ9OlHCxM66t/YxtbRQbulUeR0OBYZwNMCUu9mvmzMuLMSKwlmRRNCaB6L
-         PhmVBlKzM1RfL3BMSO8Bj/+DnL3oy9LT5k+I7k+U=
+        b=pcTYDBunPllT3+XbkezFiY3S+stXMf33QtdyhEKsEWnLLBHI1vqtP7I5AvenjQZha
+         fqPFpjXFHpbkiXp9+vqHMNCXRcmAmb8aU/Y5MXPZduTZpvNifgj3qtH00S9+QSVuhd
+         VC++YidiCz3Bj8EdhJl9BOqF+OXVgcRELQX02nV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilario Gelmetti <iochesonome@gmail.com>,
-        DENG Qingfang <dqfext@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 7/8] net: dsa: tag_mtk: fix 802.1ad VLAN egress
-Date:   Fri, 19 Mar 2021 13:18:26 +0100
-Message-Id: <20210319121744.340668743@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 8/8] net: dsa: b53: Support setting learning on port
+Date:   Fri, 19 Mar 2021 13:18:27 +0100
+Message-Id: <20210319121744.371636297@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121744.114946147@linuxfoundation.org>
 References: <20210319121744.114946147@linuxfoundation.org>
@@ -40,83 +40,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 9200f515c41f4cbaeffd8fdd1d8b6373a18b1b67 upstream.
+commit f9b3827ee66cfcf297d0acd6ecf33653a5f297ef upstream.
 
-A different TPID bit is used for 802.1ad VLAN frames.
+Add support for being able to set the learning attribute on port, and
+make sure that the standalone ports start up with learning disabled.
 
-Reported-by: Ilario Gelmetti <iochesonome@gmail.com>
-Fixes: f0af34317f4b ("net: dsa: mediatek: combine MediaTek tag with VLAN tag")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+We can remove the code in bcm_sf2 that configured the ports learning
+attribute because we want the standalone ports to have learning disabled
+by default and port 7 cannot be bridged, so its learning attribute will
+not change past its initial configuration.
+
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/dsa/tag_mtk.c |   19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/net/dsa/b53/b53_common.c |   19 +++++++++++++++++++
+ drivers/net/dsa/b53/b53_regs.h   |    1 +
+ drivers/net/dsa/bcm_sf2.c        |    5 -----
+ 3 files changed, 20 insertions(+), 5 deletions(-)
 
---- a/net/dsa/tag_mtk.c
-+++ b/net/dsa/tag_mtk.c
-@@ -20,6 +20,7 @@
- #define MTK_HDR_LEN		4
- #define MTK_HDR_XMIT_UNTAGGED		0
- #define MTK_HDR_XMIT_TAGGED_TPID_8100	1
-+#define MTK_HDR_XMIT_TAGGED_TPID_88A8	2
- #define MTK_HDR_RECV_SOURCE_PORT_MASK	GENMASK(2, 0)
- #define MTK_HDR_XMIT_DP_BIT_MASK	GENMASK(5, 0)
- #define MTK_HDR_XMIT_SA_DIS		BIT(6)
-@@ -28,8 +29,8 @@ static struct sk_buff *mtk_tag_xmit(stru
- 				    struct net_device *dev)
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -507,12 +507,27 @@ void b53_imp_vlan_setup(struct dsa_switc
+ }
+ EXPORT_SYMBOL(b53_imp_vlan_setup);
+ 
++static void b53_port_set_learning(struct b53_device *dev, int port,
++				  bool learning)
++{
++	u16 reg;
++
++	b53_read16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, &reg);
++	if (learning)
++		reg &= ~BIT(port);
++	else
++		reg |= BIT(port);
++	b53_write16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, reg);
++}
++
+ int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
  {
- 	struct dsa_port *dp = dsa_slave_to_port(dev);
-+	u8 xmit_tpid;
- 	u8 *mtk_tag;
--	bool is_vlan_skb = true;
- 	unsigned char *dest = eth_hdr(skb)->h_dest;
- 	bool is_multicast_skb = is_multicast_ether_addr(dest) &&
- 				!is_broadcast_ether_addr(dest);
-@@ -40,13 +41,20 @@ static struct sk_buff *mtk_tag_xmit(stru
- 	 * the both special and VLAN tag at the same time and then look up VLAN
- 	 * table with VID.
- 	 */
--	if (!skb_vlan_tagged(skb)) {
-+	switch (skb->protocol) {
-+	case htons(ETH_P_8021Q):
-+		xmit_tpid = MTK_HDR_XMIT_TAGGED_TPID_8100;
-+		break;
-+	case htons(ETH_P_8021AD):
-+		xmit_tpid = MTK_HDR_XMIT_TAGGED_TPID_88A8;
-+		break;
-+	default:
- 		if (skb_cow_head(skb, MTK_HDR_LEN) < 0)
- 			return NULL;
+ 	struct b53_device *dev = ds->priv;
+ 	unsigned int cpu_port = ds->ports[port].cpu_dp->index;
+ 	u16 pvlan;
  
-+		xmit_tpid = MTK_HDR_XMIT_UNTAGGED;
- 		skb_push(skb, MTK_HDR_LEN);
- 		memmove(skb->data, skb->data + MTK_HDR_LEN, 2 * ETH_ALEN);
--		is_vlan_skb = false;
++	b53_port_set_learning(dev, port, false);
++
+ 	/* Clear the Rx and Tx disable bits and set to no spanning tree */
+ 	b53_write8(dev, B53_CTRL_PAGE, B53_PORT_CTRL(port), 0);
+ 
+@@ -620,6 +635,7 @@ static void b53_enable_cpu_port(struct b
+ 	b53_write8(dev, B53_CTRL_PAGE, B53_PORT_CTRL(port), port_ctrl);
+ 
+ 	b53_brcm_hdr_setup(dev->ds, port);
++	b53_port_set_learning(dev, port, false);
+ }
+ 
+ static void b53_enable_mib(struct b53_device *dev)
+@@ -1517,6 +1533,8 @@ int b53_br_join(struct dsa_switch *ds, i
+ 	b53_write16(dev, B53_PVLAN_PAGE, B53_PVLAN_PORT_MASK(port), pvlan);
+ 	dev->ports[port].vlan_ctl_mask = pvlan;
+ 
++	b53_port_set_learning(dev, port, true);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(b53_br_join);
+@@ -1564,6 +1582,7 @@ void b53_br_leave(struct dsa_switch *ds,
+ 		vl->untag |= BIT(port) | BIT(cpu_port);
+ 		b53_set_vlan_entry(dev, pvid, vl);
  	}
++	b53_port_set_learning(dev, port, false);
+ }
+ EXPORT_SYMBOL(b53_br_leave);
  
- 	mtk_tag = skb->data + 2 * ETH_ALEN;
-@@ -54,8 +62,7 @@ static struct sk_buff *mtk_tag_xmit(stru
- 	/* Mark tag attribute on special tag insertion to notify hardware
- 	 * whether that's a combined special tag with 802.1Q header.
- 	 */
--	mtk_tag[0] = is_vlan_skb ? MTK_HDR_XMIT_TAGGED_TPID_8100 :
--		     MTK_HDR_XMIT_UNTAGGED;
-+	mtk_tag[0] = xmit_tpid;
- 	mtk_tag[1] = (1 << dp->index) & MTK_HDR_XMIT_DP_BIT_MASK;
+--- a/drivers/net/dsa/b53/b53_regs.h
++++ b/drivers/net/dsa/b53/b53_regs.h
+@@ -115,6 +115,7 @@
+ #define B53_UC_FLOOD_MASK		0x32
+ #define B53_MC_FLOOD_MASK		0x34
+ #define B53_IPMC_FLOOD_MASK		0x36
++#define B53_DIS_LEARNING		0x3c
  
- 	/* Disable SA learning for multicast frames */
-@@ -63,7 +70,7 @@ static struct sk_buff *mtk_tag_xmit(stru
- 		mtk_tag[1] |= MTK_HDR_XMIT_SA_DIS;
+ /*
+  * Override Ports 0-7 State on devices with xMII interfaces (8 bit)
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -173,11 +173,6 @@ static int bcm_sf2_port_setup(struct dsa
+ 	reg &= ~P_TXQ_PSM_VDD(port);
+ 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
  
- 	/* Tag control information is kept for 802.1Q */
--	if (!is_vlan_skb) {
-+	if (xmit_tpid == MTK_HDR_XMIT_UNTAGGED) {
- 		mtk_tag[2] = 0;
- 		mtk_tag[3] = 0;
- 	}
+-	/* Enable learning */
+-	reg = core_readl(priv, CORE_DIS_LEARN);
+-	reg &= ~BIT(port);
+-	core_writel(priv, reg, CORE_DIS_LEARN);
+-
+ 	/* Enable Broadcom tags for that port if requested */
+ 	if (priv->brcm_tag_mask & BIT(port))
+ 		b53_brcm_hdr_setup(ds, port);
 
 
