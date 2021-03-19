@@ -2,65 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72AD034209A
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 16:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E77C33420A7
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 16:15:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230079AbhCSPM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 11:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46466 "EHLO mail.kernel.org"
+        id S230009AbhCSPOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 11:14:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230051AbhCSPMP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 11:12:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BEB961921;
-        Fri, 19 Mar 2021 15:12:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616166734;
-        bh=fjGi/QHNJfzDVR0Ld64w4sEfBS2lOPpHYD5KhaG3EYA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bpef4Uw3Lr477fj/ZHc9ZxRVQTAKxQpGi8l04SLfiZZhy/Xh6V0X1NxG6OHYuhq6P
-         gvEzwmWKnGqNGx1ko0Wal4Zfd6OcsYK32k8UNjs7LGCxTr3Zh0UTP/zFpdxHbPGBG2
-         fA3U9I8+TDrwFxSD2fNXJp/gmdXLWBTl8XMCgfb0=
-Date:   Fri, 19 Mar 2021 15:29:25 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        id S230015AbhCSPOL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 11:14:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E699F61923;
+        Fri, 19 Mar 2021 15:14:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616166851;
+        bh=GH7hAX0ML1TB3hqKN7F4JT+ch/V/41FZKni+vBimVcU=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=WsxV0urWkBEO7Xnds3YW+GCZa+vGG6Hmk/jhg+FPCdEfpAgyPXeuYfeALLbdknrrl
+         AX3Vh4u3j331w/BR//83RF4Nny3gvn5VRDPn183BmsaX/T6/ORehGFFlUUlJwxVck0
+         hWlwMQprP6BvZ0a4fqHh9ddw+IahdeF7Flhi7Gvn42QFMGKqJyBFe523X6Mzzz/VmB
+         sXqmiwtcajcabDcF3WsFOcPxOztxl2aESFPALskPJq+FYEQirKPL8dcO+lZZzX2Bwq
+         9IMDFBpD9O5Cri6tjgNmgy8y9/+uVvxWJt/pUWpgmcWaFFadwXLa4UOhLz3T1KmsYK
+         sv7jK/84UX3MQ==
+Date:   Fri, 19 Mar 2021 16:14:07 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         TOTE Robot <oslab@tsinghua.edu.cn>,
         Jia-Ju Bai <baijiaju1990@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, Jiri Kosina <jikos@jikos.cz>
+        Sasha Levin <sashal@kernel.org>
 Subject: Re: [PATCH 5.11 13/31] net: bonding: fix error return code of
  bond_neigh_init()
-Message-ID: <YFS1RZl3u80zy4pH@kroah.com>
-References: <20210319121747.203523570@linuxfoundation.org>
- <20210319121747.622717971@linuxfoundation.org>
- <alpine.LRH.2.00.2103191511500.19651@gjva.wvxbf.pm>
- <nycvar.YFH.7.76.2103191524160.12405@cbobk.fhfr.pm>
+In-Reply-To: <YFS0dlTZN9ApED93@kroah.com>
+Message-ID: <nycvar.YFH.7.76.2103191613470.12405@cbobk.fhfr.pm>
+References: <20210319121747.203523570@linuxfoundation.org> <20210319121747.622717971@linuxfoundation.org> <alpine.LRH.2.00.2103191511500.19651@gjva.wvxbf.pm> <YFS0dlTZN9ApED93@kroah.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.2103191524160.12405@cbobk.fhfr.pm>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 03:24:38PM +0100, Jiri Kosina wrote:
-> On Fri, 19 Mar 2021, Jiri Kosina wrote:
-> 
-> > > [ Upstream commit 2055a99da8a253a357bdfd359b3338ef3375a26c ]
-> > > 
-> > > When slave is NULL or slave_ops->ndo_neigh_setup is NULL, no error
-> > > return code of bond_neigh_init() is assigned.
-> > > To fix this bug, ret is assigned with -EINVAL in these cases.
-> > > 
-> > > Fixes: 9e99bfefdbce ("bonding: fix bond_neigh_init()")
-> > > Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-> > > Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-> > > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > ---
-> > >  drivers/net/bonding/bond_main.c | 8 ++++++--
-> > >  1 file changed, 6 insertions(+), 2 deletions(-)
-> > > 
+On Fri, 19 Mar 2021, Greg Kroah-Hartman wrote:
+
 > > > diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
 > > > index 5fe5232cc3f3..fba6b6d1b430 100644
 > > > --- a/drivers/net/bonding/bond_main.c
@@ -84,9 +68,11 @@ On Fri, Mar 19, 2021 at 03:24:38PM +0100, Jiri Kosina wrote:
 > > This patch is completely broken and breaks bonding functionality 
 > > altogether for me.
 > 
-> ... and I just found out that revert is already queued in netdev.git. So 
-> please drop it from stable queue as well.
+> Is Linus's tree also broken for you?  This showed up in 5.12-rc3.
 
-Ah, missed that, will go drop this now, thanks for letting me know.
+Yes, it is.
 
-greg k-h
+-- 
+Jiri Kosina
+SUSE Labs
+
