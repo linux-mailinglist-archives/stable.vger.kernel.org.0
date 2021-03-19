@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D9C4341C6B
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F6E341C64
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbhCSMUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58442 "EHLO mail.kernel.org"
+        id S230010AbhCSMUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230512AbhCSMU3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E13E864E6B;
-        Fri, 19 Mar 2021 12:20:16 +0000 (UTC)
+        id S230411AbhCSMUU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CC1764F65;
+        Fri, 19 Mar 2021 12:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156417;
-        bh=mr6EmmaKTDoHLBwdcCRrMnZn15DZNB+Kjt8JDYT58EA=;
+        s=korg; t=1616156419;
+        bh=0WUz7ExhoeU5E9tBpK+ViFg/1w5fhR5zj2NSQgMzYWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTNyhygJmzMNpIw8A5PUvYKiKzN6LjQrFpK7bP1gI8BZqabFJAm9K3aAgJmMFpnv2
-         HXg2QB+Ymfpxxhs06Az+6ptU/fyV7XPICFrqtZPemrVDDiZufwbUE9CLM/BqDYvC07
-         juVmypsP/jrupQVtgzGF8h+A4U8WzD/mP4LWJvNs=
+        b=rx3KJjL+poOdxl3nre+mihGvT6BlbICW36rqgSCVLimXiLOg/qJPGuMUitFNoL9Qv
+         WyStvKPX3yLkJgmgzssUjYYq1ZoIx9C1fyIqrpVWd82KznXZaLuN3tE0BQw21pXfTq
+         5NnXOU6C31ME9hgZHqMnCrhh1KP2XPJlfxbTAN4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 07/13] bpf, selftests: Fix up some test_verifier cases for unprivileged
-Date:   Fri, 19 Mar 2021 13:19:04 +0100
-Message-Id: <20210319121745.339755898@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Yi Zhang <yi.zhang@redhat.com>
+Subject: [PATCH 5.10 08/13] RDMA/srp: Fix support for unpopulated and unbalanced NUMA nodes
+Date:   Fri, 19 Mar 2021 13:19:05 +0100
+Message-Id: <20210319121745.370839960@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
 References: <20210319121745.112612545@linuxfoundation.org>
@@ -40,223 +42,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Krysiuk <piotras@gmail.com>
+From: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
 
-commit 0a13e3537ea67452d549a6a80da3776d6b7dedb3 upstream.
+commit 2b5715fc17386a6223490d5b8f08d031999b0c0b upstream.
 
-Fix up test_verifier error messages for the case where the original error
-message changed, or for the case where pointer alu errors differ between
-privileged and unprivileged tests. Also, add alternative tests for keeping
-coverage of the original verifier rejection error message (fp alu), and
-newly reject map_ptr += rX where rX == 0 given we now forbid alu on these
-types for unprivileged. All test_verifier cases pass after the change. The
-test case fixups were kept separate to ease backporting of core changes.
+The current code computes a number of channels per SRP target and spreads
+them equally across all online NUMA nodes.  Each channel is then assigned
+a CPU within this node.
 
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
-Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+In the case of unbalanced, or even unpopulated nodes, some channels do not
+get a CPU associated and thus do not get connected.  This causes the SRP
+connection to fail.
+
+This patch solves the issue by rewriting channel computation and
+allocation:
+
+- Drop channel to node/CPU association as it had no real effect on
+  locality but added unnecessary complexity.
+
+- Tweak the number of channels allocated to reduce CPU contention when
+  possible:
+  - Up to one channel per CPU (instead of up to 4 by node)
+  - At least 4 channels per node, unless ch_count module parameter is
+    used.
+
+Link: https://lore.kernel.org/r/9cb4d9d3-30ad-2276-7eff-e85f7ddfb411@suse.com
+Signed-off-by: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Yi Zhang <yi.zhang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/verifier/bounds_deduction.c |   27 +++++++++++-----
- tools/testing/selftests/bpf/verifier/map_ptr.c          |    4 ++
- tools/testing/selftests/bpf/verifier/unpriv.c           |   15 ++++++++
- tools/testing/selftests/bpf/verifier/value_ptr_arith.c  |   23 +++++++++++++
- 4 files changed, 59 insertions(+), 10 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c |  116 ++++++++++++++----------------------
+ 1 file changed, 48 insertions(+), 68 deletions(-)
 
---- a/tools/testing/selftests/bpf/verifier/bounds_deduction.c
-+++ b/tools/testing/selftests/bpf/verifier/bounds_deduction.c
-@@ -6,8 +6,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 2",
-@@ -20,6 +21,8 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
- 		BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 1,
- },
-@@ -31,8 +34,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 4",
-@@ -45,6 +49,8 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
- 		BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- },
- {
-@@ -55,8 +61,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 6",
-@@ -67,8 +74,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 7",
-@@ -80,8 +88,9 @@
- 			    offsetof(struct __sk_buff, mark)),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "dereference of modified ctx ptr",
-+	.result = REJECT,
- 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
- },
- {
-@@ -94,8 +103,9 @@
- 			    offsetof(struct __sk_buff, mark)),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
- 	.errstr = "dereference of modified ctx ptr",
-+	.result = REJECT,
- 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
- },
- {
-@@ -106,8 +116,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 10",
-@@ -119,6 +130,6 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
- 	.errstr = "math between ctx pointer and register with unbounded min value is not allowed",
-+	.result = REJECT,
- },
---- a/tools/testing/selftests/bpf/verifier/map_ptr.c
-+++ b/tools/testing/selftests/bpf/verifier/map_ptr.c
-@@ -74,6 +74,8 @@
- 	BPF_EXIT_INSN(),
- 	},
- 	.fixup_map_hash_16b = { 4 },
-+	.result_unpriv = REJECT,
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
- 	.result = ACCEPT,
- },
- {
-@@ -90,5 +92,7 @@
- 	BPF_EXIT_INSN(),
- 	},
- 	.fixup_map_hash_16b = { 4 },
-+	.result_unpriv = REJECT,
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
- 	.result = ACCEPT,
- },
---- a/tools/testing/selftests/bpf/verifier/unpriv.c
-+++ b/tools/testing/selftests/bpf/verifier/unpriv.c
-@@ -495,7 +495,7 @@
- 	.result = ACCEPT,
- },
- {
--	"unpriv: adding of fp",
-+	"unpriv: adding of fp, reg",
- 	.insns = {
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_MOV64_IMM(BPF_REG_1, 0),
-@@ -503,6 +503,19 @@
- 	BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, -8),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
-+	.result_unpriv = REJECT,
-+	.result = ACCEPT,
-+},
-+{
-+	"unpriv: adding of fp, imm",
-+	.insns = {
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 0),
-+	BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, -8),
-+	BPF_EXIT_INSN(),
-+	},
- 	.errstr_unpriv = "R1 stack pointer arithmetic goes out of range",
- 	.result_unpriv = REJECT,
- 	.result = ACCEPT,
---- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-+++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-@@ -169,7 +169,7 @@
- 	.fixup_map_array_48b = { 1 },
- 	.result = ACCEPT,
- 	.result_unpriv = REJECT,
--	.errstr_unpriv = "R2 tried to add from different maps or paths",
-+	.errstr_unpriv = "R2 tried to add from different maps, paths, or prohibited types",
- 	.retval = 0,
- },
- {
-@@ -517,6 +517,27 @@
- 	.retval = 0xabcdef12,
- },
- {
-+	"map access: value_ptr += N, value_ptr -= N known scalar",
-+	.insns = {
-+	BPF_ST_MEM(BPF_DW, BPF_REG_10, -8, 0),
-+	BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
-+	BPF_LD_MAP_FD(BPF_REG_1, 0),
-+	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_map_lookup_elem),
-+	BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, 0, 6),
-+	BPF_MOV32_IMM(BPF_REG_1, 0x12345678),
-+	BPF_STX_MEM(BPF_W, BPF_REG_0, BPF_REG_1, 0),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_0, 2),
-+	BPF_MOV64_IMM(BPF_REG_1, 2),
-+	BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
-+	BPF_LDX_MEM(BPF_W, BPF_REG_0, BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.fixup_map_array_48b = { 3 },
-+	.result = ACCEPT,
-+	.retval = 0x12345678,
-+},
-+{
- 	"map access: unknown scalar += value_ptr, 1",
- 	.insns = {
- 	BPF_ST_MEM(BPF_DW, BPF_REG_10, -8, 0),
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -3624,7 +3624,7 @@ static ssize_t srp_create_target(struct
+ 	struct srp_rdma_ch *ch;
+ 	struct srp_device *srp_dev = host->srp_dev;
+ 	struct ib_device *ibdev = srp_dev->dev;
+-	int ret, node_idx, node, cpu, i;
++	int ret, i, ch_idx;
+ 	unsigned int max_sectors_per_mr, mr_per_cmd = 0;
+ 	bool multich = false;
+ 	uint32_t max_iu_len;
+@@ -3749,81 +3749,61 @@ static ssize_t srp_create_target(struct
+ 		goto out;
+ 
+ 	ret = -ENOMEM;
+-	if (target->ch_count == 0)
++	if (target->ch_count == 0) {
+ 		target->ch_count =
+-			max_t(unsigned int, num_online_nodes(),
+-			      min(ch_count ?:
+-					  min(4 * num_online_nodes(),
+-					      ibdev->num_comp_vectors),
+-				  num_online_cpus()));
++			min(ch_count ?:
++				max(4 * num_online_nodes(),
++				    ibdev->num_comp_vectors),
++				num_online_cpus());
++	}
++
+ 	target->ch = kcalloc(target->ch_count, sizeof(*target->ch),
+ 			     GFP_KERNEL);
+ 	if (!target->ch)
+ 		goto out;
+ 
+-	node_idx = 0;
+-	for_each_online_node(node) {
+-		const int ch_start = (node_idx * target->ch_count /
+-				      num_online_nodes());
+-		const int ch_end = ((node_idx + 1) * target->ch_count /
+-				    num_online_nodes());
+-		const int cv_start = node_idx * ibdev->num_comp_vectors /
+-				     num_online_nodes();
+-		const int cv_end = (node_idx + 1) * ibdev->num_comp_vectors /
+-				   num_online_nodes();
+-		int cpu_idx = 0;
+-
+-		for_each_online_cpu(cpu) {
+-			if (cpu_to_node(cpu) != node)
+-				continue;
+-			if (ch_start + cpu_idx >= ch_end)
+-				continue;
+-			ch = &target->ch[ch_start + cpu_idx];
+-			ch->target = target;
+-			ch->comp_vector = cv_start == cv_end ? cv_start :
+-				cv_start + cpu_idx % (cv_end - cv_start);
+-			spin_lock_init(&ch->lock);
+-			INIT_LIST_HEAD(&ch->free_tx);
+-			ret = srp_new_cm_id(ch);
+-			if (ret)
+-				goto err_disconnect;
+-
+-			ret = srp_create_ch_ib(ch);
+-			if (ret)
+-				goto err_disconnect;
+-
+-			ret = srp_alloc_req_data(ch);
+-			if (ret)
+-				goto err_disconnect;
+-
+-			ret = srp_connect_ch(ch, max_iu_len, multich);
+-			if (ret) {
+-				char dst[64];
+-
+-				if (target->using_rdma_cm)
+-					snprintf(dst, sizeof(dst), "%pIS",
+-						 &target->rdma_cm.dst);
+-				else
+-					snprintf(dst, sizeof(dst), "%pI6",
+-						 target->ib_cm.orig_dgid.raw);
+-				shost_printk(KERN_ERR, target->scsi_host,
+-					     PFX "Connection %d/%d to %s failed\n",
+-					     ch_start + cpu_idx,
+-					     target->ch_count, dst);
+-				if (node_idx == 0 && cpu_idx == 0) {
+-					goto free_ch;
+-				} else {
+-					srp_free_ch_ib(target, ch);
+-					srp_free_req_data(target, ch);
+-					target->ch_count = ch - target->ch;
+-					goto connected;
+-				}
++	for (ch_idx = 0; ch_idx < target->ch_count; ++ch_idx) {
++		ch = &target->ch[ch_idx];
++		ch->target = target;
++		ch->comp_vector = ch_idx % ibdev->num_comp_vectors;
++		spin_lock_init(&ch->lock);
++		INIT_LIST_HEAD(&ch->free_tx);
++		ret = srp_new_cm_id(ch);
++		if (ret)
++			goto err_disconnect;
++
++		ret = srp_create_ch_ib(ch);
++		if (ret)
++			goto err_disconnect;
++
++		ret = srp_alloc_req_data(ch);
++		if (ret)
++			goto err_disconnect;
++
++		ret = srp_connect_ch(ch, max_iu_len, multich);
++		if (ret) {
++			char dst[64];
++
++			if (target->using_rdma_cm)
++				snprintf(dst, sizeof(dst), "%pIS",
++					&target->rdma_cm.dst);
++			else
++				snprintf(dst, sizeof(dst), "%pI6",
++					target->ib_cm.orig_dgid.raw);
++			shost_printk(KERN_ERR, target->scsi_host,
++				PFX "Connection %d/%d to %s failed\n",
++				ch_idx,
++				target->ch_count, dst);
++			if (ch_idx == 0) {
++				goto free_ch;
++			} else {
++				srp_free_ch_ib(target, ch);
++				srp_free_req_data(target, ch);
++				target->ch_count = ch - target->ch;
++				goto connected;
+ 			}
+-
+-			multich = true;
+-			cpu_idx++;
+ 		}
+-		node_idx++;
++		multich = true;
+ 	}
+ 
+ connected:
 
 
