@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3C3341C4F
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D029341C71
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230347AbhCSMUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57710 "EHLO mail.kernel.org"
+        id S231161AbhCSMUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230356AbhCSMTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:19:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB5AC64E6B;
-        Fri, 19 Mar 2021 12:19:54 +0000 (UTC)
+        id S231251AbhCSMUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0809B64F6A;
+        Fri, 19 Mar 2021 12:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156395;
-        bh=X1wwdFM5WtvcEG+7IaS7I6fTZxYiQTN2BDMJV391pzM=;
+        s=korg; t=1616156439;
+        bh=HPxwojPgdvYx/mN7Pbjc6NF13FRwu/s4xKS4rA8gDj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgpcLUnIyOh19mHngPsATM+Yv//UfUxttuhJSptMaFbUjScBiD9bGupBVklV429SK
-         wXfJOtNPOFutXIvGcAR/k7155GAL+ldS9ns1ltNPhvfxgLeVbenMDFGTsNxZQSG5tL
-         KXkpHYzEzY63CjelLGFmxN7m156jQN44Of4957x4=
+        b=zUwaozosPw2xkTUZMyCKgNqJzZ21nmkdwM6Dmc4TN3/XlBmY3RmOkIcr46RI5QOG1
+         2sf6eoM3aFTVoRETqv/8YKxYilzckcYq0oVfyQKXVqIm1Cp300/aU16c23QcV7Pctr
+         ThkiThMV41R5Yz2eXfw1uWUgUr45/s6QTkG6YlAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.10 10/13] Revert "nfsd4: remove check_conflicting_opens warning"
-Date:   Fri, 19 Mar 2021 13:19:07 +0100
-Message-Id: <20210319121745.440078590@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 14/31] regulator: pca9450: Add SD_VSEL GPIO for LDO5
+Date:   Fri, 19 Mar 2021 13:19:08 +0100
+Message-Id: <20210319121747.662823897@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
-References: <20210319121745.112612545@linuxfoundation.org>
+In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
+References: <20210319121747.203523570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-commit 4aa5e002034f0701c3335379fd6c22d7f3338cce upstream.
+[ Upstream commit 8c67a11bae889f51fe5054364c3c789dfae3ad73 ]
 
-This reverts commit 50747dd5e47b "nfsd4: remove check_conflicting_opens
-warning", as a prerequisite for reverting 94415b06eb8a, which has a
-serious bug.
+LDO5 has two separate control registers. LDO5CTRL_L is used if the
+input signal SD_VSEL is low and LDO5CTRL_H if it is high.
+The current driver implementation only uses LDO5CTRL_H. To make this
+work on boards that have SD_VSEL connected to a GPIO, we add support
+for specifying an optional GPIO and setting it to high at probe time.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In the future we might also want to add support for boards that have
+SD_VSEL set to a fixed low level. In this case we need to change the
+driver to be able to use the LDO5CTRL_L register.
+
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Link: https://lore.kernel.org/r/20210211105534.38972-1-frieder.schrempf@kontron.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/pca9450-regulator.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -4957,6 +4957,7 @@ static int nfsd4_check_conflicting_opens
- 		writes--;
- 	if (fp->fi_fds[O_RDWR])
- 		writes--;
-+	WARN_ON_ONCE(writes < 0);
- 	if (writes > 0)
- 		return -EAGAIN;
- 	spin_lock(&fp->fi_lock);
+diff --git a/drivers/regulator/pca9450-regulator.c b/drivers/regulator/pca9450-regulator.c
+index cb29421d745a..1bba8fdcb7b7 100644
+--- a/drivers/regulator/pca9450-regulator.c
++++ b/drivers/regulator/pca9450-regulator.c
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/err.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+@@ -32,6 +33,7 @@ struct pca9450_regulator_desc {
+ struct pca9450 {
+ 	struct device *dev;
+ 	struct regmap *regmap;
++	struct gpio_desc *sd_vsel_gpio;
+ 	enum pca9450_chip_type type;
+ 	unsigned int rcnt;
+ 	int irq;
+@@ -795,6 +797,18 @@ static int pca9450_i2c_probe(struct i2c_client *i2c,
+ 		return ret;
+ 	}
+ 
++	/*
++	 * The driver uses the LDO5CTRL_H register to control the LDO5 regulator.
++	 * This is only valid if the SD_VSEL input of the PMIC is high. Let's
++	 * check if the pin is available as GPIO and set it to high.
++	 */
++	pca9450->sd_vsel_gpio = gpiod_get_optional(pca9450->dev, "sd-vsel", GPIOD_OUT_HIGH);
++
++	if (IS_ERR(pca9450->sd_vsel_gpio)) {
++		dev_err(&i2c->dev, "Failed to get SD_VSEL GPIO\n");
++		return ret;
++	}
++
+ 	dev_info(&i2c->dev, "%s probed.\n",
+ 		type == PCA9450_TYPE_PCA9450A ? "pca9450a" : "pca9450bc");
+ 
+-- 
+2.30.1
+
 
 
