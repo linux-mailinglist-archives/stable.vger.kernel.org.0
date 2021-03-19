@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E7D341C9A
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CACD341C9C
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231473AbhCSMVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60288 "EHLO mail.kernel.org"
+        id S230063AbhCSMVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230186AbhCSMVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:21:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5C0F64E6B;
-        Fri, 19 Mar 2021 12:21:23 +0000 (UTC)
+        id S231126AbhCSMV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:21:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4943564F6C;
+        Fri, 19 Mar 2021 12:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156484;
-        bh=jPY6lFZzrAeNep+w5h5CkZxf5znhDuYseRrhYcXv2rk=;
+        s=korg; t=1616156486;
+        bh=el9gCeIUxJUoQ53pFck9IjHrKEeG7ykNL8NFzn74DyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gnc6kSV97vgElgz89pJMvXvKxLbg8NVVT+/VkZP+mlSmX5jFiKCYqtjNnNKBj2X/I
-         d0T09JcxpIQODIauEInJyCUxZgMnFxacZrecOUCecR2w94deqgl++t+dutxsiBjMNp
-         rZiLY8N9j964LuOPy1YZmOkhEarq6j0pvKidwONA=
+        b=Mflkf5pY7B6+xd9L2RvJin9sMVQxM6QQ9t8hfUhnN+n604B1YF7IHYAZoKkyQqqYi
+         hV7QTsVyU0lkKGisMFRgCreGMu/po+Da99LNoNaywlZmYM3zv7/Y+JQYsjVONbDnDg
+         9lzkt8p7beofMQ2xcBxSdCdx4cLOaVPiwL1o5ZOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
         Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 17/31] gfs2: Add common helper for holding and releasing the freeze glock
-Date:   Fri, 19 Mar 2021 13:19:11 +0100
-Message-Id: <20210319121747.755532362@linuxfoundation.org>
+Subject: [PATCH 5.11 18/31] gfs2: move freeze glock outside the make_fs_rw and _ro functions
+Date:   Fri, 19 Mar 2021 13:19:12 +0100
+Message-Id: <20210319121747.784269859@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
 References: <20210319121747.203523570@linuxfoundation.org>
@@ -42,237 +42,212 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit c77b52c0a137994ad796f44544c802b0b766e496 ]
+[ Upstream commit 96b1454f2e8ede4c619fde405a1bb4e9ba8d218e ]
 
-Many places in the gfs2 code queued and dequeued the freeze glock.
-Almost all of them acquire it in SHARED mode, and need to specify the
-same LM_FLAG_NOEXP and GL_EXACT flags.
+Before this patch, sister functions gfs2_make_fs_rw and gfs2_make_fs_ro locked
+(held) the freeze glock by calling gfs2_freeze_lock and gfs2_freeze_unlock.
+The problem is, not all the callers of gfs2_make_fs_ro should be doing this.
+The three callers of gfs2_make_fs_ro are: remount (gfs2_reconfigure),
+signal_our_withdraw, and unmount (gfs2_put_super). But when unmounting the
+file system we can get into the following circular lock dependency:
 
-This patch adds common helper functions gfs2_freeze_lock and gfs2_freeze_unlock
-to make the code more readable, and to prepare for the next patch.
+deactivate_super
+   down_write(&s->s_umount); <-------------------------------------- s_umount
+   deactivate_locked_super
+      gfs2_kill_sb
+         kill_block_super
+            generic_shutdown_super
+               gfs2_put_super
+                  gfs2_make_fs_ro
+                     gfs2_glock_nq_init sd_freeze_gl
+                        freeze_go_sync
+                           if (freeze glock in SH)
+                              freeze_super (vfs)
+                                 down_write(&sb->s_umount); <------- s_umount
+
+This patch moves the hold of the freeze glock outside the two sister rw/ro
+functions to their callers, but it doesn't request the glock from
+gfs2_put_super, thus eliminating the circular dependency.
 
 Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c |  6 ++----
- fs/gfs2/recovery.c   |  8 +++-----
- fs/gfs2/super.c      | 42 ++++++++++++++----------------------------
- fs/gfs2/util.c       | 25 +++++++++++++++++++++++++
- fs/gfs2/util.h       |  3 +++
- 5 files changed, 47 insertions(+), 37 deletions(-)
+ fs/gfs2/ops_fstype.c | 31 +++++++++++++++++--------------
+ fs/gfs2/super.c      | 23 -----------------------
+ fs/gfs2/util.c       | 18 ++++++++++++++++--
+ 3 files changed, 33 insertions(+), 39 deletions(-)
 
 diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 61fce59cb4d3..4ee56f5e93cb 100644
+index 4ee56f5e93cb..f2c6bbe5cdb8 100644
 --- a/fs/gfs2/ops_fstype.c
 +++ b/fs/gfs2/ops_fstype.c
-@@ -1198,14 +1198,12 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
- 	if (sb_rdonly(sb)) {
- 		struct gfs2_holder freeze_gh;
+@@ -1084,6 +1084,7 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	int silent = fc->sb_flags & SB_SILENT;
+ 	struct gfs2_sbd *sdp;
+ 	struct gfs2_holder mount_gh;
++	struct gfs2_holder freeze_gh;
+ 	int error;
  
--		error = gfs2_glock_nq_init(sdp->sd_freeze_gl, LM_ST_SHARED,
--					   LM_FLAG_NOEXP | GL_EXACT,
--					   &freeze_gh);
-+		error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
- 		if (error) {
- 			fs_err(sdp, "can't make FS RO: %d\n", error);
- 			goto fail_per_node;
- 		}
--		gfs2_glock_dq_uninit(&freeze_gh);
-+		gfs2_freeze_unlock(&freeze_gh);
- 	} else {
+ 	sdp = init_sbd(sb);
+@@ -1195,23 +1196,18 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		goto fail_per_node;
+ 	}
+ 
+-	if (sb_rdonly(sb)) {
+-		struct gfs2_holder freeze_gh;
++	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
++	if (error)
++		goto fail_per_node;
+ 
+-		error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
+-		if (error) {
+-			fs_err(sdp, "can't make FS RO: %d\n", error);
+-			goto fail_per_node;
+-		}
+-		gfs2_freeze_unlock(&freeze_gh);
+-	} else {
++	if (!sb_rdonly(sb))
  		error = gfs2_make_fs_rw(sdp);
- 		if (error) {
-diff --git a/fs/gfs2/recovery.c b/fs/gfs2/recovery.c
-index a3c1911862f0..8f9c6480a5df 100644
---- a/fs/gfs2/recovery.c
-+++ b/fs/gfs2/recovery.c
-@@ -470,9 +470,7 @@ void gfs2_recover_func(struct work_struct *work)
+-		if (error) {
+-			fs_err(sdp, "can't make FS RW: %d\n", error);
+-			goto fail_per_node;
+-		}
+-	}
  
- 		/* Acquire a shared hold on the freeze lock */
++	gfs2_freeze_unlock(&freeze_gh);
++	if (error) {
++		fs_err(sdp, "can't make FS RW: %d\n", error);
++		goto fail_per_node;
++	}
+ 	gfs2_glock_dq_uninit(&mount_gh);
+ 	gfs2_online_uevent(sdp);
+ 	return 0;
+@@ -1512,6 +1508,12 @@ static int gfs2_reconfigure(struct fs_context *fc)
+ 		fc->sb_flags |= SB_RDONLY;
  
--		error = gfs2_glock_nq_init(sdp->sd_freeze_gl, LM_ST_SHARED,
--					   LM_FLAG_NOEXP | LM_FLAG_PRIORITY |
--					   GL_EXACT, &thaw_gh);
-+		error = gfs2_freeze_lock(sdp, &thaw_gh, LM_FLAG_PRIORITY);
- 		if (error)
- 			goto fail_gunlock_ji;
+ 	if ((sb->s_flags ^ fc->sb_flags) & SB_RDONLY) {
++		struct gfs2_holder freeze_gh;
++
++		error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
++		if (error)
++			return -EINVAL;
++
+ 		if (fc->sb_flags & SB_RDONLY) {
+ 			error = gfs2_make_fs_ro(sdp);
+ 			if (error)
+@@ -1521,6 +1523,7 @@ static int gfs2_reconfigure(struct fs_context *fc)
+ 			if (error)
+ 				errorfc(fc, "unable to remount read-write");
+ 		}
++		gfs2_freeze_unlock(&freeze_gh);
+ 	}
+ 	sdp->sd_args = *newargs;
  
-@@ -524,7 +522,7 @@ void gfs2_recover_func(struct work_struct *work)
- 		clean_journal(jd, &head);
- 		up_read(&sdp->sd_log_flush_lock);
- 
--		gfs2_glock_dq_uninit(&thaw_gh);
-+		gfs2_freeze_unlock(&thaw_gh);
- 		t_rep = ktime_get();
- 		fs_info(sdp, "jid=%u: Journal replayed in %lldms [jlck:%lldms, "
- 			"jhead:%lldms, tlck:%lldms, replay:%lldms]\n",
-@@ -546,7 +544,7 @@ void gfs2_recover_func(struct work_struct *work)
- 	goto done;
- 
- fail_gunlock_thaw:
--	gfs2_glock_dq_uninit(&thaw_gh);
-+	gfs2_freeze_unlock(&thaw_gh);
- fail_gunlock_ji:
- 	if (jlocked) {
- 		gfs2_glock_dq_uninit(&ji_gh);
 diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 2f56acc41c04..ea312a94ce69 100644
+index ea312a94ce69..754ea2a137b4 100644
 --- a/fs/gfs2/super.c
 +++ b/fs/gfs2/super.c
-@@ -173,9 +173,7 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+@@ -165,7 +165,6 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ {
+ 	struct gfs2_inode *ip = GFS2_I(sdp->sd_jdesc->jd_inode);
+ 	struct gfs2_glock *j_gl = ip->i_gl;
+-	struct gfs2_holder freeze_gh;
+ 	struct gfs2_log_header_host head;
+ 	int error;
+ 
+@@ -173,10 +172,6 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
  	if (error)
  		return error;
  
--	error = gfs2_glock_nq_init(sdp->sd_freeze_gl, LM_ST_SHARED,
--				   LM_FLAG_NOEXP | GL_EXACT,
--				   &freeze_gh);
-+	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
- 	if (error)
- 		goto fail_threads;
- 
-@@ -205,12 +203,12 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+-	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
+-	if (error)
+-		goto fail_threads;
+-
+ 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+ 	if (gfs2_withdrawn(sdp)) {
+ 		error = -EIO;
+@@ -203,13 +198,9 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
  
  	set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
  
--	gfs2_glock_dq_uninit(&freeze_gh);
-+	gfs2_freeze_unlock(&freeze_gh);
- 
+-	gfs2_freeze_unlock(&freeze_gh);
+-
  	return 0;
  
  fail:
--	gfs2_glock_dq_uninit(&freeze_gh);
-+	gfs2_freeze_unlock(&freeze_gh);
- fail_threads:
+-	gfs2_freeze_unlock(&freeze_gh);
+-fail_threads:
  	if (sdp->sd_quotad_process)
  		kthread_stop(sdp->sd_quotad_process);
-@@ -452,7 +450,7 @@ static int gfs2_lock_fs_check_clean(struct gfs2_sbd *sdp)
- 	}
+ 	sdp->sd_quotad_process = NULL;
+@@ -607,21 +598,9 @@ static void gfs2_dirty_inode(struct inode *inode, int flags)
  
- 	if (error)
--		gfs2_glock_dq_uninit(&sdp->sd_freeze_gh);
-+		gfs2_freeze_unlock(&sdp->sd_freeze_gh);
+ int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
+ {
+-	struct gfs2_holder freeze_gh;
+ 	int error = 0;
+ 	int log_write_allowed = test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
  
- out:
- 	while (!list_empty(&list)) {
-@@ -616,21 +614,12 @@ int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
- 	gfs2_holder_mark_uninitialized(&freeze_gh);
- 	if (sdp->sd_freeze_gl &&
- 	    !gfs2_glock_is_locked_by_me(sdp->sd_freeze_gl)) {
--		if (!log_write_allowed) {
--			error = gfs2_glock_nq_init(sdp->sd_freeze_gl,
--						   LM_ST_SHARED, LM_FLAG_TRY |
--						   LM_FLAG_NOEXP | GL_EXACT,
--						   &freeze_gh);
--			if (error == GLR_TRYFAILED)
--				error = 0;
--		} else {
--			error = gfs2_glock_nq_init(sdp->sd_freeze_gl,
--						   LM_ST_SHARED,
--						   LM_FLAG_NOEXP | GL_EXACT,
--						   &freeze_gh);
--			if (error && !gfs2_withdrawn(sdp))
--				return error;
--		}
-+		error = gfs2_freeze_lock(sdp, &freeze_gh,
-+					 log_write_allowed ? 0 : LM_FLAG_TRY);
-+		if (error == GLR_TRYFAILED)
-+			error = 0;
-+		if (error && !gfs2_withdrawn(sdp))
-+			return error;
- 	}
- 
+-	gfs2_holder_mark_uninitialized(&freeze_gh);
+-	if (sdp->sd_freeze_gl &&
+-	    !gfs2_glock_is_locked_by_me(sdp->sd_freeze_gl)) {
+-		error = gfs2_freeze_lock(sdp, &freeze_gh,
+-					 log_write_allowed ? 0 : LM_FLAG_TRY);
+-		if (error == GLR_TRYFAILED)
+-			error = 0;
+-		if (error && !gfs2_withdrawn(sdp))
+-			return error;
+-	}
+-
  	gfs2_flush_delete_work(sdp);
-@@ -661,8 +650,7 @@ int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
+ 	if (!log_write_allowed && current == sdp->sd_quotad_process)
+ 		fs_warn(sdp, "The quotad daemon is withdrawing.\n");
+@@ -650,8 +629,6 @@ int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
  				   atomic_read(&sdp->sd_reserving_log) == 0,
  				   HZ * 5);
  	}
--	if (gfs2_holder_initialized(&freeze_gh))
--		gfs2_glock_dq_uninit(&freeze_gh);
-+	gfs2_freeze_unlock(&freeze_gh);
- 
+-	gfs2_freeze_unlock(&freeze_gh);
+-
  	gfs2_quota_cleanup(sdp);
  
-@@ -772,10 +760,8 @@ void gfs2_freeze_func(struct work_struct *work)
- 	struct super_block *sb = sdp->sd_vfs;
- 
- 	atomic_inc(&sb->s_active);
--	error = gfs2_glock_nq_init(sdp->sd_freeze_gl, LM_ST_SHARED,
--				   LM_FLAG_NOEXP | GL_EXACT, &freeze_gh);
-+	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
- 	if (error) {
--		fs_info(sdp, "GFS2: couldn't get freeze lock : %d\n", error);
- 		gfs2_assert_withdraw(sdp, 0);
- 	} else {
- 		atomic_set(&sdp->sd_freeze_state, SFS_UNFROZEN);
-@@ -785,7 +771,7 @@ void gfs2_freeze_func(struct work_struct *work)
- 				error);
- 			gfs2_assert_withdraw(sdp, 0);
- 		}
--		gfs2_glock_dq_uninit(&freeze_gh);
-+		gfs2_freeze_unlock(&freeze_gh);
- 	}
- 	deactivate_super(sb);
- 	clear_bit_unlock(SDF_FS_FROZEN, &sdp->sd_flags);
-@@ -853,7 +839,7 @@ static int gfs2_unfreeze(struct super_block *sb)
-                 return 0;
- 	}
- 
--	gfs2_glock_dq_uninit(&sdp->sd_freeze_gh);
-+	gfs2_freeze_unlock(&sdp->sd_freeze_gh);
- 	mutex_unlock(&sdp->sd_freeze_mutex);
- 	return wait_on_bit(&sdp->sd_flags, SDF_FS_FROZEN, TASK_INTERRUPTIBLE);
- }
+ 	if (!log_write_allowed)
 diff --git a/fs/gfs2/util.c b/fs/gfs2/util.c
-index 574bea29f21e..e6c93e811c3e 100644
+index e6c93e811c3e..8d3c670c990f 100644
 --- a/fs/gfs2/util.c
 +++ b/fs/gfs2/util.c
-@@ -91,6 +91,31 @@ int check_journal_clean(struct gfs2_sbd *sdp, struct gfs2_jdesc *jd,
- 	return error;
- }
+@@ -123,6 +123,7 @@ static void signal_our_withdraw(struct gfs2_sbd *sdp)
+ 	struct gfs2_inode *ip = GFS2_I(inode);
+ 	struct gfs2_glock *i_gl = ip->i_gl;
+ 	u64 no_formal_ino = ip->i_no_formal_ino;
++	int log_write_allowed = test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+ 	int ret = 0;
+ 	int tries;
  
-+/**
-+ * gfs2_freeze_lock - hold the freeze glock
-+ * @sdp: the superblock
-+ * @freeze_gh: pointer to the requested holder
-+ * @caller_flags: any additional flags needed by the caller
-+ */
-+int gfs2_freeze_lock(struct gfs2_sbd *sdp, struct gfs2_holder *freeze_gh,
-+		     int caller_flags)
-+{
-+	int flags = LM_FLAG_NOEXP | GL_EXACT | caller_flags;
-+	int error;
+@@ -143,8 +144,21 @@ static void signal_our_withdraw(struct gfs2_sbd *sdp)
+ 	 * therefore we need to clear SDF_JOURNAL_LIVE manually.
+ 	 */
+ 	clear_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+-	if (!sb_rdonly(sdp->sd_vfs))
+-		ret = gfs2_make_fs_ro(sdp);
++	if (!sb_rdonly(sdp->sd_vfs)) {
++		struct gfs2_holder freeze_gh;
 +
-+	error = gfs2_glock_nq_init(sdp->sd_freeze_gl, LM_ST_SHARED, flags,
-+				   freeze_gh);
-+	if (error && error != GLR_TRYFAILED)
-+		fs_err(sdp, "can't lock the freeze lock: %d\n", error);
-+	return error;
-+}
-+
-+void gfs2_freeze_unlock(struct gfs2_holder *freeze_gh)
-+{
-+	if (gfs2_holder_initialized(freeze_gh))
-+		gfs2_glock_dq_uninit(freeze_gh);
-+}
-+
- static void signal_our_withdraw(struct gfs2_sbd *sdp)
- {
- 	struct gfs2_glock *live_gl = sdp->sd_live_gh.gh_gl;
-diff --git a/fs/gfs2/util.h b/fs/gfs2/util.h
-index a4443dd8a94b..69e1a0ae5a4d 100644
---- a/fs/gfs2/util.h
-+++ b/fs/gfs2/util.h
-@@ -149,6 +149,9 @@ int gfs2_io_error_i(struct gfs2_sbd *sdp, const char *function,
++		gfs2_holder_mark_uninitialized(&freeze_gh);
++		if (sdp->sd_freeze_gl &&
++		    !gfs2_glock_is_locked_by_me(sdp->sd_freeze_gl)) {
++			ret = gfs2_freeze_lock(sdp, &freeze_gh,
++				       log_write_allowed ? 0 : LM_FLAG_TRY);
++			if (ret == GLR_TRYFAILED)
++				ret = 0;
++		}
++		if (!ret)
++			ret = gfs2_make_fs_ro(sdp);
++		gfs2_freeze_unlock(&freeze_gh);
++	}
  
- extern int check_journal_clean(struct gfs2_sbd *sdp, struct gfs2_jdesc *jd,
- 			       bool verbose);
-+extern int gfs2_freeze_lock(struct gfs2_sbd *sdp,
-+			    struct gfs2_holder *freeze_gh, int caller_flags);
-+extern void gfs2_freeze_unlock(struct gfs2_holder *freeze_gh);
- 
- #define gfs2_io_error(sdp) \
- gfs2_io_error_i((sdp), __func__, __FILE__, __LINE__)
+ 	if (sdp->sd_lockstruct.ls_ops->lm_lock == NULL) { /* lock_nolock */
+ 		if (!ret)
 -- 
 2.30.1
 
