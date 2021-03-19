@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFB4341C53
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A443E341C81
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 13:22:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbhCSMUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 08:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57814 "EHLO mail.kernel.org"
+        id S231173AbhCSMVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 08:21:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230461AbhCSMUF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 08:20:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4633364F6A;
-        Fri, 19 Mar 2021 12:20:04 +0000 (UTC)
+        id S231126AbhCSMUt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 08:20:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 521E96146D;
+        Fri, 19 Mar 2021 12:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616156405;
-        bh=zBEiiPR0e7eNYDBeuZ0oX2vEW3UzuyCFOaVE8sUpzcs=;
+        s=korg; t=1616156448;
+        bh=Xl0GnYlS++rdo/imaGNZlPFHSGqgcPjokDVxiOQmvwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDW1h1jR0zTcfcQONVDVeF6HCnhNKy9+Kbi583HHYMAT5rRdaePamF0XLTDKs+bpC
-         Kf0zYrYXojKNcCBAKGzInH+arv69gJcnlg0euuhlqhADe79ZdELfdhmWliUPIcpdEf
-         Wal2ygnqmJTab8ZD2B6cSeS7clk8S3DtroNWFAQI=
+        b=eKADrYeK+Za+39OOGL8bMkHXYazAtPApvdM32agI4A0f/XOHktI59k4TZKxxB/0gC
+         6coMAkc5nqM+x76wrIN0J9CicO4yF6a9ZWpRTq/7/fMt3x+VGr5q2IM+2xS3FF8aYG
+         czAl7rMfZbKI/fs+JkGUB/Y0pkgpu276XS7BCpBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 02/13] crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 05/31] mptcp: pm: add lockdep assertions
 Date:   Fri, 19 Mar 2021 13:18:59 +0100
-Message-Id: <20210319121745.192041596@linuxfoundation.org>
+Message-Id: <20210319121747.386027429@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319121745.112612545@linuxfoundation.org>
-References: <20210319121745.112612545@linuxfoundation.org>
+In-Reply-To: <20210319121747.203523570@linuxfoundation.org>
+References: <20210319121747.203523570@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,276 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1 ]
+[ Upstream commit 3abc05d9ef6fe989706b679e1e6371d6360d3db4 ]
 
-The XTS asm helper arrangement is a bit odd: the 8-way stride helper
-consists of back-to-back calls to the 4-way core transforms, which
-are called indirectly, based on a boolean that indicates whether we
-are performing encryption or decryption.
+Add a few assertions to make sure functions are called with the needed
+locks held.
+Two functions gain might_sleep annotations because they contain
+conditional calls to functions that sleep.
 
-Given how costly indirect calls are on x86, let's switch to direct
-calls, and given how the 8-way stride doesn't really add anything
-substantial, use a 4-way stride instead, and make the asm core
-routine deal with any multiple of 4 blocks. Since 512 byte sectors
-or 4 KB blocks are the typical quantities XTS operates on, increase
-the stride exported to the glue helper to 512 bytes as well.
-
-As a result, the number of indirect calls is reduced from 3 per 64 bytes
-of in/output to 1 per 512 bytes of in/output, which produces a 65% speedup
-when operating on 1 KB blocks (measured on a Intel(R) Core(TM) i7-8650U CPU)
-
-Fixes: 9697fa39efd3f ("x86/retpoline/crypto: Convert crypto assembler indirect jumps")
-Tested-by: Eric Biggers <ebiggers@google.com> # x86_64
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/aesni-intel_asm.S  | 115 ++++++++++++++++++-----------
- arch/x86/crypto/aesni-intel_glue.c |  25 ++++---
- 2 files changed, 84 insertions(+), 56 deletions(-)
+ net/mptcp/pm.c         |  2 ++
+ net/mptcp/pm_netlink.c | 13 +++++++++++++
+ net/mptcp/protocol.c   |  4 ++++
+ net/mptcp/protocol.h   |  5 +++++
+ 4 files changed, 24 insertions(+)
 
-diff --git a/arch/x86/crypto/aesni-intel_asm.S b/arch/x86/crypto/aesni-intel_asm.S
-index d1436c37008b..57aef3f5a81e 100644
---- a/arch/x86/crypto/aesni-intel_asm.S
-+++ b/arch/x86/crypto/aesni-intel_asm.S
-@@ -2715,25 +2715,18 @@ SYM_FUNC_END(aesni_ctr_enc)
- 	pxor CTR, IV;
+diff --git a/net/mptcp/pm.c b/net/mptcp/pm.c
+index 5463d7c8c931..1c01c3bcbf5a 100644
+--- a/net/mptcp/pm.c
++++ b/net/mptcp/pm.c
+@@ -20,6 +20,8 @@ int mptcp_pm_announce_addr(struct mptcp_sock *msk,
  
- /*
-- * void aesni_xts_crypt8(const struct crypto_aes_ctx *ctx, u8 *dst,
-- *			 const u8 *src, bool enc, le128 *iv)
-+ * void aesni_xts_encrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
-+ *			  const u8 *src, unsigned int len, le128 *iv)
-  */
--SYM_FUNC_START(aesni_xts_crypt8)
-+SYM_FUNC_START(aesni_xts_encrypt)
- 	FRAME_BEGIN
--	testb %cl, %cl
--	movl $0, %ecx
--	movl $240, %r10d
--	leaq _aesni_enc4, %r11
--	leaq _aesni_dec4, %rax
--	cmovel %r10d, %ecx
--	cmoveq %rax, %r11
+ 	pr_debug("msk=%p, local_id=%d", msk, addr->id);
  
- 	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
- 	movups (IVP), IV
- 
- 	mov 480(KEYP), KLEN
--	addq %rcx, KEYP
- 
-+.Lxts_enc_loop4:
- 	movdqa IV, STATE1
- 	movdqu 0x00(INP), INC
- 	pxor INC, STATE1
-@@ -2757,71 +2750,103 @@ SYM_FUNC_START(aesni_xts_crypt8)
- 	pxor INC, STATE4
- 	movdqu IV, 0x30(OUTP)
- 
--	CALL_NOSPEC r11
-+	call _aesni_enc4
- 
- 	movdqu 0x00(OUTP), INC
- 	pxor INC, STATE1
- 	movdqu STATE1, 0x00(OUTP)
- 
--	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE1
--	movdqu 0x40(INP), INC
--	pxor INC, STATE1
--	movdqu IV, 0x40(OUTP)
--
- 	movdqu 0x10(OUTP), INC
- 	pxor INC, STATE2
- 	movdqu STATE2, 0x10(OUTP)
- 
--	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE2
--	movdqu 0x50(INP), INC
--	pxor INC, STATE2
--	movdqu IV, 0x50(OUTP)
--
- 	movdqu 0x20(OUTP), INC
- 	pxor INC, STATE3
- 	movdqu STATE3, 0x20(OUTP)
- 
--	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE3
--	movdqu 0x60(INP), INC
--	pxor INC, STATE3
--	movdqu IV, 0x60(OUTP)
--
- 	movdqu 0x30(OUTP), INC
- 	pxor INC, STATE4
- 	movdqu STATE4, 0x30(OUTP)
- 
- 	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE4
--	movdqu 0x70(INP), INC
--	pxor INC, STATE4
--	movdqu IV, 0x70(OUTP)
- 
--	_aesni_gf128mul_x_ble()
-+	add $64, INP
-+	add $64, OUTP
-+	sub $64, LEN
-+	ja .Lxts_enc_loop4
++	lockdep_assert_held(&msk->pm.lock);
 +
- 	movups IV, (IVP)
- 
--	CALL_NOSPEC r11
-+	FRAME_END
-+	ret
-+SYM_FUNC_END(aesni_xts_encrypt)
-+
-+/*
-+ * void aesni_xts_decrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
-+ *			  const u8 *src, unsigned int len, le128 *iv)
-+ */
-+SYM_FUNC_START(aesni_xts_decrypt)
-+	FRAME_BEGIN
-+
-+	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
-+	movups (IVP), IV
-+
-+	mov 480(KEYP), KLEN
-+	add $240, KEYP
- 
--	movdqu 0x40(OUTP), INC
-+.Lxts_dec_loop4:
-+	movdqa IV, STATE1
-+	movdqu 0x00(INP), INC
- 	pxor INC, STATE1
--	movdqu STATE1, 0x40(OUTP)
-+	movdqu IV, 0x00(OUTP)
- 
--	movdqu 0x50(OUTP), INC
-+	_aesni_gf128mul_x_ble()
-+	movdqa IV, STATE2
-+	movdqu 0x10(INP), INC
-+	pxor INC, STATE2
-+	movdqu IV, 0x10(OUTP)
-+
-+	_aesni_gf128mul_x_ble()
-+	movdqa IV, STATE3
-+	movdqu 0x20(INP), INC
-+	pxor INC, STATE3
-+	movdqu IV, 0x20(OUTP)
-+
-+	_aesni_gf128mul_x_ble()
-+	movdqa IV, STATE4
-+	movdqu 0x30(INP), INC
-+	pxor INC, STATE4
-+	movdqu IV, 0x30(OUTP)
-+
-+	call _aesni_dec4
-+
-+	movdqu 0x00(OUTP), INC
-+	pxor INC, STATE1
-+	movdqu STATE1, 0x00(OUTP)
-+
-+	movdqu 0x10(OUTP), INC
- 	pxor INC, STATE2
--	movdqu STATE2, 0x50(OUTP)
-+	movdqu STATE2, 0x10(OUTP)
- 
--	movdqu 0x60(OUTP), INC
-+	movdqu 0x20(OUTP), INC
- 	pxor INC, STATE3
--	movdqu STATE3, 0x60(OUTP)
-+	movdqu STATE3, 0x20(OUTP)
- 
--	movdqu 0x70(OUTP), INC
-+	movdqu 0x30(OUTP), INC
- 	pxor INC, STATE4
--	movdqu STATE4, 0x70(OUTP)
-+	movdqu STATE4, 0x30(OUTP)
-+
-+	_aesni_gf128mul_x_ble()
-+
-+	add $64, INP
-+	add $64, OUTP
-+	sub $64, LEN
-+	ja .Lxts_dec_loop4
-+
-+	movups IV, (IVP)
- 
- 	FRAME_END
- 	ret
--SYM_FUNC_END(aesni_xts_crypt8)
-+SYM_FUNC_END(aesni_xts_decrypt)
- 
- #endif
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index f9a1d98e7534..be891fdf8d17 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -97,6 +97,12 @@ asmlinkage void aesni_cbc_dec(struct crypto_aes_ctx *ctx, u8 *out,
- #define AVX_GEN2_OPTSIZE 640
- #define AVX_GEN4_OPTSIZE 4096
- 
-+asmlinkage void aesni_xts_encrypt(const struct crypto_aes_ctx *ctx, u8 *out,
-+				  const u8 *in, unsigned int len, u8 *iv);
-+
-+asmlinkage void aesni_xts_decrypt(const struct crypto_aes_ctx *ctx, u8 *out,
-+				  const u8 *in, unsigned int len, u8 *iv);
-+
- #ifdef CONFIG_X86_64
- 
- static void (*aesni_ctr_enc_tfm)(struct crypto_aes_ctx *ctx, u8 *out,
-@@ -104,9 +110,6 @@ static void (*aesni_ctr_enc_tfm)(struct crypto_aes_ctx *ctx, u8 *out,
- asmlinkage void aesni_ctr_enc(struct crypto_aes_ctx *ctx, u8 *out,
- 			      const u8 *in, unsigned int len, u8 *iv);
- 
--asmlinkage void aesni_xts_crypt8(const struct crypto_aes_ctx *ctx, u8 *out,
--				 const u8 *in, bool enc, le128 *iv);
--
- /* asmlinkage void aesni_gcm_enc()
-  * void *ctx,  AES Key schedule. Starts on a 16 byte boundary.
-  * struct gcm_context_data.  May be uninitialized.
-@@ -547,14 +550,14 @@ static void aesni_xts_dec(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
- 	glue_xts_crypt_128bit_one(ctx, dst, src, iv, aesni_dec);
- }
- 
--static void aesni_xts_enc8(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
-+static void aesni_xts_enc32(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
+ 	if (add_addr) {
+ 		pr_warn("addr_signal error, add_addr=%d", add_addr);
+ 		return -EINVAL;
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index b81ce0ea1f8b..71c41b948861 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -134,6 +134,8 @@ select_local_address(const struct pm_nl_pernet *pernet,
  {
--	aesni_xts_crypt8(ctx, dst, src, true, iv);
-+	aesni_xts_encrypt(ctx, dst, src, 32 * AES_BLOCK_SIZE, (u8 *)iv);
- }
+ 	struct mptcp_pm_addr_entry *entry, *ret = NULL;
  
--static void aesni_xts_dec8(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
-+static void aesni_xts_dec32(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
++	msk_owned_by_me(msk);
++
+ 	rcu_read_lock();
+ 	__mptcp_flush_join_list(msk);
+ 	list_for_each_entry_rcu(entry, &pernet->local_addr_list, list) {
+@@ -191,6 +193,8 @@ lookup_anno_list_by_saddr(struct mptcp_sock *msk,
  {
--	aesni_xts_crypt8(ctx, dst, src, false, iv);
-+	aesni_xts_decrypt(ctx, dst, src, 32 * AES_BLOCK_SIZE, (u8 *)iv);
- }
+ 	struct mptcp_pm_add_entry *entry;
  
- static const struct common_glue_ctx aesni_enc_xts = {
-@@ -562,8 +565,8 @@ static const struct common_glue_ctx aesni_enc_xts = {
- 	.fpu_blocks_limit = 1,
++	lockdep_assert_held(&msk->pm.lock);
++
+ 	list_for_each_entry(entry, &msk->pm.anno_list, list) {
+ 		if (addresses_equal(&entry->addr, addr, false))
+ 			return entry;
+@@ -266,6 +270,8 @@ static bool mptcp_pm_alloc_anno_list(struct mptcp_sock *msk,
+ 	struct sock *sk = (struct sock *)msk;
+ 	struct net *net = sock_net(sk);
  
- 	.funcs = { {
--		.num_blocks = 8,
--		.fn_u = { .xts = aesni_xts_enc8 }
-+		.num_blocks = 32,
-+		.fn_u = { .xts = aesni_xts_enc32 }
- 	}, {
- 		.num_blocks = 1,
- 		.fn_u = { .xts = aesni_xts_enc }
-@@ -575,8 +578,8 @@ static const struct common_glue_ctx aesni_dec_xts = {
- 	.fpu_blocks_limit = 1,
++	lockdep_assert_held(&msk->pm.lock);
++
+ 	if (lookup_anno_list_by_saddr(msk, &entry->addr))
+ 		return false;
  
- 	.funcs = { {
--		.num_blocks = 8,
--		.fn_u = { .xts = aesni_xts_dec8 }
-+		.num_blocks = 32,
-+		.fn_u = { .xts = aesni_xts_dec32 }
- 	}, {
- 		.num_blocks = 1,
- 		.fn_u = { .xts = aesni_xts_dec }
+@@ -408,6 +414,9 @@ void mptcp_pm_nl_add_addr_send_ack(struct mptcp_sock *msk)
+ {
+ 	struct mptcp_subflow_context *subflow;
+ 
++	msk_owned_by_me(msk);
++	lockdep_assert_held(&msk->pm.lock);
++
+ 	if (!mptcp_pm_should_add_signal(msk))
+ 		return;
+ 
+@@ -443,6 +452,8 @@ void mptcp_pm_nl_rm_addr_received(struct mptcp_sock *msk)
+ 
+ 	pr_debug("address rm_id %d", msk->pm.rm_id);
+ 
++	msk_owned_by_me(msk);
++
+ 	if (!msk->pm.rm_id)
+ 		return;
+ 
+@@ -478,6 +489,8 @@ void mptcp_pm_nl_rm_subflow_received(struct mptcp_sock *msk, u8 rm_id)
+ 
+ 	pr_debug("subflow rm_id %d", rm_id);
+ 
++	msk_owned_by_me(msk);
++
+ 	if (!rm_id)
+ 		return;
+ 
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 056846eb2e5b..64b8a49652ae 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2186,6 +2186,8 @@ static void __mptcp_close_subflow(struct mptcp_sock *msk)
+ {
+ 	struct mptcp_subflow_context *subflow, *tmp;
+ 
++	might_sleep();
++
+ 	list_for_each_entry_safe(subflow, tmp, &msk->conn_list, node) {
+ 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+ 
+@@ -2529,6 +2531,8 @@ static void __mptcp_destroy_sock(struct sock *sk)
+ 
+ 	pr_debug("msk=%p", msk);
+ 
++	might_sleep();
++
+ 	/* dispose the ancillatory tcp socket, if any */
+ 	if (msk->subflow) {
+ 		iput(SOCK_INODE(msk->subflow));
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index 18fef4273bdc..c374345ad134 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -286,6 +286,11 @@ struct mptcp_sock {
+ #define mptcp_for_each_subflow(__msk, __subflow)			\
+ 	list_for_each_entry(__subflow, &((__msk)->conn_list), node)
+ 
++static inline void msk_owned_by_me(const struct mptcp_sock *msk)
++{
++	sock_owned_by_me((const struct sock *)msk);
++}
++
+ static inline struct mptcp_sock *mptcp_sk(const struct sock *sk)
+ {
+ 	return (struct mptcp_sock *)sk;
 -- 
 2.30.1
 
