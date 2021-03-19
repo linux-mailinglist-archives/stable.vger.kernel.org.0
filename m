@@ -2,89 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF4E341A20
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 757F1341A3B
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 11:40:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229751AbhCSKdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 06:33:45 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:42981 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229921AbhCSKdd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 06:33:33 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 75DBC134B;
-        Fri, 19 Mar 2021 06:33:32 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 19 Mar 2021 06:33:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=JfFHTg/BWux+nPcjdimtHrbbKaV
-        mylHLXlbA6N7S8P8=; b=VHj1JYaCqDNHVHkWuEK9IwjqIjv9yka5RZuZRZ/6pUa
-        Gp8743B+CgbXkf21B4MXExpqDcJptCI5Cl2HdW18qpi1XSUjWv2lZQ/pmHPYZyJF
-        8Q4VHZpV6P+tax4aKZw/xi6aHBc1BmNV44c+MMWqiKI1dIuO9RMTv8JCFg+lj6Rz
-        7kkS7UxuV+zdiYUF+Rf3z3B46r8FE98NIlJfM2yhHvAS1PmMOgtEaRESSqx3tz8j
-        XNUT6Ek4wsaW9dAizgl5fRXVuqs/IuuhbbufCElsbiyoeP4UTjLYZ9pxmA4Yt5IC
-        Blp0KxjI1Zy7IqVN/FaENlhHdqrKqHd8f48RfvPm8oQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JfFHTg
-        /BWux+nPcjdimtHrbbKaVmylHLXlbA6N7S8P8=; b=wKRwnN89CoUNKlW0PVjxlz
-        kRJPHL45VgI9yRTMJ9ITXf0MrsN/qs8ZbLI5Up7zPCzUyy5rZtwocLDILpXDud08
-        zisxxpxxhKNEhEoejVZESxGAOqlUTc74uDn0/W7EpgfHxp/xHLvS74vQik4LW6Xa
-        o+lNrhLaVPOADzN9fAnqAifMAyG3TBkYqa/yoyPM0teayE+bjQ2ch7s2COzmtcS8
-        0sTRfieqVrBw+Dg4DMMAP1RyWJiOkjeY4hmhPsAoXOyGrLYz8cY1yud2X3m3mAc+
-        ZTtYPHv5+Mxhg65eFQNMELNd54gxlK5OdgFBpczeOwFuaY6YfKDQNIlryvlY9+hQ
-        ==
-X-ME-Sender: <xms:-31UYCjqPRWhINRFce3NjfMTZdQxyjz9EKC4M3VuwG44mul4Pr4gdw>
-    <xme:-31UYDC_koBDw6oLHxNr46cGuyeVlLffwpvLj95VJfm6onfVPgh6CfHbQJcI_Hy-u
-    HtuJtXbm4XFgA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefkedgudekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:-31UYKHf4G1_UvxpZV4pn_iLY92myysWFIrQnSsjEqgtcjXstZ9Buw>
-    <xmx:-31UYLRJ-dyqvv_fV7cnPUVE-DiDAu3QF10PtxZf2exbF66JW1dX-g>
-    <xmx:-31UYPzdj1RkCprLjVCCzxngsZU7SYAYI0QuplKoAdrYgc1wiYd7Sg>
-    <xmx:_H1UYK8uopcMSRI32zmPJpeMjbdub9otMi4ApkuzxhIRB5xpLR1xvg>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8F53D24005A;
-        Fri, 19 Mar 2021 06:33:31 -0400 (EDT)
-Date:   Fri, 19 Mar 2021 11:33:30 +0100
-From:   Greg KH <greg@kroah.com>
-To:     DENG Qingfang <dqfext@gmail.com>
-Cc:     stable@vger.kernel.org, netdev@vger.kernel.org,
-        Ilario Gelmetti <iochesonome@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH stable 5.4.y, 4.19.y] net: dsa: tag_mtk: fix 802.1ad VLAN
- egress
-Message-ID: <YFR9+hKJTn09MHUm@kroah.com>
-References: <20210318052935.1434546-1-dqfext@gmail.com>
+        id S229791AbhCSKkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 06:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50382 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229640AbhCSKkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Mar 2021 06:40:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5CF464E6B;
+        Fri, 19 Mar 2021 10:39:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616150400;
+        bh=upXug4xn2cSMI3wX/C88hwIqnigSyE+kWd7XvhtAWx0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fQb6LIQ+LxulZcdqI5di1q2vhaiBCfkZzN/03rB+k9dHwWyRKyPN/OOsr8N61AUbo
+         G3jMqaXi6SkyXAdKwTI7qhfei+qX80s/hsKBQhHzn1eaPqbDtXf652VHZ/ku150Gmx
+         xZ1JdJjteMr9mPTKNoaojWKGPIZgJD50OblpFWD4=
+Date:   Fri, 19 Mar 2021 11:39:57 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nicolas Boichat <drinkcat@chromium.org>
+Cc:     stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christopher Li <sparse@chrisli.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-sparse@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [for-stable-4.19 PATCH 1/2] vmlinux.lds.h: Create section for
+ protection against instrumentation
+Message-ID: <YFR/fQIePjDQcO5W@kroah.com>
+References: <20210318235416.794798-1-drinkcat@chromium.org>
+ <20210319075410.for-stable-4.19.1.I222f801866f71be9f7d85e5b10665cd4506d78ec@changeid>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210318052935.1434546-1-dqfext@gmail.com>
+In-Reply-To: <20210319075410.for-stable-4.19.1.I222f801866f71be9f7d85e5b10665cd4506d78ec@changeid>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 18, 2021 at 01:29:35PM +0800, DENG Qingfang wrote:
-> [ Upstream commit 9200f515c41f4cbaeffd8fdd1d8b6373a18b1b67 ]
+On Fri, Mar 19, 2021 at 07:54:15AM +0800, Nicolas Boichat wrote:
+> From: Thomas Gleixner <tglx@linutronix.de>
 > 
-> A different TPID bit is used for 802.1ad VLAN frames.
+> commit 6553896666433e7efec589838b400a2a652b3ffa upstream.
 > 
-> Reported-by: Ilario Gelmetti <iochesonome@gmail.com>
-> Fixes: f0af34317f4b ("net: dsa: mediatek: combine MediaTek tag with VLAN tag")
-> Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> ---
->  net/dsa/tag_mtk.c | 19 +++++++++++++------
->  1 file changed, 13 insertions(+), 6 deletions(-)
+> Some code pathes, especially the low level entry code, must be protected
+> against instrumentation for various reasons:
+> 
+>  - Low level entry code can be a fragile beast, especially on x86.
+> 
+>  - With NO_HZ_FULL RCU state needs to be established before using it.
+> 
+> Having a dedicated section for such code allows to validate with tooling
+> that no unsafe functions are invoked.
+> 
+> Add the .noinstr.text section and the noinstr attribute to mark
+> functions. noinstr implies notrace. Kprobes will gain a section check
+> later.
+> 
+> Provide also a set of markers: instrumentation_begin()/end()
+> 
+> These are used to mark code inside a noinstr function which calls
+> into regular instrumentable text section as safe.
+> 
+> The instrumentation markers are only active when CONFIG_DEBUG_ENTRY is
+> enabled as the end marker emits a NOP to prevent the compiler from merging
+> the annotation points. This means the objtool verification requires a
+> kernel compiled with this option.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
+> Acked-by: Peter Zijlstra <peterz@infradead.org>
+> Link: https://lkml.kernel.org/r/20200505134100.075416272@linutronix.de
+> 
+> [Nicolas: context conflicts in:
+> 	arch/powerpc/kernel/vmlinux.lds.S
+> 	include/asm-generic/vmlinux.lds.h
+> 	include/linux/compiler.h
+> 	include/linux/compiler_types.h]
+> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
 
-Thanks for the backport, now queued up.
+Did you build this on x86?
+
+I get the following build error:
+
+ld:./arch/x86/kernel/vmlinux.lds:20: syntax error
+
+And that line looks like:
+
+ . = ALIGN(8); *(.text.hot .text.hot.*) *(.text .text.fixup) *(.text.unlikely .text.unlikely.*) *(.text.unknown .text.unknown.*) . = ALIGN(8); __noinstr_text_start = .; *(.__attribute__((noinline)) __attribute__((no_instrument_function)) __attribute((__section__(".noinstr.text"))).text) __noinstr_text_end = .; *(.text..refcount) *(.ref.text) *(.meminit.text*) *(.memexit.text*)
+
+So I'm going to drop both of these patches from the queue.
+
+thanks,
 
 greg k-h
