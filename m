@@ -2,88 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5027D34259E
-	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 20:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8603B3425D3
+	for <lists+stable@lfdr.de>; Fri, 19 Mar 2021 20:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbhCSTCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 15:02:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40430 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230186AbhCSTCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Mar 2021 15:02:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D8D761979;
-        Fri, 19 Mar 2021 19:02:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616180551;
-        bh=Qo6NtGkPWLqTBwrJb5r2FaWTF8WoF7RDUE8gTCFbhtQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fYc5MAfjjzohdvHSd+gSARwoR7yCb7qVsm652ZV8m0FdqyYUXEXYMT+yXh6oWHgzN
-         D57pN7OyjHzMk1Y5C3S7IfaNm57BTH3bMbkNCAhhGdSspScIR66KCsXcT64Mr2fXhy
-         EGiO9ZBugAUvG02G8NaAviLxLvsJjOEcorJgGJARRsRSfQaon1pchAOUcGKyOmE6w3
-         3Gwcaa660fNmKl4ikimTu9/AfCBBI372oFg4MYeGR3PC6TNzTqlgVwkD4m5vyyg7WU
-         P9WixCvPQIqvEeWQirMJ/NC8Nk1MHElYXFEwR3RQIxf2YM1hSO3PYvyTF8Lh8HIlHP
-         4uxrRwH+4jrKg==
-Received: by pali.im (Postfix)
-        id DE6396FE; Fri, 19 Mar 2021 20:02:28 +0100 (CET)
-Date:   Fri, 19 Mar 2021 20:02:28 +0100
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Marek =?utf-8?B?QmVow7pu?= <kabel@kernel.org>,
-        linux-pci@vger.kernel.org,
-        =?utf-8?B?UsO2dHRp?= 
-        <espressobinboardarmbiantempmailaddress@posteo.de>,
-        stable@vger.kernel.org, Zachary Zhang <zhangzg@marvell.com>
-Subject: Re: [PATCH] PCI: Add Max Payload Size quirk for ASMedia ASM1062 SATA
- controller
-Message-ID: <20210319190228.xdejimfdpjch6de4@pali>
-References: <20210317225544.fm4oyuujylsxa77b@pali>
- <20210317230355.GA95738@bjorn-Precision-5520>
+        id S230341AbhCSTKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Mar 2021 15:10:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230273AbhCSTKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 15:10:05 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA87C06174A
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 12:10:03 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id b9so10168212wrt.8
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 12:10:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=jZpUFw5riLd0C9+mvdtvugCUovm7ZDUvByCOa9/76ZQ=;
+        b=QhR+4KSqTHgaKnWXgqZDaD4oyvTkcghD7MmZhFA4mM/vgZNq/zvisfJ4lTbhpNMaDk
+         WuvekNJUiEA/uWdTT1o59OVsNAcXORuTDKyS6drhuWf8q4bLYMPF208DZ7sK3aB2JtLo
+         dQde/mDhVwjY5i7YnPoiQJN6FQ7596ueC8wIA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=jZpUFw5riLd0C9+mvdtvugCUovm7ZDUvByCOa9/76ZQ=;
+        b=XRk6n8J55Z+bAeEj4nIctdewm1ph/7/UnJ3DTSovfHZWbJdLoSFbK9YWbTHn51z2XJ
+         o0GFhXjLZcJ2P1Ye24tXQ3OFKBfkf+QEv/Ku9XLGrDdMyXeejjTf2VyvJ84SmAEiR9u3
+         ykg18VZZYvWX6zajaBVKRCv6xI7JRq8ou5XrlcJPj23+v9NI/jGoTiTaS/y3PsEv+4sP
+         2wkqyK+sYBEvP1K2dN33vHbgLy5A3ZP7xoQoAlPQ62Rln7ohmdtEAfwXLy9wSuCqc3At
+         ToWJOH/QLHM5HMDnBtdH2EQ4hkIW1LrzQUuO8UHzgN4hFs9b/MoqHq4rvM1/3ly58sW+
+         jXxA==
+X-Gm-Message-State: AOAM531B61vp+SiYFmFzGY6vVQEWncbecxAcURndYaWSX0Cxr7Ovbj18
+        sf01LVHbDoiXR7x8sagKmQqEyw==
+X-Google-Smtp-Source: ABdhPJzFO9WN+CgE2/RgrKtksHm0n51FPIRyY4UczFIou1uJWBnUN6p6hqCHNzK6RXb0lDvwSgUmfw==
+X-Received: by 2002:a05:6000:120f:: with SMTP id e15mr5802818wrx.129.1616181002238;
+        Fri, 19 Mar 2021 12:10:02 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id z2sm9085005wrv.47.2021.03.19.12.10.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Mar 2021 12:10:01 -0700 (PDT)
+Date:   Fri, 19 Mar 2021 20:09:59 +0100
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     DRI Development <dri-devel@lists.freedesktop.org>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org,
+        John Hubbard <jhubbard@nvidia.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Russell King <linux+etnaviv@armlinux.org.uk>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        etnaviv@lists.freedesktop.org
+Subject: Re: [PATCH 1/2] drm/etnaviv: Use FOLL_FORCE for userptr
+Message-ID: <YFT3B9fRldXI470m@phenom.ffwll.local>
+References: <20210301095254.1946084-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210317230355.GA95738@bjorn-Precision-5520>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <20210301095254.1946084-1-daniel.vetter@ffwll.ch>
+X-Operating-System: Linux phenom 5.7.0-1-amd64 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wednesday 17 March 2021 18:03:55 Bjorn Helgaas wrote:
-> On Wed, Mar 17, 2021 at 11:55:44PM +0100, Pali Rohár wrote:
-> > On Wednesday 17 March 2021 17:45:49 Bjorn Helgaas wrote:
-> > > This quirk suggests that there's a hardware defect in the ASMedia
-> > > ASM1062.  But if that's really the case, we should see reports on lots
-> > > of platforms, and I'm only aware of these two.
-> > 
-> > Do you have platform which support MPS of 512 bytes? Because I have not
-> > seen any x86 / Intel PCIe controller with such support on ordinary
-> > laptop and desktop.
-> > 
-> > These two (A3720 and CN9130) are the only which has support for it.
-> > 
-> > Has somebody else PCIe controller which Root Bridge supports MPS of 512
-> > bytes?
-> > 
-> > Maybe they are in servers, but then such "cheap" SATA controllers are
-> > not used in servers. So this is probably reason why nobody else reported
-> > such issue.
+On Mon, Mar 01, 2021 at 10:52:53AM +0100, Daniel Vetter wrote:
+> Nothing checks userptr.ro except this call to pup_fast, which means
+> there's nothing actually preventing userspace from writing to this.
+> Which means you can just read-only mmap any file you want, userptr it
+> and then write to it with the gpu. Not good.
 > 
-> I have no idea.  My laptop only supports 512 (except for an ASMedia
-> USB controller).  If the device advertises it, I would expect the
-> vendor to test it.  Obviously it still could be a device defect.  They
-> should publish an erratum if that's the case so people know to avoid
-> it.  So I would try to get ASMedia to say "no, that's tested and
-> should work" or "oh, sorry, here's an erratum and we'll fix it in the
-> next round."
+> The right way to handle this is FOLL_WRITE | FOLL_FORCE, which will
+> break any COW mappings and update tracking for MAY_WRITE mappings so
+> there's no exploit and the vm isn't confused about what's going on.
+> For any legit use case there's no difference from what userspace can
+> observe and do.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Lucas Stach <l.stach@pengutronix.de>
+> Cc: Russell King <linux+etnaviv@armlinux.org.uk>
+> Cc: Christian Gmeiner <christian.gmeiner@gmail.com>
+> Cc: etnaviv@lists.freedesktop.org
 
-I doubt that ASMedia publish something...
+Can I please have an ack on this so I can apply it? It's stuck.
 
-But has somebody contact to ASMedia? I can try it.
+Thanks, Daniel
 
-Basically these ASMedia SATA controller chips are present on more
-"noname" mPCIe-form cards and I guess ASMedia is not going to support
-them.
+> ---
+>  drivers/gpu/drm/etnaviv/etnaviv_gem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem.c b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+> index 6d38c5c17f23..a9e696d05b33 100644
+> --- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+> +++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+> @@ -689,7 +689,7 @@ static int etnaviv_gem_userptr_get_pages(struct etnaviv_gem_object *etnaviv_obj)
+>  		struct page **pages = pvec + pinned;
+>  
+>  		ret = pin_user_pages_fast(ptr, num_pages,
+> -					  !userptr->ro ? FOLL_WRITE : 0, pages);
+> +					  FOLL_WRITE | FOLL_FORCE, pages);
+>  		if (ret < 0) {
+>  			unpin_user_pages(pvec, pinned);
+>  			kvfree(pvec);
+> -- 
+> 2.30.0
+> 
 
-Note that we have also tested Marvell PCIe-based SATA controllers which
-support MPS of 512 bytes too and there were no problem with them on
-A3720 nor CN9130.
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
