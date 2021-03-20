@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B1B9342C68
-	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:43:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88CA1342C66
+	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:43:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229686AbhCTLmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229505AbhCTLmj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 20 Mar 2021 07:42:39 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:34967 "EHLO
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:33615 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229985AbhCTLmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Mar 2021 07:42:16 -0400
+        by vger.kernel.org with ESMTP id S229445AbhCTLmY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Mar 2021 07:42:24 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 766291940658;
-        Sat, 20 Mar 2021 07:42:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 20 Mar 2021 07:42:15 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id E895B194065B;
+        Sat, 20 Mar 2021 07:42:23 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 20 Mar 2021 07:42:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TSdV5j
-        qbt5TPMIMUIzc/MFEILHAd/gB5Y2AgGYfMwJc=; b=NBLOGEEFtEOIAR0wfl0AvD
-        UJiykzU+Wcd1uv5ZyNo0+b6/HIk/u+EwT6L4VCGGmmcGNsTEJ3TMJ+hvIZr8bwBc
-        NzgmqXuuxUSyFi0haPQAaHvd/wn5l7q4SjXGy15EBoOnJbr3j+q/msmDotEEtEiR
-        bhnjI8r2l6De1Ll9iHvScYCb6RW11WXuPzzySkrAMev9va+exnxQazOL8sUfCskH
-        xjFmpBjS2mNjMx5Sq4Sxl2ePUT4NEgXE+eKmgzrdrnlrdi4UVRYRmnO9kGI9qcDP
-        MDW5Uyx88eYHSbh5CWTCBfvKr7xkUqgNOKW9z+AwRl5xF8Go/JBxq+MHYFjS8KzQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=C3Uqb7
+        opw15cL3V8Dbh43cZt4t75g7r46W856oAg/9o=; b=kHat5HQUb7T/LgU1PzT+oA
+        QShhwgbhje3MDHCtdzl5d9832Lg47VP0xBOWJSgG4U2VE5MxPv8q+Iax2iU+P5AM
+        dEaLGpgno70Ria1jGE91Yh1ki9Nw+3ekO1fW/9DkfzeFQ95jdFsM/R/etnIKwXWX
+        kPceg30wD3fgg2dmxV1jcYx4V8dtChWdrADb/xHTU2hw0EpB5zkwO3fALcUw5H48
+        sj1hc++NXlCYBpjW/SLIjMXfRmw8jsCojt5cxzYvAdAirt965eDW9K73MJIP73sW
+        yFZiRDdhoatJQSUyCaJWZDoCJziNhFdiozy7XSefQD/Q6qHwM903MaViEaTuTuNw
         ==
-X-ME-Sender: <xms:l99VYDljfz_hCVd01z1rW2ayKdEX7F10GbkrkekAW2m1B3_QeNrjnQ>
-    <xme:l99VYG2R5KqYqJ7-pUnoVCGEXN8kNmj_bz9HoCGf1OPQrE6OYP37LXJ9mvV1nfphW
-    hvkq4BHheKEfA>
+X-ME-Sender: <xms:n99VYL_DdhjpjK1-fzW3pRDu6ufr2FsUQKbiYDArzCAIYR6ANX7NAQ>
+    <xme:n99VYHsOeXz5BkzcvPFmxTyn-bwir5zvKb1uX2cJXOytcPk7V678O1NKZi_Is2Bin
+    d5hnSOKyymlGg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegtddgvdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:l99VYJox1qsOvQ3LUzMgb1s5DEwwWmjNyfEUgfhihLbDQEeZX6wZ1w>
-    <xmx:l99VYLnmniUs4IibxRdP4EFoxvUECrfdZ1Rhtah1phqP_vJ1E9IgWA>
-    <xmx:l99VYB03wiRTgq-cPHhVwGGqIp7FgayVlYh2fanA785w1vhYuSYSSQ>
-    <xmx:l99VYC-w3OXCODhqxHw8wKob8eEIPf92ofIEZFkrA0By1tbxfHJpsw>
+X-ME-Proxy: <xmx:n99VYJAEUr3j0XHUqw_gI3kCMi05n-_RG329R8Qfqh5KVQQB4TUrxw>
+    <xmx:n99VYHe9qKWXwltzg-_94CK2KsPP2M5F_umhoe8G7jziDkCGfd5bSA>
+    <xmx:n99VYANaCTui7Yv9yVbCREFSRDFr93xNLffHWNC4nBSvDtLP7zM7Mg>
+    <xmx:n99VYK1g944cm8_9xjtKpB9ogPpij-_ifaOVyhw_ZPm_It96OEeX1Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1508D240113;
-        Sat, 20 Mar 2021 07:42:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ASoC: fsl_ssi: Fix TDM slot setup for I2S mode" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6E590108005C;
+        Sat, 20 Mar 2021 07:42:23 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ASoC: fsl_ssi: Fix TDM slot setup for I2S mode" failed to apply to 4.14-stable tree
 To:     shc_work@mail.ru, broonie@kernel.org, nicoleotsuka@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 20 Mar 2021 12:42:13 +0100
-Message-ID: <161624053312181@kroah.com>
+Message-ID: <16162405334974@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
