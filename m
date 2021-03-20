@@ -2,93 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE3B342C1A
-	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC78D342BF8
+	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:19:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229886AbhCTLYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Mar 2021 07:24:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42058 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbhCTLYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Mar 2021 07:24:32 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D09BC0613B6
-        for <stable@vger.kernel.org>; Sat, 20 Mar 2021 03:46:07 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id e7so13653456edu.10
-        for <stable@vger.kernel.org>; Sat, 20 Mar 2021 03:46:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=uvaJxOMF68u/mryvJz6oilbFQS2YMDQUaK8sfeTQE6s=;
-        b=QO5vSYnYTrocEbU0Mlj42Yd4gTjo/osU7XglO3gxGg+TCPP/UYnf9k4dVHWEvVIfiH
-         Kxkht2DdR3PD3j0mgv7X/MTFX5kQkbH7Ld00vPUC9vaIXG1C3YMnO2t9kx9s8vQSOiRr
-         gvylFh8m+K11p2RJyiuIuWLZj1pcA/98n5K3qCaZj2qxw4JP57HkmvUrA5sX3CzQYtCP
-         KUXMViyHoKRxUZrA1x7cvCHb0RXG+E8UJUx/vgBZ4FjODLi18YD9UnCvx6hRKRdcp4hC
-         2Vobd5H4om8+JYmZ829epwdgYsdGTEcVck8r6uQJJU24BmmhL+5PmS39WscdwHqOyJ1z
-         BgBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=uvaJxOMF68u/mryvJz6oilbFQS2YMDQUaK8sfeTQE6s=;
-        b=PwYIkFW9SGEXaK6vhAsqdu3z+Ljg2xAXY4g9FH+JS0ywbm79C9k3wxnf8b2t8pUHkD
-         +B3+l0stuH8F1gjFb5hKlV/AH2kfffn+/ila0Z1HywzdyO4odzoz5nf4TxDlEEd5lBAi
-         VvJyUfkE0UzEdisIndtdHXN899/FBtXcj9mvDAwj4G3D9n2CuR/fcmlYN/FAUR5GC4uT
-         1u+rzfRV6+yZEbCOTGGvxsgUz3bKz/19qC+31kUstpxrm4KHSgREo4uzUkZwlV2bwJ4t
-         mz/p4FQPEeGg8PQDfpnvYD22h0cDC68WR+7jALJcJKwDMTx2FtXciT+qTnIuRTnb8zOt
-         coGQ==
-X-Gm-Message-State: AOAM532ohwUIHUa73I6pam0N7+hQaS1nHqpUFZPkhLQaE/Y/rpVb71lz
-        vl39tE/YcfGnywVKBTZ0h8iiYEJ6ZeYbL2WPEf0OzNCPP+9b4A==
-X-Google-Smtp-Source: ABdhPJyHMY+MLB95JoEsw8vAv1Ggtj3WblwX0nah4g+1WNPfH2rj3HZ8cwieZo7y09bJihgugfzKRnr1o3DUIfdyUOw=
-X-Received: by 2002:a05:6512:25a:: with SMTP id b26mr3386527lfo.253.1616235516858;
- Sat, 20 Mar 2021 03:18:36 -0700 (PDT)
+        id S229588AbhCTLSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Mar 2021 07:18:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56310 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229818AbhCTLSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 20 Mar 2021 07:18:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D808B619BE;
+        Sat, 20 Mar 2021 10:23:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616235799;
+        bh=UGOQCo8pA0DDbYCQ9ppmpSojvBGQpxgFlUrUYRi74Zg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nv+CJ3L1BZu9XkqVk/x4B+AA3UWIARDV6gfBdBgrkGFt/Qxvq8qFlIbK7rxT9IX8E
+         GvTsA7rx/vz433y+jpV8x5VLfLKgLRGOOP0dHLiJ1UEGc3SFRGccpGFxM86VC5LqN/
+         w/7LA4xxtBlChsjDhBwUT1+r2Euii5cdsQ4BDm2w=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.10.25
+Date:   Sat, 20 Mar 2021 11:23:15 +0100
+Message-Id: <161623579648126@kroah.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-Reply-To: tofilbaman1@gmail.com
-Sender: frankfranky730@gmail.com
-Received: by 2002:aa6:c115:0:b029:c2:a1ff:5f54 with HTTP; Sat, 20 Mar 2021
- 03:18:36 -0700 (PDT)
-From:   Tofil Bama <tofilbaman@gmail.com>
-Date:   Sat, 20 Mar 2021 11:18:36 +0100
-X-Google-Sender-Auth: 3jI6fzNrI0owvvUNonTQL-uCE-M
-Message-ID: <CA+TddQRKQfk7CKW1Ju1tXkkat=LFY+SURXjsu+Ck3Wyccfg=Kw@mail.gmail.com>
-Subject: GOOD NEWS.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear,
+I'm announcing the release of the 5.10.25 kernel.
 
-My name is Mr Tofil Bama, I am the Bill and Exchange assistant
-Manager in Bank of Africa Ouagadougou Burkina Faso. In my department
-I discovered an abandoned sum of eighteen million three hundred
-thousand United State of American dollars (18.3MILLION USA DOLLARS)
-in an account that belongs to one of our foreign customer
-(late Mr Shitu Nuri) who died in Ethiopian Airlines Flight 409 that
-crashed into the Mediterranean Sea on 25th January 2010.
+All users of the 5.10 kernel series must upgrade.
 
-Since I got information about his death I have been expecting
-his next of kin to come over and claim his money because we
-cannot release it unless somebody applies for it as the next
-of kin or relation to the deceased as indicated in our banking
-guidelines, unfortunately we learnt that all his supposed next of
-kin or relation died alongside with him in the plane crash leaving
-nobody behind for the claim.
+The updated 5.10.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-It is therefore upon this discovery that I decided to make this
-business proposal to you and release the money to you as next of kin
-to the deceased for safety and subsequent disbursement since nobody
-is coming for the fund, it is 10 years now the money is lying pending in
-the account of our deceased and I don't want the money to go into the
-bank treasury as unclaimed bill.
+thanks,
 
-You will be entitled with 40% of the total sum while 60% will be for
-me after which I will visit your Country to invest my own share when
-the fund is successfully transferred into your account, Please I would
-like you to keep this transaction confidential and as a top secret
-between me and you until we successfully achieve this golden
-opportunity.
+greg k-h
 
-Yours sincerely,
-Mr Tofil Bama.
+------------
+
+ Makefile                                                |    2 
+ arch/x86/crypto/aesni-intel_asm.S                       |  133 +++++++++-------
+ arch/x86/crypto/aesni-intel_avx-x86_64.S                |   20 +-
+ arch/x86/crypto/aesni-intel_glue.c                      |   25 +--
+ drivers/infiniband/ulp/srp/ib_srp.c                     |  110 +++++--------
+ drivers/net/dsa/b53/b53_common.c                        |   18 ++
+ drivers/net/dsa/b53/b53_regs.h                          |    1 
+ drivers/net/dsa/bcm_sf2.c                               |   15 -
+ fs/fuse/fuse_i.h                                        |    1 
+ fs/locks.c                                              |    3 
+ fs/nfsd/nfs4state.c                                     |   53 +-----
+ kernel/bpf/verifier.c                                   |   33 ++-
+ sound/usb/endpoint.c                                    |    3 
+ sound/usb/pcm.c                                         |    5 
+ tools/testing/selftests/bpf/verifier/bounds_deduction.c |   27 ++-
+ tools/testing/selftests/bpf/verifier/map_ptr.c          |    4 
+ tools/testing/selftests/bpf/verifier/unpriv.c           |   15 +
+ tools/testing/selftests/bpf/verifier/value_ptr_arith.c  |   23 ++
+ 18 files changed, 265 insertions(+), 226 deletions(-)
+
+Amir Goldstein (1):
+      fuse: fix live lock in fuse_iget()
+
+Ard Biesheuvel (1):
+      crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+
+Florian Fainelli (1):
+      net: dsa: b53: Support setting learning on port
+
+Greg Kroah-Hartman (1):
+      Linux 5.10.25
+
+J. Bruce Fields (2):
+      Revert "nfsd4: remove check_conflicting_opens warning"
+      Revert "nfsd4: a client's own opens needn't prevent delegations"
+
+Nicolas Morey-Chaisemartin (1):
+      RDMA/srp: Fix support for unpopulated and unbalanced NUMA nodes
+
+Piotr Krysiuk (5):
+      bpf: Prohibit alu ops for pointer types not defining ptr_limit
+      bpf: Fix off-by-one for area size in creating mask to left
+      bpf: Simplify alu_limit masking for pointer arithmetic
+      bpf: Add sanity check for upper ptr_limit
+      bpf, selftests: Fix up some test_verifier cases for unprivileged
+
+Takashi Iwai (1):
+      ALSA: usb-audio: Don't avoid stopping the stream at disconnection
+
+Uros Bizjak (1):
+      crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
+
