@@ -2,55 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AE1D342C7D
-	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:49:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A60342C3B
+	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229849AbhCTLtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Mar 2021 07:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32862 "EHLO mail.kernel.org"
+        id S229713AbhCTLeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Mar 2021 07:34:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229600AbhCTLsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 20 Mar 2021 07:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2176A61977;
-        Sat, 20 Mar 2021 09:53:12 +0000 (UTC)
+        id S229510AbhCTLdn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 20 Mar 2021 07:33:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D1CA619B9;
+        Sat, 20 Mar 2021 09:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616233993;
-        bh=jJu7OZFpcdzufuo6TbzTb125/2qNrCyrdH8uF6VGjog=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cGVRrnO/4XaFAOxyWgcmkbjRQLPpaQjzWfCn33OFzb2NISZeorOykrOU19fCBH54Z
-         /XIVglHs0o+vexHV4+GNoyOTDHuAANYwe39gc5XRdz9fD1NHnOR1TnuLGo6J4wD/+l
-         Fk2DYrpHx4K9pBSkqtLGpIikeXS5OwT37XPBi35s=
-Date:   Sat, 20 Mar 2021 10:53:11 +0100
+        s=korg; t=1616234038;
+        bh=cP99hmxs+4WqnF2LPhJ4VVRx6L/RDlQt5xOGNQZIVGQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=2p0ilCFVMSNhc/atOECeUtI7ZCbpVt93znLaqUflEw7Yy4M/hfDm2bRFMWZdiKT0P
+         JsQR2MqN0VthoevjyFH4SwM2ri3o4tbzBIcpkwjd67Cg04dgczqz2ahu8sFZMQjTwL
+         7uKjTQtPQFNEn09lLPCc0oue1AH3DSr1XUrX3lMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 0/8] 4.19.182-rc1 review
-Message-ID: <YFXGB9edAJ5G4v1W@kroah.com>
-References: <20210319121744.114946147@linuxfoundation.org>
- <20210319191722.GA6701@amd>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.19.182
+Date:   Sat, 20 Mar 2021 10:53:54 +0100
+Message-Id: <161623403425070@kroah.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210319191722.GA6701@amd>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 08:17:22PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > This is the start of the stable review cycle for the 4.19.182 release.
-> > There are 8 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> 
-> CIP testing did not find any problems here:
-> 
-> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-4.19.y
-> 
-> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+I'm announcing the release of the 4.19.182 kernel.
 
-Thanks for testing!
+All users of the 4.19 kernel series must upgrade.
+
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                         |    2 -
+ arch/arm64/include/asm/kvm_hyp.h |    3 ++
+ arch/arm64/kvm/hyp/debug-sr.c    |   24 +++++++++++++--------
+ arch/arm64/kvm/hyp/switch.c      |    4 ++-
+ drivers/net/dsa/b53/b53_common.c |   19 +++++++++++++++++
+ drivers/net/dsa/b53/b53_regs.h   |    1 
+ drivers/net/dsa/bcm_sf2.c        |    5 ----
+ fs/ext4/block_validity.c         |   43 +++++++++++++++++++--------------------
+ fs/ext4/ext4.h                   |    6 ++---
+ fs/ext4/extents.c                |   16 +++++---------
+ fs/ext4/indirect.c               |    6 +----
+ fs/ext4/inode.c                  |    5 +---
+ fs/ext4/mballoc.c                |    4 +--
+ kernel/bpf/verifier.c            |   33 +++++++++++++++++++----------
+ net/dsa/tag_mtk.c                |   19 +++++++++++------
+ 15 files changed, 113 insertions(+), 77 deletions(-)
+
+DENG Qingfang (1):
+      net: dsa: tag_mtk: fix 802.1ad VLAN egress
+
+Florian Fainelli (1):
+      net: dsa: b53: Support setting learning on port
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.182
+
+Jan Kara (1):
+      ext4: check journal inode extents more carefully
+
+Piotr Krysiuk (4):
+      bpf: Prohibit alu ops for pointer types not defining ptr_limit
+      bpf: Fix off-by-one for area size in creating mask to left
+      bpf: Simplify alu_limit masking for pointer arithmetic
+      bpf: Add sanity check for upper ptr_limit
+
+Suzuki K Poulose (1):
+      KVM: arm64: nvhe: Save the SPE context early
+
