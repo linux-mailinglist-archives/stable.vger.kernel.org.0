@@ -2,83 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E81CA3429AF
-	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 02:46:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15110342A5F
+	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 05:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229638AbhCTBpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Mar 2021 21:45:32 -0400
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:48399 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229447AbhCTBpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Mar 2021 21:45:08 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R231e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0USf-dtz_1616204693;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0USf-dtz_1616204693)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 20 Mar 2021 09:45:06 +0800
-From:   Wen Yang <simon.wy@alibaba-inc.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 4.9] ixgbe: prevent ptp_rx_hang from running when in FILTER_ALL mode
-Date:   Sat, 20 Mar 2021 09:44:51 +0800
-Message-Id: <20210320014451.36599-1-simon.wy@alibaba-inc.com>
-X-Mailer: git-send-email 2.23.0
+        id S229887AbhCTERD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Mar 2021 00:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35742 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229766AbhCTEQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Mar 2021 00:16:35 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 776A9C061765
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 21:16:35 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id lr1-20020a17090b4b81b02900ea0a3f38c1so9263541pjb.0
+        for <stable@vger.kernel.org>; Fri, 19 Mar 2021 21:16:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AnMg47T8Z7mVw2QYcNj+ca1PflwjFpQ0knP09yHBQe8=;
+        b=PrfZRsmz3UsByLzMgIDUIzCr+LhjgOYA+Nh9/H13Agb9hHJi7ziHDjVe3JuOzAL2FX
+         xUiC3V+PT+eCW5XYT+iDKAAQ0o3CxYXpEdi8GCRjDUw/U5Of+RBSi7tmM31+HWvwZ7Fm
+         XIU5+XedKEFeMg9zmn1ExdTrB4wQMwqm98ODw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AnMg47T8Z7mVw2QYcNj+ca1PflwjFpQ0knP09yHBQe8=;
+        b=sygoO9prkvjMenCDqM0tAWDaKl577GGDKIB/DN9G+lm87+nB3JDkbLWn4EIi6gAN42
+         ocskthYBxPkwDL0H8x7fBjuw9LY59UWrjdmQaZs0cPUiDD/gFL07XEf/AnYULte0B/Lc
+         aov8YqCDml03svPH4q+InQVVo2LxaFbbeXLp5zUGTpy7hGzDlpGQVG6JKI6LsD51QZ3i
+         MBjUHkALLYOBpio7GKzm+MDrzVxlyVUOJDIfsbo6gXW/sVKMzw0AtOWJyIS0n3ZuZNdx
+         i81p0aGjzvUfvnH4VQjuAsZHuDcb1t2X+UF7Oy+gM9D20vxAY1rSwALISfjvIivSmMRk
+         N9oA==
+X-Gm-Message-State: AOAM531+wYLmpPkp7EH458dE+geFxz2xdD4Pri5DZKRGQEGraseELnMA
+        cQ/1QxT19o3FyF+qlgBZ+orY28ITq0MSVA==
+X-Google-Smtp-Source: ABdhPJw4hRCPEH2/kfcgtaref9TF8lFo2zdT4xoTpYUa2F76wDEZKZFyP619enk9tKUj0PiS8O5eJg==
+X-Received: by 2002:a17:90a:ab09:: with SMTP id m9mr1910002pjq.122.1616213794673;
+        Fri, 19 Mar 2021 21:16:34 -0700 (PDT)
+Received: from drinkcat2.tpe.corp.google.com ([2401:fa00:1:b:f0c7:e1f7:948e:d8d5])
+        by smtp.gmail.com with ESMTPSA id s62sm6998869pfb.148.2021.03.19.21.16.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Mar 2021 21:16:34 -0700 (PDT)
+From:   Nicolas Boichat <drinkcat@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     groeck@chromium.org, Nicolas Boichat <drinkcat@chromium.org>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christopher Li <sparse@chrisli.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        clang-built-linux@googlegroups.com, linux-arch@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-sparse@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: [for-stable-4.19 PATCH v2 0/2] Backport patches to fix KASAN+LKDTM with recent clang on ARM64
+Date:   Sat, 20 Mar 2021 12:16:24 +0800
+Message-Id: <20210320041626.885806-1-drinkcat@chromium.org>
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+Backport 2 patches that are required to make KASAN+LKDTM work
+with recent clang (patch 2/2 has a complete description).
+Tested on our chromeos-4.19 branch.
+Also compile tested on x86-64 and arm64 with gcc this time
+around.
 
-commit 6704a3abf4cf4181a1ee64f5db4969347b88ca1d upstream.
+Patch 1/2 adds a guard around noinstr that matches upstream,
+to prevent a build issue, and has some minor context conflicts.
+Patch 2/2 is a clean backport.
 
-On hardware which supports timestamping all packets, the timestamps are
-recorded in the packet buffer, and the driver no longer uses or reads
-the registers. This makes the logic for checking and clearing Rx
-timestamp hangs meaningless.
+These patches have been merged to 5.4 stable already. We might
+need to backport to older stable branches, but this is what I
+could test for now.
 
-If we run the ixgbe_ptp_rx_hang() function in this case, then the driver
-will continuously spam the log output with "Clearing Rx timestamp hang".
-These messages are spurious, and confusing to end users.
+Changes in v2:
+ - Guard noinstr macro by __KERNEL__ && !__ASSEMBLY__ to prevent
+   expansion in linker script and match upstream.
 
-The original code in commit a9763f3cb54c ("ixgbe: Update PTP to support
-X550EM_x devices", 2015-12-03) did have a flag PTP_RX_TIMESTAMP_IN_REGISTER
-which was intended to be used to avoid the Rx timestamp hang check,
-however it did not actually check the flag before calling the function.
+Mark Rutland (1):
+  lkdtm: don't move ctors to .rodata
 
-Do so now in order to stop the checks and prevent the spurious log
-messages.
+Thomas Gleixner (1):
+  vmlinux.lds.h: Create section for protection against instrumentation
 
-Fixes: a9763f3cb54c ("ixgbe: Update PTP to support X550EM_x devices", 2015-12-03)
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Cc: <stable@vger.kernel.org> # 4.9.x: 622a2ef538fb: ixgbe: check for Tx timestamp timeouts during watchdog
-Cc: <stable@vger.kernel.org> # 4.9.x
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
----
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/vmlinux.lds.S |  1 +
+ drivers/misc/lkdtm/Makefile       |  2 +-
+ drivers/misc/lkdtm/rodata.c       |  2 +-
+ include/asm-generic/sections.h    |  3 ++
+ include/asm-generic/vmlinux.lds.h | 10 ++++++
+ include/linux/compiler.h          | 54 +++++++++++++++++++++++++++++++
+ include/linux/compiler_types.h    |  6 ++++
+ scripts/mod/modpost.c             |  2 +-
+ 8 files changed, 77 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index 66b1cc02..36d73bf 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -7257,7 +7257,8 @@ static void ixgbe_service_task(struct work_struct *work)
- 
- 	if (test_bit(__IXGBE_PTP_RUNNING, &adapter->state)) {
- 		ixgbe_ptp_overflow_check(adapter);
--		ixgbe_ptp_rx_hang(adapter);
-+		if (adapter->flags & IXGBE_FLAG_RX_HWTSTAMP_IN_REGISTER)
-+			ixgbe_ptp_rx_hang(adapter);
- 		ixgbe_ptp_tx_hang(adapter);
- 	}
- 
 -- 
-1.8.3.1
+2.31.0.rc2.261.g7f71774620-goog
 
