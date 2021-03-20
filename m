@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87BAA342C4D
-	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:37:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B1B9342C68
+	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229817AbhCTLhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Mar 2021 07:37:17 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:49165 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229445AbhCTLgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Mar 2021 07:36:48 -0400
+        id S229686AbhCTLmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Mar 2021 07:42:39 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:34967 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229985AbhCTLmQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Mar 2021 07:42:16 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 4854B1940650;
-        Sat, 20 Mar 2021 07:36:48 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 20 Mar 2021 07:36:48 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 766291940658;
+        Sat, 20 Mar 2021 07:42:15 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 20 Mar 2021 07:42:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=qNiPmt
-        yiT5V69qZb1hbECcSqAmrvjUOXcFNED+caYhI=; b=QHBrZOgctsQOUXxvugFq1L
-        hoKA/FEM3d3cd8+LD9FNFmgyHkKikuXNR7UyCnFh6RoEjXTZuKKE9r83cO7I496I
-        IGqIVPGa6vVL3BVyNRWvHpmi4pRK+SUoxt3L0prpr/5vufP7kQ3HDpv/cfUg4KZd
-        EZxhpqwP9IFaBmH476AgAYlQjW5Hw6Fo8n4XWXUDfXlPBuSTYz7DJckuf5aJUmNA
-        ObupXhcjora+0zHccYh5EXWe+EjULJ2WPdLndffnPuSi+c8woM97AaPuFpYROt84
-        1mEj1T7JAqovZQqh6gHSo4YGnMWH8/JrcBdi1iUTe+ma7ZTBmUvHAI6EXifV3K3Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TSdV5j
+        qbt5TPMIMUIzc/MFEILHAd/gB5Y2AgGYfMwJc=; b=NBLOGEEFtEOIAR0wfl0AvD
+        UJiykzU+Wcd1uv5ZyNo0+b6/HIk/u+EwT6L4VCGGmmcGNsTEJ3TMJ+hvIZr8bwBc
+        NzgmqXuuxUSyFi0haPQAaHvd/wn5l7q4SjXGy15EBoOnJbr3j+q/msmDotEEtEiR
+        bhnjI8r2l6De1Ll9iHvScYCb6RW11WXuPzzySkrAMev9va+exnxQazOL8sUfCskH
+        xjFmpBjS2mNjMx5Sq4Sxl2ePUT4NEgXE+eKmgzrdrnlrdi4UVRYRmnO9kGI9qcDP
+        MDW5Uyx88eYHSbh5CWTCBfvKr7xkUqgNOKW9z+AwRl5xF8Go/JBxq+MHYFjS8KzQ
         ==
-X-ME-Sender: <xms:T95VYO61JnZ6BrbK77Q67M4ozgWhbd9amDbetGbewqtJUlqEA5uBQA>
-    <xme:T95VYH5mTXle4rivfTbc-jFUcHp8FdeyGlEfvWLryWgdgGzKn0nA5v6rNyxxEBqn3
-    dCB2vLkNc3lNA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegtddgvdefucetufdoteggodetrfdotf
+X-ME-Sender: <xms:l99VYDljfz_hCVd01z1rW2ayKdEX7F10GbkrkekAW2m1B3_QeNrjnQ>
+    <xme:l99VYG2R5KqYqJ7-pUnoVCGEXN8kNmj_bz9HoCGf1OPQrE6OYP37LXJ9mvV1nfphW
+    hvkq4BHheKEfA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegtddgvdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:T95VYNcvkufMRYJKNk1bUXQhOvVxW8w-FJbfDSlDo9FGuIRrkG1Cmg>
-    <xmx:T95VYLL0UME9AyGdD9pU9QPqLkGG1r7Yw6c5vW2QcoXh00MPQEOI1w>
-    <xmx:T95VYCLgqzdLQjr92EK28JtItAzquXQ73Nj_7ec1O2KRfnrZFpMZIQ>
-    <xmx:UN5VYJUPEi3yogdQwMvXMrnHVK0VW6mQz1T7x4Zw-5DBxQws6TyVXQ>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:l99VYJox1qsOvQ3LUzMgb1s5DEwwWmjNyfEUgfhihLbDQEeZX6wZ1w>
+    <xmx:l99VYLnmniUs4IibxRdP4EFoxvUECrfdZ1Rhtah1phqP_vJ1E9IgWA>
+    <xmx:l99VYB03wiRTgq-cPHhVwGGqIp7FgayVlYh2fanA785w1vhYuSYSSQ>
+    <xmx:l99VYC-w3OXCODhqxHw8wKob8eEIPf92ofIEZFkrA0By1tbxfHJpsw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 41DEF108005C;
-        Sat, 20 Mar 2021 07:36:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix qgroup data rsv leak caused by falloc failure" failed to apply to 5.11-stable tree
-To:     wqu@suse.com, dsterba@suse.com, dsterba@suse.cz, nborisov@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1508D240113;
+        Sat, 20 Mar 2021 07:42:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ASoC: fsl_ssi: Fix TDM slot setup for I2S mode" failed to apply to 4.9-stable tree
+To:     shc_work@mail.ru, broonie@kernel.org, nicoleotsuka@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 20 Mar 2021 12:36:45 +0100
-Message-ID: <1616240205223253@kroah.com>
+Date:   Sat, 20 Mar 2021 12:42:13 +0100
+Message-ID: <161624053312181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,129 +70,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a3ee79bd8fe17812d2305ccc4bf81bfeab395576 Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Wed, 3 Mar 2021 18:41:52 +0800
-Subject: [PATCH] btrfs: fix qgroup data rsv leak caused by falloc failure
+From 87263968516fb9507d6215d53f44052627fae8d8 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Tue, 16 Feb 2021 14:42:21 +0300
+Subject: [PATCH] ASoC: fsl_ssi: Fix TDM slot setup for I2S mode
 
-[BUG]
-When running fsstress with only falloc workload, and a very low qgroup
-limit set, we can get qgroup data rsv leak at unmount time.
+When using the driver in I2S TDM mode, the _fsl_ssi_set_dai_fmt()
+function rewrites the number of slots previously set by the
+fsl_ssi_set_dai_tdm_slot() function to 2 by default.
+To fix this, let's use the saved slot count value or, if TDM
+is not used and the slot count is not set, proceed as before.
 
- BTRFS warning (device dm-0): qgroup 0/5 has unreleased space, type 0 rsv 20480
- BTRFS error (device dm-0): qgroup reserved space leaked
+Fixes: 4f14f5c11db1 ("ASoC: fsl_ssi: Fix number of words per frame for I2S-slave mode")
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/20210216114221.26635-1-shc_work@mail.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 
-The minimal reproducer looks like:
-
-  #!/bin/bash
-  dev=/dev/test/test
-  mnt="/mnt/btrfs"
-  fsstress=~/xfstests-dev/ltp/fsstress
-  runtime=8
-
-  workload()
-  {
-          umount $dev &> /dev/null
-          umount $mnt &> /dev/null
-          mkfs.btrfs -f $dev > /dev/null
-          mount $dev $mnt
-
-          btrfs quota en $mnt
-          btrfs quota rescan -w $mnt
-          btrfs qgroup limit 16m 0/5 $mnt
-
-          $fsstress -w -z -f creat=10 -f fallocate=10 -p 2 -n 100 \
-  		-d $mnt -v > /tmp/fsstress
-
-          umount $mnt
-          if dmesg | grep leak ; then
-		echo "!!! FAILED !!!"
-  		exit 1
-          fi
-  }
-
-  for (( i=0; i < $runtime; i++)); do
-          echo "=== $i/$runtime==="
-          workload
-  done
-
-Normally it would fail before round 4.
-
-[CAUSE]
-In function insert_prealloc_file_extent(), we first call
-btrfs_qgroup_release_data() to know how many bytes are reserved for
-qgroup data rsv.
-
-Then use that @qgroup_released number to continue our work.
-
-But after we call btrfs_qgroup_release_data(), we should either queue
-@qgroup_released to delayed ref or free them manually in error path.
-
-Unfortunately, we lack the error handling to free the released bytes,
-leaking qgroup data rsv.
-
-All the error handling function outside won't help at all, as we have
-released the range, meaning in inode io tree, the EXTENT_QGROUP_RESERVED
-bit is already cleared, thus all btrfs_qgroup_free_data() call won't
-free any data rsv.
-
-[FIX]
-Add free_qgroup tag to manually free the released qgroup data rsv.
-
-Reported-by: Nikolay Borisov <nborisov@suse.com>
-Reported-by: David Sterba <dsterba@suse.cz>
-Fixes: 9729f10a608f ("btrfs: inode: move qgroup reserved space release to the callers of insert_reserved_file_extent()")
-CC: stable@vger.kernel.org # 5.10+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 77182be403c5..ea5ede619220 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9895,7 +9895,7 @@ static struct btrfs_trans_handle *insert_prealloc_file_extent(
- 						  file_offset, &stack_fi,
- 						  true, qgroup_released);
- 		if (ret)
--			return ERR_PTR(ret);
-+			goto free_qgroup;
- 		return trans;
- 	}
+diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
+index 57811743c294..ad8af3f450e2 100644
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -878,6 +878,7 @@ static int fsl_ssi_hw_free(struct snd_pcm_substream *substream,
+ static int _fsl_ssi_set_dai_fmt(struct fsl_ssi *ssi, unsigned int fmt)
+ {
+ 	u32 strcr = 0, scr = 0, stcr, srcr, mask;
++	unsigned int slots;
  
-@@ -9910,17 +9910,31 @@ static struct btrfs_trans_handle *insert_prealloc_file_extent(
- 	extent_info.insertions = 0;
+ 	ssi->dai_fmt = fmt;
  
- 	path = btrfs_alloc_path();
--	if (!path)
--		return ERR_PTR(-ENOMEM);
-+	if (!path) {
-+		ret = -ENOMEM;
-+		goto free_qgroup;
-+	}
+@@ -909,10 +910,11 @@ static int _fsl_ssi_set_dai_fmt(struct fsl_ssi *ssi, unsigned int fmt)
+ 			return -EINVAL;
+ 		}
  
- 	ret = btrfs_replace_file_extents(&inode->vfs_inode, path, file_offset,
- 				     file_offset + len - 1, &extent_info,
- 				     &trans);
- 	btrfs_free_path(path);
- 	if (ret)
--		return ERR_PTR(ret);
--
-+		goto free_qgroup;
- 	return trans;
-+
-+free_qgroup:
-+	/*
-+	 * We have released qgroup data range at the beginning of the function,
-+	 * and normally qgroup_released bytes will be freed when committing
-+	 * transaction.
-+	 * But if we error out early, we have to free what we have released
-+	 * or we leak qgroup data reservation.
-+	 */
-+	btrfs_qgroup_free_refroot(inode->root->fs_info,
-+			inode->root->root_key.objectid, qgroup_released,
-+			BTRFS_QGROUP_RSV_DATA);
-+	return ERR_PTR(ret);
- }
++		slots = ssi->slots ? : 2;
+ 		regmap_update_bits(ssi->regs, REG_SSI_STCCR,
+-				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(2));
++				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(slots));
+ 		regmap_update_bits(ssi->regs, REG_SSI_SRCCR,
+-				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(2));
++				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(slots));
  
- static int __btrfs_prealloc_file_range(struct inode *inode, int mode,
+ 		/* Data on rising edge of bclk, frame low, 1clk before data */
+ 		strcr |= SSI_STCR_TFSI | SSI_STCR_TSCKP | SSI_STCR_TEFS;
 
