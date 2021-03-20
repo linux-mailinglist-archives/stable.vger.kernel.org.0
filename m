@@ -2,1146 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF39342BF5
-	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E34342BF9
+	for <lists+stable@lfdr.de>; Sat, 20 Mar 2021 12:19:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbhCTLSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Mar 2021 07:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56288 "EHLO mail.kernel.org"
+        id S229546AbhCTLSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Mar 2021 07:18:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229775AbhCTLSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S229791AbhCTLSn (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 20 Mar 2021 07:18:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B3F4619C7;
-        Sat, 20 Mar 2021 10:23:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3155E619CA;
+        Sat, 20 Mar 2021 10:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616235806;
-        bh=WSh2PVg0ARG6kATNgw7AHOhuvoSEIVdKoQ8nEQ8x0nQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qRy8QbQVJZLJ67DWXrWTHQrfRLHapu0lg+Vd3HuoI8CK+5MPATh9IhMRroM82URNA
-         Nj/XVD/FeNcvlfuU4+SQkEsgRka3szTQCZc+GmZbvNnDRPvgvf1CoaMIeLoVQsvQba
-         tvEWVH/o3s8eX3b8g5PUEfJDGFTslCNmOupmWWLU=
+        s=korg; t=1616235808;
+        bh=9Tzohl38WydHRfVtmY3NoTeEResPx+HTvqbVMVelexs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=xUA9E15VoK1uNKV7leh1mJP2h3OK7/h4+T51paB+lZmn0Jn84Fd0aZor2kJlYCQGl
+         hceY8cl0j8BKc7doOWCkSNAhgOcwJ5yHqRD+f91LMMPnz+zNKuXh/5kKBUuBdBXM3X
+         StkPGyJVA52XVvp/WmIDVqBrio0xM4mhIvFoDvLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.10.25
-Date:   Sat, 20 Mar 2021 11:23:16 +0100
-Message-Id: <1616235796118206@kroah.com>
+Subject: Linux 5.11.8
+Date:   Sat, 20 Mar 2021 11:23:22 +0100
+Message-Id: <16162358021172@kroah.com>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <161623579648126@kroah.com>
-References: <161623579648126@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 3a435c928e75..6858425cbe6c 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 10
--SUBLEVEL = 24
-+SUBLEVEL = 25
- EXTRAVERSION =
- NAME = Dare mighty things
- 
-diff --git a/arch/x86/crypto/aesni-intel_asm.S b/arch/x86/crypto/aesni-intel_asm.S
-index 1852b19a73a0..57aef3f5a81e 100644
---- a/arch/x86/crypto/aesni-intel_asm.S
-+++ b/arch/x86/crypto/aesni-intel_asm.S
-@@ -318,7 +318,7 @@ _initial_blocks_\@:
- 
- 	# Main loop - Encrypt/Decrypt remaining blocks
- 
--	cmp	$0, %r13
-+	test	%r13, %r13
- 	je	_zero_cipher_left_\@
- 	sub	$64, %r13
- 	je	_four_cipher_left_\@
-@@ -437,7 +437,7 @@ _multiple_of_16_bytes_\@:
- 
- 	mov PBlockLen(%arg2), %r12
- 
--	cmp $0, %r12
-+	test %r12, %r12
- 	je _partial_done\@
- 
- 	GHASH_MUL %xmm8, %xmm13, %xmm9, %xmm10, %xmm11, %xmm5, %xmm6
-@@ -474,7 +474,7 @@ _T_8_\@:
- 	add	$8, %r10
- 	sub	$8, %r11
- 	psrldq	$8, %xmm0
--	cmp	$0, %r11
-+	test	%r11, %r11
- 	je	_return_T_done_\@
- _T_4_\@:
- 	movd	%xmm0, %eax
-@@ -482,7 +482,7 @@ _T_4_\@:
- 	add	$4, %r10
- 	sub	$4, %r11
- 	psrldq	$4, %xmm0
--	cmp	$0, %r11
-+	test	%r11, %r11
- 	je	_return_T_done_\@
- _T_123_\@:
- 	movd	%xmm0, %eax
-@@ -619,7 +619,7 @@ _get_AAD_blocks\@:
- 
- 	/* read the last <16B of AAD */
- _get_AAD_rest\@:
--	cmp	   $0, %r11
-+	test	   %r11, %r11
- 	je	   _get_AAD_done\@
- 
- 	READ_PARTIAL_BLOCK %r10, %r11, \TMP1, \TMP7
-@@ -640,7 +640,7 @@ _get_AAD_done\@:
- .macro PARTIAL_BLOCK CYPH_PLAIN_OUT PLAIN_CYPH_IN PLAIN_CYPH_LEN DATA_OFFSET \
- 	AAD_HASH operation
- 	mov 	PBlockLen(%arg2), %r13
--	cmp	$0, %r13
-+	test	%r13, %r13
- 	je	_partial_block_done_\@	# Leave Macro if no partial blocks
- 	# Read in input data without over reading
- 	cmp	$16, \PLAIN_CYPH_LEN
-@@ -692,7 +692,7 @@ _no_extra_mask_1_\@:
- 	pshufb	%xmm2, %xmm3
- 	pxor	%xmm3, \AAD_HASH
- 
--	cmp	$0, %r10
-+	test	%r10, %r10
- 	jl	_partial_incomplete_1_\@
- 
- 	# GHASH computation for the last <16 Byte block
-@@ -727,7 +727,7 @@ _no_extra_mask_2_\@:
- 	pshufb	%xmm2, %xmm9
- 	pxor	%xmm9, \AAD_HASH
- 
--	cmp	$0, %r10
-+	test	%r10, %r10
- 	jl	_partial_incomplete_2_\@
- 
- 	# GHASH computation for the last <16 Byte block
-@@ -747,7 +747,7 @@ _encode_done_\@:
- 	pshufb	%xmm2, %xmm9
- .endif
- 	# output encrypted Bytes
--	cmp	$0, %r10
-+	test	%r10, %r10
- 	jl	_partial_fill_\@
- 	mov	%r13, %r12
- 	mov	$16, %r13
-@@ -2715,25 +2715,18 @@ SYM_FUNC_END(aesni_ctr_enc)
- 	pxor CTR, IV;
- 
- /*
-- * void aesni_xts_crypt8(const struct crypto_aes_ctx *ctx, u8 *dst,
-- *			 const u8 *src, bool enc, le128 *iv)
-+ * void aesni_xts_encrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
-+ *			  const u8 *src, unsigned int len, le128 *iv)
-  */
--SYM_FUNC_START(aesni_xts_crypt8)
-+SYM_FUNC_START(aesni_xts_encrypt)
- 	FRAME_BEGIN
--	cmpb $0, %cl
--	movl $0, %ecx
--	movl $240, %r10d
--	leaq _aesni_enc4, %r11
--	leaq _aesni_dec4, %rax
--	cmovel %r10d, %ecx
--	cmoveq %rax, %r11
- 
- 	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
- 	movups (IVP), IV
- 
- 	mov 480(KEYP), KLEN
--	addq %rcx, KEYP
- 
-+.Lxts_enc_loop4:
- 	movdqa IV, STATE1
- 	movdqu 0x00(INP), INC
- 	pxor INC, STATE1
-@@ -2757,71 +2750,103 @@ SYM_FUNC_START(aesni_xts_crypt8)
- 	pxor INC, STATE4
- 	movdqu IV, 0x30(OUTP)
- 
--	CALL_NOSPEC r11
-+	call _aesni_enc4
- 
- 	movdqu 0x00(OUTP), INC
- 	pxor INC, STATE1
- 	movdqu STATE1, 0x00(OUTP)
- 
--	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE1
--	movdqu 0x40(INP), INC
--	pxor INC, STATE1
--	movdqu IV, 0x40(OUTP)
--
- 	movdqu 0x10(OUTP), INC
- 	pxor INC, STATE2
- 	movdqu STATE2, 0x10(OUTP)
- 
--	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE2
--	movdqu 0x50(INP), INC
--	pxor INC, STATE2
--	movdqu IV, 0x50(OUTP)
--
- 	movdqu 0x20(OUTP), INC
- 	pxor INC, STATE3
- 	movdqu STATE3, 0x20(OUTP)
- 
--	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE3
--	movdqu 0x60(INP), INC
--	pxor INC, STATE3
--	movdqu IV, 0x60(OUTP)
--
- 	movdqu 0x30(OUTP), INC
- 	pxor INC, STATE4
- 	movdqu STATE4, 0x30(OUTP)
- 
- 	_aesni_gf128mul_x_ble()
--	movdqa IV, STATE4
--	movdqu 0x70(INP), INC
--	pxor INC, STATE4
--	movdqu IV, 0x70(OUTP)
- 
--	_aesni_gf128mul_x_ble()
-+	add $64, INP
-+	add $64, OUTP
-+	sub $64, LEN
-+	ja .Lxts_enc_loop4
-+
- 	movups IV, (IVP)
- 
--	CALL_NOSPEC r11
-+	FRAME_END
-+	ret
-+SYM_FUNC_END(aesni_xts_encrypt)
-+
-+/*
-+ * void aesni_xts_decrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
-+ *			  const u8 *src, unsigned int len, le128 *iv)
-+ */
-+SYM_FUNC_START(aesni_xts_decrypt)
-+	FRAME_BEGIN
-+
-+	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
-+	movups (IVP), IV
-+
-+	mov 480(KEYP), KLEN
-+	add $240, KEYP
- 
--	movdqu 0x40(OUTP), INC
-+.Lxts_dec_loop4:
-+	movdqa IV, STATE1
-+	movdqu 0x00(INP), INC
- 	pxor INC, STATE1
--	movdqu STATE1, 0x40(OUTP)
-+	movdqu IV, 0x00(OUTP)
- 
--	movdqu 0x50(OUTP), INC
-+	_aesni_gf128mul_x_ble()
-+	movdqa IV, STATE2
-+	movdqu 0x10(INP), INC
-+	pxor INC, STATE2
-+	movdqu IV, 0x10(OUTP)
-+
-+	_aesni_gf128mul_x_ble()
-+	movdqa IV, STATE3
-+	movdqu 0x20(INP), INC
-+	pxor INC, STATE3
-+	movdqu IV, 0x20(OUTP)
-+
-+	_aesni_gf128mul_x_ble()
-+	movdqa IV, STATE4
-+	movdqu 0x30(INP), INC
-+	pxor INC, STATE4
-+	movdqu IV, 0x30(OUTP)
-+
-+	call _aesni_dec4
-+
-+	movdqu 0x00(OUTP), INC
-+	pxor INC, STATE1
-+	movdqu STATE1, 0x00(OUTP)
-+
-+	movdqu 0x10(OUTP), INC
- 	pxor INC, STATE2
--	movdqu STATE2, 0x50(OUTP)
-+	movdqu STATE2, 0x10(OUTP)
- 
--	movdqu 0x60(OUTP), INC
-+	movdqu 0x20(OUTP), INC
- 	pxor INC, STATE3
--	movdqu STATE3, 0x60(OUTP)
-+	movdqu STATE3, 0x20(OUTP)
- 
--	movdqu 0x70(OUTP), INC
-+	movdqu 0x30(OUTP), INC
- 	pxor INC, STATE4
--	movdqu STATE4, 0x70(OUTP)
-+	movdqu STATE4, 0x30(OUTP)
-+
-+	_aesni_gf128mul_x_ble()
-+
-+	add $64, INP
-+	add $64, OUTP
-+	sub $64, LEN
-+	ja .Lxts_dec_loop4
-+
-+	movups IV, (IVP)
- 
- 	FRAME_END
- 	ret
--SYM_FUNC_END(aesni_xts_crypt8)
-+SYM_FUNC_END(aesni_xts_decrypt)
- 
- #endif
-diff --git a/arch/x86/crypto/aesni-intel_avx-x86_64.S b/arch/x86/crypto/aesni-intel_avx-x86_64.S
-index 5fee47956f3b..2cf8e94d986a 100644
---- a/arch/x86/crypto/aesni-intel_avx-x86_64.S
-+++ b/arch/x86/crypto/aesni-intel_avx-x86_64.S
-@@ -369,7 +369,7 @@ _initial_num_blocks_is_0\@:
- 
- 
- _initial_blocks_encrypted\@:
--        cmp     $0, %r13
-+        test    %r13, %r13
-         je      _zero_cipher_left\@
- 
-         sub     $128, %r13
-@@ -528,7 +528,7 @@ _multiple_of_16_bytes\@:
-         vmovdqu HashKey(arg2), %xmm13
- 
-         mov PBlockLen(arg2), %r12
--        cmp $0, %r12
-+        test %r12, %r12
-         je _partial_done\@
- 
- 	#GHASH computation for the last <16 Byte block
-@@ -573,7 +573,7 @@ _T_8\@:
-         add     $8, %r10
-         sub     $8, %r11
-         vpsrldq $8, %xmm9, %xmm9
--        cmp     $0, %r11
-+        test    %r11, %r11
-         je     _return_T_done\@
- _T_4\@:
-         vmovd   %xmm9, %eax
-@@ -581,7 +581,7 @@ _T_4\@:
-         add     $4, %r10
-         sub     $4, %r11
-         vpsrldq     $4, %xmm9, %xmm9
--        cmp     $0, %r11
-+        test    %r11, %r11
-         je     _return_T_done\@
- _T_123\@:
-         vmovd     %xmm9, %eax
-@@ -625,7 +625,7 @@ _get_AAD_blocks\@:
- 	cmp     $16, %r11
- 	jge     _get_AAD_blocks\@
- 	vmovdqu \T8, \T7
--	cmp     $0, %r11
-+	test    %r11, %r11
- 	je      _get_AAD_done\@
- 
- 	vpxor   \T7, \T7, \T7
-@@ -644,7 +644,7 @@ _get_AAD_rest8\@:
- 	vpxor   \T1, \T7, \T7
- 	jmp     _get_AAD_rest8\@
- _get_AAD_rest4\@:
--	cmp     $0, %r11
-+	test    %r11, %r11
- 	jle      _get_AAD_rest0\@
- 	mov     (%r10), %eax
- 	movq    %rax, \T1
-@@ -749,7 +749,7 @@ _done_read_partial_block_\@:
- .macro PARTIAL_BLOCK GHASH_MUL CYPH_PLAIN_OUT PLAIN_CYPH_IN PLAIN_CYPH_LEN DATA_OFFSET \
-         AAD_HASH ENC_DEC
-         mov 	PBlockLen(arg2), %r13
--        cmp	$0, %r13
-+        test	%r13, %r13
-         je	_partial_block_done_\@	# Leave Macro if no partial blocks
-         # Read in input data without over reading
-         cmp	$16, \PLAIN_CYPH_LEN
-@@ -801,7 +801,7 @@ _no_extra_mask_1_\@:
-         vpshufb	%xmm2, %xmm3, %xmm3
-         vpxor	%xmm3, \AAD_HASH, \AAD_HASH
- 
--        cmp	$0, %r10
-+        test	%r10, %r10
-         jl	_partial_incomplete_1_\@
- 
-         # GHASH computation for the last <16 Byte block
-@@ -836,7 +836,7 @@ _no_extra_mask_2_\@:
-         vpshufb %xmm2, %xmm9, %xmm9
-         vpxor	%xmm9, \AAD_HASH, \AAD_HASH
- 
--        cmp	$0, %r10
-+        test	%r10, %r10
-         jl	_partial_incomplete_2_\@
- 
-         # GHASH computation for the last <16 Byte block
-@@ -856,7 +856,7 @@ _encode_done_\@:
-         vpshufb	%xmm2, %xmm9, %xmm9
- .endif
-         # output encrypted Bytes
--        cmp	$0, %r10
-+        test	%r10, %r10
-         jl	_partial_fill_\@
-         mov	%r13, %r12
-         mov	$16, %r13
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index f9a1d98e7534..be891fdf8d17 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -97,6 +97,12 @@ asmlinkage void aesni_cbc_dec(struct crypto_aes_ctx *ctx, u8 *out,
- #define AVX_GEN2_OPTSIZE 640
- #define AVX_GEN4_OPTSIZE 4096
- 
-+asmlinkage void aesni_xts_encrypt(const struct crypto_aes_ctx *ctx, u8 *out,
-+				  const u8 *in, unsigned int len, u8 *iv);
-+
-+asmlinkage void aesni_xts_decrypt(const struct crypto_aes_ctx *ctx, u8 *out,
-+				  const u8 *in, unsigned int len, u8 *iv);
-+
- #ifdef CONFIG_X86_64
- 
- static void (*aesni_ctr_enc_tfm)(struct crypto_aes_ctx *ctx, u8 *out,
-@@ -104,9 +110,6 @@ static void (*aesni_ctr_enc_tfm)(struct crypto_aes_ctx *ctx, u8 *out,
- asmlinkage void aesni_ctr_enc(struct crypto_aes_ctx *ctx, u8 *out,
- 			      const u8 *in, unsigned int len, u8 *iv);
- 
--asmlinkage void aesni_xts_crypt8(const struct crypto_aes_ctx *ctx, u8 *out,
--				 const u8 *in, bool enc, le128 *iv);
--
- /* asmlinkage void aesni_gcm_enc()
-  * void *ctx,  AES Key schedule. Starts on a 16 byte boundary.
-  * struct gcm_context_data.  May be uninitialized.
-@@ -547,14 +550,14 @@ static void aesni_xts_dec(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
- 	glue_xts_crypt_128bit_one(ctx, dst, src, iv, aesni_dec);
- }
- 
--static void aesni_xts_enc8(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
-+static void aesni_xts_enc32(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
- {
--	aesni_xts_crypt8(ctx, dst, src, true, iv);
-+	aesni_xts_encrypt(ctx, dst, src, 32 * AES_BLOCK_SIZE, (u8 *)iv);
- }
- 
--static void aesni_xts_dec8(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
-+static void aesni_xts_dec32(const void *ctx, u8 *dst, const u8 *src, le128 *iv)
- {
--	aesni_xts_crypt8(ctx, dst, src, false, iv);
-+	aesni_xts_decrypt(ctx, dst, src, 32 * AES_BLOCK_SIZE, (u8 *)iv);
- }
- 
- static const struct common_glue_ctx aesni_enc_xts = {
-@@ -562,8 +565,8 @@ static const struct common_glue_ctx aesni_enc_xts = {
- 	.fpu_blocks_limit = 1,
- 
- 	.funcs = { {
--		.num_blocks = 8,
--		.fn_u = { .xts = aesni_xts_enc8 }
-+		.num_blocks = 32,
-+		.fn_u = { .xts = aesni_xts_enc32 }
- 	}, {
- 		.num_blocks = 1,
- 		.fn_u = { .xts = aesni_xts_enc }
-@@ -575,8 +578,8 @@ static const struct common_glue_ctx aesni_dec_xts = {
- 	.fpu_blocks_limit = 1,
- 
- 	.funcs = { {
--		.num_blocks = 8,
--		.fn_u = { .xts = aesni_xts_dec8 }
-+		.num_blocks = 32,
-+		.fn_u = { .xts = aesni_xts_dec32 }
- 	}, {
- 		.num_blocks = 1,
- 		.fn_u = { .xts = aesni_xts_dec }
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index d8fcd21ab472..a8f85993dab3 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3624,7 +3624,7 @@ static ssize_t srp_create_target(struct device *dev,
- 	struct srp_rdma_ch *ch;
- 	struct srp_device *srp_dev = host->srp_dev;
- 	struct ib_device *ibdev = srp_dev->dev;
--	int ret, node_idx, node, cpu, i;
-+	int ret, i, ch_idx;
- 	unsigned int max_sectors_per_mr, mr_per_cmd = 0;
- 	bool multich = false;
- 	uint32_t max_iu_len;
-@@ -3749,81 +3749,61 @@ static ssize_t srp_create_target(struct device *dev,
- 		goto out;
- 
- 	ret = -ENOMEM;
--	if (target->ch_count == 0)
-+	if (target->ch_count == 0) {
- 		target->ch_count =
--			max_t(unsigned int, num_online_nodes(),
--			      min(ch_count ?:
--					  min(4 * num_online_nodes(),
--					      ibdev->num_comp_vectors),
--				  num_online_cpus()));
-+			min(ch_count ?:
-+				max(4 * num_online_nodes(),
-+				    ibdev->num_comp_vectors),
-+				num_online_cpus());
-+	}
-+
- 	target->ch = kcalloc(target->ch_count, sizeof(*target->ch),
- 			     GFP_KERNEL);
- 	if (!target->ch)
- 		goto out;
- 
--	node_idx = 0;
--	for_each_online_node(node) {
--		const int ch_start = (node_idx * target->ch_count /
--				      num_online_nodes());
--		const int ch_end = ((node_idx + 1) * target->ch_count /
--				    num_online_nodes());
--		const int cv_start = node_idx * ibdev->num_comp_vectors /
--				     num_online_nodes();
--		const int cv_end = (node_idx + 1) * ibdev->num_comp_vectors /
--				   num_online_nodes();
--		int cpu_idx = 0;
--
--		for_each_online_cpu(cpu) {
--			if (cpu_to_node(cpu) != node)
--				continue;
--			if (ch_start + cpu_idx >= ch_end)
--				continue;
--			ch = &target->ch[ch_start + cpu_idx];
--			ch->target = target;
--			ch->comp_vector = cv_start == cv_end ? cv_start :
--				cv_start + cpu_idx % (cv_end - cv_start);
--			spin_lock_init(&ch->lock);
--			INIT_LIST_HEAD(&ch->free_tx);
--			ret = srp_new_cm_id(ch);
--			if (ret)
--				goto err_disconnect;
-+	for (ch_idx = 0; ch_idx < target->ch_count; ++ch_idx) {
-+		ch = &target->ch[ch_idx];
-+		ch->target = target;
-+		ch->comp_vector = ch_idx % ibdev->num_comp_vectors;
-+		spin_lock_init(&ch->lock);
-+		INIT_LIST_HEAD(&ch->free_tx);
-+		ret = srp_new_cm_id(ch);
-+		if (ret)
-+			goto err_disconnect;
- 
--			ret = srp_create_ch_ib(ch);
--			if (ret)
--				goto err_disconnect;
-+		ret = srp_create_ch_ib(ch);
-+		if (ret)
-+			goto err_disconnect;
- 
--			ret = srp_alloc_req_data(ch);
--			if (ret)
--				goto err_disconnect;
-+		ret = srp_alloc_req_data(ch);
-+		if (ret)
-+			goto err_disconnect;
- 
--			ret = srp_connect_ch(ch, max_iu_len, multich);
--			if (ret) {
--				char dst[64];
--
--				if (target->using_rdma_cm)
--					snprintf(dst, sizeof(dst), "%pIS",
--						 &target->rdma_cm.dst);
--				else
--					snprintf(dst, sizeof(dst), "%pI6",
--						 target->ib_cm.orig_dgid.raw);
--				shost_printk(KERN_ERR, target->scsi_host,
--					     PFX "Connection %d/%d to %s failed\n",
--					     ch_start + cpu_idx,
--					     target->ch_count, dst);
--				if (node_idx == 0 && cpu_idx == 0) {
--					goto free_ch;
--				} else {
--					srp_free_ch_ib(target, ch);
--					srp_free_req_data(target, ch);
--					target->ch_count = ch - target->ch;
--					goto connected;
--				}
--			}
-+		ret = srp_connect_ch(ch, max_iu_len, multich);
-+		if (ret) {
-+			char dst[64];
- 
--			multich = true;
--			cpu_idx++;
-+			if (target->using_rdma_cm)
-+				snprintf(dst, sizeof(dst), "%pIS",
-+					&target->rdma_cm.dst);
-+			else
-+				snprintf(dst, sizeof(dst), "%pI6",
-+					target->ib_cm.orig_dgid.raw);
-+			shost_printk(KERN_ERR, target->scsi_host,
-+				PFX "Connection %d/%d to %s failed\n",
-+				ch_idx,
-+				target->ch_count, dst);
-+			if (ch_idx == 0) {
-+				goto free_ch;
-+			} else {
-+				srp_free_ch_ib(target, ch);
-+				srp_free_req_data(target, ch);
-+				target->ch_count = ch - target->ch;
-+				goto connected;
-+			}
- 		}
--		node_idx++;
-+		multich = true;
- 	}
- 
- connected:
-diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
-index 95c7fa171e35..f504b6858ed2 100644
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -510,6 +510,19 @@ void b53_imp_vlan_setup(struct dsa_switch *ds, int cpu_port)
- }
- EXPORT_SYMBOL(b53_imp_vlan_setup);
- 
-+static void b53_port_set_learning(struct b53_device *dev, int port,
-+				  bool learning)
-+{
-+	u16 reg;
-+
-+	b53_read16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, &reg);
-+	if (learning)
-+		reg &= ~BIT(port);
-+	else
-+		reg |= BIT(port);
-+	b53_write16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, reg);
-+}
-+
- int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
- {
- 	struct b53_device *dev = ds->priv;
-@@ -523,6 +536,7 @@ int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
- 	cpu_port = dsa_to_port(ds, port)->cpu_dp->index;
- 
- 	b53_br_egress_floods(ds, port, true, true);
-+	b53_port_set_learning(dev, port, false);
- 
- 	if (dev->ops->irq_enable)
- 		ret = dev->ops->irq_enable(dev, port);
-@@ -656,6 +670,7 @@ static void b53_enable_cpu_port(struct b53_device *dev, int port)
- 	b53_brcm_hdr_setup(dev->ds, port);
- 
- 	b53_br_egress_floods(dev->ds, port, true, true);
-+	b53_port_set_learning(dev, port, false);
- }
- 
- static void b53_enable_mib(struct b53_device *dev)
-@@ -1839,6 +1854,8 @@ int b53_br_join(struct dsa_switch *ds, int port, struct net_device *br)
- 	b53_write16(dev, B53_PVLAN_PAGE, B53_PVLAN_PORT_MASK(port), pvlan);
- 	dev->ports[port].vlan_ctl_mask = pvlan;
- 
-+	b53_port_set_learning(dev, port, true);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(b53_br_join);
-@@ -1886,6 +1903,7 @@ void b53_br_leave(struct dsa_switch *ds, int port, struct net_device *br)
- 		vl->untag |= BIT(port) | BIT(cpu_port);
- 		b53_set_vlan_entry(dev, pvid, vl);
- 	}
-+	b53_port_set_learning(dev, port, false);
- }
- EXPORT_SYMBOL(b53_br_leave);
- 
-diff --git a/drivers/net/dsa/b53/b53_regs.h b/drivers/net/dsa/b53/b53_regs.h
-index c90985c294a2..b2c539a42154 100644
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -115,6 +115,7 @@
- #define B53_UC_FLOOD_MASK		0x32
- #define B53_MC_FLOOD_MASK		0x34
- #define B53_IPMC_FLOOD_MASK		0x36
-+#define B53_DIS_LEARNING		0x3c
- 
- /*
-  * Override Ports 0-7 State on devices with xMII interfaces (8 bit)
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index 445226720ff2..edb0a1027b38 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -222,23 +222,10 @@ static int bcm_sf2_port_setup(struct dsa_switch *ds, int port,
- 	reg &= ~P_TXQ_PSM_VDD(port);
- 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
- 
--	/* Enable learning */
--	reg = core_readl(priv, CORE_DIS_LEARN);
--	reg &= ~BIT(port);
--	core_writel(priv, reg, CORE_DIS_LEARN);
--
- 	/* Enable Broadcom tags for that port if requested */
--	if (priv->brcm_tag_mask & BIT(port)) {
-+	if (priv->brcm_tag_mask & BIT(port))
- 		b53_brcm_hdr_setup(ds, port);
- 
--		/* Disable learning on ASP port */
--		if (port == 7) {
--			reg = core_readl(priv, CORE_DIS_LEARN);
--			reg |= BIT(port);
--			core_writel(priv, reg, CORE_DIS_LEARN);
--		}
--	}
--
- 	/* Configure Traffic Class to QoS mapping, allow each priority to map
- 	 * to a different queue number
- 	 */
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 404d66f01e8d..d64aee04e59a 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -862,6 +862,7 @@ static inline u64 fuse_get_attr_version(struct fuse_conn *fc)
- 
- static inline void fuse_make_bad(struct inode *inode)
- {
-+	remove_inode_hash(inode);
- 	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
- }
- 
-diff --git a/fs/locks.c b/fs/locks.c
-index 1f84a03601fe..32c948fe2944 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -1808,9 +1808,6 @@ check_conflicting_open(struct file *filp, const long arg, int flags)
- 
- 	if (flags & FL_LAYOUT)
- 		return 0;
--	if (flags & FL_DELEG)
--		/* We leave these checks to the caller. */
--		return 0;
- 
- 	if (arg == F_RDLCK)
- 		return inode_is_open_for_write(inode) ? -EAGAIN : 0;
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 47006eec724e..ee4e6e3b995d 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -4945,31 +4945,6 @@ static struct file_lock *nfs4_alloc_init_lease(struct nfs4_delegation *dp,
- 	return fl;
- }
- 
--static int nfsd4_check_conflicting_opens(struct nfs4_client *clp,
--						struct nfs4_file *fp)
--{
--	struct nfs4_clnt_odstate *co;
--	struct file *f = fp->fi_deleg_file->nf_file;
--	struct inode *ino = locks_inode(f);
--	int writes = atomic_read(&ino->i_writecount);
--
--	if (fp->fi_fds[O_WRONLY])
--		writes--;
--	if (fp->fi_fds[O_RDWR])
--		writes--;
--	if (writes > 0)
--		return -EAGAIN;
--	spin_lock(&fp->fi_lock);
--	list_for_each_entry(co, &fp->fi_clnt_odstate, co_perfile) {
--		if (co->co_client != clp) {
--			spin_unlock(&fp->fi_lock);
--			return -EAGAIN;
--		}
--	}
--	spin_unlock(&fp->fi_lock);
--	return 0;
--}
--
- static struct nfs4_delegation *
- nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
- 		    struct nfs4_file *fp, struct nfs4_clnt_odstate *odstate)
-@@ -4989,12 +4964,9 @@ nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
- 
- 	nf = find_readable_file(fp);
- 	if (!nf) {
--		/*
--		 * We probably could attempt another open and get a read
--		 * delegation, but for now, don't bother until the
--		 * client actually sends us one.
--		 */
--		return ERR_PTR(-EAGAIN);
-+		/* We should always have a readable file here */
-+		WARN_ON_ONCE(1);
-+		return ERR_PTR(-EBADF);
- 	}
- 	spin_lock(&state_lock);
- 	spin_lock(&fp->fi_lock);
-@@ -5024,19 +4996,11 @@ nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
- 	if (!fl)
- 		goto out_clnt_odstate;
- 
--	status = nfsd4_check_conflicting_opens(clp, fp);
--	if (status) {
--		locks_free_lock(fl);
--		goto out_clnt_odstate;
--	}
- 	status = vfs_setlease(fp->fi_deleg_file->nf_file, fl->fl_type, &fl, NULL);
- 	if (fl)
- 		locks_free_lock(fl);
- 	if (status)
- 		goto out_clnt_odstate;
--	status = nfsd4_check_conflicting_opens(clp, fp);
--	if (status)
--		goto out_clnt_odstate;
- 
- 	spin_lock(&state_lock);
- 	spin_lock(&fp->fi_lock);
-@@ -5118,6 +5082,17 @@ nfs4_open_delegation(struct svc_fh *fh, struct nfsd4_open *open,
- 				goto out_no_deleg;
- 			if (!cb_up || !(oo->oo_flags & NFS4_OO_CONFIRMED))
- 				goto out_no_deleg;
-+			/*
-+			 * Also, if the file was opened for write or
-+			 * create, there's a good chance the client's
-+			 * about to write to it, resulting in an
-+			 * immediate recall (since we don't support
-+			 * write delegations):
-+			 */
-+			if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
-+				goto out_no_deleg;
-+			if (open->op_create == NFS4_OPEN_CREATE)
-+				goto out_no_deleg;
- 			break;
- 		default:
- 			goto out_no_deleg;
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 6c2e4947beae..9a1aba2d0073 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5333,10 +5333,14 @@ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
- {
- 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
- 			    (opcode == BPF_SUB && !off_is_neg);
--	u32 off;
-+	u32 off, max;
- 
- 	switch (ptr_reg->type) {
- 	case PTR_TO_STACK:
-+		/* Offset 0 is out-of-bounds, but acceptable start for the
-+		 * left direction, see BPF_REG_FP.
-+		 */
-+		max = MAX_BPF_STACK + mask_to_left;
- 		/* Indirect variable offset stack access is prohibited in
- 		 * unprivileged mode so it's not handled here.
- 		 */
-@@ -5344,16 +5348,17 @@ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
- 		if (mask_to_left)
- 			*ptr_limit = MAX_BPF_STACK + off;
- 		else
--			*ptr_limit = -off;
--		return 0;
-+			*ptr_limit = -off - 1;
-+		return *ptr_limit >= max ? -ERANGE : 0;
- 	case PTR_TO_MAP_VALUE:
-+		max = ptr_reg->map_ptr->value_size;
- 		if (mask_to_left) {
- 			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
- 		} else {
- 			off = ptr_reg->smin_value + ptr_reg->off;
--			*ptr_limit = ptr_reg->map_ptr->value_size - off;
-+			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
- 		}
--		return 0;
-+		return *ptr_limit >= max ? -ERANGE : 0;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -5406,6 +5411,7 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	u32 alu_state, alu_limit;
- 	struct bpf_reg_state tmp;
- 	bool ret;
-+	int err;
- 
- 	if (can_skip_alu_sanitation(env, insn))
- 		return 0;
-@@ -5421,10 +5427,13 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	alu_state |= ptr_is_dst_reg ?
- 		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
- 
--	if (retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg))
--		return 0;
--	if (update_alu_sanitation_state(aux, alu_state, alu_limit))
--		return -EACCES;
-+	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
-+	if (err < 0)
-+		return err;
-+
-+	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
-+	if (err < 0)
-+		return err;
- do_sim:
- 	/* Simulate and find potential out-of-bounds access under
- 	 * speculative execution from truncation as a result of
-@@ -5540,7 +5549,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	case BPF_ADD:
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
- 		if (ret < 0) {
--			verbose(env, "R%d tried to add from different maps or paths\n", dst);
-+			verbose(env, "R%d tried to add from different maps, paths, or prohibited types\n", dst);
- 			return ret;
- 		}
- 		/* We can take a fixed offset as long as it doesn't overflow
-@@ -5595,7 +5604,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	case BPF_SUB:
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
- 		if (ret < 0) {
--			verbose(env, "R%d tried to sub from different maps or paths\n", dst);
-+			verbose(env, "R%d tried to sub from different maps, paths, or prohibited types\n", dst);
- 			return ret;
- 		}
- 		if (dst_reg == off_reg) {
-@@ -10942,7 +10951,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			off_reg = issrc ? insn->src_reg : insn->dst_reg;
- 			if (isneg)
- 				*patch++ = BPF_ALU64_IMM(BPF_MUL, off_reg, -1);
--			*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit - 1);
-+			*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit);
- 			*patch++ = BPF_ALU64_REG(BPF_SUB, BPF_REG_AX, off_reg);
- 			*patch++ = BPF_ALU64_REG(BPF_OR, BPF_REG_AX, off_reg);
- 			*patch++ = BPF_ALU64_IMM(BPF_NEG, BPF_REG_AX, 0);
-diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
-index e2f9ce2f5b8b..8527267725bb 100644
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -576,9 +576,6 @@ static int deactivate_urbs(struct snd_usb_endpoint *ep, bool force)
- {
- 	unsigned int i;
- 
--	if (!force && atomic_read(&ep->chip->shutdown)) /* to be sure... */
--		return -EBADFD;
--
- 	clear_bit(EP_FLAG_RUNNING, &ep->flags);
- 
- 	INIT_LIST_HEAD(&ep->ready_playback_urbs);
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 1b08f52ef86f..f4494d054917 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -280,10 +280,7 @@ static int snd_usb_pcm_sync_stop(struct snd_pcm_substream *substream)
- {
- 	struct snd_usb_substream *subs = substream->runtime->private_data;
- 
--	if (!snd_usb_lock_shutdown(subs->stream->chip)) {
--		sync_pending_stops(subs);
--		snd_usb_unlock_shutdown(subs->stream->chip);
--	}
-+	sync_pending_stops(subs);
- 	return 0;
- }
- 
-diff --git a/tools/testing/selftests/bpf/verifier/bounds_deduction.c b/tools/testing/selftests/bpf/verifier/bounds_deduction.c
-index 1fd07a4f27ac..c162498a64fc 100644
---- a/tools/testing/selftests/bpf/verifier/bounds_deduction.c
-+++ b/tools/testing/selftests/bpf/verifier/bounds_deduction.c
-@@ -6,8 +6,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 2",
-@@ -20,6 +21,8 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
- 		BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 1,
- },
-@@ -31,8 +34,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 4",
-@@ -45,6 +49,8 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
- 		BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- },
- {
-@@ -55,8 +61,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 6",
-@@ -67,8 +74,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 7",
-@@ -80,8 +88,9 @@
- 			    offsetof(struct __sk_buff, mark)),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "dereference of modified ctx ptr",
-+	.result = REJECT,
- 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
- },
- {
-@@ -94,8 +103,9 @@
- 			    offsetof(struct __sk_buff, mark)),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
- 	.errstr = "dereference of modified ctx ptr",
-+	.result = REJECT,
- 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
- },
- {
-@@ -106,8 +116,9 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
-+	.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
- 	.errstr = "R0 tried to subtract pointer from scalar",
-+	.result = REJECT,
- },
- {
- 	"check deducing bounds from const, 10",
-@@ -119,6 +130,6 @@
- 		BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 		BPF_EXIT_INSN(),
- 	},
--	.result = REJECT,
- 	.errstr = "math between ctx pointer and register with unbounded min value is not allowed",
-+	.result = REJECT,
- },
-diff --git a/tools/testing/selftests/bpf/verifier/map_ptr.c b/tools/testing/selftests/bpf/verifier/map_ptr.c
-index 637f9293bda8..92a1dc8e1746 100644
---- a/tools/testing/selftests/bpf/verifier/map_ptr.c
-+++ b/tools/testing/selftests/bpf/verifier/map_ptr.c
-@@ -74,6 +74,8 @@
- 	BPF_EXIT_INSN(),
- 	},
- 	.fixup_map_hash_16b = { 4 },
-+	.result_unpriv = REJECT,
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
- 	.result = ACCEPT,
- },
- {
-@@ -90,5 +92,7 @@
- 	BPF_EXIT_INSN(),
- 	},
- 	.fixup_map_hash_16b = { 4 },
-+	.result_unpriv = REJECT,
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
- 	.result = ACCEPT,
- },
-diff --git a/tools/testing/selftests/bpf/verifier/unpriv.c b/tools/testing/selftests/bpf/verifier/unpriv.c
-index 91bb77c24a2e..0d621c841db1 100644
---- a/tools/testing/selftests/bpf/verifier/unpriv.c
-+++ b/tools/testing/selftests/bpf/verifier/unpriv.c
-@@ -495,7 +495,7 @@
- 	.result = ACCEPT,
- },
- {
--	"unpriv: adding of fp",
-+	"unpriv: adding of fp, reg",
- 	.insns = {
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_MOV64_IMM(BPF_REG_1, 0),
-@@ -503,6 +503,19 @@
- 	BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, -8),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
-+	.result_unpriv = REJECT,
-+	.result = ACCEPT,
-+},
-+{
-+	"unpriv: adding of fp, imm",
-+	.insns = {
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 0),
-+	BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, -8),
-+	BPF_EXIT_INSN(),
-+	},
- 	.errstr_unpriv = "R1 stack pointer arithmetic goes out of range",
- 	.result_unpriv = REJECT,
- 	.result = ACCEPT,
-diff --git a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-index ed4e76b24649..feb91266db39 100644
---- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-+++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-@@ -169,7 +169,7 @@
- 	.fixup_map_array_48b = { 1 },
- 	.result = ACCEPT,
- 	.result_unpriv = REJECT,
--	.errstr_unpriv = "R2 tried to add from different maps or paths",
-+	.errstr_unpriv = "R2 tried to add from different maps, paths, or prohibited types",
- 	.retval = 0,
- },
- {
-@@ -516,6 +516,27 @@
- 	.result = ACCEPT,
- 	.retval = 0xabcdef12,
- },
-+{
-+	"map access: value_ptr += N, value_ptr -= N known scalar",
-+	.insns = {
-+	BPF_ST_MEM(BPF_DW, BPF_REG_10, -8, 0),
-+	BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
-+	BPF_LD_MAP_FD(BPF_REG_1, 0),
-+	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_map_lookup_elem),
-+	BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, 0, 6),
-+	BPF_MOV32_IMM(BPF_REG_1, 0x12345678),
-+	BPF_STX_MEM(BPF_W, BPF_REG_0, BPF_REG_1, 0),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_0, 2),
-+	BPF_MOV64_IMM(BPF_REG_1, 2),
-+	BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
-+	BPF_LDX_MEM(BPF_W, BPF_REG_0, BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.fixup_map_array_48b = { 3 },
-+	.result = ACCEPT,
-+	.retval = 0x12345678,
-+},
- {
- 	"map access: unknown scalar += value_ptr, 1",
- 	.insns = {
+I'm announcing the release of the 5.11.8 kernel.
+
+All users of the 5.11 kernel series must upgrade.
+
+The updated 5.11.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.11.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                                |    2 
+ arch/arm64/include/asm/el2_setup.h                      |    4 
+ arch/x86/crypto/aesni-intel_asm.S                       |  115 +++++++++-------
+ arch/x86/crypto/aesni-intel_glue.c                      |   25 +--
+ arch/x86/kvm/mmu/mmu_internal.h                         |   13 +
+ drivers/infiniband/ulp/srp/ib_srp.c                     |  110 ++++++---------
+ drivers/net/dsa/b53/b53_common.c                        |   18 ++
+ drivers/net/dsa/b53/b53_regs.h                          |    1 
+ drivers/net/dsa/bcm_sf2.c                               |   15 --
+ drivers/regulator/pca9450-regulator.c                   |   30 ++++
+ fs/fuse/fuse_i.h                                        |    1 
+ fs/gfs2/ops_fstype.c                                    |   33 ++--
+ fs/gfs2/recovery.c                                      |    8 -
+ fs/gfs2/super.c                                         |   45 ------
+ fs/gfs2/util.c                                          |   58 +++++++-
+ fs/gfs2/util.h                                          |    3 
+ fs/io_uring.c                                           |   84 ++++++-----
+ fs/locks.c                                              |    3 
+ fs/nfsd/nfs4state.c                                     |   53 +------
+ include/linux/regulator/pca9450.h                       |   10 +
+ kernel/bpf/verifier.c                                   |   33 ++--
+ net/mptcp/pm.c                                          |    5 
+ net/mptcp/pm_netlink.c                                  |   23 ++-
+ net/mptcp/protocol.c                                    |   20 ++
+ net/mptcp/protocol.h                                    |    5 
+ tools/testing/selftests/bpf/verifier/bounds_deduction.c |   27 ++-
+ tools/testing/selftests/bpf/verifier/map_ptr.c          |    4 
+ tools/testing/selftests/bpf/verifier/unpriv.c           |   15 +-
+ tools/testing/selftests/bpf/verifier/value_ptr_arith.c  |   23 +++
+ 29 files changed, 461 insertions(+), 325 deletions(-)
+
+Amir Goldstein (1):
+      fuse: fix live lock in fuse_iget()
+
+Ard Biesheuvel (1):
+      crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+
+Bob Peterson (3):
+      gfs2: Add common helper for holding and releasing the freeze glock
+      gfs2: move freeze glock outside the make_fs_rw and _ro functions
+      gfs2: bypass signal_our_withdraw if no journal
+
+Florian Fainelli (1):
+      net: dsa: b53: Support setting learning on port
+
+Florian Westphal (2):
+      mptcp: pm: add lockdep assertions
+      mptcp: dispose initial struct socket when its subflow is closed
+
+Frieder Schrempf (3):
+      regulator: pca9450: Add SD_VSEL GPIO for LDO5
+      regulator: pca9450: Enable system reset on WDOG_B assertion
+      regulator: pca9450: Clear PRESET_EN bit to fix BUCK1/2/3 voltage setting
+
+Geliang Tang (1):
+      mptcp: send ack for every add_addr
+
+Greg Kroah-Hartman (1):
+      Linux 5.11.8
+
+J. Bruce Fields (2):
+      Revert "nfsd4: remove check_conflicting_opens warning"
+      Revert "nfsd4: a client's own opens needn't prevent delegations"
+
+Jens Axboe (3):
+      io_uring: don't attempt IO reissue from the ring exit path
+      io_uring: don't keep looping for more events if we can't flush overflow
+      io_uring: clear IOCB_WAITQ for non -EIOCBQUEUED return
+
+Nicolas Morey-Chaisemartin (1):
+      RDMA/srp: Fix support for unpopulated and unbalanced NUMA nodes
+
+Pavel Begunkov (3):
+      io_uring: refactor scheduling in io_cqring_wait
+      io_uring: refactor io_cqring_wait
+      io_uring: simplify do_read return parsing
+
+Piotr Krysiuk (5):
+      bpf: Prohibit alu ops for pointer types not defining ptr_limit
+      bpf: Fix off-by-one for area size in creating mask to left
+      bpf: Simplify alu_limit masking for pointer arithmetic
+      bpf: Add sanity check for upper ptr_limit
+      bpf, selftests: Fix up some test_verifier cases for unprivileged
+
+Sean Christopherson (2):
+      KVM: x86/mmu: Expand on the comment in kvm_vcpu_ad_need_write_protect()
+      KVM: x86/mmu: Set SPTE_AD_WRPROT_ONLY_MASK if and only if PML is enabled
+
+Vladimir Murzin (1):
+      arm64: Unconditionally set virtual cpu id registers
+
