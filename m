@@ -2,145 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 820F234323B
-	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 13:05:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 932933432A5
+	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 13:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229894AbhCUME6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Mar 2021 08:04:58 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:48599 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229961AbhCUME0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 08:04:26 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 63B19194074B;
-        Sun, 21 Mar 2021 08:04:25 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sun, 21 Mar 2021 08:04:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=KjH3lP
-        wfhJp2qHLnOyhy2NVDsLT7t4HzSNZyyUPoor4=; b=PJF0obKaasXsIX567qCr5i
-        aDijCqM3ltXqqgsPhkyqTlmrSDfcF9V1rJM64oD4VN+O2Hq3fc7Ttb1YM1ZBuQMc
-        pdj5c8oaN4yal8REDEYVWrMPAFiUDZO+rSftQCk+OrCOYYtYgXp7kPKspxuZ190G
-        t53/wV7KfqmOqaJXU8NcoVW3duKOMzlH5EbemFXZPEgUzj0uvLJd1h4BdQ2ekCA1
-        Lc10VKWtDsKipkPLBm/aqo0W4e9+S/CKmc7c2dGAAws/epKIL19M0JrMdCGZl/Dl
-        HyPTtHmVyvhLgSdYIX/McqKVR+yHWIDqMbZ7eNZ2Uz/Qc6HlGnYtoTEDIiTMN4Xw
-        ==
-X-ME-Sender: <xms:SDZXYBSr9K8O_NbNzPaOm9dBreoYKdU2-fGx_g2_Dtx1p_fU9qf4hw>
-    <xme:SDZXYKtQxjNu1ICC3sdoam0Ey7i8iRn-j8sadZm7xNd67ZJCqnsZ33deUMtovn_8k
-    vWBCz7i7JuDQQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegvddgfeehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:SDZXYDvwsoBQI1_MV792eC7CHQcYxBmAIDMJByHVZOiIijONzhI9aA>
-    <xmx:SDZXYAw4FPJRcRr3ZSXCSXMcmDNzUoU-t4tqiwyb3_gIiWGryQnAlg>
-    <xmx:SDZXYJiuBV91U8NOGoyUgTwmcZCOVH3l74c-4IZ8tApa1rHxiBH2pg>
-    <xmx:STZXYEffztjlP4PjfQ5Dvy9se20Lva7ntejK39-g5zqQQ3bj7_1woA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 95BD01080054;
-        Sun, 21 Mar 2021 08:04:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] cifs: Fix preauth hash corruption" failed to apply to 4.14-stable tree
-To:     vincent.whitchurch@axis.com, aaptel@suse.com,
-        stable@vger.kernel.org, stfrench@microsoft.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Mar 2021 13:04:17 +0100
-Message-ID: <161632825732134@kroah.com>
+        id S229900AbhCUM7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Mar 2021 08:59:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58064 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229846AbhCUM6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 08:58:55 -0400
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6307C061574
+        for <stable@vger.kernel.org>; Sun, 21 Mar 2021 05:58:54 -0700 (PDT)
+Received: by mail-yb1-xb34.google.com with SMTP id m132so3555155ybf.2
+        for <stable@vger.kernel.org>; Sun, 21 Mar 2021 05:58:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=H3bGT1ZyGPu3PRQJlJHyQI9TvTjBPuNSyHjFOzNfiP0=;
+        b=kC89tpxV5XyBAkSjRNOILwSTefjH8wTY0/BVRoFi/UK4IFhJJw92DTw6OIpz+1KkGL
+         yYKvPukwM3UT0c4Cc4OQ64Dc+sxPpYUXnooK4G1ZKHXZfbfoXG9q9AZo9gQ7mWhNt5Ks
+         3zh9B3WWh9JFqtUoPUmXMKLBFQ75+NWP/o3OMkrCHL4zHv3PN/Fvh4ZtZBvpZ7smuTzh
+         n1FuScfGN072zdMhxFbi8R3wcYJGOPu4ABGgVRaI4hS8gh2Go2NMrKjSzEc34ts3FrlD
+         fTUfVr3tI6s5pKjgQbl1x04waLMV/2NFycN8cECD5SBHC9Sz/rQUTMZRgRa22sWeXfwy
+         jnbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=H3bGT1ZyGPu3PRQJlJHyQI9TvTjBPuNSyHjFOzNfiP0=;
+        b=gaYn1ZG6a+6U1bu0rCd3bl/BvI6Z1QTHhkGCQbfm77FU1slOVHUi/wQjbDv1yJ0ntz
+         To8l8QlaXAk13TvY+LL14biPcmFpbudW24uxKPG8ejHIHchJYpGLAfohnPK76GlhSGtK
+         r6k3F+n9xmtRrSRyIWUZs0u50QmRMXzH6Au2o9sDg7hixFhkW5yzB0ah+Nsz3EKAkiFM
+         xUH38JhlzRYLTSCo6TQH31ZnmiV2KTxm9beLkhyltKnXoapDkjB2d/yYOMvtS9QV4ev2
+         mrcKhGCS6lSpetlxdO2pdH4LXx1L3F2AKuLQ4YKwEm5RS1PpzHQEdR/ZLPWlieBvsNIN
+         vaGw==
+X-Gm-Message-State: AOAM532+PLPUmQp4Vz3+T4gKb3Mfgp3moTi1Fj+f14FS8z2ZxZCZSguD
+        5knNPRli+89Qrw5xlpjXJ8e2A3ASLNP70qrrcdYDZrYyurEBMQ==
+X-Google-Smtp-Source: ABdhPJzQdUU0qCGDTc3tfEcgKsLknhW53C+6srpMo46guRnPyIENxygOk+QjLKy8BmfpiL9nnEfRQf7CVbITQS3x9qs=
+X-Received: by 2002:a25:fc21:: with SMTP id v33mr19145347ybd.127.1616331180997;
+ Sun, 21 Mar 2021 05:53:00 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:7110:9182:b029:37:b423:ee25 with HTTP; Sun, 21 Mar 2021
+ 05:53:00 -0700 (PDT)
+Reply-To: abdwabbomaddahm@gmail.com
+From:   Abdwabbo Maddah <maddahabdwabbo208@gmail.com>
+Date:   Sun, 21 Mar 2021 13:53:00 +0100
+Message-ID: <CADx+Zf7Z46=OKhbEQYANu_oeVcA6GbfQd9Oourggxc-8bsHXjg@mail.gmail.com>
+Subject: DID YOU RECEIVE MY MAIL?
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 05946d4b7a7349ae58bfa2d51ae832e64a394c2d Mon Sep 17 00:00:00 2001
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Date: Wed, 10 Mar 2021 13:20:40 +0100
-Subject: [PATCH] cifs: Fix preauth hash corruption
-
-smb311_update_preauth_hash() uses the shash in server->secmech without
-appropriate locking, and this can lead to sessions corrupting each
-other's preauth hashes.
-
-The following script can easily trigger the problem:
-
-	#!/bin/sh -e
-
-	NMOUNTS=10
-	for i in $(seq $NMOUNTS);
-		mkdir -p /tmp/mnt$i
-		umount /tmp/mnt$i 2>/dev/null || :
-	done
-	while :; do
-		for i in $(seq $NMOUNTS); do
-			mount -t cifs //192.168.0.1/test /tmp/mnt$i -o ... &
-		done
-		wait
-		for i in $(seq $NMOUNTS); do
-			umount /tmp/mnt$i
-		done
-	done
-
-Usually within seconds this leads to one or more of the mounts failing
-with the following errors, and a "Bad SMB2 signature for message" is
-seen in the server logs:
-
- CIFS: VFS: \\192.168.0.1 failed to connect to IPC (rc=-13)
- CIFS: VFS: cifs_mount failed w/return code = -13
-
-Fix it by holding the server mutex just like in the other places where
-the shashes are used.
-
-Fixes: 8bd68c6e47abff34e4 ("CIFS: implement v3.11 preauth integrity")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-CC: <stable@vger.kernel.org>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index 007d99437c77..c1725b55f364 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -1196,9 +1196,12 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
- 	/*
- 	 * Compounding is never used during session establish.
- 	 */
--	if ((ses->status == CifsNew) || (optype & CIFS_NEG_OP) || (optype & CIFS_SESS_OP))
-+	if ((ses->status == CifsNew) || (optype & CIFS_NEG_OP) || (optype & CIFS_SESS_OP)) {
-+		mutex_lock(&server->srv_mutex);
- 		smb311_update_preauth_hash(ses, rqst[0].rq_iov,
- 					   rqst[0].rq_nvec);
-+		mutex_unlock(&server->srv_mutex);
-+	}
- 
- 	for (i = 0; i < num_rqst; i++) {
- 		rc = wait_for_response(server, midQ[i]);
-@@ -1266,7 +1269,9 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
- 			.iov_base = resp_iov[0].iov_base,
- 			.iov_len = resp_iov[0].iov_len
- 		};
-+		mutex_lock(&server->srv_mutex);
- 		smb311_update_preauth_hash(ses, &iov, 1);
-+		mutex_unlock(&server->srv_mutex);
- 	}
- 
- out:
-
+-- 
+Dear,
+I had sent you a mail but i don't think you received it that's why am
+writing you again.It is important you get back to me as soon as you
+can.
+Abd-Wabbo Maddah
