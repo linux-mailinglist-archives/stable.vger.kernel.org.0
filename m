@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B9CF34323A
-	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 13:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 820F234323B
+	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 13:05:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229949AbhCUME0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Mar 2021 08:04:26 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:40383 "EHLO
+        id S229894AbhCUME6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Mar 2021 08:04:58 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:48599 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229951AbhCUMEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 08:04:22 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BAAEF19409DF;
-        Sun, 21 Mar 2021 08:04:20 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229961AbhCUME0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 08:04:26 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 63B19194074B;
+        Sun, 21 Mar 2021 08:04:25 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 21 Mar 2021 08:04:20 -0400
+  by compute2.internal (MEProxy); Sun, 21 Mar 2021 08:04:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iWLMWI
-        0cwQpkj3MjctO4ADoPqxOe4Fv7VzehVN/vQu4=; b=DbPwSltF6nRPyfyaL7flgm
-        W1rStXgdICgWldv8k8M7pOGIerV18YdzeV1nEIu5LRI11hsUroHG71xNuRkNwP9p
-        tOs9rRziTG1C8HsrSwvxGIdDcUw8LigecvNBenB0zSBIgQyRjP53tXq2kzwCpvyu
-        QctIcK/0CsK5Ttjr/pIH9xj8RZwYkHoYWP9B22AkCA5C3yKAPsyRP9fE0y8sdyM4
-        w0dJU57osNjSmgewHmib3SYvHDY4Aao4Q32ikPi9JMDBHIaatMVBMuQr5kt8Nzly
-        9FU/QTmQUgc09GXKd0+b1YV3xo9f7ptfPoieNiR1xezv1JkbbDK15G0Ag8OZCAAA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=KjH3lP
+        wfhJp2qHLnOyhy2NVDsLT7t4HzSNZyyUPoor4=; b=PJF0obKaasXsIX567qCr5i
+        aDijCqM3ltXqqgsPhkyqTlmrSDfcF9V1rJM64oD4VN+O2Hq3fc7Ttb1YM1ZBuQMc
+        pdj5c8oaN4yal8REDEYVWrMPAFiUDZO+rSftQCk+OrCOYYtYgXp7kPKspxuZ190G
+        t53/wV7KfqmOqaJXU8NcoVW3duKOMzlH5EbemFXZPEgUzj0uvLJd1h4BdQ2ekCA1
+        Lc10VKWtDsKipkPLBm/aqo0W4e9+S/CKmc7c2dGAAws/epKIL19M0JrMdCGZl/Dl
+        HyPTtHmVyvhLgSdYIX/McqKVR+yHWIDqMbZ7eNZ2Uz/Qc6HlGnYtoTEDIiTMN4Xw
         ==
-X-ME-Sender: <xms:RDZXYBY3NYK7wFUQ4maaVnDD5XGNFsANh2tumzgJTwAWYmDKmSq_mQ>
-    <xme:RDZXYIZUZGT13wLRibSK_dnCCz3GuCIJeHxt-t73TTSmdAD27tcezqsXtoeYAssEm
-    h9RDRvVrQERnQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegvddgfeegucetufdoteggodetrfdotf
+X-ME-Sender: <xms:SDZXYBSr9K8O_NbNzPaOm9dBreoYKdU2-fGx_g2_Dtx1p_fU9qf4hw>
+    <xme:SDZXYKtQxjNu1ICC3sdoam0Ey7i8iRn-j8sadZm7xNd67ZJCqnsZ33deUMtovn_8k
+    vWBCz7i7JuDQQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegvddgfeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegvddgfeegucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:RDZXYD-5kPn38AHYnvRVxuiV_VA3rB469_u6txGqpvdAsOLRqOZKrg>
-    <xmx:RDZXYPrlBPbZtamYnIUzcd1WP7mhXxl5Ey-fnRyKNF2jbm-ZSVekFA>
-    <xmx:RDZXYMpLcDEXUbtRX-nMRtv3w6CTXUaPVgXEAupZR11ApJ2V3o_Hlg>
-    <xmx:RDZXYJD28F8KwzxfqcqV-6HwNpJiw_e3b5btUQr7sM5pWQ0HZF3dLQ>
+X-ME-Proxy: <xmx:SDZXYDvwsoBQI1_MV792eC7CHQcYxBmAIDMJByHVZOiIijONzhI9aA>
+    <xmx:SDZXYAw4FPJRcRr3ZSXCSXMcmDNzUoU-t4tqiwyb3_gIiWGryQnAlg>
+    <xmx:SDZXYJiuBV91U8NOGoyUgTwmcZCOVH3l74c-4IZ8tApa1rHxiBH2pg>
+    <xmx:STZXYEffztjlP4PjfQ5Dvy9se20Lva7ntejK39-g5zqQQ3bj7_1woA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 542991080057;
-        Sun, 21 Mar 2021 08:04:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] cifs: Fix preauth hash corruption" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 95BD01080054;
+        Sun, 21 Mar 2021 08:04:24 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] cifs: Fix preauth hash corruption" failed to apply to 4.14-stable tree
 To:     vincent.whitchurch@axis.com, aaptel@suse.com,
         stable@vger.kernel.org, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Mar 2021 13:04:16 +0100
-Message-ID: <1616328256183102@kroah.com>
+Date:   Sun, 21 Mar 2021 13:04:17 +0100
+Message-ID: <161632825732134@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
