@@ -2,83 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A161334338C
-	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 17:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 708F234337B
+	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 17:36:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230041AbhCUQwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Mar 2021 12:52:10 -0400
-Received: from bosmailout02.eigbox.net ([66.96.184.2]:55747 "EHLO
-        bosmailout02.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbhCUQvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 12:51:49 -0400
-X-Greylist: delayed 2017 seconds by postgrey-1.27 at vger.kernel.org; Sun, 21 Mar 2021 12:51:48 EDT
-Received: from bosmailscan03.eigbox.net ([10.20.15.3])
-        by bosmailout02.eigbox.net with esmtp (Exim)
-        id 1lO0mJ-0001dY-FW; Sun, 21 Mar 2021 12:18:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=gomangoenterprises.com; s=dkim; h=Sender:Content-Transfer-Encoding:
-        Content-Type:Message-ID:Reply-To:Subject:To:From:Date:MIME-Version:Cc:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=+811ws69aqxMKZdfZMN9xAgrM7MfKI4rmAxX7Fw/9uI=; b=B5JJEiqKR2ROCgRAPc95eUOJ2
-        OuasL6vXFK6f+eZyHwxamsEdkuPTs6NleuC2bEdvljsKb3Xw2DFcaXw4mzrCC86/4NpLb4NRY9YOM
-        +MsnOU+IuVSptzZ3LH5LxZx6FEydzabWIhZHuJz7WmiMDjtWpwP1WpE5LFxX4g+ker4jMspD3QZ6s
-        uLC7oWFKGby2poHW99KJxbQOIlNkET3g4s6FtQBxH93mTDp7PALEMtQT2vHy2gB9Ke58kncazgeEt
-        t18na4ba1XGHpN+bj6jCM8NvefIIIJELLhgn4MyUQhkZmPgv9HpwjGUSM18hn7oLuWfDInEe36EIH
-        tboqj8o2w==;
-Received: from [10.115.3.34] (helo=bosimpout04)
-        by bosmailscan03.eigbox.net with esmtp (Exim)
-        id 1lO0mJ-0006t0-6z; Sun, 21 Mar 2021 12:18:11 -0400
-Received: from boswebmail05.eigbox.net ([10.20.16.5])
-        by bosimpout04 with 
-        id j4Ho2400306ZEP6014HrXv; Sun, 21 Mar 2021 12:18:10 -0400
-X-Authority-Analysis: v=2.1 cv=Ea1GQZWC c=1 sm=1 tr=0
- a=ugAwYMi5Ce8m9tm4hY6jtQ==:117 a=YUbdUU37hLB6ZdNu9xeEBg==:17
- a=L9H7d07YOLsA:10 a=9cW_t1CCXrUA:10 a=s5jvgZ67dGcA:10 a=g309wd-ud2AA:10
- a=kj9zAlcOel0A:10 a=dESyimp9J3IA:10 a=pGLkceISAAAA:8 a=tqBNipVaOzl6ClpzBJcA:9
- a=CjuIK1q_8ugA:10 a=ab1YoC7h1lEA:10 a=nwXFCYNmHisA:10
- a=wRqZfuwGAhNT45ZFaxBL:22 a=Mjp_1draXBgUBBnUB6xt:22
-Received: from [127.0.0.1] (helo=ipage)
-        by boswebmail05.eigbox.net with esmtp (Exim)
-        id 1lO0lM-0008W2-Tb; Sun, 21 Mar 2021 12:17:12 -0400
-Received: from [93.177.75.174]
- by emailmg.ipage.com
- with HTTP (HTTP/1.1 POST); Sun, 21 Mar 2021 12:17:12 -0400
+        id S230014AbhCUQfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Mar 2021 12:35:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36026 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229986AbhCUQfV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 12:35:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616344519;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=vI3UIUJaYTtYpBxzIMxx4mMN6XVPMPaiGo0xw6r2l8Y=;
+        b=Lpr4YzhYtcOifQCxZCdqKw8fjRaMNOEugYW+hCgTNbpMPGL8PcfVXmtwrdImseK4FCw59N
+        /vwmk58qje/qfqC+qYvHmIh7PhodkhovgUkllfS5N6Y5YiQ0iwIC6WV8FKV7gA8xM6rOST
+        Xu38FjsqZ2nRLHBNppxsYoXmxQSGNaY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-309-akTcFGRTPlWimYxkUTTSGA-1; Sun, 21 Mar 2021 12:35:17 -0400
+X-MC-Unique: akTcFGRTPlWimYxkUTTSGA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BDA4B593A0;
+        Sun, 21 Mar 2021 16:35:15 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-68.ams2.redhat.com [10.36.112.68])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AAE802B0AA;
+        Sun, 21 Mar 2021 16:35:14 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Mark Gross <mgross@linux.intel.com>,
+        Andy Shevchenko <andy@infradead.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        platform-driver-x86@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] platform/x86: intel-vbtn: Stop reporting SW_DOCK events
+Date:   Sun, 21 Mar 2021 17:35:13 +0100
+Message-Id: <20210321163513.72328-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Date:   Sun, 21 Mar 2021 11:17:12 -0500
-From:   OZKAN SAHIN <michael@gomangoenterprises.com>
-To:     undisclosed-recipients:;
-Subject: Greetings to you
-Reply-To: ozkansahin.gbbva@gmail.com
-Mail-Reply-To: ozkansahin.gbbva@gmail.com
-Message-ID: <1b2d738b48b031a92ee339a8a6493954@gomangoenterprises.com>
-X-Sender: michael@gomangoenterprises.com
-User-Agent: Roundcube Webmail/1.3.14
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-EN-AuthUser: michael@gomangoenterprises.com
-Sender:  OZKAN SAHIN <michael@gomangoenterprises.com>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
-I'm Ozkan Sahin, a Senior Manager in the Private Banking department with 
-a REPUTABLE BANK. I'm excited to get in touch with you and to let you 
-know about this LUCRATIVE BUSINESS PROPOSAL I have for you. Please reply 
-as soon as possible if interested in the full details reply here 
-(ozkansahin.gbbva@gmail.com)
+Stop reporting SW_DOCK events because this breaks suspend-on-lid-close.
 
-Since I cannot determine your willingness and because you may have 
-received my message in your Inbox, Junk/Spam folder, I have kept this 
-proposal brief. Your expedient response will be appreciated. Please keep 
-it confidential
+SW_DOCK should only be reported for docking stations, but all the DSDTs in
+my DSDT collection which use the intel-vbtn code, always seem to use this
+for 2-in-1s / convertibles and set SW_DOCK=1 when in laptop-mode (in tandem
+with setting SW_TABLET_MODE=0).
 
-Thanks for your kind understanding!
-Awaiting your response,
-Mr.Ozkan Sahin
-Personal Banking
+This causes userspace to think the laptop is docked to a port-replicator
+and to disable suspend-on-lid-close, which is undesirable.
 
+Map the dock events to KEY_IGNORE to avoid this broken SW_DOCK reporting.
+
+Note this may theoretically cause us to stop reporting SW_DOCK on some
+device where the 0xCA and 0xCB intel-vbtn events are actually used for
+reporting docking to a classic docking-station / port-replicator but
+I'm not aware of any such devices.
+
+Also the most important thing is that we only report SW_DOCK when it
+reliably reports being docked to a classic docking-station without any
+false positives, which clearly is not the case here. If there is a
+chance of reporting false positives then it is better to not report
+SW_DOCK at all.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/platform/x86/intel-vbtn.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+index 8a8017f9ca91..3fdf4cbec9ad 100644
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -48,8 +48,16 @@ static const struct key_entry intel_vbtn_keymap[] = {
+ };
+ 
+ static const struct key_entry intel_vbtn_switchmap[] = {
+-	{ KE_SW,     0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
+-	{ KE_SW,     0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
++	/*
++	 * SW_DOCK should only be reported for docking stations, but DSDTs using the
++	 * intel-vbtn code, always seem to use this for 2-in-1s / convertibles and set
++	 * SW_DOCK=1 when in laptop-mode (in tandem with setting SW_TABLET_MODE=0).
++	 * This causes userspace to think the laptop is docked to a port-replicator
++	 * and to disable suspend-on-lid-close, which is undesirable.
++	 * Map the dock events to KEY_IGNORE to avoid this broken SW_DOCK reporting.
++	 */
++	{ KE_IGNORE, 0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
++	{ KE_IGNORE, 0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
+ 	{ KE_SW,     0xCC, { .sw = { SW_TABLET_MODE, 1 } } },	/* Tablet */
+ 	{ KE_SW,     0xCD, { .sw = { SW_TABLET_MODE, 0 } } },	/* Laptop */
+ 	{ KE_END }
+-- 
+2.30.2
 
