@@ -2,93 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C54343196
-	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 08:36:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43AD3343237
+	for <lists+stable@lfdr.de>; Sun, 21 Mar 2021 13:04:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230039AbhCUHLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Mar 2021 03:11:04 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:14114 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229846AbhCUHKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 03:10:36 -0400
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F37yX1z8Fz17N9Z;
-        Sun, 21 Mar 2021 15:08:36 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS402-HUB.china.huawei.com (10.3.19.202) with Microsoft SMTP Server id
- 14.3.498.0; Sun, 21 Mar 2021 15:10:30 +0800
-Subject: Re: [PATCH 5.4 00/18] 5.4.107-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210319121745.449875976@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <88d8ffc5-428b-40dd-64e2-23556819cb6a@huawei.com>
-Date:   Sun, 21 Mar 2021 15:10:30 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S229875AbhCUMEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Mar 2021 08:04:25 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:60673 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229941AbhCUMER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Mar 2021 08:04:17 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 37E8D194074B;
+        Sun, 21 Mar 2021 08:04:17 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 21 Mar 2021 08:04:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zUnYLr
+        MgULwsbHgnTeP49K5YtWsnz8SH2sNR3qTNmiE=; b=E76sGJUe+g+4HE6Dr7q+zP
+        DtJlnr/emW6qSHiRBtUKO26CWmf/pMKXuQLQZx8CW8OnVaJ+qj2crXfsoxiXXKBs
+        n1/sR4EpvK6UZDDrLgZ1tRFP7bauLgG5JS2gJ/bp/H9yK73rHn84qHJyUmhzUl2t
+        xlO7gzedRYg3kjOuaukemlXFpQM9I3bx7ef7cLPbgbVEN2WRmsD3k6QmE0CyMgiD
+        e640bfZQHq3102AbtCkcCvDS3Uu4P1k2xYTV2OGQ7qv/STp4q7n2ESG65IIAxPT6
+        0AsyMWmzmQ0QOIEtePzrYGg2gVAh6RgpjRP95YXl9vpDwsomzgtPP6MrcK/SAlLA
+        ==
+X-ME-Sender: <xms:QDZXYNevI1qHtFThhcNw3APFMN3AYRuNCyeWM7b0JNh3KJmS3ShajQ>
+    <xme:QDZXYLMkV0VBx02vQOI6EB_d5W5_SVqBL3JLwAEfPXtliaRldw5sKRlX7XFi-p39u
+    NU3jUKIawUufA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegvddgfeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:QDZXYGjKd9cq_yfamxgcP5bY__iSaMcQAcmN9imNGzpOob31iWvpSw>
+    <xmx:QDZXYG8KnmqRGiGhG0rtASxZZJb5NHCkPH_sy2J6fz9BK1WB0lEQlg>
+    <xmx:QDZXYJvvQX9ZP1VWzROR2JPxNPq1YnZ88i4K0okIxr-lEKE2EcTC1Q>
+    <xmx:QTZXYKVUPHVWqt0igyJm_vDkFZ_QURDfjrZls2Vi9jmX0Xz-nArAig>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 89246108005C;
+        Sun, 21 Mar 2021 08:04:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] cifs: Fix preauth hash corruption" failed to apply to 5.11-stable tree
+To:     vincent.whitchurch@axis.com, aaptel@suse.com,
+        stable@vger.kernel.org, stfrench@microsoft.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 21 Mar 2021 13:04:14 +0100
+Message-ID: <1616328254225233@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210319121745.449875976@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 5.11-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 2021/3/19 20:18, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.107 release.
-> There are 18 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 21 Mar 2021 12:17:37 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.107-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+thanks,
 
-Tested on arm64 and x86 for 5.4.107-rc1,
+greg k-h
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.107-rc1
-Commit: 8a800acdf26f05d289c05e416591b6b18917b044
-Compiler: gcc version 7.3.0 (GCC)
+------------------ original commit in Linus's tree ------------------
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 4729
-passed: 4729
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+From 05946d4b7a7349ae58bfa2d51ae832e64a394c2d Mon Sep 17 00:00:00 2001
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Date: Wed, 10 Mar 2021 13:20:40 +0100
+Subject: [PATCH] cifs: Fix preauth hash corruption
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 4729
-passed: 4729
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+smb311_update_preauth_hash() uses the shash in server->secmech without
+appropriate locking, and this can lead to sessions corrupting each
+other's preauth hashes.
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+The following script can easily trigger the problem:
+
+	#!/bin/sh -e
+
+	NMOUNTS=10
+	for i in $(seq $NMOUNTS);
+		mkdir -p /tmp/mnt$i
+		umount /tmp/mnt$i 2>/dev/null || :
+	done
+	while :; do
+		for i in $(seq $NMOUNTS); do
+			mount -t cifs //192.168.0.1/test /tmp/mnt$i -o ... &
+		done
+		wait
+		for i in $(seq $NMOUNTS); do
+			umount /tmp/mnt$i
+		done
+	done
+
+Usually within seconds this leads to one or more of the mounts failing
+with the following errors, and a "Bad SMB2 signature for message" is
+seen in the server logs:
+
+ CIFS: VFS: \\192.168.0.1 failed to connect to IPC (rc=-13)
+ CIFS: VFS: cifs_mount failed w/return code = -13
+
+Fix it by holding the server mutex just like in the other places where
+the shashes are used.
+
+Fixes: 8bd68c6e47abff34e4 ("CIFS: implement v3.11 preauth integrity")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+CC: <stable@vger.kernel.org>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+
+diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
+index 007d99437c77..c1725b55f364 100644
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -1196,9 +1196,12 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
+ 	/*
+ 	 * Compounding is never used during session establish.
+ 	 */
+-	if ((ses->status == CifsNew) || (optype & CIFS_NEG_OP) || (optype & CIFS_SESS_OP))
++	if ((ses->status == CifsNew) || (optype & CIFS_NEG_OP) || (optype & CIFS_SESS_OP)) {
++		mutex_lock(&server->srv_mutex);
+ 		smb311_update_preauth_hash(ses, rqst[0].rq_iov,
+ 					   rqst[0].rq_nvec);
++		mutex_unlock(&server->srv_mutex);
++	}
+ 
+ 	for (i = 0; i < num_rqst; i++) {
+ 		rc = wait_for_response(server, midQ[i]);
+@@ -1266,7 +1269,9 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
+ 			.iov_base = resp_iov[0].iov_base,
+ 			.iov_len = resp_iov[0].iov_len
+ 		};
++		mutex_lock(&server->srv_mutex);
+ 		smb311_update_preauth_hash(ses, &iov, 1);
++		mutex_unlock(&server->srv_mutex);
+ 	}
+ 
+ out:
+
