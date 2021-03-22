@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 545AB3441D4
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D223442C6
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231391AbhCVMgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:36:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56988 "EHLO mail.kernel.org"
+        id S230027AbhCVMpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:45:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231748AbhCVMfA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:35:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21B29619B3;
-        Mon, 22 Mar 2021 12:34:51 +0000 (UTC)
+        id S232667AbhCVMnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:43:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6CB9619A7;
+        Mon, 22 Mar 2021 12:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416492;
-        bh=1bawS5OTku2R6D5ze2GbkygzAGmlVC9GfgjGVO+5eIw=;
+        s=korg; t=1616416860;
+        bh=pBnm91DvMty+DxJnzY+QYouQxfvkgacq1THG9/doDp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neBu/XdsMH5HX0WqJr6cw+WiEf9u2WWgNSrwNsVqmgD/3+Sd5vYirP+4dvA/8kAru
-         k1nWgU3K4vEqeY9snVGvOC57K7MqqLsjKD+lrebqxuiF9i8IhshJNkjW/Ffj6NKSz5
-         j2Ey348YHHkFAdBK3k3dJ9Mpb9RrKX91CMjxdy6g=
+        b=qmkga4MX6/Pi8vBJ0JLG4wOlLacQZW32JXnPBP+sUMq470Ly6SM77RfFLSsu2FRUt
+         lAgsuqXviMZ2paJpNGEGtk39NJqOe491hdErUVMfKj6YjPw/yK6nkVr7YXhLE1Wj29
+         rsOejIVUu5H5c0OHYRtpOtuqhgOw7OvGyYJi/wbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.11 116/120] static_call: Fix static_call_update() sanity check
-Date:   Mon, 22 Mar 2021 13:28:19 +0100
-Message-Id: <20210322121933.533656699@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kratochvil <jan.kratochvil@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 143/157] x86: Introduce TS_COMPAT_RESTART to fix get_nr_restart_syscall()
+Date:   Mon, 22 Mar 2021 13:28:20 +0100
+Message-Id: <20210322121938.283556430@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +40,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 38c93587375053c5b9ef093f4a5ea754538cba32 upstream.
+commit 8c150ba2fb5995c84a7a43848250d444a3329a7d upstream.
 
-Sites that match init_section_contains() get marked as INIT. For
-built-in code init_sections contains both __init and __exit text. OTOH
-kernel_text_address() only explicitly includes __init text (and there
-are no __exit text markers).
+The comment in get_nr_restart_syscall() says:
 
-Match what jump_label already does and ignore the warning for INIT
-sites. Also see the excellent changelog for commit: 8f35eaa5f2de
-("jump_label: Don't warn on __exit jump entries")
+	 * The problem is that we can get here when ptrace pokes
+	 * syscall-like values into regs even if we're not in a syscall
+	 * at all.
 
-Fixes: 9183c3f9ed710 ("static_call: Add inline static call infrastructure")
-Reported-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Sumit Garg <sumit.garg@linaro.org>
-Link: https://lkml.kernel.org/r/20210318113610.739542434@infradead.org
+Yes, but if not in a syscall then the
+
+	status & (TS_COMPAT|TS_I386_REGS_POKED)
+
+check below can't really help:
+
+	- TS_COMPAT can't be set
+
+	- TS_I386_REGS_POKED is only set if regs->orig_ax was changed by
+	  32bit debugger; and even in this case get_nr_restart_syscall()
+	  is only correct if the tracee is 32bit too.
+
+Suppose that a 64bit debugger plays with a 32bit tracee and
+
+	* Tracee calls sleep(2)	// TS_COMPAT is set
+	* User interrupts the tracee by CTRL-C after 1 sec and does
+	  "(gdb) call func()"
+	* gdb saves the regs by PTRACE_GETREGS
+	* does PTRACE_SETREGS to set %rip='func' and %orig_rax=-1
+	* PTRACE_CONT		// TS_COMPAT is cleared
+	* func() hits int3.
+	* Debugger catches SIGTRAP.
+	* Restore original regs by PTRACE_SETREGS.
+	* PTRACE_CONT
+
+get_nr_restart_syscall() wrongly returns __NR_restart_syscall==219, the
+tracee calls ia32_sys_call_table[219] == sys_madvise.
+
+Add the sticky TS_COMPAT_RESTART flag which survives after return to user
+mode. It's going to be removed in the next step again by storing the
+information in the restart block. As a further cleanup it might be possible
+to remove also TS_I386_REGS_POKED with that.
+
+Test-case:
+
+  $ cvs -d :pserver:anoncvs:anoncvs@sourceware.org:/cvs/systemtap co ptrace-tests
+  $ gcc -o erestartsys-trap-debuggee ptrace-tests/tests/erestartsys-trap-debuggee.c --m32
+  $ gcc -o erestartsys-trap-debugger ptrace-tests/tests/erestartsys-trap-debugger.c -lutil
+  $ ./erestartsys-trap-debugger
+  Unexpected: retval 1, errno 22
+  erestartsys-trap-debugger: ptrace-tests/tests/erestartsys-trap-debugger.c:421
+
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Reported-by: Jan Kratochvil <jan.kratochvil@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210201174709.GA17895@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/jump_label.c  |    8 ++++++++
- kernel/static_call.c |   11 ++++++++++-
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/thread_info.h |   14 +++++++++++++-
+ arch/x86/kernel/signal.c           |   24 +-----------------------
+ 2 files changed, 14 insertions(+), 24 deletions(-)
 
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -407,6 +407,14 @@ static bool jump_label_can_update(struct
- 		return false;
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -225,10 +225,22 @@ static inline int arch_within_stack_fram
+  */
+ #define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
  
- 	if (!kernel_text_address(jump_entry_code(entry))) {
-+		/*
-+		 * This skips patching built-in __exit, which
-+		 * is part of init_section_contains() but is
-+		 * not part of kernel_text_address().
-+		 *
-+		 * Skipping built-in __exit is fine since it
-+		 * will never be executed.
-+		 */
- 		WARN_ONCE(!jump_entry_is_init(entry),
- 			  "can't patch jump_label at %pS",
- 			  (void *)jump_entry_code(entry));
---- a/kernel/static_call.c
-+++ b/kernel/static_call.c
-@@ -182,7 +182,16 @@ void __static_call_update(struct static_
- 			}
++#ifndef __ASSEMBLY__
+ #ifdef CONFIG_COMPAT
+ #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
++#define TS_COMPAT_RESTART	0x0008
++
++#define arch_set_restart_data	arch_set_restart_data
++
++static inline void arch_set_restart_data(struct restart_block *restart)
++{
++	struct thread_info *ti = current_thread_info();
++	if (ti->status & TS_COMPAT)
++		ti->status |= TS_COMPAT_RESTART;
++	else
++		ti->status &= ~TS_COMPAT_RESTART;
++}
+ #endif
+-#ifndef __ASSEMBLY__
  
- 			if (!kernel_text_address((unsigned long)site_addr)) {
--				WARN_ONCE(1, "can't patch static call site at %pS",
-+				/*
-+				 * This skips patching built-in __exit, which
-+				 * is part of init_section_contains() but is
-+				 * not part of kernel_text_address().
-+				 *
-+				 * Skipping built-in __exit is fine since it
-+				 * will never be executed.
-+				 */
-+				WARN_ONCE(!static_call_is_init(site),
-+					  "can't patch static call site at %pS",
- 					  site_addr);
- 				continue;
- 			}
+ #ifdef CONFIG_X86_32
+ #define in_ia32_syscall() true
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -766,30 +766,8 @@ handle_signal(struct ksignal *ksig, stru
+ 
+ static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
+ {
+-	/*
+-	 * This function is fundamentally broken as currently
+-	 * implemented.
+-	 *
+-	 * The idea is that we want to trigger a call to the
+-	 * restart_block() syscall and that we want in_ia32_syscall(),
+-	 * in_x32_syscall(), etc. to match whatever they were in the
+-	 * syscall being restarted.  We assume that the syscall
+-	 * instruction at (regs->ip - 2) matches whatever syscall
+-	 * instruction we used to enter in the first place.
+-	 *
+-	 * The problem is that we can get here when ptrace pokes
+-	 * syscall-like values into regs even if we're not in a syscall
+-	 * at all.
+-	 *
+-	 * For now, we maintain historical behavior and guess based on
+-	 * stored state.  We could do better by saving the actual
+-	 * syscall arch in restart_block or (with caveats on x32) by
+-	 * checking if regs->ip points to 'int $0x80'.  The current
+-	 * behavior is incorrect if a tracer has a different bitness
+-	 * than the tracee.
+-	 */
+ #ifdef CONFIG_IA32_EMULATION
+-	if (current_thread_info()->status & (TS_COMPAT|TS_I386_REGS_POKED))
++	if (current_thread_info()->status & TS_COMPAT_RESTART)
+ 		return __NR_ia32_restart_syscall;
+ #endif
+ #ifdef CONFIG_X86_X32_ABI
 
 
