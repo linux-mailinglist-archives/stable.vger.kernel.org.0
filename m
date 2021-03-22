@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8745344217
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3C134421C
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:39:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231654AbhCVMin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
+        id S231777AbhCVMiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:38:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231920AbhCVMhJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:37:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83FF7619A2;
-        Mon, 22 Mar 2021 12:36:36 +0000 (UTC)
+        id S231964AbhCVMhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:37:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE1D76199E;
+        Mon, 22 Mar 2021 12:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416597;
-        bh=UKVrEvZq6mTLGFDxP99VsbFX+M5+jCTuVZ6NfCvzOZo=;
+        s=korg; t=1616416602;
+        bh=JwzP+HzkP+VUc+W0OHBCz9YDEO7F+XEdhZ9PsRuR/RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbSXsvYWJ6XdJT6+lkT+EifOgACeMj776jzqLWS0ufjy1VP1TA26EfDRoZQIsSX67
-         t2hk6+uMh7eTHy4s5MbQEo31kQnEj5Kze8DAy2J1imoySeWBk3ZVBlBsgdWC2kayh0
-         /bYWG5vCl04EBLBAzAFJqy/DB8ThzwTJxBHPNw4M=
+        b=cbp43RwXLY0YDNYxuSbVsUiOYB63p7iWXqOvaDymoFnujW+fOvk6tXk3yMA5xjoVB
+         yq5Spbg7StZ9yQaMSj4+US3FqwDOvyHnqWlfyoCTTa03QNqAHMY7WCE6IhHcEWmItv
+         QkHycwWZ3d6N7lRr5AIokJIMAs+KINtGQ2HGjsEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Kobras <kobras@puzzle-itc.de>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.10 048/157] sunrpc: fix refcount leak for rpc auth modules
-Date:   Mon, 22 Mar 2021 13:26:45 +0100
-Message-Id: <20210322121935.271403578@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        Ashutosh Dixit <ashutosh.dixit@intel.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.10 049/157] i915/perf: Start hrtimer only if sampling the OA buffer
+Date:   Mon, 22 Mar 2021 13:26:46 +0100
+Message-Id: <20210322121935.303438112@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -39,53 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Kobras <kobras@puzzle-itc.de>
+From: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
 
-commit f1442d6349a2e7bb7a6134791bdc26cb776c79af upstream.
+commit 6a77c6bb7260bd5000f95df454d9f8cdb1af7132 upstream.
 
-If an auth module's accept op returns SVC_CLOSE, svc_process_common()
-enters a call path that does not call svc_authorise() before leaving the
-function, and thus leaks a reference on the auth module's refcount. Hence,
-make sure calls to svc_authenticate() and svc_authorise() are paired for
-all call paths, to make sure rpc auth modules can be unloaded.
+SAMPLE_OA parameter enables sampling of OA buffer and results in a call
+to init the OA buffer which initializes the OA unit head/tail pointers.
+The OA_EXPONENT parameter controls the periodicity of the OA reports in
+the OA buffer and results in starting a hrtimer.
 
-Signed-off-by: Daniel Kobras <kobras@puzzle-itc.de>
-Fixes: 4d712ef1db05 ("svcauth_gss: Close connection when dropping an incoming message")
-Link: https://lore.kernel.org/linux-nfs/3F1B347F-B809-478F-A1E9-0BE98E22B0F0@oracle.com/T/#t
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Before gen12, all use cases required the use of the OA buffer and i915
+enforced this setting when vetting out the parameters passed. In these
+platforms the hrtimer was enabled if OA_EXPONENT was passed. This worked
+fine since it was implied that SAMPLE_OA is always passed.
+
+With gen12, this changed. Users can use perf without enabling the OA
+buffer as in OAR use cases. While an OAR use case should ideally not
+start the hrtimer, we see that passing an OA_EXPONENT parameter will
+start the hrtimer even though SAMPLE_OA is not specified. This results
+in an uninitialized OA buffer, so the head/tail pointers used to track
+the buffer are zero.
+
+This itself does not fail, but if we ran a use-case that SAMPLED the OA
+buffer previously, then the OA_TAIL register is still pointing to an old
+value. When the timer callback runs, it ends up calculating a
+wrong/large number of available reports. Since we do a spinlock_irq_save
+and start processing a large number of reports, NMI watchdog fires and
+causes a crash.
+
+Start the timer only if SAMPLE_OA is specified.
+
+v2:
+- Drop SAMPLE OA check when appending samples (Ashutosh)
+- Prevent read if OA buffer is not being sampled
+
+Fixes: 00a7f0d7155c ("drm/i915/tgl: Add perf support on TGL")
+Signed-off-by: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
+Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210305210947.58751-1-umesh.nerlige.ramappa@intel.com
+(cherry picked from commit be0bdd67fda9468156c733976688f6487d0c42f7)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/svc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/i915_perf.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
---- a/net/sunrpc/svc.c
-+++ b/net/sunrpc/svc.c
-@@ -1408,7 +1408,7 @@ svc_process_common(struct svc_rqst *rqst
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -600,7 +600,6 @@ static int append_oa_sample(struct i915_
+ {
+ 	int report_size = stream->oa_buffer.format_size;
+ 	struct drm_i915_perf_record_header header;
+-	u32 sample_flags = stream->sample_flags;
  
-  sendit:
- 	if (svc_authorise(rqstp))
--		goto close;
-+		goto close_xprt;
- 	return 1;		/* Caller can now send it */
+ 	header.type = DRM_I915_PERF_RECORD_SAMPLE;
+ 	header.pad = 0;
+@@ -614,10 +613,8 @@ static int append_oa_sample(struct i915_
+ 		return -EFAULT;
+ 	buf += sizeof(header);
  
- release_dropit:
-@@ -1420,6 +1420,8 @@ release_dropit:
- 	return 0;
+-	if (sample_flags & SAMPLE_OA_REPORT) {
+-		if (copy_to_user(buf, report, report_size))
+-			return -EFAULT;
+-	}
++	if (copy_to_user(buf, report, report_size))
++		return -EFAULT;
  
-  close:
-+	svc_authorise(rqstp);
-+close_xprt:
- 	if (rqstp->rq_xprt && test_bit(XPT_TEMP, &rqstp->rq_xprt->xpt_flags))
- 		svc_close_xprt(rqstp->rq_xprt);
- 	dprintk("svc: svc_process close\n");
-@@ -1428,7 +1430,7 @@ release_dropit:
- err_short_len:
- 	svc_printk(rqstp, "short len %zd, dropping request\n",
- 			argv->iov_len);
--	goto close;
-+	goto close_xprt;
+ 	(*offset) += header.size;
  
- err_bad_rpc:
- 	serv->sv_stats->rpcbadfmt++;
+@@ -2676,7 +2673,7 @@ static void i915_oa_stream_enable(struct
+ 
+ 	stream->perf->ops.oa_enable(stream);
+ 
+-	if (stream->periodic)
++	if (stream->sample_flags & SAMPLE_OA_REPORT)
+ 		hrtimer_start(&stream->poll_check_timer,
+ 			      ns_to_ktime(stream->poll_oa_period),
+ 			      HRTIMER_MODE_REL_PINNED);
+@@ -2739,7 +2736,7 @@ static void i915_oa_stream_disable(struc
+ {
+ 	stream->perf->ops.oa_disable(stream);
+ 
+-	if (stream->periodic)
++	if (stream->sample_flags & SAMPLE_OA_REPORT)
+ 		hrtimer_cancel(&stream->poll_check_timer);
+ }
+ 
+@@ -3022,7 +3019,7 @@ static ssize_t i915_perf_read(struct fil
+ 	 * disabled stream as an error. In particular it might otherwise lead
+ 	 * to a deadlock for blocking file descriptors...
+ 	 */
+-	if (!stream->enabled)
++	if (!stream->enabled || !(stream->sample_flags & SAMPLE_OA_REPORT))
+ 		return -EIO;
+ 
+ 	if (!(file->f_flags & O_NONBLOCK)) {
 
 
