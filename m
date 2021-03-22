@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5F6E344269
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE11344160
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbhCVMl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:41:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34122 "EHLO mail.kernel.org"
+        id S231467AbhCVMdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231297AbhCVMjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:39:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 693D1619A8;
-        Mon, 22 Mar 2021 12:38:28 +0000 (UTC)
+        id S231464AbhCVMcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:32:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B499061994;
+        Mon, 22 Mar 2021 12:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416709;
-        bh=2VYa52osbzQu2YvZGVufAoYT2MTK455F0ufVCJ8pk+U=;
+        s=korg; t=1616416330;
+        bh=xxd8MiDf4ZC55mk4M/uP9KN9Sker8aHYPSZIuzYqg4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+CGmQAVvsqeZJzipUO8ytNhXblZSLwt5FJPHJQ7uUza3eFnsnE9KQEXa5aX2+GrA
-         P9ppj9Urt99oPR7mAejVDd6qXYCaZO7sF7ZMQCubxNbXlkwHh/lAgb3r9njrXvexOU
-         9P9kdfSHlOo4CzuZ13s5ckgZnGiAnxwOK1QqL8ow=
+        b=sNRY7qS+kpaZ7hnUJ59GhBF1Ch87S7BaOK3hpxH7vcw6AmJE4HAJ8PT8lDg5DmrMo
+         VyWAYn9AEPCb+meBeetltMfFIOCpXIE3yykBxvqaOyZJGw4umLsDfYDHDH9O3DNN+/
+         mlf+0aB7dJtrLCcjFXmx7kFLsAtItW/iKOsd+JoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/157] MIPS: compressed: fix build with enabled UBSAN
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.11 064/120] scsi: lpfc: Fix some error codes in debugfs
 Date:   Mon, 22 Mar 2021 13:27:27 +0100
-Message-Id: <20210322121936.636241778@linuxfoundation.org>
+Message-Id: <20210322121931.818924193@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit fc4cac4cfc437659ce445c3c47b807e1cc625b66 ]
+commit 19f1bc7edf0f97186810e13a88f5b62069d89097 upstream.
 
-Commit 1e35918ad9d1 ("MIPS: Enable Undefined Behavior Sanitizer
-UBSAN") added a possibility to build the entire kernel with UBSAN
-instrumentation for MIPS, with the exception for VDSO.
-However, self-extracting head wasn't been added to exceptions, so
-this occurs:
+If copy_from_user() or kstrtoull() fail then the correct behavior is to
+return a negative error code.
 
-mips-alpine-linux-musl-ld: arch/mips/boot/compressed/decompress.o:
-in function `FSE_buildDTable_wksp':
-decompress.c:(.text.FSE_buildDTable_wksp+0x278): undefined reference
-to `__ubsan_handle_shift_out_of_bounds'
-mips-alpine-linux-musl-ld: decompress.c:(.text.FSE_buildDTable_wksp+0x2a8):
-undefined reference to `__ubsan_handle_shift_out_of_bounds'
-mips-alpine-linux-musl-ld: decompress.c:(.text.FSE_buildDTable_wksp+0x2c4):
-undefined reference to `__ubsan_handle_shift_out_of_bounds'
-mips-alpine-linux-musl-ld: arch/mips/boot/compressed/decompress.o:
-decompress.c:(.text.FSE_buildDTable_raw+0x9c): more undefined references
-to `__ubsan_handle_shift_out_of_bounds' follow
-
-Add UBSAN_SANITIZE := n to mips/boot/compressed/Makefile to exclude
-it from instrumentation scope and fix this issue.
-
-Fixes: 1e35918ad9d1 ("MIPS: Enable Undefined Behavior Sanitizer UBSAN")
-Cc: stable@vger.kernel.org # 5.0+
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/YEsbU/UxYypVrC7/@mwanda
+Fixes: f9bb2da11db8 ("[SCSI] lpfc 8.3.27: T10 additions for SLI4")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/boot/compressed/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/lpfc/lpfc_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
-index d66511825fe1..337ab1d18cc1 100644
---- a/arch/mips/boot/compressed/Makefile
-+++ b/arch/mips/boot/compressed/Makefile
-@@ -36,6 +36,7 @@ KBUILD_AFLAGS := $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
+--- a/drivers/scsi/lpfc/lpfc_debugfs.c
++++ b/drivers/scsi/lpfc/lpfc_debugfs.c
+@@ -2421,7 +2421,7 @@ lpfc_debugfs_dif_err_write(struct file *
+ 	memset(dstbuf, 0, 33);
+ 	size = (nbytes < 32) ? nbytes : 32;
+ 	if (copy_from_user(dstbuf, buf, size))
+-		return 0;
++		return -EFAULT;
  
- # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
- KCOV_INSTRUMENT		:= n
-+UBSAN_SANITIZE := n
+ 	if (dent == phba->debug_InjErrLBA) {
+ 		if ((dstbuf[0] == 'o') && (dstbuf[1] == 'f') &&
+@@ -2430,7 +2430,7 @@ lpfc_debugfs_dif_err_write(struct file *
+ 	}
  
- # decompressor objects (linked with vmlinuz)
- vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
--- 
-2.30.1
-
+ 	if ((tmp == 0) && (kstrtoull(dstbuf, 0, &tmp)))
+-		return 0;
++		return -EINVAL;
+ 
+ 	if (dent == phba->debug_writeGuard)
+ 		phba->lpfc_injerr_wgrd_cnt = (uint32_t)tmp;
 
 
