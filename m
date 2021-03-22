@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F02734414D
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3166344251
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231272AbhCVMcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:32:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54556 "EHLO mail.kernel.org"
+        id S231852AbhCVMkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:40:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231256AbhCVMbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:31:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63F39619A3;
-        Mon, 22 Mar 2021 12:31:40 +0000 (UTC)
+        id S231895AbhCVMjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:39:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E10B7619C5;
+        Mon, 22 Mar 2021 12:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416300;
-        bh=QX/kW6ynz4hoZf/ztQb+b6xyWKTXGxR+QwQ42/7E//E=;
+        s=korg; t=1616416682;
+        bh=wLU7GhQRSUu3f61uFgDw/8SIxqM/CanymuYMLrIG4s8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6q85Tri+VPrWzqizZeeC+Mk+IIWtB/DjB4Run5X8rprmfgGBmpnL1MRkVvvIghVl
-         XfzSKQKv+3bq16Dsws/LUPGYh02HXU97akyKn1eGBaUMzR9mpWOLT09tIEjPYxk7/O
-         63K80+q7u+3Wk7D5UQD0AmC3hF6xbLciSuHytXI8=
+        b=bfgm54fOoEGnHBbBYEdBZHhYIy7Wl4GtILaOxMEkORSuLMltOAGzUbR3LIUMo9u03
+         BIWH1CniJym/ZnjWONWGAixXWpXuMFsIIEEUdKxlo9kEkSupvEyds6eFDB7fCJZOZh
+         tCrKdkhTVD+MYw6b6leeAzPOlck3EnFdpt2NmrmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        Ashutosh Dixit <ashutosh.dixit@intel.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.11 054/120] i915/perf: Start hrtimer only if sampling the OA buffer
-Date:   Mon, 22 Mar 2021 13:27:17 +0100
-Message-Id: <20210322121931.489806555@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Yan <yanaijie@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 081/157] scsi: mvsas: Pass gfp_t flags to libsas event notifiers
+Date:   Mon, 22 Mar 2021 13:27:18 +0100
+Message-Id: <20210322121936.356769328@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,101 +42,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+From: Ahmed S. Darwish <a.darwish@linutronix.de>
 
-commit 6a77c6bb7260bd5000f95df454d9f8cdb1af7132 upstream.
+[ Upstream commit feb18e900f0048001ff375dca639eaa327ab3c1b ]
 
-SAMPLE_OA parameter enables sampling of OA buffer and results in a call
-to init the OA buffer which initializes the OA unit head/tail pointers.
-The OA_EXPONENT parameter controls the periodicity of the OA reports in
-the OA buffer and results in starting a hrtimer.
+mvsas calls the non _gfp version of the libsas event notifiers API, leading
+to the buggy call chains below:
 
-Before gen12, all use cases required the use of the OA buffer and i915
-enforced this setting when vetting out the parameters passed. In these
-platforms the hrtimer was enabled if OA_EXPONENT was passed. This worked
-fine since it was implied that SAMPLE_OA is always passed.
+  mvsas/mv_sas.c: mvs_work_queue() [process context]
+  spin_lock_irqsave(mvs_info::lock, )
+    -> libsas/sas_event.c: sas_notify_phy_event()
+      -> sas_alloc_event()
+        -> in_interrupt() = false
+          -> invalid GFP_KERNEL allocation
+    -> libsas/sas_event.c: sas_notify_port_event()
+      -> sas_alloc_event()
+        -> in_interrupt() = false
+          -> invalid GFP_KERNEL allocation
 
-With gen12, this changed. Users can use perf without enabling the OA
-buffer as in OAR use cases. While an OAR use case should ideally not
-start the hrtimer, we see that passing an OA_EXPONENT parameter will
-start the hrtimer even though SAMPLE_OA is not specified. This results
-in an uninitialized OA buffer, so the head/tail pointers used to track
-the buffer are zero.
+Use the new event notifiers API instead, which requires callers to
+explicitly pass the gfp_t memory allocation flags.
 
-This itself does not fail, but if we ran a use-case that SAMPLED the OA
-buffer previously, then the OA_TAIL register is still pointing to an old
-value. When the timer callback runs, it ends up calculating a
-wrong/large number of available reports. Since we do a spinlock_irq_save
-and start processing a large number of reports, NMI watchdog fires and
-causes a crash.
+Below are context analysis for the modified functions:
 
-Start the timer only if SAMPLE_OA is specified.
+=> mvs_bytes_dmaed():
 
-v2:
-- Drop SAMPLE OA check when appending samples (Ashutosh)
-- Prevent read if OA buffer is not being sampled
+Since it is invoked from both process and atomic contexts, let its callers
+pass the gfp_t flags. Call chains:
 
-Fixes: 00a7f0d7155c ("drm/i915/tgl: Add perf support on TGL")
-Signed-off-by: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210305210947.58751-1-umesh.nerlige.ramappa@intel.com
-(cherry picked from commit be0bdd67fda9468156c733976688f6487d0c42f7)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  scsi_scan.c: do_scsi_scan_host() [has msleep()]
+    -> shost->hostt->scan_start()
+    -> [mvsas/mv_init.c: Scsi_Host::scsi_host_template .scan_start = mvs_scan_start()]
+    -> mvsas/mv_sas.c: mvs_scan_start()
+      -> mvs_bytes_dmaed(..., GFP_KERNEL)
+
+  mvsas/mv_sas.c: mvs_work_queue()
+  spin_lock_irqsave(mvs_info::lock,)
+    -> mvs_bytes_dmaed(..., GFP_ATOMIC)
+
+  mvsas/mv_64xx.c: mvs_64xx_isr() || mvsas/mv_94xx.c: mvs_94xx_isr()
+    -> mvsas/mv_chips.h: mvs_int_full()
+      -> mvsas/mv_sas.c: mvs_int_port()
+        -> mvs_bytes_dmaed(..., GFP_ATOMIC);
+
+=> mvs_work_queue():
+
+Invoked from process context, but it calls all the libsas event notifier
+APIs under a spin_lock_irqsave(). Pass GFP_ATOMIC.
+
+Link: https://lore.kernel.org/r/20210118100955.1761652-5-a.darwish@linutronix.de
+Fixes: 1c393b970e0f ("scsi: libsas: Use dynamic alloced work to avoid sas event lost")
+Cc: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_perf.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/scsi/mvsas/mv_sas.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_perf.c
-+++ b/drivers/gpu/drm/i915/i915_perf.c
-@@ -600,7 +600,6 @@ static int append_oa_sample(struct i915_
- {
- 	int report_size = stream->oa_buffer.format_size;
- 	struct drm_i915_perf_record_header header;
--	u32 sample_flags = stream->sample_flags;
- 
- 	header.type = DRM_I915_PERF_RECORD_SAMPLE;
- 	header.pad = 0;
-@@ -614,10 +613,8 @@ static int append_oa_sample(struct i915_
- 		return -EFAULT;
- 	buf += sizeof(header);
- 
--	if (sample_flags & SAMPLE_OA_REPORT) {
--		if (copy_to_user(buf, report, report_size))
--			return -EFAULT;
--	}
-+	if (copy_to_user(buf, report, report_size))
-+		return -EFAULT;
- 
- 	(*offset) += header.size;
- 
-@@ -2678,7 +2675,7 @@ static void i915_oa_stream_enable(struct
- 
- 	stream->perf->ops.oa_enable(stream);
- 
--	if (stream->periodic)
-+	if (stream->sample_flags & SAMPLE_OA_REPORT)
- 		hrtimer_start(&stream->poll_check_timer,
- 			      ns_to_ktime(stream->poll_oa_period),
- 			      HRTIMER_MODE_REL_PINNED);
-@@ -2741,7 +2738,7 @@ static void i915_oa_stream_disable(struc
- {
- 	stream->perf->ops.oa_disable(stream);
- 
--	if (stream->periodic)
-+	if (stream->sample_flags & SAMPLE_OA_REPORT)
- 		hrtimer_cancel(&stream->poll_check_timer);
+diff --git a/drivers/scsi/mvsas/mv_sas.c b/drivers/scsi/mvsas/mv_sas.c
+index e5e3e95f78b0..484e01428da2 100644
+--- a/drivers/scsi/mvsas/mv_sas.c
++++ b/drivers/scsi/mvsas/mv_sas.c
+@@ -216,7 +216,7 @@ void mvs_set_sas_addr(struct mvs_info *mvi, int port_id, u32 off_lo,
+ 	MVS_CHIP_DISP->write_port_cfg_data(mvi, port_id, hi);
  }
  
-@@ -3024,7 +3021,7 @@ static ssize_t i915_perf_read(struct fil
- 	 * disabled stream as an error. In particular it might otherwise lead
- 	 * to a deadlock for blocking file descriptors...
- 	 */
--	if (!stream->enabled)
-+	if (!stream->enabled || !(stream->sample_flags & SAMPLE_OA_REPORT))
- 		return -EIO;
+-static void mvs_bytes_dmaed(struct mvs_info *mvi, int i)
++static void mvs_bytes_dmaed(struct mvs_info *mvi, int i, gfp_t gfp_flags)
+ {
+ 	struct mvs_phy *phy = &mvi->phy[i];
+ 	struct asd_sas_phy *sas_phy = &phy->sas_phy;
+@@ -229,7 +229,7 @@ static void mvs_bytes_dmaed(struct mvs_info *mvi, int i)
+ 		return;
+ 	}
  
- 	if (!(file->f_flags & O_NONBLOCK)) {
+-	sas_notify_phy_event(sas_phy, PHYE_OOB_DONE);
++	sas_notify_phy_event_gfp(sas_phy, PHYE_OOB_DONE, gfp_flags);
+ 
+ 	if (sas_phy->phy) {
+ 		struct sas_phy *sphy = sas_phy->phy;
+@@ -261,7 +261,7 @@ static void mvs_bytes_dmaed(struct mvs_info *mvi, int i)
+ 
+ 	sas_phy->frame_rcvd_size = phy->frame_rcvd_size;
+ 
+-	sas_notify_port_event(sas_phy, PORTE_BYTES_DMAED);
++	sas_notify_port_event_gfp(sas_phy, PORTE_BYTES_DMAED, gfp_flags);
+ }
+ 
+ void mvs_scan_start(struct Scsi_Host *shost)
+@@ -277,7 +277,7 @@ void mvs_scan_start(struct Scsi_Host *shost)
+ 	for (j = 0; j < core_nr; j++) {
+ 		mvi = ((struct mvs_prv_info *)sha->lldd_ha)->mvi[j];
+ 		for (i = 0; i < mvi->chip->n_phy; ++i)
+-			mvs_bytes_dmaed(mvi, i);
++			mvs_bytes_dmaed(mvi, i, GFP_KERNEL);
+ 	}
+ 	mvs_prv->scan_finished = 1;
+ }
+@@ -1892,20 +1892,21 @@ static void mvs_work_queue(struct work_struct *work)
+ 			if (!(tmp & PHY_READY_MASK)) {
+ 				sas_phy_disconnected(sas_phy);
+ 				mvs_phy_disconnected(phy);
+-				sas_notify_phy_event(sas_phy,
+-					PHYE_LOSS_OF_SIGNAL);
++				sas_notify_phy_event_gfp(sas_phy,
++					PHYE_LOSS_OF_SIGNAL, GFP_ATOMIC);
+ 				mv_dprintk("phy%d Removed Device\n", phy_no);
+ 			} else {
+ 				MVS_CHIP_DISP->detect_porttype(mvi, phy_no);
+ 				mvs_update_phyinfo(mvi, phy_no, 1);
+-				mvs_bytes_dmaed(mvi, phy_no);
++				mvs_bytes_dmaed(mvi, phy_no, GFP_ATOMIC);
+ 				mvs_port_notify_formed(sas_phy, 0);
+ 				mv_dprintk("phy%d Attached Device\n", phy_no);
+ 			}
+ 		}
+ 	} else if (mwq->handler & EXP_BRCT_CHG) {
+ 		phy->phy_event &= ~EXP_BRCT_CHG;
+-		sas_notify_port_event(sas_phy, PORTE_BROADCAST_RCVD);
++		sas_notify_port_event_gfp(sas_phy,
++				PORTE_BROADCAST_RCVD, GFP_ATOMIC);
+ 		mv_dprintk("phy%d Got Broadcast Change\n", phy_no);
+ 	}
+ 	list_del(&mwq->entry);
+@@ -2022,7 +2023,7 @@ void mvs_int_port(struct mvs_info *mvi, int phy_no, u32 events)
+ 				mdelay(10);
+ 			}
+ 
+-			mvs_bytes_dmaed(mvi, phy_no);
++			mvs_bytes_dmaed(mvi, phy_no, GFP_ATOMIC);
+ 			/* whether driver is going to handle hot plug */
+ 			if (phy->phy_event & PHY_PLUG_OUT) {
+ 				mvs_port_notify_formed(&phy->sas_phy, 0);
+-- 
+2.30.1
+
 
 
