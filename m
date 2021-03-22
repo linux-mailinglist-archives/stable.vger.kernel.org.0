@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADBB13441F9
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:38:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34A7C3441FD
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231450AbhCVMho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:37:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57450 "EHLO mail.kernel.org"
+        id S231153AbhCVMhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:37:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230338AbhCVMgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:36:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E99A61994;
-        Mon, 22 Mar 2021 12:35:57 +0000 (UTC)
+        id S229933AbhCVMgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:36:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A4B61992;
+        Mon, 22 Mar 2021 12:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416557;
-        bh=60bc2m1paXqATLQ5ALuhml6JTH8HzLPzeFihmWPDwh8=;
+        s=korg; t=1616416560;
+        bh=6Odjv0BGUfVmqIuSNmD1m0vv9DcjMHPVid+ivTgBQ60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqONfhF8W8p/eJ6AVEi4wrooQszcsw/dJjf+0ji+CesaIze01XJ20cy+QGb9befxN
-         VLvgROqeK8awjWytpSVdoPnMcoB3mnEJF/8R7SMM/v+HW1poaMDC/hUZTMv5+BS2U+
-         gtWc6iDm62K6i0GbTsDckP6yVXHshpj5f4l8R504=
+        b=vMtoOrDgz4lIyZ81fe92yQRpjCNPsXw8E0+xYD48F0CEJMZzvxQIsib0Jjs6C7L2H
+         s3DepzulnXMv28uu8T/0Va77tZmXL36iDiLFCbKn55Vv6gtzg/eRmb9cLbXdstmIxV
+         RWPqRjjY6nqCF/ynDH01sUeKmmz2fDgy/zrgLgJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoliang Yu <yxl_22@outlook.com>,
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 005/157] ALSA: hda/realtek: apply pin quirk for XiaomiNotebook Pro
-Date:   Mon, 22 Mar 2021 13:26:02 +0100
-Message-Id: <20210322121933.933238979@linuxfoundation.org>
+Subject: [PATCH 5.10 006/157] ALSA: hda: generic: Fix the micmute led init state
+Date:   Mon, 22 Mar 2021 13:26:03 +0100
+Message-Id: <20210322121933.967583124@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -39,31 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoliang Yu <yxl_22@outlook.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit b95bc12e0412d14d5fc764f0b82631c7bcaf1959 upstream.
+commit 2bf44e0ee95f39cc54ea1b942f0a027e0181ca4e upstream.
 
-Built-in microphone and combojack on Xiaomi Notebook Pro (1d72:1701) needs
-to be fixed, the existing quirk for Dell works well on that machine.
+Recently we found the micmute led init state is not correct after
+freshly installing the ubuntu linux on a Lenovo AIO machine. The
+internal mic is not muted, but the micmute led is on and led mode is
+'follow mute'. If we mute internal mic, the led is keeping on, then
+unmute the internal mic, the led is off. And from then on, the
+micmute led will work correctly.
 
-Signed-off-by: Xiaoliang Yu <yxl_22@outlook.com>
+So the micmute led init state is not correct. The led is controlled
+by codec gpio (ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY), in the
+patch_realtek, the gpio data is set to 0x4 initially and the led is
+on with this data. In the hda_generic, the led_value is set to
+0 initially, suppose users set the 'capture switch' to on from
+user space and the micmute led should change to be off with this
+operation, but the check "if (val == spec->micmute_led.led_value)" in
+the call_micmute_led_update() will skip the led setting.
+
+To guarantee the led state will be set by the 1st time of changing
+"Capture Switch", set -1 to the init led_value.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/OS0P286MB02749B9E13920E6899902CD8EE6C9@OS0P286MB0274.JPNP286.PROD.OUTLOOK.COM
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210312041408.3776-1-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_generic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8242,6 +8242,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
- 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -4065,7 +4065,7 @@ static int add_micmute_led_hook(struct h
+ 
+ 	spec->micmute_led.led_mode = MICMUTE_LED_FOLLOW_MUTE;
+ 	spec->micmute_led.capture = 0;
+-	spec->micmute_led.led_value = 0;
++	spec->micmute_led.led_value = -1;
+ 	spec->micmute_led.old_hook = spec->cap_sync_hook;
+ 	spec->cap_sync_hook = update_micmute_led;
+ 	if (!snd_hda_gen_add_kctl(spec, NULL, &micmute_led_mode_ctl))
 
 
