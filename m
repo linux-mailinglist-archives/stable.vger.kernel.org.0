@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55638344233
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B36F344167
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232050AbhCVMjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
+        id S231157AbhCVMdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:33:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231228AbhCVMiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:38:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 650F2619AA;
-        Mon, 22 Mar 2021 12:37:13 +0000 (UTC)
+        id S230195AbhCVMcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:32:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A7E619A1;
+        Mon, 22 Mar 2021 12:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416633;
-        bh=gZBIezljNxO3KscxGE9gkxFP3kEeGqVAaR4Xlvhp5mc=;
+        s=korg; t=1616416343;
+        bh=yTayAIBKuIJn+gV5lv0TS3Hk7EPo/GlQvUqJXS22suA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kQYEVmz+jSknlGIFyPipMWqFO8A+YUjqK3tCpJMno7VnndsdHtPJQf3xLW8B0xw3
-         HuOBVf7ZoYVaWC4r6xSynaJLW/qHzeid3sbubrWzVy3Oi0ZqUhqbpBbZTtvCzKQ+62
-         a9TwF4qCu/zDru3KXU6BQChtjmEAJErjpHG6aLuc=
+        b=YPmrwzRMsLUWPCmQqtqvG/svi1YZaG7JOlH9VjJgVttnxcwCYDgfc1mhAO88op1oz
+         uLOo5OJ71vCu1u+f/gJsW4VhvsVPmFBUDVqEPMhE/gOCXHtD9+g0vh6TgUeLafl0aP
+         IRJMjMMZcdZ7M9n4NSrbwYy1PGPjhp01N2ZgoQWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/157] counter: stm32-timer-cnt: Report count function when SLAVE_MODE_DISABLED
-Date:   Mon, 22 Mar 2021 13:26:57 +0100
-Message-Id: <20210322121935.660384922@linuxfoundation.org>
+        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.11 035/120] ASoC: codecs: wcd934x: add a sanity check in set channel map
+Date:   Mon, 22 Mar 2021 13:26:58 +0100
+Message-Id: <20210322121930.831408240@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,138 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit fae6f62e6a580b663ecf42c2120a0898deae9137 ]
+commit 3bb4852d598f0275ed5996a059df55be7318ac2f upstream.
 
-When in SLAVE_MODE_DISABLED mode, the count still increases if the
-counter is enabled because an internal clock is used. This patch fixes
-the stm32_count_function_get() and stm32_count_function_set() functions
-to properly handle this behavior.
+set channel map can be passed with a channel maps, however if
+the number of channels that are passed are more than the actual
+supported channels then we would be accessing array out of bounds.
 
-Fixes: ad29937e206f ("counter: Add STM32 Timer quadrature encoder")
-Cc: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20210226012931.161429-1-vilhelm.gray@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So add a sanity check to validate these numbers!
+
+Fixes: a61f3b4f476e ("ASoC: wcd934x: add support to wcd9340/wcd9341 codec")
+Reported-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210309142129.14182-4-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/counter/stm32-timer-cnt.c | 39 ++++++++++++++++++++-----------
- 1 file changed, 25 insertions(+), 14 deletions(-)
+ sound/soc/codecs/wcd934x.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/counter/stm32-timer-cnt.c b/drivers/counter/stm32-timer-cnt.c
-index ef2a974a2f10..cd50dc12bd02 100644
---- a/drivers/counter/stm32-timer-cnt.c
-+++ b/drivers/counter/stm32-timer-cnt.c
-@@ -44,13 +44,14 @@ struct stm32_timer_cnt {
-  * @STM32_COUNT_ENCODER_MODE_3: counts on both TI1FP1 and TI2FP2 edges
-  */
- enum stm32_count_function {
--	STM32_COUNT_SLAVE_MODE_DISABLED = -1,
-+	STM32_COUNT_SLAVE_MODE_DISABLED,
- 	STM32_COUNT_ENCODER_MODE_1,
- 	STM32_COUNT_ENCODER_MODE_2,
- 	STM32_COUNT_ENCODER_MODE_3,
- };
+--- a/sound/soc/codecs/wcd934x.c
++++ b/sound/soc/codecs/wcd934x.c
+@@ -1873,6 +1873,12 @@ static int wcd934x_set_channel_map(struc
  
- static enum counter_count_function stm32_count_functions[] = {
-+	[STM32_COUNT_SLAVE_MODE_DISABLED] = COUNTER_COUNT_FUNCTION_INCREASE,
- 	[STM32_COUNT_ENCODER_MODE_1] = COUNTER_COUNT_FUNCTION_QUADRATURE_X2_A,
- 	[STM32_COUNT_ENCODER_MODE_2] = COUNTER_COUNT_FUNCTION_QUADRATURE_X2_B,
- 	[STM32_COUNT_ENCODER_MODE_3] = COUNTER_COUNT_FUNCTION_QUADRATURE_X4,
-@@ -90,6 +91,9 @@ static int stm32_count_function_get(struct counter_device *counter,
- 	regmap_read(priv->regmap, TIM_SMCR, &smcr);
+ 	wcd = snd_soc_component_get_drvdata(dai->component);
  
- 	switch (smcr & TIM_SMCR_SMS) {
-+	case 0:
-+		*function = STM32_COUNT_SLAVE_MODE_DISABLED;
-+		return 0;
- 	case 1:
- 		*function = STM32_COUNT_ENCODER_MODE_1;
- 		return 0;
-@@ -99,9 +103,9 @@ static int stm32_count_function_get(struct counter_device *counter,
- 	case 3:
- 		*function = STM32_COUNT_ENCODER_MODE_3;
- 		return 0;
-+	default:
++	if (tx_num > WCD934X_TX_MAX || rx_num > WCD934X_RX_MAX) {
++		dev_err(wcd->dev, "Invalid tx %d or rx %d channel count\n",
++			tx_num, rx_num);
 +		return -EINVAL;
- 	}
--
--	return -EINVAL;
- }
- 
- static int stm32_count_function_set(struct counter_device *counter,
-@@ -112,6 +116,9 @@ static int stm32_count_function_set(struct counter_device *counter,
- 	u32 cr1, sms;
- 
- 	switch (function) {
-+	case STM32_COUNT_SLAVE_MODE_DISABLED:
-+		sms = 0;
-+		break;
- 	case STM32_COUNT_ENCODER_MODE_1:
- 		sms = 1;
- 		break;
-@@ -122,8 +129,7 @@ static int stm32_count_function_set(struct counter_device *counter,
- 		sms = 3;
- 		break;
- 	default:
--		sms = 0;
--		break;
-+		return -EINVAL;
- 	}
- 
- 	/* Store enable status */
-@@ -274,31 +280,36 @@ static int stm32_action_get(struct counter_device *counter,
- 	size_t function;
- 	int err;
- 
--	/* Default action mode (e.g. STM32_COUNT_SLAVE_MODE_DISABLED) */
--	*action = STM32_SYNAPSE_ACTION_NONE;
--
- 	err = stm32_count_function_get(counter, count, &function);
- 	if (err)
--		return 0;
-+		return err;
- 
- 	switch (function) {
-+	case STM32_COUNT_SLAVE_MODE_DISABLED:
-+		/* counts on internal clock when CEN=1 */
-+		*action = STM32_SYNAPSE_ACTION_NONE;
-+		return 0;
- 	case STM32_COUNT_ENCODER_MODE_1:
- 		/* counts up/down on TI1FP1 edge depending on TI2FP2 level */
- 		if (synapse->signal->id == count->synapses[0].signal->id)
- 			*action = STM32_SYNAPSE_ACTION_BOTH_EDGES;
--		break;
-+		else
-+			*action = STM32_SYNAPSE_ACTION_NONE;
-+		return 0;
- 	case STM32_COUNT_ENCODER_MODE_2:
- 		/* counts up/down on TI2FP2 edge depending on TI1FP1 level */
- 		if (synapse->signal->id == count->synapses[1].signal->id)
- 			*action = STM32_SYNAPSE_ACTION_BOTH_EDGES;
--		break;
-+		else
-+			*action = STM32_SYNAPSE_ACTION_NONE;
-+		return 0;
- 	case STM32_COUNT_ENCODER_MODE_3:
- 		/* counts up/down on both TI1FP1 and TI2FP2 edges */
- 		*action = STM32_SYNAPSE_ACTION_BOTH_EDGES;
--		break;
-+		return 0;
-+	default:
-+		return -EINVAL;
- 	}
--
--	return 0;
- }
- 
- static const struct counter_ops stm32_timer_cnt_ops = {
--- 
-2.30.1
-
++	}
++
+ 	if (!tx_slot || !rx_slot) {
+ 		dev_err(wcd->dev, "Invalid tx_slot=%p, rx_slot=%p\n",
+ 			tx_slot, rx_slot);
 
 
