@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9FB34436C
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22283344370
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230507AbhCVMuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41026 "EHLO mail.kernel.org"
+        id S230202AbhCVMud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:50:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232878AbhCVMsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:48:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAF01619D1;
-        Mon, 22 Mar 2021 12:44:44 +0000 (UTC)
+        id S231297AbhCVMsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72971619EF;
+        Mon, 22 Mar 2021 12:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417085;
-        bh=tZRn+Vu1XqxZcpRhh5mmMuSn+vWEiKbxnsy2KN8kuWA=;
+        s=korg; t=1616417088;
+        bh=gKFKmJmz7gWC8mnLNoc9cdcCFERF3Ke9B1hJzweRw6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LyAtYotIFbl/Btcpf379DdZ+3Dlh+mlqiysx7tWck7pvK+BMvr9hdnku2mGecJIFr
-         i0REkzYb2QWPUoND1UhXWdaXbt6SvFqN1en3O2+RskQ7CcUKbAzmgUa/XOnUkpN0Ex
-         ZecdOnw78u9+uu+cBqVGERaLdOf9sU1dQrKHTVLQ=
+        b=K6WaYJ56xlO2fClUQFPXN15vCPUF+H7BSMb7usDe/XbXkmL9Q0H0HW8Oaija9lWK0
+         /DczfCfWVvBppUwEACeYPklebj8eF6WfWU7kAoMC1exivrM6aybWkg3Z20LtFKZmNQ
+         KycK/CaRwb3PYpYz15lJo/oxbrZ2zdi19Jp5MDMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 21/43] powerpc: Force inlining of cpu_has_feature() to avoid build failure
-Date:   Mon, 22 Mar 2021 13:28:35 +0100
-Message-Id: <20210322121920.616443287@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Matthias Schwarzott <zzam@gentoo.org>
+Subject: [PATCH 4.19 22/43] usb-storage: Add quirk to defeat Kindles automatic unload
+Date:   Mon, 22 Mar 2021 13:28:36 +0100
+Message-Id: <20210322121920.645574687@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
 References: <20210322121919.936671417@linuxfoundation.org>
@@ -40,58 +39,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a upstream.
+commit 546aa0e4ea6ed81b6c51baeebc4364542fa3f3a7 upstream.
 
-The code relies on constant folding of cpu_has_feature() based
-on possible and always true values as defined per
-CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
+Matthias reports that the Amazon Kindle automatically removes its
+emulated media if it doesn't receive another SCSI command within about
+one second after a SYNCHRONIZE CACHE.  It does so even when the host
+has sent a PREVENT MEDIUM REMOVAL command.  The reason for this
+behavior isn't clear, although it's not hard to make some guesses.
 
-Build failure is encountered with for instance
-book3e_all_defconfig on kisskb in the AMDGPU driver which uses
-cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
-kernel_enable_vsx() or not.
+At any rate, the results can be unexpected for anyone who tries to
+access the Kindle in an unusual fashion, and in theory they can lead
+to data loss (for example, if one file is closed and synchronized
+while other files are still in the middle of being written).
 
-The failure is due to cpu_has_feature() not being inlined with
-that configuration with gcc 4.9.
+To avoid such problems, this patch creates a new usb-storage quirks
+flag telling the driver always to issue a REQUEST SENSE following a
+SYNCHRONIZE CACHE command, and adds an unusual_devs entry for the
+Kindle with the flag set.  This is sufficient to prevent the Kindle
+from doing its automatic unload, without interfering with proper
+operation.
 
-In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
-mmu_has_feature to fix build failure"), for inlining of
-cpu_has_feature().
+Another possible way to deal with this would be to increase the
+frequency of TEST UNIT READY polling that the kernel normally carries
+out for removable-media storage devices.  However that would increase
+the overall load on the system and it is not as reliable, because the
+user can override the polling interval.  Changing the driver's
+behavior is safer and has minimal overhead.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: Matthias Schwarzott <zzam@gentoo.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210317190654.GA497856@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/cpu_has_feature.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/storage/transport.c    |    7 +++++++
+ drivers/usb/storage/unusual_devs.h |   12 ++++++++++++
+ include/linux/usb_usual.h          |    2 ++
+ 3 files changed, 21 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/cpu_has_feature.h b/arch/powerpc/include/asm/cpu_has_feature.h
-index 7897d16e0990..727d4b321937 100644
---- a/arch/powerpc/include/asm/cpu_has_feature.h
-+++ b/arch/powerpc/include/asm/cpu_has_feature.h
-@@ -7,7 +7,7 @@
- #include <linux/bug.h>
- #include <asm/cputable.h>
+--- a/drivers/usb/storage/transport.c
++++ b/drivers/usb/storage/transport.c
+@@ -651,6 +651,13 @@ void usb_stor_invoke_transport(struct sc
+ 		need_auto_sense = 1;
+ 	}
  
--static inline bool early_cpu_has_feature(unsigned long feature)
-+static __always_inline bool early_cpu_has_feature(unsigned long feature)
- {
- 	return !!((CPU_FTRS_ALWAYS & feature) ||
- 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
-@@ -46,7 +46,7 @@ static __always_inline bool cpu_has_feature(unsigned long feature)
- 	return static_branch_likely(&cpu_feature_keys[i]);
- }
- #else
--static inline bool cpu_has_feature(unsigned long feature)
-+static __always_inline bool cpu_has_feature(unsigned long feature)
- {
- 	return early_cpu_has_feature(feature);
- }
--- 
-2.31.0
-
++	/* Some devices (Kindle) require another command after SYNC CACHE */
++	if ((us->fflags & US_FL_SENSE_AFTER_SYNC) &&
++			srb->cmnd[0] == SYNCHRONIZE_CACHE) {
++		usb_stor_dbg(us, "-- sense after SYNC CACHE\n");
++		need_auto_sense = 1;
++	}
++
+ 	/*
+ 	 * If we have a failure, we're going to do a REQUEST_SENSE 
+ 	 * automatically.  Note that we differentiate between a command
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2212,6 +2212,18 @@ UNUSUAL_DEV( 0x1908, 0x3335, 0x0200, 0x0
+ 		US_FL_NO_READ_DISC_INFO ),
+ 
+ /*
++ * Reported by Matthias Schwarzott <zzam@gentoo.org>
++ * The Amazon Kindle treats SYNCHRONIZE CACHE as an indication that
++ * the host may be finished with it, and automatically ejects its
++ * emulated media unless it receives another command within one second.
++ */
++UNUSUAL_DEV( 0x1949, 0x0004, 0x0000, 0x9999,
++		"Amazon",
++		"Kindle",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_SENSE_AFTER_SYNC ),
++
++/*
+  * Reported by Oliver Neukum <oneukum@suse.com>
+  * This device morphes spontaneously into another device if the access
+  * pattern of Windows isn't followed. Thus writable media would be dirty
+--- a/include/linux/usb_usual.h
++++ b/include/linux/usb_usual.h
+@@ -86,6 +86,8 @@
+ 		/* lies about caching, so always sync */	\
+ 	US_FLAG(NO_SAME, 0x40000000)				\
+ 		/* Cannot handle WRITE_SAME */			\
++	US_FLAG(SENSE_AFTER_SYNC, 0x80000000)			\
++		/* Do REQUEST_SENSE after SYNCHRONIZE_CACHE */	\
+ 
+ #define US_FLAG(name, value)	US_FL_##name = value ,
+ enum { US_DO_ALL_FLAGS };
 
 
