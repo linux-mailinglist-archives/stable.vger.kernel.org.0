@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 484FE344248
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3553D344123
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbhCVMkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:40:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S230448AbhCVMbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:31:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229992AbhCVMib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:38:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D604A6199F;
-        Mon, 22 Mar 2021 12:37:45 +0000 (UTC)
+        id S230482AbhCVMam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:30:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E34D061990;
+        Mon, 22 Mar 2021 12:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416666;
-        bh=oXE1iUftqQGBVpvJSf3ey9Cgm92izoSfFtkaZ/CNuuc=;
+        s=korg; t=1616416242;
+        bh=xZu6JDWX9k+gSFeNcr4FNlfdCMrATCvuMPzSeaHEff4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wlCactbPv8wJpiCYWcJM8zuW40DAYwWdEzsOE70CWpGkU/JaLJuNK6PIcjfN56azk
-         0V4PdLcp9fM1NNHUn3lG3bqBOS0n9dfR/RHDCkbV30nfwlPsG0X9OtFP1JbViPXXih
-         AMnHpxyHKC+QDsWrvF6WkraxgZRgqizg6cJNZNBE=
+        b=azVqPSp3q+dzsqlfxmQ+WTMWNR+VVF32omyM4X0qA6F56uOQGkIBbUNwsKesFkEm8
+         EvC5/8SbuV6wtNbFOArPLf9g4bNHhnqi96jSSVabRlqF9TEUKH2EtawPdPWyYwBmf5
+         LtVAxw7amCRL73sc0CqUWMgk/amkZHyW/LtGcP3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 029/157] ASoC: qcom: sdm845: Fix array out of range on rx slim channels
-Date:   Mon, 22 Mar 2021 13:26:26 +0100
-Message-Id: <20210322121934.689829319@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 004/120] ALSA: dice: fix null pointer dereference when node is disconnected
+Date:   Mon, 22 Mar 2021 13:26:27 +0100
+Message-Id: <20210322121929.811317755@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 4800fe6ea1022eb240215b1743d2541adad8efc7 upstream.
+commit dd7b836d6bc935df95c826f69ff4d051f5561604 upstream.
 
-WCD934x has only 13 RX SLIM ports however we are setting it as 16
-in set_channel_map, this will lead to array out of bounds error!
+When node is removed from IEEE 1394 bus, any transaction fails to the node.
+In the case, ALSA dice driver doesn't stop isochronous contexts even if
+they are running. As a result, null pointer dereference occurs in callback
+from the running context.
 
-Orignally caught by enabling USBAN array out of bounds check:
+This commit fixes the bug to release isochronous contexts always.
 
-Fixes: 5caf64c633a3 ("ASoC: qcom: sdm845: add support to DB845c and Lenovo Yoga")
-Reported-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210309142129.14182-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: <stable@vger.kernel.org> # v5.4 or later
+Fixes: e9f21129b8d8 ("ALSA: dice: support AMDTP domain")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210312093407.23437-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/sdm845.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/firewire/dice/dice-stream.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/sound/soc/qcom/sdm845.c
-+++ b/sound/soc/qcom/sdm845.c
-@@ -27,7 +27,7 @@
- #define SPK_TDM_RX_MASK         0x03
- #define NUM_TDM_SLOTS           8
- #define SLIM_MAX_TX_PORTS 16
--#define SLIM_MAX_RX_PORTS 16
-+#define SLIM_MAX_RX_PORTS 13
- #define WCD934X_DEFAULT_MCLK_RATE	9600000
+--- a/sound/firewire/dice/dice-stream.c
++++ b/sound/firewire/dice/dice-stream.c
+@@ -493,11 +493,10 @@ void snd_dice_stream_stop_duplex(struct
+ 	struct reg_params tx_params, rx_params;
  
- struct sdm845_snd_data {
+ 	if (dice->substreams_counter == 0) {
+-		if (get_register_params(dice, &tx_params, &rx_params) >= 0) {
+-			amdtp_domain_stop(&dice->domain);
++		if (get_register_params(dice, &tx_params, &rx_params) >= 0)
+ 			finish_session(dice, &tx_params, &rx_params);
+-		}
+ 
++		amdtp_domain_stop(&dice->domain);
+ 		release_resources(dice);
+ 	}
+ }
 
 
