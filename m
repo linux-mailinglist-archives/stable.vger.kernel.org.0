@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FABC344458
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A24AA3443CB
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232458AbhCVM7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50764 "EHLO mail.kernel.org"
+        id S232036AbhCVMyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:54:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233125AbhCVM5r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:57:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 554B5619CC;
-        Mon, 22 Mar 2021 12:49:26 +0000 (UTC)
+        id S232761AbhCVMwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:52:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5B4561A05;
+        Mon, 22 Mar 2021 12:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417366;
-        bh=aa5ew/UVqZKmvHP8ti65SQziXL7o0onEaauiFkufNTo=;
+        s=korg; t=1616417195;
+        bh=ypH6T07oS2o0Ii2W5CZoIz2+UGBbn/mvE5ZbpHsw1Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bw/YiYGoeYJl5qUv/XQbNaw9ZbsdseNhUbs1UURxG5xxrLa42u1vm1nlYV8m5iqo4
-         ukhJrd3zjLa6O+7oXnzegQluSopklw+g1JMQtnrSRdjJ9KZuGokfwsUeja933JF6y8
-         a2PUzVdjNiVUx2KxCE09lyJA6Rg5qb6fAQ6sEB/Q=
+        b=A2DH2CIL3kYz5gRfjojVfau7CcmCW7TJ/h1t/SDcuwYS7PTJCNJ5R1JdtkNlL15GX
+         13+drUnH9hbmkmfG5uri6mQPGtfeYJMg2GtqIpruS47AKkDoYASGkpXsRNxNzFMRh1
+         0at8ioWtCL5tRvajw0Oc1hgfW+QJ4qtxmc5poMYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Matthias Schwarzott <zzam@gentoo.org>
-Subject: [PATCH 4.14 24/43] usb-storage: Add quirk to defeat Kindles automatic unload
-Date:   Mon, 22 Mar 2021 13:29:05 +0100
-Message-Id: <20210322121920.815252377@linuxfoundation.org>
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.4 12/14] ext4: find old entry again if failed to rename whiteout
+Date:   Mon, 22 Mar 2021 13:29:06 +0100
+Message-Id: <20210322121919.578142529@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
+References: <20210322121919.202392464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,93 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit 546aa0e4ea6ed81b6c51baeebc4364542fa3f3a7 upstream.
+commit b7ff91fd030dc9d72ed91b1aab36e445a003af4f upstream.
 
-Matthias reports that the Amazon Kindle automatically removes its
-emulated media if it doesn't receive another SCSI command within about
-one second after a SYNCHRONIZE CACHE.  It does so even when the host
-has sent a PREVENT MEDIUM REMOVAL command.  The reason for this
-behavior isn't clear, although it's not hard to make some guesses.
+If we failed to add new entry on rename whiteout, we cannot reset the
+old->de entry directly, because the old->de could have moved from under
+us during make indexed dir. So find the old entry again before reset is
+needed, otherwise it may corrupt the filesystem as below.
 
-At any rate, the results can be unexpected for anyone who tries to
-access the Kindle in an unusual fashion, and in theory they can lead
-to data loss (for example, if one file is closed and synchronized
-while other files are still in the middle of being written).
+  /dev/sda: Entry '00000001' in ??? (12) has deleted/unused inode 15. CLEARED.
+  /dev/sda: Unattached inode 75
+  /dev/sda: UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY.
 
-To avoid such problems, this patch creates a new usb-storage quirks
-flag telling the driver always to issue a REQUEST SENSE following a
-SYNCHRONIZE CACHE command, and adds an unusual_devs entry for the
-Kindle with the flag set.  This is sufficient to prevent the Kindle
-from doing its automatic unload, without interfering with proper
-operation.
-
-Another possible way to deal with this would be to increase the
-frequency of TEST UNIT READY polling that the kernel normally carries
-out for removable-media storage devices.  However that would increase
-the overall load on the system and it is not as reliable, because the
-user can override the polling interval.  Changing the driver's
-behavior is safer and has minimal overhead.
-
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: Matthias Schwarzott <zzam@gentoo.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20210317190654.GA497856@rowland.harvard.edu
+Fixes: 6b4b8e6b4ad ("ext4: fix bug for rename with RENAME_WHITEOUT")
+Cc: stable@vger.kernel.org
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210303131703.330415-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/transport.c    |    7 +++++++
- drivers/usb/storage/unusual_devs.h |   12 ++++++++++++
- include/linux/usb_usual.h          |    2 ++
- 3 files changed, 21 insertions(+)
+ fs/ext4/namei.c |   29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/transport.c
-+++ b/drivers/usb/storage/transport.c
-@@ -667,6 +667,13 @@ void usb_stor_invoke_transport(struct sc
- 		need_auto_sense = 1;
- 	}
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3375,6 +3375,31 @@ static int ext4_setent(handle_t *handle,
+ 	return 0;
+ }
  
-+	/* Some devices (Kindle) require another command after SYNC CACHE */
-+	if ((us->fflags & US_FL_SENSE_AFTER_SYNC) &&
-+			srb->cmnd[0] == SYNCHRONIZE_CACHE) {
-+		usb_stor_dbg(us, "-- sense after SYNC CACHE\n");
-+		need_auto_sense = 1;
++static void ext4_resetent(handle_t *handle, struct ext4_renament *ent,
++			  unsigned ino, unsigned file_type)
++{
++	struct ext4_renament old = *ent;
++	int retval = 0;
++
++	/*
++	 * old->de could have moved from under us during make indexed dir,
++	 * so the old->de may no longer valid and need to find it again
++	 * before reset old inode info.
++	 */
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	if (IS_ERR(old.bh))
++		retval = PTR_ERR(old.bh);
++	if (!old.bh)
++		retval = -ENOENT;
++	if (retval) {
++		ext4_std_error(old.dir->i_sb, retval);
++		return;
 +	}
 +
- 	/*
- 	 * If we have a failure, we're going to do a REQUEST_SENSE 
- 	 * automatically.  Note that we differentiate between a command
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2231,6 +2231,18 @@ UNUSUAL_DEV( 0x1908, 0x3335, 0x0200, 0x0
- 		US_FL_NO_READ_DISC_INFO ),
- 
- /*
-+ * Reported by Matthias Schwarzott <zzam@gentoo.org>
-+ * The Amazon Kindle treats SYNCHRONIZE CACHE as an indication that
-+ * the host may be finished with it, and automatically ejects its
-+ * emulated media unless it receives another command within one second.
-+ */
-+UNUSUAL_DEV( 0x1949, 0x0004, 0x0000, 0x9999,
-+		"Amazon",
-+		"Kindle",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_SENSE_AFTER_SYNC ),
++	ext4_setent(handle, &old, ino, file_type);
++	brelse(old.bh);
++}
 +
-+/*
-  * Reported by Oliver Neukum <oneukum@suse.com>
-  * This device morphes spontaneously into another device if the access
-  * pattern of Windows isn't followed. Thus writable media would be dirty
---- a/include/linux/usb_usual.h
-+++ b/include/linux/usb_usual.h
-@@ -86,6 +86,8 @@
- 		/* lies about caching, so always sync */	\
- 	US_FLAG(NO_SAME, 0x40000000)				\
- 		/* Cannot handle WRITE_SAME */			\
-+	US_FLAG(SENSE_AFTER_SYNC, 0x80000000)			\
-+		/* Do REQUEST_SENSE after SYNCHRONIZE_CACHE */	\
- 
- #define US_FLAG(name, value)	US_FL_##name = value ,
- enum { US_DO_ALL_FLAGS };
+ static int ext4_find_delete_entry(handle_t *handle, struct inode *dir,
+ 				  const struct qstr *d_name)
+ {
+@@ -3674,8 +3699,8 @@ static int ext4_rename(struct inode *old
+ end_rename:
+ 	if (whiteout) {
+ 		if (retval) {
+-			ext4_setent(handle, &old,
+-				old.inode->i_ino, old_file_type);
++			ext4_resetent(handle, &old,
++				      old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
+ 		}
+ 		unlock_new_inode(whiteout);
 
 
