@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E6F93443C2
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30472344457
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231671AbhCVMxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47792 "EHLO mail.kernel.org"
+        id S232052AbhCVM7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231664AbhCVMvt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:51:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7F8619B7;
-        Mon, 22 Mar 2021 12:46:29 +0000 (UTC)
+        id S233110AbhCVM5q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:57:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8285D619C0;
+        Mon, 22 Mar 2021 12:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417190;
-        bh=tuDwqJSVaxAyHAeSHBnhsVr6A6uaxFYVqJWuuRxSIx4=;
+        s=korg; t=1616417364;
+        bh=bDtFA2A6ysCgD9QNF7SKg/fckYm2rBqMVvTqZsFfMuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJ0F2r5KCDJ//BLtbkxolIvx7l7ajaia4cBq/+n8g83b5vJA6qcP8HhRRvfAciRRM
-         Dq5eBIXaXHtrnDqjbBu4Lu/OPgBZnijWVwpkPrzpQdm44Cz+Lk+V6bHysM5tCyiqYK
-         T0GZbVMA+VIlDIBy90Q6/Gva8puZ0yyrlHutw7dI=
+        b=1KLHsLji5rpKrYdtwIAogF1Yk+vIuvRY6JewIFOHoLX8ScGAICs8/x3fgZURx4kg6
+         +e2WRNxDwG7z31HIwnc0wf+UV0g46B/tQAlkXAMpZFpPoF0L+zsqcARjva2d0uO3wa
+         kowoh6tkTKMCgmarqw8nfRydSMGX2hdQRB4fF+TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 10/14] PCI: rpadlpar: Fix potential drc_name corruption in store functions
+        stable@vger.kernel.org, Chao Leng <lengchao@huawei.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 23/43] nvme-rdma: fix possible hang when failing to set io queues
 Date:   Mon, 22 Mar 2021 13:29:04 +0100
-Message-Id: <20210322121919.518280922@linuxfoundation.org>
+Message-Id: <20210322121920.784161434@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
-References: <20210322121919.202392464@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit cc7a0bb058b85ea03db87169c60c7cfdd5d34678 upstream.
+[ Upstream commit c4c6df5fc84659690d4391d1fba155cd94185295 ]
 
-Both add_slot_store() and remove_slot_store() try to fix up the
-drc_name copied from the store buffer by placing a NUL terminator at
-nbyte + 1 or in place of a '\n' if present. However, the static buffer
-that we copy the drc_name data into is not zeroed and can contain
-anything past the n-th byte.
+We only setup io queues for nvme controllers, and it makes absolutely no
+sense to allow a controller (re)connect without any I/O queues.  If we
+happen to fail setting the queue count for any reason, we should not allow
+this to be a successful reconnect as I/O has no chance in going through.
+Instead just fail and schedule another reconnect.
 
-This is problematic if a '\n' byte appears in that buffer after nbytes
-and the string copied into the store buffer was not NUL terminated to
-start with as the strchr() search for a '\n' byte will mark this
-incorrectly as the end of the drc_name string resulting in a drc_name
-string that contains garbage data after the n-th byte.
-
-Additionally it will cause us to overwrite that '\n' byte on the stack
-with NUL, potentially corrupting data on the stack.
-
-The following debugging shows an example of the drmgr utility writing
-"PHB 4543" to the add_slot sysfs attribute, but add_slot_store()
-logging a corrupted string value.
-
-  drmgr: drmgr: -c phb -a -s PHB 4543 -d 1
-  add_slot_store: drc_name = PHB 4543°|<82>!, rc = -19
-
-Fix this by using strscpy() instead of memcpy() to ensure the string
-is NUL terminated when copied into the static drc_name buffer.
-Further, since the string is now NUL terminated the code only needs to
-change '\n' to '\0' when present.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-[mpe: Reformat change log and add mention of possible stack corruption]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210315214821.452959-1-tyreld@linux.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Chao Leng <lengchao@huawei.com>
+Fixes: 711023071960 ("nvme-rdma: add a NVMe over Fabrics RDMA host driver")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chao Leng <lengchao@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/rpadlpar_sysfs.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/nvme/host/rdma.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/hotplug/rpadlpar_sysfs.c
-+++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
-@@ -39,12 +39,11 @@ static ssize_t add_slot_store(struct kob
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 564e457f1345..57e1c0dd63c4 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -655,8 +655,11 @@ static int nvme_rdma_alloc_io_queues(struct nvme_rdma_ctrl *ctrl)
+ 		return ret;
  
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
+ 	ctrl->ctrl.queue_count = nr_io_queues + 1;
+-	if (ctrl->ctrl.queue_count < 2)
+-		return 0;
++	if (ctrl->ctrl.queue_count < 2) {
++		dev_err(ctrl->ctrl.device,
++			"unable to set any I/O queues\n");
++		return -ENOMEM;
++	}
  
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_add_slot(drc_name);
- 	if (rc)
-@@ -70,12 +69,11 @@ static ssize_t remove_slot_store(struct
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
- 
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
- 
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_remove_slot(drc_name);
- 	if (rc)
+ 	dev_info(ctrl->ctrl.device,
+ 		"creating %d I/O queues.\n", nr_io_queues);
+-- 
+2.30.1
+
 
 
