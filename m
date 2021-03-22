@@ -2,96 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629463448C6
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 16:08:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 104F53448DA
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 16:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230237AbhCVPHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 11:07:50 -0400
-Received: from esa.microchip.iphmx.com ([68.232.153.233]:50602 "EHLO
-        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231725AbhCVPH2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 11:07:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1616425646; x=1647961646;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=PKEVxUCgPKYfeTmheletBgau4WWVsW+3puprPtDA3sw=;
-  b=UqJwbP2E1/2iPZWxAne/s1a9lo7NKUVqdz8VQHpE15hmf3p7Kr6MECx9
-   g3Q7sokmdEM5Wj7umRxofohmmrHA95O1UCi248nu9U3ygX+P2lRXRQHDq
-   5OHYahKw4zEX0IRSZxzhFUu4iqKH+5VgokCCFzwdlXObaNQ12Nbg/xLkr
-   mCUNnJz+uN882/FxRsb7EQseCPyLcrXHVt5y7WBiX2nIgdiRcGGIpgxxp
-   2qHqAupXCQzu5l0k4w0Cu9k7WyrVqsY920dJCzvD98PjiQAGTwyUaAiLg
-   fu1XXJrBXpUbAu4FJCo9/9n+dtcfYkCIWOkXkByWmFHqFwYq0CXoLjZi6
-   A==;
-IronPort-SDR: 2k6wZB5WbX+HIh6DWKmt2jsnNmQ88DYxESFLawyT2CQbVn6VCxREeIZdFanxgafkNYJ/q+FZsM
- /+35jIGaslhfYDgkHTCwBNmRPN4y5Qs8fv8ambqE4V2sMN7uj90lfz/ULpyHBAwi1bbq5MtF4c
- 46Xs18xj+5zv9Rk/8t4C6YV/oAryI4PqSJ/pvHsV+z+j/X74hquJOiQNmid6rqGff4Yffi+79D
- kzvdmqB71j8VIhr7CZ9c52XuCy/2NXC3RZUu9EDsYCoVFdd+Dj402ts/9ZmC7Yi8+3ZA+s3/0D
- xm0=
-X-IronPort-AV: E=Sophos;i="5.81,269,1610434800"; 
-   d="scan'208";a="119923115"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 22 Mar 2021 08:07:18 -0700
-Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Mon, 22 Mar 2021 08:07:19 -0700
-Received: from atudor-ThinkPad-T470p.amer.actel.com (10.10.115.15) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server id
- 15.1.2176.2 via Frontend Transport; Mon, 22 Mar 2021 08:07:16 -0700
-From:   Tudor Ambarus <tudor.ambarus@microchip.com>
-To:     <miquel.raynal@bootlin.com>, <richard@nod.at>, <vigneshr@ti.com>
-CC:     <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
-        <ludovic.desroches@microchip.com>, <bbrezillon@kernel.org>,
-        <linux-mtd@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        "Kai Stuhlemmer (ebee Engineering)" <kai.stuhlemmer@ebee.de>,
-        <stable@vger.kernel.org>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH] mtd: rawnand: atmel: Update ecc_stats.corrected counter
-Date:   Mon, 22 Mar 2021 17:07:14 +0200
-Message-ID: <20210322150714.101585-1-tudor.ambarus@microchip.com>
-X-Mailer: git-send-email 2.25.1
+        id S229526AbhCVPLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 11:11:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38700 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230056AbhCVPKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 11:10:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90CB06198D;
+        Mon, 22 Mar 2021 15:10:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616425832;
+        bh=SgfLmYDSTol9PH1VeYiGX7gYkcwx8cAKAndfMp7DyPU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=M3ZsD/8833piIeIB1JN3GuIhJjrOHOzKm9o+7MhnA0eYEOSL3qp5LgD7SSwLJQAS0
+         h844ytObMhXOjaMiyjHKz7L7Bz61xhVJU9ivEZwGY5MyLoIu+bnUB+qQeyo6yGM+o5
+         XAQ113U6J4lqUL1l4OvIkiRPiN212pCGzpNu6F68=
+Date:   Mon, 22 Mar 2021 16:10:29 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     =?iso-8859-1?Q?Aur=E9lien?= Aptel <aaptel@suse.com>
+Cc:     vincent.whitchurch@axis.com, stable@vger.kernel.org,
+        stfrench@microsoft.com
+Subject: Re: FAILED: patch "[PATCH] cifs: Fix preauth hash corruption" failed
+ to apply to 5.11-stable tree
+Message-ID: <YFizZeQCezJw0XsD@kroah.com>
+References: <1616328254225233@kroah.com>
+ <87y2efqrrf.fsf@suse.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+In-Reply-To: <87y2efqrrf.fsf@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Kai Stuhlemmer (ebee Engineering)" <kai.stuhlemmer@ebee.de>
+On Mon, Mar 22, 2021 at 01:47:48PM +0100, Aurélien Aptel wrote:
+> Hi Greg,
+> 
+> <gregkh@linuxfoundation.org> writes:
+> > The patch below does not apply to the 5.11-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> This should apply to 5.11, 5.10 and 5.4. 
+> 
+> > From 05946d4b7a7349ae58bfa2d51ae832e64a394c2d Mon Sep 17 00:00:00 2001
 
-Update MTD ECC statistics with the number of corrected bits.
+Thanks for the backports, now queued up.
 
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai Stuhlemmer (ebee Engineering) <kai.stuhlemmer@ebee.de>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
----
- drivers/mtd/nand/raw/atmel/nand-controller.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/mtd/nand/raw/atmel/nand-controller.c b/drivers/mtd/nand/raw/atmel/nand-controller.c
-index e6ceec8f50dc..8aab1017b460 100644
---- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-@@ -883,10 +883,12 @@ static int atmel_nand_pmecc_correct_data(struct nand_chip *chip, void *buf,
- 							  NULL, 0,
- 							  chip->ecc.strength);
- 
--		if (ret >= 0)
-+		if (ret >= 0) {
-+			mtd->ecc_stats.corrected += ret;
- 			max_bitflips = max(ret, max_bitflips);
--		else
-+		} else {
- 			mtd->ecc_stats.failed++;
-+		}
- 
- 		databuf += chip->ecc.size;
- 		eccbuf += chip->ecc.bytes;
--- 
-2.25.1
-
+greg k-h
