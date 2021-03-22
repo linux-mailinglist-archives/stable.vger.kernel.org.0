@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF8CC3443D4
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6503443FF
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:59:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbhCVMyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:54:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45650 "EHLO mail.kernel.org"
+        id S231654AbhCVM4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:56:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232848AbhCVMwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:52:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4432E619E0;
-        Mon, 22 Mar 2021 12:46:42 +0000 (UTC)
+        id S231805AbhCVMyH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:54:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 665E061A0E;
+        Mon, 22 Mar 2021 12:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417202;
-        bh=K3MaPS8w8COXAViYXHCbZzxJxXGcIYwgRSojOaVLZTE=;
+        s=korg; t=1616417250;
+        bh=j3sCsgsaEGo72nMLCv7/Rxlh6LfdcYG7HGPSO69KWqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQgwM7sXGiLiC2X10ZaMbcSdqEiG3inFjXaDIPtqr+dmxCyZ8RF/gv3uuBFU1MnKy
-         NzQKqHPEse8bpylkaFmmuA6j6rsU+98ZdS7JjkyNsBnfvsMdNDAPJxidkEa8M3Klua
-         0HEyGUF4J3aNUQ67oWCwEuMq+LJxvO+0ODutc6F4=
+        b=g5yOmKKMqiNN9claXdS+nJEPaKWsf9yPQ2f1eD6mNbxKdmUZ/lYiGv8T/AkrRZVYQ
+         JOmLIoMFE+KL9S++yyn6tLlVWEpWINBN9qdYY8XTFJKZtBKS1JNfWAuon9WgUeaRGy
+         7h/EuqCIRg6pZq60s3cv/McZjf29vdtvTrhzh8pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 4.4 09/14] usb: gadget: configfs: Fix KASAN use-after-free
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 13/25] scsi: lpfc: Fix some error codes in debugfs
 Date:   Mon, 22 Mar 2021 13:29:03 +0100
-Message-Id: <20210322121919.489148541@linuxfoundation.org>
+Message-Id: <20210322121920.822885578@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
-References: <20210322121919.202392464@linuxfoundation.org>
+In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
+References: <20210322121920.399826335@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,83 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Lin <jilin@nvidia.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 98f153a10da403ddd5e9d98a3c8c2bb54bb5a0b6 upstream.
+commit 19f1bc7edf0f97186810e13a88f5b62069d89097 upstream.
 
-When gadget is disconnected, running sequence is like this.
-. composite_disconnect
-. Call trace:
-  usb_string_copy+0xd0/0x128
-  gadget_config_name_configuration_store+0x4
-  gadget_config_name_attr_store+0x40/0x50
-  configfs_write_file+0x198/0x1f4
-  vfs_write+0x100/0x220
-  SyS_write+0x58/0xa8
-. configfs_composite_unbind
-. configfs_composite_bind
+If copy_from_user() or kstrtoull() fail then the correct behavior is to
+return a negative error code.
 
-In configfs_composite_bind, it has
-"cn->strings.s = cn->configuration;"
-
-When usb_string_copy is invoked. it would
-allocate memory, copy input string, release previous pointed memory space,
-and use new allocated memory.
-
-When gadget is connected, host sends down request to get information.
-Call trace:
-  usb_gadget_get_string+0xec/0x168
-  lookup_string+0x64/0x98
-  composite_setup+0xa34/0x1ee8
-
-If gadget is disconnected and connected quickly, in the failed case,
-cn->configuration memory has been released by usb_string_copy kfree but
-configfs_composite_bind hasn't been run in time to assign new allocated
-"cn->configuration" pointer to "cn->strings.s".
-
-When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
-memory is accessed, "BUG: KASAN: use-after-free" error occurs.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Jim Lin <jilin@nvidia.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Link: https://lore.kernel.org/r/1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com
+Link: https://lore.kernel.org/r/YEsbU/UxYypVrC7/@mwanda
+Fixes: f9bb2da11db8 ("[SCSI] lpfc 8.3.27: T10 additions for SLI4")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/configfs.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -111,6 +111,8 @@ struct gadget_config_name {
- 	struct list_head list;
- };
+--- a/drivers/scsi/lpfc/lpfc_debugfs.c
++++ b/drivers/scsi/lpfc/lpfc_debugfs.c
+@@ -1061,7 +1061,7 @@ lpfc_debugfs_dif_err_write(struct file *
+ 	memset(dstbuf, 0, 33);
+ 	size = (nbytes < 32) ? nbytes : 32;
+ 	if (copy_from_user(dstbuf, buf, size))
+-		return 0;
++		return -EFAULT;
  
-+#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
-+
- static int usb_string_copy(const char *s, char **s_copy)
- {
- 	int ret;
-@@ -120,12 +122,16 @@ static int usb_string_copy(const char *s
- 	if (ret > USB_MAX_STRING_LEN)
- 		return -EOVERFLOW;
+ 	if (dent == phba->debug_InjErrLBA) {
+ 		if ((buf[0] == 'o') && (buf[1] == 'f') && (buf[2] == 'f'))
+@@ -1069,7 +1069,7 @@ lpfc_debugfs_dif_err_write(struct file *
+ 	}
  
--	str = kstrdup(s, GFP_KERNEL);
--	if (!str)
--		return -ENOMEM;
-+	if (copy) {
-+		str = copy;
-+	} else {
-+		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
-+		if (!str)
-+			return -ENOMEM;
-+	}
-+	strcpy(str, s);
- 	if (str[ret - 1] == '\n')
- 		str[ret - 1] = '\0';
--	kfree(copy);
- 	*s_copy = str;
- 	return 0;
- }
+ 	if ((tmp == 0) && (kstrtoull(dstbuf, 0, &tmp)))
+-		return 0;
++		return -EINVAL;
+ 
+ 	if (dent == phba->debug_writeGuard)
+ 		phba->lpfc_injerr_wgrd_cnt = (uint32_t)tmp;
 
 
