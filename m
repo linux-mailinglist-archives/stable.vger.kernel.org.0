@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 063F8344196
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49DFD34429E
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbhCVMe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:34:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56296 "EHLO mail.kernel.org"
+        id S231848AbhCVMoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230449AbhCVMd0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:33:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58F91619A1;
-        Mon, 22 Mar 2021 12:33:25 +0000 (UTC)
+        id S232052AbhCVMmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98FAC619A4;
+        Mon, 22 Mar 2021 12:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416405;
-        bh=csRO1uHA+ebS1cA/uKv9E8bjpUz3v4a+1scjtSwj9/k=;
+        s=korg; t=1616416784;
+        bh=RxPl6/jiqexNBGfTT6X4uA9A03ucKHyGnrIVxBeqF+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNVasU2ZoRu5D/gMczylYApgyQLdpd5IVfviMJwKTYhG4WlSXHGl2lEbITO1+LOeX
-         R5fdms10GatDJQ1EFVPKIZ2gRqzlGz35x0NHPdentAQnzlYSwEZJwW0al6a8Em7dAb
-         6hbiv6YpZSBWjeiS/bc7jqNotvs/evz82OrP2WDw=
+        b=Q59SaBj2BtIFdQUWw2vhWj9kyH/pL3t9NPY2BvQwDjzaGH/6wp6bYvYv45UYyCN6+
+         9BHvIQuIr20HScPS5O8ZwTcTqAv+NHjLbPX/eTVwAuaf4FLp9NRJxtFYSWCGtS4Be7
+         UAGQfJlOCRZugWmVYOCsNyrpB77NYc0lfCztk9VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.11 094/120] iio: hid-sensor-humidity: Fix alignment issue of timestamp channel
-Date:   Mon, 22 Mar 2021 13:27:57 +0100
-Message-Id: <20210322121932.823099388@linuxfoundation.org>
+        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
+Subject: [PATCH 5.10 121/157] usb: dwc3: gadget: Allow runtime suspend if UDC unbinded
+Date:   Mon, 22 Mar 2021 13:27:58 +0100
+Message-Id: <20210322121937.602990535@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +38,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Xiang <xiang.ye@intel.com>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-commit 37e89e574dc238a4ebe439543c5ab4fbb2f0311b upstream.
+commit 77adb8bdf4227257e26b7ff67272678e66a0b250 upstream.
 
-This patch ensures that, there is sufficient space and correct
-alignment for the timestamp.
+The DWC3 runtime suspend routine checks for the USB connected parameter to
+determine if the controller can enter into a low power state.  The
+connected state is only set to false after receiving a disconnect event.
+However, in the case of a device initiated disconnect (i.e. UDC unbind),
+the controller is halted and a disconnect event is never generated.  Set
+the connected flag to false if issuing a device initiated disconnect to
+allow the controller to be suspended.
 
-Fixes: d7ed89d5aadf ("iio: hid: Add humidity sensor support")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210303063615.12130-2-xiang.ye@intel.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1609283136-22140-2-git-send-email-wcheng@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/humidity/hid-sensor-humidity.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/usb/dwc3/gadget.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -15,7 +15,10 @@
- struct hid_humidity_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info humidity_attr;
--	s32 humidity_data;
-+	struct {
-+		s32 humidity_data;
-+		u64 timestamp __aligned(8);
-+	} scan;
- 	int scale_pre_decml;
- 	int scale_post_decml;
- 	int scale_precision;
-@@ -125,9 +128,8 @@ static int humidity_proc_event(struct hi
- 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2126,6 +2126,17 @@ static int dwc3_gadget_pullup(struct usb
+ 	}
  
- 	if (atomic_read(&humid_st->common_attributes.data_ready))
--		iio_push_to_buffers_with_timestamp(indio_dev,
--					&humid_st->humidity_data,
--					iio_get_time_ns(indio_dev));
-+		iio_push_to_buffers_with_timestamp(indio_dev, &humid_st->scan,
-+						   iio_get_time_ns(indio_dev));
+ 	/*
++	 * Check the return value for successful resume, or error.  For a
++	 * successful resume, the DWC3 runtime PM resume routine will handle
++	 * the run stop sequence, so avoid duplicate operations here.
++	 */
++	ret = pm_runtime_get_sync(dwc->dev);
++	if (!ret || ret < 0) {
++		pm_runtime_put(dwc->dev);
++		return 0;
++	}
++
++	/*
+ 	 * Synchronize any pending event handling before executing the controller
+ 	 * halt routine.
+ 	 */
+@@ -2163,12 +2174,14 @@ static int dwc3_gadget_pullup(struct usb
+ 			dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
+ 						dwc->ev_buf->length;
+ 		}
++		dwc->connected = false;
+ 	} else {
+ 		__dwc3_gadget_start(dwc);
+ 	}
  
- 	return 0;
+ 	ret = dwc3_gadget_run_stop(dwc, is_on, false);
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
++	pm_runtime_put(dwc->dev);
+ 
+ 	return ret;
  }
-@@ -142,7 +144,7 @@ static int humidity_capture_sample(struc
- 
- 	switch (usage_id) {
- 	case HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY:
--		humid_st->humidity_data = *(s32 *)raw_data;
-+		humid_st->scan.humidity_data = *(s32 *)raw_data;
- 
- 		return 0;
- 	default:
 
 
