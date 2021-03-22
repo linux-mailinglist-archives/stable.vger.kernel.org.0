@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34479344448
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABF6344444
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232020AbhCVM7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
+        id S231316AbhCVM7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231442AbhCVM44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231552AbhCVM44 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 22 Mar 2021 08:56:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C56661A15;
-        Mon, 22 Mar 2021 12:48:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 200E261A0F;
+        Mon, 22 Mar 2021 12:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417337;
-        bh=SFgLZxws0Wr+ZFsNUSgZPcb2+nEn7juNBb97dO+oS6k=;
+        s=korg; t=1616417340;
+        bh=uNNTSGPSxTzpQ8kXMfjQqx2Cg0+Zzvn4moUfv5kkXBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7/l3aiu+GmyfY10srahp5VM5WYJlcwQULNg3GWey8LnlYJmEZh8s2QfajL/BUQsM
-         4ITB5VXVMHvzPkMZ1SBf968IwCoYPWsNCxVDzzHAGUielncpr+3d0dmURL7DYpMDYZ
-         RFzIY3hCKhpNfYaJFQtY0te1jB69ZD5EjPgnCbik=
+        b=Vi2XSILTuJhEAOK9PV6ZrIphEB/2jZa+u02L6WhsqLXOBUETVfiXR6AaUui6iCB+P
+         E+CoDtwciW0+3O6EVXlt+G0gp6TiKoeD+u4IK/vcVI4v4njrWmcJ/u2xwB+jEB30ma
+         HNN7PTw1EF9H6tQHaJlXePRpkcQsS5WjS+HkQR6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>
-Subject: [PATCH 4.14 35/43] perf/x86/intel: Fix a crash caused by zero PEBS status
-Date:   Mon, 22 Mar 2021 13:29:16 +0100
-Message-Id: <20210322121921.160525134@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.14 36/43] x86/ioapic: Ignore IRQ2 again
+Date:   Mon, 22 Mar 2021 13:29:17 +0100
+Message-Id: <20210322121921.189355717@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
 References: <20210322121920.053255560@linuxfoundation.org>
@@ -40,53 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit d88d05a9e0b6d9356e97129d4ff9942d765f46ea upstream.
+commit a501b048a95b79e1e34f03cac3c87ff1e9f229ad upstream.
 
-A repeatable crash can be triggered by the perf_fuzzer on some Haswell
-system.
-https://lore.kernel.org/lkml/7170d3b-c17f-1ded-52aa-cc6d9ae999f4@maine.edu/
+Vitaly ran into an issue with hotplugging CPU0 on an Amazon instance where
+the matrix allocator claimed to be out of vectors. He analyzed it down to
+the point that IRQ2, the PIC cascade interrupt, which is supposed to be not
+ever routed to the IO/APIC ended up having an interrupt vector assigned
+which got moved during unplug of CPU0.
 
-For some old CPUs (HSW and earlier), the PEBS status in a PEBS record
-may be mistakenly set to 0. To minimize the impact of the defect, the
-commit was introduced to try to avoid dropping the PEBS record for some
-cases. It adds a check in the intel_pmu_drain_pebs_nhm(), and updates
-the local pebs_status accordingly. However, it doesn't correct the PEBS
-status in the PEBS record, which may trigger the crash, especially for
-the large PEBS.
+The underlying issue is that IRQ2 for various reasons (see commit
+af174783b925 ("x86: I/O APIC: Never configure IRQ2" for details) is treated
+as a reserved system vector by the vector core code and is not accounted as
+a regular vector. The Amazon BIOS has an routing entry of pin2 to IRQ2
+which causes the IO/APIC setup to claim that interrupt which is granted by
+the vector domain because there is no sanity check. As a consequence the
+allocation counter of CPU0 underflows which causes a subsequent unplug to
+fail with:
 
-It's possible that all the PEBS records in a large PEBS have the PEBS
-status 0. If so, the first get_next_pebs_record_by_bit() in the
-__intel_pmu_pebs_event() returns NULL. The at = NULL. Since it's a large
-PEBS, the 'count' parameter must > 1. The second
-get_next_pebs_record_by_bit() will crash.
+  [ ... ] CPU 0 has 4294967295 vectors, 589 available. Cannot disable CPU
 
-Besides the local pebs_status, correct the PEBS status in the PEBS
-record as well.
+There is another sanity check missing in the matrix allocator, but the
+underlying root cause is that the IO/APIC code lost the IRQ2 ignore logic
+during the conversion to irqdomains.
 
-Fixes: 01330d7288e0 ("perf/x86: Allow zero PEBS status with only single active event")
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+For almost 6 years nobody complained about this wreckage, which might
+indicate that this requirement could be lifted, but for any system which
+actually has a PIC IRQ2 is unusable by design so any routing entry has no
+effect and the interrupt cannot be connected to a device anyway.
+
+Due to that and due to history biased paranoia reasons restore the IRQ2
+ignore logic and treat it as non existent despite a routing entry claiming
+otherwise.
+
+Fixes: d32932d02e18 ("x86/irq: Convert IOAPIC to use hierarchical irqdomain interfaces")
+Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1615555298-140216-1-git-send-email-kan.liang@linux.intel.com
+Link: https://lore.kernel.org/r/20210318192819.636943062@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/ds.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/apic/io_apic.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -1515,7 +1515,7 @@ static void intel_pmu_drain_pebs_nhm(str
- 		 */
- 		if (!pebs_status && cpuc->pebs_enabled &&
- 			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
--			pebs_status = cpuc->pebs_enabled;
-+			pebs_status = p->status = cpuc->pebs_enabled;
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -1042,6 +1042,16 @@ static int mp_map_pin_to_irq(u32 gsi, in
+ 	if (idx >= 0 && test_bit(mp_irqs[idx].srcbus, mp_bus_not_pci)) {
+ 		irq = mp_irqs[idx].srcbusirq;
+ 		legacy = mp_is_legacy_irq(irq);
++		/*
++		 * IRQ2 is unusable for historical reasons on systems which
++		 * have a legacy PIC. See the comment vs. IRQ2 further down.
++		 *
++		 * If this gets removed at some point then the related code
++		 * in lapic_assign_system_vectors() needs to be adjusted as
++		 * well.
++		 */
++		if (legacy && irq == PIC_CASCADE_IR)
++			return -EINVAL;
+ 	}
  
- 		bit = find_first_bit((unsigned long *)&pebs_status,
- 					x86_pmu.max_pebs_events);
+ 	mutex_lock(&ioapic_mutex);
 
 
