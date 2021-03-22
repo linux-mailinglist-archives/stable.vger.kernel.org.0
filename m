@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 714893442B5
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97BCF3441D0
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231981AbhCVMoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37844 "EHLO mail.kernel.org"
+        id S231862AbhCVMgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232511AbhCVMmp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD400619B2;
-        Mon, 22 Mar 2021 12:40:29 +0000 (UTC)
+        id S231685AbhCVMem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:34:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 868836191A;
+        Mon, 22 Mar 2021 12:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416830;
-        bh=+N/vEXPFA2h7Hs+Xp+Ysnyf4OFcbKK4iAvPi5aDZgn0=;
+        s=korg; t=1616416482;
+        bh=z3f1V9uZjD/V19KIeAUNsK2dX+kH3ujXiRjv4WcmBXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=REtLCEt3c9i3BDhWHbr9DX2aersabCgdFf7wr0loKq95OlJLrBf6MnJhNLyey64D5
-         rguhY6PzWz/kyXkbDIRSMyWCVb3s8vqwWJpoDEGHUAT/dN8Xbc7pBt16ANfrCoVJEe
-         CSxeLTW6vxSQTufP0PKgVWY/nFxXUkktXsZ4NGAk=
+        b=yvzQFQHPsS2Wms8mSFqcHonbRLkfcmIAKUDiqSQ5nhsRdY1cpc4xqApdMNuyZ3dLk
+         DLtjo4gKfZ9A7GsAfaPpv/sUfOt5M0y4GqalEPtJ8iuiy7/YWknxBZB7yUcVlYG8YN
+         mzKlEaBLBfqPR600p7vYmnTlou566Bux6gFZRfLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 137/157] PCI: rpadlpar: Fix potential drc_name corruption in store functions
-Date:   Mon, 22 Mar 2021 13:28:14 +0100
-Message-Id: <20210322121938.098376300@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+628472a2aac693ab0fcd@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.11 112/120] ext4: fix timer use-after-free on failed mount
+Date:   Mon, 22 Mar 2021 13:28:15 +0100
+Message-Id: <20210322121933.396744528@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Jan Kara <jack@suse.cz>
 
-commit cc7a0bb058b85ea03db87169c60c7cfdd5d34678 upstream.
+commit 2a4ae3bcdf05b8639406eaa09a2939f3c6dd8e75 upstream.
 
-Both add_slot_store() and remove_slot_store() try to fix up the
-drc_name copied from the store buffer by placing a NUL terminator at
-nbyte + 1 or in place of a '\n' if present. However, the static buffer
-that we copy the drc_name data into is not zeroed and can contain
-anything past the n-th byte.
+When filesystem mount fails because of corrupted filesystem we first
+cancel the s_err_report timer reminding fs errors every day and only
+then we flush s_error_work. However s_error_work may report another fs
+error and re-arm timer thus resulting in timer use-after-free. Fix the
+problem by first flushing the work and only after that canceling the
+s_err_report timer.
 
-This is problematic if a '\n' byte appears in that buffer after nbytes
-and the string copied into the store buffer was not NUL terminated to
-start with as the strchr() search for a '\n' byte will mark this
-incorrectly as the end of the drc_name string resulting in a drc_name
-string that contains garbage data after the n-th byte.
-
-Additionally it will cause us to overwrite that '\n' byte on the stack
-with NUL, potentially corrupting data on the stack.
-
-The following debugging shows an example of the drmgr utility writing
-"PHB 4543" to the add_slot sysfs attribute, but add_slot_store()
-logging a corrupted string value.
-
-  drmgr: drmgr: -c phb -a -s PHB 4543 -d 1
-  add_slot_store: drc_name = PHB 4543°|<82>!, rc = -19
-
-Fix this by using strscpy() instead of memcpy() to ensure the string
-is NUL terminated when copied into the static drc_name buffer.
-Further, since the string is now NUL terminated the code only needs to
-change '\n' to '\0' when present.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-[mpe: Reformat change log and add mention of possible stack corruption]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210315214821.452959-1-tyreld@linux.ibm.com
+Reported-by: syzbot+628472a2aac693ab0fcd@syzkaller.appspotmail.com
+Fixes: 2d01ddc86606 ("ext4: save error info to sb through journal if available")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210315165906.2175-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/hotplug/rpadlpar_sysfs.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ fs/ext4/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/hotplug/rpadlpar_sysfs.c
-+++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
-@@ -34,12 +34,11 @@ static ssize_t add_slot_store(struct kob
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
- 
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
- 
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_add_slot(drc_name);
- 	if (rc)
-@@ -65,12 +64,11 @@ static ssize_t remove_slot_store(struct
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
- 
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
- 
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_remove_slot(drc_name);
- 	if (rc)
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5149,8 +5149,8 @@ failed_mount_wq:
+ failed_mount3a:
+ 	ext4_es_unregister_shrinker(sbi);
+ failed_mount3:
+-	del_timer_sync(&sbi->s_err_report);
+ 	flush_work(&sbi->s_error_work);
++	del_timer_sync(&sbi->s_err_report);
+ 	if (sbi->s_mmp_tsk)
+ 		kthread_stop(sbi->s_mmp_tsk);
+ failed_mount2:
 
 
