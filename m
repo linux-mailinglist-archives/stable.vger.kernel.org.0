@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF3F3441C2
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF6E3443B8
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231799AbhCVMfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55354 "EHLO mail.kernel.org"
+        id S231938AbhCVMxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231569AbhCVMe3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:34:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73C3E619AF;
-        Mon, 22 Mar 2021 12:34:28 +0000 (UTC)
+        id S232249AbhCVMv0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:51:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C8D461A00;
+        Mon, 22 Mar 2021 12:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416469;
-        bh=gbAG/YmeFcftqmm1shWbBuls/QeY4mTbN698bqCKJbI=;
+        s=korg; t=1616417164;
+        bh=d770M/aN5daPlinx+dD1eupvA013sflFsP8cIE0hJ+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhYzJX5s2rlta0MdLScDPgaMjTCxK84K3BRsK9HdXZIZ+tEjvCNKBvVYRMvZTb9Mm
-         HGeCeBFINk9C2vr+jMhvXeu1/IBXFFILoes0Gn1HMuZDqU68l9ZuOsOa4+6VriDBNn
-         zi+Mky/DtcwF3jQZleUvhlKYI9jRV9LG31UMyq+Q=
+        b=Jd1MtX1XHTOV7bPOp1/JTeCN6DWab98UdOG5lNYIidBSMQ55Wt+eUYIrVNmJ9S5Rg
+         iZgLhOX9fGi4fWuzJfFULl9B5aqHBO7OcQsXhNctOwGDjNt9qpw6AcDta3f1GPnI3D
+         1J28jZiqtaosPhWCGDeJ6ShKkFZ9D7jg0fH+5qMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 5.11 119/120] genirq: Disable interrupts for force threaded handlers
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang Nan <wangnan0@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 08/43] tools build feature: Check if get_current_dir_name() is available
 Date:   Mon, 22 Mar 2021 13:28:22 +0100
-Message-Id: <20210322121933.636707151@linuxfoundation.org>
+Message-Id: <20210322121920.201000545@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +43,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 81e2073c175b887398e5bca6c004efa89983f58d upstream.
+commit 8feb8efef97a134933620071e0b6384cb3238b4e upstream.
 
-With interrupt force threading all device interrupt handlers are invoked
-from kernel threads. Contrary to hard interrupt context the invocation only
-disables bottom halfs, but not interrupts. This was an oversight back then
-because any code like this will have an issue:
+As the namespace support code will use this, which is not available in
+some non _GNU_SOURCE libraries such as Android's bionic used in my
+container build tests (r12b and r15c at the moment).
 
-thread(irq_A)
-  irq_handler(A)
-    spin_lock(&foo->lock);
-
-interrupt(irq_B)
-  irq_handler(B)
-    spin_lock(&foo->lock);
-
-This has been triggered with networking (NAPI vs. hrtimers) and console
-drivers where printk() happens from an interrupt which interrupted the
-force threaded handler.
-
-Now people noticed and started to change the spin_lock() in the handler to
-spin_lock_irqsave() which affects performance or add IRQF_NOTHREAD to the
-interrupt request which in turn breaks RT.
-
-Fix the root cause and not the symptom and disable interrupts before
-invoking the force threaded handler which preserves the regular semantics
-and the usefulness of the interrupt force threading as a general debugging
-tool.
-
-For not RT this is not changing much, except that during the execution of
-the threaded handler interrupts are delayed until the handler
-returns. Vs. scheduling and softirq processing there is no difference.
-
-For RT kernels there is no issue.
-
-Fixes: 8d32a307e4fa ("genirq: Provide forced interrupt threading")
-Reported-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lore.kernel.org/r/20210317143859.513307808@linutronix.de
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: https://lkml.kernel.org/n/tip-x56ypm940pwclwu45d7jfj47@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/manage.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/build/Makefile.feature                    |    1 +
+ tools/build/feature/Makefile                    |    4 ++++
+ tools/build/feature/test-all.c                  |    5 +++++
+ tools/build/feature/test-get_current_dir_name.c |   10 ++++++++++
+ tools/perf/Makefile.config                      |    5 +++++
+ tools/perf/util/Build                           |    1 +
+ tools/perf/util/get_current_dir_name.c          |   18 ++++++++++++++++++
+ tools/perf/util/util.h                          |    4 ++++
+ 8 files changed, 48 insertions(+)
+ create mode 100644 tools/build/feature/test-get_current_dir_name.c
+ create mode 100644 tools/perf/util/get_current_dir_name.c
 
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -1142,11 +1142,15 @@ irq_forced_thread_fn(struct irq_desc *de
- 	irqreturn_t ret;
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -33,6 +33,7 @@ FEATURE_TESTS_BASIC :=
+         dwarf_getlocations              \
+         fortify-source                  \
+         sync-compare-and-swap           \
++        get_current_dir_name            \
+         glibc                           \
+         gtk2                            \
+         gtk2-infobar                    \
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -7,6 +7,7 @@ FILES=
+          test-dwarf_getlocations.bin            \
+          test-fortify-source.bin                \
+          test-sync-compare-and-swap.bin         \
++         test-get_current_dir_name.bin          \
+          test-glibc.bin                         \
+          test-gtk2.bin                          \
+          test-gtk2-infobar.bin                  \
+@@ -99,6 +100,9 @@ $(OUTPUT)test-bionic.bin:
+ $(OUTPUT)test-libelf.bin:
+ 	$(BUILD) -lelf
  
- 	local_bh_disable();
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_disable();
- 	ret = action->thread_fn(action->irq, action->dev_id);
- 	if (ret == IRQ_HANDLED)
- 		atomic_inc(&desc->threads_handled);
++$(OUTPUT)test-get_current_dir_name.bin:
++	$(BUILD)
++
+ $(OUTPUT)test-glibc.bin:
+ 	$(BUILD)
  
- 	irq_finalize_oneshot(desc, action);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_enable();
- 	local_bh_enable();
- 	return ret;
- }
+--- a/tools/build/feature/test-all.c
++++ b/tools/build/feature/test-all.c
+@@ -34,6 +34,10 @@
+ # include "test-libelf-mmap.c"
+ #undef main
+ 
++#define main main_test_get_current_dir_name
++# include "test-get_current_dir_name.c"
++#undef main
++
+ #define main main_test_glibc
+ # include "test-glibc.c"
+ #undef main
+@@ -174,6 +178,7 @@ int main(int argc, char *argv[])
+ 	main_test_hello();
+ 	main_test_libelf();
+ 	main_test_libelf_mmap();
++	main_test_get_current_dir_name();
+ 	main_test_glibc();
+ 	main_test_dwarf();
+ 	main_test_dwarf_getlocations();
+--- /dev/null
++++ b/tools/build/feature/test-get_current_dir_name.c
+@@ -0,0 +1,10 @@
++// SPDX-License-Identifier: GPL-2.0
++#define _GNU_SOURCE
++#include <unistd.h>
++#include <stdlib.h>
++
++int main(void)
++{
++	free(get_current_dir_name());
++	return 0;
++}
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -310,6 +310,11 @@ ifndef NO_BIONIC
+   endif
+ endif
+ 
++ifeq ($(feature-get_current_dir_name), 1)
++  CFLAGS += -DHAVE_GET_CURRENT_DIR_NAME
++endif
++
++
+ ifdef NO_LIBELF
+   NO_DWARF := 1
+   NO_DEMANGLE := 1
+--- a/tools/perf/util/Build
++++ b/tools/perf/util/Build
+@@ -10,6 +10,7 @@ libperf-y += evlist.o
+ libperf-y += evsel.o
+ libperf-y += evsel_fprintf.o
+ libperf-y += find_bit.o
++libperf-y += get_current_dir_name.o
+ libperf-y += kallsyms.o
+ libperf-y += levenshtein.o
+ libperf-y += llvm-utils.o
+--- /dev/null
++++ b/tools/perf/util/get_current_dir_name.c
+@@ -0,0 +1,18 @@
++// SPDX-License-Identifier: GPL-2.0
++// Copyright (C) 2018, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
++//
++#ifndef HAVE_GET_CURRENT_DIR_NAME
++#include "util.h"
++#include <unistd.h>
++#include <stdlib.h>
++#include <stdlib.h>
++
++/* Android's 'bionic' library, for one, doesn't have this */
++
++char *get_current_dir_name(void)
++{
++	char pwd[PATH_MAX];
++
++	return getcwd(pwd, sizeof(pwd)) == NULL ? NULL : strdup(pwd);
++}
++#endif // HAVE_GET_CURRENT_DIR_NAME
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -57,6 +57,10 @@ int fetch_kernel_version(unsigned int *p
+ 
+ const char *perf_tip(const char *dirpath);
+ 
++#ifndef HAVE_GET_CURRENT_DIR_NAME
++char *get_current_dir_name(void);
++#endif
++
+ #ifndef HAVE_SCHED_GETCPU_SUPPORT
+ int sched_getcpu(void);
+ #endif
 
 
