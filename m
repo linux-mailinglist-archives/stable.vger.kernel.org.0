@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E09344120
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 484FE344248
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230299AbhCVMbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
+        id S230437AbhCVMkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230433AbhCVMah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:30:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B04E6198D;
-        Mon, 22 Mar 2021 12:30:36 +0000 (UTC)
+        id S229992AbhCVMib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:38:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D604A6199F;
+        Mon, 22 Mar 2021 12:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416237;
-        bh=s61fcqChpRmIDZQfoVuhuZBpj2wXAuozfm8Mz7MOXIA=;
+        s=korg; t=1616416666;
+        bh=oXE1iUftqQGBVpvJSf3ey9Cgm92izoSfFtkaZ/CNuuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swnwn68ciTuQJ/+NzOIJGBL7YTcWofMYNchdghGt0BnpGY4IsZWtTsXLBKlIQdvA+
-         QGY6I6HUkK9x/QmOlWCxSPZ/YPVNsgh3Dif3TGosoMrJVF0sz+BQ3EumoL6N+Wa6/R
-         qa135kvGs6WnlreHiUFZPTRd2w3ksKuI5448Y8yo=
+        b=wlCactbPv8wJpiCYWcJM8zuW40DAYwWdEzsOE70CWpGkU/JaLJuNK6PIcjfN56azk
+         0V4PdLcp9fM1NNHUn3lG3bqBOS0n9dfR/RHDCkbV30nfwlPsG0X9OtFP1JbViPXXih
+         AMnHpxyHKC+QDsWrvF6WkraxgZRgqizg6cJNZNBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.11 003/120] spi: cadence: set cqspi to the driver_data field of struct device
+Subject: [PATCH 5.10 029/157] ASoC: qcom: sdm845: Fix array out of range on rx slim channels
 Date:   Mon, 22 Mar 2021 13:26:26 +0100
-Message-Id: <20210322121929.781902327@linuxfoundation.org>
+Message-Id: <20210322121934.689829319@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-commit ea94191e584b146878f0b7fd4b767500d7aae870 upstream.
+commit 4800fe6ea1022eb240215b1743d2541adad8efc7 upstream.
 
-When initialize cadence qspi controller, it is need to set cqspi
-to the driver_data field of struct device, because it will be
-used in function cqspi_remove/suspend/resume(). Otherwise, there
-will be a crash trace as below when invoking these finctions.
+WCD934x has only 13 RX SLIM ports however we are setting it as 16
+in set_channel_map, this will lead to array out of bounds error!
 
-Fixes: 31fb632b5d43 ("spi: Move cadence-quadspi driver to drivers/spi/")
-Cc: stable@vger.kernel.org
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Link: https://lore.kernel.org/r/20210311091220.3615-1-Meng.Li@windriver.com
+Orignally caught by enabling USBAN array out of bounds check:
+
+Fixes: 5caf64c633a3 ("ASoC: qcom: sdm845: add support to DB845c and Lenovo Yoga")
+Reported-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210309142129.14182-3-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-cadence-quadspi.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/qcom/sdm845.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/spi/spi-cadence-quadspi.c
-+++ b/drivers/spi/spi-cadence-quadspi.c
-@@ -1198,6 +1198,7 @@ static int cqspi_probe(struct platform_d
- 	cqspi = spi_master_get_devdata(master);
+--- a/sound/soc/qcom/sdm845.c
++++ b/sound/soc/qcom/sdm845.c
+@@ -27,7 +27,7 @@
+ #define SPK_TDM_RX_MASK         0x03
+ #define NUM_TDM_SLOTS           8
+ #define SLIM_MAX_TX_PORTS 16
+-#define SLIM_MAX_RX_PORTS 16
++#define SLIM_MAX_RX_PORTS 13
+ #define WCD934X_DEFAULT_MCLK_RATE	9600000
  
- 	cqspi->pdev = pdev;
-+	platform_set_drvdata(pdev, cqspi);
- 
- 	/* Obtain configuration from OF. */
- 	ret = cqspi_of_get_pdata(cqspi);
+ struct sdm845_snd_data {
 
 
