@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B54344463
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E79CC3443DF
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230032AbhCVM7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47778 "EHLO mail.kernel.org"
+        id S231754AbhCVMzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:55:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231584AbhCVMvn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:51:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13FCD61A2A;
-        Mon, 22 Mar 2021 12:46:08 +0000 (UTC)
+        id S232927AbhCVMxA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:53:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93AC1619D7;
+        Mon, 22 Mar 2021 12:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417169;
-        bh=/MmVq5Ogx833lFW8IvgYNzD3k9TDCJnlbClvnqfVyXA=;
+        s=korg; t=1616417218;
+        bh=hpyCcmeIUttCmPHsOxNJuVhprNkteq2tMMcOf+MBk4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxyrUl2bseLU1ENVvbsA89/YYDV2Yi/iCug64zbU73MRJ+kXR50TUOnN8n9A3gwq/
-         PQNpwGvE9j+A4xfKwtSOdbTvrGeKKtPHhX3oTOSb0QWfO9QhDXNLQyNrKY8CzqhXHs
-         MIFN8qecXEXQw0ypvdmQ95IwFGOJ6D97gpEiiFWU=
+        b=S8oDgdSHgKUdA3+Duk08cOUeOKCLrdWaxM8UTXXowCPZUQ/mnyUMDZRWNwm9ybX2A
+         RJH3guWEjJYgPqxMZp1O4UcMloCQER4KjOBhFKzZ7yLijkq6lV2WtjQhDf79t1DIya
+         hfWldIAUC/5n6XauB5NOui9LM+J9c9qapFsdq2UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.4 02/14] ext4: dont allow overlapping system zones
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH 4.9 06/25] ixgbe: prevent ptp_rx_hang from running when in FILTER_ALL mode
 Date:   Mon, 22 Mar 2021 13:28:56 +0100
-Message-Id: <20210322121919.280296991@linuxfoundation.org>
+Message-Id: <20210322121920.606163398@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
-References: <20210322121919.202392464@linuxfoundation.org>
+In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
+References: <20210322121920.399826335@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,79 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit bf9a379d0980e7413d94cb18dac73db2bfc5f470 upstream.
+commit 6704a3abf4cf4181a1ee64f5db4969347b88ca1d upstream.
 
-Currently, add_system_zone() just silently merges two added system zones
-that overlap. However the overlap should not happen and it generally
-suggests that some unrelated metadata overlap which indicates the fs is
-corrupted. We should have caught such problems earlier (e.g. in
-ext4_check_descriptors()) but add this check as another line of defense.
-In later patch we also use this for stricter checking of journal inode
-extent tree.
+On hardware which supports timestamping all packets, the timestamps are
+recorded in the packet buffer, and the driver no longer uses or reads
+the registers. This makes the logic for checking and clearing Rx
+timestamp hangs meaningless.
 
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+If we run the ixgbe_ptp_rx_hang() function in this case, then the driver
+will continuously spam the log output with "Clearing Rx timestamp hang".
+These messages are spurious, and confusing to end users.
+
+The original code in commit a9763f3cb54c ("ixgbe: Update PTP to support
+X550EM_x devices", 2015-12-03) did have a flag PTP_RX_TIMESTAMP_IN_REGISTER
+which was intended to be used to avoid the Rx timestamp hang check,
+however it did not actually check the flag before calling the function.
+
+Do so now in order to stop the checks and prevent the spurious log
+messages.
+
+Fixes: a9763f3cb54c ("ixgbe: Update PTP to support X550EM_x devices", 2015-12-03)
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 ---
- fs/ext4/block_validity.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -57,7 +57,7 @@ static int add_system_zone(struct ext4_s
- 			   ext4_fsblk_t start_blk,
- 			   unsigned int count)
- {
--	struct ext4_system_zone *new_entry = NULL, *entry;
-+	struct ext4_system_zone *new_entry, *entry;
- 	struct rb_node **n = &sbi->system_blks.rb_node, *node;
- 	struct rb_node *parent = NULL, *new_node = NULL;
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -7257,7 +7257,8 @@ static void ixgbe_service_task(struct wo
  
-@@ -68,30 +68,20 @@ static int add_system_zone(struct ext4_s
- 			n = &(*n)->rb_left;
- 		else if (start_blk >= (entry->start_blk + entry->count))
- 			n = &(*n)->rb_right;
--		else {
--			if (start_blk + count > (entry->start_blk +
--						 entry->count))
--				entry->count = (start_blk + count -
--						entry->start_blk);
--			new_node = *n;
--			new_entry = rb_entry(new_node, struct ext4_system_zone,
--					     node);
--			break;
--		}
-+		else	/* Unexpected overlap of system zones. */
-+			return -EFSCORRUPTED;
+ 	if (test_bit(__IXGBE_PTP_RUNNING, &adapter->state)) {
+ 		ixgbe_ptp_overflow_check(adapter);
+-		ixgbe_ptp_rx_hang(adapter);
++		if (adapter->flags & IXGBE_FLAG_RX_HWTSTAMP_IN_REGISTER)
++			ixgbe_ptp_rx_hang(adapter);
+ 		ixgbe_ptp_tx_hang(adapter);
  	}
  
--	if (!new_entry) {
--		new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
--					     GFP_KERNEL);
--		if (!new_entry)
--			return -ENOMEM;
--		new_entry->start_blk = start_blk;
--		new_entry->count = count;
--		new_node = &new_entry->node;
-+	new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
-+				     GFP_KERNEL);
-+	if (!new_entry)
-+		return -ENOMEM;
-+	new_entry->start_blk = start_blk;
-+	new_entry->count = count;
-+	new_node = &new_entry->node;
- 
--		rb_link_node(new_node, parent, n);
--		rb_insert_color(new_node, &sbi->system_blks);
--	}
-+	rb_link_node(new_node, parent, n);
-+	rb_insert_color(new_node, &sbi->system_blks);
- 
- 	/* Can we merge to the left? */
- 	node = rb_prev(new_node);
 
 
