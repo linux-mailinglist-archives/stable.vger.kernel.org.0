@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC69344369
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F463442CA
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232214AbhCVMuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:50:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42924 "EHLO mail.kernel.org"
+        id S230108AbhCVMpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232861AbhCVMsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:48:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13CCC619E7;
-        Mon, 22 Mar 2021 12:44:39 +0000 (UTC)
+        id S232692AbhCVMnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:43:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1BED619D9;
+        Mon, 22 Mar 2021 12:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417080;
-        bh=iCxefx6+WhDS4Eu9hOTQXuw3LTiOFcRqpbF1DGSu1qE=;
+        s=korg; t=1616416872;
+        bh=YdLyxp6fhlQYLz6pYfC/t2FkHexcokPN7Lb+Pp/CBDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfWBhIrOX2oJQjqr6euZXkai4TPrp6tNSeCMyMqpoJDGYcVTeu2WJ2nuzJ8yyJcvc
-         dnHPJl6R1wjU9WqUTo9kGr34tDTHQFe6SX0XtIWmg2DjA8iG4AqLZlLmXLbeqp0/Ux
-         0GcZKX06aGpstS7w55k2sg2XupsQz8GeIw92l1cw=
+        b=nNIzyqM9eOjn/Orh3vdlC72gES/Kqp4vz25Qs0T5AxYbtQo2CqnrxGnkzrtJqucLR
+         /0UOCVN9FGdmwRrJH8HuoqvUGjo5BVUAYLNALIaMmQsKqNdsplo6Y+ttz0zdLHZi17
+         I8i4p1yaDQko+7R7WH6YrAkM2hDDxPhlFuyvXhJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 19/43] scsi: lpfc: Fix some error codes in debugfs
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 5.10 156/157] genirq: Disable interrupts for force threaded handlers
 Date:   Mon, 22 Mar 2021 13:28:33 +0100
-Message-Id: <20210322121920.548335553@linuxfoundation.org>
+Message-Id: <20210322121938.687591951@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
-References: <20210322121919.936671417@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 19f1bc7edf0f97186810e13a88f5b62069d89097 upstream.
+commit 81e2073c175b887398e5bca6c004efa89983f58d upstream.
 
-If copy_from_user() or kstrtoull() fail then the correct behavior is to
-return a negative error code.
+With interrupt force threading all device interrupt handlers are invoked
+from kernel threads. Contrary to hard interrupt context the invocation only
+disables bottom halfs, but not interrupts. This was an oversight back then
+because any code like this will have an issue:
 
-Link: https://lore.kernel.org/r/YEsbU/UxYypVrC7/@mwanda
-Fixes: f9bb2da11db8 ("[SCSI] lpfc 8.3.27: T10 additions for SLI4")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+thread(irq_A)
+  irq_handler(A)
+    spin_lock(&foo->lock);
+
+interrupt(irq_B)
+  irq_handler(B)
+    spin_lock(&foo->lock);
+
+This has been triggered with networking (NAPI vs. hrtimers) and console
+drivers where printk() happens from an interrupt which interrupted the
+force threaded handler.
+
+Now people noticed and started to change the spin_lock() in the handler to
+spin_lock_irqsave() which affects performance or add IRQF_NOTHREAD to the
+interrupt request which in turn breaks RT.
+
+Fix the root cause and not the symptom and disable interrupts before
+invoking the force threaded handler which preserves the regular semantics
+and the usefulness of the interrupt force threading as a general debugging
+tool.
+
+For not RT this is not changing much, except that during the execution of
+the threaded handler interrupts are delayed until the handler
+returns. Vs. scheduling and softirq processing there is no difference.
+
+For RT kernels there is no issue.
+
+Fixes: 8d32a307e4fa ("genirq: Provide forced interrupt threading")
+Reported-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lore.kernel.org/r/20210317143859.513307808@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_debugfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/irq/manage.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/scsi/lpfc/lpfc_debugfs.c
-+++ b/drivers/scsi/lpfc/lpfc_debugfs.c
-@@ -1843,7 +1843,7 @@ lpfc_debugfs_dif_err_write(struct file *
- 	memset(dstbuf, 0, 33);
- 	size = (nbytes < 32) ? nbytes : 32;
- 	if (copy_from_user(dstbuf, buf, size))
--		return 0;
-+		return -EFAULT;
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -1072,11 +1072,15 @@ irq_forced_thread_fn(struct irq_desc *de
+ 	irqreturn_t ret;
  
- 	if (dent == phba->debug_InjErrLBA) {
- 		if ((buf[0] == 'o') && (buf[1] == 'f') && (buf[2] == 'f'))
-@@ -1851,7 +1851,7 @@ lpfc_debugfs_dif_err_write(struct file *
- 	}
+ 	local_bh_disable();
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		local_irq_disable();
+ 	ret = action->thread_fn(action->irq, action->dev_id);
+ 	if (ret == IRQ_HANDLED)
+ 		atomic_inc(&desc->threads_handled);
  
- 	if ((tmp == 0) && (kstrtoull(dstbuf, 0, &tmp)))
--		return 0;
-+		return -EINVAL;
- 
- 	if (dent == phba->debug_writeGuard)
- 		phba->lpfc_injerr_wgrd_cnt = (uint32_t)tmp;
+ 	irq_finalize_oneshot(desc, action);
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		local_irq_enable();
+ 	local_bh_enable();
+ 	return ret;
+ }
 
 
