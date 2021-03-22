@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28CF134433E
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C49DE344382
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232080AbhCVMtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42470 "EHLO mail.kernel.org"
+        id S229961AbhCVMvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232412AbhCVMro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:47:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62525619C6;
-        Mon, 22 Mar 2021 12:43:28 +0000 (UTC)
+        id S232079AbhCVMtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 146CA619BB;
+        Mon, 22 Mar 2021 12:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417008;
-        bh=OkdH0V6AHOo6uxxKGlEqHp2D0RPkKN1UkWGL45aGsA0=;
+        s=korg; t=1616417095;
+        bh=5CLMZ6hsQslgJCuiwHVZOGTlk0Bs8K3PYaGdmWMkCpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUzP5QA/xUTH2OaZ7AtRLG7mkdEKaqwRQDoZifadFPRiGXN03rfcSAHHao0Aof7eR
-         825kqEv2QFXFSk71noA0mC3PrXYB6h7pP695zaTm4IJ06DULZsP+4cD51iVau8maSH
-         rR3zwCs9J3wJhdyYAt67XJfPaHUgdy/dPXCyHi9c=
+        b=mU64tzOEZbrulFxCN3IRQ8mVMe+FkWBywI4AXI+H09jbjEjxOOmAWquId4DbitXbv
+         etalmbsEoJ5rG74cQogGLcxd2hTfGQ2gqETXzTBbs/qFagiOncg3c1IZaWh2wfgjmr
+         +PFyjGCIRoizGtLSWLV/QbrS3X+WKmU/xPZzWrxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 51/60] kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>
+Subject: [PATCH 4.19 25/43] usb: gadget: configfs: Fix KASAN use-after-free
 Date:   Mon, 22 Mar 2021 13:28:39 +0100
-Message-Id: <20210322121924.069626795@linuxfoundation.org>
+Message-Id: <20210322121920.736064792@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,147 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Jim Lin <jilin@nvidia.com>
 
-commit 5abbe51a526253b9f003e9a0a195638dc882d660 upstream.
+commit 98f153a10da403ddd5e9d98a3c8c2bb54bb5a0b6 upstream.
 
-Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
+When gadget is disconnected, running sequence is like this.
+. composite_disconnect
+. Call trace:
+  usb_string_copy+0xd0/0x128
+  gadget_config_name_configuration_store+0x4
+  gadget_config_name_attr_store+0x40/0x50
+  configfs_write_file+0x198/0x1f4
+  vfs_write+0x100/0x220
+  SyS_write+0x58/0xa8
+. configfs_composite_unbind
+. configfs_composite_bind
 
-Add a new helper which sets restart_block->fn and calls a dummy
-arch_set_restart_data() helper.
+In configfs_composite_bind, it has
+"cn->strings.s = cn->configuration;"
 
-Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+When usb_string_copy is invoked. it would
+allocate memory, copy input string, release previous pointed memory space,
+and use new allocated memory.
+
+When gadget is connected, host sends down request to get information.
+Call trace:
+  usb_gadget_get_string+0xec/0x168
+  lookup_string+0x64/0x98
+  composite_setup+0xa34/0x1ee8
+
+If gadget is disconnected and connected quickly, in the failed case,
+cn->configuration memory has been released by usb_string_copy kfree but
+configfs_composite_bind hasn't been run in time to assign new allocated
+"cn->configuration" pointer to "cn->strings.s".
+
+When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
+memory is accessed, "BUG: KASAN: use-after-free" error occurs.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
+Signed-off-by: Jim Lin <jilin@nvidia.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Link: https://lore.kernel.org/r/1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/select.c                    |   10 ++++------
- include/linux/thread_info.h    |   13 +++++++++++++
- kernel/futex.c                 |    3 +--
- kernel/time/alarmtimer.c       |    2 +-
- kernel/time/hrtimer.c          |    2 +-
- kernel/time/posix-cpu-timers.c |    2 +-
- 6 files changed, 21 insertions(+), 11 deletions(-)
+ drivers/usb/gadget/configfs.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -1037,10 +1037,9 @@ static long do_restart_poll(struct resta
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -109,6 +109,8 @@ struct gadget_config_name {
+ 	struct list_head list;
+ };
  
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	if (ret == -ERESTARTNOHAND) {
--		restart_block->fn = do_restart_poll;
--		ret = -ERESTART_RESTARTBLOCK;
--	}
-+	if (ret == -ERESTARTNOHAND)
-+		ret = set_restart_fn(restart_block, do_restart_poll);
++#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
 +
- 	return ret;
- }
+ static int usb_string_copy(const char *s, char **s_copy)
+ {
+ 	int ret;
+@@ -118,12 +120,16 @@ static int usb_string_copy(const char *s
+ 	if (ret > USB_MAX_STRING_LEN)
+ 		return -EOVERFLOW;
  
-@@ -1062,7 +1061,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		struct restart_block *restart_block;
- 
- 		restart_block = &current->restart_block;
--		restart_block->fn = do_restart_poll;
- 		restart_block->poll.ufds = ufds;
- 		restart_block->poll.nfds = nfds;
- 
-@@ -1073,7 +1071,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		} else
- 			restart_block->poll.has_timeout = 0;
- 
--		ret = -ERESTART_RESTARTBLOCK;
-+		ret = set_restart_fn(restart_block, do_restart_poll);
- 	}
- 	return ret;
- }
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -11,6 +11,7 @@
- #include <linux/types.h>
- #include <linux/bug.h>
- #include <linux/restart_block.h>
-+#include <linux/errno.h>
- 
- #ifdef CONFIG_THREAD_INFO_IN_TASK
- /*
-@@ -39,6 +40,18 @@ enum {
- 
- #ifdef __KERNEL__
- 
-+#ifndef arch_set_restart_data
-+#define arch_set_restart_data(restart) do { } while (0)
-+#endif
-+
-+static inline long set_restart_fn(struct restart_block *restart,
-+					long (*fn)(struct restart_block *))
-+{
-+	restart->fn = fn;
-+	arch_set_restart_data(restart);
-+	return -ERESTART_RESTARTBLOCK;
-+}
-+
- #ifndef THREAD_ALIGN
- #define THREAD_ALIGN	THREAD_SIZE
- #endif
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2865,14 +2865,13 @@ retry:
- 		goto out;
- 
- 	restart = &current->restart_block;
--	restart->fn = futex_wait_restart;
- 	restart->futex.uaddr = uaddr;
- 	restart->futex.val = val;
- 	restart->futex.time = *abs_time;
- 	restart->futex.bitset = bitset;
- 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
- 
--	ret = -ERESTART_RESTARTBLOCK;
-+	ret = set_restart_fn(restart, futex_wait_restart);
- 
- out:
- 	if (to) {
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -838,9 +838,9 @@ static int alarm_timer_nsleep(const cloc
- 	if (flags == TIMER_ABSTIME)
- 		return -ERESTARTNOHAND;
- 
--	restart->fn = alarm_timer_nsleep_restart;
- 	restart->nanosleep.clockid = type;
- 	restart->nanosleep.expires = exp;
-+	set_restart_fn(restart, alarm_timer_nsleep_restart);
- 	return ret;
- }
- 
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1953,9 +1953,9 @@ long hrtimer_nanosleep(const struct time
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = hrtimer_nanosleep_restart;
- 	restart->nanosleep.clockid = t.timer.base->clockid;
- 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
-+	set_restart_fn(restart, hrtimer_nanosleep_restart);
- out:
- 	destroy_hrtimer_on_stack(&t.timer);
- 	return ret;
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1335,8 +1335,8 @@ static int posix_cpu_nsleep(const clocki
- 		if (flags & TIMER_ABSTIME)
- 			return -ERESTARTNOHAND;
- 
--		restart_block->fn = posix_cpu_nsleep_restart;
- 		restart_block->nanosleep.clockid = which_clock;
-+		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
- 	}
- 	return error;
+-	str = kstrdup(s, GFP_KERNEL);
+-	if (!str)
+-		return -ENOMEM;
++	if (copy) {
++		str = copy;
++	} else {
++		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
++		if (!str)
++			return -ENOMEM;
++	}
++	strcpy(str, s);
+ 	if (str[ret - 1] == '\n')
+ 		str[ret - 1] = '\0';
+-	kfree(copy);
+ 	*s_copy = str;
+ 	return 0;
  }
 
 
