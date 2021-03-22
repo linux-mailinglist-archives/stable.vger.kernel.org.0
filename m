@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAE53344330
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 417A1344383
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbhCVMtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40966 "EHLO mail.kernel.org"
+        id S231382AbhCVMvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:51:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231877AbhCVMqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:46:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB240619A0;
-        Mon, 22 Mar 2021 12:42:47 +0000 (UTC)
+        id S231209AbhCVMtO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D29556199E;
+        Mon, 22 Mar 2021 12:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416968;
-        bh=+oaiqDaJwlwLxA6E9GCjLL2CjYhIhA1R5sSuDKjMfDY=;
+        s=korg; t=1616417103;
+        bh=J4RCWLHUt4lDpt4hTEbQR/UXzgWuUAQBzpzhftaUips=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0tAPtqUZo+8qeuzQnlr3S3cYCXUXPTDX9sQbYN75d3yEpjn4ZBkvKtMLfC9ld2dI
-         MVPwCzZGlGh7rFgxHSAvTX2+SXi+RhlpBgxhA6v030UEIVcloDOixoohWIvDQsBM6z
-         rF+wZ/qusD1t+V7fP55enMwa/XOIWGQX5k7Vqde0=
+        b=VFWod/7Za+KvsbSQTgSaASdreqOxZsAl40/acA6xF5+2tzIMLGqTk3ik8B+1ZS+LQ
+         pXg7tgqlBuKw6Pkpv9yLDwPRpFHwXIbbJJBB41DYzIWEJ7hcKo5f3to6EATnh62gPp
+         T36D5r6QEcsxCqm9p/hGHurVzMg8JS9DwHjT45kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.4 36/60] USB: replace hardcode maximum usb string length by definition
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.19 10/43] tools build: Check if gettid() is available before providing helper
 Date:   Mon, 22 Mar 2021 13:28:24 +0100
-Message-Id: <20210322121923.580292481@linuxfoundation.org>
+Message-Id: <20210322121920.266054136@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 81c7462883b0cc0a4eeef0687f80ad5b5baee5f6 upstream.
+commit 4541a8bb13a86e504416a13360c8dc64d2fd612a upstream.
 
-Replace hardcoded maximum USB string length (126 bytes) by definition
-"USB_MAX_STRING_LEN".
+Laura reported that the perf build failed in fedora when we got a glibc
+that provides gettid(), which I reproduced using fedora rawhide with the
+glibc-devel-2.29.9000-26.fc31.x86_64 package.
 
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/1592471618-29428-1-git-send-email-macpaul.lin@mediatek.com
+Add a feature check to avoid providing a gettid() helper in such
+systems.
+
+On a fedora rawhide system with this patch applied we now get:
+
+  [root@7a5f55352234 perf]# grep gettid /tmp/build/perf/FEATURE-DUMP
+  feature-gettid=1
+  [root@7a5f55352234 perf]# cat /tmp/build/perf/feature/test-gettid.make.output
+  [root@7a5f55352234 perf]# ldd /tmp/build/perf/feature/test-gettid.bin
+          linux-vdso.so.1 (0x00007ffc6b1f6000)
+          libc.so.6 => /lib64/libc.so.6 (0x00007f04e0a74000)
+          /lib64/ld-linux-x86-64.so.2 (0x00007f04e0c47000)
+  [root@7a5f55352234 perf]# nm /tmp/build/perf/feature/test-gettid.bin | grep -w gettid
+                   U gettid@@GLIBC_2.30
+  [root@7a5f55352234 perf]#
+
+While on a fedora:29 system:
+
+  [acme@quaco perf]$ grep gettid /tmp/build/perf/FEATURE-DUMP
+  feature-gettid=0
+  [acme@quaco perf]$ cat /tmp/build/perf/feature/test-gettid.make.output
+  test-gettid.c: In function ‘main’:
+  test-gettid.c:8:9: error: implicit declaration of function ‘gettid’; did you mean ‘getgid’? [-Werror=implicit-function-declaration]
+    return gettid();
+           ^~~~~~
+           getgid
+  cc1: all warnings being treated as errors
+  [acme@quaco perf]$
+
+Reported-by: Laura Abbott <labbott@redhat.com>
+Tested-by: Laura Abbott <labbott@redhat.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lkml.kernel.org/n/tip-yfy3ch53agmklwu9o7rlgf9c@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/composite.c |    4 ++--
- drivers/usb/gadget/configfs.c  |    2 +-
- drivers/usb/gadget/usbstring.c |    4 ++--
- include/uapi/linux/usb/ch9.h   |    3 +++
- 4 files changed, 8 insertions(+), 5 deletions(-)
+ tools/build/Makefile.feature      |    1 +
+ tools/build/feature/Makefile      |    4 ++++
+ tools/build/feature/test-all.c    |    5 +++++
+ tools/build/feature/test-gettid.c |   11 +++++++++++
+ tools/perf/Makefile.config        |    4 ++++
+ tools/perf/jvmti/jvmti_agent.c    |    2 ++
+ 6 files changed, 27 insertions(+)
+ create mode 100644 tools/build/feature/test-gettid.c
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1091,7 +1091,7 @@ static void collect_langs(struct usb_gad
- 	while (*sp) {
- 		s = *sp;
- 		language = cpu_to_le16(s->language);
--		for (tmp = buf; *tmp && tmp < &buf[126]; tmp++) {
-+		for (tmp = buf; *tmp && tmp < &buf[USB_MAX_STRING_LEN]; tmp++) {
- 			if (*tmp == language)
- 				goto repeat;
- 		}
-@@ -1166,7 +1166,7 @@ static int get_string(struct usb_composi
- 			collect_langs(sp, s->wData);
- 		}
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -35,6 +35,7 @@ FEATURE_TESTS_BASIC :=
+         fortify-source                  \
+         sync-compare-and-swap           \
+         get_current_dir_name            \
++        gettid				\
+         glibc                           \
+         gtk2                            \
+         gtk2-infobar                    \
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -54,6 +54,7 @@ FILES=
+          test-get_cpuid.bin                     \
+          test-sdt.bin                           \
+          test-cxx.bin                           \
++         test-gettid.bin			\
+          test-jvmti.bin				\
+          test-sched_getcpu.bin			\
+          test-setns.bin				\
+@@ -262,6 +263,9 @@ $(OUTPUT)test-sdt.bin:
+ $(OUTPUT)test-cxx.bin:
+ 	$(BUILDXX) -std=gnu++11
  
--		for (len = 0; len <= 126 && s->wData[len]; len++)
-+		for (len = 0; len <= USB_MAX_STRING_LEN && s->wData[len]; len++)
- 			continue;
- 		if (!len)
- 			return -EINVAL;
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -115,7 +115,7 @@ static int usb_string_copy(const char *s
- 	char *str;
- 	char *copy = *s_copy;
- 	ret = strlen(s);
--	if (ret > 126)
-+	if (ret > USB_MAX_STRING_LEN)
- 		return -EOVERFLOW;
- 
- 	str = kstrdup(s, GFP_KERNEL);
---- a/drivers/usb/gadget/usbstring.c
-+++ b/drivers/usb/gadget/usbstring.c
-@@ -55,9 +55,9 @@ usb_gadget_get_string (const struct usb_
- 		return -EINVAL;
- 
- 	/* string descriptors have length, tag, then UTF16-LE text */
--	len = min ((size_t) 126, strlen (s->s));
-+	len = min((size_t)USB_MAX_STRING_LEN, strlen(s->s));
- 	len = utf8s_to_utf16s(s->s, len, UTF16_LITTLE_ENDIAN,
--			(wchar_t *) &buf[2], 126);
-+			(wchar_t *) &buf[2], USB_MAX_STRING_LEN);
- 	if (len < 0)
- 		return -EINVAL;
- 	buf [0] = (len + 1) * 2;
---- a/include/uapi/linux/usb/ch9.h
-+++ b/include/uapi/linux/usb/ch9.h
-@@ -364,6 +364,9 @@ struct usb_config_descriptor {
- 
- /*-------------------------------------------------------------------------*/
- 
-+/* USB String descriptors can contain at most 126 characters. */
-+#define USB_MAX_STRING_LEN	126
++$(OUTPUT)test-gettid.bin:
++	$(BUILD)
 +
- /* USB_DT_STRING: String descriptor */
- struct usb_string_descriptor {
- 	__u8  bLength;
+ $(OUTPUT)test-jvmti.bin:
+ 	$(BUILD)
+ 
+--- a/tools/build/feature/test-all.c
++++ b/tools/build/feature/test-all.c
+@@ -38,6 +38,10 @@
+ # include "test-get_current_dir_name.c"
+ #undef main
+ 
++#define main main_test_gettid
++# include "test-gettid.c"
++#undef main
++
+ #define main main_test_glibc
+ # include "test-glibc.c"
+ #undef main
+@@ -183,6 +187,7 @@ int main(int argc, char *argv[])
+ 	main_test_libelf();
+ 	main_test_libelf_mmap();
+ 	main_test_get_current_dir_name();
++	main_test_gettid();
+ 	main_test_glibc();
+ 	main_test_dwarf();
+ 	main_test_dwarf_getlocations();
+--- /dev/null
++++ b/tools/build/feature/test-gettid.c
+@@ -0,0 +1,11 @@
++// SPDX-License-Identifier: GPL-2.0
++// Copyright (C) 2019, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
++#define _GNU_SOURCE
++#include <unistd.h>
++
++int main(void)
++{
++	return gettid();
++}
++
++#undef _GNU_SOURCE
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -318,6 +318,10 @@ ifeq ($(feature-get_current_dir_name), 1
+   CFLAGS += -DHAVE_GET_CURRENT_DIR_NAME
+ endif
+ 
++ifeq ($(feature-gettid), 1)
++  CFLAGS += -DHAVE_GETTID
++endif
++
+ ifdef NO_LIBELF
+   NO_DWARF := 1
+   NO_DEMANGLE := 1
+--- a/tools/perf/jvmti/jvmti_agent.c
++++ b/tools/perf/jvmti/jvmti_agent.c
+@@ -45,10 +45,12 @@
+ static char jit_path[PATH_MAX];
+ static void *marker_addr;
+ 
++#ifndef HAVE_GETTID
+ static inline pid_t gettid(void)
+ {
+ 	return (pid_t)syscall(__NR_gettid);
+ }
++#endif
+ 
+ static int get_e_machine(struct jitheader *hdr)
+ {
 
 
