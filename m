@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0068344407
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:59:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FABC344458
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbhCVM4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49502 "EHLO mail.kernel.org"
+        id S232458AbhCVM7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232174AbhCVMyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:54:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7888E619B5;
-        Mon, 22 Mar 2021 12:47:35 +0000 (UTC)
+        id S233125AbhCVM5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:57:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 554B5619CC;
+        Mon, 22 Mar 2021 12:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417256;
-        bh=4pFxx4rMxuBoUPuVMrFp0AgtI8un1hBGqp/YItu6Fzg=;
+        s=korg; t=1616417366;
+        bh=aa5ew/UVqZKmvHP8ti65SQziXL7o0onEaauiFkufNTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NvDUwjm3KhGP83mP90qXJIZUgZBX6e6pZ9bu8FzMKhhpCiL01/WZXHjpzwlK1THxL
-         3goUjfliopZY9j97vVqYYEcRGM58HfDrP+ZOvXORMNAlVFnKDjCEErBr0H20e5wXXW
-         +KcqeGq4rzAnzpUECmBZGhM90V/6DDBZHXRxjuRw=
+        b=bw/YiYGoeYJl5qUv/XQbNaw9ZbsdseNhUbs1UURxG5xxrLa42u1vm1nlYV8m5iqo4
+         ukhJrd3zjLa6O+7oXnzegQluSopklw+g1JMQtnrSRdjJ9KZuGokfwsUeja933JF6y8
+         a2PUzVdjNiVUx2KxCE09lyJA6Rg5qb6fAQ6sEB/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 4.9 15/25] usb: gadget: configfs: Fix KASAN use-after-free
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Matthias Schwarzott <zzam@gentoo.org>
+Subject: [PATCH 4.14 24/43] usb-storage: Add quirk to defeat Kindles automatic unload
 Date:   Mon, 22 Mar 2021 13:29:05 +0100
-Message-Id: <20210322121920.883265462@linuxfoundation.org>
+Message-Id: <20210322121920.815252377@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
-References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,83 +39,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Lin <jilin@nvidia.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 98f153a10da403ddd5e9d98a3c8c2bb54bb5a0b6 upstream.
+commit 546aa0e4ea6ed81b6c51baeebc4364542fa3f3a7 upstream.
 
-When gadget is disconnected, running sequence is like this.
-. composite_disconnect
-. Call trace:
-  usb_string_copy+0xd0/0x128
-  gadget_config_name_configuration_store+0x4
-  gadget_config_name_attr_store+0x40/0x50
-  configfs_write_file+0x198/0x1f4
-  vfs_write+0x100/0x220
-  SyS_write+0x58/0xa8
-. configfs_composite_unbind
-. configfs_composite_bind
+Matthias reports that the Amazon Kindle automatically removes its
+emulated media if it doesn't receive another SCSI command within about
+one second after a SYNCHRONIZE CACHE.  It does so even when the host
+has sent a PREVENT MEDIUM REMOVAL command.  The reason for this
+behavior isn't clear, although it's not hard to make some guesses.
 
-In configfs_composite_bind, it has
-"cn->strings.s = cn->configuration;"
+At any rate, the results can be unexpected for anyone who tries to
+access the Kindle in an unusual fashion, and in theory they can lead
+to data loss (for example, if one file is closed and synchronized
+while other files are still in the middle of being written).
 
-When usb_string_copy is invoked. it would
-allocate memory, copy input string, release previous pointed memory space,
-and use new allocated memory.
+To avoid such problems, this patch creates a new usb-storage quirks
+flag telling the driver always to issue a REQUEST SENSE following a
+SYNCHRONIZE CACHE command, and adds an unusual_devs entry for the
+Kindle with the flag set.  This is sufficient to prevent the Kindle
+from doing its automatic unload, without interfering with proper
+operation.
 
-When gadget is connected, host sends down request to get information.
-Call trace:
-  usb_gadget_get_string+0xec/0x168
-  lookup_string+0x64/0x98
-  composite_setup+0xa34/0x1ee8
+Another possible way to deal with this would be to increase the
+frequency of TEST UNIT READY polling that the kernel normally carries
+out for removable-media storage devices.  However that would increase
+the overall load on the system and it is not as reliable, because the
+user can override the polling interval.  Changing the driver's
+behavior is safer and has minimal overhead.
 
-If gadget is disconnected and connected quickly, in the failed case,
-cn->configuration memory has been released by usb_string_copy kfree but
-configfs_composite_bind hasn't been run in time to assign new allocated
-"cn->configuration" pointer to "cn->strings.s".
-
-When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
-memory is accessed, "BUG: KASAN: use-after-free" error occurs.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Jim Lin <jilin@nvidia.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Link: https://lore.kernel.org/r/1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: Matthias Schwarzott <zzam@gentoo.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210317190654.GA497856@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/configfs.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/usb/storage/transport.c    |    7 +++++++
+ drivers/usb/storage/unusual_devs.h |   12 ++++++++++++
+ include/linux/usb_usual.h          |    2 ++
+ 3 files changed, 21 insertions(+)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -108,6 +108,8 @@ struct gadget_config_name {
- 	struct list_head list;
- };
+--- a/drivers/usb/storage/transport.c
++++ b/drivers/usb/storage/transport.c
+@@ -667,6 +667,13 @@ void usb_stor_invoke_transport(struct sc
+ 		need_auto_sense = 1;
+ 	}
  
-+#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
-+
- static int usb_string_copy(const char *s, char **s_copy)
- {
- 	int ret;
-@@ -117,12 +119,16 @@ static int usb_string_copy(const char *s
- 	if (ret > USB_MAX_STRING_LEN)
- 		return -EOVERFLOW;
- 
--	str = kstrdup(s, GFP_KERNEL);
--	if (!str)
--		return -ENOMEM;
-+	if (copy) {
-+		str = copy;
-+	} else {
-+		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
-+		if (!str)
-+			return -ENOMEM;
++	/* Some devices (Kindle) require another command after SYNC CACHE */
++	if ((us->fflags & US_FL_SENSE_AFTER_SYNC) &&
++			srb->cmnd[0] == SYNCHRONIZE_CACHE) {
++		usb_stor_dbg(us, "-- sense after SYNC CACHE\n");
++		need_auto_sense = 1;
 +	}
-+	strcpy(str, s);
- 	if (str[ret - 1] == '\n')
- 		str[ret - 1] = '\0';
--	kfree(copy);
- 	*s_copy = str;
- 	return 0;
- }
++
+ 	/*
+ 	 * If we have a failure, we're going to do a REQUEST_SENSE 
+ 	 * automatically.  Note that we differentiate between a command
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2231,6 +2231,18 @@ UNUSUAL_DEV( 0x1908, 0x3335, 0x0200, 0x0
+ 		US_FL_NO_READ_DISC_INFO ),
+ 
+ /*
++ * Reported by Matthias Schwarzott <zzam@gentoo.org>
++ * The Amazon Kindle treats SYNCHRONIZE CACHE as an indication that
++ * the host may be finished with it, and automatically ejects its
++ * emulated media unless it receives another command within one second.
++ */
++UNUSUAL_DEV( 0x1949, 0x0004, 0x0000, 0x9999,
++		"Amazon",
++		"Kindle",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_SENSE_AFTER_SYNC ),
++
++/*
+  * Reported by Oliver Neukum <oneukum@suse.com>
+  * This device morphes spontaneously into another device if the access
+  * pattern of Windows isn't followed. Thus writable media would be dirty
+--- a/include/linux/usb_usual.h
++++ b/include/linux/usb_usual.h
+@@ -86,6 +86,8 @@
+ 		/* lies about caching, so always sync */	\
+ 	US_FLAG(NO_SAME, 0x40000000)				\
+ 		/* Cannot handle WRITE_SAME */			\
++	US_FLAG(SENSE_AFTER_SYNC, 0x80000000)			\
++		/* Do REQUEST_SENSE after SYNCHRONIZE_CACHE */	\
+ 
+ #define US_FLAG(name, value)	US_FL_##name = value ,
+ enum { US_DO_ALL_FLAGS };
 
 
