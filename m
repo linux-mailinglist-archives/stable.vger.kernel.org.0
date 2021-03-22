@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA41B344108
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:30:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90363440FC
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229951AbhCVM3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229992AbhCVM3z (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 22 Mar 2021 08:29:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52314 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230138AbhCVM3k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:29:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A55356198E;
-        Mon, 22 Mar 2021 12:29:39 +0000 (UTC)
+        id S229905AbhCVM3n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:29:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C3306198E;
+        Mon, 22 Mar 2021 12:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416180;
-        bh=ggPWzldjh6XxkapTvDCQwdbnHaLrXyZcERNfNTTgFFc=;
+        s=korg; t=1616416182;
+        bh=85xbLg0N24rYjYG9rU+hPSlW4FE4imDZ2NNfjYfcj2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWZPWvCNh+Jem4DTjyPro7tOm+N1AQS8b3D7slwDyOLtFoxXjCFbT05u0pQ04dHtS
-         jk/VWkqI9mrKqPuqeQeU+k1YQR0uBgkTveCkiHiVMieSS23pYX4Mwf5zm3wDes7DfV
-         Wqwx3FlCqZT+FGuZBAxPN0vGpR4oVoaeNPQi5Ww8=
+        b=g+Dj34A36PGRf2wwKkrnmavwB0NePdw7XfUQYmCDxoISsT2G4Ba5WeZtTU1O502H/
+         e8cxYnHiLhcqSXmXCfb1xf+yikoN/k6XiXpxtbJ7BAVhy3XtCIW/CNPe2v7KcJ8JD+
+         iD8W/uhzyAZQkXIV8tV0bo+Wbcmwb+jG2MGHyM50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 010/120] ALSA: hda/realtek: fix mute/micmute LEDs for HP 850 G8
-Date:   Mon, 22 Mar 2021 13:26:33 +0100
-Message-Id: <20210322121930.004342725@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.11 011/120] Revert "PM: runtime: Update device status before letting suppliers suspend"
+Date:   Mon, 22 Mar 2021 13:26:34 +0100
+Message-Id: <20210322121930.033921203@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
 References: <20210322121929.669628946@linuxfoundation.org>
@@ -39,32 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Szu <jeremy.szu@canonical.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 53b861bec737c189cc14ec3b5785d0f13445ac0f upstream.
+commit 0cab893f409c53634d0d818fa414641cbcdb0dab upstream.
 
-The HP EliteBook 850 G8 Notebook PC is using ALC285 codec which is
-using 0x04 to control mute LED and 0x01 to control micmute LED.
-Therefore, add a quirk to make it works.
+Revert commit 44cc89f76464 ("PM: runtime: Update device status
+before letting suppliers suspend") that introduced a race condition
+into __rpm_callback() which allowed a concurrent rpm_resume() to
+run and resume the device prematurely after its status had been
+changed to RPM_SUSPENDED by __rpm_callback().
 
-Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210316094236.89028-1-jeremy.szu@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 44cc89f76464 ("PM: runtime: Update device status before letting suppliers suspend")
+Link: https://lore.kernel.org/linux-pm/24dfb6fc-5d54-6ee2-9195-26428b7ecf8a@intel.com/
+Reported-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/power/runtime.c |   62 +++++++++++++++++--------------------------
+ 1 file changed, 25 insertions(+), 37 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8060,6 +8060,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
-+	SND_PCI_QUIRK(0x103c, 0x8846, "HP EliteBook 850 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884c, "HP EliteBook 840 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -325,22 +325,22 @@ static void rpm_put_suppliers(struct dev
+ static int __rpm_callback(int (*cb)(struct device *), struct device *dev)
+ 	__releases(&dev->power.lock) __acquires(&dev->power.lock)
+ {
+-	bool use_links = dev->power.links_count > 0;
+-	bool get = false;
+ 	int retval, idx;
+-	bool put;
++	bool use_links = dev->power.links_count > 0;
+ 
+ 	if (dev->power.irq_safe) {
+ 		spin_unlock(&dev->power.lock);
+-	} else if (!use_links) {
+-		spin_unlock_irq(&dev->power.lock);
+ 	} else {
+-		get = dev->power.runtime_status == RPM_RESUMING;
+-
+ 		spin_unlock_irq(&dev->power.lock);
+ 
+-		/* Resume suppliers if necessary. */
+-		if (get) {
++		/*
++		 * Resume suppliers if necessary.
++		 *
++		 * The device's runtime PM status cannot change until this
++		 * routine returns, so it is safe to read the status outside of
++		 * the lock.
++		 */
++		if (use_links && dev->power.runtime_status == RPM_RESUMING) {
+ 			idx = device_links_read_lock();
+ 
+ 			retval = rpm_get_suppliers(dev);
+@@ -355,36 +355,24 @@ static int __rpm_callback(int (*cb)(stru
+ 
+ 	if (dev->power.irq_safe) {
+ 		spin_lock(&dev->power.lock);
+-		return retval;
+-	}
+-
+-	spin_lock_irq(&dev->power.lock);
+-
+-	if (!use_links)
+-		return retval;
+-
+-	/*
+-	 * If the device is suspending and the callback has returned success,
+-	 * drop the usage counters of the suppliers that have been reference
+-	 * counted on its resume.
+-	 *
+-	 * Do that if the resume fails too.
+-	 */
+-	put = dev->power.runtime_status == RPM_SUSPENDING && !retval;
+-	if (put)
+-		__update_runtime_status(dev, RPM_SUSPENDED);
+-	else
+-		put = get && retval;
+-
+-	if (put) {
+-		spin_unlock_irq(&dev->power.lock);
+-
+-		idx = device_links_read_lock();
++	} else {
++		/*
++		 * If the device is suspending and the callback has returned
++		 * success, drop the usage counters of the suppliers that have
++		 * been reference counted on its resume.
++		 *
++		 * Do that if resume fails too.
++		 */
++		if (use_links
++		    && ((dev->power.runtime_status == RPM_SUSPENDING && !retval)
++		    || (dev->power.runtime_status == RPM_RESUMING && retval))) {
++			idx = device_links_read_lock();
+ 
+-fail:
+-		rpm_put_suppliers(dev);
++ fail:
++			rpm_put_suppliers(dev);
+ 
+-		device_links_read_unlock(idx);
++			device_links_read_unlock(idx);
++		}
+ 
+ 		spin_lock_irq(&dev->power.lock);
+ 	}
 
 
