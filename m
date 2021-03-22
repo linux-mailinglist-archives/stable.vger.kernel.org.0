@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52AE5344432
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49E083443BC
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231205AbhCVM7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47788 "EHLO mail.kernel.org"
+        id S229866AbhCVMxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232441AbhCVMy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:54:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04B25619AF;
-        Mon, 22 Mar 2021 12:48:08 +0000 (UTC)
+        id S232048AbhCVMvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:51:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 635B0619A1;
+        Mon, 22 Mar 2021 12:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417289;
-        bh=19LnHO4ZcoVY1lySpEvBpm3ktNTKN67jkh/z+aofRAg=;
+        s=korg; t=1616417175;
+        bh=oonXIXs0/g2VhSESrP3W/x2+6zA2q2vtqxWCGuRafpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OcpIFpm0sUF0hP5pxxeH6RHqFxi64y4PL3DnmrnMw2+W+OoqTX/34QMZJ9weleN9u
-         7UJhb9gRPtbaWzRcgVmr50OUyPxie5FiSg1Um5OTwWJszptG3kNMwNvTwLikWI3HWa
-         rwdH9WKpEd/78Wk4Bx4axf2XnJigEY/ZRjyixhWk=
+        b=lpIKL4BFwfWczgkgq+I5NAMIZQljVLOZTv/RflZHO6WckpaauRIypq34ZkVVJL3li
+         LLckYvckvwsO5LxLIOlEAg6MOigIsresAtUo1uFfZ9Oo4orony2XHv3OWKFYmSzlN9
+         4lf0mQyg13H1IsaqZosdFgOFYgvsfjSTnNaqX9ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 16/43] btrfs: fix race when cloning extent buffer during rewind of an old root
-Date:   Mon, 22 Mar 2021 13:28:57 +0100
-Message-Id: <20210322121920.569889492@linuxfoundation.org>
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
+        Olof Johansson <olof@lixom.net>
+Subject: [PATCH 4.4 04/14] platform/chrome: cros_ec_dev - Fix security issue
+Date:   Mon, 22 Mar 2021 13:28:58 +0100
+Message-Id: <20210322121919.341638975@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
+References: <20210322121919.202392464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,282 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-commit dbcc7d57bffc0c8cac9dac11bec548597d59a6a5 upstream.
+commit 5d749d0bbe811c10d9048cde6dfebc761713abfd upstream.
 
-While resolving backreferences, as part of a logical ino ioctl call or
-fiemap, we can end up hitting a BUG_ON() when replaying tree mod log
-operations of a root, triggering a stack trace like the following:
+Prevent memory scribble by checking that ioctl buffer size parameters
+are sane.
+Without this check, on 32 bits system, if .insize = 0xffffffff - 20 and
+.outsize the amount to scribble, we would overflow, allocate a small
+amounts and be able to write outside of the malloc'ed area.
+Adding a hard limit allows argument checking of the ioctl. With the
+current EC, it is expected .insize and .outsize to be at around 512 bytes
+or less.
 
-  ------------[ cut here ]------------
-  kernel BUG at fs/btrfs/ctree.c:1210!
-  invalid opcode: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 19054 Comm: crawl_335 Tainted: G        W         5.11.0-2d11c0084b02-misc-next+ #89
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-  RIP: 0010:__tree_mod_log_rewind+0x3b1/0x3c0
-  Code: 05 48 8d 74 10 (...)
-  RSP: 0018:ffffc90001eb70b8 EFLAGS: 00010297
-  RAX: 0000000000000000 RBX: ffff88812344e400 RCX: ffffffffb28933b6
-  RDX: 0000000000000007 RSI: dffffc0000000000 RDI: ffff88812344e42c
-  RBP: ffffc90001eb7108 R08: 1ffff11020b60a20 R09: ffffed1020b60a20
-  R10: ffff888105b050f9 R11: ffffed1020b60a1f R12: 00000000000000ee
-  R13: ffff8880195520c0 R14: ffff8881bc958500 R15: ffff88812344e42c
-  FS:  00007fd1955e8700(0000) GS:ffff8881f5600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007efdb7928718 CR3: 000000010103a006 CR4: 0000000000170ee0
-  Call Trace:
-   btrfs_search_old_slot+0x265/0x10d0
-   ? lock_acquired+0xbb/0x600
-   ? btrfs_search_slot+0x1090/0x1090
-   ? free_extent_buffer.part.61+0xd7/0x140
-   ? free_extent_buffer+0x13/0x20
-   resolve_indirect_refs+0x3e9/0xfc0
-   ? lock_downgrade+0x3d0/0x3d0
-   ? __kasan_check_read+0x11/0x20
-   ? add_prelim_ref.part.11+0x150/0x150
-   ? lock_downgrade+0x3d0/0x3d0
-   ? __kasan_check_read+0x11/0x20
-   ? lock_acquired+0xbb/0x600
-   ? __kasan_check_write+0x14/0x20
-   ? do_raw_spin_unlock+0xa8/0x140
-   ? rb_insert_color+0x30/0x360
-   ? prelim_ref_insert+0x12d/0x430
-   find_parent_nodes+0x5c3/0x1830
-   ? resolve_indirect_refs+0xfc0/0xfc0
-   ? lock_release+0xc8/0x620
-   ? fs_reclaim_acquire+0x67/0xf0
-   ? lock_acquire+0xc7/0x510
-   ? lock_downgrade+0x3d0/0x3d0
-   ? lockdep_hardirqs_on_prepare+0x160/0x210
-   ? lock_release+0xc8/0x620
-   ? fs_reclaim_acquire+0x67/0xf0
-   ? lock_acquire+0xc7/0x510
-   ? poison_range+0x38/0x40
-   ? unpoison_range+0x14/0x40
-   ? trace_hardirqs_on+0x55/0x120
-   btrfs_find_all_roots_safe+0x142/0x1e0
-   ? find_parent_nodes+0x1830/0x1830
-   ? btrfs_inode_flags_to_xflags+0x50/0x50
-   iterate_extent_inodes+0x20e/0x580
-   ? tree_backref_for_extent+0x230/0x230
-   ? lock_downgrade+0x3d0/0x3d0
-   ? read_extent_buffer+0xdd/0x110
-   ? lock_downgrade+0x3d0/0x3d0
-   ? __kasan_check_read+0x11/0x20
-   ? lock_acquired+0xbb/0x600
-   ? __kasan_check_write+0x14/0x20
-   ? _raw_spin_unlock+0x22/0x30
-   ? __kasan_check_write+0x14/0x20
-   iterate_inodes_from_logical+0x129/0x170
-   ? iterate_inodes_from_logical+0x129/0x170
-   ? btrfs_inode_flags_to_xflags+0x50/0x50
-   ? iterate_extent_inodes+0x580/0x580
-   ? __vmalloc_node+0x92/0xb0
-   ? init_data_container+0x34/0xb0
-   ? init_data_container+0x34/0xb0
-   ? kvmalloc_node+0x60/0x80
-   btrfs_ioctl_logical_to_ino+0x158/0x230
-   btrfs_ioctl+0x205e/0x4040
-   ? __might_sleep+0x71/0xe0
-   ? btrfs_ioctl_get_supported_features+0x30/0x30
-   ? getrusage+0x4b6/0x9c0
-   ? __kasan_check_read+0x11/0x20
-   ? lock_release+0xc8/0x620
-   ? __might_fault+0x64/0xd0
-   ? lock_acquire+0xc7/0x510
-   ? lock_downgrade+0x3d0/0x3d0
-   ? lockdep_hardirqs_on_prepare+0x210/0x210
-   ? lockdep_hardirqs_on_prepare+0x210/0x210
-   ? __kasan_check_read+0x11/0x20
-   ? do_vfs_ioctl+0xfc/0x9d0
-   ? ioctl_file_clone+0xe0/0xe0
-   ? lock_downgrade+0x3d0/0x3d0
-   ? lockdep_hardirqs_on_prepare+0x210/0x210
-   ? __kasan_check_read+0x11/0x20
-   ? lock_release+0xc8/0x620
-   ? __task_pid_nr_ns+0xd3/0x250
-   ? lock_acquire+0xc7/0x510
-   ? __fget_files+0x160/0x230
-   ? __fget_light+0xf2/0x110
-   __x64_sys_ioctl+0xc3/0x100
-   do_syscall_64+0x37/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7fd1976e2427
-  Code: 00 00 90 48 8b 05 (...)
-  RSP: 002b:00007fd1955e5cf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 00007fd1955e5f40 RCX: 00007fd1976e2427
-  RDX: 00007fd1955e5f48 RSI: 00000000c038943b RDI: 0000000000000004
-  RBP: 0000000001000000 R08: 0000000000000000 R09: 00007fd1955e6120
-  R10: 0000557835366b00 R11: 0000000000000246 R12: 0000000000000004
-  R13: 00007fd1955e5f48 R14: 00007fd1955e5f40 R15: 00007fd1955e5ef8
-  Modules linked in:
-  ---[ end trace ec8931a1c36e57be ]---
-
-  (gdb) l *(__tree_mod_log_rewind+0x3b1)
-  0xffffffff81893521 is in __tree_mod_log_rewind (fs/btrfs/ctree.c:1210).
-  1205                     * the modification. as we're going backwards, we do the
-  1206                     * opposite of each operation here.
-  1207                     */
-  1208                    switch (tm->op) {
-  1209                    case MOD_LOG_KEY_REMOVE_WHILE_FREEING:
-  1210                            BUG_ON(tm->slot < n);
-  1211                            fallthrough;
-  1212                    case MOD_LOG_KEY_REMOVE_WHILE_MOVING:
-  1213                    case MOD_LOG_KEY_REMOVE:
-  1214                            btrfs_set_node_key(eb, &tm->key, tm->slot);
-
-Here's what happens to hit that BUG_ON():
-
-1) We have one tree mod log user (through fiemap or the logical ino ioctl),
-   with a sequence number of 1, so we have fs_info->tree_mod_seq == 1;
-
-2) Another task is at ctree.c:balance_level() and we have eb X currently as
-   the root of the tree, and we promote its single child, eb Y, as the new
-   root.
-
-   Then, at ctree.c:balance_level(), we call:
-
-      tree_mod_log_insert_root(eb X, eb Y, 1);
-
-3) At tree_mod_log_insert_root() we create tree mod log elements for each
-   slot of eb X, of operation type MOD_LOG_KEY_REMOVE_WHILE_FREEING each
-   with a ->logical pointing to ebX->start. These are placed in an array
-   named tm_list.
-   Lets assume there are N elements (N pointers in eb X);
-
-4) Then, still at tree_mod_log_insert_root(), we create a tree mod log
-   element of operation type MOD_LOG_ROOT_REPLACE, ->logical set to
-   ebY->start, ->old_root.logical set to ebX->start, ->old_root.level set
-   to the level of eb X and ->generation set to the generation of eb X;
-
-5) Then tree_mod_log_insert_root() calls tree_mod_log_free_eb() with
-   tm_list as argument. After that, tree_mod_log_free_eb() calls
-   __tree_mod_log_insert() for each member of tm_list in reverse order,
-   from highest slot in eb X, slot N - 1, to slot 0 of eb X;
-
-6) __tree_mod_log_insert() sets the sequence number of each given tree mod
-   log operation - it increments fs_info->tree_mod_seq and sets
-   fs_info->tree_mod_seq as the sequence number of the given tree mod log
-   operation.
-
-   This means that for the tm_list created at tree_mod_log_insert_root(),
-   the element corresponding to slot 0 of eb X has the highest sequence
-   number (1 + N), and the element corresponding to the last slot has the
-   lowest sequence number (2);
-
-7) Then, after inserting tm_list's elements into the tree mod log rbtree,
-   the MOD_LOG_ROOT_REPLACE element is inserted, which gets the highest
-   sequence number, which is N + 2;
-
-8) Back to ctree.c:balance_level(), we free eb X by calling
-   btrfs_free_tree_block() on it. Because eb X was created in the current
-   transaction, has no other references and writeback did not happen for
-   it, we add it back to the free space cache/tree;
-
-9) Later some other task T allocates the metadata extent from eb X, since
-   it is marked as free space in the space cache/tree, and uses it as a
-   node for some other btree;
-
-10) The tree mod log user task calls btrfs_search_old_slot(), which calls
-    get_old_root(), and finally that calls __tree_mod_log_oldest_root()
-    with time_seq == 1 and eb_root == eb Y;
-
-11) First iteration of the while loop finds the tree mod log element with
-    sequence number N + 2, for the logical address of eb Y and of type
-    MOD_LOG_ROOT_REPLACE;
-
-12) Because the operation type is MOD_LOG_ROOT_REPLACE, we don't break out
-    of the loop, and set root_logical to point to tm->old_root.logical
-    which corresponds to the logical address of eb X;
-
-13) On the next iteration of the while loop, the call to
-    tree_mod_log_search_oldest() returns the smallest tree mod log element
-    for the logical address of eb X, which has a sequence number of 2, an
-    operation type of MOD_LOG_KEY_REMOVE_WHILE_FREEING and corresponds to
-    the old slot N - 1 of eb X (eb X had N items in it before being freed);
-
-14) We then break out of the while loop and return the tree mod log operation
-    of type MOD_LOG_ROOT_REPLACE (eb Y), and not the one for slot N - 1 of
-    eb X, to get_old_root();
-
-15) At get_old_root(), we process the MOD_LOG_ROOT_REPLACE operation
-    and set "logical" to the logical address of eb X, which was the old
-    root. We then call tree_mod_log_search() passing it the logical
-    address of eb X and time_seq == 1;
-
-16) Then before calling tree_mod_log_search(), task T adds a key to eb X,
-    which results in adding a tree mod log operation of type
-    MOD_LOG_KEY_ADD to the tree mod log - this is done at
-    ctree.c:insert_ptr() - but after adding the tree mod log operation
-    and before updating the number of items in eb X from 0 to 1...
-
-17) The task at get_old_root() calls tree_mod_log_search() and gets the
-    tree mod log operation of type MOD_LOG_KEY_ADD just added by task T.
-    Then it enters the following if branch:
-
-    if (old_root && tm && tm->op != MOD_LOG_KEY_REMOVE_WHILE_FREEING) {
-       (...)
-    } (...)
-
-    Calls read_tree_block() for eb X, which gets a reference on eb X but
-    does not lock it - task T has it locked.
-    Then it clones eb X while it has nritems set to 0 in its header, before
-    task T sets nritems to 1 in eb X's header. From hereupon we use the
-    clone of eb X which no other task has access to;
-
-18) Then we call __tree_mod_log_rewind(), passing it the MOD_LOG_KEY_ADD
-    mod log operation we just got from tree_mod_log_search() in the
-    previous step and the cloned version of eb X;
-
-19) At __tree_mod_log_rewind(), we set the local variable "n" to the number
-    of items set in eb X's clone, which is 0. Then we enter the while loop,
-    and in its first iteration we process the MOD_LOG_KEY_ADD operation,
-    which just decrements "n" from 0 to (u32)-1, since "n" is declared with
-    a type of u32. At the end of this iteration we call rb_next() to find the
-    next tree mod log operation for eb X, that gives us the mod log operation
-    of type MOD_LOG_KEY_REMOVE_WHILE_FREEING, for slot 0, with a sequence
-    number of N + 1 (steps 3 to 6);
-
-20) Then we go back to the top of the while loop and trigger the following
-    BUG_ON():
-
-        (...)
-        switch (tm->op) {
-        case MOD_LOG_KEY_REMOVE_WHILE_FREEING:
-                 BUG_ON(tm->slot < n);
-                 fallthrough;
-        (...)
-
-    Because "n" has a value of (u32)-1 (4294967295) and tm->slot is 0.
-
-Fix this by taking a read lock on the extent buffer before cloning it at
-ctree.c:get_old_root(). This should be done regardless of the extent
-buffer having been freed and reused, as a concurrent task might be
-modifying it (while holding a write lock on it).
-
-Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
-Link: https://lore.kernel.org/linux-btrfs/20210227155037.GN28049@hungrycats.org/
-Fixes: 834328a8493079 ("Btrfs: tree mod log's old roots could still be part of the tree")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/chrome/cros_ec_dev.c   |    4 ++++
+ drivers/platform/chrome/cros_ec_proto.c |    4 ++--
+ include/linux/mfd/cros_ec.h             |    6 ++++--
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1431,7 +1431,9 @@ get_old_root(struct btrfs_root *root, u6
- 				   "failed to read tree block %llu from get_old_root",
- 				   logical);
+--- a/drivers/platform/chrome/cros_ec_dev.c
++++ b/drivers/platform/chrome/cros_ec_dev.c
+@@ -137,6 +137,10 @@ static long ec_device_ioctl_xcmd(struct
+ 	if (copy_from_user(&u_cmd, arg, sizeof(u_cmd)))
+ 		return -EFAULT;
+ 
++	if ((u_cmd.outsize > EC_MAX_MSG_BYTES) ||
++	    (u_cmd.insize > EC_MAX_MSG_BYTES))
++		return -EINVAL;
++
+ 	s_cmd = kmalloc(sizeof(*s_cmd) + max(u_cmd.outsize, u_cmd.insize),
+ 			GFP_KERNEL);
+ 	if (!s_cmd)
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -311,8 +311,8 @@ int cros_ec_query_all(struct cros_ec_dev
+ 			ec_dev->max_response = EC_PROTO2_MAX_PARAM_SIZE;
+ 			ec_dev->max_passthru = 0;
+ 			ec_dev->pkt_xfer = NULL;
+-			ec_dev->din_size = EC_MSG_BYTES;
+-			ec_dev->dout_size = EC_MSG_BYTES;
++			ec_dev->din_size = EC_PROTO2_MSG_BYTES;
++			ec_dev->dout_size = EC_PROTO2_MSG_BYTES;
  		} else {
-+			btrfs_tree_read_lock(old);
- 			eb = btrfs_clone_extent_buffer(old);
-+			btrfs_tree_read_unlock(old);
- 			free_extent_buffer(old);
- 		}
- 	} else if (old_root) {
+ 			/*
+ 			 * It's possible for a test to occur too early when
+--- a/include/linux/mfd/cros_ec.h
++++ b/include/linux/mfd/cros_ec.h
+@@ -50,9 +50,11 @@ enum {
+ 					EC_MSG_TX_TRAILER_BYTES,
+ 	EC_MSG_RX_PROTO_BYTES	= 3,
+ 
+-	/* Max length of messages */
+-	EC_MSG_BYTES		= EC_PROTO2_MAX_PARAM_SIZE +
++	/* Max length of messages for proto 2*/
++	EC_PROTO2_MSG_BYTES		= EC_PROTO2_MAX_PARAM_SIZE +
+ 					EC_MSG_TX_PROTO_BYTES,
++
++	EC_MAX_MSG_BYTES		= 64 * 1024,
+ };
+ 
+ /*
 
 
