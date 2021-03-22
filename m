@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 801D5344222
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FF4344121
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231672AbhCVMit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:38:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S230419AbhCVMbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231992AbhCVMhS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:37:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD7AA619A1;
-        Mon, 22 Mar 2021 12:36:57 +0000 (UTC)
+        id S230374AbhCVMae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:30:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEB2260C3D;
+        Mon, 22 Mar 2021 12:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416618;
-        bh=UFD/eA+YxSgr0TsrY7PYKVpcbMXcz9ewaIdpfZb7PR8=;
+        s=korg; t=1616416234;
+        bh=ZB97km9wZK85oCKCyWjxtmlx6xbYJF/8/5iRqzEhMIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDAeBN6EvW8HaMOVWo0C7Vxz8knW4hCccAVltxLVi8+HbQUHl9W4sUoDxyDDdKV3X
-         xKxW2D0kv1oUFfp8mqJhWwCrtvmIm2Hf6jYf0nK+6cqOz6FADC4TIZ947Nw2W0o5GP
-         cLGtPCx9CMyuO7Mkew2dZQvIjXRq5XLxGnRKdsBs=
+        b=VzAVqY+QhTZVauLOAItKKOwTbDj+J2CMqFmf6VruJU5xjIw1O/YbLDAy+c6KN4ZlC
+         y2jSzyPIvqkHiG3MAVFIEJKrqqNAJmg1wATgAqZmY6ldwB/Xmw5dFEu8Gb7WjIeoE2
+         QVynabzxpYxW72DkqUTVc6ADFX2fNpIdsvxJOrqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.10 055/157] riscv: Correct SPARSEMEM configuration
+        stable@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.11 029/120] ASoC: fsl_ssi: Fix TDM slot setup for I2S mode
 Date:   Mon, 22 Mar 2021 13:26:52 +0100
-Message-Id: <20210322121935.499402986@linuxfoundation.org>
+Message-Id: <20210322121930.627945492@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Alexander Shiyan <shc_work@mail.ru>
 
-commit a5406a7ff56e63376c210b06072aa0ef23473366 upstream.
+commit 87263968516fb9507d6215d53f44052627fae8d8 upstream.
 
-There are two issues for RV32,
-1) if use FLATMEM, it is useless to enable SPARSEMEM_STATIC.
-2) if use SPARSMEM, both SPARSEMEM_VMEMMAP and SPARSEMEM_STATIC is enabled.
+When using the driver in I2S TDM mode, the _fsl_ssi_set_dai_fmt()
+function rewrites the number of slots previously set by the
+fsl_ssi_set_dai_tdm_slot() function to 2 by default.
+To fix this, let's use the saved slot count value or, if TDM
+is not used and the slot count is not set, proceed as before.
 
-Fixes: d95f1a542c3d ("RISC-V: Implement sparsemem")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: 4f14f5c11db1 ("ASoC: fsl_ssi: Fix number of words per frame for I2S-slave mode")
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/20210216114221.26635-1-shc_work@mail.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/fsl/fsl_ssi.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -84,7 +84,6 @@ config RISCV
- 	select PCI_MSI if PCI
- 	select RISCV_INTC
- 	select RISCV_TIMER if RISCV_SBI
--	select SPARSEMEM_STATIC if 32BIT
- 	select SPARSE_IRQ
- 	select SYSCTL_EXCEPTION_TRACE
- 	select THREAD_INFO_IN_TASK
-@@ -145,7 +144,8 @@ config ARCH_FLATMEM_ENABLE
- config ARCH_SPARSEMEM_ENABLE
- 	def_bool y
- 	depends on MMU
--	select SPARSEMEM_VMEMMAP_ENABLE
-+	select SPARSEMEM_STATIC if 32BIT && SPARSMEM
-+	select SPARSEMEM_VMEMMAP_ENABLE if 64BIT
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -878,6 +878,7 @@ static int fsl_ssi_hw_free(struct snd_pc
+ static int _fsl_ssi_set_dai_fmt(struct fsl_ssi *ssi, unsigned int fmt)
+ {
+ 	u32 strcr = 0, scr = 0, stcr, srcr, mask;
++	unsigned int slots;
  
- config ARCH_SELECT_MEMORY_MODEL
- 	def_bool ARCH_SPARSEMEM_ENABLE
+ 	ssi->dai_fmt = fmt;
+ 
+@@ -909,10 +910,11 @@ static int _fsl_ssi_set_dai_fmt(struct f
+ 			return -EINVAL;
+ 		}
+ 
++		slots = ssi->slots ? : 2;
+ 		regmap_update_bits(ssi->regs, REG_SSI_STCCR,
+-				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(2));
++				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(slots));
+ 		regmap_update_bits(ssi->regs, REG_SSI_SRCCR,
+-				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(2));
++				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(slots));
+ 
+ 		/* Data on rising edge of bclk, frame low, 1clk before data */
+ 		strcr |= SSI_STCR_TFSI | SSI_STCR_TSCKP | SSI_STCR_TEFS;
 
 
