@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA74B3441F2
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:38:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7144C3441F5
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:38:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230289AbhCVMhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55660 "EHLO mail.kernel.org"
+        id S231256AbhCVMhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:37:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231244AbhCVMft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:35:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5108B619AE;
-        Mon, 22 Mar 2021 12:35:36 +0000 (UTC)
+        id S231316AbhCVMfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:35:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A4D4619AA;
+        Mon, 22 Mar 2021 12:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416536;
-        bh=tsxQnpDRffd3gBbNueiaQHMMdRXQEbgd2XCUXstZ2vA=;
+        s=korg; t=1616416539;
+        bh=ZB97km9wZK85oCKCyWjxtmlx6xbYJF/8/5iRqzEhMIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2f3DjWFqW9ons1BOKj5A7v+MXwIT2QigZQg9UQPnkGryxbGGJ1vOQu+SciOE0fhjh
-         mJPd/M9nXAMwXcVMP5vAZ/ClLkFsA1XIfKF6NlcrFAArBUEjgFV4TUU8RBG6MO0fUa
-         dJHFoqXCSLbCOt2tyTCgiF2BBvKS6MelaHgO1xj0=
+        b=MmTNmwmnlaMHwld+fZgYhSMvAeFFaHM3HgOkPhQFceHiKFuAXXISW20Vylah43bGp
+         VVi0zZ9SkBqvTNmr0sgCs6fXtMFKXrK/9aaUfUvvHvVNZxUuAQtiIpmE1ZCnNetBDt
+         5HDTsT2tj3Bp3GxRYH68YZxNam/rJtuhFN79P/qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Calvin Hou <Calvin.Hou@amd.com>, Jun Lei <Jun.Lei@amd.com>,
-        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
-        Solomon Chiu <solomon.chiu@amd.com>,
-        Vladimir Stempen <Vladimir.Stempen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 023/157] drm/amd/display: Correct algorithm for reversed gamma
-Date:   Mon, 22 Mar 2021 13:26:20 +0100
-Message-Id: <20210322121934.506690410@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 024/157] ASoC: fsl_ssi: Fix TDM slot setup for I2S mode
+Date:   Mon, 22 Mar 2021 13:26:21 +0100
+Message-Id: <20210322121934.537422227@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -43,106 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Calvin Hou <Calvin.Hou@amd.com>
+From: Alexander Shiyan <shc_work@mail.ru>
 
-commit 34fa493a565cc6fcee6919787c11e264f55603c6 upstream.
+commit 87263968516fb9507d6215d53f44052627fae8d8 upstream.
 
-[Why]
-DCN30 needs to correctly program reversed gamma curve, which DCN20
-already has.
-Also needs to fix a bug that 252-255 values are clipped.
+When using the driver in I2S TDM mode, the _fsl_ssi_set_dai_fmt()
+function rewrites the number of slots previously set by the
+fsl_ssi_set_dai_tdm_slot() function to 2 by default.
+To fix this, let's use the saved slot count value or, if TDM
+is not used and the slot count is not set, proceed as before.
 
-[How]
-Apply two fixes into DCN30.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1513
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Calvin Hou <Calvin.Hou@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Acked-by: Solomon Chiu <solomon.chiu@amd.com>
-Acked-by: Vladimir Stempen <Vladimir.Stempen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 4f14f5c11db1 ("ASoC: fsl_ssi: Fix number of words per frame for I2S-slave mode")
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/20210216114221.26635-1-shc_work@mail.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_cm_common.c |   26 +++++++++++------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ sound/soc/fsl/fsl_ssi.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_cm_common.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_cm_common.c
-@@ -113,6 +113,7 @@ bool cm3_helper_translate_curve_to_hw_fo
- 	struct pwl_result_data *rgb_resulted;
- 	struct pwl_result_data *rgb;
- 	struct pwl_result_data *rgb_plus_1;
-+	struct pwl_result_data *rgb_minus_1;
- 	struct fixed31_32 end_value;
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -878,6 +878,7 @@ static int fsl_ssi_hw_free(struct snd_pc
+ static int _fsl_ssi_set_dai_fmt(struct fsl_ssi *ssi, unsigned int fmt)
+ {
+ 	u32 strcr = 0, scr = 0, stcr, srcr, mask;
++	unsigned int slots;
  
- 	int32_t region_start, region_end;
-@@ -140,7 +141,7 @@ bool cm3_helper_translate_curve_to_hw_fo
- 		region_start = -MAX_LOW_POINT;
- 		region_end   = NUMBER_REGIONS - MAX_LOW_POINT;
- 	} else {
--		/* 10 segments
-+		/* 11 segments
- 		 * segment is from 2^-10 to 2^0
- 		 * There are less than 256 points, for optimization
- 		 */
-@@ -154,9 +155,10 @@ bool cm3_helper_translate_curve_to_hw_fo
- 		seg_distr[7] = 4;
- 		seg_distr[8] = 4;
- 		seg_distr[9] = 4;
-+		seg_distr[10] = 1;
+ 	ssi->dai_fmt = fmt;
  
- 		region_start = -10;
--		region_end = 0;
-+		region_end = 1;
- 	}
- 
- 	for (i = region_end - region_start; i < MAX_REGIONS_NUMBER ; i++)
-@@ -189,6 +191,10 @@ bool cm3_helper_translate_curve_to_hw_fo
- 	rgb_resulted[hw_points - 1].green = output_tf->tf_pts.green[start_index];
- 	rgb_resulted[hw_points - 1].blue = output_tf->tf_pts.blue[start_index];
- 
-+	rgb_resulted[hw_points].red = rgb_resulted[hw_points - 1].red;
-+	rgb_resulted[hw_points].green = rgb_resulted[hw_points - 1].green;
-+	rgb_resulted[hw_points].blue = rgb_resulted[hw_points - 1].blue;
-+
- 	// All 3 color channels have same x
- 	corner_points[0].red.x = dc_fixpt_pow(dc_fixpt_from_int(2),
- 					     dc_fixpt_from_int(region_start));
-@@ -259,15 +265,18 @@ bool cm3_helper_translate_curve_to_hw_fo
- 
- 	rgb = rgb_resulted;
- 	rgb_plus_1 = rgb_resulted + 1;
-+	rgb_minus_1 = rgb;
- 
- 	i = 1;
- 	while (i != hw_points + 1) {
--		if (dc_fixpt_lt(rgb_plus_1->red, rgb->red))
--			rgb_plus_1->red = rgb->red;
--		if (dc_fixpt_lt(rgb_plus_1->green, rgb->green))
--			rgb_plus_1->green = rgb->green;
--		if (dc_fixpt_lt(rgb_plus_1->blue, rgb->blue))
--			rgb_plus_1->blue = rgb->blue;
-+		if (i >= hw_points - 1) {
-+			if (dc_fixpt_lt(rgb_plus_1->red, rgb->red))
-+				rgb_plus_1->red = dc_fixpt_add(rgb->red, rgb_minus_1->delta_red);
-+			if (dc_fixpt_lt(rgb_plus_1->green, rgb->green))
-+				rgb_plus_1->green = dc_fixpt_add(rgb->green, rgb_minus_1->delta_green);
-+			if (dc_fixpt_lt(rgb_plus_1->blue, rgb->blue))
-+				rgb_plus_1->blue = dc_fixpt_add(rgb->blue, rgb_minus_1->delta_blue);
-+		}
- 
- 		rgb->delta_red   = dc_fixpt_sub(rgb_plus_1->red,   rgb->red);
- 		rgb->delta_green = dc_fixpt_sub(rgb_plus_1->green, rgb->green);
-@@ -283,6 +292,7 @@ bool cm3_helper_translate_curve_to_hw_fo
+@@ -909,10 +910,11 @@ static int _fsl_ssi_set_dai_fmt(struct f
+ 			return -EINVAL;
  		}
  
- 		++rgb_plus_1;
-+		rgb_minus_1 = rgb;
- 		++rgb;
- 		++i;
- 	}
++		slots = ssi->slots ? : 2;
+ 		regmap_update_bits(ssi->regs, REG_SSI_STCCR,
+-				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(2));
++				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(slots));
+ 		regmap_update_bits(ssi->regs, REG_SSI_SRCCR,
+-				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(2));
++				   SSI_SxCCR_DC_MASK, SSI_SxCCR_DC(slots));
+ 
+ 		/* Data on rising edge of bclk, frame low, 1clk before data */
+ 		strcr |= SSI_STCR_TFSI | SSI_STCR_TSCKP | SSI_STCR_TEFS;
 
 
