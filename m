@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB7134443E
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D67633443A5
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbhCVM7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50766 "EHLO mail.kernel.org"
+        id S231510AbhCVMxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231680AbhCVM41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:56:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC4B2619B2;
-        Mon, 22 Mar 2021 12:48:36 +0000 (UTC)
+        id S231324AbhCVMtr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F01F619F1;
+        Mon, 22 Mar 2021 12:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417317;
-        bh=6HHLKYoweAvN1wQAPx+WwW4EgHFPjS7cDzR5oirjkm0=;
+        s=korg; t=1616417128;
+        bh=8HRRZOIu42uLIocWktvS2rbIiVEXh1u5HPOrOQVucxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYkmmuejgANtQ6rp6yF34NZ/10ECLU9MqkTl49yc2KYjHyXIeZBdTUv+gxbJmxGjR
-         Uzs6MdnmAmvaqR9ZiQ8opJbuAQ6y/CpffA9jsnNzjX4wWaMk46j+fsd6ITpnRc57tv
-         q1m6mqpgUTK/uOeqG+4e6PIE0zBDEOtfdL2ZrVvo=
+        b=crSzWOsbuIGmxkyb6dN4tJHh8uTNfVGOzupptgCzOuXzmIkDRlXfK3RuhkPwdLzdp
+         UAh863gkk05SNMDw/09riUn+VIJlj1lkzMU14IJ7OP9HLz1Mm/sGS9FsM9JPyMyn1E
+         c4Z01Fdd7+rmSDSstNusNqsFT8UFM/NUwv30XHwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 09/43] Revert "PM: runtime: Update device status before letting suppliers suspend"
-Date:   Mon, 22 Mar 2021 13:28:50 +0100
-Message-Id: <20210322121920.352986123@linuxfoundation.org>
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 37/43] x86: Move TS_COMPAT back to asm/thread_info.h
+Date:   Mon, 22 Mar 2021 13:28:51 +0100
+Message-Id: <20210322121921.102891977@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,113 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 0cab893f409c53634d0d818fa414641cbcdb0dab upstream.
+commit 66c1b6d74cd7035e85c426f0af4aede19e805c8a upstream.
 
-Revert commit 44cc89f76464 ("PM: runtime: Update device status
-before letting suppliers suspend") that introduced a race condition
-into __rpm_callback() which allowed a concurrent rpm_resume() to
-run and resume the device prematurely after its status had been
-changed to RPM_SUSPENDED by __rpm_callback().
+Move TS_COMPAT back to asm/thread_info.h, close to TS_I386_REGS_POKED.
 
-Fixes: 44cc89f76464 ("PM: runtime: Update device status before letting suppliers suspend")
-Link: https://lore.kernel.org/linux-pm/24dfb6fc-5d54-6ee2-9195-26428b7ecf8a@intel.com/
-Reported-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+It was moved to asm/processor.h by b9d989c7218a ("x86/asm: Move the
+thread_info::status field to thread_struct"), then later 37a8f7c38339
+("x86/asm: Move 'status' from thread_struct to thread_info") moved the
+'status' field back but TS_COMPAT was forgotten.
+
+Preparatory patch to fix the COMPAT case for get_nr_restart_syscall()
+
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210201174649.GA17880@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/power/runtime.c |   62 +++++++++++++++++--------------------------
- 1 file changed, 25 insertions(+), 37 deletions(-)
+ arch/x86/include/asm/processor.h   |    9 ---------
+ arch/x86/include/asm/thread_info.h |    9 +++++++++
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -306,22 +306,22 @@ static void rpm_put_suppliers(struct dev
- static int __rpm_callback(int (*cb)(struct device *), struct device *dev)
- 	__releases(&dev->power.lock) __acquires(&dev->power.lock)
- {
--	bool use_links = dev->power.links_count > 0;
--	bool get = false;
- 	int retval, idx;
--	bool put;
-+	bool use_links = dev->power.links_count > 0;
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -522,15 +522,6 @@ static inline void arch_thread_struct_wh
+ }
  
- 	if (dev->power.irq_safe) {
- 		spin_unlock(&dev->power.lock);
--	} else if (!use_links) {
--		spin_unlock_irq(&dev->power.lock);
- 	} else {
--		get = dev->power.runtime_status == RPM_RESUMING;
+ /*
+- * Thread-synchronous status.
+- *
+- * This is different from the flags in that nobody else
+- * ever touches our thread-synchronous status, so we don't
+- * have to worry about atomic accesses.
+- */
+-#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
 -
- 		spin_unlock_irq(&dev->power.lock);
+-/*
+  * Set IOPL bits in EFLAGS from given mask
+  */
+ static inline void native_set_iopl_mask(unsigned mask)
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -227,6 +227,15 @@ static inline int arch_within_stack_fram
  
--		/* Resume suppliers if necessary. */
--		if (get) {
-+		/*
-+		 * Resume suppliers if necessary.
-+		 *
-+		 * The device's runtime PM status cannot change until this
-+		 * routine returns, so it is safe to read the status outside of
-+		 * the lock.
-+		 */
-+		if (use_links && dev->power.runtime_status == RPM_RESUMING) {
- 			idx = device_links_read_lock();
+ #endif
  
- 			retval = rpm_get_suppliers(dev);
-@@ -336,36 +336,24 @@ static int __rpm_callback(int (*cb)(stru
- 
- 	if (dev->power.irq_safe) {
- 		spin_lock(&dev->power.lock);
--		return retval;
--	}
--
--	spin_lock_irq(&dev->power.lock);
--
--	if (!use_links)
--		return retval;
--
--	/*
--	 * If the device is suspending and the callback has returned success,
--	 * drop the usage counters of the suppliers that have been reference
--	 * counted on its resume.
--	 *
--	 * Do that if the resume fails too.
--	 */
--	put = dev->power.runtime_status == RPM_SUSPENDING && !retval;
--	if (put)
--		__update_runtime_status(dev, RPM_SUSPENDED);
--	else
--		put = get && retval;
--
--	if (put) {
--		spin_unlock_irq(&dev->power.lock);
--
--		idx = device_links_read_lock();
-+	} else {
-+		/*
-+		 * If the device is suspending and the callback has returned
-+		 * success, drop the usage counters of the suppliers that have
-+		 * been reference counted on its resume.
-+		 *
-+		 * Do that if resume fails too.
-+		 */
-+		if (use_links
-+		    && ((dev->power.runtime_status == RPM_SUSPENDING && !retval)
-+		    || (dev->power.runtime_status == RPM_RESUMING && retval))) {
-+			idx = device_links_read_lock();
- 
--fail:
--		rpm_put_suppliers(dev);
-+ fail:
-+			rpm_put_suppliers(dev);
- 
--		device_links_read_unlock(idx);
-+			device_links_read_unlock(idx);
-+		}
- 
- 		spin_lock_irq(&dev->power.lock);
- 	}
++/*
++ * Thread-synchronous status.
++ *
++ * This is different from the flags in that nobody else
++ * ever touches our thread-synchronous status, so we don't
++ * have to worry about atomic accesses.
++ */
++#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
++
+ #ifdef CONFIG_COMPAT
+ #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
+ #endif
 
 
