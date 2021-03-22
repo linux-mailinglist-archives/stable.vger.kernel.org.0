@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B88E7344170
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC7B344176
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231159AbhCVMde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:33:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55266 "EHLO mail.kernel.org"
+        id S231214AbhCVMdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:33:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231406AbhCVMcr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:32:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60DE26199E;
-        Mon, 22 Mar 2021 12:32:46 +0000 (UTC)
+        id S230114AbhCVMct (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:32:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E6826199F;
+        Mon, 22 Mar 2021 12:32:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416366;
-        bh=m0x2fiiWRpm+GbCOB1gUeQYkZ1jaK5WjwHb/FPiolgY=;
+        s=korg; t=1616416369;
+        bh=eJDuW1nCbwhN9OjJD1WjXaKufCCg/gLcBm8Mwb7Kxdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wo2jhq1qg3M/JGBWDg69Q+sNylh9/TTmAlLx9NP0IAW7kxmQX3LY2e8PG8Mx07SFr
-         E68IiZ50ujE6ZVlio2NusM8MzY+6xZ5JAv+I51maXBXUi6/50CMDjmwdCdySxAAWQo
-         FGZPO2mPsFE0jUJVhDzxC/9iEyfEbA5P0SYli9ZQ=
+        b=DJoH65wuerbYUkucoO1RYa/qcs5WKqcecRDMdXlyq213urPVVi5JNDD4bqTf/dSYp
+         GCoN6YIDTt8lE4WSChGTh1TDPkpjRig/rRpGzh7HNz5FwOMZhAeRgGzRuktHgM4Hkp
+         kyc802Y+7ssi6GUryI+Sv/eE6OsWx/HkPajW4afw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 5.11 080/120] usb: gadget: configfs: Fix KASAN use-after-free
-Date:   Mon, 22 Mar 2021 13:27:43 +0100
-Message-Id: <20210322121932.338646904@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
+        Elias Rudberg <mail@eliasrudberg.se>
+Subject: [PATCH 5.11 081/120] usb: typec: Remove vdo[3] part of tps6598x_rx_identity_reg struct
+Date:   Mon, 22 Mar 2021 13:27:44 +0100
+Message-Id: <20210322121932.375287307@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
 References: <20210322121929.669628946@linuxfoundation.org>
@@ -39,83 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Lin <jilin@nvidia.com>
+From: Elias Rudberg <mail@eliasrudberg.se>
 
-commit 98f153a10da403ddd5e9d98a3c8c2bb54bb5a0b6 upstream.
+commit 3cac9104bea41099cf622091f0c0538bcb19050d upstream.
 
-When gadget is disconnected, running sequence is like this.
-. composite_disconnect
-. Call trace:
-  usb_string_copy+0xd0/0x128
-  gadget_config_name_configuration_store+0x4
-  gadget_config_name_attr_store+0x40/0x50
-  configfs_write_file+0x198/0x1f4
-  vfs_write+0x100/0x220
-  SyS_write+0x58/0xa8
-. configfs_composite_unbind
-. configfs_composite_bind
+Remove the unused "u32 vdo[3]" part in the tps6598x_rx_identity_reg
+struct. This helps avoid "failed to register partner" errors which
+happen when tps6598x_read_partner_identity() fails because the
+amount of data read is 12 bytes smaller than the struct size.
+Note that vdo[3] is already in usb_pd_identity and hence
+shouldn't be added to tps6598x_rx_identity_reg as well.
 
-In configfs_composite_bind, it has
-"cn->strings.s = cn->configuration;"
-
-When usb_string_copy is invoked. it would
-allocate memory, copy input string, release previous pointed memory space,
-and use new allocated memory.
-
-When gadget is connected, host sends down request to get information.
-Call trace:
-  usb_gadget_get_string+0xec/0x168
-  lookup_string+0x64/0x98
-  composite_setup+0xa34/0x1ee8
-
-If gadget is disconnected and connected quickly, in the failed case,
-cn->configuration memory has been released by usb_string_copy kfree but
-configfs_composite_bind hasn't been run in time to assign new allocated
-"cn->configuration" pointer to "cn->strings.s".
-
-When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
-memory is accessed, "BUG: KASAN: use-after-free" error occurs.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Jim Lin <jilin@nvidia.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Link: https://lore.kernel.org/r/1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com
+Fixes: f6c56ca91b92 ("usb: typec: Add the Product Type VDOs to struct usb_pd_identity")
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guido Günther <agx@sigxcpu.org>
+Signed-off-by: Elias Rudberg <mail@eliasrudberg.se>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210311124710.6563-1-mail@eliasrudberg.se
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/configfs.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/usb/typec/tps6598x.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -97,6 +97,8 @@ struct gadget_config_name {
- 	struct list_head list;
- };
+--- a/drivers/usb/typec/tps6598x.c
++++ b/drivers/usb/typec/tps6598x.c
+@@ -64,7 +64,6 @@ enum {
+ struct tps6598x_rx_identity_reg {
+ 	u8 status;
+ 	struct usb_pd_identity identity;
+-	u32 vdo[3];
+ } __packed;
  
-+#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
-+
- static int usb_string_copy(const char *s, char **s_copy)
- {
- 	int ret;
-@@ -106,12 +108,16 @@ static int usb_string_copy(const char *s
- 	if (ret > USB_MAX_STRING_LEN)
- 		return -EOVERFLOW;
- 
--	str = kstrdup(s, GFP_KERNEL);
--	if (!str)
--		return -ENOMEM;
-+	if (copy) {
-+		str = copy;
-+	} else {
-+		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
-+		if (!str)
-+			return -ENOMEM;
-+	}
-+	strcpy(str, s);
- 	if (str[ret - 1] == '\n')
- 		str[ret - 1] = '\0';
--	kfree(copy);
- 	*s_copy = str;
- 	return 0;
- }
+ /* Standard Task return codes */
 
 
