@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B08653443A2
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EE634443D
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbhCVMxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40966 "EHLO mail.kernel.org"
+        id S231912AbhCVM7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231559AbhCVMtn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:49:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C095A619FD;
-        Mon, 22 Mar 2021 12:45:20 +0000 (UTC)
+        id S231631AbhCVM41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:56:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DB97619DB;
+        Mon, 22 Mar 2021 12:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417121;
-        bh=3mUy8Ax1y39CkTTXTWR8sP+mEdhZzGcJaMddrkPsuFw=;
+        s=korg; t=1616417314;
+        bh=m5kA/abdLW1cZgeUHA+IwCVIgm5Gqof0wPkfwUCERmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2a9sly0nttP134yL4kJsj+uKrnc518WL7ojtan2SprzVFXMgy1klByUkFCY03VFYQ
-         4oRikwpkX81Sh5StOZc2Iu/wgOkMnEyKp+ANwrHbXPHLY+MBKJTb2bNXwLd+qUd96g
-         S3XIt+fYs9oFqStj4SwyfqMIws75p0MNULdt8IEE=
+        b=KVOlpnw7FwIv0cxr6TFLxcLqh7Q399vMaBZ+3PlwEkMaN8VX4ru58+8fLy1R7gDzI
+         vBGAQdA3LemPP9B5t5/lHaZit7tP6maCP0IUVMBtQHZIKyiP+AKEenbHWofl5zabJH
+         rz5biW9ynOQujQsbWYciIV3Z9g20qhEMD2H/OWVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>
-Subject: [PATCH 4.19 34/43] perf/x86/intel: Fix a crash caused by zero PEBS status
-Date:   Mon, 22 Mar 2021 13:28:48 +0100
-Message-Id: <20210322121921.007117489@linuxfoundation.org>
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 4.14 08/43] bpf: Prohibit alu ops for pointer types not defining ptr_limit
+Date:   Mon, 22 Mar 2021 13:28:49 +0100
+Message-Id: <20210322121920.321935998@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
-References: <20210322121919.936671417@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Piotr Krysiuk <piotras@gmail.com>
 
-commit d88d05a9e0b6d9356e97129d4ff9942d765f46ea upstream.
+commit f232326f6966cf2a1d1db7bc917a4ce5f9f55f76 upstream.
 
-A repeatable crash can be triggered by the perf_fuzzer on some Haswell
-system.
-https://lore.kernel.org/lkml/7170d3b-c17f-1ded-52aa-cc6d9ae999f4@maine.edu/
+The purpose of this patch is to streamline error propagation and in particular
+to propagate retrieve_ptr_limit() errors for pointer types that are not defining
+a ptr_limit such that register-based alu ops against these types can be rejected.
 
-For some old CPUs (HSW and earlier), the PEBS status in a PEBS record
-may be mistakenly set to 0. To minimize the impact of the defect, the
-commit was introduced to try to avoid dropping the PEBS record for some
-cases. It adds a check in the intel_pmu_drain_pebs_nhm(), and updates
-the local pebs_status accordingly. However, it doesn't correct the PEBS
-status in the PEBS record, which may trigger the crash, especially for
-the large PEBS.
+The main rationale is that a gap has been identified by Piotr in the existing
+protection against speculatively out-of-bounds loads, for example, in case of
+ctx pointers, unprivileged programs can still perform pointer arithmetic. This
+can be abused to execute speculatively out-of-bounds loads without restrictions
+and thus extract contents of kernel memory.
 
-It's possible that all the PEBS records in a large PEBS have the PEBS
-status 0. If so, the first get_next_pebs_record_by_bit() in the
-__intel_pmu_pebs_event() returns NULL. The at = NULL. Since it's a large
-PEBS, the 'count' parameter must > 1. The second
-get_next_pebs_record_by_bit() will crash.
+Fix this by rejecting unprivileged programs that attempt any pointer arithmetic
+on unprotected pointer types. The two affected ones are pointer to ctx as well
+as pointer to map. Field access to a modified ctx' pointer is rejected at a
+later point in time in the verifier, and 7c6967326267 ("bpf: Permit map_ptr
+arithmetic with opcode add and offset 0") only relevant for root-only use cases.
+Risk of unprivileged program breakage is considered very low.
 
-Besides the local pebs_status, correct the PEBS status in the PEBS
-record as well.
-
-Fixes: 01330d7288e0 ("perf/x86: Allow zero PEBS status with only single active event")
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1615555298-140216-1-git-send-email-kan.liang@linux.intel.com
+Fixes: 7c6967326267 ("bpf: Permit map_ptr arithmetic with opcode add and offset 0")
+Fixes: b2157399cc98 ("bpf: prevent out-of-bounds speculation")
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/events/intel/ds.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -1557,7 +1557,7 @@ static void intel_pmu_drain_pebs_nhm(str
- 		 */
- 		if (!pebs_status && cpuc->pebs_enabled &&
- 			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
--			pebs_status = cpuc->pebs_enabled;
-+			pebs_status = p->status = cpuc->pebs_enabled;
+---
+ kernel/bpf/verifier.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2104,6 +2104,7 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	u32 alu_state, alu_limit;
+ 	struct bpf_reg_state tmp;
+ 	bool ret;
++	int err;
  
- 		bit = find_first_bit((unsigned long *)&pebs_status,
- 					x86_pmu.max_pebs_events);
+ 	if (can_skip_alu_sanitation(env, insn))
+ 		return 0;
+@@ -2119,10 +2120,13 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	alu_state |= ptr_is_dst_reg ?
+ 		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
+ 
+-	if (retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg))
+-		return 0;
+-	if (update_alu_sanitation_state(aux, alu_state, alu_limit))
+-		return -EACCES;
++	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
++	if (err < 0)
++		return err;
++
++	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
++	if (err < 0)
++		return err;
+ do_sim:
+ 	/* Simulate and find potential out-of-bounds access under
+ 	 * speculative execution from truncation as a result of
+@@ -2215,7 +2219,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	case BPF_ADD:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+ 		if (ret < 0) {
+-			verbose("R%d tried to add from different maps or paths\n", dst);
++			verbose("R%d tried to add from different maps, paths, or prohibited types\n", dst);
+ 			return ret;
+ 		}
+ 		/* We can take a fixed offset as long as it doesn't overflow
+@@ -2270,7 +2274,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	case BPF_SUB:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+ 		if (ret < 0) {
+-			verbose("R%d tried to sub from different maps or paths\n", dst);
++			verbose("R%d tried to sub from different maps, paths, or prohibited types\n", dst);
+ 			return ret;
+ 		}
+ 		if (dst_reg == off_reg) {
 
 
