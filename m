@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA77344161
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F6E344269
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbhCVMdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54832 "EHLO mail.kernel.org"
+        id S231809AbhCVMl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:41:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231462AbhCVMcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:32:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 125DC6199F;
-        Mon, 22 Mar 2021 12:32:06 +0000 (UTC)
+        id S231297AbhCVMjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:39:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 693D1619A8;
+        Mon, 22 Mar 2021 12:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416327;
-        bh=siGEuMR7e6EFUCbTIBIWlr5pETZWu4iXpAaxpKKLTrc=;
+        s=korg; t=1616416709;
+        bh=2VYa52osbzQu2YvZGVufAoYT2MTK455F0ufVCJ8pk+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBknAiYWv4YjDivPELNLrHoZgKyqehGClWVK0fPxquSrFb2a4pY2MZ7UhrhTsb0vc
-         hOEJx9WrOnzXxReuBF1bPerI58s5fTYFQoI/k/8QE/OCAVezoqwCbqd0dIbldukYZT
-         0b4MsbvkLzhEaRjBRFr2IRL6Bq+8Wfj1tsVGE/5Q=
+        b=e+CGmQAVvsqeZJzipUO8ytNhXblZSLwt5FJPHJQ7uUza3eFnsnE9KQEXa5aX2+GrA
+         P9ppj9Urt99oPR7mAejVDd6qXYCaZO7sF7ZMQCubxNbXlkwHh/lAgb3r9njrXvexOU
+         9P9kdfSHlOo4CzuZ13s5ckgZnGiAnxwOK1QqL8ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.11 063/120] riscv: Correct SPARSEMEM configuration
-Date:   Mon, 22 Mar 2021 13:27:26 +0100
-Message-Id: <20210322121931.789152049@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 090/157] MIPS: compressed: fix build with enabled UBSAN
+Date:   Mon, 22 Mar 2021 13:27:27 +0100
+Message-Id: <20210322121936.636241778@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-commit a5406a7ff56e63376c210b06072aa0ef23473366 upstream.
+[ Upstream commit fc4cac4cfc437659ce445c3c47b807e1cc625b66 ]
 
-There are two issues for RV32,
-1) if use FLATMEM, it is useless to enable SPARSEMEM_STATIC.
-2) if use SPARSMEM, both SPARSEMEM_VMEMMAP and SPARSEMEM_STATIC is enabled.
+Commit 1e35918ad9d1 ("MIPS: Enable Undefined Behavior Sanitizer
+UBSAN") added a possibility to build the entire kernel with UBSAN
+instrumentation for MIPS, with the exception for VDSO.
+However, self-extracting head wasn't been added to exceptions, so
+this occurs:
 
-Fixes: d95f1a542c3d ("RISC-V: Implement sparsemem")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+mips-alpine-linux-musl-ld: arch/mips/boot/compressed/decompress.o:
+in function `FSE_buildDTable_wksp':
+decompress.c:(.text.FSE_buildDTable_wksp+0x278): undefined reference
+to `__ubsan_handle_shift_out_of_bounds'
+mips-alpine-linux-musl-ld: decompress.c:(.text.FSE_buildDTable_wksp+0x2a8):
+undefined reference to `__ubsan_handle_shift_out_of_bounds'
+mips-alpine-linux-musl-ld: decompress.c:(.text.FSE_buildDTable_wksp+0x2c4):
+undefined reference to `__ubsan_handle_shift_out_of_bounds'
+mips-alpine-linux-musl-ld: arch/mips/boot/compressed/decompress.o:
+decompress.c:(.text.FSE_buildDTable_raw+0x9c): more undefined references
+to `__ubsan_handle_shift_out_of_bounds' follow
+
+Add UBSAN_SANITIZE := n to mips/boot/compressed/Makefile to exclude
+it from instrumentation scope and fix this issue.
+
+Fixes: 1e35918ad9d1 ("MIPS: Enable Undefined Behavior Sanitizer UBSAN")
+Cc: stable@vger.kernel.org # 5.0+
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/boot/compressed/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -87,7 +87,6 @@ config RISCV
- 	select PCI_MSI if PCI
- 	select RISCV_INTC
- 	select RISCV_TIMER if RISCV_SBI
--	select SPARSEMEM_STATIC if 32BIT
- 	select SPARSE_IRQ
- 	select SYSCTL_EXCEPTION_TRACE
- 	select THREAD_INFO_IN_TASK
-@@ -148,7 +147,8 @@ config ARCH_FLATMEM_ENABLE
- config ARCH_SPARSEMEM_ENABLE
- 	def_bool y
- 	depends on MMU
--	select SPARSEMEM_VMEMMAP_ENABLE
-+	select SPARSEMEM_STATIC if 32BIT && SPARSMEM
-+	select SPARSEMEM_VMEMMAP_ENABLE if 64BIT
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index d66511825fe1..337ab1d18cc1 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -36,6 +36,7 @@ KBUILD_AFLAGS := $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
  
- config ARCH_SELECT_MEMORY_MODEL
- 	def_bool ARCH_SPARSEMEM_ENABLE
+ # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
+ KCOV_INSTRUMENT		:= n
++UBSAN_SANITIZE := n
+ 
+ # decompressor objects (linked with vmlinuz)
+ vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
+-- 
+2.30.1
+
 
 
