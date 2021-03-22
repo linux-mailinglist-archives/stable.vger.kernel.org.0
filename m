@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 275783441E1
+	by mail.lfdr.de (Postfix) with ESMTP id A100D3441E2
 	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231355AbhCVMgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:36:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57576 "EHLO mail.kernel.org"
+        id S230451AbhCVMgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:36:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231779AbhCVMfO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:35:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60FED6199E;
-        Mon, 22 Mar 2021 12:35:13 +0000 (UTC)
+        id S230445AbhCVMfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:35:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FE54619A7;
+        Mon, 22 Mar 2021 12:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416513;
-        bh=W61Iv9fzStpU4pWw0XNw7huQGzpR0gnjl9elH9Zq9No=;
+        s=korg; t=1616416516;
+        bh=LHaubciIY+oHnLTj2kVl3f/oS13n8D+RYAd9C4t69ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jokTA0ircvWBAhH5FYtviJcLywfv1ectHPk4V9uhuCtlgdq+FWwvpOchxhjYZuCYT
-         A8hhqIxUsZhbIBzadvB3BjElvh1HAyOQdFPJizymIHZqctcK869Fw4qQl3IcdGXqyo
-         4lBnP6hyXDjd8F6RvotMo249Bfm4C1CpUyrvme8w=
+        b=N+MqsNCSYTNI6Xpo4DcUevKd2BcMzogHi7q4+PpDuTlmkp2+TetLA1B2ZrIyE1XAT
+         zT7qgUTwB88GrjQfM0FLfgbCcxhViyIXWcbH0uU46P9IAD03rzWY/5B6s8+N2PDkK0
+         T+PnsOvyeTJil5Xr9H5OHBzb3GhUuGiOrQcrUr9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.10 015/157] s390/pci: fix leak of PCI device structure
-Date:   Mon, 22 Mar 2021 13:26:12 +0100
-Message-Id: <20210322121934.261615444@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 5.10 016/157] zonefs: Fix O_APPEND async write handling
+Date:   Mon, 22 Mar 2021 13:26:13 +0100
+Message-Id: <20210322121934.291974464@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -40,171 +40,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit 0b13525c20febcfecccf6fc1db5969727401317d upstream.
+commit ebfd68cd0c1e81267c757332385cb96df30dacce upstream.
 
-In commit 05bc1be6db4b2 ("s390/pci: create zPCI bus") we removed the
-pci_dev_put() call matching the earlier pci_get_slot() done as part of
-__zpci_event_availability(). This was based on the wrong understanding
-that the device_put() done as part of pci_destroy_device() would counter
-the pci_get_slot() when it only counters the initial reference. This
-same understanding and existing bad example also lead to not doing
-a pci_dev_put() in zpci_remove_device().
+zonefs updates the size of a sequential zone file inode only on
+completion of direct writes. When executing asynchronous append writes
+(with a file open with O_APPEND or using RWF_APPEND), the use of the
+current inode size in generic_write_checks() to set an iocb offset thus
+leads to unaligned write if an application issues an append write
+operation with another write already being executed.
 
-Since releasing the PCI devices, unlike releasing the PCI slot, does not
-print any debug message for testing I added one in pci_release_dev().
-This revealed that we are indeed leaking the PCI device on PCI
-hotunplug. Further testing also revealed another missing pci_dev_put() in
-disable_slot().
+Fix this problem by introducing zonefs_write_checks() as a modified
+version of generic_write_checks() using the file inode wp_offset for an
+append write iocb offset. Also introduce zonefs_write_check_limits() to
+replace generic_write_check_limits() call. This zonefs special helper
+makes sure that the maximum file limit used is the maximum size of the
+file being accessed.
 
-Fix this by adding the missing pci_dev_put() in disable_slot() and fix
-zpci_remove_device() with the correct pci_dev_put() calls. Also instead
-of calling pci_get_slot() in __zpci_event_availability() to determine if
-a PCI device is registered and then doing the same again in
-zpci_remove_device() do this once in zpci_remove_device() which makes
-sure that the pdev in __zpci_event_availability() is only used for the
-result of pci_scan_single_device() which does not need a reference count
-decremnt as its ownership goes to the PCI bus.
+Since zonefs_write_checks() already truncates the iov_iter, the calls
+to iov_iter_truncate() in zonefs_file_dio_write() and
+zonefs_file_buffered_write() are removed.
 
-Also move the check if zdev->zbus->bus is set into zpci_remove_device()
-since it may be that we're removing a device with devfn != 0 which never
-had a PCI bus. So we can still set the pdev->error_state to indicate
-that the device is not usable anymore, add a flag to set the error state.
-
-Fixes: 05bc1be6db4b2 ("s390/pci: create zPCI bus")
-Cc: <stable@vger.kernel.org> # 5.8+: e1bff843cde6 s390/pci: remove superfluous zdev->zbus check
-Cc: <stable@vger.kernel.org> # 5.8+: ba764dd703fe s390/pci: refactor zpci_create_device()
-Cc: <stable@vger.kernel.org> # 5.8+
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 8dcc1a9d90c1 ("fs: New zonefs file system")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/pci.h        |    2 +-
- arch/s390/pci/pci.c                |   28 ++++++++++++++++++++++++----
- arch/s390/pci/pci_event.c          |   18 ++++++------------
- drivers/pci/hotplug/s390_pci_hpc.c |    3 ++-
- 4 files changed, 33 insertions(+), 18 deletions(-)
+ fs/zonefs/super.c |   78 +++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 68 insertions(+), 10 deletions(-)
 
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -202,7 +202,7 @@ extern unsigned int s390_pci_no_rid;
- ----------------------------------------------------------------------------- */
- /* Base stuff */
- int zpci_create_device(u32 fid, u32 fh, enum zpci_state state);
--void zpci_remove_device(struct zpci_dev *zdev);
-+void zpci_remove_device(struct zpci_dev *zdev, bool set_error);
- int zpci_enable_device(struct zpci_dev *);
- int zpci_disable_device(struct zpci_dev *);
- int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64);
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -682,16 +682,36 @@ int zpci_disable_device(struct zpci_dev
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -720,6 +720,68 @@ out_release:
  }
- EXPORT_SYMBOL_GPL(zpci_disable_device);
  
--void zpci_remove_device(struct zpci_dev *zdev)
-+/* zpci_remove_device - Removes the given zdev from the PCI core
-+ * @zdev: the zdev to be removed from the PCI core
-+ * @set_error: if true the device's error state is set to permanent failure
-+ *
-+ * Sets a zPCI device to a configured but offline state; the zPCI
-+ * device is still accessible through its hotplug slot and the zPCI
-+ * API but is removed from the common code PCI bus, making it
-+ * no longer available to drivers.
+ /*
++ * Do not exceed the LFS limits nor the file zone size. If pos is under the
++ * limit it becomes a short access. If it exceeds the limit, return -EFBIG.
 + */
-+void zpci_remove_device(struct zpci_dev *zdev, bool set_error)
- {
- 	struct zpci_bus *zbus = zdev->zbus;
- 	struct pci_dev *pdev;
- 
-+	if (!zdev->zbus->bus)
-+		return;
++static loff_t zonefs_write_check_limits(struct file *file, loff_t pos,
++					loff_t count)
++{
++	struct inode *inode = file_inode(file);
++	struct zonefs_inode_info *zi = ZONEFS_I(inode);
++	loff_t limit = rlimit(RLIMIT_FSIZE);
++	loff_t max_size = zi->i_max_size;
 +
- 	pdev = pci_get_slot(zbus->bus, zdev->devfn);
- 	if (pdev) {
--		if (pdev->is_virtfn)
--			return zpci_iov_remove_virtfn(pdev, zdev->vfn);
-+		if (set_error)
-+			pdev->error_state = pci_channel_io_perm_failure;
-+		if (pdev->is_virtfn) {
-+			zpci_iov_remove_virtfn(pdev, zdev->vfn);
-+			/* balance pci_get_slot */
-+			pci_dev_put(pdev);
-+			return;
++	if (limit != RLIM_INFINITY) {
++		if (pos >= limit) {
++			send_sig(SIGXFSZ, current, 0);
++			return -EFBIG;
 +		}
- 		pci_stop_and_remove_bus_device_locked(pdev);
-+		/* balance pci_get_slot */
-+		pci_dev_put(pdev);
++		count = min(count, limit - pos);
++	}
++
++	if (!(file->f_flags & O_LARGEFILE))
++		max_size = min_t(loff_t, MAX_NON_LFS, max_size);
++
++	if (unlikely(pos >= max_size))
++		return -EFBIG;
++
++	return min(count, max_size - pos);
++}
++
++static ssize_t zonefs_write_checks(struct kiocb *iocb, struct iov_iter *from)
++{
++	struct file *file = iocb->ki_filp;
++	struct inode *inode = file_inode(file);
++	struct zonefs_inode_info *zi = ZONEFS_I(inode);
++	loff_t count;
++
++	if (IS_SWAPFILE(inode))
++		return -ETXTBSY;
++
++	if (!iov_iter_count(from))
++		return 0;
++
++	if ((iocb->ki_flags & IOCB_NOWAIT) && !(iocb->ki_flags & IOCB_DIRECT))
++		return -EINVAL;
++
++	if (iocb->ki_flags & IOCB_APPEND) {
++		if (zi->i_ztype != ZONEFS_ZTYPE_SEQ)
++			return -EINVAL;
++		mutex_lock(&zi->i_truncate_mutex);
++		iocb->ki_pos = zi->i_wpoffset;
++		mutex_unlock(&zi->i_truncate_mutex);
++	}
++
++	count = zonefs_write_check_limits(file, iocb->ki_pos,
++					  iov_iter_count(from));
++	if (count < 0)
++		return count;
++
++	iov_iter_truncate(from, count);
++	return iov_iter_count(from);
++}
++
++/*
+  * Handle direct writes. For sequential zone files, this is the only possible
+  * write path. For these files, check that the user is issuing writes
+  * sequentially from the end of the file. This code assumes that the block layer
+@@ -736,8 +798,7 @@ static ssize_t zonefs_file_dio_write(str
+ 	struct super_block *sb = inode->i_sb;
+ 	bool sync = is_sync_kiocb(iocb);
+ 	bool append = false;
+-	size_t count;
+-	ssize_t ret;
++	ssize_t ret, count;
+ 
+ 	/*
+ 	 * For async direct IOs to sequential zone files, refuse IOCB_NOWAIT
+@@ -755,12 +816,11 @@ static ssize_t zonefs_file_dio_write(str
+ 		inode_lock(inode);
  	}
- }
  
-@@ -765,7 +785,7 @@ void zpci_release_device(struct kref *kr
- 	struct zpci_dev *zdev = container_of(kref, struct zpci_dev, kref);
- 
- 	if (zdev->zbus->bus)
--		zpci_remove_device(zdev);
-+		zpci_remove_device(zdev, false);
- 
- 	switch (zdev->state) {
- 	case ZPCI_FN_STATE_ONLINE:
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -76,13 +76,10 @@ void zpci_event_error(void *data)
- static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- {
- 	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
--	struct pci_dev *pdev = NULL;
- 	enum zpci_state state;
-+	struct pci_dev *pdev;
- 	int ret;
- 
--	if (zdev && zdev->zbus->bus)
--		pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
+-	ret = generic_write_checks(iocb, from);
+-	if (ret <= 0)
++	count = zonefs_write_checks(iocb, from);
++	if (count <= 0) {
++		ret = count;
+ 		goto inode_unlock;
 -
- 	zpci_err("avail CCDF:\n");
- 	zpci_err_hex(ccdf, sizeof(*ccdf));
+-	iov_iter_truncate(from, zi->i_max_size - iocb->ki_pos);
+-	count = iov_iter_count(from);
++	}
  
-@@ -124,8 +121,7 @@ static void __zpci_event_availability(st
- 	case 0x0303: /* Deconfiguration requested */
- 		if (!zdev)
- 			break;
--		if (pdev)
--			zpci_remove_device(zdev);
-+		zpci_remove_device(zdev, false);
- 
- 		ret = zpci_disable_device(zdev);
- 		if (ret)
-@@ -140,12 +136,10 @@ static void __zpci_event_availability(st
- 	case 0x0304: /* Configured -> Standby|Reserved */
- 		if (!zdev)
- 			break;
--		if (pdev) {
--			/* Give the driver a hint that the function is
--			 * already unusable. */
--			pdev->error_state = pci_channel_io_perm_failure;
--			zpci_remove_device(zdev);
--		}
-+		/* Give the driver a hint that the function is
-+		 * already unusable.
-+		 */
-+		zpci_remove_device(zdev, true);
- 
- 		zdev->fh = ccdf->fh;
- 		zpci_disable_device(zdev);
---- a/drivers/pci/hotplug/s390_pci_hpc.c
-+++ b/drivers/pci/hotplug/s390_pci_hpc.c
-@@ -93,8 +93,9 @@ static int disable_slot(struct hotplug_s
- 		pci_dev_put(pdev);
- 		return -EBUSY;
+ 	if ((iocb->ki_pos | count) & (sb->s_blocksize - 1)) {
+ 		ret = -EINVAL;
+@@ -820,12 +880,10 @@ static ssize_t zonefs_file_buffered_writ
+ 		inode_lock(inode);
  	}
-+	pci_dev_put(pdev);
  
--	zpci_remove_device(zdev);
-+	zpci_remove_device(zdev, false);
+-	ret = generic_write_checks(iocb, from);
++	ret = zonefs_write_checks(iocb, from);
+ 	if (ret <= 0)
+ 		goto inode_unlock;
  
- 	rc = zpci_disable_device(zdev);
- 	if (rc)
+-	iov_iter_truncate(from, zi->i_max_size - iocb->ki_pos);
+-
+ 	ret = iomap_file_buffered_write(iocb, from, &zonefs_iomap_ops);
+ 	if (ret > 0)
+ 		iocb->ki_pos += ret;
 
 
