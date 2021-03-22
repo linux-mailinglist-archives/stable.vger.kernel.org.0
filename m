@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD782344442
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF8CC3443D4
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbhCVM7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50802 "EHLO mail.kernel.org"
+        id S231782AbhCVMyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:54:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232709AbhCVM4q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:56:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5E82619A6;
-        Mon, 22 Mar 2021 12:48:41 +0000 (UTC)
+        id S232848AbhCVMwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:52:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4432E619E0;
+        Mon, 22 Mar 2021 12:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417322;
-        bh=hRzwy2YHlwSkIjulzsFUgUm6pMZGkd6uDxTR1BAznp4=;
+        s=korg; t=1616417202;
+        bh=K3MaPS8w8COXAViYXHCbZzxJxXGcIYwgRSojOaVLZTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgXcYH8uAy1Vbv9t78TXljUijhSQmpauLlhvnt9Cv01W4PPH9gDOBB/+pOUEKn40T
-         rX5lv74ni6TmlWe2mH4O0wMbuGwDac4NYc+nt+jFwegslxFmVC+tryzofXlbDWrBps
-         QXwKiIjYeLfCyopVb8xdSMdd6I6Xdy7J4HDC0t1A=
+        b=oQgwM7sXGiLiC2X10ZaMbcSdqEiG3inFjXaDIPtqr+dmxCyZ8RF/gv3uuBFU1MnKy
+         NzQKqHPEse8bpylkaFmmuA6j6rsU+98ZdS7JjkyNsBnfvsMdNDAPJxidkEa8M3Klua
+         0HEyGUF4J3aNUQ67oWCwEuMq+LJxvO+0ODutc6F4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+80dccaee7c6630fa9dcf@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Alexander Lobakin <alobakin@pm.me>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 21/43] net/qrtr: fix __netdev_alloc_skb call
-Date:   Mon, 22 Mar 2021 13:29:02 +0100
-Message-Id: <20210322121920.721967577@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>
+Subject: [PATCH 4.4 09/14] usb: gadget: configfs: Fix KASAN use-after-free
+Date:   Mon, 22 Mar 2021 13:29:03 +0100
+Message-Id: <20210322121919.489148541@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
+References: <20210322121919.202392464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Jim Lin <jilin@nvidia.com>
 
-commit 093b036aa94e01a0bea31a38d7f0ee28a2749023 upstream.
+commit 98f153a10da403ddd5e9d98a3c8c2bb54bb5a0b6 upstream.
 
-syzbot found WARNING in __alloc_pages_nodemask()[1] when order >= MAX_ORDER.
-It was caused by a huge length value passed from userspace to qrtr_tun_write_iter(),
-which tries to allocate skb. Since the value comes from the untrusted source
-there is no need to raise a warning in __alloc_pages_nodemask().
+When gadget is disconnected, running sequence is like this.
+. composite_disconnect
+. Call trace:
+  usb_string_copy+0xd0/0x128
+  gadget_config_name_configuration_store+0x4
+  gadget_config_name_attr_store+0x40/0x50
+  configfs_write_file+0x198/0x1f4
+  vfs_write+0x100/0x220
+  SyS_write+0x58/0xa8
+. configfs_composite_unbind
+. configfs_composite_bind
 
-[1] WARNING in __alloc_pages_nodemask+0x5f8/0x730 mm/page_alloc.c:5014
-Call Trace:
- __alloc_pages include/linux/gfp.h:511 [inline]
- __alloc_pages_node include/linux/gfp.h:524 [inline]
- alloc_pages_node include/linux/gfp.h:538 [inline]
- kmalloc_large_node+0x60/0x110 mm/slub.c:3999
- __kmalloc_node_track_caller+0x319/0x3f0 mm/slub.c:4496
- __kmalloc_reserve net/core/skbuff.c:150 [inline]
- __alloc_skb+0x4e4/0x5a0 net/core/skbuff.c:210
- __netdev_alloc_skb+0x70/0x400 net/core/skbuff.c:446
- netdev_alloc_skb include/linux/skbuff.h:2832 [inline]
- qrtr_endpoint_post+0x84/0x11b0 net/qrtr/qrtr.c:442
- qrtr_tun_write_iter+0x11f/0x1a0 net/qrtr/tun.c:98
- call_write_iter include/linux/fs.h:1901 [inline]
- new_sync_write+0x426/0x650 fs/read_write.c:518
- vfs_write+0x791/0xa30 fs/read_write.c:605
- ksys_write+0x12d/0x250 fs/read_write.c:658
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+In configfs_composite_bind, it has
+"cn->strings.s = cn->configuration;"
 
-Reported-by: syzbot+80dccaee7c6630fa9dcf@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Alexander Lobakin <alobakin@pm.me>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When usb_string_copy is invoked. it would
+allocate memory, copy input string, release previous pointed memory space,
+and use new allocated memory.
+
+When gadget is connected, host sends down request to get information.
+Call trace:
+  usb_gadget_get_string+0xec/0x168
+  lookup_string+0x64/0x98
+  composite_setup+0xa34/0x1ee8
+
+If gadget is disconnected and connected quickly, in the failed case,
+cn->configuration memory has been released by usb_string_copy kfree but
+configfs_composite_bind hasn't been run in time to assign new allocated
+"cn->configuration" pointer to "cn->strings.s".
+
+When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
+memory is accessed, "BUG: KASAN: use-after-free" error occurs.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Jim Lin <jilin@nvidia.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Link: https://lore.kernel.org/r/1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/qrtr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/configfs.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -235,7 +235,7 @@ int qrtr_endpoint_post(struct qrtr_endpo
- 	if (dst != QRTR_PORT_CTRL && type != QRTR_TYPE_DATA)
- 		return -EINVAL;
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -111,6 +111,8 @@ struct gadget_config_name {
+ 	struct list_head list;
+ };
  
--	skb = netdev_alloc_skb(NULL, len);
-+	skb = __netdev_alloc_skb(NULL, len, GFP_ATOMIC | __GFP_NOWARN);
- 	if (!skb)
- 		return -ENOMEM;
++#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
++
+ static int usb_string_copy(const char *s, char **s_copy)
+ {
+ 	int ret;
+@@ -120,12 +122,16 @@ static int usb_string_copy(const char *s
+ 	if (ret > USB_MAX_STRING_LEN)
+ 		return -EOVERFLOW;
  
+-	str = kstrdup(s, GFP_KERNEL);
+-	if (!str)
+-		return -ENOMEM;
++	if (copy) {
++		str = copy;
++	} else {
++		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
++		if (!str)
++			return -ENOMEM;
++	}
++	strcpy(str, s);
+ 	if (str[ret - 1] == '\n')
+ 		str[ret - 1] = '\0';
+-	kfree(copy);
+ 	*s_copy = str;
+ 	return 0;
+ }
 
 
