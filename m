@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65627344335
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7573443B2
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231989AbhCVMtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41024 "EHLO mail.kernel.org"
+        id S230243AbhCVMxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231977AbhCVMq5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:46:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85750619AF;
-        Mon, 22 Mar 2021 12:43:00 +0000 (UTC)
+        id S232078AbhCVMvO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:51:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 356BC601FF;
+        Mon, 22 Mar 2021 12:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416981;
-        bh=NIFnzRG2WrxIHiYFsMSMwQvMKz7qDUJavawgJMk5spc=;
+        s=korg; t=1616417156;
+        bh=arIWo94sZIPoLYp384w0MzYVPWR9UMi8aJ1x8+Kxses=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4SaOOB/xAO2JnT+B8PEDYn6EIVTKvyHzvcAnMjqTZUtnLqGrZcLqAPos5PC3XC/f
-         FjSdLpc7/0ysWbnfnqZSYswCqMeMcKj+gmhLgtK8MkX7stjRxBRFeCZ/oEeHe5aBO0
-         n1L8+erILA0j54HMG8bMsap75I+VGgCTHD10zLVM=
+        b=Dlft1Jadv+LHZJeM/CnOGtjezeIS+9OAYUvo22W1RxjMsq4ShiL1zUSt4iQLhy6gw
+         osCOG2VS/KGxeQ27SN07SwKiPCzTUoYSR2/3YM0NkbmYcZMkcRXoTo2OLOTam96OsU
+         bUdbkY7DSYKAN3yuI1K5tRc5cXKP0QDphNJi4BOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 41/60] iio: adis16400: Fix an error code in adis16400_initial_setup()
+        stable@vger.kernel.org, Joe Korty <joe.korty@concurrent-rt.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 4.19 15/43] NFSD: Repair misuse of sv_lock in 5.10.16-rt30.
 Date:   Mon, 22 Mar 2021 13:28:29 +0100
-Message-Id: <20210322121923.742047871@linuxfoundation.org>
+Message-Id: <20210322121920.428427760@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Joe Korty <joe.korty@concurrent-rt.com>
 
-commit a71266e454b5df10d019b06f5ebacd579f76be28 upstream.
+commit c7de87ff9dac5f396f62d584f3908f80ddc0e07b upstream.
 
-This is to silence a new Smatch warning:
+[ This problem is in mainline, but only rt has the chops to be
+able to detect it. ]
 
-    drivers/iio/imu/adis16400.c:492 adis16400_initial_setup()
-    warn: sscanf doesn't return error codes
+Lockdep reports a circular lock dependency between serv->sv_lock and
+softirq_ctl.lock on system shutdown, when using a kernel built with
+CONFIG_PREEMPT_RT=y, and a nfs mount exists.
 
-If the condition "if (st->variant->flags & ADIS16400_HAS_SLOW_MODE) {"
-is false then we return 1 instead of returning 0 and probe will fail.
+This is due to the definition of spin_lock_bh on rt:
 
-Fixes: 72a868b38bdd ("iio: imu: check sscanf return value")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YCwgFb3JVG6qrlQ+@mwanda
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+	local_bh_disable();
+	rt_spin_lock(lock);
+
+which forces a softirq_ctl.lock -> serv->sv_lock dependency.  This is
+not a problem as long as _every_ lock of serv->sv_lock is a:
+
+	spin_lock_bh(&serv->sv_lock);
+
+but there is one of the form:
+
+	spin_lock(&serv->sv_lock);
+
+This is what is causing the circular dependency splat.  The spin_lock()
+grabs the lock without first grabbing softirq_ctl.lock via local_bh_disable.
+If later on in the critical region,  someone does a local_bh_disable, we
+get a serv->sv_lock -> softirq_ctrl.lock dependency established.  Deadlock.
+
+Fix is to make serv->sv_lock be locked with spin_lock_bh everywhere, no
+exceptions.
+
+[  OK  ] Stopped target NFS client services.
+         Stopping Logout off all iSCSI sessions on shutdown...
+         Stopping NFS server and services...
+[  109.442380]
+[  109.442385] ======================================================
+[  109.442386] WARNING: possible circular locking dependency detected
+[  109.442387] 5.10.16-rt30 #1 Not tainted
+[  109.442389] ------------------------------------------------------
+[  109.442390] nfsd/1032 is trying to acquire lock:
+[  109.442392] ffff994237617f60 ((softirq_ctrl.lock).lock){+.+.}-{2:2}, at: __local_bh_disable_ip+0xd9/0x270
+[  109.442405]
+[  109.442405] but task is already holding lock:
+[  109.442406] ffff994245cb00b0 (&serv->sv_lock){+.+.}-{0:0}, at: svc_close_list+0x1f/0x90
+[  109.442415]
+[  109.442415] which lock already depends on the new lock.
+[  109.442415]
+[  109.442416]
+[  109.442416] the existing dependency chain (in reverse order) is:
+[  109.442417]
+[  109.442417] -> #1 (&serv->sv_lock){+.+.}-{0:0}:
+[  109.442421]        rt_spin_lock+0x2b/0xc0
+[  109.442428]        svc_add_new_perm_xprt+0x42/0xa0
+[  109.442430]        svc_addsock+0x135/0x220
+[  109.442434]        write_ports+0x4b3/0x620
+[  109.442438]        nfsctl_transaction_write+0x45/0x80
+[  109.442440]        vfs_write+0xff/0x420
+[  109.442444]        ksys_write+0x4f/0xc0
+[  109.442446]        do_syscall_64+0x33/0x40
+[  109.442450]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  109.442454]
+[  109.442454] -> #0 ((softirq_ctrl.lock).lock){+.+.}-{2:2}:
+[  109.442457]        __lock_acquire+0x1264/0x20b0
+[  109.442463]        lock_acquire+0xc2/0x400
+[  109.442466]        rt_spin_lock+0x2b/0xc0
+[  109.442469]        __local_bh_disable_ip+0xd9/0x270
+[  109.442471]        svc_xprt_do_enqueue+0xc0/0x4d0
+[  109.442474]        svc_close_list+0x60/0x90
+[  109.442476]        svc_close_net+0x49/0x1a0
+[  109.442478]        svc_shutdown_net+0x12/0x40
+[  109.442480]        nfsd_destroy+0xc5/0x180
+[  109.442482]        nfsd+0x1bc/0x270
+[  109.442483]        kthread+0x194/0x1b0
+[  109.442487]        ret_from_fork+0x22/0x30
+[  109.442492]
+[  109.442492] other info that might help us debug this:
+[  109.442492]
+[  109.442493]  Possible unsafe locking scenario:
+[  109.442493]
+[  109.442493]        CPU0                    CPU1
+[  109.442494]        ----                    ----
+[  109.442495]   lock(&serv->sv_lock);
+[  109.442496]                                lock((softirq_ctrl.lock).lock);
+[  109.442498]                                lock(&serv->sv_lock);
+[  109.442499]   lock((softirq_ctrl.lock).lock);
+[  109.442501]
+[  109.442501]  *** DEADLOCK ***
+[  109.442501]
+[  109.442501] 3 locks held by nfsd/1032:
+[  109.442503]  #0: ffffffff93b49258 (nfsd_mutex){+.+.}-{3:3}, at: nfsd+0x19a/0x270
+[  109.442508]  #1: ffff994245cb00b0 (&serv->sv_lock){+.+.}-{0:0}, at: svc_close_list+0x1f/0x90
+[  109.442512]  #2: ffffffff93a81b20 (rcu_read_lock){....}-{1:2}, at: rt_spin_lock+0x5/0xc0
+[  109.442518]
+[  109.442518] stack backtrace:
+[  109.442519] CPU: 0 PID: 1032 Comm: nfsd Not tainted 5.10.16-rt30 #1
+[  109.442522] Hardware name: Supermicro X9DRL-3F/iF/X9DRL-3F/iF, BIOS 3.2 09/22/2015
+[  109.442524] Call Trace:
+[  109.442527]  dump_stack+0x77/0x97
+[  109.442533]  check_noncircular+0xdc/0xf0
+[  109.442546]  __lock_acquire+0x1264/0x20b0
+[  109.442553]  lock_acquire+0xc2/0x400
+[  109.442564]  rt_spin_lock+0x2b/0xc0
+[  109.442570]  __local_bh_disable_ip+0xd9/0x270
+[  109.442573]  svc_xprt_do_enqueue+0xc0/0x4d0
+[  109.442577]  svc_close_list+0x60/0x90
+[  109.442581]  svc_close_net+0x49/0x1a0
+[  109.442585]  svc_shutdown_net+0x12/0x40
+[  109.442588]  nfsd_destroy+0xc5/0x180
+[  109.442590]  nfsd+0x1bc/0x270
+[  109.442595]  kthread+0x194/0x1b0
+[  109.442600]  ret_from_fork+0x22/0x30
+[  109.518225] nfsd: last server has exited, flushing export cache
+[  OK  ] Stopped NFSv4 ID-name mapping service.
+[  OK  ] Stopped GSSAPI Proxy Daemon.
+[  OK  ] Stopped NFS Mount Daemon.
+[  OK  ] Stopped NFS status monitor for NFSv2/3 locking..
+
+Fixes: 719f8bcc883e ("svcrpc: fix xpt_list traversal locking on shutdown")
+Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/adis16400.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/sunrpc/svc_xprt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/imu/adis16400.c
-+++ b/drivers/iio/imu/adis16400.c
-@@ -464,8 +464,7 @@ static int adis16400_initial_setup(struc
- 		if (ret)
- 			goto err_ret;
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -1052,7 +1052,7 @@ static int svc_close_list(struct svc_ser
+ 	struct svc_xprt *xprt;
+ 	int ret = 0;
  
--		ret = sscanf(indio_dev->name, "adis%u\n", &device_id);
--		if (ret != 1) {
-+		if (sscanf(indio_dev->name, "adis%u\n", &device_id) != 1) {
- 			ret = -EINVAL;
- 			goto err_ret;
- 		}
+-	spin_lock(&serv->sv_lock);
++	spin_lock_bh(&serv->sv_lock);
+ 	list_for_each_entry(xprt, xprt_list, xpt_list) {
+ 		if (xprt->xpt_net != net)
+ 			continue;
+@@ -1060,7 +1060,7 @@ static int svc_close_list(struct svc_ser
+ 		set_bit(XPT_CLOSE, &xprt->xpt_flags);
+ 		svc_xprt_enqueue(xprt);
+ 	}
+-	spin_unlock(&serv->sv_lock);
++	spin_unlock_bh(&serv->sv_lock);
+ 	return ret;
+ }
+ 
 
 
