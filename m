@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D99344299
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9922F34418E
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231750AbhCVMoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35514 "EHLO mail.kernel.org"
+        id S231144AbhCVMeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:34:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232170AbhCVMlS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:41:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7E4861994;
-        Mon, 22 Mar 2021 12:39:28 +0000 (UTC)
+        id S231488AbhCVMdS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:33:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07D5B61990;
+        Mon, 22 Mar 2021 12:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416769;
-        bh=VZIqVvkCVuJLiNv0BfZI5hYRYtAVEGfHzcGbouT0SSE=;
+        s=korg; t=1616416395;
+        bh=Thj2BLnJy/B5q8Mr7PuHRR4CrJMZD4dBO5VAgv42dNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDBHJYXp9EWtQToE7qSNsSZ6MPGNmD9zGZCh5flT1mMRVjS7vu9vPII7SliFKIyle
-         L9wnzaZKoYOl3YAJ8GHN+SlJWqc4MLXPq3HVIlg0kPkHjfyBDMr5L3DQJ0Z2xX6R/+
-         d0YLpnk8xjHgDk8GkRQqQVbv+/8QBbPByQV/ZvYs=
+        b=uWgUPeM782tjnX8PnrmYBzlDgoIYY17h/g2bHSbutzkYxZb4FxrWYeH5KlTxEN6li
+         lWMZ0yLAMd09P/ZzcFnPDrowZXnRV1KEl8VS/wHS4H/szNBlwn71mjAwn+jplhhzuv
+         r0S0xvdvawvQdv+ncB9jgGxKCSDHEpUVIpIbldDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 115/157] powerpc: Force inlining of cpu_has_feature() to avoid build failure
-Date:   Mon, 22 Mar 2021 13:27:52 +0100
-Message-Id: <20210322121937.419229892@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.11 090/120] iio: gyro: mpu3050: Fix error handling in mpu3050_trigger_handler
+Date:   Mon, 22 Mar 2021 13:27:53 +0100
+Message-Id: <20210322121932.687859713@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a upstream.
+commit 6dbbbe4cfd398704b72b21c1d4a5d3807e909d60 upstream.
 
-The code relies on constant folding of cpu_has_feature() based
-on possible and always true values as defined per
-CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
+There is one regmap_bulk_read() call in mpu3050_trigger_handler
+that we have caught its return value bug lack further handling.
+Check and terminate the execution flow just like the other three
+regmap_bulk_read() calls in this function.
 
-Build failure is encountered with for instance
-book3e_all_defconfig on kisskb in the AMDGPU driver which uses
-cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
-kernel_enable_vsx() or not.
-
-The failure is due to cpu_has_feature() not being inlined with
-that configuration with gcc 4.9.
-
-In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
-mmu_has_feature to fix build failure"), for inlining of
-cpu_has_feature().
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
+Fixes: 3904b28efb2c7 ("iio: gyro: Add driver for the MPU-3050 gyroscope")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210301080421.13436-1-dinghao.liu@zju.edu.cn
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/cpu_has_feature.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/gyro/mpu3050-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/include/asm/cpu_has_feature.h
-+++ b/arch/powerpc/include/asm/cpu_has_feature.h
-@@ -7,7 +7,7 @@
- #include <linux/bug.h>
- #include <asm/cputable.h>
+--- a/drivers/iio/gyro/mpu3050-core.c
++++ b/drivers/iio/gyro/mpu3050-core.c
+@@ -551,6 +551,8 @@ static irqreturn_t mpu3050_trigger_handl
+ 					       MPU3050_FIFO_R,
+ 					       &fifo_values[offset],
+ 					       toread);
++			if (ret)
++				goto out_trigger_unlock;
  
--static inline bool early_cpu_has_feature(unsigned long feature)
-+static __always_inline bool early_cpu_has_feature(unsigned long feature)
- {
- 	return !!((CPU_FTRS_ALWAYS & feature) ||
- 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
-@@ -46,7 +46,7 @@ static __always_inline bool cpu_has_feat
- 	return static_branch_likely(&cpu_feature_keys[i]);
- }
- #else
--static inline bool cpu_has_feature(unsigned long feature)
-+static __always_inline bool cpu_has_feature(unsigned long feature)
- {
- 	return early_cpu_has_feature(feature);
- }
+ 			dev_dbg(mpu3050->dev,
+ 				"%04x %04x %04x %04x %04x\n",
 
 
