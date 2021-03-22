@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC5734433B
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BC69344369
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231956AbhCVMtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42228 "EHLO mail.kernel.org"
+        id S232214AbhCVMuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:50:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232370AbhCVMrb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:47:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FEDA619B8;
-        Mon, 22 Mar 2021 12:43:13 +0000 (UTC)
+        id S232861AbhCVMsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:48:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13CCC619E7;
+        Mon, 22 Mar 2021 12:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416993;
-        bh=D++OTPOS/IxfB8l12a/4+NthToIunmtwr9oe401W5Xw=;
+        s=korg; t=1616417080;
+        bh=iCxefx6+WhDS4Eu9hOTQXuw3LTiOFcRqpbF1DGSu1qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOme3Nb8BlQERnbGxkMErOtFJVdKa+SAE9lxbGbJNiXMMqTyvlRlLfI6XINXPlv2J
-         YhrqcD1bMoGJxqFcR9bejXcjNkNZNB4nN9m1PmyQHZoIUgPc4LqwbAiXRhxjJHXCe9
-         6AXDgTPdrDaOTpHzz2eUol0s5vYHFSvexYPsP0gc=
+        b=ZfWBhIrOX2oJQjqr6euZXkai4TPrp6tNSeCMyMqpoJDGYcVTeu2WJ2nuzJ8yyJcvc
+         dnHPJl6R1wjU9WqUTo9kGr34tDTHQFe6SX0XtIWmg2DjA8iG4AqLZlLmXLbeqp0/Ux
+         0GcZKX06aGpstS7w55k2sg2XupsQz8GeIw92l1cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 45/60] iio: hid-sensor-prox: Fix scale not correct issue
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 19/43] scsi: lpfc: Fix some error codes in debugfs
 Date:   Mon, 22 Mar 2021 13:28:33 +0100
-Message-Id: <20210322121923.881607558@linuxfoundation.org>
+Message-Id: <20210322121920.548335553@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Xiang <xiang.ye@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit d68c592e02f6f49a88e705f13dfc1883432cf300 upstream.
+commit 19f1bc7edf0f97186810e13a88f5b62069d89097 upstream.
 
-Currently, the proxy sensor scale is zero because it just return the
-exponent directly. To fix this issue, this patch use
-hid_sensor_format_scale to process the scale first then return the
-output.
+If copy_from_user() or kstrtoull() fail then the correct behavior is to
+return a negative error code.
 
-Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://lore.kernel.org/r/YEsbU/UxYypVrC7/@mwanda
+Fixes: f9bb2da11db8 ("[SCSI] lpfc 8.3.27: T10 additions for SLI4")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/hid-sensor-prox.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -25,6 +25,9 @@ struct prox_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info prox_attr;
- 	u32 human_presence;
-+	int scale_pre_decml;
-+	int scale_post_decml;
-+	int scale_precision;
- };
+--- a/drivers/scsi/lpfc/lpfc_debugfs.c
++++ b/drivers/scsi/lpfc/lpfc_debugfs.c
+@@ -1843,7 +1843,7 @@ lpfc_debugfs_dif_err_write(struct file *
+ 	memset(dstbuf, 0, 33);
+ 	size = (nbytes < 32) ? nbytes : 32;
+ 	if (copy_from_user(dstbuf, buf, size))
+-		return 0;
++		return -EFAULT;
  
- /* Channel definitions */
-@@ -95,8 +98,9 @@ static int prox_read_raw(struct iio_dev
- 		ret_type = IIO_VAL_INT;
- 		break;
- 	case IIO_CHAN_INFO_SCALE:
--		*val = prox_state->prox_attr.units;
--		ret_type = IIO_VAL_INT;
-+		*val = prox_state->scale_pre_decml;
-+		*val2 = prox_state->scale_post_decml;
-+		ret_type = prox_state->scale_precision;
- 		break;
- 	case IIO_CHAN_INFO_OFFSET:
- 		*val = hid_sensor_convert_exponent(
-@@ -236,6 +240,11 @@ static int prox_parse_report(struct plat
- 			HID_USAGE_SENSOR_HUMAN_PRESENCE,
- 			&st->common_attributes.sensitivity);
+ 	if (dent == phba->debug_InjErrLBA) {
+ 		if ((buf[0] == 'o') && (buf[1] == 'f') && (buf[2] == 'f'))
+@@ -1851,7 +1851,7 @@ lpfc_debugfs_dif_err_write(struct file *
+ 	}
  
-+	st->scale_precision = hid_sensor_format_scale(
-+				hsdev->usage,
-+				&st->prox_attr,
-+				&st->scale_pre_decml, &st->scale_post_decml);
-+
- 	return ret;
- }
+ 	if ((tmp == 0) && (kstrtoull(dstbuf, 0, &tmp)))
+-		return 0;
++		return -EINVAL;
  
+ 	if (dent == phba->debug_writeGuard)
+ 		phba->lpfc_injerr_wgrd_cnt = (uint32_t)tmp;
 
 
