@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63591344488
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA6934448D
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:04:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230053AbhCVNBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 09:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
+        id S232438AbhCVNBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 09:01:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232256AbhCVM7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:59:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA33B61984;
-        Mon, 22 Mar 2021 12:59:37 +0000 (UTC)
+        id S232511AbhCVM7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5098D61994;
+        Mon, 22 Mar 2021 12:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417978;
-        bh=o06g8sfe/ypC8Jt5f7h7fT4tZx4EMnExj3MBmfuup90=;
+        s=korg; t=1616417980;
+        bh=vjqck8KUMxv3nZAkqiHQefAc3qMenLdkcCFTwQl9baI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWSJ7xIJD/S+KMSIKYTvRmskFCtgGFEyUfq96a/eN7nUDG9n9+nRHpcMZF24m8bg6
-         Ii8mGHRGB1LvabPWNOsMl66Uq3+tAfUAi8hpVet7BYh9ROjOUq/ulmlt3uqXEE2PyH
-         7WEaVvr46zAjOzSGkMOKjZ/eJ3wa1P1uSULOYLKw=
+        b=YwT5J1Jjq1VAA38MWdt3FAI2pt8kbw4oUPUZjxNF0+LH/c3K7hocPPTTct/LMvslP
+         ob2P6/v8NDqyRb1a6CxC7II7kU/or2JB2b7gCcmdIwRoKujXQv2Uwu80oBlFI1lEcH
+         bjD6a+b2w65ut4vIIsESDsiP/u3CfXShLvbDGTGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sagi Grimberg <sagi@grimberg.me>,
         Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.9 08/25] nvmet: dont check iosqes,iocqes for discovery controllers
+Subject: [PATCH 4.14 17/43] nvmet: dont check iosqes,iocqes for discovery controllers
 Date:   Mon, 22 Mar 2021 13:28:58 +0100
-Message-Id: <20210322121920.669369916@linuxfoundation.org>
+Message-Id: <20210322121920.600361090@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
-References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/nvme/target/core.c
 +++ b/drivers/nvme/target/core.c
-@@ -574,9 +574,20 @@ static void nvmet_start_ctrl(struct nvme
+@@ -594,9 +594,20 @@ static void nvmet_start_ctrl(struct nvme
  {
  	lockdep_assert_held(&ctrl->lock);
  
