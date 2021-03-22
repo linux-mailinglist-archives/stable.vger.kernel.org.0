@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12FB3441B3
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60970344486
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231312AbhCVMfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:35:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56988 "EHLO mail.kernel.org"
+        id S232822AbhCVNBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 09:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231628AbhCVMeA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:34:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A35A061998;
-        Mon, 22 Mar 2021 12:33:59 +0000 (UTC)
+        id S232123AbhCVM7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:59:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5C8660C3D;
+        Mon, 22 Mar 2021 12:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416440;
-        bh=ft9Lb4MR6Vk8OXPD4zVw5IuZdRbUn+8SmoXMMeTeq2s=;
+        s=korg; t=1616417973;
+        bh=tRvVPKjgk+qPWdamqcdR+JsKVoDgMJ175Au67AMUGe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGs3WrlDtGeb0YmPbdm6l+UdK5/FUSeuH0XHZccM/9eN0ibu9RQRweIK7Xb9i0+RF
-         EmcPLZKUmEYOKlkDoTNPJ6D0XCHDK7SyMeMtRf8cBb1VCjM7c0pmhtUOgYApxdjCf6
-         wha7Zseoj9mwubwGz5T54u+T7wmi2tSUdBSsbF98=
+        b=uflUMqhL/9yZqB7TfSmZbL9JY5tE9q0us2qV9hjnQTDBe8gRWk/7F8btnvG8Pw1d0
+         8iw3ZSlueqVvP+jlVYsk4pk7VNvB/uzwy6E2lQXdHVwMWkMFS1N6+DRwpfH6AbKlBY
+         O3wlvT/rp13KG6DO1pw+NjBwtGjWSvMEAZepCEQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.11 106/120] efivars: respect EFI_UNSUPPORTED return from firmware
+        stable@vger.kernel.org,
+        "Belanger, Martin" <Martin.Belanger@dell.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.4 21/60] nvmet: dont check iosqes,iocqes for discovery controllers
 Date:   Mon, 22 Mar 2021 13:28:09 +0100
-Message-Id: <20210322121933.205331003@linuxfoundation.org>
+Message-Id: <20210322121923.079842696@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 483028edacab374060d93955382b4865a9e07cba upstream.
+commit d218a8a3003e84ab136e69a4e30dd4ec7dab2d22 upstream.
 
-As per UEFI spec 2.8B section 8.2, EFI_UNSUPPORTED may be returned by
-EFI variable runtime services if no variable storage is supported by
-firmware.  In this case, there is no point for kernel to continue
-efivars initialization.  That said, efivar_init() should fail by
-returning an error code, so that efivarfs will not be mounted on
-/sys/firmware/efi/efivars at all.  Otherwise, user space like efibootmgr
-will be confused by the EFIVARFS_MAGIC seen there, while EFI variable
-calls cannot be made successfully.
+>From the base spec, Figure 78:
 
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+  "Controller Configuration, these fields are defined as parameters to
+   configure an "I/O Controller (IOC)" and not to configure a "Discovery
+   Controller (DC).
+
+   ...
+   If the controller does not support I/O queues, then this field shall
+   be read-only with a value of 0h
+
+Just perform this check for I/O controllers.
+
+Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
+Reported-by: Belanger, Martin <Martin.Belanger@dell.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/vars.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/nvme/target/core.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/firmware/efi/vars.c
-+++ b/drivers/firmware/efi/vars.c
-@@ -485,6 +485,10 @@ int efivar_init(int (*func)(efi_char16_t
- 			}
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -1031,9 +1031,20 @@ static void nvmet_start_ctrl(struct nvme
+ {
+ 	lockdep_assert_held(&ctrl->lock);
  
- 			break;
-+		case EFI_UNSUPPORTED:
-+			err = -EOPNOTSUPP;
-+			status = EFI_NOT_FOUND;
-+			break;
- 		case EFI_NOT_FOUND:
- 			break;
- 		default:
+-	if (nvmet_cc_iosqes(ctrl->cc) != NVME_NVM_IOSQES ||
+-	    nvmet_cc_iocqes(ctrl->cc) != NVME_NVM_IOCQES ||
+-	    nvmet_cc_mps(ctrl->cc) != 0 ||
++	/*
++	 * Only I/O controllers should verify iosqes,iocqes.
++	 * Strictly speaking, the spec says a discovery controller
++	 * should verify iosqes,iocqes are zeroed, however that
++	 * would break backwards compatibility, so don't enforce it.
++	 */
++	if (ctrl->subsys->type != NVME_NQN_DISC &&
++	    (nvmet_cc_iosqes(ctrl->cc) != NVME_NVM_IOSQES ||
++	     nvmet_cc_iocqes(ctrl->cc) != NVME_NVM_IOCQES)) {
++		ctrl->csts = NVME_CSTS_CFS;
++		return;
++	}
++
++	if (nvmet_cc_mps(ctrl->cc) != 0 ||
+ 	    nvmet_cc_ams(ctrl->cc) != 0 ||
+ 	    nvmet_cc_css(ctrl->cc) != 0) {
+ 		ctrl->csts = NVME_CSTS_CFS;
 
 
