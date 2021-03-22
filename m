@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B32B8344409
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 758E734445C
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbhCVM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
+        id S232493AbhCVM7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230293AbhCVMyY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:54:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17B9D619E3;
-        Mon, 22 Mar 2021 12:47:37 +0000 (UTC)
+        id S233126AbhCVM5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:57:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09A9561A46;
+        Mon, 22 Mar 2021 12:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417258;
-        bh=5sppupOWfMhTGCdAJeoS+79+ZmNuabC4TOrs9JOgtdU=;
+        s=korg; t=1616417369;
+        bh=1Cgt8qhkaEN0TT5xlKi2IbMMZ/fKlJLdjRUP7oIU8QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKjrFpByscazNmGEPlWu8Eh/ZltaxpqhR1Vs+utJSV64o4m5fgDUQyi0/tpyYfrxA
-         dR1lDUIIHGC9sVMC3F1B+P/75hb/wJetzWd7DGgNWyAaGVQ9Bcipvme8nDuEKtbIUF
-         Tp+lC9eYskur74YrrXMcMOl396KnIEG4Bd/xuh1Y=
+        b=bcV2ueAYHIRdVxhsY1lhKnj/Ub/NzjZf/ExW47gIcEGD4EIyKL1INsm5ufMQb6Ovk
+         VmrEyNYFklkhs26l21a8EKL4iUW9Eh218HvwSzOtmuLnZJbYpqh5ln2ZZ7LirALnqq
+         7RYFYtJdr+DTH11tNCJ1/a8JCM1wRvTD5blyWtYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 16/25] iio: adis16400: Fix an error code in adis16400_initial_setup()
+        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.14 25/43] USB: replace hardcode maximum usb string length by definition
 Date:   Mon, 22 Mar 2021 13:29:06 +0100
-Message-Id: <20210322121920.913096846@linuxfoundation.org>
+Message-Id: <20210322121920.846753097@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
-References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Macpaul Lin <macpaul.lin@mediatek.com>
 
-commit a71266e454b5df10d019b06f5ebacd579f76be28 upstream.
+commit 81c7462883b0cc0a4eeef0687f80ad5b5baee5f6 upstream.
 
-This is to silence a new Smatch warning:
+Replace hardcoded maximum USB string length (126 bytes) by definition
+"USB_MAX_STRING_LEN".
 
-    drivers/iio/imu/adis16400.c:492 adis16400_initial_setup()
-    warn: sscanf doesn't return error codes
-
-If the condition "if (st->variant->flags & ADIS16400_HAS_SLOW_MODE) {"
-is false then we return 1 instead of returning 0 and probe will fail.
-
-Fixes: 72a868b38bdd ("iio: imu: check sscanf return value")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YCwgFb3JVG6qrlQ+@mwanda
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/1592471618-29428-1-git-send-email-macpaul.lin@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iio/imu/adis16400_core.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/gadget/composite.c |    4 ++--
+ drivers/usb/gadget/configfs.c  |    2 +-
+ drivers/usb/gadget/usbstring.c |    4 ++--
+ include/uapi/linux/usb/ch9.h   |    3 +++
+ 4 files changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/imu/adis16400_core.c
-+++ b/drivers/iio/imu/adis16400_core.c
-@@ -288,8 +288,7 @@ static int adis16400_initial_setup(struc
- 		if (ret)
- 			goto err_ret;
- 
--		ret = sscanf(indio_dev->name, "adis%u\n", &device_id);
--		if (ret != 1) {
-+		if (sscanf(indio_dev->name, "adis%u\n", &device_id) != 1) {
- 			ret = -EINVAL;
- 			goto err_ret;
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -1080,7 +1080,7 @@ static void collect_langs(struct usb_gad
+ 	while (*sp) {
+ 		s = *sp;
+ 		language = cpu_to_le16(s->language);
+-		for (tmp = buf; *tmp && tmp < &buf[126]; tmp++) {
++		for (tmp = buf; *tmp && tmp < &buf[USB_MAX_STRING_LEN]; tmp++) {
+ 			if (*tmp == language)
+ 				goto repeat;
  		}
+@@ -1155,7 +1155,7 @@ static int get_string(struct usb_composi
+ 			collect_langs(sp, s->wData);
+ 		}
+ 
+-		for (len = 0; len <= 126 && s->wData[len]; len++)
++		for (len = 0; len <= USB_MAX_STRING_LEN && s->wData[len]; len++)
+ 			continue;
+ 		if (!len)
+ 			return -EINVAL;
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -114,7 +114,7 @@ static int usb_string_copy(const char *s
+ 	char *str;
+ 	char *copy = *s_copy;
+ 	ret = strlen(s);
+-	if (ret > 126)
++	if (ret > USB_MAX_STRING_LEN)
+ 		return -EOVERFLOW;
+ 
+ 	str = kstrdup(s, GFP_KERNEL);
+--- a/drivers/usb/gadget/usbstring.c
++++ b/drivers/usb/gadget/usbstring.c
+@@ -59,9 +59,9 @@ usb_gadget_get_string (struct usb_gadget
+ 		return -EINVAL;
+ 
+ 	/* string descriptors have length, tag, then UTF16-LE text */
+-	len = min ((size_t) 126, strlen (s->s));
++	len = min((size_t)USB_MAX_STRING_LEN, strlen(s->s));
+ 	len = utf8s_to_utf16s(s->s, len, UTF16_LITTLE_ENDIAN,
+-			(wchar_t *) &buf[2], 126);
++			(wchar_t *) &buf[2], USB_MAX_STRING_LEN);
+ 	if (len < 0)
+ 		return -EINVAL;
+ 	buf [0] = (len + 1) * 2;
+--- a/include/uapi/linux/usb/ch9.h
++++ b/include/uapi/linux/usb/ch9.h
+@@ -360,6 +360,9 @@ struct usb_config_descriptor {
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++/* USB String descriptors can contain at most 126 characters. */
++#define USB_MAX_STRING_LEN	126
++
+ /* USB_DT_STRING: String descriptor */
+ struct usb_string_descriptor {
+ 	__u8  bLength;
 
 
