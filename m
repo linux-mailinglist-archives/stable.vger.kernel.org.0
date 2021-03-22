@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B83D63442A8
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13010344312
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231926AbhCVMoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35490 "EHLO mail.kernel.org"
+        id S231183AbhCVMsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:48:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232405AbhCVMmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34CC2619C1;
-        Mon, 22 Mar 2021 12:40:03 +0000 (UTC)
+        id S230034AbhCVMoy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:44:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F8F9619C3;
+        Mon, 22 Mar 2021 12:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416804;
-        bh=6owAfvfN3txCduRFd+jmWhJrWuBMND+Y3whnn5+ayeE=;
+        s=korg; t=1616416923;
+        bh=vMevPEedeV6uUMfxi5X0vbpqZq8lkAGBhBja1OOPxFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MV0i+8+vJAD5BTWW0ZEBAqtUZmvG1KrdvZIVyAkyVQcciRxtqiy60bxYJ9es01m0/
-         Pve+5/+lviSQbFth0WyHsOGKJL/hLWo2xxo8/9+herpD65z6W8TGq+BaSV8mLoClwy
-         hKay2+htJTcvg4oewNkeRmfjMax4vNMj9yI9FLPk=
+        b=z+IN6aObRvdONziVW4JUhC77bu2/yO5KgK3xeP+84mf60wKmVZ7NXZXiDt/iQ//5H
+         yTfPUssbooaw9mj1Y6Nx8ReU8uYerhKZ5zKDVQGFq0nZ75FYU/7t7SXYmNUg/QqCa8
+         SgPakd+U6M7p9fPTLSUfRtjA6ozkGfQ8TF9Kgi0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 128/157] iio: gyro: mpu3050: Fix error handling in mpu3050_trigger_handler
-Date:   Mon, 22 Mar 2021 13:28:05 +0100
-Message-Id: <20210322121937.814631658@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Klaus Jensen <k.jensen@samsung.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>
+Subject: [PATCH 5.4 18/60] nvme: fix Write Zeroes limitations
+Date:   Mon, 22 Mar 2021 13:28:06 +0100
+Message-Id: <20210322121922.983423435@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 6dbbbe4cfd398704b72b21c1d4a5d3807e909d60 upstream.
+commit b94e8cd2e6a94fc7563529ddc82726a7e77e04de upstream.
 
-There is one regmap_bulk_read() call in mpu3050_trigger_handler
-that we have caught its return value bug lack further handling.
-Check and terminate the execution flow just like the other three
-regmap_bulk_read() calls in this function.
+We voluntarily limit the Write Zeroes sizes to the MDTS value provided by
+the hardware, but currently get the units wrong, so fix that.
 
-Fixes: 3904b28efb2c7 ("iio: gyro: Add driver for the MPU-3050 gyroscope")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210301080421.13436-1-dinghao.liu@zju.edu.cn
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 6e02318eaea5 ("nvme: add support for the Write Zeroes command")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Tested-by: Klaus Jensen <k.jensen@samsung.com>
+Reviewed-by: Klaus Jensen <k.jensen@samsung.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/gyro/mpu3050-core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/host/core.c |   36 ++++++++++++------------------------
+ 1 file changed, 12 insertions(+), 24 deletions(-)
 
---- a/drivers/iio/gyro/mpu3050-core.c
-+++ b/drivers/iio/gyro/mpu3050-core.c
-@@ -550,6 +550,8 @@ static irqreturn_t mpu3050_trigger_handl
- 					       MPU3050_FIFO_R,
- 					       &fifo_values[offset],
- 					       toread);
-+			if (ret)
-+				goto out_trigger_unlock;
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1743,30 +1743,18 @@ static void nvme_config_discard(struct g
+ 		blk_queue_max_write_zeroes_sectors(queue, UINT_MAX);
+ }
  
- 			dev_dbg(mpu3050->dev,
- 				"%04x %04x %04x %04x %04x\n",
+-static void nvme_config_write_zeroes(struct gendisk *disk, struct nvme_ns *ns)
++/*
++ * Even though NVMe spec explicitly states that MDTS is not applicable to the
++ * write-zeroes, we are cautious and limit the size to the controllers
++ * max_hw_sectors value, which is based on the MDTS field and possibly other
++ * limiting factors.
++ */
++static void nvme_config_write_zeroes(struct request_queue *q,
++		struct nvme_ctrl *ctrl)
+ {
+-	u64 max_blocks;
+-
+-	if (!(ns->ctrl->oncs & NVME_CTRL_ONCS_WRITE_ZEROES) ||
+-	    (ns->ctrl->quirks & NVME_QUIRK_DISABLE_WRITE_ZEROES))
+-		return;
+-	/*
+-	 * Even though NVMe spec explicitly states that MDTS is not
+-	 * applicable to the write-zeroes:- "The restriction does not apply to
+-	 * commands that do not transfer data between the host and the
+-	 * controller (e.g., Write Uncorrectable ro Write Zeroes command).".
+-	 * In order to be more cautious use controller's max_hw_sectors value
+-	 * to configure the maximum sectors for the write-zeroes which is
+-	 * configured based on the controller's MDTS field in the
+-	 * nvme_init_identify() if available.
+-	 */
+-	if (ns->ctrl->max_hw_sectors == UINT_MAX)
+-		max_blocks = (u64)USHRT_MAX + 1;
+-	else
+-		max_blocks = ns->ctrl->max_hw_sectors + 1;
+-
+-	blk_queue_max_write_zeroes_sectors(disk->queue,
+-					   nvme_lba_to_sect(ns, max_blocks));
++	if ((ctrl->oncs & NVME_CTRL_ONCS_WRITE_ZEROES) &&
++	    !(ctrl->quirks & NVME_QUIRK_DISABLE_WRITE_ZEROES))
++		blk_queue_max_write_zeroes_sectors(q, ctrl->max_hw_sectors);
+ }
+ 
+ static int nvme_report_ns_ids(struct nvme_ctrl *ctrl, unsigned int nsid,
+@@ -1853,7 +1841,7 @@ static void nvme_update_disk_info(struct
+ 	set_capacity(disk, capacity);
+ 
+ 	nvme_config_discard(disk, ns);
+-	nvme_config_write_zeroes(disk, ns);
++	nvme_config_write_zeroes(disk->queue, ns->ctrl);
+ 
+ 	if (id->nsattr & (1 << 0))
+ 		set_disk_ro(disk, true);
 
 
