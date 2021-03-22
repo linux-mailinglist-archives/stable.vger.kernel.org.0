@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAAE334420B
+	by mail.lfdr.de (Postfix) with ESMTP id 5E63634420A
 	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230455AbhCVMiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230459AbhCVMiL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 22 Mar 2021 08:38:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57678 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229614AbhCVMgv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:36:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACB0B6199F;
-        Mon, 22 Mar 2021 12:36:21 +0000 (UTC)
+        id S231610AbhCVMg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:36:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EED3E61998;
+        Mon, 22 Mar 2021 12:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416582;
-        bh=Wvt1J5IBOIQddoY64fkJMYE1fhRbMlz0xQt07UHoL8U=;
+        s=korg; t=1616416584;
+        bh=rweM2i27tod0qi5j7mEpNplhxTpaTsxlFnWglOCj/Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+KZgUwLPzYhH1p67TQDD3tzti5p0Wf+tmKI/AhV9dS1SIntB7Ut2Q0dPxXN0SqNo
-         Svl1gcKnerlVfcirmv42W9SGqUO3R5o5fmYzaOLT9LIOK3t/UPT3p5/HY2OzKDY3B5
-         M6uS78gTGNdfigt9VML98UkKTYJSikBWePMSnYQo=
+        b=1e+cwgjOnY6EhqZpm8Za28sCgTrmrrHkELz0V40RV02IxqaRRPWp3mVmHruB5k6ZP
+         g+iafCg0XxOWHUm4Q1W1GqSCzZdlikNqCVcNIj/tnZhu+E7Pcpsx6Do7dq6xh5+C6N
+         69S730DX208s1/CVxDzHkgdfO+UMmz6+0a/G7qso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Joe Korty <joe.korty@concurrent-rt.com>,
         Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.10 042/157] nfsd: dont abort copies early
-Date:   Mon, 22 Mar 2021 13:26:39 +0100
-Message-Id: <20210322121935.087486206@linuxfoundation.org>
+Subject: [PATCH 5.10 043/157] NFSD: Repair misuse of sv_lock in 5.10.16-rt30.
+Date:   Mon, 22 Mar 2021 13:26:40 +0100
+Message-Id: <20210322121935.118059475@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -39,34 +39,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Joe Korty <joe.korty@concurrent-rt.com>
 
-commit bfdd89f232aa2de5a4b3fc985cba894148b830a8 upstream.
+commit c7de87ff9dac5f396f62d584f3908f80ddc0e07b upstream.
 
-The typical result of the backwards comparison here is that the source
-server in a server-to-server copy will return BAD_STATEID within a few
-seconds of the copy starting, instead of giving the copy a full lease
-period, so the copy_file_range() call will end up unnecessarily
-returning a short read.
+[ This problem is in mainline, but only rt has the chops to be
+able to detect it. ]
 
-Fixes: 624322f1adc5 "NFSD add COPY_NOTIFY operation"
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Lockdep reports a circular lock dependency between serv->sv_lock and
+softirq_ctl.lock on system shutdown, when using a kernel built with
+CONFIG_PREEMPT_RT=y, and a nfs mount exists.
+
+This is due to the definition of spin_lock_bh on rt:
+
+	local_bh_disable();
+	rt_spin_lock(lock);
+
+which forces a softirq_ctl.lock -> serv->sv_lock dependency.  This is
+not a problem as long as _every_ lock of serv->sv_lock is a:
+
+	spin_lock_bh(&serv->sv_lock);
+
+but there is one of the form:
+
+	spin_lock(&serv->sv_lock);
+
+This is what is causing the circular dependency splat.  The spin_lock()
+grabs the lock without first grabbing softirq_ctl.lock via local_bh_disable.
+If later on in the critical region,  someone does a local_bh_disable, we
+get a serv->sv_lock -> softirq_ctrl.lock dependency established.  Deadlock.
+
+Fix is to make serv->sv_lock be locked with spin_lock_bh everywhere, no
+exceptions.
+
+[  OK  ] Stopped target NFS client services.
+         Stopping Logout off all iSCSI sessions on shutdown...
+         Stopping NFS server and services...
+[  109.442380]
+[  109.442385] ======================================================
+[  109.442386] WARNING: possible circular locking dependency detected
+[  109.442387] 5.10.16-rt30 #1 Not tainted
+[  109.442389] ------------------------------------------------------
+[  109.442390] nfsd/1032 is trying to acquire lock:
+[  109.442392] ffff994237617f60 ((softirq_ctrl.lock).lock){+.+.}-{2:2}, at: __local_bh_disable_ip+0xd9/0x270
+[  109.442405]
+[  109.442405] but task is already holding lock:
+[  109.442406] ffff994245cb00b0 (&serv->sv_lock){+.+.}-{0:0}, at: svc_close_list+0x1f/0x90
+[  109.442415]
+[  109.442415] which lock already depends on the new lock.
+[  109.442415]
+[  109.442416]
+[  109.442416] the existing dependency chain (in reverse order) is:
+[  109.442417]
+[  109.442417] -> #1 (&serv->sv_lock){+.+.}-{0:0}:
+[  109.442421]        rt_spin_lock+0x2b/0xc0
+[  109.442428]        svc_add_new_perm_xprt+0x42/0xa0
+[  109.442430]        svc_addsock+0x135/0x220
+[  109.442434]        write_ports+0x4b3/0x620
+[  109.442438]        nfsctl_transaction_write+0x45/0x80
+[  109.442440]        vfs_write+0xff/0x420
+[  109.442444]        ksys_write+0x4f/0xc0
+[  109.442446]        do_syscall_64+0x33/0x40
+[  109.442450]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  109.442454]
+[  109.442454] -> #0 ((softirq_ctrl.lock).lock){+.+.}-{2:2}:
+[  109.442457]        __lock_acquire+0x1264/0x20b0
+[  109.442463]        lock_acquire+0xc2/0x400
+[  109.442466]        rt_spin_lock+0x2b/0xc0
+[  109.442469]        __local_bh_disable_ip+0xd9/0x270
+[  109.442471]        svc_xprt_do_enqueue+0xc0/0x4d0
+[  109.442474]        svc_close_list+0x60/0x90
+[  109.442476]        svc_close_net+0x49/0x1a0
+[  109.442478]        svc_shutdown_net+0x12/0x40
+[  109.442480]        nfsd_destroy+0xc5/0x180
+[  109.442482]        nfsd+0x1bc/0x270
+[  109.442483]        kthread+0x194/0x1b0
+[  109.442487]        ret_from_fork+0x22/0x30
+[  109.442492]
+[  109.442492] other info that might help us debug this:
+[  109.442492]
+[  109.442493]  Possible unsafe locking scenario:
+[  109.442493]
+[  109.442493]        CPU0                    CPU1
+[  109.442494]        ----                    ----
+[  109.442495]   lock(&serv->sv_lock);
+[  109.442496]                                lock((softirq_ctrl.lock).lock);
+[  109.442498]                                lock(&serv->sv_lock);
+[  109.442499]   lock((softirq_ctrl.lock).lock);
+[  109.442501]
+[  109.442501]  *** DEADLOCK ***
+[  109.442501]
+[  109.442501] 3 locks held by nfsd/1032:
+[  109.442503]  #0: ffffffff93b49258 (nfsd_mutex){+.+.}-{3:3}, at: nfsd+0x19a/0x270
+[  109.442508]  #1: ffff994245cb00b0 (&serv->sv_lock){+.+.}-{0:0}, at: svc_close_list+0x1f/0x90
+[  109.442512]  #2: ffffffff93a81b20 (rcu_read_lock){....}-{1:2}, at: rt_spin_lock+0x5/0xc0
+[  109.442518]
+[  109.442518] stack backtrace:
+[  109.442519] CPU: 0 PID: 1032 Comm: nfsd Not tainted 5.10.16-rt30 #1
+[  109.442522] Hardware name: Supermicro X9DRL-3F/iF/X9DRL-3F/iF, BIOS 3.2 09/22/2015
+[  109.442524] Call Trace:
+[  109.442527]  dump_stack+0x77/0x97
+[  109.442533]  check_noncircular+0xdc/0xf0
+[  109.442546]  __lock_acquire+0x1264/0x20b0
+[  109.442553]  lock_acquire+0xc2/0x400
+[  109.442564]  rt_spin_lock+0x2b/0xc0
+[  109.442570]  __local_bh_disable_ip+0xd9/0x270
+[  109.442573]  svc_xprt_do_enqueue+0xc0/0x4d0
+[  109.442577]  svc_close_list+0x60/0x90
+[  109.442581]  svc_close_net+0x49/0x1a0
+[  109.442585]  svc_shutdown_net+0x12/0x40
+[  109.442588]  nfsd_destroy+0xc5/0x180
+[  109.442590]  nfsd+0x1bc/0x270
+[  109.442595]  kthread+0x194/0x1b0
+[  109.442600]  ret_from_fork+0x22/0x30
+[  109.518225] nfsd: last server has exited, flushing export cache
+[  OK  ] Stopped NFSv4 ID-name mapping service.
+[  OK  ] Stopped GSSAPI Proxy Daemon.
+[  OK  ] Stopped NFS Mount Daemon.
+[  OK  ] Stopped NFS status monitor for NFSv2/3 locking..
+
+Fixes: 719f8bcc883e ("svcrpc: fix xpt_list traversal locking on shutdown")
+Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4state.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/svc_xprt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -5372,7 +5372,7 @@ nfs4_laundromat(struct nfsd_net *nn)
- 	idr_for_each_entry(&nn->s2s_cp_stateids, cps_t, i) {
- 		cps = container_of(cps_t, struct nfs4_cpntf_state, cp_stateid);
- 		if (cps->cp_stateid.sc_type == NFS4_COPYNOTIFY_STID &&
--				cps->cpntf_time > cutoff)
-+				cps->cpntf_time < cutoff)
- 			_free_cpntf_state_locked(nn, cps);
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -1062,7 +1062,7 @@ static int svc_close_list(struct svc_ser
+ 	struct svc_xprt *xprt;
+ 	int ret = 0;
+ 
+-	spin_lock(&serv->sv_lock);
++	spin_lock_bh(&serv->sv_lock);
+ 	list_for_each_entry(xprt, xprt_list, xpt_list) {
+ 		if (xprt->xpt_net != net)
+ 			continue;
+@@ -1070,7 +1070,7 @@ static int svc_close_list(struct svc_ser
+ 		set_bit(XPT_CLOSE, &xprt->xpt_flags);
+ 		svc_xprt_enqueue(xprt);
  	}
- 	spin_unlock(&nn->s2s_cp_lock);
+-	spin_unlock(&serv->sv_lock);
++	spin_unlock_bh(&serv->sv_lock);
+ 	return ret;
+ }
+ 
 
 
