@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3417C344379
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:53:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BBB234437F
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229955AbhCVMvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41972 "EHLO mail.kernel.org"
+        id S229854AbhCVMvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231890AbhCVMtA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:49:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0478D619F2;
-        Mon, 22 Mar 2021 12:44:49 +0000 (UTC)
+        id S231573AbhCVMtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76FE9619A7;
+        Mon, 22 Mar 2021 12:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417090;
-        bh=rMiXf3y4d/N4zzkko3dcRdSWVLqsaXK6sKnkpf+KjZY=;
+        s=korg; t=1616417093;
+        bh=nXTLOoUgoo9y5rYlGoV18qKlf4tV5jDCr/5sjchcWCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLdEVD7I+Q0ckXCjUerUIevdNCuRGKElAJL5AwWzBAYn4s3Nl4yWs1Ia9S2so+vpa
-         hW1RfasFzrqryapn1Rw2gsK/ag98UTUTOdmXDVY6krLpTwdstnoHzofazxzJGYEZM6
-         3ZD32S/18CF7tTIqPnaqYchXlwsxmCFa0NHjjE7E=
+        b=NYzMxEbviwVQrMYL17mT0GfFtUKHuerO3O1dgweDSMb1JB+QnGeIxeOt55PU0QiZJ
+         +P+y+4KHVBL84OT0+X0k1SxHq9FomdGZjhrZ5ZhOwhQzVl7Q0Gs3sxmi8zYWmz/3NT
+         CZqjy/fQZi8DE64jlOLaWXdhuALAUgBNIq2RJe58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        Colin Ian King <colin.king@canonical.com>
-Subject: [PATCH 4.19 23/43] usbip: Fix incorrect double assignment to udc->ud.tcp_rx
-Date:   Mon, 22 Mar 2021 13:28:37 +0100
-Message-Id: <20210322121920.676112916@linuxfoundation.org>
+        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.19 24/43] USB: replace hardcode maximum usb string length by definition
+Date:   Mon, 22 Mar 2021 13:28:38 +0100
+Message-Id: <20210322121920.706420906@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
 References: <20210322121919.936671417@linuxfoundation.org>
@@ -39,34 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Macpaul Lin <macpaul.lin@mediatek.com>
 
-commit 9858af27e69247c5d04c3b093190a93ca365f33d upstream.
+commit 81c7462883b0cc0a4eeef0687f80ad5b5baee5f6 upstream.
 
-Currently udc->ud.tcp_rx is being assigned twice, the second assignment
-is incorrect, it should be to udc->ud.tcp_tx instead of rx. Fix this.
+Replace hardcoded maximum USB string length (126 bytes) by definition
+"USB_MAX_STRING_LEN".
 
-Fixes: 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races leading to gpf")
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Addresses-Coverity: ("Unused value")
-Link: https://lore.kernel.org/r/20210311104445.7811-1-colin.king@canonical.com
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/1592471618-29428-1-git-send-email-macpaul.lin@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/vudc_sysfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/composite.c |    4 ++--
+ drivers/usb/gadget/configfs.c  |    2 +-
+ drivers/usb/gadget/usbstring.c |    4 ++--
+ include/uapi/linux/usb/ch9.h   |    3 +++
+ 4 files changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/usbip/vudc_sysfs.c
-+++ b/drivers/usb/usbip/vudc_sysfs.c
-@@ -175,7 +175,7 @@ static ssize_t usbip_sockfd_store(struct
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -1077,7 +1077,7 @@ static void collect_langs(struct usb_gad
+ 	while (*sp) {
+ 		s = *sp;
+ 		language = cpu_to_le16(s->language);
+-		for (tmp = buf; *tmp && tmp < &buf[126]; tmp++) {
++		for (tmp = buf; *tmp && tmp < &buf[USB_MAX_STRING_LEN]; tmp++) {
+ 			if (*tmp == language)
+ 				goto repeat;
+ 		}
+@@ -1152,7 +1152,7 @@ static int get_string(struct usb_composi
+ 			collect_langs(sp, s->wData);
+ 		}
  
- 		udc->ud.tcp_socket = socket;
- 		udc->ud.tcp_rx = tcp_rx;
--		udc->ud.tcp_rx = tcp_tx;
-+		udc->ud.tcp_tx = tcp_tx;
- 		udc->ud.status = SDEV_ST_USED;
+-		for (len = 0; len <= 126 && s->wData[len]; len++)
++		for (len = 0; len <= USB_MAX_STRING_LEN && s->wData[len]; len++)
+ 			continue;
+ 		if (!len)
+ 			return -EINVAL;
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -115,7 +115,7 @@ static int usb_string_copy(const char *s
+ 	char *str;
+ 	char *copy = *s_copy;
+ 	ret = strlen(s);
+-	if (ret > 126)
++	if (ret > USB_MAX_STRING_LEN)
+ 		return -EOVERFLOW;
  
- 		spin_unlock_irq(&udc->ud.lock);
+ 	str = kstrdup(s, GFP_KERNEL);
+--- a/drivers/usb/gadget/usbstring.c
++++ b/drivers/usb/gadget/usbstring.c
+@@ -55,9 +55,9 @@ usb_gadget_get_string (const struct usb_
+ 		return -EINVAL;
+ 
+ 	/* string descriptors have length, tag, then UTF16-LE text */
+-	len = min ((size_t) 126, strlen (s->s));
++	len = min((size_t)USB_MAX_STRING_LEN, strlen(s->s));
+ 	len = utf8s_to_utf16s(s->s, len, UTF16_LITTLE_ENDIAN,
+-			(wchar_t *) &buf[2], 126);
++			(wchar_t *) &buf[2], USB_MAX_STRING_LEN);
+ 	if (len < 0)
+ 		return -EINVAL;
+ 	buf [0] = (len + 1) * 2;
+--- a/include/uapi/linux/usb/ch9.h
++++ b/include/uapi/linux/usb/ch9.h
+@@ -364,6 +364,9 @@ struct usb_config_descriptor {
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++/* USB String descriptors can contain at most 126 characters. */
++#define USB_MAX_STRING_LEN	126
++
+ /* USB_DT_STRING: String descriptor */
+ struct usb_string_descriptor {
+ 	__u8  bLength;
 
 
