@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A16B03442B0
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 657CD3442BC
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231958AbhCVMoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35514 "EHLO mail.kernel.org"
+        id S231217AbhCVMoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232431AbhCVMmg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA1AC619DA;
-        Mon, 22 Mar 2021 12:40:19 +0000 (UTC)
+        id S232608AbhCVMmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E4E4619A2;
+        Mon, 22 Mar 2021 12:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416820;
-        bh=a2AsY4TOCrGfjmkHEdF92nSiyFBIPjmqynFZVFTq//g=;
+        s=korg; t=1616416842;
+        bh=0PSbATWdDDaov/Z5J/zXV8SD8WfhRP9ILRONZIESGu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWbESBDYjZs60+pPgGOiOyU4Bfixtx6z/A94qCy9Bd2R5k4O6qOzG0/L+oXM60rj2
-         4+DhdKu8NEHiI76PC1Z+loErUZzUA/jPuiVsJDqOUAW5o4mGgHcWSbZTXtu2zWRXLR
-         js/N1YY2LMn7DwBkUItB0RhAe+8iNfgzFdJdI9Mo=
+        b=Rhmn5jrYcrLeLU41urT38CJiZEI5FhfdJAVkSKSKg/l2D5NF+EWNg0DGlDr4KazlB
+         JvVwl6kdKeaa+zE/5d6boNIJwrr1kSe+W5tNMViGLKIfAX300OoRnL/tVeJDoRu9C/
+         nWEafdc2WEH73ZMbX+wNgxhaDhjYgwyd8DEln10w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Roman Guskov <rguskov@dh-electronics.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/157] gpiolib: Read "gpio-line-names" from a firmware node
-Date:   Mon, 22 Mar 2021 13:27:44 +0100
-Message-Id: <20210322121937.162397750@linuxfoundation.org>
+Subject: [PATCH 5.10 108/157] net: bonding: fix error return code of bond_neigh_init()
+Date:   Mon, 22 Mar 2021 13:27:45 +0100
+Message-Id: <20210322121937.193932219@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -42,80 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit b41ba2ec54a70908067034f139aa23d0dd2985ce ]
+[ Upstream commit 2055a99da8a253a357bdfd359b3338ef3375a26c ]
 
-On STM32MP1, the GPIO banks are subnodes of pin-controller@50002000,
-see arch/arm/boot/dts/stm32mp151.dtsi. The driver for
-pin-controller@50002000 is in drivers/pinctrl/stm32/pinctrl-stm32.c
-and iterates over all of its DT subnodes when registering each GPIO
-bank gpiochip. Each gpiochip has:
+When slave is NULL or slave_ops->ndo_neigh_setup is NULL, no error
+return code of bond_neigh_init() is assigned.
+To fix this bug, ret is assigned with -EINVAL in these cases.
 
-  - gpio_chip.parent = dev,
-    where dev is the device node of the pin controller
-  - gpio_chip.of_node = np,
-    which is the OF node of the GPIO bank
-
-Therefore, dev_fwnode(chip->parent) != of_fwnode_handle(chip.of_node),
-i.e. pin-controller@50002000 != pin-controller@50002000/gpio@5000*000.
-
-The original code behaved correctly, as it extracted the "gpio-line-names"
-from of_fwnode_handle(chip.of_node) = pin-controller@50002000/gpio@5000*000.
-
-To achieve the same behaviour, read property from the firmware node.
-
-Fixes: 7cba1a4d5e162 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
-Reported-by: Marek Vasut <marex@denx.de>
-Reported-by: Roman Guskov <rguskov@dh-electronics.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 9e99bfefdbce ("bonding: fix bond_neigh_init()")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/net/bonding/bond_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 0a2c4adcd833..af5bb8fedfea 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -364,22 +364,18 @@ static int gpiochip_set_desc_names(struct gpio_chip *gc)
-  *
-  * Looks for device property "gpio-line-names" and if it exists assigns
-  * GPIO line names for the chip. The memory allocated for the assigned
-- * names belong to the underlying software node and should not be released
-+ * names belong to the underlying firmware node and should not be released
-  * by the caller.
-  */
- static int devprop_gpiochip_set_names(struct gpio_chip *chip)
- {
- 	struct gpio_device *gdev = chip->gpiodev;
--	struct device *dev = chip->parent;
-+	struct fwnode_handle *fwnode = dev_fwnode(&gdev->dev);
- 	const char **names;
- 	int ret, i;
- 	int count;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 47afc5938c26..6d5a39af1097 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3918,11 +3918,15 @@ static int bond_neigh_init(struct neighbour *n)
  
--	/* GPIO chip may not have a parent device whose properties we inspect. */
--	if (!dev)
--		return 0;
--
--	count = device_property_string_array_count(dev, "gpio-line-names");
-+	count = fwnode_property_string_array_count(fwnode, "gpio-line-names");
- 	if (count < 0)
- 		return 0;
+ 	rcu_read_lock();
+ 	slave = bond_first_slave_rcu(bond);
+-	if (!slave)
++	if (!slave) {
++		ret = -EINVAL;
+ 		goto out;
++	}
+ 	slave_ops = slave->dev->netdev_ops;
+-	if (!slave_ops->ndo_neigh_setup)
++	if (!slave_ops->ndo_neigh_setup) {
++		ret = -EINVAL;
+ 		goto out;
++	}
  
-@@ -393,7 +389,7 @@ static int devprop_gpiochip_set_names(struct gpio_chip *chip)
- 	if (!names)
- 		return -ENOMEM;
- 
--	ret = device_property_read_string_array(dev, "gpio-line-names",
-+	ret = fwnode_property_read_string_array(fwnode, "gpio-line-names",
- 						names, count);
- 	if (ret < 0) {
- 		dev_warn(&gdev->dev, "failed to read GPIO line names\n");
+ 	/* TODO: find another way [1] to implement this.
+ 	 * Passing a zeroed structure is fragile,
 -- 
 2.30.1
 
