@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26520344224
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1CB344223
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:39:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231197AbhCVMiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:38:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57576 "EHLO mail.kernel.org"
+        id S231838AbhCVMit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:38:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231997AbhCVMhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:37:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66F95619AB;
-        Mon, 22 Mar 2021 12:37:00 +0000 (UTC)
+        id S230159AbhCVMhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:37:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D287B619B9;
+        Mon, 22 Mar 2021 12:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416620;
-        bh=L1ZHneKGMBBfnSCptUGOuoVALo40O+L2+86LCfvOks0=;
+        s=korg; t=1616416623;
+        bh=NqauGuUlqs04aDiBlkjrkYv7CLIba4f1hYwFQt9WIHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZhO2wKWFjG/8x0Jm7BsVJP1ZTs+E0m6nur2nySB3s0sId3jnMGCW4luO/PPwN2uF
-         PKw0icJ31iohm83+LiOOAVIPHqXozAS2hBT+be4z/dG7MI8HhmmgyBMurQTiHIjELi
-         31c55YiRjmWB6ICUf/J7sVREOmum25/h02BvgT+g=
+        b=ER0lnBpwAMVlEu5Mo8V05w9GTrEMtUlkCM/zTWN++H+U585DYQCfRp6GVRa7PAP2i
+         +JDukNqsNiJkSUa9Sv3jbvLeGSUXZwv80zSrfT+hlG0PSSboXhoPzOWxEOitbXAsmg
+         ODONu3KxkEbZyz8nbhUJw0TbkPORBK2KxZ+jJNiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 056/157] scsi: lpfc: Fix some error codes in debugfs
-Date:   Mon, 22 Mar 2021 13:26:53 +0100
-Message-Id: <20210322121935.529415430@linuxfoundation.org>
+Subject: [PATCH 5.10 057/157] scsi: myrs: Fix a double free in myrs_cleanup()
+Date:   Mon, 22 Mar 2021 13:26:54 +0100
+Message-Id: <20210322121935.559165864@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -39,41 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 19f1bc7edf0f97186810e13a88f5b62069d89097 upstream.
+commit 2bb817712e2f77486d6ee17e7efaf91997a685f8 upstream.
 
-If copy_from_user() or kstrtoull() fail then the correct behavior is to
-return a negative error code.
+In myrs_cleanup(), cs->mmio_base will be freed twice by iounmap().
 
-Link: https://lore.kernel.org/r/YEsbU/UxYypVrC7/@mwanda
-Fixes: f9bb2da11db8 ("[SCSI] lpfc 8.3.27: T10 additions for SLI4")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210311063005.9963-1-lyl2019@mail.ustc.edu.cn
+Fixes: 77266186397c ("scsi: myrs: Add Mylex RAID controller (SCSI interface)")
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_debugfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/myrs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/lpfc/lpfc_debugfs.c
-+++ b/drivers/scsi/lpfc/lpfc_debugfs.c
-@@ -2423,7 +2423,7 @@ lpfc_debugfs_dif_err_write(struct file *
- 	memset(dstbuf, 0, 33);
- 	size = (nbytes < 32) ? nbytes : 32;
- 	if (copy_from_user(dstbuf, buf, size))
--		return 0;
-+		return -EFAULT;
- 
- 	if (dent == phba->debug_InjErrLBA) {
- 		if ((dstbuf[0] == 'o') && (dstbuf[1] == 'f') &&
-@@ -2432,7 +2432,7 @@ lpfc_debugfs_dif_err_write(struct file *
+--- a/drivers/scsi/myrs.c
++++ b/drivers/scsi/myrs.c
+@@ -2274,12 +2274,12 @@ static void myrs_cleanup(struct myrs_hba
+ 	if (cs->mmio_base) {
+ 		cs->disable_intr(cs);
+ 		iounmap(cs->mmio_base);
++		cs->mmio_base = NULL;
  	}
- 
- 	if ((tmp == 0) && (kstrtoull(dstbuf, 0, &tmp)))
--		return 0;
-+		return -EINVAL;
- 
- 	if (dent == phba->debug_writeGuard)
- 		phba->lpfc_injerr_wgrd_cnt = (uint32_t)tmp;
+ 	if (cs->irq)
+ 		free_irq(cs->irq, cs);
+ 	if (cs->io_addr)
+ 		release_region(cs->io_addr, 0x80);
+-	iounmap(cs->mmio_base);
+ 	pci_set_drvdata(pdev, NULL);
+ 	pci_disable_device(pdev);
+ 	scsi_host_put(cs->host);
 
 
