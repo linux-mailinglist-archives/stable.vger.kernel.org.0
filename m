@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C16134444E
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C32344451
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232272AbhCVM70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51160 "EHLO mail.kernel.org"
+        id S230378AbhCVM73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232881AbhCVM5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:57:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91D24619C2;
-        Mon, 22 Mar 2021 12:49:07 +0000 (UTC)
+        id S233025AbhCVM5j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:57:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9DF561A11;
+        Mon, 22 Mar 2021 12:49:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417348;
-        bh=R0AD4JARSP+UaJ6DoAJhOPWN4PUtJCj7ZHwK9Tf/0AY=;
+        s=korg; t=1616417353;
+        bh=0KPQM0L0UhNP/51l8+4m/UBwXzYnlq2CH/czeAMU+eQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCuFV3ELPqXngISQpZGhE1HCGbLSPqTe77xL9nV4WsUiSfCKtQa5eOsyTw44T4os9
-         P2dVSu8PqTxs9RiXmlXVhM6EeV7OEP3CyJlWNS4LCNECd4Oz9i14N3xjNtVKII8snB
-         OzHESF+YMumISMelse/9BCdfEFzgIB02/pSLL8es=
+        b=JIXHUj+pxffCONyofyAqyeO3otPbBm/oWodiyn8LTfsQEgHRzgCuDRpwh+yo/+58n
+         xNIoWicZY+B3NkNUOkT6h6vpYTLZjhU+PxeB5iOJtV5PksK9clmuB5rrmTIqpwhANr
+         h1TBYSnt4AcUh6NlmATGRQR9GiZatoHrgpUMDOEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kratochvil <jan.kratochvil@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 39/43] x86: Introduce TS_COMPAT_RESTART to fix get_nr_restart_syscall()
-Date:   Mon, 22 Mar 2021 13:29:20 +0100
-Message-Id: <20210322121921.284199713@linuxfoundation.org>
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 40/43] ext4: find old entry again if failed to rename whiteout
+Date:   Mon, 22 Mar 2021 13:29:21 +0100
+Message-Id: <20210322121921.321226953@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
 References: <20210322121920.053255560@linuxfoundation.org>
@@ -40,129 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit 8c150ba2fb5995c84a7a43848250d444a3329a7d upstream.
+commit b7ff91fd030dc9d72ed91b1aab36e445a003af4f upstream.
 
-The comment in get_nr_restart_syscall() says:
+If we failed to add new entry on rename whiteout, we cannot reset the
+old->de entry directly, because the old->de could have moved from under
+us during make indexed dir. So find the old entry again before reset is
+needed, otherwise it may corrupt the filesystem as below.
 
-	 * The problem is that we can get here when ptrace pokes
-	 * syscall-like values into regs even if we're not in a syscall
-	 * at all.
+  /dev/sda: Entry '00000001' in ??? (12) has deleted/unused inode 15. CLEARED.
+  /dev/sda: Unattached inode 75
+  /dev/sda: UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY.
 
-Yes, but if not in a syscall then the
-
-	status & (TS_COMPAT|TS_I386_REGS_POKED)
-
-check below can't really help:
-
-	- TS_COMPAT can't be set
-
-	- TS_I386_REGS_POKED is only set if regs->orig_ax was changed by
-	  32bit debugger; and even in this case get_nr_restart_syscall()
-	  is only correct if the tracee is 32bit too.
-
-Suppose that a 64bit debugger plays with a 32bit tracee and
-
-	* Tracee calls sleep(2)	// TS_COMPAT is set
-	* User interrupts the tracee by CTRL-C after 1 sec and does
-	  "(gdb) call func()"
-	* gdb saves the regs by PTRACE_GETREGS
-	* does PTRACE_SETREGS to set %rip='func' and %orig_rax=-1
-	* PTRACE_CONT		// TS_COMPAT is cleared
-	* func() hits int3.
-	* Debugger catches SIGTRAP.
-	* Restore original regs by PTRACE_SETREGS.
-	* PTRACE_CONT
-
-get_nr_restart_syscall() wrongly returns __NR_restart_syscall==219, the
-tracee calls ia32_sys_call_table[219] == sys_madvise.
-
-Add the sticky TS_COMPAT_RESTART flag which survives after return to user
-mode. It's going to be removed in the next step again by storing the
-information in the restart block. As a further cleanup it might be possible
-to remove also TS_I386_REGS_POKED with that.
-
-Test-case:
-
-  $ cvs -d :pserver:anoncvs:anoncvs@sourceware.org:/cvs/systemtap co ptrace-tests
-  $ gcc -o erestartsys-trap-debuggee ptrace-tests/tests/erestartsys-trap-debuggee.c --m32
-  $ gcc -o erestartsys-trap-debugger ptrace-tests/tests/erestartsys-trap-debugger.c -lutil
-  $ ./erestartsys-trap-debugger
-  Unexpected: retval 1, errno 22
-  erestartsys-trap-debugger: ptrace-tests/tests/erestartsys-trap-debugger.c:421
-
-Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
-Reported-by: Jan Kratochvil <jan.kratochvil@redhat.com>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 6b4b8e6b4ad ("ext4: fix bug for rename with RENAME_WHITEOUT")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174709.GA17895@redhat.com
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210303131703.330415-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/thread_info.h |   14 +++++++++++++-
- arch/x86/kernel/signal.c           |   24 +-----------------------
- 2 files changed, 14 insertions(+), 24 deletions(-)
+ fs/ext4/namei.c |   29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/thread_info.h
-+++ b/arch/x86/include/asm/thread_info.h
-@@ -238,10 +238,22 @@ static inline int arch_within_stack_fram
-  */
- #define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3445,6 +3445,31 @@ static int ext4_setent(handle_t *handle,
+ 	return 0;
+ }
  
-+#ifndef __ASSEMBLY__
- #ifdef CONFIG_COMPAT
- #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
-+#define TS_COMPAT_RESTART	0x0008
-+
-+#define arch_set_restart_data	arch_set_restart_data
-+
-+static inline void arch_set_restart_data(struct restart_block *restart)
++static void ext4_resetent(handle_t *handle, struct ext4_renament *ent,
++			  unsigned ino, unsigned file_type)
 +{
-+	struct thread_info *ti = current_thread_info();
-+	if (ti->status & TS_COMPAT)
-+		ti->status |= TS_COMPAT_RESTART;
-+	else
-+		ti->status &= ~TS_COMPAT_RESTART;
++	struct ext4_renament old = *ent;
++	int retval = 0;
++
++	/*
++	 * old->de could have moved from under us during make indexed dir,
++	 * so the old->de may no longer valid and need to find it again
++	 * before reset old inode info.
++	 */
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	if (IS_ERR(old.bh))
++		retval = PTR_ERR(old.bh);
++	if (!old.bh)
++		retval = -ENOENT;
++	if (retval) {
++		ext4_std_error(old.dir->i_sb, retval);
++		return;
++	}
++
++	ext4_setent(handle, &old, ino, file_type);
++	brelse(old.bh);
 +}
- #endif
--#ifndef __ASSEMBLY__
- 
- #ifdef CONFIG_X86_32
- #define in_ia32_syscall() true
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -769,30 +769,8 @@ handle_signal(struct ksignal *ksig, stru
- 
- static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
++
+ static int ext4_find_delete_entry(handle_t *handle, struct inode *dir,
+ 				  const struct qstr *d_name)
  {
--	/*
--	 * This function is fundamentally broken as currently
--	 * implemented.
--	 *
--	 * The idea is that we want to trigger a call to the
--	 * restart_block() syscall and that we want in_ia32_syscall(),
--	 * in_x32_syscall(), etc. to match whatever they were in the
--	 * syscall being restarted.  We assume that the syscall
--	 * instruction at (regs->ip - 2) matches whatever syscall
--	 * instruction we used to enter in the first place.
--	 *
--	 * The problem is that we can get here when ptrace pokes
--	 * syscall-like values into regs even if we're not in a syscall
--	 * at all.
--	 *
--	 * For now, we maintain historical behavior and guess based on
--	 * stored state.  We could do better by saving the actual
--	 * syscall arch in restart_block or (with caveats on x32) by
--	 * checking if regs->ip points to 'int $0x80'.  The current
--	 * behavior is incorrect if a tracer has a different bitness
--	 * than the tracee.
--	 */
- #ifdef CONFIG_IA32_EMULATION
--	if (current_thread_info()->status & (TS_COMPAT|TS_I386_REGS_POKED))
-+	if (current_thread_info()->status & TS_COMPAT_RESTART)
- 		return __NR_ia32_restart_syscall;
- #endif
- #ifdef CONFIG_X86_X32_ABI
+@@ -3754,8 +3779,8 @@ static int ext4_rename(struct inode *old
+ end_rename:
+ 	if (whiteout) {
+ 		if (retval) {
+-			ext4_setent(handle, &old,
+-				old.inode->i_ino, old_file_type);
++			ext4_resetent(handle, &old,
++				      old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
+ 		}
+ 		unlock_new_inode(whiteout);
 
 
