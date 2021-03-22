@@ -2,124 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE08A3446A7
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 15:06:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 684853446DA
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 15:14:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbhCVOG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 10:06:29 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15370 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230476AbhCVOGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 10:06:07 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12ME2foj101684;
-        Mon, 22 Mar 2021 10:06:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=o5/ezRrykEsCBPB8OHmDFl4egzAK3Hsh2HBBwP1sOPo=;
- b=TChO1LnzZrA/PhCh+G3q/0DKx7ChW+tJ03cFFei8AVTn4553ggt5sERBZ2kHde12ye/g
- g7kcnuSbtL/9HJI+Os+Q/ALIoKBY7W1Gvco6TIAetp/6zxNhVZhin1zdxVWrNPW22Xxp
- gVy5DHbto+sqOJbkvfnnToUP5NmmNV0py9k28nZGycKMh8TiRPuu4oi2xrsayqEdETlW
- aqQ625ghFWLYxg3Qr2vDDRQzyY5VCu7BJMCdLsWpLaJKU96E/3umhXXHuTCwf8x29IbV
- +Msz9QFWyXJic+liP5g6s7nY/R5PAAEeC8WennDvUtl8xNmq4gnqEjLlR/zLmtM+b+j5 PA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx4a2622-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 10:06:07 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12ME2jql102017;
-        Mon, 22 Mar 2021 10:06:06 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx4a2613-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 10:06:06 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12ME3AZY004990;
-        Mon, 22 Mar 2021 14:06:04 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 37d99radsj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 14:06:04 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12ME61QH38666502
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Mar 2021 14:06:01 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 45DAB4C05A;
-        Mon, 22 Mar 2021 14:06:01 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DE26A4C04E;
-        Mon, 22 Mar 2021 14:06:00 +0000 (GMT)
-Received: from ibm-vm.ibmuc.com (unknown [9.145.2.56])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Mar 2021 14:06:00 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2 2/2] s390/kvm: VSIE: fix MVPG handling for prefixing and MSO
-Date:   Mon, 22 Mar 2021 15:05:59 +0100
-Message-Id: <20210322140559.500716-3-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210322140559.500716-1-imbrenda@linux.ibm.com>
-References: <20210322140559.500716-1-imbrenda@linux.ibm.com>
+        id S230180AbhCVOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 10:14:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230156AbhCVOOS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 10:14:18 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5CF7C061762
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:14:17 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id u9so21532869ejj.7
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:14:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+4yh4MCaMjCQZ43lV2b3NMY6HnAMnpQQHM0Vz8ZLtI8=;
+        b=ks6UgnX43wsvsZOr+tvl4pF7ZmWygwrO3DHEgdKqCXz+YQxpFvXH2tP8ZNAeqC+QcP
+         QGFYnM0MwEG6yrWilism7U6AEteYYQ7/R5FHokF9NzzfbwCbNw4vUTnYUP3lb70JI0Cr
+         dfB60Y38wPG80kD4YInbugTSZF09sR8E3aBIUtJ58v44JDl3yMcvyOEj+ljZu9hge1ur
+         akjI5xrobOdNTyEElrEb6zJr4NABzOCSBOWlqvevdnBe3UbOAr3NPOLX64hmjmd5Tx8I
+         l85+hHhdrf4fLKk0oNgUFEDi6y4KzFIZUJ0M0+dLzLq1I3ox9yLr6aXQ1jd3ZDh7ub5B
+         B53w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+4yh4MCaMjCQZ43lV2b3NMY6HnAMnpQQHM0Vz8ZLtI8=;
+        b=g7YwMhAJPkPkYUHORV+E3PB2pzysGsTotpdfStEJZs1cwkEo10IRtbEuaLw9FiMnBK
+         PONT38dXE6mXMLLAIof0BMuR+o/otPm3P9o4E1UKnOqFoIufBhc+LcLFcJduhUHA5KNb
+         S5Zst4sisHmEMiqpxIBSzeuBSYLMS75ddKEOA+7URpaG19Wb/efnq9SgRtvvgJVCBior
+         gzhomn65jCYAqkcBQ+HfCWyG64iUSw6wLZpzxQaq1iFEIBtuFEcmQMJtAmvmOyzvL2c9
+         rzT5yPn46bnSNYhZRn+ddxOd0vbcv5gDnxuVPRWJo/jAhz1rpvN4Mrv5XESZ0xVtmKPM
+         7yYw==
+X-Gm-Message-State: AOAM533c2hAO2sZQoD2dCDQ2zKe/ByOHVZaT1pRbnDAWRgijS4Meeaam
+        port7004JdMLUKJqrhz4Qk9nS4FeY7WedyHj15cTAg==
+X-Google-Smtp-Source: ABdhPJxtrbtv7CNwA1UI5v7Ipmfc6jya2hFUTvNiJoK0oHZMpmXsnK+fBBudUF7c8CwvUThB5YW1qnlEQFmoX/Um/Lg=
+X-Received: by 2002:a17:907:720a:: with SMTP id dr10mr11853474ejc.375.1616422456310;
+ Mon, 22 Mar 2021 07:14:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-22_07:2021-03-22,2021-03-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- spamscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0
- adultscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1011
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103220103
+References: <20210322121933.746237845@linuxfoundation.org> <20210322121937.040307268@linuxfoundation.org>
+In-Reply-To: <20210322121937.040307268@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 22 Mar 2021 19:44:05 +0530
+Message-ID: <CA+G9fYuSdE7U-D+mn82bR3e33NzpDEFsD9B6EgXAj3sKMLxfeQ@mail.gmail.com>
+Subject: Re: [PATCH 5.10 103/157] MIPS: kernel: Reserve exception base early
+ to prevent corruption
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kamal Dasu <kdasu.kdev@gmail.com>,
+        Serge Semin <fancer.lancer@gmail.com>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        lkft-triage@lists.linaro.org, linux-mips@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Prefixing needs to be applied to the guest real address to translate it
-into a guest absolute address.
+On Mon, 22 Mar 2021 at 18:14, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+>
+> [ Upstream commit bd67b711bfaa02cf19e88aa2d9edae5c1c1d2739 ]
+>
+> BMIPS is one of the few platforms that do change the exception base.
+> After commit 2dcb39645441 ("memblock: do not start bottom-up allocations
+> with kernel_end") we started seeing BMIPS boards fail to boot with the
+> built-in FDT being corrupted.
+>
+> Before the cited commit, early allocations would be in the [kernel_end,
+> RAM_END] range, but after commit they would be within [RAM_START +
+> PAGE_SIZE, RAM_END].
+>
+> The custom exception base handler that is installed by
+> bmips_ebase_setup() done for BMIPS5000 CPUs ends-up trampling on the
+> memory region allocated by unflatten_and_copy_device_tree() thus
+> corrupting the FDT used by the kernel.
+>
+> To fix this, we need to perform an early reservation of the custom
+> exception space. Additional we reserve the first 4k (1k for R3k) for
+> either normal exception vector space (legacy CPUs) or special vectors
+> like cache exceptions.
+>
+> Huge thanks to Serge for analysing and proposing a solution to this
+> issue.
+>
+> Fixes: 2dcb39645441 ("memblock: do not start bottom-up allocations with kernel_end")
+> Reported-by: Kamal Dasu <kdasu.kdev@gmail.com>
+> Debugged-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+> Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+> Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/mips/include/asm/traps.h    |  3 +++
+>  arch/mips/kernel/cpu-probe.c     |  6 ++++++
+>  arch/mips/kernel/cpu-r3k-probe.c |  3 +++
+>  arch/mips/kernel/traps.c         | 10 +++++-----
 
-The value of MSO needs to be added to a guest-absolute address in order to
-obtain the host-virtual.
+mipc tinyconfig and allnoconfig builds failed on stable-rc 5.10 branch
 
-Fixes: 223ea46de9e79 ("s390/kvm: VSIE: correctly handle MVPG when in VSIE")
-Cc: stable@vger.kernel.org
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reported-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=mips
+CROSS_COMPILE=mips-linux-gnu- 'CC=sccache mips-linux-gnu-gcc'
+'HOSTCC=sccache gcc'
+WARNING: modpost: vmlinux.o(.text+0x6a88): Section mismatch in
+reference from the function reserve_exception_space() to the function
+.meminit.text:memblock_reserve()
+The function reserve_exception_space() references
+the function __meminit memblock_reserve().
+This is often because reserve_exception_space lacks a __meminit
+annotation or the annotation of memblock_reserve is wrong.
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 48aab6290a77..ac86f11e46dc 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1002,7 +1002,7 @@ static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
- static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- {
- 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
--	unsigned long pei_dest, pei_src, src, dest, mask;
-+	unsigned long pei_dest, pei_src, dest, src, mask, mso, prefix;
- 	u64 *pei_block = &vsie_page->scb_o->mcic;
- 	int edat, rc_dest, rc_src;
- 	union ctlreg0 cr0;
-@@ -1010,9 +1010,13 @@ static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	cr0.val = vcpu->arch.sie_block->gcr[0];
- 	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
- 	mask = _kvm_s390_logical_to_effective(&scb_s->gpsw, PAGE_MASK);
-+	mso = scb_s->mso & ~(1UL << 20);
-+	prefix = scb_s->prefix << GUEST_PREFIX_SHIFT;
- 
- 	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
-+	dest = _kvm_s390_real_to_abs(prefix, dest) + mso;
- 	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
-+	src = _kvm_s390_real_to_abs(prefix, src) + mso;
- 
- 	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
- 	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
--- 
-2.26.2
+FATAL: modpost: Section mismatches detected.
+Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.
+make[2]: *** [/builds/linux/scripts/Makefile.modpost:59:
+vmlinux.symvers] Error 1
 
+Here is the list of build failed,
+ - gcc-8-allnoconfig
+ - gcc-8-tinyconfig
+ - gcc-9-allnoconfig
+ - gcc-9-tinyconfig
+ - gcc-10-allnoconfig
+ - gcc-10-tinyconfig
+ - clang-10-tinyconfig
+ - clang-10-allnoconfig
+ - clang-11-allnoconfig
+ - clang-11-tinyconfig
+ - clang-12-tinyconfig
+ - clang-12-allnoconfig
+
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+
+link:
+https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1117167411#L142
+
+steps to reproduce:
+---------------------------
+# TuxMake is a command line tool and Python library that provides
+# portable and repeatable Linux kernel builds across a variety of
+# architectures, toolchains, kernel configurations, and make targets.
+#
+# TuxMake supports the concept of runtimes.
+# See https://docs.tuxmake.org/runtimes/, for that to work it requires
+# that you install podman or docker on your system.
+#
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
+
+
+tuxmake --runtime podman --target-arch mips --toolchain gcc-10
+--kconfig tinyconfig
+
+
+--
+Linaro LKFT
+https://lkft.linaro.org
