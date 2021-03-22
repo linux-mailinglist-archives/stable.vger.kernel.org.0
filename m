@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FBC6343F7D
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 12:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B75343F80
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 12:20:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbhCVLUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 07:20:21 -0400
-Received: from mx2.suse.de ([195.135.220.15]:60322 "EHLO mx2.suse.de"
+        id S229984AbhCVLUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 07:20:23 -0400
+Received: from mx2.suse.de ([195.135.220.15]:60476 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229673AbhCVLTu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 07:19:50 -0400
+        id S229915AbhCVLUC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 07:20:02 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 187B7ADAA;
-        Mon, 22 Mar 2021 11:19:49 +0000 (UTC)
-Date:   Mon, 22 Mar 2021 12:19:48 +0100
-Message-ID: <s5h8s6fe8q3.wl-tiwai@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id 1E1D3ADAA;
+        Mon, 22 Mar 2021 11:20:01 +0000 (UTC)
+Date:   Mon, 22 Mar 2021 12:20:01 +0100
+Message-ID: <s5h7dlze8pq.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Hui Wang <hui.wang@canonical.com>
 Cc:     alsa-devel@alsa-project.org, kailang@realtek.com,
         stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] ALSA: hda/realtek: fix a determine_headset_type issue for a Dell AIO
-In-Reply-To: <20210320091542.6748-1-hui.wang@canonical.com>
+Subject: Re: [PATCH v3 2/2] ALSA: hda/realtek: call alc_update_headset_mode() in hp_automute_hook
+In-Reply-To: <20210320091542.6748-2-hui.wang@canonical.com>
 References: <20210320091542.6748-1-hui.wang@canonical.com>
+        <20210320091542.6748-2-hui.wang@canonical.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -33,26 +34,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 20 Mar 2021 10:15:41 +0100,
+On Sat, 20 Mar 2021 10:15:42 +0100,
 Hui Wang wrote:
 > 
-> We found a recording issue on a Dell AIO, users plug a headset-mic and
-> select headset-mic from UI, but can't record any sound from
-> headset-mic. The root cause is the determine_headset_type() returns a
-> wrong type, e.g. users plug a ctia type headset, but that function
-> returns omtp type.
+> We found the alc_update_headset_mode() is not called on some machines
+> when unplugging the headset, as a result, the mode of the
+> ALC_HEADSET_MODE_UNPLUGGED can't be set, then the current_headset_type
+> is not cleared, if users plug a differnt type of headset next time,
+> the determine_headset_type() will not be called and the audio jack is
+> set to the headset type of previous time.
 > 
-> On this machine, the internal mic is not connected to the codec, the
-> "Input Source" is headset mic by default. And when users plug a
-> headset, the determine_headset_type() will be called immediately, the
-> codec on this AIO is alc274, the delay time for this codec in the
-> determine_headset_type() is only 80ms, the delay is too short to
-> correctly determine the headset type, the fail rate is nearly 99% when
-> users plug the headset with the normal speed.
-> 
-> Other codecs set several hundred ms delay time, so here I change the
-> delay time to 850ms for alc2x4 series, after this change, the fail
-> rate is zero unless users plug the headset slowly on purpose.
+> On the Dell machines which connect the dmic to the PCH, if we open
+> the gnome-sound-setting and unplug the headset, this issue will
+> happen. Those machines disable the auto-mute by ucm and has no
+> internal mic in the input source, so the update_headset_mode() will
+> not be called by cap_sync_hook or automute_hook when unplugging, and
+> because the gnome-sound-setting is opened, the codec will not enter
+> the runtime_suspend state, so the update_headset_mode() will not be
+> called by alc_resume when unplugging. In this case the
+> hp_automute_hook is called when unplugging, so add
+> update_headset_mode() calling to this function.
 > 
 > Cc: <stable@vger.kernel.org>
 > Signed-off-by: Hui Wang <hui.wang@canonical.com>
