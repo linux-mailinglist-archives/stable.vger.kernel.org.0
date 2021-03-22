@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75BB6344464
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C40B34413B
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230190AbhCVM7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49502 "EHLO mail.kernel.org"
+        id S230493AbhCVMbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233397AbhCVM6c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:58:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73DA360C3D;
-        Mon, 22 Mar 2021 12:58:31 +0000 (UTC)
+        id S231280AbhCVMbQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:31:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E51DD60C3D;
+        Mon, 22 Mar 2021 12:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417912;
-        bh=tq6H4I/DJ8A8WB2n3jkiRx/gOyKc8SBtp3qfSafkpQI=;
+        s=korg; t=1616416276;
+        bh=YEsO1KwxtEsjByGqtI4KcOYOwT/lgtdJdpOEwcfhPCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ojwafdpq/1l5FGxEN+HPxLnT60n5YsyB9ZLsKjU9spoKwT9K1VHWED6k1bp78sPWZ
-         RsUm82cCY5oTPTpHKBxSiTnrXUcYtMFXWK0qSEsWIZsoLi+46YFmO4criMgbO3AbGO
-         6eEIjGXwamvagS/7waaOpRT5x6SGim1BWb/QWE5Q=
+        b=hVicPMLPQqVPuCz1ptV4qK0xaqIKNZBIZTEcauWQoZIz5JdDc9Gt2lfkOsWtm3638
+         ZIzKF8m5DO2qOrB2of+mkJT4xjrA6+tFDfAu0e4HJG6mRYBbSNPJpQtM8rZjBEh0Lo
+         9VP6f8NovIO13IVk5VqiTVjXq3ZzgCm6R6reQx3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Belanger, Martin" <Martin.Belanger@dell.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.11 045/120] nvmet: dont check iosqes,iocqes for discovery controllers
-Date:   Mon, 22 Mar 2021 13:27:08 +0100
-Message-Id: <20210322121931.173760640@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.11 046/120] nfsd: Dont keep looking up unhashed files in the nfsd file cache
+Date:   Mon, 22 Mar 2021 13:27:09 +0100
+Message-Id: <20210322121931.210218626@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
 References: <20210322121929.669628946@linuxfoundation.org>
@@ -42,57 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit d218a8a3003e84ab136e69a4e30dd4ec7dab2d22 upstream.
+commit d30881f573e565ebb5dbb50b31ed6106b5c81328 upstream.
 
->From the base spec, Figure 78:
+If a file is unhashed, then we're going to reject it anyway and retry,
+so make sure we skip it when we're doing the RCU lockless lookup.
+This avoids a number of unnecessary nfserr_jukebox returns from
+nfsd_file_acquire()
 
-  "Controller Configuration, these fields are defined as parameters to
-   configure an "I/O Controller (IOC)" and not to configure a "Discovery
-   Controller (DC).
-
-   ...
-   If the controller does not support I/O queues, then this field shall
-   be read-only with a value of 0h
-
-Just perform this check for I/O controllers.
-
-Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
-Reported-by: Belanger, Martin <Martin.Belanger@dell.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 65294c1f2c5e ("nfsd: add a new struct file caching facility to nfsd")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/core.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ fs/nfsd/filecache.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -1107,9 +1107,20 @@ static void nvmet_start_ctrl(struct nvme
- {
- 	lockdep_assert_held(&ctrl->lock);
- 
--	if (nvmet_cc_iosqes(ctrl->cc) != NVME_NVM_IOSQES ||
--	    nvmet_cc_iocqes(ctrl->cc) != NVME_NVM_IOCQES ||
--	    nvmet_cc_mps(ctrl->cc) != 0 ||
-+	/*
-+	 * Only I/O controllers should verify iosqes,iocqes.
-+	 * Strictly speaking, the spec says a discovery controller
-+	 * should verify iosqes,iocqes are zeroed, however that
-+	 * would break backwards compatibility, so don't enforce it.
-+	 */
-+	if (ctrl->subsys->type != NVME_NQN_DISC &&
-+	    (nvmet_cc_iosqes(ctrl->cc) != NVME_NVM_IOSQES ||
-+	     nvmet_cc_iocqes(ctrl->cc) != NVME_NVM_IOCQES)) {
-+		ctrl->csts = NVME_CSTS_CFS;
-+		return;
-+	}
-+
-+	if (nvmet_cc_mps(ctrl->cc) != 0 ||
- 	    nvmet_cc_ams(ctrl->cc) != 0 ||
- 	    nvmet_cc_css(ctrl->cc) != 0) {
- 		ctrl->csts = NVME_CSTS_CFS;
+--- a/fs/nfsd/filecache.c
++++ b/fs/nfsd/filecache.c
+@@ -898,6 +898,8 @@ nfsd_file_find_locked(struct inode *inod
+ 			continue;
+ 		if (!nfsd_match_cred(nf->nf_cred, current_cred()))
+ 			continue;
++		if (!test_bit(NFSD_FILE_HASHED, &nf->nf_flags))
++			continue;
+ 		if (nfsd_file_get(nf) != NULL)
+ 			return nf;
+ 	}
 
 
