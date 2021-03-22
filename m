@@ -2,143 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CAD3443C1
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF1D3443AD
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229987AbhCVMxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
+        id S231761AbhCVMx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231582AbhCVMvt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:51:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B545961A02;
-        Mon, 22 Mar 2021 12:46:26 +0000 (UTC)
+        id S232248AbhCVMuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:50:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71830619ED;
+        Mon, 22 Mar 2021 12:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417187;
-        bh=tz2b2WYOM9Z4kb5YCilU09n3DbCCl66/iOOZH0ChIOQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Aj4gDDqvlbj0Ndp0nPWze0yPvzWKptk9rVKDzXn5/m3S8NK6f+kkUHONKWtyLD6cD
-         WZW5cz526G+J1N3/4YtLfFGH3wkfFmUPl4iWL3wKwQPGqdYJJnv01NlszSNtlrFXAA
-         aPoHVu9WTcjSCJNdGcNTLdul4YqGSEYX7AYqD8xk=
+        s=korg; t=1616417139;
+        bh=DLmZpX1opSuBeCtUjMN9IO//FBZkzDHY8MkDVrZD+qQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Mfd/yHQiegCqwcJOwrnMd9EZXEFIszsXGw8UswZJawf7BuO/CaA+NzQ10fH9iGJRZ
+         I4qpyt8Q/TVMNYMNhb4kDTGCDZmiF8Pc2YI/YTymCSa3kPe7Rb8hRhxTYncOc6MmGZ
+         tZjQpFrxdOdixRMOLfp7kPX+MMNQLHsGWXmtsBKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/14] 4.4.263-rc1 review
+        stable@vger.kernel.org,
+        syzbot+98b881fdd8ebf45ab4ae@syzkaller.appspotmail.com,
+        stable@kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 40/43] ext4: do not try to set xattr into ea_inode if value is empty
 Date:   Mon, 22 Mar 2021 13:28:54 +0100
-Message-Id: <20210322121919.202392464@linuxfoundation.org>
+Message-Id: <20210322121921.210199431@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-MIME-Version: 1.0
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.263-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.263-rc1
-X-KernelTest-Deadline: 2021-03-24T12:19+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.263 release.
-There are 14 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-Responses should be made by Wed, 24 Mar 2021 12:19:09 +0000.
-Anything received after that time might be too late.
+commit 6b22489911b726eebbf169caee52fea52013fbdd upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.263-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+Syzbot report a warning that ext4 may create an empty ea_inode if set
+an empty extent attribute to a file on the file system which is no free
+blocks left.
 
-thanks,
+  WARNING: CPU: 6 PID: 10667 at fs/ext4/xattr.c:1640 ext4_xattr_set_entry+0x10f8/0x1114 fs/ext4/xattr.c:1640
+  ...
+  Call trace:
+   ext4_xattr_set_entry+0x10f8/0x1114 fs/ext4/xattr.c:1640
+   ext4_xattr_block_set+0x1d0/0x1b1c fs/ext4/xattr.c:1942
+   ext4_xattr_set_handle+0x8a0/0xf1c fs/ext4/xattr.c:2390
+   ext4_xattr_set+0x120/0x1f0 fs/ext4/xattr.c:2491
+   ext4_xattr_trusted_set+0x48/0x5c fs/ext4/xattr_trusted.c:37
+   __vfs_setxattr+0x208/0x23c fs/xattr.c:177
+  ...
 
-greg k-h
+Now, ext4 try to store extent attribute into an external inode if
+ext4_xattr_block_set() return -ENOSPC, but for the case of store an
+empty extent attribute, store the extent entry into the extent
+attribute block is enough. A simple reproduce below.
 
--------------
-Pseudo-Shortlog of commits:
+  fallocate test.img -l 1M
+  mkfs.ext4 -F -b 2048 -O ea_inode test.img
+  mount test.img /mnt
+  dd if=/dev/zero of=/mnt/foo bs=2048 count=500
+  setfattr -n "user.test" /mnt/foo
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.263-rc1
+Reported-by: syzbot+98b881fdd8ebf45ab4ae@syzkaller.appspotmail.com
+Fixes: 9c6e7853c531 ("ext4: reserve space for xattr entries/names")
+Cc: stable@kernel.org
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210305120508.298465-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/ext4/xattr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thomas Gleixner <tglx@linutronix.de>
-    genirq: Disable interrupts for force threaded handlers
-
-Shijie Luo <luoshijie1@huawei.com>
-    ext4: fix potential error in ext4_do_update_inode
-
-zhangyi (F) <yi.zhang@huawei.com>
-    ext4: find old entry again if failed to rename whiteout
-
-Thomas Gleixner <tglx@linutronix.de>
-    x86/ioapic: Ignore IRQ2 again
-
-Tyrel Datwyler <tyreld@linux.ibm.com>
-    PCI: rpadlpar: Fix potential drc_name corruption in store functions
-
-Jim Lin <jilin@nvidia.com>
-    usb: gadget: configfs: Fix KASAN use-after-free
-
-Macpaul Lin <macpaul.lin@mediatek.com>
-    USB: replace hardcode maximum usb string length by definition
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    scsi: lpfc: Fix some error codes in debugfs
-
-Joe Korty <joe.korty@concurrent-rt.com>
-    NFSD: Repair misuse of sv_lock in 5.10.16-rt30.
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix race when cloning extent buffer during rewind of an old root
-
-Gwendal Grignou <gwendal@chromium.org>
-    platform/chrome: cros_ec_dev - Fix security issue
-
-Jan Kara <jack@suse.cz>
-    ext4: check journal inode extents more carefully
-
-Jan Kara <jack@suse.cz>
-    ext4: don't allow overlapping system zones
-
-Jan Kara <jack@suse.cz>
-    ext4: handle error of ext4_setup_system_zone() on remount
-
-
--------------
-
-Diffstat:
-
- Makefile                                |  4 +-
- arch/x86/kernel/apic/io_apic.c          | 10 +++++
- drivers/pci/hotplug/rpadlpar_sysfs.c    | 14 +++----
- drivers/platform/chrome/cros_ec_dev.c   |  4 ++
- drivers/platform/chrome/cros_ec_proto.c |  4 +-
- drivers/scsi/lpfc/lpfc_debugfs.c        |  4 +-
- drivers/usb/gadget/composite.c          |  4 +-
- drivers/usb/gadget/configfs.c           | 16 +++++---
- drivers/usb/gadget/usbstring.c          |  4 +-
- fs/btrfs/ctree.c                        |  2 +
- fs/ext4/block_validity.c                | 71 +++++++++++++++------------------
- fs/ext4/ext4.h                          |  6 +--
- fs/ext4/extents.c                       | 16 +++-----
- fs/ext4/indirect.c                      |  6 +--
- fs/ext4/inode.c                         | 13 +++---
- fs/ext4/mballoc.c                       |  4 +-
- fs/ext4/namei.c                         | 29 +++++++++++++-
- fs/ext4/super.c                         |  5 ++-
- include/linux/mfd/cros_ec.h             |  6 ++-
- include/uapi/linux/usb/ch9.h            |  3 ++
- kernel/irq/manage.c                     |  4 ++
- net/sunrpc/svc_xprt.c                   |  4 +-
- 22 files changed, 139 insertions(+), 94 deletions(-)
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2419,7 +2419,7 @@ retry_inode:
+ 				 * external inode if possible.
+ 				 */
+ 				if (ext4_has_feature_ea_inode(inode->i_sb) &&
+-				    !i.in_inode) {
++				    i.value_len && !i.in_inode) {
+ 					i.in_inode = 1;
+ 					goto retry_inode;
+ 				}
 
 
