@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E993F344127
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E9E34422B
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbhCVMbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:31:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53218 "EHLO mail.kernel.org"
+        id S231136AbhCVMjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:39:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231174AbhCVMap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:30:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5671A6199E;
-        Mon, 22 Mar 2021 12:30:44 +0000 (UTC)
+        id S230253AbhCVMhj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:37:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F01DE619AE;
+        Mon, 22 Mar 2021 12:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416244;
-        bh=60bc2m1paXqATLQ5ALuhml6JTH8HzLPzeFihmWPDwh8=;
+        s=korg; t=1616416628;
+        bh=hvrnbfS4nOx/L3MlJrKfQRHaw3x9igwyNNF23FUJdeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2TZaIO70qyM390AH8HQILr+1Z+iSmM6pWVl8Iplrdfydq9NQPydCn3kqGioDjf62
-         yEKH9VU+sWxdBGyfuY6Fe3b9/q6j2qpS4AJNgxGPhSF+OS+ve9iAv/XB4KOMu9V8qF
-         pjIJ2Nn5aXcaaBZo0qoeJQk1dEBHu3yRL/vhv910=
+        b=RI/dRvX6jCg8Lv0NAx48vHD9zfg4ahUpdfTphYNQX1PBNNItn+N6zZOSkFiREKsp2
+         1Xchk6azEJXAzRqIUDVlwMekEMuiuTyIjt6aEKSCdaXVsVvmLvIIkDW0LB0TVXDN7v
+         ZkTsBtEPNXkYFG92z2eDych0Fv1OjuWDu52yinOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoliang Yu <yxl_22@outlook.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 005/120] ALSA: hda/realtek: apply pin quirk for XiaomiNotebook Pro
-Date:   Mon, 22 Mar 2021 13:26:28 +0100
-Message-Id: <20210322121929.845292543@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Mark Brown <broonie@kernel.org>,
+        Sameer Pujar <spujar@nvidia.com>
+Subject: [PATCH 5.10 032/157] ASoC: simple-card-utils: Do not handle device clock
+Date:   Mon, 22 Mar 2021 13:26:29 +0100
+Message-Id: <20210322121934.783045168@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoliang Yu <yxl_22@outlook.com>
+From: Sameer Pujar <spujar@nvidia.com>
 
-commit b95bc12e0412d14d5fc764f0b82631c7bcaf1959 upstream.
+commit 8ca88d53351cc58d535b2bfc7386835378fb0db2 upstream.
 
-Built-in microphone and combojack on Xiaomi Notebook Pro (1d72:1701) needs
-to be fixed, the existing quirk for Dell works well on that machine.
+This reverts commit 1e30f642cf29 ("ASoC: simple-card-utils: Fix device
+module clock"). The original patch ended up breaking following platform,
+which depends on set_sysclk() to configure internal PLL on wm8904 codec
+and expects simple-card-utils to not update the MCLK rate.
+ - "arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dts"
 
-Signed-off-by: Xiaoliang Yu <yxl_22@outlook.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/OS0P286MB02749B9E13920E6899902CD8EE6C9@OS0P286MB0274.JPNP286.PROD.OUTLOOK.COM
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+It would be best if codec takes care of setting MCLK clock via DAI
+set_sysclk() callback.
+
+Reported-by: Michael Walle <michael@walle.cc>
+Suggested-by: Mark Brown <broonie@kernel.org>
+Suggested-by: Michael Walle <michael@walle.cc>
+Fixes: 1e30f642cf29 ("ASoC: simple-card-utils: Fix device module clock")
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Tested-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/1615829492-8972-2-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/generic/simple-card-utils.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8242,6 +8242,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
- 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+--- a/sound/soc/generic/simple-card-utils.c
++++ b/sound/soc/generic/simple-card-utils.c
+@@ -172,15 +172,16 @@ int asoc_simple_parse_clk(struct device
+ 	 *  or device's module clock.
+ 	 */
+ 	clk = devm_get_clk_from_child(dev, node, NULL);
+-	if (IS_ERR(clk))
+-		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
+-
+ 	if (!IS_ERR(clk)) {
+-		simple_dai->clk = clk;
+ 		simple_dai->sysclk = clk_get_rate(clk);
+-	} else if (!of_property_read_u32(node, "system-clock-frequency",
+-					 &val)) {
++
++		simple_dai->clk = clk;
++	} else if (!of_property_read_u32(node, "system-clock-frequency", &val)) {
+ 		simple_dai->sysclk = val;
++	} else {
++		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
++		if (!IS_ERR(clk))
++			simple_dai->sysclk = clk_get_rate(clk);
+ 	}
+ 
+ 	if (of_property_read_bool(node, "system-clock-direction-out"))
 
 
