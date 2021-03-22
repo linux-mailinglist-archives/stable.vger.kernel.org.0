@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E367344295
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0629C34413D
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:32:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231540AbhCVMn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:43:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35490 "EHLO mail.kernel.org"
+        id S230506AbhCVMbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231719AbhCVMlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:41:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A840619BA;
-        Mon, 22 Mar 2021 12:39:13 +0000 (UTC)
+        id S231322AbhCVMbW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:31:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71D0461990;
+        Mon, 22 Mar 2021 12:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416754;
-        bh=Oodc14il+7eTjhQAyXx3/6PMJ9Zmmpe91MtkjhR9CgA=;
+        s=korg; t=1616416281;
+        bh=o7QYrlydXKeaIm+xFGjr93qvi6WtEhhsPj8SAHz+Dhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5ZCHJsvbUi4ftCZksJ9NdJD+I0PkSXaHj+5Ls4nar5OnErTywu0R6lbbrJ7Eg/Gq
-         4agFquz3jTT1OhzF/y/uVtCVvxK8ncLSIGcXvmbwVDrHcZVkHxtFxhV2zbtYQaS+hR
-         urODSQjVred4Ji/0KlP2aMV0uiVPuvg/5XBBJskM=
+        b=erw7Y87J3xaWR0TX7M6vMyCb3QRdUxBDl3x2XDVxXCKlqOUUSCUZRLZLVSFWU1P2A
+         lMlkhWw3BC81psDjU3hisqAu+3vmbvp5k9MoyZu4KfpXiKDgbZDpF6i6gsWXVN364H
+         IlVTfYfG8Uwo28gVqcpwreAmU1Uzr37nXiV6dg74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank van der Linden <fllinden@amazon.com>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/157] module: harden ELF info handling
+        stable@vger.kernel.org, Joe Korty <joe.korty@concurrent-rt.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.11 048/120] NFSD: Repair misuse of sv_lock in 5.10.16-rt30.
 Date:   Mon, 22 Mar 2021 13:27:11 +0100
-Message-Id: <20210322121936.106292580@linuxfoundation.org>
+Message-Id: <20210322121931.283264225@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,297 +39,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank van der Linden <fllinden@amazon.com>
+From: Joe Korty <joe.korty@concurrent-rt.com>
 
-[ Upstream commit ec2a29593c83ed71a7f16e3243941ebfcf75fdf6 ]
+commit c7de87ff9dac5f396f62d584f3908f80ddc0e07b upstream.
 
-5fdc7db644 ("module: setup load info before module_sig_check()")
-moved the ELF setup, so that it was done before the signature
-check. This made the module name available to signature error
-messages.
+[ This problem is in mainline, but only rt has the chops to be
+able to detect it. ]
 
-However, the checks for ELF correctness in setup_load_info
-are not sufficient to prevent bad memory references due to
-corrupted offset fields, indices, etc.
+Lockdep reports a circular lock dependency between serv->sv_lock and
+softirq_ctl.lock on system shutdown, when using a kernel built with
+CONFIG_PREEMPT_RT=y, and a nfs mount exists.
 
-So, there's a regression in behavior here: a corrupt and unsigned
-(or badly signed) module, which might previously have been rejected
-immediately, can now cause an oops/crash.
+This is due to the definition of spin_lock_bh on rt:
 
-Harden ELF handling for module loading by doing the following:
+	local_bh_disable();
+	rt_spin_lock(lock);
 
-- Move the signature check back up so that it comes before ELF
-  initialization. It's best to do the signature check to see
-  if we can trust the module, before using the ELF structures
-  inside it. This also makes checks against info->len
-  more accurate again, as this field will be reduced by the
-  length of the signature in mod_check_sig().
+which forces a softirq_ctl.lock -> serv->sv_lock dependency.  This is
+not a problem as long as _every_ lock of serv->sv_lock is a:
 
-  The module name is now once again not available for error
-  messages during the signature check, but that seems like
-  a fair tradeoff.
+	spin_lock_bh(&serv->sv_lock);
 
-- Check if sections have offset / size fields that at least don't
-  exceed the length of the module.
+but there is one of the form:
 
-- Check if sections have section name offsets that don't fall
-  outside the section name table.
+	spin_lock(&serv->sv_lock);
 
-- Add a few other sanity checks against invalid section indices,
-  etc.
+This is what is causing the circular dependency splat.  The spin_lock()
+grabs the lock without first grabbing softirq_ctl.lock via local_bh_disable.
+If later on in the critical region,  someone does a local_bh_disable, we
+get a serv->sv_lock -> softirq_ctrl.lock dependency established.  Deadlock.
 
-This is not an exhaustive consistency check, but the idea is to
-at least get through the signature and blacklist checks without
-crashing because of corrupted ELF info, and to error out gracefully
-for most issues that would have caused problems later on.
+Fix is to make serv->sv_lock be locked with spin_lock_bh everywhere, no
+exceptions.
 
-Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[  OK  ] Stopped target NFS client services.
+         Stopping Logout off all iSCSI sessions on shutdown...
+         Stopping NFS server and services...
+[  109.442380]
+[  109.442385] ======================================================
+[  109.442386] WARNING: possible circular locking dependency detected
+[  109.442387] 5.10.16-rt30 #1 Not tainted
+[  109.442389] ------------------------------------------------------
+[  109.442390] nfsd/1032 is trying to acquire lock:
+[  109.442392] ffff994237617f60 ((softirq_ctrl.lock).lock){+.+.}-{2:2}, at: __local_bh_disable_ip+0xd9/0x270
+[  109.442405]
+[  109.442405] but task is already holding lock:
+[  109.442406] ffff994245cb00b0 (&serv->sv_lock){+.+.}-{0:0}, at: svc_close_list+0x1f/0x90
+[  109.442415]
+[  109.442415] which lock already depends on the new lock.
+[  109.442415]
+[  109.442416]
+[  109.442416] the existing dependency chain (in reverse order) is:
+[  109.442417]
+[  109.442417] -> #1 (&serv->sv_lock){+.+.}-{0:0}:
+[  109.442421]        rt_spin_lock+0x2b/0xc0
+[  109.442428]        svc_add_new_perm_xprt+0x42/0xa0
+[  109.442430]        svc_addsock+0x135/0x220
+[  109.442434]        write_ports+0x4b3/0x620
+[  109.442438]        nfsctl_transaction_write+0x45/0x80
+[  109.442440]        vfs_write+0xff/0x420
+[  109.442444]        ksys_write+0x4f/0xc0
+[  109.442446]        do_syscall_64+0x33/0x40
+[  109.442450]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  109.442454]
+[  109.442454] -> #0 ((softirq_ctrl.lock).lock){+.+.}-{2:2}:
+[  109.442457]        __lock_acquire+0x1264/0x20b0
+[  109.442463]        lock_acquire+0xc2/0x400
+[  109.442466]        rt_spin_lock+0x2b/0xc0
+[  109.442469]        __local_bh_disable_ip+0xd9/0x270
+[  109.442471]        svc_xprt_do_enqueue+0xc0/0x4d0
+[  109.442474]        svc_close_list+0x60/0x90
+[  109.442476]        svc_close_net+0x49/0x1a0
+[  109.442478]        svc_shutdown_net+0x12/0x40
+[  109.442480]        nfsd_destroy+0xc5/0x180
+[  109.442482]        nfsd+0x1bc/0x270
+[  109.442483]        kthread+0x194/0x1b0
+[  109.442487]        ret_from_fork+0x22/0x30
+[  109.442492]
+[  109.442492] other info that might help us debug this:
+[  109.442492]
+[  109.442493]  Possible unsafe locking scenario:
+[  109.442493]
+[  109.442493]        CPU0                    CPU1
+[  109.442494]        ----                    ----
+[  109.442495]   lock(&serv->sv_lock);
+[  109.442496]                                lock((softirq_ctrl.lock).lock);
+[  109.442498]                                lock(&serv->sv_lock);
+[  109.442499]   lock((softirq_ctrl.lock).lock);
+[  109.442501]
+[  109.442501]  *** DEADLOCK ***
+[  109.442501]
+[  109.442501] 3 locks held by nfsd/1032:
+[  109.442503]  #0: ffffffff93b49258 (nfsd_mutex){+.+.}-{3:3}, at: nfsd+0x19a/0x270
+[  109.442508]  #1: ffff994245cb00b0 (&serv->sv_lock){+.+.}-{0:0}, at: svc_close_list+0x1f/0x90
+[  109.442512]  #2: ffffffff93a81b20 (rcu_read_lock){....}-{1:2}, at: rt_spin_lock+0x5/0xc0
+[  109.442518]
+[  109.442518] stack backtrace:
+[  109.442519] CPU: 0 PID: 1032 Comm: nfsd Not tainted 5.10.16-rt30 #1
+[  109.442522] Hardware name: Supermicro X9DRL-3F/iF/X9DRL-3F/iF, BIOS 3.2 09/22/2015
+[  109.442524] Call Trace:
+[  109.442527]  dump_stack+0x77/0x97
+[  109.442533]  check_noncircular+0xdc/0xf0
+[  109.442546]  __lock_acquire+0x1264/0x20b0
+[  109.442553]  lock_acquire+0xc2/0x400
+[  109.442564]  rt_spin_lock+0x2b/0xc0
+[  109.442570]  __local_bh_disable_ip+0xd9/0x270
+[  109.442573]  svc_xprt_do_enqueue+0xc0/0x4d0
+[  109.442577]  svc_close_list+0x60/0x90
+[  109.442581]  svc_close_net+0x49/0x1a0
+[  109.442585]  svc_shutdown_net+0x12/0x40
+[  109.442588]  nfsd_destroy+0xc5/0x180
+[  109.442590]  nfsd+0x1bc/0x270
+[  109.442595]  kthread+0x194/0x1b0
+[  109.442600]  ret_from_fork+0x22/0x30
+[  109.518225] nfsd: last server has exited, flushing export cache
+[  OK  ] Stopped NFSv4 ID-name mapping service.
+[  OK  ] Stopped GSSAPI Proxy Daemon.
+[  OK  ] Stopped NFS Mount Daemon.
+[  OK  ] Stopped NFS status monitor for NFSv2/3 locking..
+
+Fixes: 719f8bcc883e ("svcrpc: fix xpt_list traversal locking on shutdown")
+Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/module.c           | 143 +++++++++++++++++++++++++++++++++-----
- kernel/module_signature.c |   2 +-
- kernel/module_signing.c   |   2 +-
- 3 files changed, 126 insertions(+), 21 deletions(-)
+ net/sunrpc/svc_xprt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index f1be6b6a3a3d..908d46abe165 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2940,7 +2940,7 @@ static int module_sig_check(struct load_info *info, int flags)
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -1060,7 +1060,7 @@ static int svc_close_list(struct svc_ser
+ 	struct svc_xprt *xprt;
+ 	int ret = 0;
+ 
+-	spin_lock(&serv->sv_lock);
++	spin_lock_bh(&serv->sv_lock);
+ 	list_for_each_entry(xprt, xprt_list, xpt_list) {
+ 		if (xprt->xpt_net != net)
+ 			continue;
+@@ -1068,7 +1068,7 @@ static int svc_close_list(struct svc_ser
+ 		set_bit(XPT_CLOSE, &xprt->xpt_flags);
+ 		svc_xprt_enqueue(xprt);
  	}
- 
- 	if (is_module_sig_enforced()) {
--		pr_notice("%s: loading of %s is rejected\n", info->name, reason);
-+		pr_notice("Loading of %s is rejected\n", reason);
- 		return -EKEYREJECTED;
- 	}
- 
-@@ -2953,9 +2953,33 @@ static int module_sig_check(struct load_info *info, int flags)
- }
- #endif /* !CONFIG_MODULE_SIG */
- 
--/* Sanity checks against invalid binaries, wrong arch, weird elf version. */
--static int elf_header_check(struct load_info *info)
-+static int validate_section_offset(struct load_info *info, Elf_Shdr *shdr)
- {
-+	unsigned long secend;
-+
-+	/*
-+	 * Check for both overflow and offset/size being
-+	 * too large.
-+	 */
-+	secend = shdr->sh_offset + shdr->sh_size;
-+	if (secend < shdr->sh_offset || secend > info->len)
-+		return -ENOEXEC;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Sanity checks against invalid binaries, wrong arch, weird elf version.
-+ *
-+ * Also do basic validity checks against section offsets and sizes, the
-+ * section name string table, and the indices used for it (sh_name).
-+ */
-+static int elf_validity_check(struct load_info *info)
-+{
-+	unsigned int i;
-+	Elf_Shdr *shdr, *strhdr;
-+	int err;
-+
- 	if (info->len < sizeof(*(info->hdr)))
- 		return -ENOEXEC;
- 
-@@ -2965,11 +2989,78 @@ static int elf_header_check(struct load_info *info)
- 	    || info->hdr->e_shentsize != sizeof(Elf_Shdr))
- 		return -ENOEXEC;
- 
-+	/*
-+	 * e_shnum is 16 bits, and sizeof(Elf_Shdr) is
-+	 * known and small. So e_shnum * sizeof(Elf_Shdr)
-+	 * will not overflow unsigned long on any platform.
-+	 */
- 	if (info->hdr->e_shoff >= info->len
- 	    || (info->hdr->e_shnum * sizeof(Elf_Shdr) >
- 		info->len - info->hdr->e_shoff))
- 		return -ENOEXEC;
- 
-+	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
-+
-+	/*
-+	 * Verify if the section name table index is valid.
-+	 */
-+	if (info->hdr->e_shstrndx == SHN_UNDEF
-+	    || info->hdr->e_shstrndx >= info->hdr->e_shnum)
-+		return -ENOEXEC;
-+
-+	strhdr = &info->sechdrs[info->hdr->e_shstrndx];
-+	err = validate_section_offset(info, strhdr);
-+	if (err < 0)
-+		return err;
-+
-+	/*
-+	 * The section name table must be NUL-terminated, as required
-+	 * by the spec. This makes strcmp and pr_* calls that access
-+	 * strings in the section safe.
-+	 */
-+	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
-+	if (info->secstrings[strhdr->sh_size - 1] != '\0')
-+		return -ENOEXEC;
-+
-+	/*
-+	 * The code assumes that section 0 has a length of zero and
-+	 * an addr of zero, so check for it.
-+	 */
-+	if (info->sechdrs[0].sh_type != SHT_NULL
-+	    || info->sechdrs[0].sh_size != 0
-+	    || info->sechdrs[0].sh_addr != 0)
-+		return -ENOEXEC;
-+
-+	for (i = 1; i < info->hdr->e_shnum; i++) {
-+		shdr = &info->sechdrs[i];
-+		switch (shdr->sh_type) {
-+		case SHT_NULL:
-+		case SHT_NOBITS:
-+			continue;
-+		case SHT_SYMTAB:
-+			if (shdr->sh_link == SHN_UNDEF
-+			    || shdr->sh_link >= info->hdr->e_shnum)
-+				return -ENOEXEC;
-+			fallthrough;
-+		default:
-+			err = validate_section_offset(info, shdr);
-+			if (err < 0) {
-+				pr_err("Invalid ELF section in module (section %u type %u)\n",
-+					i, shdr->sh_type);
-+				return err;
-+			}
-+
-+			if (shdr->sh_flags & SHF_ALLOC) {
-+				if (shdr->sh_name >= strhdr->sh_size) {
-+					pr_err("Invalid ELF section name in module (section %u type %u)\n",
-+					       i, shdr->sh_type);
-+					return -ENOEXEC;
-+				}
-+			}
-+			break;
-+		}
-+	}
-+
- 	return 0;
+-	spin_unlock(&serv->sv_lock);
++	spin_unlock_bh(&serv->sv_lock);
+ 	return ret;
  }
  
-@@ -3071,11 +3162,6 @@ static int rewrite_section_headers(struct load_info *info, int flags)
- 
- 	for (i = 1; i < info->hdr->e_shnum; i++) {
- 		Elf_Shdr *shdr = &info->sechdrs[i];
--		if (shdr->sh_type != SHT_NOBITS
--		    && info->len < shdr->sh_offset + shdr->sh_size) {
--			pr_err("Module len %lu truncated\n", info->len);
--			return -ENOEXEC;
--		}
- 
- 		/* Mark all sections sh_addr with their address in the
- 		   temporary image. */
-@@ -3107,11 +3193,6 @@ static int setup_load_info(struct load_info *info, int flags)
- {
- 	unsigned int i;
- 
--	/* Set up the convenience variables */
--	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
--	info->secstrings = (void *)info->hdr
--		+ info->sechdrs[info->hdr->e_shstrndx].sh_offset;
--
- 	/* Try to find a name early so we can log errors with a module name */
- 	info->index.info = find_sec(info, ".modinfo");
- 	if (info->index.info)
-@@ -3855,26 +3936,50 @@ static int load_module(struct load_info *info, const char __user *uargs,
- 	long err = 0;
- 	char *after_dashes;
- 
--	err = elf_header_check(info);
-+	/*
-+	 * Do the signature check (if any) first. All that
-+	 * the signature check needs is info->len, it does
-+	 * not need any of the section info. That can be
-+	 * set up later. This will minimize the chances
-+	 * of a corrupt module causing problems before
-+	 * we even get to the signature check.
-+	 *
-+	 * The check will also adjust info->len by stripping
-+	 * off the sig length at the end of the module, making
-+	 * checks against info->len more correct.
-+	 */
-+	err = module_sig_check(info, flags);
-+	if (err)
-+		goto free_copy;
-+
-+	/*
-+	 * Do basic sanity checks against the ELF header and
-+	 * sections.
-+	 */
-+	err = elf_validity_check(info);
- 	if (err) {
--		pr_err("Module has invalid ELF header\n");
-+		pr_err("Module has invalid ELF structures\n");
- 		goto free_copy;
- 	}
- 
-+	/*
-+	 * Everything checks out, so set up the section info
-+	 * in the info structure.
-+	 */
- 	err = setup_load_info(info, flags);
- 	if (err)
- 		goto free_copy;
- 
-+	/*
-+	 * Now that we know we have the correct module name, check
-+	 * if it's blacklisted.
-+	 */
- 	if (blacklisted(info->name)) {
- 		err = -EPERM;
- 		pr_err("Module %s is blacklisted\n", info->name);
- 		goto free_copy;
- 	}
- 
--	err = module_sig_check(info, flags);
--	if (err)
--		goto free_copy;
--
- 	err = rewrite_section_headers(info, flags);
- 	if (err)
- 		goto free_copy;
-diff --git a/kernel/module_signature.c b/kernel/module_signature.c
-index 4224a1086b7d..00132d12487c 100644
---- a/kernel/module_signature.c
-+++ b/kernel/module_signature.c
-@@ -25,7 +25,7 @@ int mod_check_sig(const struct module_signature *ms, size_t file_len,
- 		return -EBADMSG;
- 
- 	if (ms->id_type != PKEY_ID_PKCS7) {
--		pr_err("%s: Module is not signed with expected PKCS#7 message\n",
-+		pr_err("%s: not signed with expected PKCS#7 message\n",
- 		       name);
- 		return -ENOPKG;
- 	}
-diff --git a/kernel/module_signing.c b/kernel/module_signing.c
-index 9d9fc678c91d..8723ae70ea1f 100644
---- a/kernel/module_signing.c
-+++ b/kernel/module_signing.c
-@@ -30,7 +30,7 @@ int mod_verify_sig(const void *mod, struct load_info *info)
- 
- 	memcpy(&ms, mod + (modlen - sizeof(ms)), sizeof(ms));
- 
--	ret = mod_check_sig(&ms, modlen, info->name);
-+	ret = mod_check_sig(&ms, modlen, "module");
- 	if (ret)
- 		return ret;
- 
--- 
-2.30.1
-
 
 
