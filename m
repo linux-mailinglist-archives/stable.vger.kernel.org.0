@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D253443A0
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2713344348
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230179AbhCVMxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40960 "EHLO mail.kernel.org"
+        id S232107AbhCVMtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231435AbhCVMtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:49:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B211619F7;
-        Mon, 22 Mar 2021 12:45:17 +0000 (UTC)
+        id S232619AbhCVMr4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:47:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C6A0619DB;
+        Mon, 22 Mar 2021 12:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417118;
-        bh=+N/vEXPFA2h7Hs+Xp+Ysnyf4OFcbKK4iAvPi5aDZgn0=;
+        s=korg; t=1616417034;
+        bh=3xNQcAURS3KEqsPvj//1CHY9SC+g+nrmmGzqcCoIJ2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dPeuV4lIzFpdfgMY+NOWEEwLN0D1VGRKk9QTMMKJovgn/tQ7TNE8K5WPjtpJEsRXV
-         GcW/n1ZL5sj821lezpbsI4bEFo4BFwWBFATg0QHK/LVaUX/I/Vwlu8EPYyekt5isWk
-         59/jrjDlG/6JmYeSHERux4qzy2c2SCnmJDjX31Qw=
+        b=OHaJ90u0tx5AqRsTIhABVRpQqQ78Kapm7f3vrypRt4is/Sg5oh261d9sw71GhylrV
+         +Xywx3cya3wXwXZ8VLdpAmQKip3whYZi5LiAbvvCgr7D7fLwKQURA6/h+kVMYdOLdU
+         s3uxlP4CEP4IYGQ1uX4xnHWAeNiu9KIewdgyRA9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 33/43] PCI: rpadlpar: Fix potential drc_name corruption in store functions
-Date:   Mon, 22 Mar 2021 13:28:47 +0100
-Message-Id: <20210322121920.976130085@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 60/60] x86/apic/of: Fix CPU devicetree-node lookups
+Date:   Mon, 22 Mar 2021 13:28:48 +0100
+Message-Id: <20210322121924.357962787@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
-References: <20210322121919.936671417@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit cc7a0bb058b85ea03db87169c60c7cfdd5d34678 upstream.
+commit dd926880da8dbbe409e709c1d3c1620729a94732 upstream.
 
-Both add_slot_store() and remove_slot_store() try to fix up the
-drc_name copied from the store buffer by placing a NUL terminator at
-nbyte + 1 or in place of a '\n' if present. However, the static buffer
-that we copy the drc_name data into is not zeroed and can contain
-anything past the n-th byte.
+Architectures that describe the CPU topology in devicetree and do not have
+an identity mapping between physical and logical CPU ids must override the
+default implementation of arch_match_cpu_phys_id().
 
-This is problematic if a '\n' byte appears in that buffer after nbytes
-and the string copied into the store buffer was not NUL terminated to
-start with as the strchr() search for a '\n' byte will mark this
-incorrectly as the end of the drc_name string resulting in a drc_name
-string that contains garbage data after the n-th byte.
+Failing to do so breaks CPU devicetree-node lookups using of_get_cpu_node()
+and of_cpu_device_node_get() which several drivers rely on. It also causes
+the CPU struct devices exported through sysfs to point to the wrong
+devicetree nodes.
 
-Additionally it will cause us to overwrite that '\n' byte on the stack
-with NUL, potentially corrupting data on the stack.
+On x86, CPUs are described in devicetree using their APIC ids and those
+do not generally coincide with the logical ids, even if CPU0 typically
+uses APIC id 0.
 
-The following debugging shows an example of the drmgr utility writing
-"PHB 4543" to the add_slot sysfs attribute, but add_slot_store()
-logging a corrupted string value.
+Add the missing implementation of arch_match_cpu_phys_id() so that CPU-node
+lookups work also with SMP.
 
-  drmgr: drmgr: -c phb -a -s PHB 4543 -d 1
-  add_slot_store: drc_name = PHB 4543°|<82>!, rc = -19
+Apart from fixing the broken sysfs devicetree-node links this likely does
+not affect current users of mainline kernels on x86.
 
-Fix this by using strscpy() instead of memcpy() to ensure the string
-is NUL terminated when copied into the static drc_name buffer.
-Further, since the string is now NUL terminated the code only needs to
-change '\n' to '\0' when present.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-[mpe: Reformat change log and add mention of possible stack corruption]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210315214821.452959-1-tyreld@linux.ibm.com
+Fixes: 4e07db9c8db8 ("x86/devicetree: Use CPU description from Device Tree")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210312092033.26317-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/hotplug/rpadlpar_sysfs.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ arch/x86/kernel/apic/apic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/pci/hotplug/rpadlpar_sysfs.c
-+++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
-@@ -34,12 +34,11 @@ static ssize_t add_slot_store(struct kob
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2354,6 +2354,11 @@ static int cpuid_to_apicid[] = {
+ 	[0 ... NR_CPUS - 1] = -1,
+ };
  
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
- 
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_add_slot(drc_name);
- 	if (rc)
-@@ -65,12 +64,11 @@ static ssize_t remove_slot_store(struct
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
- 
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
- 
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_remove_slot(drc_name);
- 	if (rc)
++bool arch_match_cpu_phys_id(int cpu, u64 phys_id)
++{
++	return phys_id == cpuid_to_apicid[cpu];
++}
++
+ #ifdef CONFIG_SMP
+ /**
+  * apic_id_is_primary_thread - Check whether APIC ID belongs to a primary thread
 
 
