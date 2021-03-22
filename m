@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 327C9344239
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DB16344168
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231255AbhCVMjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:39:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56922 "EHLO mail.kernel.org"
+        id S231577AbhCVMdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:33:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231182AbhCVMiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:38:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D145C619AC;
-        Mon, 22 Mar 2021 12:37:23 +0000 (UTC)
+        id S231500AbhCVMcd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:32:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68442619A5;
+        Mon, 22 Mar 2021 12:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416644;
-        bh=Vwg06KCnGZOlvOsD4kQBsrN2hf603lBzmjeZ35OUAM4=;
+        s=korg; t=1616416350;
+        bh=3iSwuQS17vR/pELboJm0Hl9EfUZ6e7jum/23SXCimB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhwpZqV9hXgymBvPs6K1IyE8JuhmjysO97WT8TrY3+V91mJF9y87Xueic72xglCSE
-         CaFPhPB/y/3eRw2rcyIao05n2rwaQy4sPricje0vcaa2yQMWoNMQfjAQYu5fHcIwgX
-         ck1FleMPlWEzH1sA0MbxKSIG0hyqsNv2N4UENImY=
+        b=wY5UW+JGI6vJ3LAvBCZ8d4TbZ6IYBSbV0ioh26kiZbtzfG+7YwkxW5ub9IQAyZmSI
+         Y10EWowHnkHLy4Xs5Sq59R2u/Bzt1Acv5R/W5C24/wZMXH2ON02yBWINET6Eb1YK4x
+         U7rF/F6FSLGN9NuRn4dmldCfdJQA+64KW/swDc9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        Saeed Mahameed <saeed@kernel.org>,
-        Dany Madden <drt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/157] ibmvnic: serialize access to work queue on remove
+        Gaja Sophie Peters <gaja.peters@math.uni-hamburg.de>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Jeffrey Altman <jaltman@auristor.com>,
+        linux-afs@lists.infradead.org
+Subject: [PATCH 5.11 038/120] afs: Fix accessing YFS xattrs on a non-YFS server
 Date:   Mon, 22 Mar 2021 13:27:01 +0100
-Message-Id: <20210322121935.797554201@linuxfoundation.org>
+Message-Id: <20210322121930.926928658@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,132 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 4a41c421f3676fdeea91733cf434dcf319c4c351 ]
+commit 64fcbb6158ecc684d84c64424830a9c37c77c5b9 upstream.
 
-The work queue is used to queue reset requests like CHANGE-PARAM or
-FAILOVER resets for the worker thread. When the adapter is being removed
-the adapter state is set to VNIC_REMOVING and the work queue is flushed
-so no new work is added. However the check for adapter being removed is
-racy in that the adapter can go into REMOVING state just after we check
-and we might end up adding work just as it is being flushed (or after).
+If someone attempts to access YFS-related xattrs (e.g. afs.yfs.acl) on a
+file on a non-YFS AFS server (such as OpenAFS), then the kernel will jump
+to a NULL function pointer because the afs_fetch_acl_operation descriptor
+doesn't point to a function for issuing an operation on a non-YFS
+server[1].
 
-The ->rwi_lock is already being used to serialize queue/dequeue work.
-Extend its usage ensure there is no race when scheduling/flushing work.
+Fix this by making afs_wait_for_operation() check that the issue_afs_rpc
+method is set before jumping to it and setting -ENOTSUPP if not.  This fix
+also covers other potential operations that also only exist on YFS servers.
 
-Fixes: 6954a9e4192b ("ibmvnic: Flush existing work items before device removal")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Cc:Uwe Kleine-König <uwe@kleine-koenig.org>
-Cc:Saeed Mahameed <saeed@kernel.org>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+afs_xattr_get/set_yfs() then need to translate -ENOTSUPP to -ENODATA as the
+former error is internal to the kernel.
+
+The bug shows up as an oops like the following:
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	[...]
+	Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+	[...]
+	Call Trace:
+	 afs_wait_for_operation+0x83/0x1b0 [kafs]
+	 afs_xattr_get_yfs+0xe6/0x270 [kafs]
+	 __vfs_getxattr+0x59/0x80
+	 vfs_getxattr+0x11c/0x140
+	 getxattr+0x181/0x250
+	 ? __check_object_size+0x13f/0x150
+	 ? __fput+0x16d/0x250
+	 __x64_sys_fgetxattr+0x64/0xb0
+	 do_syscall_64+0x49/0xc0
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+	RIP: 0033:0x7fb120a9defe
+
+This was triggered with "cp -a" which attempts to copy xattrs, including
+afs ones, but is easier to reproduce with getfattr, e.g.:
+
+	getfattr -d -m ".*" /afs/openafs.org/
+
+Fixes: e49c7b2f6de7 ("afs: Build an abstraction around an "operation" concept")
+Reported-by: Gaja Sophie Peters <gaja.peters@math.uni-hamburg.de>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Gaja Sophie Peters <gaja.peters@math.uni-hamburg.de>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-March/003498.html [1]
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-March/003566.html # v1
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-March/003572.html # v2
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 27 ++++++++++++++++++++-------
- drivers/net/ethernet/ibm/ibmvnic.h |  5 ++++-
- 2 files changed, 24 insertions(+), 8 deletions(-)
+ fs/afs/fs_operation.c |    7 +++++--
+ fs/afs/xattr.c        |    8 +++++++-
+ 2 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 1207007d8e46..2aee81496ffa 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2313,6 +2313,8 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
- 	unsigned long flags;
- 	int ret;
+--- a/fs/afs/fs_operation.c
++++ b/fs/afs/fs_operation.c
+@@ -181,10 +181,13 @@ void afs_wait_for_operation(struct afs_o
+ 		if (test_bit(AFS_SERVER_FL_IS_YFS, &op->server->flags) &&
+ 		    op->ops->issue_yfs_rpc)
+ 			op->ops->issue_yfs_rpc(op);
+-		else
++		else if (op->ops->issue_afs_rpc)
+ 			op->ops->issue_afs_rpc(op);
++		else
++			op->ac.error = -ENOTSUPP;
  
-+	spin_lock_irqsave(&adapter->rwi_lock, flags);
-+
- 	/*
- 	 * If failover is pending don't schedule any other reset.
- 	 * Instead let the failover complete. If there is already a
-@@ -2333,14 +2335,11 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
- 		goto err;
+-		op->error = afs_wait_for_call_to_complete(op->call, &op->ac);
++		if (op->call)
++			op->error = afs_wait_for_call_to_complete(op->call, &op->ac);
  	}
  
--	spin_lock_irqsave(&adapter->rwi_lock, flags);
--
- 	list_for_each(entry, &adapter->rwi_list) {
- 		tmp = list_entry(entry, struct ibmvnic_rwi, list);
- 		if (tmp->reset_reason == reason) {
- 			netdev_dbg(netdev, "Skipping matching reset, reason=%d\n",
- 				   reason);
--			spin_unlock_irqrestore(&adapter->rwi_lock, flags);
- 			ret = EBUSY;
- 			goto err;
+ 	switch (op->error) {
+--- a/fs/afs/xattr.c
++++ b/fs/afs/xattr.c
+@@ -230,6 +230,8 @@ static int afs_xattr_get_yfs(const struc
+ 			else
+ 				ret = -ERANGE;
  		}
-@@ -2348,8 +2347,6 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
- 
- 	rwi = kzalloc(sizeof(*rwi), GFP_ATOMIC);
- 	if (!rwi) {
--		spin_unlock_irqrestore(&adapter->rwi_lock, flags);
--		ibmvnic_close(netdev);
- 		ret = ENOMEM;
- 		goto err;
++	} else if (ret == -ENOTSUPP) {
++		ret = -ENODATA;
  	}
-@@ -2362,12 +2359,17 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
- 	}
- 	rwi->reset_reason = reason;
- 	list_add_tail(&rwi->list, &adapter->rwi_list);
--	spin_unlock_irqrestore(&adapter->rwi_lock, flags);
- 	netdev_dbg(adapter->netdev, "Scheduling reset (reason %d)\n", reason);
- 	schedule_work(&adapter->ibmvnic_reset);
  
--	return 0;
-+	ret = 0;
- err:
-+	/* ibmvnic_close() below can block, so drop the lock first */
-+	spin_unlock_irqrestore(&adapter->rwi_lock, flags);
-+
-+	if (ret == ENOMEM)
-+		ibmvnic_close(netdev);
-+
- 	return -ret;
+ error_yacl:
+@@ -254,6 +256,7 @@ static int afs_xattr_set_yfs(const struc
+ {
+ 	struct afs_operation *op;
+ 	struct afs_vnode *vnode = AFS_FS_I(inode);
++	int ret;
+ 
+ 	if (flags == XATTR_CREATE ||
+ 	    strcmp(name, "acl") != 0)
+@@ -268,7 +271,10 @@ static int afs_xattr_set_yfs(const struc
+ 		return afs_put_operation(op);
+ 
+ 	op->ops = &yfs_store_opaque_acl2_operation;
+-	return afs_do_sync_operation(op);
++	ret = afs_do_sync_operation(op);
++	if (ret == -ENOTSUPP)
++		ret = -ENODATA;
++	return ret;
  }
  
-@@ -5378,7 +5380,18 @@ static int ibmvnic_remove(struct vio_dev *dev)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&adapter->state_lock, flags);
-+
-+	/* If ibmvnic_reset() is scheduling a reset, wait for it to
-+	 * finish. Then, set the state to REMOVING to prevent it from
-+	 * scheduling any more work and to have reset functions ignore
-+	 * any resets that have already been scheduled. Drop the lock
-+	 * after setting state, so __ibmvnic_reset() which is called
-+	 * from the flush_work() below, can make progress.
-+	 */
-+	spin_lock_irqsave(&adapter->rwi_lock, flags);
- 	adapter->state = VNIC_REMOVING;
-+	spin_unlock_irqrestore(&adapter->rwi_lock, flags);
-+
- 	spin_unlock_irqrestore(&adapter->state_lock, flags);
- 
- 	flush_work(&adapter->ibmvnic_reset);
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.h b/drivers/net/ethernet/ibm/ibmvnic.h
-index 21e7ea858cda..b27211063c64 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.h
-+++ b/drivers/net/ethernet/ibm/ibmvnic.h
-@@ -1080,6 +1080,7 @@ struct ibmvnic_adapter {
- 	struct tasklet_struct tasklet;
- 	enum vnic_state state;
- 	enum ibmvnic_reset_reason reset_reason;
-+	/* when taking both state and rwi locks, take state lock first */
- 	spinlock_t rwi_lock;
- 	struct list_head rwi_list;
- 	struct work_struct ibmvnic_reset;
-@@ -1096,6 +1097,8 @@ struct ibmvnic_adapter {
- 	struct ibmvnic_tunables desired;
- 	struct ibmvnic_tunables fallback;
- 
--	/* Used for serializatin of state field */
-+	/* Used for serialization of state field. When taking both state
-+	 * and rwi locks, take state lock first.
-+	 */
- 	spinlock_t state_lock;
- };
--- 
-2.30.1
-
+ static const struct xattr_handler afs_xattr_yfs_handler = {
 
 
