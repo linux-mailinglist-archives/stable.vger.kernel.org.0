@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A0834434F
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9B33442E9
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:48:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231918AbhCVMte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
+        id S231643AbhCVMqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:46:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231916AbhCVMqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:46:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51CAE61931;
-        Mon, 22 Mar 2021 12:42:55 +0000 (UTC)
+        id S231714AbhCVMoN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:44:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 832E6619B4;
+        Mon, 22 Mar 2021 12:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416975;
-        bh=WY4sWTTMexjbTrir0+pS6HfDGw0FuA0CN4tmBwApz60=;
+        s=korg; t=1616416895;
+        bh=jruaFeR3E7xd4bQF1YVUoRO0kNT8J+S7lJJ+9qhdwgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpsrMHFSZt7qGgSXAQ8+LJQKMf4cb9Xmah+fcxICjGx06xGbZdtcqz0L7WdfQHFqP
-         RSliMyqlTZGPGBcsOe0ZuV4M4Ae0cPUBUSpKMYJ0Ni1TzCbyOEb0Y6F/z8cs/Jifb4
-         0P7qOQ974IVmhlCAWnSTM1c0UbKaPLSlLx3rXOgE=
+        b=RHsx57TybEBYoZcajI4cjnvuZAHXKMkBnL/Tgkv5A70vvxkPGo6sX0uAqZJseRUuP
+         FI+DzyJXQ2ffT0DKLWL91ZLWjSvLSRn0gkGYOex7JXQL1427AJsGDXxI85I1apV74h
+         kCRa1FZyZ0rRQQ2uyCoNNoVOtZlc/0EbTkEV1zpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 39/60] iio:adc:stm32-adc: Add HAS_IOMEM dependency
-Date:   Mon, 22 Mar 2021 13:28:27 +0100
-Message-Id: <20210322121923.680324140@linuxfoundation.org>
+        stable@vger.kernel.org, Martyn Welch <martyn@welchs.me.uk>,
+        Manohar Vanga <manohar.vanga@gmail.com>,
+        =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <christian@brauner.io>,
+        Hridya Valsaraju <hridya@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Subject: [PATCH 5.10 151/157] MAINTAINERS: move some real subsystems off of the staging mailing list
+Date:   Mon, 22 Mar 2021 13:28:28 +0100
+Message-Id: <20210322121938.530549720@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 121875b28e3bd7519a675bf8ea2c2e793452c2bd upstream.
+commit f8d70fd6a5a7a38a95eb8021e00d2e547f88efec upstream.
 
-Seems that there are config combinations in which this driver gets enabled
-and hence selects the MFD, but with out HAS_IOMEM getting pulled in
-via some other route.  MFD is entirely contained in an
-if HAS_IOMEM block, leading to the build issue in this bugzilla.
+The VME and Android drivers still have their MAINTAINERS entries
+pointing to the "driverdevel" mailing list, due to them having their
+codebase move out of the drivers/staging/ directory, but no one
+remembered to change the mailing list entries.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=209889
+Move them both to linux-kernel for lack of a more specific place at the
+moment.  These are both low-volume areas of the kernel, so this
+shouldn't be an issue.
 
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/20210124195034.22576-1-jic23@kernel.org
+Cc: Martyn Welch <martyn@welchs.me.uk>
+Cc: Manohar Vanga <manohar.vanga@gmail.com>
+Cc: Arve Hjønnevåg <arve@android.com>
+Cc: Todd Kjos <tkjos@android.com>
+Cc: Martijn Coenen <maco@android.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Christian Brauner <christian@brauner.io>
+Cc: Hridya Valsaraju <hridya@google.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Reported-by: Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Link: https://lore.kernel.org/r/YEzE6u6U1jkBatmr@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -784,6 +784,7 @@ config STM32_ADC_CORE
- 	depends on ARCH_STM32 || COMPILE_TEST
- 	depends on OF
- 	depends on REGULATOR
-+	depends on HAS_IOMEM
- 	select IIO_BUFFER
- 	select MFD_STM32_TIMERS
- 	select IIO_STM32_TIMER_TRIGGER
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1155,7 +1155,7 @@ M:	Joel Fernandes <joel@joelfernandes.or
+ M:	Christian Brauner <christian@brauner.io>
+ M:	Hridya Valsaraju <hridya@google.com>
+ M:	Suren Baghdasaryan <surenb@google.com>
+-L:	devel@driverdev.osuosl.org
++L:	linux-kernel@vger.kernel.org
+ S:	Supported
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+ F:	drivers/android/
+@@ -18705,7 +18705,7 @@ VME SUBSYSTEM
+ M:	Martyn Welch <martyn@welchs.me.uk>
+ M:	Manohar Vanga <manohar.vanga@gmail.com>
+ M:	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+-L:	devel@driverdev.osuosl.org
++L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+ F:	Documentation/driver-api/vme.rst
 
 
