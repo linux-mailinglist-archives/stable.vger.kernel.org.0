@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1320F344485
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7223441B4
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231605AbhCVNBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 09:01:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52974 "EHLO mail.kernel.org"
+        id S231404AbhCVMfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:35:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232385AbhCVM7b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:59:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B3E260238;
-        Mon, 22 Mar 2021 12:59:29 +0000 (UTC)
+        id S231620AbhCVMd7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:33:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01A0A6199E;
+        Mon, 22 Mar 2021 12:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417970;
-        bh=mCEEv/lplvJXxb4cwzcnBZeB7DDAVA3Rmt5oi1P+Dgc=;
+        s=korg; t=1616416437;
+        bh=afmo/A8+yob/4C0ZzfEoWJmMO3UygnCdCOwKY7fdhug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQyF7OZGpQvlt+Ac063gY70iGQV7iAOAY/6ltGGKKdELd3uJF6L70Fse+D9o8VfV6
-         46+5n9+rtHSfHnDyElSG3krfWlIwXKVZgCTWoVQmMFBvBn9a1qOhc2czkIc0j6r/Y+
-         8McSm7cBbS6IMFxSLDdWDBDjN87r+N2abM/iMlSg=
+        b=J5qG0L/nsfXMODyWKR0WM8kpsZD41CaZobuMbB/FKv/gxI/rYggWKW2UJFing38xq
+         gX+OGI+mb17lPAA0UKkDPDjy6w7cl+JK2pAkj/t+RkbaxRzkShpObunl3/Y4feAuBM
+         Q9GGvNwm8EXumS5vSDWpxki6Ww4f4dWwH1kYa0to=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Belanger, Martin" <Martin.Belanger@dell.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.4 20/60] nvme-tcp: fix a NULL deref when receiving a 0-length r2t PDU
+        stable@vger.kernel.org, Jan Kratochvil <jan.kratochvil@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.11 105/120] x86: Introduce TS_COMPAT_RESTART to fix get_nr_restart_syscall()
 Date:   Mon, 22 Mar 2021 13:28:08 +0100
-Message-Id: <20210322121923.049916383@linuxfoundation.org>
+Message-Id: <20210322121933.174837866@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit fd0823f405090f9f410fc3e3ff7efb52e7b486fa upstream.
+commit 8c150ba2fb5995c84a7a43848250d444a3329a7d upstream.
 
-When the controller sends us a 0-length r2t PDU we should not attempt to
-try to set up a h2cdata PDU but rather conclude that this is a buggy
-controller (forward progress is not possible) and simply fail it
-immediately.
+The comment in get_nr_restart_syscall() says:
 
-Fixes: 3f2304f8c6d6 ("nvme-tcp: add NVMe over TCP host driver")
-Reported-by: Belanger, Martin <Martin.Belanger@dell.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+	 * The problem is that we can get here when ptrace pokes
+	 * syscall-like values into regs even if we're not in a syscall
+	 * at all.
+
+Yes, but if not in a syscall then the
+
+	status & (TS_COMPAT|TS_I386_REGS_POKED)
+
+check below can't really help:
+
+	- TS_COMPAT can't be set
+
+	- TS_I386_REGS_POKED is only set if regs->orig_ax was changed by
+	  32bit debugger; and even in this case get_nr_restart_syscall()
+	  is only correct if the tracee is 32bit too.
+
+Suppose that a 64bit debugger plays with a 32bit tracee and
+
+	* Tracee calls sleep(2)	// TS_COMPAT is set
+	* User interrupts the tracee by CTRL-C after 1 sec and does
+	  "(gdb) call func()"
+	* gdb saves the regs by PTRACE_GETREGS
+	* does PTRACE_SETREGS to set %rip='func' and %orig_rax=-1
+	* PTRACE_CONT		// TS_COMPAT is cleared
+	* func() hits int3.
+	* Debugger catches SIGTRAP.
+	* Restore original regs by PTRACE_SETREGS.
+	* PTRACE_CONT
+
+get_nr_restart_syscall() wrongly returns __NR_restart_syscall==219, the
+tracee calls ia32_sys_call_table[219] == sys_madvise.
+
+Add the sticky TS_COMPAT_RESTART flag which survives after return to user
+mode. It's going to be removed in the next step again by storing the
+information in the restart block. As a further cleanup it might be possible
+to remove also TS_I386_REGS_POKED with that.
+
+Test-case:
+
+  $ cvs -d :pserver:anoncvs:anoncvs@sourceware.org:/cvs/systemtap co ptrace-tests
+  $ gcc -o erestartsys-trap-debuggee ptrace-tests/tests/erestartsys-trap-debuggee.c --m32
+  $ gcc -o erestartsys-trap-debugger ptrace-tests/tests/erestartsys-trap-debugger.c -lutil
+  $ ./erestartsys-trap-debugger
+  Unexpected: retval 1, errno 22
+  erestartsys-trap-debugger: ptrace-tests/tests/erestartsys-trap-debugger.c:421
+
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Reported-by: Jan Kratochvil <jan.kratochvil@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210201174709.GA17895@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/tcp.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/include/asm/thread_info.h |   14 +++++++++++++-
+ arch/x86/kernel/signal.c           |   24 +-----------------------
+ 2 files changed, 14 insertions(+), 24 deletions(-)
 
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -512,6 +512,13 @@ static int nvme_tcp_setup_h2c_data_pdu(s
- 	req->pdu_len = le32_to_cpu(pdu->r2t_length);
- 	req->pdu_sent = 0;
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -214,10 +214,22 @@ static inline int arch_within_stack_fram
+  */
+ #define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
  
-+	if (unlikely(!req->pdu_len)) {
-+		dev_err(queue->ctrl->ctrl.device,
-+			"req %d r2t len is %u, probably a bug...\n",
-+			rq->tag, req->pdu_len);
-+		return -EPROTO;
-+	}
++#ifndef __ASSEMBLY__
+ #ifdef CONFIG_COMPAT
+ #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
++#define TS_COMPAT_RESTART	0x0008
 +
- 	if (unlikely(req->data_sent + req->pdu_len > req->data_len)) {
- 		dev_err(queue->ctrl->ctrl.device,
- 			"req %d r2t len %u exceeded data len %u (%zu sent)\n",
++#define arch_set_restart_data	arch_set_restart_data
++
++static inline void arch_set_restart_data(struct restart_block *restart)
++{
++	struct thread_info *ti = current_thread_info();
++	if (ti->status & TS_COMPAT)
++		ti->status |= TS_COMPAT_RESTART;
++	else
++		ti->status &= ~TS_COMPAT_RESTART;
++}
+ #endif
+-#ifndef __ASSEMBLY__
+ 
+ #ifdef CONFIG_X86_32
+ #define in_ia32_syscall() true
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -766,30 +766,8 @@ handle_signal(struct ksignal *ksig, stru
+ 
+ static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
+ {
+-	/*
+-	 * This function is fundamentally broken as currently
+-	 * implemented.
+-	 *
+-	 * The idea is that we want to trigger a call to the
+-	 * restart_block() syscall and that we want in_ia32_syscall(),
+-	 * in_x32_syscall(), etc. to match whatever they were in the
+-	 * syscall being restarted.  We assume that the syscall
+-	 * instruction at (regs->ip - 2) matches whatever syscall
+-	 * instruction we used to enter in the first place.
+-	 *
+-	 * The problem is that we can get here when ptrace pokes
+-	 * syscall-like values into regs even if we're not in a syscall
+-	 * at all.
+-	 *
+-	 * For now, we maintain historical behavior and guess based on
+-	 * stored state.  We could do better by saving the actual
+-	 * syscall arch in restart_block or (with caveats on x32) by
+-	 * checking if regs->ip points to 'int $0x80'.  The current
+-	 * behavior is incorrect if a tracer has a different bitness
+-	 * than the tracee.
+-	 */
+ #ifdef CONFIG_IA32_EMULATION
+-	if (current_thread_info()->status & (TS_COMPAT|TS_I386_REGS_POKED))
++	if (current_thread_info()->status & TS_COMPAT_RESTART)
+ 		return __NR_ia32_restart_syscall;
+ #endif
+ #ifdef CONFIG_X86_X32_ABI
 
 
