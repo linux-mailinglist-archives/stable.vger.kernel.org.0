@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A294344438
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF9C344344
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231644AbhCVM7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47874 "EHLO mail.kernel.org"
+        id S230180AbhCVMtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229746AbhCVMz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:55:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 422EE619AC;
-        Mon, 22 Mar 2021 12:48:19 +0000 (UTC)
+        id S232553AbhCVMrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:47:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B57E8619C9;
+        Mon, 22 Mar 2021 12:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417299;
-        bh=WKoF1u3j/8/5Psw5io/fIq+P3XIOrerzyv8fx1w4mkA=;
+        s=korg; t=1616417021;
+        bh=6g9Abcz7mFgQhFYcQowb+Yn5uclrxsDrS+7thxexddI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1yj5ARC+C6oSINlpvt7s/q3BpKgNokQIqypwvqQl/zjzb/WeAgrK2vgzuzeq/IUk
-         8q0QyNjPBkPiW11C2i9DWWSGy+oYVtHE0i4p47fEiqeoX85G5QXwKlOd3ALSqxZUCm
-         lceFcyK8d/lzWC7rrIQK5xiz3nKSxpBZQw1fU0ik=
+        b=Cg4myWYexhHEnKc5iYSYVfvUvHpZV4YIcqE0+KvOAlfWc9smgL9RSicl7fWAipJVs
+         83UE8T0qVb850wKcqEDaa0g2uCMjYUCF2KEEzxTt51OXEzyvxJvS+cijyIoYFLoc7B
+         gQwZ21bqEI1KjA76okA/RRdf+VzG6zcZvqGRXdkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 02/43] ext4: dont allow overlapping system zones
+        stable@vger.kernel.org,
+        syzbot+98b881fdd8ebf45ab4ae@syzkaller.appspotmail.com,
+        stable@kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 55/60] ext4: do not try to set xattr into ea_inode if value is empty
 Date:   Mon, 22 Mar 2021 13:28:43 +0100
-Message-Id: <20210322121920.138027726@linuxfoundation.org>
+Message-Id: <20210322121924.192489561@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,79 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit bf9a379d0980e7413d94cb18dac73db2bfc5f470 upstream.
+commit 6b22489911b726eebbf169caee52fea52013fbdd upstream.
 
-Currently, add_system_zone() just silently merges two added system zones
-that overlap. However the overlap should not happen and it generally
-suggests that some unrelated metadata overlap which indicates the fs is
-corrupted. We should have caught such problems earlier (e.g. in
-ext4_check_descriptors()) but add this check as another line of defense.
-In later patch we also use this for stricter checking of journal inode
-extent tree.
+Syzbot report a warning that ext4 may create an empty ea_inode if set
+an empty extent attribute to a file on the file system which is no free
+blocks left.
 
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-3-jack@suse.cz
+  WARNING: CPU: 6 PID: 10667 at fs/ext4/xattr.c:1640 ext4_xattr_set_entry+0x10f8/0x1114 fs/ext4/xattr.c:1640
+  ...
+  Call trace:
+   ext4_xattr_set_entry+0x10f8/0x1114 fs/ext4/xattr.c:1640
+   ext4_xattr_block_set+0x1d0/0x1b1c fs/ext4/xattr.c:1942
+   ext4_xattr_set_handle+0x8a0/0xf1c fs/ext4/xattr.c:2390
+   ext4_xattr_set+0x120/0x1f0 fs/ext4/xattr.c:2491
+   ext4_xattr_trusted_set+0x48/0x5c fs/ext4/xattr_trusted.c:37
+   __vfs_setxattr+0x208/0x23c fs/xattr.c:177
+  ...
+
+Now, ext4 try to store extent attribute into an external inode if
+ext4_xattr_block_set() return -ENOSPC, but for the case of store an
+empty extent attribute, store the extent entry into the extent
+attribute block is enough. A simple reproduce below.
+
+  fallocate test.img -l 1M
+  mkfs.ext4 -F -b 2048 -O ea_inode test.img
+  mount test.img /mnt
+  dd if=/dev/zero of=/mnt/foo bs=2048 count=500
+  setfattr -n "user.test" /mnt/foo
+
+Reported-by: syzbot+98b881fdd8ebf45ab4ae@syzkaller.appspotmail.com
+Fixes: 9c6e7853c531 ("ext4: reserve space for xattr entries/names")
+Cc: stable@kernel.org
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210305120508.298465-1-yi.zhang@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/block_validity.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+ fs/ext4/xattr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -58,7 +58,7 @@ static int add_system_zone(struct ext4_s
- 			   ext4_fsblk_t start_blk,
- 			   unsigned int count)
- {
--	struct ext4_system_zone *new_entry = NULL, *entry;
-+	struct ext4_system_zone *new_entry, *entry;
- 	struct rb_node **n = &sbi->system_blks.rb_node, *node;
- 	struct rb_node *parent = NULL, *new_node = NULL;
- 
-@@ -69,30 +69,20 @@ static int add_system_zone(struct ext4_s
- 			n = &(*n)->rb_left;
- 		else if (start_blk >= (entry->start_blk + entry->count))
- 			n = &(*n)->rb_right;
--		else {
--			if (start_blk + count > (entry->start_blk +
--						 entry->count))
--				entry->count = (start_blk + count -
--						entry->start_blk);
--			new_node = *n;
--			new_entry = rb_entry(new_node, struct ext4_system_zone,
--					     node);
--			break;
--		}
-+		else	/* Unexpected overlap of system zones. */
-+			return -EFSCORRUPTED;
- 	}
- 
--	if (!new_entry) {
--		new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
--					     GFP_KERNEL);
--		if (!new_entry)
--			return -ENOMEM;
--		new_entry->start_blk = start_blk;
--		new_entry->count = count;
--		new_node = &new_entry->node;
-+	new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
-+				     GFP_KERNEL);
-+	if (!new_entry)
-+		return -ENOMEM;
-+	new_entry->start_blk = start_blk;
-+	new_entry->count = count;
-+	new_node = &new_entry->node;
- 
--		rb_link_node(new_node, parent, n);
--		rb_insert_color(new_node, &sbi->system_blks);
--	}
-+	rb_link_node(new_node, parent, n);
-+	rb_insert_color(new_node, &sbi->system_blks);
- 
- 	/* Can we merge to the left? */
- 	node = rb_prev(new_node);
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2415,7 +2415,7 @@ retry_inode:
+ 				 * external inode if possible.
+ 				 */
+ 				if (ext4_has_feature_ea_inode(inode->i_sb) &&
+-				    !i.in_inode) {
++				    i.value_len && !i.in_inode) {
+ 					i.in_inode = 1;
+ 					goto retry_inode;
+ 				}
 
 
