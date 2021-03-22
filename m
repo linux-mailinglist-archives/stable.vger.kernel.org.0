@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E2B34435B
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4527344342
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232127AbhCVMtk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
+        id S231992AbhCVMtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232775AbhCVMsN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:48:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C072561990;
-        Mon, 22 Mar 2021 12:44:14 +0000 (UTC)
+        id S232545AbhCVMrw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:47:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4384061998;
+        Mon, 22 Mar 2021 12:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417055;
-        bh=HRcdW0nu6AcglaqEbKwEKEC/lbC9jNfTkji7WPSRLbI=;
+        s=korg; t=1616417018;
+        bh=MzPnXL8wXz1wTRy1tfGCo/Df+IPc0EHxuz5Qex7v8DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtNuuYQfFzVrL2s02Evyk15MwiG1NPYSMW8bhinZfNuRVJBJdqVWU1TDvxR2faGEc
-         pXu86h+TRBNDu2uMuNuAWhmfUpTi6zD6+iCgpQEj9VHTh/ZtU+D106rig29ydd43T3
-         W8IvB23ccmBhmOhJFnPMv7sMD86p8Y66GWRKYpfc=
+        b=bG8xPwF32xKheQN9X2PLA20uADvl1PVBT/Jr329Bs/bApdZHZJ5gzgYkHNxVgdGv7
+         o+XMfJEavVkoGL4sQYBhb0Gfi2FYIryYSMQh6DWiFETuS4xnhNPAuaPPUkm2mSniAh
+         hTwNB9x+LkptxfAIwvzuaAaDZFJjPCJZjKzxyYBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 01/43] ASoC: ak4458: Add MODULE_DEVICE_TABLE
-Date:   Mon, 22 Mar 2021 13:28:15 +0100
-Message-Id: <20210322121919.981348151@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Zigotzky <chzigotzky@xenosoft.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 28/60] kbuild: Fix <linux/version.h> for empty SUBLEVEL or PATCHLEVEL again
+Date:   Mon, 22 Mar 2021 13:28:16 +0100
+Message-Id: <20210322121923.314340599@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
-References: <20210322121919.936671417@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,32 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 4ec5b96775a88dd9b1c3ba1d23c43c478cab95a2 upstream.
+commit 207da4c82ade9a6d59f7e794d737ba0748613fa2 upstream.
 
-Add missed MODULE_DEVICE_TABLE for the driver can be loaded
-automatically at boot.
+Commit 78d3bb4483ba ("kbuild: Fix <linux/version.h> for empty SUBLEVEL
+or PATCHLEVEL") fixed the build error for empty SUBLEVEL or PATCHLEVEL
+by prepending a zero.
 
-Fixes: 08660086eff9 ("ASoC: ak4458: Add support for AK4458 DAC driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1614149872-25510-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Commit 9b82f13e7ef3 ("kbuild: clamp SUBLEVEL to 255") re-introduced
+this issue.
+
+This time, we cannot take the same approach because we have C code:
+
+  #define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL)
+  #define LINUX_VERSION_SUBLEVEL $(SUBLEVEL)
+
+Replace empty SUBLEVEL/PATCHLEVEL with a zero.
+
+Fixes: 9b82f13e7ef3 ("kbuild: clamp SUBLEVEL to 255")
+Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-and-tested-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/ak4458.c |    1 +
- 1 file changed, 1 insertion(+)
+ Makefile |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/soc/codecs/ak4458.c
-+++ b/sound/soc/codecs/ak4458.c
-@@ -642,6 +642,7 @@ static const struct of_device_id ak4458_
- 	{ .compatible = "asahi-kasei,ak4458", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ak4458_of_match);
+--- a/Makefile
++++ b/Makefile
+@@ -1177,15 +1177,17 @@ endef
+ define filechk_version.h
+ 	if [ $(SUBLEVEL) -gt 255 ]; then                                 \
+ 		echo \#define LINUX_VERSION_CODE $(shell                 \
+-		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
++		expr $(VERSION) \* 65536 + $(PATCHLEVEL) \* 256 + 255); \
+ 	else                                                             \
+ 		echo \#define LINUX_VERSION_CODE $(shell                 \
+-		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + $(SUBLEVEL)); \
++		expr $(VERSION) \* 65536 + $(PATCHLEVEL) \* 256 + $(SUBLEVEL)); \
+ 	fi;                                                              \
+ 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) +  \
+ 	((c) > 255 ? 255 : (c)))'
+ endef
  
- static struct i2c_driver ak4458_i2c_driver = {
- 	.driver = {
++$(version_h): PATCHLEVEL := $(if $(PATCHLEVEL), $(PATCHLEVEL), 0)
++$(version_h): SUBLEVEL := $(if $(SUBLEVEL), $(SUBLEVEL), 0)
+ $(version_h): FORCE
+ 	$(call filechk,version.h)
+ 	$(Q)rm -f $(old_version_h)
 
 
