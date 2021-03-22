@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D78C13442C9
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EEB4344332
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230084AbhCVMpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35506 "EHLO mail.kernel.org"
+        id S231628AbhCVMtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232679AbhCVMnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:43:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C5B1619D5;
-        Mon, 22 Mar 2021 12:41:04 +0000 (UTC)
+        id S231980AbhCVMq5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:46:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F0CE619B3;
+        Mon, 22 Mar 2021 12:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416865;
-        bh=1bawS5OTku2R6D5ze2GbkygzAGmlVC9GfgjGVO+5eIw=;
+        s=korg; t=1616416983;
+        bh=6owAfvfN3txCduRFd+jmWhJrWuBMND+Y3whnn5+ayeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5b97X73FN8ntE83pnZ6zgu9y4/LlLRhL+SRtjdDjvjyfUIgH+Nrehde+lO/EXaO2
-         nzisWLuW9sBQjhPe+neo3uSZg0/Q3PZ1vrRwEX571IvOO50Pa6LdmrfLLegyqht3IT
-         arXe1CwV19aczEEvRevJTVOrbb2psOk0vBUYAe7E=
+        b=aMCGxqD3XfZe0M6QcLWFcWxtjUEFu9zSn5V15OnaVYbo/72W6f97V7KBH+yYzO0Ze
+         a7uWpOCSrOGYWurmP+C3ockDUs3vnaomsvQNqU4m32yXnuBkFUkCdFaTs5YdiX6TAf
+         +isAL+OG6PVP7iJ9atVNHqGX2kMH3AD+jsTZIHW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.10 153/157] static_call: Fix static_call_update() sanity check
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 42/60] iio: gyro: mpu3050: Fix error handling in mpu3050_trigger_handler
 Date:   Mon, 22 Mar 2021 13:28:30 +0100
-Message-Id: <20210322121938.596306243@linuxfoundation.org>
+Message-Id: <20210322121923.774350204@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 38c93587375053c5b9ef093f4a5ea754538cba32 upstream.
+commit 6dbbbe4cfd398704b72b21c1d4a5d3807e909d60 upstream.
 
-Sites that match init_section_contains() get marked as INIT. For
-built-in code init_sections contains both __init and __exit text. OTOH
-kernel_text_address() only explicitly includes __init text (and there
-are no __exit text markers).
+There is one regmap_bulk_read() call in mpu3050_trigger_handler
+that we have caught its return value bug lack further handling.
+Check and terminate the execution flow just like the other three
+regmap_bulk_read() calls in this function.
 
-Match what jump_label already does and ignore the warning for INIT
-sites. Also see the excellent changelog for commit: 8f35eaa5f2de
-("jump_label: Don't warn on __exit jump entries")
-
-Fixes: 9183c3f9ed710 ("static_call: Add inline static call infrastructure")
-Reported-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Sumit Garg <sumit.garg@linaro.org>
-Link: https://lkml.kernel.org/r/20210318113610.739542434@infradead.org
+Fixes: 3904b28efb2c7 ("iio: gyro: Add driver for the MPU-3050 gyroscope")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210301080421.13436-1-dinghao.liu@zju.edu.cn
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/jump_label.c  |    8 ++++++++
- kernel/static_call.c |   11 ++++++++++-
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ drivers/iio/gyro/mpu3050-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -407,6 +407,14 @@ static bool jump_label_can_update(struct
- 		return false;
+--- a/drivers/iio/gyro/mpu3050-core.c
++++ b/drivers/iio/gyro/mpu3050-core.c
+@@ -550,6 +550,8 @@ static irqreturn_t mpu3050_trigger_handl
+ 					       MPU3050_FIFO_R,
+ 					       &fifo_values[offset],
+ 					       toread);
++			if (ret)
++				goto out_trigger_unlock;
  
- 	if (!kernel_text_address(jump_entry_code(entry))) {
-+		/*
-+		 * This skips patching built-in __exit, which
-+		 * is part of init_section_contains() but is
-+		 * not part of kernel_text_address().
-+		 *
-+		 * Skipping built-in __exit is fine since it
-+		 * will never be executed.
-+		 */
- 		WARN_ONCE(!jump_entry_is_init(entry),
- 			  "can't patch jump_label at %pS",
- 			  (void *)jump_entry_code(entry));
---- a/kernel/static_call.c
-+++ b/kernel/static_call.c
-@@ -182,7 +182,16 @@ void __static_call_update(struct static_
- 			}
- 
- 			if (!kernel_text_address((unsigned long)site_addr)) {
--				WARN_ONCE(1, "can't patch static call site at %pS",
-+				/*
-+				 * This skips patching built-in __exit, which
-+				 * is part of init_section_contains() but is
-+				 * not part of kernel_text_address().
-+				 *
-+				 * Skipping built-in __exit is fine since it
-+				 * will never be executed.
-+				 */
-+				WARN_ONCE(!static_call_is_init(site),
-+					  "can't patch static call site at %pS",
- 					  site_addr);
- 				continue;
- 			}
+ 			dev_dbg(mpu3050->dev,
+ 				"%04x %04x %04x %04x %04x\n",
 
 
