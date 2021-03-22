@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22283344370
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B628C34433D
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbhCVMud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:50:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43066 "EHLO mail.kernel.org"
+        id S231886AbhCVMtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231297AbhCVMsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:48:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72971619EF;
-        Mon, 22 Mar 2021 12:44:47 +0000 (UTC)
+        id S232385AbhCVMrc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:47:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFCE9619C1;
+        Mon, 22 Mar 2021 12:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417088;
-        bh=gKFKmJmz7gWC8mnLNoc9cdcCFERF3Ke9B1hJzweRw6A=;
+        s=korg; t=1616417001;
+        bh=+N/vEXPFA2h7Hs+Xp+Ysnyf4OFcbKK4iAvPi5aDZgn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6WaYJ56xlO2fClUQFPXN15vCPUF+H7BSMb7usDe/XbXkmL9Q0H0HW8Oaija9lWK0
-         /DczfCfWVvBppUwEACeYPklebj8eF6WfWU7kAoMC1exivrM6aybWkg3Z20LtFKZmNQ
-         KycK/CaRwb3PYpYz15lJo/oxbrZ2zdi19Jp5MDMc=
+        b=ttDrQn7qBIT+lUaAHMaRyRNtFt3xkzeWl+h3UCO6wsajGf54eRmnq+ORm5le/5Zam
+         xj9xd4RBJc2hnjBUA29iyPYZHq7K4sPf6+fu5WTYrAvka1W3e7cjQNSl/3ZJaN575l
+         LrAFEpwnn7Lrm0i4dajntEnsZMDDJpbfsUjxbK30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Matthias Schwarzott <zzam@gentoo.org>
-Subject: [PATCH 4.19 22/43] usb-storage: Add quirk to defeat Kindles automatic unload
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 48/60] PCI: rpadlpar: Fix potential drc_name corruption in store functions
 Date:   Mon, 22 Mar 2021 13:28:36 +0100
-Message-Id: <20210322121920.645574687@linuxfoundation.org>
+Message-Id: <20210322121923.973844947@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
-References: <20210322121919.936671417@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,93 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit 546aa0e4ea6ed81b6c51baeebc4364542fa3f3a7 upstream.
+commit cc7a0bb058b85ea03db87169c60c7cfdd5d34678 upstream.
 
-Matthias reports that the Amazon Kindle automatically removes its
-emulated media if it doesn't receive another SCSI command within about
-one second after a SYNCHRONIZE CACHE.  It does so even when the host
-has sent a PREVENT MEDIUM REMOVAL command.  The reason for this
-behavior isn't clear, although it's not hard to make some guesses.
+Both add_slot_store() and remove_slot_store() try to fix up the
+drc_name copied from the store buffer by placing a NUL terminator at
+nbyte + 1 or in place of a '\n' if present. However, the static buffer
+that we copy the drc_name data into is not zeroed and can contain
+anything past the n-th byte.
 
-At any rate, the results can be unexpected for anyone who tries to
-access the Kindle in an unusual fashion, and in theory they can lead
-to data loss (for example, if one file is closed and synchronized
-while other files are still in the middle of being written).
+This is problematic if a '\n' byte appears in that buffer after nbytes
+and the string copied into the store buffer was not NUL terminated to
+start with as the strchr() search for a '\n' byte will mark this
+incorrectly as the end of the drc_name string resulting in a drc_name
+string that contains garbage data after the n-th byte.
 
-To avoid such problems, this patch creates a new usb-storage quirks
-flag telling the driver always to issue a REQUEST SENSE following a
-SYNCHRONIZE CACHE command, and adds an unusual_devs entry for the
-Kindle with the flag set.  This is sufficient to prevent the Kindle
-from doing its automatic unload, without interfering with proper
-operation.
+Additionally it will cause us to overwrite that '\n' byte on the stack
+with NUL, potentially corrupting data on the stack.
 
-Another possible way to deal with this would be to increase the
-frequency of TEST UNIT READY polling that the kernel normally carries
-out for removable-media storage devices.  However that would increase
-the overall load on the system and it is not as reliable, because the
-user can override the polling interval.  Changing the driver's
-behavior is safer and has minimal overhead.
+The following debugging shows an example of the drmgr utility writing
+"PHB 4543" to the add_slot sysfs attribute, but add_slot_store()
+logging a corrupted string value.
 
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: Matthias Schwarzott <zzam@gentoo.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20210317190654.GA497856@rowland.harvard.edu
+  drmgr: drmgr: -c phb -a -s PHB 4543 -d 1
+  add_slot_store: drc_name = PHB 4543°|<82>!, rc = -19
+
+Fix this by using strscpy() instead of memcpy() to ensure the string
+is NUL terminated when copied into the static drc_name buffer.
+Further, since the string is now NUL terminated the code only needs to
+change '\n' to '\0' when present.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+[mpe: Reformat change log and add mention of possible stack corruption]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210315214821.452959-1-tyreld@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/transport.c    |    7 +++++++
- drivers/usb/storage/unusual_devs.h |   12 ++++++++++++
- include/linux/usb_usual.h          |    2 ++
- 3 files changed, 21 insertions(+)
+ drivers/pci/hotplug/rpadlpar_sysfs.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/storage/transport.c
-+++ b/drivers/usb/storage/transport.c
-@@ -651,6 +651,13 @@ void usb_stor_invoke_transport(struct sc
- 		need_auto_sense = 1;
- 	}
+--- a/drivers/pci/hotplug/rpadlpar_sysfs.c
++++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
+@@ -34,12 +34,11 @@ static ssize_t add_slot_store(struct kob
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
  
-+	/* Some devices (Kindle) require another command after SYNC CACHE */
-+	if ((us->fflags & US_FL_SENSE_AFTER_SYNC) &&
-+			srb->cmnd[0] == SYNCHRONIZE_CACHE) {
-+		usb_stor_dbg(us, "-- sense after SYNC CACHE\n");
-+		need_auto_sense = 1;
-+	}
-+
- 	/*
- 	 * If we have a failure, we're going to do a REQUEST_SENSE 
- 	 * automatically.  Note that we differentiate between a command
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2212,6 +2212,18 @@ UNUSUAL_DEV( 0x1908, 0x3335, 0x0200, 0x0
- 		US_FL_NO_READ_DISC_INFO ),
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
  
- /*
-+ * Reported by Matthias Schwarzott <zzam@gentoo.org>
-+ * The Amazon Kindle treats SYNCHRONIZE CACHE as an indication that
-+ * the host may be finished with it, and automatically ejects its
-+ * emulated media unless it receives another command within one second.
-+ */
-+UNUSUAL_DEV( 0x1949, 0x0004, 0x0000, 0x9999,
-+		"Amazon",
-+		"Kindle",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_SENSE_AFTER_SYNC ),
-+
-+/*
-  * Reported by Oliver Neukum <oneukum@suse.com>
-  * This device morphes spontaneously into another device if the access
-  * pattern of Windows isn't followed. Thus writable media would be dirty
---- a/include/linux/usb_usual.h
-+++ b/include/linux/usb_usual.h
-@@ -86,6 +86,8 @@
- 		/* lies about caching, so always sync */	\
- 	US_FLAG(NO_SAME, 0x40000000)				\
- 		/* Cannot handle WRITE_SAME */			\
-+	US_FLAG(SENSE_AFTER_SYNC, 0x80000000)			\
-+		/* Do REQUEST_SENSE after SYNCHRONIZE_CACHE */	\
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
  
- #define US_FLAG(name, value)	US_FL_##name = value ,
- enum { US_DO_ALL_FLAGS };
+ 	rc = dlpar_add_slot(drc_name);
+ 	if (rc)
+@@ -65,12 +64,11 @@ static ssize_t remove_slot_store(struct
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
+ 
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
+ 
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
+ 
+ 	rc = dlpar_remove_slot(drc_name);
+ 	if (rc)
 
 
