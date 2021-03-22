@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63FB23443A1
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 389953443A3
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbhCVMxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
+        id S231232AbhCVMxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230170AbhCVMtn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:49:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56DDC619D4;
-        Mon, 22 Mar 2021 12:45:23 +0000 (UTC)
+        id S231277AbhCVMto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 142DB619EC;
+        Mon, 22 Mar 2021 12:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417123;
-        bh=ox17xXF2WS6do4zmq3tGsBWJXw+xcZVI1uv4dyQTbVU=;
+        s=korg; t=1616417126;
+        bh=V4rRMxuUxcUjFLoMaGQT8OhZ+od1C3/fXAcLNTy0mwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c7TNaI8Eop9cfemqCX8+y7cuWeSVpIC/DWAIzvTAV7RDdpo9evMskrFHbwXtTMNGv
-         wrRdhwzVQsaIuhymwF4Iyv3aHDYHl0wLKup4CNehRBWKVDITEr3eBMMBFqeRptcvd+
-         wYiItmT5QNrrrU6jCQ5mfcZhsLcLl5znGb5mG9sc=
+        b=bWYluHQ4Urc3QtMI0rblWhzh/gRqNsRrv1a/oYoBP8cnXXBInvqFZW2i9WhtGSfx/
+         QFKigpgj3sNCDqZw2z0vB6QlFGv0dkZIIZm40BIJ4ieWbtCsbSJYAmX+NOLca8YH9y
+         XpTC1rBLDI8H1Dgg85++yFSUXn4xwbauH1DSYKXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 35/43] x86/ioapic: Ignore IRQ2 again
-Date:   Mon, 22 Mar 2021 13:28:49 +0100
-Message-Id: <20210322121921.042626173@linuxfoundation.org>
+Subject: [PATCH 4.19 36/43] kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+Date:   Mon, 22 Mar 2021 13:28:50 +0100
+Message-Id: <20210322121921.071581835@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
 References: <20210322121919.936671417@linuxfoundation.org>
@@ -39,69 +39,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit a501b048a95b79e1e34f03cac3c87ff1e9f229ad upstream.
+commit 5abbe51a526253b9f003e9a0a195638dc882d660 upstream.
 
-Vitaly ran into an issue with hotplugging CPU0 on an Amazon instance where
-the matrix allocator claimed to be out of vectors. He analyzed it down to
-the point that IRQ2, the PIC cascade interrupt, which is supposed to be not
-ever routed to the IO/APIC ended up having an interrupt vector assigned
-which got moved during unplug of CPU0.
+Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
 
-The underlying issue is that IRQ2 for various reasons (see commit
-af174783b925 ("x86: I/O APIC: Never configure IRQ2" for details) is treated
-as a reserved system vector by the vector core code and is not accounted as
-a regular vector. The Amazon BIOS has an routing entry of pin2 to IRQ2
-which causes the IO/APIC setup to claim that interrupt which is granted by
-the vector domain because there is no sanity check. As a consequence the
-allocation counter of CPU0 underflows which causes a subsequent unplug to
-fail with:
+Add a new helper which sets restart_block->fn and calls a dummy
+arch_set_restart_data() helper.
 
-  [ ... ] CPU 0 has 4294967295 vectors, 589 available. Cannot disable CPU
-
-There is another sanity check missing in the matrix allocator, but the
-underlying root cause is that the IO/APIC code lost the IRQ2 ignore logic
-during the conversion to irqdomains.
-
-For almost 6 years nobody complained about this wreckage, which might
-indicate that this requirement could be lifted, but for any system which
-actually has a PIC IRQ2 is unusable by design so any routing entry has no
-effect and the interrupt cannot be connected to a device anyway.
-
-Due to that and due to history biased paranoia reasons restore the IRQ2
-ignore logic and treat it as non existent despite a routing entry claiming
-otherwise.
-
-Fixes: d32932d02e18 ("x86/irq: Convert IOAPIC to use hierarchical irqdomain interfaces")
-Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210318192819.636943062@linutronix.de
+Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/apic/io_apic.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/select.c                    |   10 ++++------
+ include/linux/thread_info.h    |   13 +++++++++++++
+ kernel/futex.c                 |    3 +--
+ kernel/time/alarmtimer.c       |    2 +-
+ kernel/time/hrtimer.c          |    2 +-
+ kernel/time/posix-cpu-timers.c |    2 +-
+ 6 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1043,6 +1043,16 @@ static int mp_map_pin_to_irq(u32 gsi, in
- 	if (idx >= 0 && test_bit(mp_irqs[idx].srcbus, mp_bus_not_pci)) {
- 		irq = mp_irqs[idx].srcbusirq;
- 		legacy = mp_is_legacy_irq(irq);
-+		/*
-+		 * IRQ2 is unusable for historical reasons on systems which
-+		 * have a legacy PIC. See the comment vs. IRQ2 further down.
-+		 *
-+		 * If this gets removed at some point then the related code
-+		 * in lapic_assign_system_vectors() needs to be adjusted as
-+		 * well.
-+		 */
-+		if (legacy && irq == PIC_CASCADE_IR)
-+			return -EINVAL;
+--- a/fs/select.c
++++ b/fs/select.c
+@@ -1003,10 +1003,9 @@ static long do_restart_poll(struct resta
+ 
+ 	ret = do_sys_poll(ufds, nfds, to);
+ 
+-	if (ret == -EINTR) {
+-		restart_block->fn = do_restart_poll;
+-		ret = -ERESTART_RESTARTBLOCK;
+-	}
++	if (ret == -EINTR)
++		ret = set_restart_fn(restart_block, do_restart_poll);
++
+ 	return ret;
+ }
+ 
+@@ -1028,7 +1027,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
+ 		struct restart_block *restart_block;
+ 
+ 		restart_block = &current->restart_block;
+-		restart_block->fn = do_restart_poll;
+ 		restart_block->poll.ufds = ufds;
+ 		restart_block->poll.nfds = nfds;
+ 
+@@ -1039,7 +1037,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
+ 		} else
+ 			restart_block->poll.has_timeout = 0;
+ 
+-		ret = -ERESTART_RESTARTBLOCK;
++		ret = set_restart_fn(restart_block, do_restart_poll);
+ 	}
+ 	return ret;
+ }
+--- a/include/linux/thread_info.h
++++ b/include/linux/thread_info.h
+@@ -11,6 +11,7 @@
+ #include <linux/types.h>
+ #include <linux/bug.h>
+ #include <linux/restart_block.h>
++#include <linux/errno.h>
+ 
+ #ifdef CONFIG_THREAD_INFO_IN_TASK
+ /*
+@@ -39,6 +40,18 @@ enum {
+ 
+ #ifdef __KERNEL__
+ 
++#ifndef arch_set_restart_data
++#define arch_set_restart_data(restart) do { } while (0)
++#endif
++
++static inline long set_restart_fn(struct restart_block *restart,
++					long (*fn)(struct restart_block *))
++{
++	restart->fn = fn;
++	arch_set_restart_data(restart);
++	return -ERESTART_RESTARTBLOCK;
++}
++
+ #ifndef THREAD_ALIGN
+ #define THREAD_ALIGN	THREAD_SIZE
+ #endif
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2857,14 +2857,13 @@ retry:
+ 		goto out;
+ 
+ 	restart = &current->restart_block;
+-	restart->fn = futex_wait_restart;
+ 	restart->futex.uaddr = uaddr;
+ 	restart->futex.val = val;
+ 	restart->futex.time = *abs_time;
+ 	restart->futex.bitset = bitset;
+ 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
+ 
+-	ret = -ERESTART_RESTARTBLOCK;
++	ret = set_restart_fn(restart, futex_wait_restart);
+ 
+ out:
+ 	if (to) {
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -822,9 +822,9 @@ static int alarm_timer_nsleep(const cloc
+ 	if (flags == TIMER_ABSTIME)
+ 		return -ERESTARTNOHAND;
+ 
+-	restart->fn = alarm_timer_nsleep_restart;
+ 	restart->nanosleep.clockid = type;
+ 	restart->nanosleep.expires = exp;
++	set_restart_fn(restart, alarm_timer_nsleep_restart);
+ 	return ret;
+ }
+ 
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -1771,9 +1771,9 @@ long hrtimer_nanosleep(const struct time
  	}
  
- 	mutex_lock(&ioapic_mutex);
+ 	restart = &current->restart_block;
+-	restart->fn = hrtimer_nanosleep_restart;
+ 	restart->nanosleep.clockid = t.timer.base->clockid;
+ 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
++	set_restart_fn(restart, hrtimer_nanosleep_restart);
+ out:
+ 	destroy_hrtimer_on_stack(&t.timer);
+ 	return ret;
+--- a/kernel/time/posix-cpu-timers.c
++++ b/kernel/time/posix-cpu-timers.c
+@@ -1371,8 +1371,8 @@ static int posix_cpu_nsleep(const clocki
+ 		if (flags & TIMER_ABSTIME)
+ 			return -ERESTARTNOHAND;
+ 
+-		restart_block->fn = posix_cpu_nsleep_restart;
+ 		restart_block->nanosleep.clockid = which_clock;
++		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
+ 	}
+ 	return error;
+ }
 
 
