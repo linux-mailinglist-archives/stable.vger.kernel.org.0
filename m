@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB956344405
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:59:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6F93443C2
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232736AbhCVM4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:56:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47526 "EHLO mail.kernel.org"
+        id S231671AbhCVMxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231202AbhCVMyU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:54:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D59B3619AE;
-        Mon, 22 Mar 2021 12:47:32 +0000 (UTC)
+        id S231664AbhCVMvt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:51:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7F8619B7;
+        Mon, 22 Mar 2021 12:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417253;
-        bh=zt9/TmKUmnkMOc/8ca/fdu19SbIg4BPFwOBJquBFvdU=;
+        s=korg; t=1616417190;
+        bh=tuDwqJSVaxAyHAeSHBnhsVr6A6uaxFYVqJWuuRxSIx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLTeJtca9Y+z9rk/quZGHiQrwzj+SGCLC2ljezOCSrJQBMP8/Hb7qeAeHXZM3TLhw
-         VCwbPQ6c37wFsEDHeRmE15VcrmTXh6UlpejDLYor4PZWUGTHOQm5JQALmy41UnEoO4
-         rnB/g4wDHoeBeI21gqHan/wvodbjf0oiaFR85Wj4=
+        b=mJ0F2r5KCDJ//BLtbkxolIvx7l7ajaia4cBq/+n8g83b5vJA6qcP8HhRRvfAciRRM
+         Dq5eBIXaXHtrnDqjbBu4Lu/OPgBZnijWVwpkPrzpQdm44Cz+Lk+V6bHysM5tCyiqYK
+         T0GZbVMA+VIlDIBy90Q6/Gva8puZ0yyrlHutw7dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.9 14/25] USB: replace hardcode maximum usb string length by definition
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 10/14] PCI: rpadlpar: Fix potential drc_name corruption in store functions
 Date:   Mon, 22 Mar 2021 13:29:04 +0100
-Message-Id: <20210322121920.853877573@linuxfoundation.org>
+Message-Id: <20210322121919.518280922@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
-References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
+References: <20210322121919.202392464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit 81c7462883b0cc0a4eeef0687f80ad5b5baee5f6 upstream.
+commit cc7a0bb058b85ea03db87169c60c7cfdd5d34678 upstream.
 
-Replace hardcoded maximum USB string length (126 bytes) by definition
-"USB_MAX_STRING_LEN".
+Both add_slot_store() and remove_slot_store() try to fix up the
+drc_name copied from the store buffer by placing a NUL terminator at
+nbyte + 1 or in place of a '\n' if present. However, the static buffer
+that we copy the drc_name data into is not zeroed and can contain
+anything past the n-th byte.
 
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/1592471618-29428-1-git-send-email-macpaul.lin@mediatek.com
+This is problematic if a '\n' byte appears in that buffer after nbytes
+and the string copied into the store buffer was not NUL terminated to
+start with as the strchr() search for a '\n' byte will mark this
+incorrectly as the end of the drc_name string resulting in a drc_name
+string that contains garbage data after the n-th byte.
+
+Additionally it will cause us to overwrite that '\n' byte on the stack
+with NUL, potentially corrupting data on the stack.
+
+The following debugging shows an example of the drmgr utility writing
+"PHB 4543" to the add_slot sysfs attribute, but add_slot_store()
+logging a corrupted string value.
+
+  drmgr: drmgr: -c phb -a -s PHB 4543 -d 1
+  add_slot_store: drc_name = PHB 4543°|<82>!, rc = -19
+
+Fix this by using strscpy() instead of memcpy() to ensure the string
+is NUL terminated when copied into the static drc_name buffer.
+Further, since the string is now NUL terminated the code only needs to
+change '\n' to '\0' when present.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+[mpe: Reformat change log and add mention of possible stack corruption]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210315214821.452959-1-tyreld@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/composite.c |    4 ++--
- drivers/usb/gadget/configfs.c  |    2 +-
- drivers/usb/gadget/usbstring.c |    4 ++--
- include/uapi/linux/usb/ch9.h   |    3 +++
- 4 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/pci/hotplug/rpadlpar_sysfs.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1076,7 +1076,7 @@ static void collect_langs(struct usb_gad
- 	while (*sp) {
- 		s = *sp;
- 		language = cpu_to_le16(s->language);
--		for (tmp = buf; *tmp && tmp < &buf[126]; tmp++) {
-+		for (tmp = buf; *tmp && tmp < &buf[USB_MAX_STRING_LEN]; tmp++) {
- 			if (*tmp == language)
- 				goto repeat;
- 		}
-@@ -1151,7 +1151,7 @@ static int get_string(struct usb_composi
- 			collect_langs(sp, s->wData);
- 		}
+--- a/drivers/pci/hotplug/rpadlpar_sysfs.c
++++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
+@@ -39,12 +39,11 @@ static ssize_t add_slot_store(struct kob
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
  
--		for (len = 0; len <= 126 && s->wData[len]; len++)
-+		for (len = 0; len <= USB_MAX_STRING_LEN && s->wData[len]; len++)
- 			continue;
- 		if (!len)
- 			return -EINVAL;
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -114,7 +114,7 @@ static int usb_string_copy(const char *s
- 	char *str;
- 	char *copy = *s_copy;
- 	ret = strlen(s);
--	if (ret > 126)
-+	if (ret > USB_MAX_STRING_LEN)
- 		return -EOVERFLOW;
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
  
- 	str = kstrdup(s, GFP_KERNEL);
---- a/drivers/usb/gadget/usbstring.c
-+++ b/drivers/usb/gadget/usbstring.c
-@@ -59,9 +59,9 @@ usb_gadget_get_string (struct usb_gadget
- 		return -EINVAL;
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
  
- 	/* string descriptors have length, tag, then UTF16-LE text */
--	len = min ((size_t) 126, strlen (s->s));
-+	len = min((size_t)USB_MAX_STRING_LEN, strlen(s->s));
- 	len = utf8s_to_utf16s(s->s, len, UTF16_LITTLE_ENDIAN,
--			(wchar_t *) &buf[2], 126);
-+			(wchar_t *) &buf[2], USB_MAX_STRING_LEN);
- 	if (len < 0)
- 		return -EINVAL;
- 	buf [0] = (len + 1) * 2;
---- a/include/uapi/linux/usb/ch9.h
-+++ b/include/uapi/linux/usb/ch9.h
-@@ -358,6 +358,9 @@ struct usb_config_descriptor {
+ 	rc = dlpar_add_slot(drc_name);
+ 	if (rc)
+@@ -70,12 +69,11 @@ static ssize_t remove_slot_store(struct
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
  
- /*-------------------------------------------------------------------------*/
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
  
-+/* USB String descriptors can contain at most 126 characters. */
-+#define USB_MAX_STRING_LEN	126
-+
- /* USB_DT_STRING: String descriptor */
- struct usb_string_descriptor {
- 	__u8  bLength;
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
+ 
+ 	rc = dlpar_remove_slot(drc_name);
+ 	if (rc)
 
 
