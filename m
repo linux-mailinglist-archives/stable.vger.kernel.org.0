@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5F234440B
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:59:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C223234445D
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232177AbhCVM4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47546 "EHLO mail.kernel.org"
+        id S232332AbhCVM7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232209AbhCVMy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:54:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0007360238;
-        Mon, 22 Mar 2021 12:47:45 +0000 (UTC)
+        id S233171AbhCVM5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:57:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00780619C1;
+        Mon, 22 Mar 2021 12:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417266;
-        bh=uNNTSGPSxTzpQ8kXMfjQqx2Cg0+Zzvn4moUfv5kkXBM=;
+        s=korg; t=1616417377;
+        bh=jv59E40YGhO+9bjqtGUokT2x3YQk8desJR4gOl9bKao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mb4ufhWK3kqejov7dkPAXnwcsQHUlYI1B1p4f7TgUr56EADjT1Fy/OJvuBeO69I39
-         2sz+iDnO8MHdqUKEmE9QMH8l3uooBKicfbA/sconsTDnNHtDqIBBcYZ7sGO6Ngds0B
-         oOlbHzu52CdZ7a6IY3L7WPl0At41hDTvLHJiCfPQ=
+        b=urEoMjS5MwSrCYnsLAR0yJpcFWcvH4YkrGDqPWw2is1Lzi3ElmNLWfvn00DinBd0Y
+         Xa6iK1CqIXO6hSZO5lp0B7S98e8BEIRUMIxlCb+IVaYVvGdyuh6njaeV0lE0j9A0+J
+         SsrTqtgrMk4XzTq94kEihxFZrERJW44m5b2v5pM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 19/25] x86/ioapic: Ignore IRQ2 again
+        stable@vger.kernel.org,
+        Jonathan Albrieux <jonathan.albrieux@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 28/43] iio:adc:qcom-spmi-vadc: add default scale to LR_MUX2_BAT_ID channel
 Date:   Mon, 22 Mar 2021 13:29:09 +0100
-Message-Id: <20210322121921.003950608@linuxfoundation.org>
+Message-Id: <20210322121920.936578527@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
-References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jonathan Albrieux <jonathan.albrieux@gmail.com>
 
-commit a501b048a95b79e1e34f03cac3c87ff1e9f229ad upstream.
+commit 7d200b283aa049fcda0d43dd6e03e9e783d2799c upstream.
 
-Vitaly ran into an issue with hotplugging CPU0 on an Amazon instance where
-the matrix allocator claimed to be out of vectors. He analyzed it down to
-the point that IRQ2, the PIC cascade interrupt, which is supposed to be not
-ever routed to the IO/APIC ended up having an interrupt vector assigned
-which got moved during unplug of CPU0.
+Checking at both msm8909-pm8916.dtsi and msm8916.dtsi from downstream
+it is indicated that "batt_id" channel has to be scaled with the default
+function:
 
-The underlying issue is that IRQ2 for various reasons (see commit
-af174783b925 ("x86: I/O APIC: Never configure IRQ2" for details) is treated
-as a reserved system vector by the vector core code and is not accounted as
-a regular vector. The Amazon BIOS has an routing entry of pin2 to IRQ2
-which causes the IO/APIC setup to claim that interrupt which is granted by
-the vector domain because there is no sanity check. As a consequence the
-allocation counter of CPU0 underflows which causes a subsequent unplug to
-fail with:
+	chan@31 {
+		label = "batt_id";
+		reg = <0x31>;
+		qcom,decimation = <0>;
+		qcom,pre-div-channel-scaling = <0>;
+		qcom,calibration-type = "ratiometric";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <0xb>;
+		qcom,fast-avg-setup = <0>;
+	};
 
-  [ ... ] CPU 0 has 4294967295 vectors, 589 available. Cannot disable CPU
+Change LR_MUX2_BAT_ID scaling accordingly.
 
-There is another sanity check missing in the matrix allocator, but the
-underlying root cause is that the IO/APIC code lost the IRQ2 ignore logic
-during the conversion to irqdomains.
-
-For almost 6 years nobody complained about this wreckage, which might
-indicate that this requirement could be lifted, but for any system which
-actually has a PIC IRQ2 is unusable by design so any routing entry has no
-effect and the interrupt cannot be connected to a device anyway.
-
-Due to that and due to history biased paranoia reasons restore the IRQ2
-ignore logic and treat it as non existent despite a routing entry claiming
-otherwise.
-
-Fixes: d32932d02e18 ("x86/irq: Convert IOAPIC to use hierarchical irqdomain interfaces")
-Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210318192819.636943062@linutronix.de
+Signed-off-by: Jonathan Albrieux <jonathan.albrieux@gmail.com>
+Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 7c271eea7b8a ("iio: adc: spmi-vadc: Changes to support different scaling")
+Link: https://lore.kernel.org/r/20210113151808.4628-2-jonathan.albrieux@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/apic/io_apic.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/iio/adc/qcom-spmi-vadc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1042,6 +1042,16 @@ static int mp_map_pin_to_irq(u32 gsi, in
- 	if (idx >= 0 && test_bit(mp_irqs[idx].srcbus, mp_bus_not_pci)) {
- 		irq = mp_irqs[idx].srcbusirq;
- 		legacy = mp_is_legacy_irq(irq);
-+		/*
-+		 * IRQ2 is unusable for historical reasons on systems which
-+		 * have a legacy PIC. See the comment vs. IRQ2 further down.
-+		 *
-+		 * If this gets removed at some point then the related code
-+		 * in lapic_assign_system_vectors() needs to be adjusted as
-+		 * well.
-+		 */
-+		if (legacy && irq == PIC_CASCADE_IR)
-+			return -EINVAL;
- 	}
+--- a/drivers/iio/adc/qcom-spmi-vadc.c
++++ b/drivers/iio/adc/qcom-spmi-vadc.c
+@@ -607,7 +607,7 @@ static const struct vadc_channels vadc_c
+ 	VADC_CHAN_NO_SCALE(P_MUX16_1_3, 1)
  
- 	mutex_lock(&ioapic_mutex);
+ 	VADC_CHAN_NO_SCALE(LR_MUX1_BAT_THERM, 0)
+-	VADC_CHAN_NO_SCALE(LR_MUX2_BAT_ID, 0)
++	VADC_CHAN_VOLT(LR_MUX2_BAT_ID, 0, SCALE_DEFAULT)
+ 	VADC_CHAN_NO_SCALE(LR_MUX3_XO_THERM, 0)
+ 	VADC_CHAN_NO_SCALE(LR_MUX4_AMUX_THM1, 0)
+ 	VADC_CHAN_NO_SCALE(LR_MUX5_AMUX_THM2, 0)
 
 
