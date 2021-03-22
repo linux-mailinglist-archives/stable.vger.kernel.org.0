@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF9C344344
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 829D3344387
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:53:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230180AbhCVMtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
+        id S232326AbhCVMvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:51:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232553AbhCVMrx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:47:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B57E8619C9;
-        Mon, 22 Mar 2021 12:43:40 +0000 (UTC)
+        id S230221AbhCVMtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E869619D3;
+        Mon, 22 Mar 2021 12:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417021;
-        bh=6g9Abcz7mFgQhFYcQowb+Yn5uclrxsDrS+7thxexddI=;
+        s=korg; t=1616417108;
+        bh=tPetY16AiQmg8h1ZYslYI+vPL7h0XaE/AWhM9p3MhSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cg4myWYexhHEnKc5iYSYVfvUvHpZV4YIcqE0+KvOAlfWc9smgL9RSicl7fWAipJVs
-         83UE8T0qVb850wKcqEDaa0g2uCMjYUCF2KEEzxTt51OXEzyvxJvS+cijyIoYFLoc7B
-         gQwZ21bqEI1KjA76okA/RRdf+VzG6zcZvqGRXdkA=
+        b=kNW0W6uRkVkWf43UweEueQk2WOJa87mtHRsMLb/CnJ6rK0GmLm6TXEFMOhpDaNQfp
+         zo/VqhOM8+8wdxQa7rpE+28c8ItHeHu7/gaC/JrL0mkTDxo/lUnSfk3XgHxS74vOpe
+         vFQbyZ1uvBQyWFNl7R6WBt5Vvo1r74fsR7Lrhw8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+98b881fdd8ebf45ab4ae@syzkaller.appspotmail.com,
-        stable@kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 55/60] ext4: do not try to set xattr into ea_inode if value is empty
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 29/43] iio: gyro: mpu3050: Fix error handling in mpu3050_trigger_handler
 Date:   Mon, 22 Mar 2021 13:28:43 +0100
-Message-Id: <20210322121924.192489561@linuxfoundation.org>
+Message-Id: <20210322121920.860832881@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 6b22489911b726eebbf169caee52fea52013fbdd upstream.
+commit 6dbbbe4cfd398704b72b21c1d4a5d3807e909d60 upstream.
 
-Syzbot report a warning that ext4 may create an empty ea_inode if set
-an empty extent attribute to a file on the file system which is no free
-blocks left.
+There is one regmap_bulk_read() call in mpu3050_trigger_handler
+that we have caught its return value bug lack further handling.
+Check and terminate the execution flow just like the other three
+regmap_bulk_read() calls in this function.
 
-  WARNING: CPU: 6 PID: 10667 at fs/ext4/xattr.c:1640 ext4_xattr_set_entry+0x10f8/0x1114 fs/ext4/xattr.c:1640
-  ...
-  Call trace:
-   ext4_xattr_set_entry+0x10f8/0x1114 fs/ext4/xattr.c:1640
-   ext4_xattr_block_set+0x1d0/0x1b1c fs/ext4/xattr.c:1942
-   ext4_xattr_set_handle+0x8a0/0xf1c fs/ext4/xattr.c:2390
-   ext4_xattr_set+0x120/0x1f0 fs/ext4/xattr.c:2491
-   ext4_xattr_trusted_set+0x48/0x5c fs/ext4/xattr_trusted.c:37
-   __vfs_setxattr+0x208/0x23c fs/xattr.c:177
-  ...
-
-Now, ext4 try to store extent attribute into an external inode if
-ext4_xattr_block_set() return -ENOSPC, but for the case of store an
-empty extent attribute, store the extent entry into the extent
-attribute block is enough. A simple reproduce below.
-
-  fallocate test.img -l 1M
-  mkfs.ext4 -F -b 2048 -O ea_inode test.img
-  mount test.img /mnt
-  dd if=/dev/zero of=/mnt/foo bs=2048 count=500
-  setfattr -n "user.test" /mnt/foo
-
-Reported-by: syzbot+98b881fdd8ebf45ab4ae@syzkaller.appspotmail.com
-Fixes: 9c6e7853c531 ("ext4: reserve space for xattr entries/names")
-Cc: stable@kernel.org
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Link: https://lore.kernel.org/r/20210305120508.298465-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 3904b28efb2c7 ("iio: gyro: Add driver for the MPU-3050 gyroscope")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210301080421.13436-1-dinghao.liu@zju.edu.cn
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/gyro/mpu3050-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2415,7 +2415,7 @@ retry_inode:
- 				 * external inode if possible.
- 				 */
- 				if (ext4_has_feature_ea_inode(inode->i_sb) &&
--				    !i.in_inode) {
-+				    i.value_len && !i.in_inode) {
- 					i.in_inode = 1;
- 					goto retry_inode;
- 				}
+--- a/drivers/iio/gyro/mpu3050-core.c
++++ b/drivers/iio/gyro/mpu3050-core.c
+@@ -549,6 +549,8 @@ static irqreturn_t mpu3050_trigger_handl
+ 					       MPU3050_FIFO_R,
+ 					       &fifo_values[offset],
+ 					       toread);
++			if (ret)
++				goto out_trigger_unlock;
+ 
+ 			dev_dbg(mpu3050->dev,
+ 				"%04x %04x %04x %04x %04x\n",
 
 
