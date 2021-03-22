@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8E5A3443E6
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3EA344461
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232453AbhCVMzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:55:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47786 "EHLO mail.kernel.org"
+        id S232549AbhCVM7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232951AbhCVMxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:53:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D71D61A0A;
-        Mon, 22 Mar 2021 12:47:12 +0000 (UTC)
+        id S233181AbhCVM5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:57:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63811619DF;
+        Mon, 22 Mar 2021 12:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417232;
-        bh=4J4+ckwrQYqWGb0vz104f2MlBMmFdG+29WBPS/ewMTE=;
+        s=korg; t=1616417379;
+        bh=5sppupOWfMhTGCdAJeoS+79+ZmNuabC4TOrs9JOgtdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAGd5bdZ2z06L+fAcKSjYYQY7XPElnHFfPqtAXumzhgV7YMWC1ZwPLb0cWGkCDbjI
-         8MK9b6UI3rsN/6ZYchUqfitIILLGYUj53hTxSkSUcidr82VQLasIVNB+jG2npvSobi
-         EOpfPEeKmpuef8FnagqkcwQOhg7UBWeAHUfc1S1s=
+        b=SnHyflegLncNjqUnopwK4kLeg7nyer/oFc3g9nu1F9ie0AQ5s9CfWkY/JF/Q0gqho
+         45tnBboe28H9i7BaVeM+PNbcfnQeKTPrJKJWnhIUmKe8/YkOpYWwlpFpq9DWks7a+P
+         ITIjudLxKNRUlq8/90UELD3A7Uh1MP/3yzSi7oMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 20/25] kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 29/43] iio: adis16400: Fix an error code in adis16400_initial_setup()
 Date:   Mon, 22 Mar 2021 13:29:10 +0100
-Message-Id: <20210322121921.037080452@linuxfoundation.org>
+Message-Id: <20210322121920.966074505@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
-References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,151 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 5abbe51a526253b9f003e9a0a195638dc882d660 upstream.
+commit a71266e454b5df10d019b06f5ebacd579f76be28 upstream.
 
-Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
+This is to silence a new Smatch warning:
 
-Add a new helper which sets restart_block->fn and calls a dummy
-arch_set_restart_data() helper.
+    drivers/iio/imu/adis16400.c:492 adis16400_initial_setup()
+    warn: sscanf doesn't return error codes
 
-Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
+If the condition "if (st->variant->flags & ADIS16400_HAS_SLOW_MODE) {"
+is false then we return 1 instead of returning 0 and probe will fail.
+
+Fixes: 72a868b38bdd ("iio: imu: check sscanf return value")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YCwgFb3JVG6qrlQ+@mwanda
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/select.c                    |   10 ++++------
- include/linux/thread_info.h    |   13 +++++++++++++
- kernel/futex.c                 |    3 +--
- kernel/time/alarmtimer.c       |    2 +-
- kernel/time/hrtimer.c          |    2 +-
- kernel/time/posix-cpu-timers.c |    2 +-
- 6 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -961,10 +961,9 @@ static long do_restart_poll(struct resta
+---
+ drivers/iio/imu/adis16400_core.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/drivers/iio/imu/adis16400_core.c
++++ b/drivers/iio/imu/adis16400_core.c
+@@ -288,8 +288,7 @@ static int adis16400_initial_setup(struc
+ 		if (ret)
+ 			goto err_ret;
  
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	if (ret == -EINTR) {
--		restart_block->fn = do_restart_poll;
--		ret = -ERESTART_RESTARTBLOCK;
--	}
-+	if (ret == -EINTR)
-+		ret = set_restart_fn(restart_block, do_restart_poll);
-+
- 	return ret;
- }
- 
-@@ -986,7 +985,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		struct restart_block *restart_block;
- 
- 		restart_block = &current->restart_block;
--		restart_block->fn = do_restart_poll;
- 		restart_block->poll.ufds = ufds;
- 		restart_block->poll.nfds = nfds;
- 
-@@ -997,7 +995,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		} else
- 			restart_block->poll.has_timeout = 0;
- 
--		ret = -ERESTART_RESTARTBLOCK;
-+		ret = set_restart_fn(restart_block, do_restart_poll);
- 	}
- 	return ret;
- }
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -9,6 +9,7 @@
- 
- #include <linux/types.h>
- #include <linux/bug.h>
-+#include <linux/errno.h>
- 
- struct timespec;
- struct compat_timespec;
-@@ -59,6 +60,18 @@ extern long do_no_restart_syscall(struct
- 
- #ifdef __KERNEL__
- 
-+#ifndef arch_set_restart_data
-+#define arch_set_restart_data(restart) do { } while (0)
-+#endif
-+
-+static inline long set_restart_fn(struct restart_block *restart,
-+					long (*fn)(struct restart_block *))
-+{
-+	restart->fn = fn;
-+	arch_set_restart_data(restart);
-+	return -ERESTART_RESTARTBLOCK;
-+}
-+
- #define THREADINFO_GFP	(GFP_KERNEL_ACCOUNT | __GFP_NOTRACK | __GFP_ZERO)
- 
- /*
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2822,14 +2822,13 @@ retry:
- 		goto out;
- 
- 	restart = &current->restart_block;
--	restart->fn = futex_wait_restart;
- 	restart->futex.uaddr = uaddr;
- 	restart->futex.val = val;
- 	restart->futex.time = abs_time->tv64;
- 	restart->futex.bitset = bitset;
- 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
- 
--	ret = -ERESTART_RESTARTBLOCK;
-+	ret = set_restart_fn(restart, futex_wait_restart);
- 
- out:
- 	if (to) {
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -809,10 +809,10 @@ static int alarm_timer_nsleep(const cloc
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = alarm_timer_nsleep_restart;
- 	restart->nanosleep.clockid = type;
- 	restart->nanosleep.expires = exp.tv64;
- 	restart->nanosleep.rmtp = rmtp;
-+	set_restart_fn(restart, alarm_timer_nsleep_restart);
- 	ret = -ERESTART_RESTARTBLOCK;
- 
- out:
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1582,10 +1582,10 @@ long hrtimer_nanosleep(struct timespec *
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = hrtimer_nanosleep_restart;
- 	restart->nanosleep.clockid = t.timer.base->clockid;
- 	restart->nanosleep.rmtp = rmtp;
- 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
-+	set_restart_fn(restart, hrtimer_nanosleep_restart);
- 
- 	ret = -ERESTART_RESTARTBLOCK;
- out:
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1377,10 +1377,10 @@ static int posix_cpu_nsleep(const clocki
- 		if (rmtp && copy_to_user(rmtp, &it.it_value, sizeof *rmtp))
- 			return -EFAULT;
- 
--		restart_block->fn = posix_cpu_nsleep_restart;
- 		restart_block->nanosleep.clockid = which_clock;
- 		restart_block->nanosleep.rmtp = rmtp;
- 		restart_block->nanosleep.expires = timespec_to_ns(rqtp);
-+		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
- 	}
- 	return error;
- }
+-		ret = sscanf(indio_dev->name, "adis%u\n", &device_id);
+-		if (ret != 1) {
++		if (sscanf(indio_dev->name, "adis%u\n", &device_id) != 1) {
+ 			ret = -EINVAL;
+ 			goto err_ret;
+ 		}
 
 
