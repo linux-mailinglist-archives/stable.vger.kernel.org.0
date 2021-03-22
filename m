@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F35F34418B
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E158A344286
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231149AbhCVMeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:34:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
+        id S229933AbhCVMn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:43:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231455AbhCVMdL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:33:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01FC36199E;
-        Mon, 22 Mar 2021 12:33:09 +0000 (UTC)
+        id S231586AbhCVMkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:40:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB8C460238;
+        Mon, 22 Mar 2021 12:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416390;
-        bh=j0QFhI8HCGhgTiQpwmtxdHudmHhdOsdih43jzjiJEDY=;
+        s=korg; t=1616416729;
+        bh=7f2g5FZMTBHVQwI8OzxkML0cXz8BHG7/wCDSRSZQRDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZtgVzg85FqMTrz4crbmlPkJCEZ28j8vvaYQMUGhSEtrtCzhun+TdUjXBrl+n4Bsz
-         d5+o+AsrsLLD5q5z/a0zmuc3w3PC7Y9pnaieDrDjcALhFfV/Wt5avNcf6uR0SN4+4O
-         NrdBl6efg5o1TvbMsAr2FYEoxbxXvL1lQJXssWnE=
+        b=X8lnRNjXjqkt1EJN7aPLUu/MHW4cS2R6s62txVGKJwW0kOUsxWZY1cfREh226dWnV
+         BUK9ND9OGdRaHTzBA7ZM+3OQEAxfQY3zigG0TjKKU8IgcfqsyKmwqT3r+pyVI79Hme
+         /rtoy6mIH1vWaMYOgXLNWrZjpTRTPVl/xT7LWl2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 071/120] ASoC: codecs: lpass-wsa-macro: fix RX MIX input controls
+Subject: [PATCH 5.10 097/157] mptcp: reduce the arguments of mptcp_sendmsg_frag
 Date:   Mon, 22 Mar 2021 13:27:34 +0100
-Message-Id: <20210322121932.048812396@linuxfoundation.org>
+Message-Id: <20210322121936.855497305@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +40,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit e4b8b7c916038c1ffcba2c4ce92d5523c4cc2f46 ]
+[ Upstream commit caf971df01b86f33f151bcfa61b4385cf5e43822 ]
 
-Attempting to use the RX MIX path at 48kHz plays at 96kHz, because these
-controls are incorrectly toggling the first bit of the register, which
-is part of the FS_RATE field.
+The current argument list is pretty long and quite unreadable,
+move many of them into a specific struct. Later patches
+will add more stuff to such struct.
 
-Fix the problem by using the same method used by the "WSA RX_MIX EC0_MUX"
-control, which is to use SND_SOC_NOPM as the register and use an enum in
-the shift field instead.
+Additionally drop the 'timeo' argument, now unused.
 
-Fixes: 2c4066e5d428 ("ASoC: codecs: lpass-wsa-macro: add dapm widgets and route")
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210305005049.24726-1-jonathan@marek.ca
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-wsa-macro.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ net/mptcp/protocol.c | 53 ++++++++++++++++++++++++--------------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
 
-diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
-index 25f1df214ca5..cd59aa439373 100644
---- a/sound/soc/codecs/lpass-wsa-macro.c
-+++ b/sound/soc/codecs/lpass-wsa-macro.c
-@@ -1214,14 +1214,16 @@ static int wsa_macro_enable_mix_path(struct snd_soc_dapm_widget *w,
- 				     struct snd_kcontrol *kcontrol, int event)
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 0504a5f13c2a..888eb6a86dad 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -886,12 +886,16 @@ mptcp_carve_data_frag(const struct mptcp_sock *msk, struct page_frag *pfrag,
+ 	return dfrag;
+ }
+ 
++struct mptcp_sendmsg_info {
++	int mss_now;
++	int size_goal;
++};
++
+ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 			      struct msghdr *msg, struct mptcp_data_frag *dfrag,
+-			      long *timeo, int *pmss_now,
+-			      int *ps_goal)
++			      struct mptcp_sendmsg_info *info)
  {
- 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
--	u16 gain_reg;
-+	u16 path_reg, gain_reg;
- 	int val;
+-	int mss_now, avail_size, size_goal, offset, ret, frag_truesize = 0;
++	int avail_size, offset, ret, frag_truesize = 0;
+ 	bool dfrag_collapsed, can_collapse = false;
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
+ 	struct mptcp_ext *mpext = NULL;
+@@ -917,10 +921,8 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 	}
  
--	switch (w->reg) {
--	case CDC_WSA_RX0_RX_PATH_MIX_CTL:
-+	switch (w->shift) {
-+	case WSA_MACRO_RX_MIX0:
-+		path_reg = CDC_WSA_RX0_RX_PATH_MIX_CTL;
- 		gain_reg = CDC_WSA_RX0_RX_VOL_MIX_CTL;
- 		break;
--	case CDC_WSA_RX1_RX_PATH_MIX_CTL:
-+	case WSA_MACRO_RX_MIX1:
-+		path_reg = CDC_WSA_RX1_RX_PATH_MIX_CTL;
- 		gain_reg = CDC_WSA_RX1_RX_VOL_MIX_CTL;
- 		break;
- 	default:
-@@ -1234,7 +1236,7 @@ static int wsa_macro_enable_mix_path(struct snd_soc_dapm_widget *w,
- 		snd_soc_component_write(component, gain_reg, val);
- 		break;
- 	case SND_SOC_DAPM_POST_PMD:
--		snd_soc_component_update_bits(component, w->reg,
-+		snd_soc_component_update_bits(component, path_reg,
- 					      CDC_WSA_RX_PATH_MIX_CLK_EN_MASK,
- 					      CDC_WSA_RX_PATH_MIX_CLK_DISABLE);
- 		break;
-@@ -2071,14 +2073,14 @@ static const struct snd_soc_dapm_widget wsa_macro_dapm_widgets[] = {
- 	SND_SOC_DAPM_MUX("WSA_RX0 INP0", SND_SOC_NOPM, 0, 0, &rx0_prim_inp0_mux),
- 	SND_SOC_DAPM_MUX("WSA_RX0 INP1", SND_SOC_NOPM, 0, 0, &rx0_prim_inp1_mux),
- 	SND_SOC_DAPM_MUX("WSA_RX0 INP2", SND_SOC_NOPM, 0, 0, &rx0_prim_inp2_mux),
--	SND_SOC_DAPM_MUX_E("WSA_RX0 MIX INP", CDC_WSA_RX0_RX_PATH_MIX_CTL,
--			   0, 0, &rx0_mix_mux, wsa_macro_enable_mix_path,
-+	SND_SOC_DAPM_MUX_E("WSA_RX0 MIX INP", SND_SOC_NOPM, WSA_MACRO_RX_MIX0,
-+			   0, &rx0_mix_mux, wsa_macro_enable_mix_path,
- 			   SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
- 	SND_SOC_DAPM_MUX("WSA_RX1 INP0", SND_SOC_NOPM, 0, 0, &rx1_prim_inp0_mux),
- 	SND_SOC_DAPM_MUX("WSA_RX1 INP1", SND_SOC_NOPM, 0, 0, &rx1_prim_inp1_mux),
- 	SND_SOC_DAPM_MUX("WSA_RX1 INP2", SND_SOC_NOPM, 0, 0, &rx1_prim_inp2_mux),
--	SND_SOC_DAPM_MUX_E("WSA_RX1 MIX INP", CDC_WSA_RX1_RX_PATH_MIX_CTL,
--			   0, 0, &rx1_mix_mux, wsa_macro_enable_mix_path,
-+	SND_SOC_DAPM_MUX_E("WSA_RX1 MIX INP", SND_SOC_NOPM, WSA_MACRO_RX_MIX1,
-+			   0, &rx1_mix_mux, wsa_macro_enable_mix_path,
- 			   SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+ 	/* compute copy limit */
+-	mss_now = tcp_send_mss(ssk, &size_goal, msg->msg_flags);
+-	*pmss_now = mss_now;
+-	*ps_goal = size_goal;
+-	avail_size = size_goal;
++	info->mss_now = tcp_send_mss(ssk, &info->size_goal, msg->msg_flags);
++	avail_size = info->size_goal;
+ 	skb = tcp_write_queue_tail(ssk);
+ 	if (skb) {
+ 		mpext = skb_ext_find(skb, SKB_EXT_MPTCP);
+@@ -931,12 +933,12 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 		 * queue management operation, to avoid breaking the ext <->
+ 		 * SSN association set here
+ 		 */
+-		can_collapse = (size_goal - skb->len > 0) &&
++		can_collapse = (info->size_goal - skb->len > 0) &&
+ 			      mptcp_skb_can_collapse_to(*write_seq, skb, mpext);
+ 		if (!can_collapse)
+ 			TCP_SKB_CB(skb)->eor = 1;
+ 		else
+-			avail_size = size_goal - skb->len;
++			avail_size = info->size_goal - skb->len;
+ 	}
  
- 	SND_SOC_DAPM_MIXER_E("WSA_RX INT0 MIX", SND_SOC_NOPM, 0, 0, NULL, 0,
+ 	if (!retransmission) {
+@@ -1168,11 +1170,15 @@ static void ssk_check_wmem(struct mptcp_sock *msk)
+ 
+ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ {
+-	int mss_now = 0, size_goal = 0, ret = 0;
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
++	struct mptcp_sendmsg_info info = {
++		.mss_now = 0,
++		.size_goal = 0,
++	};
+ 	struct page_frag *pfrag;
+ 	size_t copied = 0;
+ 	struct sock *ssk;
++	int ret = 0;
+ 	u32 sndbuf;
+ 	bool tx_ok;
+ 	long timeo;
+@@ -1241,8 +1247,7 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 	lock_sock(ssk);
+ 	tx_ok = msg_data_left(msg);
+ 	while (tx_ok) {
+-		ret = mptcp_sendmsg_frag(sk, ssk, msg, NULL, &timeo, &mss_now,
+-					 &size_goal);
++		ret = mptcp_sendmsg_frag(sk, ssk, msg, NULL, &info);
+ 		if (ret < 0) {
+ 			if (ret == -EAGAIN && timeo > 0) {
+ 				mptcp_set_timeout(sk, ssk);
+@@ -1265,8 +1270,8 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 		if (!sk_stream_memory_free(ssk) ||
+ 		    !mptcp_page_frag_refill(ssk, pfrag) ||
+ 		    !mptcp_ext_cache_refill(msk)) {
+-			tcp_push(ssk, msg->msg_flags, mss_now,
+-				 tcp_sk(ssk)->nonagle, size_goal);
++			tcp_push(ssk, msg->msg_flags, info.mss_now,
++				 tcp_sk(ssk)->nonagle, info.size_goal);
+ 			mptcp_set_timeout(sk, ssk);
+ 			release_sock(ssk);
+ 			goto restart;
+@@ -1286,8 +1291,8 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 		 * limits before we send more data.
+ 		 */
+ 		if (unlikely(!sk_stream_memory_free(sk))) {
+-			tcp_push(ssk, msg->msg_flags, mss_now,
+-				 tcp_sk(ssk)->nonagle, size_goal);
++			tcp_push(ssk, msg->msg_flags, info.mss_now,
++				 tcp_sk(ssk)->nonagle, info.size_goal);
+ 			mptcp_clean_una(sk);
+ 			if (!sk_stream_memory_free(sk)) {
+ 				/* can't send more for now, need to wait for
+@@ -1304,8 +1309,8 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 
+ 	mptcp_set_timeout(sk, ssk);
+ 	if (copied) {
+-		tcp_push(ssk, msg->msg_flags, mss_now, tcp_sk(ssk)->nonagle,
+-			 size_goal);
++		tcp_push(ssk, msg->msg_flags, info.mss_now,
++			 tcp_sk(ssk)->nonagle, info.size_goal);
+ 
+ 		/* start the timer, if it's not pending */
+ 		if (!mptcp_timer_pending(sk))
+@@ -1747,14 +1752,15 @@ static void mptcp_worker(struct work_struct *work)
+ {
+ 	struct mptcp_sock *msk = container_of(work, struct mptcp_sock, work);
+ 	struct sock *ssk, *sk = &msk->sk.icsk_inet.sk;
+-	int orig_len, orig_offset, mss_now = 0, size_goal = 0;
++	struct mptcp_sendmsg_info info = {};
+ 	struct mptcp_data_frag *dfrag;
++	int orig_len, orig_offset;
+ 	u64 orig_write_seq;
+ 	size_t copied = 0;
+ 	struct msghdr msg = {
+ 		.msg_flags = MSG_DONTWAIT,
+ 	};
+-	long timeo = 0;
++	int ret;
+ 
+ 	lock_sock(sk);
+ 	mptcp_clean_una_wakeup(sk);
+@@ -1793,8 +1799,7 @@ static void mptcp_worker(struct work_struct *work)
+ 	orig_offset = dfrag->offset;
+ 	orig_write_seq = dfrag->data_seq;
+ 	while (dfrag->data_len > 0) {
+-		int ret = mptcp_sendmsg_frag(sk, ssk, &msg, dfrag, &timeo,
+-					     &mss_now, &size_goal);
++		ret = mptcp_sendmsg_frag(sk, ssk, &msg, dfrag, &info);
+ 		if (ret < 0)
+ 			break;
+ 
+@@ -1807,8 +1812,8 @@ static void mptcp_worker(struct work_struct *work)
+ 			break;
+ 	}
+ 	if (copied)
+-		tcp_push(ssk, msg.msg_flags, mss_now, tcp_sk(ssk)->nonagle,
+-			 size_goal);
++		tcp_push(ssk, 0, info.mss_now, tcp_sk(ssk)->nonagle,
++			 info.size_goal);
+ 
+ 	dfrag->data_seq = orig_write_seq;
+ 	dfrag->offset = orig_offset;
 -- 
 2.30.1
 
