@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7473D344410
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A183A3443A7
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231589AbhCVM46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
+        id S231749AbhCVMxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232398AbhCVMyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:54:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A939361931;
-        Mon, 22 Mar 2021 12:47:56 +0000 (UTC)
+        id S232185AbhCVMts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E07E619F3;
+        Mon, 22 Mar 2021 12:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417277;
-        bh=RoXAKdvmnQcMvt2m5yDhCag9lLJJdEBuiWmWySmg5p8=;
+        s=korg; t=1616417133;
+        bh=JlPeen0EPObQ6g8Y3F9HqIyVxPXmTHFOlgfBowrfNVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pgr1VYSnVzesxk5xED4XdJHeyb+vm50v2GjD5oSXA2b4WjTVucotsRXiQpdipRl/M
-         ZB7LrcEvAkrxiAc3+zWkdSCcaum3rAGgL/olGLq92FJe/nOv8XqeMoj1cVg2ZS3Pcc
-         qRnypOPC+tICVksfJsaHgROjGIs1RrgT7Rt5ilFQ=
+        b=fFYA3Hj9RhGfXq1mMmbskm2Bax+FBUqgQEJh/T4rwSWYHgkyZt6NkUJJQabuNx0r1
+         qI26OyuZn4a09mnG9Bwdw/bpZUEUbFVuVbqbvq3bdMkcj9zASWMjO3K+yw3pqlBx4m
+         aog40LoXwrMY/YWIZCFscMyIQPJG01VDCBAxge+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wang Nan <wangnan0@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 11/43] tools build feature: Check if get_current_dir_name() is available
+        stable@vger.kernel.org, Jan Kratochvil <jan.kratochvil@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 38/43] x86: Introduce TS_COMPAT_RESTART to fix get_nr_restart_syscall()
 Date:   Mon, 22 Mar 2021 13:28:52 +0100
-Message-Id: <20210322121920.415109639@linuxfoundation.org>
+Message-Id: <20210322121921.140337354@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,157 +40,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 8feb8efef97a134933620071e0b6384cb3238b4e upstream.
+commit 8c150ba2fb5995c84a7a43848250d444a3329a7d upstream.
 
-As the namespace support code will use this, which is not available in
-some non _GNU_SOURCE libraries such as Android's bionic used in my
-container build tests (r12b and r15c at the moment).
+The comment in get_nr_restart_syscall() says:
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: https://lkml.kernel.org/n/tip-x56ypm940pwclwu45d7jfj47@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+	 * The problem is that we can get here when ptrace pokes
+	 * syscall-like values into regs even if we're not in a syscall
+	 * at all.
+
+Yes, but if not in a syscall then the
+
+	status & (TS_COMPAT|TS_I386_REGS_POKED)
+
+check below can't really help:
+
+	- TS_COMPAT can't be set
+
+	- TS_I386_REGS_POKED is only set if regs->orig_ax was changed by
+	  32bit debugger; and even in this case get_nr_restart_syscall()
+	  is only correct if the tracee is 32bit too.
+
+Suppose that a 64bit debugger plays with a 32bit tracee and
+
+	* Tracee calls sleep(2)	// TS_COMPAT is set
+	* User interrupts the tracee by CTRL-C after 1 sec and does
+	  "(gdb) call func()"
+	* gdb saves the regs by PTRACE_GETREGS
+	* does PTRACE_SETREGS to set %rip='func' and %orig_rax=-1
+	* PTRACE_CONT		// TS_COMPAT is cleared
+	* func() hits int3.
+	* Debugger catches SIGTRAP.
+	* Restore original regs by PTRACE_SETREGS.
+	* PTRACE_CONT
+
+get_nr_restart_syscall() wrongly returns __NR_restart_syscall==219, the
+tracee calls ia32_sys_call_table[219] == sys_madvise.
+
+Add the sticky TS_COMPAT_RESTART flag which survives after return to user
+mode. It's going to be removed in the next step again by storing the
+information in the restart block. As a further cleanup it might be possible
+to remove also TS_I386_REGS_POKED with that.
+
+Test-case:
+
+  $ cvs -d :pserver:anoncvs:anoncvs@sourceware.org:/cvs/systemtap co ptrace-tests
+  $ gcc -o erestartsys-trap-debuggee ptrace-tests/tests/erestartsys-trap-debuggee.c --m32
+  $ gcc -o erestartsys-trap-debugger ptrace-tests/tests/erestartsys-trap-debugger.c -lutil
+  $ ./erestartsys-trap-debugger
+  Unexpected: retval 1, errno 22
+  erestartsys-trap-debugger: ptrace-tests/tests/erestartsys-trap-debugger.c:421
+
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Reported-by: Jan Kratochvil <jan.kratochvil@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210201174709.GA17895@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/build/Makefile.feature                    |    1 +
- tools/build/feature/Makefile                    |    4 ++++
- tools/build/feature/test-all.c                  |    5 +++++
- tools/build/feature/test-get_current_dir_name.c |   10 ++++++++++
- tools/perf/Makefile.config                      |    5 +++++
- tools/perf/util/Build                           |    1 +
- tools/perf/util/get_current_dir_name.c          |   18 ++++++++++++++++++
- tools/perf/util/util.h                          |    4 ++++
- 8 files changed, 48 insertions(+)
- create mode 100644 tools/build/feature/test-get_current_dir_name.c
- create mode 100644 tools/perf/util/get_current_dir_name.c
+ arch/x86/include/asm/thread_info.h |   14 +++++++++++++-
+ arch/x86/kernel/signal.c           |   24 +-----------------------
+ 2 files changed, 14 insertions(+), 24 deletions(-)
 
---- a/tools/build/Makefile.feature
-+++ b/tools/build/Makefile.feature
-@@ -33,6 +33,7 @@ FEATURE_TESTS_BASIC :=
-         dwarf_getlocations              \
-         fortify-source                  \
-         sync-compare-and-swap           \
-+        get_current_dir_name            \
-         glibc                           \
-         gtk2                            \
-         gtk2-infobar                    \
---- a/tools/build/feature/Makefile
-+++ b/tools/build/feature/Makefile
-@@ -7,6 +7,7 @@ FILES=
-          test-dwarf_getlocations.bin            \
-          test-fortify-source.bin                \
-          test-sync-compare-and-swap.bin         \
-+         test-get_current_dir_name.bin          \
-          test-glibc.bin                         \
-          test-gtk2.bin                          \
-          test-gtk2-infobar.bin                  \
-@@ -89,6 +90,9 @@ $(OUTPUT)test-bionic.bin:
- $(OUTPUT)test-libelf.bin:
- 	$(BUILD) -lelf
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -236,10 +236,22 @@ static inline int arch_within_stack_fram
+  */
+ #define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
  
-+$(OUTPUT)test-get_current_dir_name.bin:
-+	$(BUILD)
++#ifndef __ASSEMBLY__
+ #ifdef CONFIG_COMPAT
+ #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
++#define TS_COMPAT_RESTART	0x0008
 +
- $(OUTPUT)test-glibc.bin:
- 	$(BUILD)
- 
---- a/tools/build/feature/test-all.c
-+++ b/tools/build/feature/test-all.c
-@@ -34,6 +34,10 @@
- # include "test-libelf-mmap.c"
- #undef main
- 
-+#define main main_test_get_current_dir_name
-+# include "test-get_current_dir_name.c"
-+#undef main
++#define arch_set_restart_data	arch_set_restart_data
 +
- #define main main_test_glibc
- # include "test-glibc.c"
- #undef main
-@@ -166,6 +170,7 @@ int main(int argc, char *argv[])
- 	main_test_hello();
- 	main_test_libelf();
- 	main_test_libelf_mmap();
-+	main_test_get_current_dir_name();
- 	main_test_glibc();
- 	main_test_dwarf();
- 	main_test_dwarf_getlocations();
---- /dev/null
-+++ b/tools/build/feature/test-get_current_dir_name.c
-@@ -0,0 +1,10 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#define _GNU_SOURCE
-+#include <unistd.h>
-+#include <stdlib.h>
-+
-+int main(void)
++static inline void arch_set_restart_data(struct restart_block *restart)
 +{
-+	free(get_current_dir_name());
-+	return 0;
++	struct thread_info *ti = current_thread_info();
++	if (ti->status & TS_COMPAT)
++		ti->status |= TS_COMPAT_RESTART;
++	else
++		ti->status &= ~TS_COMPAT_RESTART;
 +}
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -281,6 +281,11 @@ ifndef NO_BIONIC
-   endif
- endif
- 
-+ifeq ($(feature-get_current_dir_name), 1)
-+  CFLAGS += -DHAVE_GET_CURRENT_DIR_NAME
-+endif
-+
-+
- ifdef NO_LIBELF
-   NO_DWARF := 1
-   NO_DEMANGLE := 1
---- a/tools/perf/util/Build
-+++ b/tools/perf/util/Build
-@@ -10,6 +10,7 @@ libperf-y += evlist.o
- libperf-y += evsel.o
- libperf-y += evsel_fprintf.o
- libperf-y += find_bit.o
-+libperf-y += get_current_dir_name.o
- libperf-y += kallsyms.o
- libperf-y += levenshtein.o
- libperf-y += llvm-utils.o
---- /dev/null
-+++ b/tools/perf/util/get_current_dir_name.c
-@@ -0,0 +1,18 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (C) 2018, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
-+//
-+#ifndef HAVE_GET_CURRENT_DIR_NAME
-+#include "util.h"
-+#include <unistd.h>
-+#include <stdlib.h>
-+#include <stdlib.h>
-+
-+/* Android's 'bionic' library, for one, doesn't have this */
-+
-+char *get_current_dir_name(void)
-+{
-+	char pwd[PATH_MAX];
-+
-+	return getcwd(pwd, sizeof(pwd)) == NULL ? NULL : strdup(pwd);
-+}
-+#endif // HAVE_GET_CURRENT_DIR_NAME
---- a/tools/perf/util/util.h
-+++ b/tools/perf/util/util.h
-@@ -57,6 +57,10 @@ int fetch_kernel_version(unsigned int *p
- 
- const char *perf_tip(const char *dirpath);
- 
-+#ifndef HAVE_GET_CURRENT_DIR_NAME
-+char *get_current_dir_name(void);
-+#endif
-+
- #ifndef HAVE_SCHED_GETCPU_SUPPORT
- int sched_getcpu(void);
  #endif
+-#ifndef __ASSEMBLY__
+ 
+ #ifdef CONFIG_X86_32
+ #define in_ia32_syscall() true
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -776,30 +776,8 @@ handle_signal(struct ksignal *ksig, stru
+ 
+ static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
+ {
+-	/*
+-	 * This function is fundamentally broken as currently
+-	 * implemented.
+-	 *
+-	 * The idea is that we want to trigger a call to the
+-	 * restart_block() syscall and that we want in_ia32_syscall(),
+-	 * in_x32_syscall(), etc. to match whatever they were in the
+-	 * syscall being restarted.  We assume that the syscall
+-	 * instruction at (regs->ip - 2) matches whatever syscall
+-	 * instruction we used to enter in the first place.
+-	 *
+-	 * The problem is that we can get here when ptrace pokes
+-	 * syscall-like values into regs even if we're not in a syscall
+-	 * at all.
+-	 *
+-	 * For now, we maintain historical behavior and guess based on
+-	 * stored state.  We could do better by saving the actual
+-	 * syscall arch in restart_block or (with caveats on x32) by
+-	 * checking if regs->ip points to 'int $0x80'.  The current
+-	 * behavior is incorrect if a tracer has a different bitness
+-	 * than the tracee.
+-	 */
+ #ifdef CONFIG_IA32_EMULATION
+-	if (current_thread_info()->status & (TS_COMPAT|TS_I386_REGS_POKED))
++	if (current_thread_info()->status & TS_COMPAT_RESTART)
+ 		return __NR_ia32_restart_syscall;
+ #endif
+ #ifdef CONFIG_X86_X32_ABI
 
 
