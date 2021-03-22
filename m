@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DFAB344355
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD2533441C4
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231655AbhCVMti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42260 "EHLO mail.kernel.org"
+        id S231460AbhCVMft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:35:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232766AbhCVMsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:48:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF0AE619CC;
-        Mon, 22 Mar 2021 12:44:06 +0000 (UTC)
+        id S231561AbhCVMe0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:34:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07C93619B0;
+        Mon, 22 Mar 2021 12:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417047;
-        bh=vRM6U3XQPzYZ/vO6pDovKg8Objfa3kJjfPwjSM7U9HY=;
+        s=korg; t=1616416466;
+        bh=Vs9X3DWpoNzidoByjxNF39t5YA8bOyKNWwrGousiYhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1UrPmDOB0BgMfNtP5IVk0pHVNijwe+Dla0bdfznBq9SR/CunpqcEA4sUWWu/DL0R
-         2PRbrzivJuyIOJGXEUWg7tMn2ewWuzWIted1yBiBea+Rn7R+kOGKMO4AGeJAY7FUP/
-         JW+S9m4y48Xg3uGWF6oYtc/pUm23gcSdnhDSfA8o=
+        b=QMqAEIc9SEhjTjI2k4qsCUHTSplWmWCGCBYYwCSQEHFgxYUOhLCKCeQHettUQoHo4
+         frTlgN7qFdi8bQm0Mh94s/YbxAdoe0eMz1UUjJT7RtII7cFXyS1h18zV8MNYuL176A
+         4CFvWUIGCGTWXnMl6geX6evYjQ7tx/G9PSArACMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Leng <lengchao@huawei.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/60] nvme-rdma: fix possible hang when failing to set io queues
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.11 118/120] firmware/efi: Fix a use after bug in efi_mem_reserve_persistent
 Date:   Mon, 22 Mar 2021 13:28:21 +0100
-Message-Id: <20210322121923.477871583@linuxfoundation.org>
+Message-Id: <20210322121933.603602456@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit c4c6df5fc84659690d4391d1fba155cd94185295 ]
+commit 9ceee7d0841a8f7d7644021ba7d4cc1fbc7966e3 upstream.
 
-We only setup io queues for nvme controllers, and it makes absolutely no
-sense to allow a controller (re)connect without any I/O queues.  If we
-happen to fail setting the queue count for any reason, we should not allow
-this to be a successful reconnect as I/O has no chance in going through.
-Instead just fail and schedule another reconnect.
+In the for loop in efi_mem_reserve_persistent(), prsv = rsv->next
+use the unmapped rsv. Use the unmapped pages will cause segment
+fault.
 
-Reported-by: Chao Leng <lengchao@huawei.com>
-Fixes: 711023071960 ("nvme-rdma: add a NVMe over Fabrics RDMA host driver")
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chao Leng <lengchao@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 18df7577adae6 ("efi/memreserve: deal with memreserve entries in unmapped memory")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/rdma.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/efi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index da6030010432..b8c0f75bfb7b 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -666,8 +666,11 @@ static int nvme_rdma_alloc_io_queues(struct nvme_rdma_ctrl *ctrl)
- 		return ret;
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -927,7 +927,7 @@ int __ref efi_mem_reserve_persistent(phy
+ 	}
  
- 	ctrl->ctrl.queue_count = nr_io_queues + 1;
--	if (ctrl->ctrl.queue_count < 2)
--		return 0;
-+	if (ctrl->ctrl.queue_count < 2) {
-+		dev_err(ctrl->ctrl.device,
-+			"unable to set any I/O queues\n");
-+		return -ENOMEM;
-+	}
+ 	/* first try to find a slot in an existing linked list entry */
+-	for (prsv = efi_memreserve_root->next; prsv; prsv = rsv->next) {
++	for (prsv = efi_memreserve_root->next; prsv; ) {
+ 		rsv = memremap(prsv, sizeof(*rsv), MEMREMAP_WB);
+ 		index = atomic_fetch_add_unless(&rsv->count, 1, rsv->size);
+ 		if (index < rsv->size) {
+@@ -937,6 +937,7 @@ int __ref efi_mem_reserve_persistent(phy
+ 			memunmap(rsv);
+ 			return efi_mem_reserve_iomem(addr, size);
+ 		}
++		prsv = rsv->next;
+ 		memunmap(rsv);
+ 	}
  
- 	dev_info(ctrl->ctrl.device,
- 		"creating %d I/O queues.\n", nr_io_queues);
--- 
-2.30.1
-
 
 
