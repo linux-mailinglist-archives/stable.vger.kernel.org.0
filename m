@@ -2,118 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8312D343D4D
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 10:56:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A52E7343D8C
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 11:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229482AbhCVJ4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 05:56:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:48960 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230027AbhCVJzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 05:55:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616406954;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QUufmyh3A4V077KACg1M3I/o1FkYLmY5QIZxvkVvBnY=;
-        b=BdbH8h4vAglaOkiKBqyKHovwJOAuWJ3X+2ozs2XtLWTqd8syVyPa70rnGC2lHbL254nU1L
-        FibnunYdgPIcrUf/vLOgPgN8VQamDcvUk9mftG6FJAmd5hxQqgvTHAgnkB6hoBcbAQzdmK
-        sbf7lSzHMnOtPPgG577BZa+rjqOcDE4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-574-ErAyjmyPMFCqQrecXqZX2g-1; Mon, 22 Mar 2021 05:55:50 -0400
-X-MC-Unique: ErAyjmyPMFCqQrecXqZX2g-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E9AA48B5DC2;
-        Mon, 22 Mar 2021 09:55:48 +0000 (UTC)
-Received: from [10.36.115.54] (ovpn-115-54.ams2.redhat.com [10.36.115.54])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3650521ECB;
-        Mon, 22 Mar 2021 09:55:47 +0000 (UTC)
-Subject: Re: [PATCH v1 2/2] s390/kvm: VSIE: fix MVPG handling for prefixing
- and MSO
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210319193354.399587-1-imbrenda@linux.ibm.com>
- <20210319193354.399587-3-imbrenda@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <f7c8dd7d-34ab-95b9-dac4-bf2b9e37ae37@redhat.com>
-Date:   Mon, 22 Mar 2021 10:55:46 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        id S229865AbhCVKNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 06:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50138 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229822AbhCVKNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 06:13:07 -0400
+Received: from mail-yb1-xb43.google.com (mail-yb1-xb43.google.com [IPv6:2607:f8b0:4864:20::b43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FF9BC061756
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 03:13:05 -0700 (PDT)
+Received: by mail-yb1-xb43.google.com with SMTP id m3so5970379ybt.0
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 03:13:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=1P1ylb+0K8r+W1E1V6incN0kq8bWpLVNDCMYMUCyg3s=;
+        b=bzi9vD6E2AUdbZQcvIbscwiGt+DTHszzRZNSiBV+xdfdy2AobAc2RBvwcUXty1qzph
+         schx+6gUrFpQg0kwbHHoMsFJDccEcNvvbjUMxxV6KxIPypgWWbj2LGGKiUec6xy+O3+t
+         p/fW+5MPGtAaHwUiHzDOHJRlA7ZYNtV//X0pXNts//QazAVxCBKOqQXYhFYEzXkTU6Up
+         0nlElbgwuDHWF4fFBdhg0f8lHFfzBWClSKXcII+GyYatrzZnnBOpLcpytN39rwbHfQtU
+         BMyqXek+dvZTu/7zOoCwu/luW8bIUY0aZgEu5k6tvmsaap6jkZXzxxd9Ag3zqERDjWFh
+         Ldtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=1P1ylb+0K8r+W1E1V6incN0kq8bWpLVNDCMYMUCyg3s=;
+        b=Lty3uUyvQnFHx8dsEtNncs7p9hXVs5ai6aXuQmsCTwB904jOR77OIVxVwUJZhlwqaN
+         IJ6HOh3rko0I8MJ7HikYauip5ee3BdjSusayhWXsVb9sZkxoRgvzRQCIXbwDAGkFhpkg
+         ridLQla3FVxT+6tNEpxfGu9QVS2qbPxr5yLdusp2PE8ba6LslakxkLleNZAvNN373bG/
+         R6kUcHDMh7TSPlriWle+sboMem0gUq77+ZbcqFE9RL3KuEelGuEQ+lKvG6qVGIQhsEc1
+         XaMI+60/1hTwOR8M4kc1h3ILBqZVaCnYR7VMXHT22hhMsWKS8TvNUtAN0EmK11XGKdlC
+         1zxw==
+X-Gm-Message-State: AOAM531w010a7pNlnWpg6iRQCJW9p3tROGiSxKZgLLBW6nl+370mXFC+
+        CdgE/Ft+qyKNMicsjR2tXPr9qECu/BFSOL4abCU=
+X-Google-Smtp-Source: ABdhPJzjNDesOHgKan6gxFJnQcCnxqWFwfXjKBzQkeRAMHPfDcIokyDaoMBrEXJUCuRcGyHQuXGl5HGb2+GMC6unNto=
+X-Received: by 2002:a25:d44f:: with SMTP id m76mr24827956ybf.101.1616407984718;
+ Mon, 22 Mar 2021 03:13:04 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210319193354.399587-3-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Received: by 2002:a05:7108:2b49:0:0:0:0 with HTTP; Mon, 22 Mar 2021 03:13:02
+ -0700 (PDT)
+Reply-To: sarandan122@yahoo.com
+From:   Mrs Sarah Daniel <nrevpeter@gmail.com>
+Date:   Mon, 22 Mar 2021 11:13:02 +0100
+Message-ID: <CA+kTmTfLmEmbxVWGSEe7oHH404SBdR=jaPtOmz2GvwgyU51x9w@mail.gmail.com>
+Subject: Donation for charity work of God
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19.03.21 20:33, Claudio Imbrenda wrote:
-> Prefixing needs to be applied to the guest real address to translate it
-> into a guest absolute address.
-> 
-> The value of MSO needs to be added to a guest-absolute address in order to
-> obtain the host-virtual.
-> 
-> Fixes: 223ea46de9e79 ("s390/kvm: VSIE: correctly handle MVPG when in VSIE")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->   arch/s390/kvm/vsie.c | 10 +++++++---
->   1 file changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 48aab6290a77..92864f9b3d84 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -1002,7 +1002,7 @@ static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
->   static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->   {
->   	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
-> -	unsigned long pei_dest, pei_src, src, dest, mask;
-> +	unsigned long pei_dest, pei_src, r1, r2, src, dest, mask, mso, prefix;
->   	u64 *pei_block = &vsie_page->scb_o->mcic;
->   	int edat, rc_dest, rc_src;
->   	union ctlreg0 cr0;
-> @@ -1010,9 +1010,13 @@ static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->   	cr0.val = vcpu->arch.sie_block->gcr[0];
->   	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
->   	mask = _kvm_s390_logical_to_effective(&scb_s->gpsw, PAGE_MASK);
-> +	mso = READ_ONCE(vsie_page->scb_o->mso) & ~(1UL << 20);
+Donation for charity work of God
 
-I think we should use the one stored in the shadow page - this is what 
-the SIE saw and will see when retrying.
+Greetings to you and sorry if this message came to you as a
+surprise.My name is Mrs Sarah Daniel a widow, I found your email
+address through my late husbands internet dater late Mr. Daniel
 
-> +	prefix = scb_s->prefix << GUEST_PREFIX_SHIFT;
->   
-> -	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
-> -	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
-> +	r1 = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16);
-> +	r2 = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20);
+I am presently admitted at the hospital suffering from a blood cancer
+and Parkinson diseases. I have only about a few months to live and I
+want you to Transfer the sum of ( $6.200,000.00) united states dollars
+to your account so you can assist me Distribute my funds to charity
+homes in your country ,
 
-Just reuse dest and src here?
+I have set aside 20% for you and your family keep while you donate 80%
+to the less privilege people,
 
-> +	dest = _kvm_s390_real_to_abs(prefix, r1 & mask) + mso;
-> +	src = _kvm_s390_real_to_abs(prefix, r2 & mask) + mso;
->   
->   	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
->   	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
-> 
+I will give you more details or full story as soon as i receive your
+reply as the fund was deposited with a bank
 
-Apart from that, looks good to me.
+Remain Blessed
 
--- 
-Thanks,
-
-David / dhildenb
-
+Mrs Sarah Daniel
