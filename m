@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15B6834477D
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 15:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E6A5344794
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 15:43:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbhCVOhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 10:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51160 "EHLO
+        id S230353AbhCVOmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 10:42:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230104AbhCVOh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 10:37:28 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F062C061574
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:37:28 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id v2so8740021pgk.11
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:37:28 -0700 (PDT)
+        with ESMTP id S229915AbhCVOma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 10:42:30 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E5E9C061574
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:42:30 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id j25so11076152pfe.2
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:42:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=EetC4UJLLWCJSTaSvMulKxev+06wcxwsN+3ebztTzqc=;
-        b=DAZ3Sun3K5FjcLLiUbeiH5nwsu0H4EpMsk3hv+2lD640iV9G2H7fcfGZSrmtIFIpcm
-         Gtm3ztY2ITa44adF2Uzl/FDgCWlEv7eteM+um8+6praURXKasabCp4zu7+AaF/2VkmQD
-         nIAvcxGtXVSkEYjeqg+Ce5CZBsyxH8yAByaSY+/N6DKUTCD25S6zap/ZoduQrs/prc+r
-         PiR+5anUoTda6Yw4yVcDIYC6a0/kPFkB/+c7RXqPA8E+UZMUDj42FTLPrwjY/V+bD43Z
-         VxVd0Y9PHRQt1cCPL9+dUX+YNnAI9I6cc7pD2NqHx+WGhhowRlzGgJxZODQSJRV568zD
-         sqnA==
+        bh=c81dklT0qe5D6juUWR9NsNU/WZFGQBenYXKJz5bVex4=;
+        b=ahwEHTYlsI0/WcBR/BkkrhsY/WFF2F/muPrMT4eR6ZXDGa5tX/n45LcsezDuNp/GXE
+         eCmQk02UVQhbGI9/g9qcRZMQR8Q/v5zQDOKVjjFPMK+CnkWIIK6hJF0MCzP+p72hDM65
+         m0NP+/2OjMbW2CjDUoXjU3jZFh3oT8NncP07fBaLfYkI0zUmwiK9L9oj2QG+gACyDpvy
+         vicEi76OKmd1SWxcw9aHow90JIrxR5u58CJM5gWAZlvTF1Imnupyi/Pxqt4KfiE1KUS4
+         rleJIPSO/Nmm72mROo1V8LmK3tmKrVOPkAkvPqMYIr+v4Sm8py8BTcN8QnNcld8ORc16
+         y+7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=EetC4UJLLWCJSTaSvMulKxev+06wcxwsN+3ebztTzqc=;
-        b=dwys3pru4XxhKw/gMzQjNxIbpYRgmaqZjPVmliORh5cxwyyUWpPYdvPDRrg9HgF9Xk
-         +z7yO+sgpCZsrDizSOEwV4x6x9W2kjEdjkNTTyj/dO8RnmXTORVv/TTTkfy0EAzU0qaC
-         mFOeKKuFmm38BDNnL7AskXrWyMqCowFxXvIWiRODCbf3eUaqqa8X8vX5AuomVNbhuy2W
-         qfRojOWr0qrhSvmXPaJqwTmhevc+IXmjydeN+fF2xwJjzw1ofk4uOX3l4ISQW5fBD45K
-         PlYwQc4wjZrX8/IgDiN5OXxEhn0Z70aRwBzFA6baFQZrv+dsIvfNW28zBwC+LUMgiylU
-         LiQQ==
-X-Gm-Message-State: AOAM533eo/j+ZhSCm0EGvE3eqjwGuLLWrtlLjk5YfzKWHqVQjdsGTAVQ
-        bAtOQfyPXUMwOKMfO/jbrTYkwTnLijxOCA==
-X-Google-Smtp-Source: ABdhPJyUcXU3m+AEKu4AXd2jlVfDcvs582eSYviRbXb04IJ9o4l2rE+YbpnxzYHaOD7PrluhGOnxFQ==
-X-Received: by 2002:a63:d58:: with SMTP id 24mr22724602pgn.171.1616423847386;
-        Mon, 22 Mar 2021 07:37:27 -0700 (PDT)
+        bh=c81dklT0qe5D6juUWR9NsNU/WZFGQBenYXKJz5bVex4=;
+        b=D9nxf9+ECNifgse8yAX5bIq3g6CsBjUlg8m7ZUJpyZr+qFMx+aifbZ1aofN+UnMX4I
+         c3r9GtBQ2+xBjBq6fmIo0+aYJcFuhHm6hNStvxax7yvXwFR1IpDnAx1t9QO9rHi2/4ra
+         vwdsd3efTiKXgHe2ouELJowIg7YyOHraYH71mW4ChIf9Xi6bwIa9JLXAnwUjYPqaa9ch
+         Wwi6AEXDDWnzM/tZcgrnMqEurtgM0WksdDpWxpestJFrc22BKU1YYX7U16KKk1bb5/0l
+         Ee5JM/uMSCB8wgtfJwjMMrgd3xfW2YajKN2uFGOjLcQi0fMaCwhgXwEXM5EXAXgj8mjr
+         Nhbg==
+X-Gm-Message-State: AOAM533Vgj24CyrAmDfI19kalX3reBtSevOs2jj3UTFEXMHoOHVTwO/b
+        aVurqH1OBOaVPf1QhPDTOEWN2bu4br9kug==
+X-Google-Smtp-Source: ABdhPJzs3XHQYTsaRwha42Sz0oZQNScjo3oOmjtbKobWhYBpDu2k+zFlIqIWW+K/rmj+Vxp7OYJOKA==
+X-Received: by 2002:a62:ea19:0:b029:1ee:5911:c516 with SMTP id t25-20020a62ea190000b02901ee5911c516mr21757596pfh.67.1616424148491;
+        Mon, 22 Mar 2021 07:42:28 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y29sm14293140pfp.206.2021.03.22.07.37.26
+        by smtp.gmail.com with ESMTPSA id r16sm14137387pfq.211.2021.03.22.07.42.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Mar 2021 07:37:27 -0700 (PDT)
-Message-ID: <6058aba7.1c69fb81.77a61.227f@mx.google.com>
-Date:   Mon, 22 Mar 2021 07:37:27 -0700 (PDT)
+        Mon, 22 Mar 2021 07:42:28 -0700 (PDT)
+Message-ID: <6058acd4.1c69fb81.17437.13c8@mx.google.com>
+Date:   Mon, 22 Mar 2021 07:42:28 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.182-39-g62f0fd95571b9
-X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.25-157-g433dc9c7723f3
+X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 163 runs,
- 5 regressions (v4.19.182-39-g62f0fd95571b9)
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 build: 196 builds: 3 failed, 193 passed, 2 errors,
+ 14 warnings (v5.10.25-157-g433dc9c7723f3)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,209 +65,1593 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 163 runs, 5 regressions (v4.19.182-39-g62f0f=
-d95571b9)
+stable-rc/queue/5.10 build: 196 builds: 3 failed, 193 passed, 2 errors, 14 =
+warnings (v5.10.25-157-g433dc9c7723f3)
 
-Regressions Summary
--------------------
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.25-157-g433dc9c7723f3/
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
+Tree: stable-rc
+Branch: queue/5.10
+Git Describe: v5.10.25-157-g433dc9c7723f3
+Git Commit: 433dc9c7723f30bb6d278e05f99aa642f663729d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+Build Failures Detected:
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+arm:
+    realview_defconfig: (gcc-8) FAIL
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+mips:
+    allnoconfig: (gcc-8) FAIL
+    tinyconfig: (gcc-8) FAIL
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+Errors and Warnings Detected:
 
+arc:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.182-39-g62f0fd95571b9/plan/baseline/
+arm64:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.182-39-g62f0fd95571b9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      62f0fd95571b90a5da06757bc53b244331ba3a9f =
+arm:
+    omap1_defconfig (gcc-8): 1 warning
+    realview_defconfig (gcc-8): 2 errors, 1 warning
 
+i386:
 
+mips:
+    decstation_64_defconfig (gcc-8): 1 warning
+    decstation_defconfig (gcc-8): 1 warning
+    decstation_r4k_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    rm200_defconfig (gcc-8): 1 warning
 
-Test Regressions
----------------- =
+riscv:
+    rv32_defconfig (gcc-8): 6 warnings
 
+x86_64:
+    tinyconfig (gcc-8): 1 warning
 
+Errors summary:
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
+    1    kernel/rcu/tree.c:683:2: error: invalid initializer
+    1    kernel/rcu/tree.c:683:2: error: implicit declaration of function =
+=E2=80=98IRQ_WORK_INIT=E2=80=99; did you mean =E2=80=98IRQMASK_I_BIT=E2=80=
+=99? [-Werror=3Dimplicit-function-declaration]
 
+Warnings summary:
 
-  Details:     https://kernelci.org/test/plan/id/6058713ead3ece0301addcf1
+    3    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_g=
+p_kthread=E2=80=99 defined but not used [-Wunused-function]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    {standard input}:39: Warning: macro instruction expanded into mult=
+iple instructions
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    cc1: some warnings being treated as errors
+    1    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98am=
+s_delta_camera_power=E2=80=99 defined but not used [-Wunused-function]
+    1    .config:1172:warning: override: UNWINDER_GUESS changes choice state
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Section mismatches summary:
 
+    7    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    2    WARNING: modpost: vmlinux.o(.text+0xae2c): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    2    WARNING: modpost: vmlinux.o(.text+0xae1c): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    2    WARNING: modpost: vmlinux.o(.text+0xaba4): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    2    WARNING: modpost: vmlinux.o(.text+0x94e4): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    2    WARNING: modpost: vmlinux.o(.text+0x8970): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    2    FATAL: modpost: Section mismatches detected.
+    1    WARNING: modpost: vmlinux.o(.text+0xeba0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xe594): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xe4a4): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xdd40): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xd000): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xcdd0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xccc0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xc8b4): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xc134): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xbce0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xbb24): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xba30): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xb72c): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xb5c0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xb330): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xb218): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xb1a8): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xb0ec): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xae30): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xad94): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xab08): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xaaa0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xaa68): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa850): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa7c0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa750): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa600): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa494): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa3f0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa364): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0xa258): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x9ee0): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x9794): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x9744): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x9734): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x9508): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x9358): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x8f18): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x8e90): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x8d18): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x8c24): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x8c1c): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x8a14): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x71d8): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x6b64): Section mismatch in ref=
+erence from the function reserve_exception_space() to the function .meminit=
+.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x1df10): Section mismatch in re=
+ference from the function reserve_exception_space() to the function .memini=
+t.text:memblock_reserve()
+    1    WARNING: modpost: vmlinux.o(.text+0x10560): Section mismatch in re=
+ference from the function reserve_exception_space() to the function .memini=
+t.text:memblock_reserve()
 
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
 
-  * baseline.login: https://kernelci.org/test/case/id/6058713ead3ece0301add=
-cf2
-        failing since 128 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
+Detailed per-defconfig build reports:
 
- =
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xaba4): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+    WARNING: modpost: vmlinux.o(.text+0xaba4): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
+ismatches
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x71d8): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+    FATAL: modpost: Section mismatches detected.
 
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
-  Details:     https://kernelci.org/test/plan/id/60587150b0a907745faddccf
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
-  * baseline.login: https://kernelci.org/test/case/id/60587150b0a907745fadd=
-cd0
-        failing since 128 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
- =
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa364): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-  Details:     https://kernelci.org/test/plan/id/60587144f5deba14b0addcbb
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8c24): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
-  * baseline.login: https://kernelci.org/test/case/id/60587144f5deba14b0add=
-cbc
-        failing since 128 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
- =
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8f18): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-  Details:     https://kernelci.org/test/plan/id/6058a5ac6b7912ba3daddce5
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8a14): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
-  * baseline.login: https://kernelci.org/test/case/id/6058a5ac6b7912ba3dadd=
-ce6
-        failing since 128 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xab08): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
- =
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xb218): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa258): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
-  Details:     https://kernelci.org/test/plan/id/605870f1c6f87813adaddcc7
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa494): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.182=
--39-g62f0fd95571b9/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
 
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
-  * baseline.login: https://kernelci.org/test/case/id/605870f1c6f87813adadd=
-cc8
-        failing since 128 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x1df10): Section mismatch in referen=
+ce from the function reserve_exception_space() to the function .meminit.tex=
+t:memblock_reserve()
 
- =20
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8c1c): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x9744): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8970): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8970): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xeba0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xaa68): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xad94): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa600): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xbce0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa3f0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xe594): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa850): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xccc0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xcdd0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xb5c0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xb72c): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xaaa0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x10560): Section mismatch in referen=
+ce from the function reserve_exception_space() to the function .meminit.tex=
+t:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x9794): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x9734): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xdd40): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xae2c): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc134): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa7c0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    {standard input}:39: Warning: macro instruction expanded into multiple =
+instructions
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x9ee0): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xae1c): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xae30): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xbb24): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xae1c): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xae2c): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xe4a4): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xd000): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc8b4): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nommu_virt_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98ams_del=
+ta_camera_power=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x94e4): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8d18): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xb0ec): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x9508): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x8e90): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xb330): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/rcu/tree.c:683:2: error: implicit declaration of function =E2=80=
+=98IRQ_WORK_INIT=E2=80=99; did you mean =E2=80=98IRQMASK_I_BIT=E2=80=99? [-=
+Werror=3Dimplicit-function-declaration]
+    kernel/rcu/tree.c:683:2: error: invalid initializer
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xa750): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x9358): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xb1a8): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1172:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x6b64): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+    FATAL: modpost: Section mismatches detected.
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0x94e4): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xc374): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(.text+0xba30): Section mismatch in referenc=
+e from the function reserve_exception_space() to the function .meminit.text=
+:memblock_reserve()
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
