@@ -2,127 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12B91344971
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 16:43:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83D4F3449CC
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 16:53:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230179AbhCVPmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 11:42:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37036 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230166AbhCVPmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 11:42:19 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF6AC061574
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 08:42:19 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id mz6-20020a17090b3786b02900c16cb41d63so8750654pjb.2
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 08:42:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Mec9Rz7/5Fngyt/PuouCRuoAUCy6h4USqRadG/lUR74=;
-        b=AMKNvCEFiyEAxCcTpYLMXgUSJDskoIqHQRKq+edDaZEc6MkkaG4BWH1+d0DV0qj8yw
-         0smwfpkbNjW5BwcGILyhsQ/jIiz5RTxuPaE6GcWQoHXRi5PRwQxoWhIthfui/1N6tZVj
-         IJGJqEWKAfyVzz98kV7Ne+/+YjhinT7RhNdK7tGTzNh7qMgtM/dilBzMGqJ8GGvEIKcp
-         4YMIUMRThOniMJpGwzyPk7cvkWpRwlYNQ2rgDq9kZajj+4yfVuIbX0OjjPcekUuU3y0D
-         j4uexkCjZ4eB3jTx/PgcGbWrPzRyM/RoRBQBlgaE/esH5+kweqYBW+kOM54+ymMXlwVx
-         X28A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Mec9Rz7/5Fngyt/PuouCRuoAUCy6h4USqRadG/lUR74=;
-        b=qrzpnkD4ueBGBgWAeyLyk40/Yi61WjmRDwTJHMixFiXy1579Uk5xELGZLPHK2xvFPP
-         jRsXAtatOSHD9y8POnHRY7VjQOv08+Xj99F2nzXOQlTodY4MlfPMeWM1agv1mBAd3So4
-         CQM05OF4RCkeIfRcR7bLacleS6XzrviKBXI8kmutqe3qQjzbOn2OAF7hMupJAe+BNgTO
-         GBNMviAmQOuEP2+LSbFHalmPBJASvcFhQm2Oj/xqVvOcqhCCaVT6AhQAdqNq12492+Fr
-         Z7EawYKA1t8jNOA0Q1jk5Dw4F35Xr+kE8E831Stk/LRolsn60BSbB4IqphVnCutlrg9i
-         SE5A==
-X-Gm-Message-State: AOAM531YI5c1bKMyKYkIdaoATLXye2ASDkbq8B8M9YSmD6RIwU09H3Wc
-        5mVrekEA2HkKNzLnCiPT38JNM2knsp5vCg==
-X-Google-Smtp-Source: ABdhPJw1NnR3mqFK1k4uMv6/CPNLxBAHaJnXrJRlIh/a4JSRGCdzu+5PYnyrOPV35AT0oVwR4DXNZA==
-X-Received: by 2002:a17:90a:fa0b:: with SMTP id cm11mr13109pjb.140.1616427738869;
-        Mon, 22 Mar 2021 08:42:18 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w2sm13352040pgh.54.2021.03.22.08.42.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Mar 2021 08:42:18 -0700 (PDT)
-Message-ID: <6058bada.1c69fb81.726a9.0583@mx.google.com>
-Date:   Mon, 22 Mar 2021 08:42:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230119AbhCVPxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 11:53:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49034 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230401AbhCVPxP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 11:53:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA01D619AB;
+        Mon, 22 Mar 2021 15:53:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616428394;
+        bh=iahYK4r7WtNOdjL/Bg1oM/WoYw/NIOXasi54gp8KbEQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Q2sJ7slOeIHlf3Q8GdYebQNBIiz8WkOMIYxta7kN3IgOWQD9AVjhaSEpowsbSHW4t
+         BAnmOlKCt+GZRle1GLEy+DbP4+eEDWUChRNmQSf4VfVRRU6VARgZOzomWsVTMmx5z8
+         yNG0lOMFoNT2UZ5vIhu+CqFB8e+AJ7vb1v9wTMtSILBcywhbiXar0TP19M16ttLZZm
+         evVYGqFjiZApflVk6GYa/hX6qsY+UCb3U77LdMzHo0mklDgMblLCJfMyHCS+ojLl0h
+         2Cz6i3wY7RKHxzOsiOG865+JJTbc9uK+WDyU52jm6vZR8tIjGlEu9nEUQANEHwtJZU
+         uEaelfClbCqFA==
+Received: from johan by xi.lan with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1lOMs0-0002ZY-IJ; Mon, 22 Mar 2021 16:53:32 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
+        Jaejoong Kim <climbbb.kim@gmail.com>
+Subject: [PATCH v2 1/8] USB: cdc-acm: fix double free on probe failure
+Date:   Mon, 22 Mar 2021 16:53:11 +0100
+Message-Id: <20210322155318.9837-2-johan@kernel.org>
+X-Mailer: git-send-email 2.26.3
+In-Reply-To: <20210322155318.9837-1-johan@kernel.org>
+References: <20210322155318.9837-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.107-60-gd246f550d196e
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 174 runs,
- 1 regressions (v5.4.107-60-gd246f550d196e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 174 runs, 1 regressions (v5.4.107-60-gd246f55=
-0d196e)
+If tty-device registration fails the driver copy of any Country
+Selection functional descriptor would end up being freed twice; first
+explicitly in the error path and then again in the tty-port destructor.
 
-Regressions Summary
--------------------
+Drop the first erroneous free that was left when fixing a tty-port
+resource leak.
 
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-8    | defconfig | 1     =
-     =
+Fixes: cae2bc768d17 ("usb: cdc-acm: Decrement tty port's refcount if probe() fail")
+Cc: stable@vger.kernel.org      # 4.19
+Cc: Jaejoong Kim <climbbb.kim@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/class/cdc-acm.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 39ddb5585ded..d75a78ad464d 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1508,7 +1508,6 @@ static int acm_probe(struct usb_interface *intf,
+ 				&dev_attr_wCountryCodes);
+ 		device_remove_file(&acm->control->dev,
+ 				&dev_attr_iCountryCodeRelDate);
+-		kfree(acm->country_codes);
+ 	}
+ 	device_remove_file(&acm->control->dev, &dev_attr_bmCapabilities);
+ alloc_fail5:
+-- 
+2.26.3
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.107-60-gd246f550d196e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.107-60-gd246f550d196e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d246f550d196e15f60cbc8cfa4b331b6c83f8f98 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-8    | defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/60588ea6a2dabefa28addcb7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.107-6=
-0-gd246f550d196e/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905=
-d-p230.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.107-6=
-0-gd246f550d196e/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905=
-d-p230.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60588ea6a2dabefa28add=
-cb8
-        new failure (last pass: v5.4.107-33-g5c67202ee407b) =
-
- =20
