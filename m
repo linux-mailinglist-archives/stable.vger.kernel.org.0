@@ -2,184 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 389953443A3
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DEAA3443E2
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231232AbhCVMxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
+        id S231203AbhCVMzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:55:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231277AbhCVMto (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:49:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 142DB619EC;
-        Mon, 22 Mar 2021 12:45:25 +0000 (UTC)
+        id S232942AbhCVMxC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:53:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20ACD61A06;
+        Mon, 22 Mar 2021 12:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417126;
-        bh=V4rRMxuUxcUjFLoMaGQT8OhZ+od1C3/fXAcLNTy0mwE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWYluHQ4Urc3QtMI0rblWhzh/gRqNsRrv1a/oYoBP8cnXXBInvqFZW2i9WhtGSfx/
-         QFKigpgj3sNCDqZw2z0vB6QlFGv0dkZIIZm40BIJ4ieWbtCsbSJYAmX+NOLca8YH9y
-         XpTC1rBLDI8H1Dgg85++yFSUXn4xwbauH1DSYKXw=
+        s=korg; t=1616417227;
+        bh=3vDgv3g8Fvg5mZhkqd5Y2kqvpjEg1fX/ijoXtkA5/bg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BS/X/ICA5lYvZlH4i4Z2n3JyDfy6HleE1c6BQvl4dd5Th2ia0xH8mM2gq1d+sGu18
+         Vbd/vskCz8rxtAdSq/W5I7l1BV7B1nrlC3Tld9u08lE7F4xtWVCrW1eTgolKrrrrmd
+         RCBFdrjcz86FemqbMYmSnDuV4vK/2H1/jSVcao2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 36/43] kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.9 00/25] 4.9.263-rc1 review
 Date:   Mon, 22 Mar 2021 13:28:50 +0100
-Message-Id: <20210322121921.071581835@linuxfoundation.org>
+Message-Id: <20210322121920.399826335@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
-References: <20210322121919.936671417@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.263-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.263-rc1
+X-KernelTest-Deadline: 2021-03-24T12:19+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+This is the start of the stable review cycle for the 4.9.263 release.
+There are 25 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 5abbe51a526253b9f003e9a0a195638dc882d660 upstream.
+Responses should be made by Wed, 24 Mar 2021 12:19:09 +0000.
+Anything received after that time might be too late.
 
-Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.263-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-Add a new helper which sets restart_block->fn and calls a dummy
-arch_set_restart_data() helper.
+thanks,
 
-Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/select.c                    |   10 ++++------
- include/linux/thread_info.h    |   13 +++++++++++++
- kernel/futex.c                 |    3 +--
- kernel/time/alarmtimer.c       |    2 +-
- kernel/time/hrtimer.c          |    2 +-
- kernel/time/posix-cpu-timers.c |    2 +-
- 6 files changed, 21 insertions(+), 11 deletions(-)
+greg k-h
 
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -1003,10 +1003,9 @@ static long do_restart_poll(struct resta
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	if (ret == -EINTR) {
--		restart_block->fn = do_restart_poll;
--		ret = -ERESTART_RESTARTBLOCK;
--	}
-+	if (ret == -EINTR)
-+		ret = set_restart_fn(restart_block, do_restart_poll);
-+
- 	return ret;
- }
- 
-@@ -1028,7 +1027,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		struct restart_block *restart_block;
- 
- 		restart_block = &current->restart_block;
--		restart_block->fn = do_restart_poll;
- 		restart_block->poll.ufds = ufds;
- 		restart_block->poll.nfds = nfds;
- 
-@@ -1039,7 +1037,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		} else
- 			restart_block->poll.has_timeout = 0;
- 
--		ret = -ERESTART_RESTARTBLOCK;
-+		ret = set_restart_fn(restart_block, do_restart_poll);
- 	}
- 	return ret;
- }
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -11,6 +11,7 @@
- #include <linux/types.h>
- #include <linux/bug.h>
- #include <linux/restart_block.h>
-+#include <linux/errno.h>
- 
- #ifdef CONFIG_THREAD_INFO_IN_TASK
- /*
-@@ -39,6 +40,18 @@ enum {
- 
- #ifdef __KERNEL__
- 
-+#ifndef arch_set_restart_data
-+#define arch_set_restart_data(restart) do { } while (0)
-+#endif
-+
-+static inline long set_restart_fn(struct restart_block *restart,
-+					long (*fn)(struct restart_block *))
-+{
-+	restart->fn = fn;
-+	arch_set_restart_data(restart);
-+	return -ERESTART_RESTARTBLOCK;
-+}
-+
- #ifndef THREAD_ALIGN
- #define THREAD_ALIGN	THREAD_SIZE
- #endif
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2857,14 +2857,13 @@ retry:
- 		goto out;
- 
- 	restart = &current->restart_block;
--	restart->fn = futex_wait_restart;
- 	restart->futex.uaddr = uaddr;
- 	restart->futex.val = val;
- 	restart->futex.time = *abs_time;
- 	restart->futex.bitset = bitset;
- 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
- 
--	ret = -ERESTART_RESTARTBLOCK;
-+	ret = set_restart_fn(restart, futex_wait_restart);
- 
- out:
- 	if (to) {
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -822,9 +822,9 @@ static int alarm_timer_nsleep(const cloc
- 	if (flags == TIMER_ABSTIME)
- 		return -ERESTARTNOHAND;
- 
--	restart->fn = alarm_timer_nsleep_restart;
- 	restart->nanosleep.clockid = type;
- 	restart->nanosleep.expires = exp;
-+	set_restart_fn(restart, alarm_timer_nsleep_restart);
- 	return ret;
- }
- 
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1771,9 +1771,9 @@ long hrtimer_nanosleep(const struct time
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = hrtimer_nanosleep_restart;
- 	restart->nanosleep.clockid = t.timer.base->clockid;
- 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
-+	set_restart_fn(restart, hrtimer_nanosleep_restart);
- out:
- 	destroy_hrtimer_on_stack(&t.timer);
- 	return ret;
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1371,8 +1371,8 @@ static int posix_cpu_nsleep(const clocki
- 		if (flags & TIMER_ABSTIME)
- 			return -ERESTARTNOHAND;
- 
--		restart_block->fn = posix_cpu_nsleep_restart;
- 		restart_block->nanosleep.clockid = which_clock;
-+		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
- 	}
- 	return error;
- }
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.263-rc1
+
+Thomas Gleixner <tglx@linutronix.de>
+    genirq: Disable interrupts for force threaded handlers
+
+Shijie Luo <luoshijie1@huawei.com>
+    ext4: fix potential error in ext4_do_update_inode
+
+zhangyi (F) <yi.zhang@huawei.com>
+    ext4: find old entry again if failed to rename whiteout
+
+Oleg Nesterov <oleg@redhat.com>
+    x86: Introduce TS_COMPAT_RESTART to fix get_nr_restart_syscall()
+
+Oleg Nesterov <oleg@redhat.com>
+    x86: Move TS_COMPAT back to asm/thread_info.h
+
+Oleg Nesterov <oleg@redhat.com>
+    kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/ioapic: Ignore IRQ2 again
+
+Kan Liang <kan.liang@linux.intel.com>
+    perf/x86/intel: Fix a crash caused by zero PEBS status
+
+Tyrel Datwyler <tyreld@linux.ibm.com>
+    PCI: rpadlpar: Fix potential drc_name corruption in store functions
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    iio: adis16400: Fix an error code in adis16400_initial_setup()
+
+Jim Lin <jilin@nvidia.com>
+    usb: gadget: configfs: Fix KASAN use-after-free
+
+Macpaul Lin <macpaul.lin@mediatek.com>
+    USB: replace hardcode maximum usb string length by definition
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    scsi: lpfc: Fix some error codes in debugfs
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net/qrtr: fix __netdev_alloc_skb call
+
+Daniel Kobras <kobras@puzzle-itc.de>
+    sunrpc: fix refcount leak for rpc auth modules
+
+Timo Rothenpieler <timo@rothenpieler.org>
+    svcrdma: disable timeouts on rdma backchannel
+
+Joe Korty <joe.korty@concurrent-rt.com>
+    NFSD: Repair misuse of sv_lock in 5.10.16-rt30.
+
+Sagi Grimberg <sagi@grimberg.me>
+    nvmet: don't check iosqes,iocqes for discovery controllers
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix race when cloning extent buffer during rewind of an old root
+
+Jacob Keller <jacob.e.keller@intel.com>
+    ixgbe: prevent ptp_rx_hang from running when in FILTER_ALL mode
+
+Jacob Keller <jacob.e.keller@intel.com>
+    ixgbe: check for Tx timestamp timeouts during watchdog
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: b53: Support setting learning on port
+
+Jan Kara <jack@suse.cz>
+    ext4: check journal inode extents more carefully
+
+Jan Kara <jack@suse.cz>
+    ext4: don't allow overlapping system zones
+
+Jan Kara <jack@suse.cz>
+    ext4: handle error of ext4_setup_system_zone() on remount
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                      |  4 +-
+ arch/x86/events/intel/ds.c                    |  2 +-
+ arch/x86/include/asm/processor.h              |  9 ----
+ arch/x86/include/asm/thread_info.h            | 23 ++++++++-
+ arch/x86/kernel/apic/io_apic.c                | 10 ++++
+ arch/x86/kernel/signal.c                      | 24 +--------
+ drivers/iio/imu/adis16400_core.c              |  3 +-
+ drivers/net/dsa/b53/b53_common.c              | 20 ++++++++
+ drivers/net/dsa/b53/b53_regs.h                |  1 +
+ drivers/net/dsa/bcm_sf2.c                     |  5 ++
+ drivers/net/dsa/bcm_sf2_regs.h                |  2 +
+ drivers/net/ethernet/intel/ixgbe/ixgbe.h      |  1 +
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |  4 +-
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c  | 27 ++++++++++
+ drivers/nvme/target/core.c                    | 17 +++++--
+ drivers/pci/hotplug/rpadlpar_sysfs.c          | 14 +++---
+ drivers/scsi/lpfc/lpfc_debugfs.c              |  4 +-
+ drivers/usb/gadget/composite.c                |  4 +-
+ drivers/usb/gadget/configfs.c                 | 16 ++++--
+ drivers/usb/gadget/usbstring.c                |  4 +-
+ fs/btrfs/ctree.c                              |  2 +
+ fs/ext4/block_validity.c                      | 71 +++++++++++++--------------
+ fs/ext4/ext4.h                                |  6 +--
+ fs/ext4/extents.c                             | 16 +++---
+ fs/ext4/indirect.c                            |  6 +--
+ fs/ext4/inode.c                               | 13 +++--
+ fs/ext4/mballoc.c                             |  4 +-
+ fs/ext4/namei.c                               | 29 ++++++++++-
+ fs/ext4/super.c                               |  5 +-
+ fs/select.c                                   | 10 ++--
+ include/linux/thread_info.h                   | 13 +++++
+ include/uapi/linux/usb/ch9.h                  |  3 ++
+ kernel/futex.c                                |  3 +-
+ kernel/irq/manage.c                           |  4 ++
+ kernel/time/alarmtimer.c                      |  2 +-
+ kernel/time/hrtimer.c                         |  2 +-
+ kernel/time/posix-cpu-timers.c                |  2 +-
+ net/qrtr/qrtr.c                               |  2 +-
+ net/sunrpc/svc.c                              |  6 ++-
+ net/sunrpc/svc_xprt.c                         |  4 +-
+ net/sunrpc/xprtrdma/svc_rdma_backchannel.c    |  6 +--
+ 41 files changed, 256 insertions(+), 147 deletions(-)
 
 
