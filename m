@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5674C344237
+	by mail.lfdr.de (Postfix) with ESMTP id 0A681344236
 	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231352AbhCVMjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:39:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33572 "EHLO mail.kernel.org"
+        id S231562AbhCVMjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:39:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231267AbhCVMiI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:38:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECC666191A;
-        Mon, 22 Mar 2021 12:37:15 +0000 (UTC)
+        id S231286AbhCVMiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:38:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68E1B61994;
+        Mon, 22 Mar 2021 12:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416636;
-        bh=dTCL/+dN70IZPzkAaRmRsrOUjpj3Q/I6EmMdO62ctio=;
+        s=korg; t=1616416639;
+        bh=1/IVbCB4L41rAqqxmzsDd9nryLAFzd61mULM2vAsHGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+0Ynnv3LwYkKXtzq/24Y5501AFSEzrN8PgTKbmlKSI/N9zXSCFPABJ3IkLkldMgb
-         aL1VcGYTQcAEJ45IYrHjaKZkh1fAHpe1XtlqHLDxDclVFTF6gOLBvZXAYC9Q2CO3GE
-         Cqq49Y2x5AQPYHrJmFtF5xUAHZlMQa/Xsk0MuC5c=
+        b=hyG9Df7WZ6rJhrec6ekkqAM1b8QALXokZwgDZkcYcu1T4WwmLKwB2o01LrFk0t6T9
+         9TiiZzm34VLX9X3uVGyLhEDhynSKiWQZigiAyf+4hQbCRoHtajxuBTI0STfTCK543i
+         dPic/R46D/NMBUD/fq6MhAaAn4DQ/tdLhsCwlLuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/157] gpiolib: Assign fwnode to parents if no primary one provided
-Date:   Mon, 22 Mar 2021 13:26:58 +0100
-Message-Id: <20210322121935.692206059@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Leng <lengchao@huawei.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 062/157] nvme-rdma: fix possible hang when failing to set io queues
+Date:   Mon, 22 Mar 2021 13:26:59 +0100
+Message-Id: <20210322121935.730037892@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -41,52 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 6cb59afe9e5b45a035bd6b97da6593743feefc72 ]
+[ Upstream commit c4c6df5fc84659690d4391d1fba155cd94185295 ]
 
-In case when the properties are supplied in the secondary fwnode
-(for example, built-in device properties) the fwnode pointer left
-unassigned. This makes unable to retrieve them.
+We only setup io queues for nvme controllers, and it makes absolutely no
+sense to allow a controller (re)connect without any I/O queues.  If we
+happen to fail setting the queue count for any reason, we should not allow
+this to be a successful reconnect as I/O has no chance in going through.
+Instead just fail and schedule another reconnect.
 
-Assign fwnode to parent's if no primary one provided.
-
-Fixes: 7cba1a4d5e16 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
-Fixes: 2afa97e9868f ("gpiolib: Read "gpio-line-names" from a firmware node")
-Reported-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Tested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reported-by: Chao Leng <lengchao@huawei.com>
+Fixes: 711023071960 ("nvme-rdma: add a NVMe over Fabrics RDMA host driver")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chao Leng <lengchao@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/nvme/host/rdma.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 7f557ea90542..0a2c4adcd833 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -572,6 +572,7 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 			       struct lock_class_key *lock_key,
- 			       struct lock_class_key *request_key)
- {
-+	struct fwnode_handle *fwnode = gc->parent ? dev_fwnode(gc->parent) : NULL;
- 	unsigned long	flags;
- 	int		ret = 0;
- 	unsigned	i;
-@@ -601,6 +602,12 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 		gc->of_node = gdev->dev.of_node;
- #endif
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 195703013272..8b326508a480 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -736,8 +736,11 @@ static int nvme_rdma_alloc_io_queues(struct nvme_rdma_ctrl *ctrl)
+ 		return ret;
  
-+	/*
-+	 * Assign fwnode depending on the result of the previous calls,
-+	 * if none of them succeed, assign it to the parent's one.
-+	 */
-+	gdev->dev.fwnode = dev_fwnode(&gdev->dev) ?: fwnode;
-+
- 	gdev->id = ida_alloc(&gpio_ida, GFP_KERNEL);
- 	if (gdev->id < 0) {
- 		ret = gdev->id;
+ 	ctrl->ctrl.queue_count = nr_io_queues + 1;
+-	if (ctrl->ctrl.queue_count < 2)
+-		return 0;
++	if (ctrl->ctrl.queue_count < 2) {
++		dev_err(ctrl->ctrl.device,
++			"unable to set any I/O queues\n");
++		return -ENOMEM;
++	}
+ 
+ 	dev_info(ctrl->ctrl.device,
+ 		"creating %d I/O queues.\n", nr_io_queues);
 -- 
 2.30.1
 
