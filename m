@@ -2,145 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44971343D41
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 10:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D19343D44
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 10:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229912AbhCVJwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 05:52:50 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:49273 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229953AbhCVJws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 05:52:48 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 2275ACB9;
-        Mon, 22 Mar 2021 05:52:48 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 22 Mar 2021 05:52:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/FXqka
-        QEASQkggHOaF0/bOUn1MaAhpIa7V2XWaTDFi0=; b=gNnVFd/3s07bT/6JUBhR4r
-        wzD9+BmuyYAMNyZnRoN/NUy2oRRp5QQqD9v4ZCYI8Uhg4uidwuIFcFm12+IgB9YI
-        RNWPfEgY5Y8sFWjq7DsWi6WcSDhQhTG7kPtaCAkAmYjgyJzm6S1Ye2HvuI2cue7b
-        E2i0eVyfklJdvxoXJO0J8HFtPy2G/4kWWA/u45fFZl098c5Vple65AdIQnwftYi7
-        9AGiKI7n4xuJbQqWk//OUxm8JyMdfsfpBTolYQJjKSpgRPth/Q/dwZdRHCIf1IE6
-        WhN2dyw6lCZ12ufqbAx0dlOj9+OW4R31b5YFiFedTn0PIOzF1l3BDskZzSL0WbsA
-        ==
-X-ME-Sender: <xms:72hYYP4NBt7XwsNk1cy8Bl5FLvb-cvgEYFdi2LA_RpNE6sAaHyJw6A>
-    <xme:72hYYE5FRGunSSL7kJfz6ZYu0l0LNPwkWp4VNpjMNGi-bCmhoROaiLB7vmhxFnPZ-
-    cUQYYia_2o4xg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudeggedgtdekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:72hYYGfunYHh4r-hLnbnO491vju__TQSIr7_cBASCoeEYnfb4WEE8w>
-    <xmx:72hYYAJ4RnKjWOFRv7-XIMvKwyAomv9YZPz-FT0g6_nAQiZgRCBhVQ>
-    <xmx:72hYYDKp7pGypNU_xqX5d3IJS4z7A7a6skanNWxnL4258Wv4JpDn8w>
-    <xmx:72hYYJjBPzEX_FQ4FSEOEbQ7nCkakfLwH5CjUqpqWawFVn7e8KS-pPUS2SM>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BE373108005F;
-        Mon, 22 Mar 2021 05:52:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] static_call: Fix static_call_set_init()" failed to apply to 5.10-stable tree
-To:     peterz@infradead.org, jarkko@kernel.org, sumit.garg@linaro.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Mar 2021 10:52:44 +0100
-Message-ID: <161640676410891@kroah.com>
+        id S229840AbhCVJxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 05:53:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45786 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229870AbhCVJx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 05:53:27 -0400
+Received: from mail-ua1-x944.google.com (mail-ua1-x944.google.com [IPv6:2607:f8b0:4864:20::944])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B173C061762
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 02:53:26 -0700 (PDT)
+Received: by mail-ua1-x944.google.com with SMTP id h5so1384112uaw.0
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 02:53:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=uvaJxOMF68u/mryvJz6oilbFQS2YMDQUaK8sfeTQE6s=;
+        b=IloQyaT2jIOZdI8792KMES4+/se1kv/EONJVe3qLhrShoXJ2JBDlUq2Bz6Jq6586gl
+         rQosADs/rxwrFfWT5dmUKbt+42AyQVcTIy5HiqvNJ4nTElmIgim5QCkp2qL0SdSSpwe+
+         0AE9FJR7FGjWPUS1nadQlLpWOZUUQg5syV+rdOBEN5pnvwshOj0IBTCPoxNIoJvtRah4
+         0V3xHcGdL+2TplEv4k1+OkhbI2G+B1xPqIMtgn8uiHw/iNQ6BUBZEnYZ1Ug2r8mdNZWw
+         waLCtCqtz1j+sY/jvqtQ/+4y6RmBO22VaXfO5IVMHFhgxwKZHr1FrsLr2dkS6ONZytIh
+         NMkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=uvaJxOMF68u/mryvJz6oilbFQS2YMDQUaK8sfeTQE6s=;
+        b=MgR5iK+hMn5D0bBGIM4TWfP+bmRgavdHr5yKU8XpmyaMs98X66Tvg2Y1wMeWDUJ/tt
+         8TMN2jfN5BrlTqNDIvz8KBF0pq5VXgR+YnQAaTBHeat6dSbhRlVuVaI51k5XdVBg8/Q4
+         KzYTx9w86+jaVzW5bq1P6a7NWaUOsp27XZiwudTjEmGhpSxPbqZawkOMV7qMdlVI2+Xc
+         fDj7u42X5IOWYdLVwl8bqY5S64WtRr8ISsYZySTHs7pityCXSsdghrAbBik7VA4zmFF/
+         SpM1/eDZgwgK3HtmZ8RanxVosem7JN59QxE4Qi0qB4BuOXPKY7QUEtRwykawhVwHP8JV
+         U4Gw==
+X-Gm-Message-State: AOAM5306PfFPCPAgLDjeP/BQHuzcRYMX7roV8a89IsY6ItFQsHJslxH1
+        qZCIPMNklEbIaCyrauVqMfBJX1zdogUJbdxqFvA=
+X-Google-Smtp-Source: ABdhPJzxK7cRHep9dg50UQxMbQtEbIyJHrRbvf9y5XD2ME0wOURYJWlCAvGF9eVl7R906XesjmodkhBOS2I3aaiH3NQ=
+X-Received: by 2002:ab0:703a:: with SMTP id u26mr4224556ual.34.1616406805434;
+ Mon, 22 Mar 2021 02:53:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Reply-To: tofilbaman1@gmail.com
+Sender: mrzgeorge7865@gmail.com
+Received: by 2002:a9f:28e6:0:0:0:0:0 with HTTP; Mon, 22 Mar 2021 02:53:24
+ -0700 (PDT)
+From:   Tofil Bama <tofilbaman@gmail.com>
+Date:   Mon, 22 Mar 2021 10:53:24 +0100
+X-Google-Sender-Auth: OMZ7JOOr98hxaBDVLMGO63WR-1M
+Message-ID: <CAHWdKwO9WQpV0yL0c2TGKSYFiUT7j7UwWzEnjGrnkYcjNyVKJg@mail.gmail.com>
+Subject: GOOD NEWS.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear,
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+My name is Mr Tofil Bama, I am the Bill and Exchange assistant
+Manager in Bank of Africa Ouagadougou Burkina Faso. In my department
+I discovered an abandoned sum of eighteen million three hundred
+thousand United State of American dollars (18.3MILLION USA DOLLARS)
+in an account that belongs to one of our foreign customer
+(late Mr Shitu Nuri) who died in Ethiopian Airlines Flight 409 that
+crashed into the Mediterranean Sea on 25th January 2010.
 
-thanks,
+Since I got information about his death I have been expecting
+his next of kin to come over and claim his money because we
+cannot release it unless somebody applies for it as the next
+of kin or relation to the deceased as indicated in our banking
+guidelines, unfortunately we learnt that all his supposed next of
+kin or relation died alongside with him in the plane crash leaving
+nobody behind for the claim.
 
-greg k-h
+It is therefore upon this discovery that I decided to make this
+business proposal to you and release the money to you as next of kin
+to the deceased for safety and subsequent disbursement since nobody
+is coming for the fund, it is 10 years now the money is lying pending in
+the account of our deceased and I don't want the money to go into the
+bank treasury as unclaimed bill.
 
------------------- original commit in Linus's tree ------------------
+You will be entitled with 40% of the total sum while 60% will be for
+me after which I will visit your Country to invest my own share when
+the fund is successfully transferred into your account, Please I would
+like you to keep this transaction confidential and as a top secret
+between me and you until we successfully achieve this golden
+opportunity.
 
-From 68b1eddd421d2b16c6655eceb48918a1e896bbbc Mon Sep 17 00:00:00 2001
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Thu, 18 Mar 2021 11:27:19 +0100
-Subject: [PATCH] static_call: Fix static_call_set_init()
-
-It turns out that static_call_set_init() does not preserve the other
-flags; IOW. it clears TAIL if it was set.
-
-Fixes: 9183c3f9ed710 ("static_call: Add inline static call infrastructure")
-Reported-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Sumit Garg <sumit.garg@linaro.org>
-Link: https://lkml.kernel.org/r/20210318113610.519406371@infradead.org
-
-diff --git a/kernel/static_call.c b/kernel/static_call.c
-index ae825295cf68..080c8a9ddfaf 100644
---- a/kernel/static_call.c
-+++ b/kernel/static_call.c
-@@ -35,27 +35,30 @@ static inline void *static_call_addr(struct static_call_site *site)
- 	return (void *)((long)site->addr + (long)&site->addr);
- }
- 
-+static inline unsigned long __static_call_key(const struct static_call_site *site)
-+{
-+	return (long)site->key + (long)&site->key;
-+}
- 
- static inline struct static_call_key *static_call_key(const struct static_call_site *site)
- {
--	return (struct static_call_key *)
--		(((long)site->key + (long)&site->key) & ~STATIC_CALL_SITE_FLAGS);
-+	return (void *)(__static_call_key(site) & ~STATIC_CALL_SITE_FLAGS);
- }
- 
- /* These assume the key is word-aligned. */
- static inline bool static_call_is_init(struct static_call_site *site)
- {
--	return ((long)site->key + (long)&site->key) & STATIC_CALL_SITE_INIT;
-+	return __static_call_key(site) & STATIC_CALL_SITE_INIT;
- }
- 
- static inline bool static_call_is_tail(struct static_call_site *site)
- {
--	return ((long)site->key + (long)&site->key) & STATIC_CALL_SITE_TAIL;
-+	return __static_call_key(site) & STATIC_CALL_SITE_TAIL;
- }
- 
- static inline void static_call_set_init(struct static_call_site *site)
- {
--	site->key = ((long)static_call_key(site) | STATIC_CALL_SITE_INIT) -
-+	site->key = (__static_call_key(site) | STATIC_CALL_SITE_INIT) -
- 		    (long)&site->key;
- }
- 
-@@ -190,7 +193,7 @@ void __static_call_update(struct static_call_key *key, void *tramp, void *func)
- 			}
- 
- 			arch_static_call_transform(site_addr, NULL, func,
--				static_call_is_tail(site));
-+						   static_call_is_tail(site));
- 		}
- 	}
- 
-@@ -349,7 +352,7 @@ static int static_call_add_module(struct module *mod)
- 	struct static_call_site *site;
- 
- 	for (site = start; site != stop; site++) {
--		unsigned long s_key = (long)site->key + (long)&site->key;
-+		unsigned long s_key = __static_call_key(site);
- 		unsigned long addr = s_key & ~STATIC_CALL_SITE_FLAGS;
- 		unsigned long key;
- 
-
+Yours sincerely,
+Mr Tofil Bama.
