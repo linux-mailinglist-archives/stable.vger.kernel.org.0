@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 798813442C5
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 311923441BB
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbhCVMpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
+        id S231373AbhCVMfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:35:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232663AbhCVMnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:43:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CCA4619BB;
-        Mon, 22 Mar 2021 12:40:56 +0000 (UTC)
+        id S230425AbhCVMeQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:34:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 845B7619A1;
+        Mon, 22 Mar 2021 12:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416857;
-        bh=kQzTkNmWoOH20H0aGo1hXNvC1nSjrt1CUgzu4rT3LBo=;
+        s=korg; t=1616416456;
+        bh=OoSPEFPINv6Vx+HXN6zcG0dnP7MfFtDo4GM5s4E6C8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKghO68AcnFzEnukb+utnB+9GogNSDRFYVB+f02/kA9F7sUJ7GZ5L2PgCjV1fLGjT
-         OIsqdK0b9Uzbmk5E06yPaal9RGzFgDc/66X0aFNu50GKDUgNaFX/gNjmH7wnmSEhqM
-         TECSigI/MHc9nR+MpVD4xWC+3rpP6I2GE174JYy4=
+        b=ZhxYcjHMrpBRgQnsEGgCOBNzMbtJHc8AscI9NnN0odzbCeN5X/W2Vz6PImO1Nvssd
+         bBTKTGXKa6hxOWfFN5IkdNM/LzUnpsXlSissB5kHW9RMpr4AaL+Y3UkLvRaxFsFRK4
+         LvGectE6rlSL/UwxplEXeGae6Di6/WuF2/do1Q0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 104/157] mptcp: put subflow sock on connect error
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Matthias Schwarzott <zzam@gentoo.org>
+Subject: [PATCH 5.11 078/120] usb-storage: Add quirk to defeat Kindles automatic unload
 Date:   Mon, 22 Mar 2021 13:27:41 +0100
-Message-Id: <20210322121937.071435221@linuxfoundation.org>
+Message-Id: <20210322121932.277196402@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit f07157792c633b528de5fc1dbe2e4ea54f8e09d4 ]
+commit 546aa0e4ea6ed81b6c51baeebc4364542fa3f3a7 upstream.
 
-mptcp_add_pending_subflow() performs a sock_hold() on the subflow,
-then adds the subflow to the join list.
+Matthias reports that the Amazon Kindle automatically removes its
+emulated media if it doesn't receive another SCSI command within about
+one second after a SYNCHRONIZE CACHE.  It does so even when the host
+has sent a PREVENT MEDIUM REMOVAL command.  The reason for this
+behavior isn't clear, although it's not hard to make some guesses.
 
-Without a sock_put the subflow sk won't be freed in case connect() fails.
+At any rate, the results can be unexpected for anyone who tries to
+access the Kindle in an unusual fashion, and in theory they can lead
+to data loss (for example, if one file is closed and synchronized
+while other files are still in the middle of being written).
 
-unreferenced object 0xffff88810c03b100 (size 3000):
-[..]
-    sk_prot_alloc.isra.0+0x2f/0x110
-    sk_alloc+0x5d/0xc20
-    inet6_create+0x2b7/0xd30
-    __sock_create+0x17f/0x410
-    mptcp_subflow_create_socket+0xff/0x9c0
-    __mptcp_subflow_connect+0x1da/0xaf0
-    mptcp_pm_nl_work+0x6e0/0x1120
-    mptcp_worker+0x508/0x9a0
+To avoid such problems, this patch creates a new usb-storage quirks
+flag telling the driver always to issue a REQUEST SENSE following a
+SYNCHRONIZE CACHE command, and adds an unusual_devs entry for the
+Kindle with the flag set.  This is sufficient to prevent the Kindle
+from doing its automatic unload, without interfering with proper
+operation.
 
-Fixes: 5b950ff4331ddda ("mptcp: link MPC subflow into msk only after accept")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Another possible way to deal with this would be to increase the
+frequency of TEST UNIT READY polling that the kernel normally carries
+out for removable-media storage devices.  However that would increase
+the overall load on the system and it is not as reliable, because the
+user can override the polling interval.  Changing the driver's
+behavior is safer and has minimal overhead.
+
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: Matthias Schwarzott <zzam@gentoo.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210317190654.GA497856@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/storage/transport.c    |    7 +++++++
+ drivers/usb/storage/unusual_devs.h |   12 ++++++++++++
+ include/linux/usb_usual.h          |    2 ++
+ 3 files changed, 21 insertions(+)
 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 16adba172fb9..591546d0953f 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1133,6 +1133,7 @@ int __mptcp_subflow_connect(struct sock *sk, const struct mptcp_addr_info *loc,
- 	spin_lock_bh(&msk->join_list_lock);
- 	list_add_tail(&subflow->node, &msk->join_list);
- 	spin_unlock_bh(&msk->join_list_lock);
-+	sock_put(mptcp_subflow_tcp_sock(subflow));
+--- a/drivers/usb/storage/transport.c
++++ b/drivers/usb/storage/transport.c
+@@ -656,6 +656,13 @@ void usb_stor_invoke_transport(struct sc
+ 		need_auto_sense = 1;
+ 	}
  
- 	return err;
++	/* Some devices (Kindle) require another command after SYNC CACHE */
++	if ((us->fflags & US_FL_SENSE_AFTER_SYNC) &&
++			srb->cmnd[0] == SYNCHRONIZE_CACHE) {
++		usb_stor_dbg(us, "-- sense after SYNC CACHE\n");
++		need_auto_sense = 1;
++	}
++
+ 	/*
+ 	 * If we have a failure, we're going to do a REQUEST_SENSE 
+ 	 * automatically.  Note that we differentiate between a command
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2212,6 +2212,18 @@ UNUSUAL_DEV( 0x1908, 0x3335, 0x0200, 0x0
+ 		US_FL_NO_READ_DISC_INFO ),
  
--- 
-2.30.1
-
+ /*
++ * Reported by Matthias Schwarzott <zzam@gentoo.org>
++ * The Amazon Kindle treats SYNCHRONIZE CACHE as an indication that
++ * the host may be finished with it, and automatically ejects its
++ * emulated media unless it receives another command within one second.
++ */
++UNUSUAL_DEV( 0x1949, 0x0004, 0x0000, 0x9999,
++		"Amazon",
++		"Kindle",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_SENSE_AFTER_SYNC ),
++
++/*
+  * Reported by Oliver Neukum <oneukum@suse.com>
+  * This device morphes spontaneously into another device if the access
+  * pattern of Windows isn't followed. Thus writable media would be dirty
+--- a/include/linux/usb_usual.h
++++ b/include/linux/usb_usual.h
+@@ -86,6 +86,8 @@
+ 		/* lies about caching, so always sync */	\
+ 	US_FLAG(NO_SAME, 0x40000000)				\
+ 		/* Cannot handle WRITE_SAME */			\
++	US_FLAG(SENSE_AFTER_SYNC, 0x80000000)			\
++		/* Do REQUEST_SENSE after SYNCHRONIZE_CACHE */	\
+ 
+ #define US_FLAG(name, value)	US_FL_##name = value ,
+ enum { US_DO_ALL_FLAGS };
 
 
