@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 024D634419D
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B69563442A2
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231152AbhCVMeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:34:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55354 "EHLO mail.kernel.org"
+        id S231899AbhCVMoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231589AbhCVMdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:33:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE243619AE;
-        Mon, 22 Mar 2021 12:33:35 +0000 (UTC)
+        id S232329AbhCVMmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A338460C3D;
+        Mon, 22 Mar 2021 12:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416416;
-        bh=J0Y3sIMV2n/Y1OuK3iAET8+O3YG9ezdpmXSxTGcPkOQ=;
+        s=korg; t=1616416794;
+        bh=LLeOM1RpqA9mOvAYXPpXUzX0CoIVtFrjKnsMUAATMWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1m7fyEwmnbxusyTcH8o4V3d93TG8ABg+nxUdVHmQau/svLgoyWJDXyvPCeCLrgBr
-         GQknX+JbDchVlHNnd+ElhJi5La0baP7NZ6tKcFiaAKH4Cut5ndsl3b16VlqUp1fI4T
-         K7f6f7vUYO4w9hzJdxn9Gc8bdxEQS9E3nPxgn48Y=
+        b=vZbz9Nv6w7nUpj7ioPX14CabxkrtDuLfTSiQDsz0wBYjgYxXBpDhn3hu4frY4Mj9E
+         UmgHEYvU0wGQ/9hVe4TVYY06K/NpFe/S1G6/uD3F2aLlAwwsceIaLPBey/RcOzWo5s
+         77diBVo/ZRAfldzVzv0BrH6jctCSUHSmjjOXHdpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.11 098/120] counter: stm32-timer-cnt: fix ceiling miss-alignment with reload register
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.10 124/157] thunderbolt: Increase runtime PM reference count on DP tunnel discovery
 Date:   Mon, 22 Mar 2021 13:28:01 +0100
-Message-Id: <20210322121932.960417786@linuxfoundation.org>
+Message-Id: <20210322121937.693163691@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit b14d72ac731753708a7c1a6b3657b9312b6f0042 upstream.
+commit c94732bda079ee66b5c3904cbb628d0cb218ab39 upstream.
 
-Ceiling value may be miss-aligned with what's actually configured into the
-ARR register. This is seen after probe as currently the ARR value is zero,
-whereas ceiling value is set to the maximum. So:
-- reading ceiling reports zero
-- in case the counter gets enabled without any prior configuration,
-  it won't count.
-- in case the function gets set by the user 1st, (priv->ceiling) is used.
+If the driver is unbound and then bound back it goes over the topology
+and figure out the existing tunnels. However, if it finds DP tunnel it
+should make sure the domain does not runtime suspend as otherwise it
+will tear down the DP tunnel unexpectedly.
 
-Fix it by getting rid of the cached "priv->ceiling" variable. Rather use
-the ARR register value directly by using regmap read or write when needed.
-There should be no drawback on performance as priv->ceiling isn't used in
-performance critical path.
-There's also no point in writing ARR while setting function (sms), so
-it can be safely removed.
-
-Fixes: ad29937e206f ("counter: Add STM32 Timer quadrature encoder")
-Suggested-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Acked-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1614793789-10346-1-git-send-email-fabrice.gasnier@foss.st.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 6ac6faee5d7d ("thunderbolt: Add runtime PM for Software CM")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/counter/stm32-timer-cnt.c |   11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/thunderbolt/tb.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/counter/stm32-timer-cnt.c
-+++ b/drivers/counter/stm32-timer-cnt.c
-@@ -31,7 +31,6 @@ struct stm32_timer_cnt {
- 	struct counter_device counter;
- 	struct regmap *regmap;
- 	struct clk *clk;
--	u32 ceiling;
- 	u32 max_arr;
- 	bool enabled;
- 	struct stm32_timer_regs bak;
-@@ -75,8 +74,10 @@ static int stm32_count_write(struct coun
- 			     const unsigned long val)
- {
- 	struct stm32_timer_cnt *const priv = counter->priv;
-+	u32 ceiling;
+--- a/drivers/thunderbolt/tb.c
++++ b/drivers/thunderbolt/tb.c
+@@ -138,6 +138,10 @@ static void tb_discover_tunnels(struct t
+ 				parent->boot = true;
+ 				parent = tb_switch_parent(parent);
+ 			}
++		} else if (tb_tunnel_is_dp(tunnel)) {
++			/* Keep the domain from powering down */
++			pm_runtime_get_sync(&tunnel->src_port->sw->dev);
++			pm_runtime_get_sync(&tunnel->dst_port->sw->dev);
+ 		}
  
--	if (val > priv->ceiling)
-+	regmap_read(priv->regmap, TIM_ARR, &ceiling);
-+	if (val > ceiling)
- 		return -EINVAL;
- 
- 	return regmap_write(priv->regmap, TIM_CNT, val);
-@@ -138,10 +139,6 @@ static int stm32_count_function_set(stru
- 
- 	regmap_update_bits(priv->regmap, TIM_CR1, TIM_CR1_CEN, 0);
- 
--	/* TIMx_ARR register shouldn't be buffered (ARPE=0) */
--	regmap_update_bits(priv->regmap, TIM_CR1, TIM_CR1_ARPE, 0);
--	regmap_write(priv->regmap, TIM_ARR, priv->ceiling);
--
- 	regmap_update_bits(priv->regmap, TIM_SMCR, TIM_SMCR_SMS, sms);
- 
- 	/* Make sure that registers are updated */
-@@ -199,7 +196,6 @@ static ssize_t stm32_count_ceiling_write
- 	regmap_update_bits(priv->regmap, TIM_CR1, TIM_CR1_ARPE, 0);
- 	regmap_write(priv->regmap, TIM_ARR, ceiling);
- 
--	priv->ceiling = ceiling;
- 	return len;
- }
- 
-@@ -374,7 +370,6 @@ static int stm32_timer_cnt_probe(struct
- 
- 	priv->regmap = ddata->regmap;
- 	priv->clk = ddata->clk;
--	priv->ceiling = ddata->max_arr;
- 	priv->max_arr = ddata->max_arr;
- 
- 	priv->counter.name = dev_name(dev);
+ 		list_add_tail(&tunnel->list, &tcm->tunnel_list);
 
 
