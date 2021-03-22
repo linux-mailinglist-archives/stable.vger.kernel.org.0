@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657CD3442BC
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD76344179
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231217AbhCVMoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35346 "EHLO mail.kernel.org"
+        id S231220AbhCVMdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:33:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232608AbhCVMmw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E4E4619A2;
-        Mon, 22 Mar 2021 12:40:42 +0000 (UTC)
+        id S231440AbhCVMcw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:32:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DF5B60C3D;
+        Mon, 22 Mar 2021 12:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416842;
-        bh=0PSbATWdDDaov/Z5J/zXV8SD8WfhRP9ILRONZIESGu4=;
+        s=korg; t=1616416372;
+        bh=HduXnkpgaGEVxGOkeCW2FrCsDahfW4MfHaIsYuQ3T9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rhmn5jrYcrLeLU41urT38CJiZEI5FhfdJAVkSKSKg/l2D5NF+EWNg0DGlDr4KazlB
-         JvVwl6kdKeaa+zE/5d6boNIJwrr1kSe+W5tNMViGLKIfAX300OoRnL/tVeJDoRu9C/
-         nWEafdc2WEH73ZMbX+wNgxhaDhjYgwyd8DEln10w=
+        b=XgKClUz2U4VngHq6TPD5RhDSYoEY9FeP6Gl/u0y4s5Hm+EuRGHZNhD8x5CNW/aOCQ
+         vg+Y1PnJ8pYdkBzyQIJOIMUGBj7ZuJ4WJZw0kAfMr2UYL63tnqQ46rQnQBqNGyjGyl
+         gGLS3DWHuweEI5hIPpt2c4Ncmrhyb1RAbNZ1AUlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 108/157] net: bonding: fix error return code of bond_neigh_init()
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>
+Subject: [PATCH 5.11 082/120] usb: typec: tcpm: Invoke power_supply_changed for tcpm-source-psy-
 Date:   Mon, 22 Mar 2021 13:27:45 +0100
-Message-Id: <20210322121937.193932219@linuxfoundation.org>
+Message-Id: <20210322121932.413344728@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-[ Upstream commit 2055a99da8a253a357bdfd359b3338ef3375a26c ]
+commit 86629e098a077922438efa98dc80917604dfd317 upstream.
 
-When slave is NULL or slave_ops->ndo_neigh_setup is NULL, no error
-return code of bond_neigh_init() is assigned.
-To fix this bug, ret is assigned with -EINVAL in these cases.
+tcpm-source-psy- does not invoke power_supply_changed API when
+one of the published power supply properties is changed.
+power_supply_changed needs to be called to notify
+userspace clients(uevents) and kernel clients.
 
-Fixes: 9e99bfefdbce ("bonding: fix bond_neigh_init()")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f2a8aa053c176 ("typec: tcpm: Represent source supply through power_supply")
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210317181249.1062995-1-badhri@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 47afc5938c26..6d5a39af1097 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3918,11 +3918,15 @@ static int bond_neigh_init(struct neighbour *n)
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -797,6 +797,7 @@ static int tcpm_set_current_limit(struct
  
- 	rcu_read_lock();
- 	slave = bond_first_slave_rcu(bond);
--	if (!slave)
-+	if (!slave) {
-+		ret = -EINVAL;
- 		goto out;
-+	}
- 	slave_ops = slave->dev->netdev_ops;
--	if (!slave_ops->ndo_neigh_setup)
-+	if (!slave_ops->ndo_neigh_setup) {
-+		ret = -EINVAL;
- 		goto out;
-+	}
+ 	port->supply_voltage = mv;
+ 	port->current_limit = max_ma;
++	power_supply_changed(port->psy);
  
- 	/* TODO: find another way [1] to implement this.
- 	 * Passing a zeroed structure is fragile,
--- 
-2.30.1
-
+ 	if (port->tcpc->set_current_limit)
+ 		ret = port->tcpc->set_current_limit(port->tcpc, max_ma, mv);
+@@ -2345,6 +2346,7 @@ static int tcpm_pd_select_pdo(struct tcp
+ 
+ 	port->pps_data.supported = false;
+ 	port->usb_type = POWER_SUPPLY_USB_TYPE_PD;
++	power_supply_changed(port->psy);
+ 
+ 	/*
+ 	 * Select the source PDO providing the most power which has a
+@@ -2369,6 +2371,7 @@ static int tcpm_pd_select_pdo(struct tcp
+ 				port->pps_data.supported = true;
+ 				port->usb_type =
+ 					POWER_SUPPLY_USB_TYPE_PD_PPS;
++				power_supply_changed(port->psy);
+ 			}
+ 			continue;
+ 		default:
+@@ -2526,6 +2529,7 @@ static unsigned int tcpm_pd_select_pps_a
+ 						  port->pps_data.out_volt));
+ 		port->pps_data.op_curr = min(port->pps_data.max_curr,
+ 					     port->pps_data.op_curr);
++		power_supply_changed(port->psy);
+ 	}
+ 
+ 	return src_pdo;
+@@ -2761,6 +2765,7 @@ static int tcpm_set_charge(struct tcpm_p
+ 			return ret;
+ 	}
+ 	port->vbus_charge = charge;
++	power_supply_changed(port->psy);
+ 	return 0;
+ }
+ 
+@@ -2935,6 +2940,7 @@ static void tcpm_reset_port(struct tcpm_
+ 	port->try_src_count = 0;
+ 	port->try_snk_count = 0;
+ 	port->usb_type = POWER_SUPPLY_USB_TYPE_C;
++	power_supply_changed(port->psy);
+ 	port->nr_sink_caps = 0;
+ 	port->sink_cap_done = false;
+ 	if (port->tcpc->enable_frs)
+@@ -5129,7 +5135,7 @@ static int tcpm_psy_set_prop(struct powe
+ 		ret = -EINVAL;
+ 		break;
+ 	}
+-
++	power_supply_changed(port->psy);
+ 	return ret;
+ }
+ 
+@@ -5281,6 +5287,7 @@ struct tcpm_port *tcpm_register_port(str
+ 	err = devm_tcpm_psy_register(port);
+ 	if (err)
+ 		goto out_role_sw_put;
++	power_supply_changed(port->psy);
+ 
+ 	port->typec_port = typec_register_port(port->dev, &port->typec_caps);
+ 	if (IS_ERR(port->typec_port)) {
 
 
