@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B888F344353
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FDCC3442EA
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:48:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231174AbhCVMth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
+        id S231397AbhCVMqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232741AbhCVMsH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:48:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9929B619E8;
-        Mon, 22 Mar 2021 12:44:01 +0000 (UTC)
+        id S231855AbhCVMoN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:44:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 187E3619B7;
+        Mon, 22 Mar 2021 12:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417042;
-        bh=NqauGuUlqs04aDiBlkjrkYv7CLIba4f1hYwFQt9WIHU=;
+        s=korg; t=1616416897;
+        bh=ZZGbIeYCHVqzpPhPvB6JeWh0T7dZgJfWJB7XjPxWgsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qQ99/moge5mRdyIPIknnLO6j2xM6f2xxrOc6YCn/s5c4v+M7lFFGt+UEFpjfcL9GC
-         dav8kLQcy+00JWH2yh6Yt+MZewx6ZLV9zVxcwNoQ8cwA5WfyHVqelMVe+bPjTc4Mqj
-         V5rKHxxoZs32QqLpZPE9LNZg74K338Zbl74XrbsQ=
+        b=RJfbDPmZmE9l1nmNXskaGk8oqoeXAzVCqXGcrC9FgDek0mWptj/dEv0/z3aJWmooG
+         9rTH0OvD+wy8/ei3gyK/OREo4JEY/MAgMGz7VKSD1xgGbgaziWwo3QA1x4wkX6j5xA
+         cxbld6+Wvtp5LW1gjOg22DTotFew4WETHuY7E8aM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 31/60] scsi: myrs: Fix a double free in myrs_cleanup()
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 142/157] x86: Move TS_COMPAT back to asm/thread_info.h
 Date:   Mon, 22 Mar 2021 13:28:19 +0100
-Message-Id: <20210322121923.416983275@linuxfoundation.org>
+Message-Id: <20210322121938.251129219@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 2bb817712e2f77486d6ee17e7efaf91997a685f8 upstream.
+commit 66c1b6d74cd7035e85c426f0af4aede19e805c8a upstream.
 
-In myrs_cleanup(), cs->mmio_base will be freed twice by iounmap().
+Move TS_COMPAT back to asm/thread_info.h, close to TS_I386_REGS_POKED.
 
-Link: https://lore.kernel.org/r/20210311063005.9963-1-lyl2019@mail.ustc.edu.cn
-Fixes: 77266186397c ("scsi: myrs: Add Mylex RAID controller (SCSI interface)")
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+It was moved to asm/processor.h by b9d989c7218a ("x86/asm: Move the
+thread_info::status field to thread_struct"), then later 37a8f7c38339
+("x86/asm: Move 'status' from thread_struct to thread_info") moved the
+'status' field back but TS_COMPAT was forgotten.
+
+Preparatory patch to fix the COMPAT case for get_nr_restart_syscall()
+
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210201174649.GA17880@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/myrs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/processor.h   |    9 ---------
+ arch/x86/include/asm/thread_info.h |    9 +++++++++
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/scsi/myrs.c
-+++ b/drivers/scsi/myrs.c
-@@ -2274,12 +2274,12 @@ static void myrs_cleanup(struct myrs_hba
- 	if (cs->mmio_base) {
- 		cs->disable_intr(cs);
- 		iounmap(cs->mmio_base);
-+		cs->mmio_base = NULL;
- 	}
- 	if (cs->irq)
- 		free_irq(cs->irq, cs);
- 	if (cs->io_addr)
- 		release_region(cs->io_addr, 0x80);
--	iounmap(cs->mmio_base);
- 	pci_set_drvdata(pdev, NULL);
- 	pci_disable_device(pdev);
- 	scsi_host_put(cs->host);
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -552,15 +552,6 @@ static inline void arch_thread_struct_wh
+ 	*size = fpu_kernel_xstate_size;
+ }
+ 
+-/*
+- * Thread-synchronous status.
+- *
+- * This is different from the flags in that nobody else
+- * ever touches our thread-synchronous status, so we don't
+- * have to worry about atomic accesses.
+- */
+-#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
+-
+ static inline void
+ native_load_sp0(unsigned long sp0)
+ {
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -216,6 +216,15 @@ static inline int arch_within_stack_fram
+ 
+ #endif
+ 
++/*
++ * Thread-synchronous status.
++ *
++ * This is different from the flags in that nobody else
++ * ever touches our thread-synchronous status, so we don't
++ * have to worry about atomic accesses.
++ */
++#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
++
+ #ifdef CONFIG_COMPAT
+ #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
+ #endif
 
 
