@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F33033443E9
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 817C3344441
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232523AbhCVMzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:55:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
+        id S230063AbhCVM7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232967AbhCVMxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:53:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFFD36198D;
-        Mon, 22 Mar 2021 12:47:14 +0000 (UTC)
+        id S232721AbhCVM4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:56:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FB5F619BA;
+        Mon, 22 Mar 2021 12:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417235;
-        bh=aRM5IQnMSj7dLNCMdlQfn+HQqfCX86Jk/0AvigZckLg=;
+        s=korg; t=1616417324;
+        bh=tPetY16AiQmg8h1ZYslYI+vPL7h0XaE/AWhM9p3MhSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5UFcJRAbwBgubZOEzOcYKivlleh8N1JUV94dnUuHQgnFSgkype3Yb2b4N8m0xYZ5
-         TYrXnb6gtcU23NKOxVr5LNqDDgnSekJYvSR+rWwqlqT9VXUMGUqVzfm2nT0S8oQuKq
-         q/XZKpcvbJ9ymDqpR+KE3b+rppnyR05bTmw0mNvI=
+        b=2Evud/tKqxI8OvG5zjF5H5Exy1ydfYwHHJQtH6zFOvpZ16GH2tTs52zHZ6IC2lWJ+
+         4gtW1zK70qdnPl/tWnfYad9MRJ6Y+Kjn2Kzt4GGFAEtKGnmOrlGDf6LPTOZyF9YV8A
+         mpEXkJtx6J00WWcqJFplDmG1mmx9BPesGGUAM14I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 21/25] x86: Move TS_COMPAT back to asm/thread_info.h
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 30/43] iio: gyro: mpu3050: Fix error handling in mpu3050_trigger_handler
 Date:   Mon, 22 Mar 2021 13:29:11 +0100
-Message-Id: <20210322121921.067364183@linuxfoundation.org>
+Message-Id: <20210322121920.999100040@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
-References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 66c1b6d74cd7035e85c426f0af4aede19e805c8a upstream.
+commit 6dbbbe4cfd398704b72b21c1d4a5d3807e909d60 upstream.
 
-Move TS_COMPAT back to asm/thread_info.h, close to TS_I386_REGS_POKED.
+There is one regmap_bulk_read() call in mpu3050_trigger_handler
+that we have caught its return value bug lack further handling.
+Check and terminate the execution flow just like the other three
+regmap_bulk_read() calls in this function.
 
-It was moved to asm/processor.h by b9d989c7218a ("x86/asm: Move the
-thread_info::status field to thread_struct"), then later 37a8f7c38339
-("x86/asm: Move 'status' from thread_struct to thread_info") moved the
-'status' field back but TS_COMPAT was forgotten.
-
-Preparatory patch to fix the COMPAT case for get_nr_restart_syscall()
-
-Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174649.GA17880@redhat.com
+Fixes: 3904b28efb2c7 ("iio: gyro: Add driver for the MPU-3050 gyroscope")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210301080421.13436-1-dinghao.liu@zju.edu.cn
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/processor.h   |    9 ---------
- arch/x86/include/asm/thread_info.h |    9 +++++++++
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/iio/gyro/mpu3050-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -462,15 +462,6 @@ struct thread_struct {
- };
+--- a/drivers/iio/gyro/mpu3050-core.c
++++ b/drivers/iio/gyro/mpu3050-core.c
+@@ -549,6 +549,8 @@ static irqreturn_t mpu3050_trigger_handl
+ 					       MPU3050_FIFO_R,
+ 					       &fifo_values[offset],
+ 					       toread);
++			if (ret)
++				goto out_trigger_unlock;
  
- /*
-- * Thread-synchronous status.
-- *
-- * This is different from the flags in that nobody else
-- * ever touches our thread-synchronous status, so we don't
-- * have to worry about atomic accesses.
-- */
--#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
--
--/*
-  * Set IOPL bits in EFLAGS from given mask
-  */
- static inline void native_set_iopl_mask(unsigned mask)
---- a/arch/x86/include/asm/thread_info.h
-+++ b/arch/x86/include/asm/thread_info.h
-@@ -221,6 +221,15 @@ static inline int arch_within_stack_fram
- 
- #endif
- 
-+/*
-+ * Thread-synchronous status.
-+ *
-+ * This is different from the flags in that nobody else
-+ * ever touches our thread-synchronous status, so we don't
-+ * have to worry about atomic accesses.
-+ */
-+#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
-+
- #ifdef CONFIG_COMPAT
- #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
- #endif
+ 			dev_dbg(mpu3050->dev,
+ 				"%04x %04x %04x %04x %04x\n",
 
 
