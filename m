@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C480334444C
+	by mail.lfdr.de (Postfix) with ESMTP id 04F6934444A
 	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232224AbhCVM7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
+        id S232207AbhCVM7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232365AbhCVM5A (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232395AbhCVM5A (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 22 Mar 2021 08:57:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C0F661A1F;
-        Mon, 22 Mar 2021 12:49:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F28CF61A43;
+        Mon, 22 Mar 2021 12:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417343;
-        bh=Tm8K43LSo0DhzOfmyZaPEruNI9eIz6wJ/SL3P/UVyiU=;
+        s=korg; t=1616417345;
+        bh=gb4jHTXsVwMzTQ/u3yzOWzTn1m80SlvBJa4XX531drg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1mwdqjyw+VebGFR6zD3/gAsmaQQGxzVQVfkDsMfQO1z8v2pQF4WBd7kRcvzB3Spq
-         V17ivrKFJcL3UJ5mfVEkASzf4h9vcONYPqjAWnQL2ZK6id10dK/boQuxPqHoNqvkwI
-         RvCE/VcrAdQs4KpELKZoBz6ZOH5nfCyQJGAnzlLY=
+        b=V3Yez7cE0gBbWhgqWWbcagBWfDyTXigKERMIdWsOyQ2g1AY3Dto+KZ2x/yzuZWHRw
+         tG/VTaZmI2srqmX9GlN1z/h1pwTmRV8Q+LqoEa2K2MXN+pLg85eraWYvE8eKhjxKIR
+         zjgoEkuukUpeumWZxQHQaMwxmwaA7qHDjz72eAp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 37/43] kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
-Date:   Mon, 22 Mar 2021 13:29:18 +0100
-Message-Id: <20210322121921.220252972@linuxfoundation.org>
+Subject: [PATCH 4.14 38/43] x86: Move TS_COMPAT back to asm/thread_info.h
+Date:   Mon, 22 Mar 2021 13:29:19 +0100
+Message-Id: <20210322121921.252134818@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
 References: <20210322121920.053255560@linuxfoundation.org>
@@ -41,145 +41,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Oleg Nesterov <oleg@redhat.com>
 
-commit 5abbe51a526253b9f003e9a0a195638dc882d660 upstream.
+commit 66c1b6d74cd7035e85c426f0af4aede19e805c8a upstream.
 
-Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
+Move TS_COMPAT back to asm/thread_info.h, close to TS_I386_REGS_POKED.
 
-Add a new helper which sets restart_block->fn and calls a dummy
-arch_set_restart_data() helper.
+It was moved to asm/processor.h by b9d989c7218a ("x86/asm: Move the
+thread_info::status field to thread_struct"), then later 37a8f7c38339
+("x86/asm: Move 'status' from thread_struct to thread_info") moved the
+'status' field back but TS_COMPAT was forgotten.
+
+Preparatory patch to fix the COMPAT case for get_nr_restart_syscall()
 
 Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
 Signed-off-by: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
+Link: https://lore.kernel.org/r/20210201174649.GA17880@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/select.c                    |   10 ++++------
- include/linux/thread_info.h    |   13 +++++++++++++
- kernel/futex.c                 |    3 +--
- kernel/time/alarmtimer.c       |    2 +-
- kernel/time/hrtimer.c          |    2 +-
- kernel/time/posix-cpu-timers.c |    2 +-
- 6 files changed, 21 insertions(+), 11 deletions(-)
+ arch/x86/include/asm/processor.h   |    9 ---------
+ arch/x86/include/asm/thread_info.h |    9 +++++++++
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -1006,10 +1006,9 @@ static long do_restart_poll(struct resta
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -512,15 +512,6 @@ struct thread_struct {
+ };
  
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	if (ret == -EINTR) {
--		restart_block->fn = do_restart_poll;
--		ret = -ERESTART_RESTARTBLOCK;
--	}
-+	if (ret == -EINTR)
-+		ret = set_restart_fn(restart_block, do_restart_poll);
-+
- 	return ret;
- }
- 
-@@ -1031,7 +1030,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		struct restart_block *restart_block;
- 
- 		restart_block = &current->restart_block;
--		restart_block->fn = do_restart_poll;
- 		restart_block->poll.ufds = ufds;
- 		restart_block->poll.nfds = nfds;
- 
-@@ -1042,7 +1040,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
- 		} else
- 			restart_block->poll.has_timeout = 0;
- 
--		ret = -ERESTART_RESTARTBLOCK;
-+		ret = set_restart_fn(restart_block, do_restart_poll);
- 	}
- 	return ret;
- }
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -11,6 +11,7 @@
- #include <linux/types.h>
- #include <linux/bug.h>
- #include <linux/restart_block.h>
-+#include <linux/errno.h>
- 
- #ifdef CONFIG_THREAD_INFO_IN_TASK
  /*
-@@ -39,6 +40,18 @@ enum {
+- * Thread-synchronous status.
+- *
+- * This is different from the flags in that nobody else
+- * ever touches our thread-synchronous status, so we don't
+- * have to worry about atomic accesses.
+- */
+-#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
+-
+-/*
+  * Set IOPL bits in EFLAGS from given mask
+  */
+ static inline void native_set_iopl_mask(unsigned mask)
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -229,6 +229,15 @@ static inline int arch_within_stack_fram
  
- #ifdef __KERNEL__
- 
-+#ifndef arch_set_restart_data
-+#define arch_set_restart_data(restart) do { } while (0)
-+#endif
-+
-+static inline long set_restart_fn(struct restart_block *restart,
-+					long (*fn)(struct restart_block *))
-+{
-+	restart->fn = fn;
-+	arch_set_restart_data(restart);
-+	return -ERESTART_RESTARTBLOCK;
-+}
-+
- #ifndef THREAD_ALIGN
- #define THREAD_ALIGN	THREAD_SIZE
  #endif
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2875,14 +2875,13 @@ retry:
- 		goto out;
  
- 	restart = &current->restart_block;
--	restart->fn = futex_wait_restart;
- 	restart->futex.uaddr = uaddr;
- 	restart->futex.val = val;
- 	restart->futex.time = *abs_time;
- 	restart->futex.bitset = bitset;
- 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
- 
--	ret = -ERESTART_RESTARTBLOCK;
-+	ret = set_restart_fn(restart, futex_wait_restart);
- 
- out:
- 	if (to) {
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -822,9 +822,9 @@ static int alarm_timer_nsleep(const cloc
- 	if (flags == TIMER_ABSTIME)
- 		return -ERESTARTNOHAND;
- 
--	restart->fn = alarm_timer_nsleep_restart;
- 	restart->nanosleep.clockid = type;
- 	restart->nanosleep.expires = exp;
-+	set_restart_fn(restart, alarm_timer_nsleep_restart);
- 	return ret;
- }
- 
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1545,9 +1545,9 @@ long hrtimer_nanosleep(const struct time
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = hrtimer_nanosleep_restart;
- 	restart->nanosleep.clockid = t.timer.base->clockid;
- 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
-+	set_restart_fn(restart, hrtimer_nanosleep_restart);
- out:
- 	destroy_hrtimer_on_stack(&t.timer);
- 	return ret;
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1348,8 +1348,8 @@ static int posix_cpu_nsleep(const clocki
- 		if (flags & TIMER_ABSTIME)
- 			return -ERESTARTNOHAND;
- 
--		restart_block->fn = posix_cpu_nsleep_restart;
- 		restart_block->nanosleep.clockid = which_clock;
-+		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
- 	}
- 	return error;
- }
++/*
++ * Thread-synchronous status.
++ *
++ * This is different from the flags in that nobody else
++ * ever touches our thread-synchronous status, so we don't
++ * have to worry about atomic accesses.
++ */
++#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
++
+ #ifdef CONFIG_COMPAT
+ #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
+ #endif
 
 
