@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0CA3442A5
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6F563441AB
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231224AbhCVMoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35450 "EHLO mail.kernel.org"
+        id S231288AbhCVMfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:35:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232358AbhCVMm0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A342619AF;
-        Mon, 22 Mar 2021 12:40:01 +0000 (UTC)
+        id S231603AbhCVMdu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:33:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C996C619A3;
+        Mon, 22 Mar 2021 12:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416802;
-        bh=Cf6gnvZayp1/BGswoa0l0qqhfBryeqMKpVvLyc7Q+80=;
+        s=korg; t=1616416429;
+        bh=Kxq0WtRl8Kxl4HVdY4NnMHnxBiCyp9MqgUQ1qklBtuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaX3KCExCrWBEZTUE/sQZGx4ZaCWevEWHl8C1MSrbX/DoR97IgQyXrw0UaJ8GA6a/
-         C0RofMQ6gjEsbqTLkMRR+HAnMmpgoqTvOLdakZhvX85Hq4cbo0yl+osCfvgOJReefw
-         RzDHb4GPV6puKRaNp5+uVAd93IFtg+fg07LlLYMg=
+        b=Cm0Y4/96OwHZ7eEhbG4ghTuO743C8EikNeFCf4IS5vgQMZEFRiQDgm43/uuF6LdOZ
+         Zr/RYo6PnEXnttd3H8/VEjeUnCiFTk0I0oa+9DO81jXNZzU7Fvr5/M44OpBXU92t1I
+         YqtFs0jxxUGwWa4Qd6OjvEkNQT2ZtaeJcLCo8/d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 127/157] iio: adis16400: Fix an error code in adis16400_initial_setup()
-Date:   Mon, 22 Mar 2021 13:28:04 +0100
-Message-Id: <20210322121937.783034920@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.11 102/120] x86/ioapic: Ignore IRQ2 again
+Date:   Mon, 22 Mar 2021 13:28:05 +0100
+Message-Id: <20210322121933.083955305@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit a71266e454b5df10d019b06f5ebacd579f76be28 upstream.
+commit a501b048a95b79e1e34f03cac3c87ff1e9f229ad upstream.
 
-This is to silence a new Smatch warning:
+Vitaly ran into an issue with hotplugging CPU0 on an Amazon instance where
+the matrix allocator claimed to be out of vectors. He analyzed it down to
+the point that IRQ2, the PIC cascade interrupt, which is supposed to be not
+ever routed to the IO/APIC ended up having an interrupt vector assigned
+which got moved during unplug of CPU0.
 
-    drivers/iio/imu/adis16400.c:492 adis16400_initial_setup()
-    warn: sscanf doesn't return error codes
+The underlying issue is that IRQ2 for various reasons (see commit
+af174783b925 ("x86: I/O APIC: Never configure IRQ2" for details) is treated
+as a reserved system vector by the vector core code and is not accounted as
+a regular vector. The Amazon BIOS has an routing entry of pin2 to IRQ2
+which causes the IO/APIC setup to claim that interrupt which is granted by
+the vector domain because there is no sanity check. As a consequence the
+allocation counter of CPU0 underflows which causes a subsequent unplug to
+fail with:
 
-If the condition "if (st->variant->flags & ADIS16400_HAS_SLOW_MODE) {"
-is false then we return 1 instead of returning 0 and probe will fail.
+  [ ... ] CPU 0 has 4294967295 vectors, 589 available. Cannot disable CPU
 
-Fixes: 72a868b38bdd ("iio: imu: check sscanf return value")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YCwgFb3JVG6qrlQ+@mwanda
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+There is another sanity check missing in the matrix allocator, but the
+underlying root cause is that the IO/APIC code lost the IRQ2 ignore logic
+during the conversion to irqdomains.
+
+For almost 6 years nobody complained about this wreckage, which might
+indicate that this requirement could be lifted, but for any system which
+actually has a PIC IRQ2 is unusable by design so any routing entry has no
+effect and the interrupt cannot be connected to a device anyway.
+
+Due to that and due to history biased paranoia reasons restore the IRQ2
+ignore logic and treat it as non existent despite a routing entry claiming
+otherwise.
+
+Fixes: d32932d02e18 ("x86/irq: Convert IOAPIC to use hierarchical irqdomain interfaces")
+Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210318192819.636943062@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/adis16400.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/kernel/apic/io_apic.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/iio/imu/adis16400.c
-+++ b/drivers/iio/imu/adis16400.c
-@@ -462,8 +462,7 @@ static int adis16400_initial_setup(struc
- 		if (ret)
- 			goto err_ret;
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -1032,6 +1032,16 @@ static int mp_map_pin_to_irq(u32 gsi, in
+ 	if (idx >= 0 && test_bit(mp_irqs[idx].srcbus, mp_bus_not_pci)) {
+ 		irq = mp_irqs[idx].srcbusirq;
+ 		legacy = mp_is_legacy_irq(irq);
++		/*
++		 * IRQ2 is unusable for historical reasons on systems which
++		 * have a legacy PIC. See the comment vs. IRQ2 further down.
++		 *
++		 * If this gets removed at some point then the related code
++		 * in lapic_assign_system_vectors() needs to be adjusted as
++		 * well.
++		 */
++		if (legacy && irq == PIC_CASCADE_IR)
++			return -EINVAL;
+ 	}
  
--		ret = sscanf(indio_dev->name, "adis%u\n", &device_id);
--		if (ret != 1) {
-+		if (sscanf(indio_dev->name, "adis%u\n", &device_id) != 1) {
- 			ret = -EINVAL;
- 			goto err_ret;
- 		}
+ 	mutex_lock(&ioapic_mutex);
 
 
