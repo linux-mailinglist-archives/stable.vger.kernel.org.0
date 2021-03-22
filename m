@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0989344467
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17D253443A0
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231339AbhCVM7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49508 "EHLO mail.kernel.org"
+        id S230179AbhCVMxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230482AbhCVM4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:56:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 184B5619BC;
-        Mon, 22 Mar 2021 12:48:28 +0000 (UTC)
+        id S231435AbhCVMtm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B211619F7;
+        Mon, 22 Mar 2021 12:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417309;
-        bh=EDHo5EtwE/zUEs+4jbe7lpalNHcGSxojzeaT9hy/QTc=;
+        s=korg; t=1616417118;
+        bh=+N/vEXPFA2h7Hs+Xp+Ysnyf4OFcbKK4iAvPi5aDZgn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rtrO0+gOllaXjh6c9YfgNMrT7pnqeTJfJsaw5sGOCBA3uFm0B17oAXvd71VTS9OI
-         SxrQK7mx3GUrV4zVazmb3VaRy37WQyd4EtzNQMldhEwP5B97hEtFsfHtNwui3nxcBh
-         2vdaWaID+mkcBbGv1w1IFmY9DDbkk8jA7gizNhmg=
+        b=dPeuV4lIzFpdfgMY+NOWEEwLN0D1VGRKk9QTMMKJovgn/tQ7TNE8K5WPjtpJEsRXV
+         GcW/n1ZL5sj821lezpbsI4bEFo4BFwWBFATg0QHK/LVaUX/I/Vwlu8EPYyekt5isWk
+         59/jrjDlG/6JmYeSHERux4qzy2c2SCnmJDjX31Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.14 06/43] bpf: Add sanity check for upper ptr_limit
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 33/43] PCI: rpadlpar: Fix potential drc_name corruption in store functions
 Date:   Mon, 22 Mar 2021 13:28:47 +0100
-Message-Id: <20210322121920.260131229@linuxfoundation.org>
+Message-Id: <20210322121920.976130085@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Krysiuk <piotras@gmail.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit 1b1597e64e1a610c7a96710fc4717158e98a08b3 upstream.
+commit cc7a0bb058b85ea03db87169c60c7cfdd5d34678 upstream.
 
-Given we know the max possible value of ptr_limit at the time of retrieving
-the latter, add basic assertions, so that the verifier can bail out if
-anything looks odd and reject the program. Nothing triggered this so far,
-but it also does not hurt to have these.
+Both add_slot_store() and remove_slot_store() try to fix up the
+drc_name copied from the store buffer by placing a NUL terminator at
+nbyte + 1 or in place of a '\n' if present. However, the static buffer
+that we copy the drc_name data into is not zeroed and can contain
+anything past the n-th byte.
 
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
-Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+This is problematic if a '\n' byte appears in that buffer after nbytes
+and the string copied into the store buffer was not NUL terminated to
+start with as the strchr() search for a '\n' byte will mark this
+incorrectly as the end of the drc_name string resulting in a drc_name
+string that contains garbage data after the n-th byte.
+
+Additionally it will cause us to overwrite that '\n' byte on the stack
+with NUL, potentially corrupting data on the stack.
+
+The following debugging shows an example of the drmgr utility writing
+"PHB 4543" to the add_slot sysfs attribute, but add_slot_store()
+logging a corrupted string value.
+
+  drmgr: drmgr: -c phb -a -s PHB 4543 -d 1
+  add_slot_store: drc_name = PHB 4543°|<82>!, rc = -19
+
+Fix this by using strscpy() instead of memcpy() to ensure the string
+is NUL terminated when copied into the static drc_name buffer.
+Further, since the string is now NUL terminated the code only needs to
+change '\n' to '\0' when present.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+[mpe: Reformat change log and add mention of possible stack corruption]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210315214821.452959-1-tyreld@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/pci/hotplug/rpadlpar_sysfs.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2029,24 +2029,29 @@ static int retrieve_ptr_limit(const stru
- {
- 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
- 			    (opcode == BPF_SUB && !off_is_neg);
--	u32 off;
-+	u32 off, max;
+--- a/drivers/pci/hotplug/rpadlpar_sysfs.c
++++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
+@@ -34,12 +34,11 @@ static ssize_t add_slot_store(struct kob
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
  
- 	switch (ptr_reg->type) {
- 	case PTR_TO_STACK:
-+		/* Offset 0 is out-of-bounds, but acceptable start for the
-+		 * left direction, see BPF_REG_FP.
-+		 */
-+		max = MAX_BPF_STACK + mask_to_left;
- 		off = ptr_reg->off + ptr_reg->var_off.value;
- 		if (mask_to_left)
- 			*ptr_limit = MAX_BPF_STACK + off;
- 		else
- 			*ptr_limit = -off - 1;
--		return 0;
-+		return *ptr_limit >= max ? -ERANGE : 0;
- 	case PTR_TO_MAP_VALUE:
-+		max = ptr_reg->map_ptr->value_size;
- 		if (mask_to_left) {
- 			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
- 		} else {
- 			off = ptr_reg->smin_value + ptr_reg->off;
- 			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
- 		}
--		return 0;
-+		return *ptr_limit >= max ? -ERANGE : 0;
- 	default:
- 		return -EINVAL;
- 	}
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
+ 
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
+ 
+ 	rc = dlpar_add_slot(drc_name);
+ 	if (rc)
+@@ -65,12 +64,11 @@ static ssize_t remove_slot_store(struct
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
+ 
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
+ 
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
+ 
+ 	rc = dlpar_remove_slot(drc_name);
+ 	if (rc)
 
 
