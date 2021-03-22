@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B19E344443
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 719E53443EA
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230459AbhCVM7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50908 "EHLO mail.kernel.org"
+        id S232546AbhCVMzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:55:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231570AbhCVM4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:56:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38E7561606;
-        Mon, 22 Mar 2021 12:48:49 +0000 (UTC)
+        id S232975AbhCVMxH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:53:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21E1661A0C;
+        Mon, 22 Mar 2021 12:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417329;
-        bh=II35uXHXJRoSeJQrJyP72BFCEHlT/G3RVEpjJnJH0SQ=;
+        s=korg; t=1616417240;
+        bh=5bYIsRTkvwcMNwEcaxCMfVOM7gEbD2lo9AQQ0VkSLD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWTXO0kqMK/zSClTK737/hinIYqv+4Jg3YKv4A81LjP7OEFfsvnT/tcZH9Nx9U0Qw
-         8iSboE3idGwtQTbZYjoWg8UM/0e++yD6+oKqBpwS89o+mX+teo22iC5OC4+leswtw2
-         mW7+hUEZ9wqIn/vO0rzV72pMMZpFlySEVKswCaEg=
+        b=Dx4rvxP9rKav7v5rAqZ3rIcy44w/Jlx+i11PP1fMMf62/9hSRk2Bgq7Ya5z7VMvMg
+         kQJsklCuBS7kqvsTY7+Dk3MiMsOYr0ChPpxokOdkNEes8Jeb0sRSAYvTm+6uODLQL2
+         BcyL2uTcsr/xehWBcdvGwDy9Ela/0Del8nrM72BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 32/43] iio: hid-sensor-prox: Fix scale not correct issue
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 23/25] ext4: find old entry again if failed to rename whiteout
 Date:   Mon, 22 Mar 2021 13:29:13 +0100
-Message-Id: <20210322121921.060686632@linuxfoundation.org>
+Message-Id: <20210322121921.131258344@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
+References: <20210322121920.399826335@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Xiang <xiang.ye@intel.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit d68c592e02f6f49a88e705f13dfc1883432cf300 upstream.
+commit b7ff91fd030dc9d72ed91b1aab36e445a003af4f upstream.
 
-Currently, the proxy sensor scale is zero because it just return the
-exponent directly. To fix this issue, this patch use
-hid_sensor_format_scale to process the scale first then return the
-output.
+If we failed to add new entry on rename whiteout, we cannot reset the
+old->de entry directly, because the old->de could have moved from under
+us during make indexed dir. So find the old entry again before reset is
+needed, otherwise it may corrupt the filesystem as below.
 
-Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+  /dev/sda: Entry '00000001' in ??? (12) has deleted/unused inode 15. CLEARED.
+  /dev/sda: Unattached inode 75
+  /dev/sda: UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY.
+
+Fixes: 6b4b8e6b4ad ("ext4: fix bug for rename with RENAME_WHITEOUT")
+Cc: stable@vger.kernel.org
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210303131703.330415-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/hid-sensor-prox.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ fs/ext4/namei.c |   29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -37,6 +37,9 @@ struct prox_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info prox_attr;
- 	u32 human_presence;
-+	int scale_pre_decml;
-+	int scale_post_decml;
-+	int scale_precision;
- };
- 
- /* Channel definitions */
-@@ -107,8 +110,9 @@ static int prox_read_raw(struct iio_dev
- 		ret_type = IIO_VAL_INT;
- 		break;
- 	case IIO_CHAN_INFO_SCALE:
--		*val = prox_state->prox_attr.units;
--		ret_type = IIO_VAL_INT;
-+		*val = prox_state->scale_pre_decml;
-+		*val2 = prox_state->scale_post_decml;
-+		ret_type = prox_state->scale_precision;
- 		break;
- 	case IIO_CHAN_INFO_OFFSET:
- 		*val = hid_sensor_convert_exponent(
-@@ -249,6 +253,11 @@ static int prox_parse_report(struct plat
- 			HID_USAGE_SENSOR_HUMAN_PRESENCE,
- 			&st->common_attributes.sensitivity);
- 
-+	st->scale_precision = hid_sensor_format_scale(
-+				hsdev->usage,
-+				&st->prox_attr,
-+				&st->scale_pre_decml, &st->scale_post_decml);
-+
- 	return ret;
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3425,6 +3425,31 @@ static int ext4_setent(handle_t *handle,
+ 	return 0;
  }
  
++static void ext4_resetent(handle_t *handle, struct ext4_renament *ent,
++			  unsigned ino, unsigned file_type)
++{
++	struct ext4_renament old = *ent;
++	int retval = 0;
++
++	/*
++	 * old->de could have moved from under us during make indexed dir,
++	 * so the old->de may no longer valid and need to find it again
++	 * before reset old inode info.
++	 */
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	if (IS_ERR(old.bh))
++		retval = PTR_ERR(old.bh);
++	if (!old.bh)
++		retval = -ENOENT;
++	if (retval) {
++		ext4_std_error(old.dir->i_sb, retval);
++		return;
++	}
++
++	ext4_setent(handle, &old, ino, file_type);
++	brelse(old.bh);
++}
++
+ static int ext4_find_delete_entry(handle_t *handle, struct inode *dir,
+ 				  const struct qstr *d_name)
+ {
+@@ -3734,8 +3759,8 @@ static int ext4_rename(struct inode *old
+ end_rename:
+ 	if (whiteout) {
+ 		if (retval) {
+-			ext4_setent(handle, &old,
+-				old.inode->i_ino, old_file_type);
++			ext4_resetent(handle, &old,
++				      old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
+ 		}
+ 		unlock_new_inode(whiteout);
 
 
