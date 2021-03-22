@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F14ED34418C
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41589344321
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231156AbhCVMeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:34:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55660 "EHLO mail.kernel.org"
+        id S231696AbhCVMst (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:48:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231234AbhCVMdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:33:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A340461992;
-        Mon, 22 Mar 2021 12:33:12 +0000 (UTC)
+        id S230337AbhCVMqI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:46:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B1C619E3;
+        Mon, 22 Mar 2021 12:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416393;
-        bh=Cf6gnvZayp1/BGswoa0l0qqhfBryeqMKpVvLyc7Q+80=;
+        s=korg; t=1616416945;
+        bh=WegZV95ubwc/5q81jmIPAlE7op5k8dUWzXRjKiwXAeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcARK7TYaiherzY+9D1KtppgkR1czN2KMl1fQsDNdP8A80r2oSLT0F3IYaOxTkkW/
-         dJVvqlGwYgChMoyz1Elj8bEXexvid9K+0RMnvI+3gjC1kYndmRrq3FA/lLWvlyWO20
-         FE/ne8GlXVvjOk9qHocMvO07H3MPRxYzC64RVoEw=
+        b=srMJF61nRUi6eaRbkqtbVFp4ADyQaYoZV2JONdO5xWELZ86aRpwnHagsGFLTuy5iy
+         L57TCkHuxwV+xz5idu6/EtjrXMOgmf3zlwg9QUcr14WyK7uSfdYuPkPZ2N4CmpH5p1
+         U7XU2DCjSjvmRBaTOpSSQFpObX5ikxtjBVOP6WC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.11 089/120] iio: adis16400: Fix an error code in adis16400_initial_setup()
+        stable@vger.kernel.org, Xiaoliang Yu <yxl_22@outlook.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 04/60] ALSA: hda/realtek: apply pin quirk for XiaomiNotebook Pro
 Date:   Mon, 22 Mar 2021 13:27:52 +0100
-Message-Id: <20210322121932.656094567@linuxfoundation.org>
+Message-Id: <20210322121922.514833297@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Xiaoliang Yu <yxl_22@outlook.com>
 
-commit a71266e454b5df10d019b06f5ebacd579f76be28 upstream.
+commit b95bc12e0412d14d5fc764f0b82631c7bcaf1959 upstream.
 
-This is to silence a new Smatch warning:
+Built-in microphone and combojack on Xiaomi Notebook Pro (1d72:1701) needs
+to be fixed, the existing quirk for Dell works well on that machine.
 
-    drivers/iio/imu/adis16400.c:492 adis16400_initial_setup()
-    warn: sscanf doesn't return error codes
-
-If the condition "if (st->variant->flags & ADIS16400_HAS_SLOW_MODE) {"
-is false then we return 1 instead of returning 0 and probe will fail.
-
-Fixes: 72a868b38bdd ("iio: imu: check sscanf return value")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YCwgFb3JVG6qrlQ+@mwanda
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Xiaoliang Yu <yxl_22@outlook.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/OS0P286MB02749B9E13920E6899902CD8EE6C9@OS0P286MB0274.JPNP286.PROD.OUTLOOK.COM
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/adis16400.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/imu/adis16400.c
-+++ b/drivers/iio/imu/adis16400.c
-@@ -462,8 +462,7 @@ static int adis16400_initial_setup(struc
- 		if (ret)
- 			goto err_ret;
- 
--		ret = sscanf(indio_dev->name, "adis%u\n", &device_id);
--		if (ret != 1) {
-+		if (sscanf(indio_dev->name, "adis%u\n", &device_id) != 1) {
- 			ret = -EINVAL;
- 			goto err_ret;
- 		}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8102,6 +8102,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
+ 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
 
 
