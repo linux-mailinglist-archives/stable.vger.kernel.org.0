@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B71723442B8
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 116F7344354
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:52:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232011AbhCVMoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35334 "EHLO mail.kernel.org"
+        id S231355AbhCVMti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232601AbhCVMmw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0340619C0;
-        Mon, 22 Mar 2021 12:40:36 +0000 (UTC)
+        id S232731AbhCVMsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:48:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED88D619E6;
+        Mon, 22 Mar 2021 12:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416837;
-        bh=FHa1J9t5tCz+3s8EjiMhNZ/0dmuK02gBH+MsIAjB0L4=;
+        s=korg; t=1616417039;
+        bh=WdUFp7EHK1aaSRLs1v1yIQ1MRYtqJlMTkkRzWZBV+E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIZEX7UVMFlTgXn49aa3qWXIupfNHbEh9BiVlYcNuw8dDZ5HMbvJOC+RQbmzs4hz4
-         aJLq6GFLUSPrul6kAlef0wV/iyREJ2ma4mTS7+xfWnqTy972Z+v07edjHFCZhi7KFB
-         MCFCj+dsTXjXRLZ/DtVGHyDH3+lHHv7MPLAKwuLs=
+        b=SGc09lT1f0eAHsck6VA/N/F0lUjlwuEjTwDrw0o6sUKqUFGW4qXEBq9axHR5uD7k+
+         veDhLGYAo3ZSeYlrxMU7ZtduIBTX2OSYuf6CwWgSshfo6X80AqpNwyZx8FCziEHxpK
+         jhLaQu82WoVuiFUAszQ6rXldZiRjYadriFfHwUGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 140/157] x86/ioapic: Ignore IRQ2 again
-Date:   Mon, 22 Mar 2021 13:28:17 +0100
-Message-Id: <20210322121938.190165202@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 30/60] scsi: lpfc: Fix some error codes in debugfs
+Date:   Mon, 22 Mar 2021 13:28:18 +0100
+Message-Id: <20210322121923.386911932@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit a501b048a95b79e1e34f03cac3c87ff1e9f229ad upstream.
+commit 19f1bc7edf0f97186810e13a88f5b62069d89097 upstream.
 
-Vitaly ran into an issue with hotplugging CPU0 on an Amazon instance where
-the matrix allocator claimed to be out of vectors. He analyzed it down to
-the point that IRQ2, the PIC cascade interrupt, which is supposed to be not
-ever routed to the IO/APIC ended up having an interrupt vector assigned
-which got moved during unplug of CPU0.
+If copy_from_user() or kstrtoull() fail then the correct behavior is to
+return a negative error code.
 
-The underlying issue is that IRQ2 for various reasons (see commit
-af174783b925 ("x86: I/O APIC: Never configure IRQ2" for details) is treated
-as a reserved system vector by the vector core code and is not accounted as
-a regular vector. The Amazon BIOS has an routing entry of pin2 to IRQ2
-which causes the IO/APIC setup to claim that interrupt which is granted by
-the vector domain because there is no sanity check. As a consequence the
-allocation counter of CPU0 underflows which causes a subsequent unplug to
-fail with:
-
-  [ ... ] CPU 0 has 4294967295 vectors, 589 available. Cannot disable CPU
-
-There is another sanity check missing in the matrix allocator, but the
-underlying root cause is that the IO/APIC code lost the IRQ2 ignore logic
-during the conversion to irqdomains.
-
-For almost 6 years nobody complained about this wreckage, which might
-indicate that this requirement could be lifted, but for any system which
-actually has a PIC IRQ2 is unusable by design so any routing entry has no
-effect and the interrupt cannot be connected to a device anyway.
-
-Due to that and due to history biased paranoia reasons restore the IRQ2
-ignore logic and treat it as non existent despite a routing entry claiming
-otherwise.
-
-Fixes: d32932d02e18 ("x86/irq: Convert IOAPIC to use hierarchical irqdomain interfaces")
-Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210318192819.636943062@linutronix.de
+Link: https://lore.kernel.org/r/YEsbU/UxYypVrC7/@mwanda
+Fixes: f9bb2da11db8 ("[SCSI] lpfc 8.3.27: T10 additions for SLI4")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/apic/io_apic.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/lpfc/lpfc_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1033,6 +1033,16 @@ static int mp_map_pin_to_irq(u32 gsi, in
- 	if (idx >= 0 && test_bit(mp_irqs[idx].srcbus, mp_bus_not_pci)) {
- 		irq = mp_irqs[idx].srcbusirq;
- 		legacy = mp_is_legacy_irq(irq);
-+		/*
-+		 * IRQ2 is unusable for historical reasons on systems which
-+		 * have a legacy PIC. See the comment vs. IRQ2 further down.
-+		 *
-+		 * If this gets removed at some point then the related code
-+		 * in lapic_assign_system_vectors() needs to be adjusted as
-+		 * well.
-+		 */
-+		if (legacy && irq == PIC_CASCADE_IR)
-+			return -EINVAL;
+--- a/drivers/scsi/lpfc/lpfc_debugfs.c
++++ b/drivers/scsi/lpfc/lpfc_debugfs.c
+@@ -2217,7 +2217,7 @@ lpfc_debugfs_dif_err_write(struct file *
+ 	memset(dstbuf, 0, 33);
+ 	size = (nbytes < 32) ? nbytes : 32;
+ 	if (copy_from_user(dstbuf, buf, size))
+-		return 0;
++		return -EFAULT;
+ 
+ 	if (dent == phba->debug_InjErrLBA) {
+ 		if ((buf[0] == 'o') && (buf[1] == 'f') && (buf[2] == 'f'))
+@@ -2225,7 +2225,7 @@ lpfc_debugfs_dif_err_write(struct file *
  	}
  
- 	mutex_lock(&ioapic_mutex);
+ 	if ((tmp == 0) && (kstrtoull(dstbuf, 0, &tmp)))
+-		return 0;
++		return -EINVAL;
+ 
+ 	if (dent == phba->debug_writeGuard)
+ 		phba->lpfc_injerr_wgrd_cnt = (uint32_t)tmp;
 
 
