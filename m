@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E7A3442EC
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED073442A4
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231757AbhCVMqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35450 "EHLO mail.kernel.org"
+        id S231872AbhCVMoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231932AbhCVMoR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:44:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EE59619DD;
-        Mon, 22 Mar 2021 12:41:42 +0000 (UTC)
+        id S232300AbhCVMmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 214D96199F;
+        Mon, 22 Mar 2021 12:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416902;
-        bh=FKNLXU5pRzOqwUIWr0COcTuD4QX8+TGWGncYtbQu4n8=;
+        s=korg; t=1616416786;
+        bh=EFDnB3WoNVk9gyb2gRnm2fXLjPkIU6fjClEcWeY1Y+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioVFmHzFwKGd289AvA/Xnp3lUvyHzkGN5Vte/+bR3hd9R6Ket/GzhHjqSvYCxgInd
-         SwkSmkUzloD/kSkTlD8CAlSTzTsPFmE12lhxcHo5aA7DfC2hEE5OtYWjrwv026as/o
-         p/sOGkjppclx04s47YYzMAvuIGa3YgphHHSDiAXc=
+        b=acmRTDalw1NQmabwoiSRqOQIBRNivuOVtyD19ZkNAvdrlsjIcRuQkavm86ARiVZMr
+         /Kp0T7DbzOR/K7UJtwVhrFoOP1CyjLFiAG0JjLVP+J6JxK7K5TBVXZhX07DL9ijcYd
+         dSYq3tjZC4vgDQtvjXlQDykmuV3OOeKrMCh5ab4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.4 10/60] ARM: 9044/1: vfp: use undef hook for VFP support detection
-Date:   Mon, 22 Mar 2021 13:27:58 +0100
-Message-Id: <20210322121922.712835534@linuxfoundation.org>
+        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
+Subject: [PATCH 5.10 122/157] usb: dwc3: gadget: Prevent EP queuing while stopping transfers
+Date:   Mon, 22 Mar 2021 13:27:59 +0100
+Message-Id: <20210322121937.632529901@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,125 +38,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-commit 3cce9d44321e460e7c88cdec4e4537a6e9ad7c0d upstream.
+commit f09ddcfcb8c569675066337adac2ac205113471f upstream.
 
-Commit f77ac2e378be9dd6 ("ARM: 9030/1: entry: omit FP emulation for UND
-exceptions taken in kernel mode") failed to take into account that there
-is in fact a case where we relied on this code path: during boot, the
-VFP detection code issues a read of FPSID, which will trigger an undef
-exception on cores that lack VFP support.
+In the situations where the DWC3 gadget stops active transfers, once
+calling the dwc3_gadget_giveback(), there is a chance where a function
+driver can queue a new USB request in between the time where the dwc3
+lock has been released and re-aquired.  This occurs after we've already
+issued an ENDXFER command.  When the stop active transfers continues
+to remove USB requests from all dep lists, the newly added request will
+also be removed, while controller still has an active TRB for it.
+This can lead to the controller accessing an unmapped memory address.
 
-So let's reinstate this logic using an undef hook which is registered
-only for the duration of the initcall to vpf_init(), and which sets
-VFP_arch to a non-zero value - as before - if no VFP support is present.
+Fix this by ensuring parameters to prevent EP queuing are set before
+calling the stop active transfers API.
 
-Fixes: f77ac2e378be9dd6 ("ARM: 9030/1: entry: omit FP emulation for UND ...")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: ae7e86108b12 ("usb: dwc3: Stop active transfers before halting the controller")
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1615507142-23097-1-git-send-email-wcheng@codeaurora.org
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/vfp/entry.S     |   17 -----------------
- arch/arm/vfp/vfpmodule.c |   25 ++++++++++++++++++++-----
- 2 files changed, 20 insertions(+), 22 deletions(-)
+ drivers/usb/dwc3/gadget.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/arch/arm/vfp/entry.S
-+++ b/arch/arm/vfp/entry.S
-@@ -37,20 +37,3 @@ ENDPROC(vfp_null_entry)
- 	.align	2
- .LCvfp:
- 	.word	vfp_vector
--
--@ This code is called if the VFP does not exist. It needs to flag the
--@ failure to the VFP initialisation code.
--
--	__INIT
--ENTRY(vfp_testing_entry)
--	dec_preempt_count_ti r10, r4
--	ldr	r0, VFP_arch_address
--	str	r0, [r0]		@ set to non-zero value
--	ret	r9			@ we have handled the fault
--ENDPROC(vfp_testing_entry)
--
--	.align	2
--VFP_arch_address:
--	.word	VFP_arch
--
--	__FINIT
---- a/arch/arm/vfp/vfpmodule.c
-+++ b/arch/arm/vfp/vfpmodule.c
-@@ -32,7 +32,6 @@
- /*
-  * Our undef handlers (in entry.S)
-  */
--asmlinkage void vfp_testing_entry(void);
- asmlinkage void vfp_support_entry(void);
- asmlinkage void vfp_null_entry(void);
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -783,8 +783,6 @@ static int __dwc3_gadget_ep_disable(stru
  
-@@ -43,7 +42,7 @@ asmlinkage void (*vfp_vector)(void) = vf
-  * Used in startup: set to non-zero if VFP checks fail
-  * After startup, holds VFP architecture
-  */
--unsigned int VFP_arch;
-+static unsigned int __initdata VFP_arch;
+ 	trace_dwc3_gadget_ep_disable(dep);
  
- /*
-  * The pointer to the vfpstate structure of the thread which currently
-@@ -437,7 +436,7 @@ static void vfp_enable(void *unused)
-  * present on all CPUs within a SMP complex. Needs to be called prior to
-  * vfp_init().
-  */
--void vfp_disable(void)
-+void __init vfp_disable(void)
- {
- 	if (VFP_arch) {
- 		pr_debug("%s: should be called prior to vfp_init\n", __func__);
-@@ -707,7 +706,7 @@ static int __init vfp_kmode_exception_ho
- 		register_undef_hook(&vfp_kmode_exception_hook[i]);
+-	dwc3_remove_requests(dwc, dep);
+-
+ 	/* make sure HW endpoint isn't stalled */
+ 	if (dep->flags & DWC3_EP_STALL)
+ 		__dwc3_gadget_ep_set_halt(dep, 0, false);
+@@ -803,6 +801,8 @@ static int __dwc3_gadget_ep_disable(stru
+ 		dep->endpoint.desc = NULL;
+ 	}
+ 
++	dwc3_remove_requests(dwc, dep);
++
  	return 0;
  }
--core_initcall(vfp_kmode_exception_hook_init);
-+subsys_initcall(vfp_kmode_exception_hook_init);
  
- /*
-  * Kernel-side NEON support functions
-@@ -753,6 +752,21 @@ EXPORT_SYMBOL(kernel_neon_end);
+@@ -1617,7 +1617,7 @@ static int __dwc3_gadget_ep_queue(struct
+ {
+ 	struct dwc3		*dwc = dep->dwc;
  
- #endif /* CONFIG_KERNEL_MODE_NEON */
+-	if (!dep->endpoint.desc || !dwc->pullups_connected) {
++	if (!dep->endpoint.desc || !dwc->pullups_connected || !dwc->connected) {
+ 		dev_err(dwc->dev, "%s: can't queue to disabled endpoint\n",
+ 				dep->name);
+ 		return -ESHUTDOWN;
+@@ -2150,6 +2150,7 @@ static int dwc3_gadget_pullup(struct usb
+ 	if (!is_on) {
+ 		u32 count;
  
-+static int __init vfp_detect(struct pt_regs *regs, unsigned int instr)
-+{
-+	VFP_arch = UINT_MAX;	/* mark as not present */
-+	regs->ARM_pc += 4;
-+	return 0;
-+}
-+
-+static struct undef_hook vfp_detect_hook __initdata = {
-+	.instr_mask	= 0x0c000e00,
-+	.instr_val	= 0x0c000a00,
-+	.cpsr_mask	= MODE_MASK,
-+	.cpsr_val	= SVC_MODE,
-+	.fn		= vfp_detect,
-+};
-+
- /*
-  * VFP support code initialisation.
-  */
-@@ -773,10 +787,11 @@ static int __init vfp_init(void)
- 	 * The handler is already setup to just log calls, so
- 	 * we just need to read the VFPSID register.
++		dwc->connected = false;
+ 		/*
+ 		 * In the Synopsis DesignWare Cores USB3 Databook Rev. 3.30a
+ 		 * Section 4.1.8 Table 4-7, it states that for a device-initiated
+@@ -2174,7 +2175,6 @@ static int dwc3_gadget_pullup(struct usb
+ 			dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
+ 						dwc->ev_buf->length;
+ 		}
+-		dwc->connected = false;
+ 	} else {
+ 		__dwc3_gadget_start(dwc);
+ 	}
+@@ -3267,8 +3267,6 @@ static void dwc3_gadget_reset_interrupt(
+ {
+ 	u32			reg;
+ 
+-	dwc->connected = true;
+-
+ 	/*
+ 	 * WORKAROUND: DWC3 revisions <1.88a have an issue which
+ 	 * would cause a missing Disconnect Event if there's a
+@@ -3308,6 +3306,7 @@ static void dwc3_gadget_reset_interrupt(
+ 	 * transfers."
  	 */
--	vfp_vector = vfp_testing_entry;
-+	register_undef_hook(&vfp_detect_hook);
- 	barrier();
- 	vfpsid = fmrx(FPSID);
- 	barrier();
-+	unregister_undef_hook(&vfp_detect_hook);
- 	vfp_vector = vfp_null_entry;
+ 	dwc3_stop_active_transfers(dwc);
++	dwc->connected = true;
  
- 	pr_info("VFP support v0.3: ");
+ 	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
+ 	reg &= ~DWC3_DCTL_TSTCTRL_MASK;
 
 
