@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D773D3441D3
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6C53442B9
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230499AbhCVMgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
+        id S232040AbhCVMoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231737AbhCVMe6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:34:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B66E61992;
-        Mon, 22 Mar 2021 12:34:49 +0000 (UTC)
+        id S232605AbhCVMmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DDBA61990;
+        Mon, 22 Mar 2021 12:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416489;
-        bh=eWDiGZOH7woqnwciw2MR8BmT7+vcuCQI4Ph1X6xLYWw=;
+        s=korg; t=1616416840;
+        bh=jfBGK1wmrKj3ToYeDHGf/hB0b+Cf7rb1tcD6mq8y+Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YnnxonFayHmx5sP3dCXKSKRYdpchVO2CkKPQFIQr7WeB5whlFq55mdKaOG4Im/tS+
-         yVFQueO1UYJvfPlc95x8HBNmZH2CIvV2LLqphEQ4e3Wg7DDHolC3HufjZhwr0FAYiW
-         /LsW6kbPieJJrvOys3dpxGeCJvkJhgmcARmprby0=
+        b=LXl9Fk8/9qo10bsIiYlA4A8qKmhPWt692fATnGAtc9Il1CPFzmz49C5ZyUuEqZCiB
+         vjajD92Ln9cvLYgKS7RmVMzj4okwZv+GbPCU2ttNr57/kn/G8HaY6I+43s3GTJIz3p
+         unzNGQQbrYJXDRVaYLkYXNZbX/N4SKI/JmaYg4E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.11 115/120] MAINTAINERS: move the staging subsystem to lists.linux.dev
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 141/157] kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
 Date:   Mon, 22 Mar 2021 13:28:18 +0100
-Message-Id: <20210322121933.500761002@linuxfoundation.org>
+Message-Id: <20210322121938.221662932@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit e06da9ea3e3f6746a849edeae1d09ee821f5c2ce upstream.
+commit 5abbe51a526253b9f003e9a0a195638dc882d660 upstream.
 
-The drivers/staging/ tree has a new mailing list,
-linux-staging@lists.linux.dev, so move the MAINTAINER entry to point to
-it so that we get patches sent to the proper place.
+Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
 
-There was no need to specify a list for the hikey9xx driver, the tools
-pick up the "base" list for drivers/staging/* so remove that line to
-make the file simpler.
+Add a new helper which sets restart_block->fn and calls a dummy
+arch_set_restart_data() helper.
 
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Link: https://lore.kernel.org/r/20210316102311.182375-1-gregkh@linuxfoundation.org
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- MAINTAINERS |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/select.c                    |   10 ++++------
+ include/linux/thread_info.h    |   13 +++++++++++++
+ kernel/futex.c                 |    3 +--
+ kernel/time/alarmtimer.c       |    2 +-
+ kernel/time/hrtimer.c          |    2 +-
+ kernel/time/posix-cpu-timers.c |    2 +-
+ 6 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8079,7 +8079,6 @@ F:	drivers/crypto/hisilicon/sec2/sec_mai
+--- a/fs/select.c
++++ b/fs/select.c
+@@ -1055,10 +1055,9 @@ static long do_restart_poll(struct resta
  
- HISILICON STAGING DRIVERS FOR HIKEY 960/970
- M:	Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
--L:	devel@driverdev.osuosl.org
- S:	Maintained
- F:	drivers/staging/hikey9xx/
+ 	ret = do_sys_poll(ufds, nfds, to);
  
-@@ -16911,7 +16910,7 @@ F:	drivers/staging/vt665?/
+-	if (ret == -ERESTARTNOHAND) {
+-		restart_block->fn = do_restart_poll;
+-		ret = -ERESTART_RESTARTBLOCK;
+-	}
++	if (ret == -ERESTARTNOHAND)
++		ret = set_restart_fn(restart_block, do_restart_poll);
++
+ 	return ret;
+ }
  
- STAGING SUBSYSTEM
- M:	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
--L:	devel@driverdev.osuosl.org
-+L:	linux-staging@lists.linux.dev
- S:	Supported
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
- F:	drivers/staging/
+@@ -1080,7 +1079,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
+ 		struct restart_block *restart_block;
+ 
+ 		restart_block = &current->restart_block;
+-		restart_block->fn = do_restart_poll;
+ 		restart_block->poll.ufds = ufds;
+ 		restart_block->poll.nfds = nfds;
+ 
+@@ -1091,7 +1089,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
+ 		} else
+ 			restart_block->poll.has_timeout = 0;
+ 
+-		ret = -ERESTART_RESTARTBLOCK;
++		ret = set_restart_fn(restart_block, do_restart_poll);
+ 	}
+ 	return ret;
+ }
+--- a/include/linux/thread_info.h
++++ b/include/linux/thread_info.h
+@@ -11,6 +11,7 @@
+ #include <linux/types.h>
+ #include <linux/bug.h>
+ #include <linux/restart_block.h>
++#include <linux/errno.h>
+ 
+ #ifdef CONFIG_THREAD_INFO_IN_TASK
+ /*
+@@ -39,6 +40,18 @@ enum {
+ 
+ #ifdef __KERNEL__
+ 
++#ifndef arch_set_restart_data
++#define arch_set_restart_data(restart) do { } while (0)
++#endif
++
++static inline long set_restart_fn(struct restart_block *restart,
++					long (*fn)(struct restart_block *))
++{
++	restart->fn = fn;
++	arch_set_restart_data(restart);
++	return -ERESTART_RESTARTBLOCK;
++}
++
+ #ifndef THREAD_ALIGN
+ #define THREAD_ALIGN	THREAD_SIZE
+ #endif
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2730,14 +2730,13 @@ retry:
+ 		goto out;
+ 
+ 	restart = &current->restart_block;
+-	restart->fn = futex_wait_restart;
+ 	restart->futex.uaddr = uaddr;
+ 	restart->futex.val = val;
+ 	restart->futex.time = *abs_time;
+ 	restart->futex.bitset = bitset;
+ 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
+ 
+-	ret = -ERESTART_RESTARTBLOCK;
++	ret = set_restart_fn(restart, futex_wait_restart);
+ 
+ out:
+ 	if (to) {
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -848,9 +848,9 @@ static int alarm_timer_nsleep(const cloc
+ 	if (flags == TIMER_ABSTIME)
+ 		return -ERESTARTNOHAND;
+ 
+-	restart->fn = alarm_timer_nsleep_restart;
+ 	restart->nanosleep.clockid = type;
+ 	restart->nanosleep.expires = exp;
++	set_restart_fn(restart, alarm_timer_nsleep_restart);
+ 	return ret;
+ }
+ 
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -1957,9 +1957,9 @@ long hrtimer_nanosleep(ktime_t rqtp, con
+ 	}
+ 
+ 	restart = &current->restart_block;
+-	restart->fn = hrtimer_nanosleep_restart;
+ 	restart->nanosleep.clockid = t.timer.base->clockid;
+ 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
++	set_restart_fn(restart, hrtimer_nanosleep_restart);
+ out:
+ 	destroy_hrtimer_on_stack(&t.timer);
+ 	return ret;
+--- a/kernel/time/posix-cpu-timers.c
++++ b/kernel/time/posix-cpu-timers.c
+@@ -1480,8 +1480,8 @@ static int posix_cpu_nsleep(const clocki
+ 		if (flags & TIMER_ABSTIME)
+ 			return -ERESTARTNOHAND;
+ 
+-		restart_block->fn = posix_cpu_nsleep_restart;
+ 		restart_block->nanosleep.clockid = which_clock;
++		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
+ 	}
+ 	return error;
+ }
 
 
