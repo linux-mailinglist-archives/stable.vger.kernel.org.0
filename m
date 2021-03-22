@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C0AF344111
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9382D344114
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230336AbhCVMaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52602 "EHLO mail.kernel.org"
+        id S230379AbhCVMag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:30:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230495AbhCVMaN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:30:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B5FC61990;
-        Mon, 22 Mar 2021 12:30:12 +0000 (UTC)
+        id S230509AbhCVMaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:30:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0D106198D;
+        Mon, 22 Mar 2021 12:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416212;
-        bh=INZn+spgDtcSebvDoX56qZXki7UYzQVzAWBrBqmE8ag=;
+        s=korg; t=1616416215;
+        bh=HIgd6r2F9tcOytPkUeA4KyESwSQr4zlbdk70P5/obBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/8nZAx6L6nCuiNOqCnULMJwvZVg64vk9JTERSPIjG5NWE8SmQoKVCWImKaUL2Ttu
-         RXk8kzG8RucX5d+dc8uVwQSwstezH0C8uLpWbhBSpxRsT0R4iwr7UwWVOSQFbq0i7M
-         1vThKgekHdlRZaSDo6DeFVqdjgVuxU7607TimlBc=
+        b=kKSnT+Z/kGwS9slBHmP+GBPYvdYMvNqmrdQ9wfZgpTZsZpNxcp4PCCXGueWXT9ymz
+         bmoaddpqaFNZyTdibmchsq44QV+aNAuOhLqNugFALvhG6wg73Xc3Ew+q4Xooflamhm
+         ONriJY+pH9/j0+TnYljTpFfYSCDPPukszwiG4tgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stefano Garzarella <sgarzare@redhat.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 5.11 021/120] vhost-vdpa: fix use-after-free of v->config_ctx
-Date:   Mon, 22 Mar 2021 13:26:44 +0100
-Message-Id: <20210322121930.373280190@linuxfoundation.org>
+Subject: [PATCH 5.11 022/120] vhost-vdpa: set v->config_ctx to NULL if eventfd_ctx_fdget() fails
+Date:   Mon, 22 Mar 2021 13:26:45 +0100
+Message-Id: <20210322121930.404105125@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
 References: <20210322121929.669628946@linuxfoundation.org>
@@ -43,55 +43,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit f6bbf0010ba004f5e90c7aefdebc0ee4bd3283b9 upstream.
+commit 0bde59c1723a29e294765c96dbe5c7fb639c2f96 upstream.
 
-When the 'v->config_ctx' eventfd_ctx reference is released we didn't
-set it to NULL. So if the same character device (e.g. /dev/vhost-vdpa-0)
-is re-opened, the 'v->config_ctx' is invalid and calling again
-vhost_vdpa_config_put() causes use-after-free issues like the
-following refcount_t underflow:
+In vhost_vdpa_set_config_call() if eventfd_ctx_fdget() fails the
+'v->config_ctx' contains an error instead of a valid pointer.
 
-    refcount_t: underflow; use-after-free.
-    WARNING: CPU: 2 PID: 872 at lib/refcount.c:28 refcount_warn_saturate+0xae/0xf0
-    RIP: 0010:refcount_warn_saturate+0xae/0xf0
-    Call Trace:
-     eventfd_ctx_put+0x5b/0x70
-     vhost_vdpa_release+0xcd/0x150 [vhost_vdpa]
-     __fput+0x8e/0x240
-     ____fput+0xe/0x10
-     task_work_run+0x66/0xa0
-     exit_to_user_mode_prepare+0x118/0x120
-     syscall_exit_to_user_mode+0x21/0x50
-     ? __x64_sys_close+0x12/0x40
-     do_syscall_64+0x45/0x50
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
+Since we consider 'v->config_ctx' valid if it is not NULL, we should
+set it to NULL in this case to avoid to use an invalid pointer in
+other functions such as vhost_vdpa_config_put().
 
 Fixes: 776f395004d8 ("vhost_vdpa: Support config interrupt in vdpa")
 Cc: lingshan.zhu@intel.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20210311135257.109460-2-sgarzare@redhat.com
+Link: https://lore.kernel.org/r/20210311135257.109460-3-sgarzare@redhat.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Zhu Lingshan <lingshan.zhu@intel.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vdpa.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vhost/vdpa.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 --- a/drivers/vhost/vdpa.c
 +++ b/drivers/vhost/vdpa.c
-@@ -308,8 +308,10 @@ static long vhost_vdpa_get_vring_num(str
+@@ -331,8 +331,12 @@ static long vhost_vdpa_set_config_call(s
+ 	if (!IS_ERR_OR_NULL(ctx))
+ 		eventfd_ctx_put(ctx);
  
- static void vhost_vdpa_config_put(struct vhost_vdpa *v)
- {
--	if (v->config_ctx)
-+	if (v->config_ctx) {
- 		eventfd_ctx_put(v->config_ctx);
+-	if (IS_ERR(v->config_ctx))
+-		return PTR_ERR(v->config_ctx);
++	if (IS_ERR(v->config_ctx)) {
++		long ret = PTR_ERR(v->config_ctx);
++
 +		v->config_ctx = NULL;
++		return ret;
 +	}
- }
  
- static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
+ 	v->vdpa->config->set_config_cb(v->vdpa, &cb);
+ 
 
 
