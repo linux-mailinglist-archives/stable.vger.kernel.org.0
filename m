@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C8A3442CB
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECC5734433B
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbhCVMpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:45:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
+        id S231956AbhCVMtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232691AbhCVMnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:43:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EE1C619D8;
-        Mon, 22 Mar 2021 12:41:09 +0000 (UTC)
+        id S232370AbhCVMrb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:47:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FEDA619B8;
+        Mon, 22 Mar 2021 12:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416870;
-        bh=Vs9X3DWpoNzidoByjxNF39t5YA8bOyKNWwrGousiYhg=;
+        s=korg; t=1616416993;
+        bh=D++OTPOS/IxfB8l12a/4+NthToIunmtwr9oe401W5Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjKrnDkL5E+y0ob9+ymBdp8j7jlTcPHECaYasKCen58Zrptmr5tK7Oe5LEyqWhAAB
-         0kfct0ZPCLePS78lawqUGPVQOGl5ewXUydLtDVYv1YpfAZW5bdyF/2+XmiXh31D1PW
-         yVk6eObLR7dnTXd4HtC+ATMgOGUXD/9Zq7XMvDFU=
+        b=TOme3Nb8BlQERnbGxkMErOtFJVdKa+SAE9lxbGbJNiXMMqTyvlRlLfI6XINXPlv2J
+         YhrqcD1bMoGJxqFcR9bejXcjNkNZNB4nN9m1PmyQHZoIUgPc4LqwbAiXRhxjJHXCe9
+         6AXDgTPdrDaOTpHzz2eUol0s5vYHFSvexYPsP0gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.10 155/157] firmware/efi: Fix a use after bug in efi_mem_reserve_persistent
-Date:   Mon, 22 Mar 2021 13:28:32 +0100
-Message-Id: <20210322121938.655121029@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 45/60] iio: hid-sensor-prox: Fix scale not correct issue
+Date:   Mon, 22 Mar 2021 13:28:33 +0100
+Message-Id: <20210322121923.881607558@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Ye Xiang <xiang.ye@intel.com>
 
-commit 9ceee7d0841a8f7d7644021ba7d4cc1fbc7966e3 upstream.
+commit d68c592e02f6f49a88e705f13dfc1883432cf300 upstream.
 
-In the for loop in efi_mem_reserve_persistent(), prsv = rsv->next
-use the unmapped rsv. Use the unmapped pages will cause segment
-fault.
+Currently, the proxy sensor scale is zero because it just return the
+exponent directly. To fix this issue, this patch use
+hid_sensor_format_scale to process the scale first then return the
+output.
 
-Fixes: 18df7577adae6 ("efi/memreserve: deal with memreserve entries in unmapped memory")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/efi.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/light/hid-sensor-prox.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -927,7 +927,7 @@ int __ref efi_mem_reserve_persistent(phy
- 	}
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -25,6 +25,9 @@ struct prox_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info prox_attr;
+ 	u32 human_presence;
++	int scale_pre_decml;
++	int scale_post_decml;
++	int scale_precision;
+ };
  
- 	/* first try to find a slot in an existing linked list entry */
--	for (prsv = efi_memreserve_root->next; prsv; prsv = rsv->next) {
-+	for (prsv = efi_memreserve_root->next; prsv; ) {
- 		rsv = memremap(prsv, sizeof(*rsv), MEMREMAP_WB);
- 		index = atomic_fetch_add_unless(&rsv->count, 1, rsv->size);
- 		if (index < rsv->size) {
-@@ -937,6 +937,7 @@ int __ref efi_mem_reserve_persistent(phy
- 			memunmap(rsv);
- 			return efi_mem_reserve_iomem(addr, size);
- 		}
-+		prsv = rsv->next;
- 		memunmap(rsv);
- 	}
+ /* Channel definitions */
+@@ -95,8 +98,9 @@ static int prox_read_raw(struct iio_dev
+ 		ret_type = IIO_VAL_INT;
+ 		break;
+ 	case IIO_CHAN_INFO_SCALE:
+-		*val = prox_state->prox_attr.units;
+-		ret_type = IIO_VAL_INT;
++		*val = prox_state->scale_pre_decml;
++		*val2 = prox_state->scale_post_decml;
++		ret_type = prox_state->scale_precision;
+ 		break;
+ 	case IIO_CHAN_INFO_OFFSET:
+ 		*val = hid_sensor_convert_exponent(
+@@ -236,6 +240,11 @@ static int prox_parse_report(struct plat
+ 			HID_USAGE_SENSOR_HUMAN_PRESENCE,
+ 			&st->common_attributes.sensitivity);
+ 
++	st->scale_precision = hid_sensor_format_scale(
++				hsdev->usage,
++				&st->prox_attr,
++				&st->scale_pre_decml, &st->scale_post_decml);
++
+ 	return ret;
+ }
  
 
 
