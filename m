@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD07B34423B
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E55F34416C
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbhCVMjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:39:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
+        id S229574AbhCVMdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231387AbhCVMiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:38:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 436CD619A0;
-        Mon, 22 Mar 2021 12:37:26 +0000 (UTC)
+        id S231503AbhCVMce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:32:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFF8E619A7;
+        Mon, 22 Mar 2021 12:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416646;
-        bh=qZ8CtAubEETq0hjuoxRlHxWl/vHQSMOfCTA7Kp6wJwM=;
+        s=korg; t=1616416353;
+        bh=1ylKi/Lb+2JkUHWnkoK3imsOcMQ9ujRfr+jFa2LfkeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYYkk8FELbgLOVmQUv6gJ2DulxAV1wfnX51aHQv3rbXxNRs6mVptSiDXTM0S8Ko1J
-         tffDo++S+uOZg6c9FQpNL7rDS6oybzlCy5NugJ/PGA3NrlmuSudyfeOHs2SIQCnlKG
-         xvUKSVC9DFfbwCitjh2e4NMZINJTkX715b6uHvo0=
+        b=kJXkUpZn0NSuLnN4fPzRT1vnf8oEI/HxHbEWN0fxEZCnCAdvOHb7J8/A7CKsQNn91
+         E0b7F2Bk5W6V8AtxrNT6rn2JV8Xx1nRsexsOc902A45Tuz8wlKXeKBBIsncKQhbELI
+         JZAU7QaJd44y5pVVjqmjnJ9vBC0ULBjudVcnO7Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Gerald Baeza <gerald.baeza@st.com>,
-        linux-serial@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/157] tty: serial: stm32-usart: Remove set but unused cookie variables
+        stable@vger.kernel.org,
+        Gaja Sophie Peters <gaja.peters@math.uni-hamburg.de>,
+        David Howells <dhowells@redhat.com>,
+        Jeffrey Altman <jaltman@auristor.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org
+Subject: [PATCH 5.11 039/120] afs: Stop listxattr() from listing "afs.*" attributes
 Date:   Mon, 22 Mar 2021 13:27:02 +0100
-Message-Id: <20210322121935.827607612@linuxfoundation.org>
+Message-Id: <20210322121930.962469662@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +43,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 24832ca3ee85a14c42a4f23a5c8841ef5db3d029 ]
+commit a7889c6320b9200e3fe415238f546db677310fa9 upstream.
 
-Fixes the following W=1 kernel build warning(s):
+afs_listxattr() lists all the available special afs xattrs (i.e. those in
+the "afs.*" space), no matter what type of server we're dealing with.  But
+OpenAFS servers, for example, cannot deal with some of the extra-capable
+attributes that AuriStor (YFS) servers provide.  Unfortunately, the
+presence of the afs.yfs.* attributes causes errors[1] for anything that
+tries to read them if the server is of the wrong type.
 
- drivers/tty/serial/stm32-usart.c: In function ‘stm32_transmit_chars_dma’:
- drivers/tty/serial/stm32-usart.c:353:15: warning: variable ‘cookie’ set but not used [-Wunused-but-set-variable]
- drivers/tty/serial/stm32-usart.c: In function ‘stm32_of_dma_rx_probe’:
- drivers/tty/serial/stm32-usart.c:1090:15: warning: variable ‘cookie’ set but not used [-Wunused-but-set-variable]
+Fix the problem by removing afs_listxattr() so that none of the special
+xattrs are listed (AFS doesn't support xattrs).  It does mean, however,
+that getfattr won't list them, though they can still be accessed with
+getxattr() and setxattr().
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Gerald Baeza <gerald.baeza@st.com>
-Cc: linux-serial@vger.kernel.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20201104193549.4026187-29-lee.jones@linaro.org
+This can be tested with something like:
+
+	getfattr -d -m ".*" /afs/example.com/path/to/file
+
+With this change, none of the afs.* attributes should be visible.
+
+Changes:
+ver #2:
+ - Hide all of the afs.* xattrs, not just the ACL ones.
+
+Fixes: ae46578b963f ("afs: Get YFS ACLs and information through xattrs")
+Reported-by: Gaja Sophie Peters <gaja.peters@math.uni-hamburg.de>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Gaja Sophie Peters <gaja.peters@math.uni-hamburg.de>
+Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-March/003502.html [1]
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-March/003567.html # v1
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-March/003573.html # v2
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/afs/dir.c      |    1 -
+ fs/afs/file.c     |    1 -
+ fs/afs/inode.c    |    1 -
+ fs/afs/internal.h |    1 -
+ fs/afs/mntpt.c    |    1 -
+ fs/afs/xattr.c    |   23 -----------------------
+ 6 files changed, 28 deletions(-)
 
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index ee6c7762d355..f4de32d3f2af 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -350,7 +350,6 @@ static void stm32_transmit_chars_dma(struct uart_port *port)
- 	struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
- 	struct circ_buf *xmit = &port->state->xmit;
- 	struct dma_async_tx_descriptor *desc = NULL;
--	dma_cookie_t cookie;
- 	unsigned int count, i;
+--- a/fs/afs/dir.c
++++ b/fs/afs/dir.c
+@@ -69,7 +69,6 @@ const struct inode_operations afs_dir_in
+ 	.permission	= afs_permission,
+ 	.getattr	= afs_getattr,
+ 	.setattr	= afs_setattr,
+-	.listxattr	= afs_listxattr,
+ };
  
- 	if (stm32port->tx_dma_busy)
-@@ -394,7 +393,7 @@ static void stm32_transmit_chars_dma(struct uart_port *port)
- 	desc->callback_param = port;
+ const struct address_space_operations afs_dir_aops = {
+--- a/fs/afs/file.c
++++ b/fs/afs/file.c
+@@ -43,7 +43,6 @@ const struct inode_operations afs_file_i
+ 	.getattr	= afs_getattr,
+ 	.setattr	= afs_setattr,
+ 	.permission	= afs_permission,
+-	.listxattr	= afs_listxattr,
+ };
  
- 	/* Push current DMA TX transaction in the pending queue */
--	cookie = dmaengine_submit(desc);
-+	dmaengine_submit(desc);
+ const struct address_space_operations afs_fs_aops = {
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -27,7 +27,6 @@
  
- 	/* Issue pending DMA TX requests */
- 	dma_async_issue_pending(stm32port->tx_ch);
-@@ -1087,7 +1086,6 @@ static int stm32_of_dma_rx_probe(struct stm32_port *stm32port,
- 	struct device *dev = &pdev->dev;
- 	struct dma_slave_config config;
- 	struct dma_async_tx_descriptor *desc = NULL;
--	dma_cookie_t cookie;
- 	int ret;
+ static const struct inode_operations afs_symlink_inode_operations = {
+ 	.get_link	= page_get_link,
+-	.listxattr	= afs_listxattr,
+ };
  
- 	/* Request DMA RX channel */
-@@ -1132,7 +1130,7 @@ static int stm32_of_dma_rx_probe(struct stm32_port *stm32port,
- 	desc->callback_param = NULL;
+ static noinline void dump_vnode(struct afs_vnode *vnode, struct afs_vnode *parent_vnode)
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -1508,7 +1508,6 @@ extern int afs_launder_page(struct page
+  * xattr.c
+  */
+ extern const struct xattr_handler *afs_xattr_handlers[];
+-extern ssize_t afs_listxattr(struct dentry *, char *, size_t);
  
- 	/* Push current DMA transaction in the pending queue */
--	cookie = dmaengine_submit(desc);
-+	dmaengine_submit(desc);
+ /*
+  * yfsclient.c
+--- a/fs/afs/mntpt.c
++++ b/fs/afs/mntpt.c
+@@ -32,7 +32,6 @@ const struct inode_operations afs_mntpt_
+ 	.lookup		= afs_mntpt_lookup,
+ 	.readlink	= page_readlink,
+ 	.getattr	= afs_getattr,
+-	.listxattr	= afs_listxattr,
+ };
  
- 	/* Issue pending DMA requests */
- 	dma_async_issue_pending(stm32port->rx_ch);
--- 
-2.30.1
-
+ const struct inode_operations afs_autocell_inode_operations = {
+--- a/fs/afs/xattr.c
++++ b/fs/afs/xattr.c
+@@ -11,29 +11,6 @@
+ #include <linux/xattr.h>
+ #include "internal.h"
+ 
+-static const char afs_xattr_list[] =
+-	"afs.acl\0"
+-	"afs.cell\0"
+-	"afs.fid\0"
+-	"afs.volume\0"
+-	"afs.yfs.acl\0"
+-	"afs.yfs.acl_inherited\0"
+-	"afs.yfs.acl_num_cleaned\0"
+-	"afs.yfs.vol_acl";
+-
+-/*
+- * Retrieve a list of the supported xattrs.
+- */
+-ssize_t afs_listxattr(struct dentry *dentry, char *buffer, size_t size)
+-{
+-	if (size == 0)
+-		return sizeof(afs_xattr_list);
+-	if (size < sizeof(afs_xattr_list))
+-		return -ERANGE;
+-	memcpy(buffer, afs_xattr_list, sizeof(afs_xattr_list));
+-	return sizeof(afs_xattr_list);
+-}
+-
+ /*
+  * Deal with the result of a successful fetch ACL operation.
+  */
 
 
