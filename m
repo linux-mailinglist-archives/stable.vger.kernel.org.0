@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2FD9344336
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C8A3442CB
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbhCVMtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41972 "EHLO mail.kernel.org"
+        id S230050AbhCVMpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:45:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232306AbhCVMrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:47:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1886619B1;
-        Mon, 22 Mar 2021 12:43:07 +0000 (UTC)
+        id S232691AbhCVMnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:43:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EE1C619D8;
+        Mon, 22 Mar 2021 12:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416988;
-        bh=gVDbF7zwSoKBSxcK3ATgzWhkIuDV0BXEUwwLKtES7EA=;
+        s=korg; t=1616416870;
+        bh=Vs9X3DWpoNzidoByjxNF39t5YA8bOyKNWwrGousiYhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+ZL+lWqWzKDa7buZol8/xH87iDD4tjHyAwZ334hdUyQPfF3tyHKh3+AwAZo7YOGz
-         kcuYK3uQ3VhNvig0WxzmAM6w4gILptXmbtW9sMKPA+0i28Xjo/yZYfTBALFcYj6Db7
-         SlBgALN1Lq10Omf6Ry3Ji6pdGpnyG59n7o+XMvKQ=
+        b=xjKrnDkL5E+y0ob9+ymBdp8j7jlTcPHECaYasKCen58Zrptmr5tK7Oe5LEyqWhAAB
+         0kfct0ZPCLePS78lawqUGPVQOGl5ewXUydLtDVYv1YpfAZW5bdyF/2+XmiXh31D1PW
+         yVk6eObLR7dnTXd4HtC+ATMgOGUXD/9Zq7XMvDFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 44/60] iio: hid-sensor-humidity: Fix alignment issue of timestamp channel
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.10 155/157] firmware/efi: Fix a use after bug in efi_mem_reserve_persistent
 Date:   Mon, 22 Mar 2021 13:28:32 +0100
-Message-Id: <20210322121923.842328908@linuxfoundation.org>
+Message-Id: <20210322121938.655121029@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Xiang <xiang.ye@intel.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 37e89e574dc238a4ebe439543c5ab4fbb2f0311b upstream.
+commit 9ceee7d0841a8f7d7644021ba7d4cc1fbc7966e3 upstream.
 
-This patch ensures that, there is sufficient space and correct
-alignment for the timestamp.
+In the for loop in efi_mem_reserve_persistent(), prsv = rsv->next
+use the unmapped rsv. Use the unmapped pages will cause segment
+fault.
 
-Fixes: d7ed89d5aadf ("iio: hid: Add humidity sensor support")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210303063615.12130-2-xiang.ye@intel.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 18df7577adae6 ("efi/memreserve: deal with memreserve entries in unmapped memory")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/humidity/hid-sensor-humidity.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/firmware/efi/efi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -17,7 +17,10 @@
- struct hid_humidity_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info humidity_attr;
--	s32 humidity_data;
-+	struct {
-+		s32 humidity_data;
-+		u64 timestamp __aligned(8);
-+	} scan;
- 	int scale_pre_decml;
- 	int scale_post_decml;
- 	int scale_precision;
-@@ -127,9 +130,8 @@ static int humidity_proc_event(struct hi
- 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -927,7 +927,7 @@ int __ref efi_mem_reserve_persistent(phy
+ 	}
  
- 	if (atomic_read(&humid_st->common_attributes.data_ready))
--		iio_push_to_buffers_with_timestamp(indio_dev,
--					&humid_st->humidity_data,
--					iio_get_time_ns(indio_dev));
-+		iio_push_to_buffers_with_timestamp(indio_dev, &humid_st->scan,
-+						   iio_get_time_ns(indio_dev));
+ 	/* first try to find a slot in an existing linked list entry */
+-	for (prsv = efi_memreserve_root->next; prsv; prsv = rsv->next) {
++	for (prsv = efi_memreserve_root->next; prsv; ) {
+ 		rsv = memremap(prsv, sizeof(*rsv), MEMREMAP_WB);
+ 		index = atomic_fetch_add_unless(&rsv->count, 1, rsv->size);
+ 		if (index < rsv->size) {
+@@ -937,6 +937,7 @@ int __ref efi_mem_reserve_persistent(phy
+ 			memunmap(rsv);
+ 			return efi_mem_reserve_iomem(addr, size);
+ 		}
++		prsv = rsv->next;
+ 		memunmap(rsv);
+ 	}
  
- 	return 0;
- }
-@@ -144,7 +146,7 @@ static int humidity_capture_sample(struc
- 
- 	switch (usage_id) {
- 	case HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY:
--		humid_st->humidity_data = *(s32 *)raw_data;
-+		humid_st->scan.humidity_data = *(s32 *)raw_data;
- 
- 		return 0;
- 	default:
 
 
