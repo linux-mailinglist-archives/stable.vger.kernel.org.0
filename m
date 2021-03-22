@@ -2,113 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 684853446DA
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 15:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 387BB344716
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 15:26:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230180AbhCVOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 10:14:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
+        id S230031AbhCVO0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 10:26:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230156AbhCVOOS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 10:14:18 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5CF7C061762
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:14:17 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id u9so21532869ejj.7
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:14:17 -0700 (PDT)
+        with ESMTP id S229771AbhCVO0P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 10:26:15 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E2FC061756
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:26:14 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id b7so21628071ejv.1
+        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 07:26:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=+4yh4MCaMjCQZ43lV2b3NMY6HnAMnpQQHM0Vz8ZLtI8=;
-        b=ks6UgnX43wsvsZOr+tvl4pF7ZmWygwrO3DHEgdKqCXz+YQxpFvXH2tP8ZNAeqC+QcP
-         QGFYnM0MwEG6yrWilism7U6AEteYYQ7/R5FHokF9NzzfbwCbNw4vUTnYUP3lb70JI0Cr
-         dfB60Y38wPG80kD4YInbugTSZF09sR8E3aBIUtJ58v44JDl3yMcvyOEj+ljZu9hge1ur
-         akjI5xrobOdNTyEElrEb6zJr4NABzOCSBOWlqvevdnBe3UbOAr3NPOLX64hmjmd5Tx8I
-         l85+hHhdrf4fLKk0oNgUFEDi6y4KzFIZUJ0M0+dLzLq1I3ox9yLr6aXQ1jd3ZDh7ub5B
-         B53w==
+        bh=nhFTEJ97t4uaq57HZ+2T9emmpOecmmq8jUt4j7pWlIg=;
+        b=h8R4hxc9jbBc9nmJwIDtGZj6aylge4zH5pGALJLN4zw4Zx7Id8fsAlXKpxZJovgnFc
+         ej203faRNDG6hiV7do5vKjYxP7myY1Wqi0W3GOB5uGXpxn8BETHSjT5+hqVnwZ8oE5GX
+         9UV9hAvryZ4woW/bt3e03uI2NCbEXJ+CTNKA3R1dMF24Ff+Mg+m12pAXIZQg9QqkGR9d
+         NtyUaHv8Ba3DDK+5Et1naqbdZr0/4IljzJZYzmXv5HNj80mQcB8Y8VrF0rg6XwdRKHO7
+         VcTsa9vHrNxQMUofybJjy+DPzp2aWMNgrluIlWAvgiy/QYRPJb7QKG1i/Z4rjZCTYxrG
+         Q00A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=+4yh4MCaMjCQZ43lV2b3NMY6HnAMnpQQHM0Vz8ZLtI8=;
-        b=g7YwMhAJPkPkYUHORV+E3PB2pzysGsTotpdfStEJZs1cwkEo10IRtbEuaLw9FiMnBK
-         PONT38dXE6mXMLLAIof0BMuR+o/otPm3P9o4E1UKnOqFoIufBhc+LcLFcJduhUHA5KNb
-         S5Zst4sisHmEMiqpxIBSzeuBSYLMS75ddKEOA+7URpaG19Wb/efnq9SgRtvvgJVCBior
-         gzhomn65jCYAqkcBQ+HfCWyG64iUSw6wLZpzxQaq1iFEIBtuFEcmQMJtAmvmOyzvL2c9
-         rzT5yPn46bnSNYhZRn+ddxOd0vbcv5gDnxuVPRWJo/jAhz1rpvN4Mrv5XESZ0xVtmKPM
-         7yYw==
-X-Gm-Message-State: AOAM533c2hAO2sZQoD2dCDQ2zKe/ByOHVZaT1pRbnDAWRgijS4Meeaam
-        port7004JdMLUKJqrhz4Qk9nS4FeY7WedyHj15cTAg==
-X-Google-Smtp-Source: ABdhPJxtrbtv7CNwA1UI5v7Ipmfc6jya2hFUTvNiJoK0oHZMpmXsnK+fBBudUF7c8CwvUThB5YW1qnlEQFmoX/Um/Lg=
-X-Received: by 2002:a17:907:720a:: with SMTP id dr10mr11853474ejc.375.1616422456310;
- Mon, 22 Mar 2021 07:14:16 -0700 (PDT)
+        bh=nhFTEJ97t4uaq57HZ+2T9emmpOecmmq8jUt4j7pWlIg=;
+        b=tFdpQDUOa1CbDoKfljL1IjvEth1ha90EboD7OMPEga5KSOlIQ4VSZr/fyl6oIN0Wl4
+         f3eXggJJWtzVFZwM851zdK/pQrg8fv70PkD0MM67d+GcEju0xK9EZJS3TT89ulFnmDOh
+         QXzabNl8a9fc7CmenRkUEivvimn8/v/8cvaqa7WwFmUGml+zcLw/crGxh6PCsyUIbF6w
+         5ItZb0hlWlhTVuHrov7Kj2A7FJmfX2u/+TI6SCU5I2TBHHxx4eiz/KJdzT8443U9QM5L
+         Zr1/KmGsz8uEOeej0DVEYr/3Cvi0H/SdyQ+tPDTZtRCSuysCzCozK7D8235Y2hmm56h5
+         XLjQ==
+X-Gm-Message-State: AOAM530PzjIQi/xvAJ4WRGcgRGvOg1K3HI5T/L5MS+jGPO64kUJ8ZjUv
+        5Qx6sd45kqkP1HVEK34vorSneqxzcxT0GEDS3/51zQ==
+X-Google-Smtp-Source: ABdhPJwhqB8I9DqooyHXQCjASg9A5jvHQ0g111pn9J5d6vH93Qna+bGAfuIcEOMS5ZctBfUeNdhmocfEmOtvOWbBywc=
+X-Received: by 2002:a17:906:70d:: with SMTP id y13mr25755ejb.170.1616423172607;
+ Mon, 22 Mar 2021 07:26:12 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210322121933.746237845@linuxfoundation.org> <20210322121937.040307268@linuxfoundation.org>
-In-Reply-To: <20210322121937.040307268@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 22 Mar 2021 19:44:05 +0530
-Message-ID: <CA+G9fYuSdE7U-D+mn82bR3e33NzpDEFsD9B6EgXAj3sKMLxfeQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 103/157] MIPS: kernel: Reserve exception base early
- to prevent corruption
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Serge Semin <fancer.lancer@gmail.com>
+Date:   Mon, 22 Mar 2021 19:56:01 +0530
+Message-ID: <CA+G9fYtK9effpD=wRmiJWmiE9iphE9NVxPw=W9dxV=OTSduR4w@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/157] 5.10.26-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        lkft-triage@lists.linaro.org, linux-mips@vger.kernel.org
+        linux-stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Mar 2021 at 18:14, Greg Kroah-Hartman
+On Mon, 22 Mar 2021 at 18:08, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> This is the start of the stable review cycle for the 5.10.26 release.
+> There are 157 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> [ Upstream commit bd67b711bfaa02cf19e88aa2d9edae5c1c1d2739 ]
+> Responses should be made by Wed, 24 Mar 2021 12:19:09 +0000.
+> Anything received after that time might be too late.
 >
-> BMIPS is one of the few platforms that do change the exception base.
-> After commit 2dcb39645441 ("memblock: do not start bottom-up allocations
-> with kernel_end") we started seeing BMIPS boards fail to boot with the
-> built-in FDT being corrupted.
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.26-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 >
-> Before the cited commit, early allocations would be in the [kernel_end,
-> RAM_END] range, but after commit they would be within [RAM_START +
-> PAGE_SIZE, RAM_END].
+> thanks,
 >
-> The custom exception base handler that is installed by
-> bmips_ebase_setup() done for BMIPS5000 CPUs ends-up trampling on the
-> memory region allocated by unflatten_and_copy_device_tree() thus
-> corrupting the FDT used by the kernel.
->
-> To fix this, we need to perform an early reservation of the custom
-> exception space. Additional we reserve the first 4k (1k for R3k) for
-> either normal exception vector space (legacy CPUs) or special vectors
-> like cache exceptions.
->
-> Huge thanks to Serge for analysing and proposing a solution to this
-> issue.
->
-> Fixes: 2dcb39645441 ("memblock: do not start bottom-up allocations with kernel_end")
-> Reported-by: Kamal Dasu <kdasu.kdev@gmail.com>
-> Debugged-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-> Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-> Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  arch/mips/include/asm/traps.h    |  3 +++
->  arch/mips/kernel/cpu-probe.c     |  6 ++++++
->  arch/mips/kernel/cpu-r3k-probe.c |  3 +++
->  arch/mips/kernel/traps.c         | 10 +++++-----
+> greg k-h
 
 mipc tinyconfig and allnoconfig builds failed on stable-rc 5.10 branch
 
