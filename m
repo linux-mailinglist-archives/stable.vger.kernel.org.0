@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E5BE3442DB
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3690234432F
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbhCVMqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:46:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36008 "EHLO mail.kernel.org"
+        id S231477AbhCVMtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:49:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231446AbhCVMns (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:43:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A44D619A9;
-        Mon, 22 Mar 2021 12:41:24 +0000 (UTC)
+        id S230053AbhCVMqy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:46:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 649F9619AC;
+        Mon, 22 Mar 2021 12:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416885;
-        bh=HUzIklReS00PcLvipSKmYIY8d+e/gZF+ShwHqDDW0vA=;
+        s=korg; t=1616416970;
+        bh=5CLMZ6hsQslgJCuiwHVZOGTlk0Bs8K3PYaGdmWMkCpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZJXda+E80j0bRgSF4TdvgGkRLd3QJ1QpQXk3O6QDKrPAduAop4EPQNVWNOunmT2D
-         aw360Jf9iJoaDZpCL0FWX68DThlZ13tr7Di01Q9SmJ9+87/hbITdJUyO6yswvzcN0v
-         rlXiIyPgmH3lpGqTLYTTW6WbLEzKitRuRmYSqoMw=
+        b=TpXIa7iEvdByyJBjYRJreUZSh351lYdXDs1sgHafM4lMQlorqPGpNUXXs7rJ4z3f6
+         Erx6Ma4+MS1rYEv1uKZFR8y+QKtt0xoJusbxot0gr59yrxzcrnLPS3z6ELJUDrnOcz
+         M2Ay2d8FRC7TAr9kFIO6kB1CXEU8C2PuqCI5X9n4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        stable@kernel.org,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 147/157] ext4: stop inode update before return
-Date:   Mon, 22 Mar 2021 13:28:24 +0100
-Message-Id: <20210322121938.408801314@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>
+Subject: [PATCH 5.4 37/60] usb: gadget: configfs: Fix KASAN use-after-free
+Date:   Mon, 22 Mar 2021 13:28:25 +0100
+Message-Id: <20210322121923.614953633@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Jim Lin <jilin@nvidia.com>
 
-commit 512c15ef05d73a04f1aef18a3bc61a8bb516f323 upstream.
+commit 98f153a10da403ddd5e9d98a3c8c2bb54bb5a0b6 upstream.
 
-The inode update should be stopped before returing the error code.
+When gadget is disconnected, running sequence is like this.
+. composite_disconnect
+. Call trace:
+  usb_string_copy+0xd0/0x128
+  gadget_config_name_configuration_store+0x4
+  gadget_config_name_attr_store+0x40/0x50
+  configfs_write_file+0x198/0x1f4
+  vfs_write+0x100/0x220
+  SyS_write+0x58/0xa8
+. configfs_composite_unbind
+. configfs_composite_bind
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210117085732.93788-1-bianpan2016@163.com
-Fixes: 8016e29f4362 ("ext4: fast commit recovery path")
-Cc: stable@kernel.org
-Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+In configfs_composite_bind, it has
+"cn->strings.s = cn->configuration;"
+
+When usb_string_copy is invoked. it would
+allocate memory, copy input string, release previous pointed memory space,
+and use new allocated memory.
+
+When gadget is connected, host sends down request to get information.
+Call trace:
+  usb_gadget_get_string+0xec/0x168
+  lookup_string+0x64/0x98
+  composite_setup+0xa34/0x1ee8
+
+If gadget is disconnected and connected quickly, in the failed case,
+cn->configuration memory has been released by usb_string_copy kfree but
+configfs_composite_bind hasn't been run in time to assign new allocated
+"cn->configuration" pointer to "cn->strings.s".
+
+When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
+memory is accessed, "BUG: KASAN: use-after-free" error occurs.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Jim Lin <jilin@nvidia.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Link: https://lore.kernel.org/r/1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/configfs.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5385,8 +5385,10 @@ int ext4_setattr(struct dentry *dentry,
- 			inode->i_gid = attr->ia_gid;
- 		error = ext4_mark_inode_dirty(handle, inode);
- 		ext4_journal_stop(handle);
--		if (unlikely(error))
-+		if (unlikely(error)) {
-+			ext4_fc_stop_update(inode);
- 			return error;
-+		}
- 	}
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -109,6 +109,8 @@ struct gadget_config_name {
+ 	struct list_head list;
+ };
  
- 	if (attr->ia_valid & ATTR_SIZE) {
++#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
++
+ static int usb_string_copy(const char *s, char **s_copy)
+ {
+ 	int ret;
+@@ -118,12 +120,16 @@ static int usb_string_copy(const char *s
+ 	if (ret > USB_MAX_STRING_LEN)
+ 		return -EOVERFLOW;
+ 
+-	str = kstrdup(s, GFP_KERNEL);
+-	if (!str)
+-		return -ENOMEM;
++	if (copy) {
++		str = copy;
++	} else {
++		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
++		if (!str)
++			return -ENOMEM;
++	}
++	strcpy(str, s);
+ 	if (str[ret - 1] == '\n')
+ 		str[ret - 1] = '\0';
+-	kfree(copy);
+ 	*s_copy = str;
+ 	return 0;
+ }
 
 
