@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB64D3441FE
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:38:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADBB13441F9
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231459AbhCVMhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:37:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56314 "EHLO mail.kernel.org"
+        id S231450AbhCVMho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:37:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231547AbhCVMgL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DADD7619B5;
-        Mon, 22 Mar 2021 12:35:53 +0000 (UTC)
+        id S230338AbhCVMgN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:36:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E99A61994;
+        Mon, 22 Mar 2021 12:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416554;
-        bh=xZu6JDWX9k+gSFeNcr4FNlfdCMrATCvuMPzSeaHEff4=;
+        s=korg; t=1616416557;
+        bh=60bc2m1paXqATLQ5ALuhml6JTH8HzLPzeFihmWPDwh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnPGAicaz7qAh4RKVdl5DXZtSu3bkcfVv9rcKuPMnyhM0rMGqaAxsCP5dX6+4lKV1
-         5vWm2Je4k1RRKND/0KYkAR4+zXePp4K4HvP2OEuu+XWIghsanB/JR8ifRAYU681o3r
-         Rf6LrQ2+ZVesdOYlhIfy6IIJLkdLftzjdobN07YI=
+        b=JqONfhF8W8p/eJ6AVEi4wrooQszcsw/dJjf+0ji+CesaIze01XJ20cy+QGb9befxN
+         VLvgROqeK8awjWytpSVdoPnMcoB3mnEJF/8R7SMM/v+HW1poaMDC/hUZTMv5+BS2U+
+         gtWc6iDm62K6i0GbTsDckP6yVXHshpj5f4l8R504=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, Xiaoliang Yu <yxl_22@outlook.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 004/157] ALSA: dice: fix null pointer dereference when node is disconnected
-Date:   Mon, 22 Mar 2021 13:26:01 +0100
-Message-Id: <20210322121933.900566510@linuxfoundation.org>
+Subject: [PATCH 5.10 005/157] ALSA: hda/realtek: apply pin quirk for XiaomiNotebook Pro
+Date:   Mon, 22 Mar 2021 13:26:02 +0100
+Message-Id: <20210322121933.933238979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -39,42 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Xiaoliang Yu <yxl_22@outlook.com>
 
-commit dd7b836d6bc935df95c826f69ff4d051f5561604 upstream.
+commit b95bc12e0412d14d5fc764f0b82631c7bcaf1959 upstream.
 
-When node is removed from IEEE 1394 bus, any transaction fails to the node.
-In the case, ALSA dice driver doesn't stop isochronous contexts even if
-they are running. As a result, null pointer dereference occurs in callback
-from the running context.
+Built-in microphone and combojack on Xiaomi Notebook Pro (1d72:1701) needs
+to be fixed, the existing quirk for Dell works well on that machine.
 
-This commit fixes the bug to release isochronous contexts always.
-
-Cc: <stable@vger.kernel.org> # v5.4 or later
-Fixes: e9f21129b8d8 ("ALSA: dice: support AMDTP domain")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210312093407.23437-1-o-takashi@sakamocchi.jp
+Signed-off-by: Xiaoliang Yu <yxl_22@outlook.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/OS0P286MB02749B9E13920E6899902CD8EE6C9@OS0P286MB0274.JPNP286.PROD.OUTLOOK.COM
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/dice/dice-stream.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/firewire/dice/dice-stream.c
-+++ b/sound/firewire/dice/dice-stream.c
-@@ -493,11 +493,10 @@ void snd_dice_stream_stop_duplex(struct
- 	struct reg_params tx_params, rx_params;
- 
- 	if (dice->substreams_counter == 0) {
--		if (get_register_params(dice, &tx_params, &rx_params) >= 0) {
--			amdtp_domain_stop(&dice->domain);
-+		if (get_register_params(dice, &tx_params, &rx_params) >= 0)
- 			finish_session(dice, &tx_params, &rx_params);
--		}
- 
-+		amdtp_domain_stop(&dice->domain);
- 		release_resources(dice);
- 	}
- }
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8242,6 +8242,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
+ 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
 
 
