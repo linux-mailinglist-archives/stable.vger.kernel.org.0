@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A24AA3443CB
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B32B8344409
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:59:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232036AbhCVMyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
+        id S231775AbhCVM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232761AbhCVMwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:52:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5B4561A05;
-        Mon, 22 Mar 2021 12:46:34 +0000 (UTC)
+        id S230293AbhCVMyY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:54:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17B9D619E3;
+        Mon, 22 Mar 2021 12:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417195;
-        bh=ypH6T07oS2o0Ii2W5CZoIz2+UGBbn/mvE5ZbpHsw1Pw=;
+        s=korg; t=1616417258;
+        bh=5sppupOWfMhTGCdAJeoS+79+ZmNuabC4TOrs9JOgtdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2DH2CIL3kYz5gRfjojVfau7CcmCW7TJ/h1t/SDcuwYS7PTJCNJ5R1JdtkNlL15GX
-         13+drUnH9hbmkmfG5uri6mQPGtfeYJMg2GtqIpruS47AKkDoYASGkpXsRNxNzFMRh1
-         0at8ioWtCL5tRvajw0Oc1hgfW+QJ4qtxmc5poMYA=
+        b=iKjrFpByscazNmGEPlWu8Eh/ZltaxpqhR1Vs+utJSV64o4m5fgDUQyi0/tpyYfrxA
+         dR1lDUIIHGC9sVMC3F1B+P/75hb/wJetzWd7DGgNWyAaGVQ9Bcipvme8nDuEKtbIUF
+         Tp+lC9eYskur74YrrXMcMOl396KnIEG4Bd/xuh1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.4 12/14] ext4: find old entry again if failed to rename whiteout
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 16/25] iio: adis16400: Fix an error code in adis16400_initial_setup()
 Date:   Mon, 22 Mar 2021 13:29:06 +0100
-Message-Id: <20210322121919.578142529@linuxfoundation.org>
+Message-Id: <20210322121920.913096846@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
-References: <20210322121919.202392464@linuxfoundation.org>
+In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
+References: <20210322121920.399826335@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit b7ff91fd030dc9d72ed91b1aab36e445a003af4f upstream.
+commit a71266e454b5df10d019b06f5ebacd579f76be28 upstream.
 
-If we failed to add new entry on rename whiteout, we cannot reset the
-old->de entry directly, because the old->de could have moved from under
-us during make indexed dir. So find the old entry again before reset is
-needed, otherwise it may corrupt the filesystem as below.
+This is to silence a new Smatch warning:
 
-  /dev/sda: Entry '00000001' in ??? (12) has deleted/unused inode 15. CLEARED.
-  /dev/sda: Unattached inode 75
-  /dev/sda: UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY.
+    drivers/iio/imu/adis16400.c:492 adis16400_initial_setup()
+    warn: sscanf doesn't return error codes
 
-Fixes: 6b4b8e6b4ad ("ext4: fix bug for rename with RENAME_WHITEOUT")
-Cc: stable@vger.kernel.org
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Link: https://lore.kernel.org/r/20210303131703.330415-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+If the condition "if (st->variant->flags & ADIS16400_HAS_SLOW_MODE) {"
+is false then we return 1 instead of returning 0 and probe will fail.
+
+Fixes: 72a868b38bdd ("iio: imu: check sscanf return value")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YCwgFb3JVG6qrlQ+@mwanda
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/ext4/namei.c |   29 +++++++++++++++++++++++++++--
- 1 file changed, 27 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3375,6 +3375,31 @@ static int ext4_setent(handle_t *handle,
- 	return 0;
- }
+---
+ drivers/iio/imu/adis16400_core.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/drivers/iio/imu/adis16400_core.c
++++ b/drivers/iio/imu/adis16400_core.c
+@@ -288,8 +288,7 @@ static int adis16400_initial_setup(struc
+ 		if (ret)
+ 			goto err_ret;
  
-+static void ext4_resetent(handle_t *handle, struct ext4_renament *ent,
-+			  unsigned ino, unsigned file_type)
-+{
-+	struct ext4_renament old = *ent;
-+	int retval = 0;
-+
-+	/*
-+	 * old->de could have moved from under us during make indexed dir,
-+	 * so the old->de may no longer valid and need to find it again
-+	 * before reset old inode info.
-+	 */
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	if (IS_ERR(old.bh))
-+		retval = PTR_ERR(old.bh);
-+	if (!old.bh)
-+		retval = -ENOENT;
-+	if (retval) {
-+		ext4_std_error(old.dir->i_sb, retval);
-+		return;
-+	}
-+
-+	ext4_setent(handle, &old, ino, file_type);
-+	brelse(old.bh);
-+}
-+
- static int ext4_find_delete_entry(handle_t *handle, struct inode *dir,
- 				  const struct qstr *d_name)
- {
-@@ -3674,8 +3699,8 @@ static int ext4_rename(struct inode *old
- end_rename:
- 	if (whiteout) {
- 		if (retval) {
--			ext4_setent(handle, &old,
--				old.inode->i_ino, old_file_type);
-+			ext4_resetent(handle, &old,
-+				      old.inode->i_ino, old_file_type);
- 			drop_nlink(whiteout);
+-		ret = sscanf(indio_dev->name, "adis%u\n", &device_id);
+-		if (ret != 1) {
++		if (sscanf(indio_dev->name, "adis%u\n", &device_id) != 1) {
+ 			ret = -EINVAL;
+ 			goto err_ret;
  		}
- 		unlock_new_inode(whiteout);
 
 
