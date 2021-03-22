@@ -2,106 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 684B6344091
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 214703440B9
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229979AbhCVMNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:13:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48024 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230266AbhCVMNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 08:13:30 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DECC061756
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 05:13:30 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id x16so16436628wrn.4
-        for <stable@vger.kernel.org>; Mon, 22 Mar 2021 05:13:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=2HcrXIExH/hOwxD80m/t9IkqnA/KCu9VJTjas/G/8LI=;
-        b=xA1rFWCsfcNlAqosV+4FnNOHlYiOvFTp4IjEjp3AlNGTEXQluKB2CD4VW06ynDsX+S
-         VxLYlMx16Am1JSWNAhNA2MPR4YoBYAPdiiPVTUAHhTV829kf+892HQgybyrPwYJXTu9O
-         DdV0tsrr9Tux+F+P5kOCRbdfb73DRuQPWrHAERP9IcEYvb8gADHPIxyhiV83x86BGLr9
-         wn6rAfAPk7TQ0QkAsKWr+glk0kfFJpBRfg4t7+nvP+jJWW6gOJSIADIN6GINHcVg0U3j
-         EI6+FaxyiAZjn+2lwZXK3LIREN0XC6j+8iiEJpdI7oCoPPGyZ1C51FJJxabUAfJvuG/x
-         QIlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=2HcrXIExH/hOwxD80m/t9IkqnA/KCu9VJTjas/G/8LI=;
-        b=OAYVVKGJbnv6ysG0RY8hzl138ksNY0Ird2nh423uyeYVskO3xWfejF/ePv1hFzoKNY
-         yW/edIW3H8GynkCkK4ccl7rSLboLZZ7jg6qif/K3gujpKlIgXqLr42OOB/tFEcy6gd0n
-         G/r0o18pBM9m/OX/RJWr2PVI+xnV/mXs5G1Dq9bYQbNHeRJJ+8NV7WdaUCIDqxBhD0Fx
-         3fKglc4urixGold28Ap5G0sar+tvrttkm9sk9jRQfqptvpHCIDwwtuCi6qdF90Pqo/z3
-         X8u/j9pbzPmB9LibZ75CqrCzBgE88HNGLl27zu/KGk/bdfR1F8jD4JnNlXe43Efww3Ga
-         4Dsg==
-X-Gm-Message-State: AOAM533dyAFBHLtJdk+oBnrfpyoSi/pro5/6jKdMpD3lJOBedK30ZxRY
-        y5APpEGTrcho/bbJtLItuznkMA==
-X-Google-Smtp-Source: ABdhPJw1pu78Z9PTOGydU1yvQBgmFxs9om6BIzyzIOVfwYuim161rGZPabgMxoMNXrADm9K0qjneeg==
-X-Received: by 2002:adf:d4ca:: with SMTP id w10mr18650232wrk.146.1616415208835;
-        Mon, 22 Mar 2021 05:13:28 -0700 (PDT)
-Received: from Red ([2a01:cb1d:3d5:a100:264b:feff:fe03:2806])
-        by smtp.googlemail.com with ESMTPSA id p14sm16659640wmc.30.2021.03.22.05.13.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Mar 2021 05:13:28 -0700 (PDT)
-Date:   Mon, 22 Mar 2021 13:13:26 +0100
-From:   LABBE Corentin <clabbe@baylibre.com>
-To:     Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     Eric Biggers <ebiggers@kernel.org>, linux-crypto@vger.kernel.org,
-        Neil Horman <nhorman@tuxdriver.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: rng - fix crypto_rng_reset() refcounting when
- !CRYPTO_STATS
-Message-ID: <YFiJ5hnKfXzlAtQi@Red>
-References: <20210322050748.265604-1-ebiggers@kernel.org>
- <20210322054522.GC1667@kadam>
- <YFgyaeeY6k6Pltw7@sol.localdomain>
- <20210322073300.GF1667@kadam>
+        id S230055AbhCVMTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:19:43 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23458 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229905AbhCVMTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Mar 2021 08:19:10 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12MC4s8h114258;
+        Mon, 22 Mar 2021 08:19:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=AqHNz9M0siufI5CPHNCyB+wHvM2fdYlg0rR9v3o22x0=;
+ b=GF8mvBZ/gUIyj7xX+O79zvJYmwWAO4WjHldn/dACeTw3XN59si7oH+NkWcq/2m6+DYMQ
+ kEaiQq1kx1HbIJPWIRTSDLyfXcZrd210a8b3PjVDfU0amDrd+VtiadJIZdUfq8Vc8aBW
+ 9gcdQfrT3+uWxIj5fln+M7Jyt+Vqi//phk/oQ2Wwt+a0p355SykKfKwfRxyk0oWOVg7t
+ XvTF/WDZ+YcE1B+AWGpY7G6JSC+lJwBQv1SjsK5/VUAnGk5fHzUsdwS6YTiduBup833m
+ eyXg5uU/KzGLnZxXA00+t6D6/kclXoWcMEpSULXMvxEBPkYO40O/H8ZvbQUBo2GZ+H33 1A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37effkfjnt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Mar 2021 08:19:07 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12MC5ZWS116853;
+        Mon, 22 Mar 2021 08:19:06 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37effkfjmn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Mar 2021 08:19:06 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12MC6hIV018959;
+        Mon, 22 Mar 2021 12:19:04 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 37d9bmjaea-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Mar 2021 12:19:04 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12MCIiPt34603492
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 22 Mar 2021 12:18:44 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA0C2AE055;
+        Mon, 22 Mar 2021 12:19:01 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5EB4BAE051;
+        Mon, 22 Mar 2021 12:19:01 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.7.234])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 22 Mar 2021 12:19:01 +0000 (GMT)
+Subject: Re: [PATCH v1 1/2] s390/kvm: split kvm_s390_real_to_abs
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, frankja@linux.ibm.com,
+        cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210319193354.399587-1-imbrenda@linux.ibm.com>
+ <20210319193354.399587-2-imbrenda@linux.ibm.com>
+ <fa583ab0-36ac-47a7-7fa3-4ce88c518488@redhat.com>
+ <f76f770c-908e-4f4f-f060-15f4d30652d8@redhat.com> <YFh7nGfVZRD15Cbp@osiris>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <43e5cf87-d811-3c0c-b605-f64baa9ae006@de.ibm.com>
+Date:   Mon, 22 Mar 2021 13:19:01 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210322073300.GF1667@kadam>
+In-Reply-To: <YFh7nGfVZRD15Cbp@osiris>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-22_07:2021-03-22,2021-03-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ lowpriorityscore=0 mlxlogscore=999 spamscore=0 adultscore=0 clxscore=1011
+ suspectscore=0 malwarescore=0 priorityscore=1501 impostorscore=0
+ mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103220089
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le Mon, Mar 22, 2021 at 10:33:01AM +0300, Dan Carpenter a écrit :
-> On Sun, Mar 21, 2021 at 11:00:09PM -0700, Eric Biggers wrote:
-> > On Mon, Mar 22, 2021 at 08:45:22AM +0300, Dan Carpenter wrote:
-> > > On Sun, Mar 21, 2021 at 10:07:48PM -0700, Eric Biggers wrote:
-> > > > From: Eric Biggers <ebiggers@google.com>
-> > > > 
-> > > > crypto_stats_get() is a no-op when the kernel is compiled without
-> > > > CONFIG_CRYPTO_STATS, so pairing it with crypto_alg_put() unconditionally
-> > > > (as crypto_rng_reset() does) is wrong.
-> > > > 
-> > > 
-> > > Presumably the intention was that _get() and _put() should always pair.
-> > > It's really ugly and horrible that they don't. We could have
-> > > predicted bug like this would happen and will continue to happen until
-> > > the crypto_stats_get() is renamed.
-> > > 
-> > 
-> > Well, the crypto stats stuff has always been pretty broken, so I don't think
-> > people have looked at it too closely.  Currently crypto_stats_get() pairs with
-> > one of the functions that tallies the statistics, such as
-> > crypto_stats_rng_seed() or crypto_stats_aead_encrypt().  What change are you
-> > suggesting, exactly?  Maybe moving the conditional crypto_alg_put() into a new
-> > function crypto_stats_put() and moving it into the callers?  Or do you think the
-> > functions should just be renamed to something like crypto_stats_begin() and
-> > crypto_stats_end_{rng_seed,aead_encrypt}()?
-> 
-> To be honest, I misread the crypto_alg_put() thinking that it was
-> crypto_*stats*_put().  My favourite fix would be to introduce a
-> crypto_stats_put() which is a mirror of crypto_stats_get() and ifdeffed
-> out if we don't have CONFIG_CRYPTO_STATS.
-> 
 
-I agree it will be better.
-I can work on adding crypto_stats_put() if you want.
 
-Regards
+On 22.03.21 12:12, Heiko Carstens wrote:
+> On Mon, Mar 22, 2021 at 10:53:46AM +0100, David Hildenbrand wrote:
+>>>> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+>>>> index daba10f76936..7c72a5e3449f 100644
+>>>> --- a/arch/s390/kvm/gaccess.h
+>>>> +++ b/arch/s390/kvm/gaccess.h
+>>>> @@ -18,17 +18,14 @@
+>>>>     /**
+>>>>      * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+>>>> - * @vcpu - guest virtual cpu
+>>>> + * @prefix - guest prefix
+>>>>      * @gra - guest real address
+>>>>      *
+>>>>      * Returns the guest absolute address that corresponds to the passed guest real
+>>>> - * address @gra of a virtual guest cpu by applying its prefix.
+>>>> + * address @gra of by applying the given prefix.
+>>>>      */
+>>>> -static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+>>>> -						 unsigned long gra)
+>>>> +static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
+>>>
+>>> <bikeshedding>
+>>> Just a matter of taste, but maybe this could be named differently?
+>>> kvm_s390_real2abs_prefix() ? kvm_s390_prefix_real_to_abs()?
+>>> </bikeshedding>
+>>
+>> +1, I also dislike these "_.*" style functions here.
+> 
+> Yes, let's bikeshed then :)
+> 
+> Could you then please try to rename page_to* and everything that looks
+> similar to page2* please? I'm wondering what the response will be..
+
+Given that this is stable material (due to patch 2), can we try to minimize
+the bikeshedding to everything that his touched by this patch?
+
+
+Claudio, can you respin the series addressing the comments?
+I will then either add this to next or fold that into the existing next patches.
+Not sure yet.
