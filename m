@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9922F34418E
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90877344322
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231144AbhCVMeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56196 "EHLO mail.kernel.org"
+        id S231781AbhCVMsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:48:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231488AbhCVMdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:33:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07D5B61990;
-        Mon, 22 Mar 2021 12:33:14 +0000 (UTC)
+        id S230333AbhCVMqI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:46:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A685E619B5;
+        Mon, 22 Mar 2021 12:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416395;
-        bh=Thj2BLnJy/B5q8Mr7PuHRR4CrJMZD4dBO5VAgv42dNU=;
+        s=korg; t=1616416948;
+        bh=jFJqKbsTQvjmne1tqqIAsA62LSRo8yDj06WtE6WH3qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWgUPeM782tjnX8PnrmYBzlDgoIYY17h/g2bHSbutzkYxZb4FxrWYeH5KlTxEN6li
-         lWMZ0yLAMd09P/ZzcFnPDrowZXnRV1KEl8VS/wHS4H/szNBlwn71mjAwn+jplhhzuv
-         r0S0xvdvawvQdv+ncB9jgGxKCSDHEpUVIpIbldDo=
+        b=U/Fo2BIKiQvtNUHovBdiPAHTA1JpA+33Xb2ws4A78amk419iwh7oPrtjQDbCGXkT7
+         nrVC8vvuvxkPJKTj7GNFjUp3CM+eyp7kDUCE4mcDC9JeH6hp+WLRETBUsMCZk/uUbS
+         ZcXld2L7CJcpqNhpaK+jKcghDtvJg4TCrzA85WMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.11 090/120] iio: gyro: mpu3050: Fix error handling in mpu3050_trigger_handler
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 05/60] ALSA: hda: generic: Fix the micmute led init state
 Date:   Mon, 22 Mar 2021 13:27:53 +0100
-Message-Id: <20210322121932.687859713@linuxfoundation.org>
+Message-Id: <20210322121922.546414845@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
+References: <20210322121922.372583154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 6dbbbe4cfd398704b72b21c1d4a5d3807e909d60 upstream.
+commit 2bf44e0ee95f39cc54ea1b942f0a027e0181ca4e upstream.
 
-There is one regmap_bulk_read() call in mpu3050_trigger_handler
-that we have caught its return value bug lack further handling.
-Check and terminate the execution flow just like the other three
-regmap_bulk_read() calls in this function.
+Recently we found the micmute led init state is not correct after
+freshly installing the ubuntu linux on a Lenovo AIO machine. The
+internal mic is not muted, but the micmute led is on and led mode is
+'follow mute'. If we mute internal mic, the led is keeping on, then
+unmute the internal mic, the led is off. And from then on, the
+micmute led will work correctly.
 
-Fixes: 3904b28efb2c7 ("iio: gyro: Add driver for the MPU-3050 gyroscope")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210301080421.13436-1-dinghao.liu@zju.edu.cn
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+So the micmute led init state is not correct. The led is controlled
+by codec gpio (ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY), in the
+patch_realtek, the gpio data is set to 0x4 initially and the led is
+on with this data. In the hda_generic, the led_value is set to
+0 initially, suppose users set the 'capture switch' to on from
+user space and the micmute led should change to be off with this
+operation, but the check "if (val == spec->micmute_led.led_value)" in
+the call_micmute_led_update() will skip the led setting.
+
+To guarantee the led state will be set by the 1st time of changing
+"Capture Switch", set -1 to the init led_value.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210312041408.3776-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/gyro/mpu3050-core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/hda_generic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/gyro/mpu3050-core.c
-+++ b/drivers/iio/gyro/mpu3050-core.c
-@@ -551,6 +551,8 @@ static irqreturn_t mpu3050_trigger_handl
- 					       MPU3050_FIFO_R,
- 					       &fifo_values[offset],
- 					       toread);
-+			if (ret)
-+				goto out_trigger_unlock;
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -4017,7 +4017,7 @@ int snd_hda_gen_add_micmute_led(struct h
  
- 			dev_dbg(mpu3050->dev,
- 				"%04x %04x %04x %04x %04x\n",
+ 	spec->micmute_led.led_mode = MICMUTE_LED_FOLLOW_MUTE;
+ 	spec->micmute_led.capture = 0;
+-	spec->micmute_led.led_value = 0;
++	spec->micmute_led.led_value = -1;
+ 	spec->micmute_led.old_hook = spec->cap_sync_hook;
+ 	spec->micmute_led.update = hook;
+ 	spec->cap_sync_hook = update_micmute_led;
 
 
