@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B36F344167
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5674C344237
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbhCVMdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:33:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55266 "EHLO mail.kernel.org"
+        id S231352AbhCVMjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:39:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230195AbhCVMcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:32:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A7E619A1;
-        Mon, 22 Mar 2021 12:32:22 +0000 (UTC)
+        id S231267AbhCVMiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:38:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECC666191A;
+        Mon, 22 Mar 2021 12:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416343;
-        bh=yTayAIBKuIJn+gV5lv0TS3Hk7EPo/GlQvUqJXS22suA=;
+        s=korg; t=1616416636;
+        bh=dTCL/+dN70IZPzkAaRmRsrOUjpj3Q/I6EmMdO62ctio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPmrwzRMsLUWPCmQqtqvG/svi1YZaG7JOlH9VjJgVttnxcwCYDgfc1mhAO88op1oz
-         uLOo5OJ71vCu1u+f/gJsW4VhvsVPmFBUDVqEPMhE/gOCXHtD9+g0vh6TgUeLafl0aP
-         IRJMjMMZcdZ7M9n4NSrbwYy1PGPjhp01N2ZgoQWE=
+        b=K+0Ynnv3LwYkKXtzq/24Y5501AFSEzrN8PgTKbmlKSI/N9zXSCFPABJ3IkLkldMgb
+         aL1VcGYTQcAEJ45IYrHjaKZkh1fAHpe1XtlqHLDxDclVFTF6gOLBvZXAYC9Q2CO3GE
+         Cqq49Y2x5AQPYHrJmFtF5xUAHZlMQa/Xsk0MuC5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.11 035/120] ASoC: codecs: wcd934x: add a sanity check in set channel map
+        stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 061/157] gpiolib: Assign fwnode to parents if no primary one provided
 Date:   Mon, 22 Mar 2021 13:26:58 +0100
-Message-Id: <20210322121930.831408240@linuxfoundation.org>
+Message-Id: <20210322121935.692206059@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 3bb4852d598f0275ed5996a059df55be7318ac2f upstream.
+[ Upstream commit 6cb59afe9e5b45a035bd6b97da6593743feefc72 ]
 
-set channel map can be passed with a channel maps, however if
-the number of channels that are passed are more than the actual
-supported channels then we would be accessing array out of bounds.
+In case when the properties are supplied in the secondary fwnode
+(for example, built-in device properties) the fwnode pointer left
+unassigned. This makes unable to retrieve them.
 
-So add a sanity check to validate these numbers!
+Assign fwnode to parent's if no primary one provided.
 
-Fixes: a61f3b4f476e ("ASoC: wcd934x: add support to wcd9340/wcd9341 codec")
-Reported-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210309142129.14182-4-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7cba1a4d5e16 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
+Fixes: 2afa97e9868f ("gpiolib: Read "gpio-line-names" from a firmware node")
+Reported-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Tested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd934x.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpio/gpiolib.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/sound/soc/codecs/wcd934x.c
-+++ b/sound/soc/codecs/wcd934x.c
-@@ -1873,6 +1873,12 @@ static int wcd934x_set_channel_map(struc
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 7f557ea90542..0a2c4adcd833 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -572,6 +572,7 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ 			       struct lock_class_key *lock_key,
+ 			       struct lock_class_key *request_key)
+ {
++	struct fwnode_handle *fwnode = gc->parent ? dev_fwnode(gc->parent) : NULL;
+ 	unsigned long	flags;
+ 	int		ret = 0;
+ 	unsigned	i;
+@@ -601,6 +602,12 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ 		gc->of_node = gdev->dev.of_node;
+ #endif
  
- 	wcd = snd_soc_component_get_drvdata(dai->component);
- 
-+	if (tx_num > WCD934X_TX_MAX || rx_num > WCD934X_RX_MAX) {
-+		dev_err(wcd->dev, "Invalid tx %d or rx %d channel count\n",
-+			tx_num, rx_num);
-+		return -EINVAL;
-+	}
++	/*
++	 * Assign fwnode depending on the result of the previous calls,
++	 * if none of them succeed, assign it to the parent's one.
++	 */
++	gdev->dev.fwnode = dev_fwnode(&gdev->dev) ?: fwnode;
 +
- 	if (!tx_slot || !rx_slot) {
- 		dev_err(wcd->dev, "Invalid tx_slot=%p, rx_slot=%p\n",
- 			tx_slot, rx_slot);
+ 	gdev->id = ida_alloc(&gpio_ida, GFP_KERNEL);
+ 	if (gdev->id < 0) {
+ 		ret = gdev->id;
+-- 
+2.30.1
+
 
 
