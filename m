@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 312453442AF
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97BBA3442B4
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230273AbhCVMoW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
+        id S231978AbhCVMo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232434AbhCVMmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE08B619CA;
-        Mon, 22 Mar 2021 12:40:24 +0000 (UTC)
+        id S232429AbhCVMmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F36161998;
+        Mon, 22 Mar 2021 12:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416825;
-        bh=b74qLjD1/EZPdXSgHwDphB8Yysweg1zXejONvSucxuY=;
+        s=korg; t=1616416827;
+        bh=J0Y3sIMV2n/Y1OuK3iAET8+O3YG9ezdpmXSxTGcPkOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2HwuUfzMD71KLlm88hCtUfq+2lto4Jus5rb1eWm8qMollSDG9b4co/rf1Loj9Ih1l
-         jC7duglUnblgG2h4R/21b/zwI2lPdcSVqNo2PbjGW2rmKmOEn5S2Y/Ho2Ne9tKd7mc
-         39Ef3kh0FoS1uokUfHzdIzNGI13WN5aCgwvGj3Aw=
+        b=yzesrRCN1WCQ5SVz+rfcoCXf/oyvzB3c7Jc4BJEC6ser/BrTS9JyR/P4e+b5RRVk3
+         /bxjk0HiW6DgDdkjYsUaXK+MH+EmQOJ3FvnGiP6bPZ2NacFLMef7H4CDMedPS0NKjH
+         IWqKYALMBG51vsqrK3fY1fNRP5EXnqPIJeUY+B2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
         William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 135/157] counter: stm32-timer-cnt: fix ceiling write max value
-Date:   Mon, 22 Mar 2021 13:28:12 +0100
-Message-Id: <20210322121938.036852568@linuxfoundation.org>
+Subject: [PATCH 5.10 136/157] counter: stm32-timer-cnt: fix ceiling miss-alignment with reload register
+Date:   Mon, 22 Mar 2021 13:28:13 +0100
+Message-Id: <20210322121938.068069851@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
 References: <20210322121933.746237845@linuxfoundation.org>
@@ -44,53 +44,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-commit e4c3e133294c0a292d21073899b05ebf530169bd upstream.
+commit b14d72ac731753708a7c1a6b3657b9312b6f0042 upstream.
 
-The ceiling value isn't checked before writing it into registers. The user
-could write a value higher than the counter resolution (e.g. 16 or 32 bits
-indicated by max_arr). This makes most significant bits to be truncated.
-Fix it by checking the max_arr to report a range error [1] to the user.
+Ceiling value may be miss-aligned with what's actually configured into the
+ARR register. This is seen after probe as currently the ARR value is zero,
+whereas ceiling value is set to the maximum. So:
+- reading ceiling reports zero
+- in case the counter gets enabled without any prior configuration,
+  it won't count.
+- in case the function gets set by the user 1st, (priv->ceiling) is used.
 
-[1] https://lkml.org/lkml/2021/2/12/358
+Fix it by getting rid of the cached "priv->ceiling" variable. Rather use
+the ARR register value directly by using regmap read or write when needed.
+There should be no drawback on performance as priv->ceiling isn't used in
+performance critical path.
+There's also no point in writing ARR while setting function (sms), so
+it can be safely removed.
 
 Fixes: ad29937e206f ("counter: Add STM32 Timer quadrature encoder")
+Suggested-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 Acked-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1614696235-24088-1-git-send-email-fabrice.gasnier@foss.st.com
+Link: https://lore.kernel.org/r/1614793789-10346-1-git-send-email-fabrice.gasnier@foss.st.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/counter/stm32-timer-cnt.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/counter/stm32-timer-cnt.c |   11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
 --- a/drivers/counter/stm32-timer-cnt.c
 +++ b/drivers/counter/stm32-timer-cnt.c
-@@ -32,6 +32,7 @@ struct stm32_timer_cnt {
+@@ -31,7 +31,6 @@ struct stm32_timer_cnt {
+ 	struct counter_device counter;
  	struct regmap *regmap;
  	struct clk *clk;
- 	u32 ceiling;
-+	u32 max_arr;
+-	u32 ceiling;
+ 	u32 max_arr;
  	bool enabled;
  	struct stm32_timer_regs bak;
- };
-@@ -191,6 +192,9 @@ static ssize_t stm32_count_ceiling_write
- 	if (ret)
- 		return ret;
+@@ -75,8 +74,10 @@ static int stm32_count_write(struct coun
+ 			     const unsigned long val)
+ {
+ 	struct stm32_timer_cnt *const priv = counter->priv;
++	u32 ceiling;
  
-+	if (ceiling > priv->max_arr)
-+		return -ERANGE;
-+
- 	/* TIMx_ARR register shouldn't be buffered (ARPE=0) */
+-	if (val > priv->ceiling)
++	regmap_read(priv->regmap, TIM_ARR, &ceiling);
++	if (val > ceiling)
+ 		return -EINVAL;
+ 
+ 	return regmap_write(priv->regmap, TIM_CNT, val);
+@@ -138,10 +139,6 @@ static int stm32_count_function_set(stru
+ 
+ 	regmap_update_bits(priv->regmap, TIM_CR1, TIM_CR1_CEN, 0);
+ 
+-	/* TIMx_ARR register shouldn't be buffered (ARPE=0) */
+-	regmap_update_bits(priv->regmap, TIM_CR1, TIM_CR1_ARPE, 0);
+-	regmap_write(priv->regmap, TIM_ARR, priv->ceiling);
+-
+ 	regmap_update_bits(priv->regmap, TIM_SMCR, TIM_SMCR_SMS, sms);
+ 
+ 	/* Make sure that registers are updated */
+@@ -199,7 +196,6 @@ static ssize_t stm32_count_ceiling_write
  	regmap_update_bits(priv->regmap, TIM_CR1, TIM_CR1_ARPE, 0);
  	regmap_write(priv->regmap, TIM_ARR, ceiling);
-@@ -371,6 +375,7 @@ static int stm32_timer_cnt_probe(struct
+ 
+-	priv->ceiling = ceiling;
+ 	return len;
+ }
+ 
+@@ -374,7 +370,6 @@ static int stm32_timer_cnt_probe(struct
+ 
  	priv->regmap = ddata->regmap;
  	priv->clk = ddata->clk;
- 	priv->ceiling = ddata->max_arr;
-+	priv->max_arr = ddata->max_arr;
+-	priv->ceiling = ddata->max_arr;
+ 	priv->max_arr = ddata->max_arr;
  
  	priv->counter.name = dev_name(dev);
- 	priv->counter.parent = dev;
 
 
