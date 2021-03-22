@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 112BF344141
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF05344148
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:32:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbhCVMbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:31:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53898 "EHLO mail.kernel.org"
+        id S231479AbhCVMcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:32:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231354AbhCVMb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:31:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C120D61990;
-        Mon, 22 Mar 2021 12:31:26 +0000 (UTC)
+        id S229574AbhCVMbd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:31:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AEEC60C3D;
+        Mon, 22 Mar 2021 12:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416287;
-        bh=eln6GSlQnXORZGT58NwAF6FdVlCh9p7wTueCfhmavS4=;
+        s=korg; t=1616416292;
+        bh=d+GzcK6TgYw3Xx8UcYKbOHfid1fVg+Z1p3hoRBKFwrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWqk/3w7VnvGHASk3vI++LeATOlPlqxc5zmTzV1+t27OHvCpokfu5ubfawgZnpRCn
-         9f/8zQJlbODoDSctEVBIQmFCuwoixtBvfXskgNx7j/MdfrM+q8st93kNHQO9b4k72t
-         lXE0HSZ4ltz1pbAiyZGi8hefzz3cOJl3BfGWzVvg=
+        b=wyKE9TEHMXBvkKMhMM/ejqGVQaliMXMNsnS7ihc06J/RDyBvQxBmzIISufqamHX7G
+         0ab043EA0dld1BqYpnxKiFEDo7x18zAag2qE7kr3j2yn7w3vR8xOe66I/PKkXTbguC
+         hOjpjqCExga+Hs4Nqjv5nNXIHV9qzEGM2n6RMQFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timo Rothenpieler <timo@rothenpieler.org>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.11 050/120] svcrdma: disable timeouts on rdma backchannel
-Date:   Mon, 22 Mar 2021 13:27:13 +0100
-Message-Id: <20210322121931.347605941@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 5.11 051/120] vfio: IOMMU_API should be selected
+Date:   Mon, 22 Mar 2021 13:27:14 +0100
+Message-Id: <20210322121931.384668052@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
 References: <20210322121929.669628946@linuxfoundation.org>
@@ -39,38 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timo Rothenpieler <timo@rothenpieler.org>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-commit 6820bf77864d5894ff67b5c00d7dba8f92011e3d upstream.
+commit 179209fa12709a3df8888c323b37315da2683c24 upstream.
 
-This brings it in line with the regular tcp backchannel, which also has
-all those timeouts disabled.
+As IOMMU_API is a kconfig without a description (eg does not show in the
+menu) the correct operator is select not 'depends on'. Using 'depends on'
+for this kind of symbol means VFIO is not selectable unless some other
+random kconfig has already enabled IOMMU_API for it.
 
-Prevents the backchannel from timing out, getting some async operations
-like server side copying getting stuck indefinitely on the client side.
-
-Signed-off-by: Timo Rothenpieler <timo@rothenpieler.org>
-Fixes: 5d252f90a800 ("svcrdma: Add class for RDMA backwards direction transport")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: cba3345cc494 ("vfio: VFIO core")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <1-v1-df057e0f92c3+91-vfio_arm_compile_test_jgg@nvidia.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprtrdma/svc_rdma_backchannel.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/vfio/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-@@ -252,9 +252,9 @@ xprt_setup_rdma_bc(struct xprt_create *a
- 	xprt->timeout = &xprt_rdma_bc_timeout;
- 	xprt_set_bound(xprt);
- 	xprt_set_connected(xprt);
--	xprt->bind_timeout = RPCRDMA_BIND_TO;
--	xprt->reestablish_timeout = RPCRDMA_INIT_REEST_TO;
--	xprt->idle_timeout = RPCRDMA_IDLE_DISC_TO;
-+	xprt->bind_timeout = 0;
-+	xprt->reestablish_timeout = 0;
-+	xprt->idle_timeout = 0;
+--- a/drivers/vfio/Kconfig
++++ b/drivers/vfio/Kconfig
+@@ -21,7 +21,7 @@ config VFIO_VIRQFD
  
- 	xprt->prot = XPRT_TRANSPORT_BC_RDMA;
- 	xprt->ops = &xprt_rdma_bc_procs;
+ menuconfig VFIO
+ 	tristate "VFIO Non-Privileged userspace driver framework"
+-	depends on IOMMU_API
++	select IOMMU_API
+ 	select VFIO_IOMMU_TYPE1 if (X86 || S390 || ARM || ARM64)
+ 	help
+ 	  VFIO provides a framework for secure userspace device drivers.
 
 
