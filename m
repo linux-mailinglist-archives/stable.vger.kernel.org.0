@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7223441B4
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 693F33442AD
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231404AbhCVMfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:35:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
+        id S230439AbhCVMoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231620AbhCVMd7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:33:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01A0A6199E;
-        Mon, 22 Mar 2021 12:33:56 +0000 (UTC)
+        id S232413AbhCVMmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B9D619BC;
+        Mon, 22 Mar 2021 12:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416437;
-        bh=afmo/A8+yob/4C0ZzfEoWJmMO3UygnCdCOwKY7fdhug=;
+        s=korg; t=1616416812;
+        bh=LE2qOZZHqFUlYbx2AAetxo8I594XlB4Y4gDXKoFoDRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5qG0L/nsfXMODyWKR0WM8kpsZD41CaZobuMbB/FKv/gxI/rYggWKW2UJFing38xq
-         gX+OGI+mb17lPAA0UKkDPDjy6w7cl+JK2pAkj/t+RkbaxRzkShpObunl3/Y4feAuBM
-         Q9GGvNwm8EXumS5vSDWpxki6Ww4f4dWwH1kYa0to=
+        b=rImZHp+EAMAHH6qsroeeWXkST5iewSKjGbhp93wSRnt++FZ9QyF8c4ZrxxY/kjDme
+         5qzvbhnvi38uqzd6EF1ErQ2fqGBHptizgcjvJFj6lOYAOpTS6w9sAJMQqhs7Z00a+x
+         LUzGl+z1rqCVlpUrdLGXbC+AlutdFk5dMvZg7hkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kratochvil <jan.kratochvil@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.11 105/120] x86: Introduce TS_COMPAT_RESTART to fix get_nr_restart_syscall()
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 131/157] iio: adc: adi-axi-adc: add proper Kconfig dependencies
 Date:   Mon, 22 Mar 2021 13:28:08 +0100
-Message-Id: <20210322121933.174837866@linuxfoundation.org>
+Message-Id: <20210322121937.905867616@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,129 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-commit 8c150ba2fb5995c84a7a43848250d444a3329a7d upstream.
+commit be24c65e9fa2486bb8ec98d9f592bdcf04bedd88 upstream.
 
-The comment in get_nr_restart_syscall() says:
+The ADI AXI ADC driver requires IO mem access and OF to work. This change
+adds these dependencies to the Kconfig symbol of the driver.
 
-	 * The problem is that we can get here when ptrace pokes
-	 * syscall-like values into regs even if we're not in a syscall
-	 * at all.
+This was also found via the lkp bot, as the
+devm_platform_ioremap_resource() symbol was not found at link-time on the
+S390 architecture.
 
-Yes, but if not in a syscall then the
-
-	status & (TS_COMPAT|TS_I386_REGS_POKED)
-
-check below can't really help:
-
-	- TS_COMPAT can't be set
-
-	- TS_I386_REGS_POKED is only set if regs->orig_ax was changed by
-	  32bit debugger; and even in this case get_nr_restart_syscall()
-	  is only correct if the tracee is 32bit too.
-
-Suppose that a 64bit debugger plays with a 32bit tracee and
-
-	* Tracee calls sleep(2)	// TS_COMPAT is set
-	* User interrupts the tracee by CTRL-C after 1 sec and does
-	  "(gdb) call func()"
-	* gdb saves the regs by PTRACE_GETREGS
-	* does PTRACE_SETREGS to set %rip='func' and %orig_rax=-1
-	* PTRACE_CONT		// TS_COMPAT is cleared
-	* func() hits int3.
-	* Debugger catches SIGTRAP.
-	* Restore original regs by PTRACE_SETREGS.
-	* PTRACE_CONT
-
-get_nr_restart_syscall() wrongly returns __NR_restart_syscall==219, the
-tracee calls ia32_sys_call_table[219] == sys_madvise.
-
-Add the sticky TS_COMPAT_RESTART flag which survives after return to user
-mode. It's going to be removed in the next step again by storing the
-information in the restart block. As a further cleanup it might be possible
-to remove also TS_I386_REGS_POKED with that.
-
-Test-case:
-
-  $ cvs -d :pserver:anoncvs:anoncvs@sourceware.org:/cvs/systemtap co ptrace-tests
-  $ gcc -o erestartsys-trap-debuggee ptrace-tests/tests/erestartsys-trap-debuggee.c --m32
-  $ gcc -o erestartsys-trap-debugger ptrace-tests/tests/erestartsys-trap-debugger.c -lutil
-  $ ./erestartsys-trap-debugger
-  Unexpected: retval 1, errno 22
-  erestartsys-trap-debugger: ptrace-tests/tests/erestartsys-trap-debugger.c:421
-
-Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
-Reported-by: Jan Kratochvil <jan.kratochvil@redhat.com>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174709.GA17895@redhat.com
+Fixes: ef04070692a21 ("iio: adc: adi-axi-adc: add support for AXI ADC IP core")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210210105044.48914-1-alexandru.ardelean@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/thread_info.h |   14 +++++++++++++-
- arch/x86/kernel/signal.c           |   24 +-----------------------
- 2 files changed, 14 insertions(+), 24 deletions(-)
+ drivers/iio/adc/Kconfig |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/include/asm/thread_info.h
-+++ b/arch/x86/include/asm/thread_info.h
-@@ -214,10 +214,22 @@ static inline int arch_within_stack_fram
-  */
- #define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
- 
-+#ifndef __ASSEMBLY__
- #ifdef CONFIG_COMPAT
- #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
-+#define TS_COMPAT_RESTART	0x0008
-+
-+#define arch_set_restart_data	arch_set_restart_data
-+
-+static inline void arch_set_restart_data(struct restart_block *restart)
-+{
-+	struct thread_info *ti = current_thread_info();
-+	if (ti->status & TS_COMPAT)
-+		ti->status |= TS_COMPAT_RESTART;
-+	else
-+		ti->status &= ~TS_COMPAT_RESTART;
-+}
- #endif
--#ifndef __ASSEMBLY__
- 
- #ifdef CONFIG_X86_32
- #define in_ia32_syscall() true
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -766,30 +766,8 @@ handle_signal(struct ksignal *ksig, stru
- 
- static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
- {
--	/*
--	 * This function is fundamentally broken as currently
--	 * implemented.
--	 *
--	 * The idea is that we want to trigger a call to the
--	 * restart_block() syscall and that we want in_ia32_syscall(),
--	 * in_x32_syscall(), etc. to match whatever they were in the
--	 * syscall being restarted.  We assume that the syscall
--	 * instruction at (regs->ip - 2) matches whatever syscall
--	 * instruction we used to enter in the first place.
--	 *
--	 * The problem is that we can get here when ptrace pokes
--	 * syscall-like values into regs even if we're not in a syscall
--	 * at all.
--	 *
--	 * For now, we maintain historical behavior and guess based on
--	 * stored state.  We could do better by saving the actual
--	 * syscall arch in restart_block or (with caveats on x32) by
--	 * checking if regs->ip points to 'int $0x80'.  The current
--	 * behavior is incorrect if a tracer has a different bitness
--	 * than the tracee.
--	 */
- #ifdef CONFIG_IA32_EMULATION
--	if (current_thread_info()->status & (TS_COMPAT|TS_I386_REGS_POKED))
-+	if (current_thread_info()->status & TS_COMPAT_RESTART)
- 		return __NR_ia32_restart_syscall;
- #endif
- #ifdef CONFIG_X86_X32_ABI
+--- a/drivers/iio/adc/Kconfig
++++ b/drivers/iio/adc/Kconfig
+@@ -266,6 +266,8 @@ config ADI_AXI_ADC
+ 	select IIO_BUFFER
+ 	select IIO_BUFFER_HW_CONSUMER
+ 	select IIO_BUFFER_DMAENGINE
++	depends on HAS_IOMEM
++	depends on OF
+ 	help
+ 	  Say yes here to build support for Analog Devices Generic
+ 	  AXI ADC IP core. The IP core is used for interfacing with
 
 
