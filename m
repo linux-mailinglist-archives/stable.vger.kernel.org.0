@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C56934411C
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D82C344221
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:39:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231236AbhCVMa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:30:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52694 "EHLO mail.kernel.org"
+        id S231826AbhCVMis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:38:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231150AbhCVMa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:30:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE48C6198D;
-        Mon, 22 Mar 2021 12:30:25 +0000 (UTC)
+        id S231983AbhCVMhR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:37:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B55B619A8;
+        Mon, 22 Mar 2021 12:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416226;
-        bh=SXHQvMorEmMwC1N/79KQkKOaRK29rlKveMKefQhRZXQ=;
+        s=korg; t=1616416612;
+        bh=lDMxcTJwLJXmOL5y+caxR3nAJ5nXkoSoS8A1LVscieo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZocziY2NA/BfS4ovLFSIIEFd6GjmKmRj4EiSduL2TJ87Wu3v9N7QpfeKrcTSkWBT
-         z+WK6zaXUOmWrz0OTirwVay0hUvrvCI3n4QfGy7CyfeSOC8rtd5ACgbWk0yw1D6QWJ
-         DUJoefznXpMJGpt60HuGVTmxxAS+feSR1X7jRiAY=
+        b=Tk8okuDtix8YmGt9g0EZOnpVDpYfRx2MjBEagamt3uIJhWiI5HKtAJPRQvM0MNotB
+         2Wh/yN9963U8sh1ngnqZ+oW1tIYji3jLuOr1Rlb4GNCu+1MXvYO6y2JewPStXIo9xU
+         6wZf7d4fILBMKI0Wv5510ymneoB2Vmye9fkrrLvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Huang Rui <ray.huang@amd.com>
-Subject: [PATCH 5.11 026/120] iommu/amd: Dont call early_amd_iommu_init() when AMD IOMMU is disabled
-Date:   Mon, 22 Mar 2021 13:26:49 +0100
-Message-Id: <20210322121930.531825437@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Zigotzky <chzigotzky@xenosoft.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 053/157] kbuild: Fix <linux/version.h> for empty SUBLEVEL or PATCHLEVEL again
+Date:   Mon, 22 Mar 2021 13:26:50 +0100
+Message-Id: <20210322121935.425533015@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 9f81ca8d1fd68f5697c201f26632ed622e9e462f upstream.
+commit 207da4c82ade9a6d59f7e794d737ba0748613fa2 upstream.
 
-Don't even try to initialize the AMD IOMMU hardware when amd_iommu=off has been
-passed on the kernel command line.
+Commit 78d3bb4483ba ("kbuild: Fix <linux/version.h> for empty SUBLEVEL
+or PATCHLEVEL") fixed the build error for empty SUBLEVEL or PATCHLEVEL
+by prepending a zero.
 
-Cc: stable@vger.kernel.org # v5.11
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20210317091037.31374-3-joro@8bytes.org
-Acked-by: Huang Rui <ray.huang@amd.com>
+Commit 9b82f13e7ef3 ("kbuild: clamp SUBLEVEL to 255") re-introduced
+this issue.
+
+This time, we cannot take the same approach because we have C code:
+
+  #define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL)
+  #define LINUX_VERSION_SUBLEVEL $(SUBLEVEL)
+
+Replace empty SUBLEVEL/PATCHLEVEL with a zero.
+
+Fixes: 9b82f13e7ef3 ("kbuild: clamp SUBLEVEL to 255")
+Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-and-tested-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd/init.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Makefile |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -2917,12 +2917,12 @@ static int __init state_next(void)
- 		}
- 		break;
- 	case IOMMU_IVRS_DETECTED:
--		ret = early_amd_iommu_init();
--		init_state = ret ? IOMMU_INIT_ERROR : IOMMU_ACPI_FINISHED;
--		if (init_state == IOMMU_ACPI_FINISHED && amd_iommu_disabled) {
--			pr_info("AMD IOMMU disabled\n");
-+		if (amd_iommu_disabled) {
- 			init_state = IOMMU_CMDLINE_DISABLED;
- 			ret = -EINVAL;
-+		} else {
-+			ret = early_amd_iommu_init();
-+			init_state = ret ? IOMMU_INIT_ERROR : IOMMU_ACPI_FINISHED;
- 		}
- 		break;
- 	case IOMMU_ACPI_FINISHED:
+--- a/Makefile
++++ b/Makefile
+@@ -1249,15 +1249,17 @@ endef
+ define filechk_version.h
+ 	if [ $(SUBLEVEL) -gt 255 ]; then                                 \
+ 		echo \#define LINUX_VERSION_CODE $(shell                 \
+-		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
++		expr $(VERSION) \* 65536 + $(PATCHLEVEL) \* 256 + 255); \
+ 	else                                                             \
+ 		echo \#define LINUX_VERSION_CODE $(shell                 \
+-		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + $(SUBLEVEL)); \
++		expr $(VERSION) \* 65536 + $(PATCHLEVEL) \* 256 + $(SUBLEVEL)); \
+ 	fi;                                                              \
+ 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) +  \
+ 	((c) > 255 ? 255 : (c)))'
+ endef
+ 
++$(version_h): PATCHLEVEL := $(if $(PATCHLEVEL), $(PATCHLEVEL), 0)
++$(version_h): SUBLEVEL := $(if $(SUBLEVEL), $(SUBLEVEL), 0)
+ $(version_h): FORCE
+ 	$(call filechk,version.h)
+ 	$(Q)rm -f $(old_version_h)
 
 
