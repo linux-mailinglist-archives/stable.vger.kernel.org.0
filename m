@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE2B344325
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 063F8344196
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231732AbhCVMsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:48:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42470 "EHLO mail.kernel.org"
+        id S230319AbhCVMe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:34:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231269AbhCVMqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:46:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD83A61994;
-        Mon, 22 Mar 2021 12:42:37 +0000 (UTC)
+        id S230449AbhCVMd0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:33:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58F91619A1;
+        Mon, 22 Mar 2021 12:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416958;
-        bh=3gHGsPldfhuVLElqZvK8kwvsl/AElTTrLDrzqCyn7Dk=;
+        s=korg; t=1616416405;
+        bh=csRO1uHA+ebS1cA/uKv9E8bjpUz3v4a+1scjtSwj9/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLwr8dqoOy2mwWRKRZryoBRuXz+fW15OgEeJf/uUjygp8h1KH4neZT1OE6UcSu1sv
-         ENbkObKfsG4YzUqPyvebSlktrweY5GzKJsV+TuWRhJreXFHpO1l3CIjIprnNkrtRtn
-         6+L9bCmdqt+qExTW0Xvles8aFdh3welV4Ux0ut3I=
+        b=JNVasU2ZoRu5D/gMczylYApgyQLdpd5IVfviMJwKTYhG4WlSXHGl2lEbITO1+LOeX
+         R5fdms10GatDJQ1EFVPKIZ2gRqzlGz35x0NHPdentAQnzlYSwEZJwW0al6a8Em7dAb
+         6hbiv6YpZSBWjeiS/bc7jqNotvs/evz82OrP2WDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 09/60] ARM: 9030/1: entry: omit FP emulation for UND exceptions taken in kernel mode
+        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.11 094/120] iio: hid-sensor-humidity: Fix alignment issue of timestamp channel
 Date:   Mon, 22 Mar 2021 13:27:57 +0100
-Message-Id: <20210322121922.683044049@linuxfoundation.org>
+Message-Id: <20210322121932.823099388@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,175 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Ye Xiang <xiang.ye@intel.com>
 
-commit f77ac2e378be9dd61eb88728f0840642f045d9d1 upstream.
+commit 37e89e574dc238a4ebe439543c5ab4fbb2f0311b upstream.
 
-There are a couple of problems with the exception entry code that deals
-with FP exceptions (which are reported as UND exceptions) when building
-the kernel in Thumb2 mode:
-- the conditional branch to vfp_kmode_exception in vfp_support_entry()
-  may be out of range for its target, depending on how the linker decides
-  to arrange the sections;
-- when the UND exception is taken in kernel mode, the emulation handling
-  logic is entered via the 'call_fpe' label, which means we end up using
-  the wrong value/mask pairs to match and detect the NEON opcodes.
+This patch ensures that, there is sufficient space and correct
+alignment for the timestamp.
 
-Since UND exceptions in kernel mode are unlikely to occur on a hot path
-(as opposed to the user mode version which is invoked for VFP support
-code and lazy restore), we can use the existing undef hook machinery for
-any kernel mode instruction emulation that is needed, including calling
-the existing vfp_kmode_exception() routine for unexpected cases. So drop
-the call to call_fpe, and instead, install an undef hook that will get
-called for NEON and VFP instructions that trigger an UND exception in
-kernel mode.
-
-While at it, make sure that the PC correction is accurate for the
-execution mode where the exception was taken, by checking the PSR
-Thumb bit.
-
-[nd: fix conflict in arch/arm/vfp/vfphw.S due to missing
-     commit 2cbd1cc3dcd3 ("ARM: 8991/1: use VFP assembler mnemonics if
-     available")]
-
-Fixes: eff8728fe698 ("vmlinux.lds.h: Add PGO and AutoFDO input sections")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Dmitry Osipenko <digetx@gmail.com>
-Cc: Kees Cook <keescook@chromium.org>
+Fixes: d7ed89d5aadf ("iio: hid: Add humidity sensor support")
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210303063615.12130-2-xiang.ye@intel.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/entry-armv.S |   25 +--------------------
- arch/arm/vfp/vfphw.S         |    5 ----
- arch/arm/vfp/vfpmodule.c     |   49 +++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 49 insertions(+), 30 deletions(-)
+ drivers/iio/humidity/hid-sensor-humidity.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -252,31 +252,10 @@ __und_svc:
- #else
- 	svc_entry
- #endif
--	@
--	@ call emulation code, which returns using r9 if it has emulated
--	@ the instruction, or the more conventional lr if we are to treat
--	@ this as a real undefined instruction
--	@
--	@  r0 - instruction
--	@
--#ifndef CONFIG_THUMB2_KERNEL
--	ldr	r0, [r4, #-4]
--#else
--	mov	r1, #2
--	ldrh	r0, [r4, #-2]			@ Thumb instruction at LR - 2
--	cmp	r0, #0xe800			@ 32-bit instruction if xx >= 0
--	blo	__und_svc_fault
--	ldrh	r9, [r4]			@ bottom 16 bits
--	add	r4, r4, #2
--	str	r4, [sp, #S_PC]
--	orr	r0, r9, r0, lsl #16
--#endif
--	badr	r9, __und_svc_finish
--	mov	r2, r4
--	bl	call_fpe
+--- a/drivers/iio/humidity/hid-sensor-humidity.c
++++ b/drivers/iio/humidity/hid-sensor-humidity.c
+@@ -15,7 +15,10 @@
+ struct hid_humidity_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info humidity_attr;
+-	s32 humidity_data;
++	struct {
++		s32 humidity_data;
++		u64 timestamp __aligned(8);
++	} scan;
+ 	int scale_pre_decml;
+ 	int scale_post_decml;
+ 	int scale_precision;
+@@ -125,9 +128,8 @@ static int humidity_proc_event(struct hi
+ 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
  
- 	mov	r1, #4				@ PC correction to apply
--__und_svc_fault:
-+ THUMB(	tst	r5, #PSR_T_BIT		)	@ exception taken in Thumb mode?
-+ THUMB(	movne	r1, #2			)	@ if so, fix up PC correction
- 	mov	r0, sp				@ struct pt_regs *regs
- 	bl	__und_fault
+ 	if (atomic_read(&humid_st->common_attributes.data_ready))
+-		iio_push_to_buffers_with_timestamp(indio_dev,
+-					&humid_st->humidity_data,
+-					iio_get_time_ns(indio_dev));
++		iio_push_to_buffers_with_timestamp(indio_dev, &humid_st->scan,
++						   iio_get_time_ns(indio_dev));
  
---- a/arch/arm/vfp/vfphw.S
-+++ b/arch/arm/vfp/vfphw.S
-@@ -78,11 +78,6 @@
- ENTRY(vfp_support_entry)
- 	DBGSTR3	"instr %08x pc %08x state %p", r0, r2, r10
- 
--	ldr	r3, [sp, #S_PSR]	@ Neither lazy restore nor FP exceptions
--	and	r3, r3, #MODE_MASK	@ are supported in kernel mode
--	teq	r3, #USR_MODE
--	bne	vfp_kmode_exception	@ Returns through lr
--
- 	VFPFMRX	r1, FPEXC		@ Is the VFP enabled?
- 	DBGSTR1	"fpexc %08x", r1
- 	tst	r1, #FPEXC_EN
---- a/arch/arm/vfp/vfpmodule.c
-+++ b/arch/arm/vfp/vfpmodule.c
-@@ -23,6 +23,7 @@
- #include <asm/cputype.h>
- #include <asm/system_info.h>
- #include <asm/thread_notify.h>
-+#include <asm/traps.h>
- #include <asm/vfp.h>
- 
- #include "vfpinstr.h"
-@@ -642,7 +643,9 @@ static int vfp_starting_cpu(unsigned int
  	return 0;
  }
+@@ -142,7 +144,7 @@ static int humidity_capture_sample(struc
  
--void vfp_kmode_exception(void)
-+#ifdef CONFIG_KERNEL_MODE_NEON
-+
-+static int vfp_kmode_exception(struct pt_regs *regs, unsigned int instr)
- {
- 	/*
- 	 * If we reach this point, a floating point exception has been raised
-@@ -660,9 +663,51 @@ void vfp_kmode_exception(void)
- 		pr_crit("BUG: unsupported FP instruction in kernel mode\n");
- 	else
- 		pr_crit("BUG: FP instruction issued in kernel mode with FP unit disabled\n");
-+	pr_crit("FPEXC == 0x%08x\n", fmrx(FPEXC));
-+	return 1;
- }
+ 	switch (usage_id) {
+ 	case HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY:
+-		humid_st->humidity_data = *(s32 *)raw_data;
++		humid_st->scan.humidity_data = *(s32 *)raw_data;
  
--#ifdef CONFIG_KERNEL_MODE_NEON
-+static struct undef_hook vfp_kmode_exception_hook[] = {{
-+	.instr_mask	= 0xfe000000,
-+	.instr_val	= 0xf2000000,
-+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
-+	.cpsr_val	= SVC_MODE,
-+	.fn		= vfp_kmode_exception,
-+}, {
-+	.instr_mask	= 0xff100000,
-+	.instr_val	= 0xf4000000,
-+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
-+	.cpsr_val	= SVC_MODE,
-+	.fn		= vfp_kmode_exception,
-+}, {
-+	.instr_mask	= 0xef000000,
-+	.instr_val	= 0xef000000,
-+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
-+	.cpsr_val	= SVC_MODE | PSR_T_BIT,
-+	.fn		= vfp_kmode_exception,
-+}, {
-+	.instr_mask	= 0xff100000,
-+	.instr_val	= 0xf9000000,
-+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
-+	.cpsr_val	= SVC_MODE | PSR_T_BIT,
-+	.fn		= vfp_kmode_exception,
-+}, {
-+	.instr_mask	= 0x0c000e00,
-+	.instr_val	= 0x0c000a00,
-+	.cpsr_mask	= MODE_MASK,
-+	.cpsr_val	= SVC_MODE,
-+	.fn		= vfp_kmode_exception,
-+}};
-+
-+static int __init vfp_kmode_exception_hook_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(vfp_kmode_exception_hook); i++)
-+		register_undef_hook(&vfp_kmode_exception_hook[i]);
-+	return 0;
-+}
-+core_initcall(vfp_kmode_exception_hook_init);
- 
- /*
-  * Kernel-side NEON support functions
+ 		return 0;
+ 	default:
 
 
