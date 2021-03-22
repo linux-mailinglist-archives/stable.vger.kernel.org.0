@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49EE634443D
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63FB23443A1
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231912AbhCVM7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50764 "EHLO mail.kernel.org"
+        id S230379AbhCVMxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:53:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231631AbhCVM41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:56:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DB97619DB;
-        Mon, 22 Mar 2021 12:48:34 +0000 (UTC)
+        id S230170AbhCVMtn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:49:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56DDC619D4;
+        Mon, 22 Mar 2021 12:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417314;
-        bh=m5kA/abdLW1cZgeUHA+IwCVIgm5Gqof0wPkfwUCERmw=;
+        s=korg; t=1616417123;
+        bh=ox17xXF2WS6do4zmq3tGsBWJXw+xcZVI1uv4dyQTbVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVOlpnw7FwIv0cxr6TFLxcLqh7Q399vMaBZ+3PlwEkMaN8VX4ru58+8fLy1R7gDzI
-         vBGAQdA3LemPP9B5t5/lHaZit7tP6maCP0IUVMBtQHZIKyiP+AKEenbHWofl5zabJH
-         rz5biW9ynOQujQsbWYciIV3Z9g20qhEMD2H/OWVo=
+        b=c7TNaI8Eop9cfemqCX8+y7cuWeSVpIC/DWAIzvTAV7RDdpo9evMskrFHbwXtTMNGv
+         wrRdhwzVQsaIuhymwF4Iyv3aHDYHl0wLKup4CNehRBWKVDITEr3eBMMBFqeRptcvd+
+         wYiItmT5QNrrrU6jCQ5mfcZhsLcLl5znGb5mG9sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.14 08/43] bpf: Prohibit alu ops for pointer types not defining ptr_limit
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 35/43] x86/ioapic: Ignore IRQ2 again
 Date:   Mon, 22 Mar 2021 13:28:49 +0100
-Message-Id: <20210322121920.321935998@linuxfoundation.org>
+Message-Id: <20210322121921.042626173@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+References: <20210322121919.936671417@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Krysiuk <piotras@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit f232326f6966cf2a1d1db7bc917a4ce5f9f55f76 upstream.
+commit a501b048a95b79e1e34f03cac3c87ff1e9f229ad upstream.
 
-The purpose of this patch is to streamline error propagation and in particular
-to propagate retrieve_ptr_limit() errors for pointer types that are not defining
-a ptr_limit such that register-based alu ops against these types can be rejected.
+Vitaly ran into an issue with hotplugging CPU0 on an Amazon instance where
+the matrix allocator claimed to be out of vectors. He analyzed it down to
+the point that IRQ2, the PIC cascade interrupt, which is supposed to be not
+ever routed to the IO/APIC ended up having an interrupt vector assigned
+which got moved during unplug of CPU0.
 
-The main rationale is that a gap has been identified by Piotr in the existing
-protection against speculatively out-of-bounds loads, for example, in case of
-ctx pointers, unprivileged programs can still perform pointer arithmetic. This
-can be abused to execute speculatively out-of-bounds loads without restrictions
-and thus extract contents of kernel memory.
+The underlying issue is that IRQ2 for various reasons (see commit
+af174783b925 ("x86: I/O APIC: Never configure IRQ2" for details) is treated
+as a reserved system vector by the vector core code and is not accounted as
+a regular vector. The Amazon BIOS has an routing entry of pin2 to IRQ2
+which causes the IO/APIC setup to claim that interrupt which is granted by
+the vector domain because there is no sanity check. As a consequence the
+allocation counter of CPU0 underflows which causes a subsequent unplug to
+fail with:
 
-Fix this by rejecting unprivileged programs that attempt any pointer arithmetic
-on unprotected pointer types. The two affected ones are pointer to ctx as well
-as pointer to map. Field access to a modified ctx' pointer is rejected at a
-later point in time in the verifier, and 7c6967326267 ("bpf: Permit map_ptr
-arithmetic with opcode add and offset 0") only relevant for root-only use cases.
-Risk of unprivileged program breakage is considered very low.
+  [ ... ] CPU 0 has 4294967295 vectors, 589 available. Cannot disable CPU
 
-Fixes: 7c6967326267 ("bpf: Permit map_ptr arithmetic with opcode add and offset 0")
-Fixes: b2157399cc98 ("bpf: prevent out-of-bounds speculation")
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
-Co-developed-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+There is another sanity check missing in the matrix allocator, but the
+underlying root cause is that the IO/APIC code lost the IRQ2 ignore logic
+during the conversion to irqdomains.
+
+For almost 6 years nobody complained about this wreckage, which might
+indicate that this requirement could be lifted, but for any system which
+actually has a PIC IRQ2 is unusable by design so any routing entry has no
+effect and the interrupt cannot be connected to a device anyway.
+
+Due to that and due to history biased paranoia reasons restore the IRQ2
+ignore logic and treat it as non existent despite a routing entry claiming
+otherwise.
+
+Fixes: d32932d02e18 ("x86/irq: Convert IOAPIC to use hierarchical irqdomain interfaces")
+Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210318192819.636943062@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/bpf/verifier.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/x86/kernel/apic/io_apic.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2104,6 +2104,7 @@ static int sanitize_ptr_alu(struct bpf_v
- 	u32 alu_state, alu_limit;
- 	struct bpf_reg_state tmp;
- 	bool ret;
-+	int err;
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -1043,6 +1043,16 @@ static int mp_map_pin_to_irq(u32 gsi, in
+ 	if (idx >= 0 && test_bit(mp_irqs[idx].srcbus, mp_bus_not_pci)) {
+ 		irq = mp_irqs[idx].srcbusirq;
+ 		legacy = mp_is_legacy_irq(irq);
++		/*
++		 * IRQ2 is unusable for historical reasons on systems which
++		 * have a legacy PIC. See the comment vs. IRQ2 further down.
++		 *
++		 * If this gets removed at some point then the related code
++		 * in lapic_assign_system_vectors() needs to be adjusted as
++		 * well.
++		 */
++		if (legacy && irq == PIC_CASCADE_IR)
++			return -EINVAL;
+ 	}
  
- 	if (can_skip_alu_sanitation(env, insn))
- 		return 0;
-@@ -2119,10 +2120,13 @@ static int sanitize_ptr_alu(struct bpf_v
- 	alu_state |= ptr_is_dst_reg ?
- 		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
- 
--	if (retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg))
--		return 0;
--	if (update_alu_sanitation_state(aux, alu_state, alu_limit))
--		return -EACCES;
-+	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
-+	if (err < 0)
-+		return err;
-+
-+	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
-+	if (err < 0)
-+		return err;
- do_sim:
- 	/* Simulate and find potential out-of-bounds access under
- 	 * speculative execution from truncation as a result of
-@@ -2215,7 +2219,7 @@ static int adjust_ptr_min_max_vals(struc
- 	case BPF_ADD:
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
- 		if (ret < 0) {
--			verbose("R%d tried to add from different maps or paths\n", dst);
-+			verbose("R%d tried to add from different maps, paths, or prohibited types\n", dst);
- 			return ret;
- 		}
- 		/* We can take a fixed offset as long as it doesn't overflow
-@@ -2270,7 +2274,7 @@ static int adjust_ptr_min_max_vals(struc
- 	case BPF_SUB:
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
- 		if (ret < 0) {
--			verbose("R%d tried to sub from different maps or paths\n", dst);
-+			verbose("R%d tried to sub from different maps, paths, or prohibited types\n", dst);
- 			return ret;
- 		}
- 		if (dst_reg == off_reg) {
+ 	mutex_lock(&ioapic_mutex);
 
 
