@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF6E3443B8
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 054D13441C5
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:37:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231938AbhCVMxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
+        id S231555AbhCVMfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232249AbhCVMv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:51:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C8D461A00;
-        Mon, 22 Mar 2021 12:46:03 +0000 (UTC)
+        id S229761AbhCVMeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:34:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34178619AA;
+        Mon, 22 Mar 2021 12:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417164;
-        bh=d770M/aN5daPlinx+dD1eupvA013sflFsP8cIE0hJ+U=;
+        s=korg; t=1616416471;
+        bh=QGhj1ccXdEQWIP62MR7rbLpMofI/ApUqNezqg0VV0is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jd1MtX1XHTOV7bPOp1/JTeCN6DWab98UdOG5lNYIidBSMQ55Wt+eUYIrVNmJ9S5Rg
-         iZgLhOX9fGi4fWuzJfFULl9B5aqHBO7OcQsXhNctOwGDjNt9qpw6AcDta3f1GPnI3D
-         1J28jZiqtaosPhWCGDeJ6ShKkFZ9D7jg0fH+5qMU=
+        b=BjuzJW7/LpXCsuxSnDdHTfI5mN+rMs/7akqir70MDWcpGgWg6RrK1p+hbxxEu70vv
+         U30mwHAkKMzI44IXbmoyEX3cF8Q/sa5/kzsgXgchBnG/Jhis0Y9sGc5/psNNRNS9/N
+         o4Z1vEYq/JHOy9gR39q4cANxJWUURPzpEc1iYkik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wang Nan <wangnan0@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 08/43] tools build feature: Check if get_current_dir_name() is available
-Date:   Mon, 22 Mar 2021 13:28:22 +0100
-Message-Id: <20210322121920.201000545@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.11 120/120] x86/apic/of: Fix CPU devicetree-node lookups
+Date:   Mon, 22 Mar 2021 13:28:23 +0100
+Message-Id: <20210322121933.667380278@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
-References: <20210322121919.936671417@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,157 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 8feb8efef97a134933620071e0b6384cb3238b4e upstream.
+commit dd926880da8dbbe409e709c1d3c1620729a94732 upstream.
 
-As the namespace support code will use this, which is not available in
-some non _GNU_SOURCE libraries such as Android's bionic used in my
-container build tests (r12b and r15c at the moment).
+Architectures that describe the CPU topology in devicetree and do not have
+an identity mapping between physical and logical CPU ids must override the
+default implementation of arch_match_cpu_phys_id().
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: https://lkml.kernel.org/n/tip-x56ypm940pwclwu45d7jfj47@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Failing to do so breaks CPU devicetree-node lookups using of_get_cpu_node()
+and of_cpu_device_node_get() which several drivers rely on. It also causes
+the CPU struct devices exported through sysfs to point to the wrong
+devicetree nodes.
+
+On x86, CPUs are described in devicetree using their APIC ids and those
+do not generally coincide with the logical ids, even if CPU0 typically
+uses APIC id 0.
+
+Add the missing implementation of arch_match_cpu_phys_id() so that CPU-node
+lookups work also with SMP.
+
+Apart from fixing the broken sysfs devicetree-node links this likely does
+not affect current users of mainline kernels on x86.
+
+Fixes: 4e07db9c8db8 ("x86/devicetree: Use CPU description from Device Tree")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210312092033.26317-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/build/Makefile.feature                    |    1 +
- tools/build/feature/Makefile                    |    4 ++++
- tools/build/feature/test-all.c                  |    5 +++++
- tools/build/feature/test-get_current_dir_name.c |   10 ++++++++++
- tools/perf/Makefile.config                      |    5 +++++
- tools/perf/util/Build                           |    1 +
- tools/perf/util/get_current_dir_name.c          |   18 ++++++++++++++++++
- tools/perf/util/util.h                          |    4 ++++
- 8 files changed, 48 insertions(+)
- create mode 100644 tools/build/feature/test-get_current_dir_name.c
- create mode 100644 tools/perf/util/get_current_dir_name.c
+ arch/x86/kernel/apic/apic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/tools/build/Makefile.feature
-+++ b/tools/build/Makefile.feature
-@@ -33,6 +33,7 @@ FEATURE_TESTS_BASIC :=
-         dwarf_getlocations              \
-         fortify-source                  \
-         sync-compare-and-swap           \
-+        get_current_dir_name            \
-         glibc                           \
-         gtk2                            \
-         gtk2-infobar                    \
---- a/tools/build/feature/Makefile
-+++ b/tools/build/feature/Makefile
-@@ -7,6 +7,7 @@ FILES=
-          test-dwarf_getlocations.bin            \
-          test-fortify-source.bin                \
-          test-sync-compare-and-swap.bin         \
-+         test-get_current_dir_name.bin          \
-          test-glibc.bin                         \
-          test-gtk2.bin                          \
-          test-gtk2-infobar.bin                  \
-@@ -99,6 +100,9 @@ $(OUTPUT)test-bionic.bin:
- $(OUTPUT)test-libelf.bin:
- 	$(BUILD) -lelf
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2334,6 +2334,11 @@ static int cpuid_to_apicid[] = {
+ 	[0 ... NR_CPUS - 1] = -1,
+ };
  
-+$(OUTPUT)test-get_current_dir_name.bin:
-+	$(BUILD)
-+
- $(OUTPUT)test-glibc.bin:
- 	$(BUILD)
- 
---- a/tools/build/feature/test-all.c
-+++ b/tools/build/feature/test-all.c
-@@ -34,6 +34,10 @@
- # include "test-libelf-mmap.c"
- #undef main
- 
-+#define main main_test_get_current_dir_name
-+# include "test-get_current_dir_name.c"
-+#undef main
-+
- #define main main_test_glibc
- # include "test-glibc.c"
- #undef main
-@@ -174,6 +178,7 @@ int main(int argc, char *argv[])
- 	main_test_hello();
- 	main_test_libelf();
- 	main_test_libelf_mmap();
-+	main_test_get_current_dir_name();
- 	main_test_glibc();
- 	main_test_dwarf();
- 	main_test_dwarf_getlocations();
---- /dev/null
-+++ b/tools/build/feature/test-get_current_dir_name.c
-@@ -0,0 +1,10 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#define _GNU_SOURCE
-+#include <unistd.h>
-+#include <stdlib.h>
-+
-+int main(void)
++bool arch_match_cpu_phys_id(int cpu, u64 phys_id)
 +{
-+	free(get_current_dir_name());
-+	return 0;
++	return phys_id == cpuid_to_apicid[cpu];
 +}
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -310,6 +310,11 @@ ifndef NO_BIONIC
-   endif
- endif
- 
-+ifeq ($(feature-get_current_dir_name), 1)
-+  CFLAGS += -DHAVE_GET_CURRENT_DIR_NAME
-+endif
 +
-+
- ifdef NO_LIBELF
-   NO_DWARF := 1
-   NO_DEMANGLE := 1
---- a/tools/perf/util/Build
-+++ b/tools/perf/util/Build
-@@ -10,6 +10,7 @@ libperf-y += evlist.o
- libperf-y += evsel.o
- libperf-y += evsel_fprintf.o
- libperf-y += find_bit.o
-+libperf-y += get_current_dir_name.o
- libperf-y += kallsyms.o
- libperf-y += levenshtein.o
- libperf-y += llvm-utils.o
---- /dev/null
-+++ b/tools/perf/util/get_current_dir_name.c
-@@ -0,0 +1,18 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (C) 2018, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
-+//
-+#ifndef HAVE_GET_CURRENT_DIR_NAME
-+#include "util.h"
-+#include <unistd.h>
-+#include <stdlib.h>
-+#include <stdlib.h>
-+
-+/* Android's 'bionic' library, for one, doesn't have this */
-+
-+char *get_current_dir_name(void)
-+{
-+	char pwd[PATH_MAX];
-+
-+	return getcwd(pwd, sizeof(pwd)) == NULL ? NULL : strdup(pwd);
-+}
-+#endif // HAVE_GET_CURRENT_DIR_NAME
---- a/tools/perf/util/util.h
-+++ b/tools/perf/util/util.h
-@@ -57,6 +57,10 @@ int fetch_kernel_version(unsigned int *p
- 
- const char *perf_tip(const char *dirpath);
- 
-+#ifndef HAVE_GET_CURRENT_DIR_NAME
-+char *get_current_dir_name(void);
-+#endif
-+
- #ifndef HAVE_SCHED_GETCPU_SUPPORT
- int sched_getcpu(void);
- #endif
+ #ifdef CONFIG_SMP
+ /**
+  * apic_id_is_primary_thread - Check whether APIC ID belongs to a primary thread
 
 
