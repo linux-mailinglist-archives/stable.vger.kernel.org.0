@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2754634432C
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 714893442B5
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:45:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230368AbhCVMs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:48:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40948 "EHLO mail.kernel.org"
+        id S231981AbhCVMoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231205AbhCVMqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:46:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E661961992;
-        Mon, 22 Mar 2021 12:42:42 +0000 (UTC)
+        id S232511AbhCVMmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:42:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD400619B2;
+        Mon, 22 Mar 2021 12:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416963;
-        bh=Dfn8oYX9JYKM317QVmGQPZ8TTdeHgMjJZ0CjXSLw9Iw=;
+        s=korg; t=1616416830;
+        bh=+N/vEXPFA2h7Hs+Xp+Ysnyf4OFcbKK4iAvPi5aDZgn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S++hWhJneYM8H1/BnM9is7TpxW38VWxJKvxLJzDmGTPIuiCfK84nt/xLWKM4X6TK9
-         NzD8Y3dcxaDHkyYNwBQ0BZfCwkTqgJL8Mtf2pJd26ugsQShxLHKb/5MzDUNu0L5Z+P
-         FycwqVlvFmc2u9D/YY+8uI7tbe80ykn0m64BI3C8=
+        b=REtLCEt3c9i3BDhWHbr9DX2aersabCgdFf7wr0loKq95OlJLrBf6MnJhNLyey64D5
+         rguhY6PzWz/kyXkbDIRSMyWCVb3s8vqwWJpoDEGHUAT/dN8Xbc7pBt16ANfrCoVJEe
+         CSxeLTW6vxSQTufP0PKgVWY/nFxXUkktXsZ4NGAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Kobras <kobras@puzzle-itc.de>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.4 26/60] sunrpc: fix refcount leak for rpc auth modules
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 137/157] PCI: rpadlpar: Fix potential drc_name corruption in store functions
 Date:   Mon, 22 Mar 2021 13:28:14 +0100
-Message-Id: <20210322121923.249779494@linuxfoundation.org>
+Message-Id: <20210322121938.098376300@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121922.372583154@linuxfoundation.org>
-References: <20210322121922.372583154@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Kobras <kobras@puzzle-itc.de>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit f1442d6349a2e7bb7a6134791bdc26cb776c79af upstream.
+commit cc7a0bb058b85ea03db87169c60c7cfdd5d34678 upstream.
 
-If an auth module's accept op returns SVC_CLOSE, svc_process_common()
-enters a call path that does not call svc_authorise() before leaving the
-function, and thus leaks a reference on the auth module's refcount. Hence,
-make sure calls to svc_authenticate() and svc_authorise() are paired for
-all call paths, to make sure rpc auth modules can be unloaded.
+Both add_slot_store() and remove_slot_store() try to fix up the
+drc_name copied from the store buffer by placing a NUL terminator at
+nbyte + 1 or in place of a '\n' if present. However, the static buffer
+that we copy the drc_name data into is not zeroed and can contain
+anything past the n-th byte.
 
-Signed-off-by: Daniel Kobras <kobras@puzzle-itc.de>
-Fixes: 4d712ef1db05 ("svcauth_gss: Close connection when dropping an incoming message")
-Link: https://lore.kernel.org/linux-nfs/3F1B347F-B809-478F-A1E9-0BE98E22B0F0@oracle.com/T/#t
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+This is problematic if a '\n' byte appears in that buffer after nbytes
+and the string copied into the store buffer was not NUL terminated to
+start with as the strchr() search for a '\n' byte will mark this
+incorrectly as the end of the drc_name string resulting in a drc_name
+string that contains garbage data after the n-th byte.
+
+Additionally it will cause us to overwrite that '\n' byte on the stack
+with NUL, potentially corrupting data on the stack.
+
+The following debugging shows an example of the drmgr utility writing
+"PHB 4543" to the add_slot sysfs attribute, but add_slot_store()
+logging a corrupted string value.
+
+  drmgr: drmgr: -c phb -a -s PHB 4543 -d 1
+  add_slot_store: drc_name = PHB 4543°|<82>!, rc = -19
+
+Fix this by using strscpy() instead of memcpy() to ensure the string
+is NUL terminated when copied into the static drc_name buffer.
+Further, since the string is now NUL terminated the code only needs to
+change '\n' to '\0' when present.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+[mpe: Reformat change log and add mention of possible stack corruption]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210315214821.452959-1-tyreld@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/svc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/rpadlpar_sysfs.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/net/sunrpc/svc.c
-+++ b/net/sunrpc/svc.c
-@@ -1417,7 +1417,7 @@ svc_process_common(struct svc_rqst *rqst
+--- a/drivers/pci/hotplug/rpadlpar_sysfs.c
++++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
+@@ -34,12 +34,11 @@ static ssize_t add_slot_store(struct kob
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
  
-  sendit:
- 	if (svc_authorise(rqstp))
--		goto close;
-+		goto close_xprt;
- 	return 1;		/* Caller can now send it */
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
  
- release_dropit:
-@@ -1429,6 +1429,8 @@ release_dropit:
- 	return 0;
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
  
-  close:
-+	svc_authorise(rqstp);
-+close_xprt:
- 	if (rqstp->rq_xprt && test_bit(XPT_TEMP, &rqstp->rq_xprt->xpt_flags))
- 		svc_close_xprt(rqstp->rq_xprt);
- 	dprintk("svc: svc_process close\n");
-@@ -1437,7 +1439,7 @@ release_dropit:
- err_short_len:
- 	svc_printk(rqstp, "short len %zd, dropping request\n",
- 			argv->iov_len);
--	goto close;
-+	goto close_xprt;
+ 	rc = dlpar_add_slot(drc_name);
+ 	if (rc)
+@@ -65,12 +64,11 @@ static ssize_t remove_slot_store(struct
+ 	if (nbytes >= MAX_DRC_NAME_LEN)
+ 		return 0;
  
- err_bad_rpc:
- 	serv->sv_stats->rpcbadfmt++;
+-	memcpy(drc_name, buf, nbytes);
++	strscpy(drc_name, buf, nbytes + 1);
+ 
+ 	end = strchr(drc_name, '\n');
+-	if (!end)
+-		end = &drc_name[nbytes];
+-	*end = '\0';
++	if (end)
++		*end = '\0';
+ 
+ 	rc = dlpar_remove_slot(drc_name);
+ 	if (rc)
 
 
