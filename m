@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1507F344257
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A15F344152
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:33:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232059AbhCVMkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:40:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33572 "EHLO mail.kernel.org"
+        id S231326AbhCVMci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:32:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231522AbhCVMjX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:39:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AF32619A6;
-        Mon, 22 Mar 2021 12:38:08 +0000 (UTC)
+        id S231404AbhCVMb6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:31:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FD48619AB;
+        Mon, 22 Mar 2021 12:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416689;
-        bh=p6MJmlwuXbJfeo71UsxKsr27MR4cdDnLo9GEJukhIB0=;
+        s=korg; t=1616416311;
+        bh=hylYkMdJLjRI1ELJ/ZdlH4z9aISO0g6s9e0Vb4SwG/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMbF0jIRaZ0SlitEuMikn2PYoPU+5DJj+LXYwEqsTMq2O2T05KvxyCHKL+g2iRy8X
-         hIF0+4CoDNfuuRp8cajdyz5SpAT6wcWUU8xE+F2v/bRj9FJQFDFLyOh+AFgxM7DZmC
-         kuTzeYqirdl5/gHUgza+v8RQ42rU7MpP6BQZIIxk=
+        b=SEp1avqhs2b0MqrlSfhNxQQnQA27KIu6B9HfkzGQrMXGjtZ0QUWwRRRo0F3QIlDge
+         68AaAmslAOIJss3BHKNxt9tocB27s+iTg4vSOnA0Eoc6trfF5G3W7ukikNHM753zxq
+         yj61BPK0UM1jC1vDX6dC4pNs+yo/yTxad9o9iszA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Artur Paszkiewicz <artur.paszkiewicz@intel.com>,
-        John Garry <john.garry@huawei.com>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/157] scsi: isci: Pass gfp_t flags in isci_port_link_up()
-Date:   Mon, 22 Mar 2021 13:27:20 +0100
-Message-Id: <20210322121936.426090340@linuxfoundation.org>
+        syzbot+80dccaee7c6630fa9dcf@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Alexander Lobakin <alobakin@pm.me>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 058/120] net/qrtr: fix __netdev_alloc_skb call
+Date:   Mon, 22 Mar 2021 13:27:21 +0100
+Message-Id: <20210322121931.616342028@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,128 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmed S. Darwish <a.darwish@linutronix.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 5ce7902902adb8d154d67ba494f06daa29360ef0 ]
+commit 093b036aa94e01a0bea31a38d7f0ee28a2749023 upstream.
 
-Use the new libsas event notifiers API, which requires callers to
-explicitly pass the gfp_t memory allocation flags.
+syzbot found WARNING in __alloc_pages_nodemask()[1] when order >= MAX_ORDER.
+It was caused by a huge length value passed from userspace to qrtr_tun_write_iter(),
+which tries to allocate skb. Since the value comes from the untrusted source
+there is no need to raise a warning in __alloc_pages_nodemask().
 
-libsas sas_notify_port_event() is called from isci_port_link_up().  Below
-is the context analysis for all of its call chains:
+[1] WARNING in __alloc_pages_nodemask+0x5f8/0x730 mm/page_alloc.c:5014
+Call Trace:
+ __alloc_pages include/linux/gfp.h:511 [inline]
+ __alloc_pages_node include/linux/gfp.h:524 [inline]
+ alloc_pages_node include/linux/gfp.h:538 [inline]
+ kmalloc_large_node+0x60/0x110 mm/slub.c:3999
+ __kmalloc_node_track_caller+0x319/0x3f0 mm/slub.c:4496
+ __kmalloc_reserve net/core/skbuff.c:150 [inline]
+ __alloc_skb+0x4e4/0x5a0 net/core/skbuff.c:210
+ __netdev_alloc_skb+0x70/0x400 net/core/skbuff.c:446
+ netdev_alloc_skb include/linux/skbuff.h:2832 [inline]
+ qrtr_endpoint_post+0x84/0x11b0 net/qrtr/qrtr.c:442
+ qrtr_tun_write_iter+0x11f/0x1a0 net/qrtr/tun.c:98
+ call_write_iter include/linux/fs.h:1901 [inline]
+ new_sync_write+0x426/0x650 fs/read_write.c:518
+ vfs_write+0x791/0xa30 fs/read_write.c:605
+ ksys_write+0x12d/0x250 fs/read_write.c:658
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-host.c: isci_host_init()                                        (@)
-spin_lock_irq(isci_host::scic_lock)
-  -> sci_controller_initialize(), atomic                        (*)
-    -> port_config.c: sci_port_configuration_agent_initialize()
-      -> sci_mpc_agent_validate_phy_configuration()
-        -> port.c: sci_port_add_phy()
-          -> sci_port_general_link_up_handler()
-            -> sci_port_activate_phy()
-              -> isci_port_link_up()
-
-port_config.c: apc_agent_timeout(), atomic, timer callback      (*)
-  -> sci_apc_agent_configure_ports()
-    -> port.c: sci_port_add_phy()
-      -> sci_port_general_link_up_handler()
-        -> sci_port_activate_phy()
-          -> isci_port_link_up()
-
-phy.c: enter SCI state: *SCI_PHY_SUB_FINAL*                     # Cont. from [1]
-  -> phy.c: sci_phy_starting_final_substate_enter()
-    -> phy.c: sci_change_state(SCI_PHY_READY)
-      -> enter SCI state: *SCI_PHY_READY*
-        -> phy.c: sci_phy_ready_state_enter()
-          -> host.c: sci_controller_link_up()
-            -> .link_up_handler()
-            == port_config.c: sci_apc_agent_link_up()
-              -> port.c: sci_port_link_up()
-                -> (continue at [A])
-            == port_config.c: sci_mpc_agent_link_up()
-	      -> port.c: sci_port_link_up()
-                -> (continue at [A])
-
-port_config.c: mpc_agent_timeout(), atomic, timer callback      (*)
-spin_lock_irqsave(isci_host::scic_lock, )
-  -> ->link_up_handler()
-  == port_config.c: sci_apc_agent_link_up()
-    -> port.c: sci_port_link_up()
-      -> (continue at [A])
-  == port_config.c: sci_mpc_agent_link_up()
-    -> port.c: sci_port_link_up()
-      -> (continue at [A])
-
-[A] port.c: sci_port_link_up()
-  -> sci_port_activate_phy()
-    -> isci_port_link_up()
-  -> sci_port_general_link_up_handler()
-    -> sci_port_activate_phy()
-      -> isci_port_link_up()
-
-[1] Call chains for entering SCI state: *SCI_PHY_SUB_FINAL*
------------------------------------------------------------
-
-host.c: power_control_timeout(), atomic, timer callback         (*)
-spin_lock_irqsave(isci_host::scic_lock, )
-  -> phy.c: sci_phy_consume_power_handler()
-    -> phy.c: sci_change_state(SCI_PHY_SUB_FINAL)
-
-host.c: sci_controller_error_handler(): atomic, irq handler     (*)
-OR host.c: sci_controller_completion_handler(), atomic, tasklet (*)
-  -> sci_controller_process_completions()
-    -> sci_controller_unsolicited_frame()
-      -> phy.c: sci_phy_frame_handler()
-        -> sci_change_state(SCI_PHY_SUB_AWAIT_SAS_POWER)
-          -> sci_phy_starting_await_sas_power_substate_enter()
-            -> host.c: sci_controller_power_control_queue_insert()
-              -> phy.c: sci_phy_consume_power_handler()
-                -> sci_change_state(SCI_PHY_SUB_FINAL)
-        -> sci_change_state(SCI_PHY_SUB_FINAL)
-    -> sci_controller_event_completion()
-      -> phy.c: sci_phy_event_handler()
-        -> sci_phy_start_sata_link_training()
-          -> sci_change_state(SCI_PHY_SUB_AWAIT_SATA_POWER)
-            -> sci_phy_starting_await_sata_power_substate_enter
-              -> host.c: sci_controller_power_control_queue_insert()
-                -> phy.c: sci_phy_consume_power_handler()
-                  -> sci_change_state(SCI_PHY_SUB_FINAL)
-
-As can be seen from the "(*)" markers above, all the call-chains are
-atomic.  Pass GFP_ATOMIC to libsas port event notifier.
-
-Note, the now-replaced libsas APIs used in_interrupt() to implicitly decide
-which memory allocation type to use.  This was only partially correct, as
-it fails to choose the correct GFP flags when just preemption or interrupts
-are disabled. Such buggy code paths are marked with "(@)" in the call
-chains above.
-
-Link: https://lore.kernel.org/r/20210118100955.1761652-7-a.darwish@linutronix.de
-Fixes: 1c393b970e0f ("scsi: libsas: Use dynamic alloced work to avoid sas event lost")
-Cc: Artur Paszkiewicz <artur.paszkiewicz@intel.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+80dccaee7c6630fa9dcf@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Alexander Lobakin <alobakin@pm.me>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/isci/port.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/qrtr/qrtr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/isci/port.c b/drivers/scsi/isci/port.c
-index a3c58718c260..10136ae466e2 100644
---- a/drivers/scsi/isci/port.c
-+++ b/drivers/scsi/isci/port.c
-@@ -223,7 +223,8 @@ static void isci_port_link_up(struct isci_host *isci_host,
- 	/* Notify libsas that we have an address frame, if indeed
- 	 * we've found an SSP, SMP, or STP target */
- 	if (success)
--		sas_notify_port_event(&iphy->sas_phy, PORTE_BYTES_DMAED);
-+		sas_notify_port_event_gfp(&iphy->sas_phy,
-+					  PORTE_BYTES_DMAED, GFP_ATOMIC);
- }
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -439,7 +439,7 @@ int qrtr_endpoint_post(struct qrtr_endpo
+ 	if (len == 0 || len & 3)
+ 		return -EINVAL;
  
+-	skb = netdev_alloc_skb(NULL, len);
++	skb = __netdev_alloc_skb(NULL, len, GFP_ATOMIC | __GFP_NOWARN);
+ 	if (!skb)
+ 		return -ENOMEM;
  
--- 
-2.30.1
-
 
 
