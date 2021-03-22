@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C223234445D
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E5A3443E6
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232332AbhCVM7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:59:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50846 "EHLO mail.kernel.org"
+        id S232453AbhCVMzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:55:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233171AbhCVM5x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:57:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00780619C1;
-        Mon, 22 Mar 2021 12:49:36 +0000 (UTC)
+        id S232951AbhCVMxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:53:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D71D61A0A;
+        Mon, 22 Mar 2021 12:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417377;
-        bh=jv59E40YGhO+9bjqtGUokT2x3YQk8desJR4gOl9bKao=;
+        s=korg; t=1616417232;
+        bh=4J4+ckwrQYqWGb0vz104f2MlBMmFdG+29WBPS/ewMTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=urEoMjS5MwSrCYnsLAR0yJpcFWcvH4YkrGDqPWw2is1Lzi3ElmNLWfvn00DinBd0Y
-         Xa6iK1CqIXO6hSZO5lp0B7S98e8BEIRUMIxlCb+IVaYVvGdyuh6njaeV0lE0j9A0+J
-         SsrTqtgrMk4XzTq94kEihxFZrERJW44m5b2v5pM4=
+        b=LAGd5bdZ2z06L+fAcKSjYYQY7XPElnHFfPqtAXumzhgV7YMWC1ZwPLb0cWGkCDbjI
+         8MK9b6UI3rsN/6ZYchUqfitIILLGYUj53hTxSkSUcidr82VQLasIVNB+jG2npvSobi
+         EOpfPEeKmpuef8FnagqkcwQOhg7UBWeAHUfc1S1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Albrieux <jonathan.albrieux@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 28/43] iio:adc:qcom-spmi-vadc: add default scale to LR_MUX2_BAT_ID channel
-Date:   Mon, 22 Mar 2021 13:29:09 +0100
-Message-Id: <20210322121920.936578527@linuxfoundation.org>
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.9 20/25] kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+Date:   Mon, 22 Mar 2021 13:29:10 +0100
+Message-Id: <20210322121921.037080452@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
-References: <20210322121920.053255560@linuxfoundation.org>
+In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
+References: <20210322121920.399826335@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +39,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Albrieux <jonathan.albrieux@gmail.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 7d200b283aa049fcda0d43dd6e03e9e783d2799c upstream.
+commit 5abbe51a526253b9f003e9a0a195638dc882d660 upstream.
 
-Checking at both msm8909-pm8916.dtsi and msm8916.dtsi from downstream
-it is indicated that "batt_id" channel has to be scaled with the default
-function:
+Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
 
-	chan@31 {
-		label = "batt_id";
-		reg = <0x31>;
-		qcom,decimation = <0>;
-		qcom,pre-div-channel-scaling = <0>;
-		qcom,calibration-type = "ratiometric";
-		qcom,scale-function = <0>;
-		qcom,hw-settle-time = <0xb>;
-		qcom,fast-avg-setup = <0>;
-	};
+Add a new helper which sets restart_block->fn and calls a dummy
+arch_set_restart_data() helper.
 
-Change LR_MUX2_BAT_ID scaling accordingly.
-
-Signed-off-by: Jonathan Albrieux <jonathan.albrieux@gmail.com>
-Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Fixes: 7c271eea7b8a ("iio: adc: spmi-vadc: Changes to support different scaling")
-Link: https://lore.kernel.org/r/20210113151808.4628-2-jonathan.albrieux@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/qcom-spmi-vadc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/select.c                    |   10 ++++------
+ include/linux/thread_info.h    |   13 +++++++++++++
+ kernel/futex.c                 |    3 +--
+ kernel/time/alarmtimer.c       |    2 +-
+ kernel/time/hrtimer.c          |    2 +-
+ kernel/time/posix-cpu-timers.c |    2 +-
+ 6 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/drivers/iio/adc/qcom-spmi-vadc.c
-+++ b/drivers/iio/adc/qcom-spmi-vadc.c
-@@ -607,7 +607,7 @@ static const struct vadc_channels vadc_c
- 	VADC_CHAN_NO_SCALE(P_MUX16_1_3, 1)
+--- a/fs/select.c
++++ b/fs/select.c
+@@ -961,10 +961,9 @@ static long do_restart_poll(struct resta
  
- 	VADC_CHAN_NO_SCALE(LR_MUX1_BAT_THERM, 0)
--	VADC_CHAN_NO_SCALE(LR_MUX2_BAT_ID, 0)
-+	VADC_CHAN_VOLT(LR_MUX2_BAT_ID, 0, SCALE_DEFAULT)
- 	VADC_CHAN_NO_SCALE(LR_MUX3_XO_THERM, 0)
- 	VADC_CHAN_NO_SCALE(LR_MUX4_AMUX_THM1, 0)
- 	VADC_CHAN_NO_SCALE(LR_MUX5_AMUX_THM2, 0)
+ 	ret = do_sys_poll(ufds, nfds, to);
+ 
+-	if (ret == -EINTR) {
+-		restart_block->fn = do_restart_poll;
+-		ret = -ERESTART_RESTARTBLOCK;
+-	}
++	if (ret == -EINTR)
++		ret = set_restart_fn(restart_block, do_restart_poll);
++
+ 	return ret;
+ }
+ 
+@@ -986,7 +985,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
+ 		struct restart_block *restart_block;
+ 
+ 		restart_block = &current->restart_block;
+-		restart_block->fn = do_restart_poll;
+ 		restart_block->poll.ufds = ufds;
+ 		restart_block->poll.nfds = nfds;
+ 
+@@ -997,7 +995,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __us
+ 		} else
+ 			restart_block->poll.has_timeout = 0;
+ 
+-		ret = -ERESTART_RESTARTBLOCK;
++		ret = set_restart_fn(restart_block, do_restart_poll);
+ 	}
+ 	return ret;
+ }
+--- a/include/linux/thread_info.h
++++ b/include/linux/thread_info.h
+@@ -9,6 +9,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/bug.h>
++#include <linux/errno.h>
+ 
+ struct timespec;
+ struct compat_timespec;
+@@ -59,6 +60,18 @@ extern long do_no_restart_syscall(struct
+ 
+ #ifdef __KERNEL__
+ 
++#ifndef arch_set_restart_data
++#define arch_set_restart_data(restart) do { } while (0)
++#endif
++
++static inline long set_restart_fn(struct restart_block *restart,
++					long (*fn)(struct restart_block *))
++{
++	restart->fn = fn;
++	arch_set_restart_data(restart);
++	return -ERESTART_RESTARTBLOCK;
++}
++
+ #define THREADINFO_GFP	(GFP_KERNEL_ACCOUNT | __GFP_NOTRACK | __GFP_ZERO)
+ 
+ /*
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2822,14 +2822,13 @@ retry:
+ 		goto out;
+ 
+ 	restart = &current->restart_block;
+-	restart->fn = futex_wait_restart;
+ 	restart->futex.uaddr = uaddr;
+ 	restart->futex.val = val;
+ 	restart->futex.time = abs_time->tv64;
+ 	restart->futex.bitset = bitset;
+ 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
+ 
+-	ret = -ERESTART_RESTARTBLOCK;
++	ret = set_restart_fn(restart, futex_wait_restart);
+ 
+ out:
+ 	if (to) {
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -809,10 +809,10 @@ static int alarm_timer_nsleep(const cloc
+ 	}
+ 
+ 	restart = &current->restart_block;
+-	restart->fn = alarm_timer_nsleep_restart;
+ 	restart->nanosleep.clockid = type;
+ 	restart->nanosleep.expires = exp.tv64;
+ 	restart->nanosleep.rmtp = rmtp;
++	set_restart_fn(restart, alarm_timer_nsleep_restart);
+ 	ret = -ERESTART_RESTARTBLOCK;
+ 
+ out:
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -1582,10 +1582,10 @@ long hrtimer_nanosleep(struct timespec *
+ 	}
+ 
+ 	restart = &current->restart_block;
+-	restart->fn = hrtimer_nanosleep_restart;
+ 	restart->nanosleep.clockid = t.timer.base->clockid;
+ 	restart->nanosleep.rmtp = rmtp;
+ 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
++	set_restart_fn(restart, hrtimer_nanosleep_restart);
+ 
+ 	ret = -ERESTART_RESTARTBLOCK;
+ out:
+--- a/kernel/time/posix-cpu-timers.c
++++ b/kernel/time/posix-cpu-timers.c
+@@ -1377,10 +1377,10 @@ static int posix_cpu_nsleep(const clocki
+ 		if (rmtp && copy_to_user(rmtp, &it.it_value, sizeof *rmtp))
+ 			return -EFAULT;
+ 
+-		restart_block->fn = posix_cpu_nsleep_restart;
+ 		restart_block->nanosleep.clockid = which_clock;
+ 		restart_block->nanosleep.rmtp = rmtp;
+ 		restart_block->nanosleep.expires = timespec_to_ns(rqtp);
++		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
+ 	}
+ 	return error;
+ }
 
 
