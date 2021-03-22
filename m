@@ -2,75 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49172343B75
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 09:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60300343B9D
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 09:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229875AbhCVIQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 04:16:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47016 "EHLO mail.kernel.org"
+        id S229962AbhCVIWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 04:22:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229647AbhCVIPp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 04:15:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 245986192A;
-        Mon, 22 Mar 2021 08:15:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616400944;
-        bh=SirvrN58DWFP+GDiA//KzYSrkY4d0+DAvCIrJWxyZbk=;
+        id S229955AbhCVIWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 04:22:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B67C61967;
+        Mon, 22 Mar 2021 08:22:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616401328;
+        bh=CZsoXS4pvunxg0Xxd6ZM6Az/+gNltMawubJvOeQbZcM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cPJhCHAJ3tFCDXV5QIFo6T7TOAYZzwESiu8xd2AugdJX4vn4IdE81sDd6CWMohtyH
-         1nEkLfu3iXGRrQ3hfjAoBhYADv+ENevvyPwCfXZnevDQH/gz3R5zJCsOm0eHaDlzPl
-         47AI3XKlCSTyg2KVV2+FjCpLeYZQZsB4FPzVK2e8=
-Date:   Mon, 22 Mar 2021 09:15:42 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 5.10 267/290] powerpc: Fix missing declaration of
- [en/dis]able_kernel_vsx()
-Message-ID: <YFhSLhW5Hy2MeVVx@kroah.com>
-References: <20210315135541.921894249@linuxfoundation.org>
- <20210315135551.044220754@linuxfoundation.org>
- <CAMuHMdUqDX8NSGNsw4R=-pEk+nNRsBPBhXD91bq4qy-v1ybcJQ@mail.gmail.com>
- <fed84796-e3b4-47fc-7f5f-57d53565aa73@csgroup.eu>
+        b=q9jR11ysigNZjr+ZktwhoMI5LXbZpdxinjgXmW+SUU9A7K3T5gA+VL6g+F9Y1LR1h
+         xCfTmlOvcrJ/ceGmq/rjAW76sloz+6b3OewgftnWCp7tcpNuIr/zy+RH3woR2xSEN+
+         HGTDIrDic4EJkiO3OXYQnx5fO5NBhhvrkbCE5aFimIBR34RIV28v7BSZ0rEvabQy28
+         Uti/+zutBN5nrLL7ibwouyFe0oxAN2K9vdC44aprEKy8+LGnuCkwj8DbRHjUUhQzDg
+         VgQX61FNEqHxGKm7Ejbpw6dM26z7PWJbohYFZlWaHtzXQgsXd+QT659MFxHmaV6Lvu
+         MZ1cwDtc4gDBA==
+Received: from johan by xi with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1lOFpP-0002WC-Tx; Mon, 22 Mar 2021 09:22:24 +0100
+Date:   Mon, 22 Mar 2021 09:22:23 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     x86@kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Rob Herring <robh@kernel.org>,
+        linux-kernel@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jens Frederich <jfrederich@gmail.com>,
+        Jon Nettleton <jon.nettleton@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 RESEND] x86/apic/of: Fix CPU devicetree-node lookups
+Message-ID: <YFhTv5Q++b0PtH8P@hovoldconsulting.com>
+References: <20210312092033.26317-1-johan@kernel.org>
+ <87mtuyby66.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <fed84796-e3b4-47fc-7f5f-57d53565aa73@csgroup.eu>
+In-Reply-To: <87mtuyby66.fsf@nanos.tec.linutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 22, 2021 at 07:16:25AM +0100, Christophe Leroy wrote:
+On Fri, Mar 19, 2021 at 11:01:37PM +0100, Thomas Gleixner wrote:
+> On Fri, Mar 12 2021 at 10:20, Johan Hovold wrote:
+> >  arch/x86/kernel/apic/apic.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > It's been over three months so resending.
 > 
-> 
-> Le 15/03/2021 à 15:15, Geert Uytterhoeven a écrit :
-> > On Mon, Mar 15, 2021 at 3:04 PM <gregkh@linuxfoundation.org> wrote:
-> > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > 
-> > > From: Christophe Leroy <christophe.leroy@csgroup.eu>
-> > > 
-> > > commit bd73758803c2eedc037c2268b65a19542a832594 upstream.
-> > > 
-> > > Add stub instances of enable_kernel_vsx() and disable_kernel_vsx()
-> > > when CONFIG_VSX is not set, to avoid following build failure.
-> > 
-> > Please note that this is not sufficient, and will just turn the build error
-> > in another, different build error.
-> 
-> Not exactly, the fix is sufficient in most case, it is only with ancient
-> versions of gcc (eg 4.9) or with CONFIG_CC_OPTIMISE_FOR_SIZE that we now get
-> a build bug. Building with gcc 10 now works.
-> 
-> > Waiting for the subsequent fix to enter v5.12-rc4...
-> > https://lore.kernel.org/lkml/2c123f94-ceae-80c0-90e2-21909795eb76@csgroup.eu/
-> 
-> This has now landed in mainline as commit
-> eed5fae00593ab9d261a0c1ffc1bdb786a87a55a see https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/powerpc/include/asm/cpu_has_feature.h?h=v5.12-rc4&id=eed5fae00593ab9d261a0c1ffc1bdb786a87a55a
+> Sorry, was probably lost in my post X-mas mark all mails read habit.
 
-Now queued up, thanks.
+Figured that may have had something to do with it, and I guess you
+didn't see my reminder either as you'd marked the thread as read. I'll
+resend sooner next time.
 
-greg k-h
+> > Can someone please pick this up for 5.12 or -next?
+> 
+> Sure.
+
+Great, thanks!
+
+Johan
