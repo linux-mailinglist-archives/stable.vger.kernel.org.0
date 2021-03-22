@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8630E344117
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6C534421D
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:39:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229547AbhCVMai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:30:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52678 "EHLO mail.kernel.org"
+        id S230456AbhCVMir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:38:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230229AbhCVMaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:30:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2C5C6198D;
-        Mon, 22 Mar 2021 12:30:22 +0000 (UTC)
+        id S231981AbhCVMhR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:37:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01393619A3;
+        Mon, 22 Mar 2021 12:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416223;
-        bh=UxZLv/gtj3D/RylHe0RM7hakEhX/5E0MhNK3QdRNp9o=;
+        s=korg; t=1616416607;
+        bh=9x/RLROrvlIzq9FC8VE5AFqyxeVW/4UW3D9F1OJYZLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhTKDH7j6thZF690X9/o2yazxM+LqwJY9+249f1gvj40Rp8JoaGOpah2xVoHxPSDS
-         UNIAJDUheHVLDDvrszyDea5Jy9oluZqPyXS0haQFoNO/LIdxWZIoTncQ0YZhMRDU6i
-         me3uDJTyshvZJ0R5m1rgYxtQ9wdZ3E04oDJ+TraY=
+        b=Z7aBtwj7EGsApjne1/jB+RlcwuiYH5hItlXJG6RJJicU/WW0YefHv5n/1L6mRC0kd
+         RI9/41UQ9Ow4wn+EhSbE6OeqNFxROT9XtyaMHn1tLr15fC2AX3a/f3GpgUiEa7qCfE
+         CUIKDy0Z0jD3YlOUl6G/8pkRnapEC5YQpvVTRp7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Dillon Varone <dillon.varone@amd.com>,
-        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Solomon Chiu <solomon.chiu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 025/120] drm/amd/display: Remove MPC gamut remap logic for DCN30
+        stable@vger.kernel.org,
+        syzbot+fb5458330b4442f2090d@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 051/157] io_uring: ensure that SQPOLL thread is started for exit
 Date:   Mon, 22 Mar 2021 13:26:48 +0100
-Message-Id: <20210322121930.499376187@linuxfoundation.org>
+Message-Id: <20210322121935.363535197@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
-References: <20210322121929.669628946@linuxfoundation.org>
+In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
+References: <20210322121933.746237845@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Varone <dillon.varone@amd.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit beb6b2f97e0a02164c7f0df6e08c49219cfc2b80 upstream.
+commit 3ebba796fa251d042be42b929a2d916ee5c34a49 upstream.
 
-[Why?]
-Should only reroute gamut remap to mpc unless 3D LUT is not used and all
-planes are using the same src->dest.
+If we create it in a disabled state because IORING_SETUP_R_DISABLED is
+set on ring creation, we need to ensure that we've kicked the thread if
+we're exiting before it's been explicitly disabled. Otherwise we can run
+into a deadlock where exit is waiting go park the SQPOLL thread, but the
+SQPOLL thread itself is waiting to get a signal to start.
 
-[How?]
-Remove DCN30 specific logic for rerouting gamut remap to mpc.
+That results in the below trace of both tasks hung, waiting on each other:
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1513
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Dillon Varone <dillon.varone@amd.com>
-Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Acked-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Solomon Chiu <solomon.chiu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+INFO: task syz-executor458:8401 blocked for more than 143 seconds.
+      Not tainted 5.11.0-next-20210226-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor458 state:D stack:27536 pid: 8401 ppid:  8400 flags:0x00004004
+Call Trace:
+ context_switch kernel/sched/core.c:4324 [inline]
+ __schedule+0x90c/0x21a0 kernel/sched/core.c:5075
+ schedule+0xcf/0x270 kernel/sched/core.c:5154
+ schedule_timeout+0x1db/0x250 kernel/time/timer.c:1868
+ do_wait_for_common kernel/sched/completion.c:85 [inline]
+ __wait_for_common kernel/sched/completion.c:106 [inline]
+ wait_for_common kernel/sched/completion.c:117 [inline]
+ wait_for_completion+0x168/0x270 kernel/sched/completion.c:138
+ io_sq_thread_park fs/io_uring.c:7115 [inline]
+ io_sq_thread_park+0xd5/0x130 fs/io_uring.c:7103
+ io_uring_cancel_task_requests+0x24c/0xd90 fs/io_uring.c:8745
+ __io_uring_files_cancel+0x110/0x230 fs/io_uring.c:8840
+ io_uring_files_cancel include/linux/io_uring.h:47 [inline]
+ do_exit+0x299/0x2a60 kernel/exit.c:780
+ do_group_exit+0x125/0x310 kernel/exit.c:922
+ __do_sys_exit_group kernel/exit.c:933 [inline]
+ __se_sys_exit_group kernel/exit.c:931 [inline]
+ __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x43e899
+RSP: 002b:00007ffe89376d48 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+RAX: ffffffffffffffda RBX: 00000000004af2f0 RCX: 000000000043e899
+RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000000
+RBP: 0000000000000000 R08: ffffffffffffffc0 R09: 0000000010000000
+R10: 0000000000008011 R11: 0000000000000246 R12: 00000000004af2f0
+R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000001
+INFO: task iou-sqp-8401:8402 can't die for more than 143 seconds.
+task:iou-sqp-8401    state:D stack:30272 pid: 8402 ppid:  8400 flags:0x00004004
+Call Trace:
+ context_switch kernel/sched/core.c:4324 [inline]
+ __schedule+0x90c/0x21a0 kernel/sched/core.c:5075
+ schedule+0xcf/0x270 kernel/sched/core.c:5154
+ schedule_timeout+0x1db/0x250 kernel/time/timer.c:1868
+ do_wait_for_common kernel/sched/completion.c:85 [inline]
+ __wait_for_common kernel/sched/completion.c:106 [inline]
+ wait_for_common kernel/sched/completion.c:117 [inline]
+ wait_for_completion+0x168/0x270 kernel/sched/completion.c:138
+ io_sq_thread+0x27d/0x1ae0 fs/io_uring.c:6717
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+INFO: task iou-sqp-8401:8402 blocked for more than 143 seconds.
+
+Reported-by: syzbot+fb5458330b4442f2090d@syzkaller.appspotmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c |   34 +--------------------
- 1 file changed, 2 insertions(+), 32 deletions(-)
+ fs/io_uring.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1501,38 +1501,8 @@ static void dcn20_update_dchubp_dpp(
- 	if (pipe_ctx->update_flags.bits.enable || pipe_ctx->update_flags.bits.opp_changed
- 			|| pipe_ctx->stream->update_flags.bits.gamut_remap
- 			|| pipe_ctx->stream->update_flags.bits.out_csc) {
--		struct mpc *mpc = pipe_ctx->stream_res.opp->ctx->dc->res_pool->mpc;
--
--		if (mpc->funcs->set_gamut_remap) {
--			int i;
--			int mpcc_id = hubp->inst;
--			struct mpc_grph_gamut_adjustment adjust;
--			bool enable_remap_dpp = false;
--
--			memset(&adjust, 0, sizeof(adjust));
--			adjust.gamut_adjust_type = GRAPHICS_GAMUT_ADJUST_TYPE_BYPASS;
--
--			/* save the enablement of gamut remap for dpp */
--			enable_remap_dpp = pipe_ctx->stream->gamut_remap_matrix.enable_remap;
--
--			/* force bypass gamut remap for dpp/cm */
--			pipe_ctx->stream->gamut_remap_matrix.enable_remap = false;
--			dc->hwss.program_gamut_remap(pipe_ctx);
--
--			/* restore gamut remap flag and use this remap into mpc */
--			pipe_ctx->stream->gamut_remap_matrix.enable_remap = enable_remap_dpp;
--
--			/* build remap matrix for top plane if enabled */
--			if (enable_remap_dpp && pipe_ctx->top_pipe == NULL) {
--					adjust.gamut_adjust_type = GRAPHICS_GAMUT_ADJUST_TYPE_SW;
--					for (i = 0; i < CSC_TEMPERATURE_MATRIX_SIZE; i++)
--						adjust.temperature_matrix[i] =
--								pipe_ctx->stream->gamut_remap_matrix.matrix[i];
--			}
--			mpc->funcs->set_gamut_remap(mpc, mpcc_id, &adjust);
--		} else
--			/* dpp/cm gamut remap*/
--			dc->hwss.program_gamut_remap(pipe_ctx);
-+		/* dpp/cm gamut remap*/
-+		dc->hwss.program_gamut_remap(pipe_ctx);
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2085,6 +2085,7 @@ static void __io_req_task_submit(struct
+ 		__io_req_task_cancel(req, -EFAULT);
+ 	mutex_unlock(&ctx->uring_lock);
  
- 		/*call the dcn2 method which uses mpc csc*/
- 		dc->hwss.program_output_csc(dc,
++	ctx->flags &= ~IORING_SETUP_R_DISABLED;
+ 	if (ctx->flags & IORING_SETUP_SQPOLL)
+ 		io_sq_thread_drop_mm();
+ }
+@@ -8684,6 +8685,8 @@ static void io_disable_sqo_submit(struct
+ {
+ 	mutex_lock(&ctx->uring_lock);
+ 	ctx->sqo_dead = 1;
++	if (ctx->flags & IORING_SETUP_R_DISABLED)
++		io_sq_offload_start(ctx);
+ 	mutex_unlock(&ctx->uring_lock);
+ 
+ 	/* make sure callers enter the ring to get error */
+@@ -9662,10 +9665,7 @@ static int io_register_enable_rings(stru
+ 	if (ctx->restrictions.registered)
+ 		ctx->restricted = 1;
+ 
+-	ctx->flags &= ~IORING_SETUP_R_DISABLED;
+-
+ 	io_sq_offload_start(ctx);
+-
+ 	return 0;
+ }
+ 
 
 
