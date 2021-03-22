@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49DFD34429E
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:44:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A827E344195
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:35:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbhCVMoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36008 "EHLO mail.kernel.org"
+        id S231559AbhCVMe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:34:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232052AbhCVMmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:42:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98FAC619A4;
-        Mon, 22 Mar 2021 12:39:43 +0000 (UTC)
+        id S231173AbhCVMd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:33:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20A8A619A6;
+        Mon, 22 Mar 2021 12:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616416784;
-        bh=RxPl6/jiqexNBGfTT6X4uA9A03ucKHyGnrIVxBeqF+w=;
+        s=korg; t=1616416408;
+        bh=OcjSi1FgRe9wLD58yPQ93Wz0nIW2R56lzYv/stTykXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q59SaBj2BtIFdQUWw2vhWj9kyH/pL3t9NPY2BvQwDjzaGH/6wp6bYvYv45UYyCN6+
-         9BHvIQuIr20HScPS5O8ZwTcTqAv+NHjLbPX/eTVwAuaf4FLp9NRJxtFYSWCGtS4Be7
-         UAGQfJlOCRZugWmVYOCsNyrpB77NYc0lfCztk9VU=
+        b=LH0X2XmIRqNtgUCN4HZ3XaG0sqQAlUVbNzBHKmVHtB8c6OBrn65CBeRpPL39YaaUH
+         O4OpslB27bsUszbXH7Kw6ve7xGaxLeYDMKeLJP3o9LUZzxlWiQaM6GTNO7R8y0NXZN
+         Nu02gXyXjt0Y2Qsuot+vPAHSdPv/pah57fkCtbn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.10 121/157] usb: dwc3: gadget: Allow runtime suspend if UDC unbinded
+        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.11 095/120] iio: hid-sensor-prox: Fix scale not correct issue
 Date:   Mon, 22 Mar 2021 13:27:58 +0100
-Message-Id: <20210322121937.602990535@linuxfoundation.org>
+Message-Id: <20210322121932.861330018@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121933.746237845@linuxfoundation.org>
-References: <20210322121933.746237845@linuxfoundation.org>
+In-Reply-To: <20210322121929.669628946@linuxfoundation.org>
+References: <20210322121929.669628946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,59 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Ye Xiang <xiang.ye@intel.com>
 
-commit 77adb8bdf4227257e26b7ff67272678e66a0b250 upstream.
+commit d68c592e02f6f49a88e705f13dfc1883432cf300 upstream.
 
-The DWC3 runtime suspend routine checks for the USB connected parameter to
-determine if the controller can enter into a low power state.  The
-connected state is only set to false after receiving a disconnect event.
-However, in the case of a device initiated disconnect (i.e. UDC unbind),
-the controller is halted and a disconnect event is never generated.  Set
-the connected flag to false if issuing a device initiated disconnect to
-allow the controller to be suspended.
+Currently, the proxy sensor scale is zero because it just return the
+exponent directly. To fix this issue, this patch use
+hid_sensor_format_scale to process the scale first then return the
+output.
 
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1609283136-22140-2-git-send-email-wcheng@codeaurora.org
+Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/iio/light/hid-sensor-prox.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2126,6 +2126,17 @@ static int dwc3_gadget_pullup(struct usb
- 	}
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -23,6 +23,9 @@ struct prox_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info prox_attr;
+ 	u32 human_presence;
++	int scale_pre_decml;
++	int scale_post_decml;
++	int scale_precision;
+ };
  
- 	/*
-+	 * Check the return value for successful resume, or error.  For a
-+	 * successful resume, the DWC3 runtime PM resume routine will handle
-+	 * the run stop sequence, so avoid duplicate operations here.
-+	 */
-+	ret = pm_runtime_get_sync(dwc->dev);
-+	if (!ret || ret < 0) {
-+		pm_runtime_put(dwc->dev);
-+		return 0;
-+	}
+ /* Channel definitions */
+@@ -93,8 +96,9 @@ static int prox_read_raw(struct iio_dev
+ 		ret_type = IIO_VAL_INT;
+ 		break;
+ 	case IIO_CHAN_INFO_SCALE:
+-		*val = prox_state->prox_attr.units;
+-		ret_type = IIO_VAL_INT;
++		*val = prox_state->scale_pre_decml;
++		*val2 = prox_state->scale_post_decml;
++		ret_type = prox_state->scale_precision;
+ 		break;
+ 	case IIO_CHAN_INFO_OFFSET:
+ 		*val = hid_sensor_convert_exponent(
+@@ -234,6 +238,11 @@ static int prox_parse_report(struct plat
+ 			HID_USAGE_SENSOR_HUMAN_PRESENCE,
+ 			&st->common_attributes.sensitivity);
+ 
++	st->scale_precision = hid_sensor_format_scale(
++				hsdev->usage,
++				&st->prox_attr,
++				&st->scale_pre_decml, &st->scale_post_decml);
 +
-+	/*
- 	 * Synchronize any pending event handling before executing the controller
- 	 * halt routine.
- 	 */
-@@ -2163,12 +2174,14 @@ static int dwc3_gadget_pullup(struct usb
- 			dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
- 						dwc->ev_buf->length;
- 		}
-+		dwc->connected = false;
- 	} else {
- 		__dwc3_gadget_start(dwc);
- 	}
- 
- 	ret = dwc3_gadget_run_stop(dwc, is_on, false);
- 	spin_unlock_irqrestore(&dwc->lock, flags);
-+	pm_runtime_put(dwc->dev);
- 
  	return ret;
  }
+ 
 
 
