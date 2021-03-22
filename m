@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F4D3443BA
-	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 13:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52AE5344432
+	for <lists+stable@lfdr.de>; Mon, 22 Mar 2021 14:00:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230320AbhCVMxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Mar 2021 08:53:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
+        id S231205AbhCVM7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Mar 2021 08:59:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231684AbhCVMvn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:51:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE60619B0;
-        Mon, 22 Mar 2021 12:46:11 +0000 (UTC)
+        id S232441AbhCVMy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Mar 2021 08:54:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04B25619AF;
+        Mon, 22 Mar 2021 12:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616417172;
-        bh=YriDBzhYM7kJ0Ix5f1i8in8a7HcAUfmlTauRJbzdNzE=;
+        s=korg; t=1616417289;
+        bh=19LnHO4ZcoVY1lySpEvBpm3ktNTKN67jkh/z+aofRAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14UsS99GQKP/Pukeh+02c7N6TYaV7CEHyYCkbwDaDzT3y3iEDavm/n2WjsuyFq107
-         AkN9Ys4Ab1MCAKHNVS0G31zGrURebfV4an9oGr2i4KdgT8xWjad0mPNZRq+fNjlL/k
-         dTovJbqZ4dyI/78qArLwylANWVGxjXjOu/s9og28=
+        b=OcpIFpm0sUF0hP5pxxeH6RHqFxi64y4PL3DnmrnMw2+W+OoqTX/34QMZJ9weleN9u
+         7UJhb9gRPtbaWzRcgVmr50OUyPxie5FiSg1Um5OTwWJszptG3kNMwNvTwLikWI3HWa
+         rwdH9WKpEd/78Wk4Bx4axf2XnJigEY/ZRjyixhWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wolfgang Frisch <wolfgang.frisch@suse.com>,
-        Lukas Czerner <lczerner@redhat.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.4 03/14] ext4: check journal inode extents more carefully
+        stable@vger.kernel.org,
+        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 16/43] btrfs: fix race when cloning extent buffer during rewind of an old root
 Date:   Mon, 22 Mar 2021 13:28:57 +0100
-Message-Id: <20210322121919.309826817@linuxfoundation.org>
+Message-Id: <20210322121920.569889492@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322121919.202392464@linuxfoundation.org>
-References: <20210322121919.202392464@linuxfoundation.org>
+In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.053255560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,275 +41,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit ce9f24cccdc019229b70a5c15e2b09ad9c0ab5d1 upstream.
+commit dbcc7d57bffc0c8cac9dac11bec548597d59a6a5 upstream.
 
-Currently, system zones just track ranges of block, that are "important"
-fs metadata (bitmaps, group descriptors, journal blocks, etc.). This
-however complicates how extent tree (or indirect blocks) can be checked
-for inodes that actually track such metadata - currently the journal
-inode but arguably we should be treating quota files or resize inode
-similarly. We cannot run __ext4_ext_check() on such metadata inodes when
-loading their extents as that would immediately trigger the validity
-checks and so we just hack around that and special-case the journal
-inode. This however leads to a situation that a journal inode which has
-extent tree of depth at least one can have invalid extent tree that gets
-unnoticed until ext4_cache_extents() crashes.
+While resolving backreferences, as part of a logical ino ioctl call or
+fiemap, we can end up hitting a BUG_ON() when replaying tree mod log
+operations of a root, triggering a stack trace like the following:
 
-To overcome this limitation, track inode number each system zone belongs
-to (0 is used for zones not belonging to any inode). We can then verify
-inode number matches the expected one when verifying extent tree and
-thus avoid the false errors. With this there's no need to to
-special-case journal inode during extent tree checking anymore so remove
-it.
+  ------------[ cut here ]------------
+  kernel BUG at fs/btrfs/ctree.c:1210!
+  invalid opcode: 0000 [#1] SMP KASAN PTI
+  CPU: 1 PID: 19054 Comm: crawl_335 Tainted: G        W         5.11.0-2d11c0084b02-misc-next+ #89
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+  RIP: 0010:__tree_mod_log_rewind+0x3b1/0x3c0
+  Code: 05 48 8d 74 10 (...)
+  RSP: 0018:ffffc90001eb70b8 EFLAGS: 00010297
+  RAX: 0000000000000000 RBX: ffff88812344e400 RCX: ffffffffb28933b6
+  RDX: 0000000000000007 RSI: dffffc0000000000 RDI: ffff88812344e42c
+  RBP: ffffc90001eb7108 R08: 1ffff11020b60a20 R09: ffffed1020b60a20
+  R10: ffff888105b050f9 R11: ffffed1020b60a1f R12: 00000000000000ee
+  R13: ffff8880195520c0 R14: ffff8881bc958500 R15: ffff88812344e42c
+  FS:  00007fd1955e8700(0000) GS:ffff8881f5600000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007efdb7928718 CR3: 000000010103a006 CR4: 0000000000170ee0
+  Call Trace:
+   btrfs_search_old_slot+0x265/0x10d0
+   ? lock_acquired+0xbb/0x600
+   ? btrfs_search_slot+0x1090/0x1090
+   ? free_extent_buffer.part.61+0xd7/0x140
+   ? free_extent_buffer+0x13/0x20
+   resolve_indirect_refs+0x3e9/0xfc0
+   ? lock_downgrade+0x3d0/0x3d0
+   ? __kasan_check_read+0x11/0x20
+   ? add_prelim_ref.part.11+0x150/0x150
+   ? lock_downgrade+0x3d0/0x3d0
+   ? __kasan_check_read+0x11/0x20
+   ? lock_acquired+0xbb/0x600
+   ? __kasan_check_write+0x14/0x20
+   ? do_raw_spin_unlock+0xa8/0x140
+   ? rb_insert_color+0x30/0x360
+   ? prelim_ref_insert+0x12d/0x430
+   find_parent_nodes+0x5c3/0x1830
+   ? resolve_indirect_refs+0xfc0/0xfc0
+   ? lock_release+0xc8/0x620
+   ? fs_reclaim_acquire+0x67/0xf0
+   ? lock_acquire+0xc7/0x510
+   ? lock_downgrade+0x3d0/0x3d0
+   ? lockdep_hardirqs_on_prepare+0x160/0x210
+   ? lock_release+0xc8/0x620
+   ? fs_reclaim_acquire+0x67/0xf0
+   ? lock_acquire+0xc7/0x510
+   ? poison_range+0x38/0x40
+   ? unpoison_range+0x14/0x40
+   ? trace_hardirqs_on+0x55/0x120
+   btrfs_find_all_roots_safe+0x142/0x1e0
+   ? find_parent_nodes+0x1830/0x1830
+   ? btrfs_inode_flags_to_xflags+0x50/0x50
+   iterate_extent_inodes+0x20e/0x580
+   ? tree_backref_for_extent+0x230/0x230
+   ? lock_downgrade+0x3d0/0x3d0
+   ? read_extent_buffer+0xdd/0x110
+   ? lock_downgrade+0x3d0/0x3d0
+   ? __kasan_check_read+0x11/0x20
+   ? lock_acquired+0xbb/0x600
+   ? __kasan_check_write+0x14/0x20
+   ? _raw_spin_unlock+0x22/0x30
+   ? __kasan_check_write+0x14/0x20
+   iterate_inodes_from_logical+0x129/0x170
+   ? iterate_inodes_from_logical+0x129/0x170
+   ? btrfs_inode_flags_to_xflags+0x50/0x50
+   ? iterate_extent_inodes+0x580/0x580
+   ? __vmalloc_node+0x92/0xb0
+   ? init_data_container+0x34/0xb0
+   ? init_data_container+0x34/0xb0
+   ? kvmalloc_node+0x60/0x80
+   btrfs_ioctl_logical_to_ino+0x158/0x230
+   btrfs_ioctl+0x205e/0x4040
+   ? __might_sleep+0x71/0xe0
+   ? btrfs_ioctl_get_supported_features+0x30/0x30
+   ? getrusage+0x4b6/0x9c0
+   ? __kasan_check_read+0x11/0x20
+   ? lock_release+0xc8/0x620
+   ? __might_fault+0x64/0xd0
+   ? lock_acquire+0xc7/0x510
+   ? lock_downgrade+0x3d0/0x3d0
+   ? lockdep_hardirqs_on_prepare+0x210/0x210
+   ? lockdep_hardirqs_on_prepare+0x210/0x210
+   ? __kasan_check_read+0x11/0x20
+   ? do_vfs_ioctl+0xfc/0x9d0
+   ? ioctl_file_clone+0xe0/0xe0
+   ? lock_downgrade+0x3d0/0x3d0
+   ? lockdep_hardirqs_on_prepare+0x210/0x210
+   ? __kasan_check_read+0x11/0x20
+   ? lock_release+0xc8/0x620
+   ? __task_pid_nr_ns+0xd3/0x250
+   ? lock_acquire+0xc7/0x510
+   ? __fget_files+0x160/0x230
+   ? __fget_light+0xf2/0x110
+   __x64_sys_ioctl+0xc3/0x100
+   do_syscall_64+0x37/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7fd1976e2427
+  Code: 00 00 90 48 8b 05 (...)
+  RSP: 002b:00007fd1955e5cf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  RAX: ffffffffffffffda RBX: 00007fd1955e5f40 RCX: 00007fd1976e2427
+  RDX: 00007fd1955e5f48 RSI: 00000000c038943b RDI: 0000000000000004
+  RBP: 0000000001000000 R08: 0000000000000000 R09: 00007fd1955e6120
+  R10: 0000557835366b00 R11: 0000000000000246 R12: 0000000000000004
+  R13: 00007fd1955e5f48 R14: 00007fd1955e5f40 R15: 00007fd1955e5ef8
+  Modules linked in:
+  ---[ end trace ec8931a1c36e57be ]---
 
-Fixes: 0a944e8a6c66 ("ext4: don't perform block validity checks on the journal inode")
-Reported-by: Wolfgang Frisch <wolfgang.frisch@suse.com>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200728130437.7804-4-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+  (gdb) l *(__tree_mod_log_rewind+0x3b1)
+  0xffffffff81893521 is in __tree_mod_log_rewind (fs/btrfs/ctree.c:1210).
+  1205                     * the modification. as we're going backwards, we do the
+  1206                     * opposite of each operation here.
+  1207                     */
+  1208                    switch (tm->op) {
+  1209                    case MOD_LOG_KEY_REMOVE_WHILE_FREEING:
+  1210                            BUG_ON(tm->slot < n);
+  1211                            fallthrough;
+  1212                    case MOD_LOG_KEY_REMOVE_WHILE_MOVING:
+  1213                    case MOD_LOG_KEY_REMOVE:
+  1214                            btrfs_set_node_key(eb, &tm->key, tm->slot);
+
+Here's what happens to hit that BUG_ON():
+
+1) We have one tree mod log user (through fiemap or the logical ino ioctl),
+   with a sequence number of 1, so we have fs_info->tree_mod_seq == 1;
+
+2) Another task is at ctree.c:balance_level() and we have eb X currently as
+   the root of the tree, and we promote its single child, eb Y, as the new
+   root.
+
+   Then, at ctree.c:balance_level(), we call:
+
+      tree_mod_log_insert_root(eb X, eb Y, 1);
+
+3) At tree_mod_log_insert_root() we create tree mod log elements for each
+   slot of eb X, of operation type MOD_LOG_KEY_REMOVE_WHILE_FREEING each
+   with a ->logical pointing to ebX->start. These are placed in an array
+   named tm_list.
+   Lets assume there are N elements (N pointers in eb X);
+
+4) Then, still at tree_mod_log_insert_root(), we create a tree mod log
+   element of operation type MOD_LOG_ROOT_REPLACE, ->logical set to
+   ebY->start, ->old_root.logical set to ebX->start, ->old_root.level set
+   to the level of eb X and ->generation set to the generation of eb X;
+
+5) Then tree_mod_log_insert_root() calls tree_mod_log_free_eb() with
+   tm_list as argument. After that, tree_mod_log_free_eb() calls
+   __tree_mod_log_insert() for each member of tm_list in reverse order,
+   from highest slot in eb X, slot N - 1, to slot 0 of eb X;
+
+6) __tree_mod_log_insert() sets the sequence number of each given tree mod
+   log operation - it increments fs_info->tree_mod_seq and sets
+   fs_info->tree_mod_seq as the sequence number of the given tree mod log
+   operation.
+
+   This means that for the tm_list created at tree_mod_log_insert_root(),
+   the element corresponding to slot 0 of eb X has the highest sequence
+   number (1 + N), and the element corresponding to the last slot has the
+   lowest sequence number (2);
+
+7) Then, after inserting tm_list's elements into the tree mod log rbtree,
+   the MOD_LOG_ROOT_REPLACE element is inserted, which gets the highest
+   sequence number, which is N + 2;
+
+8) Back to ctree.c:balance_level(), we free eb X by calling
+   btrfs_free_tree_block() on it. Because eb X was created in the current
+   transaction, has no other references and writeback did not happen for
+   it, we add it back to the free space cache/tree;
+
+9) Later some other task T allocates the metadata extent from eb X, since
+   it is marked as free space in the space cache/tree, and uses it as a
+   node for some other btree;
+
+10) The tree mod log user task calls btrfs_search_old_slot(), which calls
+    get_old_root(), and finally that calls __tree_mod_log_oldest_root()
+    with time_seq == 1 and eb_root == eb Y;
+
+11) First iteration of the while loop finds the tree mod log element with
+    sequence number N + 2, for the logical address of eb Y and of type
+    MOD_LOG_ROOT_REPLACE;
+
+12) Because the operation type is MOD_LOG_ROOT_REPLACE, we don't break out
+    of the loop, and set root_logical to point to tm->old_root.logical
+    which corresponds to the logical address of eb X;
+
+13) On the next iteration of the while loop, the call to
+    tree_mod_log_search_oldest() returns the smallest tree mod log element
+    for the logical address of eb X, which has a sequence number of 2, an
+    operation type of MOD_LOG_KEY_REMOVE_WHILE_FREEING and corresponds to
+    the old slot N - 1 of eb X (eb X had N items in it before being freed);
+
+14) We then break out of the while loop and return the tree mod log operation
+    of type MOD_LOG_ROOT_REPLACE (eb Y), and not the one for slot N - 1 of
+    eb X, to get_old_root();
+
+15) At get_old_root(), we process the MOD_LOG_ROOT_REPLACE operation
+    and set "logical" to the logical address of eb X, which was the old
+    root. We then call tree_mod_log_search() passing it the logical
+    address of eb X and time_seq == 1;
+
+16) Then before calling tree_mod_log_search(), task T adds a key to eb X,
+    which results in adding a tree mod log operation of type
+    MOD_LOG_KEY_ADD to the tree mod log - this is done at
+    ctree.c:insert_ptr() - but after adding the tree mod log operation
+    and before updating the number of items in eb X from 0 to 1...
+
+17) The task at get_old_root() calls tree_mod_log_search() and gets the
+    tree mod log operation of type MOD_LOG_KEY_ADD just added by task T.
+    Then it enters the following if branch:
+
+    if (old_root && tm && tm->op != MOD_LOG_KEY_REMOVE_WHILE_FREEING) {
+       (...)
+    } (...)
+
+    Calls read_tree_block() for eb X, which gets a reference on eb X but
+    does not lock it - task T has it locked.
+    Then it clones eb X while it has nritems set to 0 in its header, before
+    task T sets nritems to 1 in eb X's header. From hereupon we use the
+    clone of eb X which no other task has access to;
+
+18) Then we call __tree_mod_log_rewind(), passing it the MOD_LOG_KEY_ADD
+    mod log operation we just got from tree_mod_log_search() in the
+    previous step and the cloned version of eb X;
+
+19) At __tree_mod_log_rewind(), we set the local variable "n" to the number
+    of items set in eb X's clone, which is 0. Then we enter the while loop,
+    and in its first iteration we process the MOD_LOG_KEY_ADD operation,
+    which just decrements "n" from 0 to (u32)-1, since "n" is declared with
+    a type of u32. At the end of this iteration we call rb_next() to find the
+    next tree mod log operation for eb X, that gives us the mod log operation
+    of type MOD_LOG_KEY_REMOVE_WHILE_FREEING, for slot 0, with a sequence
+    number of N + 1 (steps 3 to 6);
+
+20) Then we go back to the top of the while loop and trigger the following
+    BUG_ON():
+
+        (...)
+        switch (tm->op) {
+        case MOD_LOG_KEY_REMOVE_WHILE_FREEING:
+                 BUG_ON(tm->slot < n);
+                 fallthrough;
+        (...)
+
+    Because "n" has a value of (u32)-1 (4294967295) and tm->slot is 0.
+
+Fix this by taking a read lock on the extent buffer before cloning it at
+ctree.c:get_old_root(). This should be done regardless of the extent
+buffer having been freed and reused, as a concurrent task might be
+modifying it (while holding a write lock on it).
+
+Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+Link: https://lore.kernel.org/linux-btrfs/20210227155037.GN28049@hungrycats.org/
+Fixes: 834328a8493079 ("Btrfs: tree mod log's old roots could still be part of the tree")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/block_validity.c |   37 +++++++++++++++++++++----------------
- fs/ext4/ext4.h           |    6 +++---
- fs/ext4/extents.c        |   16 ++++++----------
- fs/ext4/indirect.c       |    6 ++----
- fs/ext4/inode.c          |    5 ++---
- fs/ext4/mballoc.c        |    4 ++--
- 6 files changed, 36 insertions(+), 38 deletions(-)
+ fs/btrfs/ctree.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -23,6 +23,7 @@ struct ext4_system_zone {
- 	struct rb_node	node;
- 	ext4_fsblk_t	start_blk;
- 	unsigned int	count;
-+	u32		ino;
- };
- 
- static struct kmem_cache *ext4_system_zone_cachep;
-@@ -43,7 +44,8 @@ void ext4_exit_system_zone(void)
- static inline int can_merge(struct ext4_system_zone *entry1,
- 		     struct ext4_system_zone *entry2)
- {
--	if ((entry1->start_blk + entry1->count) == entry2->start_blk)
-+	if ((entry1->start_blk + entry1->count) == entry2->start_blk &&
-+	    entry1->ino == entry2->ino)
- 		return 1;
- 	return 0;
- }
-@@ -55,7 +57,7 @@ static inline int can_merge(struct ext4_
-  */
- static int add_system_zone(struct ext4_sb_info *sbi,
- 			   ext4_fsblk_t start_blk,
--			   unsigned int count)
-+			   unsigned int count, u32 ino)
- {
- 	struct ext4_system_zone *new_entry, *entry;
- 	struct rb_node **n = &sbi->system_blks.rb_node, *node;
-@@ -78,6 +80,7 @@ static int add_system_zone(struct ext4_s
- 		return -ENOMEM;
- 	new_entry->start_blk = start_blk;
- 	new_entry->count = count;
-+	new_entry->ino = ino;
- 	new_node = &new_entry->node;
- 
- 	rb_link_node(new_node, parent, n);
-@@ -153,16 +156,16 @@ static int ext4_protect_reserved_inode(s
- 		if (n == 0) {
- 			i++;
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1431,7 +1431,9 @@ get_old_root(struct btrfs_root *root, u6
+ 				   "failed to read tree block %llu from get_old_root",
+ 				   logical);
  		} else {
--			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
--				ext4_error(sb, "blocks %llu-%llu from inode %u "
-+			err = add_system_zone(sbi, map.m_pblk, n, ino);
-+			if (err < 0) {
-+				if (err == -EFSCORRUPTED) {
-+					ext4_error(sb,
-+					   "blocks %llu-%llu from inode %u "
- 					   "overlap system zone", map.m_pblk,
- 					   map.m_pblk + map.m_len - 1, ino);
--				err = -EFSCORRUPTED;
-+				}
- 				break;
- 			}
--			err = add_system_zone(sbi, map.m_pblk, n);
--			if (err < 0)
--				break;
- 			i += n;
++			btrfs_tree_read_lock(old);
+ 			eb = btrfs_clone_extent_buffer(old);
++			btrfs_tree_read_unlock(old);
+ 			free_extent_buffer(old);
  		}
- 	}
-@@ -191,16 +194,16 @@ int ext4_setup_system_zone(struct super_
- 		if (ext4_bg_has_super(sb, i) &&
- 		    ((i < 5) || ((i % flex_size) == 0)))
- 			add_system_zone(sbi, ext4_group_first_block_no(sb, i),
--					ext4_bg_num_gdb(sb, i) + 1);
-+					ext4_bg_num_gdb(sb, i) + 1, 0);
- 		gdp = ext4_get_group_desc(sb, i, NULL);
--		ret = add_system_zone(sbi, ext4_block_bitmap(sb, gdp), 1);
-+		ret = add_system_zone(sbi, ext4_block_bitmap(sb, gdp), 1, 0);
- 		if (ret)
- 			return ret;
--		ret = add_system_zone(sbi, ext4_inode_bitmap(sb, gdp), 1);
-+		ret = add_system_zone(sbi, ext4_inode_bitmap(sb, gdp), 1, 0);
- 		if (ret)
- 			return ret;
- 		ret = add_system_zone(sbi, ext4_inode_table(sb, gdp),
--				sbi->s_itb_per_group);
-+				sbi->s_itb_per_group, 0);
- 		if (ret)
- 			return ret;
- 	}
-@@ -233,10 +236,11 @@ void ext4_release_system_zone(struct sup
-  * start_blk+count) is valid; 0 if some part of the block region
-  * overlaps with filesystem metadata blocks.
-  */
--int ext4_data_block_valid(struct ext4_sb_info *sbi, ext4_fsblk_t start_blk,
--			  unsigned int count)
-+int ext4_inode_block_valid(struct inode *inode, ext4_fsblk_t start_blk,
-+			   unsigned int count)
- {
- 	struct ext4_system_zone *entry;
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	struct rb_node *n = sbi->system_blks.rb_node;
- 
- 	if ((start_blk <= le32_to_cpu(sbi->s_es->s_first_data_block)) ||
-@@ -252,6 +256,8 @@ int ext4_data_block_valid(struct ext4_sb
- 		else if (start_blk >= (entry->start_blk + entry->count))
- 			n = n->rb_right;
- 		else {
-+			if (entry->ino == inode->i_ino)
-+				return 1;
- 			sbi->s_es->s_last_error_block = cpu_to_le64(start_blk);
- 			return 0;
- 		}
-@@ -274,8 +280,7 @@ int ext4_check_blockref(const char *func
- 	while (bref < p+max) {
- 		blk = le32_to_cpu(*bref++);
- 		if (blk &&
--		    unlikely(!ext4_data_block_valid(EXT4_SB(inode->i_sb),
--						    blk, 1))) {
-+		    unlikely(!ext4_inode_block_valid(inode, blk, 1))) {
- 			es->s_last_error_block = cpu_to_le64(blk);
- 			ext4_error_inode(inode, function, line, blk,
- 					 "invalid block");
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3134,9 +3134,9 @@ extern void ext4_release_system_zone(str
- extern int ext4_setup_system_zone(struct super_block *sb);
- extern int __init ext4_init_system_zone(void);
- extern void ext4_exit_system_zone(void);
--extern int ext4_data_block_valid(struct ext4_sb_info *sbi,
--				 ext4_fsblk_t start_blk,
--				 unsigned int count);
-+extern int ext4_inode_block_valid(struct inode *inode,
-+				  ext4_fsblk_t start_blk,
-+				  unsigned int count);
- extern int ext4_check_blockref(const char *, unsigned int,
- 			       struct inode *, __le32 *, unsigned int);
- 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -384,7 +384,7 @@ static int ext4_valid_extent(struct inod
- 	 */
- 	if (lblock + len <= lblock)
- 		return 0;
--	return ext4_data_block_valid(EXT4_SB(inode->i_sb), block, len);
-+	return ext4_inode_block_valid(inode, block, len);
- }
- 
- static int ext4_valid_extent_idx(struct inode *inode,
-@@ -392,7 +392,7 @@ static int ext4_valid_extent_idx(struct
- {
- 	ext4_fsblk_t block = ext4_idx_pblock(ext_idx);
- 
--	return ext4_data_block_valid(EXT4_SB(inode->i_sb), block, 1);
-+	return ext4_inode_block_valid(inode, block, 1);
- }
- 
- static int ext4_valid_extent_entries(struct inode *inode,
-@@ -549,14 +549,10 @@ __read_extent_tree_block(const char *fun
- 	}
- 	if (buffer_verified(bh) && !(flags & EXT4_EX_FORCE_CACHE))
- 		return bh;
--	if (!ext4_has_feature_journal(inode->i_sb) ||
--	    (inode->i_ino !=
--	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum))) {
--		err = __ext4_ext_check(function, line, inode,
--				       ext_block_hdr(bh), depth, pblk);
--		if (err)
--			goto errout;
--	}
-+	err = __ext4_ext_check(function, line, inode,
-+			       ext_block_hdr(bh), depth, pblk);
-+	if (err)
-+		goto errout;
- 	set_buffer_verified(bh);
- 	/*
- 	 * If this is a leaf block, cache all of its entries
---- a/fs/ext4/indirect.c
-+++ b/fs/ext4/indirect.c
-@@ -946,8 +946,7 @@ static int ext4_clear_blocks(handle_t *h
- 	else if (ext4_should_journal_data(inode))
- 		flags |= EXT4_FREE_BLOCKS_FORGET;
- 
--	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), block_to_free,
--				   count)) {
-+	if (!ext4_inode_block_valid(inode, block_to_free, count)) {
- 		EXT4_ERROR_INODE(inode, "attempt to clear invalid "
- 				 "blocks %llu len %lu",
- 				 (unsigned long long) block_to_free, count);
-@@ -1109,8 +1108,7 @@ static void ext4_free_branches(handle_t
- 			if (!nr)
- 				continue;		/* A hole */
- 
--			if (!ext4_data_block_valid(EXT4_SB(inode->i_sb),
--						   nr, 1)) {
-+			if (!ext4_inode_block_valid(inode, nr, 1)) {
- 				EXT4_ERROR_INODE(inode,
- 						 "invalid indirect mapped "
- 						 "block %lu (level %d)",
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -381,8 +381,7 @@ static int __check_block_validity(struct
- 	    (inode->i_ino ==
- 	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
- 		return 0;
--	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
--				   map->m_len)) {
-+	if (!ext4_inode_block_valid(inode, map->m_pblk, map->m_len)) {
- 		ext4_error_inode(inode, func, line, map->m_pblk,
- 				 "lblock %lu mapped to illegal pblock %llu "
- 				 "(length %d)", (unsigned long) map->m_lblk,
-@@ -4437,7 +4436,7 @@ struct inode *__ext4_iget(struct super_b
- 
- 	ret = 0;
- 	if (ei->i_file_acl &&
--	    !ext4_data_block_valid(EXT4_SB(sb), ei->i_file_acl, 1)) {
-+	    !ext4_inode_block_valid(inode, ei->i_file_acl, 1)) {
- 		ext4_error_inode(inode, function, line, 0,
- 				 "iget: bad extended attribute block %llu",
- 				 ei->i_file_acl);
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -2960,7 +2960,7 @@ ext4_mb_mark_diskspace_used(struct ext4_
- 	block = ext4_grp_offs_to_block(sb, &ac->ac_b_ex);
- 
- 	len = EXT4_C2B(sbi, ac->ac_b_ex.fe_len);
--	if (!ext4_data_block_valid(sbi, block, len)) {
-+	if (!ext4_inode_block_valid(ac->ac_inode, block, len)) {
- 		ext4_error(sb, "Allocating blocks %llu-%llu which overlap "
- 			   "fs metadata", block, block+len);
- 		/* File system mounted not to panic on error
-@@ -4718,7 +4718,7 @@ void ext4_free_blocks(handle_t *handle,
- 
- 	sbi = EXT4_SB(sb);
- 	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
--	    !ext4_data_block_valid(sbi, block, count)) {
-+	    !ext4_inode_block_valid(inode, block, count)) {
- 		ext4_error(sb, "Freeing blocks not in datazone - "
- 			   "block = %llu, count = %lu", block, count);
- 		goto error_return;
+ 	} else if (old_root) {
 
 
