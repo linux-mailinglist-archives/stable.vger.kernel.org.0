@@ -2,71 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 563C1345876
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 08:20:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E98D134587C
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 08:21:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230057AbhCWHT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 03:19:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37262 "EHLO mail.kernel.org"
+        id S230106AbhCWHUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 03:20:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229972AbhCWHT1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Mar 2021 03:19:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB61E61994;
-        Tue, 23 Mar 2021 07:19:26 +0000 (UTC)
+        id S229963AbhCWHUO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Mar 2021 03:20:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86713619AB;
+        Tue, 23 Mar 2021 07:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616483967;
-        bh=rdG665sJM9rxcoSZiQkXRGZEaeY27wUAYv3b17ihGNs=;
+        s=korg; t=1616484014;
+        bh=xf/FJRT3op6/DF9iLA9eJZ5X6gvMzU0dp2gmxrew8Zw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cdmtUal9cpp5FD30YqgHqBg8AP0seCQNOOearh+IsT6XCcLa3K1l/hAKkOk5sgnsK
-         Mq6vOXN6ladJoAeexh33yQVvWfjroVSiQhlEWAA8OSawn+5/YLUIGxIYDpECFRzdxK
-         bJSPfByEgfRmc1xAl0QaKUSulJp3H1y9+vfawZyI=
-Date:   Tue, 23 Mar 2021 08:19:24 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/156] 5.10.26-rc2 review
-Message-ID: <YFmWfPA9vAZzFpWp@kroah.com>
-References: <20210322151845.637893645@linuxfoundation.org>
- <20210322215231.GB51597@roeck-us.net>
+        b=0SLi843WFB3SJZg1fnvsZ7anQHXNe+tpuxQ/BMjEaOPoHHmBW0dcKdyzsuaC4pXqd
+         luEzlgoRzJAgbshLSsQLvskuorTzaTRNSSeoCreTX+NTibG6CB12inl1cjD8JTYh4U
+         yEgwJXtSt6KmGoREjyW3ICqqpWHnu+jo3mYDW3Us=
+Date:   Tue, 23 Mar 2021 08:20:11 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     Isaku Yamahata <isaku.yamahata@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        x86@kernel.org, kvm@vger.kernel.org, brijesh.singh@amd.com,
+        tglx@linutronix.de, bp@alien8.de, isaku.yamahata@gmail.com,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: Re: [PATCH] X86: __set_clr_pte_enc() miscalculates physical address
+Message-ID: <YFmWq1uuvCiiBhBb@kroah.com>
+References: <81abbae1657053eccc535c16151f63cd049dcb97.1616098294.git.isaku.yamahata@intel.com>
+ <0d99865a-30d5-9857-1a53-cc26ada6608c@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210322215231.GB51597@roeck-us.net>
+In-Reply-To: <0d99865a-30d5-9857-1a53-cc26ada6608c@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 22, 2021 at 02:52:31PM -0700, Guenter Roeck wrote:
-> On Mon, Mar 22, 2021 at 04:19:10PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.26 release.
-> > There are 156 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+On Mon, Mar 22, 2021 at 04:02:11PM -0500, Tom Lendacky wrote:
+> On 3/18/21 3:26 PM, Isaku Yamahata wrote:
+> > __set_clr_pte_enc() miscalculates physical address to operate.
+> > pfn is in unit of PG_LEVEL_4K, not PGL_LEVEL_{2M, 1G}.
+> > Shift size to get physical address should be PAGE_SHIFT,
+> > not page_level_shift().
 > > 
-> > Responses should be made by Wed, 24 Mar 2021 15:18:19 +0000.
-> > Anything received after that time might be too late.
-> > 
+> > Fixes: dfaaec9033b8 ("x86: Add support for changing memory encryption attribute in early boot")
+> > Reviewed-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > Signed-off-by: Isaku Yamahata <isaku.yamahata@intel.com>
 > 
-> Build results:
-> 	total: 156 pass: 156 fail: 0
-> Qemu test results:
-> 	total: 432 pass: 428 fail: 4
-> Failed tests:
-> 	arm:realview-pb-a8:realview_defconfig:realview_pb:mem512:arm-realview-pba8:initrd
-> 	arm:realview-pbx-a9:realview_defconfig:realview_pb:arm-realview-pbx-a9:initrd
-> 	arm:realview-eb:realview_defconfig:realview_eb:mem512:arm-realview-eb:initrd
-> 	arm:realview-eb-mpcore:realview_defconfig:realview_eb:mem512:arm-realview-eb-11mp-ctrevb:initrd
-> 
-> Build failure:
-> 
-> kernel/rcu/tree.c:683:2: error: implicit declaration of function 'IRQ_WORK_INIT'
-> 
-> The patch introducing IRQ_WORK_INIT is not in v5.10.y.
+> Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
 
-That patch keeps coming back, Sasha and I have both added it multiple
-times now... I'll go drop it, thanks.
+<formletter>
 
-greg k-h
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
