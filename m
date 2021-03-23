@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C622B345EDB
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 14:02:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C42345F26
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 14:13:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbhCWNCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 09:02:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57646 "EHLO
+        id S231539AbhCWNNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 09:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231368AbhCWNBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 09:01:45 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A43C061574
-        for <stable@vger.kernel.org>; Tue, 23 Mar 2021 06:01:44 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id h13so23341229eds.5
-        for <stable@vger.kernel.org>; Tue, 23 Mar 2021 06:01:44 -0700 (PDT)
+        with ESMTP id S231635AbhCWNMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 09:12:35 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A1EC061764
+        for <stable@vger.kernel.org>; Tue, 23 Mar 2021 06:12:31 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id j3so23344073edp.11
+        for <stable@vger.kernel.org>; Tue, 23 Mar 2021 06:12:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=MDQVPB21tbAD+n2q1O5yJ4gJubTla3FGUSr+CGpgj6w=;
-        b=dwaVwfAgM4ORcTJhzIAFcNzjVkd5PvciuGWgrX9asoe35dBfgknLvmUSabF6fFs1MH
-         HbFQ2TtKuc4T5R8fe5ImO+OxjNJlFzGlmaK8rfzDuTU/9KibrF1OxYI5WFK+v7+oFXY0
-         vcY5Aiohz3w/aaHnEJyPpoc2+kNsHSOeGgLYMB+M3OKfyEwEGp2gmv+Y5qzsmUASgEG8
-         GS2OBD6t08s+AZF7ot1tIDe+RAlmLfMjPxfq4wPyLKarCMsJaO6fyjh4GGfMo4eHHEBq
-         6hBtMk8HRnvVAfCdvo1vTmFGz7qQZyQBQIFBpSy7lcrYIdHIQlX2A5MZS1CFy6rjQMsP
-         Gd2Q==
+        bh=At6h9HtAYwuTLdFKM+x4/s3wdVsIXqAsMlQ2fxYmR7s=;
+        b=MEGaRfOqiUXFg1gyN6PYOqm3baosznFEqmNMBIizpK+bTWqFMhGsUAOdbED+Nw56C9
+         SqJP2TMtKZjkhKPcQ8LfqyLQs0xd7AUhNIH1zAUzI1GCaZiaPujEevtxgT+QBm+NOYQ+
+         kiP4m8v041+PkpNrhUupFpY2wkyWsxm03k/7bIOx5yI3wFrEtK4NJ41A4/DUfoiqV6hS
+         nM2BgPzEUJ2EeuBFTiAIfY8EGLcy8Zp6i3ARm3H8ZUJZ1bVomczDik6LODxeXwU0Y8D5
+         TFf7tJjbf18kyDnrmwOuhGXL9D3m73HZkTkOTBRUO4vlMNuI3iXF7vr+tVJLaBivofdK
+         6tJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=MDQVPB21tbAD+n2q1O5yJ4gJubTla3FGUSr+CGpgj6w=;
-        b=BFYbEZp6NW9atz8Jh0F+3VXcahg3upN/odz8HVIGJfsKR3wsMPJO1aSdm2HjDFp4b2
-         36J2eju5/4tlXh2TJXvB3UbJ9FuiFA4/82aNSh+1tRE+MXmDR3EXBk7j3dF26bHuTEVA
-         9UMYfHqKxnLORWDEI5EeeZ6u5vIaXdgw4IUYvl6dj50Hhm2FO22YD9IBF/924EPTPLYD
-         jfuvnI5sqR2+wrOev65ipHtP5BU35j5Pws0sUBTMKz3EuHKULQGA4w0XGiOaRKl9tgNY
-         OfCG1EFHlrHEZ9V3O973y5s17d3Ycb7AYNp8XkuzREzGl8ABvm9g87uWktwPYYysliS5
-         3+0w==
-X-Gm-Message-State: AOAM532gYE58dcNuyItpQyZjDDlxEc63iKf8wiFcGgfLPDs4kPiPuikl
-        l3YzAkJFyV6s0EPx9LvO4YNCHAdekzSUbfITzWT86Q==
-X-Google-Smtp-Source: ABdhPJyKTHEROJ36eIaIQ3TA3wPl+y5GwPTbxulu8xa6hXgVrfEGHsEJ06nc6QCmFCoduFWdtbj40jSBmyWaD9Xpa+w=
-X-Received: by 2002:aa7:dd99:: with SMTP id g25mr4446576edv.230.1616504502772;
- Tue, 23 Mar 2021 06:01:42 -0700 (PDT)
+        bh=At6h9HtAYwuTLdFKM+x4/s3wdVsIXqAsMlQ2fxYmR7s=;
+        b=j+lGhZaHi9fJpWxdT8sE3CYL2iq7qoXILcmIEsDkh8rS3qRzrgzyfP6oV6AKdjGfNF
+         I+ZsyYarhqjmUWZdr2bBpHWiNcAI9tn0zo+48HqvKU6/YBWkdehBVNSzNdqIW3+00bjt
+         fmf2a5z/YXYs5tGUWNK4hYV8YMguXrWLYnuqcCPVzEubydLpve53Ox2C50Y5lrm4P52E
+         IblKIMwghXuSaZCpTIxXeVZC3TcuIVGAKoI43rPbBRgA4WrIxmTB5xXErF3AKDMudlgC
+         EFOJtChJizKYtbjc+r8b91AiXoyL6yChtyXN08wL2v9IHDIuIAizdWWjbtb3ozPoBId8
+         Pgqw==
+X-Gm-Message-State: AOAM531FC+oMUjHOtgfapXfJhu0724A3hKBMrCm3K6GF1rWFqvGvyOZV
+        FQqDcU0Z1OukrwM63lBQQxj6KWK7TND+Wj4LO695Ig==
+X-Google-Smtp-Source: ABdhPJzye5mE/iiUFqCn0X6hjoWPxPhCFuBkmO+oH48JgDTQXOUBKyn3CNzYbabRiR2Yb6a2SxRyFDf5ldEeprQWw10=
+X-Received: by 2002:aa7:d287:: with SMTP id w7mr4511774edq.23.1616505149911;
+ Tue, 23 Mar 2021 06:12:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210322121920.053255560@linuxfoundation.org>
-In-Reply-To: <20210322121920.053255560@linuxfoundation.org>
+References: <20210322121920.399826335@linuxfoundation.org>
+In-Reply-To: <20210322121920.399826335@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 23 Mar 2021 18:31:29 +0530
-Message-ID: <CA+G9fYvAyyRUD6Axjn-iYoCydwi+GnBPfFKVSz64dwfWF587Ww@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/43] 4.14.227-rc1 review
+Date:   Tue, 23 Mar 2021 18:42:17 +0530
+Message-ID: <CA+G9fYt-d+NQyL=8TrL-Pnc8zZ5Sno=3nAN=G10iuird8qpU7Q@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/25] 4.9.263-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Mar 2021 at 18:29, Greg Kroah-Hartman
+On Mon, 22 Mar 2021 at 18:25, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.14.227 release.
-> There are 43 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.9.263 release.
+> There are 25 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,16 +79,16 @@ On Mon, 22 Mar 2021 at 18:29, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.227-rc1.gz
+4.9.263-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
+-rc.git linux-4.9.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
-
+>
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -98,20 +98,20 @@ Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.14.227-rc1
+kernel: 4.9.263-rc1
 git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc=
 .git
-git branch: linux-4.14.y
-git commit: dbfdb55a0970570a02a8d7bb6abc2e4db71218c8
-git describe: v4.14.226-44-gdbfdb55a0970
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14=
-.y/build/v4.14.226-44-gdbfdb55a0970
+git branch: linux-4.9.y
+git commit: ee852ebcc01fee023a18f1ed0e34afc29b3f11d0
+git describe: v4.9.262-26-gee852ebcc01f
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.=
+y/build/v4.9.262-26-gee852ebcc01f
 
-No regressions (compared to v4.14.226-8-g085047cda613)
+No regressions (compared to v4.9.262)
 
-No fixes (compared to v4.14.226-8-g085047cda613)
+No fixes (compared to v4.9.262)
 
-Ran 48680 total tests in the following environments and test suites.
+Ran 49031 total tests in the following environments and test suites.
 
 Environments
 --------------
