@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7D6346678
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 18:35:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A90346685
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 18:38:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230131AbhCWRfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 13:35:24 -0400
-Received: from mail-40134.protonmail.ch ([185.70.40.134]:57042 "EHLO
-        mail-40134.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230101AbhCWRfN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 13:35:13 -0400
-Date:   Tue, 23 Mar 2021 17:35:08 +0000
+        id S230316AbhCWRhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 13:37:36 -0400
+Received: from mail-40136.protonmail.ch ([185.70.40.136]:62116 "EHLO
+        mail-40136.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230310AbhCWRh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 13:37:27 -0400
+Date:   Tue, 23 Mar 2021 17:37:19 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1616520910; bh=wu/vIyNG8bowz2h1UHHz2tTlQrq4yx+F+/I3ASmWS2c=;
+        t=1616521045; bh=B76jZ93shqjUOUQEXOsghNFmKmbiN4UEo8ixi177UoA=;
         h=Date:To:From:Cc:Reply-To:Subject:From;
-        b=F7FI/LY5Lnhz0FcaWuKQUxIHIkYGZXsfQWTjw0QVz2JavPkVkcUC0cTpJXpP0mlqk
-         77ITTyvH1+1YpZ7YcidisetJsEcOKJ1ui4e2rSpnVFV8pwXf8ZiuklkhiRcRSn0J+n
-         zwoj25G/sRKXaXXnYgGcz9QOAekh95BwXZ50uCEy9rFC7XVmW9WMtkaM6L+N0fLyHC
-         7He9A5kUdG8CEvg1w7q9ibM24gMgZc+NYUXt/euRrgMQKUg5Itqf63IH77v6OmvInm
-         uIgk8oWosL7My40OCbtBz9y29N8cicxoeWRsC4XA8KqWTLxAkYhPnNexxWKg59IWQC
-         EbagArjMvXlsQ==
+        b=XygTCk2L+LU5D4FsgMrA/7EH7eqjNqqfnnAceMgTGvAvic+o8zNuuiUHbrrl05uEZ
+         VgG/kaqtVhJkyScYcgjmkuXv0QX4x8LUHro1MoZMUMV0X7Eaav8TzU/6e6bLGi5gAR
+         eNxGVUDiSJsAneAjka7gPkqztAdxGAXTmdFKEwbmsno8dsmsLaYO4OotH0/SvP4yis
+         H8ftHLGMQH40O8P88PNF0wVbD7vlYFTZMwMrvv1/Gm8mc6v4GuSYKIHoRsKfd33P3x
+         +LGxwD11CWjLiLCJvZ+4e1S/cjqlvzHRIL8f/6WlqU4SriImQnwPEDSC3HYj7cLxFm
+         rDFO73qqbWPCw==
 To:     Miquel Raynal <miquel.raynal@bootlin.com>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -30,8 +30,8 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-mtd@lists.infradead.org, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH mtd/fixes] mtd: spinand: core: add missing MODULE_DEVICE_TABLE()
-Message-ID: <20210323173451.317461-1-alobakin@pm.me>
+Subject: [PATCH v2 mtd/fixes] mtd: spinand: core: add missing MODULE_DEVICE_TABLE()
+Message-ID: <20210323173714.317884-1-alobakin@pm.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -49,6 +49,8 @@ and thus never autoloads on ID matches.
 Add the missing declarations.
 Present since day-0 of spinand framework introduction.
 
+Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NAN=
+Ds")
 Cc: stable@vger.kernel.org # 4.19+
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
