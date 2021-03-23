@@ -2,117 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCED345BD7
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 11:24:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF0B345BEF
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 11:33:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbhCWKX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 06:23:59 -0400
-Received: from mga18.intel.com ([134.134.136.126]:64798 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229746AbhCWKXg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Mar 2021 06:23:36 -0400
-IronPort-SDR: VPyr6OB3JRO8y+60rX2DIXMNJKySlPPp8QMGdC2kmgDRUq5L9Q2PwJl5cdMO8uYfGS5qvUMXKS
- Ge53Dah3Q7Wg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9931"; a="178013088"
-X-IronPort-AV: E=Sophos;i="5.81,271,1610438400"; 
-   d="scan'208";a="178013088"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2021 03:23:35 -0700
-IronPort-SDR: CmbioHbfib0DlP5+409jLd29/fHPy93jkAu8dS8M69iE3kwuNU0co6R0Jcwppo/ERvcNZN53uk
- 17J90FksJglw==
-X-IronPort-AV: E=Sophos;i="5.81,271,1610438400"; 
-   d="scan'208";a="414922255"
-Received: from wjlloyd-mobl2.ger.corp.intel.com (HELO localhost) ([10.252.53.124])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2021 03:23:33 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     "Navare\, Manasi" <manasi.d.navare@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/dsc: fix DSS CTL register usage for ICL DSI transcoders
-In-Reply-To: <20210319204421.GA6043@labuser-Z97X-UD5H>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20210319115333.8330-1-jani.nikula@intel.com> <20210319204421.GA6043@labuser-Z97X-UD5H>
-Date:   Tue, 23 Mar 2021 12:23:31 +0200
-Message-ID: <87y2ee4198.fsf@intel.com>
+        id S230310AbhCWKcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 06:32:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53702 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230236AbhCWKcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 06:32:14 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DFEEC061756
+        for <stable@vger.kernel.org>; Tue, 23 Mar 2021 03:32:14 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id y6so22853727eds.1
+        for <stable@vger.kernel.org>; Tue, 23 Mar 2021 03:32:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Kj12+mxvJ+i0/4H7ureazLhFHG7dYKE3ygASVGopRQQ=;
+        b=FSIKeYJf+uFoy0axmgrUr3YHA2I7tlG8QWeuFLnPpnZ0xj0FNf1dePYs1iVi3JXWLl
+         ZuFdXFUyA7ZTOG9tTIdXpeo5cPWoJ/SvwuPPr6LODQ4tr0SUzyRHMtlxMlZkpg6zmf5e
+         1R6lCjslbnH/TSiEJdxClxzUkJMiFrvHw7DfQwTTIH3HP05862NtZuyyBVWzJdglhViN
+         +l6Lc4eL+TNpac2050T+mE2Nus8HAHoDVW31cJ4fPsrFD+pCPxoY/HWayr1/fX+pRx4L
+         CCEW+nbeZaa4wikdhzmRGK/2xQIPHFHu8uu/zgIKCQpmVceIVawsTpQTuu1oZ0PTPSBL
+         GrrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Kj12+mxvJ+i0/4H7ureazLhFHG7dYKE3ygASVGopRQQ=;
+        b=te2F14qE7eXbQomD7irPldA5YYV9RZuUoIaWIoLPg68TzkMtiX+8fDdHMl0BOn69Yx
+         CfC6E96PK2dWupmrwA9u58JCMZc8u3z7bS4jjVfz4Tl2TWPhIvu4x5lJWnbCqtrrJJHZ
+         M8/b0ddYNcWwM4S4jFNL8pardCQBSXNdda/FpoyjcYKRNJ0TNzHizmklc89As3/sZCIe
+         Oop8jEP1DakGwHA5LujTFv5ah2wwFKtzw4f+u+dhkvdphxYkvU4wy9fX9DL/mAOA/MZ7
+         f4ii+b1Qbz9UVf5MKUgOknH9AS2apAmV+t3JDVvWsG5DMwrWkvGcklRnq0lmUoThfVwJ
+         d8CQ==
+X-Gm-Message-State: AOAM5328oAWqtd0oTW2Y/CZ1ihYPgfA1utNrcWEKzjw3cnAK6y73kvk4
+        sogkZVdOCh+d7Cd3qfiOTkgd9/GfJeYEVzb03p2L7w==
+X-Google-Smtp-Source: ABdhPJzM+8QH6hxX6iAId1BUNdMppRlPxMX3AX6Gb0uf6j+kdf2PeF288dIYDS7XYPqJiDLT4E638Usa97qyksl4x78=
+X-Received: by 2002:aa7:d416:: with SMTP id z22mr3833201edq.239.1616495532435;
+ Tue, 23 Mar 2021 03:32:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20210322121919.936671417@linuxfoundation.org>
+In-Reply-To: <20210322121919.936671417@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 23 Mar 2021 16:01:56 +0530
+Message-ID: <CA+G9fYsKJOvt=6dzEkmpqAnoST2F2-ZM=_cS2Kh9tEytNwvj2A@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/43] 4.19.183-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 19 Mar 2021, "Navare, Manasi" <manasi.d.navare@intel.com> wrote:
-> On Fri, Mar 19, 2021 at 01:53:33PM +0200, Jani Nikula wrote:
->> Use the correct DSS CTL registers for ICL DSI transcoders.
->> 
->> As a side effect, this also brings back the sanity check for trying to
->> use pipe DSC registers on pipe A on ICL.
->> 
->> Fixes: 8a029c113b17 ("drm/i915/dp: Modify VDSC helpers to configure DSC for Bigjoiner slave")
->> References: http://lore.kernel.org/r/87eegxq2lq.fsf@intel.com
+On Mon, 22 Mar 2021 at 18:20, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Thanks Jani for the detailed review comments here and explanation on what
-> broke the DSI DSC on < Gen 12 platforms.
+> This is the start of the stable review cycle for the 4.19.183 release.
+> There are 43 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
->> Cc: Manasi Navare <manasi.d.navare@intel.com>
->> Cc: Animesh Manna <animesh.manna@intel.com>
->> Cc: Vandita Kulkarni <vandita.kulkarni@intel.com>
->> Cc: <stable@vger.kernel.org> # v5.11+
->> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
->> 
->> ---
->> 
->> Untested, I don't have the platform.
->> ---
->>  drivers/gpu/drm/i915/display/intel_vdsc.c | 10 ++--------
->>  1 file changed, 2 insertions(+), 8 deletions(-)
->> 
->> diff --git a/drivers/gpu/drm/i915/display/intel_vdsc.c b/drivers/gpu/drm/i915/display/intel_vdsc.c
->> index f58cc5700784..a86c57d117f2 100644
->> --- a/drivers/gpu/drm/i915/display/intel_vdsc.c
->> +++ b/drivers/gpu/drm/i915/display/intel_vdsc.c
->> @@ -1014,20 +1014,14 @@ static i915_reg_t dss_ctl1_reg(const struct intel_crtc_state *crtc_state)
->>  {
->>  	enum pipe pipe = to_intel_crtc(crtc_state->uapi.crtc)->pipe;
->>  
->> -	if (crtc_state->cpu_transcoder == TRANSCODER_EDP)
->> -		return DSS_CTL1;
->> -
->> -	return ICL_PIPE_DSS_CTL1(pipe);
->> +	return is_pipe_dsc(crtc_state) ? ICL_PIPE_DSS_CTL1(pipe) : DSS_CTL1;
+> Responses should be made by Wed, 24 Mar 2021 12:19:09 +0000.
+> Anything received after that time might be too late.
 >
-> Yes using is_pipe_dsc() makes sense here in order to select proper DSS_CTL regs
-> for DSI.
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.183-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
 >
-> Reviewed-by: Manasi Navare <manasi.d.navare@intel.com>
+> thanks,
+>
+> greg k-h
+>
 
-Thanks, pushed to drm-intel-next.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-BR,
-Jani.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
->
-> Manasi
->
->>  }
->>  
->>  static i915_reg_t dss_ctl2_reg(const struct intel_crtc_state *crtc_state)
->>  {
->>  	enum pipe pipe = to_intel_crtc(crtc_state->uapi.crtc)->pipe;
->>  
->> -	if (crtc_state->cpu_transcoder == TRANSCODER_EDP)
->> -		return DSS_CTL2;
->> -
->> -	return ICL_PIPE_DSS_CTL2(pipe);
->> +	return is_pipe_dsc(crtc_state) ? ICL_PIPE_DSS_CTL2(pipe) : DSS_CTL2;
->>  }
->>  
->>  void intel_dsc_enable(struct intel_encoder *encoder,
->> -- 
->> 2.20.1
->> 
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+Summary
+------------------------------------------------------------------------
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+kernel: 4.19.183-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 155590e98805144ae9800805ca98d3edcd2228de
+git describe: v4.19.182-44-g155590e98805
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.182-44-g155590e98805
+
+No regressions (compared to build v4.19.182)
+
+No fixes (compared to build v4.19.182)
+
+Ran 55402 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- powerpc
+- qemu-arm-debug
+- qemu-arm64-clang
+- qemu-arm64-debug
+- qemu-arm64-kasan
+- qemu-i386-debug
+- qemu-x86_64-clang
+- qemu-x86_64-debug
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+- x86_64
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-intel_pstate
+* kselftest-kvm
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-tracing-tests
+* v4l2-compliance
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-lib
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kvm-unit-tests
+* ltp-fs-tests
+* network-basic-tests
+* perf
+* kselftest-kexec
+* kselftest-vm
+* kselftest-x86
+* ltp-open-posix-tests
+* ltp-syscalls-tests
+* fwts
+* rcutorture
+* igt-gpu-tools
+* ssuite
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
