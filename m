@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC99E345E01
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 13:27:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF4C345E0D
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 13:28:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbhCWM1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 08:27:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35668 "EHLO mail.kernel.org"
+        id S230274AbhCWM2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 08:28:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230225AbhCWM1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Mar 2021 08:27:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CEEE619B1;
-        Tue, 23 Mar 2021 12:26:58 +0000 (UTC)
+        id S230198AbhCWM16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Mar 2021 08:27:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46174619B8;
+        Tue, 23 Mar 2021 12:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616502419;
-        bh=cYTAvfEc1RuOxHen38MGuDkyq5MxuYOLRx4CeC0PGvI=;
+        s=korg; t=1616502477;
+        bh=PfYWdyTlcN2NQFyuwmaJE0W1y9u+3zNFshGZSOve2Q0=;
         h=Subject:To:From:Date:From;
-        b=kofIU2zDXtEyNykyug/4UFJxhnwJeAH8YwXjR0+I68gC5sHSiL90F0sleSL2ysk5M
-         9cEd3SlwDhW3MWO+ZjgBlo4CENHSxrtmPc9XNeNm6dLCNvp52UavQNpLOmyLR3u7cY
-         Kszd0wvHbIDZ43B8cvLcUyGtybkfoPftZU4cW9RE=
-Subject: patch "USB: cdc-acm: downgrade message to debug" added to usb-linus
-To:     oneukum@suse.com, bruno.thomsen@gmail.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=ol2fxu6Gn1URrdF+hdi7aFR4dR/R5s2ZuODhaDbQBR1XF/YxEe8oN77l7yB+rmVdd
+         KKfCxur9ZFbQrqfFlp87k2Q6/FhHfHCzyR46UHxjRg5t3YYqqaTQ34+7DPqMIRNeW+
+         4yNfewK4kWpj8Dzehu8Jq/jKimLkwfReL9mjvxWk=
+Subject: patch "USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem" added to usb-linus
+To:     vpalatin@chromium.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Mar 2021 13:26:49 +0100
-Message-ID: <161650240917943@kroah.com>
+Date:   Tue, 23 Mar 2021 13:27:53 +0100
+Message-ID: <16165024738866@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: cdc-acm: downgrade message to debug
+    USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,37 +51,46 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e4c77070ad45fc940af1d7fb1e637c349e848951 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Thu, 11 Mar 2021 14:01:26 +0100
-Subject: USB: cdc-acm: downgrade message to debug
+From 0bd860493f81eb2a46173f6f5e44cc38331c8dbd Mon Sep 17 00:00:00 2001
+From: Vincent Palatin <vpalatin@chromium.org>
+Date: Fri, 19 Mar 2021 13:48:02 +0100
+Subject: USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
 
-This failure is so common that logging an error here amounts
-to spamming log files.
+This LTE modem (M.2 card) has a bug in its power management:
+there is some kind of race condition for U3 wake-up between the host and
+the device. The modem firmware sometimes crashes/locks when both events
+happen at the same time and the modem fully drops off the USB bus (and
+sometimes re-enumerates, sometimes just gets stuck until the next
+reboot).
 
-Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Tested with the modem wired to the XHCI controller on an AMD 3015Ce
+platform. Without the patch, the modem dropped of the USB bus 5 times in
+3 days. With the quirk, it stayed connected for a week while the
+'runtime_suspended_time' counter incremented as excepted.
+
+Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+Link: https://lore.kernel.org/r/20210319124802.2315195-1-vpalatin@chromium.org
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210311130126.15972-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index d684cf94b1c0..fd2fce072985 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -659,7 +659,8 @@ static void acm_port_dtr_rts(struct tty_port *port, int raise)
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 6ade3daf7858..76ac5d6555ae 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -498,6 +498,10 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
- 	res = acm_set_control(acm, val);
- 	if (res && (acm->ctrl_caps & USB_CDC_CAP_LINE))
--		dev_err(&acm->control->dev, "failed to set dtr/rts\n");
-+		/* This is broken in too many devices to spam the logs */
-+		dev_dbg(&acm->control->dev, "failed to set dtr/rts\n");
- }
++	/* Fibocom L850-GL LTE Modem */
++	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
++			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
++
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
  
- static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
 -- 
 2.31.0
 
