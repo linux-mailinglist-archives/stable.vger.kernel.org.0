@@ -2,106 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD50F345C58
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 11:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3E0345C38
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 11:51:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229504AbhCWKzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 06:55:54 -0400
-Received: from mail.thorsis.com ([92.198.35.195]:41037 "EHLO mail.thorsis.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229452AbhCWKzj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Mar 2021 06:55:39 -0400
-X-Greylist: delayed 576 seconds by postgrey-1.27 at vger.kernel.org; Tue, 23 Mar 2021 06:55:39 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mail.thorsis.com (Postfix) with ESMTP id DB1845E8;
-        Tue, 23 Mar 2021 11:46:02 +0100 (CET)
-X-Virus-Scanned: Debian amavisd-new at mail.thorsis.com
-Received: from mail.thorsis.com ([127.0.0.1])
-        by localhost (mail.thorsis.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id W5N2qbRT1jL0; Tue, 23 Mar 2021 11:46:02 +0100 (CET)
-Received: by mail.thorsis.com (Postfix, from userid 109)
-        id 2EDCF1FAB; Tue, 23 Mar 2021 11:46:02 +0100 (CET)
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NO_RECEIVED,
-        NO_RELAYS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-        version=3.4.2
-Date:   Tue, 23 Mar 2021 11:45:55 +0100 (CET)
-From:   Alexander Dahl <ada@thorsis.com>
-To:     nicolas.ferre@microchip.com, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Message-ID: <1732882030.11903.1616496356027@seven.thorsis.com>
-In-Reply-To: <20210217113808.21804-1-nicolas.ferre@microchip.com>
-References: <20210217113808.21804-1-nicolas.ferre@microchip.com>
-Subject: Re: [PATCH] ARM: dts: at91-sama5d27_som1: fix phy address to 7
-Content-Type: text/plain; charset=UTF-8
+        id S230165AbhCWKua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 06:50:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31355 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230228AbhCWKu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 06:50:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616496626;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/bI9nwhFk2DKqkC/aoj4hH4auyvs7crsyQYXcXFO72U=;
+        b=cPuKUKwOnk3Ds5brzrIsJl7mYu0U6+0XIWK01hVQYzv/WFPdvCP43BCZdHJqFqW3vZTXML
+        QAfGKJt4qGHm9QbafwkwTKrncWlzA9su/vALc20znSUlSZR6CpR5ZRZjqOrpzJG2xaVGRM
+        oN3SqBRcy7DeFon8wUdVs0aHX0wBSTk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-312-kzry4YCGMDuX_GTXN1g2Qw-1; Tue, 23 Mar 2021 06:50:22 -0400
+X-MC-Unique: kzry4YCGMDuX_GTXN1g2Qw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B0626180FCA9;
+        Tue, 23 Mar 2021 10:50:20 +0000 (UTC)
+Received: from [10.36.115.54] (ovpn-115-54.ams2.redhat.com [10.36.115.54])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B67C93805;
+        Tue, 23 Mar 2021 10:50:18 +0000 (UTC)
+Subject: Re: [PATCH v2 2/2] s390/kvm: VSIE: fix MVPG handling for prefixing
+ and MSO
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210322140559.500716-1-imbrenda@linux.ibm.com>
+ <20210322140559.500716-3-imbrenda@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Message-ID: <31b791e1-1398-8b50-fa09-964c5833a3ec@redhat.com>
+Date:   Tue, 23 Mar 2021 11:50:17 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
+MIME-Version: 1.0
+In-Reply-To: <20210322140559.500716-3-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-Importance: Normal
-X-Originating-Client: open-xchange-appsuite
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hei hei,
-
-I could not get ethernet to work on SAMA5D27-SOM1-EK1 with kernels v5.10 and v5.11 built by a recent ptxdist based DistroKit BSP, while it used to work with an older v4.19 kernel. Just applying this patch to the tree made ethernet working again, thus:
-
-Tested-by: Alexander Dahl <ada@thorsis.com>
-
-Not sure why it worked with that older kernel, though.
-
-I added Ahmad to Cc, he added board support to DistroKit for that board, and might want to know. And I added the devicetree list to Cc, I wondered why the patch was not there and get_maintainers.pl proposed it.
-
-Thanks for fixing this and greetings
-Alex
-
-> nicolas.ferre@microchip.com hat am 17.02.2021 12:38 geschrieben:
+On 22.03.21 15:05, Claudio Imbrenda wrote:
+> Prefixing needs to be applied to the guest real address to translate it
+> into a guest absolute address.
 > 
->  
-> From: Claudiu Beznea <claudiu.beznea@microchip.com>
+> The value of MSO needs to be added to a guest-absolute address in order to
+> obtain the host-virtual.
 > 
-> Fix the phy address to 7 for Ethernet PHY on SAMA5D27 SOM1. No
-> connection established if phy address 0 is used.
-> 
-> The board uses the 24 pins version of the KSZ8081RNA part, KSZ8081RNA
-> pin 16 REFCLK as PHYAD bit [2] has weak internal pull-down.  But at
-> reset, connected to PD09 of the MPU it's connected with an internal
-> pull-up forming PHYAD[2:0] = 7.
-> 
-> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-> Fixes: 2f61929eb10a ("ARM: dts: at91: at91-sama5d27_som1: fix PHY ID")
-> Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
-> Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-> Cc: <stable@vger.kernel.org> # 4.14+
+> Fixes: 223ea46de9e79 ("s390/kvm: VSIE: correctly handle MVPG when in VSIE")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reported-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->  arch/arm/boot/dts/at91-sama5d27_som1.dtsi | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>   arch/s390/kvm/vsie.c | 6 +++++-
+>   1 file changed, 5 insertions(+), 1 deletion(-)
 > 
-> diff --git a/arch/arm/boot/dts/at91-sama5d27_som1.dtsi b/arch/arm/boot/dts/at91-sama5d27_som1.dtsi
-> index 1b1163858b1d..e3251f3e3eaa 100644
-> --- a/arch/arm/boot/dts/at91-sama5d27_som1.dtsi
-> +++ b/arch/arm/boot/dts/at91-sama5d27_som1.dtsi
-> @@ -84,8 +84,8 @@ macb0: ethernet@f8008000 {
->  				pinctrl-0 = <&pinctrl_macb0_default>;
->  				phy-mode = "rmii";
->  
-> -				ethernet-phy@0 {
-> -					reg = <0x0>;
-> +				ethernet-phy@7 {
-> +					reg = <0x7>;
->  					interrupt-parent = <&pioA>;
->  					interrupts = <PIN_PD31 IRQ_TYPE_LEVEL_LOW>;
->  					pinctrl-names = "default";
-> -- 
-> 2.30.0
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 48aab6290a77..ac86f11e46dc 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -1002,7 +1002,7 @@ static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+>   static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>   {
+>   	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+> -	unsigned long pei_dest, pei_src, src, dest, mask;
+> +	unsigned long pei_dest, pei_src, dest, src, mask, mso, prefix;
+>   	u64 *pei_block = &vsie_page->scb_o->mcic;
+>   	int edat, rc_dest, rc_src;
+>   	union ctlreg0 cr0;
+> @@ -1010,9 +1010,13 @@ static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>   	cr0.val = vcpu->arch.sie_block->gcr[0];
+>   	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
+>   	mask = _kvm_s390_logical_to_effective(&scb_s->gpsw, PAGE_MASK);
+> +	mso = scb_s->mso & ~(1UL << 20);
+> +	prefix = scb_s->prefix << GUEST_PREFIX_SHIFT;
+>   
+>   	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
+> +	dest = _kvm_s390_real_to_abs(prefix, dest) + mso;
+>   	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
+> +	src = _kvm_s390_real_to_abs(prefix, src) + mso;
+>   
+>   	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
+>   	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
 > 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+mso is always confusing, but I think this should be correct.
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
+
