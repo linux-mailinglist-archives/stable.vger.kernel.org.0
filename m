@@ -2,79 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A09434610E
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 15:09:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA76346127
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 15:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232029AbhCWOJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 10:09:20 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:58010 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232172AbhCWOIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 10:08:53 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 12NE5XAJ168349;
-        Tue, 23 Mar 2021 14:08:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=t/xaaVqoQ/f/LgZxiyUJNJ/HPdDx97I+V6UPT7T73Zw=;
- b=KDTLGk9W5O1Wz0M8EshdZwTkQr3W6wwWgZUf4ygIuJ6QnZKpoPDIyPbH08BFEb9K74CB
- 45UhNaoHWAe7us81QLdpKmJzU6J9Ln02ZuxMXupDhjhhhz49lhUUmmDvrMySqVUj3sfj
- 7aAsviyDcz7uinCpOFURfqslfsyoMb+GbS/5JEBFcE5ADMhsTemxsMjCdCrFOrx269Ee
- o/DcfVYQalcUCcV3pzQIdamjK6bByUJKd4gSoJHVMhuqEHmd3HHmbItwM9WmhDzfeFqY
- 6ocuqZo51WZ9c+wpA0QTF8auBrZ+W5YGvqzOcf641LqhlcxRBbZlxj5C4ahTd8p5wHLu Ug== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 37d90mf4y6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Mar 2021 14:08:39 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 12NE69h1048265;
-        Tue, 23 Mar 2021 14:08:37 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 37dttryu6v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Mar 2021 14:08:37 +0000
-Received: from abhmp0019.oracle.com (abhmp0019.oracle.com [141.146.116.25])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 12NE8abE026048;
-        Tue, 23 Mar 2021 14:08:36 GMT
-Received: from kadam (/102.36.221.92)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 23 Mar 2021 07:08:35 -0700
-Date:   Tue, 23 Mar 2021 17:08:28 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Atul Gopinathan <atulgopinathan@gmail.com>
-Cc:     gregkh@linuxfoundation.org, linux-staging@lists.linux.dev,
-        linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
-        linux-kernel-mentees@lists.linuxfoundation.org,
+        id S232018AbhCWOOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 10:14:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59300 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231978AbhCWOOL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Mar 2021 10:14:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FE4D60295;
+        Tue, 23 Mar 2021 14:14:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616508850;
+        bh=4d+8UV0YpdDGL5NamhCvBE7wPMOsVvDYcGbTVr2C6ms=;
+        h=Subject:To:From:Date:From;
+        b=tfPuUjW/QfZ/Bsv4bsnP2D6fOSM4UBKqd2BKFi1JkDdB6A8fDrKrbm0Y8cFOU7MmA
+         XWBFDVDVhMO93LA9d6JVENLTCQcQ7MnYP+oxDeryDtLL9C/PhBtbxR8LPLRUgShydX
+         iCIHLyhkLnA95KLf5Aqdo1ICuUP2AU14s5Xh8YMw=
+Subject: patch "driver core: clear deferred probe reason on probe retry" added to driver-core-linus
+To:     a.fatoum@pengutronix.de, a.hajda@samsung.com,
+        andy.shevchenko@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] staging: rtl8192e: Change state information from
- u16 to u8
-Message-ID: <20210323140828.GJ1717@kadam>
-References: <20210323113413.29179-1-atulgopinathan@gmail.com>
- <20210323113413.29179-2-atulgopinathan@gmail.com>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 23 Mar 2021 15:14:08 +0100
+Message-ID: <161650884863145@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210323113413.29179-2-atulgopinathan@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-IMR: 1
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9931 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0 spamscore=0
- mlxscore=0 phishscore=0 suspectscore=0 mlxlogscore=999 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103230105
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9931 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0 mlxscore=0
- priorityscore=1501 bulkscore=0 impostorscore=0 lowpriorityscore=0
- phishscore=0 mlxlogscore=999 suspectscore=0 clxscore=1015 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103230105
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-regards,
-dan carpenter
+This is a note to let you know that I've just added the patch titled
+
+    driver core: clear deferred probe reason on probe retry
+
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From f0acf637d60ffcef3ccb6e279f743e587b3c7359 Mon Sep 17 00:00:00 2001
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Fri, 19 Mar 2021 12:04:57 +0100
+Subject: driver core: clear deferred probe reason on probe retry
+
+When retrying a deferred probe, any old defer reason string should be
+discarded. Otherwise, if the probe is deferred again at a different spot,
+but without setting a message, the now incorrect probe reason will remain.
+
+This was observed with the i.MX I2C driver, which ultimately failed
+to probe due to lack of the GPIO driver. The probe defer for GPIO
+doesn't record a message, but a previous probe defer to clock_get did.
+This had the effect that /sys/kernel/debug/devices_deferred listed
+a misleading probe deferral reason.
+
+Cc: stable <stable@vger.kernel.org>
+Fixes: d090b70ede02 ("driver core: add deferring probe reason to devices_deferred property")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Link: https://lore.kernel.org/r/20210319110459.19966-1-a.fatoum@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/base/dd.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 9179825ff646..e2cf3b29123e 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -97,6 +97,9 @@ static void deferred_probe_work_func(struct work_struct *work)
+ 
+ 		get_device(dev);
+ 
++		kfree(dev->p->deferred_probe_reason);
++		dev->p->deferred_probe_reason = NULL;
++
+ 		/*
+ 		 * Drop the mutex while probing each device; the probe path may
+ 		 * manipulate the deferred list
+-- 
+2.31.0
+
 
