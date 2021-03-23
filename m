@@ -2,107 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 465C5346655
+	by mail.lfdr.de (Postfix) with ESMTP id 91F14346656
 	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 18:29:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230253AbhCWR3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 13:29:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60000 "EHLO
+        id S230293AbhCWR30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 13:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230260AbhCWR3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 13:29:04 -0400
-X-Greylist: delayed 452 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 23 Mar 2021 10:29:03 PDT
-Received: from postout1.mail.lrz.de (postout1.mail.lrz.de [IPv6:2001:4ca0:0:103::81bb:ff89])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3E0DC061574;
-        Tue, 23 Mar 2021 10:29:03 -0700 (PDT)
-Received: from lxmhs51.srv.lrz.de (localhost [127.0.0.1])
-        by postout1.mail.lrz.de (Postfix) with ESMTP id 4F4dSk6Vvkzyhj;
-        Tue, 23 Mar 2021 18:21:26 +0100 (CET)
-Authentication-Results: postout.lrz.de (amavisd-new); dkim=pass (2048-bit key)
-        reason="pass (just generated, assumed good)" header.d=tum.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tum.de; h=
-        content-transfer-encoding:content-type:content-type:mime-version
-        :x-mailer:organization:references:in-reply-to:message-id:subject
-        :subject:from:from:date:date:received:received; s=postout; t=
-        1616520086; bh=O6Gw2Sv4QuWxqHo644fu+3aSadGr5z7e6RC1L5LXMJY=; b=n
-        r5V4TSpx7hiHbpcuRcqTaPOL6z3o7litlJSyowtecgGgUtE5mbITz0fJqiEddrUt
-        t1FIuO4My3Gu9+A9hWcDKIMP+7PAPR1/hSHtoTBFO+Ud1Z9hcsWtgeP9YvNW9S7y
-        56UCMjfmBerlcFtZSXoh2g4qFffhKo3SgINWDmpXcTmusOlvFzPCa03A8WGZIDqD
-        zA2gMP0HO4L9liS2rv2niopGdPxRtz+xAWbgh8yCC0ZD5W3d2/dp51+/63FcOEzC
-        UrkKJa5urfwDuAPcJC0uXRLRwDe2JuCbrcjVCBRQySC7LEyTbctXk/OzKA2AUHpQ
-        dlLMvHpvHhTGgmos1Oxjg==
-X-Virus-Scanned: by amavisd-new at lrz.de in lxmhs51.srv.lrz.de
-X-Spam-Flag: NO
-X-Spam-Score: -2.875
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.875 tagged_above=-999 required=5
-        tests=[ALL_TRUSTED=-1, BAYES_00=-1.9, DMARC_ADKIM_RELAXED=0.001,
-        DMARC_ASPF_RELAXED=0.001, DMARC_POLICY_NONE=0.001,
-        LRZ_DMARC_FAIL=0.001, LRZ_DMARC_FAIL_NONE=0.001,
-        LRZ_DMARC_POLICY=0.001, LRZ_DMARC_TUM_FAIL=0.001,
-        LRZ_DMARC_TUM_REJECT=3.5, LRZ_DMARC_TUM_REJECT_PO=-3.5,
-        LRZ_ENVFROM_FROM_ALIGNED_STRICT=0.001, LRZ_ENVFROM_FROM_MATCH=0.001,
-        LRZ_ENVFROM_TUM_S=0.001, LRZ_FROM_HAS_A=0.001,
-        LRZ_FROM_HAS_AAAA=0.001, LRZ_FROM_HAS_MDOM=0.001,
-        LRZ_FROM_HAS_MX=0.001, LRZ_FROM_HOSTED_DOMAIN=0.001,
-        LRZ_FROM_NAME_IN_ADDR=0.001, LRZ_FROM_PHRASE=0.001,
-        LRZ_FROM_PRE_SUR_PHRASE=0.001, LRZ_FROM_TUM_S=0.001,
-        LRZ_HAS_IN_REPLY_TO=0.001, LRZ_HAS_SPF=0.001, LRZ_HAS_URL_HTTP=0.001,
-        LRZ_MSGID_AN_AN=0.001, LRZ_URL_HTTP_SINGLE=0.001,
-        LRZ_URL_PLAIN_SINGLE=0.001] autolearn=no autolearn_force=no
-Received: from postout1.mail.lrz.de ([127.0.0.1])
-        by lxmhs51.srv.lrz.de (lxmhs51.srv.lrz.de [127.0.0.1]) (amavisd-new, port 20024)
-        with LMTP id MJQLGXTNRglT; Tue, 23 Mar 2021 18:21:26 +0100 (CET)
-Received: from yaviniv.e18.physik.tu-muenchen.de (yaviniv.e18.physik.tu-muenchen.de [10.152.72.81])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by postout1.mail.lrz.de (Postfix) with ESMTPSA id 4F4dSh4gr2zyhX;
-        Tue, 23 Mar 2021 18:21:24 +0100 (CET)
-Date:   Tue, 23 Mar 2021 18:21:23 +0100
-From:   Andrei Rabusov <a.rabusov@tum.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/156] 5.10.26-rc2 review
-Message-ID: <20210323182123.3ce89282@yaviniv.e18.physik.tu-muenchen.de>
-In-Reply-To: <20210322151845.637893645@linuxfoundation.org>
-References: <20210322151845.637893645@linuxfoundation.org>
-Organization: TUM E18
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        with ESMTP id S230336AbhCWR3M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 13:29:12 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E578C061574;
+        Tue, 23 Mar 2021 10:29:12 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id n11so12421210pgm.12;
+        Tue, 23 Mar 2021 10:29:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Wi4LJHw5jfEvsk7wZ9OkrUtU3aXuAPjNOhKa1Fc/yDg=;
+        b=N6CofipRIMKcvqeE8tzhfWegNuhV3wp/ZE5mQDT+o/Gl9Sed65kludEkrkz6O/RMIk
+         S2KHPRfM1Jbr+4fQpjr2BcPm+/K5dPvMiNWPeb+foeWRhjyWEm/2fOR2otjI++xx5Bid
+         9sYScbwwVBQ4fxjJd9IWJmJ2k/zIBl8BTDjkBdnZbObjcQGF7Ho/D2TqcT4yUdrb0SN0
+         eWOOF74MAjNzenT1XefOeurdoRstXYYY3b1Y8rYMlQQ6mPoeQMQo+F49LNe+/3ZlSLPd
+         F2k5ZmW7Q/OjkvnEr9AtnZMHl1wFHWsn8Ou6L48puWDLcDlKMcKbA5BZ53N/ON3xwS5U
+         HLZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Wi4LJHw5jfEvsk7wZ9OkrUtU3aXuAPjNOhKa1Fc/yDg=;
+        b=anNN3Ic0mX6wvUkqqvrWjMA4Ud1GHqK5KQg98cjaHfbw4zApDTQ2pliq9bCfc8Xd8V
+         lwDfBM31hcfpnG1De/xd8elIpJd1UZ94LGjlfpryqUXV85TzGQDaKaJ16XgiafDslcTu
+         OvWboGTbYw6Dw5KPaweDCMR7k1DOSRDL1d34Z9G9AMd04TwbLMcixK2/QhH4nG6ZuJcn
+         P1RvlVOleAZgG08UGrseqkphTV3t6lpM0mLo08pavlKQCScXKy/M/wMJnUoRGbSoKjU8
+         pm+KMFKLjUd5KTiipI2Mu2Lr3QgXluOBbskedkWjRPzp8YhE1IVdhHHcScItoBrKApPq
+         5tyg==
+X-Gm-Message-State: AOAM532Rtv4CWUIsQ19fE/JznD/tGkgejZ7QyH+saCDuIgrr/fLSydlA
+        AOxDeSZ8KetI8GuMV8h2ojAqKKJKqNg=
+X-Google-Smtp-Source: ABdhPJyDfOInpSkfi+8RTFT36FMcMpYAJCNMk4gBB2byJ9jSBhhNHGkFmSZhYPos0xTUriOooKLyUg==
+X-Received: by 2002:a17:902:bd82:b029:e6:1ef0:82dd with SMTP id q2-20020a170902bd82b02900e61ef082ddmr6810849pls.43.1616520552179;
+        Tue, 23 Mar 2021 10:29:12 -0700 (PDT)
+Received: from atulu-nitro ([122.174.244.83])
+        by smtp.gmail.com with ESMTPSA id 6sm19050446pfv.179.2021.03.23.10.29.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Mar 2021 10:29:11 -0700 (PDT)
+Date:   Tue, 23 Mar 2021 22:59:07 +0530
+From:   Atul Gopinathan <atulgopinathan@gmail.com>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     gregkh@linuxfoundation.org, linux-staging@lists.linux.dev,
+        linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] staging: rtl8192e: Fix incorrect source in
+ memcpy()
+Message-ID: <20210323172907.GB21444@atulu-nitro>
+References: <20210323113413.29179-1-atulgopinathan@gmail.com>
+ <20210323135811.GI1717@kadam>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210323135811.GI1717@kadam>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Mar 2021 16:19:10 +0100
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-
-> This is the start of the stable review cycle for the 5.10.26 release.
-> There are 156 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied,
-> please let me know.
+On Tue, Mar 23, 2021 at 04:58:11PM +0300, Dan Carpenter wrote:
+> Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
 > 
-> Responses should be made by Wed, 24 Mar 2021 15:18:19 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.26-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> linux-5.10.y and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> This is very clever detective work.  How did you spot the bug?
 
-Tested on i686 (ThinkPad R50p) with gcc 10.2 (slackware-current)
+I remember trying to investigate a sparse warning couple of weeks ago in
+the same file and went through the code when my eyes caught a struct
+pointer being indexed, which looked wierd. On further reading of the
+code and trying to make sense of what was happening (especially after
+calculating the size of the pointer) I became sure that it wasn't
+correct.
 
-I spotted no problems with this rc.
+The first patch led me to the second patch as they were related,
+"CcxRmState" was used in the same memcpy() of the first patch. I caught
+the error in it's type while trying to fix the first.
 
-Tested-by: Andrei Rabusov <a.rabusov@tum.de>
+Thank you for your encouraging words :D
 
+Regards,
+Atul
