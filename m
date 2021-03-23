@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE8A345D00
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 12:35:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7373A345D0D
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 12:37:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbhCWLfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 07:35:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39006 "EHLO
+        id S230264AbhCWLgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 07:36:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229639AbhCWLe5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 07:34:57 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38ED1C061574;
-        Tue, 23 Mar 2021 04:34:57 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id cl21-20020a17090af695b02900c61ac0f0e9so954874pjb.1;
-        Tue, 23 Mar 2021 04:34:57 -0700 (PDT)
+        with ESMTP id S230221AbhCWLfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 07:35:50 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 539E9C061756;
+        Tue, 23 Mar 2021 04:35:49 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id x7-20020a17090a2b07b02900c0ea793940so12081904pjc.2;
+        Tue, 23 Mar 2021 04:35:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ElLOWUMualAIIWBPGGWJKeUgzwjaNX2HQui1EmZiBWc=;
-        b=afnufsrSRgnVzKen0KAipeY2Gr5RB2YrUx3TRVnXnNLcuks/zuGRd8sJUVkJLRebIm
-         9T9R9lfv2O/j0Lx1Eop4fg3WZwlp9vsYAHSHl3UjGDK3qJsXIg/ufdkQVYpGgfQW6ZBP
-         v4zAUJUr22QHF7kZB0TRveNn6O3DvtfY+M/l8qwXoa5JsUp1ys7OXvBYthrMIk9DEu6i
-         3sBAZXIPLXYcHkeAbWIL1QvpKClaFylFtfK3eX5a81cSXfVRbA2GQoyZUS4e6USJ4wFx
-         xttZTf71IwhuMgQEu4ZxEO0bBI8i+3sxJQZuArTRbuWXBz4BiLSSWX/YcFcae1ilwHn7
-         pZWg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=EEklaGbWfb1yo1FO7Z4wlaHPpfFsNPyJGcvRz1oeefM=;
+        b=b5naPsgQpGmYSNTZQEtpOVUOEncxeX6nHd+zt5WJrai18i4iXngstNQKAZcgcgXW36
+         oAUvlnuRnUWzIMG4JOvHaMPlshJwY7/rLJY4NKPei41RC8wofdNKmbPe7XAY9ocA9hUj
+         Z5NylNkIvmpfwT/RE7dQBaqSDE0r5R3kGBXiBXwy4lGQok8qO0hRnAMfQUQd0c2nvX3R
+         qKjqlQKHPfa3iWzGsPgZtMmxekYWahvC8VirPvT0mhucwlDqIZQGFFfXF1ubFIn9H/Tu
+         KIwfOzdE4tq4CRX+S5iva+wc7PZYVNNm8ZqXFQ3B4s/zzn5E5R5lDMqYmG347gygEOix
+         3BlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ElLOWUMualAIIWBPGGWJKeUgzwjaNX2HQui1EmZiBWc=;
-        b=VVUPKDMTSoJXvCt6gRsRC3VBvEd7kOTlwFX6OlFrqcc1NkKNT5f6SaUD/mY34fibE3
-         79kGJWyqnC1Vy/NRI2I0pz/gOG1JsZFKdZ/V/aKB01UvNNbjwX9co63oCynHSMneiQet
-         GWsW0ppKMCXR9KJu++l6mQK7uth+RDRK+NIkNPcSHU1LeLSA41k6OsWD/KXcWUtgJnlg
-         mij2V5IRGn4toCiOoJPQxNpZpffmdRCN2tA8sjhAEtxHINYZBsY/64QjEB7YELZr1I5x
-         uJ+HBthrLRSp+8YLambDh/sgs9SAT3HF6Ka4fTUMuCuKXVIEbpg+gp7CKZuHOS4m2kCB
-         nhqQ==
-X-Gm-Message-State: AOAM533d+DHFfJqc4tWcErR4Q+fxrO2qdbkiMRGEP2J2dfp6Ty6dbqWR
-        vwEZFbR887QL0A8FH+++/tw=
-X-Google-Smtp-Source: ABdhPJxrc64WnAAp3j44E1M3MpoM2k95vp5z1QbiTFPkZ+hE99kiQmRIJxH9dFqDMRVYDGafdJjHUQ==
-X-Received: by 2002:a17:90a:bf0a:: with SMTP id c10mr3993377pjs.195.1616499296743;
-        Tue, 23 Mar 2021 04:34:56 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=EEklaGbWfb1yo1FO7Z4wlaHPpfFsNPyJGcvRz1oeefM=;
+        b=l+s8EqGG/ZlDP+jsvWo9pegYFFIwFlTZNlGuUfIZJ1+xc8BqTfaA2nu44TcKoosVan
+         NjFEzIgGJ/DYMb5/s08ZtBcWF+v88mUBNq3U6WoLJXUG32cMRUMZHy4Gvq26HJPn1EgT
+         BJVXjDHFxr4McfV70VuSFizvXhrHhwcHqh+6dug+t0sRauYX+ptmCg8t5sm+KqsGGfuB
+         dE3TEIZyFxE2Bi1u2AxWTjjQe6PgWTVUUNg22fmgGno9bQvMFYTdrKOSGVqQ/uWEeaGL
+         hS+xXKgdBJIBjxHuzXsLScEXno8fOjKdch5jRd8DY7cHSI+QM1j/Y8mXZQDcJTWh9BZO
+         8M3g==
+X-Gm-Message-State: AOAM532I/FdQrkAE1+iFiik9ZSfSkz5K0K29BS5udSoaNIfRYgKvjilv
+        44uapDv0JTkJQxwfiwI1QjNghtl5e9U=
+X-Google-Smtp-Source: ABdhPJyfnT0JqtXQArzGmf6c+wju8uckrWOxq3OUqeecMhVAl0hDKux9CILkfrbFR7IfsAr+cqNMxQ==
+X-Received: by 2002:a17:90a:9103:: with SMTP id k3mr4267739pjo.157.1616499348929;
+        Tue, 23 Mar 2021 04:35:48 -0700 (PDT)
 Received: from localhost.localdomain ([122.174.244.83])
-        by smtp.gmail.com with ESMTPSA id l22sm2750385pjl.14.2021.03.23.04.34.54
+        by smtp.gmail.com with ESMTPSA id l22sm2750385pjl.14.2021.03.23.04.35.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Mar 2021 04:34:56 -0700 (PDT)
+        Tue, 23 Mar 2021 04:35:48 -0700 (PDT)
 From:   Atul Gopinathan <atulgopinathan@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org,
@@ -54,82 +54,91 @@ Cc:     linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org,
         linux-kernel-mentees@lists.linuxfoundation.org,
         Atul Gopinathan <atulgopinathan@gmail.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 1/2] staging: rtl8192e: Fix incorrect source in memcpy()
-Date:   Tue, 23 Mar 2021 17:04:12 +0530
-Message-Id: <20210323113413.29179-1-atulgopinathan@gmail.com>
+Subject: [PATCH v2 2/2] staging: rtl8192e: Change state information from u16 to u8
+Date:   Tue, 23 Mar 2021 17:04:14 +0530
+Message-Id: <20210323113413.29179-2-atulgopinathan@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210323113413.29179-1-atulgopinathan@gmail.com>
+References: <20210323113413.29179-1-atulgopinathan@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The variable "info_element" is of the following type:
+The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
+bytes in total while the operations performed on this array through-out
+the code base are only 2 bytes.
 
-	struct rtllib_info_element *info_element
+The "CcxRmState" field is fed only 2 bytes of data using memcpy():
 
-defined in drivers/staging/rtl8192e/rtllib.h:
+(In rtllib_rx.c:1972)
+	memcpy(network->CcxRmState, &info_element->data[4], 2)
 
-	struct rtllib_info_element {
-		u8 id;
-		u8 len;
-		u8 data[];
-	} __packed;
+With "info_element->data[]" being a u8 array, if 2 bytes are written
+into "CcxRmState" (whose one element is u16 size), then the 2 u8
+elements from "data[]" gets squashed and written into the first element
+("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
+fed with any data.
 
-The "len" field defines the size of the "data[]" array. The code is
-supposed to check if "info_element->len" is greater than 4 and later
-equal to 6. If this is satisfied then, the last two bytes (the 4th and
-5th element of u8 "data[]" array) are copied into "network->CcxRmState".
+Same in file rtllib_rx.c:2522:
+	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
 
-Right now the code uses "memcpy()" with the source as "&info_element[4]"
-which would copy in wrong and unintended information. The struct
-"rtllib_info_element" has a size of 2 bytes for "id" and "len",
-therefore indexing will be done in interval of 2 bytes. So,
-"info_element[4]" would point to data which is beyond the memory
-allocated for this pointer (that is, at x+8, while "info_element" has
-been allocated only from x to x+7 (2 + 6 => 8 bytes)).
+The above line duplicates "src" data to "dst" but only writes 2 bytes
+(and not 4, which is the actual size). Again, only 1st element gets the
+value while the 2nd element remains uninitialized.
 
-This patch rectifies this error by using "&info_element->data[4]" which
-correctly copies the last two bytes of "data[]".
+This later makes operations done with CcxRmState unpredictable in the
+following lines as the 1st element is having a squashed number while the
+2nd element is having an uninitialized random number.
 
-NOTE: The faulty line of code came from the following commit:
+rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
+rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
+
+network->MBssidMask is also of type u8 and not u16.
+
+Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
+data written into this array and read from it make sense and are not
+random values.
+
+NOTE: The wrong initialization of "CcxRmState" can be seen in the
+following commit:
 
 commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
 
-The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
-which had the faulty line of code. This file has been deleted (or
-possibly renamed) with the contents copied in to a new file
-`rtl8192e/rtllib_rx.c` along with additional code in the commit
-94a799425eee (tagged in Fixes).
+The above commit created a file `rtl8192e/ieee80211.h` which used to
+have the faulty line. The file has been deleted (or possibly renamed)
+with the contents copied in to a new file `rtl8192e/rtllib.h` along with
+additional code in the commit 94a799425eee (tagged in Fixes).
 
 Fixes: 94a799425eee ("[PATCH 1/8] rtl8192e: Import new version of driver from realtek")
 Cc: stable@vger.kernel.org
 Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c | 2 +-
+ drivers/staging/rtl8192e/rtllib.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8192e/rtllib_rx.c b/drivers/staging/rtl8192e/rtllib_rx.c
-index 8415f26fd4c0..6e48b31a9afc 100644
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1965,15 +1965,15 @@ static void rtllib_parse_mife_generic(struct rtllib_device *ieee,
+diff --git a/drivers/staging/rtl8192e/rtllib.h b/drivers/staging/rtl8192e/rtllib.h
+index b84f00b8d18b..4cabaf21c1ca 100644
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -1101,15 +1101,15 @@ struct rtllib_network {
+ 	u8 hidden_ssid[IW_ESSID_MAX_SIZE + 1];
+ 	u8 hidden_ssid_len;
+ 	struct rtllib_qos_data qos_data;
  
- 	if (info_element->len > 4 &&
- 	    info_element->data[0] == 0x00 &&
- 	    info_element->data[1] == 0x40 &&
- 	    info_element->data[2] == 0x96 &&
- 	    info_element->data[3] == 0x01) {
- 		if (info_element->len == 6) {
--			memcpy(network->CcxRmState, &info_element[4], 2);
-+			memcpy(network->CcxRmState, &info_element->data[4], 2);
- 			if (network->CcxRmState[0] != 0)
- 				network->bCcxRmEnable = true;
- 			else
- 				network->bCcxRmEnable = false;
- 			network->MBssidMask = network->CcxRmState[1] & 0x07;
- 			if (network->MBssidMask != 0) {
- 				network->bMBssidValid = true;
+ 	bool	bWithAironetIE;
+ 	bool	bCkipSupported;
+ 	bool	bCcxRmEnable;
+-	u16	CcxRmState[2];
++	u8	CcxRmState[2];
+ 	bool	bMBssidValid;
+ 	u8	MBssidMask;
+ 	u8	MBssid[ETH_ALEN];
+ 	bool	bWithCcxVerNum;
+ 	u8	BssCcxVerNumber;
+ 	/* These are network statistics */
+ 	struct rtllib_rx_stats stats;
 -- 
 2.25.1
 
