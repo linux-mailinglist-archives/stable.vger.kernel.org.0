@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92702345DF3
-	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 13:22:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 192D0345DF5
+	for <lists+stable@lfdr.de>; Tue, 23 Mar 2021 13:22:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230165AbhCWMVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 08:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34832 "EHLO mail.kernel.org"
+        id S230406AbhCWMWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Mar 2021 08:22:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229893AbhCWMVh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Mar 2021 08:21:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 615726197F;
-        Tue, 23 Mar 2021 12:21:35 +0000 (UTC)
+        id S229900AbhCWMVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Mar 2021 08:21:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8E1F619B1;
+        Tue, 23 Mar 2021 12:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616502096;
-        bh=RI5170tCSUUeQJ1+Ni2aMo7e5RxRgaInLvxkZx5/Kyw=;
+        s=korg; t=1616502104;
+        bh=BLC1J31urxPSOp777GH+1n134NLYV3x8ODl5bC36ywY=;
         h=Subject:To:From:Date:From;
-        b=jGSOYyUN2JzzGaWzxUJG0TZ8oAgo9o33YvcEkhXJJw7jxkfUTf/nGhBZhR9d2yWRA
-         7hrMtMLf5HUQUqL8TEX5IjpT9jZQnxwajeImbCMVgM+K5KURsOwYQTmETafA4kgyxC
-         s7kblRN9bk5b1qal4XilkAu2Lfg/9oqN28XHVzEs=
-Subject: patch "usb: dwc3: qcom: skip interconnect init for ACPI probe" added to usb-linus
-To:     shawn.guo@linaro.org, gregkh@linuxfoundation.org,
+        b=UB13LxcDg+vO7y6/YRcbOBCrEFhn2zTSbnM0MCW1IoguC5tG8bH+CC2tzXdFpugLE
+         tKMx1NCjpmfG5ZivgDOVrElax2G4hWTip2QK4p/N2E2i6tGpNVXHOzGJPfLpBqtngn
+         YyJ5ZwOQh5zvFC3iOL11JvEsMOKiB5fPUSN2G6fg=
+Subject: patch "usb: dwc3: gadget: Set gadget_max_speed when set ssp_rate" added to usb-linus
+To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 23 Mar 2021 13:21:33 +0100
-Message-ID: <1616502093225143@kroah.com>
+Message-ID: <161650209379231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: qcom: skip interconnect init for ACPI probe
+    usb: dwc3: gadget: Set gadget_max_speed when set ssp_rate
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,42 +51,36 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5e4010e36a58978e42b2ee13739ff9b50209c830 Mon Sep 17 00:00:00 2001
-From: Shawn Guo <shawn.guo@linaro.org>
-Date: Thu, 11 Mar 2021 14:03:18 +0800
-Subject: usb: dwc3: qcom: skip interconnect init for ACPI probe
+From cdb651b6021ee091abc24e9fbd9774d318ab96a6 Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Mon, 8 Mar 2021 18:16:44 -0800
+Subject: usb: dwc3: gadget: Set gadget_max_speed when set ssp_rate
 
-The ACPI probe starts failing since commit bea46b981515 ("usb: dwc3:
-qcom: Add interconnect support in dwc3 driver"), because there is no
-interconnect support for ACPI, and of_icc_get() call in
-dwc3_qcom_interconnect_init() will just return -EINVAL.
+Set the dwc->gadget_max_speed to SuperSpeed Plus if the user sets the
+ssp_rate. The udc_set_ssp_rate() is intended for setting the gadget's
+speed to SuperSpeed Plus at the specified rate.
 
-Fix the problem by skipping interconnect init for ACPI probe, and then
-the NULL icc_path_ddr will simply just scheild all ICC calls.
-
-Fixes: bea46b981515 ("usb: dwc3: qcom: Add interconnect support in dwc3 driver")
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210311060318.25418-1-shawn.guo@linaro.org
+Fixes: 072cab8a0fe2 ("usb: dwc3: gadget: Implement setting of SSP rate")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/0b2732e2f380d9912ee87f39dc82c2139223bad9.1615254129.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/gadget.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index fcaf04483ad0..3de291ab951a 100644
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -244,6 +244,9 @@ static int dwc3_qcom_interconnect_init(struct dwc3_qcom *qcom)
- 	struct device *dev = qcom->dev;
- 	int ret;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 4a337f348651..006476a4737b 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2523,6 +2523,7 @@ static void dwc3_gadget_set_ssp_rate(struct usb_gadget *g,
+ 	unsigned long		flags;
  
-+	if (has_acpi_companion(dev))
-+		return 0;
-+
- 	qcom->icc_path_ddr = of_icc_get(dev, "usb-ddr");
- 	if (IS_ERR(qcom->icc_path_ddr)) {
- 		dev_err(dev, "failed to get usb-ddr path: %ld\n",
+ 	spin_lock_irqsave(&dwc->lock, flags);
++	dwc->gadget_max_speed = USB_SPEED_SUPER_PLUS;
+ 	dwc->gadget_ssp_rate = rate;
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
+ }
 -- 
 2.31.0
 
