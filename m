@@ -2,122 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1F2348220
-	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 20:45:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4303482D8
+	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 21:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237667AbhCXToo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Mar 2021 15:44:44 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54593 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237902AbhCXToa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Mar 2021 15:44:30 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id A61CA5C0121;
-        Wed, 24 Mar 2021 15:44:29 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 24 Mar 2021 15:44:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=OSvGFeMLpIfrexF8H
-        7K3MEeCkS9y1Jf9n2UXA/OA91A=; b=R4YXLX1Hkr+onWBVGn9N+iYSzO3NJ+oy/
-        htRGetvGOmV5O0ru2a47WNjuu0NpeuxCPJKG9o+dgMaTyZTy8aS3QvD1CLSC7s4W
-        S0YxFhc/cG4H8NiuIhTD5y9m5vVvVcbhGSDCbUCZT750QU++Qz11Dbc5oGEvWROO
-        MozQRXhKheYD++uOd0GrTeKr+U893yF3Y8t1SGJYeHks6+ty1lDE7nCopv4AVQO8
-        fewH7BwO92n3tbfoPsRbpqDXr0xWgN0MTc4nmqR79MnMLJoBA3jKLyD/MlssFeW1
-        46X4ekxKwBXb4qkC0tUxj0GAXvB48eOD1IYk2tPSvHxDdX4Rxl5QQ==
-X-ME-Sender: <xms:m5ZbYN4-1NQzYH9IxYC1b3DWa6JLXRVT0cQHJNCmTZFc-QGlr2GZSQ>
-    <xme:m5ZbYK5UeA-3mLiilVZzmVEIZnhMNfK44b54ir1fjQSACSIEqTdMBYNRz1p1OVOFU
-    mLcCT6nBVCfwQc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudegkedguddvjecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertd
-    ertddtnecuhfhrohhmpefkughoucfutghhihhmmhgvlhcuoehiughoshgthhesihguohhs
-    tghhrdhorhhgqeenucggtffrrghtthgvrhhnpeekkefgteeguedvtdegffeitefgueeiie
-    dutefhtdfhkeetteelgfevleetueeigeenucffohhmrghinhepghhithhhuhgsrdgtohhm
-    necukfhppeekgedrvddvledrudehfedrgeegnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomhepihguohhstghhsehiughoshgthhdrohhrgh
-X-ME-Proxy: <xmx:nJZbYEe6GJ753W7zv6wbGNfkiMQ72BuDCJwH_REZOPpYOsk9L5moOA>
-    <xmx:nJZbYGKGOhgZ_pUi0JPIaa4hsB0tt_rCIkPEfNdufTAGrvPrL53d8g>
-    <xmx:nJZbYBIIQwBAN3x2MajTQ3CH_5t8kSCYi2DAf7F74t6kXUz5zB9UwQ>
-    <xmx:nZZbYJ8XZxpsiozJL2jJeJX6VRCjjyiAG1kFgwQfci4487UstsM9TQ>
-Received: from shredder.lan (igld-84-229-153-44.inter.net.il [84.229.153.44])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 701A51080063;
-        Wed, 24 Mar 2021 15:44:25 -0400 (EDT)
-From:   Ido Schimmel <idosch@idosch.org>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, yotam.gi@gmail.com,
-        jiri@nvidia.com, petrm@nvidia.com, chrism@mellanox.com,
-        sfr@canb.auug.org.au, Ido Schimmel <idosch@nvidia.com>,
-        stable@vger.kernel.org
-Subject: [PATCH net] psample: Fix user API breakage
-Date:   Wed, 24 Mar 2021 21:43:32 +0200
-Message-Id: <20210324194332.153658-1-idosch@idosch.org>
-X-Mailer: git-send-email 2.30.2
+        id S238082AbhCXUXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Mar 2021 16:23:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42504 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238022AbhCXUXd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Mar 2021 16:23:33 -0400
+Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A22C06174A
+        for <stable@vger.kernel.org>; Wed, 24 Mar 2021 13:23:31 -0700 (PDT)
+Received: by mail-ot1-x332.google.com with SMTP id g8-20020a9d6c480000b02901b65ca2432cso24299162otq.3
+        for <stable@vger.kernel.org>; Wed, 24 Mar 2021 13:23:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=RaZcdCZN7zqROxLNVq3rIO4aLNeOhcX7PBDOpMGUlmE=;
+        b=BLsFl3OGLlqkaruz8cUyse209AF9YbDNLtc55K3B+sxHKeTcwbOFutQmJqro4VvRVO
+         uYhQDOO1pe7kBibHLnBX9h79tklWvJjBPuoHLPzCvH8Lb1Fl/tfKYI8L5cHtjcrF38wL
+         Zs2Ij4K5nbUnLAjQ4iAuyoUuoq1iGRvPbwmTdoie3Y0a1ohlGXc8UcuHJtGIYuJvPLSC
+         juQ9Vku+d3YDXU46S7hCUus3baWTYZbbHztqmiCKAH3WB032mG0GIVqCV1ounqIRX6KN
+         TzKexoujbodaP6TTwfk+0KBqzipZbVV4rlueCxOFRCatqIQ54ohgC9uUW5AFDxosDNeE
+         nvXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=RaZcdCZN7zqROxLNVq3rIO4aLNeOhcX7PBDOpMGUlmE=;
+        b=faSQYjSwsuJjvoEu8CgZeKCA/WMdEEWA/lRn3HIVwjng657MxgvpW9+elkmJnwOikJ
+         Qx1XaMfXZqTreUSgckBvg1XcUx6V5UumN/ftSpDVhjeklHE1hI8Cb9qFZahSr/OgmKUX
+         g8EiU4h1DZLa1vuqEBXZOZRquh2nMZCny/IzLEOMDSv7ECkP+i2WmnXUDHxGSkukJIwI
+         SeYcO3IUdUfR7GWQ0LIWKfY/FIA/1oPiLnaHepxcf9r9/1Q6jLEN9fsQ/MgmdziV+t+Y
+         z27wqu4G9MWjUn5kSMBoVbhSZ8+pdFLBeCqcLPB7TbUjjYq+HT1QXv2Hf6FA9Dz0xBp0
+         9i8A==
+X-Gm-Message-State: AOAM530xD9aKYUGRMCWqKwamvmbB0RqY5oIGLJnmxA8dIUGuPFsFrJlT
+        364hMSPh4EjnCA5FM7jF1pGdWoVeVBofxIQBHu0=
+X-Google-Smtp-Source: ABdhPJzUUgR8Spu+CHOcOHs6UfaP8AfSy/e+bFFUzRutJXGFbySDVYUK6VJWWeGUFsfIWGvyxai0yy7WHzDYfd5XC0g=
+X-Received: by 2002:a05:6830:408f:: with SMTP id x15mr4767542ott.132.1616617410803;
+ Wed, 24 Mar 2021 13:23:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210317151348.11331-1-wse@tuxedocomputers.com>
+In-Reply-To: <20210317151348.11331-1-wse@tuxedocomputers.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Wed, 24 Mar 2021 16:23:19 -0400
+Message-ID: <CADnq5_OpJ-2jR4D8xwH93PZKoMWXx8C2yGTkqt7KRrVgph-KvA@mail.gmail.com>
+Subject: Re: [PATCH] drm/amd/display: Try YCbCr420 color when YCbCr444 fails
+To:     Werner Sembach <wse@tuxedocomputers.com>
+Cc:     "Wentland, Harry" <harry.wentland@amd.com>,
+        "Leo (Sunpeng) Li" <sunpeng.li@amd.com>,
+        "Deucher, Alexander" <alexander.deucher@amd.com>,
+        Christian Koenig <christian.koenig@amd.com>,
+        Dave Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        amd-gfx list <amd-gfx@lists.freedesktop.org>,
+        Maling list - DRI developers 
+        <dri-devel@lists.freedesktop.org>,
+        "for 3.8" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+On Wed, Mar 17, 2021 at 11:25 AM Werner Sembach <wse@tuxedocomputers.com> wrote:
+>
+> When encoder validation of a display mode fails, retry with less bandwidth
+> heavy YCbCr420 color mode, if available. This enables some HDMI 1.4 setups
+> to support 4k60Hz output, which previously failed silently.
+>
+> On some setups, while the monitor and the gpu support display modes with
+> pixel clocks of up to 600MHz, the link encoder might not. This prevents
+> YCbCr444 and RGB encoding for 4k60Hz, but YCbCr420 encoding might still be
+> possible. However, which color mode is used is decided before the link
+> encoder capabilities are checked. This patch fixes the problem by retrying
+> to find a display mode with YCbCr420 enforced and using it, if it is
+> valid.
+>
+> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+> Cc: <stable@vger.kernel.org>
 
-Cited commit added a new attribute before the existing group reference
-count attribute, thereby changing its value and breaking existing
-applications on new kernels.
 
-Before:
+This seems reasonable to me.  Harry, Leo, Any objections?
 
- # psample -l
- libpsample ERROR psample_group_foreach: failed to recv message: Operation not supported
+Alex
 
-After:
-
- # psample -l
- Group Num       Refcount        Group Seq
- 1               1               0
-
-Fix by restoring the value of the old attribute and remove the
-misleading comments from the enumerator to avoid future bugs.
-
-Cc: stable@vger.kernel.org
-Fixes: d8bed686ab96 ("net: psample: Add tunnel support")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reported-by: Adiel Bidani <adielb@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
----
-Dave, Jakub, Stephen, there might be a trivial conflict when you merge
-net into net-next. If so, see resolution here:
-https://github.com/jpirko/linux_mlxsw/commit/d47ac079ef169d3ab07c85e9178a925f7dffbebe.patch
----
- include/uapi/linux/psample.h | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/include/uapi/linux/psample.h b/include/uapi/linux/psample.h
-index aea26ab1431c..bff5032c98df 100644
---- a/include/uapi/linux/psample.h
-+++ b/include/uapi/linux/psample.h
-@@ -3,7 +3,6 @@
- #define __UAPI_PSAMPLE_H
- 
- enum {
--	/* sampled packet metadata */
- 	PSAMPLE_ATTR_IIFINDEX,
- 	PSAMPLE_ATTR_OIFINDEX,
- 	PSAMPLE_ATTR_ORIGSIZE,
-@@ -11,10 +10,8 @@ enum {
- 	PSAMPLE_ATTR_GROUP_SEQ,
- 	PSAMPLE_ATTR_SAMPLE_RATE,
- 	PSAMPLE_ATTR_DATA,
--	PSAMPLE_ATTR_TUNNEL,
--
--	/* commands attributes */
- 	PSAMPLE_ATTR_GROUP_REFCOUNT,
-+	PSAMPLE_ATTR_TUNNEL,
- 
- 	__PSAMPLE_ATTR_MAX
- };
--- 
-2.30.2
-
+> ---
+>
+> From c9398160caf4ff20e63b8ba3a4366d6ef95c4ac3 Mon Sep 17 00:00:00 2001
+> From: Werner Sembach <wse@tuxedocomputers.com>
+> Date: Wed, 17 Mar 2021 12:52:22 +0100
+> Subject: [PATCH] Retry forcing YCbCr420 color on failed encoder validation
+>
+> ---
+>  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> index 961abf1cf040..2d16389b5f1e 100644
+> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> @@ -5727,6 +5727,15 @@ create_validate_stream_for_sink(struct amdgpu_dm_connector *aconnector,
+>
+>         } while (stream == NULL && requested_bpc >= 6);
+>
+> +       if (dc_result == DC_FAIL_ENC_VALIDATE && !aconnector->force_yuv420_output) {
+> +               DRM_DEBUG_KMS("Retry forcing YCbCr420 encoding\n");
+> +
+> +               aconnector->force_yuv420_output = true;
+> +               stream = create_validate_stream_for_sink(aconnector, drm_mode,
+> +                                               dm_state, old_stream);
+> +               aconnector->force_yuv420_output = false;
+> +       }
+> +
+>         return stream;
+>  }
+>
+> --
+> 2.25.1
+>
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
