@@ -2,1148 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AADEA3475C6
-	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 11:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 213E43475E7
+	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 11:23:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235582AbhCXKTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Mar 2021 06:19:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54104 "EHLO mail.kernel.org"
+        id S230510AbhCXKXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Mar 2021 06:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232230AbhCXKTa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Mar 2021 06:19:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B5FA619C0;
-        Wed, 24 Mar 2021 10:19:29 +0000 (UTC)
+        id S230062AbhCXKXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Mar 2021 06:23:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BF74619BB;
+        Wed, 24 Mar 2021 10:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616581169;
-        bh=j2AUuzd3Zsp0JfCRvCUu/yPCZLsVgaqOOCV3sEVzIBU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0FL2bDAf54X4ccU+VCiW30h/QqovX/AgQbtyBlAXCACKBEJLLh0qVOqyBBQYtZxa
-         2dA8YJ6X+Urv7B6+5mEH2YVOe0PdvClGfQXnFI1LnRAuXi2bEXqEWAAM7lj9tZTMlj
-         ts7vyi8+YXX1/kqNEpVJ+FLiz4bQfRstofPufooc=
+        s=korg; t=1616581394;
+        bh=EUA1CgAcquNK5omzMCv5dB4lN5cNt5r4f3YiuknYrcE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=h4U5cMz1FaXhBqHy+7QJcMrwsO6oYlZ8O3BXHv1Q4FfemlMlZfIHNN6obw3gp06P3
+         lPR0gsFpxmM5fDjoj6VFAysFn++ACGja4IQgA9C39i8GQ6EASgz6VWooQx8eia0WA8
+         UAY2wXRvP5j4sgSFp++R+9B9dlZtcDa9ikaDMjkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.9.263
-Date:   Wed, 24 Mar 2021 11:19:19 +0100
-Message-Id: <16165811583564@kroah.com>
+Subject: Linux 4.14.227
+Date:   Wed, 24 Mar 2021 11:23:11 +0100
+Message-Id: <16165813912347@kroah.com>
 X-Mailer: git-send-email 2.31.0
-In-Reply-To: <161658115876200@kroah.com>
-References: <161658115876200@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index be5eac0a12d3..80b265a383bb 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 262
-+SUBLEVEL = 263
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
-index f562ddbeb20c..f39838d78976 100644
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -1473,7 +1473,7 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
- 		 */
- 		if (!pebs_status && cpuc->pebs_enabled &&
- 			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
--			pebs_status = cpuc->pebs_enabled;
-+			pebs_status = p->status = cpuc->pebs_enabled;
- 
- 		bit = find_first_bit((unsigned long *)&pebs_status,
- 					x86_pmu.max_pebs_events);
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index 7aa9a9bd9d98..f606ef598917 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -461,15 +461,6 @@ struct thread_struct {
- 	 */
- };
- 
--/*
-- * Thread-synchronous status.
-- *
-- * This is different from the flags in that nobody else
-- * ever touches our thread-synchronous status, so we don't
-- * have to worry about atomic accesses.
-- */
--#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
--
- /*
-  * Set IOPL bits in EFLAGS from given mask
-  */
-diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
-index 0438f7fbb383..3ba5e2fce171 100644
---- a/arch/x86/include/asm/thread_info.h
-+++ b/arch/x86/include/asm/thread_info.h
-@@ -221,10 +221,31 @@ static inline int arch_within_stack_frames(const void * const stack,
- 
- #endif
- 
-+/*
-+ * Thread-synchronous status.
-+ *
-+ * This is different from the flags in that nobody else
-+ * ever touches our thread-synchronous status, so we don't
-+ * have to worry about atomic accesses.
-+ */
-+#define TS_COMPAT		0x0002	/* 32bit syscall active (64BIT)*/
-+
-+#ifndef __ASSEMBLY__
- #ifdef CONFIG_COMPAT
- #define TS_I386_REGS_POKED	0x0004	/* regs poked by 32-bit ptracer */
-+#define TS_COMPAT_RESTART	0x0008
-+
-+#define arch_set_restart_data	arch_set_restart_data
-+
-+static inline void arch_set_restart_data(struct restart_block *restart)
-+{
-+	struct thread_info *ti = current_thread_info();
-+	if (ti->status & TS_COMPAT)
-+		ti->status |= TS_COMPAT_RESTART;
-+	else
-+		ti->status &= ~TS_COMPAT_RESTART;
-+}
- #endif
--#ifndef __ASSEMBLY__
- 
- #ifdef CONFIG_X86_32
- #define in_ia32_syscall() true
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index 3401b28f1312..f398612e8a81 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1042,6 +1042,16 @@ static int mp_map_pin_to_irq(u32 gsi, int idx, int ioapic, int pin,
- 	if (idx >= 0 && test_bit(mp_irqs[idx].srcbus, mp_bus_not_pci)) {
- 		irq = mp_irqs[idx].srcbusirq;
- 		legacy = mp_is_legacy_irq(irq);
-+		/*
-+		 * IRQ2 is unusable for historical reasons on systems which
-+		 * have a legacy PIC. See the comment vs. IRQ2 further down.
-+		 *
-+		 * If this gets removed at some point then the related code
-+		 * in lapic_assign_system_vectors() needs to be adjusted as
-+		 * well.
-+		 */
-+		if (legacy && irq == PIC_CASCADE_IR)
-+			return -EINVAL;
- 	}
- 
- 	mutex_lock(&ioapic_mutex);
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index ca010dfb9682..4050d5092c86 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -767,30 +767,8 @@ handle_signal(struct ksignal *ksig, struct pt_regs *regs)
- 
- static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
- {
--	/*
--	 * This function is fundamentally broken as currently
--	 * implemented.
--	 *
--	 * The idea is that we want to trigger a call to the
--	 * restart_block() syscall and that we want in_ia32_syscall(),
--	 * in_x32_syscall(), etc. to match whatever they were in the
--	 * syscall being restarted.  We assume that the syscall
--	 * instruction at (regs->ip - 2) matches whatever syscall
--	 * instruction we used to enter in the first place.
--	 *
--	 * The problem is that we can get here when ptrace pokes
--	 * syscall-like values into regs even if we're not in a syscall
--	 * at all.
--	 *
--	 * For now, we maintain historical behavior and guess based on
--	 * stored state.  We could do better by saving the actual
--	 * syscall arch in restart_block or (with caveats on x32) by
--	 * checking if regs->ip points to 'int $0x80'.  The current
--	 * behavior is incorrect if a tracer has a different bitness
--	 * than the tracee.
--	 */
- #ifdef CONFIG_IA32_EMULATION
--	if (current_thread_info()->status & (TS_COMPAT|TS_I386_REGS_POKED))
-+	if (current_thread_info()->status & TS_COMPAT_RESTART)
- 		return __NR_ia32_restart_syscall;
- #endif
- #ifdef CONFIG_X86_X32_ABI
-diff --git a/drivers/iio/imu/adis16400_core.c b/drivers/iio/imu/adis16400_core.c
-index fb7c0dbed51c..67837905f7b4 100644
---- a/drivers/iio/imu/adis16400_core.c
-+++ b/drivers/iio/imu/adis16400_core.c
-@@ -288,8 +288,7 @@ static int adis16400_initial_setup(struct iio_dev *indio_dev)
- 		if (ret)
- 			goto err_ret;
- 
--		ret = sscanf(indio_dev->name, "adis%u\n", &device_id);
--		if (ret != 1) {
-+		if (sscanf(indio_dev->name, "adis%u\n", &device_id) != 1) {
- 			ret = -EINVAL;
- 			goto err_ret;
- 		}
-diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
-index 5ec0042bc384..b6867a8915da 100644
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -502,6 +502,19 @@ static void b53_imp_vlan_setup(struct dsa_switch *ds, int cpu_port)
- 	}
- }
- 
-+static void b53_port_set_learning(struct b53_device *dev, int port,
-+				  bool learning)
-+{
-+	u16 reg;
-+
-+	b53_read16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, &reg);
-+	if (learning)
-+		reg &= ~BIT(port);
-+	else
-+		reg |= BIT(port);
-+	b53_write16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, reg);
-+}
-+
- static int b53_enable_port(struct dsa_switch *ds, int port,
- 			   struct phy_device *phy)
- {
-@@ -509,6 +522,8 @@ static int b53_enable_port(struct dsa_switch *ds, int port,
- 	unsigned int cpu_port = dev->cpu_port;
- 	u16 pvlan;
- 
-+	b53_port_set_learning(dev, port, false);
-+
- 	/* Clear the Rx and Tx disable bits and set to no spanning tree */
- 	b53_write8(dev, B53_CTRL_PAGE, B53_PORT_CTRL(port), 0);
- 
-@@ -552,6 +567,8 @@ static void b53_enable_cpu_port(struct b53_device *dev)
- 		    PORT_CTRL_RX_MCST_EN |
- 		    PORT_CTRL_RX_UCST_EN;
- 	b53_write8(dev, B53_CTRL_PAGE, B53_PORT_CTRL(cpu_port), port_ctrl);
-+
-+	b53_port_set_learning(dev, cpu_port, false);
- }
- 
- static void b53_enable_mib(struct b53_device *dev)
-@@ -1375,6 +1392,8 @@ static int b53_br_join(struct dsa_switch *ds, int port,
- 	b53_write16(dev, B53_PVLAN_PAGE, B53_PVLAN_PORT_MASK(port), pvlan);
- 	dev->ports[port].vlan_ctl_mask = pvlan;
- 
-+	b53_port_set_learning(dev, port, true);
-+
- 	return 0;
- }
- 
-@@ -1426,6 +1445,7 @@ static void b53_br_leave(struct dsa_switch *ds, int port)
- 		vl->untag |= BIT(port) | BIT(dev->cpu_port);
- 		b53_set_vlan_entry(dev, pvid, vl);
- 	}
-+	b53_port_set_learning(dev, port, false);
- }
- 
- static void b53_br_set_stp_state(struct dsa_switch *ds, int port, u8 state)
-diff --git a/drivers/net/dsa/b53/b53_regs.h b/drivers/net/dsa/b53/b53_regs.h
-index 3cf246c6bdcc..aed70e76006d 100644
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -112,6 +112,7 @@
- #define B53_UC_FLOOD_MASK		0x32
- #define B53_MC_FLOOD_MASK		0x34
- #define B53_IPMC_FLOOD_MASK		0x36
-+#define B53_DIS_LEARNING		0x3c
- 
- /*
-  * Override Ports 0-7 State on devices with xMII interfaces (8 bit)
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index a3742a3b413c..0c69d5858558 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -224,6 +224,11 @@ static int bcm_sf2_port_setup(struct dsa_switch *ds, int port,
- 	reg &= ~P_TXQ_PSM_VDD(port);
- 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
- 
-+	/* Disable learning */
-+	reg = core_readl(priv, CORE_DIS_LEARN);
-+	reg |= BIT(port);
-+	core_writel(priv, reg, CORE_DIS_LEARN);
-+
- 	/* Clear the Rx and Tx disable bits and set to no spanning tree */
- 	core_writel(priv, 0, CORE_G_PCTL_PORT(port));
- 
-diff --git a/drivers/net/dsa/bcm_sf2_regs.h b/drivers/net/dsa/bcm_sf2_regs.h
-index 838fe373cd6f..ca1d1f2e1161 100644
---- a/drivers/net/dsa/bcm_sf2_regs.h
-+++ b/drivers/net/dsa/bcm_sf2_regs.h
-@@ -138,6 +138,8 @@
- #define CORE_SWITCH_CTRL		0x00088
- #define  MII_DUMB_FWDG_EN		(1 << 6)
- 
-+#define CORE_DIS_LEARN			0x000f0
-+
- #define CORE_SFT_LRN_CTRL		0x000f8
- #define  SW_LEARN_CNTL(x)		(1 << (x))
- 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe.h b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-index b06e32d0d22a..293ff8cc6994 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-@@ -991,6 +991,7 @@ void ixgbe_ptp_suspend(struct ixgbe_adapter *adapter);
- void ixgbe_ptp_stop(struct ixgbe_adapter *adapter);
- void ixgbe_ptp_overflow_check(struct ixgbe_adapter *adapter);
- void ixgbe_ptp_rx_hang(struct ixgbe_adapter *adapter);
-+void ixgbe_ptp_tx_hang(struct ixgbe_adapter *adapter);
- void ixgbe_ptp_rx_pktstamp(struct ixgbe_q_vector *, struct sk_buff *);
- void ixgbe_ptp_rx_rgtstamp(struct ixgbe_q_vector *, struct sk_buff *skb);
- static inline void ixgbe_ptp_rx_hwtstamp(struct ixgbe_ring *rx_ring,
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index 4c729faeb713..36d73bf32f4f 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -7257,7 +7257,9 @@ static void ixgbe_service_task(struct work_struct *work)
- 
- 	if (test_bit(__IXGBE_PTP_RUNNING, &adapter->state)) {
- 		ixgbe_ptp_overflow_check(adapter);
--		ixgbe_ptp_rx_hang(adapter);
-+		if (adapter->flags & IXGBE_FLAG_RX_HWTSTAMP_IN_REGISTER)
-+			ixgbe_ptp_rx_hang(adapter);
-+		ixgbe_ptp_tx_hang(adapter);
- 	}
- 
- 	ixgbe_service_event_complete(adapter);
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-index a92277683a64..a93a1b3bb8e4 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-@@ -662,6 +662,33 @@ static void ixgbe_ptp_clear_tx_timestamp(struct ixgbe_adapter *adapter)
- 	clear_bit_unlock(__IXGBE_PTP_TX_IN_PROGRESS, &adapter->state);
- }
- 
-+/**
-+ * ixgbe_ptp_tx_hang - detect error case where Tx timestamp never finishes
-+ * @adapter: private network adapter structure
-+ */
-+void ixgbe_ptp_tx_hang(struct ixgbe_adapter *adapter)
-+{
-+	bool timeout = time_is_before_jiffies(adapter->ptp_tx_start +
-+					      IXGBE_PTP_TX_TIMEOUT);
-+
-+	if (!adapter->ptp_tx_skb)
-+		return;
-+
-+	if (!test_bit(__IXGBE_PTP_TX_IN_PROGRESS, &adapter->state))
-+		return;
-+
-+	/* If we haven't received a timestamp within the timeout, it is
-+	 * reasonable to assume that it will never occur, so we can unlock the
-+	 * timestamp bit when this occurs.
-+	 */
-+	if (timeout) {
-+		cancel_work_sync(&adapter->ptp_tx_work);
-+		ixgbe_ptp_clear_tx_timestamp(adapter);
-+		adapter->tx_hwtstamp_timeouts++;
-+		e_warn(drv, "clearing Tx timestamp hang\n");
-+	}
-+}
-+
- /**
-  * ixgbe_ptp_tx_hwtstamp - utility function which checks for TX time stamp
-  * @adapter: the private adapter struct
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 4b58f352c0c9..fb2461cc3c69 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -574,9 +574,20 @@ static void nvmet_start_ctrl(struct nvmet_ctrl *ctrl)
- {
- 	lockdep_assert_held(&ctrl->lock);
- 
--	if (nvmet_cc_iosqes(ctrl->cc) != NVME_NVM_IOSQES ||
--	    nvmet_cc_iocqes(ctrl->cc) != NVME_NVM_IOCQES ||
--	    nvmet_cc_mps(ctrl->cc) != 0 ||
-+	/*
-+	 * Only I/O controllers should verify iosqes,iocqes.
-+	 * Strictly speaking, the spec says a discovery controller
-+	 * should verify iosqes,iocqes are zeroed, however that
-+	 * would break backwards compatibility, so don't enforce it.
-+	 */
-+	if (ctrl->subsys->type != NVME_NQN_DISC &&
-+	    (nvmet_cc_iosqes(ctrl->cc) != NVME_NVM_IOSQES ||
-+	     nvmet_cc_iocqes(ctrl->cc) != NVME_NVM_IOCQES)) {
-+		ctrl->csts = NVME_CSTS_CFS;
-+		return;
-+	}
-+
-+	if (nvmet_cc_mps(ctrl->cc) != 0 ||
- 	    nvmet_cc_ams(ctrl->cc) != 0 ||
- 	    nvmet_cc_css(ctrl->cc) != 0) {
- 		ctrl->csts = NVME_CSTS_CFS;
-diff --git a/drivers/pci/hotplug/rpadlpar_sysfs.c b/drivers/pci/hotplug/rpadlpar_sysfs.c
-index a796301ea03f..ca9d832bd9f8 100644
---- a/drivers/pci/hotplug/rpadlpar_sysfs.c
-+++ b/drivers/pci/hotplug/rpadlpar_sysfs.c
-@@ -39,12 +39,11 @@ static ssize_t add_slot_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
- 
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
- 
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_add_slot(drc_name);
- 	if (rc)
-@@ -70,12 +69,11 @@ static ssize_t remove_slot_store(struct kobject *kobj,
- 	if (nbytes >= MAX_DRC_NAME_LEN)
- 		return 0;
- 
--	memcpy(drc_name, buf, nbytes);
-+	strscpy(drc_name, buf, nbytes + 1);
- 
- 	end = strchr(drc_name, '\n');
--	if (!end)
--		end = &drc_name[nbytes];
--	*end = '\0';
-+	if (end)
-+		*end = '\0';
- 
- 	rc = dlpar_remove_slot(drc_name);
- 	if (rc)
-diff --git a/drivers/scsi/lpfc/lpfc_debugfs.c b/drivers/scsi/lpfc/lpfc_debugfs.c
-index a63542bac153..feb00585a7a4 100644
---- a/drivers/scsi/lpfc/lpfc_debugfs.c
-+++ b/drivers/scsi/lpfc/lpfc_debugfs.c
-@@ -1061,7 +1061,7 @@ lpfc_debugfs_dif_err_write(struct file *file, const char __user *buf,
- 	memset(dstbuf, 0, 33);
- 	size = (nbytes < 32) ? nbytes : 32;
- 	if (copy_from_user(dstbuf, buf, size))
--		return 0;
-+		return -EFAULT;
- 
- 	if (dent == phba->debug_InjErrLBA) {
- 		if ((buf[0] == 'o') && (buf[1] == 'f') && (buf[2] == 'f'))
-@@ -1069,7 +1069,7 @@ lpfc_debugfs_dif_err_write(struct file *file, const char __user *buf,
- 	}
- 
- 	if ((tmp == 0) && (kstrtoull(dstbuf, 0, &tmp)))
--		return 0;
-+		return -EINVAL;
- 
- 	if (dent == phba->debug_writeGuard)
- 		phba->lpfc_injerr_wgrd_cnt = (uint32_t)tmp;
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index c574bf981140..f33635ab967f 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1076,7 +1076,7 @@ static void collect_langs(struct usb_gadget_strings **sp, __le16 *buf)
- 	while (*sp) {
- 		s = *sp;
- 		language = cpu_to_le16(s->language);
--		for (tmp = buf; *tmp && tmp < &buf[126]; tmp++) {
-+		for (tmp = buf; *tmp && tmp < &buf[USB_MAX_STRING_LEN]; tmp++) {
- 			if (*tmp == language)
- 				goto repeat;
- 		}
-@@ -1151,7 +1151,7 @@ static int get_string(struct usb_composite_dev *cdev,
- 			collect_langs(sp, s->wData);
- 		}
- 
--		for (len = 0; len <= 126 && s->wData[len]; len++)
-+		for (len = 0; len <= USB_MAX_STRING_LEN && s->wData[len]; len++)
- 			continue;
- 		if (!len)
- 			return -EINVAL;
-diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
-index 0aa1b8fa9b47..fe1b54a8fb0c 100644
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -108,21 +108,27 @@ struct gadget_config_name {
- 	struct list_head list;
- };
- 
-+#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
-+
- static int usb_string_copy(const char *s, char **s_copy)
- {
- 	int ret;
- 	char *str;
- 	char *copy = *s_copy;
- 	ret = strlen(s);
--	if (ret > 126)
-+	if (ret > USB_MAX_STRING_LEN)
- 		return -EOVERFLOW;
- 
--	str = kstrdup(s, GFP_KERNEL);
--	if (!str)
--		return -ENOMEM;
-+	if (copy) {
-+		str = copy;
-+	} else {
-+		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
-+		if (!str)
-+			return -ENOMEM;
-+	}
-+	strcpy(str, s);
- 	if (str[ret - 1] == '\n')
- 		str[ret - 1] = '\0';
--	kfree(copy);
- 	*s_copy = str;
- 	return 0;
- }
-diff --git a/drivers/usb/gadget/usbstring.c b/drivers/usb/gadget/usbstring.c
-index 73a4dfba0edb..0173a9969b9a 100644
---- a/drivers/usb/gadget/usbstring.c
-+++ b/drivers/usb/gadget/usbstring.c
-@@ -59,9 +59,9 @@ usb_gadget_get_string (struct usb_gadget_strings *table, int id, u8 *buf)
- 		return -EINVAL;
- 
- 	/* string descriptors have length, tag, then UTF16-LE text */
--	len = min ((size_t) 126, strlen (s->s));
-+	len = min((size_t)USB_MAX_STRING_LEN, strlen(s->s));
- 	len = utf8s_to_utf16s(s->s, len, UTF16_LITTLE_ENDIAN,
--			(wchar_t *) &buf[2], 126);
-+			(wchar_t *) &buf[2], USB_MAX_STRING_LEN);
- 	if (len < 0)
- 		return -EINVAL;
- 	buf [0] = (len + 1) * 2;
-diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
-index 0eebd0bd6bc0..cad06c60ad66 100644
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1422,7 +1422,9 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
- 			btrfs_warn(root->fs_info,
- 				"failed to read tree block %llu from get_old_root", logical);
- 		} else {
-+			btrfs_tree_read_lock(old);
- 			eb = btrfs_clone_extent_buffer(old);
-+			btrfs_tree_read_unlock(old);
- 			free_extent_buffer(old);
- 		}
- 	} else if (old_root) {
-diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-index 45c7b0f9a8e3..c50dcda7b708 100644
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -23,6 +23,7 @@ struct ext4_system_zone {
- 	struct rb_node	node;
- 	ext4_fsblk_t	start_blk;
- 	unsigned int	count;
-+	u32		ino;
- };
- 
- static struct kmem_cache *ext4_system_zone_cachep;
-@@ -43,7 +44,8 @@ void ext4_exit_system_zone(void)
- static inline int can_merge(struct ext4_system_zone *entry1,
- 		     struct ext4_system_zone *entry2)
- {
--	if ((entry1->start_blk + entry1->count) == entry2->start_blk)
-+	if ((entry1->start_blk + entry1->count) == entry2->start_blk &&
-+	    entry1->ino == entry2->ino)
- 		return 1;
- 	return 0;
- }
-@@ -55,9 +57,9 @@ static inline int can_merge(struct ext4_system_zone *entry1,
-  */
- static int add_system_zone(struct ext4_sb_info *sbi,
- 			   ext4_fsblk_t start_blk,
--			   unsigned int count)
-+			   unsigned int count, u32 ino)
- {
--	struct ext4_system_zone *new_entry = NULL, *entry;
-+	struct ext4_system_zone *new_entry, *entry;
- 	struct rb_node **n = &sbi->system_blks.rb_node, *node;
- 	struct rb_node *parent = NULL, *new_node = NULL;
- 
-@@ -68,30 +70,21 @@ static int add_system_zone(struct ext4_sb_info *sbi,
- 			n = &(*n)->rb_left;
- 		else if (start_blk >= (entry->start_blk + entry->count))
- 			n = &(*n)->rb_right;
--		else {
--			if (start_blk + count > (entry->start_blk +
--						 entry->count))
--				entry->count = (start_blk + count -
--						entry->start_blk);
--			new_node = *n;
--			new_entry = rb_entry(new_node, struct ext4_system_zone,
--					     node);
--			break;
--		}
-+		else	/* Unexpected overlap of system zones. */
-+			return -EFSCORRUPTED;
- 	}
- 
--	if (!new_entry) {
--		new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
--					     GFP_KERNEL);
--		if (!new_entry)
--			return -ENOMEM;
--		new_entry->start_blk = start_blk;
--		new_entry->count = count;
--		new_node = &new_entry->node;
-+	new_entry = kmem_cache_alloc(ext4_system_zone_cachep,
-+				     GFP_KERNEL);
-+	if (!new_entry)
-+		return -ENOMEM;
-+	new_entry->start_blk = start_blk;
-+	new_entry->count = count;
-+	new_entry->ino = ino;
-+	new_node = &new_entry->node;
- 
--		rb_link_node(new_node, parent, n);
--		rb_insert_color(new_node, &sbi->system_blks);
--	}
-+	rb_link_node(new_node, parent, n);
-+	rb_insert_color(new_node, &sbi->system_blks);
- 
- 	/* Can we merge to the left? */
- 	node = rb_prev(new_node);
-@@ -163,16 +156,16 @@ static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
- 		if (n == 0) {
- 			i++;
- 		} else {
--			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
--				ext4_error(sb, "blocks %llu-%llu from inode %u "
-+			err = add_system_zone(sbi, map.m_pblk, n, ino);
-+			if (err < 0) {
-+				if (err == -EFSCORRUPTED) {
-+					ext4_error(sb,
-+					   "blocks %llu-%llu from inode %u "
- 					   "overlap system zone", map.m_pblk,
- 					   map.m_pblk + map.m_len - 1, ino);
--				err = -EFSCORRUPTED;
-+				}
- 				break;
- 			}
--			err = add_system_zone(sbi, map.m_pblk, n);
--			if (err < 0)
--				break;
- 			i += n;
- 		}
- 	}
-@@ -201,16 +194,16 @@ int ext4_setup_system_zone(struct super_block *sb)
- 		if (ext4_bg_has_super(sb, i) &&
- 		    ((i < 5) || ((i % flex_size) == 0)))
- 			add_system_zone(sbi, ext4_group_first_block_no(sb, i),
--					ext4_bg_num_gdb(sb, i) + 1);
-+					ext4_bg_num_gdb(sb, i) + 1, 0);
- 		gdp = ext4_get_group_desc(sb, i, NULL);
--		ret = add_system_zone(sbi, ext4_block_bitmap(sb, gdp), 1);
-+		ret = add_system_zone(sbi, ext4_block_bitmap(sb, gdp), 1, 0);
- 		if (ret)
- 			return ret;
--		ret = add_system_zone(sbi, ext4_inode_bitmap(sb, gdp), 1);
-+		ret = add_system_zone(sbi, ext4_inode_bitmap(sb, gdp), 1, 0);
- 		if (ret)
- 			return ret;
- 		ret = add_system_zone(sbi, ext4_inode_table(sb, gdp),
--				sbi->s_itb_per_group);
-+				sbi->s_itb_per_group, 0);
- 		if (ret)
- 			return ret;
- 	}
-@@ -243,10 +236,11 @@ void ext4_release_system_zone(struct super_block *sb)
-  * start_blk+count) is valid; 0 if some part of the block region
-  * overlaps with filesystem metadata blocks.
-  */
--int ext4_data_block_valid(struct ext4_sb_info *sbi, ext4_fsblk_t start_blk,
--			  unsigned int count)
-+int ext4_inode_block_valid(struct inode *inode, ext4_fsblk_t start_blk,
-+			   unsigned int count)
- {
- 	struct ext4_system_zone *entry;
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	struct rb_node *n = sbi->system_blks.rb_node;
- 
- 	if ((start_blk <= le32_to_cpu(sbi->s_es->s_first_data_block)) ||
-@@ -262,6 +256,8 @@ int ext4_data_block_valid(struct ext4_sb_info *sbi, ext4_fsblk_t start_blk,
- 		else if (start_blk >= (entry->start_blk + entry->count))
- 			n = n->rb_right;
- 		else {
-+			if (entry->ino == inode->i_ino)
-+				return 1;
- 			sbi->s_es->s_last_error_block = cpu_to_le64(start_blk);
- 			return 0;
- 		}
-@@ -284,8 +280,7 @@ int ext4_check_blockref(const char *function, unsigned int line,
- 	while (bref < p+max) {
- 		blk = le32_to_cpu(*bref++);
- 		if (blk &&
--		    unlikely(!ext4_data_block_valid(EXT4_SB(inode->i_sb),
--						    blk, 1))) {
-+		    unlikely(!ext4_inode_block_valid(inode, blk, 1))) {
- 			es->s_last_error_block = cpu_to_le64(blk);
- 			ext4_error_inode(inode, function, line, blk,
- 					 "invalid block");
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 54a7f3b8b1bf..1b62bd9e7312 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3136,9 +3136,9 @@ extern void ext4_release_system_zone(struct super_block *sb);
- extern int ext4_setup_system_zone(struct super_block *sb);
- extern int __init ext4_init_system_zone(void);
- extern void ext4_exit_system_zone(void);
--extern int ext4_data_block_valid(struct ext4_sb_info *sbi,
--				 ext4_fsblk_t start_blk,
--				 unsigned int count);
-+extern int ext4_inode_block_valid(struct inode *inode,
-+				  ext4_fsblk_t start_blk,
-+				  unsigned int count);
- extern int ext4_check_blockref(const char *, unsigned int,
- 			       struct inode *, __le32 *, unsigned int);
- 
-diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index ab19f61bd04b..7f291b7be7f3 100644
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -389,7 +389,7 @@ static int ext4_valid_extent(struct inode *inode, struct ext4_extent *ext)
- 	 */
- 	if (lblock + len <= lblock)
- 		return 0;
--	return ext4_data_block_valid(EXT4_SB(inode->i_sb), block, len);
-+	return ext4_inode_block_valid(inode, block, len);
- }
- 
- static int ext4_valid_extent_idx(struct inode *inode,
-@@ -397,7 +397,7 @@ static int ext4_valid_extent_idx(struct inode *inode,
- {
- 	ext4_fsblk_t block = ext4_idx_pblock(ext_idx);
- 
--	return ext4_data_block_valid(EXT4_SB(inode->i_sb), block, 1);
-+	return ext4_inode_block_valid(inode, block, 1);
- }
- 
- static int ext4_valid_extent_entries(struct inode *inode,
-@@ -554,14 +554,10 @@ __read_extent_tree_block(const char *function, unsigned int line,
- 	}
- 	if (buffer_verified(bh) && !(flags & EXT4_EX_FORCE_CACHE))
- 		return bh;
--	if (!ext4_has_feature_journal(inode->i_sb) ||
--	    (inode->i_ino !=
--	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum))) {
--		err = __ext4_ext_check(function, line, inode,
--				       ext_block_hdr(bh), depth, pblk);
--		if (err)
--			goto errout;
--	}
-+	err = __ext4_ext_check(function, line, inode,
-+			       ext_block_hdr(bh), depth, pblk);
-+	if (err)
-+		goto errout;
- 	set_buffer_verified(bh);
- 	/*
- 	 * If this is a leaf block, cache all of its entries
-diff --git a/fs/ext4/indirect.c b/fs/ext4/indirect.c
-index d2844fe9040d..ff7e1ac6ee53 100644
---- a/fs/ext4/indirect.c
-+++ b/fs/ext4/indirect.c
-@@ -840,8 +840,7 @@ static int ext4_clear_blocks(handle_t *handle, struct inode *inode,
- 	else if (ext4_should_journal_data(inode))
- 		flags |= EXT4_FREE_BLOCKS_FORGET;
- 
--	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), block_to_free,
--				   count)) {
-+	if (!ext4_inode_block_valid(inode, block_to_free, count)) {
- 		EXT4_ERROR_INODE(inode, "attempt to clear invalid "
- 				 "blocks %llu len %lu",
- 				 (unsigned long long) block_to_free, count);
-@@ -1003,8 +1002,7 @@ static void ext4_free_branches(handle_t *handle, struct inode *inode,
- 			if (!nr)
- 				continue;		/* A hole */
- 
--			if (!ext4_data_block_valid(EXT4_SB(inode->i_sb),
--						   nr, 1)) {
-+			if (!ext4_inode_block_valid(inode, nr, 1)) {
- 				EXT4_ERROR_INODE(inode,
- 						 "invalid indirect mapped "
- 						 "block %lu (level %d)",
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index ccce89de6d7e..aa97a3ed3d8f 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -378,8 +378,7 @@ static int __check_block_validity(struct inode *inode, const char *func,
- 	    (inode->i_ino ==
- 	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
- 		return 0;
--	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
--				   map->m_len)) {
-+	if (!ext4_inode_block_valid(inode, map->m_pblk, map->m_len)) {
- 		ext4_error_inode(inode, func, line, map->m_pblk,
- 				 "lblock %lu mapped to illegal pblock %llu "
- 				 "(length %d)", (unsigned long) map->m_lblk,
-@@ -4704,7 +4703,7 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
- 
- 	ret = 0;
- 	if (ei->i_file_acl &&
--	    !ext4_data_block_valid(EXT4_SB(sb), ei->i_file_acl, 1)) {
-+	    !ext4_inode_block_valid(inode, ei->i_file_acl, 1)) {
- 		ext4_error_inode(inode, function, line, 0,
- 				 "iget: bad extended attribute block %llu",
- 				 ei->i_file_acl);
-@@ -4894,7 +4893,7 @@ static int ext4_do_update_inode(handle_t *handle,
- 	struct ext4_inode_info *ei = EXT4_I(inode);
- 	struct buffer_head *bh = iloc->bh;
- 	struct super_block *sb = inode->i_sb;
--	int err = 0, rc, block;
-+	int err = 0, block;
- 	int need_datasync = 0, set_large_file = 0;
- 	uid_t i_uid;
- 	gid_t i_gid;
-@@ -5004,9 +5003,9 @@ static int ext4_do_update_inode(handle_t *handle,
- 					      bh->b_data);
- 
- 	BUFFER_TRACE(bh, "call ext4_handle_dirty_metadata");
--	rc = ext4_handle_dirty_metadata(handle, NULL, bh);
--	if (!err)
--		err = rc;
-+	err = ext4_handle_dirty_metadata(handle, NULL, bh);
-+	if (err)
-+		goto out_brelse;
- 	ext4_clear_inode_state(inode, EXT4_STATE_NEW);
- 	if (set_large_file) {
- 		BUFFER_TRACE(EXT4_SB(sb)->s_sbh, "get write access");
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 1d543f8b3814..807331da9dfc 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -2963,7 +2963,7 @@ ext4_mb_mark_diskspace_used(struct ext4_allocation_context *ac,
- 	block = ext4_grp_offs_to_block(sb, &ac->ac_b_ex);
- 
- 	len = EXT4_C2B(sbi, ac->ac_b_ex.fe_len);
--	if (!ext4_data_block_valid(sbi, block, len)) {
-+	if (!ext4_inode_block_valid(ac->ac_inode, block, len)) {
- 		ext4_error(sb, "Allocating blocks %llu-%llu which overlap "
- 			   "fs metadata", block, block+len);
- 		/* File system mounted not to panic on error
-@@ -4725,7 +4725,7 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
- 
- 	sbi = EXT4_SB(sb);
- 	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
--	    !ext4_data_block_valid(sbi, block, count)) {
-+	    !ext4_inode_block_valid(inode, block, count)) {
- 		ext4_error(sb, "Freeing blocks not in datazone - "
- 			   "block = %llu, count = %lu", block, count);
- 		goto error_return;
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 6224b0e6fb64..e6e3eb8dd4d6 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3425,6 +3425,31 @@ static int ext4_setent(handle_t *handle, struct ext4_renament *ent,
- 	return 0;
- }
- 
-+static void ext4_resetent(handle_t *handle, struct ext4_renament *ent,
-+			  unsigned ino, unsigned file_type)
-+{
-+	struct ext4_renament old = *ent;
-+	int retval = 0;
-+
-+	/*
-+	 * old->de could have moved from under us during make indexed dir,
-+	 * so the old->de may no longer valid and need to find it again
-+	 * before reset old inode info.
-+	 */
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	if (IS_ERR(old.bh))
-+		retval = PTR_ERR(old.bh);
-+	if (!old.bh)
-+		retval = -ENOENT;
-+	if (retval) {
-+		ext4_std_error(old.dir->i_sb, retval);
-+		return;
-+	}
-+
-+	ext4_setent(handle, &old, ino, file_type);
-+	brelse(old.bh);
-+}
-+
- static int ext4_find_delete_entry(handle_t *handle, struct inode *dir,
- 				  const struct qstr *d_name)
- {
-@@ -3734,8 +3759,8 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- end_rename:
- 	if (whiteout) {
- 		if (retval) {
--			ext4_setent(handle, &old,
--				old.inode->i_ino, old_file_type);
-+			ext4_resetent(handle, &old,
-+				      old.inode->i_ino, old_file_type);
- 			drop_nlink(whiteout);
- 		}
- 		unlock_new_inode(whiteout);
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 84d28d3efc60..f70c5541d718 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5148,7 +5148,10 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 		ext4_register_li_request(sb, first_not_zeroed);
- 	}
- 
--	ext4_setup_system_zone(sb);
-+	err = ext4_setup_system_zone(sb);
-+	if (err)
-+		goto restore_opts;
-+
- 	if (sbi->s_journal == NULL && !(old_sb_flags & MS_RDONLY))
- 		ext4_commit_super(sb, 1);
- 
-diff --git a/fs/select.c b/fs/select.c
-index 3d4f85defeab..de675c79f479 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -961,10 +961,9 @@ static long do_restart_poll(struct restart_block *restart_block)
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	if (ret == -EINTR) {
--		restart_block->fn = do_restart_poll;
--		ret = -ERESTART_RESTARTBLOCK;
--	}
-+	if (ret == -EINTR)
-+		ret = set_restart_fn(restart_block, do_restart_poll);
-+
- 	return ret;
- }
- 
-@@ -986,7 +985,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __user *, ufds, unsigned int, nfds,
- 		struct restart_block *restart_block;
- 
- 		restart_block = &current->restart_block;
--		restart_block->fn = do_restart_poll;
- 		restart_block->poll.ufds = ufds;
- 		restart_block->poll.nfds = nfds;
- 
-@@ -997,7 +995,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __user *, ufds, unsigned int, nfds,
- 		} else
- 			restart_block->poll.has_timeout = 0;
- 
--		ret = -ERESTART_RESTARTBLOCK;
-+		ret = set_restart_fn(restart_block, do_restart_poll);
- 	}
- 	return ret;
- }
-diff --git a/include/linux/thread_info.h b/include/linux/thread_info.h
-index 5e6436741f96..330794252270 100644
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -9,6 +9,7 @@
- 
- #include <linux/types.h>
- #include <linux/bug.h>
-+#include <linux/errno.h>
- 
- struct timespec;
- struct compat_timespec;
-@@ -59,6 +60,18 @@ extern long do_no_restart_syscall(struct restart_block *parm);
- 
- #ifdef __KERNEL__
- 
-+#ifndef arch_set_restart_data
-+#define arch_set_restart_data(restart) do { } while (0)
-+#endif
-+
-+static inline long set_restart_fn(struct restart_block *restart,
-+					long (*fn)(struct restart_block *))
-+{
-+	restart->fn = fn;
-+	arch_set_restart_data(restart);
-+	return -ERESTART_RESTARTBLOCK;
-+}
-+
- #define THREADINFO_GFP	(GFP_KERNEL_ACCOUNT | __GFP_NOTRACK | __GFP_ZERO)
- 
- /*
-diff --git a/include/uapi/linux/usb/ch9.h b/include/uapi/linux/usb/ch9.h
-index 33c603dd7cd3..8e0e6d3091f1 100644
---- a/include/uapi/linux/usb/ch9.h
-+++ b/include/uapi/linux/usb/ch9.h
-@@ -358,6 +358,9 @@ struct usb_config_descriptor {
- 
- /*-------------------------------------------------------------------------*/
- 
-+/* USB String descriptors can contain at most 126 characters. */
-+#define USB_MAX_STRING_LEN	126
-+
- /* USB_DT_STRING: String descriptor */
- struct usb_string_descriptor {
- 	__u8  bLength;
-diff --git a/kernel/futex.c b/kernel/futex.c
-index 0015c14ac2c0..796b1c860839 100644
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2822,14 +2822,13 @@ static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
- 		goto out;
- 
- 	restart = &current->restart_block;
--	restart->fn = futex_wait_restart;
- 	restart->futex.uaddr = uaddr;
- 	restart->futex.val = val;
- 	restart->futex.time = abs_time->tv64;
- 	restart->futex.bitset = bitset;
- 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
- 
--	ret = -ERESTART_RESTARTBLOCK;
-+	ret = set_restart_fn(restart, futex_wait_restart);
- 
- out:
- 	if (to) {
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index b2fc2a581b86..33770ef64d21 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -886,11 +886,15 @@ irq_forced_thread_fn(struct irq_desc *desc, struct irqaction *action)
- 	irqreturn_t ret;
- 
- 	local_bh_disable();
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT_BASE))
-+		local_irq_disable();
- 	ret = action->thread_fn(action->irq, action->dev_id);
- 	if (ret == IRQ_HANDLED)
- 		atomic_inc(&desc->threads_handled);
- 
- 	irq_finalize_oneshot(desc, action);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT_BASE))
-+		local_irq_enable();
- 	local_bh_enable();
- 	return ret;
- }
-diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
-index 6aef4a0bed29..d06c1d8dd4d2 100644
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -809,10 +809,10 @@ static int alarm_timer_nsleep(const clockid_t which_clock, int flags,
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = alarm_timer_nsleep_restart;
- 	restart->nanosleep.clockid = type;
- 	restart->nanosleep.expires = exp.tv64;
- 	restart->nanosleep.rmtp = rmtp;
-+	set_restart_fn(restart, alarm_timer_nsleep_restart);
- 	ret = -ERESTART_RESTARTBLOCK;
- 
- out:
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index f31637ced7fa..df7750e03242 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1582,10 +1582,10 @@ long hrtimer_nanosleep(struct timespec *rqtp, struct timespec __user *rmtp,
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = hrtimer_nanosleep_restart;
- 	restart->nanosleep.clockid = t.timer.base->clockid;
- 	restart->nanosleep.rmtp = rmtp;
- 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
-+	set_restart_fn(restart, hrtimer_nanosleep_restart);
- 
- 	ret = -ERESTART_RESTARTBLOCK;
- out:
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 21a27bb73587..9fff077d0ffc 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1377,10 +1377,10 @@ static int posix_cpu_nsleep(const clockid_t which_clock, int flags,
- 		if (rmtp && copy_to_user(rmtp, &it.it_value, sizeof *rmtp))
- 			return -EFAULT;
- 
--		restart_block->fn = posix_cpu_nsleep_restart;
- 		restart_block->nanosleep.clockid = which_clock;
- 		restart_block->nanosleep.rmtp = rmtp;
- 		restart_block->nanosleep.expires = timespec_to_ns(rqtp);
-+		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
- 	}
- 	return error;
- }
-diff --git a/net/qrtr/qrtr.c b/net/qrtr/qrtr.c
-index a8253079902f..d62b7a7f65bb 100644
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -232,7 +232,7 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
- 	if (dst != QRTR_PORT_CTRL && type != QRTR_TYPE_DATA)
- 		return -EINVAL;
- 
--	skb = netdev_alloc_skb(NULL, len);
-+	skb = __netdev_alloc_skb(NULL, len, GFP_ATOMIC | __GFP_NOWARN);
- 	if (!skb)
- 		return -ENOMEM;
- 
-diff --git a/net/sunrpc/svc.c b/net/sunrpc/svc.c
-index eea18a124e4f..ab6b7852a11c 100644
---- a/net/sunrpc/svc.c
-+++ b/net/sunrpc/svc.c
-@@ -1306,7 +1306,7 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
- 
-  sendit:
- 	if (svc_authorise(rqstp))
--		goto close;
-+		goto close_xprt;
- 	return 1;		/* Caller can now send it */
- 
-  dropit:
-@@ -1315,6 +1315,8 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
- 	return 0;
- 
-  close:
-+	svc_authorise(rqstp);
-+close_xprt:
- 	if (rqstp->rq_xprt && test_bit(XPT_TEMP, &rqstp->rq_xprt->xpt_flags))
- 		svc_close_xprt(rqstp->rq_xprt);
- 	dprintk("svc: svc_process close\n");
-@@ -1323,7 +1325,7 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
- err_short_len:
- 	svc_printk(rqstp, "short len %Zd, dropping request\n",
- 			argv->iov_len);
--	goto close;
-+	goto close_xprt;
- 
- err_bad_rpc:
- 	serv->sv_stats->rpcbadfmt++;
-diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
-index 56e4ac8e2e99..7d366f6bef86 100644
---- a/net/sunrpc/svc_xprt.c
-+++ b/net/sunrpc/svc_xprt.c
-@@ -1104,7 +1104,7 @@ static int svc_close_list(struct svc_serv *serv, struct list_head *xprt_list, st
- 	struct svc_xprt *xprt;
- 	int ret = 0;
- 
--	spin_lock(&serv->sv_lock);
-+	spin_lock_bh(&serv->sv_lock);
- 	list_for_each_entry(xprt, xprt_list, xpt_list) {
- 		if (xprt->xpt_net != net)
- 			continue;
-@@ -1112,7 +1112,7 @@ static int svc_close_list(struct svc_serv *serv, struct list_head *xprt_list, st
- 		set_bit(XPT_CLOSE, &xprt->xpt_flags);
- 		svc_xprt_enqueue(xprt);
- 	}
--	spin_unlock(&serv->sv_lock);
-+	spin_unlock_bh(&serv->sv_lock);
- 	return ret;
- }
- 
-diff --git a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-index b3d48c6243c8..791072cd9492 100644
---- a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-@@ -328,9 +328,9 @@ xprt_setup_rdma_bc(struct xprt_create *args)
- 	xprt->timeout = &xprt_rdma_bc_timeout;
- 	xprt_set_bound(xprt);
- 	xprt_set_connected(xprt);
--	xprt->bind_timeout = RPCRDMA_BIND_TO;
--	xprt->reestablish_timeout = RPCRDMA_INIT_REEST_TO;
--	xprt->idle_timeout = RPCRDMA_IDLE_DISC_TO;
-+	xprt->bind_timeout = 0;
-+	xprt->reestablish_timeout = 0;
-+	xprt->idle_timeout = 0;
- 
- 	xprt->prot = XPRT_TRANSPORT_BC_RDMA;
- 	xprt->tsh_size = RPCRDMA_HDRLEN_MIN / sizeof(__be32);
+I'm announcing the release of the 4.14.227 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                         |    2 
+ arch/x86/events/intel/ds.c                       |    2 
+ arch/x86/include/asm/processor.h                 |    9 --
+ arch/x86/include/asm/thread_info.h               |   23 +++++++
+ arch/x86/kernel/apic/io_apic.c                   |   10 +++
+ arch/x86/kernel/signal.c                         |   24 -------
+ drivers/base/power/runtime.c                     |   62 ++++++++------------
+ drivers/iio/adc/Kconfig                          |    1 
+ drivers/iio/adc/qcom-spmi-vadc.c                 |    2 
+ drivers/iio/gyro/mpu3050-core.c                  |    2 
+ drivers/iio/humidity/hid-sensor-humidity.c       |   12 ++-
+ drivers/iio/imu/adis16400_core.c                 |    3 
+ drivers/iio/light/hid-sensor-prox.c              |   13 +++-
+ drivers/iio/temperature/hid-sensor-temperature.c |   14 ++--
+ drivers/net/dsa/b53/b53_common.c                 |   20 ++++++
+ drivers/net/dsa/b53/b53_regs.h                   |    1 
+ drivers/net/dsa/bcm_sf2.c                        |    5 +
+ drivers/net/dsa/bcm_sf2_regs.h                   |    2 
+ drivers/nvme/host/rdma.c                         |    7 +-
+ drivers/nvme/target/core.c                       |   17 ++++-
+ drivers/pci/hotplug/rpadlpar_sysfs.c             |   14 +---
+ drivers/scsi/lpfc/lpfc_debugfs.c                 |    4 -
+ drivers/usb/gadget/composite.c                   |    4 -
+ drivers/usb/gadget/configfs.c                    |   16 +++--
+ drivers/usb/gadget/usbstring.c                   |    4 -
+ drivers/usb/storage/transport.c                  |    7 ++
+ drivers/usb/storage/unusual_devs.h               |   12 +++
+ fs/btrfs/ctree.c                                 |    2 
+ fs/ext4/block_validity.c                         |   71 ++++++++++-------------
+ fs/ext4/ext4.h                                   |    6 -
+ fs/ext4/extents.c                                |   16 +----
+ fs/ext4/indirect.c                               |    6 -
+ fs/ext4/inode.c                                  |   13 +---
+ fs/ext4/mballoc.c                                |    4 -
+ fs/ext4/namei.c                                  |   29 ++++++++-
+ fs/ext4/super.c                                  |    5 +
+ fs/ext4/xattr.c                                  |    2 
+ fs/select.c                                      |   10 +--
+ include/linux/thread_info.h                      |   13 ++++
+ include/linux/usb_usual.h                        |    2 
+ include/uapi/linux/usb/ch9.h                     |    3 
+ kernel/bpf/verifier.c                            |   33 ++++++----
+ kernel/futex.c                                   |    3 
+ kernel/irq/manage.c                              |    4 +
+ kernel/time/alarmtimer.c                         |    2 
+ kernel/time/hrtimer.c                            |    2 
+ kernel/time/posix-cpu-timers.c                   |    2 
+ net/qrtr/qrtr.c                                  |    2 
+ net/sunrpc/svc.c                                 |    6 +
+ net/sunrpc/svc_xprt.c                            |    4 -
+ net/sunrpc/xprtrdma/svc_rdma_backchannel.c       |    6 -
+ tools/build/Makefile.feature                     |    4 +
+ tools/build/feature/Makefile                     |   16 +++++
+ tools/build/feature/test-all.c                   |   20 ++++++
+ tools/build/feature/test-eventfd.c               |    9 ++
+ tools/build/feature/test-get_current_dir_name.c  |   10 +++
+ tools/build/feature/test-gettid.c                |   11 +++
+ tools/build/feature/test-pthread-barrier.c       |   12 +++
+ tools/perf/Makefile.config                       |   16 +++++
+ tools/perf/jvmti/jvmti_agent.c                   |    2 
+ tools/perf/util/Build                            |    1 
+ tools/perf/util/expr.y                           |    3 
+ tools/perf/util/get_current_dir_name.c           |   18 +++++
+ tools/perf/util/parse-events.y                   |    2 
+ tools/perf/util/srcline.c                        |   16 ++++-
+ tools/perf/util/util.h                           |    4 +
+ 66 files changed, 468 insertions(+), 214 deletions(-)
+
+Alan Stern (1):
+      usb-storage: Add quirk to defeat Kindle's automatic unload
+
+Arnaldo Carvalho de Melo (4):
+      tools build feature: Check if get_current_dir_name() is available
+      tools build feature: Check if eventfd() is available
+      tools build: Check if gettid() is available before providing helper
+      tools build feature: Check if pthread_barrier_t is available
+
+Changbin Du (1):
+      perf: Make perf able to build with latest libbfd
+
+Dan Carpenter (2):
+      scsi: lpfc: Fix some error codes in debugfs
+      iio: adis16400: Fix an error code in adis16400_initial_setup()
+
+Daniel Kobras (1):
+      sunrpc: fix refcount leak for rpc auth modules
+
+Dinghao Liu (1):
+      iio: gyro: mpu3050: Fix error handling in mpu3050_trigger_handler
+
+Filipe Manana (1):
+      btrfs: fix race when cloning extent buffer during rewind of an old root
+
+Florian Fainelli (1):
+      net: dsa: b53: Support setting learning on port
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.227
+
+Jan Kara (3):
+      ext4: handle error of ext4_setup_system_zone() on remount
+      ext4: don't allow overlapping system zones
+      ext4: check journal inode extents more carefully
+
+Jim Lin (1):
+      usb: gadget: configfs: Fix KASAN use-after-free
+
+Jiri Olsa (1):
+      perf tools: Use %define api.pure full instead of %pure-parser
+
+Joe Korty (1):
+      NFSD: Repair misuse of sv_lock in 5.10.16-rt30.
+
+Jonathan Albrieux (1):
+      iio:adc:qcom-spmi-vadc: add default scale to LR_MUX2_BAT_ID channel
+
+Jonathan Cameron (1):
+      iio:adc:stm32-adc: Add HAS_IOMEM dependency
+
+Kan Liang (1):
+      perf/x86/intel: Fix a crash caused by zero PEBS status
+
+Macpaul Lin (1):
+      USB: replace hardcode maximum usb string length by definition
+
+Oleg Nesterov (3):
+      kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+      x86: Move TS_COMPAT back to asm/thread_info.h
+      x86: Introduce TS_COMPAT_RESTART to fix get_nr_restart_syscall()
+
+Pavel Skripkin (1):
+      net/qrtr: fix __netdev_alloc_skb call
+
+Piotr Krysiuk (4):
+      bpf: Fix off-by-one for area size in creating mask to left
+      bpf: Simplify alu_limit masking for pointer arithmetic
+      bpf: Add sanity check for upper ptr_limit
+      bpf: Prohibit alu ops for pointer types not defining ptr_limit
+
+Rafael J. Wysocki (1):
+      Revert "PM: runtime: Update device status before letting suppliers suspend"
+
+Sagi Grimberg (2):
+      nvmet: don't check iosqes,iocqes for discovery controllers
+      nvme-rdma: fix possible hang when failing to set io queues
+
+Shijie Luo (1):
+      ext4: fix potential error in ext4_do_update_inode
+
+Thomas Gleixner (2):
+      x86/ioapic: Ignore IRQ2 again
+      genirq: Disable interrupts for force threaded handlers
+
+Timo Rothenpieler (1):
+      svcrdma: disable timeouts on rdma backchannel
+
+Tyrel Datwyler (1):
+      PCI: rpadlpar: Fix potential drc_name corruption in store functions
+
+Ye Xiang (3):
+      iio: hid-sensor-humidity: Fix alignment issue of timestamp channel
+      iio: hid-sensor-prox: Fix scale not correct issue
+      iio: hid-sensor-temperature: Fix issues of timestamp channel
+
+zhangyi (F) (2):
+      ext4: find old entry again if failed to rename whiteout
+      ext4: do not try to set xattr into ea_inode if value is empty
+
