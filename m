@@ -2,122 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDAA2346F90
-	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 03:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 527F1347154
+	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 07:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232096AbhCXCdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Mar 2021 22:33:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36030 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231944AbhCXCcl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Mar 2021 22:32:41 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE2DC061763;
-        Tue, 23 Mar 2021 19:32:41 -0700 (PDT)
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id F0E91883;
-        Wed, 24 Mar 2021 03:32:39 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1616553160;
-        bh=l7BD45qd1EreNw2oPGiKvtAPxI7dpJU1XkD1ZqEr9R0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=T5q51G7369lgTkBPV6hJMlzYWYozCdmLKtEGYFrjmEFkaBNH9Rnw3Uq0z46NnlOwo
-         hcSbaLCVEBIi18wZLAiEm2Ue/JNcTb1Efte23egBegX8BidBati2lzx0BObdcOK+/H
-         J/Ipten2UGI3SEPY7sqqHqrt7C1EBSl3h9sXXf/g=
-Date:   Wed, 24 Mar 2021 04:31:57 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        linux-mips@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, od@zcrc.me, stable@vger.kernel.org,
-        Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH v3 4/4] drm/ingenic: Fix non-OSD mode
-Message-ID: <YFqknayQuJQmG7lm@pendragon.ideasonboard.com>
-References: <20210124085552.29146-1-paul@crapouillou.net>
- <20210124085552.29146-5-paul@crapouillou.net>
+        id S229871AbhCXGCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Mar 2021 02:02:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39042 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229963AbhCXGBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Mar 2021 02:01:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E898601FA;
+        Wed, 24 Mar 2021 06:01:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616565714;
+        bh=qjAwgMGS0rM0MMoRcg9uYBex/xw8mgXrvFUXBUzKhXw=;
+        h=Subject:To:From:Date:From;
+        b=MM4hrHoQkE1P2AznG3COunjWnCIVNX/AK/bHg30i2v4IrDEgf1zQLwUy8wFywOF18
+         2zfuQOgwVBN9Y1GPb8dYh5bOQDxRoDwZ4clnMNlLUYA06ZhTOrFPDuexpExfSjsRGF
+         VI3pW5EngWyWjP/NPQ+0/q25dRG4Bh/GnUr0lZWY=
+Subject: patch "usb: gadget/function/f_fs string table fix for multiple languages" added to usb-next
+To:     dean@sensoray.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 24 Mar 2021 07:01:08 +0100
+Message-ID: <161656566832144@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210124085552.29146-5-paul@crapouillou.net>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paul,
 
-Thank you for the patch.
+This is a note to let you know that I've just added the patch titled
 
-On Sun, Jan 24, 2021 at 08:55:52AM +0000, Paul Cercueil wrote:
-> Even though the JZ4740 did not have the OSD mode, it had (according to
-> the documentation) two DMA channels, but there is absolutely no
-> information about how to select the second DMA channel.
-> 
-> Make the ingenic-drm driver work in non-OSD mode by using the
-> foreground0 plane (which is bound to the DMA0 channel) as the primary
-> plane, instead of the foreground1 plane, which is the primary plane
-> when in OSD mode.
-> 
-> Fixes: 3c9bea4ef32b ("drm/ingenic: Add support for OSD mode")
-> Cc: <stable@vger.kernel.org> # v5.8+
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+    usb: gadget/function/f_fs string table fix for multiple languages
 
-I don't have much knowledge about this platform, but the change looks
-reasonable to me.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
-Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-> ---
->  drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> index b23011c1c5d9..59ce43862e16 100644
-> --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> @@ -554,7 +554,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
->  		height = state->src_h >> 16;
->  		cpp = state->fb->format->cpp[0];
->  
-> -		if (priv->soc_info->has_osd && plane->type == DRM_PLANE_TYPE_OVERLAY)
-> +		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
->  			hwdesc = &priv->dma_hwdescs->hwdesc_f0;
->  		else
->  			hwdesc = &priv->dma_hwdescs->hwdesc_f1;
-> @@ -826,6 +826,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
->  	const struct jz_soc_info *soc_info;
->  	struct ingenic_drm *priv;
->  	struct clk *parent_clk;
-> +	struct drm_plane *primary;
->  	struct drm_bridge *bridge;
->  	struct drm_panel *panel;
->  	struct drm_encoder *encoder;
-> @@ -940,9 +941,11 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
->  	if (soc_info->has_osd)
->  		priv->ipu_plane = drm_plane_from_index(drm, 0);
->  
-> -	drm_plane_helper_add(&priv->f1, &ingenic_drm_plane_helper_funcs);
-> +	primary = priv->soc_info->has_osd ? &priv->f1 : &priv->f0;
->  
-> -	ret = drm_universal_plane_init(drm, &priv->f1, 1,
-> +	drm_plane_helper_add(primary, &ingenic_drm_plane_helper_funcs);
-> +
-> +	ret = drm_universal_plane_init(drm, primary, 1,
->  				       &ingenic_drm_primary_plane_funcs,
->  				       priv->soc_info->formats_f1,
->  				       priv->soc_info->num_formats_f1,
-> @@ -954,7 +957,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
->  
->  	drm_crtc_helper_add(&priv->crtc, &ingenic_drm_crtc_helper_funcs);
->  
-> -	ret = drm_crtc_init_with_planes(drm, &priv->crtc, &priv->f1,
-> +	ret = drm_crtc_init_with_planes(drm, &priv->crtc, primary,
->  					NULL, &ingenic_drm_crtc_funcs, NULL);
->  	if (ret) {
->  		dev_err(dev, "Failed to init CRTC: %i\n", ret);
+The patch will also be merged in the next major kernel release
+during the merge window.
 
+If you have any questions about this process, please let me know.
+
+
+From 55b74ce7d2ce0b0058f3e08cab185a0afacfe39e Mon Sep 17 00:00:00 2001
+From: Dean Anderson <dean@sensoray.com>
+Date: Wed, 17 Mar 2021 15:41:09 -0700
+Subject: usb: gadget/function/f_fs string table fix for multiple languages
+
+Fixes bug with the handling of more than one language in
+the string table in f_fs.c.
+str_count was not reset for subsequent language codes.
+str_count-- "rolls under" and processes u32 max strings on
+the processing of the second language entry.
+The existing bug can be reproduced by adding a second language table
+to the structure "strings" in tools/usb/ffs-test.c.
+
+Signed-off-by: Dean Anderson <dean@sensoray.com>
+Link: https://lore.kernel.org/r/20210317224109.21534-1-dean@sensoray.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/function/f_fs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 801a8b668a35..10a5d9f0f2b9 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -2640,6 +2640,7 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
+ 
+ 	do { /* lang_count > 0 so we can use do-while */
+ 		unsigned needed = needed_count;
++		u32 str_per_lang = str_count;
+ 
+ 		if (len < 3)
+ 			goto error_free;
+@@ -2675,7 +2676,7 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
+ 
+ 			data += length + 1;
+ 			len -= length + 1;
+-		} while (--str_count);
++		} while (--str_per_lang);
+ 
+ 		s->id = 0;   /* terminator */
+ 		s->s = NULL;
 -- 
-Regards,
+2.31.0
 
-Laurent Pinchart
+
