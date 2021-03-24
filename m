@@ -2,146 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0F0347AAC
-	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 15:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43145347AF5
+	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 15:43:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236062AbhCXO3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Mar 2021 10:29:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35728 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236115AbhCXO2r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Mar 2021 10:28:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7755361963;
-        Wed, 24 Mar 2021 14:28:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616596126;
-        bh=qFllmIRbdCUQn/B4kQjIVSKhp52Kl0isMHDaEUkABLY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cplZGGi1ra2GAKUoROJa/SNuLgZ5comITDHOXLsNYHLiYokO9V4V6aPv7WjAdCpGf
-         XI2SVZg9Zf7/4JoUzW/VruCV+o8Upd5EASOmGeby4z2ve8l8ju6gnI3CBZzZXyg3cv
-         pSjbI6Uye73ZMqXSCxXGrbMqMZPCUoQavaYTGvHaQtkn6VG/7hWhVTOQNAlwAYdTha
-         ytEEEDMEeZNdZv6G1WCADx5hRICTuDu1fiknCXIVZ8TDUNpKEIMmp/cmCBCsrAIZSh
-         crrVgSTd5fSYprMPTSQaM4YgFdvbcYjM9MXFHsQgciWGR9GlRTOYuuKwcLCI5Efi9c
-         YT2SwMTnNw57g==
-Date:   Wed, 24 Mar 2021 10:28:45 -0400
-From:   Sasha Levin <sashal@kernel.org>
+        id S235785AbhCXOm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Mar 2021 10:42:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236164AbhCXOmQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Mar 2021 10:42:16 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BFA5C061763;
+        Wed, 24 Mar 2021 07:42:16 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id a8so21010000oic.11;
+        Wed, 24 Mar 2021 07:42:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=QC9Yl04RRN1dr9gjHudNHhgmFiM2HY1qvPpG4GDHyMU=;
+        b=iMZyUIIittwdBwbUwbKVXPq486zdYl85QivQeofs/ZS5aASewE3r1rN1fpS8XF7fbC
+         tnu2NtQFiGQS4iOIYBKp4v4PsnHtq6F40Kav3vams87Z9PTT3BC4pn2Z1Czaan7ypinz
+         mnJ7WIkSZ7KMn0Mx37cGrjsrFQ+VptsNpzbKDxW+7m+Xo9ESl+euFobyG/r+zQVrW9bh
+         3x0zEarZzJsw67WlF3ex6j4kNyaVa5ZHqEoCNSVWrgrk8yqFGE9s5RkUba5jgJQXkm/Y
+         plhBM9kXZtKzEw5pnEAugxEj7uDbpODv3j9VVRK1RFt0Xy1Tbigl67i5P5vacUnDK+s3
+         VzgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=QC9Yl04RRN1dr9gjHudNHhgmFiM2HY1qvPpG4GDHyMU=;
+        b=qaMdGvr3Iq3BZWXflADxvA8KfcPQcIUbiPQ4cCPYQH0IA15UG5zXU5sgjEavQNXAbK
+         Nszp8mC0aRZrCIKDVIJCabHSsfu8C2t+0dRt7IL3SsqPf9YSVxhcjt+XqjG3NWI/bRXr
+         jOYRhs3s4VCQ20s1nlGGxnVopAq3e5HFr4LRCACMPgLuDuxV2EcByEHncyywZcI6Eger
+         KRBzaOYX0a+8+b3bLgtrb51lo8BXWqPnMTBbkw4sKYLBz0Wx6q3e71B9OUsb9A+S8835
+         +hVnxLVOGhmY63I7Y2D5xYqAzEyOFlSijccmuesuvsfBYdsVDStbVCgkA5F5YB+DZvip
+         m0gA==
+X-Gm-Message-State: AOAM532EETqNn+H0hK1WuR+U4o6VXZ18X6CSSmPmSWWu/e2JbxiZYiPI
+        IhxKMZ2CfkLkM8TtTJaTOHd/znrm1kg=
+X-Google-Smtp-Source: ABdhPJwJVjJSAiPWJXZBVf8saK/FRo5cPp/JJ243VB3tKmroGn55ys8P0CLqtPfwdJa4RCd2ZkbVDw==
+X-Received: by 2002:a54:4001:: with SMTP id x1mr2700466oie.76.1616596935630;
+        Wed, 24 Mar 2021 07:42:15 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id u194sm430252oia.27.2021.03.24.07.42.14
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 24 Mar 2021 07:42:15 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 24 Mar 2021 07:42:14 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Florian Westphal <fw@strlen.de>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        lkft-triage@lists.linaro.org, Netdev <netdev@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 5.10 104/157] mptcp: put subflow sock on connect error
-Message-ID: <YFtMnS1l7armuoZh@sashalap>
-References: <20210322121933.746237845@linuxfoundation.org>
- <20210322121937.071435221@linuxfoundation.org>
- <CA+G9fYvRM+9DmGuKM0ErDnrYBOmZ6zzmMkrWevMJqOzhejWwZg@mail.gmail.com>
- <20210324090412.GB27244@breakpoint.cc>
- <YFsE1cQy3tJASGob@kroah.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/150] 5.10.26-rc3 review
+Message-ID: <20210324144214.GA224108@roeck-us.net>
+References: <20210324093435.962321672@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YFsE1cQy3tJASGob@kroah.com>
+In-Reply-To: <20210324093435.962321672@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 24, 2021 at 10:22:29AM +0100, Greg Kroah-Hartman wrote:
->On Wed, Mar 24, 2021 at 10:04:12AM +0100, Florian Westphal wrote:
->> Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
->> > On Mon, 22 Mar 2021 at 18:15, Greg Kroah-Hartman
->> > <gregkh@linuxfoundation.org> wrote:
->> > >
->> > > From: Florian Westphal <fw@strlen.de>
->> > >
->> > > [ Upstream commit f07157792c633b528de5fc1dbe2e4ea54f8e09d4 ]
->> > >
->> > > mptcp_add_pending_subflow() performs a sock_hold() on the subflow,
->> > > then adds the subflow to the join list.
->> > >
->> > > Without a sock_put the subflow sk won't be freed in case connect() fails.
->> > >
->> > > unreferenced object 0xffff88810c03b100 (size 3000):
->> > > [..]
->> > >     sk_prot_alloc.isra.0+0x2f/0x110
->> > >     sk_alloc+0x5d/0xc20
->> > >     inet6_create+0x2b7/0xd30
->> > >     __sock_create+0x17f/0x410
->> > >     mptcp_subflow_create_socket+0xff/0x9c0
->> > >     __mptcp_subflow_connect+0x1da/0xaf0
->> > >     mptcp_pm_nl_work+0x6e0/0x1120
->> > >     mptcp_worker+0x508/0x9a0
->> > >
->> > > Fixes: 5b950ff4331ddda ("mptcp: link MPC subflow into msk only after accept")
->>
->> I don't see this change in 5.10, so why is this fix queued up?
->>
->> > I have reported the following warnings and kernel crash on 5.10.26-rc2 [1]
->> > The bisect reported that issue pointing out to this commit.
->> >
->> > commit 460916534896e6d4f80a37152e0948db33376873
->> > mptcp: put subflow sock on connect error
->> >
->> > This problem is specific to 5.10.26-rc2.
->> >
->> > Warning:
->> > --------
->> > [ 1040.114695] refcount_t: addition on 0; use-after-free.
->> > [ 1040.119857] WARNING: CPU: 3 PID: 31925 at
->> > /usr/src/kernel/lib/refcount.c:25 refcount_warn_saturate+0xd7/0x100
->> > [ 1040.129769] Modules linked in: act_mirred cls_u32 sch_netem sch_etf
->> > ip6table_nat xt_nat iptable_nat nf_nat ip6table_filter xt_conntrack
->> > nf_conntrack nf_defrag_ipv4 libcrc32c ip6_tables nf_defrag_ipv6 sch_fq
->> > iptable_filter xt_mark ip_tables cls_bpf sch_ingress algif_hash
->> > x86_pkg_temp_thermal fuse [last unloaded: test_blackhole_dev]
->> > [ 1040.159030] CPU: 3 PID: 31925 Comm: mptcp_connect Tainted: G
->> > W     K   5.10.26-rc2 #1
->> > [ 1040.167459] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
->> > 2.2 05/23/2018
->> > [ 1040.174851] RIP: 0010:refcount_warn_saturate+0xd7/0x100
->> >
->> > And
->> >
->> > Kernel Panic:
->> > -------------
->> > [ 1069.557485] BUG: kernel NULL pointer dereference, address: 0000000000000010
->> > [ 1069.564446] #PF: supervisor read access in kernel mode
->> > [ 1069.569583] #PF: error_code(0x0000) - not-present page
->> > [ 1069.574714] PGD 0 P4D 0
->> > [ 1069.577246] Oops: 0000 [#1] SMP PTI
->> > > index 16adba172fb9..591546d0953f 100644
->> > > --- a/net/mptcp/subflow.c
->> > > +++ b/net/mptcp/subflow.c
->> > > @@ -1133,6 +1133,7 @@ int __mptcp_subflow_connect(struct sock *sk, const struct mptcp_addr_info *loc,
->> > >         spin_lock_bh(&msk->join_list_lock);
->> > >         list_add_tail(&subflow->node, &msk->join_list);
->> > >         spin_unlock_bh(&msk->join_list_lock);
->> > > +       sock_put(mptcp_subflow_tcp_sock(subflow));
->> > >
->> > >         return err;
->>
->> Crash is not surprising, the backport puts the socket in the 'success' path
->> (list_add_tail).
->>
->> I don't see why this is in -stable, the faulty commit is not there?
->>
->> The upstream patch is:
->>         list_del(&subflow->node);
->>         spin_unlock_bh(&msk->join_list_lock);
->> +	sock_put(mptcp_subflow_tcp_sock(subflow));
->>
->> [ Note the 'list_del', this is in the error unwind path ]
->
->Odd, I think something went wrong with Sasha's scripts.
+On Wed, Mar 24, 2021 at 10:40:21AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.26 release.
+> There are 150 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 26 Mar 2021 09:33:54 +0000.
+> Anything received after that time might be too late.
+> 
 
-I brought in the commit it depends on as a dependency for something
-else, but ended up throwing it away, forgetting about this commit. Sorry
-:(
+Build results:
+	total: 156 pass: 156 fail: 0
+Qemu test results:
+	total: 433 pass: 433 fail: 0
 
--- 
-Thanks,
-Sasha
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
