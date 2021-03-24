@@ -2,98 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 527F1347154
-	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 07:02:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2737347166
+	for <lists+stable@lfdr.de>; Wed, 24 Mar 2021 07:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbhCXGCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Mar 2021 02:02:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39042 "EHLO mail.kernel.org"
+        id S233042AbhCXGGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Mar 2021 02:06:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229963AbhCXGBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Mar 2021 02:01:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E898601FA;
-        Wed, 24 Mar 2021 06:01:53 +0000 (UTC)
+        id S235490AbhCXGF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Mar 2021 02:05:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFD04601FA;
+        Wed, 24 Mar 2021 06:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616565714;
-        bh=qjAwgMGS0rM0MMoRcg9uYBex/xw8mgXrvFUXBUzKhXw=;
-        h=Subject:To:From:Date:From;
-        b=MM4hrHoQkE1P2AznG3COunjWnCIVNX/AK/bHg30i2v4IrDEgf1zQLwUy8wFywOF18
-         2zfuQOgwVBN9Y1GPb8dYh5bOQDxRoDwZ4clnMNlLUYA06ZhTOrFPDuexpExfSjsRGF
-         VI3pW5EngWyWjP/NPQ+0/q25dRG4Bh/GnUr0lZWY=
-Subject: patch "usb: gadget/function/f_fs string table fix for multiple languages" added to usb-next
-To:     dean@sensoray.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 24 Mar 2021 07:01:08 +0100
-Message-ID: <161656566832144@kroah.com>
+        s=korg; t=1616565929;
+        bh=K1rjhRloQq0RP1IxX1pwceUg6EHtGOdcmckaDNkjmXI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QRZztvp19LTpJff1eRqylKc9GG1nHKPvb4LfnGxt88AbPFWL//Ye+7JuccTlIpKEP
+         zVtHVmWwtj7m13FtzI7PsZgNTJ8FfWdUcuK1ZB2EDvQxRtArDAbsZmYikt6ZVHL6l8
+         xjb9AKFhm6CvjA8aaEpjL8UdJ68mIH9UiMehNE8g=
+Date:   Wed, 24 Mar 2021 07:05:26 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Zhen Zhao <zp_8483@163.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v1] xfs: return err code if xfs_buf_associate_memory fail
+Message-ID: <YFrWpkOUWgzt3CT+@kroah.com>
+References: <20210324005744.2854-1-zp_8483@163.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210324005744.2854-1-zp_8483@163.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    usb: gadget/function/f_fs string table fix for multiple languages
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
+On Tue, Mar 23, 2021 at 08:57:43PM -0400, Zhen Zhao wrote:
+> In kernel 3.10, when there is no memory left in the
+> system, fs_buf_associate_memory can fail, catch the
+> error and return.
+> 
+> Signed-off-by: Zhen Zhao <zp_8483@163.com>
+> ---
+>  fs/xfs/xfs_log.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 
 
-From 55b74ce7d2ce0b0058f3e08cab185a0afacfe39e Mon Sep 17 00:00:00 2001
-From: Dean Anderson <dean@sensoray.com>
-Date: Wed, 17 Mar 2021 15:41:09 -0700
-Subject: usb: gadget/function/f_fs string table fix for multiple languages
+<formletter>
 
-Fixes bug with the handling of more than one language in
-the string table in f_fs.c.
-str_count was not reset for subsequent language codes.
-str_count-- "rolls under" and processes u32 max strings on
-the processing of the second language entry.
-The existing bug can be reproduced by adding a second language table
-to the structure "strings" in tools/usb/ffs-test.c.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Signed-off-by: Dean Anderson <dean@sensoray.com>
-Link: https://lore.kernel.org/r/20210317224109.21534-1-dean@sensoray.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/function/f_fs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 801a8b668a35..10a5d9f0f2b9 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -2640,6 +2640,7 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
- 
- 	do { /* lang_count > 0 so we can use do-while */
- 		unsigned needed = needed_count;
-+		u32 str_per_lang = str_count;
- 
- 		if (len < 3)
- 			goto error_free;
-@@ -2675,7 +2676,7 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
- 
- 			data += length + 1;
- 			len -= length + 1;
--		} while (--str_count);
-+		} while (--str_per_lang);
- 
- 		s->id = 0;   /* terminator */
- 		s->s = NULL;
--- 
-2.31.0
-
-
+</formletter>
