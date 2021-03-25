@@ -2,95 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3782534919B
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 13:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0183491A4
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 13:12:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230298AbhCYMJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 08:09:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57474 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230057AbhCYMJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 08:09:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FE40619AB;
-        Thu, 25 Mar 2021 12:09:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616674150;
-        bh=uK1guUZ8GR5sGME2dMgTuaLhqRnxTlcdjS8GVb3pdE0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1a7Izp+SVL+FEaRYTqNdfs4gMX1ZE7CAFubz090Gvb8NMSb2D3gfhNYaGr+9QnoW6
-         nowcBWYHF0sJyleowh2g7L+0DsfGLKveaUDp9SBqnrGahgQjR0i1UE2Ah2XdMzIFEi
-         Jk0ccOMatnRKthQpPHnO88/7LAINX8DL/jlYa8W4=
-Date:   Thu, 25 Mar 2021 13:09:07 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Samuel Zou <zou_wei@huawei.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/150] 5.10.26-rc3 review
-Message-ID: <YFx9Y75I6v/r/VZi@kroah.com>
-References: <20210324093435.962321672@linuxfoundation.org>
- <6f9b4fa5-5970-e821-98f9-4d41f216ff69@huawei.com>
+        id S229948AbhCYMLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 08:11:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49208 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229533AbhCYMLq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Mar 2021 08:11:46 -0400
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A224C06174A;
+        Thu, 25 Mar 2021 05:11:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Date:Message-ID:From:Cc:To;
+        bh=miwPIcGRmxLognFQqT73uzsqflhmzM1L7+w2rU8vpmM=; b=0zO0h1f70agryRb7uyRn/iCH5S
+        W7b5b1W1pqfnbUHSIeHQAG468ootZEDLihJFyseJAxE4CPkwGFtedVi26Pcedayo0SVaTAxfkI+oK
+        ENROBq/YJ31yjgKoeOMnarCMxdNOrYWRIRVQMHfwjxGTLjl3sorunH+BQl2SFoncF+JTvvTP8o1tJ
+        j1oiMkKHkMyUV4RVjv+eCTGWox2eJxrhEF7D7amj/3fBKIA6do+CSJpmtsXjdKTklZ7z1vqzYdZH4
+        QaumKP9rvOqH9/UwPP5XjQXoq+AaJXPwjJSzoqgs+TM1rMyKlVZ2mOBo9s4ipES+uvfNy+1Jl3wNx
+        ElY3iN4OsnlfCefug4wMrkrf65uTSSpPStDlGkAkSybeDmOa/jH6Too3gH4lDpcouf97kXAXH2KE2
+        me02RrMSTsYolwGRfGIbVOUvxaZvxnrn42NOYvo/dUn/kSSKaVPtyjBuFI7TIMtnzv65ErmCVvMeg
+        hUj2X5e5uu9N3rbwY1xpAIvr;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1lPOpz-0007nn-AF; Thu, 25 Mar 2021 12:11:43 +0000
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        io-uring <io-uring@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+References: <20210325112459.1926846-1-sashal@kernel.org>
+ <20210325112459.1926846-43-sashal@kernel.org>
+ <f4c932b4-b787-651e-dd9f-584b386acddb@samba.org>
+ <m1r1k34ey1.fsf@fess.ebiederm.org>
+From:   Stefan Metzmacher <metze@samba.org>
+Subject: Re: [PATCH AUTOSEL 5.11 43/44] signal: don't allow STOP on
+ PF_IO_WORKER threads
+Message-ID: <41589c56-9219-3ec2-55b3-3f010752ac7b@samba.org>
+Date:   Thu, 25 Mar 2021 13:11:41 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6f9b4fa5-5970-e821-98f9-4d41f216ff69@huawei.com>
+In-Reply-To: <m1r1k34ey1.fsf@fess.ebiederm.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 25, 2021 at 09:01:55AM +0800, Samuel Zou wrote:
-> 
-> 
-> On 2021/3/24 17:40, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.26 release.
-> > There are 150 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 26 Mar 2021 09:33:54 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.26-rc3.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Tested on arm64 and x86 for 5.10.26-rc3,
-> 
-> Kernel repo:
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> Branch: linux-5.10.y
-> Version: 5.10.26-rc3
-> Commit: f6bd595b6fdae1933a752242cfb77a1a0bc3117d
-> Compiler: gcc version 7.3.0 (GCC)
-> 
-> arm64:
-> --------------------------------------------------------------------
-> Testcase Result Summary:
-> total: 4720
-> passed: 4720
-> failed: 0
-> timeout: 0
-> --------------------------------------------------------------------
-> 
-> x86:
-> --------------------------------------------------------------------
-> Testcase Result Summary:
-> total: 4720
-> passed: 4720
-> failed: 0
-> timeout: 0
-> --------------------------------------------------------------------
-> 
-> Tested-by: Hulk Robot <hulkrobot@huawei.com>
-> 
 
-thanks for testing.
+Am 25.03.21 um 13:04 schrieb Eric W. Biederman:
+> Stefan Metzmacher <metze@samba.org> writes:
+> 
+>> Am 25.03.21 um 12:24 schrieb Sasha Levin:
+>>> From: "Eric W. Biederman" <ebiederm@xmission.com>
+>>>
+>>> [ Upstream commit 4db4b1a0d1779dc159f7b87feb97030ec0b12597 ]
+>>>
+>>> Just like we don't allow normal signals to IO threads, don't deliver a
+>>> STOP to a task that has PF_IO_WORKER set. The IO threads don't take
+>>> signals in general, and have no means of flushing out a stop either.
+>>>
+>>> Longer term, we may want to look into allowing stop of these threads,
+>>> as it relates to eg process freezing. For now, this prevents a spin
+>>> issue if a SIGSTOP is delivered to the parent task.
+>>>
+>>> Reported-by: Stefan Metzmacher <metze@samba.org>
+>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>> ---
+>>>  kernel/signal.c | 3 ++-
+>>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/kernel/signal.c b/kernel/signal.c
+>>> index 55526b941011..00a3840f6037 100644
+>>> --- a/kernel/signal.c
+>>> +++ b/kernel/signal.c
+>>> @@ -288,7 +288,8 @@ bool task_set_jobctl_pending(struct task_struct *task, unsigned long mask)
+>>>  			JOBCTL_STOP_SIGMASK | JOBCTL_TRAPPING));
+>>>  	BUG_ON((mask & JOBCTL_TRAPPING) && !(mask & JOBCTL_PENDING_MASK));
+>>>  
+>>> -	if (unlikely(fatal_signal_pending(task) || (task->flags & PF_EXITING)))
+>>> +	if (unlikely(fatal_signal_pending(task) ||
+>>> +		     (task->flags & (PF_EXITING | PF_IO_WORKER))))
+>>>  		return false;
+>>>  
+>>>  	if (mask & JOBCTL_STOP_SIGMASK)
+>>>
+>>
+>> Again, why is this proposed for 5.11 and 5.10 already?
+> 
+> Has the bit about the io worker kthreads been backported?
+> If so this isn't horrible.  If not this is nonsense.
 
+I don't know, I hope not...
+
+But I just tested v5.12-rc4 and attaching to
+an application with iothreads with gdb is still not possible,
+it still loops forever trying to attach to the iothreads.
+
+And I tested 'kill -9 $pidofiothread', and it feezed the whole
+machine...
+
+So there's still work to do in order to get 5.12 stable.
+
+I'm short on time currently, but I hope to send more details soon.
+
+metze
