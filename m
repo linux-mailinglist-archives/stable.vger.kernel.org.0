@@ -2,65 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E01D2348CCE
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 10:29:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC326348D04
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 10:34:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbhCYJ2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 05:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41970 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229948AbhCYJ2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Mar 2021 05:28:06 -0400
-Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F1DC06174A
-        for <stable@vger.kernel.org>; Thu, 25 Mar 2021 02:28:05 -0700 (PDT)
-Received: by mail-yb1-xb2c.google.com with SMTP id i144so1610070ybg.1
-        for <stable@vger.kernel.org>; Thu, 25 Mar 2021 02:28:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=In9yNwWDC3cvSzxCpoXFfte81xuHM7ihGLy7itDIzrU=;
-        b=CaF4pz3s72dPhwMcsUqKu2lcdPfoq9KU+h/ZSgYxpQOVLuPvFt439yB77qsKTWup5k
-         am8aG65Zi1Egaei5r9aqv0pT5eF7yHGp4mSDN1Px3OnE36x2p7UI395CvdkIgvqAnsaM
-         ciZ8s6zg+TkJikaNIjOyz8axD3HBGpJUZjs6tQj1Bb4iDzg19IfLQNnHuCyUqhwEI8Yt
-         5MLpIM8ALfq4bHmFO6c5vmZp3l0AoYe5nNS48N9DK9/p2YhrOlpb4WvU3DkPe7PWSy/R
-         uT23zpj96BoGLv8Yo4zq07KQHpo1wcMBwG97VyUo2jnvOOt3qhEcQau1XhG7YvwWtqCz
-         +opA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=In9yNwWDC3cvSzxCpoXFfte81xuHM7ihGLy7itDIzrU=;
-        b=Gpg/RYDrwVrHOUCgNYlrTjEJwoWqqpQpRHT7kfdK4jjeCSpPIW8d5NYtyGZ/ZatlTa
-         DrfAxb2Y9l3C7VpkGZIuDX2Io7yVUCYRp56AXye7ivGB8zYm2QRDQjvFe/0PjD18cEKX
-         5lPW/aQYeaccL9vam6h8oq430DD0C5tiYX/wIusUWCy3P7VRvBMpPt1DVTK4qDUKQD5G
-         0Wr6upcyTvF8nCnWD2gxEOuw6ESKdxQTrXpOX1fHxdsvoXGU/vVYoKsrxcHfueuUBANu
-         HlzQCAJRup2FJXezyy9COLsa24UNnwX8iDtt//KnKNxFk8TmfW1o2YCWQqi+fWGBozP+
-         1+JA==
-X-Gm-Message-State: AOAM530TOM4EMFxMjUR4aJpU+kH/HL4l2EL0oRkASOOYl2H+XHfLAV+8
-        ha2cFUpugqj9Z+fihvnGFAfNZgU8SJo3jjIzoTA=
-X-Google-Smtp-Source: ABdhPJxC4oWc2wZpOEQCmbpemqanjYONjQLwEpSXIJQrk9r5geq47tgyWENgkblArTy5rt2FndYH18YeSACJTPhDYZs=
-X-Received: by 2002:a25:3616:: with SMTP id d22mr11793493yba.7.1616664485088;
- Thu, 25 Mar 2021 02:28:05 -0700 (PDT)
+        id S229866AbhCYJdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 05:33:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38324 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229629AbhCYJdV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 05:33:21 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CA7F619E3;
+        Thu, 25 Mar 2021 09:33:20 +0000 (UTC)
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1lPMMf-003hPI-SL; Thu, 25 Mar 2021 09:33:18 +0000
 MIME-Version: 1.0
-Received: by 2002:a05:7110:70e2:b029:4b:dc96:4a4e with HTTP; Thu, 25 Mar 2021
- 02:28:04 -0700 (PDT)
-Reply-To: georgesilas@seznam.cz
-From:   Worldbankremittance <rachidoualassani53@gmail.com>
-Date:   Thu, 25 Mar 2021 09:28:04 +0000
-Message-ID: <CAFrsBvJykRnn3k_Ra=LiY9YmUgri3fhstOrpOS+oYc+OF2etZQ@mail.gmail.com>
-Subject: greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Thu, 25 Mar 2021 09:33:17 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+Cc:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        pbonzini@redhat.com, linuxarm@huawei.com
+Subject: Re: [PATCH for-stable-5.10 2/2] KVM: arm64: Workaround firmware
+ wrongly advertising GICv2-on-v3 compatibility
+In-Reply-To: <20210325091424.26348-3-shameerali.kolothum.thodi@huawei.com>
+References: <20210325091424.26348-1-shameerali.kolothum.thodi@huawei.com>
+ <20210325091424.26348-3-shameerali.kolothum.thodi@huawei.com>
+User-Agent: Roundcube Webmail/1.4.11
+Message-ID: <9850fc39c1c80840ea77eba60ee5e663@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: shameerali.kolothum.thodi@huawei.com, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org, pbonzini@redhat.com, linuxarm@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings
+On 2021-03-25 09:14, Shameer Kolothum wrote:
+> From: Marc Zyngier <maz@kernel.org>
+> 
+> commit 9739f6ef053f104a997165701c6e15582c4307ee upstream.
+> 
+> It looks like we have broken firmware out there that wrongly advertises
+> a GICv2 compatibility interface, despite the CPUs not being able to 
+> deal
+> with it.
+> 
+> To work around this, check that the CPU initialising KVM is actually 
+> able
+> to switch to MMIO instead of system registers, and use that as a
+> precondition to enable GICv2 compatibility in KVM.
+> 
+> Note that the detection happens on a single CPU. If the firmware is
+> lying *and* that the CPUs are asymetric, all hope is lost anyway.
+> 
+> Cc: stable@vger.kernel.org #5.10
+> Reported-by: Shameerali Kolothum Thodi 
+> <shameerali.kolothum.thodi@huawei.com>
+> Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Message-Id: <20210305185254.3730990-8-maz@kernel.org>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 
-We have received an irrevocable payment guarantee from the World Bank.
-That your email is found through our database to receive this
-compensation fund this Year 2021, contact Email: georgesilas@seznam.cz
-Website: www.un.org
-Sincerely,
-James Malpass
+Please hold on on that.
+
+This patch causes a regression, and needs a fix that is currently queued
+for 5.12 [1]. Once this hits upstream, please add the fix to the series
+and post it as a whole.
+
+Thanks,
+
+         M.
+
+[1] https://lore.kernel.org/r/20210323162301.2049595-1-maz@kernel.org
+-- 
+Jazz is not dead. It just smells funny...
