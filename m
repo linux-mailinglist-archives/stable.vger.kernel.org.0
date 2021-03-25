@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9731B348FCE
+	by mail.lfdr.de (Postfix) with ESMTP id 26BB5348FCD
 	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbhCYL3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:29:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35906 "EHLO mail.kernel.org"
+        id S231776AbhCYL3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:29:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231516AbhCYL10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:27:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 649AC61A7F;
-        Thu, 25 Mar 2021 11:27:09 +0000 (UTC)
+        id S229659AbhCYL11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:27:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B851861A5E;
+        Thu, 25 Mar 2021 11:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671630;
-        bh=hswCQyZZ2Qmd89Jdq4tJKYt9JtQSZWQ6mdU4q/xSxXg=;
+        s=k20201202; t=1616671631;
+        bh=MvspNmx/BQ2U6lxFhhm7YQJAvRh6QOInlWJfeIGGQP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NC92YHvbxuy1qbT8YOn4s36UkkMcuxC/xR/EKsAiUeQH/081ezLcm3CaXpBTD3Pw8
-         adyf9i9rjGvkJqf9RMYdJlRp4AmfQeUmUcU5pjtGI5QIqqsKV8QvNrSl+pXCz7JBXq
-         65W+SdPe7EIJ7BS0QPUh1ei4KNgiLOcNoNXGXqaDzJj3Liro+8KwjZXT7KH01YsS4R
-         RL9DCBLM3tdULaTFFWm2wU2pnbrOycjODBWbEJEJwNQ4/xPKn0LPE/bqvcSUqkflpn
-         DNPz2SoesNTCHK0AazCGMNLSb9RZEOhuU6BQ+3WnAf9XvHuWDdBO5cYtfctCCibQNS
-         3wffC1CRfYcDw==
+        b=Ny8VuovBr3ANoFfcLtGd9aDdytRpWvwlCxbG6F9R/cSHlrMD58Px10sY2HbjIdpp4
+         1Hyik/szoRMoXTjmRZ+iCHxc95uWtGrQoM5q+UZx4XTJs+i5sD1Bjsw2R4lsqMZHKf
+         JdudvtZx5GJFim8PzPznTy8eICcRv3d5ssLIFBJ7JOST2L+LsA5NFF8Q2RAqb/0Z32
+         FNiMLvmWx5A/FXZK5Ri3UAVBP4HqzwtW3BKVO3ueeTJfkPeOBKCeZFRPKtcpt4rhGS
+         FdGw67QhP2x7yqI0hhsrAZ/99LVpL5tZIcJyXKPuZHjFZClPbHhx4W3E+SZh7qghVc
+         LMGqkNcxcJ5oA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <kolga@netapp.com>,
-        Bruce Fields <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 14/24] NFSD: fix error handling in NFSv4.0 callbacks
-Date:   Thu, 25 Mar 2021 07:26:40 -0400
-Message-Id: <20210325112651.1927828-14-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 15/24] powerpc: Force inlining of cpu_has_feature() to avoid build failure
+Date:   Thu, 25 Mar 2021 07:26:41 -0400
+Message-Id: <20210325112651.1927828-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112651.1927828-1-sashal@kernel.org>
 References: <20210325112651.1927828-1-sashal@kernel.org>
@@ -44,36 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit b4250dd868d1b42c0a65de11ef3afbee67ba5d2f ]
+[ Upstream commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a ]
 
-When the server tries to do a callback and a client fails it due to
-authentication problems, we need the server to set callback down
-flag in RENEW so that client can recover.
+The code relies on constant folding of cpu_has_feature() based
+on possible and always true values as defined per
+CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
 
-Suggested-by: Bruce Fields <bfields@redhat.com>
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Tested-by: Benjamin Coddington <bcodding@redhat.com>
-Link: https://lore.kernel.org/linux-nfs/FB84E90A-1A03-48B3-8BF7-D9D10AC2C9FE@oracle.com/T/#t
+Build failure is encountered with for instance
+book3e_all_defconfig on kisskb in the AMDGPU driver which uses
+cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
+kernel_enable_vsx() or not.
+
+The failure is due to cpu_has_feature() not being inlined with
+that configuration with gcc 4.9.
+
+In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
+mmu_has_feature to fix build failure"), for inlining of
+cpu_has_feature().
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/cpu_has_feature.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index efe55d101b0e..3c50d18fe8a9 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -1121,6 +1121,7 @@ static void nfsd4_cb_done(struct rpc_task *task, void *calldata)
- 		switch (task->tk_status) {
- 		case -EIO:
- 		case -ETIMEDOUT:
-+		case -EACCES:
- 			nfsd4_mark_cb_down(clp, task->tk_status);
- 		}
- 		break;
+diff --git a/arch/powerpc/include/asm/cpu_has_feature.h b/arch/powerpc/include/asm/cpu_has_feature.h
+index 7897d16e0990..727d4b321937 100644
+--- a/arch/powerpc/include/asm/cpu_has_feature.h
++++ b/arch/powerpc/include/asm/cpu_has_feature.h
+@@ -7,7 +7,7 @@
+ #include <linux/bug.h>
+ #include <asm/cputable.h>
+ 
+-static inline bool early_cpu_has_feature(unsigned long feature)
++static __always_inline bool early_cpu_has_feature(unsigned long feature)
+ {
+ 	return !!((CPU_FTRS_ALWAYS & feature) ||
+ 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
+@@ -46,7 +46,7 @@ static __always_inline bool cpu_has_feature(unsigned long feature)
+ 	return static_branch_likely(&cpu_feature_keys[i]);
+ }
+ #else
+-static inline bool cpu_has_feature(unsigned long feature)
++static __always_inline bool cpu_has_feature(unsigned long feature)
+ {
+ 	return early_cpu_has_feature(feature);
+ }
 -- 
 2.30.1
 
