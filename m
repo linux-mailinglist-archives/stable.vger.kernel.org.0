@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6175349004
+	by mail.lfdr.de (Postfix) with ESMTP id 7F337349003
 	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231518AbhCYLba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:31:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35542 "EHLO mail.kernel.org"
+        id S231423AbhCYLb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231443AbhCYL3Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:29:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A05061A4A;
-        Thu, 25 Mar 2021 11:27:33 +0000 (UTC)
+        id S231715AbhCYL30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:29:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A207B61A4C;
+        Thu, 25 Mar 2021 11:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671654;
-        bh=/fvb5PpNu0FFl+gg1fJBlkfAgEp+4a5f0q8fpxJUqHU=;
+        s=k20201202; t=1616671655;
+        bh=jV8Qh0a/nNuUyA6BX6n1VOUaTcmndklBGd6tE6qaqug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7YBbqF+EBBRX4MDavJUsofAwbue0JwXSkeowVjZQC2h6NIiKNcsftnlPOkf3RiHh
-         OG0sBwYlmZPl5b6JZCbupOvIBmCi2nC4iU5qRd3jsmwd2i8XLIYPEe87LhaaE8gmfi
-         f35iy549bVIoofocdrme0JlPpyJst231Bhx5rsWKIRd+j90Rn/QIDGTVigJDmBPKWs
-         P6n/4X9R6PU+gOigacIaqWSz4KqOoV1wfaUJpsT/Wbgzey8dLaTnOowiMYwWnfg2p3
-         KjS/92r2uuO0iXtbA4QdU4zo7/8EiPTwH1FPbwNRrvyxTVltHb04z0RrJ0ba9P5VKC
-         F0fCLv7aUyufA==
+        b=FWKizx5tXWLHiTmt+r8wgIjwMsvASb/eROW1RqZFA+VAr/lhk3qsrAQ924WsEidpN
+         7HtQYu1SPA7c0+uamudra+i6+fr5Vs6RnsO/hvGrV6HNqft/0Ft8WE06OP8SGUKWsm
+         i0ojWAu+HGEdV0ZjFWRSuTkX1RFJDY9zj5cyyO4cs3bdAgGpSXzbIVPMO6Odkmz1BW
+         Kx/eLSPP1Sdruj3M/M37kU04tFKODZZXbhARZK2L2iDRpF9JmIdxVxqyjnkvVI+Gth
+         W5xSQ1Fle31My/61+fScc2BizAqxym564xWicZlDbiKDNz09nx+KzRomI5zflZCbZI
+         I9rXMVPWuJdNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
         patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 4.19 07/20] ASoC: cs42l42: Fix Bitclock polarity inversion
-Date:   Thu, 25 Mar 2021 07:27:11 -0400
-Message-Id: <20210325112724.1928174-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 08/20] ASoC: cs42l42: Fix channel width support
+Date:   Thu, 25 Mar 2021 07:27:12 -0400
+Message-Id: <20210325112724.1928174-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112724.1928174-1-sashal@kernel.org>
 References: <20210325112724.1928174-1-sashal@kernel.org>
@@ -45,83 +45,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit e793c965519b8b7f2fea51a48398405e2a501729 ]
+[ Upstream commit 2bdc4f5c6838f7c3feb4fe68e4edbeea158ec0a2 ]
 
-The driver was setting bit clock polarity opposite to intended polarity.
-Also simplify the code by grouping ADC and DAC clock configurations into
-a single field.
+Remove the hard coded 32 bits width and replace with the correct width
+calculated by params_width.
 
 Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210305173442.195740-2-tanureal@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20210305173442.195740-3-tanureal@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 20 ++++++++------------
- sound/soc/codecs/cs42l42.h | 11 ++++++-----
- 2 files changed, 14 insertions(+), 17 deletions(-)
+ sound/soc/codecs/cs42l42.c | 47 ++++++++++++++++++--------------------
+ sound/soc/codecs/cs42l42.h |  1 -
+ 2 files changed, 22 insertions(+), 26 deletions(-)
 
 diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 651329bf9743..c7baa19bf317 100644
+index c7baa19bf317..a5bd9cff7085 100644
 --- a/sound/soc/codecs/cs42l42.c
 +++ b/sound/soc/codecs/cs42l42.c
-@@ -801,27 +801,23 @@ static int cs42l42_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
- 	/* Bitclock/frame inversion */
- 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
- 	case SND_SOC_DAIFMT_NB_NF:
-+		asp_cfg_val |= CS42L42_ASP_SCPOL_NOR << CS42L42_ASP_SCPOL_SHIFT;
- 		break;
- 	case SND_SOC_DAIFMT_NB_IF:
--		asp_cfg_val |= CS42L42_ASP_POL_INV <<
--				CS42L42_ASP_LCPOL_IN_SHIFT;
-+		asp_cfg_val |= CS42L42_ASP_SCPOL_NOR << CS42L42_ASP_SCPOL_SHIFT;
-+		asp_cfg_val |= CS42L42_ASP_LCPOL_INV << CS42L42_ASP_LCPOL_SHIFT;
- 		break;
- 	case SND_SOC_DAIFMT_IB_NF:
--		asp_cfg_val |= CS42L42_ASP_POL_INV <<
--				CS42L42_ASP_SCPOL_IN_DAC_SHIFT;
- 		break;
- 	case SND_SOC_DAIFMT_IB_IF:
--		asp_cfg_val |= CS42L42_ASP_POL_INV <<
--				CS42L42_ASP_LCPOL_IN_SHIFT;
--		asp_cfg_val |= CS42L42_ASP_POL_INV <<
--				CS42L42_ASP_SCPOL_IN_DAC_SHIFT;
-+		asp_cfg_val |= CS42L42_ASP_LCPOL_INV << CS42L42_ASP_LCPOL_SHIFT;
- 		break;
- 	}
+@@ -695,24 +695,6 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
+ 					CS42L42_CLK_OASRC_SEL_MASK,
+ 					CS42L42_CLK_OASRC_SEL_12 <<
+ 					CS42L42_CLK_OASRC_SEL_SHIFT);
+-			/* channel 1 on low LRCLK, 32 bit */
+-			snd_soc_component_update_bits(component,
+-					CS42L42_ASP_RX_DAI0_CH1_AP_RES,
+-					CS42L42_ASP_RX_CH_AP_MASK |
+-					CS42L42_ASP_RX_CH_RES_MASK,
+-					(CS42L42_ASP_RX_CH_AP_LOW <<
+-					CS42L42_ASP_RX_CH_AP_SHIFT) |
+-					(CS42L42_ASP_RX_CH_RES_32 <<
+-					CS42L42_ASP_RX_CH_RES_SHIFT));
+-			/* Channel 2 on high LRCLK, 32 bit */
+-			snd_soc_component_update_bits(component,
+-					CS42L42_ASP_RX_DAI0_CH2_AP_RES,
+-					CS42L42_ASP_RX_CH_AP_MASK |
+-					CS42L42_ASP_RX_CH_RES_MASK,
+-					(CS42L42_ASP_RX_CH_AP_HI <<
+-					CS42L42_ASP_RX_CH_AP_SHIFT) |
+-					(CS42L42_ASP_RX_CH_RES_32 <<
+-					CS42L42_ASP_RX_CH_RES_SHIFT));
+ 			if (pll_ratio_table[i].mclk_src_sel == 0) {
+ 				/* Pass the clock straight through */
+ 				snd_soc_component_update_bits(component,
+@@ -828,14 +810,29 @@ static int cs42l42_pcm_hw_params(struct snd_pcm_substream *substream,
+ {
+ 	struct snd_soc_component *component = dai->component;
+ 	struct cs42l42_private *cs42l42 = snd_soc_component_get_drvdata(component);
+-	int retval;
++	unsigned int width = (params_width(params) / 8) - 1;
++	unsigned int val = 0;
  
--	snd_soc_component_update_bits(component, CS42L42_ASP_CLK_CFG,
--				CS42L42_ASP_MODE_MASK |
--				CS42L42_ASP_SCPOL_IN_DAC_MASK |
--				CS42L42_ASP_LCPOL_IN_MASK, asp_cfg_val);
-+	snd_soc_component_update_bits(component, CS42L42_ASP_CLK_CFG, CS42L42_ASP_MODE_MASK |
-+								      CS42L42_ASP_SCPOL_MASK |
-+								      CS42L42_ASP_LCPOL_MASK,
-+								      asp_cfg_val);
+ 	cs42l42->srate = params_rate(params);
+-	cs42l42->swidth = params_width(params);
  
+-	retval = cs42l42_pll_config(component);
++	switch(substream->stream) {
++	case SNDRV_PCM_STREAM_PLAYBACK:
++		val |= width << CS42L42_ASP_RX_CH_RES_SHIFT;
++		/* channel 1 on low LRCLK */
++		snd_soc_component_update_bits(component, CS42L42_ASP_RX_DAI0_CH1_AP_RES,
++							 CS42L42_ASP_RX_CH_AP_MASK |
++							 CS42L42_ASP_RX_CH_RES_MASK, val);
++		/* Channel 2 on high LRCLK */
++		val |= CS42L42_ASP_RX_CH_AP_HI << CS42L42_ASP_RX_CH_AP_SHIFT;
++		snd_soc_component_update_bits(component, CS42L42_ASP_RX_DAI0_CH2_AP_RES,
++							 CS42L42_ASP_RX_CH_AP_MASK |
++							 CS42L42_ASP_RX_CH_RES_MASK, val);
++		break;
++	default:
++		break;
++	}
+ 
+-	return retval;
++	return cs42l42_pll_config(component);
+ }
+ 
+ static int cs42l42_set_sysclk(struct snd_soc_dai *dai,
+@@ -900,9 +897,9 @@ static int cs42l42_digital_mute(struct snd_soc_dai *dai, int mute)
  	return 0;
  }
+ 
+-#define CS42L42_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S18_3LE | \
+-			SNDRV_PCM_FMTBIT_S20_3LE | SNDRV_PCM_FMTBIT_S24_LE | \
+-			SNDRV_PCM_FMTBIT_S32_LE)
++#define CS42L42_FORMATS (SNDRV_PCM_FMTBIT_S16_LE |\
++			 SNDRV_PCM_FMTBIT_S24_LE |\
++			 SNDRV_PCM_FMTBIT_S32_LE )
+ 
+ 
+ static const struct snd_soc_dai_ops cs42l42_ops = {
 diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
-index 09b0a93203ef..9d04ed75e5c8 100644
+index 9d04ed75e5c8..23b1a63315ca 100644
 --- a/sound/soc/codecs/cs42l42.h
 +++ b/sound/soc/codecs/cs42l42.h
-@@ -262,11 +262,12 @@
- #define CS42L42_ASP_SLAVE_MODE		0x00
- #define CS42L42_ASP_MODE_SHIFT		4
- #define CS42L42_ASP_MODE_MASK		(1 << CS42L42_ASP_MODE_SHIFT)
--#define CS42L42_ASP_SCPOL_IN_DAC_SHIFT	2
--#define CS42L42_ASP_SCPOL_IN_DAC_MASK	(1 << CS42L42_ASP_SCPOL_IN_DAC_SHIFT)
--#define CS42L42_ASP_LCPOL_IN_SHIFT	0
--#define CS42L42_ASP_LCPOL_IN_MASK	(1 << CS42L42_ASP_LCPOL_IN_SHIFT)
--#define CS42L42_ASP_POL_INV		1
-+#define CS42L42_ASP_SCPOL_SHIFT		2
-+#define CS42L42_ASP_SCPOL_MASK		(3 << CS42L42_ASP_SCPOL_SHIFT)
-+#define CS42L42_ASP_SCPOL_NOR		3
-+#define CS42L42_ASP_LCPOL_SHIFT		0
-+#define CS42L42_ASP_LCPOL_MASK		(3 << CS42L42_ASP_LCPOL_SHIFT)
-+#define CS42L42_ASP_LCPOL_INV		3
- 
- #define CS42L42_ASP_FRM_CFG		(CS42L42_PAGE_12 + 0x08)
- #define CS42L42_ASP_STP_SHIFT		4
+@@ -761,7 +761,6 @@ struct  cs42l42_private {
+ 	struct completion pdn_done;
+ 	u32 sclk;
+ 	u32 srate;
+-	u32 swidth;
+ 	u8 plug_state;
+ 	u8 hs_type;
+ 	u8 ts_inv;
 -- 
 2.30.1
 
