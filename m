@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DE7348F9D
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:29:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D197348F9F
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230305AbhCYL2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36152 "EHLO mail.kernel.org"
+        id S231308AbhCYL2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:28:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231296AbhCYL0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:26:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B818261A32;
-        Thu, 25 Mar 2021 11:26:47 +0000 (UTC)
+        id S231304AbhCYL0u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:26:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E533661A36;
+        Thu, 25 Mar 2021 11:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671608;
-        bh=sHPB1BgOfR+6+Sqv4errnJauM6CnffGtvyEOvgEw1fc=;
+        s=k20201202; t=1616671609;
+        bh=0aF/PdqEgb2ANeMXTtBHFO+YHGb1fKkmuij9qI2K66k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IQnDvECb4ZAuqvyDUfmq0vp3IKJU8rAOygmNEArBfgXvkMToNa11XwJbwJsxy+kXb
-         MHmIO0Ma9sgRHMdsiS5wmlynT3prrJ4iFf+YH6o3jVyXMnaeb6tdOJrMToPr2KLHbl
-         aCa8g42mCimRoaFQx0ZscI+NPzV6d0GkmfZPaesLX7jK2ViLGje0+EydrNf4tASbc9
-         vEqErOSTYByNIJ5yxJyxFXfTdCAq/pbtrFSsVtUcl1/liApN27pM3518IGsX+hffQ8
-         lCKDR9vH59tXYpWlOE+KKnChaB3xKWXYsQNC4JQCY2gPOlwBQ7DY4mAFlxhC7h9cN0
-         LIWy7jOvfWBtg==
+        b=RSOATvyl5LsGsFiGkdS7TISGUVRJXEFqJkWKfzDQvFL9P+Bnka7aEB9sfck+oXuzV
+         wIwkkLAjTEnjooLu8s4f42HzLPR1Ebs+8gdk28GOXNg85DsjnmkMLHzsnfU9fFKGCr
+         aGWtlgKX61NXSInqD6kAQ26/RJuPV53laUrOoeg9Or4x5RGwv2NfTkCPNlRIISnabX
+         ORr4m+WHYHXNtBYfkGgvGPFPdx4LsbQPocO6J6eZNEqaPy0g2fD7DB2z3qTJaXBxPY
+         Slt5gw4YixF9FNbsQORxA0GimWkab3H0qHpvDfKAtM1aXRrG7pbkgzt9I9M4FiVoHF
+         Xu5WMVqm2knJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Stefan Metzmacher <metze@samba.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 38/39] signal: don't allow STOP on PF_IO_WORKER threads
-Date:   Thu, 25 Mar 2021 07:25:57 -0400
-Message-Id: <20210325112558.1927423-38-sashal@kernel.org>
+Cc:     Stefan Metzmacher <metze@samba.org>, netdev@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 39/39] io_uring: call req_set_fail_links() on short send[msg]()/recv[msg]() with MSG_WAITALL
+Date:   Thu, 25 Mar 2021 07:25:58 -0400
+Message-Id: <20210325112558.1927423-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112558.1927423-1-sashal@kernel.org>
 References: <20210325112558.1927423-1-sashal@kernel.org>
@@ -42,40 +42,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Stefan Metzmacher <metze@samba.org>
 
-[ Upstream commit 4db4b1a0d1779dc159f7b87feb97030ec0b12597 ]
+[ Upstream commit 0031275d119efe16711cd93519b595e6f9b4b330 ]
 
-Just like we don't allow normal signals to IO threads, don't deliver a
-STOP to a task that has PF_IO_WORKER set. The IO threads don't take
-signals in general, and have no means of flushing out a stop either.
+Without that it's not safe to use them in a linked combination with
+others.
 
-Longer term, we may want to look into allowing stop of these threads,
-as it relates to eg process freezing. For now, this prevents a spin
-issue if a SIGSTOP is delivered to the parent task.
+Now combinations like IORING_OP_SENDMSG followed by IORING_OP_SPLICE
+should be possible.
 
-Reported-by: Stefan Metzmacher <metze@samba.org>
+We already handle short reads and writes for the following opcodes:
+
+- IORING_OP_READV
+- IORING_OP_READ_FIXED
+- IORING_OP_READ
+- IORING_OP_WRITEV
+- IORING_OP_WRITE_FIXED
+- IORING_OP_WRITE
+- IORING_OP_SPLICE
+- IORING_OP_TEE
+
+Now we have it for these as well:
+
+- IORING_OP_SENDMSG
+- IORING_OP_SEND
+- IORING_OP_RECVMSG
+- IORING_OP_RECV
+
+For IORING_OP_RECVMSG we also check for the MSG_TRUNC and MSG_CTRUNC
+flags in order to call req_set_fail_links().
+
+There might be applications arround depending on the behavior
+that even short send[msg]()/recv[msg]() retuns continue an
+IOSQE_IO_LINK chain.
+
+It's very unlikely that such applications pass in MSG_WAITALL,
+which is only defined in 'man 2 recvmsg', but not in 'man 2 sendmsg'.
+
+It's expected that the low level sock_sendmsg() call just ignores
+MSG_WAITALL, as MSG_ZEROCOPY is also ignored without explicitly set
+SO_ZEROCOPY.
+
+We also expect the caller to know about the implicit truncation to
+MAX_RW_COUNT, which we don't detect.
+
+cc: netdev@vger.kernel.org
+Link: https://lore.kernel.org/r/c4e1a4cc0d905314f4d5dc567e65a7b09621aab3.1615908477.git.metze@samba.org
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 18ed1f853439..1d901a789812 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -288,7 +288,8 @@ bool task_set_jobctl_pending(struct task_struct *task, unsigned long mask)
- 			JOBCTL_STOP_SIGMASK | JOBCTL_TRAPPING));
- 	BUG_ON((mask & JOBCTL_TRAPPING) && !(mask & JOBCTL_PENDING_MASK));
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 38a394c6260d..f8a47cebeacd 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4390,6 +4390,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
+ 	struct io_async_msghdr iomsg, *kmsg;
+ 	struct socket *sock;
+ 	unsigned flags;
++	int min_ret = 0;
+ 	int ret;
  
--	if (unlikely(fatal_signal_pending(task) || (task->flags & PF_EXITING)))
-+	if (unlikely(fatal_signal_pending(task) ||
-+		     (task->flags & (PF_EXITING | PF_IO_WORKER))))
- 		return false;
+ 	sock = sock_from_file(req->file, &ret);
+@@ -4416,6 +4417,9 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
+ 	else if (force_nonblock)
+ 		flags |= MSG_DONTWAIT;
  
- 	if (mask & JOBCTL_STOP_SIGMASK)
++	if (flags & MSG_WAITALL)
++		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
++
+ 	ret = __sys_sendmsg_sock(sock, &kmsg->msg, flags);
+ 	if (force_nonblock && ret == -EAGAIN)
+ 		return io_setup_async_msg(req, kmsg);
+@@ -4425,7 +4429,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
+ 	if (kmsg->iov != kmsg->fast_iov)
+ 		kfree(kmsg->iov);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
+-	if (ret < 0)
++	if (ret < min_ret)
+ 		req_set_fail_links(req);
+ 	__io_req_complete(req, ret, 0, cs);
+ 	return 0;
+@@ -4439,6 +4443,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
+ 	struct iovec iov;
+ 	struct socket *sock;
+ 	unsigned flags;
++	int min_ret = 0;
+ 	int ret;
+ 
+ 	sock = sock_from_file(req->file, &ret);
+@@ -4460,6 +4465,9 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
+ 	else if (force_nonblock)
+ 		flags |= MSG_DONTWAIT;
+ 
++	if (flags & MSG_WAITALL)
++		min_ret = iov_iter_count(&msg.msg_iter);
++
+ 	msg.msg_flags = flags;
+ 	ret = sock_sendmsg(sock, &msg);
+ 	if (force_nonblock && ret == -EAGAIN)
+@@ -4467,7 +4475,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
+ 	if (ret == -ERESTARTSYS)
+ 		ret = -EINTR;
+ 
+-	if (ret < 0)
++	if (ret < min_ret)
+ 		req_set_fail_links(req);
+ 	__io_req_complete(req, ret, 0, cs);
+ 	return 0;
+@@ -4619,6 +4627,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
+ 	struct socket *sock;
+ 	struct io_buffer *kbuf;
+ 	unsigned flags;
++	int min_ret = 0;
+ 	int ret, cflags = 0;
+ 
+ 	sock = sock_from_file(req->file, &ret);
+@@ -4654,6 +4663,9 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
+ 	else if (force_nonblock)
+ 		flags |= MSG_DONTWAIT;
+ 
++	if (flags & MSG_WAITALL)
++		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
++
+ 	ret = __sys_recvmsg_sock(sock, &kmsg->msg, req->sr_msg.umsg,
+ 					kmsg->uaddr, flags);
+ 	if (force_nonblock && ret == -EAGAIN)
+@@ -4666,7 +4678,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
+ 	if (kmsg->iov != kmsg->fast_iov)
+ 		kfree(kmsg->iov);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
+-	if (ret < 0)
++	if (ret < min_ret || ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
+ 		req_set_fail_links(req);
+ 	__io_req_complete(req, ret, cflags, cs);
+ 	return 0;
+@@ -4682,6 +4694,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
+ 	struct socket *sock;
+ 	struct iovec iov;
+ 	unsigned flags;
++	int min_ret = 0;
+ 	int ret, cflags = 0;
+ 
+ 	sock = sock_from_file(req->file, &ret);
+@@ -4712,6 +4725,9 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
+ 	else if (force_nonblock)
+ 		flags |= MSG_DONTWAIT;
+ 
++	if (flags & MSG_WAITALL)
++		min_ret = iov_iter_count(&msg.msg_iter);
++
+ 	ret = sock_recvmsg(sock, &msg, flags);
+ 	if (force_nonblock && ret == -EAGAIN)
+ 		return -EAGAIN;
+@@ -4720,7 +4736,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
+ out_free:
+ 	if (req->flags & REQ_F_BUFFER_SELECTED)
+ 		cflags = io_put_recv_kbuf(req);
+-	if (ret < 0)
++	if (ret < min_ret || ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
+ 		req_set_fail_links(req);
+ 	__io_req_complete(req, ret, cflags, cs);
+ 	return 0;
 -- 
 2.30.1
 
