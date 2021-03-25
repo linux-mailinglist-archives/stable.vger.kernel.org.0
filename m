@@ -2,82 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD8283491A0
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 13:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E65DD349195
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 13:09:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230281AbhCYMKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 08:10:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:38568 "EHLO mx2.suse.de"
+        id S229888AbhCYMIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 08:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230134AbhCYMKK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 08:10:10 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id A956DAC16;
-        Thu, 25 Mar 2021 12:10:08 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id D2F70DA732; Thu, 25 Mar 2021 13:08:02 +0100 (CET)
-Date:   Thu, 25 Mar 2021 13:08:02 +0100
-From:   David Sterba <dsterba@suse.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.11 26/44] btrfs: track qgroup released data in
- own variable in insert_prealloc_file_extent
-Message-ID: <20210325120802.GK7604@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        linux-btrfs@vger.kernel.org
-References: <20210325112459.1926846-1-sashal@kernel.org>
- <20210325112459.1926846-26-sashal@kernel.org>
+        id S230005AbhCYMIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 08:08:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC9DF61A1B;
+        Thu, 25 Mar 2021 12:08:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616674102;
+        bh=2fAeFP0aMQRyTARYA8le2vh966PJiWW/sbxfvybPx08=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BECVou6AhuFPT7gxC6PO9wW8VBRJ+45wPicDzLjTJQYVqRBqfNInTnE6DytB9Gcm+
+         aXa8a/EZTF8QF+g3eYdq5hsBnVR0aCD6oZkHMUm9Ytlz9WKsPZRvzfna0onXApjnHz
+         l81ir35B7EAMtDTKJ1tyBZoDCsM38CBmInlwbm/E=
+Date:   Thu, 25 Mar 2021 13:08:19 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/150] 5.10.26-rc3 review
+Message-ID: <YFx9M6BiqDavC8cU@kroah.com>
+References: <20210324093435.962321672@linuxfoundation.org>
+ <20210324192853.GA32709@duo.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210325112459.1926846-26-sashal@kernel.org>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+In-Reply-To: <20210324192853.GA32709@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 25, 2021 at 07:24:41AM -0400, Sasha Levin wrote:
-> From: Qu Wenruo <wqu@suse.com>
+On Wed, Mar 24, 2021 at 08:28:53PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> [ Upstream commit fbf48bb0b197e6894a04c714728c952af7153bf3 ]
+> > This is the start of the stable review cycle for the 5.10.26 release.
+> > There are 150 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > 
-> There is a piece of weird code in insert_prealloc_file_extent(), which
-> looks like:
+> CIP testing did not find any problems here:
 > 
-> 	ret = btrfs_qgroup_release_data(inode, file_offset, len);
-> 	if (ret < 0)
-> 		return ERR_PTR(ret);
-> 	if (trans) {
-> 		ret = insert_reserved_file_extent(trans, inode,
-> 						  file_offset, &stack_fi,
-> 						  true, ret);
-> 	...
-> 	}
-> 	extent_info.is_new_extent = true;
-> 	extent_info.qgroup_reserved = ret;
-> 	...
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-5.10.y
 > 
-> Note how the variable @ret is abused here, and if anyone is adding code
-> just after btrfs_qgroup_release_data() call, it's super easy to
-> overwrite the @ret and cause tons of qgroup related bugs.
-> 
-> Fix such abuse by introducing new variable @qgroup_released, so that we
-> won't reuse the existing variable @ret.
-> 
-> Signed-off-by: Qu Wenruo <wqu@suse.com>
-> Reviewed-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
-This patch is a preparatory work and does not make sense for backport
-standalone. Either this one plus
-https://lore.kernel.org/linux-btrfs/20210303104152.105877-2-wqu@suse.com/
-or neither. And IIRC it does not apply directly and needs some
-additional review before it can be backported to older code base, so it
-has no CC: stable tags.
+Thanks for testing.
+
+greg k-h
