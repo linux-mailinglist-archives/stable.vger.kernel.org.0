@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3461B349030
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:33:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB37D349033
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231160AbhCYLdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:33:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35200 "EHLO mail.kernel.org"
+        id S230331AbhCYLdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231859AbhCYLau (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:30:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AB1961A6C;
-        Thu, 25 Mar 2021 11:27:58 +0000 (UTC)
+        id S231179AbhCYLbF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:31:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72D0461A71;
+        Thu, 25 Mar 2021 11:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671678;
-        bh=mF5bYN2j0m5UzvpKLhrq4THLsPdyEBsxGdzThF1SPSo=;
+        s=k20201202; t=1616671680;
+        bh=FYgPAvocIRQywXGu4UeZ45yb+UK+2LKhv8hfMFDGmz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDIBl5As+RsFPGNbNSrVe9HRZHfuAlS9cxyNtoL1dbnUbTOi5dGK5UiXxm7PTI3us
-         WRnLcGuI+NrUBWU0kH30pOerUMpuO7l3QfZBt+vKjRy3fXDAA9mbWNNN6Kevz+3nMe
-         m/dvwpvYyXVHq+WU9MQQoLaEwmWLcYNhs1n8gj6O9d7xeDMkehmMwWMbzU/q5ZAm6j
-         iuMbukesJ1MUac6qCV5AH8Fq1usJxZjfwmg0vZQ+uoQKdRgD4C5X2zigCVn7sp/CC7
-         q0mvWhoLtIG1ugOA8/DUHgD1k4UNLUu8eJlvk9WvUWFhwfrglNlQSKezWcND89ACGe
-         8FPs4ikBffq9Q==
+        b=s/f19HOpa2Fn6oUzQ+uewMpGrsDcWS9EDMWdW7WQfOI/N29Ng7L2It27lkT5iOPJE
+         XzEB4sBLGGHDVHwtyDMgus9BHDvSVJXmRwHUFeGfqhdRXAnYyhw0tb80j7TRDX46Ar
+         n7EheyI79Ix5NBJTh4LsrZobooNx65xPcH0tyU1qFVgfVPFUam67z0UguBUFo7EJ8h
+         AiTZyfbjx+PYZGwyJPFsi8Lh5LWBrNwQCioVEw8+8X61u0+vyp42JaqLMyisNGVS/k
+         Fsxpwh2W/le2lbVhYjfBanlWZmd8n3uu3eIv5LKu+Ux/3yMUMD02lwZSLst6zmOtCG
+         eRo+My3NKS2AA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Rood <benjaminjrood@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 05/16] ASoC: sgtl5000: set DAP_AVC_CTRL register to correct default value on probe
-Date:   Thu, 25 Mar 2021 07:27:40 -0400
-Message-Id: <20210325112751.1928421-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 06/16] ASoC: es8316: Simplify adc_pga_gain_tlv table
+Date:   Thu, 25 Mar 2021 07:27:41 -0400
+Message-Id: <20210325112751.1928421-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112751.1928421-1-sashal@kernel.org>
 References: <20210325112751.1928421-1-sashal@kernel.org>
@@ -43,69 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Rood <benjaminjrood@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f86f58e3594fb0ab1993d833d3b9a2496f3c928c ]
+[ Upstream commit bb18c678754ce1514100fb4c0bf6113b5af36c48 ]
 
-According to the SGTL5000 datasheet [1], the DAP_AVC_CTRL register has
-the following bit field definitions:
+Most steps in this table are steps of 3dB (300 centi-dB), so we can
+simplify the table.
 
-| BITS  | FIELD       | RW | RESET | DEFINITION                        |
-| 15    | RSVD        | RO | 0x0   | Reserved                          |
-| 14    | RSVD        | RW | 0x1   | Reserved                          |
-| 13:12 | MAX_GAIN    | RW | 0x1   | Max Gain of AVC in expander mode  |
-| 11:10 | RSVD        | RO | 0x0   | Reserved                          |
-| 9:8   | LBI_RESP    | RW | 0x1   | Integrator Response               |
-| 7:6   | RSVD        | RO | 0x0   | Reserved                          |
-| 5     | HARD_LMT_EN | RW | 0x0   | Enable hard limiter mode          |
-| 4:1   | RSVD        | RO | 0x0   | Reserved                          |
-| 0     | EN          | RW | 0x0   | Enable/Disable AVC                |
+This not only reduces the amount of space it takes inside the kernel,
+this also makes alsa-lib's mixer code actually accept the table, where
+as before this change alsa-lib saw the "ADC PGA Gain" control as a
+control without a dB scale.
 
-The original default value written to the DAP_AVC_CTRL register during
-sgtl5000_i2c_probe() was 0x0510.  This would incorrectly write values to
-bits 4 and 10, which are defined as RESERVED.  It would also not set
-bits 12 and 14 to their correct RESET values of 0x1, and instead set
-them to 0x0.  While the DAP_AVC module is effectively disabled because
-the EN bit is 0, this default value is still writing invalid values to
-registers that are marked as read-only and RESERVED as well as not
-setting bits 12 and 14 to their correct default values as defined by the
-datasheet.
-
-The correct value that should be written to the DAP_AVC_CTRL register is
-0x5100, which configures the register bits to the default values defined
-by the datasheet, and prevents any writes to bits defined as
-'read-only'.  Generally speaking, it is best practice to NOT attempt to
-write values to registers/bits defined as RESERVED, as it generally
-produces unwanted/undefined behavior, or errors.
-
-Also, all credit for this patch should go to my colleague Dan MacDonald
-<dmacdonald@curbellmedical.com> for finding this error in the first
-place.
-
-[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
-
-Signed-off-by: Benjamin Rood <benjaminjrood@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20210219183308.GA2117@ubuntu-dev
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210228160441.241110-1-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/es8316.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index d64cb28e8dc5..b7a0002d9872 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -75,7 +75,7 @@ static const struct reg_default sgtl5000_reg_defaults[] = {
- 	{ SGTL5000_DAP_EQ_BASS_BAND4,		0x002f },
- 	{ SGTL5000_DAP_MAIN_CHAN,		0x8000 },
- 	{ SGTL5000_DAP_MIX_CHAN,		0x0000 },
--	{ SGTL5000_DAP_AVC_CTRL,		0x0510 },
-+	{ SGTL5000_DAP_AVC_CTRL,		0x5100 },
- 	{ SGTL5000_DAP_AVC_THRESHOLD,		0x1473 },
- 	{ SGTL5000_DAP_AVC_ATTACK,		0x0028 },
- 	{ SGTL5000_DAP_AVC_DECAY,		0x0050 },
+diff --git a/sound/soc/codecs/es8316.c b/sound/soc/codecs/es8316.c
+index 949dbdc0445e..0410f2e5183c 100644
+--- a/sound/soc/codecs/es8316.c
++++ b/sound/soc/codecs/es8316.c
+@@ -56,13 +56,8 @@ static const SNDRV_CTL_TLVD_DECLARE_DB_RANGE(adc_pga_gain_tlv,
+ 	1, 1, TLV_DB_SCALE_ITEM(0, 0, 0),
+ 	2, 2, TLV_DB_SCALE_ITEM(250, 0, 0),
+ 	3, 3, TLV_DB_SCALE_ITEM(450, 0, 0),
+-	4, 4, TLV_DB_SCALE_ITEM(700, 0, 0),
+-	5, 5, TLV_DB_SCALE_ITEM(1000, 0, 0),
+-	6, 6, TLV_DB_SCALE_ITEM(1300, 0, 0),
+-	7, 7, TLV_DB_SCALE_ITEM(1600, 0, 0),
+-	8, 8, TLV_DB_SCALE_ITEM(1800, 0, 0),
+-	9, 9, TLV_DB_SCALE_ITEM(2100, 0, 0),
+-	10, 10, TLV_DB_SCALE_ITEM(2400, 0, 0),
++	4, 7, TLV_DB_SCALE_ITEM(700, 300, 0),
++	8, 10, TLV_DB_SCALE_ITEM(1800, 300, 0),
+ );
+ 
+ static const SNDRV_CTL_TLVD_DECLARE_DB_RANGE(hpout_vol_tlv,
 -- 
 2.30.1
 
