@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D197348F9F
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44ABB348FAC
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:30:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231308AbhCYL2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36180 "EHLO mail.kernel.org"
+        id S230186AbhCYL3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:29:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231304AbhCYL0u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:26:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E533661A36;
-        Thu, 25 Mar 2021 11:26:48 +0000 (UTC)
+        id S231371AbhCYL1Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:27:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96E2661A40;
+        Thu, 25 Mar 2021 11:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671609;
-        bh=0aF/PdqEgb2ANeMXTtBHFO+YHGb1fKkmuij9qI2K66k=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSOATvyl5LsGsFiGkdS7TISGUVRJXEFqJkWKfzDQvFL9P+Bnka7aEB9sfck+oXuzV
-         wIwkkLAjTEnjooLu8s4f42HzLPR1Ebs+8gdk28GOXNg85DsjnmkMLHzsnfU9fFKGCr
-         aGWtlgKX61NXSInqD6kAQ26/RJuPV53laUrOoeg9Or4x5RGwv2NfTkCPNlRIISnabX
-         ORr4m+WHYHXNtBYfkGgvGPFPdx4LsbQPocO6J6eZNEqaPy0g2fD7DB2z3qTJaXBxPY
-         Slt5gw4YixF9FNbsQORxA0GimWkab3H0qHpvDfKAtM1aXRrG7pbkgzt9I9M4FiVoHF
-         Xu5WMVqm2knJQ==
+        s=k20201202; t=1616671613;
+        bh=KLBjUh0NbVXpYUdhYUG+1LhUg0044Upa/LI0aGSDFW8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JktrGBaWJSIMZD5vYdBKXsuEg0R5iKwEceifj3Sm0N3Aw8A3w4QAyKOq+v7Ob49M6
+         ORiyL3Dg44Wf/lY7jKdw3veJB/jxO3vGYTzpdDj+3QIZ9YLSwdD9TsFEMPNUYeXGXg
+         n3EYDnSvFXY6GQFB+vIYC5veP4XxZxhDVCKMb6Cv9bkbDYIXocogE0w8mspXpQ0xCY
+         J7b8yPeGFuVlVm1wo9vL093be5l7GgNkF6uaQk5r7+a9UfBbdQXjZvQS++K1Mp6OSr
+         L4ZpcjpuhUj7HH1/rw3kk12KPfmLTho/YF8/UMlQUhvOS8ypa/mPEHUNjgJtc27YF0
+         y7pBqmA99g30Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Metzmacher <metze@samba.org>, netdev@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 39/39] io_uring: call req_set_fail_links() on short send[msg]()/recv[msg]() with MSG_WAITALL
-Date:   Thu, 25 Mar 2021 07:25:58 -0400
-Message-Id: <20210325112558.1927423-39-sashal@kernel.org>
+Cc:     Eric Whitney <enwlinux@gmail.com>, Theodore Ts'o <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/24] ext4: shrink race window in ext4_should_retry_alloc()
+Date:   Thu, 25 Mar 2021 07:26:27 -0400
+Message-Id: <20210325112651.1927828-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210325112558.1927423-1-sashal@kernel.org>
-References: <20210325112558.1927423-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,172 +39,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Eric Whitney <enwlinux@gmail.com>
 
-[ Upstream commit 0031275d119efe16711cd93519b595e6f9b4b330 ]
+[ Upstream commit efc61345274d6c7a46a0570efbc916fcbe3e927b ]
 
-Without that it's not safe to use them in a linked combination with
-others.
+When generic/371 is run on kvm-xfstests using 5.10 and 5.11 kernels, it
+fails at significant rates on the two test scenarios that disable
+delayed allocation (ext3conv and data_journal) and force actual block
+allocation for the fallocate and pwrite functions in the test.  The
+failure rate on 5.10 for both ext3conv and data_journal on one test
+system typically runs about 85%.  On 5.11, the failure rate on ext3conv
+sometimes drops to as low as 1% while the rate on data_journal
+increases to nearly 100%.
 
-Now combinations like IORING_OP_SENDMSG followed by IORING_OP_SPLICE
-should be possible.
+The observed failures are largely due to ext4_should_retry_alloc()
+cutting off block allocation retries when s_mb_free_pending (used to
+indicate that a transaction in progress will free blocks) is 0.
+However, free space is usually available when this occurs during runs
+of generic/371.  It appears that a thread attempting to allocate
+blocks is just missing transaction commits in other threads that
+increase the free cluster count and reset s_mb_free_pending while
+the allocating thread isn't running.  Explicitly testing for free space
+availability avoids this race.
 
-We already handle short reads and writes for the following opcodes:
+The current code uses a post-increment operator in the conditional
+expression that determines whether the retry limit has been exceeded.
+This means that the conditional expression uses the value of the
+retry counter before it's increased, resulting in an extra retry cycle.
+The current code actually retries twice before hitting its retry limit
+rather than once.
 
-- IORING_OP_READV
-- IORING_OP_READ_FIXED
-- IORING_OP_READ
-- IORING_OP_WRITEV
-- IORING_OP_WRITE_FIXED
-- IORING_OP_WRITE
-- IORING_OP_SPLICE
-- IORING_OP_TEE
+Increasing the retry limit to 3 from the current actual maximum retry
+count of 2 in combination with the change described above reduces the
+observed failure rate to less that 0.1% on both ext3conv and
+data_journal with what should be limited impact on users sensitive to
+the overhead caused by retries.
 
-Now we have it for these as well:
+A per filesystem percpu counter exported via sysfs is added to allow
+users or developers to track the number of times the retry limit is
+exceeded without resorting to debugging methods.  This should provide
+some insight into worst case retry behavior.
 
-- IORING_OP_SENDMSG
-- IORING_OP_SEND
-- IORING_OP_RECVMSG
-- IORING_OP_RECV
-
-For IORING_OP_RECVMSG we also check for the MSG_TRUNC and MSG_CTRUNC
-flags in order to call req_set_fail_links().
-
-There might be applications arround depending on the behavior
-that even short send[msg]()/recv[msg]() retuns continue an
-IOSQE_IO_LINK chain.
-
-It's very unlikely that such applications pass in MSG_WAITALL,
-which is only defined in 'man 2 recvmsg', but not in 'man 2 sendmsg'.
-
-It's expected that the low level sock_sendmsg() call just ignores
-MSG_WAITALL, as MSG_ZEROCOPY is also ignored without explicitly set
-SO_ZEROCOPY.
-
-We also expect the caller to know about the implicit truncation to
-MAX_RW_COUNT, which we don't detect.
-
-cc: netdev@vger.kernel.org
-Link: https://lore.kernel.org/r/c4e1a4cc0d905314f4d5dc567e65a7b09621aab3.1615908477.git.metze@samba.org
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+Link: https://lore.kernel.org/r/20210218151132.19678-1-enwlinux@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ fs/ext4/balloc.c | 38 ++++++++++++++++++++++++++------------
+ fs/ext4/ext4.h   |  1 +
+ fs/ext4/super.c  |  5 +++++
+ fs/ext4/sysfs.c  |  7 +++++++
+ 4 files changed, 39 insertions(+), 12 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 38a394c6260d..f8a47cebeacd 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4390,6 +4390,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	struct io_async_msghdr iomsg, *kmsg;
- 	struct socket *sock;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret;
+diff --git a/fs/ext4/balloc.c b/fs/ext4/balloc.c
+index 5aba67a504cf..031ff3f19018 100644
+--- a/fs/ext4/balloc.c
++++ b/fs/ext4/balloc.c
+@@ -612,27 +612,41 @@ int ext4_claim_free_clusters(struct ext4_sb_info *sbi,
  
- 	sock = sock_from_file(req->file, &ret);
-@@ -4416,6 +4417,9 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
+ /**
+  * ext4_should_retry_alloc() - check if a block allocation should be retried
+- * @sb:			super block
+- * @retries:		number of attemps has been made
++ * @sb:			superblock
++ * @retries:		number of retry attempts made so far
+  *
+- * ext4_should_retry_alloc() is called when ENOSPC is returned, and if
+- * it is profitable to retry the operation, this function will wait
+- * for the current or committing transaction to complete, and then
+- * return TRUE.  We will only retry once.
++ * ext4_should_retry_alloc() is called when ENOSPC is returned while
++ * attempting to allocate blocks.  If there's an indication that a pending
++ * journal transaction might free some space and allow another attempt to
++ * succeed, this function will wait for the current or committing transaction
++ * to complete and then return TRUE.
+  */
+ int ext4_should_retry_alloc(struct super_block *sb, int *retries)
+ {
+-	if (!ext4_has_free_clusters(EXT4_SB(sb), 1, 0) ||
+-	    (*retries)++ > 1 ||
+-	    !EXT4_SB(sb)->s_journal)
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
 +
- 	ret = __sys_sendmsg_sock(sock, &kmsg->msg, flags);
- 	if (force_nonblock && ret == -EAGAIN)
- 		return io_setup_async_msg(req, kmsg);
-@@ -4425,7 +4429,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	if (kmsg->iov != kmsg->fast_iov)
- 		kfree(kmsg->iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	if (ret < 0)
-+	if (ret < min_ret)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, 0, cs);
- 	return 0;
-@@ -4439,6 +4443,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	struct iovec iov;
- 	struct socket *sock;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret;
++	if (!sbi->s_journal)
+ 		return 0;
  
- 	sock = sock_from_file(req->file, &ret);
-@@ -4460,6 +4465,9 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
+-	smp_mb();
+-	if (EXT4_SB(sb)->s_mb_free_pending == 0)
++	if (++(*retries) > 3) {
++		percpu_counter_inc(&sbi->s_sra_exceeded_retry_limit);
+ 		return 0;
++	}
  
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&msg.msg_iter);
++	/*
++	 * if there's no indication that blocks are about to be freed it's
++	 * possible we just missed a transaction commit that did so
++	 */
++	smp_mb();
++	if (sbi->s_mb_free_pending == 0)
++		return ext4_has_free_clusters(sbi, 1, 0);
 +
- 	msg.msg_flags = flags;
- 	ret = sock_sendmsg(sock, &msg);
- 	if (force_nonblock && ret == -EAGAIN)
-@@ -4467,7 +4475,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	if (ret == -ERESTARTSYS)
- 		ret = -EINTR;
++	/*
++	 * it's possible we've just missed a transaction commit here,
++	 * so ignore the returned status
++	 */
+ 	jbd_debug(1, "%s: retrying operation after ENOSPC\n", sb->s_id);
+-	jbd2_journal_force_commit_nested(EXT4_SB(sb)->s_journal);
++	(void) jbd2_journal_force_commit_nested(sbi->s_journal);
+ 	return 1;
+ }
  
--	if (ret < 0)
-+	if (ret < min_ret)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, 0, cs);
- 	return 0;
-@@ -4619,6 +4627,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	struct socket *sock;
- 	struct io_buffer *kbuf;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret, cflags = 0;
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index 1c558b554788..bf3eaa903033 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1420,6 +1420,7 @@ struct ext4_sb_info {
+ 	struct percpu_counter s_freeinodes_counter;
+ 	struct percpu_counter s_dirs_counter;
+ 	struct percpu_counter s_dirtyclusters_counter;
++	struct percpu_counter s_sra_exceeded_retry_limit;
+ 	struct blockgroup_lock *s_blockgroup_lock;
+ 	struct proc_dir_entry *s_proc;
+ 	struct kobject s_kobj;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 06568467b0c2..2ecf4594a20d 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1017,6 +1017,7 @@ static void ext4_put_super(struct super_block *sb)
+ 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
+ 	percpu_counter_destroy(&sbi->s_dirs_counter);
+ 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
++	percpu_counter_destroy(&sbi->s_sra_exceeded_retry_limit);
+ 	percpu_free_rwsem(&sbi->s_writepages_rwsem);
+ #ifdef CONFIG_QUOTA
+ 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
+@@ -4597,6 +4598,9 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 	if (!err)
+ 		err = percpu_counter_init(&sbi->s_dirtyclusters_counter, 0,
+ 					  GFP_KERNEL);
++	if (!err)
++		err = percpu_counter_init(&sbi->s_sra_exceeded_retry_limit, 0,
++					  GFP_KERNEL);
+ 	if (!err)
+ 		err = percpu_init_rwsem(&sbi->s_writepages_rwsem);
  
- 	sock = sock_from_file(req->file, &ret);
-@@ -4654,6 +4663,9 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
+@@ -4699,6 +4703,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
+ 	percpu_counter_destroy(&sbi->s_dirs_counter);
+ 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
++	percpu_counter_destroy(&sbi->s_sra_exceeded_retry_limit);
+ 	percpu_free_rwsem(&sbi->s_writepages_rwsem);
+ failed_mount5:
+ 	ext4_ext_release(sb);
+diff --git a/fs/ext4/sysfs.c b/fs/ext4/sysfs.c
+index eb1efad0e20a..9394360ff137 100644
+--- a/fs/ext4/sysfs.c
++++ b/fs/ext4/sysfs.c
+@@ -23,6 +23,7 @@ typedef enum {
+ 	attr_session_write_kbytes,
+ 	attr_lifetime_write_kbytes,
+ 	attr_reserved_clusters,
++	attr_sra_exceeded_retry_limit,
+ 	attr_inode_readahead,
+ 	attr_trigger_test_error,
+ 	attr_first_error_time,
+@@ -176,6 +177,7 @@ EXT4_ATTR_FUNC(delayed_allocation_blocks, 0444);
+ EXT4_ATTR_FUNC(session_write_kbytes, 0444);
+ EXT4_ATTR_FUNC(lifetime_write_kbytes, 0444);
+ EXT4_ATTR_FUNC(reserved_clusters, 0644);
++EXT4_ATTR_FUNC(sra_exceeded_retry_limit, 0444);
  
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
-+
- 	ret = __sys_recvmsg_sock(sock, &kmsg->msg, req->sr_msg.umsg,
- 					kmsg->uaddr, flags);
- 	if (force_nonblock && ret == -EAGAIN)
-@@ -4666,7 +4678,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	if (kmsg->iov != kmsg->fast_iov)
- 		kfree(kmsg->iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	if (ret < 0)
-+	if (ret < min_ret || ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
- 	return 0;
-@@ -4682,6 +4694,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	struct socket *sock;
- 	struct iovec iov;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret, cflags = 0;
- 
- 	sock = sock_from_file(req->file, &ret);
-@@ -4712,6 +4725,9 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&msg.msg_iter);
-+
- 	ret = sock_recvmsg(sock, &msg, flags);
- 	if (force_nonblock && ret == -EAGAIN)
- 		return -EAGAIN;
-@@ -4720,7 +4736,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- out_free:
- 	if (req->flags & REQ_F_BUFFER_SELECTED)
- 		cflags = io_put_recv_kbuf(req);
--	if (ret < 0)
-+	if (ret < min_ret || ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
- 	return 0;
+ EXT4_ATTR_OFFSET(inode_readahead_blks, 0644, inode_readahead,
+ 		 ext4_sb_info, s_inode_readahead_blks);
+@@ -207,6 +209,7 @@ static struct attribute *ext4_attrs[] = {
+ 	ATTR_LIST(session_write_kbytes),
+ 	ATTR_LIST(lifetime_write_kbytes),
+ 	ATTR_LIST(reserved_clusters),
++	ATTR_LIST(sra_exceeded_retry_limit),
+ 	ATTR_LIST(inode_readahead_blks),
+ 	ATTR_LIST(inode_goal),
+ 	ATTR_LIST(mb_stats),
+@@ -308,6 +311,10 @@ static ssize_t ext4_attr_show(struct kobject *kobj,
+ 		return snprintf(buf, PAGE_SIZE, "%llu\n",
+ 				(unsigned long long)
+ 				atomic64_read(&sbi->s_resv_clusters));
++	case attr_sra_exceeded_retry_limit:
++		return snprintf(buf, PAGE_SIZE, "%llu\n",
++				(unsigned long long)
++			percpu_counter_sum(&sbi->s_sra_exceeded_retry_limit));
+ 	case attr_inode_readahead:
+ 	case attr_pointer_ui:
+ 		if (!ptr)
 -- 
 2.30.1
 
