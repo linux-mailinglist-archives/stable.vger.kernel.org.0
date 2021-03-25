@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09646348F34
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:27:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FB02348F30
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:27:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230520AbhCYL0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231129AbhCYL0V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 25 Mar 2021 07:26:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34116 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230306AbhCYLZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:25:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C4861A24;
-        Thu, 25 Mar 2021 11:25:42 +0000 (UTC)
+        id S230315AbhCYLZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:25:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E64161A27;
+        Thu, 25 Mar 2021 11:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671542;
-        bh=ym85RzS/JUtaS267Olck5OzQXWkc+gY0qQ3k0DdlQ2E=;
+        s=k20201202; t=1616671544;
+        bh=VqP86CCdqmO2kf0N46ywNOO+7o7RwYwlYzdZDNxU3+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FtqfueUNe5XnLDLrBq3FXrJkEmDi719RaaNs1OnjcSgiGhm6GSxj0ajyoiYi72EUG
-         FU1BsZl6xyEIe+dS/zpgUDOjnAxvvnXQfzYptaEEVuRcPMlijXImI6qvcuoFpUfpXc
-         E/RTn+dHteMON9aHTS9hzmvw+Xfdghq0cbaLay0cxYl+grDyRjMP1vuW/V/OYlrDJT
-         vFEfvKEKUeTbzLTE6twfJQujKq7Pj8t04V5KUsG56mUqElUJrqNISxEp0k6lqphHSJ
-         E/U1MwJ8emaVFadUUiKyrW453DhHZ+F7CfFKfV5lJWCSR746skdDqGreDHR+6oO/KZ
-         RUeDpgHhm0l7A==
+        b=nt+kqm/PLcmsUWq0Nv3d4H9NXxpEjVEYCHtMAIM5OX2lueDaxlRq2M5yU7dP/t4mZ
+         lLzFFeMv49lLk272I966SplULW9ZhKJ/W3TLWA5ME9VVMfEAlxQw75eH4Bo/+joB3i
+         ZDlM9K7O19pyJP/66zBdI/O6xb+D8hb3oF/trBHWQKC6AheUe5rF9BgmG6Z56wAwI8
+         UvKxQY237ivolIBe1uIHFp6xKltPEJOCrDkaVhqo9if2hvCa7WA9+cqGSeicXlZV29
+         b8V+UEqyUkeXVdQlftPSsO+xzQebE0dhbHDATHuGDysbBQPhlJF4eS68bvHMUyP7r7
+         3Xjpy6bD1EyJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 33/44] thermal/core: Add NULL pointer check before using cooling device stats
-Date:   Thu, 25 Mar 2021 07:24:48 -0400
-Message-Id: <20210325112459.1926846-33-sashal@kernel.org>
+Cc:     Waiman Long <longman@redhat.com>, Ingo Molnar <mingo@kernel.org>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 34/44] locking/ww_mutex: Simplify use_ww_ctx & ww_ctx handling
+Date:   Thu, 25 Mar 2021 07:24:49 -0400
+Message-Id: <20210325112459.1926846-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112459.1926846-1-sashal@kernel.org>
 References: <20210325112459.1926846-1-sashal@kernel.org>
@@ -42,58 +42,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 2046a24ae121cd107929655a6aaf3b8c5beea01f ]
+[ Upstream commit 5de2055d31ea88fd9ae9709ac95c372a505a60fa ]
 
-There is a possible chance that some cooling device stats buffer
-allocation fails due to very high cooling device max state value.
-Later cooling device update sysfs can try to access stats data
-for the same cooling device. It will lead to NULL pointer
-dereference issue.
+The use_ww_ctx flag is passed to mutex_optimistic_spin(), but the
+function doesn't use it. The frequent use of the (use_ww_ctx && ww_ctx)
+combination is repetitive.
 
-Add a NULL pointer check before accessing thermal cooling device
-stats data. It fixes the following bug
+In fact, ww_ctx should not be used at all if !use_ww_ctx.  Simplify
+ww_mutex code by dropping use_ww_ctx from mutex_optimistic_spin() an
+clear ww_ctx if !use_ww_ctx. In this way, we can replace (use_ww_ctx &&
+ww_ctx) by just (ww_ctx).
 
-[ 26.812833] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
-[ 27.122960] Call trace:
-[ 27.122963] do_raw_spin_lock+0x18/0xe8
-[ 27.122966] _raw_spin_lock+0x24/0x30
-[ 27.128157] thermal_cooling_device_stats_update+0x24/0x98
-[ 27.128162] cur_state_store+0x88/0xb8
-[ 27.128166] dev_attr_store+0x40/0x58
-[ 27.128169] sysfs_kf_write+0x50/0x68
-[ 27.133358] kernfs_fop_write+0x12c/0x1c8
-[ 27.133362] __vfs_write+0x54/0x160
-[ 27.152297] vfs_write+0xcc/0x188
-[ 27.157132] ksys_write+0x78/0x108
-[ 27.162050] ksys_write+0xf8/0x108
-[ 27.166968] __arm_smccc_hvc+0x158/0x4b0
-[ 27.166973] __arm_smccc_hvc+0x9c/0x4b0
-[ 27.186005] el0_svc+0x8/0xc
-
-Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1607367181-24589-1-git-send-email-manafm@codeaurora.org
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Davidlohr Bueso <dbueso@suse.de>
+Link: https://lore.kernel.org/r/20210316153119.13802-2-longman@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/locking/mutex.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
-index 0866e949339b..9b73532464e5 100644
---- a/drivers/thermal/thermal_sysfs.c
-+++ b/drivers/thermal/thermal_sysfs.c
-@@ -754,6 +754,9 @@ void thermal_cooling_device_stats_update(struct thermal_cooling_device *cdev,
+diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
+index 5352ce50a97e..2c25b830203c 100644
+--- a/kernel/locking/mutex.c
++++ b/kernel/locking/mutex.c
+@@ -636,7 +636,7 @@ static inline int mutex_can_spin_on_owner(struct mutex *lock)
+  */
+ static __always_inline bool
+ mutex_optimistic_spin(struct mutex *lock, struct ww_acquire_ctx *ww_ctx,
+-		      const bool use_ww_ctx, struct mutex_waiter *waiter)
++		      struct mutex_waiter *waiter)
  {
- 	struct cooling_dev_stats *stats = cdev->stats;
+ 	if (!waiter) {
+ 		/*
+@@ -712,7 +712,7 @@ mutex_optimistic_spin(struct mutex *lock, struct ww_acquire_ctx *ww_ctx,
+ #else
+ static __always_inline bool
+ mutex_optimistic_spin(struct mutex *lock, struct ww_acquire_ctx *ww_ctx,
+-		      const bool use_ww_ctx, struct mutex_waiter *waiter)
++		      struct mutex_waiter *waiter)
+ {
+ 	return false;
+ }
+@@ -932,6 +932,9 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 	struct ww_mutex *ww;
+ 	int ret;
  
-+	if (!stats)
-+		return;
++	if (!use_ww_ctx)
++		ww_ctx = NULL;
 +
- 	spin_lock(&stats->lock);
+ 	might_sleep();
  
- 	if (stats->state == new_state)
+ #ifdef CONFIG_DEBUG_MUTEXES
+@@ -939,7 +942,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ #endif
+ 
+ 	ww = container_of(lock, struct ww_mutex, base);
+-	if (use_ww_ctx && ww_ctx) {
++	if (ww_ctx) {
+ 		if (unlikely(ww_ctx == READ_ONCE(ww->ctx)))
+ 			return -EALREADY;
+ 
+@@ -956,10 +959,10 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 	mutex_acquire_nest(&lock->dep_map, subclass, 0, nest_lock, ip);
+ 
+ 	if (__mutex_trylock(lock) ||
+-	    mutex_optimistic_spin(lock, ww_ctx, use_ww_ctx, NULL)) {
++	    mutex_optimistic_spin(lock, ww_ctx, NULL)) {
+ 		/* got the lock, yay! */
+ 		lock_acquired(&lock->dep_map, ip);
+-		if (use_ww_ctx && ww_ctx)
++		if (ww_ctx)
+ 			ww_mutex_set_context_fastpath(ww, ww_ctx);
+ 		preempt_enable();
+ 		return 0;
+@@ -970,7 +973,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 	 * After waiting to acquire the wait_lock, try again.
+ 	 */
+ 	if (__mutex_trylock(lock)) {
+-		if (use_ww_ctx && ww_ctx)
++		if (ww_ctx)
+ 			__ww_mutex_check_waiters(lock, ww_ctx);
+ 
+ 		goto skip_wait;
+@@ -1023,7 +1026,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 			goto err;
+ 		}
+ 
+-		if (use_ww_ctx && ww_ctx) {
++		if (ww_ctx) {
+ 			ret = __ww_mutex_check_kill(lock, &waiter, ww_ctx);
+ 			if (ret)
+ 				goto err;
+@@ -1036,7 +1039,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 		 * ww_mutex needs to always recheck its position since its waiter
+ 		 * list is not FIFO ordered.
+ 		 */
+-		if ((use_ww_ctx && ww_ctx) || !first) {
++		if (ww_ctx || !first) {
+ 			first = __mutex_waiter_is_first(lock, &waiter);
+ 			if (first)
+ 				__mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
+@@ -1049,7 +1052,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 		 * or we must see its unlock and acquire.
+ 		 */
+ 		if (__mutex_trylock(lock) ||
+-		    (first && mutex_optimistic_spin(lock, ww_ctx, use_ww_ctx, &waiter)))
++		    (first && mutex_optimistic_spin(lock, ww_ctx, &waiter)))
+ 			break;
+ 
+ 		spin_lock(&lock->wait_lock);
+@@ -1058,7 +1061,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ acquired:
+ 	__set_current_state(TASK_RUNNING);
+ 
+-	if (use_ww_ctx && ww_ctx) {
++	if (ww_ctx) {
+ 		/*
+ 		 * Wound-Wait; we stole the lock (!first_waiter), check the
+ 		 * waiters as anyone might want to wound us.
+@@ -1078,7 +1081,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 	/* got the lock - cleanup and rejoice! */
+ 	lock_acquired(&lock->dep_map, ip);
+ 
+-	if (use_ww_ctx && ww_ctx)
++	if (ww_ctx)
+ 		ww_mutex_lock_acquired(ww, ww_ctx);
+ 
+ 	spin_unlock(&lock->wait_lock);
 -- 
 2.30.1
 
