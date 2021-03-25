@@ -2,116 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C28333498DB
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 19:03:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC5034994F
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 19:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229592AbhCYSCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 14:02:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41456 "EHLO
+        id S230082AbhCYSPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 14:15:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229581AbhCYSCc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Mar 2021 14:02:32 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 841D6C06174A
-        for <stable@vger.kernel.org>; Thu, 25 Mar 2021 11:02:32 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id e14so4369139ejz.11
-        for <stable@vger.kernel.org>; Thu, 25 Mar 2021 11:02:32 -0700 (PDT)
+        with ESMTP id S229977AbhCYSPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Mar 2021 14:15:43 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15F8C06174A
+        for <stable@vger.kernel.org>; Thu, 25 Mar 2021 11:15:43 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id y5so2919389pfn.1
+        for <stable@vger.kernel.org>; Thu, 25 Mar 2021 11:15:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=cAN4xYKueo6aRaOvV/aoWuzrvzWThs3UYdTL4NCgLcU=;
-        b=b/zAXTlIxd/IAnztdleBX1HiKUtID739HrxZLmbxHD+Y7uOGMMxbzKL6OoWEycyQlR
-         1VwjUiU+A4Xm16Ze4TOoEikBkGWU0TULJv9Sn8nibPFa3QlnAw3Xm5IN5PbDtu0k/Ifm
-         8/JEkCUJoXtme79iMiSjhkIZvafAVSt0t6Tttf/0EuXn9NBNXc4ImBFEGopoAPMLcbC+
-         SunuQXuruTQHmVU1ti+rKhqoqnZCr2KI46l0yyBKtok4e4mHD+/QCeZqEMDZ5tDq8R/o
-         Os9q1RXRQkSQ24BzE+lhQDbKF6MqpnpKbRp89CNReci39r+YDx6UWR5f1YFtOyJ1ZNSj
-         05wA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/PF1q8FM4DiJghyvuZ6D7UvSlINpWBqNtn5136NMqzA=;
+        b=p/PbUExAO8+FQ1ZdTkcTyF7hh/Gt0xXJ5NPpDdDGHmItdBlI03aUT1DAFbdeOVUdxJ
+         lf3XBD/B6tkCfofw40Zac6DiFflhUCciFpflqW9GBd4bxP1ZpOloBrkQgrjltHGcITeF
+         zuWhMje19l2YPBl4Cs6SFw+vwil0PClFvLoeQ8c5NwCEy9WP0w1aPqMGzSBdF609nNG/
+         d+F4qBKvrhAqcvyGror48+q2LhyU4Xl5PbMHjrD52YOAqzU1ZeQbJVYxiDV5cY4QpdRE
+         nKrfzJdH1xQPFTg9i1/uouiHZCXjlltloUOtQZSDaWtPjOLtpVdaXCfadmee3KCLITUP
+         BzLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=cAN4xYKueo6aRaOvV/aoWuzrvzWThs3UYdTL4NCgLcU=;
-        b=Nicie6ge2DUkUcBxoCuaeDLxKItdrJSRqio3HVtqbSgCMY1TD15a3OtRKL5zBigFjA
-         e+zOm2/vNn2d/bkY6D/g6F8eoueD6r3righq3DMlAS53XjU1JOA9Hx7Ny6DVS6dNakdF
-         xl0tKgE5ju29S5pn0yUwIy/B8vZqnpwg0WCKefpksHF3ic1GOptOzSdRzKec7LnQ/q2W
-         Upyl+XsV3rDdQNC+vLrJabVuKkSfRLAfjNekGmiDml9BNnZkBOWtYZzra52cb08jbh91
-         3++94LAI5lgPewvxAtbwQqapo+/uOhu9OY/nW0jYxGscfpoJ6cuvbM9/9VLst2A0iqsG
-         Bn0Q==
-X-Gm-Message-State: AOAM530I6hVJVmA5Po4YdtnebZUYRxvWoFQ9CE5hajrCD+pPIK1n0Z6r
-        LfwRArJMsZyCBj4wp86cp9KBLwWLYYC6VdXmJDk=
-X-Google-Smtp-Source: ABdhPJzIVXGBwDP6fl+Fcg4+kHroPMS7HArduhZsyV40Xk9zqC7tkXxPrNckQ/hDYu63HgTCJNwlrpmSmlaUVMg5b2U=
-X-Received: by 2002:a17:906:b80c:: with SMTP id dv12mr11009188ejb.110.1616695351091;
- Thu, 25 Mar 2021 11:02:31 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/PF1q8FM4DiJghyvuZ6D7UvSlINpWBqNtn5136NMqzA=;
+        b=ubjzxTWaasCuy0olKqycXydT7/w7mVob17f8B+2Oxn5TfZbVGf5ufHJD2eHM+FZnzG
+         Aw/kAfylOUZ89Sy9hpdYW9MBJjRrPwAVuW7lxmAcfqjYlaMmG76pt3fzzD9MvbD6Ywaw
+         9fJtjXlRaiAEf96+QNZ0kHW7jHvCBuez3fTTxPQVlbkdQjRoqvPnz+ElRC8qhFcQIhPN
+         0S3merf7Ou3BMa2o/1luO1mrFW6xuBIz+hufmKkqGkU6g8o8jOJt7z0V7asff9gre69k
+         eRERl5E56tmnl+Ye+4SEFZw8CKpZ79RlNBpw8miFxXwpWwvPlSl48HWuVsTa+3WVvwRo
+         eyrA==
+X-Gm-Message-State: AOAM530GZt3C70Zry4VBzLQ5uPcuXlTaoysI3t31Hq8VtktiolPFPMgr
+        dxGhS+7jg4qjiH4qDVSxjVujjNJnVEDd2g==
+X-Google-Smtp-Source: ABdhPJyzA8B2WKKRrcb1TG5pbvZfSjmCLqlaU5NAwGL0RFjF48uzZwFsPqKsydzVPCuvXm92ykqbJQ==
+X-Received: by 2002:a17:902:ea0e:b029:e4:81d4:ddae with SMTP id s14-20020a170902ea0eb02900e481d4ddaemr11506318plg.12.1616696143067;
+        Thu, 25 Mar 2021 11:15:43 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id gb1sm6054879pjb.21.2021.03.25.11.15.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Mar 2021 11:15:42 -0700 (PDT)
+Message-ID: <605cd34e.1c69fb81.714ce.e887@mx.google.com>
+Date:   Thu, 25 Mar 2021 11:15:42 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a17:906:3e87:0:0:0:0 with HTTP; Thu, 25 Mar 2021 11:02:30
- -0700 (PDT)
-Reply-To: coletedahan1880@gmail.com
-From:   "Mrs.Colete Dahan" <dr.youssefbakary@gmail.com>
-Date:   Thu, 25 Mar 2021 19:02:30 +0100
-Message-ID: <CANhAsrP2ik69FwCfsLf3WR23NLSbr+1oDsWU6vj04JCcRAUGOQ@mail.gmail.com>
-Subject: Dear partner.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.26-2-g47ca1b9b720c4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 144 runs,
+ 3 regressions (v5.10.26-2-g47ca1b9b720c4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+stable-rc/queue/5.10 baseline: 144 runs, 3 regressions (v5.10.26-2-g47ca1b9=
+b720c4)
 
-I Mrs.Colete Dahan, With due respect, I have decided to contact you on
-a business transaction  that will be beneficial to both of us. At the
-bank last account and  auditing evaluation, my staff came across an
-old account which was being maintained by a foreign client who we
-learned was among the deceased passengers of a motor accident on
-November.2003, the deceased was unable to run this account since his
-death. The Account has  remained dormant without the knowledge of his
-family since it was put in a  safe deposit account in the bank for
-future investment by the client.
+Regressions Summary
+-------------------
 
-Since his demise, even the members of his family haven't applied for
-claims over this fund and it has been in the safe deposit account
-until I discovered that it cannot be claimed since our client
-isaforeign national and we are sure that he has no next of kin here to
-file claims over the money. As the director of the department, this
-discovery was brought to my office so as to decide what is to be
-done.I decided to seek ways through which to transfer this money out
-of the bank and out of the country too.
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
+1          =
 
-The total amount in the account is USD$4.7Million with my positions as
-staff of the bank,I am handicapped because I cannot operate foreign
-accounts and cannot lay a bonafide claim over this money. The client
-was a foreign  national and you will only be asked to act as his next
-of kin and I will supply you with all the necessary information and
-bank data to assist you in being able to transfer this money to any
-bank of your  choice where this money could be transferred into.The
-total sum will be shared as follows: 50% for me, 50% for you and
-expenses incidental occur  during the transfer will be incur by both
-of us. The transfer is risk free on both sides hence you are going to
-follow my instruction till the fund  transfer to your account. Since I
-work in this bank that is why you should  be confident in the success
-of this transaction because you will be updated with information as
-and when desired.
+imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
+1          =
 
-I will wish you to keep this transaction secret and confidential as I
-am hoping to retire with my share of this money at the end of the
-transaction  which will be when this money is safe in your account.I
-will then come over to your country for sharing according to the
-previously agreed percentages. You might even have to advise me on
-possibilities of investment in your country or elsewhere of our
-choice. May  God help you to help me to a restive retirement,Amen,And
-You have to  contact me through my private e-mail
-at(coletedahan1880@gmail.com)Please for further information and inquiries
-feel free to contact me back immediately for more explanation and
-better understanding I want you to assure me your capability of
-handling this  project with trust by providing me your following
-information details such as:
+meson-gxbb-p200    | arm64 | lab-baylibre | gcc-8    | defconfig         | =
+1          =
 
-(1)NAME..............
-(2)AGE:................
-(3)SEX:.....................
-(4)PHONE NUMBER:.................
-(5)OCCUPATION:.....................
-(6)YOUR COUNTRY:.....................
 
-Yours sincerely,
-Mrs.Colete Dahan
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.26-2-g47ca1b9b720c4/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.26-2-g47ca1b9b720c4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      47ca1b9b720c4f9d660d4b0001cb5a08f9f21885 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/605c9e2b380d601855af02c1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+2-g47ca1b9b720c4/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
+rpi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+2-g47ca1b9b720c4/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
+rpi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/605c9e2b380d601855af0=
+2c2
+        new failure (last pass: v5.10.25-150-gd189d68c0ebe2) =
+
+ =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/605ca1267224aa53efaf02ae
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+2-g47ca1b9b720c4/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+2-g47ca1b9b720c4/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/605ca1267224aa53efaf0=
+2af
+        new failure (last pass: v5.10.25-150-gd189d68c0ebe2) =
+
+ =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+meson-gxbb-p200    | arm64 | lab-baylibre | gcc-8    | defconfig         | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/605ca0b1e9b9393222af0314
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+2-g47ca1b9b720c4/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+2-g47ca1b9b720c4/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/605ca0b1e9b9393222af0=
+315
+        new failure (last pass: v5.10.25-150-gd189d68c0ebe2) =
+
+ =20
