@@ -2,78 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD559349192
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 13:08:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8283491A0
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 13:10:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230453AbhCYMIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 08:08:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
+        id S230281AbhCYMKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 08:10:16 -0400
+Received: from mx2.suse.de ([195.135.220.15]:38568 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230331AbhCYMIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 08:08:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31C6661A1B;
-        Thu, 25 Mar 2021 12:07:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616674080;
-        bh=UU3ECMAN5S3QxAfiQZRTUqVRCzvxrpa1/MZ6PjHvyEU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RhlVzKzCejxh728OA9WMoFfOvqHHxv84Gzqp7JirwjtPaBwod/YYDeW9OYelco6E9
-         Vw5EOrR82yPQ/E4V9keiJaIdydAoOQEAo61XE2FYcWUsR73rztK5F+cC7RURuGyXol
-         gd5bwKjRbDIDIi2KCTtvDQnKrjdAG2XSp61/bCgI=
-Date:   Thu, 25 Mar 2021 13:07:58 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, f.fainelli@gmail.com,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/150] 5.10.26-rc3 review
-Message-ID: <YFx9HmmDU67fKieW@kroah.com>
-References: <20210324093435.962321672@linuxfoundation.org>
- <13fdb47de47d4b5984f1cee069fe99e6@HQMAIL109.nvidia.com>
+        id S230134AbhCYMKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 08:10:10 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id A956DAC16;
+        Thu, 25 Mar 2021 12:10:08 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id D2F70DA732; Thu, 25 Mar 2021 13:08:02 +0100 (CET)
+Date:   Thu, 25 Mar 2021 13:08:02 +0100
+From:   David Sterba <dsterba@suse.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.11 26/44] btrfs: track qgroup released data in
+ own variable in insert_prealloc_file_extent
+Message-ID: <20210325120802.GK7604@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        linux-btrfs@vger.kernel.org
+References: <20210325112459.1926846-1-sashal@kernel.org>
+ <20210325112459.1926846-26-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <13fdb47de47d4b5984f1cee069fe99e6@HQMAIL109.nvidia.com>
+In-Reply-To: <20210325112459.1926846-26-sashal@kernel.org>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 24, 2021 at 04:51:06AM -0700, Jon Hunter wrote:
-> On Wed, 24 Mar 2021 10:40:21 +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.26 release.
-> > There are 150 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 26 Mar 2021 09:33:54 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.26-rc3.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+On Thu, Mar 25, 2021 at 07:24:41AM -0400, Sasha Levin wrote:
+> From: Qu Wenruo <wqu@suse.com>
 > 
-> All tests passing for Tegra ...
+> [ Upstream commit fbf48bb0b197e6894a04c714728c952af7153bf3 ]
 > 
-> Test results for stable-v5.10:
->     12 builds:	12 pass, 0 fail
->     28 boots:	28 pass, 0 fail
->     70 tests:	70 pass, 0 fail
+> There is a piece of weird code in insert_prealloc_file_extent(), which
+> looks like:
 > 
-> Linux version:	5.10.26-rc3-gf6bd595b6fda
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
->                 tegra20-ventana, tegra210-p2371-2180,
->                 tegra210-p3450-0000, tegra30-cardhu-a04
+> 	ret = btrfs_qgroup_release_data(inode, file_offset, len);
+> 	if (ret < 0)
+> 		return ERR_PTR(ret);
+> 	if (trans) {
+> 		ret = insert_reserved_file_extent(trans, inode,
+> 						  file_offset, &stack_fi,
+> 						  true, ret);
+> 	...
+> 	}
+> 	extent_info.is_new_extent = true;
+> 	extent_info.qgroup_reserved = ret;
+> 	...
 > 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+> Note how the variable @ret is abused here, and if anyone is adding code
+> just after btrfs_qgroup_release_data() call, it's super easy to
+> overwrite the @ret and cause tons of qgroup related bugs.
+> 
+> Fix such abuse by introducing new variable @qgroup_released, so that we
+> won't reuse the existing variable @ret.
+> 
+> Signed-off-by: Qu Wenruo <wqu@suse.com>
+> Reviewed-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Thanks for all the testing.
-
-greg k-h
+This patch is a preparatory work and does not make sense for backport
+standalone. Either this one plus
+https://lore.kernel.org/linux-btrfs/20210303104152.105877-2-wqu@suse.com/
+or neither. And IIRC it does not apply directly and needs some
+additional review before it can be backported to older code base, so it
+has no CC: stable tags.
