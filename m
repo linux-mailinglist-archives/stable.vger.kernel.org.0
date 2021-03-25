@@ -2,148 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 029CE348C8B
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 10:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02779348CAA
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 10:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230023AbhCYJQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 05:16:09 -0400
-Received: from szxga07-in.huawei.com ([45.249.212.35]:14875 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229624AbhCYJPd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Mar 2021 05:15:33 -0400
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4F5fXj3tkmz9sn1;
-        Thu, 25 Mar 2021 17:13:25 +0800 (CST)
-Received: from S00345302A-PC.china.huawei.com (10.47.26.249) by
- DGGEMS408-HUB.china.huawei.com (10.3.19.208) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 25 Mar 2021 17:15:19 +0800
-From:   Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-To:     <kvmarm@lists.cs.columbia.edu>, <kvm@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <stable@vger.kernel.org>
-CC:     <maz@kernel.org>, <pbonzini@redhat.com>, <linuxarm@huawei.com>
-Subject: [PATCH for-stable-5.10 2/2] KVM: arm64: Workaround firmware wrongly advertising GICv2-on-v3 compatibility
-Date:   Thu, 25 Mar 2021 09:14:24 +0000
-Message-ID: <20210325091424.26348-3-shameerali.kolothum.thodi@huawei.com>
-X-Mailer: git-send-email 2.12.0.windows.1
-In-Reply-To: <20210325091424.26348-1-shameerali.kolothum.thodi@huawei.com>
-References: <20210325091424.26348-1-shameerali.kolothum.thodi@huawei.com>
+        id S229801AbhCYJWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 05:22:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35546 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229676AbhCYJVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 05:21:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8917761963;
+        Thu, 25 Mar 2021 09:21:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616664101;
+        bh=Rz8fTf5SS7Afrji/D1ge/Pcn/DZHsx/mGSgWSL0eIeo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=k7Z3S5aHmtMIf/ypSXatXlK9qjoGh4FUA+9at88wyMI5SuLJvhH7SqahG+88bhdr0
+         QiI8gZr4ws/g7K+D3DLniz5L1eNMBfYMyKTaZVaPTEtvcCa2Z97v8/YPprcFdH3kWA
+         Sga3tOSZimUawawrYnvDvK4xSrWvCxVrDIMeVpbk=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.11.10
+Date:   Thu, 25 Mar 2021 10:21:37 +0100
+Message-Id: <16166640322331@kroah.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.47.26.249]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+I'm announcing the release of the 5.11.10 kernel.
 
-commit 9739f6ef053f104a997165701c6e15582c4307ee upstream.
+This is a "quick revert" of some 5.11.9 commits that caused noisy warnings to
+show up in the kernel log of some systems.  If you do not have this issue, or
+are not bothered by these messages, no need to upgrade.
 
-It looks like we have broken firmware out there that wrongly advertises
-a GICv2 compatibility interface, despite the CPUs not being able to deal
-with it.
+The updated 5.11.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.11.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-To work around this, check that the CPU initialising KVM is actually able
-to switch to MMIO instead of system registers, and use that as a
-precondition to enable GICv2 compatibility in KVM.
+thanks,
 
-Note that the detection happens on a single CPU. If the firmware is
-lying *and* that the CPUs are asymetric, all hope is lost anyway.
+greg k-h
 
-Cc: stable@vger.kernel.org #5.10
-Reported-by: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Message-Id: <20210305185254.3730990-8-maz@kernel.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
----
- arch/arm64/kvm/hyp/vgic-v3-sr.c | 35 +++++++++++++++++++++++++++++++--
- arch/arm64/kvm/vgic/vgic-v3.c   |  8 ++++++--
- 2 files changed, 39 insertions(+), 4 deletions(-)
+------------
 
-diff --git a/arch/arm64/kvm/hyp/vgic-v3-sr.c b/arch/arm64/kvm/hyp/vgic-v3-sr.c
-index 54ce4048d7d1..098b96c121e3 100644
---- a/arch/arm64/kvm/hyp/vgic-v3-sr.c
-+++ b/arch/arm64/kvm/hyp/vgic-v3-sr.c
-@@ -406,11 +406,42 @@ void __vgic_v3_init_lrs(void)
- /*
-  * Return the GIC CPU configuration:
-  * - [31:0]  ICH_VTR_EL2
-- * - [63:32] RES0
-+ * - [62:32] RES0
-+ * - [63]    MMIO (GICv2) capable
-  */
- u64 __vgic_v3_get_gic_config(void)
- {
--	return read_gicreg(ICH_VTR_EL2);
-+	u64 val, sre = read_gicreg(ICC_SRE_EL1);
-+	unsigned long flags = 0;
-+
-+	/*
-+	 * To check whether we have a MMIO-based (GICv2 compatible)
-+	 * CPU interface, we need to disable the system register
-+	 * view. To do that safely, we have to prevent any interrupt
-+	 * from firing (which would be deadly).
-+	 *
-+	 * Note that this only makes sense on VHE, as interrupts are
-+	 * already masked for nVHE as part of the exception entry to
-+	 * EL2.
-+	 */
-+	if (has_vhe())
-+		flags = local_daif_save();
-+
-+	write_gicreg(0, ICC_SRE_EL1);
-+	isb();
-+
-+	val = read_gicreg(ICC_SRE_EL1);
-+
-+	write_gicreg(sre, ICC_SRE_EL1);
-+	isb();
-+
-+	if (has_vhe())
-+		local_daif_restore(flags);
-+
-+	val  = (val & ICC_SRE_EL1_SRE) ? 0 : (1ULL << 63);
-+	val |= read_gicreg(ICH_VTR_EL2);
-+
-+	return val;
- }
- 
- u64 __vgic_v3_read_vmcr(void)
-diff --git a/arch/arm64/kvm/vgic/vgic-v3.c b/arch/arm64/kvm/vgic/vgic-v3.c
-index 8e7bf3151057..6a4bced0851d 100644
---- a/arch/arm64/kvm/vgic/vgic-v3.c
-+++ b/arch/arm64/kvm/vgic/vgic-v3.c
-@@ -584,8 +584,10 @@ early_param("kvm-arm.vgic_v4_enable", early_gicv4_enable);
- int vgic_v3_probe(const struct gic_kvm_info *info)
- {
- 	u64 ich_vtr_el2 = kvm_call_hyp_ret(__vgic_v3_get_gic_config);
-+	bool has_v2;
- 	int ret;
- 
-+	has_v2 = ich_vtr_el2 >> 63;
- 	ich_vtr_el2 = (u32)ich_vtr_el2;
- 
- 	/*
-@@ -605,13 +607,15 @@ int vgic_v3_probe(const struct gic_kvm_info *info)
- 			 gicv4_enable ? "en" : "dis");
- 	}
- 
-+	kvm_vgic_global_state.vcpu_base = 0;
-+
- 	if (!info->vcpu.start) {
- 		kvm_info("GICv3: no GICV resource entry\n");
--		kvm_vgic_global_state.vcpu_base = 0;
-+	} else if (!has_v2) {
-+		pr_warn(FW_BUG "CPU interface incapable of MMIO access\n");
- 	} else if (!PAGE_ALIGNED(info->vcpu.start)) {
- 		pr_warn("GICV physical address 0x%llx not page aligned\n",
- 			(unsigned long long)info->vcpu.start);
--		kvm_vgic_global_state.vcpu_base = 0;
- 	} else {
- 		kvm_vgic_global_state.vcpu_base = info->vcpu.start;
- 		kvm_vgic_global_state.can_emulate_gicv2 = true;
--- 
-2.17.1
+ Makefile                     |    2 +-
+ drivers/gpu/drm/ttm/ttm_bo.c |    2 +-
+ include/drm/ttm/ttm_bo_api.h |    8 ++------
+ 3 files changed, 4 insertions(+), 8 deletions(-)
+
+Greg Kroah-Hartman (3):
+      Revert "drm/ttm: make ttm_bo_unpin more defensive"
+      Revert "drm/ttm: Warn on pinning without holding a reference"
+      Linux 5.11.10
 
