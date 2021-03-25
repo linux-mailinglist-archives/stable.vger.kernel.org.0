@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0FF634909B
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E915B34909E
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230527AbhCYLgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:36:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42146 "EHLO mail.kernel.org"
+        id S231281AbhCYLgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:36:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231800AbhCYLeP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:34:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84C9461A80;
-        Thu, 25 Mar 2021 11:28:43 +0000 (UTC)
+        id S231814AbhCYLeQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:34:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAD3761A8A;
+        Thu, 25 Mar 2021 11:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671724;
-        bh=CtZ/vzzW/5Ws0GYk7dTy6lCUpfL2ZWWC5U4jabLBQHs=;
+        s=k20201202; t=1616671725;
+        bh=b4jFzIN2WpyeuB0Ec75kbI+N6+NiOD9f6rjxXDCsEHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJaCcbf7fb93or+r7BHI+ltxZ2gd2eWnJ8tWSXpPTO854rUlxqePgEO+85i7Mbe9i
-         BIDO0e3frM+8QarWAWc60QvhHy6IInZdq+9uG78h8TqaFDtK1QG2f6Uqgl2cQg+JUG
-         kmHbTqO69w4N+VAodOaaSn8OZU0qsyBEmonmHJizyoAw0XXlHUtSbU2cU9qgGbxy8C
-         nDmaPXLv3E1IaBixpKVzTu0/QIWDTyWhkw+QDN5Lu85DIOO6QbmPMM2LhOQHdAfja2
-         XKIXN/GbogSY+Tn1RZkyjWy8lYr27rcUKJjOmcajbH/OOgKPc/34nigidGP+7Htttw
-         7zjkcfpNfEujA==
+        b=m4q9lf7TsO37b1MjOcO6YiRh5sPGTUV8+mqlTuT7ZAyY0+PGZ/NSIAMQtA9QGW0I4
+         iTvrw43np9PoXz0Ps3JCmv8qHIQCi2OieuTbb7raM5o2JwcfcMp13M0PwrBZRh699A
+         cgWmI4irTAx/YSAZSAQlh6k8Jfa6mGeyeAtzI2WhywAXHDpDlU9tYcZxPntLLxyDQP
+         tkUqDU32r/9O63X2QqYZUgR0OXvnl7fMnPtYBz91GkWBQJW2eQcY1m5mCxfz9fMpG5
+         eujHJD3+r4g6CaDoMWbxh6Gt+Mg+MYukJEnSutOea/vFI58GPQAXEim0pM34RvJxfd
+         538xGHizDZT5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tong Zhang <ztong0001@gmail.com>, Ian Abbott <abbotti@mev.co.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 4.4 09/10] staging: comedi: cb_pcidas64: fix request_irq() warn
-Date:   Thu, 25 Mar 2021 07:28:30 -0400
-Message-Id: <20210325112832.1928898-9-sashal@kernel.org>
+Cc:     "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 10/10] ext4: do not iput inode under running transaction in ext4_rename()
+Date:   Thu, 25 Mar 2021 07:28:31 -0400
+Message-Id: <20210325112832.1928898-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112832.1928898-1-sashal@kernel.org>
 References: <20210325112832.1928898-1-sashal@kernel.org>
@@ -42,47 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: "zhangyi (F)" <yi.zhang@huawei.com>
 
-[ Upstream commit d2d106fe3badfc3bf0dd3899d1c3f210c7203eab ]
+[ Upstream commit 5dccdc5a1916d4266edd251f20bbbb113a5c495f ]
 
-request_irq() wont accept a name which contains slash so we need to
-repalce it with something else -- otherwise it will trigger a warning
-and the entry in /proc/irq/ will not be created
-since the .name might be used by userspace and we don't want to break
-userspace, so we are changing the parameters passed to request_irq()
+In ext4_rename(), when RENAME_WHITEOUT failed to add new entry into
+directory, it ends up dropping new created whiteout inode under the
+running transaction. After commit <9b88f9fb0d2> ("ext4: Do not iput inode
+under running transaction"), we follow the assumptions that evict() does
+not get called from a transaction context but in ext4_rename() it breaks
+this suggestion. Although it's not a real problem, better to obey it, so
+this patch add inode to orphan list and stop transaction before final
+iput().
 
-[    1.565966] name 'pci-das6402/16'
-[    1.566149] WARNING: CPU: 0 PID: 184 at fs/proc/generic.c:180 __xlate_proc_name+0x93/0xb0
-[    1.568923] RIP: 0010:__xlate_proc_name+0x93/0xb0
-[    1.574200] Call Trace:
-[    1.574722]  proc_mkdir+0x18/0x20
-[    1.576629]  request_threaded_irq+0xfe/0x160
-[    1.576859]  auto_attach+0x60a/0xc40 [cb_pcidas64]
-
-Suggested-by: Ian Abbott <abbotti@mev.co.uk>
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210315195814.4692-1-ztong0001@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210303131703.330415-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/cb_pcidas64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/namei.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/comedi/drivers/cb_pcidas64.c b/drivers/staging/comedi/drivers/cb_pcidas64.c
-index d33b8fe872a7..93d8c0b06d55 100644
---- a/drivers/staging/comedi/drivers/cb_pcidas64.c
-+++ b/drivers/staging/comedi/drivers/cb_pcidas64.c
-@@ -4040,7 +4040,7 @@ static int auto_attach(struct comedi_device *dev,
- 	init_stc_registers(dev);
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index d5b3216585cf..50e2be89e056 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3529,7 +3529,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	 */
+ 	retval = -ENOENT;
+ 	if (!old.bh || le32_to_cpu(old.de->inode) != old.inode->i_ino)
+-		goto end_rename;
++		goto release_bh;
  
- 	retval = request_irq(pcidev->irq, handle_interrupt, IRQF_SHARED,
--			     dev->board_name, dev);
-+			     "cb_pcidas64", dev);
- 	if (retval) {
- 		dev_dbg(dev->class_dev, "unable to allocate irq %u\n",
- 			pcidev->irq);
+ 	if ((old.dir != new.dir) &&
+ 	    ext4_encrypted_inode(new.dir) &&
+@@ -3544,7 +3544,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	if (IS_ERR(new.bh)) {
+ 		retval = PTR_ERR(new.bh);
+ 		new.bh = NULL;
+-		goto end_rename;
++		goto release_bh;
+ 	}
+ 	if (new.bh) {
+ 		if (!new.inode) {
+@@ -3561,15 +3561,13 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		handle = ext4_journal_start(old.dir, EXT4_HT_DIR, credits);
+ 		if (IS_ERR(handle)) {
+ 			retval = PTR_ERR(handle);
+-			handle = NULL;
+-			goto end_rename;
++			goto release_bh;
+ 		}
+ 	} else {
+ 		whiteout = ext4_whiteout_for_rename(&old, credits, &handle);
+ 		if (IS_ERR(whiteout)) {
+ 			retval = PTR_ERR(whiteout);
+-			whiteout = NULL;
+-			goto end_rename;
++			goto release_bh;
+ 		}
+ 	}
+ 
+@@ -3677,16 +3675,18 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 			ext4_setent(handle, &old,
+ 				old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
++			ext4_orphan_add(handle, whiteout);
+ 		}
+ 		unlock_new_inode(whiteout);
++		ext4_journal_stop(handle);
+ 		iput(whiteout);
+-
++	} else {
++		ext4_journal_stop(handle);
+ 	}
++release_bh:
+ 	brelse(old.dir_bh);
+ 	brelse(old.bh);
+ 	brelse(new.bh);
+-	if (handle)
+-		ext4_journal_stop(handle);
+ 	return retval;
+ }
+ 
 -- 
 2.30.1
 
