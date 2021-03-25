@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9544F34906A
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82985349067
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231955AbhCYLeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:34:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42156 "EHLO mail.kernel.org"
+        id S231935AbhCYLek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:34:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232050AbhCYLcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232048AbhCYLcl (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Mar 2021 07:32:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC00661A69;
-        Thu, 25 Mar 2021 11:28:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD27D61A79;
+        Thu, 25 Mar 2021 11:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671702;
-        bh=T8twyrasx4l19CUuEcFnhOqaYQqq+ba8U0BTnRQo/ds=;
+        s=k20201202; t=1616671703;
+        bh=ybqxxnJah7aSnGrEgGUrTjVsyygme31WX502oHksjC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvGS+gP3qjyzUoFQo77K05O53eeoVErncA9Py+vSWqLnxiRwItK7FgVywgTeAgD5d
-         xsCH8tl53/VCj8+ZNkFlK+3H9Iiv0ZLIASS5nOb+8c/bYzaon3j5JTaDGdZo/iRuOo
-         3ou3oYp/6CuCY24/347+hRSZROVyCqmT08x6CXxBO8K7wAou/9QXBhE+PwWJXRDJnI
-         QUR5OycqHyIcdtwj6KeGRjul5LUnYPSudLEl+8VEmgxnt3FgJS6gde7cmIlPLDdvYh
-         rNJtluXqk00htkjCHpRX4zV7RPzLDTX3v23rZWHze6kHyWLOiCMqWZ6IZKToQndAzt
-         dEiK/Z6035E8Q==
+        b=DPB+wpYILkkxMps9/ji/3aHWdh4QJzsJ9T4PZzIfxeS31gHPTg/WxV0ObMGVCC8Ev
+         xF1L77CQYGKcdZD2/QYxiJ51bwp+7xtbHcdESQtsAbfomSgi3gIVGLkOjS0g3NuZ2l
+         i9XnQH+q9fc6UVVYutFLx+PFgYXdizKhLldFNeM8o9OUIrjN5t8/FEaN8xfUqn2C1m
+         52A7470bkApm7uSWYu5LpMFlUAOBaz6smvf370mlGDa1LsF1kmcjmsiovZUT+2sn+s
+         iuCjgbCvA8dwCWU3RX4ysVWvCVR45z9u1FlBHoJroLafWRxjNRjntOG05OSCctJliE
+         V8sxXF0s12axw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 06/13] powerpc: Force inlining of cpu_has_feature() to avoid build failure
-Date:   Thu, 25 Mar 2021 07:28:06 -0400
-Message-Id: <20210325112814.1928637-6-sashal@kernel.org>
+Cc:     Laurent Vivier <lvivier@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 07/13] vhost: Fix vhost_vq_reset()
+Date:   Thu, 25 Mar 2021 07:28:07 -0400
+Message-Id: <20210325112814.1928637-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112814.1928637-1-sashal@kernel.org>
 References: <20210325112814.1928637-1-sashal@kernel.org>
@@ -42,56 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Laurent Vivier <lvivier@redhat.com>
 
-[ Upstream commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a ]
+[ Upstream commit beb691e69f4dec7bfe8b81b509848acfd1f0dbf9 ]
 
-The code relies on constant folding of cpu_has_feature() based
-on possible and always true values as defined per
-CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
+vhost_reset_is_le() is vhost_init_is_le(), and in the case of
+cross-endian legacy, vhost_init_is_le() depends on vq->user_be.
 
-Build failure is encountered with for instance
-book3e_all_defconfig on kisskb in the AMDGPU driver which uses
-cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
-kernel_enable_vsx() or not.
+vq->user_be is set by vhost_disable_cross_endian().
 
-The failure is due to cpu_has_feature() not being inlined with
-that configuration with gcc 4.9.
+But in vhost_vq_reset(), we have:
 
-In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
-mmu_has_feature to fix build failure"), for inlining of
-cpu_has_feature().
+    vhost_reset_is_le(vq);
+    vhost_disable_cross_endian(vq);
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
+And so user_be is used before being set.
+
+To fix that, reverse the lines order as there is no other dependency
+between them.
+
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Link: https://lore.kernel.org/r/20210312140913.788592-1-lvivier@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/cpu_has_feature.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/cpu_has_feature.h b/arch/powerpc/include/asm/cpu_has_feature.h
-index 6e834caa3720..7b10b3ef7739 100644
---- a/arch/powerpc/include/asm/cpu_has_feature.h
-+++ b/arch/powerpc/include/asm/cpu_has_feature.h
-@@ -6,7 +6,7 @@
- #include <linux/bug.h>
- #include <asm/cputable.h>
- 
--static inline bool early_cpu_has_feature(unsigned long feature)
-+static __always_inline bool early_cpu_has_feature(unsigned long feature)
- {
- 	return !!((CPU_FTRS_ALWAYS & feature) ||
- 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
-@@ -45,7 +45,7 @@ static __always_inline bool cpu_has_feature(unsigned long feature)
- 	return static_branch_likely(&cpu_feature_keys[i]);
- }
- #else
--static inline bool cpu_has_feature(unsigned long feature)
-+static __always_inline bool cpu_has_feature(unsigned long feature)
- {
- 	return early_cpu_has_feature(feature);
- }
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index b14e62f11075..d2431afeda84 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -306,8 +306,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ 	vq->call_ctx = NULL;
+ 	vq->call = NULL;
+ 	vq->log_ctx = NULL;
+-	vhost_reset_is_le(vq);
+ 	vhost_disable_cross_endian(vq);
++	vhost_reset_is_le(vq);
+ 	vq->busyloop_timeout = 0;
+ 	vq->umem = NULL;
+ 	vq->iotlb = NULL;
 -- 
 2.30.1
 
