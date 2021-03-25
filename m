@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 119A634906B
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9544F34906A
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbhCYLer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:34:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
+        id S231955AbhCYLeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:34:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232049AbhCYLcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232050AbhCYLcl (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Mar 2021 07:32:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 638E461A62;
-        Thu, 25 Mar 2021 11:28:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC00661A69;
+        Thu, 25 Mar 2021 11:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671701;
-        bh=9TKlhCGBXuFX7TsWzkGkt0Q5k6f/FQaZGbo7mGGFjdw=;
+        s=k20201202; t=1616671702;
+        bh=T8twyrasx4l19CUuEcFnhOqaYQqq+ba8U0BTnRQo/ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NO7BglyIDgtEaoC7lzMGv+eb6BwnZ4agxOQ3e2Mak027OJz47Qkbh1z780/gbMchl
-         H9aijah0FUCcqGrrTukWePXV/1XGs3E5b12oKLW5GsSXfL5AmowgbXsUSOmb6qNg4X
-         z1ySLh6P7tvDxjpZUW1fZFxhnMIJazS2lbqyt1JSCiSVhTyLk9/14B2D870TSNGedf
-         JazGxleeIS403A5AF4zZTtxThNSk0OL5ZfZy1OKew+UN7PdkaWPqnGqT3t8KcOorLt
-         AtMjz4CC3+nmAUlRGHRZ6J7Y1azDw6gL8++2JCAwGpxXc/TZPZZMtdCAwISpJVRsPb
-         S1uxavDnSFdwA==
+        b=EvGS+gP3qjyzUoFQo77K05O53eeoVErncA9Py+vSWqLnxiRwItK7FgVywgTeAgD5d
+         xsCH8tl53/VCj8+ZNkFlK+3H9Iiv0ZLIASS5nOb+8c/bYzaon3j5JTaDGdZo/iRuOo
+         3ou3oYp/6CuCY24/347+hRSZROVyCqmT08x6CXxBO8K7wAou/9QXBhE+PwWJXRDJnI
+         QUR5OycqHyIcdtwj6KeGRjul5LUnYPSudLEl+8VEmgxnt3FgJS6gde7cmIlPLDdvYh
+         rNJtluXqk00htkjCHpRX4zV7RPzLDTX3v23rZWHze6kHyWLOiCMqWZ6IZKToQndAzt
+         dEiK/Z6035E8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Rood <benjaminjrood@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 05/13] ASoC: sgtl5000: set DAP_AVC_CTRL register to correct default value on probe
-Date:   Thu, 25 Mar 2021 07:28:05 -0400
-Message-Id: <20210325112814.1928637-5-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 06/13] powerpc: Force inlining of cpu_has_feature() to avoid build failure
+Date:   Thu, 25 Mar 2021 07:28:06 -0400
+Message-Id: <20210325112814.1928637-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112814.1928637-1-sashal@kernel.org>
 References: <20210325112814.1928637-1-sashal@kernel.org>
@@ -43,69 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Rood <benjaminjrood@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit f86f58e3594fb0ab1993d833d3b9a2496f3c928c ]
+[ Upstream commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a ]
 
-According to the SGTL5000 datasheet [1], the DAP_AVC_CTRL register has
-the following bit field definitions:
+The code relies on constant folding of cpu_has_feature() based
+on possible and always true values as defined per
+CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
 
-| BITS  | FIELD       | RW | RESET | DEFINITION                        |
-| 15    | RSVD        | RO | 0x0   | Reserved                          |
-| 14    | RSVD        | RW | 0x1   | Reserved                          |
-| 13:12 | MAX_GAIN    | RW | 0x1   | Max Gain of AVC in expander mode  |
-| 11:10 | RSVD        | RO | 0x0   | Reserved                          |
-| 9:8   | LBI_RESP    | RW | 0x1   | Integrator Response               |
-| 7:6   | RSVD        | RO | 0x0   | Reserved                          |
-| 5     | HARD_LMT_EN | RW | 0x0   | Enable hard limiter mode          |
-| 4:1   | RSVD        | RO | 0x0   | Reserved                          |
-| 0     | EN          | RW | 0x0   | Enable/Disable AVC                |
+Build failure is encountered with for instance
+book3e_all_defconfig on kisskb in the AMDGPU driver which uses
+cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
+kernel_enable_vsx() or not.
 
-The original default value written to the DAP_AVC_CTRL register during
-sgtl5000_i2c_probe() was 0x0510.  This would incorrectly write values to
-bits 4 and 10, which are defined as RESERVED.  It would also not set
-bits 12 and 14 to their correct RESET values of 0x1, and instead set
-them to 0x0.  While the DAP_AVC module is effectively disabled because
-the EN bit is 0, this default value is still writing invalid values to
-registers that are marked as read-only and RESERVED as well as not
-setting bits 12 and 14 to their correct default values as defined by the
-datasheet.
+The failure is due to cpu_has_feature() not being inlined with
+that configuration with gcc 4.9.
 
-The correct value that should be written to the DAP_AVC_CTRL register is
-0x5100, which configures the register bits to the default values defined
-by the datasheet, and prevents any writes to bits defined as
-'read-only'.  Generally speaking, it is best practice to NOT attempt to
-write values to registers/bits defined as RESERVED, as it generally
-produces unwanted/undefined behavior, or errors.
+In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
+mmu_has_feature to fix build failure"), for inlining of
+cpu_has_feature().
 
-Also, all credit for this patch should go to my colleague Dan MacDonald
-<dmacdonald@curbellmedical.com> for finding this error in the first
-place.
-
-[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
-
-Signed-off-by: Benjamin Rood <benjaminjrood@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20210219183308.GA2117@ubuntu-dev
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/cpu_has_feature.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index 0c2a1413a8f5..14e564e38f3c 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -75,7 +75,7 @@ static const struct reg_default sgtl5000_reg_defaults[] = {
- 	{ SGTL5000_DAP_EQ_BASS_BAND4,		0x002f },
- 	{ SGTL5000_DAP_MAIN_CHAN,		0x8000 },
- 	{ SGTL5000_DAP_MIX_CHAN,		0x0000 },
--	{ SGTL5000_DAP_AVC_CTRL,		0x0510 },
-+	{ SGTL5000_DAP_AVC_CTRL,		0x5100 },
- 	{ SGTL5000_DAP_AVC_THRESHOLD,		0x1473 },
- 	{ SGTL5000_DAP_AVC_ATTACK,		0x0028 },
- 	{ SGTL5000_DAP_AVC_DECAY,		0x0050 },
+diff --git a/arch/powerpc/include/asm/cpu_has_feature.h b/arch/powerpc/include/asm/cpu_has_feature.h
+index 6e834caa3720..7b10b3ef7739 100644
+--- a/arch/powerpc/include/asm/cpu_has_feature.h
++++ b/arch/powerpc/include/asm/cpu_has_feature.h
+@@ -6,7 +6,7 @@
+ #include <linux/bug.h>
+ #include <asm/cputable.h>
+ 
+-static inline bool early_cpu_has_feature(unsigned long feature)
++static __always_inline bool early_cpu_has_feature(unsigned long feature)
+ {
+ 	return !!((CPU_FTRS_ALWAYS & feature) ||
+ 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
+@@ -45,7 +45,7 @@ static __always_inline bool cpu_has_feature(unsigned long feature)
+ 	return static_branch_likely(&cpu_feature_keys[i]);
+ }
+ #else
+-static inline bool cpu_has_feature(unsigned long feature)
++static __always_inline bool cpu_has_feature(unsigned long feature)
+ {
+ 	return early_cpu_has_feature(feature);
+ }
 -- 
 2.30.1
 
