@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 683AC348F1C
+	by mail.lfdr.de (Postfix) with ESMTP id B43F4348F1D
 	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:27:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbhCYL0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:26:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33954 "EHLO mail.kernel.org"
+        id S230436AbhCYL0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230208AbhCYLZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:25:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE12D61A2F;
-        Thu, 25 Mar 2021 11:25:31 +0000 (UTC)
+        id S230223AbhCYLZe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:25:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 229F561A24;
+        Thu, 25 Mar 2021 11:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671532;
-        bh=3aAwiDJbJWjKzu648+e+dshbpvG3suX0di5uBb7EySo=;
+        s=k20201202; t=1616671533;
+        bh=L9K+An1mAexKxxJjd9SicPaNHcs34iGZOFdaZ2GdXc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W8i9ol8Pvi9RWccc9w50F6pULrAkjp3ERVmzu+BKy+6lLsva13G7EgY1pjfKV7Qvv
-         NqnDD0ey+Kr90UGd4YIz4Qh0TWJpIj1CH7EiTDDXiIb6nkdxhrt6XPHvEj6zoRL3Y5
-         bFvExQVgnm6CgajGeRcsCKIQWY3vY7P5p0OoFtIKnMuiFgwEG5zJE6RnDv+bML2j5f
-         TyiQzO8MTwzx5trwg8to1FOOONHy6PAsuYG4bBvmvM06VYiMmyrOhVv8/vh6Gt5ET4
-         8sOtpv12dUSd7gJh0+WuWm9eJheM3PrBdPksn8cWs/0dznYzt/UYoe2wm/oZnaITH1
-         RMODYmqko2PzA==
+        b=Lvzabexfpky+aaaTW2+H+TcQlvSjR6QZR/HbWPMjhoRUWo3QobFHnCwRpO6+xq8Dt
+         YbZ90uCiMt7D+qbKVTpFdjAgz3t2cd1CfOdfV3NG9+3uR0faceL3X8A5SYX6y/JTv2
+         i6aSPRD1o3gELMGuFNe3G9v4QN/OljatRhITKjb78rp+iVY4IFkSz4doONYWlMneXW
+         jD7xKB9WK+W+5vtrmA8isYleG8XH2SeDkgPNI59s0D5BTteodv5B1YZ6GoN9s4ORco
+         FVnciDJeNT6/uYhPZCxV1LyQqvEBTjMle6cqgiCNy90aTJjquzNo8ZM9Ern9uqgwz3
+         WWGnsvMg+TpBg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 25/44] io_uring: halt SQO submission on ctx exit
-Date:   Thu, 25 Mar 2021 07:24:40 -0400
-Message-Id: <20210325112459.1926846-25-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 26/44] btrfs: track qgroup released data in own variable in insert_prealloc_file_extent
+Date:   Thu, 25 Mar 2021 07:24:41 -0400
+Message-Id: <20210325112459.1926846-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112459.1926846-1-sashal@kernel.org>
 References: <20210325112459.1926846-1-sashal@kernel.org>
@@ -42,43 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit f6d54255f4235448d4bbe442362d4caa62da97d5 ]
+[ Upstream commit fbf48bb0b197e6894a04c714728c952af7153bf3 ]
 
-io_sq_thread_finish() is called in io_ring_ctx_free(), so SQPOLL task is
-potentially running submitting new requests. It's not a disaster because
-of using a "try" variant of percpu_ref_get, but is far from nice.
+There is a piece of weird code in insert_prealloc_file_extent(), which
+looks like:
 
-Remove ctx from the sqd ctx list earlier, before cancellation loop, so
-SQPOLL can't find it and so won't submit new requests.
+	ret = btrfs_qgroup_release_data(inode, file_offset, len);
+	if (ret < 0)
+		return ERR_PTR(ret);
+	if (trans) {
+		ret = insert_reserved_file_extent(trans, inode,
+						  file_offset, &stack_fi,
+						  true, ret);
+	...
+	}
+	extent_info.is_new_extent = true;
+	extent_info.qgroup_reserved = ret;
+	...
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Note how the variable @ret is abused here, and if anyone is adding code
+just after btrfs_qgroup_release_data() call, it's super easy to
+overwrite the @ret and cause tons of qgroup related bugs.
+
+Fix such abuse by introducing new variable @qgroup_released, so that we
+won't reuse the existing variable @ret.
+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/btrfs/inode.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b82fe753a6d0..8e45331d1fed 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8797,6 +8797,14 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
- 	mutex_unlock(&ctx->uring_lock);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 9b4f75568261..8f36071769fa 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9674,6 +9674,7 @@ static struct btrfs_trans_handle *insert_prealloc_file_extent(
+ 	struct btrfs_path *path;
+ 	u64 start = ins->objectid;
+ 	u64 len = ins->offset;
++	int qgroup_released;
+ 	int ret;
  
-+	/* prevent SQPOLL from submitting new requests */
-+	if (ctx->sq_data) {
-+		io_sq_thread_park(ctx->sq_data);
-+		list_del_init(&ctx->sqd_list);
-+		io_sqd_update_thread_idle(ctx->sq_data);
-+		io_sq_thread_unpark(ctx->sq_data);
-+	}
-+
- 	io_kill_timeouts(ctx, NULL, NULL);
- 	io_poll_remove_all(ctx, NULL, NULL);
+ 	memset(&stack_fi, 0, sizeof(stack_fi));
+@@ -9686,14 +9687,14 @@ static struct btrfs_trans_handle *insert_prealloc_file_extent(
+ 	btrfs_set_stack_file_extent_compression(&stack_fi, BTRFS_COMPRESS_NONE);
+ 	/* Encryption and other encoding is reserved and all 0 */
  
+-	ret = btrfs_qgroup_release_data(inode, file_offset, len);
+-	if (ret < 0)
+-		return ERR_PTR(ret);
++	qgroup_released = btrfs_qgroup_release_data(inode, file_offset, len);
++	if (qgroup_released < 0)
++		return ERR_PTR(qgroup_released);
+ 
+ 	if (trans) {
+ 		ret = insert_reserved_file_extent(trans, inode,
+ 						  file_offset, &stack_fi,
+-						  true, ret);
++						  true, qgroup_released);
+ 		if (ret)
+ 			return ERR_PTR(ret);
+ 		return trans;
+@@ -9706,7 +9707,7 @@ static struct btrfs_trans_handle *insert_prealloc_file_extent(
+ 	extent_info.file_offset = file_offset;
+ 	extent_info.extent_buf = (char *)&stack_fi;
+ 	extent_info.is_new_extent = true;
+-	extent_info.qgroup_reserved = ret;
++	extent_info.qgroup_reserved = qgroup_released;
+ 	extent_info.insertions = 0;
+ 
+ 	path = btrfs_alloc_path();
 -- 
 2.30.1
 
