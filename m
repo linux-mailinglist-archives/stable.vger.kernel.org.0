@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57331349016
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:33:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 663ED349023
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:33:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230084AbhCYLb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:31:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35302 "EHLO mail.kernel.org"
+        id S230121AbhCYLdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231752AbhCYL3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:29:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41FAE61A56;
-        Thu, 25 Mar 2021 11:27:42 +0000 (UTC)
+        id S231553AbhCYLaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:30:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87E9F61A48;
+        Thu, 25 Mar 2021 11:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671663;
-        bh=pnfCsupmMJNb5vkc/ZHZ2HyPnucjnq9sB1ClNUDF2+8=;
+        s=k20201202; t=1616671664;
+        bh=MuENZgY1IosWIhqJn7y5GtbYhJZ/xl7N6HXOSmE5Q48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onDTCVmw6ANDRiO3hSaUET5xSOaKSl8PtpQxuxhUFWguFJQBCUVDbLWKT+8K2n31l
-         s6LEcZqp9VWN2HVSQq7kMVCFkBcAx8wbOxJd1TZSBbGGhMhRa8z4rpl3ikqSsgQk2N
-         a6wWjKONUoBLCu+m6eZIX6ZjZnAtBmoEscK6ZPEQMmqiEXk4eNMviSbY1ZwYe8+Ci7
-         6wWGrcXxbYwRbae1ps8u7pM/4ANIT9jghz+szE/y9lo8gniCfzxPKhl6eJ0PzcsZ9Q
-         wnhpoKK9/Y0J7ItFuNhswxEh7gl6pjIPkPvfYZaoHpVHG959rFNgtpt50Hyli/29G4
-         Nr+u9WkbxFh2Q==
+        b=SXe6brM9xzzy9M5hHTghivxxocnGB/DgaJw8WcQFeP63RWvguBQtlu1NF1zxucA8t
+         ckVLf0k4Gk8SZfcS2637gzhOfMoV2R79yW4RxSwQX8UPaDu4SHkvg8NkZVWOYPhVth
+         CDYFaSUz5cGZaeIfWqtGOPl+Gkm6LpjcIi3m3lELpEW6VnzMYAHKsgnvVm2ULHS98A
+         unGVonoyfyf09vfIL+Sy4gLeX8s/8LfkTYOQhiq514dxrpRe83S8VnxuJ0NuUUK5jg
+         JlB1+il8OCZuf1VGAtFIDtER9mac7Qi73rotZJn64VaAoe97dhtdOaOpbe7dWxFC+w
+         P6WLumySM2eyg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/20] scsi: qla2xxx: Fix broken #endif placement
-Date:   Thu, 25 Mar 2021 07:27:18 -0400
-Message-Id: <20210325112724.1928174-14-sashal@kernel.org>
+Cc:     Tong Zhang <ztong0001@gmail.com>, Ian Abbott <abbotti@mev.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.19 15/20] staging: comedi: cb_pcidas: fix request_irq() warn
+Date:   Thu, 25 Mar 2021 07:27:19 -0400
+Message-Id: <20210325112724.1928174-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112724.1928174-1-sashal@kernel.org>
 References: <20210325112724.1928174-1-sashal@kernel.org>
@@ -43,42 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 5999b9e5b1f8a2f5417b755130919b3ac96f5550 ]
+[ Upstream commit 2e5848a3d86f03024ae096478bdb892ab3d79131 ]
 
-Only half of the file is under include guard because terminating #endif
-is placed too early.
+request_irq() wont accept a name which contains slash so we need to
+repalce it with something else -- otherwise it will trigger a warning
+and the entry in /proc/irq/ will not be created
+since the .name might be used by userspace and we don't want to break
+userspace, so we are changing the parameters passed to request_irq()
 
-Link: https://lore.kernel.org/r/YE4snvoW1SuwcXAn@localhost.localdomain
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[    1.630764] name 'pci-das1602/16'
+[    1.630950] WARNING: CPU: 0 PID: 181 at fs/proc/generic.c:180 __xlate_proc_name+0x93/0xb0
+[    1.634009] RIP: 0010:__xlate_proc_name+0x93/0xb0
+[    1.639441] Call Trace:
+[    1.639976]  proc_mkdir+0x18/0x20
+[    1.641946]  request_threaded_irq+0xfe/0x160
+[    1.642186]  cb_pcidas_auto_attach+0xf4/0x610 [cb_pcidas]
+
+Suggested-by: Ian Abbott <abbotti@mev.co.uk>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210315195914.4801-1-ztong0001@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.h | 2 +-
+ drivers/staging/comedi/drivers/cb_pcidas.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.h b/drivers/scsi/qla2xxx/qla_target.h
-index 199d3ba1916d..67a74720c02c 100644
---- a/drivers/scsi/qla2xxx/qla_target.h
-+++ b/drivers/scsi/qla2xxx/qla_target.h
-@@ -124,7 +124,6 @@
- 	(min(1270, ((ql) > 0) ? (QLA_TGT_DATASEGS_PER_CMD_24XX + \
- 		QLA_TGT_DATASEGS_PER_CONT_24XX*((ql) - 1)) : 0))
- #endif
--#endif
+diff --git a/drivers/staging/comedi/drivers/cb_pcidas.c b/drivers/staging/comedi/drivers/cb_pcidas.c
+index 9b716c696477..86cae5d0e983 100644
+--- a/drivers/staging/comedi/drivers/cb_pcidas.c
++++ b/drivers/staging/comedi/drivers/cb_pcidas.c
+@@ -1281,7 +1281,7 @@ static int cb_pcidas_auto_attach(struct comedi_device *dev,
+ 	     devpriv->amcc + AMCC_OP_REG_INTCSR);
  
- #define GET_TARGET_ID(ha, iocb) ((HAS_EXTENDED_IDS(ha))			\
- 			 ? le16_to_cpu((iocb)->u.isp2x.target.extended)	\
-@@ -257,6 +256,7 @@ struct ctio_to_2xxx {
- #ifndef CTIO_RET_TYPE
- #define CTIO_RET_TYPE	0x17		/* CTIO return entry */
- #define ATIO_TYPE7 0x06 /* Accept target I/O entry for 24xx */
-+#endif
- 
- struct fcp_hdr {
- 	uint8_t  r_ctl;
+ 	ret = request_irq(pcidev->irq, cb_pcidas_interrupt, IRQF_SHARED,
+-			  dev->board_name, dev);
++			  "cb_pcidas", dev);
+ 	if (ret) {
+ 		dev_dbg(dev->class_dev, "unable to allocate irq %d\n",
+ 			pcidev->irq);
 -- 
 2.30.1
 
