@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59EF4348F3D
+	by mail.lfdr.de (Postfix) with ESMTP id 02337348F3C
 	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:27:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231201AbhCYL0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231208AbhCYL0h (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 25 Mar 2021 07:26:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34238 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230358AbhCYLZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:25:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2282461A32;
-        Thu, 25 Mar 2021 11:25:52 +0000 (UTC)
+        id S230366AbhCYLZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:25:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54FD761A35;
+        Thu, 25 Mar 2021 11:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671552;
-        bh=x1dLd35kS/fsJEktN17mPa9CELWLfzMplx6mvWu1YUk=;
+        s=k20201202; t=1616671554;
+        bh=Mm3ZFQ2BMZXi56HpLke80635/E7qUUP52zUhZntN/0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGh5InIpNclj9MzT6HFHK2r7kpFMdY44zvm9xp6XMJevjumGgotseFrHxCmyXXV6p
-         FegOfbKUWS21O+hCcpEkbkf4oUpOS1dNUaaq69+BUbE8PcpeZg6101i6oI418rN8H/
-         uMYH6bN9lJwelUNRDMJWtRl2FE8xv6AYxAm9HOdOhM/rHwpipg06rhK/b3YTLmk5+e
-         n/rS01zs3AhTnUP74yoHI4EfE7Pad54v9qyIv9oBPJ/J7SCX+sqK8gSawMpKRwOanE
-         0RSDYfKI8+6FhFWMRhZomxp39vjLbd2FHfwEL8IZuV+rDVIxIEytt5nNwNsrjNkgq1
-         FQ3YQDwTMr8yA==
+        b=h1gFMBn5MyHSb5PTB+2Pq71jJzdvB1SNK69wy6/3KrLPzVww09Rf3kfCHOapCKm8X
+         UTorLDmtbEqW1aZzRaiPc0b0k8wvUyIMestUPnumqJet1PqjVuV1eyummBV9j5ujgF
+         DrBflZGcDAoz889WedCHDiy2Umu8KrbtfMraKUkYJEJWQp6cDp+rKZN2WX6J6XUdZO
+         2uf+zUSGqyZtRHFyz4ozFbWOvYA0nEs0ykXMmuWgLr3zCNwgNbfX+rFgNqZcGy6IFH
+         JsK3YPmw7y6HV/FAqRVtr67zxTwxNIwLILSIL6+o/5Y7lTh1tRgrY9A9W28yKgSB5N
+         /pRzxEdR2NcUA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 41/44] ext4: do not iput inode under running transaction in ext4_rename()
-Date:   Thu, 25 Mar 2021 07:24:56 -0400
-Message-Id: <20210325112459.1926846-41-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, Stefan Metzmacher <metze@samba.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 42/44] signal: don't allow sending any signals to PF_IO_WORKER threads
+Date:   Thu, 25 Mar 2021 07:24:57 -0400
+Message-Id: <20210325112459.1926846-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112459.1926846-1-sashal@kernel.org>
 References: <20210325112459.1926846-1-sashal@kernel.org>
@@ -41,88 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "zhangyi (F)" <yi.zhang@huawei.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 5dccdc5a1916d4266edd251f20bbbb113a5c495f ]
+[ Upstream commit 5be28c8f85ce99ed2d329d2ad8bdd18ea19473a5 ]
 
-In ext4_rename(), when RENAME_WHITEOUT failed to add new entry into
-directory, it ends up dropping new created whiteout inode under the
-running transaction. After commit <9b88f9fb0d2> ("ext4: Do not iput inode
-under running transaction"), we follow the assumptions that evict() does
-not get called from a transaction context but in ext4_rename() it breaks
-this suggestion. Although it's not a real problem, better to obey it, so
-this patch add inode to orphan list and stop transaction before final
-iput().
+They don't take signals individually, and even if they share signals with
+the parent task, don't allow them to be delivered through the worker
+thread. Linux does allow this kind of behavior for regular threads, but
+it's really a compatability thing that we need not care about for the IO
+threads.
 
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Link: https://lore.kernel.org/r/20210303131703.330415-2-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: Stefan Metzmacher <metze@samba.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ kernel/signal.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index df0368d578b1..6d954d681502 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3760,14 +3760,14 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	 */
- 	retval = -ENOENT;
- 	if (!old.bh || le32_to_cpu(old.de->inode) != old.inode->i_ino)
--		goto end_rename;
-+		goto release_bh;
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 5ad8566534e7..55526b941011 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -833,6 +833,9 @@ static int check_kill_permission(int sig, struct kernel_siginfo *info,
  
- 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
- 				 &new.de, &new.inlined);
- 	if (IS_ERR(new.bh)) {
- 		retval = PTR_ERR(new.bh);
- 		new.bh = NULL;
--		goto end_rename;
-+		goto release_bh;
- 	}
- 	if (new.bh) {
- 		if (!new.inode) {
-@@ -3784,15 +3784,13 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		handle = ext4_journal_start(old.dir, EXT4_HT_DIR, credits);
- 		if (IS_ERR(handle)) {
- 			retval = PTR_ERR(handle);
--			handle = NULL;
--			goto end_rename;
-+			goto release_bh;
- 		}
- 	} else {
- 		whiteout = ext4_whiteout_for_rename(&old, credits, &handle);
- 		if (IS_ERR(whiteout)) {
- 			retval = PTR_ERR(whiteout);
--			whiteout = NULL;
--			goto end_rename;
-+			goto release_bh;
- 		}
- 	}
+ 	if (!valid_signal(sig))
+ 		return -EINVAL;
++	/* PF_IO_WORKER threads don't take any signals */
++	if (t->flags & PF_IO_WORKER)
++		return -ESRCH;
  
-@@ -3926,16 +3924,18 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			ext4_setent(handle, &old,
- 				old.inode->i_ino, old_file_type);
- 			drop_nlink(whiteout);
-+			ext4_orphan_add(handle, whiteout);
- 		}
- 		unlock_new_inode(whiteout);
-+		ext4_journal_stop(handle);
- 		iput(whiteout);
--
-+	} else {
-+		ext4_journal_stop(handle);
- 	}
-+release_bh:
- 	brelse(old.dir_bh);
- 	brelse(old.bh);
- 	brelse(new.bh);
--	if (handle)
--		ext4_journal_stop(handle);
- 	return retval;
- }
- 
+ 	if (!si_fromuser(info))
+ 		return 0;
 -- 
 2.30.1
 
