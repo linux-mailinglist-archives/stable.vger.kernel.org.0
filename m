@@ -2,70 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 664E33485CE
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 01:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ECEF3485D4
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 01:21:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239216AbhCYAU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Mar 2021 20:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43728 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239163AbhCYAUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Mar 2021 20:20:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 58F5E61A02;
-        Thu, 25 Mar 2021 00:20:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616631608;
-        bh=nsdcKLMb8xraXL4xCa/SySreQQ8WiU9McUIyu3phn7U=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=Z0RxrOG9thDLbAv4wYWeAPcIZadKM5u1KC7BEqZnzxbnlQEvZJHV7kmlw3l656r0P
-         U5gH1i3eOvVtx5IAGcUdesGgmq7rL+UHdnwXAljDW2YvxVWtBBMEqrss8rDs7d3XMM
-         SLYC4joKOldyO48tERlg8TdOngZpuSFIYrdrYBmnFDsp1BQgnzoZA25JRn7dpTgyeg
-         HPKwcpUjDuQRuNzkPkJ+IpQnf05n4i5Qt4ue8VXO2M8x7crzWCodIwLldng5T9Dfos
-         ZZMwp0viGfxR6QjYmvxtrJLSb/QmNONVXLllnwiLCoRTW1kMTijpbGFNRF58KPT2fi
-         XN2M8LSFu9Hbg==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 4754760A6A;
-        Thu, 25 Mar 2021 00:20:08 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S239163AbhCYAU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Mar 2021 20:20:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239210AbhCYAUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Mar 2021 20:20:30 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84CF0C06175F
+        for <stable@vger.kernel.org>; Wed, 24 Mar 2021 17:20:29 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id b4so10731569lfi.6
+        for <stable@vger.kernel.org>; Wed, 24 Mar 2021 17:20:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=09bvkwW+xfzD5ay3iSTJJAOZhEwyjizevNtvtj//us4=;
+        b=C23g22gLMhSW/Sik8E22qihGhbcvrSQnuM6MUX6GcRQTiFC4NGP8y64xwEyDcDYujs
+         LKsXeFy6xKhJ+vUGgVDJzw0efOfi65HnpqJ37fzeIkcVjtqjDAzfhnPEjNZN0YY9UOJo
+         53lM0/U0Xwn6lbOTLpwknuv8RintaoAH3YGciHEfa5qvzmOofQBGkWXSy8DfSKaE2fac
+         OiqONGFpeiFmOLLT+QSYwcdiVxQDgJHQvnlxHv0m65vAsoaULD/6O27O1gNMcqfQrhMn
+         j+IleSXu4lrmP/UCzaS6+9UrzOG7jxGV594PG3s8DJsu7e+0iq017H2EsfMi4HHJMoFC
+         fpgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=09bvkwW+xfzD5ay3iSTJJAOZhEwyjizevNtvtj//us4=;
+        b=QyQbiKyTXyxpha8mwGGuuJSSbSwSankypk/eNYyrIU//1PvSvJAdc+1f/SN4+yoc2y
+         HChbf6S2E94mfX9O2aUqeoDj7jJxUk0Hi7qX5mUU61qbkDk6ML7KZ0Km11cCbl74g6HD
+         URUqkcBoVHlKgx2e3Ix7tEUZXVzwl5MWVz6W4Mu/2PoaxRN0LNyy2KAy2QPPxCDgtxzy
+         l+8unAlEE5gRLVa/eoQJG/E3OPZ/cmSgFMtyWMzhtAzMUV9z6Kg1Nje19/FSsSuekqLg
+         ILGW/0si/esvdIzimtFZL5kLDCdcBWWULUKYDDfHdWG0SRJ69w/LyyxVY9PFmbbTqCDt
+         kaRQ==
+X-Gm-Message-State: AOAM5332N3CWHHgajJ/l1m77ZQ5o+hX9KB46lcKwKWXaC89um46pIJME
+        alyTFA3KzdslaAq22VVMTGfFv9uQKACfC/Js2BA=
+X-Google-Smtp-Source: ABdhPJy+kjyuLAf5zZ9q3XpP0Qf8bU86lOLyBQ96ftZYlvIpmHU/WKZJL5RJRMND7hCgzpBsh9VMHz2X2JYTpL6l4UI=
+X-Received: by 2002:a19:cd2:: with SMTP id 201mr3204746lfm.451.1616631625465;
+ Wed, 24 Mar 2021 17:20:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] psample: Fix user API breakage
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161663160828.5502.5337161431170465792.git-patchwork-notify@kernel.org>
-Date:   Thu, 25 Mar 2021 00:20:08 +0000
-References: <20210324194332.153658-1-idosch@idosch.org>
-In-Reply-To: <20210324194332.153658-1-idosch@idosch.org>
-To:     Ido Schimmel <idosch@idosch.org>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        yotam.gi@gmail.com, jiri@nvidia.com, petrm@nvidia.com,
-        chrism@mellanox.com, sfr@canb.auug.org.au, idosch@nvidia.com,
-        stable@vger.kernel.org
+Received: by 2002:a05:6520:2a91:b029:c8:196b:fad3 with HTTP; Wed, 24 Mar 2021
+ 17:20:24 -0700 (PDT)
+Reply-To: sroomf70@gmail.com
+From:   "Prof. Dr Diane" <md447755@gmail.com>
+Date:   Wed, 24 Mar 2021 17:20:24 -0700
+Message-ID: <CABJojfdS0v+eS9ZfbRa5xz4eXC8Rr4KSoJYt_jy3jgkBqJnL+g@mail.gmail.com>
+Subject: Greetings,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+-- 
+From Prof. Dr Diane, we notify you through our official mail but no
+respond from you before sending you with this private email. have you
+Receive the Fund that was paid to your account? please, do not
+hesitate to reply as soon as possible as to enable this Bank make the
+balance transfer into your nominated account. awaiting your urgent
+notification.
 
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Wed, 24 Mar 2021 21:43:32 +0200 you wrote:
-> From: Ido Schimmel <idosch@nvidia.com>
-> 
-> Cited commit added a new attribute before the existing group reference
-> count attribute, thereby changing its value and breaking existing
-> applications on new kernels.
-> 
-> Before:
-> 
-> [...]
-
-Here is the summary with links:
-  - [net] psample: Fix user API breakage
-    https://git.kernel.org/netdev/net/c/e43accba9b07
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Best regards
+Prof. Dr Diane
+Head of Foreign Operation
