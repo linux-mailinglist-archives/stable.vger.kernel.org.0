@@ -2,78 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F027434879F
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 04:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8C23487E7
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 05:31:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbhCYDvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Mar 2021 23:51:35 -0400
-Received: from szxga07-in.huawei.com ([45.249.212.35]:14868 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229590AbhCYDv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Mar 2021 23:51:28 -0400
-Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4F5WLs2Lt0z9sjR;
-        Thu, 25 Mar 2021 11:49:25 +0800 (CST)
-Received: from use12-sp2.huawei.com (10.67.189.174) by
- DGGEMS414-HUB.china.huawei.com (10.3.19.214) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 25 Mar 2021 11:51:17 +0800
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-To:     <linux-kernel@vger.kernel.org>, <kiyin@tencent.com>,
-        <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
-        <sameo@linux.intel.com>, <linville@tuxdriver.com>,
-        <davem@davemloft.net>, <kuba@kernel.org>, <mkl@pengutronix.de>,
-        <stefan@datenfreihafen.org>, <matthieu.baerts@tessares.net>,
-        <netdev@vger.kernel.org>
-CC:     <nixiaoming@huawei.com>, <wangle6@huawei.com>,
-        <xiaoqian9@huawei.com>
-Subject: [PATCH resend 4/4] nfc: Avoid endless loops caused by repeated llcp_sock_connect()
-Date:   Thu, 25 Mar 2021 11:51:13 +0800
-Message-ID: <20210325035113.49323-5-nixiaoming@huawei.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210325035113.49323-1-nixiaoming@huawei.com>
-References: <YFnwiFmgejk/TKOX@kroah.com>
- <20210325035113.49323-1-nixiaoming@huawei.com>
+        id S229508AbhCYEae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 00:30:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43168 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229461AbhCYEa3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 00:30:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FCFC61A14;
+        Thu, 25 Mar 2021 04:30:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1616646628;
+        bh=GzGfcPzU0S+PDow3L08zAISSA1Nd4wMv2D/YAM2pnQI=;
+        h=Date:From:To:Subject:From;
+        b=Uqb+mqRhzXyOreaPXvJpPmVmI47SXbN9eG3w5K4JWGXwblgzaMgcmr56NgmC3dJaC
+         SL2tQkoedwwZTEy2tBuPVnrXXltzCKoMZfr0p13ybjRFoNYzDS2GRcI/e+ZIIeS220
+         hCaqVhO9BcppeZnzW3ISRFA7W9uqtlzigbxsE3A0=
+Date:   Wed, 24 Mar 2021 21:30:27 -0700
+From:   akpm@linux-foundation.org
+To:     almasrymina@google.com, aneesh.kumar@linux.vnet.ibm.com,
+        linmiaohe@huawei.com, liwp.linux@gmail.com, lkp@intel.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org
+Subject:  [folded-merged]
+ =?US-ASCII?Q?hugetlb=5Fcgroup-fix-imbalanced-css=5Fget-and-css=5Fput-p?=
+ =?US-ASCII?Q?air-for-shared-mappings-v3.patch?= removed from -mm tree
+Message-ID: <20210325043027._BMsb1523%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.189.174]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When sock_wait_state() returns -EINPROGRESS, "sk->sk_state" is
- LLCP_CONNECTING. In this case, llcp_sock_connect() is repeatedly invoked,
- nfc_llcp_sock_link() will add sk to local->connecting_sockets twice.
- sk->sk_node->next will point to itself, that will make an endless loop
- and hang-up the system.
-To fix it, check whether sk->sk_state is LLCP_CONNECTING in
- llcp_sock_connect() to avoid repeated invoking.
 
-Fixes: b4011239a08e ("NFC: llcp: Fix non blocking sockets connections")
-Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Link: https://www.openwall.com/lists/oss-security/2020/11/01/1
-Cc: <stable@vger.kernel.org> #v3.11
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+The patch titled
+     Subject: hugetlb_cgroup: fix imbalanced css_get and css_put pair for shared mappings
+has been removed from the -mm tree.  Its filename was
+     hugetlb_cgroup-fix-imbalanced-css_get-and-css_put-pair-for-shared-mappings-v3.patch
+
+This patch was dropped because it was folded into hugetlb_cgroup-fix-imbalanced-css_get-and-css_put-pair-for-shared-mappings.patch
+
+------------------------------------------------------
+From: Miaohe Lin <linmiaohe@huawei.com>
+Subject: hugetlb_cgroup: fix imbalanced css_get and css_put pair for shared mappings
+
+reshape some comments, per Mike
+
+Link: https://lkml.kernel.org/r/20210316023002.53921-1-linmiaohe@huawei.com
+Fixes: 075a61d07a8e ("hugetlb_cgroup: add accounting for shared mappings")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Reported-by: kernel test robot <lkp@intel.com> (auto build test ERROR)
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+Cc: Wanpeng Li <liwp.linux@gmail.com>
+Cc: Mina Almasry <almasrymina@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- net/nfc/llcp_sock.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c
-index 59172614b249..a3b46f888803 100644
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -673,6 +673,10 @@ static int llcp_sock_connect(struct socket *sock, struct sockaddr *_addr,
- 		ret = -EISCONN;
- 		goto error;
- 	}
-+	if (sk->sk_state == LLCP_CONNECTING) {
-+		ret = -EINPROGRESS;
-+		goto error;
-+	}
- 
- 	dev = nfc_get_device(addr->dev_idx);
- 	if (dev == NULL) {
--- 
-2.27.0
+ mm/hugetlb.c        |   13 ++++++-------
+ mm/hugetlb_cgroup.c |    3 +--
+ 2 files changed, 7 insertions(+), 9 deletions(-)
+
+--- a/mm/hugetlb.c~hugetlb_cgroup-fix-imbalanced-css_get-and-css_put-pair-for-shared-mappings-v3
++++ a/mm/hugetlb.c
+@@ -281,13 +281,12 @@ static void record_hugetlb_cgroup_unchar
+ 			&h_cg->rsvd_hugepage[hstate_index(h)];
+ 		nrg->css = &h_cg->css;
+ 		/*
+-		 * The caller (hugetlb_reserve_pages now) will only hold one
+-		 * h_cg->css reference for the whole contiguous reservation
+-		 * region. But this area might be scattered when there are
+-		 * already some file_regions reside in it. As a result, many
+-		 * file_regions may share only one h_cg->css reference. In
+-		 * order to ensure that one file_region must hold and only
+-		 * hold one h_cg->css reference, we should do css_get for
++		 * The caller will hold exactly one h_cg->css reference for the
++		 * whole contiguous reservation region. But this area might be
++		 * scattered when there are already some file_regions reside in
++		 * it. As a result, many file_regions may share only one css
++		 * reference. In order to ensure that one file_region must hold
++		 * exactly one h_cg->css reference, we should do css_get for
+ 		 * each file_region and leave the reference held by caller
+ 		 * untouched.
+ 		 */
+--- a/mm/hugetlb_cgroup.c~hugetlb_cgroup-fix-imbalanced-css_get-and-css_put-pair-for-shared-mappings-v3
++++ a/mm/hugetlb_cgroup.c
+@@ -403,8 +403,7 @@ void hugetlb_cgroup_uncharge_file_region
+ 				      nr_pages * resv->pages_per_hpage);
+ 		/*
+ 		 * Only do css_put(rg->css) when we delete the entire region
+-		 * because one file_region must hold and only hold one rg->css
+-		 * reference.
++		 * because one file_region must hold exactly one css reference.
+ 		 */
+ 		if (region_del)
+ 			css_put(rg->css);
+_
+
+Patches currently in -mm which might be from linmiaohe@huawei.com are
+
+hugetlb_cgroup-fix-imbalanced-css_get-and-css_put-pair-for-shared-mappings.patch
+mm-hugetlb-remove-redundant-reservation-check-condition-in-alloc_huge_page.patch
+mm-hugetlb-use-some-helper-functions-to-cleanup-code.patch
+mm-hugetlb-optimize-the-surplus-state-transfer-code-in-move_hugetlb_state.patch
+hugetlb_cgroup-remove-unnecessary-vm_bug_on_page-in-hugetlb_cgroup_migrate.patch
+mm-hugetlb-simplify-the-code-when-alloc_huge_page-failed-in-hugetlb_no_page.patch
+mm-hugetlb-avoid-calculating-fault_mutex_hash-in-truncate_op-case.patch
+khugepaged-remove-unneeded-return-value-of-khugepaged_collapse_pte_mapped_thps.patch
+khugepaged-reuse-the-smp_wmb-inside-__setpageuptodate.patch
+khugepaged-use-helper-khugepaged_test_exit-in-__khugepaged_enter.patch
+khugepaged-fix-wrong-result-value-for-trace_mm_collapse_huge_page_isolate.patch
+mm-huge_memoryc-remove-unnecessary-local-variable-ret2.patch
+mm-huge_memoryc-rework-the-function-vma_adjust_trans_huge.patch
+mm-huge_memoryc-make-get_huge_zero_page-return-bool.patch
+mm-huge_memoryc-rework-the-function-do_huge_pmd_numa_page-slightly.patch
+mm-huge_memoryc-remove-redundant-pagecompound-check.patch
+mm-huge_memoryc-remove-unused-macro-transparent_hugepage_debug_cow_flag.patch
+mm-huge_memoryc-use-helper-function-migration_entry_to_page.patch
 
