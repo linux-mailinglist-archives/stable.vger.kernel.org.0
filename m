@@ -2,176 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13EB3349AD7
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 21:10:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DFF8349B03
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 21:32:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230288AbhCYUKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 16:10:07 -0400
-Received: from mail.skyhub.de ([5.9.137.197]:59234 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230258AbhCYUJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 16:09:40 -0400
-Received: from zn.tnic (p200300ec2f0d5d0094e6cb0f12bb7e2a.dip0.t-ipconnect.de [IPv6:2003:ec:2f0d:5d00:94e6:cb0f:12bb:7e2a])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 683AF1EC0249;
-        Thu, 25 Mar 2021 21:09:38 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1616702978;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=mlAyvCnXo3hHmcqDcLa0T0+zPXCZVaDSlZjjwBtnDCY=;
-        b=lkUeFKqn1wgy3MlXzWs7hStJOpvfYU/tTSZ8zOYUwS80eXwWt0+AaAq/qbqRDdR2dOttQd
-        qDNk+HsALrwZvtX6EmcdW2Za2ZTKQEsCyb3Mt3PHOVCOECvGRx+9zhFJMJcbCU35iY/y2o
-        W7f4GxpgqWzgUzEAKvw/RJPN4HHJMLs=
-Date:   Thu, 25 Mar 2021 21:09:42 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     stable <stable@vger.kernel.org>
-Cc:     Hugh Dickins <hughd@google.com>, Babu Moger <babu.moger@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        kvm list <kvm@vger.kernel.org>, Joerg Roedel <joro@8bytes.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Makarand Sonare <makarandsonare@google.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH] x86/tlb: Flush global mappings when KAISER is disabled
-Message-ID: <20210325200942.GJ31322@zn.tnic>
-References: <20210311214013.GH5829@zn.tnic>
- <d3e9e091-0fc8-1e11-ab99-9c8be086f1dc@amd.com>
- <4a72f780-3797-229e-a938-6dc5b14bec8d@amd.com>
- <20210311235215.GI5829@zn.tnic>
- <ed590709-65c8-ca2f-013f-d2c63d5ee0b7@amd.com>
- <20210324212139.GN5010@zn.tnic>
- <alpine.LSU.2.11.2103241651280.9593@eggly.anvils>
- <alpine.LSU.2.11.2103241913190.10112@eggly.anvils>
- <20210325095619.GC31322@zn.tnic>
- <20210325102959.GD31322@zn.tnic>
+        id S230300AbhCYUcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 16:32:24 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61916 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229977AbhCYUcU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Mar 2021 16:32:20 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12PK5MPi112725;
+        Thu, 25 Mar 2021 16:32:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=oEpHvDI3puLg+Vq05BFMSURNGiOqUaXOZOQzdNfRnn8=;
+ b=VsjPK/h/a14XiyiZzBLZYZnGWylzon8Hh/Awb8F1M7OwOD9WKnmYH6Nc2Zp/f9g8u+TJ
+ CFFFVQLuxJqZs7mupOr9BbYgmPIwZMa9U5l+FiXwHZadc2eDRPP557qYaXnnI8eW939c
+ CbY/rVGxgKk5AfCaanpZ7cWWfygHvyesgUvySULy0qZ1cmIreV1WbHrFdQNOxHX5JurH
+ h/fVlEeOFi5T4OdQtKw3YmA3z2hFfruTlp1Tub1PoGKeby7RjDYHhSDwqSvbcXj0J4ao
+ /sD15n1E2acERF+wOA+J5S4fApwZalWfDp/iWKeLEIYsPW7xdff64NsRp3OqaLpAlLe5 nQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37h18egr2m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Mar 2021 16:32:18 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12PK5jpV114396;
+        Thu, 25 Mar 2021 16:32:17 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37h18egr17-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Mar 2021 16:32:17 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12PKRdK4025569;
+        Thu, 25 Mar 2021 20:32:15 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 37h15100pn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Mar 2021 20:32:15 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12PKVsF835455354
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 25 Mar 2021 20:31:54 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E71EFA4053;
+        Thu, 25 Mar 2021 20:32:12 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 306E2A4051;
+        Thu, 25 Mar 2021 20:32:12 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.84.230])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 25 Mar 2021 20:32:12 +0000 (GMT)
+Date:   Thu, 25 Mar 2021 21:32:10 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH v5 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+Message-ID: <20210325213210.62cb11b9.pasic@linux.ibm.com>
+In-Reply-To: <20210325124640.23995-2-akrowiak@linux.ibm.com>
+References: <20210325124640.23995-1-akrowiak@linux.ibm.com>
+        <20210325124640.23995-2-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210325102959.GD31322@zn.tnic>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 5qRJTkiymQM0dqZpHznUPt1kLU6qfsUH
+X-Proofpoint-GUID: QXXZp66eNcmEuopvnEsEfdxFpPwpWzli
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-25_07:2021-03-25,2021-03-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ mlxlogscore=999 priorityscore=1501 impostorscore=0 mlxscore=0
+ malwarescore=0 spamscore=0 lowpriorityscore=0 adultscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2103250000 definitions=main-2103250146
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi stable folks,
+On Thu, 25 Mar 2021 08:46:40 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-the patch below fixes kernels 4.4 and 4.9 booting on AMD platforms with
-PCID support. It doesn't have an upstream counterpart because it patches
-the KAISER code which didn't go upstream. It applies fine to both of the
-aforementioned kernels - please pick it up.
+> This patch fixes a lockdep splat introduced by commit f21916ec4826
+> ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated").
+> The lockdep splat only occurs when starting a Secure Execution guest.
+> Crypto virtualization (vfio_ap) is not yet supported for SE guests;
+> however, in order to avoid this problem when support becomes available,
+> this fix is being provided.
+> 
+> The circular locking dependency was introduced when the setting of the
+> masks in the guest's APCB was executed while holding the matrix_dev->lock.
+> While the lock is definitely needed to protect the setting/unsetting of the
+> matrix_mdev->kvm pointer, it is not necessarily critical for setting the
+> masks; so, the matrix_dev->lock will be released while the masks are being
+> set or cleared.
+> 
+> Keep in mind, however, that another process that takes the matrix_dev->lock
+> can get control while the masks in the guest's APCB are being set or
+> cleared as a result of the driver being notified that the KVM pointer
+> has been set or unset. This could result in invalid access to the
+> matrix_mdev->kvm pointer by the intervening process. To avoid this
+> scenario, two new fields are being added to the ap_matrix_mdev struct:
+> 
+> struct ap_matrix_mdev {
+> 	...
+> 	bool kvm_busy;
+> 	wait_queue_head_t wait_for_kvm;
+>    ...
+> };
+> 
+> The functions that handle notification that the KVM pointer value has
+> been set or cleared will set the kvm_busy flag to true until they are done
+> processing at which time they will set it to false and wake up the tasks on
+> the matrix_mdev->wait_for_kvm wait queue. Functions that require
+> access to matrix_mdev->kvm will sleep on the wait queue until they are
+> awakened at which time they can safely access the matrix_mdev->kvm
+> field.
+> 
+> Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Thx.
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 
----
-From: Borislav Petkov <bp@suse.de>
-Date: Thu, 25 Mar 2021 11:02:31 +0100
-Subject: [PATCH] x86/tlb: Flush global mappings when KAISER is disabled
+I intend to give a couple of work-days to others, and if nobody objects
+merge this. (I will wait till Tuesday.)
 
-Jim Mattson reported that Debian 9 guests using a 4.9-stable kernel
-are exploding during alternatives patching:
+I've tested it and it does silence the lockdep splat.
 
-  kernel BUG at /build/linux-dqnRSc/linux-4.9.228/arch/x86/kernel/alternative.c:709!
-  invalid opcode: 0000 [#1] SMP
-  Modules linked in:
-  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.9.0-13-amd64 #1 Debian 4.9.228-1
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Call Trace:
-   swap_entry_free
-   swap_entry_free
-   text_poke_bp
-   swap_entry_free
-   arch_jump_label_transform
-   set_debug_rodata
-   __jump_label_update
-   static_key_slow_inc
-   frontswap_register_ops
-   init_zswap
-   init_frontswap
-   do_one_initcall
-   set_debug_rodata
-   kernel_init_freeable
-   rest_init
-   kernel_init
-   ret_from_fork
-
-triggering the BUG_ON in text_poke() which verifies whether patched
-instruction bytes have actually landed at the destination.
-
-Further debugging showed that the TLB flush before that check is
-insufficient because there could be global mappings left in the TLB,
-leading to a stale mapping getting used.
-
-I say "global mappings" because the hardware configuration is a new one:
-machine is an AMD, which means, KAISER/PTI doesn't need to be enabled
-there, which also means there's no user/kernel pagetables split and
-therefore the TLB can have global mappings.
-
-And the configuration is new one for a second reason: because that AMD
-machine supports PCID and INVPCID, which leads the CPU detection code to
-set the synthetic X86_FEATURE_INVPCID_SINGLE flag.
-
-Now, __native_flush_tlb_single() does invalidate global mappings when
-X86_FEATURE_INVPCID_SINGLE is *not* set and returns.
-
-When X86_FEATURE_INVPCID_SINGLE is set, however, it invalidates the
-requested address from both PCIDs in the KAISER-enabled case. But if
-KAISER is not enabled and the machine has global mappings in the TLB,
-then those global mappings do not get invalidated, which would lead to
-the above mismatch from using a stale TLB entry.
-
-So make sure to flush those global mappings in the KAISER disabled case.
-
-Co-debugged by Babu Moger <babu.moger@amd.com>.
-
-Reported-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Tested-by: Babu Moger <babu.moger@amd.com>
-Tested-by: Jim Mattson <jmattson@google.com>
-Link: https://lkml.kernel.org/r/CALMp9eRDSW66%2BXvbHVF4ohL7XhThoPoT0BrB0TcS0cgk=dkcBg@mail.gmail.com
----
- arch/x86/include/asm/tlbflush.h | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index f5ca15622dc9..2bfa4deb8cae 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -245,12 +245,15 @@ static inline void __native_flush_tlb_single(unsigned long addr)
- 	 * ASID.  But, userspace flushes are probably much more
- 	 * important performance-wise.
- 	 *
--	 * Make sure to do only a single invpcid when KAISER is
--	 * disabled and we have only a single ASID.
-+	 * In the KAISER disabled case, do an INVLPG to make sure
-+	 * the mapping is flushed in case it is a global one.
- 	 */
--	if (kaiser_enabled)
-+	if (kaiser_enabled) {
- 		invpcid_flush_one(X86_CR3_PCID_ASID_USER, addr);
--	invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
-+		invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
-+	} else {
-+		asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
-+	}
- }
- 
- static inline void __flush_tlb_all(void)
--- 
-2.29.2
-
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Regards,
+Halil
