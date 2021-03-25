@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F2F7348F81
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:28:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B3C348F85
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231561AbhCYL15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:27:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35208 "EHLO mail.kernel.org"
+        id S231566AbhCYL2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231209AbhCYL0i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:26:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1FFF61A2E;
-        Thu, 25 Mar 2021 11:26:36 +0000 (UTC)
+        id S230163AbhCYL0j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:26:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4206761A4A;
+        Thu, 25 Mar 2021 11:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671597;
-        bh=sZroW6ZD33NImc7OmNg0DCW18XpmCtLFFO8WzF2ZY0U=;
+        s=k20201202; t=1616671598;
+        bh=0PspNJECVDrJESPZ4603uo9HjeciJGkf37foAb3OEAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDHwCLkKWGCpnQUh7rLv1BBU3gZFjs3lY6yon63MdYSvkYeqYR99OtL7mMKapPOea
-         fn27ALXE1id2IOA1SMIvByS2AySwbjnez29URWFz3Id7MpXKbprlEGyy7MMz+FaJuk
-         ef1y0KxH24jZYtx/lSt+fULVf4YZhXZ3je6b4WutM5eEM4YLIagI5DzU02kAItvNgz
-         TwQ0LCtQ6wQXMRRl3RE2L5lTcqan6ot82S79XiM+/O+SWgV/eor2aoExwzpibA6DUF
-         RVgV0Gf9+zDocjDoqLBAHfo4NSS80p7KBwrmkoZhNtOAB947hBNctvq7tbIJE+cdDy
-         LikrNQKhvoW2w==
+        b=KUUMSn5dQ26YeNenncGtnfbit9PfuiY03UHrX2TfKphn4IZ5Xc15r/H31pI2wS2gC
+         TnM5dJFFXV2Gbv9OOjeeQyQyeCjOnjEwtbuCR5yVm4bLvkhkf4Pc3XolfhAwNczCx9
+         T43fQ2etOeHcdAXlSXX53MCHKh+SAe9LB5fkiiSniaPX0SqzNahvQ9dWFP4ZHXYI//
+         NOiHwxx1N1ZQXj68otVTe4GQgX3xxZu9qB6d7f1ckjw1FgbiymJ/yEee1oEwtyz3Px
+         rLSq2gsQo3zpuMTXtZSex3lh3aFdQog/1AFA9r92Eni7rBnrJKrQnTcQ5kOXEGV3iU
+         G8JONW01qP6Vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 29/39] ASoC: rt711: add snd_soc_component remove callback
-Date:   Thu, 25 Mar 2021 07:25:48 -0400
-Message-Id: <20210325112558.1927423-29-sashal@kernel.org>
+Cc:     Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 30/39] thermal/core: Add NULL pointer check before using cooling device stats
+Date:   Thu, 25 Mar 2021 07:25:49 -0400
+Message-Id: <20210325112558.1927423-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112558.1927423-1-sashal@kernel.org>
 References: <20210325112558.1927423-1-sashal@kernel.org>
@@ -44,53 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
 
-[ Upstream commit 899b12542b0897f92de9ba30944937c39ebb246d ]
+[ Upstream commit 2046a24ae121cd107929655a6aaf3b8c5beea01f ]
 
-We do some IO operations in the snd_soc_component_set_jack callback
-function and snd_soc_component_set_jack() will be called when soc
-component is removed. However, we should not access SoundWire registers
-when the bus is suspended.
-So set regcache_cache_only(regmap, true) to avoid accessing in the
-soc component removal process.
+There is a possible chance that some cooling device stats buffer
+allocation fails due to very high cooling device max state value.
+Later cooling device update sysfs can try to access stats data
+for the same cooling device. It will lead to NULL pointer
+dereference issue.
 
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Link: https://lore.kernel.org/r/20210316005254.29699-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Add a NULL pointer check before accessing thermal cooling device
+stats data. It fixes the following bug
+
+[ 26.812833] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
+[ 27.122960] Call trace:
+[ 27.122963] do_raw_spin_lock+0x18/0xe8
+[ 27.122966] _raw_spin_lock+0x24/0x30
+[ 27.128157] thermal_cooling_device_stats_update+0x24/0x98
+[ 27.128162] cur_state_store+0x88/0xb8
+[ 27.128166] dev_attr_store+0x40/0x58
+[ 27.128169] sysfs_kf_write+0x50/0x68
+[ 27.133358] kernfs_fop_write+0x12c/0x1c8
+[ 27.133362] __vfs_write+0x54/0x160
+[ 27.152297] vfs_write+0xcc/0x188
+[ 27.157132] ksys_write+0x78/0x108
+[ 27.162050] ksys_write+0xf8/0x108
+[ 27.166968] __arm_smccc_hvc+0x158/0x4b0
+[ 27.166973] __arm_smccc_hvc+0x9c/0x4b0
+[ 27.186005] el0_svc+0x8/0xc
+
+Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/1607367181-24589-1-git-send-email-manafm@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt711.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/thermal/thermal_sysfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
-index a9b1b4180c47..93d86f7558e0 100644
---- a/sound/soc/codecs/rt711.c
-+++ b/sound/soc/codecs/rt711.c
-@@ -895,6 +895,13 @@ static int rt711_probe(struct snd_soc_component *component)
- 	return 0;
- }
+diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
+index a6f371fc9af2..f52708f310e0 100644
+--- a/drivers/thermal/thermal_sysfs.c
++++ b/drivers/thermal/thermal_sysfs.c
+@@ -754,6 +754,9 @@ void thermal_cooling_device_stats_update(struct thermal_cooling_device *cdev,
+ {
+ 	struct cooling_dev_stats *stats = cdev->stats;
  
-+static void rt711_remove(struct snd_soc_component *component)
-+{
-+	struct rt711_priv *rt711 = snd_soc_component_get_drvdata(component);
++	if (!stats)
++		return;
 +
-+	regcache_cache_only(rt711->regmap, true);
-+}
-+
- static const struct snd_soc_component_driver soc_codec_dev_rt711 = {
- 	.probe = rt711_probe,
- 	.set_bias_level = rt711_set_bias_level,
-@@ -905,6 +912,7 @@ static const struct snd_soc_component_driver soc_codec_dev_rt711 = {
- 	.dapm_routes = rt711_audio_map,
- 	.num_dapm_routes = ARRAY_SIZE(rt711_audio_map),
- 	.set_jack = rt711_set_jack_detect,
-+	.remove = rt711_remove,
- };
+ 	spin_lock(&stats->lock);
  
- static int rt711_set_sdw_stream(struct snd_soc_dai *dai, void *sdw_stream,
+ 	if (stats->state == new_state)
 -- 
 2.30.1
 
