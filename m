@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F479348F00
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3E8348EFF
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:26:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230248AbhCYLZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:25:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33802 "EHLO mail.kernel.org"
+        id S230250AbhCYLZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:25:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230091AbhCYLZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:25:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EBCD61A2E;
-        Thu, 25 Mar 2021 11:25:21 +0000 (UTC)
+        id S230093AbhCYLZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:25:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6490961A17;
+        Thu, 25 Mar 2021 11:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671521;
-        bh=CDd15vNGaWLUqR63Q6Okm9EKlIgZ1VWYnN7Vj1s12aI=;
+        s=k20201202; t=1616671523;
+        bh=L3NRVQFzOmKFOR61LZK7HBF3n7Wrvuw1pzKN9hGnFNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0qhYAEVtnsGXbLu1DbMRZ+z6Nd0bdHw1Wx1/UKyVYpbqfs8tGBjjMJH/ltFFqBJm
-         xLDRLhdFGAmzTTzwmQ5dRjGYS9Awwn4uyv68k+N6bU3mP9zRvwky4FgfE1snFQcWAT
-         vZKuecheGsWcahqcC4ZIWQUbt9EbR/Wm0BSF9aUSPtszo+kuZUqoIY6qfhaY4Kpana
-         F+n3oIQNPmgtiRJBFscnDLhrmk3CK7dN19R78BUep8Ne232tuEibLSVCN6Hi9Drt69
-         hnotZWqG0y8uLf1pEPEBV98bqblsyPOAPTJDqRyqCfHnCHvA4nrnhw4lB/mhpSVEVF
-         do8CRSm3cdcsw==
+        b=FBA3NsbH1Dk8YY8aFPX02+u2vwDdYOh5LSqfPMzRXHNmPceHFFrUOfEQJWO6YGDsn
+         DlHTE3vPOWO0YTBlhg7bV05pVz+eCkC8omjpYSntAYtoDWIj8QHZIraN46bglDCSZR
+         YRSk0iYCFTBb8kbIS+QJZCCTY27W/ozK4+HTXX6dZ6IflFc4dxS7tfiPKufOLciShx
+         FjwOI5rzuaNIAwJ9EM2nMghqx5cQO0V9Y94/zCT6ALjKm5/t+PXkXA5lPz1a/T9NwV
+         Juzr0WYVumJP0HEyNeXx0I28MS3IVV6y3BEreZ5CI2YBqIAbyIIG2nD0A0M+b/eGhn
+         iRnFDiKixcHSA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
         patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 5.11 17/44] ASoC: cs42l42: Fix mixer volume control
-Date:   Thu, 25 Mar 2021 07:24:32 -0400
-Message-Id: <20210325112459.1926846-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 18/44] ASoC: cs42l42: Always wait at least 3ms after reset
+Date:   Thu, 25 Mar 2021 07:24:33 -0400
+Message-Id: <20210325112459.1926846-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112459.1926846-1-sashal@kernel.org>
 References: <20210325112459.1926846-1-sashal@kernel.org>
@@ -45,40 +45,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 72d904763ae6a8576e7ad034f9da4f0e3c44bf24 ]
+[ Upstream commit 19325cfea04446bc79b36bffd4978af15f46a00e ]
 
-The minimum value is 0x3f (-63dB), which also is mute
+This delay is part of the power-up sequence defined in the datasheet.
+A runtime_resume is a power-up so must also include the delay.
 
 Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210305173442.195740-4-tanureal@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20210305173442.195740-6-tanureal@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/cs42l42.c | 3 ++-
+ sound/soc/codecs/cs42l42.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 4f9ad9547929..d5078ce79fad 100644
+index d5078ce79fad..4d82d24c7828 100644
 --- a/sound/soc/codecs/cs42l42.c
 +++ b/sound/soc/codecs/cs42l42.c
-@@ -401,7 +401,7 @@ static const struct regmap_config cs42l42_regmap = {
- };
+@@ -1794,7 +1794,7 @@ static int cs42l42_i2c_probe(struct i2c_client *i2c_client,
+ 		dev_dbg(&i2c_client->dev, "Found reset GPIO\n");
+ 		gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
+ 	}
+-	mdelay(3);
++	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
  
- static DECLARE_TLV_DB_SCALE(adc_tlv, -9600, 100, false);
--static DECLARE_TLV_DB_SCALE(mixer_tlv, -6200, 100, false);
-+static DECLARE_TLV_DB_SCALE(mixer_tlv, -6300, 100, true);
+ 	/* Request IRQ */
+ 	ret = devm_request_threaded_irq(&i2c_client->dev,
+@@ -1919,6 +1919,7 @@ static int cs42l42_runtime_resume(struct device *dev)
+ 	}
  
- static const char * const cs42l42_hpf_freq_text[] = {
- 	"1.86Hz", "120Hz", "235Hz", "466Hz"
-@@ -458,7 +458,7 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 				CS42L42_DAC_HPF_EN_SHIFT, true, false),
- 	SOC_DOUBLE_R_TLV("Mixer Volume", CS42L42_MIXER_CHA_VOL,
- 			 CS42L42_MIXER_CHB_VOL, CS42L42_MIXER_CH_VOL_SHIFT,
--				0x3e, 1, mixer_tlv)
-+				0x3f, 1, mixer_tlv)
- };
+ 	gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
++	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
  
- static int cs42l42_hpdrv_evt(struct snd_soc_dapm_widget *w,
+ 	regcache_cache_only(cs42l42->regmap, false);
+ 	regcache_sync(cs42l42->regmap);
+diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
+index 9b017b76828a..866d7c873e3c 100644
+--- a/sound/soc/codecs/cs42l42.h
++++ b/sound/soc/codecs/cs42l42.h
+@@ -740,6 +740,7 @@
+ #define CS42L42_FRAC2_VAL(val)	(((val) & 0xff0000) >> 16)
+ 
+ #define CS42L42_NUM_SUPPLIES	5
++#define CS42L42_BOOT_TIME_US	3000
+ 
+ static const char *const cs42l42_supply_names[CS42L42_NUM_SUPPLIES] = {
+ 	"VA",
 -- 
 2.30.1
 
