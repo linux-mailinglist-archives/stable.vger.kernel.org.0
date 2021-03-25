@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E506C349012
+	by mail.lfdr.de (Postfix) with ESMTP id 297E5349010
 	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:33:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231750AbhCYLb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:31:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35906 "EHLO mail.kernel.org"
+        id S231500AbhCYLb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231738AbhCYL3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231740AbhCYL3b (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Mar 2021 07:29:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30D0D61A5C;
-        Thu, 25 Mar 2021 11:27:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64D3061A65;
+        Thu, 25 Mar 2021 11:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671658;
-        bh=LRq+CcQWSfPDIdltEEUZePB2pmtJGylrqG811skKSxA=;
+        s=k20201202; t=1616671659;
+        bh=MvspNmx/BQ2U6lxFhhm7YQJAvRh6QOInlWJfeIGGQP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWibcwL8cbeRx2E/Bd9ywlbcGXPJ4yvq9OulWdUyBVXU3FzYsdgcSyq5C6U/DYwq+
-         JKtKPfq6dMe7bX/JeArQufqr/fbwLkHKk3dSlt0W0OUkcBtMgts98FvebhQornlmcs
-         JGrr7p5F04eAajvzPLqDHwLMy9TQApOMO6TdvZ+nNIitOrOqn1a7rAe727pNjCVlrT
-         b5WrDSroYKISEFrdFnQinRxHyqyYgHdYO8jXFG2NVA+39pQjayyLUCk0cQbVuSLiFO
-         mNXtVkm2w+aiEBb/p3lboqS5jZ1b52+r36f7we2J6AjDIqRfMolzj3uxOt8uNy86Es
-         bBDbHJ2EJZyoA==
+        b=YCC8S7voxbD1DEMbrTmHffXPSyo08lJpFkPvThWYIJIA8u8VsmLRT2cSibFYAjOBC
+         VyluaQuNdSfbjiM8V2As4sJclmnre3w6EJKLAFUCKonOzRPFg5pZRXNvZU2RsqVSkg
+         IG1NbTAyOPDx5oZvp0GV5XggAozWmwSG6ZC8II0Hf5ujDo6DyZv8AQexnebFvZmGMr
+         b2c4SbFwUA9L6jPYNdFPCqC+GKYGyfgHUC3/fVIUqhRbMR6S7v9SwPLsmRasyq1PSy
+         dK9KcaHON1EZFDXNUB9JH/Y5KgFhC+GknjQ8exl0JG31ZF4KOWiwLgcrNfg6+qnRlj
+         H3qTRrYDXjaOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 4.19 10/20] ASoC: cs42l42: Always wait at least 3ms after reset
-Date:   Thu, 25 Mar 2021 07:27:14 -0400
-Message-Id: <20210325112724.1928174-10-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 11/20] powerpc: Force inlining of cpu_has_feature() to avoid build failure
+Date:   Thu, 25 Mar 2021 07:27:15 -0400
+Message-Id: <20210325112724.1928174-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112724.1928174-1-sashal@kernel.org>
 References: <20210325112724.1928174-1-sashal@kernel.org>
@@ -43,55 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 19325cfea04446bc79b36bffd4978af15f46a00e ]
+[ Upstream commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a ]
 
-This delay is part of the power-up sequence defined in the datasheet.
-A runtime_resume is a power-up so must also include the delay.
+The code relies on constant folding of cpu_has_feature() based
+on possible and always true values as defined per
+CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210305173442.195740-6-tanureal@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Build failure is encountered with for instance
+book3e_all_defconfig on kisskb in the AMDGPU driver which uses
+cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
+kernel_enable_vsx() or not.
+
+The failure is due to cpu_has_feature() not being inlined with
+that configuration with gcc 4.9.
+
+In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
+mmu_has_feature to fix build failure"), for inlining of
+cpu_has_feature().
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 3 ++-
- sound/soc/codecs/cs42l42.h | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/cpu_has_feature.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index a8ba518ba043..fddfd227a9c0 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -1800,7 +1800,7 @@ static int cs42l42_i2c_probe(struct i2c_client *i2c_client,
- 		dev_dbg(&i2c_client->dev, "Found reset GPIO\n");
- 		gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
- 	}
--	mdelay(3);
-+	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
+diff --git a/arch/powerpc/include/asm/cpu_has_feature.h b/arch/powerpc/include/asm/cpu_has_feature.h
+index 7897d16e0990..727d4b321937 100644
+--- a/arch/powerpc/include/asm/cpu_has_feature.h
++++ b/arch/powerpc/include/asm/cpu_has_feature.h
+@@ -7,7 +7,7 @@
+ #include <linux/bug.h>
+ #include <asm/cputable.h>
  
- 	/* Request IRQ */
- 	ret = devm_request_threaded_irq(&i2c_client->dev,
-@@ -1925,6 +1925,7 @@ static int cs42l42_runtime_resume(struct device *dev)
- 	}
- 
- 	gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
-+	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
- 
- 	regcache_cache_only(cs42l42->regmap, false);
- 	regcache_sync(cs42l42->regmap);
-diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
-index 23b1a63315ca..bcaf4f22408d 100644
---- a/sound/soc/codecs/cs42l42.h
-+++ b/sound/soc/codecs/cs42l42.h
-@@ -744,6 +744,7 @@
- #define CS42L42_FRAC2_VAL(val)	(((val) & 0xff0000) >> 16)
- 
- #define CS42L42_NUM_SUPPLIES	5
-+#define CS42L42_BOOT_TIME_US	3000
- 
- static const char *const cs42l42_supply_names[CS42L42_NUM_SUPPLIES] = {
- 	"VA",
+-static inline bool early_cpu_has_feature(unsigned long feature)
++static __always_inline bool early_cpu_has_feature(unsigned long feature)
+ {
+ 	return !!((CPU_FTRS_ALWAYS & feature) ||
+ 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
+@@ -46,7 +46,7 @@ static __always_inline bool cpu_has_feature(unsigned long feature)
+ 	return static_branch_likely(&cpu_feature_keys[i]);
+ }
+ #else
+-static inline bool cpu_has_feature(unsigned long feature)
++static __always_inline bool cpu_has_feature(unsigned long feature)
+ {
+ 	return early_cpu_has_feature(feature);
+ }
 -- 
 2.30.1
 
