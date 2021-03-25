@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F1F348F69
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0292348F67
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231459AbhCYL1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:27:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35294 "EHLO mail.kernel.org"
+        id S231450AbhCYL1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:27:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231139AbhCYL0X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:26:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C05DE61A32;
-        Thu, 25 Mar 2021 11:26:22 +0000 (UTC)
+        id S231142AbhCYL0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:26:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D64A61A41;
+        Thu, 25 Mar 2021 11:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671583;
-        bh=L3NRVQFzOmKFOR61LZK7HBF3n7Wrvuw1pzKN9hGnFNw=;
+        s=k20201202; t=1616671585;
+        bh=5YJl6L9oXrrCDxxPTrxzhW1TMVxXP40JoRhfG+XLU+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGmhD0DLk7DlRKqB4ZLTbNH7srjf4esDCe+luUlg5Ta3AZiYww6ajGsFP9aYordGN
-         /32vwCVJzWrguaszRC/buMB1QaD4WegacywVZcIOCVqBxyMk5bZZr5cjOB3uDbs68P
-         n6HHPzawfYzgGUp9flzsdvVloK22LfID8RzU17Ve7HYYUJEAwFwMwFepdmoPVbZpg3
-         hNy/AzDg07UFk+ny/HIr5Rir9oxuVD7mq/sEh52eB38EjtiwCsV4eU1INCLBFav/DH
-         PYGwkZ8HgnsI5H3wiLwIJD9RNgHXGir0CbaQt2LNvI+67KIcJRGq0LSxfTe1D2U8AN
-         rBl0C80uQTlsw==
+        b=poy4RdFHxS465vPovLeP+2EquYJKlrUPZK//lUxuXP6ILcdnaRldWW+j0crSxUdgi
+         trf0nfYsuZwYZ0naTCdj1oMv1RFOCPAJ5lomXGw9w3z6VBVNvv9gB4f5x5tbjqHC1+
+         +TclXDdQFcfj551YE/hPBmlz07jG4Rj1gqzDaxSUOud6F6qOirwTMsZ/AwUNXHIccD
+         VvFEqABL1dYdD3ofqC91MOksW5oUkXTztzf6lNJSGAaB0Vcvfody94vgWIW9kz/zML
+         AkGQfpQeUvYEYLrHkmyFEfc+m839ZJQqw0BX4SoEVmszVw3kMd0JsVMm4+5rvn71S8
+         rSMoZOgEuCB2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 5.10 18/39] ASoC: cs42l42: Always wait at least 3ms after reset
-Date:   Thu, 25 Mar 2021 07:25:37 -0400
-Message-Id: <20210325112558.1927423-18-sashal@kernel.org>
+Cc:     Olga Kornievskaia <kolga@netapp.com>,
+        Bruce Fields <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 19/39] NFSD: fix error handling in NFSv4.0 callbacks
+Date:   Thu, 25 Mar 2021 07:25:38 -0400
+Message-Id: <20210325112558.1927423-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112558.1927423-1-sashal@kernel.org>
 References: <20210325112558.1927423-1-sashal@kernel.org>
@@ -43,55 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 19325cfea04446bc79b36bffd4978af15f46a00e ]
+[ Upstream commit b4250dd868d1b42c0a65de11ef3afbee67ba5d2f ]
 
-This delay is part of the power-up sequence defined in the datasheet.
-A runtime_resume is a power-up so must also include the delay.
+When the server tries to do a callback and a client fails it due to
+authentication problems, we need the server to set callback down
+flag in RENEW so that client can recover.
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210305173442.195740-6-tanureal@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Suggested-by: Bruce Fields <bfields@redhat.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Tested-by: Benjamin Coddington <bcodding@redhat.com>
+Link: https://lore.kernel.org/linux-nfs/FB84E90A-1A03-48B3-8BF7-D9D10AC2C9FE@oracle.com/T/#t
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 3 ++-
- sound/soc/codecs/cs42l42.h | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/nfsd/nfs4callback.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index d5078ce79fad..4d82d24c7828 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -1794,7 +1794,7 @@ static int cs42l42_i2c_probe(struct i2c_client *i2c_client,
- 		dev_dbg(&i2c_client->dev, "Found reset GPIO\n");
- 		gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
- 	}
--	mdelay(3);
-+	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
- 
- 	/* Request IRQ */
- 	ret = devm_request_threaded_irq(&i2c_client->dev,
-@@ -1919,6 +1919,7 @@ static int cs42l42_runtime_resume(struct device *dev)
- 	}
- 
- 	gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
-+	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
- 
- 	regcache_cache_only(cs42l42->regmap, false);
- 	regcache_sync(cs42l42->regmap);
-diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
-index 9b017b76828a..866d7c873e3c 100644
---- a/sound/soc/codecs/cs42l42.h
-+++ b/sound/soc/codecs/cs42l42.h
-@@ -740,6 +740,7 @@
- #define CS42L42_FRAC2_VAL(val)	(((val) & 0xff0000) >> 16)
- 
- #define CS42L42_NUM_SUPPLIES	5
-+#define CS42L42_BOOT_TIME_US	3000
- 
- static const char *const cs42l42_supply_names[CS42L42_NUM_SUPPLIES] = {
- 	"VA",
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 052be5bf9ef5..7325592b456e 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -1189,6 +1189,7 @@ static void nfsd4_cb_done(struct rpc_task *task, void *calldata)
+ 		switch (task->tk_status) {
+ 		case -EIO:
+ 		case -ETIMEDOUT:
++		case -EACCES:
+ 			nfsd4_mark_cb_down(clp, task->tk_status);
+ 		}
+ 		break;
 -- 
 2.30.1
 
