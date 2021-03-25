@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F29349086
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:36:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1C634908B
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:36:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230355AbhCYLfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41532 "EHLO mail.kernel.org"
+        id S230385AbhCYLgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:36:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231433AbhCYLdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:33:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E4DB61A8B;
-        Thu, 25 Mar 2021 11:28:38 +0000 (UTC)
+        id S231419AbhCYLdh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:33:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8BA061A90;
+        Thu, 25 Mar 2021 11:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671719;
-        bh=UxLsPzwO5ONpBZzvgEppjZShrZzghNaBp5YvTiXr1vo=;
+        s=k20201202; t=1616671720;
+        bh=kPHWAkUxrG8FymUtRS+p4OnqtwHyUCmrfDk9wyyS04Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKtHzPIlhDkW5P6KbQY26m3OCfncsEul5qbOUby2Q/Y81lP5VMW3tMRHf8aL6GWgy
-         JQNK6EiJlo/WApQ9ZaySmJaFl0oFy48+sRyu0D2SsGYErq7n6TgI9n7uojE6Z5M/HF
-         xcBR64IBreztHpUgPwK4ECfar2K0iaKOuTOBwPkVJ6CUmeMhmqhS4TbgnpjEFs73C/
-         IkrrreLzoME/3LPWC3LtnRCpoDYtRvkpVfE8bexQYOl1CXnMuP2ghPwsURz/+Lkf5u
-         aASz1zsce6UzoYsA0oD7sc7K90PDjc6RWJ7ovLVNZOaszejdub49dzXx877x4j9UW4
-         5Wq/Wh9k+ExIQ==
+        b=tMXrhOLTEQuzUiyQyAGRmmALsADrnfr58iIKwZ+vqU/bHQpzhVKLiXYlUf/Bxg379
+         nM2oIm/8zu8a/MH/REsQS5EpxaR0Y5vAPjw1+596gCet4DSRXdYgc3V/GcxYTyhHGU
+         H3qIm8URRk9GGvZSU3EFg33GYC+VeNrhw4pc5j5PzUaLLQVOKcqxpLhb7uhOSjgCrb
+         rAVObXdpwI9Fl6DsNiU9nr4s1JZSOcXUrycSXJCwAlIpT2GSy63PESLKWED0GwTihF
+         yQLTVIJRn0oNtFwBi5AwhrohszXXC0HslhYQBN3LrjAxEuy0lB6ZoWsq0kcI9CSeD9
+         FjZDc63YtQ1sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Rood <benjaminjrood@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.4 05/10] ASoC: sgtl5000: set DAP_AVC_CTRL register to correct default value on probe
-Date:   Thu, 25 Mar 2021 07:28:26 -0400
-Message-Id: <20210325112832.1928898-5-sashal@kernel.org>
+Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        =?UTF-8?q?Kai=20M=C3=A4kisara?= <kai.makisara@kolumbus.fi>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/10] scsi: st: Fix a use after free in st_open()
+Date:   Thu, 25 Mar 2021 07:28:27 -0400
+Message-Id: <20210325112832.1928898-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112832.1928898-1-sashal@kernel.org>
 References: <20210325112832.1928898-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,69 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Rood <benjaminjrood@gmail.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit f86f58e3594fb0ab1993d833d3b9a2496f3c928c ]
+[ Upstream commit c8c165dea4c8f5ad67b1240861e4f6c5395fa4ac ]
 
-According to the SGTL5000 datasheet [1], the DAP_AVC_CTRL register has
-the following bit field definitions:
+In st_open(), if STp->in_use is true, STp will be freed by
+scsi_tape_put(). However, STp is still used by DEBC_printk() after. It is
+better to DEBC_printk() before scsi_tape_put().
 
-| BITS  | FIELD       | RW | RESET | DEFINITION                        |
-| 15    | RSVD        | RO | 0x0   | Reserved                          |
-| 14    | RSVD        | RW | 0x1   | Reserved                          |
-| 13:12 | MAX_GAIN    | RW | 0x1   | Max Gain of AVC in expander mode  |
-| 11:10 | RSVD        | RO | 0x0   | Reserved                          |
-| 9:8   | LBI_RESP    | RW | 0x1   | Integrator Response               |
-| 7:6   | RSVD        | RO | 0x0   | Reserved                          |
-| 5     | HARD_LMT_EN | RW | 0x0   | Enable hard limiter mode          |
-| 4:1   | RSVD        | RO | 0x0   | Reserved                          |
-| 0     | EN          | RW | 0x0   | Enable/Disable AVC                |
-
-The original default value written to the DAP_AVC_CTRL register during
-sgtl5000_i2c_probe() was 0x0510.  This would incorrectly write values to
-bits 4 and 10, which are defined as RESERVED.  It would also not set
-bits 12 and 14 to their correct RESET values of 0x1, and instead set
-them to 0x0.  While the DAP_AVC module is effectively disabled because
-the EN bit is 0, this default value is still writing invalid values to
-registers that are marked as read-only and RESERVED as well as not
-setting bits 12 and 14 to their correct default values as defined by the
-datasheet.
-
-The correct value that should be written to the DAP_AVC_CTRL register is
-0x5100, which configures the register bits to the default values defined
-by the datasheet, and prevents any writes to bits defined as
-'read-only'.  Generally speaking, it is best practice to NOT attempt to
-write values to registers/bits defined as RESERVED, as it generally
-produces unwanted/undefined behavior, or errors.
-
-Also, all credit for this patch should go to my colleague Dan MacDonald
-<dmacdonald@curbellmedical.com> for finding this error in the first
-place.
-
-[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
-
-Signed-off-by: Benjamin Rood <benjaminjrood@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20210219183308.GA2117@ubuntu-dev
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210311064636.10522-1-lyl2019@mail.ustc.edu.cn
+Acked-by: Kai Mäkisara <kai.makisara@kolumbus.fi>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 2 +-
+ drivers/scsi/st.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index a3dd7030f629..321b1ac52bfd 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -78,7 +78,7 @@ static const struct reg_default sgtl5000_reg_defaults[] = {
- 	{ SGTL5000_DAP_EQ_BASS_BAND4,		0x002f },
- 	{ SGTL5000_DAP_MAIN_CHAN,		0x8000 },
- 	{ SGTL5000_DAP_MIX_CHAN,		0x0000 },
--	{ SGTL5000_DAP_AVC_CTRL,		0x0510 },
-+	{ SGTL5000_DAP_AVC_CTRL,		0x5100 },
- 	{ SGTL5000_DAP_AVC_THRESHOLD,		0x1473 },
- 	{ SGTL5000_DAP_AVC_ATTACK,		0x0028 },
- 	{ SGTL5000_DAP_AVC_DECAY,		0x0050 },
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index 088a68ab4246..3a3876091a9d 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -1267,8 +1267,8 @@ static int st_open(struct inode *inode, struct file *filp)
+ 	spin_lock(&st_use_lock);
+ 	if (STp->in_use) {
+ 		spin_unlock(&st_use_lock);
+-		scsi_tape_put(STp);
+ 		DEBC_printk(STp, "Device already in use.\n");
++		scsi_tape_put(STp);
+ 		return (-EBUSY);
+ 	}
+ 
 -- 
 2.30.1
 
