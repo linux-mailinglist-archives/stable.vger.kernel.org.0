@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CE1348FD2
-	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:30:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97D66348FD5
+	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:30:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231794AbhCYL35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:29:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36054 "EHLO mail.kernel.org"
+        id S231549AbhCYL37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:29:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231522AbhCYL1c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Mar 2021 07:27:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8CC861A5F;
-        Thu, 25 Mar 2021 11:27:11 +0000 (UTC)
+        id S231533AbhCYL1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Mar 2021 07:27:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55E5061A50;
+        Thu, 25 Mar 2021 11:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671632;
-        bh=khVMeroJE9TqWHtGxQZsHpu5jSfqIAr/VTELrdLP8WQ=;
+        s=k20201202; t=1616671634;
+        bh=2Wpx2np5tw9vl12QBdhv2gWRgG+wisPIEuXm3/ti/fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMFjZpZG/WNB+qnOz5OEH38LmpoxwRBnfQHxp+ihrNlZgi7waj34Xh7LPlFwBu/08
-         GGWqCLULipGqF5mY+HHgkj0MmmTOu+kzj62k74bDufkdzc1wsffhjNB0pHySg2Ik7P
-         Ly/GIzvBHfX1b+8v2zgHs9smxbZPbOVhYwwxkVMTw4aKD0/IjrBF2th1sa9iM9Xyey
-         gw9Fg2ngmLbEf5AtXPanO10KhkNry6BKyS2MtMRoCNwvZsJxN2xfWoPCcbNev8NFaB
-         F2KLe56HC/eYvDd+L15Ua/q+OInkxIPkVwoYnPLO/JuqE0gG4DvD+oV4Rbsmviuc2R
-         t3s+9Zz6TWJcw==
+        b=HnRy7cL+5+xxmotH9KOVWsN0gu9RJfd8zLEhLWsGE0PAo5+oP+1UWNT6UEl7WuV10
+         kC+420XTrgHb6svsSGIJ9aRN/DhVcVkyR2AZ07Dvk60GNESYja+015+9rBKdoWmjhl
+         qUlCSt4c3oeXhKuMVvdCCqC30Va5XnZ/wBNwjVhtEVlgDjQ1tReiEhWCYQJMHlFupt
+         z/lJAeRXWWxtCzLlixpGSHPR8SRPCNsJbQnSmhexp5sCvQheLLu89I8tPRAUCENiYa
+         cmK7q5AhRLLxGWxDcYF0PO/o96ODnirkW42RCuQpWFEGsyxp205wlRyjPPOErRMYE+
+         PTrNwCP3l20kw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Vivier <lvivier@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/24] vhost: Fix vhost_vq_reset()
-Date:   Thu, 25 Mar 2021 07:26:42 -0400
-Message-Id: <20210325112651.1927828-16-sashal@kernel.org>
+Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        =?UTF-8?q?Kai=20M=C3=A4kisara?= <kai.makisara@kolumbus.fi>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 17/24] scsi: st: Fix a use after free in st_open()
+Date:   Thu, 25 Mar 2021 07:26:43 -0400
+Message-Id: <20210325112651.1927828-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112651.1927828-1-sashal@kernel.org>
 References: <20210325112651.1927828-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,47 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit beb691e69f4dec7bfe8b81b509848acfd1f0dbf9 ]
+[ Upstream commit c8c165dea4c8f5ad67b1240861e4f6c5395fa4ac ]
 
-vhost_reset_is_le() is vhost_init_is_le(), and in the case of
-cross-endian legacy, vhost_init_is_le() depends on vq->user_be.
+In st_open(), if STp->in_use is true, STp will be freed by
+scsi_tape_put(). However, STp is still used by DEBC_printk() after. It is
+better to DEBC_printk() before scsi_tape_put().
 
-vq->user_be is set by vhost_disable_cross_endian().
-
-But in vhost_vq_reset(), we have:
-
-    vhost_reset_is_le(vq);
-    vhost_disable_cross_endian(vq);
-
-And so user_be is used before being set.
-
-To fix that, reverse the lines order as there is no other dependency
-between them.
-
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Link: https://lore.kernel.org/r/20210312140913.788592-1-lvivier@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20210311064636.10522-1-lyl2019@mail.ustc.edu.cn
+Acked-by: Kai Mäkisara <kai.makisara@kolumbus.fi>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vhost.c | 2 +-
+ drivers/scsi/st.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 57ab79fbcee9..a279ecacbf60 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -320,8 +320,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->kick = NULL;
- 	vq->call_ctx = NULL;
- 	vq->log_ctx = NULL;
--	vhost_reset_is_le(vq);
- 	vhost_disable_cross_endian(vq);
-+	vhost_reset_is_le(vq);
- 	vq->busyloop_timeout = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index e3266a64a477..2121e44c342f 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -1267,8 +1267,8 @@ static int st_open(struct inode *inode, struct file *filp)
+ 	spin_lock(&st_use_lock);
+ 	if (STp->in_use) {
+ 		spin_unlock(&st_use_lock);
+-		scsi_tape_put(STp);
+ 		DEBC_printk(STp, "Device already in use.\n");
++		scsi_tape_put(STp);
+ 		return (-EBUSY);
+ 	}
+ 
 -- 
 2.30.1
 
