@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82985349067
+	by mail.lfdr.de (Postfix) with ESMTP id F2F77349068
 	for <lists+stable@lfdr.de>; Thu, 25 Mar 2021 12:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231935AbhCYLek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Mar 2021 07:34:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
+        id S231947AbhCYLem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Mar 2021 07:34:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232048AbhCYLcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232052AbhCYLcl (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Mar 2021 07:32:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD27D61A79;
-        Thu, 25 Mar 2021 11:28:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 526F161A77;
+        Thu, 25 Mar 2021 11:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616671703;
-        bh=ybqxxnJah7aSnGrEgGUrTjVsyygme31WX502oHksjC4=;
+        s=k20201202; t=1616671705;
+        bh=SgKPuZd8oNEf6L+eoHlKEq1ZfoBGPgyZhkN5ZIJjqeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPB+wpYILkkxMps9/ji/3aHWdh4QJzsJ9T4PZzIfxeS31gHPTg/WxV0ObMGVCC8Ev
-         xF1L77CQYGKcdZD2/QYxiJ51bwp+7xtbHcdESQtsAbfomSgi3gIVGLkOjS0g3NuZ2l
-         i9XnQH+q9fc6UVVYutFLx+PFgYXdizKhLldFNeM8o9OUIrjN5t8/FEaN8xfUqn2C1m
-         52A7470bkApm7uSWYu5LpMFlUAOBaz6smvf370mlGDa1LsF1kmcjmsiovZUT+2sn+s
-         iuCjgbCvA8dwCWU3RX4ysVWvCVR45z9u1FlBHoJroLafWRxjNRjntOG05OSCctJliE
-         V8sxXF0s12axw==
+        b=ZnSLYCDfQjUBOcWlO7Hngb7MoMRX/DkOTycjQMU0LDxsw1kL9upy1e1fIN3FJ8SNw
+         LgrkVM6fMgYcYs7hiCsqBmgkMNtubCxO6sycSEye1lsRxEn6xdby/WkvJ+s7fU2EED
+         UfUPnpbRxh8zDRDbalqD2RkY29XBp837ZI8YtFLIsXtKPHQsfZ1Cmkn//Y4ShazQgm
+         NI4N0qU01/mzn2LtJk3MTTbR0Hd/kAG5o5JL0uhyaRPpLmIDheEDoj7UrdJ1HHeRRX
+         8+3l3pTbfsVmeNmR0waOWk//C2fkjl+/GOBtVgqV7O+AGTcCl438YepaQxQiSP8S8R
+         t3i6wg4fN4tfg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Vivier <lvivier@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 07/13] vhost: Fix vhost_vq_reset()
-Date:   Thu, 25 Mar 2021 07:28:07 -0400
-Message-Id: <20210325112814.1928637-7-sashal@kernel.org>
+Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        =?UTF-8?q?Kai=20M=C3=A4kisara?= <kai.makisara@kolumbus.fi>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 08/13] scsi: st: Fix a use after free in st_open()
+Date:   Thu, 25 Mar 2021 07:28:08 -0400
+Message-Id: <20210325112814.1928637-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210325112814.1928637-1-sashal@kernel.org>
 References: <20210325112814.1928637-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,47 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit beb691e69f4dec7bfe8b81b509848acfd1f0dbf9 ]
+[ Upstream commit c8c165dea4c8f5ad67b1240861e4f6c5395fa4ac ]
 
-vhost_reset_is_le() is vhost_init_is_le(), and in the case of
-cross-endian legacy, vhost_init_is_le() depends on vq->user_be.
+In st_open(), if STp->in_use is true, STp will be freed by
+scsi_tape_put(). However, STp is still used by DEBC_printk() after. It is
+better to DEBC_printk() before scsi_tape_put().
 
-vq->user_be is set by vhost_disable_cross_endian().
-
-But in vhost_vq_reset(), we have:
-
-    vhost_reset_is_le(vq);
-    vhost_disable_cross_endian(vq);
-
-And so user_be is used before being set.
-
-To fix that, reverse the lines order as there is no other dependency
-between them.
-
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Link: https://lore.kernel.org/r/20210312140913.788592-1-lvivier@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20210311064636.10522-1-lyl2019@mail.ustc.edu.cn
+Acked-by: Kai Mäkisara <kai.makisara@kolumbus.fi>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vhost.c | 2 +-
+ drivers/scsi/st.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index b14e62f11075..d2431afeda84 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -306,8 +306,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->call_ctx = NULL;
- 	vq->call = NULL;
- 	vq->log_ctx = NULL;
--	vhost_reset_is_le(vq);
- 	vhost_disable_cross_endian(vq);
-+	vhost_reset_is_le(vq);
- 	vq->busyloop_timeout = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index 618422ea3a41..0d58227431e4 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -1267,8 +1267,8 @@ static int st_open(struct inode *inode, struct file *filp)
+ 	spin_lock(&st_use_lock);
+ 	if (STp->in_use) {
+ 		spin_unlock(&st_use_lock);
+-		scsi_tape_put(STp);
+ 		DEBC_printk(STp, "Device already in use.\n");
++		scsi_tape_put(STp);
+ 		return (-EBUSY);
+ 	}
+ 
 -- 
 2.30.1
 
