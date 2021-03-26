@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5712534A904
-	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 14:52:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA9D34A908
+	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 14:52:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbhCZNwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Mar 2021 09:52:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41200 "EHLO mail.kernel.org"
+        id S230100AbhCZNwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Mar 2021 09:52:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230093AbhCZNvq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Mar 2021 09:51:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFDE461A18;
-        Fri, 26 Mar 2021 13:51:45 +0000 (UTC)
+        id S229986AbhCZNvz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Mar 2021 09:51:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B5C861A18;
+        Fri, 26 Mar 2021 13:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616766706;
-        bh=4ImJb7cuZTHS3H3tdDHD1gOBVoR0hMRzqPujBeTLelk=;
+        s=korg; t=1616766714;
+        bh=caXpoE+bwEEORKCuGz7kGHuHrxHcWYk0kbCWAhnS1RQ=;
         h=Subject:To:From:Date:From;
-        b=TdEgKuWjdOiVc7HtE3T999Ks7dn9an+99Ow70pT0dp+IDf9/N9D39hsX+S5cchLPm
-         57awxF6C4lcVqTgG70GPD7Lzy4UdFFbNFjx1kXbH6GQBB0uDU8E+LTLKNKJ1OLUcJd
-         fJQt+mYbTANOAFL1NkRzgklAtAGGzzc1rIEAOCa8=
-Subject: patch "usb: xhci-mtk: fix broken streams issue on 0.96 xHCI" added to usb-linus
-To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=0XrmNuXOFy31d+mbTKr/2LPAHWWf2ZVvZfOoJTBK6GgAZiBY1mavPSD4rtMnDNWwR
+         RWHNpwFxwG+Rk6u7M68he4/WB4VKBqTjT/lcdFYXaAxm4ncKbDyzXlGMDipOHc7B4S
+         grtcM7t31fU7c7j7CA4Wg6gyPQeZWubj3LnOzowo=
+Subject: patch "usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board." added to usb-linus
+To:     Arthur.Petrosyan@synopsys.com, Minas.Harutyunyan@synopsys.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 26 Mar 2021 14:51:43 +0100
-Message-ID: <161676670318692@kroah.com>
+Date:   Fri, 26 Mar 2021 14:51:44 +0100
+Message-ID: <1616766704148224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
+    usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,53 +51,38 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 6f978a30c9bb12dab1302d0f06951ee290f5e600 Mon Sep 17 00:00:00 2001
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Date: Tue, 23 Mar 2021 15:02:46 +0800
-Subject: usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
+From 5e3bbae8ee3d677a0aa2919dc62b5c60ea01ba61 Mon Sep 17 00:00:00 2001
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Date: Fri, 26 Mar 2021 14:24:46 +0400
+Subject: usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
 
-The MediaTek 0.96 xHCI controller on some platforms does not
-support bulk stream even HCCPARAMS says supporting, due to MaxPSASize
-is set a default value 1 by mistake, here use XHCI_BROKEN_STREAMS
-quirk to fix it.
+Increased the waiting timeout for HPRT0.PrtSusp register field
+to be set, because on HiKey 960 board HPRT0.PrtSusp wasn't
+generated with the existing timeout.
 
-Fixes: 94a631d91ad3 ("usb: xhci-mtk: check hcc_params after adding primary hcd")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1616482975-17841-4-git-send-email-chunfeng.yun@mediatek.com
+Cc: <stable@vger.kernel.org> # 4.18
+Fixes: 22bb5cfdf13a ("usb: dwc2: Fix host exit from hibernation flow.")
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210326102447.8F7FEA005D@mailhost.synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/usb/dwc2/hcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-mtk.c b/drivers/usb/host/xhci-mtk.c
-index fe010cc61f19..2f27dc0d9c6b 100644
---- a/drivers/usb/host/xhci-mtk.c
-+++ b/drivers/usb/host/xhci-mtk.c
-@@ -397,6 +397,13 @@ static void xhci_mtk_quirks(struct device *dev, struct xhci_hcd *xhci)
- 	xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
- 	if (mtk->lpm_support)
- 		xhci->quirks |= XHCI_LPM_SUPPORT;
-+
-+	/*
-+	 * MTK xHCI 0.96: PSA is 1 by default even if doesn't support stream,
-+	 * and it's 3 when support it.
-+	 */
-+	if (xhci->hci_version < 0x100 && HCC_MAX_PSA(xhci->hcc_params) == 4)
-+		xhci->quirks |= XHCI_BROKEN_STREAMS;
- }
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index fc3269f5faf1..40e5655921bf 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -5398,7 +5398,7 @@ int dwc2_host_enter_hibernation(struct dwc2_hsotg *hsotg)
+ 	dwc2_writel(hsotg, hprt0, HPRT0);
  
- /* called during probe() after chip reset completes */
-@@ -548,7 +555,8 @@ static int xhci_mtk_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto put_usb3_hcd;
+ 	/* Wait for the HPRT0.PrtSusp register field to be set */
+-	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 3000))
++	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 5000))
+ 		dev_warn(hsotg->dev, "Suspend wasn't generated\n");
  
--	if (HCC_MAX_PSA(xhci->hcc_params) >= 4)
-+	if (HCC_MAX_PSA(xhci->hcc_params) >= 4 &&
-+	    !(xhci->quirks & XHCI_BROKEN_STREAMS))
- 		xhci->shared_hcd->can_do_streams = 1;
- 
- 	ret = usb_add_hcd(xhci->shared_hcd, irq, IRQF_SHARED);
+ 	/*
 -- 
 2.31.0
 
