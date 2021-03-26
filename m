@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA9D34A908
-	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 14:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903EF34A907
+	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 14:52:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbhCZNwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Mar 2021 09:52:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41220 "EHLO mail.kernel.org"
+        id S229986AbhCZNwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Mar 2021 09:52:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229986AbhCZNvz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Mar 2021 09:51:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B5C861A18;
-        Fri, 26 Mar 2021 13:51:54 +0000 (UTC)
+        id S230006AbhCZNv5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Mar 2021 09:51:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34E1061A18;
+        Fri, 26 Mar 2021 13:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616766714;
-        bh=caXpoE+bwEEORKCuGz7kGHuHrxHcWYk0kbCWAhnS1RQ=;
+        s=korg; t=1616766717;
+        bh=hEXdd1jr4xxA3hKKWMwjyQgtpuOnoZVFcADUWwixOfQ=;
         h=Subject:To:From:Date:From;
-        b=0XrmNuXOFy31d+mbTKr/2LPAHWWf2ZVvZfOoJTBK6GgAZiBY1mavPSD4rtMnDNWwR
-         RWHNpwFxwG+Rk6u7M68he4/WB4VKBqTjT/lcdFYXaAxm4ncKbDyzXlGMDipOHc7B4S
-         grtcM7t31fU7c7j7CA4Wg6gyPQeZWubj3LnOzowo=
-Subject: patch "usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board." added to usb-linus
-To:     Arthur.Petrosyan@synopsys.com, Minas.Harutyunyan@synopsys.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=ShUIoD/3cIirH993Phz+Ha9dEMq2eRDpS/IooxPBeYQll9JJ8zTc3mghKWMZlH9dr
+         2v1WR5mizyhoN6eA3lmiJDn918LUIQxv+VRPeo8u9XIjuKz8P2Prwe8P6jsiYQTIbn
+         KSCYT+2m52TbG7rukgGM00EjUMoU3QJpP1Y2heGA=
+Subject: patch "usb: musb: Fix suspend with devices connected for a64" added to usb-linus
+To:     tony@atomide.com, bshah@kde.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 26 Mar 2021 14:51:44 +0100
-Message-ID: <1616766704148224@kroah.com>
+Message-ID: <161676670482243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
+    usb: musb: Fix suspend with devices connected for a64
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,38 +51,53 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5e3bbae8ee3d677a0aa2919dc62b5c60ea01ba61 Mon Sep 17 00:00:00 2001
-From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Date: Fri, 26 Mar 2021 14:24:46 +0400
-Subject: usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
+From 92af4fc6ec331228aca322ca37c8aea7b150a151 Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Wed, 24 Mar 2021 09:11:41 +0200
+Subject: usb: musb: Fix suspend with devices connected for a64
 
-Increased the waiting timeout for HPRT0.PrtSusp register field
-to be set, because on HiKey 960 board HPRT0.PrtSusp wasn't
-generated with the existing timeout.
+Pinephone running on Allwinner A64 fails to suspend with USB devices
+connected as reported by Bhushan Shah <bshah@kde.org>. Reverting
+commit 5fbf7a253470 ("usb: musb: fix idling for suspend after
+disconnect interrupt") fixes the issue.
 
-Cc: <stable@vger.kernel.org> # 4.18
-Fixes: 22bb5cfdf13a ("usb: dwc2: Fix host exit from hibernation flow.")
-Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/20210326102447.8F7FEA005D@mailhost.synopsys.com
+Let's add suspend checks also for suspend after disconnect interrupt
+quirk handling like we already do elsewhere.
+
+Fixes: 5fbf7a253470 ("usb: musb: fix idling for suspend after disconnect interrupt")
+Reported-by: Bhushan Shah <bshah@kde.org>
+Tested-by: Bhushan Shah <bshah@kde.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210324071142.42264-1-tony@atomide.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/hcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/musb/musb_core.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
-index fc3269f5faf1..40e5655921bf 100644
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -5398,7 +5398,7 @@ int dwc2_host_enter_hibernation(struct dwc2_hsotg *hsotg)
- 	dwc2_writel(hsotg, hprt0, HPRT0);
- 
- 	/* Wait for the HPRT0.PrtSusp register field to be set */
--	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 3000))
-+	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 5000))
- 		dev_warn(hsotg->dev, "Suspend wasn't generated\n");
- 
- 	/*
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index 1cd87729ba60..fc0457db62e1 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2004,10 +2004,14 @@ static void musb_pm_runtime_check_session(struct musb *musb)
+ 		MUSB_DEVCTL_HR;
+ 	switch (devctl & ~s) {
+ 	case MUSB_QUIRK_B_DISCONNECT_99:
+-		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
+-		schedule_delayed_work(&musb->irq_work,
+-				      msecs_to_jiffies(1000));
+-		break;
++		if (musb->quirk_retries && !musb->flush_irq_work) {
++			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
++			schedule_delayed_work(&musb->irq_work,
++					      msecs_to_jiffies(1000));
++			musb->quirk_retries--;
++			break;
++		}
++		fallthrough;
+ 	case MUSB_QUIRK_B_INVALID_VBUS_91:
+ 		if (musb->quirk_retries && !musb->flush_irq_work) {
+ 			musb_dbg(musb,
 -- 
 2.31.0
 
