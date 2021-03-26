@@ -2,107 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B473634A65D
-	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 12:19:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F48434A810
+	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 14:26:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbhCZLS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Mar 2021 07:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45282 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229589AbhCZLSt (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Fri, 26 Mar 2021 07:18:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4060619FC;
-        Fri, 26 Mar 2021 11:18:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616757529;
-        bh=KEByPIfE5JUqldBTpPNKjvOarZ53pPOUbE2DjWl5YHs=;
-        h=Subject:To:From:Date:From;
-        b=GVwjXAHJVwk3M41tlCOORWofOE/lNW8IPRsnt99zmfgfj9DuXT/RdNzmyXRhmqB/1
-         SHbVzmB2tz73KC6oNHdH8MlNlsFW1jm+S94kgEHiSpQ8D0tkpByMEsUPi5nUOOZE1C
-         5+VV+3G0nFzWT5InKA7FMvHchp9yOUlPQBUgn8Vg=
-Subject: patch "iio: hid-sensor-rotation: Fix quaternion data not correct" added to staging-next
-To:     xiang.ye@intel.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 26 Mar 2021 12:18:40 +0100
-Message-ID: <161675752011441@kroah.com>
+        id S229986AbhCZNZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Mar 2021 09:25:39 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3104 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229744AbhCZNZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Mar 2021 09:25:18 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12QD4s0u037376;
+        Fri, 26 Mar 2021 09:25:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=yTEHzE0d5rgCp5gfrs++sWR+G5T0kyGFfT/9zOOv+eY=;
+ b=L8FQb0MJS+XH/1+GrR1Czz5RuaQic/+eJFEv/iENx0UqGKtmJc7CWcTPlq3jKjjkdMpv
+ Sq2TmbbGMt2vWa1pLT8p6wq6ZyOExi/KnRTSh83k7us64XiVDJ0XhTGvS2GJGGSGVrvn
+ sRqlM7JvsLnsdS2+8/sI16SO+aYWraDq1Xm1tBvUebikVglhe/yS3jpzVOABsg5qvZw+
+ JIPwuhhU/zKWtJc8TKs5Q2d9/mPStAsfEpzP0NDNPO1yMvd/uGUrgocWjuz+1uOC1oBG
+ qcMyQGJ4GXgb43hyNex0xDU+yO165BCT8xNcJeb2arOr0SfP79UjJAcAeQloXiHZLsXI pA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37h75dp1yc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 09:25:16 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12QDJkD9115413;
+        Fri, 26 Mar 2021 09:25:16 -0400
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37h75dp1y0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 09:25:15 -0400
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12QDGWZ2014330;
+        Fri, 26 Mar 2021 13:25:15 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma04wdc.us.ibm.com with ESMTP id 37h14h5ckp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 13:25:15 +0000
+Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12QDPEec33227262
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 26 Mar 2021 13:25:15 GMT
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E204D112062;
+        Fri, 26 Mar 2021 13:25:14 +0000 (GMT)
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5FA78112065;
+        Fri, 26 Mar 2021 13:25:14 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.149.97])
+        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 26 Mar 2021 13:25:14 +0000 (GMT)
+Subject: Re: [PATCH v5 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+References: <20210325124640.23995-1-akrowiak@linux.ibm.com>
+ <20210325124640.23995-2-akrowiak@linux.ibm.com>
+ <20210325213210.62cb11b9.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <4973feca-4eee-7139-26e6-1b926c017263@linux.ibm.com>
+Date:   Fri, 26 Mar 2021 09:25:14 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210325213210.62cb11b9.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: CDWOdLx8MJgpB0FOURAFBtbTSM4jko47
+X-Proofpoint-ORIG-GUID: MANubsScoTQwJ0YObvjP5J89Ayk0dy7Q
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-26_06:2021-03-26,2021-03-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ suspectscore=0 adultscore=0 priorityscore=1501 malwarescore=0
+ mlxlogscore=999 lowpriorityscore=0 phishscore=0 bulkscore=0 clxscore=1011
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2103250000 definitions=main-2103260098
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
 
-    iio: hid-sensor-rotation: Fix quaternion data not correct
+On 3/25/21 4:32 PM, Halil Pasic wrote:
+> On Thu, 25 Mar 2021 08:46:40 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> This patch fixes a lockdep splat introduced by commit f21916ec4826
+>> ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated").
+>> The lockdep splat only occurs when starting a Secure Execution guest.
+>> Crypto virtualization (vfio_ap) is not yet supported for SE guests;
+>> however, in order to avoid this problem when support becomes available,
+>> this fix is being provided.
+>>
+>> The circular locking dependency was introduced when the setting of the
+>> masks in the guest's APCB was executed while holding the matrix_dev->lock.
+>> While the lock is definitely needed to protect the setting/unsetting of the
+>> matrix_mdev->kvm pointer, it is not necessarily critical for setting the
+>> masks; so, the matrix_dev->lock will be released while the masks are being
+>> set or cleared.
+>>
+>> Keep in mind, however, that another process that takes the matrix_dev->lock
+>> can get control while the masks in the guest's APCB are being set or
+>> cleared as a result of the driver being notified that the KVM pointer
+>> has been set or unset. This could result in invalid access to the
+>> matrix_mdev->kvm pointer by the intervening process. To avoid this
+>> scenario, two new fields are being added to the ap_matrix_mdev struct:
+>>
+>> struct ap_matrix_mdev {
+>> 	...
+>> 	bool kvm_busy;
+>> 	wait_queue_head_t wait_for_kvm;
+>>     ...
+>> };
+>>
+>> The functions that handle notification that the KVM pointer value has
+>> been set or cleared will set the kvm_busy flag to true until they are done
+>> processing at which time they will set it to false and wake up the tasks on
+>> the matrix_mdev->wait_for_kvm wait queue. Functions that require
+>> access to matrix_mdev->kvm will sleep on the wait queue until they are
+>> awakened at which time they can safely access the matrix_mdev->kvm
+>> field.
+>>
+>> Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>
+> I intend to give a couple of work-days to others, and if nobody objects
+> merge this. (I will wait till Tuesday.)
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+Thanks Halil.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 6c3b615379d7cd90d2f70b3cf9860c5a4910546a Mon Sep 17 00:00:00 2001
-From: Ye Xiang <xiang.ye@intel.com>
-Date: Sat, 30 Jan 2021 18:25:46 +0800
-Subject: iio: hid-sensor-rotation: Fix quaternion data not correct
-
-Because the data of HID_USAGE_SENSOR_ORIENT_QUATERNION defined by ISH FW
-is s16, but quaternion data type is in_rot_quaternion_type(le:s16/32X4>>0),
-need to transform data type from s16 to s32
-
-May require manual backporting.
-
-Fixes: fc18dddc0625 ("iio: hid-sensors: Added device rotation support")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Link: https://lore.kernel.org/r/20210130102546.31397-1-xiang.ye@intel.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
----
- drivers/iio/orientation/hid-sensor-rotation.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index 18e4ef060096..c087d8f72a54 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -21,7 +21,7 @@ struct dev_rot_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info quaternion;
- 	struct {
--		u32 sampled_vals[4] __aligned(16);
-+		s32 sampled_vals[4] __aligned(16);
- 		u64 timestamp __aligned(8);
- 	} scan;
- 	int scale_pre_decml;
-@@ -170,8 +170,15 @@ static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
- 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
- 
- 	if (usage_id == HID_USAGE_SENSOR_ORIENT_QUATERNION) {
--		memcpy(&rot_state->scan.sampled_vals, raw_data,
--		       sizeof(rot_state->scan.sampled_vals));
-+		if (raw_len / 4 == sizeof(s16)) {
-+			rot_state->scan.sampled_vals[0] = ((s16 *)raw_data)[0];
-+			rot_state->scan.sampled_vals[1] = ((s16 *)raw_data)[1];
-+			rot_state->scan.sampled_vals[2] = ((s16 *)raw_data)[2];
-+			rot_state->scan.sampled_vals[3] = ((s16 *)raw_data)[3];
-+		} else {
-+			memcpy(&rot_state->scan.sampled_vals, raw_data,
-+			       sizeof(rot_state->scan.sampled_vals));
-+		}
- 
- 		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
- 			sizeof(rot_state->scan.sampled_vals));
--- 
-2.31.0
-
+>
+> I've tested it and it does silence the lockdep splat.
+>
+> Regards,
+> Halil
 
