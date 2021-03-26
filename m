@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 903EF34A907
-	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 14:52:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7D3034A905
+	for <lists+stable@lfdr.de>; Fri, 26 Mar 2021 14:52:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229986AbhCZNwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Mar 2021 09:52:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41240 "EHLO mail.kernel.org"
+        id S230006AbhCZNwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Mar 2021 09:52:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230006AbhCZNv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Mar 2021 09:51:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34E1061A18;
-        Fri, 26 Mar 2021 13:51:57 +0000 (UTC)
+        id S230059AbhCZNwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Mar 2021 09:52:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6AB61971;
+        Fri, 26 Mar 2021 13:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616766717;
-        bh=hEXdd1jr4xxA3hKKWMwjyQgtpuOnoZVFcADUWwixOfQ=;
+        s=korg; t=1616766720;
+        bh=3MbDvhRRev3YlswQlMrxxWHF8oVtN5Vo41wYrjcIOlY=;
         h=Subject:To:From:Date:From;
-        b=ShUIoD/3cIirH993Phz+Ha9dEMq2eRDpS/IooxPBeYQll9JJ8zTc3mghKWMZlH9dr
-         2v1WR5mizyhoN6eA3lmiJDn918LUIQxv+VRPeo8u9XIjuKz8P2Prwe8P6jsiYQTIbn
-         KSCYT+2m52TbG7rukgGM00EjUMoU3QJpP1Y2heGA=
-Subject: patch "usb: musb: Fix suspend with devices connected for a64" added to usb-linus
-To:     tony@atomide.com, bshah@kde.org, gregkh@linuxfoundation.org,
+        b=Fm53XHKmlpiFfdQUT12ikasLoo89zgHgJ8nvfju+mj5lCMbElzh7PxBjuAGpbOl4a
+         BHDol8zu3IWmkOnKthmz3DEDra3bXh8MW/VxaHiZVtIz3ltzyaOQFQRrV3wdm52/IJ
+         7eelrWUDlp6doq6GFl9gcxlAGqeUKMwt2o8C2f1w=
+Subject: patch "usb: dwc2: Prevent core suspend when port connection flag is 0" added to usb-linus
+To:     Arthur.Petrosyan@synopsys.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 26 Mar 2021 14:51:44 +0100
-Message-ID: <161676670482243@kroah.com>
+Date:   Fri, 26 Mar 2021 14:51:45 +0100
+Message-ID: <16167667054646@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: musb: Fix suspend with devices connected for a64
+    usb: dwc2: Prevent core suspend when port connection flag is 0
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,53 +51,41 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 92af4fc6ec331228aca322ca37c8aea7b150a151 Mon Sep 17 00:00:00 2001
-From: Tony Lindgren <tony@atomide.com>
-Date: Wed, 24 Mar 2021 09:11:41 +0200
-Subject: usb: musb: Fix suspend with devices connected for a64
+From 93f672804bf2d7a49ef3fd96827ea6290ca1841e Mon Sep 17 00:00:00 2001
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Date: Fri, 26 Mar 2021 14:25:09 +0400
+Subject: usb: dwc2: Prevent core suspend when port connection flag is 0
 
-Pinephone running on Allwinner A64 fails to suspend with USB devices
-connected as reported by Bhushan Shah <bshah@kde.org>. Reverting
-commit 5fbf7a253470 ("usb: musb: fix idling for suspend after
-disconnect interrupt") fixes the issue.
+In host mode port connection status flag is "0" when loading
+the driver. After loading the driver system asserts suspend
+which is handled by "_dwc2_hcd_suspend()" function. Before
+the system suspend the port connection status is "0". As
+result need to check the "port_connect_status" if it is "0",
+then skipping entering to suspend.
 
-Let's add suspend checks also for suspend after disconnect interrupt
-quirk handling like we already do elsewhere.
-
-Fixes: 5fbf7a253470 ("usb: musb: fix idling for suspend after disconnect interrupt")
-Reported-by: Bhushan Shah <bshah@kde.org>
-Tested-by: Bhushan Shah <bshah@kde.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210324071142.42264-1-tony@atomide.com
-Cc: stable <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org> # 5.2
+Fixes: 6f6d70597c15 ("usb: dwc2: bus suspend/resume for hosts with DWC2_POWER_DOWN_PARAM_NONE")
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210326102510.BDEDEA005D@mailhost.synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/musb/musb_core.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/usb/dwc2/hcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index 1cd87729ba60..fc0457db62e1 100644
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2004,10 +2004,14 @@ static void musb_pm_runtime_check_session(struct musb *musb)
- 		MUSB_DEVCTL_HR;
- 	switch (devctl & ~s) {
- 	case MUSB_QUIRK_B_DISCONNECT_99:
--		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
--		schedule_delayed_work(&musb->irq_work,
--				      msecs_to_jiffies(1000));
--		break;
-+		if (musb->quirk_retries && !musb->flush_irq_work) {
-+			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
-+			schedule_delayed_work(&musb->irq_work,
-+					      msecs_to_jiffies(1000));
-+			musb->quirk_retries--;
-+			break;
-+		}
-+		fallthrough;
- 	case MUSB_QUIRK_B_INVALID_VBUS_91:
- 		if (musb->quirk_retries && !musb->flush_irq_work) {
- 			musb_dbg(musb,
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index 40e5655921bf..1a9789ec5847 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -4322,7 +4322,8 @@ static int _dwc2_hcd_suspend(struct usb_hcd *hcd)
+ 	if (hsotg->op_state == OTG_STATE_B_PERIPHERAL)
+ 		goto unlock;
+ 
+-	if (hsotg->params.power_down > DWC2_POWER_DOWN_PARAM_PARTIAL)
++	if (hsotg->params.power_down != DWC2_POWER_DOWN_PARAM_PARTIAL ||
++	    hsotg->flags.b.port_connect_status == 0)
+ 		goto skip_power_saving;
+ 
+ 	/*
 -- 
 2.31.0
 
