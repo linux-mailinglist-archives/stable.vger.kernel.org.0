@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 111A134B788
-	for <lists+stable@lfdr.de>; Sat, 27 Mar 2021 15:20:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E28134B78C
+	for <lists+stable@lfdr.de>; Sat, 27 Mar 2021 15:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229582AbhC0OUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Mar 2021 10:20:19 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:41491 "EHLO
+        id S230086AbhC0OUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Mar 2021 10:20:51 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:48673 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230015AbhC0OUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Mar 2021 10:20:13 -0400
+        by vger.kernel.org with ESMTP id S230015AbhC0OUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Mar 2021 10:20:35 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 93FDA163E;
-        Sat, 27 Mar 2021 10:20:12 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 27 Mar 2021 10:20:12 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 3F032162D;
+        Sat, 27 Mar 2021 10:20:35 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 27 Mar 2021 10:20:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=B9oGdd
-        cNhsuYlMqG3Rjyt8QDXbIYNj0Awvgsu2FdlG8=; b=LpFgmyI8DZjtQNwn+vInbD
-        4tE+eKSlZ0AghweTLJhYhzgQPuDzzjks6hSfXPSZJ6haBM329DnUjcmdLMVzGPPC
-        Q75dcfJlxuIXBstXmpPsYZqVZFPx9tZErNZXd6SpqQNaNLy8qG/LBtyFxpeiBU6a
-        PyaNZKZvbBX5sdGCUpwrFjBGf3yJMEUwoo1m2wqfnSyYJVjNQdjTT09Iw5HK2fln
-        A0/m6aCxxSnnOWvOAGWnjdgwR9Z7SDxJ8HGOQrjG9CMQbEkt9wtQpnJwdzlT6prR
-        MWsYVerwRG3tWexsXzg5yfWglH6D3diW42riRagyTVEXilRMx8sTJ8wRf/lK89zA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=eFPFEv
+        UQt3E1KOb6ptdrYvhK2K5YiJNXBorjxmQ62wc=; b=EkX6L4pAY/ph+BKP/eZe96
+        68Q3odcdt8tlRrCJv58zgZxxuGvBGJRwldo8NgRuw4aE2wZ5BotMuPbKjeCtuJGm
+        8mo4NBWjyAbfYUkSJVgGeiaWNsvtEMFPwVhr9G7Zo7CI9cDScZGApsUMqWAnzASx
+        KAJBIE0wsht8q97TvY6xgMR2BQOXz39r5j9Eot4VpCG1rQ+zCm+y+IRJy+qXUl25
+        vhUVBAcHxXU3B9x+0IcVKu5gne9f1QveCa8eSRCqLFaUDiDchfCpMjuVJEezA049
+        ABDuCaOBRNpuBuPqf7mnhMl7ZItnScLjZvTP0He5/lTUfYB7D7xNY3Jfl0vMkZ+g
         ==
-X-ME-Sender: <xms:HD9fYJe5zRNFbrtM_PPXxz1RHGk4JUw2gCcMdvTOkb7c699N_P5RPw>
-    <xme:HD9fYHPLf5Trt9JfoP0e20lQ0rmq4ndwFopilmM-NRIdDG9J8WeoB4MLZs88nvkKp
-    PXPKsESwSOl5A>
+X-ME-Sender: <xms:Mj9fYPdYw-Qk5CK2kulot0zmcWlunICSYJdTsL2ZQwFrFRjkERVV-g>
+    <xme:Mj9fYFPnxGYC-ICK9D5S39qLxE7a50jzfsuWsRK9slKght2paDu7g11a3hQWVOApS
+    7sHyeq_meQRvg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudehgedgiedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepvdffgeejjeeitdeiffejieejfffghedviedujeehfe
-    egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrg
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
+    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
     hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:HD9fYChKl0o9km7_q8Wx1QLSHBOodbEBjWf7nAYn98izK_rjte-paA>
-    <xmx:HD9fYC_vzQBk518jzG60vk5zd8z5ym1cOQ9maNuscYdYXckWDNTPng>
-    <xmx:HD9fYFvVKtq5u9HG5mt4c4XG2v95v9uXgGeKy8AYPGoq7opsbh4w4w>
-    <xmx:HD9fYGURPOBQxpo9HWw9Hq_O6wUmzaDneQ-yPhnO9ylasggBFJDZ25hfckE>
+X-ME-Proxy: <xmx:Mj9fYIhoj9ue0Dh0ImyBXeuWLmaYa-pQY7wEwSJffdN1XxN3lmcKBQ>
+    <xmx:Mj9fYA8ePebS94UcXfdIYe34Mgcw6o0AL4_9iKAT3K4FLfFNUZ7tXQ>
+    <xmx:Mj9fYLsKH-W35XU2AaFmahIJZQid8GUcyvL2XMCPVaqD18jtIjIIzw>
+    <xmx:Mj9fYEU8DmhNe9AdJC3S0_IOcfvOviifMSdpa7sW6yyKP35zB4xOGIFky60>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CEF011080057;
-        Sat, 27 Mar 2021 10:20:11 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Disable LTTPR support when the LTTPR rev < 1.4" failed to apply to 5.11-stable tree
-To:     imre.deak@intel.com, rodrigo.vivi@intel.com,
-        stable@vger.kernel.org, ville.syrjala@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 43DF124005C;
+        Sat, 27 Mar 2021 10:20:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915: Fix the GT fence revocation runtime PM logic" failed to apply to 5.4-stable tree
+To:     imre.deak@intel.com, chris@chris-wilson.co.uk,
+        rodrigo.vivi@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 27 Mar 2021 15:20:10 +0100
-Message-ID: <1616854810240220@kroah.com>
+Date:   Sat, 27 Mar 2021 15:20:32 +0100
+Message-ID: <1616854832238204@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,57 +71,147 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ab03631087f5c296030dd86265ea02dcdacc6802 Mon Sep 17 00:00:00 2001
+From 8840e3bd981f128846b01c12d3966d115e8617c9 Mon Sep 17 00:00:00 2001
 From: Imre Deak <imre.deak@intel.com>
-Date: Wed, 17 Mar 2021 20:49:01 +0200
-Subject: [PATCH] drm/i915: Disable LTTPR support when the LTTPR rev < 1.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Date: Mon, 22 Mar 2021 22:28:17 +0200
+Subject: [PATCH] drm/i915: Fix the GT fence revocation runtime PM logic
 
-By the specification the 0xF0000 - 0xF02FF range is only valid if the
-LTTPR revision at 0xF0000 is at least 1.4. Disable the LTTPR support
-otherwise.
+To optimize some task deferring it until runtime resume unless someone
+holds a runtime PM reference (because in this case the task can be done
+w/o the overhead of runtime resume), we have to use the runtime PM
+get-if-active logic: If the runtime PM usage count is 0 (and so
+get-if-in-use would return false) the runtime suspend handler is not
+necessarily called yet (it could be just pending), so the device is not
+necessarily powered down, and so the runtime resume handler is not
+guaranteed to be called.
 
-Fixes: 7b2a4ab8b0ef ("drm/i915: Switch to LTTPR transparent mode link training")
-Cc: <stable@vger.kernel.org> # v5.11
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+The fence revocation depends on the above deferral, so add a
+get-if-active helper and use it during fence revocation.
+
+v2:
+- Add code comment explaining the fence reg programming deferral logic
+  to i915_vma_revoke_fence(). (Chris)
+- Add Cc: stable and Fixes: tags. (Chris)
+- Fix the function docbook comment.
+
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v4.12+
+Fixes: 181df2d458f3 ("drm/i915: Take rpm wakelock for releasing the fence on unbind")
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
 Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210317184901.4029798-4-imre.deak@intel.com
-(cherry picked from commit 1663ad4936e0679443a315fe342f99636a2420dd)
+Link: https://patchwork.freedesktop.org/patch/msgid/20210322204223.919936-1-imre.deak@intel.com
+(cherry picked from commit 9d58aa46291d4d696bb1eac3436d3118f7bf2573)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-index c10e81a3d64f..be6ac0dd846e 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-@@ -99,17 +99,23 @@ static bool intel_dp_read_lttpr_common_caps(struct intel_dp *intel_dp)
- 		return false;
+diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+index a357bb431815..67de2b189598 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
++++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+@@ -316,7 +316,18 @@ void i915_vma_revoke_fence(struct i915_vma *vma)
+ 	WRITE_ONCE(fence->vma, NULL);
+ 	vma->fence = NULL;
  
- 	if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
--					  intel_dp->lttpr_common_caps) < 0) {
--		intel_dp_reset_lttpr_common_caps(intel_dp);
--		return false;
--	}
-+					  intel_dp->lttpr_common_caps) < 0)
-+		goto reset_caps;
- 
- 	drm_dbg_kms(&dp_to_i915(intel_dp)->drm,
- 		    "LTTPR common capabilities: %*ph\n",
- 		    (int)sizeof(intel_dp->lttpr_common_caps),
- 		    intel_dp->lttpr_common_caps);
- 
-+	/* The minimum value of LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV is 1.4 */
-+	if (intel_dp->lttpr_common_caps[0] < 0x14)
-+		goto reset_caps;
-+
- 	return true;
-+
-+reset_caps:
-+	intel_dp_reset_lttpr_common_caps(intel_dp);
-+	return false;
+-	with_intel_runtime_pm_if_in_use(fence_to_uncore(fence)->rpm, wakeref)
++	/*
++	 * Skip the write to HW if and only if the device is currently
++	 * suspended.
++	 *
++	 * If the driver does not currently hold a wakeref (if_in_use == 0),
++	 * the device may currently be runtime suspended, or it may be woken
++	 * up before the suspend takes place. If the device is not suspended
++	 * (powered down) and we skip clearing the fence register, the HW is
++	 * left in an undefined state where we may end up with multiple
++	 * registers overlapping.
++	 */
++	with_intel_runtime_pm_if_active(fence_to_uncore(fence)->rpm, wakeref)
+ 		fence_write(fence);
  }
  
- static bool
+diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.c b/drivers/gpu/drm/i915/intel_runtime_pm.c
+index 153ca9e65382..8b725efb2254 100644
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.c
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
+@@ -412,12 +412,20 @@ intel_wakeref_t intel_runtime_pm_get(struct intel_runtime_pm *rpm)
+ }
+ 
+ /**
+- * intel_runtime_pm_get_if_in_use - grab a runtime pm reference if device in use
++ * __intel_runtime_pm_get_if_active - grab a runtime pm reference if device is active
+  * @rpm: the intel_runtime_pm structure
++ * @ignore_usecount: get a ref even if dev->power.usage_count is 0
+  *
+  * This function grabs a device-level runtime pm reference if the device is
+- * already in use and ensures that it is powered up. It is illegal to try
+- * and access the HW should intel_runtime_pm_get_if_in_use() report failure.
++ * already active and ensures that it is powered up. It is illegal to try
++ * and access the HW should intel_runtime_pm_get_if_active() report failure.
++ *
++ * If @ignore_usecount=true, a reference will be acquired even if there is no
++ * user requiring the device to be powered up (dev->power.usage_count == 0).
++ * If the function returns false in this case then it's guaranteed that the
++ * device's runtime suspend hook has been called already or that it will be
++ * called (and hence it's also guaranteed that the device's runtime resume
++ * hook will be called eventually).
+  *
+  * Any runtime pm reference obtained by this function must have a symmetric
+  * call to intel_runtime_pm_put() to release the reference again.
+@@ -425,7 +433,8 @@ intel_wakeref_t intel_runtime_pm_get(struct intel_runtime_pm *rpm)
+  * Returns: the wakeref cookie to pass to intel_runtime_pm_put(), evaluates
+  * as True if the wakeref was acquired, or False otherwise.
+  */
+-intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
++static intel_wakeref_t __intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm,
++							bool ignore_usecount)
+ {
+ 	if (IS_ENABLED(CONFIG_PM)) {
+ 		/*
+@@ -434,7 +443,7 @@ intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
+ 		 * function, since the power state is undefined. This applies
+ 		 * atm to the late/early system suspend/resume handlers.
+ 		 */
+-		if (pm_runtime_get_if_in_use(rpm->kdev) <= 0)
++		if (pm_runtime_get_if_active(rpm->kdev, ignore_usecount) <= 0)
+ 			return 0;
+ 	}
+ 
+@@ -443,6 +452,16 @@ intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
+ 	return track_intel_runtime_pm_wakeref(rpm);
+ }
+ 
++intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
++{
++	return __intel_runtime_pm_get_if_active(rpm, false);
++}
++
++intel_wakeref_t intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm)
++{
++	return __intel_runtime_pm_get_if_active(rpm, true);
++}
++
+ /**
+  * intel_runtime_pm_get_noresume - grab a runtime pm reference
+  * @rpm: the intel_runtime_pm structure
+diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.h b/drivers/gpu/drm/i915/intel_runtime_pm.h
+index ae64ff14c642..1e4ddd11c12b 100644
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.h
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.h
+@@ -177,6 +177,7 @@ void intel_runtime_pm_driver_release(struct intel_runtime_pm *rpm);
+ 
+ intel_wakeref_t intel_runtime_pm_get(struct intel_runtime_pm *rpm);
+ intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm);
++intel_wakeref_t intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm);
+ intel_wakeref_t intel_runtime_pm_get_noresume(struct intel_runtime_pm *rpm);
+ intel_wakeref_t intel_runtime_pm_get_raw(struct intel_runtime_pm *rpm);
+ 
+@@ -188,6 +189,10 @@ intel_wakeref_t intel_runtime_pm_get_raw(struct intel_runtime_pm *rpm);
+ 	for ((wf) = intel_runtime_pm_get_if_in_use(rpm); (wf); \
+ 	     intel_runtime_pm_put((rpm), (wf)), (wf) = 0)
+ 
++#define with_intel_runtime_pm_if_active(rpm, wf) \
++	for ((wf) = intel_runtime_pm_get_if_active(rpm); (wf); \
++	     intel_runtime_pm_put((rpm), (wf)), (wf) = 0)
++
+ void intel_runtime_pm_put_unchecked(struct intel_runtime_pm *rpm);
+ #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_RUNTIME_PM)
+ void intel_runtime_pm_put(struct intel_runtime_pm *rpm, intel_wakeref_t wref);
 
