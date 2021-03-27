@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC3A34B6ED
-	for <lists+stable@lfdr.de>; Sat, 27 Mar 2021 12:58:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84FB334B6F2
+	for <lists+stable@lfdr.de>; Sat, 27 Mar 2021 12:58:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231577AbhC0L6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Mar 2021 07:58:07 -0400
-Received: from aposti.net ([89.234.176.197]:58558 "EHLO aposti.net"
+        id S230322AbhC0L6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Mar 2021 07:58:21 -0400
+Received: from aposti.net ([89.234.176.197]:58596 "EHLO aposti.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230322AbhC0L6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 27 Mar 2021 07:58:06 -0400
+        id S231601AbhC0L6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 27 Mar 2021 07:58:21 -0400
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Andrzej Hajda <a.hajda@samsung.com>,
         Neil Armstrong <narmstrong@baylibre.com>,
@@ -20,12 +20,11 @@ Cc:     Sam Ravnborg <sam@ravnborg.org>, David Airlie <airlied@linux.ie>,
         Daniel Vetter <daniel@ffwll.ch>, od@zcrc.me,
         dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
         linux-mips@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
+        stable@vger.kernel.org,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [PATCH v4 1/3] drm: bridge/panel: Cleanup connector on bridge detach
-Date:   Sat, 27 Mar 2021 11:57:40 +0000
-Message-Id: <20210327115742.18986-2-paul@crapouillou.net>
+Subject: [PATCH v4 3/3] drm/ingenic: Register devm action to cleanup encoders
+Date:   Sat, 27 Mar 2021 11:57:42 +0000
+Message-Id: <20210327115742.18986-4-paul@crapouillou.net>
 In-Reply-To: <20210327115742.18986-1-paul@crapouillou.net>
 References: <20210327115742.18986-1-paul@crapouillou.net>
 MIME-Version: 1.0
@@ -34,56 +33,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If we don't call drm_connector_cleanup() manually in
-panel_bridge_detach(), the connector will be cleaned up with the other
-DRM objects in the call to drm_mode_config_cleanup(). However, since our
-drm_connector is devm-allocated, by the time drm_mode_config_cleanup()
-will be called, our connector will be long gone. Therefore, the
-connector must be cleaned up when the bridge is detached to avoid
-use-after-free conditions.
+Since the encoders have been devm-allocated, they will be freed way
+before drm_mode_config_cleanup() is called. To avoid use-after-free
+conditions, we then must ensure that drm_encoder_cleanup() is called
+before the encoders are freed.
 
-v2: Cleanup connector only if it was created
+v2: Use the new __drmm_simple_encoder_alloc() function
 
-v3: Add FIXME
+v3: Use the new drmm_plain_simple_encoder_alloc() macro
 
-v4: (Use connector->dev) directly in if() block
+v4: Use drmm_plain_encoder_alloc() macro
 
-Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper from the lvds-encoder bridge.")
-Cc: <stable@vger.kernel.org> # 4.12+
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Jernej Skrabec <jernej.skrabec@siol.net>
+Fixes: c369cb27c267 ("drm/ingenic: Support multiple panels/bridges")
+Cc: <stable@vger.kernel.org> # 5.8+
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 ---
- drivers/gpu/drm/bridge/panel.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/panel.c b/drivers/gpu/drm/bridge/panel.c
-index 0ddc37551194..c916f4b8907e 100644
---- a/drivers/gpu/drm/bridge/panel.c
-+++ b/drivers/gpu/drm/bridge/panel.c
-@@ -87,6 +87,18 @@ static int panel_bridge_attach(struct drm_bridge *bridge,
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+index d60e1eefc9d1..29742ec5ab95 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -24,6 +24,7 @@
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_drv.h>
++#include <drm/drm_encoder.h>
+ #include <drm/drm_gem_cma_helper.h>
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_fb_helper.h>
+@@ -37,7 +38,6 @@
+ #include <drm/drm_plane.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+-#include <drm/drm_simple_kms_helper.h>
+ #include <drm/drm_vblank.h>
  
- static void panel_bridge_detach(struct drm_bridge *bridge)
- {
-+	struct panel_bridge *panel_bridge = drm_bridge_to_panel_bridge(bridge);
-+	struct drm_connector *connector = &panel_bridge->connector;
-+
-+	/*
-+	 * Cleanup the connector if we know it was initialized.
-+	 *
-+	 * FIXME: This wouldn't be needed if the panel_bridge structure was
-+	 * allocated with drmm_kzalloc(). This might be tricky since the
-+	 * drm_device pointer can only be retrieved when the bridge is attached.
-+	 */
-+	if (connector->dev)
-+		drm_connector_cleanup(connector);
- }
+ struct ingenic_dma_hwdesc {
+@@ -1024,20 +1024,17 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+ 			bridge = devm_drm_panel_bridge_add_typed(dev, panel,
+ 								 DRM_MODE_CONNECTOR_DPI);
  
- static void panel_bridge_pre_enable(struct drm_bridge *bridge)
+-		encoder = devm_kzalloc(dev, sizeof(*encoder), GFP_KERNEL);
+-		if (!encoder)
+-			return -ENOMEM;
++		encoder = drmm_plain_encoder_alloc(drm, NULL, DRM_MODE_ENCODER_DPI, NULL);
++		if (IS_ERR(encoder)) {
++			ret = PTR_ERR(encoder);
++			dev_err(dev, "Failed to init encoder: %d\n", ret);
++			return ret;
++		}
+ 
+ 		encoder->possible_crtcs = 1;
+ 
+ 		drm_encoder_helper_add(encoder, &ingenic_drm_encoder_helper_funcs);
+ 
+-		ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_DPI);
+-		if (ret) {
+-			dev_err(dev, "Failed to init encoder: %d\n", ret);
+-			return ret;
+-		}
+-
+ 		ret = drm_bridge_attach(encoder, bridge, NULL, 0);
+ 		if (ret) {
+ 			dev_err(dev, "Unable to attach bridge\n");
 -- 
 2.30.2
 
