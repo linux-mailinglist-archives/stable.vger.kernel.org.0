@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6D9034B78B
-	for <lists+stable@lfdr.de>; Sat, 27 Mar 2021 15:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3994C34B78D
+	for <lists+stable@lfdr.de>; Sat, 27 Mar 2021 15:21:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230015AbhC0OUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Mar 2021 10:20:51 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:37511 "EHLO
+        id S230092AbhC0OVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Mar 2021 10:21:24 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:42895 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230030AbhC0OUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Mar 2021 10:20:46 -0400
+        by vger.kernel.org with ESMTP id S229990AbhC0OVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Mar 2021 10:21:08 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 010C51634;
-        Sat, 27 Mar 2021 10:20:45 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 27 Mar 2021 10:20:46 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id DC85E1599;
+        Sat, 27 Mar 2021 10:21:07 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 27 Mar 2021 10:21:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9dBFCO
-        avxzdS2P2f0e8WLwuRIsdvD3Hmu1CnBLFohik=; b=IHR2N31DPCi85CtuE1YRcy
-        Huk4bdwjLVpRnAuc2LUbuUGzpRtbOJ3qHZ4xS+x49fHMryI3LUt2dv84DlOdPjjq
-        12CKyVm+3D0yqwB+0LvrmEjRiuULe2nSI+Cetw9/WdWboQ+YV6ytJPfHajE1PFJ3
-        osvmy2LHCvpbW+gavFFs2R7ETjQbUif+cN4N3m24nY48oW9azV9ALP+RW4K41CN7
-        WMqnXFq63EQaZb+FuK2PH6CbzCJIJEOfT6rMUZDzXVqkf/0WkxUyONQodH9f+w/T
-        /gZfpwuBdog18CTVv61XflYIR1sRHJLoFkWZtYhFtLA3IVPAxqJwPA/IrRkFwz5g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TtQ/50
+        u5cgsv6+HWmJvTLeBGeblbFD5Y9INk0Gu4934=; b=NjTUdcDoFszmNfKylt3QBS
+        aXp22CwgyhfkTsEhUlAmW2ShbxYkKdBLPhuE7pN55iV6pcmhcDxhip3mii4qxQxK
+        ei2IC1zhlz6FM3Wbf4yw7V8kCJgjfc8q7xRI6GPG+AE8cad294Oz4/fhljjUhSNl
+        gjJkU1C5TKRhQ429a5bHuH+4/hdLCpLoo18mdgyK1Dwhj0zTQvQQ6FYrRYvYDwrh
+        DbRyKveV1r4jZ780ICz3kftDekMAEAd0NFAufbYV+YOocaQQu+9KgAVmD9WtOEJB
+        ofjDvl/hjvHZEBXHXCz5Tfea3VYc6jyQFtSP62VlNUxDuIwr/WLxZ8witm9+voWg
         ==
-X-ME-Sender: <xms:PT9fYCHrKj4qPuCx2vxaGm-aovcBDSPngYlbw-glA4Dx_HSvSZBqmg>
-    <xme:PT9fYDXf568PM5mf8TNAMP4Eo3HPD36OggVRsy0x_MoKAcCr3eG904PEMmow4GDZe
-    ugUBI224zNBaQ>
+X-ME-Sender: <xms:Uz9fYD5ETMIpiE7jluOGrYEWjxFnFrLNRzKXmT-oPPs_vvyOxDKyHw>
+    <xme:Uz9fYI7e5jS6CrF5JUvAtRdd0rFZc-MLDOwfwD2k3RIv5ii0eZ9cveoZrPXF0HMT_
+    4sCzaO6dV_i5A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudehgedgiedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
-    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:PT9fYML_f-pcqnpPxJL3UUyBRrn9n4squsOJJyLZ77ZwsBkx2JjxZw>
-    <xmx:PT9fYMGdAyDGYveKOXB2C8_n6wepcO4mV6tfa1fltf0nv_GpPm0T0Q>
-    <xmx:PT9fYIVVdel3UvuTVcBxlC-_tuQsBOlKcsdHaDCtXU8_ggbXU8s8iQ>
-    <xmx:PT9fYDdAriZIRpmMxCZVQYBLeHyF6CxKynFK7n3QgtKtuOhfE-FJYMzW6ZA>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:Uz9fYKeuiDhGaVMYspy9jrZ5Yn0hq1O366_mhacnU_3YuGIjbSc7Nw>
+    <xmx:Uz9fYELT8_eLfPH-UsLbZ2vlEZFzsIZTNkxemDkosWXpJAWsCkCP0Q>
+    <xmx:Uz9fYHIDutta5qcvjAYGev1t5YsSPBXgFYydE4IFn0_-1ur1BIoBFA>
+    <xmx:Uz9fYJxZiE22FnwAy6d_zO2lTJjAMzz2rq96d7jUjrSQKpWFt5WOjTAg7Yc>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 326BC24005C;
-        Sat, 27 Mar 2021 10:20:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Fix the GT fence revocation runtime PM logic" failed to apply to 4.14-stable tree
-To:     imre.deak@intel.com, chris@chris-wilson.co.uk,
-        rodrigo.vivi@intel.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D4F4F1080063;
+        Sat, 27 Mar 2021 10:21:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm verity: fix DM_VERITY_OPTS_MAX value" failed to apply to 4.19-stable tree
+To:     jhs2.lee@samsung.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 27 Mar 2021 15:20:34 +0100
-Message-ID: <1616854834468@kroah.com>
+Date:   Sat, 27 Mar 2021 15:21:05 +0100
+Message-ID: <16168548654742@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,147 +70,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8840e3bd981f128846b01c12d3966d115e8617c9 Mon Sep 17 00:00:00 2001
-From: Imre Deak <imre.deak@intel.com>
-Date: Mon, 22 Mar 2021 22:28:17 +0200
-Subject: [PATCH] drm/i915: Fix the GT fence revocation runtime PM logic
+From 160f99db943224e55906dd83880da1a704c6e6b9 Mon Sep 17 00:00:00 2001
+From: JeongHyeon Lee <jhs2.lee@samsung.com>
+Date: Thu, 11 Mar 2021 21:10:50 +0900
+Subject: [PATCH] dm verity: fix DM_VERITY_OPTS_MAX value
 
-To optimize some task deferring it until runtime resume unless someone
-holds a runtime PM reference (because in this case the task can be done
-w/o the overhead of runtime resume), we have to use the runtime PM
-get-if-active logic: If the runtime PM usage count is 0 (and so
-get-if-in-use would return false) the runtime suspend handler is not
-necessarily called yet (it could be just pending), so the device is not
-necessarily powered down, and so the runtime resume handler is not
-guaranteed to be called.
+Three optional parameters must be accepted at once in a DM verity table, e.g.:
+  (verity_error_handling_mode) (ignore_zero_block) (check_at_most_once)
+Fix this to be possible by incrementing DM_VERITY_OPTS_MAX.
 
-The fence revocation depends on the above deferral, so add a
-get-if-active helper and use it during fence revocation.
+Signed-off-by: JeongHyeon Lee <jhs2.lee@samsung.com>
+Fixes: 843f38d382b1 ("dm verity: add 'check_at_most_once' option to only validate hashes once")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-v2:
-- Add code comment explaining the fence reg programming deferral logic
-  to i915_vma_revoke_fence(). (Chris)
-- Add Cc: stable and Fixes: tags. (Chris)
-- Fix the function docbook comment.
-
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v4.12+
-Fixes: 181df2d458f3 ("drm/i915: Take rpm wakelock for releasing the fence on unbind")
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210322204223.919936-1-imre.deak@intel.com
-(cherry picked from commit 9d58aa46291d4d696bb1eac3436d3118f7bf2573)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-index a357bb431815..67de2b189598 100644
---- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-@@ -316,7 +316,18 @@ void i915_vma_revoke_fence(struct i915_vma *vma)
- 	WRITE_ONCE(fence->vma, NULL);
- 	vma->fence = NULL;
+diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
+index 6b8e5bdd8526..808a98ef624c 100644
+--- a/drivers/md/dm-verity-target.c
++++ b/drivers/md/dm-verity-target.c
+@@ -34,7 +34,7 @@
+ #define DM_VERITY_OPT_IGN_ZEROES	"ignore_zero_blocks"
+ #define DM_VERITY_OPT_AT_MOST_ONCE	"check_at_most_once"
  
--	with_intel_runtime_pm_if_in_use(fence_to_uncore(fence)->rpm, wakeref)
-+	/*
-+	 * Skip the write to HW if and only if the device is currently
-+	 * suspended.
-+	 *
-+	 * If the driver does not currently hold a wakeref (if_in_use == 0),
-+	 * the device may currently be runtime suspended, or it may be woken
-+	 * up before the suspend takes place. If the device is not suspended
-+	 * (powered down) and we skip clearing the fence register, the HW is
-+	 * left in an undefined state where we may end up with multiple
-+	 * registers overlapping.
-+	 */
-+	with_intel_runtime_pm_if_active(fence_to_uncore(fence)->rpm, wakeref)
- 		fence_write(fence);
- }
+-#define DM_VERITY_OPTS_MAX		(2 + DM_VERITY_OPTS_FEC + \
++#define DM_VERITY_OPTS_MAX		(3 + DM_VERITY_OPTS_FEC + \
+ 					 DM_VERITY_ROOT_HASH_VERIFICATION_OPTS)
  
-diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.c b/drivers/gpu/drm/i915/intel_runtime_pm.c
-index 153ca9e65382..8b725efb2254 100644
---- a/drivers/gpu/drm/i915/intel_runtime_pm.c
-+++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
-@@ -412,12 +412,20 @@ intel_wakeref_t intel_runtime_pm_get(struct intel_runtime_pm *rpm)
- }
- 
- /**
-- * intel_runtime_pm_get_if_in_use - grab a runtime pm reference if device in use
-+ * __intel_runtime_pm_get_if_active - grab a runtime pm reference if device is active
-  * @rpm: the intel_runtime_pm structure
-+ * @ignore_usecount: get a ref even if dev->power.usage_count is 0
-  *
-  * This function grabs a device-level runtime pm reference if the device is
-- * already in use and ensures that it is powered up. It is illegal to try
-- * and access the HW should intel_runtime_pm_get_if_in_use() report failure.
-+ * already active and ensures that it is powered up. It is illegal to try
-+ * and access the HW should intel_runtime_pm_get_if_active() report failure.
-+ *
-+ * If @ignore_usecount=true, a reference will be acquired even if there is no
-+ * user requiring the device to be powered up (dev->power.usage_count == 0).
-+ * If the function returns false in this case then it's guaranteed that the
-+ * device's runtime suspend hook has been called already or that it will be
-+ * called (and hence it's also guaranteed that the device's runtime resume
-+ * hook will be called eventually).
-  *
-  * Any runtime pm reference obtained by this function must have a symmetric
-  * call to intel_runtime_pm_put() to release the reference again.
-@@ -425,7 +433,8 @@ intel_wakeref_t intel_runtime_pm_get(struct intel_runtime_pm *rpm)
-  * Returns: the wakeref cookie to pass to intel_runtime_pm_put(), evaluates
-  * as True if the wakeref was acquired, or False otherwise.
-  */
--intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
-+static intel_wakeref_t __intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm,
-+							bool ignore_usecount)
- {
- 	if (IS_ENABLED(CONFIG_PM)) {
- 		/*
-@@ -434,7 +443,7 @@ intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
- 		 * function, since the power state is undefined. This applies
- 		 * atm to the late/early system suspend/resume handlers.
- 		 */
--		if (pm_runtime_get_if_in_use(rpm->kdev) <= 0)
-+		if (pm_runtime_get_if_active(rpm->kdev, ignore_usecount) <= 0)
- 			return 0;
- 	}
- 
-@@ -443,6 +452,16 @@ intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
- 	return track_intel_runtime_pm_wakeref(rpm);
- }
- 
-+intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
-+{
-+	return __intel_runtime_pm_get_if_active(rpm, false);
-+}
-+
-+intel_wakeref_t intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm)
-+{
-+	return __intel_runtime_pm_get_if_active(rpm, true);
-+}
-+
- /**
-  * intel_runtime_pm_get_noresume - grab a runtime pm reference
-  * @rpm: the intel_runtime_pm structure
-diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.h b/drivers/gpu/drm/i915/intel_runtime_pm.h
-index ae64ff14c642..1e4ddd11c12b 100644
---- a/drivers/gpu/drm/i915/intel_runtime_pm.h
-+++ b/drivers/gpu/drm/i915/intel_runtime_pm.h
-@@ -177,6 +177,7 @@ void intel_runtime_pm_driver_release(struct intel_runtime_pm *rpm);
- 
- intel_wakeref_t intel_runtime_pm_get(struct intel_runtime_pm *rpm);
- intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm);
-+intel_wakeref_t intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm);
- intel_wakeref_t intel_runtime_pm_get_noresume(struct intel_runtime_pm *rpm);
- intel_wakeref_t intel_runtime_pm_get_raw(struct intel_runtime_pm *rpm);
- 
-@@ -188,6 +189,10 @@ intel_wakeref_t intel_runtime_pm_get_raw(struct intel_runtime_pm *rpm);
- 	for ((wf) = intel_runtime_pm_get_if_in_use(rpm); (wf); \
- 	     intel_runtime_pm_put((rpm), (wf)), (wf) = 0)
- 
-+#define with_intel_runtime_pm_if_active(rpm, wf) \
-+	for ((wf) = intel_runtime_pm_get_if_active(rpm); (wf); \
-+	     intel_runtime_pm_put((rpm), (wf)), (wf) = 0)
-+
- void intel_runtime_pm_put_unchecked(struct intel_runtime_pm *rpm);
- #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_RUNTIME_PM)
- void intel_runtime_pm_put(struct intel_runtime_pm *rpm, intel_wakeref_t wref);
+ static unsigned dm_verity_prefetch_cluster = DM_VERITY_DEFAULT_PREFETCH_SIZE;
 
