@@ -2,90 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 136AA34BA3B
-	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 01:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 694F834BA88
+	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 05:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231159AbhC0X75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Mar 2021 19:59:57 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:58623 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230176AbhC0X74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Mar 2021 19:59:56 -0400
-Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 4F7G6c6YR1z1qsZw;
-        Sun, 28 Mar 2021 00:59:52 +0100 (CET)
-Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
-        by mail.m-online.net (Postfix) with ESMTP id 4F7G6c3r1Dz1qsXM;
-        Sun, 28 Mar 2021 00:59:52 +0100 (CET)
-X-Virus-Scanned: amavisd-new at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.8.182])
-        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
-        with ESMTP id YQEiKXlhb9gp; Sun, 28 Mar 2021 00:59:51 +0100 (CET)
-X-Auth-Info: 159iZLDHm8HXxgK/BQMih+LkW2l4iB+we4VHKoXqeIE=
-Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Sun, 28 Mar 2021 00:59:51 +0100 (CET)
-From:   Marek Vasut <marex@denx.de>
-To:     linux-wireless@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Angus Ainslie <angus@akkea.ca>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Karun Eagalapati <karun256@gmail.com>,
-        Martin Kepplinger <martink@posteo.de>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] rsi: Use resume_noirq for SDIO
-Date:   Sun, 28 Mar 2021 00:59:32 +0100
-Message-Id: <20210327235932.175896-1-marex@denx.de>
-X-Mailer: git-send-email 2.30.2
+        id S230500AbhC1DTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Mar 2021 23:19:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230451AbhC1DTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Mar 2021 23:19:08 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C465CC0613B1;
+        Sat, 27 Mar 2021 20:19:07 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id i6so38664pgs.1;
+        Sat, 27 Mar 2021 20:19:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RDTKvBCVKjC/zYD9EfD0mis7wtW44rX7PdGU3QAJOQI=;
+        b=KUxwJzYMAjcWXqiyybqPQmni8ZusZ2fRqGbTKJ5dmZnkXw6k6rVxLcrAjQFNE3GKf1
+         VS4oU9F3yN0124Zo84apcURnk2Mh8JV/SBn5q4pqz1EdBMP5o5Tdz5o+Y/va+PVNOyFN
+         KDYTU2ujAVt9IX+dhAT9DuGL3aNyEgvNLE3mh4r+OD7MuFuvyb5pfa8dmgh3zE5WEiOC
+         +75C1ogiizG0L6a8cjW2o6I80mNAXzBFJi2HltlUt4+VCin5ohSDge7q2KLGqIib5uDS
+         2bXPFadLb0Nit2KTyKSDhOoOLzURyA9N4wZGdDlagSWiy4OMfkMxzBW649y0bBKZHWDm
+         RqPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RDTKvBCVKjC/zYD9EfD0mis7wtW44rX7PdGU3QAJOQI=;
+        b=JbXSL3TAxHS67ebc1HC63MFJ5ScQ0qg01iTeo7SnGX6pfR2ZXK2bsR36bwCezhgrfZ
+         ouA3fiQ7FvKEQvuLw0KF78NfuE+jidRVYBV/XPA4agr4a03uDBEC7N7BQ53MTczwBvyQ
+         uBNu6HcUCF/PbAPvzpuNf5Gtd5osLzQgS6XdEPZ9tnlm/iUtmpUJxN8G/OhNyrjo7LAx
+         yZqUVXTa1UE5ouUZr9R4E2lIlU2KwNIbnSO9GAFvAMTaBO7bD8qvvS3Ign5sC7q47Ir5
+         zsHLSKbMVCcbGpMWlEabSfOfaVrhdhwkKNTiwcnTr/X6hD7bcCyOBcmK408W7hF1+S2d
+         3x4g==
+X-Gm-Message-State: AOAM531um+aOVT5B7kZYkCEIssTjmzZGf5aQjQHVrIurDFYTf9eUyr2C
+        jwgwo1rX2Y6AbLGEHZCn7d/lnoRCj04=
+X-Google-Smtp-Source: ABdhPJzPYD1/1R/laSJC/8BtJU58yNv0hciWN9qdxavWp/hYaPcA4DtCPROgjC3u6WmvbIv7+sSDeQ==
+X-Received: by 2002:a65:41c7:: with SMTP id b7mr12091838pgq.237.1616901547050;
+        Sat, 27 Mar 2021 20:19:07 -0700 (PDT)
+Received: from octofox.hsd1.ca.comcast.net ([2601:641:400:9e10:2d94:bd34:41ff:d945])
+        by smtp.gmail.com with ESMTPSA id w1sm12523998pgs.15.2021.03.27.20.19.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 27 Mar 2021 20:19:06 -0700 (PDT)
+From:   Max Filippov <jcmvbkbc@gmail.com>
+To:     linux-xtensa@linux-xtensa.org
+Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
+        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: [PATCH] xtensa: fix uaccess-related livelock in do_page_fault
+Date:   Sat, 27 Mar 2021 20:18:48 -0700
+Message-Id: <20210328031848.8755-1-jcmvbkbc@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The rsi_resume() does access the bus to enable interrupts on the RSI
-SDIO WiFi card, however when calling sdio_claim_host() in the resume
-path, it is possible the bus is already claimed and sdio_claim_host()
-spins indefinitelly. Enable the SDIO card interrupts in resume_noirq
-instead to prevent anything else from claiming the SDIO bus first.
+If a uaccess (e.g. get_user()) triggers a fault and there's a
+fault signal pending, the handler will return to the uaccess without
+having performed a uaccess fault fixup, and so the CPU will immediately
+execute the uaccess instruction again, whereupon it will livelock
+bouncing between that instruction and the fault handler.
 
-Fixes: 20db07332736 ("rsi: sdio suspend and resume support")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Cc: Angus Ainslie <angus@akkea.ca>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Karun Eagalapati <karun256@gmail.com>
-Cc: Martin Kepplinger <martink@posteo.de>
-Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Cc: Siva Rebbagondla <siva8118@gmail.com>
-Cc: netdev@vger.kernel.org
+https://lore.kernel.org/lkml/20210121123140.GD48431@C02TD0UTHF1T.local/
+
 Cc: stable@vger.kernel.org
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/xtensa/mm/fault.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_sdio.c b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-index 122174fca672..8465a4ee9b61 100644
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -1513,7 +1513,7 @@ static int rsi_restore(struct device *dev)
- }
- static const struct dev_pm_ops rsi_pm_ops = {
- 	.suspend = rsi_suspend,
--	.resume = rsi_resume,
-+	.resume_noirq = rsi_resume,
- 	.freeze = rsi_freeze,
- 	.thaw = rsi_thaw,
- 	.restore = rsi_restore,
+diff --git a/arch/xtensa/mm/fault.c b/arch/xtensa/mm/fault.c
+index 7666408ce12a..95a74890c7e9 100644
+--- a/arch/xtensa/mm/fault.c
++++ b/arch/xtensa/mm/fault.c
+@@ -112,8 +112,11 @@ void do_page_fault(struct pt_regs *regs)
+ 	 */
+ 	fault = handle_mm_fault(vma, address, flags, regs);
+ 
+-	if (fault_signal_pending(fault, regs))
++	if (fault_signal_pending(fault, regs)) {
++		if (!user_mode(regs))
++			goto bad_page_fault;
+ 		return;
++	}
+ 
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
 -- 
-2.30.2
+2.20.1
 
