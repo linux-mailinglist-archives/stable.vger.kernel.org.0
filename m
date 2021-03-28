@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8630C34BEF2
-	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 22:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C69C534BEF0
+	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 22:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbhC1Umj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231267AbhC1Umj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 28 Mar 2021 16:42:39 -0400
-Received: from maynard.decadent.org.uk ([95.217.213.242]:37142 "EHLO
+Received: from maynard.decadent.org.uk ([95.217.213.242]:37150 "EHLO
         maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230526AbhC1UmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Mar 2021 16:42:16 -0400
+        with ESMTP id S231258AbhC1UmW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Mar 2021 16:42:22 -0400
 Received: from [2a02:1811:d34:3700:3b8d:b310:d327:e418] (helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1lQcEh-0001x4-2Y; Sun, 28 Mar 2021 22:42:15 +0200
+        id 1lQcEn-0001xI-Cx; Sun, 28 Mar 2021 22:42:21 +0200
 Received: from ben by deadeye with local (Exim 4.94)
         (envelope-from <ben@decadent.org.uk>)
-        id 1lQcEb-003Gek-17; Sun, 28 Mar 2021 22:42:09 +0200
-Date:   Sun, 28 Mar 2021 22:42:08 +0200
+        id 1lQcEm-003GfT-IU; Sun, 28 Mar 2021 22:42:20 +0200
+Date:   Sun, 28 Mar 2021 22:42:20 +0200
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>,
         "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>,
         Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 06/13] futex,rt_mutex: Fix rt_mutex_cleanup_proxy_lock()
-Message-ID: <YGDqIHbfbs/FszkQ@decadent.org.uk>
+Subject: [PATCH 07/13] futex: Handle early deadlock return correctly
+Message-ID: <YGDqLAxAfaH+BDVy@decadent.org.uk>
 References: <YGDp1qJOCUJmE1Ty@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZFSZPNjK40Bq9yqL"
+        protocol="application/pgp-signature"; boundary="EtkxaMZEvWVK6J+R"
 Content-Disposition: inline
 In-Reply-To: <YGDp1qJOCUJmE1Ty@decadent.org.uk>
 X-SA-Exim-Connect-IP: 2a02:1811:d34:3700:3b8d:b310:d327:e418
@@ -41,169 +41,263 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---ZFSZPNjK40Bq9yqL
+--EtkxaMZEvWVK6J+R
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-=46rom: Peter Zijlstra <peterz@infradead.org>
+=46rom: Thomas Gleixner <tglx@linutronix.de>
 
-commit 04dc1b2fff4e96cb4142227fbdc63c8871ad4ed9 upstream.
+commit 1a1fb985f2e2b85ec0d3dc2e519ee48389ec2434 upstream.
 
-Markus reported that the glibc/nptl/tst-robustpi8 test was failing after
-commit:
+commit 56222b212e8e ("futex: Drop hb->lock before enqueueing on the
+rtmutex") changed the locking rules in the futex code so that the hash
+bucket lock is not longer held while the waiter is enqueued into the
+rtmutex wait list. This made the lock and the unlock path symmetric, but
+unfortunately the possible early exit from __rt_mutex_proxy_start() due to
+a detected deadlock was not updated accordingly. That allows a concurrent
+unlocker to observe inconsitent state which triggers the warning in the
+unlock path.
 
-  cfafcd117da0 ("futex: Rework futex_lock_pi() to use rt_mutex_*_proxy_lock=
-()")
+futex_lock_pi()                         futex_unlock_pi()
+  lock(hb->lock)
+  queue(hb_waiter)				lock(hb->lock)
+  lock(rtmutex->wait_lock)
+  unlock(hb->lock)
+                                        // acquired hb->lock
+                                        hb_waiter =3D futex_top_waiter()
+                                        lock(rtmutex->wait_lock)
+  __rt_mutex_proxy_start()
+     ---> fail
+          remove(rtmutex_waiter);
+     ---> returns -EDEADLOCK
+  unlock(rtmutex->wait_lock)
+                                        // acquired wait_lock
+                                        wake_futex_pi()
+                                        rt_mutex_next_owner()
+					  --> returns NULL
+                                          --> WARN
 
-The following trace shows the problem:
+  lock(hb->lock)
+  unqueue(hb_waiter)
 
- ld-linux-x86-64-2161  [019] ....   410.760971: SyS_futex: 00007ffbeb76b028=
-: 80000875  op=3DFUTEX_LOCK_PI
- ld-linux-x86-64-2161  [019] ...1   410.760972: lock_pi_update_atomic: 0000=
-7ffbeb76b028: curval=3D80000875 uval=3D80000875 newval=3D80000875 ret=3D0
- ld-linux-x86-64-2165  [011] ....   410.760978: SyS_futex: 00007ffbeb76b028=
-: 80000875  op=3DFUTEX_UNLOCK_PI
- ld-linux-x86-64-2165  [011] d..1   410.760979: do_futex: 00007ffbeb76b028:=
- curval=3D80000875 uval=3D80000875 newval=3D80000871 ret=3D0
- ld-linux-x86-64-2165  [011] ....   410.760980: SyS_futex: 00007ffbeb76b028=
-: 80000871 ret=3D0000
- ld-linux-x86-64-2161  [019] ....   410.760980: SyS_futex: 00007ffbeb76b028=
-: 80000871 ret=3DETIMEDOUT
+The problem is caused by the remove(rtmutex_waiter) in the failure case of
+__rt_mutex_proxy_start() as this lets the unlocker observe a waiter in the
+hash bucket but no waiter on the rtmutex, i.e. inconsistent state.
 
-Task 2165 does an UNLOCK_PI, assigning the lock to the waiter task 2161
-which then returns with -ETIMEDOUT. That wrecks the lock state, because now
-the owner isn't aware it acquired the lock and removes the pending robust
-list entry.
+The original commit handles this correctly for the other early return cases
+(timeout, signal) by delaying the removal of the rtmutex waiter until the
+returning task reacquired the hash bucket lock.
 
-If 2161 is killed, the robust list will not clear out this futex and the
-subsequent acquire on this futex will then (correctly) result in -ESRCH
-which is unexpected by glibc, triggers an internal assertion and dies.
+Treat the failure case of __rt_mutex_proxy_start() in the same way and let
+the existing cleanup code handle the eventual handover of the rtmutex
+gracefully. The regular rt_mutex_proxy_start() gains the rtmutex waiter
+removal for the failure case, so that the other callsites are still
+operating correctly.
 
-Task 2161			Task 2165
+Add proper comments to the code so all these details are fully documented.
 
-rt_mutex_wait_proxy_lock()
-   timeout();
-   /* T2161 is still queued in  the waiter list */
-   return -ETIMEDOUT;
+Thanks to Peter for helping with the analysis and writing the really
+valuable code comments.
 
-				futex_unlock_pi()
-				spin_lock(hb->lock);
-				rtmutex_unlock()
-				  remove_rtmutex_waiter(T2161);
-				   mark_lock_available();
-				/* Make the next waiter owner of the user space side */
-				futex_uval =3D 2161;
-				spin_unlock(hb->lock);
-spin_lock(hb->lock);
-rt_mutex_cleanup_proxy_lock()
-  if (rtmutex_owner() !=3D=3D current)
-     ...
-     return FAIL;
-=2E...
-return -ETIMEOUT;
-
-This means that rt_mutex_cleanup_proxy_lock() needs to call
-try_to_take_rt_mutex() so it can take over the rtmutex correctly which was
-assigned by the waker. If the rtmutex is owned by some other task then this
-call is harmless and just confirmes that the waiter is not able to acquire
-it.
-
-While there, fix what looks like a merge error which resulted in
-rt_mutex_cleanup_proxy_lock() having two calls to
-fixup_rt_mutex_waiters() and rt_mutex_wait_proxy_lock() not having any.
-Both should have one, since both potentially touch the waiter list.
-
-Fixes: 38d589f2fd08 ("futex,rt_mutex: Restructure rt_mutex_finish_proxy_loc=
-k()")
-Reported-by: Markus Trippelsdorf <markus@trippelsdorf.de>
-Bug-Spotted-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Florian Weimer <fweimer@redhat.com>
-Cc: Darren Hart <dvhart@infradead.org>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Markus Trippelsdorf <markus@trippelsdorf.de>
-Link: http://lkml.kernel.org/r/20170519154850.mlomgdsd26drq5j6@hirez.progra=
-mming.kicks-ass.net
+Fixes: 56222b212e8e ("futex: Drop hb->lock before enqueueing on the rtmutex=
+")
+Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Co-developed-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Stefan Liebler <stli@linux.ibm.com>
+Cc: Sebastian Sewior <bigeasy@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1901292311410.1950@nanos.te=
+c.linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/locking/rtmutex.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ kernel/futex.c           | 28 ++++++++++++++++++----------
+ kernel/locking/rtmutex.c | 37 ++++++++++++++++++++++++++++++++-----
+ 2 files changed, 50 insertions(+), 15 deletions(-)
 
+diff --git a/kernel/futex.c b/kernel/futex.c
+index bd896f883ffd..60be2d3cfdd7 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2958,35 +2958,39 @@ static int futex_lock_pi(u32 __user *uaddr, unsigne=
+d int flags,
+ 	 * and BUG when futex_unlock_pi() interleaves with this.
+ 	 *
+ 	 * Therefore acquire wait_lock while holding hb->lock, but drop the
+-	 * latter before calling rt_mutex_start_proxy_lock(). This still fully
+-	 * serializes against futex_unlock_pi() as that does the exact same
+-	 * lock handoff sequence.
++	 * latter before calling __rt_mutex_start_proxy_lock(). This
++	 * interleaves with futex_unlock_pi() -- which does a similar lock
++	 * handoff -- such that the latter can observe the futex_q::pi_state
++	 * before __rt_mutex_start_proxy_lock() is done.
+ 	 */
+ 	raw_spin_lock_irq(&q.pi_state->pi_mutex.wait_lock);
+ 	spin_unlock(q.lock_ptr);
++	/*
++	 * __rt_mutex_start_proxy_lock() unconditionally enqueues the @rt_waiter
++	 * such that futex_unlock_pi() is guaranteed to observe the waiter when
++	 * it sees the futex_q::pi_state.
++	 */
+ 	ret =3D __rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, cu=
+rrent);
+ 	raw_spin_unlock_irq(&q.pi_state->pi_mutex.wait_lock);
+=20
+ 	if (ret) {
+ 		if (ret =3D=3D 1)
+ 			ret =3D 0;
+-
+-		spin_lock(q.lock_ptr);
+-		goto no_block;
++		goto cleanup;
+ 	}
+=20
+-
+ 	if (unlikely(to))
+ 		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
+=20
+ 	ret =3D rt_mutex_wait_proxy_lock(&q.pi_state->pi_mutex, to, &rt_waiter);
+=20
++cleanup:
+ 	spin_lock(q.lock_ptr);
+ 	/*
+-	 * If we failed to acquire the lock (signal/timeout), we must
++	 * If we failed to acquire the lock (deadlock/signal/timeout), we must
+ 	 * first acquire the hb->lock before removing the lock from the
+-	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex
+-	 * wait lists consistent.
++	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex wait
++	 * lists consistent.
+ 	 *
+ 	 * In particular; it is important that futex_unlock_pi() can not
+ 	 * observe this inconsistency.
+@@ -3093,6 +3097,10 @@ static int futex_unlock_pi(u32 __user *uaddr, unsign=
+ed int flags)
+ 		 * there is no point where we hold neither; and therefore
+ 		 * wake_futex_pi() must observe a state consistent with what we
+ 		 * observed.
++		 *
++		 * In particular; this forces __rt_mutex_start_proxy() to
++		 * complete such that we're guaranteed to observe the
++		 * rt_waiter. Also see the WARN in wake_futex_pi().
+ 		 */
+ 		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+ 		spin_unlock(&hb->lock);
 diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index e4772b0367ff..eb933efdd224 100644
+index eb933efdd224..1589e131ee4b 100644
 --- a/kernel/locking/rtmutex.c
 +++ b/kernel/locking/rtmutex.c
-@@ -1796,12 +1796,14 @@ int rt_mutex_wait_proxy_lock(struct rt_mutex *lock,
+@@ -1695,12 +1695,33 @@ void rt_mutex_proxy_unlock(struct rt_mutex *lock)
+ 	rt_mutex_set_owner(lock, NULL);
+ }
+=20
++/**
++ * __rt_mutex_start_proxy_lock() - Start lock acquisition for another task
++ * @lock:		the rt_mutex to take
++ * @waiter:		the pre-initialized rt_mutex_waiter
++ * @task:		the task to prepare
++ *
++ * Starts the rt_mutex acquire; it enqueues the @waiter and does deadlock
++ * detection. It does not wait, see rt_mutex_wait_proxy_lock() for that.
++ *
++ * NOTE: does _NOT_ remove the @waiter on failure; must either call
++ * rt_mutex_wait_proxy_lock() or rt_mutex_cleanup_proxy_lock() after this.
++ *
++ * Returns:
++ *  0 - task blocked on lock
++ *  1 - acquired the lock for task, caller should wake it up
++ * <0 - error
++ *
++ * Special API call for PI-futex support.
++ */
+ int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 			      struct rt_mutex_waiter *waiter,
+ 			      struct task_struct *task)
+ {
  	int ret;
 =20
++	lockdep_assert_held(&lock->wait_lock);
++
+ 	if (try_to_take_rt_mutex(lock, task, NULL))
+ 		return 1;
+=20
+@@ -1718,9 +1739,6 @@ int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 		ret =3D 0;
+ 	}
+=20
+-	if (unlikely(ret))
+-		remove_waiter(lock, waiter);
+-
+ 	debug_rt_mutex_print_deadlock(waiter);
+=20
+ 	return ret;
+@@ -1732,12 +1750,18 @@ int __rt_mutex_start_proxy_lock(struct rt_mutex *lo=
+ck,
+  * @waiter:		the pre-initialized rt_mutex_waiter
+  * @task:		the task to prepare
+  *
++ * Starts the rt_mutex acquire; it enqueues the @waiter and does deadlock
++ * detection. It does not wait, see rt_mutex_wait_proxy_lock() for that.
++ *
++ * NOTE: unlike __rt_mutex_start_proxy_lock this _DOES_ remove the @waiter
++ * on failure.
++ *
+  * Returns:
+  *  0 - task blocked on lock
+  *  1 - acquired the lock for task, caller should wake it up
+  * <0 - error
+  *
+- * Special API call for FUTEX_REQUEUE_PI support.
++ * Special API call for PI-futex support.
+  */
+ int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 			      struct rt_mutex_waiter *waiter,
+@@ -1747,6 +1771,8 @@ int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+=20
  	raw_spin_lock_irq(&lock->wait_lock);
--
--	set_current_state(TASK_INTERRUPTIBLE);
--
- 	/* sleep on the mutex */
-+	set_current_state(TASK_INTERRUPTIBLE);
- 	ret =3D __rt_mutex_slowlock(lock, TASK_INTERRUPTIBLE, to, waiter);
--
-+	/*
-+	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
-+	 * have to fix that up.
-+	 */
-+	fixup_rt_mutex_waiters(lock);
+ 	ret =3D __rt_mutex_start_proxy_lock(lock, waiter, task);
++	if (unlikely(ret))
++		remove_waiter(lock, waiter);
  	raw_spin_unlock_irq(&lock->wait_lock);
 =20
  	return ret;
-@@ -1832,16 +1834,26 @@ bool rt_mutex_cleanup_proxy_lock(struct rt_mutex *l=
-ock,
- 	bool cleanup =3D false;
-=20
- 	raw_spin_lock_irq(&lock->wait_lock);
-+	/*
-+	 * Do an unconditional try-lock, this deals with the lock stealing
-+	 * state where __rt_mutex_futex_unlock() -> mark_wakeup_next_waiter()
-+	 * sets a NULL owner.
-+	 *
-+	 * We're not interested in the return value, because the subsequent
-+	 * test on rt_mutex_owner() will infer that. If the trylock succeeded,
-+	 * we will own the lock and it will have removed the waiter. If we
-+	 * failed the trylock, we're still not owner and we need to remove
-+	 * ourselves.
-+	 */
-+	try_to_take_rt_mutex(lock, current, waiter);
- 	/*
- 	 * Unless we're the owner; we're still enqueued on the wait_list.
- 	 * So check if we became owner, if not, take us off the wait_list.
- 	 */
- 	if (rt_mutex_owner(lock) !=3D current) {
- 		remove_waiter(lock, waiter);
--		fixup_rt_mutex_waiters(lock);
- 		cleanup =3D true;
- 	}
--
- 	/*
- 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
- 	 * have to fix that up.
+@@ -1814,7 +1840,8 @@ int rt_mutex_wait_proxy_lock(struct rt_mutex *lock,
+  * @lock:		the rt_mutex we were woken on
+  * @waiter:		the pre-initialized rt_mutex_waiter
+  *
+- * Attempt to clean up after a failed rt_mutex_wait_proxy_lock().
++ * Attempt to clean up after a failed __rt_mutex_start_proxy_lock() or
++ * rt_mutex_wait_proxy_lock().
+  *
+  * Unless we acquired the lock; we're still enqueued on the wait-list and =
+can
+  * in fact still be granted ownership until we're removed. Therefore we can
 
 
---ZFSZPNjK40Bq9yqL
+--EtkxaMZEvWVK6J+R
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmBg6iAACgkQ57/I7JWG
-EQnFDBAAx9tfql6Xe8GzZLcQQ+R5ZPkKz9RhjRlRf/IE+nThq0qbDfixMaMErpcl
-fo+2q7U7wz+wCx7IlgzWH6rHUBRs9huTQzYZdMpsm59ofs3R5i+gTL3IqiGfNvTB
-JsJtnqc+lXJ7idlmRR+U6lwh1/FPsRL77XmuuCf+rXZO8UDNbQDGmlI24uR3M7n/
-o7noW9XzMfpgMo0aZ0dRK3B1hQqTbMIH+NruZkI+PrKM/3KQ6kdQ7DNGqisLcgAJ
-UdGdcNnx21ddc9QOkGPWLCGUmSi+QoVZcU8a3d5l7TOKCgUNByNBykWDMw6oRrvi
-npSL7T1qt0gfqYfBN8h4Lk/01RikhT+hJ1XZ9ShLQQsk+uxaFQFY7iw9wi21S37W
-S16pL5UCLmyg7Bd3uu6CaQjZK94lnzWpb+h9bc0Jy4fbw3RZ4tS9z3bnBSkzA4j1
-k4Vfplem9BKoOjjfcp6Fzt/skOPRQeOv0Yp3uV67swk31tqTNt2jwY2d53mZ6T1y
-uglkakg9Sp4yB606dqbadrF6tjSXuPvwzoOJTL1xCGItVeqJnbYs8pf5eQOXdyvC
-EyISfsKqPNbC7HAQaPkfpO8vgKiFZS1qHofFUfiTcz+iyeXt5H9PimMHs1vr6COB
-EoZR+Gap5oBjWp39InjPrd5lPlqYKytJaZvTprVlISTE/J+ewAM=
-=CLw2
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmBg6iwACgkQ57/I7JWG
+EQnYKQ//brXW9zdKKcXZ8Nv1PbwdVLH7SRjJ9NQ5SxaVV/Fqpcuk4EF4P3AFKZS0
+aX2/6EM3/QfVkavwRcVCSLqH6rgFQj6QW2TmHs3LnW/g5dwuA/Qntct9wIkc2141
+o9mHf8qIFMH/2H8Oiykx0HTS4pAgSYGC6O8Kqt7iBACIpWFCWHRpojZSB8Kih1pD
+AQOfjLeJNr+JW8IMVK9nQ/blIelIr8cir4F+oiLJawbCaMH3k2AW2OxUt1EU1K97
+Orw1Vtd6X+GYGKGcxWg9p46GwsOR2YKj+43u3BKcsmEN6NyD4Q0whBkrQnKUP0VL
+YKDweFTqkPpogjaUoFsgRPiY8JhDk6jdjxTQ9A8uEG3pYnBLvcUsg7IATsZenOiV
++czKKK6JGAQ05dduE7eoPHt9R8CBrMmwUROUL1er784FwK5XNVuEIhZiTrO6KG+5
+sNRv06/ueMt5gdDe7AxeqWErvdbWgU8KxKXgobKK5TdRLtO4NZRS6Cu7aHaSRnao
+CuV++oOI8nFuDm7921wyacYSCx4N+t7zU5aRzAp2+QI9G/mfe07t9FHRsLB/L+Dr
+GxdVpnpvzGDjv4hYZQ/NCA1VqyJ7dH/7YEOjuipf7byNA037QNghvOTfnvjfOp8b
+xSX30pbMMOqiFMBoOIojWZY6r8mKLnr0C2sgZ5ZxykXePFm6TLA=
+=F9BR
 -----END PGP SIGNATURE-----
 
---ZFSZPNjK40Bq9yqL--
+--EtkxaMZEvWVK6J+R--
