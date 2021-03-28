@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F5734BEEF
+	by mail.lfdr.de (Postfix) with ESMTP id 36B4534BEEE
 	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 22:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229950AbhC1UmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Mar 2021 16:42:06 -0400
-Received: from maynard.decadent.org.uk ([95.217.213.242]:37118 "EHLO
+        id S230447AbhC1UmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Mar 2021 16:42:07 -0400
+Received: from maynard.decadent.org.uk ([95.217.213.242]:37126 "EHLO
         maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230447AbhC1Ulp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Mar 2021 16:41:45 -0400
+        with ESMTP id S230476AbhC1Ulx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Mar 2021 16:41:53 -0400
 Received: from [2a02:1811:d34:3700:3b8d:b310:d327:e418] (helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1lQcEC-0001wa-8D; Sun, 28 Mar 2021 22:41:44 +0200
+        id 1lQcEJ-0001wl-Sb; Sun, 28 Mar 2021 22:41:51 +0200
 Received: from ben by deadeye with local (Exim 4.94)
         (envelope-from <ben@decadent.org.uk>)
-        id 1lQcEA-003Gcg-C6; Sun, 28 Mar 2021 22:41:42 +0200
-Date:   Sun, 28 Mar 2021 22:41:42 +0200
+        id 1lQcEJ-003GdV-2D; Sun, 28 Mar 2021 22:41:51 +0200
+Date:   Sun, 28 Mar 2021 22:41:51 +0200
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>,
         "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>,
         Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 03/13] futex: Rework futex_lock_pi() to use
- rt_mutex_*_proxy_lock()
-Message-ID: <YGDqBnDrUInZoDsM@decadent.org.uk>
+Subject: [PATCH 04/13] futex: Drop hb->lock before enqueueing on the rtmutex
+Message-ID: <YGDqD/h/x3P8HwyB@decadent.org.uk>
 References: <YGDp1qJOCUJmE1Ty@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="EGOjm+DO/eMbJnde"
+        protocol="application/pgp-signature"; boundary="j6agz95TelSDp1k9"
 Content-Disposition: inline
 In-Reply-To: <YGDp1qJOCUJmE1Ty@decadent.org.uk>
 X-SA-Exim-Connect-IP: 2a02:1811:d34:3700:3b8d:b310:d327:e418
@@ -42,321 +41,247 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---EGOjm+DO/eMbJnde
+--j6agz95TelSDp1k9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 =46rom: Peter Zijlstra <peterz@infradead.org>
 
-commit cfafcd117da0216520568c195cb2f6cd1980c4bb upstream.
+commit 56222b212e8edb1cf51f5dd73ff645809b082b40 upstream.
 
-By changing futex_lock_pi() to use rt_mutex_*_proxy_lock() all wait_list
-modifications are done under both hb->lock and wait_lock.
+When PREEMPT_RT_FULL does the spinlock -> rt_mutex substitution the PI
+chain code will (falsely) report a deadlock and BUG.
 
-This closes the obvious interleave pattern between futex_lock_pi() and
-futex_unlock_pi(), but not entirely so. See below:
+The problem is that it hold hb->lock (now an rt_mutex) while doing
+task_blocks_on_rt_mutex on the futex's pi_state::rtmutex. This, when
+interleaved just right with futex_unlock_pi() leads it to believe to see an
+AB-BA deadlock.
 
-Before:
+  Task1 (holds rt_mutex,	Task2 (does FUTEX_LOCK_PI)
+         does FUTEX_UNLOCK_PI)
 
-futex_lock_pi()			futex_unlock_pi()
-  unlock hb->lock
-
-				  lock hb->lock
-				  unlock hb->lock
-
-				  lock rt_mutex->wait_lock
-				  unlock rt_mutex_wait_lock
-				    -EAGAIN
-
-  lock rt_mutex->wait_lock
-  list_add
-  unlock rt_mutex->wait_lock
-
-  schedule()
-
-  lock rt_mutex->wait_lock
-  list_del
-  unlock rt_mutex->wait_lock
-
-				  <idem>
-				    -EAGAIN
-
+				lock hb->lock
+				lock rt_mutex (as per start_proxy)
   lock hb->lock
 
-After:
+Which is a trivial AB-BA.
 
-futex_lock_pi()			futex_unlock_pi()
+It is not an actual deadlock, because it won't be holding hb->lock by the
+time it actually blocks on the rt_mutex, but the chainwalk code doesn't
+know that and it would be a nightmare to handle this gracefully.
 
-  lock hb->lock
-  lock rt_mutex->wait_lock
-  list_add
-  unlock rt_mutex->wait_lock
-  unlock hb->lock
+To avoid this problem, do the same as in futex_unlock_pi() and drop
+hb->lock after acquiring wait_lock. This still fully serializes against
+futex_unlock_pi(), since adding to the wait_list does the very same lock
+dance, and removing it holds both locks.
 
-  schedule()
-				  lock hb->lock
-				  unlock hb->lock
-  lock hb->lock
-  lock rt_mutex->wait_lock
-  list_del
-  unlock rt_mutex->wait_lock
+Aside of solving the RT problem this makes the lock and unlock mechanism
+symetric and reduces the hb->lock held time.
 
-				  lock rt_mutex->wait_lock
-				  unlock rt_mutex_wait_lock
-				    -EAGAIN
-
-  unlock hb->lock
-
-It does however solve the earlier starvation/live-lock scenario which got
-introduced with the -EAGAIN since unlike the before scenario; where the
--EAGAIN happens while futex_unlock_pi() doesn't hold any locks; in the
-after scenario it happens while futex_unlock_pi() actually holds a lock,
-and then it is serialized on that lock.
-
+Reported-and-tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: juri.lelli@arm.com
-Cc: bigeasy@linutronix.de
 Cc: xlpang@redhat.com
 Cc: rostedt@goodmis.org
 Cc: mathieu.desnoyers@efficios.com
 Cc: jdesfossez@efficios.com
 Cc: dvhart@infradead.org
 Cc: bristot@redhat.com
-Link: http://lkml.kernel.org/r/20170322104152.062785528@infradead.org
+Link: http://lkml.kernel.org/r/20170322104152.161341537@infradead.org
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-[bwh: Backported to 4.9: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/futex.c                  | 77 +++++++++++++++++++++++----------
- kernel/locking/rtmutex.c        | 26 +++--------
- kernel/locking/rtmutex_common.h |  1 -
- 3 files changed, 62 insertions(+), 42 deletions(-)
+ kernel/futex.c                  | 30 ++++++++++++++------
+ kernel/locking/rtmutex.c        | 49 +++++++++++++++++++--------------
+ kernel/locking/rtmutex_common.h |  3 ++
+ 3 files changed, 52 insertions(+), 30 deletions(-)
 
 diff --git a/kernel/futex.c b/kernel/futex.c
-index cd8a9abadd69..0e72e51ac3a8 100644
+index 0e72e51ac3a8..491888a89144 100644
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -2333,20 +2333,7 @@ queue_unlock(struct futex_hash_bucket *hb)
- 	hb_waiters_dec(hb);
+@@ -2948,20 +2948,33 @@ static int futex_lock_pi(u32 __user *uaddr, unsigne=
+d int flags,
+ 		goto no_block;
+ 	}
+=20
++	rt_mutex_init_waiter(&rt_waiter);
++
+ 	/*
+-	 * We must add ourselves to the rt_mutex waitlist while holding hb->lock
+-	 * such that the hb and rt_mutex wait lists match.
++	 * On PREEMPT_RT_FULL, when hb->lock becomes an rt_mutex, we must not
++	 * hold it while doing rt_mutex_start_proxy(), because then it will
++	 * include hb->lock in the blocking chain, even through we'll not in
++	 * fact hold it while blocking. This will lead it to report -EDEADLK
++	 * and BUG when futex_unlock_pi() interleaves with this.
++	 *
++	 * Therefore acquire wait_lock while holding hb->lock, but drop the
++	 * latter before calling rt_mutex_start_proxy_lock(). This still fully
++	 * serializes against futex_unlock_pi() as that does the exact same
++	 * lock handoff sequence.
+ 	 */
+-	rt_mutex_init_waiter(&rt_waiter);
+-	ret =3D rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, curr=
+ent);
++	raw_spin_lock_irq(&q.pi_state->pi_mutex.wait_lock);
++	spin_unlock(q.lock_ptr);
++	ret =3D __rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, cu=
+rrent);
++	raw_spin_unlock_irq(&q.pi_state->pi_mutex.wait_lock);
++
+ 	if (ret) {
+ 		if (ret =3D=3D 1)
+ 			ret =3D 0;
+=20
++		spin_lock(q.lock_ptr);
+ 		goto no_block;
+ 	}
+=20
+-	spin_unlock(q.lock_ptr);
+=20
+ 	if (unlikely(to))
+ 		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
+@@ -2974,6 +2987,9 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned =
+int flags,
+ 	 * first acquire the hb->lock before removing the lock from the
+ 	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex
+ 	 * wait lists consistent.
++	 *
++	 * In particular; it is important that futex_unlock_pi() can not
++	 * observe this inconsistency.
+ 	 */
+ 	if (ret && !rt_mutex_cleanup_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter=
+))
+ 		ret =3D 0;
+@@ -3071,10 +3087,6 @@ static int futex_unlock_pi(u32 __user *uaddr, unsign=
+ed int flags)
+=20
+ 		get_pi_state(pi_state);
+ 		/*
+-		 * Since modifying the wait_list is done while holding both
+-		 * hb->lock and wait_lock, holding either is sufficient to
+-		 * observe it.
+-		 *
+ 		 * By taking wait_lock while still holding hb->lock, we ensure
+ 		 * there is no point where we hold neither; and therefore
+ 		 * wake_futex_pi() must observe a state consistent with what we
+diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
+index d8585ff1ffab..e4772b0367ff 100644
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1695,31 +1695,14 @@ void rt_mutex_proxy_unlock(struct rt_mutex *lock)
+ 	rt_mutex_set_owner(lock, NULL);
  }
 =20
 -/**
-- * queue_me() - Enqueue the futex_q on the futex_hash_bucket
-- * @q:	The futex_q to enqueue
-- * @hb:	The destination hash bucket
+- * rt_mutex_start_proxy_lock() - Start lock acquisition for another task
+- * @lock:		the rt_mutex to take
+- * @waiter:		the pre-initialized rt_mutex_waiter
+- * @task:		the task to prepare
 - *
-- * The hb->lock must be held by the caller, and is released here. A call to
-- * queue_me() is typically paired with exactly one call to unqueue_me().  =
-The
-- * exceptions involve the PI related operations, which may use unqueue_me_=
-pi()
-- * or nothing if the unqueue is done as part of the wake process and the u=
-nqueue
-- * state is implicit in the state of woken task (see futex_wait_requeue_pi=
-() for
-- * an example).
+- * Returns:
+- *  0 - task blocked on lock
+- *  1 - acquired the lock for task, caller should wake it up
+- * <0 - error
+- *
+- * Special API call for FUTEX_REQUEUE_PI support.
 - */
--static inline void queue_me(struct futex_q *q, struct futex_hash_bucket *h=
-b)
--	__releases(&hb->lock)
-+static inline void __queue_me(struct futex_q *q, struct futex_hash_bucket =
-*hb)
+-int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
++int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 			      struct rt_mutex_waiter *waiter,
+ 			      struct task_struct *task)
  {
- 	int prio;
+ 	int ret;
 =20
-@@ -2363,6 +2350,24 @@ static inline void queue_me(struct futex_q *q, struc=
-t futex_hash_bucket *hb)
- 	plist_node_init(&q->list, prio);
- 	plist_add(&q->list, &hb->chain);
- 	q->task =3D current;
-+}
-+
-+/**
-+ * queue_me() - Enqueue the futex_q on the futex_hash_bucket
-+ * @q:	The futex_q to enqueue
-+ * @hb:	The destination hash bucket
-+ *
-+ * The hb->lock must be held by the caller, and is released here. A call to
-+ * queue_me() is typically paired with exactly one call to unqueue_me().  =
-The
-+ * exceptions involve the PI related operations, which may use unqueue_me_=
-pi()
-+ * or nothing if the unqueue is done as part of the wake process and the u=
-nqueue
-+ * state is implicit in the state of woken task (see futex_wait_requeue_pi=
-() for
-+ * an example).
-+ */
-+static inline void queue_me(struct futex_q *q, struct futex_hash_bucket *h=
-b)
-+	__releases(&hb->lock)
-+{
-+	__queue_me(q, hb);
- 	spin_unlock(&hb->lock);
- }
-=20
-@@ -2868,6 +2873,7 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned =
-int flags,
- {
- 	struct hrtimer_sleeper timeout, *to =3D NULL;
- 	struct task_struct *exiting =3D NULL;
-+	struct rt_mutex_waiter rt_waiter;
- 	struct futex_hash_bucket *hb;
- 	struct futex_q q =3D futex_q_init;
- 	int res, ret;
-@@ -2928,24 +2934,51 @@ static int futex_lock_pi(u32 __user *uaddr, unsigne=
-d int flags,
- 		}
- 	}
-=20
-+	WARN_ON(!q.pi_state);
-+
- 	/*
- 	 * Only actually queue now that the atomic ops are done:
- 	 */
--	queue_me(&q, hb);
-+	__queue_me(&q, hb);
-=20
--	WARN_ON(!q.pi_state);
--	/*
--	 * Block on the PI mutex:
--	 */
--	if (!trylock) {
--		ret =3D rt_mutex_timed_futex_lock(&q.pi_state->pi_mutex, to);
--	} else {
-+	if (trylock) {
- 		ret =3D rt_mutex_futex_trylock(&q.pi_state->pi_mutex);
- 		/* Fixup the trylock return value: */
- 		ret =3D ret ? 0 : -EWOULDBLOCK;
-+		goto no_block;
-+	}
-+
-+	/*
-+	 * We must add ourselves to the rt_mutex waitlist while holding hb->lock
-+	 * such that the hb and rt_mutex wait lists match.
-+	 */
-+	rt_mutex_init_waiter(&rt_waiter);
-+	ret =3D rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, curr=
-ent);
-+	if (ret) {
-+		if (ret =3D=3D 1)
-+			ret =3D 0;
-+
-+		goto no_block;
- 	}
-=20
-+	spin_unlock(q.lock_ptr);
-+
-+	if (unlikely(to))
-+		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
-+
-+	ret =3D rt_mutex_wait_proxy_lock(&q.pi_state->pi_mutex, to, &rt_waiter);
-+
- 	spin_lock(q.lock_ptr);
-+	/*
-+	 * If we failed to acquire the lock (signal/timeout), we must
-+	 * first acquire the hb->lock before removing the lock from the
-+	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex
-+	 * wait lists consistent.
-+	 */
-+	if (ret && !rt_mutex_cleanup_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter=
-))
-+		ret =3D 0;
-+
-+no_block:
- 	/*
- 	 * Fixup the pi_state owner and possibly acquire the lock if we
- 	 * haven't already.
-diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index 873c8c800e00..d8585ff1ffab 100644
---- a/kernel/locking/rtmutex.c
-+++ b/kernel/locking/rtmutex.c
-@@ -1522,19 +1522,6 @@ int __sched rt_mutex_lock_interruptible(struct rt_mu=
-tex *lock)
- }
- EXPORT_SYMBOL_GPL(rt_mutex_lock_interruptible);
-=20
--/*
-- * Futex variant with full deadlock detection.
-- * Futex variants must not use the fast-path, see __rt_mutex_futex_unlock(=
-).
-- */
--int __sched rt_mutex_timed_futex_lock(struct rt_mutex *lock,
--			      struct hrtimer_sleeper *timeout)
--{
--	might_sleep();
+-	raw_spin_lock_irq(&lock->wait_lock);
 -
--	return rt_mutex_slowlock(lock, TASK_INTERRUPTIBLE,
--				 timeout, RT_MUTEX_FULL_CHAINWALK);
--}
--
- /*
-  * Futex variant, must not use fastpath.
-  */
-@@ -1808,12 +1795,6 @@ int rt_mutex_wait_proxy_lock(struct rt_mutex *lock,
- 	/* sleep on the mutex */
- 	ret =3D __rt_mutex_slowlock(lock, TASK_INTERRUPTIBLE, to, waiter);
+-	if (try_to_take_rt_mutex(lock, task, NULL)) {
+-		raw_spin_unlock_irq(&lock->wait_lock);
++	if (try_to_take_rt_mutex(lock, task, NULL))
+ 		return 1;
+-	}
 =20
--	/*
--	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
--	 * have to fix that up.
--	 */
--	fixup_rt_mutex_waiters(lock);
+ 	/* We enforce deadlock detection for futexes */
+ 	ret =3D task_blocks_on_rt_mutex(lock, waiter, task,
+@@ -1738,13 +1721,37 @@ int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 	if (unlikely(ret))
+ 		remove_waiter(lock, waiter);
+=20
+-	raw_spin_unlock_irq(&lock->wait_lock);
 -
- 	raw_spin_unlock_irq(&lock->wait_lock);
+ 	debug_rt_mutex_print_deadlock(waiter);
 =20
  	return ret;
-@@ -1853,6 +1834,13 @@ bool rt_mutex_cleanup_proxy_lock(struct rt_mutex *lo=
-ck,
- 		fixup_rt_mutex_waiters(lock);
- 		cleanup =3D true;
- 	}
-+
-+	/*
-+	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
-+	 * have to fix that up.
-+	 */
-+	fixup_rt_mutex_waiters(lock);
-+
- 	raw_spin_unlock_irq(&lock->wait_lock);
+ }
 =20
- 	return cleanup;
++/**
++ * rt_mutex_start_proxy_lock() - Start lock acquisition for another task
++ * @lock:		the rt_mutex to take
++ * @waiter:		the pre-initialized rt_mutex_waiter
++ * @task:		the task to prepare
++ *
++ * Returns:
++ *  0 - task blocked on lock
++ *  1 - acquired the lock for task, caller should wake it up
++ * <0 - error
++ *
++ * Special API call for FUTEX_REQUEUE_PI support.
++ */
++int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
++			      struct rt_mutex_waiter *waiter,
++			      struct task_struct *task)
++{
++	int ret;
++
++	raw_spin_lock_irq(&lock->wait_lock);
++	ret =3D __rt_mutex_start_proxy_lock(lock, waiter, task);
++	raw_spin_unlock_irq(&lock->wait_lock);
++
++	return ret;
++}
++
+ /**
+  * rt_mutex_next_owner - return the next owner of the lock
+  *
 diff --git a/kernel/locking/rtmutex_common.h b/kernel/locking/rtmutex_commo=
 n.h
-index ba465c0192f3..637e6fe51782 100644
+index 637e6fe51782..c5d3f577b2a7 100644
 --- a/kernel/locking/rtmutex_common.h
 +++ b/kernel/locking/rtmutex_common.h
-@@ -112,7 +112,6 @@ extern int rt_mutex_wait_proxy_lock(struct rt_mutex *lo=
-ck,
- 			       struct rt_mutex_waiter *waiter);
- extern bool rt_mutex_cleanup_proxy_lock(struct rt_mutex *lock,
- 				 struct rt_mutex_waiter *waiter);
--extern int rt_mutex_timed_futex_lock(struct rt_mutex *l, struct hrtimer_sl=
-eeper *to);
- extern int rt_mutex_futex_trylock(struct rt_mutex *l);
- extern int __rt_mutex_futex_trylock(struct rt_mutex *l);
-=20
+@@ -104,6 +104,9 @@ extern void rt_mutex_init_proxy_locked(struct rt_mutex =
+*lock,
+ 				       struct task_struct *proxy_owner);
+ extern void rt_mutex_proxy_unlock(struct rt_mutex *lock);
+ extern void rt_mutex_init_waiter(struct rt_mutex_waiter *waiter);
++extern int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
++				     struct rt_mutex_waiter *waiter,
++				     struct task_struct *task);
+ extern int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 				     struct rt_mutex_waiter *waiter,
+ 				     struct task_struct *task);
 
 
---EGOjm+DO/eMbJnde
+--j6agz95TelSDp1k9
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmBg6gYACgkQ57/I7JWG
-EQk4iRAAjIrA8YoExyQgHP3dUPko51dBZs10BlH4Yz5y+nLTjB48Q+VVDBn8kZY8
-jviHoS681urCA53Qxh+qx4yOS/Rw5IuVqcn0qn/1cohveDEd03GaCrLF8WUZlvQ9
-7P4rkM2YbgSTqoIX5oOh9b5jHews0hXZgVV+3wqIBsJSPiYSjfw2QnedOeq+ciE5
-TwCZLzVo8LnZWSi+R3bDscayRLWUhAF9bGv+aEP1fR0aOCuUw1EeOdiftFyc1glF
-QTOZ5F9MNEDhfuxIBeXn8dMy+jtyNB1J4Lf8tqzel7brZZmxF6grZKPRVL5XVGSY
-c/CdzAnAYS4+om1kWnM8sq6FNc2Mg2HtFaYwICu46axgdvCFRsHSbF7OqQQ5vYyk
-qdTs7A0/B1yy+NUbRwi7EMd6kS/GKRd75vuKxsVCj/3msOirGxy2oXiiKiDu78ha
-ls6gg+60FNb0K3r/6LRM/wgwsNGwUPGbfsOG+s2DespHDMMVR7eFql1Qf4Ssoe34
-yWybMCorbiE/dCCgiqmO26jehcng9b7nNCkF4tmZjtwlZjAFwl7m4lgZBpetMhUS
-BA5s3Hngf/RdsRz+JnN9Zn51DnNod3OWRuAq+xOcC+d08ItCFzkHq8NBZtsVlMvD
-m+2KJsR6+C+0YKFiKAKAiRmoMR3Gs9wocuzSZeU77Hy8X81kAVM=
-=eQdq
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmBg6g4ACgkQ57/I7JWG
+EQkTtw/+OSF927w2xoUVqr0+40TijtHYedjjysEMlysj6Pq+pD/VEtCf3V0E/VGD
+lY2gNA/BGQetUyjHMFigRBdW6GHA/+S7AmsU4RMMdcUa0dS/mbgfIVyOPdsFNDSm
+2XYMr182nh7Exwf/QfAWuzEKzJfrKaizUflD3or6vemy6JCDDX0dBfA4gLxbl8Zj
+/IyHAlBzdBDh41UirBKRDs8izRwTK1CzmrwDMl+mESEKaO++i6o0yF1msV5I99xf
+ZJ2IkMYV9ppkMYQ21sX+qO1qIc9zot/2gZNxNLgbc/dPqhTsGaimLf02mk3vFKjG
+/5ICG9bCVgOgBgiC3diBLu0bUoHqYIc39eQnfGV6ct9nGuxI1D6p7xPrWkPoSenb
+FWIsGxrg519ALZ1x8kFVq6frVWpbiHUEeu/u9Xc2kzvDbSjYCSaxYxEujlBzCkzQ
+CKkTNgLYae85Ug3mtwj2VbBzDV9gpHtkDNxkJOSbFC6psTZiXowj+9nO1QlIfhH0
+qFHYRFfYCFYGqGVWblTGMXkK+45coXgCmK2j0tNu5HPMdkPhPTWh/vaM63146G3e
+KNmvJojbQsTJnPvZQWPc0QFb7FrSYScmrx6KvUThUCC6C99X4taXsWpBN7psNhq2
+xiOrwVTSiljLtmbwb5x4b9picUu1u5Htt9CUBAcSSJDqd18/Exo=
+=bAQ1
 -----END PGP SIGNATURE-----
 
---EGOjm+DO/eMbJnde--
+--j6agz95TelSDp1k9--
