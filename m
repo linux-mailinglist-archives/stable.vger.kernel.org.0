@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05B6834BD4C
-	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 18:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B1534BD4B
+	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 18:43:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbhC1Qmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Mar 2021 12:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55408 "EHLO mail.kernel.org"
+        id S231267AbhC1Qmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Mar 2021 12:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231321AbhC1Qm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 28 Mar 2021 12:42:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D1EE61966;
-        Sun, 28 Mar 2021 16:42:28 +0000 (UTC)
+        id S231331AbhC1Qmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 28 Mar 2021 12:42:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86A4561968;
+        Sun, 28 Mar 2021 16:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1616949748;
-        bh=yfkutRx8+jsGnJKfzxwX9PfqPTtIVsxPv5O2qSVGz3A=;
+        s=korg; t=1616949755;
+        bh=eF3HTBuQwU9xqQ5IgwbMWjJH8gSTk8vEMl33GoZUnhM=;
         h=Date:From:To:Subject:From;
-        b=diYh2COVhdnrrwWlyiNMYlO5N0h4LSpSIfqOEx4kbxwlAakIS35H4v6SFqgI7sA0K
-         V8Mz/iTfsztdYzoXUBAZWz87JXCx0CPcnE83U+uFRZ84JuPuDzGACvXTnj55vxVfnC
-         4GQBE6YoU7Dc+PC2gYiWMA/Rmja70WNB65Ur/VFk=
-Date:   Sun, 28 Mar 2021 09:42:28 -0700
+        b=EP9epRbsYm7GCEdLbkVn/z5fVBdXEoKFHpUhMpP3uEha4iOI1POWY6MvA/i2yr1Y0
+         9Ii2aXLd+SpQWOwayBkX7mZdRbKayM7QnKmlQIhc6+6s7fXx3wzpryeQ73dggN14Dq
+         xtwahYP3RLjLZLR49id81fT5ZlMhJwNDtDZTmp7g=
+Date:   Sun, 28 Mar 2021 09:42:35 -0700
 From:   akpm@linux-foundation.org
-To:     maskray@google.com, mm-commits@vger.kernel.org, nathan@kernel.org,
-        ndesaulniers@google.com, oberpar@linux.ibm.com,
-        psodagud@quicinc.com, stable@vger.kernel.org
-Subject:  [merged] gcov-fix-clang-11-support.patch removed from -mm
+To:     Chaitanya.Kulkarni@wdc.com, dsterba@suse.com, ira.weiny@intel.com,
+        mm-commits@vger.kernel.org, oliver.sang@intel.com,
+        stable@vger.kernel.org, tglx@linutronix.de
+Subject:  [merged]
+ mm-highmem-fix-config_debug_kmap_local_force_map.patch removed from -mm
  tree
-Message-ID: <20210328164228.MI_1sJxL9%akpm@linux-foundation.org>
+Message-ID: <20210328164235.udPStFdQP%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,171 +36,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: gcov: fix clang-11+ support
+     Subject: mm/highmem: fix CONFIG_DEBUG_KMAP_LOCAL_FORCE_MAP
 has been removed from the -mm tree.  Its filename was
-     gcov-fix-clang-11-support.patch
+     mm-highmem-fix-config_debug_kmap_local_force_map.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Nick Desaulniers <ndesaulniers@google.com>
-Subject: gcov: fix clang-11+ support
+From: Ira Weiny <ira.weiny@intel.com>
+Subject: mm/highmem: fix CONFIG_DEBUG_KMAP_LOCAL_FORCE_MAP
 
-LLVM changed the expected function signatures for llvm_gcda_start_file()
-and llvm_gcda_emit_function() in the clang-11 release.  Users of clang-11
-or newer may have noticed their kernels failing to boot due to a panic
-when enabling CONFIG_GCOV_KERNEL=y +CONFIG_GCOV_PROFILE_ALL=y.  Fix up the
-function signatures so calling these functions doesn't panic the kernel.
+The kernel test robot found that __kmap_local_sched_out() was not
+correctly skipping the guard pages when CONFIG_DEBUG_KMAP_LOCAL_FORCE_MAP
+was set.[1] This was due to CONFIG_DEBUG_HIGHMEM check being used.
 
-Link: https://reviews.llvm.org/rGcdd683b516d147925212724b09ec6fb792a40041
-Link: https://reviews.llvm.org/rG13a633b438b6500ecad9e4f936ebadf3411d0f44
-Link: https://lkml.kernel.org/r/20210312224132.3413602-2-ndesaulniers@google.com
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
-Suggested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.4+]
+Change the configuration check to be correct.
+
+[1] https://lore.kernel.org/lkml/20210304083825.GB17830@xsang-OptiPlex-9020/
+
+Link: https://lkml.kernel.org/r/20210318230657.1497881-1-ira.weiny@intel.com
+Fixes: 0e91a0c6984c ("mm/highmem: Provide CONFIG_DEBUG_KMAP_LOCAL_FORCE_MAP")
+Signed-off-by: Ira Weiny <ira.weiny@intel.com>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Oliver Sang <oliver.sang@intel.com>
+Cc: Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+Cc: David Sterba <dsterba@suse.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/gcov/clang.c |   69 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 69 insertions(+)
+ mm/highmem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/gcov/clang.c~gcov-fix-clang-11-support
-+++ a/kernel/gcov/clang.c
-@@ -75,7 +75,9 @@ struct gcov_fn_info {
+--- a/mm/highmem.c~mm-highmem-fix-config_debug_kmap_local_force_map
++++ a/mm/highmem.c
+@@ -618,7 +618,7 @@ void __kmap_local_sched_out(void)
+ 		int idx;
  
- 	u32 num_counters;
- 	u64 *counters;
-+#if CONFIG_CLANG_VERSION < 110000
- 	const char *function_name;
-+#endif
- };
+ 		/* With debug all even slots are unmapped and act as guard */
+-		if (IS_ENABLED(CONFIG_DEBUG_HIGHMEM) && !(i & 0x01)) {
++		if (IS_ENABLED(CONFIG_DEBUG_KMAP_LOCAL) && !(i & 0x01)) {
+ 			WARN_ON_ONCE(!pte_none(pteval));
+ 			continue;
+ 		}
+@@ -654,7 +654,7 @@ void __kmap_local_sched_in(void)
+ 		int idx;
  
- static struct gcov_info *current_info;
-@@ -105,6 +107,7 @@ void llvm_gcov_init(llvm_gcov_callback w
- }
- EXPORT_SYMBOL(llvm_gcov_init);
- 
-+#if CONFIG_CLANG_VERSION < 110000
- void llvm_gcda_start_file(const char *orig_filename, const char version[4],
- 		u32 checksum)
- {
-@@ -113,7 +116,17 @@ void llvm_gcda_start_file(const char *or
- 	current_info->checksum = checksum;
- }
- EXPORT_SYMBOL(llvm_gcda_start_file);
-+#else
-+void llvm_gcda_start_file(const char *orig_filename, u32 version, u32 checksum)
-+{
-+	current_info->filename = orig_filename;
-+	current_info->version = version;
-+	current_info->checksum = checksum;
-+}
-+EXPORT_SYMBOL(llvm_gcda_start_file);
-+#endif
- 
-+#if CONFIG_CLANG_VERSION < 110000
- void llvm_gcda_emit_function(u32 ident, const char *function_name,
- 		u32 func_checksum, u8 use_extra_checksum, u32 cfg_checksum)
- {
-@@ -133,6 +146,24 @@ void llvm_gcda_emit_function(u32 ident,
- 	list_add_tail(&info->head, &current_info->functions);
- }
- EXPORT_SYMBOL(llvm_gcda_emit_function);
-+#else
-+void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
-+		u8 use_extra_checksum, u32 cfg_checksum)
-+{
-+	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
-+
-+	if (!info)
-+		return;
-+
-+	INIT_LIST_HEAD(&info->head);
-+	info->ident = ident;
-+	info->checksum = func_checksum;
-+	info->use_extra_checksum = use_extra_checksum;
-+	info->cfg_checksum = cfg_checksum;
-+	list_add_tail(&info->head, &current_info->functions);
-+}
-+EXPORT_SYMBOL(llvm_gcda_emit_function);
-+#endif
- 
- void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
- {
-@@ -295,6 +326,7 @@ void gcov_info_add(struct gcov_info *dst
- 	}
- }
- 
-+#if CONFIG_CLANG_VERSION < 110000
- static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
- {
- 	size_t cv_size; /* counter values size */
-@@ -322,6 +354,28 @@ err_name:
- 	kfree(fn_dup);
- 	return NULL;
- }
-+#else
-+static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
-+{
-+	size_t cv_size; /* counter values size */
-+	struct gcov_fn_info *fn_dup = kmemdup(fn, sizeof(*fn),
-+			GFP_KERNEL);
-+	if (!fn_dup)
-+		return NULL;
-+	INIT_LIST_HEAD(&fn_dup->head);
-+
-+	cv_size = fn->num_counters * sizeof(fn->counters[0]);
-+	fn_dup->counters = vmalloc(cv_size);
-+	if (!fn_dup->counters) {
-+		kfree(fn_dup);
-+		return NULL;
-+	}
-+
-+	memcpy(fn_dup->counters, fn->counters, cv_size);
-+
-+	return fn_dup;
-+}
-+#endif
- 
- /**
-  * gcov_info_dup - duplicate profiling data set
-@@ -362,6 +416,7 @@ err:
-  * gcov_info_free - release memory for profiling data set duplicate
-  * @info: profiling data set duplicate to free
-  */
-+#if CONFIG_CLANG_VERSION < 110000
- void gcov_info_free(struct gcov_info *info)
- {
- 	struct gcov_fn_info *fn, *tmp;
-@@ -375,6 +430,20 @@ void gcov_info_free(struct gcov_info *in
- 	kfree(info->filename);
- 	kfree(info);
- }
-+#else
-+void gcov_info_free(struct gcov_info *info)
-+{
-+	struct gcov_fn_info *fn, *tmp;
-+
-+	list_for_each_entry_safe(fn, tmp, &info->functions, head) {
-+		vfree(fn->counters);
-+		list_del(&fn->head);
-+		kfree(fn);
-+	}
-+	kfree(info->filename);
-+	kfree(info);
-+}
-+#endif
- 
- #define ITER_STRIDE	PAGE_SIZE
- 
+ 		/* With debug all even slots are unmapped and act as guard */
+-		if (IS_ENABLED(CONFIG_DEBUG_HIGHMEM) && !(i & 0x01)) {
++		if (IS_ENABLED(CONFIG_DEBUG_KMAP_LOCAL) && !(i & 0x01)) {
+ 			WARN_ON_ONCE(!pte_none(pteval));
+ 			continue;
+ 		}
 _
 
-Patches currently in -mm which might be from ndesaulniers@google.com are
+Patches currently in -mm which might be from ira.weiny@intel.com are
 
-gcov-clang-drop-support-for-clang-10-and-older.patch
+iov_iter-lift-memzero_page-to-highmemh.patch
+btrfs-use-memzero_page-instead-of-open-coded-kmap-pattern.patch
+mm-highmem-remove-deprecated-kmap_atomic.patch
 
