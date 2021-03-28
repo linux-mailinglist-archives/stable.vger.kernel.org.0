@@ -2,162 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A9C34BE3C
-	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 20:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F4234BE6F
+	for <lists+stable@lfdr.de>; Sun, 28 Mar 2021 21:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbhC1S1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Mar 2021 14:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40364 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229593AbhC1S0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 28 Mar 2021 14:26:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7706E61949;
-        Sun, 28 Mar 2021 18:26:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1616956014;
-        bh=pnNWdIME3IeQCaaZLvUUJ9mzGHwuJwgUsQCR6MKF9mk=;
-        h=Date:From:To:Subject:From;
-        b=bvk2KbDGP1c+uNY6X7OhodNtIqfy78+SnInIDLgyNyF5CFqPGN7vi/uZhv1Ix2Dsl
-         oHDjxykTHavxH740kCyBR+8S0Kdg/1iLv1IBx0meAmbkPJTEbcz7H+cxAUg7E7mn9Z
-         0WtTvU/vKF7g2gfpYAmXa8httDyu+2OsI6mxTI1Q=
-Date:   Sun, 28 Mar 2021 11:26:53 -0700
-From:   akpm@linux-foundation.org
-To:     guro@fb.com, hannes@cmpxchg.org, hughd@google.com, mhocko@suse.com,
-        mm-commits@vger.kernel.org, shakeelb@google.com,
-        stable@vger.kernel.org, willy@infradead.org,
-        zhouguanghui1@huawei.com, ziy@nvidia.com
-Subject:  [to-be-updated]
- mm-page_alloc-fix-memcg-accounting-leak-in-speculative-cache-lookup.patch
- removed from -mm tree
-Message-ID: <20210328182653.u2dXqlPMl%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229655AbhC1TFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Mar 2021 15:05:11 -0400
+Received: from mail.hanoi.gov.vn ([113.160.32.33]:22427 "EHLO
+        mx01.hanoi.gov.vn" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230294AbhC1TFA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Mar 2021 15:05:00 -0400
+X-Greylist: delayed 1480 seconds by postgrey-1.27 at vger.kernel.org; Sun, 28 Mar 2021 15:04:59 EDT
+Received: from mx01.hanoi.gov.vn (localhost [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 55A7A12085D;
+        Mon, 29 Mar 2021 01:35:29 +0700 (+07)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hanoi.gov.vn;
+        s=default; t=1616956530;
+        bh=FuW10Z6fSdeNlf/0u/BQ1jcwkjYBw0uHUPQgn0LGo7I=; h=Date:From:To;
+        b=UsxSt8OTaaX6nN/tSCN0lDDsAjWL3u3TiUMbOjrypXibe0mAH6Qa/bhs28gJGA4Fx
+         UcybulK4FzTjxUI01KB6X6XRNb+Atf500ekP8cFkWfU7ObKnRPvCFZHu0xiyxCyoJg
+         HbRJkJ8/EwY1CxqCJedZKqk8YixbJ3DfYcCpPJUw=
+X-IMSS-DKIM-Authentication-Result: mx01.hanoi.gov.vn; sigcount=0
+Received: from mx01.hanoi.gov.vn (localhost [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 656101204D7;
+        Mon, 29 Mar 2021 01:35:26 +0700 (+07)
+Received: from mail.hanoi.gov.vn (mail.hanoi.gov.vn [10.1.1.25])
+        by mx01.hanoi.gov.vn (Postfix) with ESMTPS;
+        Mon, 29 Mar 2021 01:35:26 +0700 (+07)
+Received: from mail.hanoi.gov.vn (localhost [127.0.0.1])
+        by mail.hanoi.gov.vn (Postfix) with ESMTPS id 1E87C7F41B59;
+        Mon, 29 Mar 2021 01:35:21 +0700 (+07)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.hanoi.gov.vn (Postfix) with ESMTP id 30D007F41B42;
+        Mon, 29 Mar 2021 01:35:18 +0700 (+07)
+Received: from mail.hanoi.gov.vn ([127.0.0.1])
+        by localhost (mail.hanoi.gov.vn [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id HMkQc3Qwj4kK; Mon, 29 Mar 2021 01:35:13 +0700 (+07)
+Received: from mail.hanoi.gov.vn (mail.hanoi.gov.vn [10.1.1.25])
+        by mail.hanoi.gov.vn (Postfix) with ESMTP id 815B37F41B8C;
+        Mon, 29 Mar 2021 01:35:06 +0700 (+07)
+Date:   Mon, 29 Mar 2021 01:35:06 +0700 (ICT)
+From:   Mackenzie Scott <ttptqd_thanhoai@hanoi.gov.vn>
+Reply-To: Mackenzie Scott <propack@propck.net>
+Message-ID: <868998307.25929862.1616956506452.JavaMail.zimbra@hanoi.gov.vn>
+Subject: Congratulations ($ 100,800,000.00)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [185.107.80.217]
+X-Mailer: Zimbra 8.8.15_GA_3894 (zclient/8.8.15_GA_3894)
+Thread-Index: DDqgxd746qklhrL64nJmgx2RO//lRQ==
+Thread-Topic: Congratulations ($ 100,800,000.00)
+To:     undisclosed-recipients:;
+X-TM-AS-GCONF: 00
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm: page_alloc: fix allocation imbalances from speculative cache lookup
-has been removed from the -mm tree.  Its filename was
-     mm-page_alloc-fix-memcg-accounting-leak-in-speculative-cache-lookup.patch
 
-This patch was dropped because an updated version will be merged
-
-------------------------------------------------------
-From: Johannes Weiner <hannes@cmpxchg.org>
-Subject: mm: page_alloc: fix allocation imbalances from speculative cache lookup
-
-When the freeing of a higher-order page block (non-compound) races with a
-speculative page cache lookup, __free_pages() needs to leave the first
-order-0 page in the chunk to the lookup but free the buddy pages that the
-lookup doesn't know about separately.
-
-There are currently two problems with it:
-
-1. It checks PageHead() to see whether we're dealing with a compound
-   page after put_page_testzero().  But the speculative lookup could have
-   freed the page after our put and cleared PageHead, in which case we
-   would double free the tail pages.
-
-   To fix this, test PageHead before the put and cache the result for
-   afterwards.
-
-2. If such a higher-order page is charged to a memcg (e.g.  !vmap
-   kernel stack)), only the first page of the block has page->memcg set. 
-   That means we'll uncharge only one order-0 page from the entire block,
-   and leak the remainder.
-
-   To fix this, add a split_page_memcg() before it starts freeing tail
-   pages, to ensure they all have page->memcg set up.
-
-While at it, also update the comments a bit to clarify what exactly is
-happening to the page during that race.
-
-Link: https://lkml.kernel.org/r/20210319071547.60973-1-hannes@cmpxchg.org
-Fixes: e320d3012d25 ("mm/page_alloc.c: fix freeing non-compound pages")
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reported-by: Hugh Dickins <hughd@google.com>
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Acked-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Hugh Dickins <hughd@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Zhou Guanghui <zhouguanghui1@huawei.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/page_alloc.c |   33 +++++++++++++++++++++++++++------
- 1 file changed, 27 insertions(+), 6 deletions(-)
-
---- a/mm/page_alloc.c~mm-page_alloc-fix-memcg-accounting-leak-in-speculative-cache-lookup
-+++ a/mm/page_alloc.c
-@@ -5072,10 +5072,9 @@ static inline void free_the_page(struct
-  * the allocation, so it is easy to leak memory.  Freeing more memory
-  * than was allocated will probably emit a warning.
-  *
-- * If the last reference to this page is speculative, it will be released
-- * by put_page() which only frees the first page of a non-compound
-- * allocation.  To prevent the remaining pages from being leaked, we free
-- * the subsequent pages here.  If you want to use the page's reference
-+ * This function isn't a put_page(). Don't let the put_page_testzero()
-+ * fool you, it's only to deal with speculative cache references. It
-+ * WILL free pages directly. If you want to use the page's reference
-  * count to decide when to free the allocation, you should allocate a
-  * compound page, and use put_page() instead of __free_pages().
-  *
-@@ -5084,11 +5083,33 @@ static inline void free_the_page(struct
-  */
- void __free_pages(struct page *page, unsigned int order)
- {
--	if (put_page_testzero(page))
-+	/*
-+	 * Drop the base reference from __alloc_pages and free. In
-+	 * case there is an outstanding speculative reference, from
-+	 * e.g. the page cache, it will put and free the page later.
-+	 */
-+	if (likely(put_page_testzero(page))) {
- 		free_the_page(page, order);
--	else if (!PageHead(page))
-+		return;
-+	}
-+
-+	/*
-+	 * The speculative reference will put and free the page.
-+	 *
-+	 * However, if the speculation was into a higher-order page
-+	 * chunk that isn't marked compound, the other side will know
-+	 * nothing about our buddy pages and only free the order-0
-+	 * page at the start of our chunk! We must split off and free
-+	 * the buddy pages here.
-+	 *
-+	 * The buddy pages aren't individually refcounted, so they
-+	 * can't have any pending speculative references themselves.
-+	 */
-+	if (!PageHead(page) && order > 0) {
-+		split_page_memcg(page, 1 << order);
- 		while (order-- > 0)
- 			free_the_page(page + (1 << order), order);
-+	}
- }
- EXPORT_SYMBOL(__free_pages);
- 
-_
-
-Patches currently in -mm which might be from hannes@cmpxchg.org are
-
-mm-page_alloc-fix-allocation-imbalances-from-speculative-cache-lookup.patch
-mm-page-writeback-simplify-memcg-handling-in-test_clear_page_writeback.patch
-mm-memcontrol-fix-cpuhotplug-statistics-flushing.patch
-mm-memcontrol-kill-mem_cgroup_nodeinfo.patch
-mm-memcontrol-privatize-memcg_page_state-query-functions.patch
-cgroup-rstat-support-cgroup1.patch
-cgroup-rstat-punt-root-level-optimization-to-individual-controllers.patch
-mm-memcontrol-switch-to-rstat.patch
-mm-memcontrol-switch-to-rstat-fix-2.patch
-mm-memcontrol-consolidate-lruvec-stat-flushing.patch
-kselftests-cgroup-update-kmem-test-for-new-vmstat-implementation.patch
-
+Hello,i&#39;m Mackenzie Scott,Ex-wife of Amazon founder i&#39;m donating $4 billion to charities,individuals,universities across the Globe from my divorce funds,i&#39;m donating part of it to provide immediate support to people suffering economically during the COVID-19 pandemic,i have a donation worth $100,800,000.00 Dollars for you,you can contact me for more information if you&#39;re interested.
