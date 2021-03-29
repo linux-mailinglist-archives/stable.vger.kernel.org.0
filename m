@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0038934C577
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:01:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEAA334C630
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231508AbhC2IAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42004 "EHLO mail.kernel.org"
+        id S231728AbhC2IFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:05:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231449AbhC2IAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:00:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 660A56196E;
-        Mon, 29 Mar 2021 08:00:19 +0000 (UTC)
+        id S231904AbhC2IEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:04:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 103D461938;
+        Mon, 29 Mar 2021 08:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004821;
-        bh=NE1a96pDxkwvBxLprRkGw9JSKBj3i2OYm48K5voJhWo=;
+        s=korg; t=1617005088;
+        bh=Iq5FXPDhFOfOwScZYi6m5AIIwfnC4IBfoCPjd3956Ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qt7jbxEcXcW8gRmKwEvNjqM8fXiWpcH+hG4x3Vbbtq8JN40j1H4wS+VbuhDM3j73D
-         1vLNTj9/lcul4ySuST1Le1XjUJoxLF9/ZFlBmRvxbQ9XVsB98EiRb98rM/CmuhYGkP
-         WDJXiRyPYDkdLWwzthfHcI+3h+fZ6IwVGPLNpzj8=
+        b=sqF6sn9iMFedm2o0JM28PzEMcK56jcUx+oGE27KdPcyYlVFyKryf4Ujfs8NzpVuWQ
+         tisDX0QXyoxOj9pTFUMmkMnzZpRNQstbqJEOzvPBBZaIOzSRI1Ys1NpEXLbELt/k/+
+         TPT4tbzUSVqsxf5ZUc6t5absoRFGyfyzquO+3IaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Borislav Petkov <bp@suse.de>, Hugh Dickins <hughd@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Babu Moger <babu.moger@amd.com>,
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 15/33] x86/tlb: Flush global mappings when KAISER is disabled
+Subject: [PATCH 4.14 20/59] ia64: fix ia64_syscall_get_set_arguments() for break-based syscalls
 Date:   Mon, 29 Mar 2021 09:58:00 +0200
-Message-Id: <20210329075605.759394499@linuxfoundation.org>
+Message-Id: <20210329075609.552547217@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-References: <20210329075605.290845195@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,100 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-Jim Mattson reported that Debian 9 guests using a 4.9-stable kernel
-are exploding during alternatives patching:
+[ Upstream commit 0ceb1ace4a2778e34a5414e5349712ae4dc41d85 ]
 
-  kernel BUG at /build/linux-dqnRSc/linux-4.9.228/arch/x86/kernel/alternative.c:709!
-  invalid opcode: 0000 [#1] SMP
-  Modules linked in:
-  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.9.0-13-amd64 #1 Debian 4.9.228-1
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Call Trace:
-   swap_entry_free
-   swap_entry_free
-   text_poke_bp
-   swap_entry_free
-   arch_jump_label_transform
-   set_debug_rodata
-   __jump_label_update
-   static_key_slow_inc
-   frontswap_register_ops
-   init_zswap
-   init_frontswap
-   do_one_initcall
-   set_debug_rodata
-   kernel_init_freeable
-   rest_init
-   kernel_init
-   ret_from_fork
+In https://bugs.gentoo.org/769614 Dmitry noticed that
+`ptrace(PTRACE_GET_SYSCALL_INFO)` does not work for syscalls called via
+glibc's syscall() wrapper.
 
-triggering the BUG_ON in text_poke() which verifies whether patched
-instruction bytes have actually landed at the destination.
+ia64 has two ways to call syscalls from userspace: via `break` and via
+`eps` instructions.
 
-Further debugging showed that the TLB flush before that check is
-insufficient because there could be global mappings left in the TLB,
-leading to a stale mapping getting used.
+The difference is in stack layout:
 
-I say "global mappings" because the hardware configuration is a new one:
-machine is an AMD, which means, KAISER/PTI doesn't need to be enabled
-there, which also means there's no user/kernel pagetables split and
-therefore the TLB can have global mappings.
+1. `eps` creates simple stack frame: no locals, in{0..7} == out{0..8}
+2. `break` uses userspace stack frame: may be locals (glibc provides
+   one), in{0..7} == out{0..8}.
 
-And the configuration is new one for a second reason: because that AMD
-machine supports PCID and INVPCID, which leads the CPU detection code to
-set the synthetic X86_FEATURE_INVPCID_SINGLE flag.
+Both work fine in syscall handling cde itself.
 
-Now, __native_flush_tlb_single() does invalidate global mappings when
-X86_FEATURE_INVPCID_SINGLE is *not* set and returns.
+But `ptrace(PTRACE_GET_SYSCALL_INFO)` uses unwind mechanism to
+re-extract syscall arguments but it does not account for locals.
 
-When X86_FEATURE_INVPCID_SINGLE is set, however, it invalidates the
-requested address from both PCIDs in the KAISER-enabled case. But if
-KAISER is not enabled and the machine has global mappings in the TLB,
-then those global mappings do not get invalidated, which would lead to
-the above mismatch from using a stale TLB entry.
+The change always skips locals registers. It should not change `eps`
+path as kernel's handler already enforces locals=0 and fixes `break`.
 
-So make sure to flush those global mappings in the KAISER disabled case.
+Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
 
-Co-debugged by Babu Moger <babu.moger@amd.com>.
-
-Reported-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Tested-by: Babu Moger <babu.moger@amd.com>
-Tested-by: Jim Mattson <jmattson@google.com>
-Link: https://lkml.kernel.org/r/CALMp9eRDSW66%2BXvbHVF4ohL7XhThoPoT0BrB0TcS0cgk=dkcBg@mail.gmail.com
+Link: https://lkml.kernel.org/r/20210221002554.333076-1-slyfox@gentoo.org
+Link: https://bugs.gentoo.org/769614
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Reported-by: Dmitry V. Levin <ldv@altlinux.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/tlbflush.h | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/ia64/kernel/ptrace.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index 8dab88b85785..33a594f728de 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -245,12 +245,15 @@ static inline void __native_flush_tlb_single(unsigned long addr)
- 	 * ASID.  But, userspace flushes are probably much more
- 	 * important performance-wise.
- 	 *
--	 * Make sure to do only a single invpcid when KAISER is
--	 * disabled and we have only a single ASID.
-+	 * In the KAISER disabled case, do an INVLPG to make sure
-+	 * the mapping is flushed in case it is a global one.
- 	 */
--	if (kaiser_enabled)
-+	if (kaiser_enabled) {
- 		invpcid_flush_one(X86_CR3_PCID_ASID_USER, addr);
--	invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
-+		invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
-+	} else {
-+		asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
-+	}
- }
+diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
+index 427cd565fd61..799400287cda 100644
+--- a/arch/ia64/kernel/ptrace.c
++++ b/arch/ia64/kernel/ptrace.c
+@@ -2147,27 +2147,39 @@ static void syscall_get_set_args_cb(struct unw_frame_info *info, void *data)
+ {
+ 	struct syscall_get_set_args *args = data;
+ 	struct pt_regs *pt = args->regs;
+-	unsigned long *krbs, cfm, ndirty;
++	unsigned long *krbs, cfm, ndirty, nlocals, nouts;
+ 	int i, count;
  
- static inline void __flush_tlb_all(void)
+ 	if (unw_unwind_to_user(info) < 0)
+ 		return;
+ 
++	/*
++	 * We get here via a few paths:
++	 * - break instruction: cfm is shared with caller.
++	 *   syscall args are in out= regs, locals are non-empty.
++	 * - epsinstruction: cfm is set by br.call
++	 *   locals don't exist.
++	 *
++	 * For both cases argguments are reachable in cfm.sof - cfm.sol.
++	 * CFM: [ ... | sor: 17..14 | sol : 13..7 | sof : 6..0 ]
++	 */
+ 	cfm = pt->cr_ifs;
++	nlocals = (cfm >> 7) & 0x7f; /* aka sol */
++	nouts = (cfm & 0x7f) - nlocals; /* aka sof - sol */
+ 	krbs = (unsigned long *)info->task + IA64_RBS_OFFSET/8;
+ 	ndirty = ia64_rse_num_regs(krbs, krbs + (pt->loadrs >> 19));
+ 
+ 	count = 0;
+ 	if (in_syscall(pt))
+-		count = min_t(int, args->n, cfm & 0x7f);
++		count = min_t(int, args->n, nouts);
+ 
++	/* Iterate over outs. */
+ 	for (i = 0; i < count; i++) {
++		int j = ndirty + nlocals + i + args->i;
+ 		if (args->rw)
+-			*ia64_rse_skip_regs(krbs, ndirty + i + args->i) =
+-				args->args[i];
++			*ia64_rse_skip_regs(krbs, j) = args->args[i];
+ 		else
+-			args->args[i] = *ia64_rse_skip_regs(krbs,
+-				ndirty + i + args->i);
++			args->args[i] = *ia64_rse_skip_regs(krbs, j);
+ 	}
+ 
+ 	if (!args->rw) {
 -- 
 2.30.1
 
