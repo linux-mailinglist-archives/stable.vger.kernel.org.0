@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1AF34CA97
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9894134C75A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232590AbhC2IjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
+        id S232896AbhC2IOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234911AbhC2Ihe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D82ED6193B;
-        Mon, 29 Mar 2021 08:37:21 +0000 (UTC)
+        id S232637AbhC2INk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:13:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADD7361959;
+        Mon, 29 Mar 2021 08:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007042;
-        bh=bnvZo+zIGgZyYZX34fgg3eoAfBuKhFvhF86T9nmRv/Y=;
+        s=korg; t=1617005608;
+        bh=o4u/VcO69L7DhtcHtxq/rNaFbwGDQVYq3qt12Vub5Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f12duVa+EkqH+MV2HqHnYR+vUPQ/WyOGi+upgFwLtF5Je3TXfET8ZdDl150BlxBee
-         9tsD12kyCFl6B3B21kedfsoyaThTnCgHNChuTnBq27G3AX9EozMAj0rO44AhFLK4o4
-         ROOgc/+zXP/kKHGJ66pt/lg2fDrE+j41VjcZWmPc=
+        b=NRE77AZ9hnRxYeFeBF8WoNfXh7A5icHExTWcA5EptjhCI3hGz0KOZLO24XzRLsi9u
+         CF/00pP2ceKwO+P+olUePXnLtyTNoumI0LyIUkm3tULwBC4fVpomliZ7PyRFKvzlNt
+         GxDCCdpoMTAAULDUAR/0cBNn1WTae7MMIwXOeb+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 164/254] ionic: linearize tso skb with too many frags
-Date:   Mon, 29 Mar 2021 09:58:00 +0200
-Message-Id: <20210329075638.572336377@linuxfoundation.org>
+Subject: [PATCH 5.4 053/111] bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
+Date:   Mon, 29 Mar 2021 09:58:01 +0200
+Message-Id: <20210329075616.958656004@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit d2c21422323b06938b3c070361dc544f047489d7 ]
+[ Upstream commit 7d7275b3e866cf8092bd12553ec53ba26864f7bb ]
 
-We were linearizing non-TSO skbs that had too many frags, but
-we weren't checking number of frags on TSO skbs.  This could
-lead to a bad page reference when we received a TSO skb with
-more frags than the Tx descriptor could support.
+The main purpose of l3 IRQs is to catch OCP bus access errors and identify
+corresponding code places by showing call stack, so it's important to
+handle L3 interconnect errors as fast as possible. On RT these IRQs will
+became threaded and will be scheduled much more late from the moment actual
+error occurred so showing completely useless information.
 
-v2: use gso_segs rather than yet another division
-    don't rework the check on the nr_frags
+Hence, mark l3 IRQs as IRQF_NO_THREAD so they will not be forced threaded
+on RT or if force_irqthreads = true.
 
-Fixes: 0f3154e6bcb3 ("ionic: Add Tx and Rx handling")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0ee7261c9212 ("drivers: bus: Move the OMAP interconnect driver to drivers/bus/")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_txrx.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/bus/omap_l3_noc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-index ac4cd5d82e69..b7601cadcb8c 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-@@ -1079,15 +1079,17 @@ static int ionic_tx_descs_needed(struct ionic_queue *q, struct sk_buff *skb)
- {
- 	int sg_elems = q->lif->qtype_info[IONIC_QTYPE_TXQ].max_sg_elems;
- 	struct ionic_tx_stats *stats = q_to_tx_stats(q);
-+	int ndescs;
- 	int err;
+diff --git a/drivers/bus/omap_l3_noc.c b/drivers/bus/omap_l3_noc.c
+index b040447575ad..dcfb32ee5cb6 100644
+--- a/drivers/bus/omap_l3_noc.c
++++ b/drivers/bus/omap_l3_noc.c
+@@ -285,7 +285,7 @@ static int omap_l3_probe(struct platform_device *pdev)
+ 	 */
+ 	l3->debug_irq = platform_get_irq(pdev, 0);
+ 	ret = devm_request_irq(l3->dev, l3->debug_irq, l3_interrupt_handler,
+-			       0x0, "l3-dbg-irq", l3);
++			       IRQF_NO_THREAD, "l3-dbg-irq", l3);
+ 	if (ret) {
+ 		dev_err(l3->dev, "request_irq failed for %d\n",
+ 			l3->debug_irq);
+@@ -294,7 +294,7 @@ static int omap_l3_probe(struct platform_device *pdev)
  
--	/* If TSO, need roundup(skb->len/mss) descs */
-+	/* Each desc is mss long max, so a descriptor for each gso_seg */
- 	if (skb_is_gso(skb))
--		return (skb->len / skb_shinfo(skb)->gso_size) + 1;
-+		ndescs = skb_shinfo(skb)->gso_segs;
-+	else
-+		ndescs = 1;
+ 	l3->app_irq = platform_get_irq(pdev, 1);
+ 	ret = devm_request_irq(l3->dev, l3->app_irq, l3_interrupt_handler,
+-			       0x0, "l3-app-irq", l3);
++			       IRQF_NO_THREAD, "l3-app-irq", l3);
+ 	if (ret)
+ 		dev_err(l3->dev, "request_irq failed for %d\n", l3->app_irq);
  
--	/* If non-TSO, just need 1 desc and nr_frags sg elems */
- 	if (skb_shinfo(skb)->nr_frags <= sg_elems)
--		return 1;
-+		return ndescs;
- 
- 	/* Too many frags, so linearize */
- 	err = skb_linearize(skb);
-@@ -1096,8 +1098,7 @@ static int ionic_tx_descs_needed(struct ionic_queue *q, struct sk_buff *skb)
- 
- 	stats->linearize++;
- 
--	/* Need 1 desc and zero sg elems */
--	return 1;
-+	return ndescs;
- }
- 
- static int ionic_maybe_stop_tx(struct ionic_queue *q, int ndescs)
 -- 
 2.30.1
 
