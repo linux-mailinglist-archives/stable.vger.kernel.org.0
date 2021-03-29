@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E0E34C6F0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1A734C7B1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232125AbhC2ILI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
+        id S232623AbhC2IR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:17:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232053AbhC2IKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A6AE6196D;
-        Mon, 29 Mar 2021 08:10:08 +0000 (UTC)
+        id S233056AbhC2IPu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:15:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 492AB6193A;
+        Mon, 29 Mar 2021 08:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005408;
-        bh=XEdT1rkD5uhVOjvNs/ZeSKhfJbb47dQq4m2bfw1UnWA=;
+        s=korg; t=1617005732;
+        bh=CeoNitQE++bKHTFhUFTJm9K0pH1PpHQ7kcj7cq45BFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZ8NHe2Yo3G9Pe0N61Q30zH6KXlbUocZhbxQE6e5YjcL/5eXurOiHr6E9J02pOigy
-         /pPqJ5bs7J7NXNw0z93H2q5ZLwZLiuAX7x26tDy6B6/wXXC1KM74D4W9XpzL1SkaVB
-         1iSD+oICTo7fYOaoIDGKLdXxLJlAMCWyRECQqudo=
+        b=usaNMUOvUhwrZVmav5d55BNZ9kp7EC9ouAsDrs286BYVUbRoY086KwPKE3D0Esnrw
+         39Gy8FOzmklIQ5fWV+x7bxA/jUud6mf/w//iaqv1sWUmZzacJSPkN7BNc4g2PQqxm9
+         rANCuodW1YY7y77JwHeruOQeJ+hNCDhUuOA1kFz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 69/72] net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 097/111] ACPI: scan: Rearrange memory allocation in acpi_device_add()
 Date:   Mon, 29 Mar 2021 09:58:45 +0200
-Message-Id: <20210329075612.555623825@linuxfoundation.org>
+Message-Id: <20210329075618.443697323@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,77 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 50535249f624d0072cd885bcdce4e4b6fb770160 upstream.
+[ Upstream commit c1013ff7a5472db637c56bb6237f8343398c03a7 ]
 
-struct sockaddr_qrtr has a 2-byte hole, and qrtr_recvmsg() currently
-does not clear it before copying kernel data to user space.
+The upfront allocation of new_bus_id is done to avoid allocating
+memory under acpi_device_lock, but it doesn't really help,
+because (1) it leads to many unnecessary memory allocations for
+_ADR devices, (2) kstrdup_const() is run under that lock anyway and
+(3) it complicates the code.
 
-It might be too late to name the hole since sockaddr_qrtr structure is uapi.
+Rearrange acpi_device_add() to allocate memory for a new struct
+acpi_device_bus_id instance only when necessary, eliminate a redundant
+local variable from it and reduce the number of labels in there.
 
-BUG: KMSAN: kernel-infoleak in kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
-CPU: 0 PID: 29705 Comm: syz-executor.3 Not tainted 5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x21c/0x280 lib/dump_stack.c:120
- kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
- kmsan_internal_check_memory+0x202/0x520 mm/kmsan/kmsan.c:402
- kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
- instrument_copy_to_user include/linux/instrumented.h:121 [inline]
- _copy_to_user+0x1ac/0x270 lib/usercopy.c:33
- copy_to_user include/linux/uaccess.h:209 [inline]
- move_addr_to_user+0x3a2/0x640 net/socket.c:237
- ____sys_recvmsg+0x696/0xd50 net/socket.c:2575
- ___sys_recvmsg net/socket.c:2610 [inline]
- do_recvmmsg+0xa97/0x22d0 net/socket.c:2710
- __sys_recvmmsg net/socket.c:2789 [inline]
- __do_sys_recvmmsg net/socket.c:2812 [inline]
- __se_sys_recvmmsg+0x24a/0x410 net/socket.c:2805
- __x64_sys_recvmmsg+0x62/0x80 net/socket.c:2805
- do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x465f69
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f43659d6188 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
-RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 0000000000465f69
-RDX: 0000000000000008 RSI: 0000000020003e40 RDI: 0000000000000003
-RBP: 00000000004bfa8f R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000010060 R11: 0000000000000246 R12: 000000000056bf60
-R13: 0000000000a9fb1f R14: 00007f43659d6300 R15: 0000000000022000
+No intentional functional impact.
 
-Local variable ----addr@____sys_recvmsg created at:
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
-
-Bytes 2-3 of 12 are uninitialized
-Memory access of size 12 starts at ffff88817c627b40
-Data copied to user address 0000000020000140
-
-Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/qrtr.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/acpi/scan.c | 57 +++++++++++++++++++++------------------------
+ 1 file changed, 26 insertions(+), 31 deletions(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -868,6 +868,11 @@ static int qrtr_recvmsg(struct socket *s
- 	rc = copied;
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 8887a72712d4..ddde1229e2b3 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -624,12 +624,23 @@ void acpi_bus_put_acpi_device(struct acpi_device *adev)
+ 	put_device(&adev->dev);
+ }
  
- 	if (addr) {
-+		/* There is an anonymous 2-byte hole after sq_family,
-+		 * make sure to clear it.
-+		 */
-+		memset(addr, 0, sizeof(*addr));
++static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
++{
++	struct acpi_device_bus_id *acpi_device_bus_id;
 +
- 		cb = (struct qrtr_cb *)skb->cb;
- 		addr->sq_family = AF_QIPCRTR;
- 		addr->sq_node = cb->src_node;
++	/* Find suitable bus_id and instance number in acpi_bus_id_list. */
++	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node) {
++		if (!strcmp(acpi_device_bus_id->bus_id, dev_id))
++			return acpi_device_bus_id;
++	}
++	return NULL;
++}
++
+ int acpi_device_add(struct acpi_device *device,
+ 		    void (*release)(struct device *))
+ {
++	struct acpi_device_bus_id *acpi_device_bus_id;
+ 	int result;
+-	struct acpi_device_bus_id *acpi_device_bus_id, *new_bus_id;
+-	int found = 0;
+ 
+ 	if (device->handle) {
+ 		acpi_status status;
+@@ -655,38 +666,26 @@ int acpi_device_add(struct acpi_device *device,
+ 	INIT_LIST_HEAD(&device->del_list);
+ 	mutex_init(&device->physical_node_lock);
+ 
+-	new_bus_id = kzalloc(sizeof(struct acpi_device_bus_id), GFP_KERNEL);
+-	if (!new_bus_id) {
+-		pr_err(PREFIX "Memory allocation error\n");
+-		result = -ENOMEM;
+-		goto err_detach;
+-	}
+-
+ 	mutex_lock(&acpi_device_lock);
+-	/*
+-	 * Find suitable bus_id and instance number in acpi_bus_id_list
+-	 * If failed, create one and link it into acpi_bus_id_list
+-	 */
+-	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node) {
+-		if (!strcmp(acpi_device_bus_id->bus_id,
+-			    acpi_device_hid(device))) {
+-			acpi_device_bus_id->instance_no++;
+-			found = 1;
+-			kfree(new_bus_id);
+-			break;
++
++	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
++	if (acpi_device_bus_id) {
++		acpi_device_bus_id->instance_no++;
++	} else {
++		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
++					     GFP_KERNEL);
++		if (!acpi_device_bus_id) {
++			result = -ENOMEM;
++			goto err_unlock;
+ 		}
+-	}
+-	if (!found) {
+-		acpi_device_bus_id = new_bus_id;
+ 		acpi_device_bus_id->bus_id =
+ 			kstrdup_const(acpi_device_hid(device), GFP_KERNEL);
+ 		if (!acpi_device_bus_id->bus_id) {
+-			pr_err(PREFIX "Memory allocation error for bus id\n");
++			kfree(acpi_device_bus_id);
+ 			result = -ENOMEM;
+-			goto err_free_new_bus_id;
++			goto err_unlock;
+ 		}
+ 
+-		acpi_device_bus_id->instance_no = 0;
+ 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
+ 	}
+ 	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
+@@ -721,13 +720,9 @@ int acpi_device_add(struct acpi_device *device,
+ 		list_del(&device->node);
+ 	list_del(&device->wakeup_list);
+ 
+- err_free_new_bus_id:
+-	if (!found)
+-		kfree(new_bus_id);
+-
++ err_unlock:
+ 	mutex_unlock(&acpi_device_lock);
+ 
+- err_detach:
+ 	acpi_detach_data(device->handle, acpi_scan_drop_device);
+ 	return result;
+ }
+-- 
+2.30.1
+
 
 
