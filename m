@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9164634D58A
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:52:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588D434D58C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:52:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbhC2Qvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231201AbhC2Qvq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Mar 2021 12:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45148 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231384AbhC2QvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:51:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F1BA6191F;
-        Mon, 29 Mar 2021 16:51:15 +0000 (UTC)
+        id S231404AbhC2QvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:51:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 975456196E;
+        Mon, 29 Mar 2021 16:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617036676;
-        bh=hAOxfi8IxIKKNHDkptOjt8XOhydQ42cCpi3Qeq4BW7k=;
+        s=k20201202; t=1617036678;
+        bh=wZVa1phDDnsLOm6DwbhMvBlsylxST9slJ7Izp0GKTAk=;
         h=From:To:Cc:Subject:Date:From;
-        b=HTcR5aggdpQmvJjbK67MFHWPIbTTpEPqw9AS1yivkHhJT8NA0yLQx9NoqbrAtm2KD
-         +z3o1/XUXTc1oGEjGTGylKzniv65GhDvCnlNyljdBPq/WkpFOiu/Rnp5MAroCAgd4l
-         hAD0lw9uv73o1acgh5kW6f038P8S5pAJgni7CMnG03W7ZYr/DNEGdpwSxqjcqDvxlh
-         JcHf4RaVL9GKX/+srjNVguR2FRuPxLMGpKREPABQyx3BclYOeqj0gQoyLcC8E4Xo05
-         rJuMEIf55JbVBTIG0IB5TJENAwMakqvzozb8jgvv9NtxEOg73u1Ubc+APGU2p/TRJL
-         cTxgvvHogUk0A==
+        b=CpKGoa5GUd+JakwCPqjb2BnKflOnfAuh4y6XTw7wvIxWm4SbmFdAWaLMPqdmw7Os+
+         rc1aBP4Xup7HHVcFWSWA4ljzCez21RIszUMOKad+CcaizjLeseDpS1UbwjdjgsbIlt
+         +FWyok5jNrf9rMHvAUcU3eExSJoItpDgjxf61JAtzd+XkwrnuValkGJakOFhdMt08W
+         YM7UUfoKn4QQXEJrjUARwvtOyJDhFwCkUh1Fycw+GWNPY2TAKaUe0L4HU0sMiCQgbR
+         8z+o3ojhayQCZqCCTIlQYJNR50RK8JIZ9vHZRyLE0AVA3gXLVxbgTHejvw5QWEZmYo
+         xahUoO2GtrPfQ==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, daniel@iogearbox.net
-Cc:     "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "net, bpf: Fix ip6ip6 crash with collect_md populated skbs" failed to apply to 4.4-stable tree
-Date:   Mon, 29 Mar 2021 12:51:14 -0400
-Message-Id: <20210329165114.2359609-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, mark.tomlinson@alliedtelesis.co.nz
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: FAILED: Patch "netfilter: x_tables: Use correct memory barriers." failed to apply to 4.4-stable tree
+Date:   Mon, 29 Mar 2021 12:51:16 -0400
+Message-Id: <20210329165116.2359676-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -48,88 +48,61 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From a188bb5638d41aa99090ebf2f85d3505ab13fba5 Mon Sep 17 00:00:00 2001
-From: Daniel Borkmann <daniel@iogearbox.net>
-Date: Wed, 10 Mar 2021 01:38:10 +0100
-Subject: [PATCH] net, bpf: Fix ip6ip6 crash with collect_md populated skbs
+From 175e476b8cdf2a4de7432583b49c871345e4f8a1 Mon Sep 17 00:00:00 2001
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Date: Mon, 8 Mar 2021 14:24:13 +1300
+Subject: [PATCH] netfilter: x_tables: Use correct memory barriers.
 
-I ran into a crash where setting up a ip6ip6 tunnel device which was /not/
-set to collect_md mode was receiving collect_md populated skbs for xmit.
+When a new table value was assigned, it was followed by a write memory
+barrier. This ensured that all writes before this point would complete
+before any writes after this point. However, to determine whether the
+rules are unused, the sequence counter is read. To ensure that all
+writes have been done before these reads, a full memory barrier is
+needed, not just a write memory barrier. The same argument applies when
+incrementing the counter, before the rules are read.
 
-The BPF prog was populating the skb via bpf_skb_set_tunnel_key() which is
-assigning special metadata dst entry and then redirecting the skb to the
-device, taking ip6_tnl_start_xmit() -> ipxip6_tnl_xmit() -> ip6_tnl_xmit()
-and in the latter it performs a neigh lookup based on skb_dst(skb) where
-we trigger a NULL pointer dereference on dst->ops->neigh_lookup() since
-the md_dst_ops do not populate neigh_lookup callback with a fake handler.
+Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
+reported in cc00bcaa5899 (which is still present), while still
+maintaining the same speed of replacing tables.
 
-Transform the md_dst_ops into generic dst_blackhole_ops that can also be
-reused elsewhere when needed, and use them for the metadata dst entries as
-callback ops.
+The smb_mb() barriers potentially slow the packet path, however testing
+has shown no measurable change in performance on a 4-core MIPS64
+platform.
 
-Also, remove the dst_md_discard{,_out}() ops and rely on dst_discard{,_out}()
-from dst_init() which free the skb the same way modulo the splat. Given we
-will be able to recover just fine from there, avoid any potential splats
-iff this gets ever triggered in future (or worse, panic on warns when set).
-
-Fixes: f38a9eb1f77b ("dst: Metadata destinations")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 ---
- net/core/dst.c | 31 +++++++++----------------------
- 1 file changed, 9 insertions(+), 22 deletions(-)
+ include/linux/netfilter/x_tables.h | 2 +-
+ net/netfilter/x_tables.c           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/dst.c b/net/core/dst.c
-index 5f6315601776..fb3bcba87744 100644
---- a/net/core/dst.c
-+++ b/net/core/dst.c
-@@ -275,37 +275,24 @@ unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index 5deb099d156d..8ec48466410a 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -376,7 +376,7 @@ static inline unsigned int xt_write_recseq_begin(void)
+ 	 * since addend is most likely 1
+ 	 */
+ 	__this_cpu_add(xt_recseq.sequence, addend);
+-	smp_wmb();
++	smp_mb();
+ 
+ 	return addend;
  }
- EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 7df3aef39c5c..6bd31a7a27fc 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1389,7 +1389,7 @@ xt_replace_table(struct xt_table *table,
+ 	table->private = newinfo;
  
--static struct dst_ops md_dst_ops = {
--	.family =		AF_UNSPEC,
-+static struct dst_ops dst_blackhole_ops = {
-+	.family		= AF_UNSPEC,
-+	.neigh_lookup	= dst_blackhole_neigh_lookup,
-+	.check		= dst_blackhole_check,
-+	.cow_metrics	= dst_blackhole_cow_metrics,
-+	.update_pmtu	= dst_blackhole_update_pmtu,
-+	.redirect	= dst_blackhole_redirect,
-+	.mtu		= dst_blackhole_mtu,
- };
+ 	/* make sure all cpus see new ->private value */
+-	smp_wmb();
++	smp_mb();
  
--static int dst_md_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb)
--{
--	WARN_ONCE(1, "Attempting to call output on metadata dst\n");
--	kfree_skb(skb);
--	return 0;
--}
--
--static int dst_md_discard(struct sk_buff *skb)
--{
--	WARN_ONCE(1, "Attempting to call input on metadata dst\n");
--	kfree_skb(skb);
--	return 0;
--}
--
- static void __metadata_dst_init(struct metadata_dst *md_dst,
- 				enum metadata_type type, u8 optslen)
--
- {
- 	struct dst_entry *dst;
- 
- 	dst = &md_dst->dst;
--	dst_init(dst, &md_dst_ops, NULL, 1, DST_OBSOLETE_NONE,
-+	dst_init(dst, &dst_blackhole_ops, NULL, 1, DST_OBSOLETE_NONE,
- 		 DST_METADATA | DST_NOCOUNT);
--
--	dst->input = dst_md_discard;
--	dst->output = dst_md_discard_out;
--
- 	memset(dst + 1, 0, sizeof(*md_dst) + optslen - sizeof(*dst));
- 	md_dst->type = type;
- }
+ 	/*
+ 	 * Even though table entries have now been swapped, other CPU's
 -- 
 2.30.1
 
