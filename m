@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C9734C6BD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CF234C5A3
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232585AbhC2IJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:09:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51820 "EHLO mail.kernel.org"
+        id S231668AbhC2IBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232112AbhC2II4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:08:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51EE2619B4;
-        Mon, 29 Mar 2021 08:08:53 +0000 (UTC)
+        id S231673AbhC2IB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:01:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2144F6196F;
+        Mon, 29 Mar 2021 08:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005336;
-        bh=aq165XzJ8Egep+9j0lr6p+4IKaX83Rl4UCLgOQUx7XI=;
+        s=korg; t=1617004887;
+        bh=QCbIGxCANWAGzip6GNYzOdQpU0Gf69H/bw06mRee3GY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lo/8u5zTFVZNkyl9gDlf/PfPawk2Z6HSds9BDFlDs8hDgWIbnrf49vuOfEfnOgcnT
-         vts8EKcSIaeoLpThCXvCYP8vUgdT2GMQ6kUTWBTLIULLkwF7IqyJ46e+tSIlpIMHWB
-         SlcazuC8XBv+PA+cx4Wkau1IUQfne5zxLgCA0FKU=
+        b=QnW5H9tOZMldFmbT+4wle+0RHSwegplPtu/CCs5xoSwRETDp4koCTQhXhR+Vx3r3r
+         W3UrwejJ719Bb2gOLzk8QlstHF3Uffw3OS9wHnqaHFfk4gwtGYgRLfV1XkK/PB43f5
+         xwZin2klLTqzopHcMAJjbnFhA79H+ibeV0yPJQ30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Vitaly Lifshits <vitaly.lifshits@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/72] e1000e: add rtnl_lock() to e1000_reset_task
+Subject: [PATCH 4.4 29/33] RDMA/cxgb4: Fix adapter LE hash errors while destroying ipv6 listening server
 Date:   Mon, 29 Mar 2021 09:58:14 +0200
-Message-Id: <20210329075611.553246594@linuxfoundation.org>
+Message-Id: <20210329075606.194189612@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Lifshits <vitaly.lifshits@intel.com>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit 21f857f0321d0d0ea9b1a758bd55dc63d1cb2437 ]
+[ Upstream commit 3408be145a5d6418ff955fe5badde652be90e700 ]
 
-A possible race condition was found in e1000_reset_task,
-after discovering a similar issue in igb driver via
-commit 024a8168b749 ("igb: reinit_locked() should be called
-with rtnl_lock").
+Not setting the ipv6 bit while destroying ipv6 listening servers may
+result in potential fatal adapter errors due to lookup engine memory hash
+errors. Therefore always set ipv6 field while destroying ipv6 listening
+servers.
 
-Added rtnl_lock() and rtnl_unlock() to avoid this.
-
-Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Vitaly Lifshits <vitaly.lifshits@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 830662f6f032 ("RDMA/cxgb4: Add support for active and passive open connection with IPv6 address")
+Link: https://lore.kernel.org/r/20210324190453.8171-1-bharat@chelsio.com
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/cxgb4/cm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index 7216825e049c..6bbe7afdf30c 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5922,15 +5922,19 @@ static void e1000_reset_task(struct work_struct *work)
- 	struct e1000_adapter *adapter;
- 	adapter = container_of(work, struct e1000_adapter, reset_task);
- 
-+	rtnl_lock();
- 	/* don't run the task if already down */
--	if (test_bit(__E1000_DOWN, &adapter->state))
-+	if (test_bit(__E1000_DOWN, &adapter->state)) {
-+		rtnl_unlock();
- 		return;
-+	}
- 
- 	if (!(adapter->flags & FLAG_RESTART_NOW)) {
- 		e1000e_dump(adapter);
- 		e_err("Reset adapter unexpectedly\n");
- 	}
- 	e1000e_reinit_locked(adapter);
-+	rtnl_unlock();
- }
- 
- /**
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index 54fd4d81a3f1..8d75161854ee 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -3441,13 +3441,13 @@ int c4iw_destroy_listen(struct iw_cm_id *cm_id)
+ 	    ep->com.local_addr.ss_family == AF_INET) {
+ 		err = cxgb4_remove_server_filter(
+ 			ep->com.dev->rdev.lldi.ports[0], ep->stid,
+-			ep->com.dev->rdev.lldi.rxq_ids[0], 0);
++			ep->com.dev->rdev.lldi.rxq_ids[0], false);
+ 	} else {
+ 		struct sockaddr_in6 *sin6;
+ 		c4iw_init_wr_wait(&ep->com.wr_wait);
+ 		err = cxgb4_remove_server(
+ 				ep->com.dev->rdev.lldi.ports[0], ep->stid,
+-				ep->com.dev->rdev.lldi.rxq_ids[0], 0);
++				ep->com.dev->rdev.lldi.rxq_ids[0], true);
+ 		if (err)
+ 			goto done;
+ 		err = c4iw_wait_for_reply(&ep->com.dev->rdev, &ep->com.wr_wait,
 -- 
 2.30.1
 
