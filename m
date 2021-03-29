@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C638A34C6DA
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B9D34C79D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232576AbhC2IKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53472 "EHLO mail.kernel.org"
+        id S232717AbhC2IQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232584AbhC2IJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:09:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F996196C;
-        Mon, 29 Mar 2021 08:09:37 +0000 (UTC)
+        id S232838AbhC2IPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 919ED61878;
+        Mon, 29 Mar 2021 08:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005378;
-        bh=srRYALXKlCfb65PR9LXfX3c/VUocKSHZURZS/aOd5Z0=;
+        s=korg; t=1617005702;
+        bh=wl4V805fBjHAjcpKQ6YA+uHRIfZHcxQbYdBybM2z4Vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZDxm77VvDbYvZzY80NuX8T7kc66ikLZZazSfE2nYi88WWR43EXli9PTl7E8R1slB1
-         8wOxcLNjB0DwLqfvuv53XPmkO/BiGBaqQzizKlu2l1HdS0TmMY0ZBoy6N03szJgWF1
-         1stv6FlFwzqIQpynS68nhbt+VjTUqAB1iIlOcAX0=
+        b=b+nh35Z+umfHuNuEzPEIsXCCQazRFI15qlJSdsbsUdOZEuWHHITsdR6s1BMJxe2V1
+         OS9INq8aRDAs0XttUXSRhzPbqu692uXXw3NSnp+BsEQI/4BFFN/GcqiRNtygB6X90u
+         Y6Lu+D2Jk6oIG47W2pZkYEYn6nckQQTndRwtiF8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 59/72] ACPI: scan: Rearrange memory allocation in acpi_device_add()
+Subject: [PATCH 5.4 087/111] drm/msm: fix shutdown hook in case GPU components failed to bind
 Date:   Mon, 29 Mar 2021 09:58:35 +0200
-Message-Id: <20210329075612.240388985@linuxfoundation.org>
+Message-Id: <20210329075618.107591223@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,124 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit c1013ff7a5472db637c56bb6237f8343398c03a7 ]
+[ Upstream commit 623f279c77811475ac8fd5635cc4e4451aa71291 ]
 
-The upfront allocation of new_bus_id is done to avoid allocating
-memory under acpi_device_lock, but it doesn't really help,
-because (1) it leads to many unnecessary memory allocations for
-_ADR devices, (2) kstrdup_const() is run under that lock anyway and
-(3) it complicates the code.
+If GPU components have failed to bind, shutdown callback would fail with
+the following backtrace. Add safeguard check to stop that oops from
+happening and allow the board to reboot.
 
-Rearrange acpi_device_add() to allocate memory for a new struct
-acpi_device_bus_id instance only when necessary, eliminate a redundant
-local variable from it and reduce the number of labels in there.
+[   66.617046] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[   66.626066] Mem abort info:
+[   66.628939]   ESR = 0x96000006
+[   66.632088]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   66.637542]   SET = 0, FnV = 0
+[   66.640688]   EA = 0, S1PTW = 0
+[   66.643924] Data abort info:
+[   66.646889]   ISV = 0, ISS = 0x00000006
+[   66.650832]   CM = 0, WnR = 0
+[   66.653890] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000107f81000
+[   66.660505] [0000000000000000] pgd=0000000100bb2003, p4d=0000000100bb2003, pud=0000000100897003, pmd=0000000000000000
+[   66.671398] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[   66.677115] Modules linked in:
+[   66.680261] CPU: 6 PID: 352 Comm: reboot Not tainted 5.11.0-rc2-00309-g79e3faa756b2 #38
+[   66.688473] Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
+[   66.695347] pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+[   66.701507] pc : msm_atomic_commit_tail+0x78/0x4e0
+[   66.706437] lr : commit_tail+0xa4/0x184
+[   66.710381] sp : ffff8000108f3af0
+[   66.713791] x29: ffff8000108f3af0 x28: ffff418c44337000
+[   66.719242] x27: 0000000000000000 x26: ffff418c40a24490
+[   66.724693] x25: ffffd3a842a4f1a0 x24: 0000000000000008
+[   66.730146] x23: ffffd3a84313f030 x22: ffff418c444ce000
+[   66.735598] x21: ffff418c408a4980 x20: 0000000000000000
+[   66.741049] x19: 0000000000000000 x18: ffff800010710fbc
+[   66.746500] x17: 000000000000000c x16: 0000000000000001
+[   66.751954] x15: 0000000000010008 x14: 0000000000000068
+[   66.757405] x13: 0000000000000001 x12: 0000000000000000
+[   66.762855] x11: 0000000000000001 x10: 00000000000009b0
+[   66.768306] x9 : ffffd3a843192000 x8 : ffff418c44337000
+[   66.773757] x7 : 0000000000000000 x6 : 00000000a401b34e
+[   66.779210] x5 : 00ffffffffffffff x4 : 0000000000000000
+[   66.784660] x3 : 0000000000000000 x2 : ffff418c444ce000
+[   66.790111] x1 : ffffd3a841dce530 x0 : ffff418c444cf000
+[   66.795563] Call trace:
+[   66.798075]  msm_atomic_commit_tail+0x78/0x4e0
+[   66.802633]  commit_tail+0xa4/0x184
+[   66.806217]  drm_atomic_helper_commit+0x160/0x390
+[   66.811051]  drm_atomic_commit+0x4c/0x60
+[   66.815082]  drm_atomic_helper_disable_all+0x1f4/0x210
+[   66.820355]  drm_atomic_helper_shutdown+0x80/0x130
+[   66.825276]  msm_pdev_shutdown+0x14/0x20
+[   66.829303]  platform_shutdown+0x28/0x40
+[   66.833330]  device_shutdown+0x158/0x330
+[   66.837357]  kernel_restart+0x40/0xa0
+[   66.841122]  __do_sys_reboot+0x228/0x250
+[   66.845148]  __arm64_sys_reboot+0x28/0x34
+[   66.849264]  el0_svc_common.constprop.0+0x74/0x190
+[   66.854187]  do_el0_svc+0x24/0x90
+[   66.857595]  el0_svc+0x14/0x20
+[   66.860739]  el0_sync_handler+0x1a4/0x1b0
+[   66.864858]  el0_sync+0x174/0x180
+[   66.868269] Code: 1ac020a0 2a000273 eb02007f 54ffff01 (f9400285)
+[   66.874525] ---[ end trace 20dedb2a3229fec8 ]---
 
-No intentional functional impact.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 9d5cbf5fe46e ("drm/msm: add shutdown support for display platform_driver")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c | 57 +++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 31 deletions(-)
+ drivers/gpu/drm/msm/msm_drv.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index d614cb72041e..712599019892 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -623,12 +623,23 @@ void acpi_bus_put_acpi_device(struct acpi_device *adev)
- 	put_device(&adev->dev);
- }
- 
-+static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
-+{
-+	struct acpi_device_bus_id *acpi_device_bus_id;
-+
-+	/* Find suitable bus_id and instance number in acpi_bus_id_list. */
-+	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node) {
-+		if (!strcmp(acpi_device_bus_id->bus_id, dev_id))
-+			return acpi_device_bus_id;
-+	}
-+	return NULL;
-+}
-+
- int acpi_device_add(struct acpi_device *device,
- 		    void (*release)(struct device *))
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 8d9d86c76a4e..896d6f95a960 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1326,6 +1326,10 @@ static int msm_pdev_remove(struct platform_device *pdev)
+ static void msm_pdev_shutdown(struct platform_device *pdev)
  {
-+	struct acpi_device_bus_id *acpi_device_bus_id;
- 	int result;
--	struct acpi_device_bus_id *acpi_device_bus_id, *new_bus_id;
--	int found = 0;
- 
- 	if (device->handle) {
- 		acpi_status status;
-@@ -654,38 +665,26 @@ int acpi_device_add(struct acpi_device *device,
- 	INIT_LIST_HEAD(&device->del_list);
- 	mutex_init(&device->physical_node_lock);
- 
--	new_bus_id = kzalloc(sizeof(struct acpi_device_bus_id), GFP_KERNEL);
--	if (!new_bus_id) {
--		pr_err(PREFIX "Memory allocation error\n");
--		result = -ENOMEM;
--		goto err_detach;
--	}
--
- 	mutex_lock(&acpi_device_lock);
--	/*
--	 * Find suitable bus_id and instance number in acpi_bus_id_list
--	 * If failed, create one and link it into acpi_bus_id_list
--	 */
--	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node) {
--		if (!strcmp(acpi_device_bus_id->bus_id,
--			    acpi_device_hid(device))) {
--			acpi_device_bus_id->instance_no++;
--			found = 1;
--			kfree(new_bus_id);
--			break;
+ 	struct drm_device *drm = platform_get_drvdata(pdev);
++	struct msm_drm_private *priv = drm ? drm->dev_private : NULL;
 +
-+	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
-+	if (acpi_device_bus_id) {
-+		acpi_device_bus_id->instance_no++;
-+	} else {
-+		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
-+					     GFP_KERNEL);
-+		if (!acpi_device_bus_id) {
-+			result = -ENOMEM;
-+			goto err_unlock;
- 		}
--	}
--	if (!found) {
--		acpi_device_bus_id = new_bus_id;
- 		acpi_device_bus_id->bus_id =
- 			kstrdup_const(acpi_device_hid(device), GFP_KERNEL);
- 		if (!acpi_device_bus_id->bus_id) {
--			pr_err(PREFIX "Memory allocation error for bus id\n");
-+			kfree(acpi_device_bus_id);
- 			result = -ENOMEM;
--			goto err_free_new_bus_id;
-+			goto err_unlock;
- 		}
++	if (!priv || !priv->kms)
++		return;
  
--		acpi_device_bus_id->instance_no = 0;
- 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
- 	}
- 	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
-@@ -720,13 +719,9 @@ int acpi_device_add(struct acpi_device *device,
- 		list_del(&device->node);
- 	list_del(&device->wakeup_list);
- 
-- err_free_new_bus_id:
--	if (!found)
--		kfree(new_bus_id);
--
-+ err_unlock:
- 	mutex_unlock(&acpi_device_lock);
- 
-- err_detach:
- 	acpi_detach_data(device->handle, acpi_scan_drop_device);
- 	return result;
+ 	drm_atomic_helper_shutdown(drm);
  }
 -- 
 2.30.1
