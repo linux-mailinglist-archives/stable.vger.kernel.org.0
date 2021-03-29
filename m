@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C64934C80B
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D86D134C9D8
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232453AbhC2IT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:19:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35138 "EHLO mail.kernel.org"
+        id S233271AbhC2IeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233349AbhC2ISf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:18:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 035FB61481;
-        Mon, 29 Mar 2021 08:18:31 +0000 (UTC)
+        id S234445AbhC2IdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CB89619A7;
+        Mon, 29 Mar 2021 08:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005912;
-        bh=UTjRhRZipRt5fVqetDoXAozWE+ENWkTdY+VzugbfmhU=;
+        s=korg; t=1617006718;
+        bh=B22kD/XnsYNocZglVpNcOJIKq0At9U2B2UD0+lqKMmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3nimKNuQbItOb151ISWIu8QMPKKk1LFk3Syu970qYZy1I+h24R3v4DNPmfYqNhfO
-         W6Zy5AV384hX5cCTJP10+wdtCE1uoiJJ7wc+S/xBXdzfnEztfJqFP0JtvgxSlx9s6X
-         kes4NVjrVQoi2MfGPXqX3xjlq0a/tbadbp1zhWz0=
+        b=0u8ySnYR0eM4tanMK8+//cCnDHIZUctto5aMndafsqV26Qa/OBjpn/tGnz0d+YWL2
+         5v07d4Q2yeRO6GVjKNAeeahiQdwGsnTW49KiRIWEWBNzdqFlvb+ptIEudOlspq2v5o
+         AvPHIR9Fuywi3757QXyE1fu2qMP3esOkCR/KTRGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/221] nvme-core: check ctrl css before setting up zns
-Date:   Mon, 29 Mar 2021 09:56:20 +0200
-Message-Id: <20210329075630.816658126@linuxfoundation.org>
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 065/254] static_call: Fix static_call_set_init()
+Date:   Mon, 29 Mar 2021 09:56:21 +0200
+Message-Id: <20210329075635.297211248@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 0ec84df4953bd42c6583a555773f1d4996a061eb ]
+[ Upstream commit 68b1eddd421d2b16c6655eceb48918a1e896bbbc ]
 
-Ensure multiple Command Sets are supported before starting to setup a
-ZNS namespace.
+It turns out that static_call_set_init() does not preserve the other
+flags; IOW. it clears TAIL if it was set.
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-[hch: move the check around a bit]
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 9183c3f9ed710 ("static_call: Add inline static call infrastructure")
+Reported-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Sumit Garg <sumit.garg@linaro.org>
+Link: https://lkml.kernel.org/r/20210318113610.519406371@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/static_call.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 30e834d84f36..140f19cbe73a 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4019,6 +4019,12 @@ static void nvme_validate_or_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid)
- 				nsid);
- 			break;
+diff --git a/kernel/static_call.c b/kernel/static_call.c
+index 5d53c354fbe7..49efbdc5b480 100644
+--- a/kernel/static_call.c
++++ b/kernel/static_call.c
+@@ -35,27 +35,30 @@ static inline void *static_call_addr(struct static_call_site *site)
+ 	return (void *)((long)site->addr + (long)&site->addr);
+ }
+ 
++static inline unsigned long __static_call_key(const struct static_call_site *site)
++{
++	return (long)site->key + (long)&site->key;
++}
+ 
+ static inline struct static_call_key *static_call_key(const struct static_call_site *site)
+ {
+-	return (struct static_call_key *)
+-		(((long)site->key + (long)&site->key) & ~STATIC_CALL_SITE_FLAGS);
++	return (void *)(__static_call_key(site) & ~STATIC_CALL_SITE_FLAGS);
+ }
+ 
+ /* These assume the key is word-aligned. */
+ static inline bool static_call_is_init(struct static_call_site *site)
+ {
+-	return ((long)site->key + (long)&site->key) & STATIC_CALL_SITE_INIT;
++	return __static_call_key(site) & STATIC_CALL_SITE_INIT;
+ }
+ 
+ static inline bool static_call_is_tail(struct static_call_site *site)
+ {
+-	return ((long)site->key + (long)&site->key) & STATIC_CALL_SITE_TAIL;
++	return __static_call_key(site) & STATIC_CALL_SITE_TAIL;
+ }
+ 
+ static inline void static_call_set_init(struct static_call_site *site)
+ {
+-	site->key = ((long)static_call_key(site) | STATIC_CALL_SITE_INIT) -
++	site->key = (__static_call_key(site) | STATIC_CALL_SITE_INIT) -
+ 		    (long)&site->key;
+ }
+ 
+@@ -199,7 +202,7 @@ void __static_call_update(struct static_call_key *key, void *tramp, void *func)
+ 			}
+ 
+ 			arch_static_call_transform(site_addr, NULL, func,
+-				static_call_is_tail(site));
++						   static_call_is_tail(site));
  		}
-+		if (!nvme_multi_css(ctrl)) {
-+			dev_warn(ctrl->device,
-+				"command set not reported for nsid: %d\n",
-+				ns->head->ns_id);
-+			break;
-+		}
- 		nvme_alloc_ns(ctrl, nsid, &ids);
- 		break;
- 	default:
+ 	}
+ 
+@@ -358,7 +361,7 @@ static int static_call_add_module(struct module *mod)
+ 	struct static_call_site *site;
+ 
+ 	for (site = start; site != stop; site++) {
+-		unsigned long s_key = (long)site->key + (long)&site->key;
++		unsigned long s_key = __static_call_key(site);
+ 		unsigned long addr = s_key & ~STATIC_CALL_SITE_FLAGS;
+ 		unsigned long key;
+ 
 -- 
 2.30.1
 
