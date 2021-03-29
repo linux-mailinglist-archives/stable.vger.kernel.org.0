@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF0C34CA3B
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6552B34C729
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234466AbhC2IgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:36:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55640 "EHLO mail.kernel.org"
+        id S231693AbhC2INH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234043AbhC2Ief (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA05A61613;
-        Mon, 29 Mar 2021 08:34:33 +0000 (UTC)
+        id S231601AbhC2ILf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:11:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 997B261477;
+        Mon, 29 Mar 2021 08:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006874;
-        bh=tmjMgf5ChpP25+m30hjGZnen8ecaQEiplts2GSxlndw=;
+        s=korg; t=1617005495;
+        bh=7mXFKvFqvyTzCk7rBNaInrdfLiqXooAXqpCd82XOxtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhVDTPFqdubgt1N0h4G4w6d5JMlYKcMR5ZbE+vNIumxAKci68aCW6QsIEX4/a3d1e
-         QCwwbtYTrtTc7q6Had0ar+gpXlQ2jUYXUxoOgJ4PWMrW4ml+D5ugzLaRiGaxnKqlvE
-         xGVPwnqa+7/bg4cVO0G3uDZzlj+EAS0z7sQ8f2OE=
+        b=drCWvlqPYunF0yaVHXfNFjXPjzWDwALF6u0Mz0qlBzo1zmhEZAuPXZr7grTyp/2Bs
+         z02vXG+w+rbkQx8Zwc8mwrBwHubgTNJo8Il3QZ5YzOK3UpeUzfwp1gXAlRz/Yy2RU1
+         jAYamh/QuTkIqyGMImKJZCi4BAjpP+dsq3IRPaLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Kiran Bhandare <kiranx.bhandare@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 134/254] ice: fix napi work done reporting in xsk path
+Subject: [PATCH 5.4 022/111] atm: idt77252: fix null-ptr-dereference
 Date:   Mon, 29 Mar 2021 09:57:30 +0200
-Message-Id: <20210329075637.625230509@linuxfoundation.org>
+Message-Id: <20210329075615.926655514@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,103 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit ed0907e3bdcfc7fe1c1756a480451e757b207a69 ]
+[ Upstream commit 4416e98594dc04590ebc498fc4e530009535c511 ]
 
-Fix the wrong napi work done reporting in the xsk path of the ice
-driver. The code in the main Rx processing loop was written to assume
-that the buffer allocation code returns true if all allocations where
-successful and false if not. In contrast with all other Intel NIC xsk
-drivers, the ice_alloc_rx_bufs_zc() has the inverted logic messing up
-the work done reporting in the napi loop.
+this one is similar to the phy_data allocation fix in uPD98402, the
+driver allocate the idt77105_priv and store to dev_data but later
+dereference using dev->dev_data, which will cause null-ptr-dereference.
 
-This can be fixed either by inverting the return value from
-ice_alloc_rx_bufs_zc() in the function that uses this in an incorrect
-way, or by changing the return value of ice_alloc_rx_bufs_zc(). We
-chose the latter as it makes all the xsk allocation functions for
-Intel NICs behave in the same way. My guess is that it was this
-unexpected discrepancy that gave rise to this bug in the first place.
+fix this issue by changing dev_data to phy_data so that PRIV(dev) can
+work correctly.
 
-Fixes: 5bb0c4b5eb61 ("ice, xsk: Move Rx allocation out of while-loop")
-Reported-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_base.c |  6 ++++--
- drivers/net/ethernet/intel/ice/ice_xsk.c  | 10 +++++-----
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ drivers/atm/idt77105.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_base.c b/drivers/net/ethernet/intel/ice/ice_base.c
-index 3124a3bf519a..952e41a1e001 100644
---- a/drivers/net/ethernet/intel/ice/ice_base.c
-+++ b/drivers/net/ethernet/intel/ice/ice_base.c
-@@ -418,6 +418,8 @@ int ice_setup_rx_ctx(struct ice_ring *ring)
- 	writel(0, ring->tail);
- 
- 	if (ring->xsk_pool) {
-+		bool ok;
-+
- 		if (!xsk_buff_can_alloc(ring->xsk_pool, num_bufs)) {
- 			dev_warn(dev, "XSK buffer pool does not provide enough addresses to fill %d buffers on Rx ring %d\n",
- 				 num_bufs, ring->q_index);
-@@ -426,8 +428,8 @@ int ice_setup_rx_ctx(struct ice_ring *ring)
- 			return 0;
- 		}
- 
--		err = ice_alloc_rx_bufs_zc(ring, num_bufs);
--		if (err)
-+		ok = ice_alloc_rx_bufs_zc(ring, num_bufs);
-+		if (!ok)
- 			dev_info(dev, "Failed to allocate some buffers on XSK buffer pool enabled Rx ring %d (pf_q %d)\n",
- 				 ring->q_index, pf_q);
- 		return 0;
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 1782146db644..69ee1a8e87ab 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -408,18 +408,18 @@ xsk_pool_if_up:
-  * This function allocates a number of Rx buffers from the fill ring
-  * or the internal recycle mechanism and places them on the Rx ring.
-  *
-- * Returns false if all allocations were successful, true if any fail.
-+ * Returns true if all allocations were successful, false if any fail.
-  */
- bool ice_alloc_rx_bufs_zc(struct ice_ring *rx_ring, u16 count)
+diff --git a/drivers/atm/idt77105.c b/drivers/atm/idt77105.c
+index 63871859e6e8..52c2878b755d 100644
+--- a/drivers/atm/idt77105.c
++++ b/drivers/atm/idt77105.c
+@@ -262,7 +262,7 @@ static int idt77105_start(struct atm_dev *dev)
  {
- 	union ice_32b_rx_flex_desc *rx_desc;
- 	u16 ntu = rx_ring->next_to_use;
- 	struct ice_rx_buf *rx_buf;
--	bool ret = false;
-+	bool ok = true;
- 	dma_addr_t dma;
+ 	unsigned long flags;
  
- 	if (!count)
--		return false;
-+		return true;
- 
- 	rx_desc = ICE_RX_DESC(rx_ring, ntu);
- 	rx_buf = &rx_ring->rx_buf[ntu];
-@@ -427,7 +427,7 @@ bool ice_alloc_rx_bufs_zc(struct ice_ring *rx_ring, u16 count)
- 	do {
- 		rx_buf->xdp = xsk_buff_alloc(rx_ring->xsk_pool);
- 		if (!rx_buf->xdp) {
--			ret = true;
-+			ok = false;
- 			break;
- 		}
- 
-@@ -452,7 +452,7 @@ bool ice_alloc_rx_bufs_zc(struct ice_ring *rx_ring, u16 count)
- 		ice_release_rx_desc(rx_ring, ntu);
- 	}
- 
--	return ret;
-+	return ok;
- }
- 
- /**
+-	if (!(dev->dev_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
++	if (!(dev->phy_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	PRIV(dev)->dev = dev;
+ 	spin_lock_irqsave(&idt77105_priv_lock, flags);
+@@ -337,7 +337,7 @@ static int idt77105_stop(struct atm_dev *dev)
+                 else
+                     idt77105_all = walk->next;
+ 	        dev->phy = NULL;
+-                dev->dev_data = NULL;
++                dev->phy_data = NULL;
+                 kfree(walk);
+                 break;
+             }
 -- 
 2.30.1
 
