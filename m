@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5178A34C8BD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1AF34CA97
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232849AbhC2IYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39576 "EHLO mail.kernel.org"
+        id S232590AbhC2IjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232909AbhC2IXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E316261477;
-        Mon, 29 Mar 2021 08:23:03 +0000 (UTC)
+        id S234911AbhC2Ihe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D82ED6193B;
+        Mon, 29 Mar 2021 08:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006184;
-        bh=g+jsseJwNdizWE4QazAwZbQq0f5xaKk6P45tPD1EX+A=;
+        s=korg; t=1617007042;
+        bh=bnvZo+zIGgZyYZX34fgg3eoAfBuKhFvhF86T9nmRv/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdNwqmvgJIG9b0HVo1QQ+/AsgdTgBX2hghISN6DSr5Q4agrscFwxgojfgzIqD/4r9
-         HiqEwnaYtDr2KRt4yu/K6w/9w/sSTy/jqBQDDMJFfUdLpJlNL9FcsCaTtzL//nKJcw
-         3bd98duqyOoMbZp5d8e4POXSxPSF8tae4/aqtVmw=
+        b=f12duVa+EkqH+MV2HqHnYR+vUPQ/WyOGi+upgFwLtF5Je3TXfET8ZdDl150BlxBee
+         9tsD12kyCFl6B3B21kedfsoyaThTnCgHNChuTnBq27G3AX9EozMAj0rO44AhFLK4o4
+         ROOgc/+zXP/kKHGJ66pt/lg2fDrE+j41VjcZWmPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunyi Shao <sunyishao@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 149/221] ipv6: weaken the v4mapped source check
+Subject: [PATCH 5.11 164/254] ionic: linearize tso skb with too many frags
 Date:   Mon, 29 Mar 2021 09:58:00 +0200
-Message-Id: <20210329075634.138636069@linuxfoundation.org>
+Message-Id: <20210329075638.572336377@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,117 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit dcc32f4f183ab8479041b23a1525d48233df1d43 ]
+[ Upstream commit d2c21422323b06938b3c070361dc544f047489d7 ]
 
-This reverts commit 6af1799aaf3f1bc8defedddfa00df3192445bbf3.
+We were linearizing non-TSO skbs that had too many frags, but
+we weren't checking number of frags on TSO skbs.  This could
+lead to a bad page reference when we received a TSO skb with
+more frags than the Tx descriptor could support.
 
-Commit 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped
-source address") introduced an input check against v4mapped addresses.
-Use of such addresses on the wire is indeed questionable and not
-allowed on public Internet. As the commit pointed out
+v2: use gso_segs rather than yet another division
+    don't rework the check on the nr_frags
 
-  https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
-
-lists potential issues.
-
-Unfortunately there are applications which use v4mapped addresses,
-and breaking them is a clear regression. For example v4mapped
-addresses (or any semi-valid addresses, really) may be used
-for uni-direction event streams or packet export.
-
-Since the issue which sparked the addition of the check was with
-TCP and request_socks in particular push the check down to TCPv6
-and DCCP. This restores the ability to receive UDPv6 packets with
-v4mapped address as the source.
-
-Keep using the IPSTATS_MIB_INHDRERRORS statistic to minimize the
-user-visible changes.
-
-Fixes: 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped source address")
-Reported-by: Sunyi Shao <sunyishao@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Fixes: 0f3154e6bcb3 ("ionic: Add Tx and Rx handling")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/ipv6.c      |  5 +++++
- net/ipv6/ip6_input.c | 10 ----------
- net/ipv6/tcp_ipv6.c  |  5 +++++
- net/mptcp/subflow.c  |  5 +++++
- 4 files changed, 15 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_txrx.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
-index 78ee1b5acf1f..49f4034bf126 100644
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -319,6 +319,11 @@ static int dccp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- 	if (!ipv6_unicast_destination(skb))
- 		return 0;	/* discard, don't send a reset here */
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+index ac4cd5d82e69..b7601cadcb8c 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+@@ -1079,15 +1079,17 @@ static int ionic_tx_descs_needed(struct ionic_queue *q, struct sk_buff *skb)
+ {
+ 	int sg_elems = q->lif->qtype_info[IONIC_QTYPE_TXQ].max_sg_elems;
+ 	struct ionic_tx_stats *stats = q_to_tx_stats(q);
++	int ndescs;
+ 	int err;
  
-+	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
-+		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
-+		return 0;
-+	}
-+
- 	if (dccp_bad_service_code(sk, service)) {
- 		dcb->dccpd_reset_code = DCCP_RESET_CODE_BAD_SERVICE_CODE;
- 		goto drop;
-diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
-index e96304d8a4a7..06d60662717d 100644
---- a/net/ipv6/ip6_input.c
-+++ b/net/ipv6/ip6_input.c
-@@ -245,16 +245,6 @@ static struct sk_buff *ip6_rcv_core(struct sk_buff *skb, struct net_device *dev,
- 	if (ipv6_addr_is_multicast(&hdr->saddr))
- 		goto err;
+-	/* If TSO, need roundup(skb->len/mss) descs */
++	/* Each desc is mss long max, so a descriptor for each gso_seg */
+ 	if (skb_is_gso(skb))
+-		return (skb->len / skb_shinfo(skb)->gso_size) + 1;
++		ndescs = skb_shinfo(skb)->gso_segs;
++	else
++		ndescs = 1;
  
--	/* While RFC4291 is not explicit about v4mapped addresses
--	 * in IPv6 headers, it seems clear linux dual-stack
--	 * model can not deal properly with these.
--	 * Security models could be fooled by ::ffff:127.0.0.1 for example.
--	 *
--	 * https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
--	 */
--	if (ipv6_addr_v4mapped(&hdr->saddr))
--		goto err;
--
- 	skb->transport_header = skb->network_header + sizeof(*hdr);
- 	IP6CB(skb)->nhoff = offsetof(struct ipv6hdr, nexthdr);
+-	/* If non-TSO, just need 1 desc and nr_frags sg elems */
+ 	if (skb_shinfo(skb)->nr_frags <= sg_elems)
+-		return 1;
++		return ndescs;
  
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index 991dc36f95ff..3f9bb6dd1f98 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -1170,6 +1170,11 @@ static int tcp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- 	if (!ipv6_unicast_destination(skb))
- 		goto drop;
+ 	/* Too many frags, so linearize */
+ 	err = skb_linearize(skb);
+@@ -1096,8 +1098,7 @@ static int ionic_tx_descs_needed(struct ionic_queue *q, struct sk_buff *skb)
  
-+	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
-+		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
-+		return 0;
-+	}
-+
- 	return tcp_conn_request(&tcp6_request_sock_ops,
- 				&tcp_request_sock_ipv6_ops, sk, skb);
+ 	stats->linearize++;
  
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 16adba172fb9..6317b9bc8681 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -398,6 +398,11 @@ static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- 	if (!ipv6_unicast_destination(skb))
- 		goto drop;
+-	/* Need 1 desc and zero sg elems */
+-	return 1;
++	return ndescs;
+ }
  
-+	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
-+		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
-+		return 0;
-+	}
-+
- 	return tcp_conn_request(&mptcp_subflow_request_sock_ops,
- 				&subflow_request_sock_ipv6_ops, sk, skb);
- 
+ static int ionic_maybe_stop_tx(struct ionic_queue *q, int ndescs)
 -- 
 2.30.1
 
