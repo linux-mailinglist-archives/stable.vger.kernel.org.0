@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0246A34C90A
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9783634C613
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233371AbhC2I0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
+        id S231738AbhC2IEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232805AbhC2IYa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:24:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40E5761554;
-        Mon, 29 Mar 2021 08:24:28 +0000 (UTC)
+        id S232094AbhC2IEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:04:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC70061601;
+        Mon, 29 Mar 2021 08:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006268;
-        bh=fscim5rqV5KT8QAGKZOcvA8IucXtpvJgBoTeLkI4qhc=;
+        s=korg; t=1617005050;
+        bh=HLyvqv6KeKN5vDhCQR9UUaivBet8DbRXIuO0u5O415A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxzRvUP98l/n5+6eh14z8HbEeeSzUyxfvNKwPvvIPPtAmvYJUdqqllkqTjtIVnn9y
-         WBcyqOCmpNt3IG1GYvowD1tPE9hNxLLjfNuB4R3rzhW+YTvIlFcTaqZtAU9zpJrETA
-         cWHJc7gahzFr/NLRImQv07MCdO+w6pvGM+3m5sd4=
+        b=CeqyAreO7rubSOknMbPARi7NejaIaTVVFt+UM9yBVDJhDFsQzemF0H6Ityj7cuU+x
+         N746ZVuN8h5Vgwg2ChdLpdAtUglL30gmi4YjZ/S4M67IVONekV4DlZm+2k3m9Bl1Cm
+         vDe/pxWp5R+hogL8Sd5v+2B7h+OpD6dE9bDFKJTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 144/221] netfilter: nftables: allow to update flowtable flags
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.9 20/53] arm64: dts: ls1043a: mark crypto engine dma coherent
 Date:   Mon, 29 Mar 2021 09:57:55 +0200
-Message-Id: <20210329075633.974871349@linuxfoundation.org>
+Message-Id: <20210329075608.208746569@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,91 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit 7b35582cd04ace2fd1807c1b624934e465cc939d ]
+commit 4fb3a074755b7737c4081cffe0ccfa08c2f2d29d upstream.
 
-Honor flowtable flags from the control update path. Disallow disabling
-to toggle hardware offload support though.
+Crypto engine (CAAM) on LS1043A platform is configured HW-coherent,
+mark accordingly the DT node.
 
-Fixes: 8bb69f3b2918 ("netfilter: nf_tables: add flowtable offload control plane")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Lack of "dma-coherent" property for an IP that is configured HW-coherent
+can lead to problems, similar to what has been reported for LS1046A.
+
+Cc: <stable@vger.kernel.org> # v4.8+
+Fixes: 63dac35b58f4 ("arm64: dts: ls1043a: add crypto node")
+Link: https://lore.kernel.org/linux-crypto/fe6faa24-d8f7-d18f-adfa-44fa0caa1598@arm.com
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_tables.h |  3 +++
- net/netfilter/nf_tables_api.c     | 15 +++++++++++++++
- 2 files changed, 18 insertions(+)
+ arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index c1c0a4ff92ae..ed4a9d098164 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -1508,6 +1508,7 @@ struct nft_trans_flowtable {
- 	struct nft_flowtable		*flowtable;
- 	bool				update;
- 	struct list_head		hook_list;
-+	u32				flags;
- };
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
+@@ -177,6 +177,7 @@
+ 			ranges = <0x0 0x00 0x1700000 0x100000>;
+ 			reg = <0x00 0x1700000 0x0 0x100000>;
+ 			interrupts = <0 75 0x4>;
++			dma-coherent;
  
- #define nft_trans_flowtable(trans)	\
-@@ -1516,6 +1517,8 @@ struct nft_trans_flowtable {
- 	(((struct nft_trans_flowtable *)trans->data)->update)
- #define nft_trans_flowtable_hooks(trans)	\
- 	(((struct nft_trans_flowtable *)trans->data)->hook_list)
-+#define nft_trans_flowtable_flags(trans)	\
-+	(((struct nft_trans_flowtable *)trans->data)->flags)
- 
- int __init nft_chain_filter_init(void);
- void nft_chain_filter_fini(void);
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 7cdbe8733540..978a968d7aed 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -6632,6 +6632,7 @@ static int nft_flowtable_update(struct nft_ctx *ctx, const struct nlmsghdr *nlh,
- 	struct nft_hook *hook, *next;
- 	struct nft_trans *trans;
- 	bool unregister = false;
-+	u32 flags;
- 	int err;
- 
- 	err = nft_flowtable_parse_hook(ctx, nla[NFTA_FLOWTABLE_HOOK],
-@@ -6646,6 +6647,17 @@ static int nft_flowtable_update(struct nft_ctx *ctx, const struct nlmsghdr *nlh,
- 		}
- 	}
- 
-+	if (nla[NFTA_FLOWTABLE_FLAGS]) {
-+		flags = ntohl(nla_get_be32(nla[NFTA_FLOWTABLE_FLAGS]));
-+		if (flags & ~NFT_FLOWTABLE_MASK)
-+			return -EOPNOTSUPP;
-+		if ((flowtable->data.flags & NFT_FLOWTABLE_HW_OFFLOAD) ^
-+		    (flags & NFT_FLOWTABLE_HW_OFFLOAD))
-+			return -EOPNOTSUPP;
-+	} else {
-+		flags = flowtable->data.flags;
-+	}
-+
- 	err = nft_register_flowtable_net_hooks(ctx->net, ctx->table,
- 					       &flowtable_hook.list, flowtable);
- 	if (err < 0)
-@@ -6659,6 +6671,7 @@ static int nft_flowtable_update(struct nft_ctx *ctx, const struct nlmsghdr *nlh,
- 		goto err_flowtable_update_hook;
- 	}
- 
-+	nft_trans_flowtable_flags(trans) = flags;
- 	nft_trans_flowtable(trans) = flowtable;
- 	nft_trans_flowtable_update(trans) = true;
- 	INIT_LIST_HEAD(&nft_trans_flowtable_hooks(trans));
-@@ -7968,6 +7981,8 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 			break;
- 		case NFT_MSG_NEWFLOWTABLE:
- 			if (nft_trans_flowtable_update(trans)) {
-+				nft_trans_flowtable(trans)->data.flags =
-+					nft_trans_flowtable_flags(trans);
- 				nf_tables_flowtable_notify(&trans->ctx,
- 							   nft_trans_flowtable(trans),
- 							   &nft_trans_flowtable_hooks(trans),
--- 
-2.30.1
-
+ 			sec_jr0: jr@10000 {
+ 				compatible = "fsl,sec-v5.4-job-ring",
 
 
