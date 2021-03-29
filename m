@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9AD34DA26
+	by mail.lfdr.de (Postfix) with ESMTP id DA51D34DA27
 	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231691AbhC2WVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230487AbhC2WVm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Mar 2021 18:21:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45692 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231434AbhC2WVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:21:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 510B66196E;
-        Mon, 29 Mar 2021 22:21:37 +0000 (UTC)
+        id S231585AbhC2WVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 18:21:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD1536198A;
+        Mon, 29 Mar 2021 22:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056498;
-        bh=lUbK4NYL9hmuKEr4+Eb7qVrc0rtzm8u8PW+SIy5Hlv8=;
+        s=k20201202; t=1617056499;
+        bh=7yAqtm6eI7uuUYcC/NC9/TEIBkZ1O0C+3Rp8uDSuvg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=byF+wNoAqVaugKOkDAAMIJmzEkhe6VLaoILFLNop8s+v7vR50te6zMx/bIaWsXkzB
-         Jk/cILcUC0WNA7KuqkSv1vMYFSYGYEEu6kKaZ8JbJjL1kg3gYf0lZ3vKZ5KFjoY13N
-         qjKT0IYONQEY23vv9kjA/B7G15/4M2d0G6esxz4iLmtLz0Avofut4wMEfowZCqwTfW
-         DBSXbeDzR05rDYToiiDhoKQspKLZ7/w35t8z/i/55V8MIQXwsUg9NvjkydWThMRtxX
-         LLKz/a5KUTRL7xciTekxtyeR+DmqRVy5jJHGYH+Y6if8N7tN6kA+VEFfEbDH2ZhSaB
-         GIa2S9NhXxUCw==
+        b=geuK2PJ0DpYu3uK23wpiQFA6sekW3TkhjCkmrQczh9WqoDzmMWFSMdQg2lLK6oTU6
+         9UORM/SIUVpp0z/i1ZTKy12NMbC3GRyTi2y2CAczCmmcayKoxzZbZtXnFCmI+hkWfh
+         nsfU+4y61Z3KImKLwMZwYbiPvFX85b4+EKy/tPXCxyOkbjj81z8FeB6tP9TAOasBRg
+         qBNRyC6pBCK+Y4Ecz3KnfHPL3iHvJYw3WsVfBXmbs1pwdTklflXcQmZ+NIApp5fxv+
+         Ra8XhWCEvl/BVnHEsTLI88AzfD7PQeWPMiNSZhkM1gcCKX9gTAtfITLKRpevneToU2
+         z4QBwaBI0K21A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jordan Crouse <jcrouse@codeaurora.org>,
-        Akhil P Oommen <akhilpo@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 03/38] drm/msm: a6xx: Make sure the SQE microcode is safe
-Date:   Mon, 29 Mar 2021 18:20:58 -0400
-Message-Id: <20210329222133.2382393-3-sashal@kernel.org>
+Cc:     Alban Bedel <albeu@free.fr>, Alexander Kobel <a-kobel@a-kobel.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 04/38] platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
+Date:   Mon, 29 Mar 2021 18:20:59 -0400
+Message-Id: <20210329222133.2382393-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222133.2382393-1-sashal@kernel.org>
 References: <20210329222133.2382393-1-sashal@kernel.org>
@@ -44,129 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Crouse <jcrouse@codeaurora.org>
+From: Alban Bedel <albeu@free.fr>
 
-[ Upstream commit 8490f02a3ca45fd1bbcadc243b4db9b69d0e3450 ]
+[ Upstream commit 56678a5f44ef5f0ad9a67194bbee2280c6286534 ]
 
-Most a6xx targets have security issues that were fixed with new versions
-of the microcode(s). Make sure that we are booting with a safe version of
-the microcode for the target and print a message and error if not.
+Like a few other system the Lenovo ThinkPad X1 Tablet Gen 2 miss the
+HEBC method, which prevent the power button from working. Add a quirk
+to enable the button array on this system family and fix the power
+button.
 
-v2: Add more informative error messages and fix typos
-
-Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
-Reviewed-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Alban Bedel <albeu@free.fr>
+Tested-by: Alexander Kobel <a-kobel@a-kobel.de>
+Link: https://lore.kernel.org/r/20210222141559.3775-1-albeu@free.fr
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 77 ++++++++++++++++++++++-----
- 1 file changed, 64 insertions(+), 13 deletions(-)
+ drivers/platform/x86/intel-hid.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 0366419d8bfe..e7a8442b59af 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -521,28 +521,73 @@ static int a6xx_cp_init(struct msm_gpu *gpu)
- 	return a6xx_idle(gpu, ring) ? 0 : -EINVAL;
- }
+diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
+index 2f5b8d09143e..57cc92891a57 100644
+--- a/drivers/platform/x86/intel-hid.c
++++ b/drivers/platform/x86/intel-hid.c
+@@ -90,6 +90,13 @@ static const struct dmi_system_id button_array_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x2 Detachable"),
+ 		},
+ 	},
++	{
++		.ident = "Lenovo ThinkPad X1 Tablet Gen 2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Tablet Gen 2"),
++		},
++	},
+ 	{ }
+ };
  
--static void a6xx_ucode_check_version(struct a6xx_gpu *a6xx_gpu,
-+/*
-+ * Check that the microcode version is new enough to include several key
-+ * security fixes. Return true if the ucode is safe.
-+ */
-+static bool a6xx_ucode_check_version(struct a6xx_gpu *a6xx_gpu,
- 		struct drm_gem_object *obj)
- {
-+	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
-+	struct msm_gpu *gpu = &adreno_gpu->base;
- 	u32 *buf = msm_gem_get_vaddr(obj);
-+	bool ret = false;
- 
- 	if (IS_ERR(buf))
--		return;
-+		return false;
- 
- 	/*
--	 * If the lowest nibble is 0xa that is an indication that this microcode
--	 * has been patched. The actual version is in dword [3] but we only care
--	 * about the patchlevel which is the lowest nibble of dword [3]
--	 *
--	 * Otherwise check that the firmware is greater than or equal to 1.90
--	 * which was the first version that had this fix built in
-+	 * Targets up to a640 (a618, a630 and a640) need to check for a
-+	 * microcode version that is patched to support the whereami opcode or
-+	 * one that is new enough to include it by default.
- 	 */
--	if (((buf[0] & 0xf) == 0xa) && (buf[2] & 0xf) >= 1)
--		a6xx_gpu->has_whereami = true;
--	else if ((buf[0] & 0xfff) > 0x190)
--		a6xx_gpu->has_whereami = true;
-+	if (adreno_is_a618(adreno_gpu) || adreno_is_a630(adreno_gpu) ||
-+		adreno_is_a640(adreno_gpu)) {
-+		/*
-+		 * If the lowest nibble is 0xa that is an indication that this
-+		 * microcode has been patched. The actual version is in dword
-+		 * [3] but we only care about the patchlevel which is the lowest
-+		 * nibble of dword [3]
-+		 *
-+		 * Otherwise check that the firmware is greater than or equal
-+		 * to 1.90 which was the first version that had this fix built
-+		 * in
-+		 */
-+		if ((((buf[0] & 0xf) == 0xa) && (buf[2] & 0xf) >= 1) ||
-+			(buf[0] & 0xfff) >= 0x190) {
-+			a6xx_gpu->has_whereami = true;
-+			ret = true;
-+			goto out;
-+		}
- 
-+		DRM_DEV_ERROR(&gpu->pdev->dev,
-+			"a630 SQE ucode is too old. Have version %x need at least %x\n",
-+			buf[0] & 0xfff, 0x190);
-+	}  else {
-+		/*
-+		 * a650 tier targets don't need whereami but still need to be
-+		 * equal to or newer than 1.95 for other security fixes
-+		 */
-+		if (adreno_is_a650(adreno_gpu)) {
-+			if ((buf[0] & 0xfff) >= 0x195) {
-+				ret = true;
-+				goto out;
-+			}
-+
-+			DRM_DEV_ERROR(&gpu->pdev->dev,
-+				"a650 SQE ucode is too old. Have version %x need at least %x\n",
-+				buf[0] & 0xfff, 0x195);
-+		}
-+
-+		/*
-+		 * When a660 is added those targets should return true here
-+		 * since those have all the critical security fixes built in
-+		 * from the start
-+		 */
-+	}
-+out:
- 	msm_gem_put_vaddr(obj);
-+	return ret;
- }
- 
- static int a6xx_ucode_init(struct msm_gpu *gpu)
-@@ -565,7 +610,13 @@ static int a6xx_ucode_init(struct msm_gpu *gpu)
- 		}
- 
- 		msm_gem_object_set_name(a6xx_gpu->sqe_bo, "sqefw");
--		a6xx_ucode_check_version(a6xx_gpu, a6xx_gpu->sqe_bo);
-+		if (!a6xx_ucode_check_version(a6xx_gpu, a6xx_gpu->sqe_bo)) {
-+			msm_gem_unpin_iova(a6xx_gpu->sqe_bo, gpu->aspace);
-+			drm_gem_object_put(a6xx_gpu->sqe_bo);
-+
-+			a6xx_gpu->sqe_bo = NULL;
-+			return -EPERM;
-+		}
- 	}
- 
- 	gpu_write64(gpu, REG_A6XX_CP_SQE_INSTR_BASE_LO,
 -- 
 2.30.1
 
