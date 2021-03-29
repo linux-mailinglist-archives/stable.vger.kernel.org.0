@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF5534C665
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3166B34CAD7
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232545AbhC2IHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:07:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49412 "EHLO mail.kernel.org"
+        id S233603AbhC2IkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:40:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232184AbhC2IGM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C7206196B;
-        Mon, 29 Mar 2021 08:06:10 +0000 (UTC)
+        id S234639AbhC2IjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:39:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6923A60C3D;
+        Mon, 29 Mar 2021 08:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005170;
-        bh=bioptFnmAdZ/zCalDIFArsnAR4pVdV4g21+yHhqX0PI=;
+        s=korg; t=1617007149;
+        bh=JxVYiWqHneHdJDkkpquqAtgbGEcks6zWVo/NuiU6eV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLmt0PFM9DYSMN+JFDuuKcGxvbGGfyZJZKjEj+9KXHH88PTwIr+kXugYKerODpkBB
-         /69sb/WtM3xnkjHPAb9bevM23uh4B2oQjDmOwlDyB/nlNGVIkimd6mptnQUl1cZ/Lr
-         HFUP3ZpnRnXkNCXz0W+6dg6VWLx36uoRFPcaDzaU=
+        b=r5vMOmuVwbcCClkaiwXKTjgDCVKpVxHKOFgTHjP91+9qTjYyyymj+6MXeQ+9+pFIF
+         cXTnm2oUbwbA7FPq70x9Fu7qZ25g79N7W1MCfLNJ4pUyPqxWRz98ycNPuoQKOpnjTZ
+         UE64y3PRwJZzSFb1TRR1zuT59xZGRb3ZRd6woKM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Divya Bharathi <Divya_Bharathi@dell.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Alexander Naumann <alexandernaumann@gmx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/59] perf auxtrace: Fix auxtrace queue conflict
+Subject: [PATCH 5.11 194/254] platform/x86: dell-wmi-sysman: Make sysman_init() return -ENODEV of the interfaces are not found
 Date:   Mon, 29 Mar 2021 09:58:30 +0200
-Message-Id: <20210329075610.523221477@linuxfoundation.org>
+Message-Id: <20210329075639.484312106@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit b410ed2a8572d41c68bd9208555610e4b07d0703 ]
+[ Upstream commit 32418dd58c957f8fef25b97450d00275967604f1 ]
 
-The only requirement of an auxtrace queue is that the buffers are in
-time order.  That is achieved by making separate queues for separate
-perf buffer or AUX area buffer mmaps.
+When either the attributes or the password interface is not found, then
+unregister the 2 wmi drivers again and return -ENODEV from sysman_init().
 
-That generally means a separate queue per cpu for per-cpu contexts, and
-a separate queue per thread for per-task contexts.
-
-When buffers are added to a queue, perf checks that the buffer cpu and
-thread id (tid) match the queue cpu and thread id.
-
-However, generally, that need not be true, and perf will queue buffers
-correctly anyway, so the check is not needed.
-
-In addition, the check gets erroneously hit when using sample mode to
-trace multiple threads.
-
-Consequently, fix that case by removing the check.
-
-Fixes: e502789302a6 ("perf auxtrace: Add helpers for queuing AUX area tracing data")
-Reported-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: http://lore.kernel.org/lkml/20210308151143.18338-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: e8a60aa7404b ("platform/x86: Introduce support for Systems Management Driver over WMI for Dell Systems")
+Cc: Divya Bharathi <Divya_Bharathi@dell.com>
+Cc: Mario Limonciello <mario.limonciello@dell.com>
+Reported-by: Alexander Naumann <alexandernaumann@gmx.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210321115901.35072-7-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/auxtrace.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/platform/x86/dell-wmi-sysman/sysman.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index 44c8bcefe224..0224fc3aacc1 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -250,10 +250,6 @@ static int auxtrace_queues__add_buffer(struct auxtrace_queues *queues,
- 		queue->set = true;
- 		queue->tid = buffer->tid;
- 		queue->cpu = buffer->cpu;
--	} else if (buffer->cpu != queue->cpu || buffer->tid != queue->tid) {
--		pr_err("auxtrace queue conflict: cpu %d, tid %d vs cpu %d, tid %d\n",
--		       queue->cpu, queue->tid, buffer->cpu, buffer->tid);
--		return -EINVAL;
+diff --git a/drivers/platform/x86/dell-wmi-sysman/sysman.c b/drivers/platform/x86/dell-wmi-sysman/sysman.c
+index 99dc2f3bdf49..5dd9b29d939c 100644
+--- a/drivers/platform/x86/dell-wmi-sysman/sysman.c
++++ b/drivers/platform/x86/dell-wmi-sysman/sysman.c
+@@ -506,15 +506,17 @@ static int __init sysman_init(void)
  	}
  
- 	buffer->buffer_nr = queues->next_buffer_nr++;
+ 	ret = init_bios_attr_set_interface();
+-	if (ret || !wmi_priv.bios_attr_wdev) {
+-		pr_debug("failed to initialize set interface\n");
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	ret = init_bios_attr_pass_interface();
+-	if (ret || !wmi_priv.password_attr_wdev) {
+-		pr_debug("failed to initialize pass interface\n");
++	if (ret)
+ 		goto err_exit_bios_attr_set_interface;
++
++	if (!wmi_priv.bios_attr_wdev || !wmi_priv.password_attr_wdev) {
++		pr_debug("failed to find set or pass interface\n");
++		ret = -ENODEV;
++		goto err_exit_bios_attr_pass_interface;
+ 	}
+ 
+ 	ret = class_register(&firmware_attributes_class);
 -- 
 2.30.1
 
