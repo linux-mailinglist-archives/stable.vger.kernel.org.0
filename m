@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D8AD34DABA
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3426934DAAD
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232498AbhC2WXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46706 "EHLO mail.kernel.org"
+        id S232487AbhC2WXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:23:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232174AbhC2WWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:22:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2E0961989;
-        Mon, 29 Mar 2021 22:22:38 +0000 (UTC)
+        id S232186AbhC2WWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 18:22:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBDA0619A6;
+        Mon, 29 Mar 2021 22:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056559;
-        bh=CLrg/mkHgEwMzrCgt4Zvz98xos31jfskRlbZx3TLzJA=;
+        s=k20201202; t=1617056560;
+        bh=AbfZNAVrVdAXkaXBMh0tMeyE6LfWTDezyo6Qkci3oXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFjhI/BwUpyP29HqR7PjDADmhzmxS3wOPLzyjYDOq14er1m2eAqh8JZ9yJrUji3zl
-         Qs+98yrPeOQs7+dptSO/V3uop63M0gJHWU7L+YvUEh5RPYAVPc9d7LfN/pUBDIMPNz
-         Aa9/FtpI/Gt6fe3khVdSCAuOH+ZXAVTKMt5Unp+zMgyQc7DgsepBGRdDWsAtS0MqTI
-         N0mhrDTJCIPkoRFDoGtEa9vz+uxQrTPs9KTgwMA0RIM2an/sudPQ0V1+nIROs4gPE9
-         YIyukNddVXped/NRcvaYweVSpB0v86kNFrhF3CY5NLFBIRw5dQp9PwMNQdIGmxPUlA
-         6e1OJmgG7Im2Q==
+        b=YJ7aqA6kyecj/O8LzjY6xhqDHSCPTJsOHD6Mvoi83C/huwM5ahT6bWLpCq6j1nCJY
+         VhAUWNA5hYjDBg6n87RVak6CrbBKP9fXIcp7eH8CEAsoAZ7MRAs3dQGMVaSop+i1Wj
+         WMXk1S00nZa4A+5jpaO5EFgNgtldkgZO8tH4ev6F4OcmApqs70ewNQEDZDZlwAHP7a
+         Lgy+s86HUcAT2If7hhxo8Y9wMlogjdV40FRcsoHHATYtaU8IEzy66336DUSc7S50c9
+         lKn9uKwhGzZgSNPmvQXdEReIVDwH17zh9Iu5H6+PtX5a57/OomKlRqTM49ekt6tL/R
+         2/HRpFG5421nA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Rob Clark <robdclark@chromium.org>,
+Cc:     Rob Clark <robdclark@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
         dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 14/33] drm/msm/adreno: a5xx_power: Don't apply A540 lm_setup to other GPUs
-Date:   Mon, 29 Mar 2021 18:22:02 -0400
-Message-Id: <20210329222222.2382987-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 15/33] drm/msm: Ratelimit invalid-fence message
+Date:   Mon, 29 Mar 2021 18:22:03 -0400
+Message-Id: <20210329222222.2382987-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222222.2382987-1-sashal@kernel.org>
 References: <20210329222222.2382987-1-sashal@kernel.org>
@@ -43,35 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 4a9d36b0610aa7034340e976652e5b43320dd7c5 ]
+[ Upstream commit 7ad48d27a2846bfda29214fb454d001c3e02b9e7 ]
 
-While passing the A530-specific lm_setup func to A530 and A540
-to !A530 was fine back when only these two were supported, it
-certainly is not a good idea to send A540 specifics to smaller
-GPUs like A508 and friends.
+We have seen a couple cases where low memory situations cause something
+bad to happen, followed by a flood of these messages obscuring the root
+cause.  Lets ratelimit the dmesg spam so that next time it happens we
+don't lose the kernel traces leading up to this.
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
 Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_power.c | 2 +-
+ drivers/gpu/drm/msm/msm_fence.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_power.c b/drivers/gpu/drm/msm/adreno/a5xx_power.c
-index f176a6f3eff6..e58670a61df4 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_power.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_power.c
-@@ -304,7 +304,7 @@ int a5xx_power_init(struct msm_gpu *gpu)
- 	/* Set up the limits management */
- 	if (adreno_is_a530(adreno_gpu))
- 		a530_lm_setup(gpu);
--	else
-+	else if (adreno_is_a540(adreno_gpu))
- 		a540_lm_setup(gpu);
+diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
+index ad2703698b05..cd59a5918038 100644
+--- a/drivers/gpu/drm/msm/msm_fence.c
++++ b/drivers/gpu/drm/msm/msm_fence.c
+@@ -45,7 +45,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
+ 	int ret;
  
- 	/* Set up SP/TP power collpase */
+ 	if (fence > fctx->last_fence) {
+-		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
++		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
+ 				fctx->name, fence, fctx->last_fence);
+ 		return -EINVAL;
+ 	}
 -- 
 2.30.1
 
