@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F336A34C6C2
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A685134C7C2
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232050AbhC2IJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:09:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52166 "EHLO mail.kernel.org"
+        id S232958AbhC2ISK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231643AbhC2IJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:09:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADCEB6193A;
-        Mon, 29 Mar 2021 08:09:04 +0000 (UTC)
+        id S233148AbhC2IQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:16:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF14A61477;
+        Mon, 29 Mar 2021 08:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005345;
-        bh=fAvM5UsLjHwQfH33osa5Mb1z7DtBFWCWw28q4GG6pGk=;
+        s=korg; t=1617005774;
+        bh=QzKNGjYBXGZvK+0oTzQfokndILUCu4ieBs+xb2Nd4sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRS4uBUmgCYAj59p055JBoCURqHnQp4/iHoajlf0vWgEyZIWhTGIhFYzacShVk7Xu
-         3UzKIxeyXbtWr7ZH7ZDSOhkNX0/X91w0exPZl8bK2iy6RERPnpk7MKc6ThhpdaQVbK
-         Z4i9GR7eka+Fd4SiMnYmQkeqMmJCb60aySIe18dk=
+        b=qDdMevvFktCYf1ED8SDn84x2yZnf7mEiA0SuKk5tTFykMMK2tfHezpx5lmwknIHlW
+         iiQZ1wmSpL+7dUDHjjiBSMjIlQwn75FzEedwOnHbdm/CWUoSLfG9oTG+7eFrOBc/QZ
+         TRTJ/hgDhd6Los4Tj4/2zVAS1NoixbxbaiG3L9t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/72] net: cdc-phonet: fix data-interface release on probe failure
+Subject: [PATCH 5.4 077/111] mac80211: fix rate mask reset
 Date:   Mon, 29 Mar 2021 09:58:25 +0200
-Message-Id: <20210329075611.900506511@linuxfoundation.org>
+Message-Id: <20210329075617.775630786@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit c79a707072fe3fea0e3c92edee6ca85c1e53c29f ]
+[ Upstream commit 1944015fe9c1d9fa5e9eb7ffbbb5ef8954d6753b ]
 
-Set the disconnected flag before releasing the data interface in case
-netdev registration fails to avoid having the disconnect callback try to
-deregister the never registered netdev (and trigger a WARN_ON()).
+Coverity reported the strange "if (~...)" condition that's
+always true. It suggested that ! was intended instead of ~,
+but upon further analysis I'm convinced that what really was
+intended was a comparison to 0xff/0xffff (in HT/VHT cases
+respectively), since this indicates that all of the rates
+are enabled.
 
-Fixes: 87cf65601e17 ("USB host CDC Phonet network interface driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Change the comparison accordingly.
+
+I'm guessing this never really mattered because a reset to
+not having a rate mask is basically equivalent to having a
+mask that enables all rates.
+
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 2ffbe6d33366 ("mac80211: fix and optimize MCS mask handling")
+Fixes: b119ad6e726c ("mac80211: add rate mask logic for vht rates")
+Reviewed-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210212112213.36b38078f569.I8546a20c80bc1669058eb453e213630b846e107b@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc-phonet.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/mac80211/cfg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/cdc-phonet.c b/drivers/net/usb/cdc-phonet.c
-index 78b16eb9e58c..f448e484a341 100644
---- a/drivers/net/usb/cdc-phonet.c
-+++ b/drivers/net/usb/cdc-phonet.c
-@@ -400,6 +400,8 @@ static int usbpn_probe(struct usb_interface *intf, const struct usb_device_id *i
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index fa293feef935..677928bf13d1 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -2906,14 +2906,14 @@ static int ieee80211_set_bitrate_mask(struct wiphy *wiphy,
+ 			continue;
  
- 	err = register_netdev(dev);
- 	if (err) {
-+		/* Set disconnected flag so that disconnect() returns early. */
-+		pnd->disconnected = 1;
- 		usb_driver_release_interface(&usbpn_driver, data_intf);
- 		goto out;
- 	}
+ 		for (j = 0; j < IEEE80211_HT_MCS_MASK_LEN; j++) {
+-			if (~sdata->rc_rateidx_mcs_mask[i][j]) {
++			if (sdata->rc_rateidx_mcs_mask[i][j] != 0xff) {
+ 				sdata->rc_has_mcs_mask[i] = true;
+ 				break;
+ 			}
+ 		}
+ 
+ 		for (j = 0; j < NL80211_VHT_NSS_MAX; j++) {
+-			if (~sdata->rc_rateidx_vht_mcs_mask[i][j]) {
++			if (sdata->rc_rateidx_vht_mcs_mask[i][j] != 0xffff) {
+ 				sdata->rc_has_vht_mcs_mask[i] = true;
+ 				break;
+ 			}
 -- 
 2.30.1
 
