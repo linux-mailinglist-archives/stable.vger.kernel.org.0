@@ -2,221 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 426BC34C5A1
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C1E34CA5D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231694AbhC2IBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:01:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43256 "EHLO mail.kernel.org"
+        id S233956AbhC2IiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:38:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231475AbhC2IBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:01:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EB8D61969;
-        Mon, 29 Mar 2021 08:01:21 +0000 (UTC)
+        id S233855AbhC2Ifp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:35:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41AFF619AE;
+        Mon, 29 Mar 2021 08:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004882;
-        bh=YW/naApUyy/V4z8yfFXqwvYOyTIwwA7zNBH9fVxBkRU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=uYFfjmxbuuLAVr34jTIoU5dYawxBjc1aDVjcG359L+5LeoralUxLxUOk4KT4vRyh4
-         498THts6jg3IhAH3xzPQcmZ7ys30UXQqBI5tZ/BYU0U+XS+bsh7JQ6ELaz2gkWIEVh
-         XPl/2j8Bt10MAq8fPK5RFwxud6AL/l/0TdFKE7RE=
+        s=korg; t=1617006915;
+        bh=0ZQlFmcvFePedOhfO4OuayrwAIEwjkxJ7wyQud8O1QE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=w7wqE9bhI7j7xIN+nlv1bq3ldkggKpKERvOd5xeKHXPt0x9zKLZRwrTbzVo/jbSrj
+         qrgeKWCo8PLJH8NUA2WhsaeNFPzQMYadAZGb1Mwf/NhIy+L/RpRhicd+6AKxWUGxCo
+         Bi6EoDEd/E3BUGJ17pFwGUoZIZ9+r3i1NyE6GLtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/33] 4.4.264-rc1 review
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 149/254] can: peak_usb: add forgotten supported devices
 Date:   Mon, 29 Mar 2021 09:57:45 +0200
-Message-Id: <20210329075605.290845195@linuxfoundation.org>
+Message-Id: <20210329075638.104228992@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.264-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.264-rc1
-X-KernelTest-Deadline: 2021-03-31T07:56+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.264 release.
-There are 33 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-Responses should be made by Wed, 31 Mar 2021 07:55:56 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 59ec7b89ed3e921cd0625a8c83f31a30d485fdf8 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.264-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+Since the peak_usb driver also supports the CAN-USB interfaces
+"PCAN-USB X6" and "PCAN-Chip USB" from PEAK-System GmbH, this patch adds
+their names to the list of explicitly supported devices.
 
-thanks,
+Fixes: ea8b65b596d7 ("can: usb: Add support of PCAN-Chip USB stamp module")
+Fixes: f00b534ded60 ("can: peak: Add support for PCAN-USB X6 USB interface")
+Link: https://lore.kernel.org/r/20210309082128.23125-3-s.grosjean@peak-system.com
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-greg k-h
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+index f347ecc79aef..f1d018218c93 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -18,6 +18,8 @@
+ 
+ MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB FD adapter");
+ MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB Pro FD adapter");
++MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-Chip USB");
++MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB X6 adapter");
+ 
+ #define PCAN_USBPROFD_CHANNEL_COUNT	2
+ #define PCAN_USBFD_CHANNEL_COUNT	1
+-- 
+2.30.1
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.264-rc1
-
-Markus Theil <markus.theil@tu-ilmenau.de>
-    mac80211: fix double free in ibss_leave
-
-Eric Dumazet <edumazet@google.com>
-    net: sched: validate stab values
-
-Martin Willi <martin@strongswan.org>
-    can: dev: Move device back to init netns on owning netns delete
-
-Adrian Hunter <adrian.hunter@intel.com>
-    perf auxtrace: Fix auxtrace queue conflict
-
-Potnuri Bharat Teja <bharat@chelsio.com>
-    RDMA/cxgb4: Fix adapter LE hash errors while destroying ipv6 listening server
-
-Johan Hovold <johan@kernel.org>
-    net: cdc-phonet: fix data-interface release on probe failure
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: fix rate mask reset
-
-Torin Cooper-Bennun <torin@maxiluxsystems.com>
-    can: m_can: m_can_do_rx_poll(): fix extraneous msg loss warning
-
-Tong Zhang <ztong0001@gmail.com>
-    can: c_can: move runtime PM enable/disable to c_can_platform
-
-Tong Zhang <ztong0001@gmail.com>
-    can: c_can_pci: c_can_pci_remove(): fix use-after-free
-
-Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-    net/qlcnic: Fix a use after free in qlcnic_83xx_get_minidump_template
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    e1000e: Fix error handling in e1000_set_d0_lplu_state_82571
-
-Vitaly Lifshits <vitaly.lifshits@intel.com>
-    e1000e: add rtnl_lock() to e1000_reset_task
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: dsa: bcm_sf2: Qualify phydev->dev_flags based on port
-
-Eric Dumazet <edumazet@google.com>
-    macvlan: macvlan_count_rx() needs to be aware of preemption
-
-Grygorii Strashko <grygorii.strashko@ti.com>
-    bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
-
-Phillip Lougher <phillip@squashfs.org.uk>
-    squashfs: fix xattr id and id lookup sanity checks
-
-Sean Nyekjaer <sean@geanix.com>
-    squashfs: fix inode lookup sanity checks
-
-Borislav Petkov <bp@suse.de>
-    x86/tlb: Flush global mappings when KAISER is disabled
-
-Sergei Trofimovich <slyfox@gentoo.org>
-    ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
-
-Sergei Trofimovich <slyfox@gentoo.org>
-    ia64: fix ia64_syscall_get_set_arguments() for break-based syscalls
-
-J. Bruce Fields <bfields@redhat.com>
-    nfs: we don't support removing system.nfs4_acl
-
-Peter Zijlstra <peterz@infradead.org>
-    u64_stats,lockdep: Fix u64_stats_init() vs lockdep
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: idt77252: fix null-ptr-dereference
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: uPD98402: fix incorrect allocation
-
-Frank Sorenson <sorenson@redhat.com>
-    NFS: Correct size calculation for create reply length
-
-Timo Rothenpieler <timo@rothenpieler.org>
-    nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
-
-Denis Efremov <efremov@linux.com>
-    sun/niu: fix wrong RXMAC_BC_FRM_CNT_COUNT count
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    net: tehuti: fix error return code in bdx_probe()
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: lanai: dont run lanai_dev_close if not open
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: eni: dont release is never initialized
-
-Michael Ellerman <mpe@ellerman.id.au>
-    powerpc/4xx: Fix build errors from mfdcr()
-
-Heiko Thiery <heiko.thiery@gmail.com>
-    net: fec: ptp: avoid register access when ipg clock is disabled
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 ++--
- arch/ia64/include/asm/syscall.h                    |  2 +-
- arch/ia64/kernel/ptrace.c                          | 24 ++++++++++++++++------
- arch/powerpc/include/asm/dcr-native.h              |  8 ++++----
- arch/x86/include/asm/tlbflush.h                    | 11 ++++++----
- drivers/atm/eni.c                                  |  3 ++-
- drivers/atm/idt77105.c                             |  4 ++--
- drivers/atm/lanai.c                                |  5 ++++-
- drivers/atm/uPD98402.c                             |  2 +-
- drivers/bus/omap_l3_noc.c                          |  4 ++--
- drivers/infiniband/hw/cxgb4/cm.c                   |  4 ++--
- drivers/net/can/c_can/c_can.c                      | 24 +---------------------
- drivers/net/can/c_can/c_can_pci.c                  |  3 ++-
- drivers/net/can/c_can/c_can_platform.c             |  6 +++++-
- drivers/net/can/dev.c                              |  1 +
- drivers/net/can/m_can/m_can.c                      |  3 ---
- drivers/net/dsa/bcm_sf2.c                          |  6 ++++--
- drivers/net/ethernet/freescale/fec_ptp.c           |  7 +++++++
- drivers/net/ethernet/intel/e1000e/82571.c          |  2 ++
- drivers/net/ethernet/intel/e1000e/netdev.c         |  6 +++++-
- .../net/ethernet/qlogic/qlcnic/qlcnic_minidump.c   |  3 +++
- drivers/net/ethernet/sun/niu.c                     |  2 --
- drivers/net/ethernet/tehuti/tehuti.c               |  1 +
- drivers/net/usb/cdc-phonet.c                       |  2 ++
- fs/nfs/Kconfig                                     |  2 +-
- fs/nfs/nfs3xdr.c                                   |  3 ++-
- fs/nfs/nfs4proc.c                                  |  3 +++
- fs/squashfs/export.c                               |  8 ++++++--
- fs/squashfs/id.c                                   |  6 ++++--
- fs/squashfs/squashfs_fs.h                          |  1 +
- fs/squashfs/xattr_id.c                             |  6 ++++--
- include/linux/if_macvlan.h                         |  3 ++-
- include/linux/u64_stats_sync.h                     |  7 ++++---
- include/net/red.h                                  | 10 ++++++++-
- include/net/rtnetlink.h                            |  2 ++
- net/core/dev.c                                     |  2 +-
- net/mac80211/cfg.c                                 |  4 ++--
- net/mac80211/ibss.c                                |  2 ++
- net/sched/sch_choke.c                              |  7 ++++---
- net/sched/sch_gred.c                               |  2 +-
- net/sched/sch_red.c                                |  7 +++++--
- net/sched/sch_sfq.c                                |  2 +-
- tools/perf/util/auxtrace.c                         |  4 ----
- 43 files changed, 132 insertions(+), 86 deletions(-)
 
 
