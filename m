@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3903534C730
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6602A34C89F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231802AbhC2INK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:13:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55848 "EHLO mail.kernel.org"
+        id S233543AbhC2IXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232718AbhC2ILt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:11:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D203661601;
-        Mon, 29 Mar 2021 08:11:48 +0000 (UTC)
+        id S233664AbhC2IWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB48461580;
+        Mon, 29 Mar 2021 08:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005509;
-        bh=YmdqMCOGIIF1N6stSjszgZ/JdIxQLgQGqkNQIalEejU=;
+        s=korg; t=1617006117;
+        bh=NeTDmqExK33DDSXztD0tqyYX3UUgV9WwtedQqfkOSnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3/3dkxyj26EhB4GmklMdWpg+zdg7cI7Z08HZsjvO835SZVYwN56M7qxKrsS/PVEU
-         CnQQsppwfhWJ7hurYXAQ29Ow+nc9DDv6hbElCYVNmb0TUKhxElX9iPid0eN3G5Q9mc
-         caH2XBUdFDcIagLQzEcaUoW+iDa4w39/cMTfBI6k=
+        b=tQWCFMCr1VM8liUVr7rO+xWtbQqsZcvN2rkWlpiIaEdMBVA6460dPokz7geNpbfs6
+         tEL0k9xVvnPdy6yuhv9Ep8B8ZSBKaM2oQLZSsLiD2KzZ6e2IJD6OdF/BgNRkVI/asK
+         gTcvoLPTkOpNNkFcx5ZKly6wtX7oyAcPKJbGVzNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Subject: [PATCH 5.4 027/111] u64_stats,lockdep: Fix u64_stats_init() vs lockdep
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 124/221] can: isotp: isotp_setsockopt(): only allow to set low level TX flags for CAN-FD
 Date:   Mon, 29 Mar 2021 09:57:35 +0200
-Message-Id: <20210329075616.089054925@linuxfoundation.org>
+Message-Id: <20210329075633.349658475@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit d5b0e0677bfd5efd17c5bbb00156931f0d41cb85 ]
+[ Upstream commit e4912459bd5edd493b61bc7c3a5d9b2eb17f5a89 ]
 
-Jakub reported that:
+CAN-FD frames have struct canfd_frame::flags, while classic CAN frames
+don't.
 
-    static struct net_device *rtl8139_init_board(struct pci_dev *pdev)
-    {
-	    ...
-	    u64_stats_init(&tp->rx_stats.syncp);
-	    u64_stats_init(&tp->tx_stats.syncp);
-	    ...
-    }
+This patch refuses to set TX flags (struct
+can_isotp_ll_options::tx_flags) on non CAN-FD isotp sockets.
 
-results in lockdep getting confused between the RX and TX stats lock.
-This is because u64_stats_init() is an inline calling seqcount_init(),
-which is a macro using a static variable to generate a lockdep class.
-
-By wrapping that in an inline, we negate the effect of the macro and
-fold the static key variable, hence the confusion.
-
-Fix by also making u64_stats_init() a macro for the case where it
-matters, leaving the other case an inline for argument validation
-etc.
-
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Debugged-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: "Erhard F." <erhard_f@mailbox.org>
-Link: https://lkml.kernel.org/r/YEXicy6+9MksdLZh@hirez.programming.kicks-ass.net
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/r/20210218215434.1708249-2-mkl@pengutronix.de
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/u64_stats_sync.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/can/isotp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
-index a27604f99ed0..11096b561dab 100644
---- a/include/linux/u64_stats_sync.h
-+++ b/include/linux/u64_stats_sync.h
-@@ -69,12 +69,13 @@ struct u64_stats_sync {
- };
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 8bd565f2073e..a9b96a6e6317 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1212,7 +1212,8 @@ static int isotp_setsockopt(struct socket *sock, int level, int optname,
+ 			if (ll.mtu != CAN_MTU && ll.mtu != CANFD_MTU)
+ 				return -EINVAL;
  
+-			if (ll.mtu == CAN_MTU && ll.tx_dl > CAN_MAX_DLEN)
++			if (ll.mtu == CAN_MTU &&
++			    (ll.tx_dl > CAN_MAX_DLEN || ll.tx_flags != 0))
+ 				return -EINVAL;
  
-+#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
-+#define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
-+#else
- static inline void u64_stats_init(struct u64_stats_sync *syncp)
- {
--#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
--	seqcount_init(&syncp->seq);
--#endif
- }
-+#endif
- 
- static inline void u64_stats_update_begin(struct u64_stats_sync *syncp)
- {
+ 			memcpy(&so->ll, &ll, sizeof(ll));
 -- 
 2.30.1
 
