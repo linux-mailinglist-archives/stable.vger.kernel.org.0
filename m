@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F8334CA5F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D9A34C8A8
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232267AbhC2IiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55278 "EHLO mail.kernel.org"
+        id S233436AbhC2IXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234020AbhC2Ifo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8990361932;
-        Mon, 29 Mar 2021 08:35:12 +0000 (UTC)
+        id S233955AbhC2IWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C06761481;
+        Mon, 29 Mar 2021 08:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006913;
-        bh=74oYEkzNjJ8Z+4umsu4SClRr6oN6d0M/PORPD1mKRcQ=;
+        s=korg; t=1617006148;
+        bh=k5mP0sVan2kKjq9ykLRDakpWtYP4u8P/RmMM4RnF5iI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDrnA49XZom3QWPA/aXflpEuXb9dEy8ygsoeiNVKqVCySI4512PXQLPoGkzw8Jn/X
-         3CoJ61Ht/A7nVmAd1TZ8IJMbtyPR6pRDfEdvSpUkijkldrHpVYG6YIVeMnalp1GLYR
-         umHVAVivt7/sojtbLcWkN3JDsPNPWh8EGX1cr4R4=
+        b=niM1gtc6f31r2wQ7veYIl9ZEXZ/Xu0m9jYir51vIJPQI8yZ+QOrRr8vUu9EwWOZbE
+         owyrIVJR7oK5meBFteFMez5i+EACMwpqk46I+qxuIsiE1BB9uS5/g2SkBXTjbJTlWy
+         6qVDrzeVBLwQI/AJc9Gq8Z+Dv9wKMLIQKI2zHuKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Yen-lin Lai <yenlinlai@chromium.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 148/254] can: isotp: TX-path: ensure that CAN frame flags are initialized
-Date:   Mon, 29 Mar 2021 09:57:44 +0200
-Message-Id: <20210329075638.072526453@linuxfoundation.org>
+Subject: [PATCH 5.10 134/221] mac80211: Allow HE operation to be longer than expected.
+Date:   Mon, 29 Mar 2021 09:57:45 +0200
+Message-Id: <20210329075633.661629128@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit d4eb538e1f48b3cf7bb6cb9eb39fe3e9e8a701f7 ]
+[ Upstream commit 0f7e90faddeef53a3568f449a0c3992d77510b66 ]
 
-The previous patch ensures that the TX flags (struct
-can_isotp_ll_options::tx_flags) are 0 for classic CAN frames or a user
-configured value for CAN-FD frames.
+We observed some Cisco APs sending the following HE Operation IE in
+associate response:
 
-This patch sets the CAN frames flags unconditionally to the ISO-TP TX
-flags, so that they are initialized to a proper value. Otherwise when
-running "candump -x" on a classical CAN ISO-TP stream shows wrongly
-set "B" and "E" flags.
+  ff 0a 24 f4 3f 00 01 fc ff 00 00 00
 
-| $ candump any,0:0,#FFFFFFFF -extA
-| [...]
-| can0  TX B E  713   [8]  2B 0A 0B 0C 0D 0E 0F 00
-| can0  TX B E  713   [8]  2C 01 02 03 04 05 06 07
-| can0  TX B E  713   [8]  2D 08 09 0A 0B 0C 0D 0E
-| can0  TX B E  713   [8]  2E 0F 00 01 02 03 04 05
+Its HE operation parameter is 0x003ff4, so the expected total length is
+7 which does not match the actual length = 10. This causes association
+failing with "HE AP is missing HE Capability/operation."
 
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/r/20210218215434.1708249-2-mkl@pengutronix.de
-Cc: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+According to P802.11ax_D4 Table9-94, HE operation is extensible, and
+according to 802.11-2016 10.27.8, STA should discard the part beyond
+the maximum length and parse the truncated element.
+
+Allow HE operation element to be longer than expected to handle this
+case and future extensions.
+
+Fixes: e4d005b80dee ("mac80211: refactor extended element parsing")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Yen-lin Lai <yenlinlai@chromium.org>
+Link: https://lore.kernel.org/r/20210223051926.2653301-1-yenlinlai@chromium.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/isotp.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ net/mac80211/mlme.c | 2 +-
+ net/mac80211/util.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index e32d446c121e..430976485d95 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -215,8 +215,7 @@ static int isotp_send_fc(struct sock *sk, int ae, u8 flowstatus)
- 	if (ae)
- 		ncf->data[0] = so->opt.ext_address;
- 
--	if (so->ll.mtu == CANFD_MTU)
--		ncf->flags = so->ll.tx_flags;
-+	ncf->flags = so->ll.tx_flags;
- 
- 	can_send_ret = can_send(nskb, 1);
- 	if (can_send_ret)
-@@ -790,8 +789,7 @@ isotp_tx_burst:
- 		so->tx.sn %= 16;
- 		so->tx.bs++;
- 
--		if (so->ll.mtu == CANFD_MTU)
--			cf->flags = so->ll.tx_flags;
-+		cf->flags = so->ll.tx_flags;
- 
- 		skb->dev = dev;
- 		can_skb_set_owner(skb, sk);
-@@ -939,8 +937,7 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
- 	}
- 
- 	/* send the first or only CAN frame */
--	if (so->ll.mtu == CANFD_MTU)
--		cf->flags = so->ll.tx_flags;
-+	cf->flags = so->ll.tx_flags;
- 
- 	skb->dev = dev;
- 	skb->sk = sk;
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 6adfcb9c06dc..3f483e84d5df 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -5023,7 +5023,7 @@ static int ieee80211_prep_channel(struct ieee80211_sub_if_data *sdata,
+ 		he_oper_ie = cfg80211_find_ext_ie(WLAN_EID_EXT_HE_OPERATION,
+ 						  ies->data, ies->len);
+ 		if (he_oper_ie &&
+-		    he_oper_ie[1] == ieee80211_he_oper_size(&he_oper_ie[3]))
++		    he_oper_ie[1] >= ieee80211_he_oper_size(&he_oper_ie[3]))
+ 			he_oper = (void *)(he_oper_ie + 3);
+ 		else
+ 			he_oper = NULL;
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 94e624e9439b..d8f9fb0646a4 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -967,7 +967,7 @@ static void ieee80211_parse_extension_element(u32 *crc,
+ 		break;
+ 	case WLAN_EID_EXT_HE_OPERATION:
+ 		if (len >= sizeof(*elems->he_operation) &&
+-		    len == ieee80211_he_oper_size(data) - 1) {
++		    len >= ieee80211_he_oper_size(data) - 1) {
+ 			if (crc)
+ 				*crc = crc32_be(*crc, (void *)elem,
+ 						elem->datalen + 2);
 -- 
 2.30.1
 
