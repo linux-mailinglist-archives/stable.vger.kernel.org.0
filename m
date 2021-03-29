@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C1A34C76B
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903D234C6B5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232481AbhC2IPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S232409AbhC2IJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231913AbhC2IOD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:14:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC7FB61960;
-        Mon, 29 Mar 2021 08:13:58 +0000 (UTC)
+        id S232481AbhC2IIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:08:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A38D261601;
+        Mon, 29 Mar 2021 08:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005639;
-        bh=N4+R4ONxkblmtYQiUOniTgaw4R77kZTubaDK86XUfIw=;
+        s=korg; t=1617005307;
+        bh=Wv9HBEGCTiCaY57mpX4PfPQHXHdX6ToNUa4oQJMWYcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t15Xbd4zQJXJk8U63YFBoTLQzQUX9+5mfbc0UDDI/zJDEeYlavVVfAwHWHTChZXfT
-         8+oLb2KZzvkOABzsvTy/f8qn5P5aM30JJgC8821TTSIpgyVKngMOmZ6VmT4qecvEF+
-         wtD2OyL95egByfLzodGXdTRX0e+SF/yyfS1zVS/U=
+        b=oPUBcWXj0U6S2ibgzOQ9DuKyR79xEhRRLGnvtG/8QWMB04NUCOueBwcHqLYZUw/fq
+         85SFYsmRzCryb+IpN8pZ9ZAxN42zb4ny1zkMByxXAfouRzJBETRuo4XsTwncbBJljd
+         ZIEm5puXdNOGiNJdhKJbZqDIaP5LKMFM7U1gmnNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Vitaly Lifshits <vitaly.lifshits@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/111] e1000e: add rtnl_lock() to e1000_reset_task
-Date:   Mon, 29 Mar 2021 09:58:11 +0200
-Message-Id: <20210329075617.310796507@linuxfoundation.org>
+Subject: [PATCH 4.19 36/72] macvlan: macvlan_count_rx() needs to be aware of preemption
+Date:   Mon, 29 Mar 2021 09:58:12 +0200
+Message-Id: <20210329075611.478784207@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Lifshits <vitaly.lifshits@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 21f857f0321d0d0ea9b1a758bd55dc63d1cb2437 ]
+[ Upstream commit dd4fa1dae9f4847cc1fd78ca468ad69e16e5db3e ]
 
-A possible race condition was found in e1000_reset_task,
-after discovering a similar issue in igb driver via
-commit 024a8168b749 ("igb: reinit_locked() should be called
-with rtnl_lock").
+macvlan_count_rx() can be called from process context, it is thus
+necessary to disable preemption before calling u64_stats_update_begin()
 
-Added rtnl_lock() and rtnl_unlock() to avoid this.
+syzbot was able to spot this on 32bit arch:
 
-Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Vitaly Lifshits <vitaly.lifshits@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+WARNING: CPU: 1 PID: 4632 at include/linux/seqlock.h:271 __seqprop_assert include/linux/seqlock.h:271 [inline]
+WARNING: CPU: 1 PID: 4632 at include/linux/seqlock.h:271 __seqprop_assert.constprop.0+0xf0/0x11c include/linux/seqlock.h:269
+Modules linked in:
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 1 PID: 4632 Comm: kworker/1:3 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: ARM-Versatile Express
+Workqueue: events macvlan_process_broadcast
+Backtrace:
+[<82740468>] (dump_backtrace) from [<827406dc>] (show_stack+0x18/0x1c arch/arm/kernel/traps.c:252)
+ r7:00000080 r6:60000093 r5:00000000 r4:8422a3c4
+[<827406c4>] (show_stack) from [<82751b58>] (__dump_stack lib/dump_stack.c:79 [inline])
+[<827406c4>] (show_stack) from [<82751b58>] (dump_stack+0xb8/0xe8 lib/dump_stack.c:120)
+[<82751aa0>] (dump_stack) from [<82741270>] (panic+0x130/0x378 kernel/panic.c:231)
+ r7:830209b4 r6:84069ea4 r5:00000000 r4:844350d0
+[<82741140>] (panic) from [<80244924>] (__warn+0xb0/0x164 kernel/panic.c:605)
+ r3:8404ec8c r2:00000000 r1:00000000 r0:830209b4
+ r7:0000010f
+[<80244874>] (__warn) from [<82741520>] (warn_slowpath_fmt+0x68/0xd4 kernel/panic.c:628)
+ r7:81363f70 r6:0000010f r5:83018e50 r4:00000000
+[<827414bc>] (warn_slowpath_fmt) from [<81363f70>] (__seqprop_assert include/linux/seqlock.h:271 [inline])
+[<827414bc>] (warn_slowpath_fmt) from [<81363f70>] (__seqprop_assert.constprop.0+0xf0/0x11c include/linux/seqlock.h:269)
+ r8:5a109000 r7:0000000f r6:a568dac0 r5:89802300 r4:00000001
+[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (u64_stats_update_begin include/linux/u64_stats_sync.h:128 [inline])
+[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (macvlan_count_rx include/linux/if_macvlan.h:47 [inline])
+[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (macvlan_broadcast+0x154/0x26c drivers/net/macvlan.c:291)
+ r5:89802300 r4:8a927740
+[<8136499c>] (macvlan_broadcast) from [<81365020>] (macvlan_process_broadcast+0x258/0x2d0 drivers/net/macvlan.c:317)
+ r10:81364f78 r9:8a86d000 r8:8a9c7e7c r7:8413aa5c r6:00000000 r5:00000000
+ r4:89802840
+[<81364dc8>] (macvlan_process_broadcast) from [<802696a4>] (process_one_work+0x2d4/0x998 kernel/workqueue.c:2275)
+ r10:00000008 r9:8404ec98 r8:84367a02 r7:ddfe6400 r6:ddfe2d40 r5:898dac80
+ r4:8a86d43c
+[<802693d0>] (process_one_work) from [<80269dcc>] (worker_thread+0x64/0x54c kernel/workqueue.c:2421)
+ r10:00000008 r9:8a9c6000 r8:84006d00 r7:ddfe2d78 r6:898dac94 r5:ddfe2d40
+ r4:898dac80
+[<80269d68>] (worker_thread) from [<80271f40>] (kthread+0x184/0x1a4 kernel/kthread.c:292)
+ r10:85247e64 r9:898dac80 r8:80269d68 r7:00000000 r6:8a9c6000 r5:89a2ee40
+ r4:8a97bd00
+[<80271dbc>] (kthread) from [<80200114>] (ret_from_fork+0x14/0x20 arch/arm/kernel/entry-common.S:158)
+Exception stack(0x8a9c7fb0 to 0x8a9c7ff8)
+
+Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/if_macvlan.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index 4cb05a31e66d..c2feedfd321d 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5953,15 +5953,19 @@ static void e1000_reset_task(struct work_struct *work)
- 	struct e1000_adapter *adapter;
- 	adapter = container_of(work, struct e1000_adapter, reset_task);
+diff --git a/include/linux/if_macvlan.h b/include/linux/if_macvlan.h
+index 2e55e4cdbd8a..1261559d70b4 100644
+--- a/include/linux/if_macvlan.h
++++ b/include/linux/if_macvlan.h
+@@ -43,13 +43,14 @@ static inline void macvlan_count_rx(const struct macvlan_dev *vlan,
+ 	if (likely(success)) {
+ 		struct vlan_pcpu_stats *pcpu_stats;
  
-+	rtnl_lock();
- 	/* don't run the task if already down */
--	if (test_bit(__E1000_DOWN, &adapter->state))
-+	if (test_bit(__E1000_DOWN, &adapter->state)) {
-+		rtnl_unlock();
- 		return;
-+	}
- 
- 	if (!(adapter->flags & FLAG_RESTART_NOW)) {
- 		e1000e_dump(adapter);
- 		e_err("Reset adapter unexpectedly\n");
+-		pcpu_stats = this_cpu_ptr(vlan->pcpu_stats);
++		pcpu_stats = get_cpu_ptr(vlan->pcpu_stats);
+ 		u64_stats_update_begin(&pcpu_stats->syncp);
+ 		pcpu_stats->rx_packets++;
+ 		pcpu_stats->rx_bytes += len;
+ 		if (multicast)
+ 			pcpu_stats->rx_multicast++;
+ 		u64_stats_update_end(&pcpu_stats->syncp);
++		put_cpu_ptr(vlan->pcpu_stats);
+ 	} else {
+ 		this_cpu_inc(vlan->pcpu_stats->rx_errors);
  	}
- 	e1000e_reinit_locked(adapter);
-+	rtnl_unlock();
- }
- 
- /**
 -- 
 2.30.1
 
