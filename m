@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6B034C7CA
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E2134C65B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231572AbhC2ISP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
+        id S231719AbhC2IGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232756AbhC2IQy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:16:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5471619A7;
-        Mon, 29 Mar 2021 08:16:16 +0000 (UTC)
+        id S231557AbhC2IF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:05:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8270C61477;
+        Mon, 29 Mar 2021 08:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005777;
-        bh=CPoIX7dP6d66bbp56DcfdrUV7Uqa+Xop0lvyNuYwMPA=;
+        s=korg; t=1617005158;
+        bh=YJQQg/Bld71goeJBCOYTFZmWBV1ppuLj94AHL3+kFXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1WAOiXQhfxig2HGiCI7cC0REMKboZa6tAVJ/9RGN+MwJpAu5dxSzELd3168WRl3W
-         WPZJGsSb0kBIHKn3CJm0Ynj4yEkcaEXIcyherIo4UN343no3naPNf4Ye+t/aqcBuPf
-         ikHwWTQKhO3LPI9r0e4G33GpswYbqF62lNW2jgiU=
+        b=KxLwa5nsBj59pzHNh4zLV/oo1Z7azpxE3oMJS7/6u/GPPqCZvNLgod0z2FfG4sXB+
+         LIBYefKpGllT+oS9E5WrlqN+HxNg2B8Aw1FTafzdUerCcUFI3Fq2+9iOwf6K+sgJTd
+         8+CXgcBME61GR16/lAGAsTfEPkMKNdOe6rhc98zU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 078/111] nfp: flower: fix pre_tun mask id allocation
+Subject: [PATCH 4.14 46/59] net/mlx5e: Fix error path for ethtool set-priv-flag
 Date:   Mon, 29 Mar 2021 09:58:26 +0200
-Message-Id: <20210329075617.813665488@linuxfoundation.org>
+Message-Id: <20210329075610.397144324@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Louis Peens <louis.peens@corigine.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit d8ce0275e45ec809a33f98fc080fe7921b720dfb ]
+[ Upstream commit 4eacfe72e3e037e3fc019113df32c39a705148c2 ]
 
-pre_tun_rule flows does not follow the usual add-flow path, instead
-they are used to update the pre_tun table on the firmware. This means
-that if the mask-id gets allocated here the firmware will never see the
-"NFP_FL_META_FLAG_MANAGE_MASK" flag for the specific mask id, which
-triggers the allocation on the firmware side. This leads to the firmware
-mask being corrupted and causing all sorts of strange behaviour.
+Expose error value when failing to comply to command:
+$ ethtool --set-priv-flags eth2 rx_cqe_compress [on/off]
 
-Fixes: f12725d98cbe ("nfp: flower: offload pre-tunnel rules")
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: be7e87f92b58 ("net/mlx5e: Fail safe cqe compressing/moderation mode setting")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/netronome/nfp/flower/metadata.c  | 24 +++++++++++++------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/metadata.c b/drivers/net/ethernet/netronome/nfp/flower/metadata.c
-index 5defd31d481c..aa06fcb38f8b 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/metadata.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/metadata.c
-@@ -327,8 +327,14 @@ int nfp_compile_flow_metadata(struct nfp_app *app,
- 		goto err_free_ctx_entry;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index c3f1e2d76a46..377f91885bda 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -1747,6 +1747,7 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+ 	struct mlx5_core_dev *mdev = priv->mdev;
++	int err;
+ 
+ 	if (!MLX5_CAP_GEN(mdev, cqe_compression))
+ 		return -EOPNOTSUPP;
+@@ -1756,7 +1757,10 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+ 		return -EINVAL;
  	}
  
-+	/* Do net allocate a mask-id for pre_tun_rules. These flows are used to
-+	 * configure the pre_tun table and are never actually send to the
-+	 * firmware as an add-flow message. This causes the mask-id allocation
-+	 * on the firmware to get out of sync if allocated here.
-+	 */
- 	new_mask_id = 0;
--	if (!nfp_check_mask_add(app, nfp_flow->mask_data,
-+	if (!nfp_flow->pre_tun_rule.dev &&
-+	    !nfp_check_mask_add(app, nfp_flow->mask_data,
- 				nfp_flow->meta.mask_len,
- 				&nfp_flow->meta.flags, &new_mask_id)) {
- 		NL_SET_ERR_MSG_MOD(extack, "invalid entry: cannot allocate a new mask id");
-@@ -359,7 +365,8 @@ int nfp_compile_flow_metadata(struct nfp_app *app,
- 			goto err_remove_mask;
- 		}
+-	mlx5e_modify_rx_cqe_compression_locked(priv, enable);
++	err = mlx5e_modify_rx_cqe_compression_locked(priv, enable);
++	if (err)
++		return err;
++
+ 	priv->channels.params.rx_cqe_compress_def = enable;
  
--		if (!nfp_check_mask_remove(app, nfp_flow->mask_data,
-+		if (!nfp_flow->pre_tun_rule.dev &&
-+		    !nfp_check_mask_remove(app, nfp_flow->mask_data,
- 					   nfp_flow->meta.mask_len,
- 					   NULL, &new_mask_id)) {
- 			NL_SET_ERR_MSG_MOD(extack, "invalid entry: cannot release mask id");
-@@ -374,8 +381,10 @@ int nfp_compile_flow_metadata(struct nfp_app *app,
  	return 0;
- 
- err_remove_mask:
--	nfp_check_mask_remove(app, nfp_flow->mask_data, nfp_flow->meta.mask_len,
--			      NULL, &new_mask_id);
-+	if (!nfp_flow->pre_tun_rule.dev)
-+		nfp_check_mask_remove(app, nfp_flow->mask_data,
-+				      nfp_flow->meta.mask_len,
-+				      NULL, &new_mask_id);
- err_remove_rhash:
- 	WARN_ON_ONCE(rhashtable_remove_fast(&priv->stats_ctx_table,
- 					    &ctx_entry->ht_node,
-@@ -406,9 +415,10 @@ int nfp_modify_flow_metadata(struct nfp_app *app,
- 
- 	__nfp_modify_flow_metadata(priv, nfp_flow);
- 
--	nfp_check_mask_remove(app, nfp_flow->mask_data,
--			      nfp_flow->meta.mask_len, &nfp_flow->meta.flags,
--			      &new_mask_id);
-+	if (!nfp_flow->pre_tun_rule.dev)
-+		nfp_check_mask_remove(app, nfp_flow->mask_data,
-+				      nfp_flow->meta.mask_len, &nfp_flow->meta.flags,
-+				      &new_mask_id);
- 
- 	/* Update flow payload with mask ids. */
- 	nfp_flow->unmasked_data[NFP_FL_MASK_ID_LOCATION] = new_mask_id;
 -- 
 2.30.1
 
