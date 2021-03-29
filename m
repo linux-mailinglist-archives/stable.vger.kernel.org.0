@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4AC34CA89
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE0934C6BE
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233786AbhC2Iiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55206 "EHLO mail.kernel.org"
+        id S232587AbhC2IJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234866AbhC2Ih3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F0E661932;
-        Mon, 29 Mar 2021 08:36:52 +0000 (UTC)
+        id S231597AbhC2IJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:09:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3179D61976;
+        Mon, 29 Mar 2021 08:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007013;
-        bh=ySD/AyLDmWAgThpEcTD75lQI0DPswwRh7FMECb82zJo=;
+        s=korg; t=1617005339;
+        bh=l0TnfoC3iwcbasXlWt60i7coeKpZBz6xlaNVQi6hvsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/PoX4NxRKmt8upRN8SmBEVjFHdINF8c5V+ILDF8V7OvGojwlIV23TQ8YAr5GXbAr
-         WS8DrlnDaBbuP13DLwQAr0OkdAiD4j8hcVsvdMXiGfvORT5I8QKRsr6agStO0VzYUL
-         qTD1KMRnDU1USYWlSitYmiSPm88ksLpDH342yUYw=
+        b=IQRwYwPQomoV/kXXumyYn2I1oIrNsFZ5wGdS3FOtjTix7oEdhpqIwOaaZxzn+65TJ
+         54r8XbFrvKx5gNcMbp+LAhAdnsc2Y/OHIPtI0w5OIERSCN2ADQiiZ6+qHS3EfOq1ZU
+         Qc+Bu6Yl8ofk+j2/m1vnSDtqRZbzpoSPd84ROaLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+44908bb56d2bfe56b28e@syzkaller.appspotmail.com,
-        Zqiang <qiang.zhang@windriver.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Mariusz Madej <mariusz.madej@xtrack.com>,
+        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 187/254] bpf: Fix umd memory leak in copy_process()
+Subject: [PATCH 4.19 47/72] can: m_can: m_can_do_rx_poll(): fix extraneous msg loss warning
 Date:   Mon, 29 Mar 2021 09:58:23 +0200
-Message-Id: <20210329075639.272517285@linuxfoundation.org>
+Message-Id: <20210329075611.837841245@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,139 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Torin Cooper-Bennun <torin@maxiluxsystems.com>
 
-[ Upstream commit f60a85cad677c4f9bb4cadd764f1d106c38c7cf8 ]
+[ Upstream commit c0e399f3baf42279f48991554240af8c457535d1 ]
 
-The syzbot reported a memleak as follows:
+Message loss from RX FIFO 0 is already handled in
+m_can_handle_lost_msg(), with netdev output included.
 
-BUG: memory leak
-unreferenced object 0xffff888101b41d00 (size 120):
-  comm "kworker/u4:0", pid 8, jiffies 4294944270 (age 12.780s)
-  backtrace:
-    [<ffffffff8125dc56>] alloc_pid+0x66/0x560
-    [<ffffffff81226405>] copy_process+0x1465/0x25e0
-    [<ffffffff81227943>] kernel_clone+0xf3/0x670
-    [<ffffffff812281a1>] kernel_thread+0x61/0x80
-    [<ffffffff81253464>] call_usermodehelper_exec_work
-    [<ffffffff81253464>] call_usermodehelper_exec_work+0xc4/0x120
-    [<ffffffff812591c9>] process_one_work+0x2c9/0x600
-    [<ffffffff81259ab9>] worker_thread+0x59/0x5d0
-    [<ffffffff812611c8>] kthread+0x178/0x1b0
-    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30
+Removing this warning also improves driver performance under heavy
+load, where m_can_do_rx_poll() may be called many times before this
+interrupt is cleared, causing this message to be output many
+times (thanks Mariusz Madej for this report).
 
-unreferenced object 0xffff888110ef5c00 (size 232):
-  comm "kworker/u4:0", pid 8414, jiffies 4294944270 (age 12.780s)
-  backtrace:
-    [<ffffffff8154a0cf>] kmem_cache_zalloc
-    [<ffffffff8154a0cf>] __alloc_file+0x1f/0xf0
-    [<ffffffff8154a809>] alloc_empty_file+0x69/0x120
-    [<ffffffff8154a8f3>] alloc_file+0x33/0x1b0
-    [<ffffffff8154ab22>] alloc_file_pseudo+0xb2/0x140
-    [<ffffffff81559218>] create_pipe_files+0x138/0x2e0
-    [<ffffffff8126c793>] umd_setup+0x33/0x220
-    [<ffffffff81253574>] call_usermodehelper_exec_async+0xb4/0x1b0
-    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30
-
-After the UMD process exits, the pipe_to_umh/pipe_from_umh and
-tgid need to be released.
-
-Fixes: d71fa5c9763c ("bpf: Add kernel module with user mode driver that populates bpffs.")
-Reported-by: syzbot+44908bb56d2bfe56b28e@syzkaller.appspotmail.com
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210317030915.2865-1-qiang.zhang@windriver.com
+Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
+Link: https://lore.kernel.org/r/20210303103151.3760532-1-torin@maxiluxsystems.com
+Reported-by: Mariusz Madej <mariusz.madej@xtrack.com>
+Signed-off-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/usermode_driver.h       |  1 +
- kernel/bpf/preload/bpf_preload_kern.c | 19 +++++++++++++++----
- kernel/usermode_driver.c              | 21 +++++++++++++++------
- 3 files changed, 31 insertions(+), 10 deletions(-)
+ drivers/net/can/m_can/m_can.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/include/linux/usermode_driver.h b/include/linux/usermode_driver.h
-index 073a9e0ec07d..ad970416260d 100644
---- a/include/linux/usermode_driver.h
-+++ b/include/linux/usermode_driver.h
-@@ -14,5 +14,6 @@ struct umd_info {
- int umd_load_blob(struct umd_info *info, const void *data, size_t len);
- int umd_unload_blob(struct umd_info *info);
- int fork_usermode_driver(struct umd_info *info);
-+void umd_cleanup_helper(struct umd_info *info);
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index fbb970220c2d..e87c3bb82081 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -520,9 +520,6 @@ static int m_can_do_rx_poll(struct net_device *dev, int quota)
+ 	}
  
- #endif /* __LINUX_USERMODE_DRIVER_H__ */
-diff --git a/kernel/bpf/preload/bpf_preload_kern.c b/kernel/bpf/preload/bpf_preload_kern.c
-index 79c5772465f1..53736e52c1df 100644
---- a/kernel/bpf/preload/bpf_preload_kern.c
-+++ b/kernel/bpf/preload/bpf_preload_kern.c
-@@ -60,9 +60,12 @@ static int finish(void)
- 			 &magic, sizeof(magic), &pos);
- 	if (n != sizeof(magic))
- 		return -EPIPE;
-+
- 	tgid = umd_ops.info.tgid;
--	wait_event(tgid->wait_pidfd, thread_group_exited(tgid));
--	umd_ops.info.tgid = NULL;
-+	if (tgid) {
-+		wait_event(tgid->wait_pidfd, thread_group_exited(tgid));
-+		umd_cleanup_helper(&umd_ops.info);
-+	}
- 	return 0;
- }
+ 	while ((rxfs & RXFS_FFL_MASK) && (quota > 0)) {
+-		if (rxfs & RXFS_RFL)
+-			netdev_warn(dev, "Rx FIFO 0 Message Lost\n");
+-
+ 		m_can_read_fifo(dev, rxfs);
  
-@@ -80,10 +83,18 @@ static int __init load_umd(void)
- 
- static void __exit fini_umd(void)
- {
-+	struct pid *tgid;
-+
- 	bpf_preload_ops = NULL;
-+
- 	/* kill UMD in case it's still there due to earlier error */
--	kill_pid(umd_ops.info.tgid, SIGKILL, 1);
--	umd_ops.info.tgid = NULL;
-+	tgid = umd_ops.info.tgid;
-+	if (tgid) {
-+		kill_pid(tgid, SIGKILL, 1);
-+
-+		wait_event(tgid->wait_pidfd, thread_group_exited(tgid));
-+		umd_cleanup_helper(&umd_ops.info);
-+	}
- 	umd_unload_blob(&umd_ops.info);
- }
- late_initcall(load_umd);
-diff --git a/kernel/usermode_driver.c b/kernel/usermode_driver.c
-index 0b35212ffc3d..bb7bb3b478ab 100644
---- a/kernel/usermode_driver.c
-+++ b/kernel/usermode_driver.c
-@@ -139,13 +139,22 @@ static void umd_cleanup(struct subprocess_info *info)
- 	struct umd_info *umd_info = info->data;
- 
- 	/* cleanup if umh_setup() was successful but exec failed */
--	if (info->retval) {
--		fput(umd_info->pipe_to_umh);
--		fput(umd_info->pipe_from_umh);
--		put_pid(umd_info->tgid);
--		umd_info->tgid = NULL;
--	}
-+	if (info->retval)
-+		umd_cleanup_helper(umd_info);
-+}
-+
-+/**
-+ * umd_cleanup_helper - release the resources which were allocated in umd_setup
-+ * @info: information about usermode driver
-+ */
-+void umd_cleanup_helper(struct umd_info *info)
-+{
-+	fput(info->pipe_to_umh);
-+	fput(info->pipe_from_umh);
-+	put_pid(info->tgid);
-+	info->tgid = NULL;
- }
-+EXPORT_SYMBOL_GPL(umd_cleanup_helper);
- 
- /**
-  * fork_usermode_driver - fork a usermode driver
+ 		quota--;
 -- 
 2.30.1
 
