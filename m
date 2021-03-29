@@ -2,38 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8355434CA28
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B57634C82C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233465AbhC2IfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:35:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
+        id S232160AbhC2IUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:20:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233613AbhC2IeI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A40D061879;
-        Mon, 29 Mar 2021 08:34:07 +0000 (UTC)
+        id S233302AbhC2ITo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:19:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 833A161554;
+        Mon, 29 Mar 2021 08:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006848;
-        bh=kqLmg3L6lM80tubfHMERXklbLXUxYHXEpWR/kI0I+q0=;
+        s=korg; t=1617005973;
+        bh=blM/HcstuGTb7V1jjnIT6GkDK30Tg7+4tk/syW629ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecsN5oi8z1j7dABsSzJF1rkzZ0bnLVaGEyuxSrbCNHiLxibTJMTumZqmOgmUazMds
-         8NTEMnYP1kxcrXVzjj4XqMenyQJnnT6SdYhtgF6S6/nZtyDFaj9OWtOm3ya7jOhUR9
-         8IWqx8UMP4BNAOzqudB/sV6MKTCr1BJreCwOr8ww=
+        b=Ji8IWZX6fx7noOqevGQYXm4Nn2vdLoSCYDsouQJl7vQKfWKWC2c0Yr/xTjqn1HAU+
+         KvrPFMBug/RJXhAlCrsc93kiVFKUpnacoqXr848xYQ5UuYZ08pS5FDh6pl2pdpVyhn
+         v/woDJGFyahPfjnVxGa1KnPbEin83OfvtJLSvBVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Chen Jun <chenjun102@huawei.com>,
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
         Marco Elver <elver@google.com>,
-        Mark Brown <broonie@kernel.org>, Will Deacon <will@kernel.org>
-Subject: [PATCH 5.11 087/254] arm64: stacktrace: dont trace arch_stack_walk()
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Peter Collingbourne <pcc@google.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Branislav Rankov <Branislav.Rankov@arm.com>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 072/221] kasan: fix per-page tags for non-page_alloc pages
 Date:   Mon, 29 Mar 2021 09:56:43 +0200
-Message-Id: <20210329075636.032542664@linuxfoundation.org>
+Message-Id: <20210329075631.591382590@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,119 +51,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Andrey Konovalov <andreyknvl@google.com>
 
-commit c607ab4f916d4d5259072eca34055d3f5a795c21 upstream.
+commit cf10bd4c4aff8dd64d1aa7f2a529d0c672bc16af upstream.
 
-We recently converted arm64 to use arch_stack_walk() in commit:
+To allow performing tag checks on page_alloc addresses obtained via
+page_address(), tag-based KASAN modes store tags for page_alloc
+allocations in page->flags.
 
-  5fc57df2f6fd ("arm64: stacktrace: Convert to ARCH_STACKWALK")
+Currently, the default tag value stored in page->flags is 0x00.
+Therefore, page_address() returns a 0x00ffff...  address for pages that
+were not allocated via page_alloc.
 
-The core stacktrace code expects that (when tracing the current task)
-arch_stack_walk() starts a trace at its caller, and does not include
-itself in the trace. However, arm64's arch_stack_walk() includes itself,
-and so traces include one more entry than callers expect. The core
-stacktrace code which calls arch_stack_walk() tries to skip a number of
-entries to prevent itself appearing in a trace, and the additional entry
-prevents skipping one of the core stacktrace functions, leaving this in
-the trace unexpectedly.
+This might cause problems.  A particular case we encountered is a
+conflict with KFENCE.  If a KFENCE-allocated slab object is being freed
+via kfree(page_address(page) + offset), the address passed to kfree()
+will get tagged with 0x00 (as slab pages keep the default per-page
+tags).  This leads to is_kfence_address() check failing, and a KFENCE
+object ending up in normal slab freelist, which causes memory
+corruptions.
 
-We can fix this by having arm64's arch_stack_walk() begin the trace with
-its caller. The first value returned by the trace will be
-__builtin_return_address(0), i.e. the caller of arch_stack_walk(). The
-first frame record to be unwound will be __builtin_frame_address(1),
-i.e. the caller's frame record. To prevent surprises, arch_stack_walk()
-is also marked noinline.
+This patch changes the way KASAN stores tag in page-flags: they are now
+stored xor'ed with 0xff.  This way, KASAN doesn't need to initialize
+per-page flags for every created page, which might be slow.
 
-While __builtin_frame_address(1) is not safe in portable code, local GCC
-developers have confirmed that it is safe on arm64. To find the caller's
-frame record, the builtin can safely dereference the current function's
-frame record or (in theory) could stash the original FP into another GPR
-at function entry time, neither of which are problematic.
+With this change, page_address() returns natively-tagged (with 0xff)
+pointers for pages that didn't have tags set explicitly.
 
-Prior to this patch, the tracing code would unexpectedly show up in
-traces of the current task, e.g.
+This patch fixes the encountered conflict with KFENCE and prevents more
+similar issues that can occur in the future.
 
-| # cat /proc/self/stack
-| [<0>] stack_trace_save_tsk+0x98/0x100
-| [<0>] proc_pid_stack+0xb4/0x130
-| [<0>] proc_single_show+0x60/0x110
-| [<0>] seq_read_iter+0x230/0x4d0
-| [<0>] seq_read+0xdc/0x130
-| [<0>] vfs_read+0xac/0x1e0
-| [<0>] ksys_read+0x6c/0xfc
-| [<0>] __arm64_sys_read+0x20/0x30
-| [<0>] el0_svc_common.constprop.0+0x60/0x120
-| [<0>] do_el0_svc+0x24/0x90
-| [<0>] el0_svc+0x2c/0x54
-| [<0>] el0_sync_handler+0x1a4/0x1b0
-| [<0>] el0_sync+0x170/0x180
-
-After this patch, the tracing code will not show up in such traces:
-
-| # cat /proc/self/stack
-| [<0>] proc_pid_stack+0xb4/0x130
-| [<0>] proc_single_show+0x60/0x110
-| [<0>] seq_read_iter+0x230/0x4d0
-| [<0>] seq_read+0xdc/0x130
-| [<0>] vfs_read+0xac/0x1e0
-| [<0>] ksys_read+0x6c/0xfc
-| [<0>] __arm64_sys_read+0x20/0x30
-| [<0>] el0_svc_common.constprop.0+0x60/0x120
-| [<0>] do_el0_svc+0x24/0x90
-| [<0>] el0_svc+0x2c/0x54
-| [<0>] el0_sync_handler+0x1a4/0x1b0
-| [<0>] el0_sync+0x170/0x180
-
-Erring on the side of caution, I've given this a spin with a bunch of
-toolchains, verifying the output of /proc/self/stack and checking that
-the assembly looked sound. For GCC (where we require version 5.1.0 or
-later) I tested with the kernel.org crosstool binares for versions
-5.5.0, 6.4.0, 6.5.0, 7.3.0, 7.5.0, 8.1.0, 8.3.0, 8.4.0, 9.2.0, and
-10.1.0. For clang (where we require version 10.0.1 or later) I tested
-with the llvm.org binary releases of 11.0.0, and 11.0.1.
-
-Fixes: 5fc57df2f6fd ("arm64: stacktrace: Convert to ARCH_STACKWALK")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lkml.kernel.org/r/1a41abb11c51b264511d9e71c303bb16d5cb367b.1615475452.git.andreyknvl@google.com
+Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
 Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Chen Jun <chenjun102@huawei.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: <stable@vger.kernel.org> # 5.10.x
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210319184106.5688-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Peter Collingbourne <pcc@google.com>
+Cc: Evgenii Stepanov <eugenis@google.com>
+Cc: Branislav Rankov <Branislav.Rankov@arm.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/stacktrace.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/linux/mm.h |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -199,8 +199,9 @@ void show_stack(struct task_struct *tsk,
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1414,13 +1414,26 @@ static inline bool cpupid_match_pid(stru
+ #endif /* CONFIG_NUMA_BALANCING */
  
- #ifdef CONFIG_STACKTRACE
- 
--void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
--		     struct task_struct *task, struct pt_regs *regs)
-+noinline void arch_stack_walk(stack_trace_consume_fn consume_entry,
-+			      void *cookie, struct task_struct *task,
-+			      struct pt_regs *regs)
+ #ifdef CONFIG_KASAN_SW_TAGS
++
++/*
++ * KASAN per-page tags are stored xor'ed with 0xff. This allows to avoid
++ * setting tags for all pages to native kernel tag value 0xff, as the default
++ * value 0x00 maps to 0xff.
++ */
++
+ static inline u8 page_kasan_tag(const struct page *page)
  {
- 	struct stackframe frame;
+-	return (page->flags >> KASAN_TAG_PGSHIFT) & KASAN_TAG_MASK;
++	u8 tag;
++
++	tag = (page->flags >> KASAN_TAG_PGSHIFT) & KASAN_TAG_MASK;
++	tag ^= 0xff;
++
++	return tag;
+ }
  
-@@ -208,8 +209,8 @@ void arch_stack_walk(stack_trace_consume
- 		start_backtrace(&frame, regs->regs[29], regs->pc);
- 	else if (task == current)
- 		start_backtrace(&frame,
--				(unsigned long)__builtin_frame_address(0),
--				(unsigned long)arch_stack_walk);
-+				(unsigned long)__builtin_frame_address(1),
-+				(unsigned long)__builtin_return_address(0));
- 	else
- 		start_backtrace(&frame, thread_saved_fp(task),
- 				thread_saved_pc(task));
+ static inline void page_kasan_tag_set(struct page *page, u8 tag)
+ {
++	tag ^= 0xff;
+ 	page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
+ 	page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
+ }
 
 
