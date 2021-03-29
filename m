@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D69034C690
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C1734CA92
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232435AbhC2IIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50364 "EHLO mail.kernel.org"
+        id S234375AbhC2IjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232500AbhC2IHp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:07:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3AD961477;
-        Mon, 29 Mar 2021 08:07:44 +0000 (UTC)
+        id S234907AbhC2Ihe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D4A619C8;
+        Mon, 29 Mar 2021 08:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005265;
-        bh=Iq5FXPDhFOfOwScZYi6m5AIIwfnC4IBfoCPjd3956Ms=;
+        s=korg; t=1617007037;
+        bh=So4DkYke52l59xCLo9+/4JCqYW4E4QyXVwGv+n2rcgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEydELleHbUY+kkadSClNGbGkz1ToGPQmHticsaqDMvQEalc55zmhKhES7EwY18fL
-         giZeLcUmg4c3mIlqqkAlnlciEa4EsC6U3jt3zgLVovhvk5ICp9D3uDCQYzeP4CJCRx
-         IqLbky2IaN2gRaUL5oPhC9zlm/SNU0tNPjXnF+94=
+        b=n1+unLTzzwU3KO+Sz6YA2Kdbf5YQCVoeJJGKak36KwnNRjMKJUd6QOms0WnJL31MB
+         +KV8+WDEMOqVvhpIoCGO7dUwxNTKJJagjWeisDomtWsAyYbC2RrhohzUDEFz9II1FP
+         Lte9QpFmi6BdvLNULnRzfJdPPGk68XMNI1JlQ68o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/72] ia64: fix ia64_syscall_get_set_arguments() for break-based syscalls
+Subject: [PATCH 5.11 162/254] ftrace: Fix modify_ftrace_direct.
 Date:   Mon, 29 Mar 2021 09:57:58 +0200
-Message-Id: <20210329075611.003494865@linuxfoundation.org>
+Message-Id: <20210329075638.512363025@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +41,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit 0ceb1ace4a2778e34a5414e5349712ae4dc41d85 ]
+[ Upstream commit 8a141dd7f7060d1e64c14a5257e0babae20ac99b ]
 
-In https://bugs.gentoo.org/769614 Dmitry noticed that
-`ptrace(PTRACE_GET_SYSCALL_INFO)` does not work for syscalls called via
-glibc's syscall() wrapper.
+The following sequence of commands:
+  register_ftrace_direct(ip, addr1);
+  modify_ftrace_direct(ip, addr1, addr2);
+  unregister_ftrace_direct(ip, addr2);
+will cause the kernel to warn:
+[   30.179191] WARNING: CPU: 2 PID: 1961 at kernel/trace/ftrace.c:5223 unregister_ftrace_direct+0x130/0x150
+[   30.180556] CPU: 2 PID: 1961 Comm: test_progs    W  O      5.12.0-rc2-00378-g86bc10a0a711-dirty #3246
+[   30.182453] RIP: 0010:unregister_ftrace_direct+0x130/0x150
 
-ia64 has two ways to call syscalls from userspace: via `break` and via
-`eps` instructions.
+When modify_ftrace_direct() changes the addr from old to new it should update
+the addr stored in ftrace_direct_funcs. Otherwise the final
+unregister_ftrace_direct() won't find the address and will cause the splat.
 
-The difference is in stack layout:
-
-1. `eps` creates simple stack frame: no locals, in{0..7} == out{0..8}
-2. `break` uses userspace stack frame: may be locals (glibc provides
-   one), in{0..7} == out{0..8}.
-
-Both work fine in syscall handling cde itself.
-
-But `ptrace(PTRACE_GET_SYSCALL_INFO)` uses unwind mechanism to
-re-extract syscall arguments but it does not account for locals.
-
-The change always skips locals registers. It should not change `eps`
-path as kernel's handler already enforces locals=0 and fixes `break`.
-
-Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
-
-Link: https://lkml.kernel.org/r/20210221002554.333076-1-slyfox@gentoo.org
-Link: https://bugs.gentoo.org/769614
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Reported-by: Dmitry V. Levin <ldv@altlinux.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 0567d6809182 ("ftrace: Add modify_ftrace_direct()")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/bpf/20210316195815.34714-1-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/ptrace.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ kernel/trace/ftrace.c | 43 ++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 38 insertions(+), 5 deletions(-)
 
-diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
-index 427cd565fd61..799400287cda 100644
---- a/arch/ia64/kernel/ptrace.c
-+++ b/arch/ia64/kernel/ptrace.c
-@@ -2147,27 +2147,39 @@ static void syscall_get_set_args_cb(struct unw_frame_info *info, void *data)
- {
- 	struct syscall_get_set_args *args = data;
- 	struct pt_regs *pt = args->regs;
--	unsigned long *krbs, cfm, ndirty;
-+	unsigned long *krbs, cfm, ndirty, nlocals, nouts;
- 	int i, count;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 4d8e35575549..b7e29db127fa 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5045,6 +5045,20 @@ struct ftrace_direct_func *ftrace_find_direct_func(unsigned long addr)
+ 	return NULL;
+ }
  
- 	if (unw_unwind_to_user(info) < 0)
- 		return;
++static struct ftrace_direct_func *ftrace_alloc_direct_func(unsigned long addr)
++{
++	struct ftrace_direct_func *direct;
++
++	direct = kmalloc(sizeof(*direct), GFP_KERNEL);
++	if (!direct)
++		return NULL;
++	direct->addr = addr;
++	direct->count = 0;
++	list_add_rcu(&direct->next, &ftrace_direct_funcs);
++	ftrace_direct_func_count++;
++	return direct;
++}
++
+ /**
+  * register_ftrace_direct - Call a custom trampoline directly
+  * @ip: The address of the nop at the beginning of a function
+@@ -5120,15 +5134,11 @@ int register_ftrace_direct(unsigned long ip, unsigned long addr)
  
-+	/*
-+	 * We get here via a few paths:
-+	 * - break instruction: cfm is shared with caller.
-+	 *   syscall args are in out= regs, locals are non-empty.
-+	 * - epsinstruction: cfm is set by br.call
-+	 *   locals don't exist.
-+	 *
-+	 * For both cases argguments are reachable in cfm.sof - cfm.sol.
-+	 * CFM: [ ... | sor: 17..14 | sol : 13..7 | sof : 6..0 ]
-+	 */
- 	cfm = pt->cr_ifs;
-+	nlocals = (cfm >> 7) & 0x7f; /* aka sol */
-+	nouts = (cfm & 0x7f) - nlocals; /* aka sof - sol */
- 	krbs = (unsigned long *)info->task + IA64_RBS_OFFSET/8;
- 	ndirty = ia64_rse_num_regs(krbs, krbs + (pt->loadrs >> 19));
- 
- 	count = 0;
- 	if (in_syscall(pt))
--		count = min_t(int, args->n, cfm & 0x7f);
-+		count = min_t(int, args->n, nouts);
- 
-+	/* Iterate over outs. */
- 	for (i = 0; i < count; i++) {
-+		int j = ndirty + nlocals + i + args->i;
- 		if (args->rw)
--			*ia64_rse_skip_regs(krbs, ndirty + i + args->i) =
--				args->args[i];
-+			*ia64_rse_skip_regs(krbs, j) = args->args[i];
- 		else
--			args->args[i] = *ia64_rse_skip_regs(krbs,
--				ndirty + i + args->i);
-+			args->args[i] = *ia64_rse_skip_regs(krbs, j);
+ 	direct = ftrace_find_direct_func(addr);
+ 	if (!direct) {
+-		direct = kmalloc(sizeof(*direct), GFP_KERNEL);
++		direct = ftrace_alloc_direct_func(addr);
+ 		if (!direct) {
+ 			kfree(entry);
+ 			goto out_unlock;
+ 		}
+-		direct->addr = addr;
+-		direct->count = 0;
+-		list_add_rcu(&direct->next, &ftrace_direct_funcs);
+-		ftrace_direct_func_count++;
  	}
  
- 	if (!args->rw) {
+ 	entry->ip = ip;
+@@ -5329,6 +5339,7 @@ int __weak ftrace_modify_direct_caller(struct ftrace_func_entry *entry,
+ int modify_ftrace_direct(unsigned long ip,
+ 			 unsigned long old_addr, unsigned long new_addr)
+ {
++	struct ftrace_direct_func *direct, *new_direct = NULL;
+ 	struct ftrace_func_entry *entry;
+ 	struct dyn_ftrace *rec;
+ 	int ret = -ENODEV;
+@@ -5344,6 +5355,20 @@ int modify_ftrace_direct(unsigned long ip,
+ 	if (entry->direct != old_addr)
+ 		goto out_unlock;
+ 
++	direct = ftrace_find_direct_func(old_addr);
++	if (WARN_ON(!direct))
++		goto out_unlock;
++	if (direct->count > 1) {
++		ret = -ENOMEM;
++		new_direct = ftrace_alloc_direct_func(new_addr);
++		if (!new_direct)
++			goto out_unlock;
++		direct->count--;
++		new_direct->count++;
++	} else {
++		direct->addr = new_addr;
++	}
++
+ 	/*
+ 	 * If there's no other ftrace callback on the rec->ip location,
+ 	 * then it can be changed directly by the architecture.
+@@ -5357,6 +5382,14 @@ int modify_ftrace_direct(unsigned long ip,
+ 		ret = 0;
+ 	}
+ 
++	if (unlikely(ret && new_direct)) {
++		direct->count++;
++		list_del_rcu(&new_direct->next);
++		synchronize_rcu_tasks();
++		kfree(new_direct);
++		ftrace_direct_func_count--;
++	}
++
+  out_unlock:
+ 	mutex_unlock(&ftrace_lock);
+ 	mutex_unlock(&direct_mutex);
 -- 
 2.30.1
 
