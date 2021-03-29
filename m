@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B429D34CA64
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A039334C73F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbhC2Ii1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55704 "EHLO mail.kernel.org"
+        id S231648AbhC2INf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233599AbhC2Ifx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE3B16195B;
-        Mon, 29 Mar 2021 08:35:27 +0000 (UTC)
+        id S232969AbhC2IMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:12:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4530C61477;
+        Mon, 29 Mar 2021 08:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006928;
-        bh=XB90kKCUcPpcabc7lrpg59WezPOjiqU8dGO/bCClFgo=;
+        s=korg; t=1617005566;
+        bh=sWzzsCkJggXUYwjaqk3ZNQKl7qOP3H5UYuNl4wv49dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIKXh4DcEcuB8mnTwieoC2byDa8I/5pFjUeRixAxcfwrwZherAzcSVkoWgG2MYYtM
-         Cih5bicw9Z4mtuJ/+ApX91uAFNjqQ0c7Hd5CU2HGr6aZc71guQMhBHdOJiGsctjfKi
-         Rr17aCR4KZGZTcMsayDgVhzJOLtWxBjtoMM8H0M8=
+        b=ivwH/R5AU5YsZ7hyMO+fX9yICon8Uk3fflFAHmkpf56uQKUm8VWP0pxSIldlAfOkY
+         /NrK4hry7OWT8EPCRSpdXSf2yAT2soZnjx2nUCUxoVct6mYa9M0WZdCQ1mBj2Sa3r2
+         ML1v/y8vPZGcbX2bbhjjpoxTrwReZTqoNw5y9Llc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mariusz Madej <mariusz.madej@xtrack.com>,
-        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 154/254] can: m_can: m_can_do_rx_poll(): fix extraneous msg loss warning
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        Sean Nyekjaer <sean@geanix.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 042/111] squashfs: fix xattr id and id lookup sanity checks
 Date:   Mon, 29 Mar 2021 09:57:50 +0200
-Message-Id: <20210329075638.268608957@linuxfoundation.org>
+Message-Id: <20210329075616.575615175@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Torin Cooper-Bennun <torin@maxiluxsystems.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-[ Upstream commit c0e399f3baf42279f48991554240af8c457535d1 ]
+commit 8b44ca2b634527151af07447a8090a5f3a043321 upstream.
 
-Message loss from RX FIFO 0 is already handled in
-m_can_handle_lost_msg(), with netdev output included.
+The checks for maximum metadata block size is missing
+SQUASHFS_BLOCK_OFFSET (the two byte length count).
 
-Removing this warning also improves driver performance under heavy
-load, where m_can_do_rx_poll() may be called many times before this
-interrupt is cleared, causing this message to be output many
-times (thanks Mariusz Madej for this report).
-
-Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
-Link: https://lore.kernel.org/r/20210303103151.3760532-1-torin@maxiluxsystems.com
-Reported-by: Mariusz Madej <mariusz.madej@xtrack.com>
-Signed-off-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/2069685113.2081245.1614583677427@webmail.123-reg.co.uk
+Fixes: f37aa4c7366e23f ("squashfs: add more sanity checks in id lookup")
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Cc: Sean Nyekjaer <sean@geanix.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/m_can/m_can.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/squashfs/id.c       |    6 ++++--
+ fs/squashfs/xattr_id.c |    6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index da551fd0f502..678679a8c907 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -501,9 +501,6 @@ static int m_can_do_rx_poll(struct net_device *dev, int quota)
+--- a/fs/squashfs/id.c
++++ b/fs/squashfs/id.c
+@@ -97,14 +97,16 @@ __le64 *squashfs_read_id_index_table(str
+ 		start = le64_to_cpu(table[n]);
+ 		end = le64_to_cpu(table[n + 1]);
+ 
+-		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++		if (start >= end || (end - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 			kfree(table);
+ 			return ERR_PTR(-EINVAL);
+ 		}
  	}
  
- 	while ((rxfs & RXFS_FFL_MASK) && (quota > 0)) {
--		if (rxfs & RXFS_RFL)
--			netdev_warn(dev, "Rx FIFO 0 Message Lost\n");
--
- 		m_can_read_fifo(dev, rxfs);
+ 	start = le64_to_cpu(table[indexes - 1]);
+-	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= id_table_start || (id_table_start - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -109,14 +109,16 @@ __le64 *squashfs_read_xattr_id_table(str
+ 		start = le64_to_cpu(table[n]);
+ 		end = le64_to_cpu(table[n + 1]);
  
- 		quota--;
--- 
-2.30.1
-
+-		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++		if (start >= end || (end - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 			kfree(table);
+ 			return ERR_PTR(-EINVAL);
+ 		}
+ 	}
+ 
+ 	start = le64_to_cpu(table[indexes - 1]);
+-	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= table_start || (table_start - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
 
 
