@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 039F734CAB8
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1309E34C8B5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234820AbhC2Ijm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
+        id S233833AbhC2IXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233722AbhC2Ifw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4856161580;
-        Mon, 29 Mar 2021 08:35:25 +0000 (UTC)
+        id S234101AbhC2IW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57A136044F;
+        Mon, 29 Mar 2021 08:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006925;
-        bh=6QDRJsZ/Lobw4oRypTwN0X6SStAw2BVEpLwDn8fLqTI=;
+        s=korg; t=1617006178;
+        bh=KDdMExt5qTrSouKpYgJ5RyVqlsD1yrQzn1qMa8UvVuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyrQMf3cpJg3TdRA4kp6RURJ2wgcGfu/qT1SmQlsgQ4FSw4DrNiv3fWqWcwKAWEua
-         obaVZWl/QSlBvFdD+k4ntCCqrjNoEknqwZqIksKq+nGTH6GVBjxmAyC23vxsMNGqHh
-         3J5l1zOpykCEs/cWnK2fADLvAhDiDpbh+hxaIHHs=
+        b=T10ZOitQ6NDVnCTkb1C3yQprxpOMQcRotk6Hh0oHXovV/55o8AePc85XU5MOvFMIz
+         f0xlyLYLehhBwJ+MJqm8lBqyVsMuptLi7kV2qH4nyuysRdaVzZ+v+8eX7dFIaCXN5/
+         fFvB7R+u1EshJGezC3E//HbxzxyMlWJ8bdTdXb2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 153/254] can: c_can: move runtime PM enable/disable to c_can_platform
-Date:   Mon, 29 Mar 2021 09:57:49 +0200
-Message-Id: <20210329075638.238444443@linuxfoundation.org>
+Subject: [PATCH 5.10 139/221] ftrace: Fix modify_ftrace_direct.
+Date:   Mon, 29 Mar 2021 09:57:50 +0200
+Message-Id: <20210329075633.814383569@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,131 +41,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit 6e2fe01dd6f98da6cae8b07cd5cfa67abc70d97d ]
+[ Upstream commit 8a141dd7f7060d1e64c14a5257e0babae20ac99b ]
 
-Currently doing modprobe c_can_pci will make the kernel complain:
+The following sequence of commands:
+  register_ftrace_direct(ip, addr1);
+  modify_ftrace_direct(ip, addr1, addr2);
+  unregister_ftrace_direct(ip, addr2);
+will cause the kernel to warn:
+[   30.179191] WARNING: CPU: 2 PID: 1961 at kernel/trace/ftrace.c:5223 unregister_ftrace_direct+0x130/0x150
+[   30.180556] CPU: 2 PID: 1961 Comm: test_progs    W  O      5.12.0-rc2-00378-g86bc10a0a711-dirty #3246
+[   30.182453] RIP: 0010:unregister_ftrace_direct+0x130/0x150
 
-    Unbalanced pm_runtime_enable!
+When modify_ftrace_direct() changes the addr from old to new it should update
+the addr stored in ftrace_direct_funcs. Otherwise the final
+unregister_ftrace_direct() won't find the address and will cause the splat.
 
-this is caused by pm_runtime_enable() called before pm is initialized.
-
-This fix is similar to 227619c3ff7c, move those pm_enable/disable code
-to c_can_platform.
-
-Fixes: 4cdd34b26826 ("can: c_can: Add runtime PM support to Bosch C_CAN/D_CAN controller")
-Link: http://lore.kernel.org/r/20210302025542.987600-1-ztong0001@gmail.com
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Tested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 0567d6809182 ("ftrace: Add modify_ftrace_direct()")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/bpf/20210316195815.34714-1-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/c_can/c_can.c          | 24 +-----------------------
- drivers/net/can/c_can/c_can_platform.c |  6 +++++-
- 2 files changed, 6 insertions(+), 24 deletions(-)
+ kernel/trace/ftrace.c | 43 ++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 38 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/c_can/c_can.c b/drivers/net/can/c_can/c_can.c
-index 63f48b016ecd..716d1a5bf17b 100644
---- a/drivers/net/can/c_can/c_can.c
-+++ b/drivers/net/can/c_can/c_can.c
-@@ -212,18 +212,6 @@ static const struct can_bittiming_const c_can_bittiming_const = {
- 	.brp_inc = 1,
- };
- 
--static inline void c_can_pm_runtime_enable(const struct c_can_priv *priv)
--{
--	if (priv->device)
--		pm_runtime_enable(priv->device);
--}
--
--static inline void c_can_pm_runtime_disable(const struct c_can_priv *priv)
--{
--	if (priv->device)
--		pm_runtime_disable(priv->device);
--}
--
- static inline void c_can_pm_runtime_get_sync(const struct c_can_priv *priv)
- {
- 	if (priv->device)
-@@ -1335,7 +1323,6 @@ static const struct net_device_ops c_can_netdev_ops = {
- 
- int register_c_can_dev(struct net_device *dev)
- {
--	struct c_can_priv *priv = netdev_priv(dev);
- 	int err;
- 
- 	/* Deactivate pins to prevent DRA7 DCAN IP from being
-@@ -1345,28 +1332,19 @@ int register_c_can_dev(struct net_device *dev)
- 	 */
- 	pinctrl_pm_select_sleep_state(dev->dev.parent);
- 
--	c_can_pm_runtime_enable(priv);
--
- 	dev->flags |= IFF_ECHO;	/* we support local echo */
- 	dev->netdev_ops = &c_can_netdev_ops;
- 
- 	err = register_candev(dev);
--	if (err)
--		c_can_pm_runtime_disable(priv);
--	else
-+	if (!err)
- 		devm_can_led_init(dev);
--
- 	return err;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 9c1bba8cc51b..82041bbf8fc2 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5045,6 +5045,20 @@ struct ftrace_direct_func *ftrace_find_direct_func(unsigned long addr)
+ 	return NULL;
  }
- EXPORT_SYMBOL_GPL(register_c_can_dev);
  
- void unregister_c_can_dev(struct net_device *dev)
++static struct ftrace_direct_func *ftrace_alloc_direct_func(unsigned long addr)
++{
++	struct ftrace_direct_func *direct;
++
++	direct = kmalloc(sizeof(*direct), GFP_KERNEL);
++	if (!direct)
++		return NULL;
++	direct->addr = addr;
++	direct->count = 0;
++	list_add_rcu(&direct->next, &ftrace_direct_funcs);
++	ftrace_direct_func_count++;
++	return direct;
++}
++
+ /**
+  * register_ftrace_direct - Call a custom trampoline directly
+  * @ip: The address of the nop at the beginning of a function
+@@ -5120,15 +5134,11 @@ int register_ftrace_direct(unsigned long ip, unsigned long addr)
+ 
+ 	direct = ftrace_find_direct_func(addr);
+ 	if (!direct) {
+-		direct = kmalloc(sizeof(*direct), GFP_KERNEL);
++		direct = ftrace_alloc_direct_func(addr);
+ 		if (!direct) {
+ 			kfree(entry);
+ 			goto out_unlock;
+ 		}
+-		direct->addr = addr;
+-		direct->count = 0;
+-		list_add_rcu(&direct->next, &ftrace_direct_funcs);
+-		ftrace_direct_func_count++;
+ 	}
+ 
+ 	entry->ip = ip;
+@@ -5329,6 +5339,7 @@ int __weak ftrace_modify_direct_caller(struct ftrace_func_entry *entry,
+ int modify_ftrace_direct(unsigned long ip,
+ 			 unsigned long old_addr, unsigned long new_addr)
  {
--	struct c_can_priv *priv = netdev_priv(dev);
--
- 	unregister_candev(dev);
--
--	c_can_pm_runtime_disable(priv);
- }
- EXPORT_SYMBOL_GPL(unregister_c_can_dev);
++	struct ftrace_direct_func *direct, *new_direct = NULL;
+ 	struct ftrace_func_entry *entry;
+ 	struct dyn_ftrace *rec;
+ 	int ret = -ENODEV;
+@@ -5344,6 +5355,20 @@ int modify_ftrace_direct(unsigned long ip,
+ 	if (entry->direct != old_addr)
+ 		goto out_unlock;
  
-diff --git a/drivers/net/can/c_can/c_can_platform.c b/drivers/net/can/c_can/c_can_platform.c
-index 05f425ceb53a..47b251b1607c 100644
---- a/drivers/net/can/c_can/c_can_platform.c
-+++ b/drivers/net/can/c_can/c_can_platform.c
-@@ -29,6 +29,7 @@
- #include <linux/list.h>
- #include <linux/io.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/clk.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-@@ -386,6 +387,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, dev);
- 	SET_NETDEV_DEV(dev, &pdev->dev);
++	direct = ftrace_find_direct_func(old_addr);
++	if (WARN_ON(!direct))
++		goto out_unlock;
++	if (direct->count > 1) {
++		ret = -ENOMEM;
++		new_direct = ftrace_alloc_direct_func(new_addr);
++		if (!new_direct)
++			goto out_unlock;
++		direct->count--;
++		new_direct->count++;
++	} else {
++		direct->addr = new_addr;
++	}
++
+ 	/*
+ 	 * If there's no other ftrace callback on the rec->ip location,
+ 	 * then it can be changed directly by the architecture.
+@@ -5357,6 +5382,14 @@ int modify_ftrace_direct(unsigned long ip,
+ 		ret = 0;
+ 	}
  
-+	pm_runtime_enable(priv->device);
- 	ret = register_c_can_dev(dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
-@@ -398,6 +400,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
- 	return 0;
- 
- exit_free_device:
-+	pm_runtime_disable(priv->device);
- 	free_c_can_dev(dev);
- exit:
- 	dev_err(&pdev->dev, "probe failed\n");
-@@ -408,9 +411,10 @@ exit:
- static int c_can_plat_remove(struct platform_device *pdev)
- {
- 	struct net_device *dev = platform_get_drvdata(pdev);
-+	struct c_can_priv *priv = netdev_priv(dev);
- 
- 	unregister_c_can_dev(dev);
--
-+	pm_runtime_disable(priv->device);
- 	free_c_can_dev(dev);
- 
- 	return 0;
++	if (unlikely(ret && new_direct)) {
++		direct->count++;
++		list_del_rcu(&new_direct->next);
++		synchronize_rcu_tasks();
++		kfree(new_direct);
++		ftrace_direct_func_count--;
++	}
++
+  out_unlock:
+ 	mutex_unlock(&ftrace_lock);
+ 	mutex_unlock(&direct_mutex);
 -- 
 2.30.1
 
