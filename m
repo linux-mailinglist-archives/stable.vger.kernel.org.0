@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C06F34C6ED
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C9A34CAA3
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232421AbhC2ILC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52992 "EHLO mail.kernel.org"
+        id S234664AbhC2IjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231657AbhC2IKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F24AB61997;
-        Mon, 29 Mar 2021 08:10:10 +0000 (UTC)
+        id S234973AbhC2Ihs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5295B61580;
+        Mon, 29 Mar 2021 08:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005411;
-        bh=zNWJ3S6ipAU6dbDVMKFDhWmunigq6V3cEmVjjZAnHXE=;
+        s=korg; t=1617007067;
+        bh=5x0KH8zIlb7Ip2blmdQLhK9UoQYyr2+nHpC8RdR1KsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q6fsWwSH6Miw6vt20gboBPV217t70CyXfQW0btqSLFSt/mQc8o+Hk8q14ks63iJp3
-         Cx3dR2TWuNWHbt0s/mZWmIvVxy1LToAgQEdfOUvU8+LYevpYaSaHOsuy3R68er+PiF
-         XChfmsjmZJWjxVPaKdnIHQvCexMNhmTyPhsbeDuo=
+        b=VVA6MYNWUA5z5DW138LhWqC+w70x6J+sVt5TR5mK8mhgnnlFVG4j5XcVqsHNAoFbi
+         DHuZXYJqjoUqex251ypt+uN6ihYQr31kAfXN91DLSsS1x67+0086q9y1088+3MPiDE
+         XtlVnFdOHjHiGmAqxtvaVG9PBAAxi48GyUIM1slE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+93976391bf299d425f44@syzkaller.appspotmail.com,
-        Markus Theil <markus.theil@tu-ilmenau.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 70/72] mac80211: fix double free in ibss_leave
+        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        kernel test robot <lkp@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 210/254] mm: memblock: fix section mismatch warning again
 Date:   Mon, 29 Mar 2021 09:58:46 +0200
-Message-Id: <20210329075612.592902253@linuxfoundation.org>
+Message-Id: <20210329075639.990770018@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Theil <markus.theil@tu-ilmenau.de>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit 3bd801b14e0c5d29eeddc7336558beb3344efaa3 upstream.
+[ Upstream commit a024b7c2850dddd01e65b8270f0971deaf272f27 ]
 
-Clear beacon ie pointer and ie length after free
-in order to prevent double free.
+Commit 34dc2efb39a2 ("memblock: fix section mismatch warning") marked
+memblock_bottom_up() and memblock_set_bottom_up() as __init, but they
+could be referenced from non-init functions like
+memblock_find_in_range_node() on architectures that enable
+CONFIG_ARCH_KEEP_MEMBLOCK.
 
-==================================================================
-BUG: KASAN: double-free or invalid-free \
-in ieee80211_ibss_leave+0x83/0xe0 net/mac80211/ibss.c:1876
+For such builds kernel test robot reports:
 
-CPU: 0 PID: 8472 Comm: syz-executor100 Not tainted 5.11.0-rc6-syzkaller #0
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x5b/0x2c6 mm/kasan/report.c:230
- kasan_report_invalid_free+0x51/0x80 mm/kasan/report.c:355
- ____kasan_slab_free+0xcc/0xe0 mm/kasan/common.c:341
- kasan_slab_free include/linux/kasan.h:192 [inline]
- __cache_free mm/slab.c:3424 [inline]
- kfree+0xed/0x270 mm/slab.c:3760
- ieee80211_ibss_leave+0x83/0xe0 net/mac80211/ibss.c:1876
- rdev_leave_ibss net/wireless/rdev-ops.h:545 [inline]
- __cfg80211_leave_ibss+0x19a/0x4c0 net/wireless/ibss.c:212
- __cfg80211_leave+0x327/0x430 net/wireless/core.c:1172
- cfg80211_leave net/wireless/core.c:1221 [inline]
- cfg80211_netdev_notifier_call+0x9e8/0x12c0 net/wireless/core.c:1335
- notifier_call_chain+0xb5/0x200 kernel/notifier.c:83
- call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:2040
- call_netdevice_notifiers_extack net/core/dev.c:2052 [inline]
- call_netdevice_notifiers net/core/dev.c:2066 [inline]
- __dev_close_many+0xee/0x2e0 net/core/dev.c:1586
- __dev_close net/core/dev.c:1624 [inline]
- __dev_change_flags+0x2cb/0x730 net/core/dev.c:8476
- dev_change_flags+0x8a/0x160 net/core/dev.c:8549
- dev_ifsioc+0x210/0xa70 net/core/dev_ioctl.c:265
- dev_ioctl+0x1b1/0xc40 net/core/dev_ioctl.c:511
- sock_do_ioctl+0x148/0x2d0 net/socket.c:1060
- sock_ioctl+0x477/0x6a0 net/socket.c:1177
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+   WARNING: modpost: vmlinux.o(.text+0x74fea4): Section mismatch in reference from the function memblock_find_in_range_node() to the function .init.text:memblock_bottom_up()
+   The function memblock_find_in_range_node() references the function __init memblock_bottom_up().
+   This is often because memblock_find_in_range_node lacks a __init  annotation or the annotation of memblock_bottom_up is wrong.
 
-Reported-by: syzbot+93976391bf299d425f44@syzkaller.appspotmail.com
-Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Link: https://lore.kernel.org/r/20210213133653.367130-1-markus.theil@tu-ilmenau.de
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Replace __init annotations with __init_memblock annotations so that the
+appropriate section will be selected depending on
+CONFIG_ARCH_KEEP_MEMBLOCK.
+
+Link: https://lore.kernel.org/lkml/202103160133.UzhgY0wt-lkp@intel.com
+Link: https://lkml.kernel.org/r/20210316171347.14084-1-rppt@kernel.org
+Fixes: 34dc2efb39a2 ("memblock: fix section mismatch warning")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/ibss.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/memblock.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/ibss.c
-+++ b/net/mac80211/ibss.c
-@@ -1861,6 +1861,8 @@ int ieee80211_ibss_leave(struct ieee8021
- 
- 	/* remove beacon */
- 	kfree(sdata->u.ibss.ie);
-+	sdata->u.ibss.ie = NULL;
-+	sdata->u.ibss.ie_len = 0;
- 
- 	/* on the next join, re-program HT parameters */
- 	memset(&ifibss->ht_capa, 0, sizeof(ifibss->ht_capa));
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index 7643d2dfa959..4ce9c8f9e684 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -460,7 +460,7 @@ static inline void memblock_free_late(phys_addr_t base, phys_addr_t size)
+ /*
+  * Set the allocation direction to bottom-up or top-down.
+  */
+-static inline __init void memblock_set_bottom_up(bool enable)
++static inline __init_memblock void memblock_set_bottom_up(bool enable)
+ {
+ 	memblock.bottom_up = enable;
+ }
+@@ -470,7 +470,7 @@ static inline __init void memblock_set_bottom_up(bool enable)
+  * if this is true, that said, memblock will allocate memory
+  * in bottom-up direction.
+  */
+-static inline __init bool memblock_bottom_up(void)
++static inline __init_memblock bool memblock_bottom_up(void)
+ {
+ 	return memblock.bottom_up;
+ }
+-- 
+2.30.1
+
 
 
