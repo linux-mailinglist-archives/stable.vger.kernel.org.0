@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9127F34CA46
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBFC034C89C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231924AbhC2IgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:36:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S233516AbhC2IXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234235AbhC2Iex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CADF7619AD;
-        Mon, 29 Mar 2021 08:34:52 +0000 (UTC)
+        id S233644AbhC2IWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C7F661477;
+        Mon, 29 Mar 2021 08:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006893;
-        bh=a0Je3Mx7OeomMmK/c6EPHcMSocIwScW6wMLIc9UEx1U=;
+        s=korg; t=1617006122;
+        bh=WeenRWXnVvnpNd2KUABg8lbkSjzCbWGWuhkdVDaZG00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sikpMnY//l05xrxvapQHgTzc8UYnsVPERT90OWvwJWWyq+qX4zJ8+JsNPQc4u5w42
-         RrciwMXcmGzE24nGP1TQSzIEgtpsDaeq/ECwKFLRMF7ii/FFLoseeMmqU6hxs+q+bX
-         XFmxvG/qSbRDkXgxN+L75S8z7LJXPXAEiGiVRT3c=
+        b=Z2tbI486P7/YpCQDM/eRT1EFFld1I7xl54VaKpSqJi20nojv1r4WDEkdYx1ajZMfi
+         MiEzAbbkc+lq/En4V2sxmIjF4qMI2otERzMUzij0Px1suEiuutudEkv8QDs6CBMPJp
+         mceBvot8zStrjsnVDyu7AhTdhXQK/90+hDEl8saI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 141/254] netfilter: ctnetlink: fix dump of the expect mask attribute
+Subject: [PATCH 5.10 126/221] can: peak_usb: add forgotten supported devices
 Date:   Mon, 29 Mar 2021 09:57:37 +0200
-Message-Id: <20210329075637.848401895@linuxfoundation.org>
+Message-Id: <20210329075633.410550028@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-[ Upstream commit b58f33d49e426dc66e98ed73afb5d97b15a25f2d ]
+[ Upstream commit 59ec7b89ed3e921cd0625a8c83f31a30d485fdf8 ]
 
-Before this change, the mask is never included in the netlink message, so
-"conntrack -E expect" always prints 0.0.0.0.
+Since the peak_usb driver also supports the CAN-USB interfaces
+"PCAN-USB X6" and "PCAN-Chip USB" from PEAK-System GmbH, this patch adds
+their names to the list of explicitly supported devices.
 
-In older kernels the l3num callback struct was passed as argument, based
-on tuple->src.l3num. After the l3num indirection got removed, the call
-chain is based on m.src.l3num, but this value is 0xffff.
-
-Init l3num to the correct value.
-
-Fixes: f957be9d349a3 ("netfilter: conntrack: remove ctnetlink callbacks from l3 protocol trackers")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: ea8b65b596d7 ("can: usb: Add support of PCAN-Chip USB stamp module")
+Fixes: f00b534ded60 ("can: peak: Add support for PCAN-USB X6 USB interface")
+Link: https://lore.kernel.org/r/20210309082128.23125-3-s.grosjean@peak-system.com
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 84caf3316946..e0c566b3df90 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -2969,6 +2969,7 @@ static int ctnetlink_exp_dump_mask(struct sk_buff *skb,
- 	memset(&m, 0xFF, sizeof(m));
- 	memcpy(&m.src.u3, &mask->src.u3, sizeof(m.src.u3));
- 	m.src.u.all = mask->src.u.all;
-+	m.src.l3num = tuple->src.l3num;
- 	m.dst.protonum = tuple->dst.protonum;
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+index d56592283818..3f8d99286b1e 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -18,6 +18,8 @@
  
- 	nest_parms = nla_nest_start(skb, CTA_EXPECT_MASK);
+ MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB FD adapter");
+ MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB Pro FD adapter");
++MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-Chip USB");
++MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB X6 adapter");
+ 
+ #define PCAN_USBPROFD_CHANNEL_COUNT	2
+ #define PCAN_USBFD_CHANNEL_COUNT	1
 -- 
 2.30.1
 
