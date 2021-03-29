@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5154434C658
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C62234C7C5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbhC2IGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49074 "EHLO mail.kernel.org"
+        id S233040AbhC2ISL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232283AbhC2IFr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A772B61932;
-        Mon, 29 Mar 2021 08:05:46 +0000 (UTC)
+        id S233146AbhC2IQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:16:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74976619B9;
+        Mon, 29 Mar 2021 08:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005147;
-        bh=BHsNB7quJZdZFvbZOrwC2cF4dGnW5p9yOwa4oPSFHmQ=;
+        s=korg; t=1617005766;
+        bh=XCxWf8aOOtILEe2PPUBZalMKFfKHWRwjEDxquhJJ8Hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZKSLWjz27pyWchikbdvUW54pvndgO2olb7QXumQQG4JeIL91fyCys8vm/2CpgUl/
-         nlXKdsmu8ZfaDT0YX+Uw19Vk5RSjjKg8yhUK9VFkhyW7rVog6cKQt4KPEySgj5iyw9
-         7hsRJLKej0LxE2hPXV6VldtGGrA0CYcuKqmHlA5I=
+        b=YxeCFINhMDt01ghFmK/y+H9KVDO4W6OH1eC7904SJRhHLNcHBbL3ppB9y0L/L/qA3
+         vRDOmiVTStAKLo01fpI0OgSWixNUCNulJ2P3NkIXc5b320oBaygIZiIwd3iC7ex6l3
+         y8dfzeZAylbNna6Q/y1FzApDBt67PHJX+lqK7ezE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/59] net: cdc-phonet: fix data-interface release on probe failure
+Subject: [PATCH 5.4 074/111] can: c_can: move runtime PM enable/disable to c_can_platform
 Date:   Mon, 29 Mar 2021 09:58:22 +0200
-Message-Id: <20210329075610.271037779@linuxfoundation.org>
+Message-Id: <20210329075617.673652011@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit c79a707072fe3fea0e3c92edee6ca85c1e53c29f ]
+[ Upstream commit 6e2fe01dd6f98da6cae8b07cd5cfa67abc70d97d ]
 
-Set the disconnected flag before releasing the data interface in case
-netdev registration fails to avoid having the disconnect callback try to
-deregister the never registered netdev (and trigger a WARN_ON()).
+Currently doing modprobe c_can_pci will make the kernel complain:
 
-Fixes: 87cf65601e17 ("USB host CDC Phonet network interface driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    Unbalanced pm_runtime_enable!
+
+this is caused by pm_runtime_enable() called before pm is initialized.
+
+This fix is similar to 227619c3ff7c, move those pm_enable/disable code
+to c_can_platform.
+
+Fixes: 4cdd34b26826 ("can: c_can: Add runtime PM support to Bosch C_CAN/D_CAN controller")
+Link: http://lore.kernel.org/r/20210302025542.987600-1-ztong0001@gmail.com
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Tested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc-phonet.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/c_can/c_can.c          | 24 +-----------------------
+ drivers/net/can/c_can/c_can_platform.c |  6 +++++-
+ 2 files changed, 6 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/usb/cdc-phonet.c b/drivers/net/usb/cdc-phonet.c
-index 288ecd999171..7a18eb0784f3 100644
---- a/drivers/net/usb/cdc-phonet.c
-+++ b/drivers/net/usb/cdc-phonet.c
-@@ -398,6 +398,8 @@ static int usbpn_probe(struct usb_interface *intf, const struct usb_device_id *i
+diff --git a/drivers/net/can/c_can/c_can.c b/drivers/net/can/c_can/c_can.c
+index 8e9f5620c9a2..f14e739ba3f4 100644
+--- a/drivers/net/can/c_can/c_can.c
++++ b/drivers/net/can/c_can/c_can.c
+@@ -212,18 +212,6 @@ static const struct can_bittiming_const c_can_bittiming_const = {
+ 	.brp_inc = 1,
+ };
  
- 	err = register_netdev(dev);
- 	if (err) {
-+		/* Set disconnected flag so that disconnect() returns early. */
-+		pnd->disconnected = 1;
- 		usb_driver_release_interface(&usbpn_driver, data_intf);
- 		goto out;
- 	}
+-static inline void c_can_pm_runtime_enable(const struct c_can_priv *priv)
+-{
+-	if (priv->device)
+-		pm_runtime_enable(priv->device);
+-}
+-
+-static inline void c_can_pm_runtime_disable(const struct c_can_priv *priv)
+-{
+-	if (priv->device)
+-		pm_runtime_disable(priv->device);
+-}
+-
+ static inline void c_can_pm_runtime_get_sync(const struct c_can_priv *priv)
+ {
+ 	if (priv->device)
+@@ -1334,7 +1322,6 @@ static const struct net_device_ops c_can_netdev_ops = {
+ 
+ int register_c_can_dev(struct net_device *dev)
+ {
+-	struct c_can_priv *priv = netdev_priv(dev);
+ 	int err;
+ 
+ 	/* Deactivate pins to prevent DRA7 DCAN IP from being
+@@ -1344,28 +1331,19 @@ int register_c_can_dev(struct net_device *dev)
+ 	 */
+ 	pinctrl_pm_select_sleep_state(dev->dev.parent);
+ 
+-	c_can_pm_runtime_enable(priv);
+-
+ 	dev->flags |= IFF_ECHO;	/* we support local echo */
+ 	dev->netdev_ops = &c_can_netdev_ops;
+ 
+ 	err = register_candev(dev);
+-	if (err)
+-		c_can_pm_runtime_disable(priv);
+-	else
++	if (!err)
+ 		devm_can_led_init(dev);
+-
+ 	return err;
+ }
+ EXPORT_SYMBOL_GPL(register_c_can_dev);
+ 
+ void unregister_c_can_dev(struct net_device *dev)
+ {
+-	struct c_can_priv *priv = netdev_priv(dev);
+-
+ 	unregister_candev(dev);
+-
+-	c_can_pm_runtime_disable(priv);
+ }
+ EXPORT_SYMBOL_GPL(unregister_c_can_dev);
+ 
+diff --git a/drivers/net/can/c_can/c_can_platform.c b/drivers/net/can/c_can/c_can_platform.c
+index b5145a7f874c..f2b0408ce87d 100644
+--- a/drivers/net/can/c_can/c_can_platform.c
++++ b/drivers/net/can/c_can/c_can_platform.c
+@@ -29,6 +29,7 @@
+ #include <linux/list.h>
+ #include <linux/io.h>
+ #include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
+ #include <linux/clk.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+@@ -385,6 +386,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, dev);
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+ 
++	pm_runtime_enable(priv->device);
+ 	ret = register_c_can_dev(dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
+@@ -397,6 +399,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ exit_free_device:
++	pm_runtime_disable(priv->device);
+ 	free_c_can_dev(dev);
+ exit:
+ 	dev_err(&pdev->dev, "probe failed\n");
+@@ -407,9 +410,10 @@ exit:
+ static int c_can_plat_remove(struct platform_device *pdev)
+ {
+ 	struct net_device *dev = platform_get_drvdata(pdev);
++	struct c_can_priv *priv = netdev_priv(dev);
+ 
+ 	unregister_c_can_dev(dev);
+-
++	pm_runtime_disable(priv->device);
+ 	free_c_can_dev(dev);
+ 
+ 	return 0;
 -- 
 2.30.1
 
