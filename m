@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B843A34C8BE
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F5A34C63D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbhC2IYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
+        id S231986AbhC2IGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233106AbhC2IXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5451861554;
-        Mon, 29 Mar 2021 08:23:22 +0000 (UTC)
+        id S232142AbhC2IFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:05:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A1C061976;
+        Mon, 29 Mar 2021 08:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006202;
-        bh=OccUCev7wftWWMxIJL7xbKd2olf2arqmEU/Kp+ISNkU=;
+        s=korg; t=1617005111;
+        bh=CyfuoQ0oaBUlKCO0uo5ft0bnWr/0cio78syw7yFJjKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2SE8ff/tFXqL95yhWzcUn07B5YSoHj3Bs2DZDogO11g/Dtp3Pp+NaHsoLHsXYKXM
-         QMxeq7WNGBUt26jz1Av15i2OSNyNTl9DrCEQi7084LO9s2pLj0gIesbirgqmOGlL/T
-         49wqdetH0z6bgs4F4puV92ZEyejSAmbB8QrtnjgE=
+        b=m/D/2d1VuDmR379XVmF+Jz4vJt6XnJ5O+g/4VDgSmBEY18eDI63kQV8hdORHlb3ex
+         l6UHMH8OhtdRtlSofn2BRZvvaNjdQIOuBX4G4YaIi1i7NBg3aSEJPvqjRaBge1XX9c
+         7zfWiELwDeVTEzd5Mxm0TJe0OaXE7wotDjL9zOXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 156/221] net: check all name nodes in __dev_alloc_name
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [PATCH 4.14 27/59] ARM: dts: at91-sama5d27_som1: fix phy address to 7
 Date:   Mon, 29 Mar 2021 09:58:07 +0200
-Message-Id: <20210329075634.365237903@linuxfoundation.org>
+Message-Id: <20210329075609.778473866@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Bohac <jbohac@suse.cz>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 6c015a2256801597fadcbc11d287774c9c512fa5 ]
+commit 221c3a09ddf70a0a51715e6c2878d8305e95c558 upstream.
 
-__dev_alloc_name(), when supplied with a name containing '%d',
-will search for the first available device number to generate a
-unique device name.
+Fix the phy address to 7 for Ethernet PHY on SAMA5D27 SOM1. No
+connection established if phy address 0 is used.
 
-Since commit ff92741270bf8b6e78aa885f166b68c7a67ab13a ("net:
-introduce name_node struct to be used in hashlist") network
-devices may have alternate names.  __dev_alloc_name() does take
-these alternate names into account, possibly generating a name
-that is already taken and failing with -ENFILE as a result.
+The board uses the 24 pins version of the KSZ8081RNA part, KSZ8081RNA
+pin 16 REFCLK as PHYAD bit [2] has weak internal pull-down.  But at
+reset, connected to PD09 of the MPU it's connected with an internal
+pull-up forming PHYAD[2:0] = 7.
 
-This demonstrates the bug:
-
-    # rmmod dummy 2>/dev/null
-    # ip link property add dev lo altname dummy0
-    # modprobe dummy numdummies=1
-    modprobe: ERROR: could not insert 'dummy': Too many open files in system
-
-Instead of creating a device named dummy1, modprobe fails.
-
-Fix this by checking all the names in the d->name_node list, not just d->name.
-
-Signed-off-by: Jiri Bohac <jbohac@suse.cz>
-Fixes: ff92741270bf ("net: introduce name_node struct to be used in hashlist")
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Fixes: 2f61929eb10a ("ARM: dts: at91: at91-sama5d27_som1: fix PHY ID")
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm/boot/dts/at91-sama5d27_som1.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 75ca6c6d01d6..dbc286fd2047 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -1195,6 +1195,18 @@ static int __dev_alloc_name(struct net *net, const char *name, char *buf)
- 			return -ENOMEM;
+--- a/arch/arm/boot/dts/at91-sama5d27_som1.dtsi
++++ b/arch/arm/boot/dts/at91-sama5d27_som1.dtsi
+@@ -67,8 +67,8 @@
+ 				pinctrl-0 = <&pinctrl_macb0_default>;
+ 				phy-mode = "rmii";
  
- 		for_each_netdev(net, d) {
-+			struct netdev_name_node *name_node;
-+			list_for_each_entry(name_node, &d->name_node->list, list) {
-+				if (!sscanf(name_node->name, name, &i))
-+					continue;
-+				if (i < 0 || i >= max_netdevices)
-+					continue;
-+
-+				/*  avoid cases where sscanf is not exact inverse of printf */
-+				snprintf(buf, IFNAMSIZ, name, i);
-+				if (!strncmp(buf, name_node->name, IFNAMSIZ))
-+					set_bit(i, inuse);
-+			}
- 			if (!sscanf(d->name, name, &i))
- 				continue;
- 			if (i < 0 || i >= max_netdevices)
--- 
-2.30.1
-
+-				ethernet-phy@0 {
+-					reg = <0x0>;
++				ethernet-phy@7 {
++					reg = <0x7>;
+ 					interrupt-parent = <&pioA>;
+ 					interrupts = <PIN_PD31 IRQ_TYPE_LEVEL_LOW>;
+ 					pinctrl-names = "default";
 
 
