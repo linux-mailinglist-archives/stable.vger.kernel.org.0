@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2A134C7B9
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5418734C94B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232561AbhC2ISF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
+        id S232592AbhC2I3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232599AbhC2IQH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:16:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C7D461996;
-        Mon, 29 Mar 2021 08:15:42 +0000 (UTC)
+        id S233391AbhC2IZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:25:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F564619B9;
+        Mon, 29 Mar 2021 08:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005743;
-        bh=f4SrBsKx2dgW3UIsr+CYOr0HFYiWiaDu53knJp07cAI=;
+        s=korg; t=1617006318;
+        bh=rY+5YFDpKMuDRgvs9u29FTM8ifiJUWOzdDt6+CSIXHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjUco6+MFYO/hdEUXxQ1jxxlHVl0RulsGexnhqFlIXUZvuyEPgs0HQMSZyE2HsLiw
-         PM3VHYRm3d/NKNXIBeeiSgIFU5P0/twx/DDXBYcaKrz0nOd01UYVfoS7Lj5YPeCnGk
-         gqn0sSf9mCwt/tSWnuEmu/XPpC2H9aMh2DoEVXJQ=
+        b=t2CzrRusj1Ok1bnu/CgzGYU19cFp1VYpUrOT7QBNDVXPJ3TaID09yENcA6MzsxjnC
+         G0/YC85jq3sRL1TQTjkd2vK3Q9/ShlNW1zfUu72v07ewoL0YiEM4SXAo4c2nmjIV54
+         OdwatpVdqOrIxcw6N8okR7V/23ZHioto6dZx+AEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jeffery <djeffery@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Laurence Oberman <loberman@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/111] block: recalculate segment count for multi-segment discards correctly
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 197/221] ACPI: scan: Use unique number for instance_no
 Date:   Mon, 29 Mar 2021 09:58:48 +0200
-Message-Id: <20210329075618.551953331@linuxfoundation.org>
+Message-Id: <20210329075635.697080747@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,87 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit a958937ff166fc60d1c3a721036f6ff41bfa2821 ]
+[ Upstream commit eb50aaf960e3bedfef79063411ffd670da94b84b ]
 
-When a stacked block device inserts a request into another block device
-using blk_insert_cloned_request, the request's nr_phys_segments field gets
-recalculated by a call to blk_recalc_rq_segments in
-blk_cloned_rq_check_limits. But blk_recalc_rq_segments does not know how to
-handle multi-segment discards. For disk types which can handle
-multi-segment discards like nvme, this results in discard requests which
-claim a single segment when it should report several, triggering a warning
-in nvme and causing nvme to fail the discard from the invalid state.
+The decrementation of acpi_device_bus_id->instance_no
+in acpi_device_del() is incorrect, because it may cause
+a duplicate instance number to be allocated next time
+a device with the same acpi_device_bus_id is added.
 
- WARNING: CPU: 5 PID: 191 at drivers/nvme/host/core.c:700 nvme_setup_discard+0x170/0x1e0 [nvme_core]
- ...
- nvme_setup_cmd+0x217/0x270 [nvme_core]
- nvme_loop_queue_rq+0x51/0x1b0 [nvme_loop]
- __blk_mq_try_issue_directly+0xe7/0x1b0
- blk_mq_request_issue_directly+0x41/0x70
- ? blk_account_io_start+0x40/0x50
- dm_mq_queue_rq+0x200/0x3e0
- blk_mq_dispatch_rq_list+0x10a/0x7d0
- ? __sbitmap_queue_get+0x25/0x90
- ? elv_rb_del+0x1f/0x30
- ? deadline_remove_request+0x55/0xb0
- ? dd_dispatch_request+0x181/0x210
- __blk_mq_do_dispatch_sched+0x144/0x290
- ? bio_attempt_discard_merge+0x134/0x1f0
- __blk_mq_sched_dispatch_requests+0x129/0x180
- blk_mq_sched_dispatch_requests+0x30/0x60
- __blk_mq_run_hw_queue+0x47/0xe0
- __blk_mq_delay_run_hw_queue+0x15b/0x170
- blk_mq_sched_insert_requests+0x68/0xe0
- blk_mq_flush_plug_list+0xf0/0x170
- blk_finish_plug+0x36/0x50
- xlog_cil_committed+0x19f/0x290 [xfs]
- xlog_cil_process_committed+0x57/0x80 [xfs]
- xlog_state_do_callback+0x1e0/0x2a0 [xfs]
- xlog_ioend_work+0x2f/0x80 [xfs]
- process_one_work+0x1b6/0x350
- worker_thread+0x53/0x3e0
- ? process_one_work+0x350/0x350
- kthread+0x11b/0x140
- ? __kthread_bind_mask+0x60/0x60
- ret_from_fork+0x22/0x30
+Replace above mentioned approach by using IDA framework.
 
-This patch fixes blk_recalc_rq_segments to be aware of devices which can
-have multi-segment discards. It calculates the correct discard segment
-count by counting the number of bio as each discard bio is considered its
-own segment.
+While at it, define the instance range to be [0, 4096).
 
-Fixes: 1e739730c5b9 ("block: optionally merge discontiguous discard bios into a single request")
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Link: https://lore.kernel.org/r/20210211143807.GA115624@redhat
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e49bd2dd5a50 ("ACPI: use PNPID:instance_no as bus_id of ACPI device")
+Fixes: ca9dc8d42b30 ("ACPI / scan: Fix acpi_bus_id_list bookkeeping")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-merge.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/acpi/internal.h |  6 +++++-
+ drivers/acpi/scan.c     | 33 ++++++++++++++++++++++++++++-----
+ include/acpi/acpi_bus.h |  1 +
+ 3 files changed, 34 insertions(+), 6 deletions(-)
 
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index 86c4c1ef8742..03959bfe961c 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -370,6 +370,14 @@ unsigned int blk_recalc_rq_segments(struct request *rq)
- 	switch (bio_op(rq->bio)) {
- 	case REQ_OP_DISCARD:
- 	case REQ_OP_SECURE_ERASE:
-+		if (queue_max_discard_segments(rq->q) > 1) {
-+			struct bio *bio = rq->bio;
+diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
+index aee023ad0237..a958ad60a339 100644
+--- a/drivers/acpi/internal.h
++++ b/drivers/acpi/internal.h
+@@ -9,6 +9,8 @@
+ #ifndef _ACPI_INTERNAL_H_
+ #define _ACPI_INTERNAL_H_
+ 
++#include <linux/idr.h>
 +
-+			for_each_bio(bio)
-+				nr_phys_segs++;
-+			return nr_phys_segs;
+ #define PREFIX "ACPI: "
+ 
+ int early_acpi_osi_init(void);
+@@ -96,9 +98,11 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
+ 
+ extern struct list_head acpi_bus_id_list;
+ 
++#define ACPI_MAX_DEVICE_INSTANCES	4096
++
+ struct acpi_device_bus_id {
+ 	const char *bus_id;
+-	unsigned int instance_no;
++	struct ida instance_ida;
+ 	struct list_head node;
+ };
+ 
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 27292697d6a5..b47f14ac75ae 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -482,9 +482,8 @@ static void acpi_device_del(struct acpi_device *device)
+ 	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node)
+ 		if (!strcmp(acpi_device_bus_id->bus_id,
+ 			    acpi_device_hid(device))) {
+-			if (acpi_device_bus_id->instance_no > 0)
+-				acpi_device_bus_id->instance_no--;
+-			else {
++			ida_simple_remove(&acpi_device_bus_id->instance_ida, device->pnp.instance_no);
++			if (ida_is_empty(&acpi_device_bus_id->instance_ida)) {
+ 				list_del(&acpi_device_bus_id->node);
+ 				kfree_const(acpi_device_bus_id->bus_id);
+ 				kfree(acpi_device_bus_id);
+@@ -635,6 +634,21 @@ static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
+ 	return NULL;
+ }
+ 
++static int acpi_device_set_name(struct acpi_device *device,
++				struct acpi_device_bus_id *acpi_device_bus_id)
++{
++	struct ida *instance_ida = &acpi_device_bus_id->instance_ida;
++	int result;
++
++	result = ida_simple_get(instance_ida, 0, ACPI_MAX_DEVICE_INSTANCES, GFP_KERNEL);
++	if (result < 0)
++		return result;
++
++	device->pnp.instance_no = result;
++	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, result);
++	return 0;
++}
++
+ int acpi_device_add(struct acpi_device *device,
+ 		    void (*release)(struct device *))
+ {
+@@ -669,7 +683,9 @@ int acpi_device_add(struct acpi_device *device,
+ 
+ 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
+ 	if (acpi_device_bus_id) {
+-		acpi_device_bus_id->instance_no++;
++		result = acpi_device_set_name(device, acpi_device_bus_id);
++		if (result)
++			goto err_unlock;
+ 	} else {
+ 		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
+ 					     GFP_KERNEL);
+@@ -685,9 +701,16 @@ int acpi_device_add(struct acpi_device *device,
+ 			goto err_unlock;
+ 		}
+ 
++		ida_init(&acpi_device_bus_id->instance_ida);
++
++		result = acpi_device_set_name(device, acpi_device_bus_id);
++		if (result) {
++			kfree(acpi_device_bus_id);
++			goto err_unlock;
 +		}
-+		return 1;
- 	case REQ_OP_WRITE_ZEROES:
- 		return 0;
- 	case REQ_OP_WRITE_SAME:
++
+ 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
+ 	}
+-	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
+ 
+ 	if (device->parent)
+ 		list_add_tail(&device->node, &device->parent->children);
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 6d1879bf9440..37dac195adbb 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -233,6 +233,7 @@ struct acpi_pnp_type {
+ 
+ struct acpi_device_pnp {
+ 	acpi_bus_id bus_id;		/* Object name */
++	int instance_no;		/* Instance number of this object */
+ 	struct acpi_pnp_type type;	/* ID type */
+ 	acpi_bus_address bus_address;	/* _ADR */
+ 	char *unique_id;		/* _UID */
 -- 
 2.30.1
 
