@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1D534C832
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF1B34CAB7
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbhC2IUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:20:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
+        id S234719AbhC2Ijk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232317AbhC2IT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:19:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65F3B61477;
-        Mon, 29 Mar 2021 08:19:57 +0000 (UTC)
+        id S234710AbhC2Idc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1460D619D4;
+        Mon, 29 Mar 2021 08:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005997;
-        bh=2TW9CPbQ/+CJJBqvvlc7FFDOu/dSgrA0mwKG1D8j9BY=;
+        s=korg; t=1617006785;
+        bh=zOxT4fum2Fd5OtteXKj84aXCwiX9E4WS8TU3t2VXCNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWUEW83jxwrVeNVnKPRYutYHEMBCylKy+F5RgXMhhgcDyfVASenVCBW1MEnewM+yV
-         kgub5OqgmzvISZohnb1HJGGdZsLRjxYf6YIfBCYAL85ntQVOKs6tvGlJN6upUJbvZP
-         8Q1uS5WO9xTB8qyFVqxfsa/E4GoAjduirb8VAg3U=
+        b=qhuEOxovLh9pjO4iJafua6G4sONE43ZGFQ2vPlg8TzAe18MwHPUwS82tgaWBNorWj
+         wIYP3m3hz2joEsJpMTjDRis+M8E4m2in/NOAyKt5tPhH42g346HHJOmD7NBDb5syIR
+         a++4Ec5Zmt1Ox4H1OVyn/GTDn7CfFQNhePZV4/QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Sandeep Sheriker Mallikarjun 
-        <sandeepsheriker.mallikarjun@microchip.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 5.10 081/221] ARM: dts: at91: sam9x60: fix mux-mask to match products datasheet
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Russell King <linux+etnaviv@armlinux.org.uk>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        etnaviv@lists.freedesktop.org
+Subject: [PATCH 5.11 096/254] drm/etnaviv: Use FOLL_FORCE for userptr
 Date:   Mon, 29 Mar 2021 09:56:52 +0200
-Message-Id: <20210329075631.917184845@linuxfoundation.org>
+Message-Id: <20210329075636.349560401@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit 2c69c8a1736eace8de491d480e6e577a27c2087c upstream.
+commit cd5297b0855f17c8b4e3ef1d20c6a3656209c7b3 upstream.
 
-Fix the whole mux-mask table according to datasheet for the sam9x60
-product.  Too much functions for pins were disabled leading to
-misunderstandings when enabling more peripherals or taking this table
-as an example for another board.
-Take advantage of this fix to move the mux-mask in the SoC file where it
-belongs and use lower case letters for hex numbers like everywhere in
-the file.
+Nothing checks userptr.ro except this call to pup_fast, which means
+there's nothing actually preventing userspace from writing to this.
+Which means you can just read-only mmap any file you want, userptr it
+and then write to it with the gpu. Not good.
 
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
-Cc: <stable@vger.kernel.org> # 5.6+
-Cc: Sandeep Sheriker Mallikarjun <sandeepsheriker.mallikarjun@microchip.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20210310152006.15018-1-nicolas.ferre@microchip.com
+The right way to handle this is FOLL_WRITE | FOLL_FORCE, which will
+break any COW mappings and update tracking for MAY_WRITE mappings so
+there's no exploit and the vm isn't confused about what's going on.
+For any legit use case there's no difference from what userspace can
+observe and do.
+
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Cc: stable@vger.kernel.org
+Cc: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Russell King <linux+etnaviv@armlinux.org.uk>
+Cc: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: etnaviv@lists.freedesktop.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20210301095254.1946084-1-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/at91-sam9x60ek.dts |    8 --------
- arch/arm/boot/dts/sam9x60.dtsi       |    9 +++++++++
- 2 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -334,14 +334,6 @@
- };
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+@@ -689,7 +689,7 @@ static int etnaviv_gem_userptr_get_pages
+ 		struct page **pages = pvec + pinned;
  
- &pinctrl {
--	atmel,mux-mask = <
--			 /*	A	B	C	*/
--			 0xFFFFFEFF 0xC0E039FF 0xEF00019D	/* pioA */
--			 0x03FFFFFF 0x02FC7E68 0x00780000	/* pioB */
--			 0xffffffff 0xF83FFFFF 0xB800F3FC	/* pioC */
--			 0x003FFFFF 0x003F8000 0x00000000	/* pioD */
--			 >;
--
- 	adc {
- 		pinctrl_adc_default: adc_default {
- 			atmel,pins = <AT91_PIOB 15 AT91_PERIPH_A AT91_PINCTRL_NONE>;
---- a/arch/arm/boot/dts/sam9x60.dtsi
-+++ b/arch/arm/boot/dts/sam9x60.dtsi
-@@ -606,6 +606,15 @@
- 				compatible = "microchip,sam9x60-pinctrl", "atmel,at91sam9x5-pinctrl", "atmel,at91rm9200-pinctrl", "simple-bus";
- 				ranges = <0xfffff400 0xfffff400 0x800>;
- 
-+				/* mux-mask corresponding to sam9x60 SoC in TFBGA228L package */
-+				atmel,mux-mask = <
-+						 /*	A	B	C	*/
-+						 0xffffffff 0xffe03fff 0xef00019d	/* pioA */
-+						 0x03ffffff 0x02fc7e7f 0x00780000	/* pioB */
-+						 0xffffffff 0xffffffff 0xf83fffff	/* pioC */
-+						 0x003fffff 0x003f8000 0x00000000	/* pioD */
-+						 >;
-+
- 				pioA: gpio@fffff400 {
- 					compatible = "microchip,sam9x60-gpio", "atmel,at91sam9x5-gpio", "atmel,at91rm9200-gpio";
- 					reg = <0xfffff400 0x200>;
+ 		ret = pin_user_pages_fast(ptr, num_pages,
+-					  !userptr->ro ? FOLL_WRITE : 0, pages);
++					  FOLL_WRITE | FOLL_FORCE, pages);
+ 		if (ret < 0) {
+ 			unpin_user_pages(pvec, pinned);
+ 			kvfree(pvec);
 
 
