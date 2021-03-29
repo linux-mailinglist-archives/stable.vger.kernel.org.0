@@ -2,130 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B915A34C2FC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 07:23:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B681734C30A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 07:34:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229483AbhC2FXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 01:23:01 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:54431 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229502AbhC2FW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 01:22:28 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 2598C128C;
-        Mon, 29 Mar 2021 01:22:27 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 29 Mar 2021 01:22:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JbQEun
-        wQMKlZWfXa0rBsBywbn36gTk5lgay5M1XxwoI=; b=GsMZGdd3fZZzhykf7gFlgF
-        zD45ScOs1JIWTvlOIlRGjFbhIOeKHNnSnhGsNXM68IqOfkYpFU7FT7cD17rk75qB
-        UKdseMrTrmpp7YnP8Jrk9Kx8qmL6eXtG33UkUgPEXJYbbrPooh+WwEk4/y2p8go0
-        q/Az3RPNqD4TJhjJl1t/heN9ZNEVOgin6WxEERtUFEMceNKF0hdPwhSEMjTTZXbX
-        jvqDcqT8UES0dPm5iyI7V9TmmKBi4AmEE1DSyC+Jfe+2v+Y540kqMr9F0fsMltpZ
-        7bOlCCxxkEzjAqDBwi3D0n5xZHO5p/n+tj0q2BAZEVBPTjLpDihTvWqUHLZc5Aog
-        ==
-X-ME-Sender: <xms:EmRhYN5paYIRSpo5EIIMruu1BSesl37ikMbaGFna7bKkAw299OZxqQ>
-    <xme:EmRhYK6jnaDD4AltEGCdDaYIRiPlKtBxPDTG_f4qpN0V2BM9aPBIckrPdxqiISTqC
-    gu6khW40e7Aow>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudehjedgleefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:EmRhYEdd9cMZ2-dVAyJVL6b7U9Qx_tz2K1oCgbRxyl4i07jbAiZIWQ>
-    <xmx:EmRhYGLtnbXVru0Uxu7V7stoo-O3CrnD2NyLdBhfK0-P4N114f0Ksw>
-    <xmx:EmRhYBLjH0b_96SPAmqaoUnP6ot5EVz_e3mkoTta-UvN1nOLYvh5oA>
-    <xmx:EmRhYEle5cbs4d0U-5tQRP42SkH1sN93GGXqyxW1V76Dbcxs0mk5XVdIVEk>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 67E3A24005A;
-        Mon, 29 Mar 2021 01:22:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] smb3: fix cached file size problems in duplicate extents" failed to apply to 4.4-stable tree
-To:     stfrench@microsoft.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Mar 2021 07:22:16 +0200
-Message-ID: <16169953364068@kroah.com>
+        id S229674AbhC2FeP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 01:34:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59956 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230161AbhC2Fdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 01:33:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E8696195E;
+        Mon, 29 Mar 2021 05:27:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1616995665;
+        bh=GLZptUcUHd16gmgYLTrd+kHb4iLGwLKXGX4UUUm31JM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2NbpdXuTS7uMSuM4rr2MUSFAJVQFOZ/7MC8jUVbdHH+Q0NSi38NEn4PykEt6oK3pI
+         DyoBNBfDfGC/dbhMkSr+P7SXLhtXZZZgrNPfoo11JfNd5J3bvBRS0yJK43GaArnJGa
+         868YHw1cC5eCSIo9Bx1NPr6e8TdYgdMLj8g4FxBU=
+Date:   Mon, 29 Mar 2021 07:27:42 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     akpm@linux-foundation.org, chenweilong@huawei.com,
+        dingtianhong@huawei.com, guohanjun@huawei.com, guro@fb.com,
+        hannes@cmpxchg.org, kirill.shutemov@linux.intel.com,
+        mhocko@suse.com, npiggin@gmail.com, rui.xiang@huawei.com,
+        shakeelb@google.com, torvalds@linux-foundation.org,
+        wangkefeng.wang@huawei.com, willy@infradead.org,
+        zhouguanghui1@huawei.com, ziy@nvidia.com, stable@vger.kernel.org
+Subject: Re: [PATCH] mm/memcg: fix 5.10 backport of splitting page memcg
+Message-ID: <YGFlTqxgZxlLUm6k@kroah.com>
+References: <alpine.LSU.2.11.2103281706200.4623@eggly.anvils>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.11.2103281706200.4623@eggly.anvils>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Mar 28, 2021 at 05:13:13PM -0700, Hugh Dickins wrote:
+> The straight backport of 5.12's e1baddf8475b ("mm/memcg: set memcg when
+> splitting page") works fine in 5.11, but turned out to be wrong for 5.10:
+> because that relies on a separate flag, which must also be set for the
+> memcg to be recognized and uncharged and cleared when freeing. Fix that.
+> 
+> Signed-off-by: Hugh Dickins <hughd@google.com>
+> ---
+> 
+>  mm/memcontrol.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+> 
+> --- a/mm/memcontrol.c
+> +++ b/mm/memcontrol.c
+> @@ -3274,13 +3274,17 @@ void obj_cgroup_uncharge(struct obj_cgro
+>  void split_page_memcg(struct page *head, unsigned int nr)
+>  {
+>  	struct mem_cgroup *memcg = head->mem_cgroup;
+> +	int kmemcg = PageKmemcg(head);
+>  	int i;
+>  
+>  	if (mem_cgroup_disabled() || !memcg)
+>  		return;
+>  
+> -	for (i = 1; i < nr; i++)
+> +	for (i = 1; i < nr; i++) {
+>  		head[i].mem_cgroup = memcg;
+> +		if (kmemcg)
+> +			__SetPageKmemcg(head + i);
+> +	}
+>  	css_get_many(&memcg->css, nr - 1);
+>  }
+>  
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Thanks for the fix, now queued up.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From cfc63fc8126a93cbf95379bc4cad79a7b15b6ece Mon Sep 17 00:00:00 2001
-From: Steve French <stfrench@microsoft.com>
-Date: Fri, 26 Mar 2021 18:41:55 -0500
-Subject: [PATCH] smb3: fix cached file size problems in duplicate extents
- (reflink)
-
-There were two problems (one of which could cause data corruption)
-that were noticed with duplicate extents (ie reflink)
-when debugging why various xfstests were being incorrectly skipped
-(e.g. generic/138, generic/140, generic/142). First, we were not
-updating the file size locally in the cache when extending a
-file due to reflink (it would refresh after actimeo expires)
-but xfstest was checking the size immediately which was still
-0 so caused the test to be skipped.  Second, we were setting
-the target file size (which could shrink the file) in all cases
-to the end of the reflinked range rather than only setting the
-target file size when reflink would extend the file.
-
-CC: <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 3e94f83897e9..f703204fb185 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -2038,6 +2038,7 @@ smb2_duplicate_extents(const unsigned int xid,
- {
- 	int rc;
- 	unsigned int ret_data_len;
-+	struct inode *inode;
- 	struct duplicate_extents_to_file dup_ext_buf;
- 	struct cifs_tcon *tcon = tlink_tcon(trgtfile->tlink);
- 
-@@ -2054,10 +2055,21 @@ smb2_duplicate_extents(const unsigned int xid,
- 	cifs_dbg(FYI, "Duplicate extents: src off %lld dst off %lld len %lld\n",
- 		src_off, dest_off, len);
- 
--	rc = smb2_set_file_size(xid, tcon, trgtfile, dest_off + len, false);
--	if (rc)
--		goto duplicate_extents_out;
-+	inode = d_inode(trgtfile->dentry);
-+	if (inode->i_size < dest_off + len) {
-+		rc = smb2_set_file_size(xid, tcon, trgtfile, dest_off + len, false);
-+		if (rc)
-+			goto duplicate_extents_out;
- 
-+		/*
-+		 * Although also could set plausible allocation size (i_blocks)
-+		 * here in addition to setting the file size, in reflink
-+		 * it is likely that the target file is sparse. Its allocation
-+		 * size will be queried on next revalidate, but it is important
-+		 * to make sure that file's cached size is updated immediately
-+		 */
-+		cifs_setsize(inode, dest_off + len);
-+	}
- 	rc = SMB2_ioctl(xid, tcon, trgtfile->fid.persistent_fid,
- 			trgtfile->fid.volatile_fid,
- 			FSCTL_DUPLICATE_EXTENTS_TO_FILE,
-
