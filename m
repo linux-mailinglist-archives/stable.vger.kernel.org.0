@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC21534C6B6
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F3FC34C5CA
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231604AbhC2IJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:09:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
+        id S231860AbhC2ICz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:02:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231789AbhC2IId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:08:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F307E619A6;
-        Mon, 29 Mar 2021 08:08:31 +0000 (UTC)
+        id S231936AbhC2ICX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:02:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41EA96196B;
+        Mon, 29 Mar 2021 08:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005312;
-        bh=0FRrAQoE0FT2zMGF5vNcmoy3XCurXopyRcZKoXp6tOs=;
+        s=korg; t=1617004942;
+        bh=NCREDiYkF9t8YSmZJjZdwMr96woroBhFxbt91BlFNaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fx/X7qo1eIwrcWR9KnkAOYABnZGSa7R8RWbMP2F760oKmkYWHuGYcjwNY+c4tBz7h
-         KSNfInvP0V0H/vP77bVA8aAH+D0oz+iR3Am/79OKbnFD/GNpuU7ErZrIfP91T96P32
-         KlcRwti2f9tor3iVd38yZH7elJwW2MqSWuavIk8w=
+        b=XbBnh873iebHagTMA+WnTClkBgxyl/Jy4ZVlC/w9LL8W8aXRR0q9vEqU2/AGnbbFs
+         ir1X7Z5VALa7dkQgl5Zm24Qk8jUHR48iZnVDO5Gy4+dcJME4nEsizwUv5lPScbRFtk
+         nMZwZQPgXc64SzLVvhgS0l/ndrzCkKkx5Ubcvz6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/72] Revert "r8152: adjust the settings about MAC clock speed down for RTL8153"
+Subject: [PATCH 4.9 06/53] net: tehuti: fix error return code in bdx_probe()
 Date:   Mon, 29 Mar 2021 09:57:41 +0200
-Message-Id: <20210329075610.478319459@linuxfoundation.org>
+Message-Id: <20210329075607.763321882@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,108 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 4b5dc1a94d4f92b5845e98bd9ae344b26d933aad ]
+[ Upstream commit 38c26ff3048af50eee3fcd591921357ee5bfd9ee ]
 
-This reverts commit 134f98bcf1b898fb9d6f2b91bc85dd2e5478b4b8.
+When bdx_read_mac() fails, no error return code of bdx_probe()
+is assigned.
+To fix this bug, err is assigned with -EFAULT as error return code.
 
-The r8153_mac_clk_spd() is used for RTL8153A only, because the register
-table of RTL8153B is different from RTL8153A. However, this function would
-be called when RTL8153B calls r8153_first_init() and r8153_enter_oob().
-That causes RTL8153B becomes unstable when suspending and resuming. The
-worst case may let the device stop working.
-
-Besides, revert this commit to disable MAC clock speed down for RTL8153A.
-It would avoid the known issue when enabling U1. The data of the first
-control transfer may be wrong when exiting U1.
-
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 35 ++++++-----------------------------
- 1 file changed, 6 insertions(+), 29 deletions(-)
+ drivers/net/ethernet/tehuti/tehuti.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 7dc605585535..a27ea04cfa6c 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -2593,29 +2593,6 @@ static void __rtl_set_wol(struct r8152 *tp, u32 wolopts)
- 		device_set_wakeup_enable(&tp->udev->dev, false);
- }
- 
--static void r8153_mac_clk_spd(struct r8152 *tp, bool enable)
--{
--	/* MAC clock speed down */
--	if (enable) {
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL,
--			       ALDPS_SPDWN_RATIO);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2,
--			       EEE_SPDWN_RATIO);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3,
--			       PKT_AVAIL_SPDWN_EN | SUSPEND_SPDWN_EN |
--			       U1U2_SPDWN_EN | L1_SPDWN_EN);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4,
--			       PWRSAVE_SPDWN_EN | RXDV_SPDWN_EN | TX10MIDLE_EN |
--			       TP100_SPDWN_EN | TP500_SPDWN_EN | EEE_SPDWN_EN |
--			       TP1000_SPDWN_EN);
--	} else {
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
--	}
--}
--
- static void r8153_u1u2en(struct r8152 *tp, bool enable)
- {
- 	u8 u1u2[8];
-@@ -2847,11 +2824,9 @@ static void rtl8153_runtime_enable(struct r8152 *tp, bool enable)
- 	if (enable) {
- 		r8153_u1u2en(tp, false);
- 		r8153_u2p3en(tp, false);
--		r8153_mac_clk_spd(tp, true);
- 		rtl_runtime_suspend_enable(tp, true);
- 	} else {
- 		rtl_runtime_suspend_enable(tp, false);
--		r8153_mac_clk_spd(tp, false);
- 
- 		switch (tp->version) {
- 		case RTL_VER_03:
-@@ -3413,7 +3388,6 @@ static void r8153_first_init(struct r8152 *tp)
- 	u32 ocp_data;
- 	int i;
- 
--	r8153_mac_clk_spd(tp, false);
- 	rxdy_gated_en(tp, true);
- 	r8153_teredo_off(tp);
- 
-@@ -3475,8 +3449,6 @@ static void r8153_enter_oob(struct r8152 *tp)
- 	u32 ocp_data;
- 	int i;
- 
--	r8153_mac_clk_spd(tp, true);
--
- 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL);
- 	ocp_data &= ~NOW_IS_OOB;
- 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
-@@ -4141,9 +4113,14 @@ static void r8153_init(struct r8152 *tp)
- 
- 	ocp_write_word(tp, MCU_TYPE_USB, USB_CONNECT_TIMER, 0x0001);
- 
-+	/* MAC clock speed down */
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
-+
- 	r8153_power_cut_en(tp, false);
- 	r8153_u1u2en(tp, true);
--	r8153_mac_clk_spd(tp, false);
- 	usb_enable_lpm(tp->udev);
- 
- 	/* rx aggregation */
+diff --git a/drivers/net/ethernet/tehuti/tehuti.c b/drivers/net/ethernet/tehuti/tehuti.c
+index 7108c68f16d3..6ee7f8d2f2d1 100644
+--- a/drivers/net/ethernet/tehuti/tehuti.c
++++ b/drivers/net/ethernet/tehuti/tehuti.c
+@@ -2062,6 +2062,7 @@ bdx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		/*bdx_hw_reset(priv); */
+ 		if (bdx_read_mac(priv)) {
+ 			pr_err("load MAC address failed\n");
++			err = -EFAULT;
+ 			goto err_out_iomap;
+ 		}
+ 		SET_NETDEV_DEV(ndev, &pdev->dev);
 -- 
 2.30.1
 
