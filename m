@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80F8934C7F4
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF64034C9D6
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232841AbhC2IS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34264 "EHLO mail.kernel.org"
+        id S233221AbhC2Id7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232764AbhC2IST (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:18:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2407F61932;
-        Mon, 29 Mar 2021 08:18:11 +0000 (UTC)
+        id S234430AbhC2IdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F0D261990;
+        Mon, 29 Mar 2021 08:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005892;
-        bh=6tv68FGLqvBJOuuHzZh4lgqMBl8erwIjzi2VaN4TVs0=;
+        s=korg; t=1617006702;
+        bh=3/wl8SqK+8bZkv/ztqqTvLskLEFzNzPzMf7mkkqotEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lf357h9+n2nXrPTTTI8Ka6NzHQNq13LZPC3ynqtH1G2xU5x0BcX5oUn+sXmo19QxA
-         1ne1CmyTFZKUuJcXFeAB34o4DNAwjYViii8H0TBrY+bCS408ePFELqkAVKEIdYNqBZ
-         tp1EQmbwnBsaYE1sYO94poJTXXREzerOzoF8Rg4I=
+        b=TcZt75TPkCcoajA8pRDNljKSXxcEGCVbM9k4nrWJEHMsZDH8VQ3Be757SZSqqXV7r
+         BSQdA0gi2yBAxm7QwLcLrf9DeL6Xsr2zvSu3xgvL/vWPOR5adRHihGff5062W6v7il
+         njfnSpF4SVBctvoQAc0A7ImLNPtNydGJJehEuQeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Jacob Pan <jacob.jun.pan@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/221] drm/amdgpu: fb BO should be ttm_bo_type_device
-Date:   Mon, 29 Mar 2021 09:56:14 +0200
-Message-Id: <20210329075630.615559768@linuxfoundation.org>
+Subject: [PATCH 5.11 059/254] mm/fork: clear PASID for new mm
+Date:   Mon, 29 Mar 2021 09:56:15 +0200
+Message-Id: <20210329075635.114005306@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit 521f04f9e3ffc73ef96c776035f8a0a31b4cdd81 ]
+[ Upstream commit 82e69a121be4b1597ce758534816a8ee04c8b761 ]
 
-FB BO should not be ttm_bo_type_kernel type and
-amdgpufb_create_pinned_object() pins the FB BO anyway.
+When a new mm is created, its PASID should be cleared, i.e.  the PASID is
+initialized to its init state 0 on both ARM and X86.
 
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This patch was part of the series introducing mm->pasid, but got lost
+along the way [1].  It still makes sense to have it, because each address
+space has a different PASID.  And the IOMMU code in
+iommu_sva_alloc_pasid() expects the pasid field of a new mm struct to be
+cleared.
+
+[1] https://lore.kernel.org/linux-iommu/YDgh53AcQHT+T3L0@otcwcpicx3.sc.intel.com/
+
+Link: https://lkml.kernel.org/r/20210302103837.2562625-1-jean-philippe@linaro.org
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/mm_types.h | 1 +
+ kernel/fork.c            | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-index e2c2eb45a793..1ea8af48ae2f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-@@ -146,7 +146,7 @@ static int amdgpufb_create_pinned_object(struct amdgpu_fbdev *rfbdev,
- 	size = mode_cmd->pitches[0] * height;
- 	aligned_size = ALIGN(size, PAGE_SIZE);
- 	ret = amdgpu_gem_object_create(adev, aligned_size, 0, domain, flags,
--				       ttm_bo_type_kernel, NULL, &gobj);
-+				       ttm_bo_type_device, NULL, &gobj);
- 	if (ret) {
- 		pr_err("failed to allocate framebuffer (%d)\n", aligned_size);
- 		return -ENOMEM;
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 07d9acb5b19c..61c77cfff8c2 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -23,6 +23,7 @@
+ #endif
+ #define AT_VECTOR_SIZE (2*(AT_VECTOR_SIZE_ARCH + AT_VECTOR_SIZE_BASE + 1))
+ 
++#define INIT_PASID	0
+ 
+ struct address_space;
+ struct mem_cgroup;
+diff --git a/kernel/fork.c b/kernel/fork.c
+index d66cd1014211..808af2cc8ab6 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -994,6 +994,13 @@ static void mm_init_owner(struct mm_struct *mm, struct task_struct *p)
+ #endif
+ }
+ 
++static void mm_init_pasid(struct mm_struct *mm)
++{
++#ifdef CONFIG_IOMMU_SUPPORT
++	mm->pasid = INIT_PASID;
++#endif
++}
++
+ static void mm_init_uprobes_state(struct mm_struct *mm)
+ {
+ #ifdef CONFIG_UPROBES
+@@ -1024,6 +1031,7 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
+ 	mm_init_cpumask(mm);
+ 	mm_init_aio(mm);
+ 	mm_init_owner(mm, p);
++	mm_init_pasid(mm);
+ 	RCU_INIT_POINTER(mm->exe_file, NULL);
+ 	mmu_notifier_subscriptions_init(mm);
+ 	init_tlb_flush_pending(mm);
 -- 
 2.30.1
 
