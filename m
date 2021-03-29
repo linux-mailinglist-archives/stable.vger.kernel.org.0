@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1459534C840
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1AA334CA16
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232355AbhC2IVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36632 "EHLO mail.kernel.org"
+        id S233541AbhC2Iev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232419AbhC2IUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:20:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9036161613;
-        Mon, 29 Mar 2021 08:20:24 +0000 (UTC)
+        id S234769AbhC2Idg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E341861959;
+        Mon, 29 Mar 2021 08:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006025;
-        bh=LCfOYbdDrWCE+GJPVozw9HGEGOggj0If07yc6i7jxEg=;
+        s=korg; t=1617006810;
+        bh=o4u/VcO69L7DhtcHtxq/rNaFbwGDQVYq3qt12Vub5Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n3ETSvgnWhVtLcMZRh0YJlItRw0WXcb55td8KlAjNOxeZ/dYDJthyP/XKmOB9FGv3
-         sOKH3ozhe/HRIFoUItuP7xrihzLiHgDqy4kOwCTwAqsVJavk10ersCNY1b2LAkInn4
-         7Ku9IR5E22mXa/qabOx+BpZlBpivqkb6XNSgQFDo=
+        b=JyWZ/al/B5UCWy3qvip7h9zmAsk0PFtIt5lEJhW43LqZ9UK/ABWdVWT8plKrnxw2R
+         WIrsq5AZjYihPFw9d4ZNDHII+B2UopEN+vyJ4DoDl5SPPjs3pDnwQ1eu0dmto9bXKa
+         uLCCBox8smbN99tDSwT6v5WDSPXwKDY7l+XCbBjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.10 090/221] dm ioctl: fix out of bounds array access when no devices
-Date:   Mon, 29 Mar 2021 09:57:01 +0200
-Message-Id: <20210329075632.214146695@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 106/254] bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
+Date:   Mon, 29 Mar 2021 09:57:02 +0200
+Message-Id: <20210329075636.688254699@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-commit 4edbe1d7bcffcd6269f3b5eb63f710393ff2ec7a upstream.
+[ Upstream commit 7d7275b3e866cf8092bd12553ec53ba26864f7bb ]
 
-If there are not any dm devices, we need to zero the "dev" argument in
-the first structure dm_name_list. However, this can cause out of
-bounds write, because the "needed" variable is zero and len may be
-less than eight.
+The main purpose of l3 IRQs is to catch OCP bus access errors and identify
+corresponding code places by showing call stack, so it's important to
+handle L3 interconnect errors as fast as possible. On RT these IRQs will
+became threaded and will be scheduled much more late from the moment actual
+error occurred so showing completely useless information.
 
-Fix this bug by reporting DM_BUFFER_FULL_FLAG if the result buffer is
-too small to hold the "nl->dev" value.
+Hence, mark l3 IRQs as IRQF_NO_THREAD so they will not be forced threaded
+on RT or if force_irqthreads = true.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0ee7261c9212 ("drivers: bus: Move the OMAP interconnect driver to drivers/bus/")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/omap_l3_noc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -529,7 +529,7 @@ static int list_devices(struct file *fil
- 	 * Grab our output buffer.
+diff --git a/drivers/bus/omap_l3_noc.c b/drivers/bus/omap_l3_noc.c
+index b040447575ad..dcfb32ee5cb6 100644
+--- a/drivers/bus/omap_l3_noc.c
++++ b/drivers/bus/omap_l3_noc.c
+@@ -285,7 +285,7 @@ static int omap_l3_probe(struct platform_device *pdev)
  	 */
- 	nl = orig_nl = get_result_buffer(param, param_size, &len);
--	if (len < needed) {
-+	if (len < needed || len < sizeof(nl->dev)) {
- 		param->flags |= DM_BUFFER_FULL_FLAG;
- 		goto out;
- 	}
+ 	l3->debug_irq = platform_get_irq(pdev, 0);
+ 	ret = devm_request_irq(l3->dev, l3->debug_irq, l3_interrupt_handler,
+-			       0x0, "l3-dbg-irq", l3);
++			       IRQF_NO_THREAD, "l3-dbg-irq", l3);
+ 	if (ret) {
+ 		dev_err(l3->dev, "request_irq failed for %d\n",
+ 			l3->debug_irq);
+@@ -294,7 +294,7 @@ static int omap_l3_probe(struct platform_device *pdev)
+ 
+ 	l3->app_irq = platform_get_irq(pdev, 1);
+ 	ret = devm_request_irq(l3->dev, l3->app_irq, l3_interrupt_handler,
+-			       0x0, "l3-app-irq", l3);
++			       IRQF_NO_THREAD, "l3-app-irq", l3);
+ 	if (ret)
+ 		dev_err(l3->dev, "request_irq failed for %d\n", l3->app_irq);
+ 
+-- 
+2.30.1
+
 
 
