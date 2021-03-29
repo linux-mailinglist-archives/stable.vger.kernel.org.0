@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65DE234C676
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 708E334CAD3
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231534AbhC2IH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:07:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49074 "EHLO mail.kernel.org"
+        id S231830AbhC2IkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:40:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232345AbhC2IGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26BEC61932;
-        Mon, 29 Mar 2021 08:06:32 +0000 (UTC)
+        id S234575AbhC2IjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:39:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62AA561990;
+        Mon, 29 Mar 2021 08:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005193;
-        bh=+CSIDUoEPFTCArLXmqlLFa5UMXiV+bn7RaHR6vdETL0=;
+        s=korg; t=1617007146;
+        bh=eB0f3E9CYhRZX991dzExvF66ssWPY14C7K+Ls8IDR2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Quix/f8TgW0ypSoBVXnlzSHUq00lCLyPXiVt0ScsoH9cgNG1YJHdLyDHxrKla+sFZ
-         K93XbBp/BpzB0iFiJz88uRYQWo4+47GxJLfj6cnxEdPF9yEGBOWXorD3fR6yIz6Rsz
-         5oWg3efsftXnKU5g5bxBl5CZlzBfzckz94Dkpkq0=
+        b=TUb/A3oS6CPsgsRYAPxSxqaraayCqif3/07bsfKwpK+fXc47Mnre3SKmx1DwUvG98
+         wapgY4Hf8L9VMLEZkvEn7S2+felv6IRnC2o8FwGgKfvpgO6ZMZDqUa980WbuCHvmJO
+         ioKVm3nnJoiLjfUeYOHP4mpcuzW4PBLKRPKmhRL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 58/59] ext4: add reclaim checks to xattr code
-Date:   Mon, 29 Mar 2021 09:58:38 +0200
-Message-Id: <20210329075610.780311481@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 203/254] mfd: intel_quark_i2c_gpio: Revert "Constify static struct resources"
+Date:   Mon, 29 Mar 2021 09:58:39 +0200
+Message-Id: <20210329075639.772545376@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 163f0ec1df33cf468509ff38cbcbb5eb0d7fac60 upstream.
+[ Upstream commit a61f4661fba404418a7c77e86586dc52a58a93c6 ]
 
-Syzbot is reporting that ext4 can enter fs reclaim from kvmalloc() while
-the transaction is started like:
+The structures are used as place holders, so they are modified at run-time.
+Obviously they may not be constants.
 
-  fs_reclaim_acquire+0x117/0x150 mm/page_alloc.c:4340
-  might_alloc include/linux/sched/mm.h:193 [inline]
-  slab_pre_alloc_hook mm/slab.h:493 [inline]
-  slab_alloc_node mm/slub.c:2817 [inline]
-  __kmalloc_node+0x5f/0x430 mm/slub.c:4015
-  kmalloc_node include/linux/slab.h:575 [inline]
-  kvmalloc_node+0x61/0xf0 mm/util.c:587
-  kvmalloc include/linux/mm.h:781 [inline]
-  ext4_xattr_inode_cache_find fs/ext4/xattr.c:1465 [inline]
-  ext4_xattr_inode_lookup_create fs/ext4/xattr.c:1508 [inline]
-  ext4_xattr_set_entry+0x1ce6/0x3780 fs/ext4/xattr.c:1649
-  ext4_xattr_ibody_set+0x78/0x2b0 fs/ext4/xattr.c:2224
-  ext4_xattr_set_handle+0x8f4/0x13e0 fs/ext4/xattr.c:2380
-  ext4_xattr_set+0x13a/0x340 fs/ext4/xattr.c:2493
+  BUG: unable to handle page fault for address: d0643220
+  ...
+  CPU: 0 PID: 110 Comm: modprobe Not tainted 5.11.0+ #1
+  Hardware name: Intel Corp. QUARK/GalileoGen2, BIOS 0x01000200 01/01/2014
+  EIP: intel_quark_mfd_probe+0x93/0x1c0 [intel_quark_i2c_gpio]
 
-This should be impossible since transaction start sets PF_MEMALLOC_NOFS.
-Add some assertions to the code to catch if something isn't working as
-expected early.
+This partially reverts the commit c4a164f41554d2899bed94bdcc499263f41787b4.
 
-Link: https://lore.kernel.org/linux-ext4/000000000000563a0205bafb7970@google.com/
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210222171626.21884-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While at it, add a comment to avoid similar changes in the future.
+
+Fixes: c4a164f41554 ("mfd: Constify static struct resources")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Tested-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mfd/intel_quark_i2c_gpio.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1479,6 +1479,9 @@ ext4_xattr_inode_cache_find(struct inode
- 	if (!ce)
- 		return NULL;
+diff --git a/drivers/mfd/intel_quark_i2c_gpio.c b/drivers/mfd/intel_quark_i2c_gpio.c
+index fe8ca945f367..b67cb0a3ab05 100644
+--- a/drivers/mfd/intel_quark_i2c_gpio.c
++++ b/drivers/mfd/intel_quark_i2c_gpio.c
+@@ -72,7 +72,8 @@ static const struct dmi_system_id dmi_platform_info[] = {
+ 	{}
+ };
  
-+	WARN_ON_ONCE(ext4_handle_valid(journal_current_handle()) &&
-+		     !(current->flags & PF_MEMALLOC_NOFS));
-+
- 	ea_data = ext4_kvmalloc(value_len, GFP_NOFS);
- 	if (!ea_data) {
- 		mb_cache_entry_put(ea_inode_cache, ce);
-@@ -2345,6 +2348,7 @@ ext4_xattr_set_handle(handle_t *handle,
- 			error = -ENOSPC;
- 			goto cleanup;
- 		}
-+		WARN_ON_ONCE(!(current->flags & PF_MEMALLOC_NOFS));
- 	}
+-static const struct resource intel_quark_i2c_res[] = {
++/* This is used as a place holder and will be modified at run-time */
++static struct resource intel_quark_i2c_res[] = {
+ 	[INTEL_QUARK_IORES_MEM] = {
+ 		.flags = IORESOURCE_MEM,
+ 	},
+@@ -85,7 +86,8 @@ static struct mfd_cell_acpi_match intel_quark_acpi_match_i2c = {
+ 	.adr = MFD_ACPI_MATCH_I2C,
+ };
  
- 	error = ext4_reserve_inode_write(handle, inode, &is.iloc);
+-static const struct resource intel_quark_gpio_res[] = {
++/* This is used as a place holder and will be modified at run-time */
++static struct resource intel_quark_gpio_res[] = {
+ 	[INTEL_QUARK_IORES_MEM] = {
+ 		.flags = IORESOURCE_MEM,
+ 	},
+-- 
+2.30.1
+
 
 
