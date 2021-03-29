@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACFBF34CA0E
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A34534CA0F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234170AbhC2Iep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234069AbhC2Iep (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Mar 2021 04:34:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234734AbhC2Ide (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234737AbhC2Ide (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 04:33:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BA6E61864;
-        Mon, 29 Mar 2021 08:33:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EDD461613;
+        Mon, 29 Mar 2021 08:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006796;
-        bh=ergqttbpWzAP2TNaLg2Zar8RmzSHRbD6mzbU/Ow4kjc=;
+        s=korg; t=1617006799;
+        bh=IJqCyNackXpL528wu5sFIUdHxJsAEA0WXvHutPPDykw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rJ0y2Ouk9Q0YefD5iEbZiL9vuSKj0g7uMb0KmJfjagexDVgg39IC2nJVhX+/gU8bo
-         KFJquelaYfY3Bt4mm7nEddMGxf7W4eltdOqPonXkrMrEmLA1gJLF3w1E0L/OSJk8yV
-         iV392tB4iRGSY3t4w5oHLKvR+isosROjk9T6tAA0=
+        b=kf5rov0M0tHKw/M5LMRhezQ6JWuvOTc93L4uj1IZjUsOyHxyk6yWHEYdvSLMDfuHF
+         JaJV0JqIn+DGuVoXjSXIZKAMzpHCBMtO460C7kIrJFeTlQ+2o+IJ/X4H0nA8ukInt6
+         8cznE8vSjzyZdDao1VICE5qb9FUZMdlqOeB6sQS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 100/254] drm/amdgpu: Add additional Sienna Cichlid PCI ID
-Date:   Mon, 29 Mar 2021 09:56:56 +0200
-Message-Id: <20210329075636.486247239@linuxfoundation.org>
+        stable@vger.kernel.org, Manasi Navare <manasi.d.navare@intel.com>,
+        Animesh Manna <animesh.manna@intel.com>,
+        Vandita Kulkarni <vandita.kulkarni@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.11 101/254] drm/i915/dsc: fix DSS CTL register usage for ICL DSI transcoders
+Date:   Mon, 29 Mar 2021 09:56:57 +0200
+Message-Id: <20210329075636.524516879@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
 References: <20210329075633.135869143@linuxfoundation.org>
@@ -39,29 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-commit c933b111094f2818571fc51b81b98ee0d370c035 upstream.
+commit b61fde1beb6b1847f1743e75f4d9839acebad76a upstream.
 
-Add new DID.
+Use the correct DSS CTL registers for ICL DSI transcoders.
 
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+As a side effect, this also brings back the sanity check for trying to
+use pipe DSC registers on pipe A on ICL.
+
+Fixes: 8a029c113b17 ("drm/i915/dp: Modify VDSC helpers to configure DSC for Bigjoiner slave")
+Cc: Manasi Navare <manasi.d.navare@intel.com>
+Cc: Animesh Manna <animesh.manna@intel.com>
+Cc: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Cc: <stable@vger.kernel.org> # v5.11+
+Reviewed-by: Manasi Navare <manasi.d.navare@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210319115333.8330-1-jani.nikula@intel.com
+(cherry picked from commit 5706d02871240fdba7ddd6ab1cc31672fc95a90f)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/display/intel_vdsc.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1102,6 +1102,7 @@ static const struct pci_device_id pciidl
- 	{0x1002, 0x73A3, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_SIENNA_CICHLID},
- 	{0x1002, 0x73AB, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_SIENNA_CICHLID},
- 	{0x1002, 0x73AE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_SIENNA_CICHLID},
-+	{0x1002, 0x73AF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_SIENNA_CICHLID},
- 	{0x1002, 0x73BF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_SIENNA_CICHLID},
+--- a/drivers/gpu/drm/i915/display/intel_vdsc.c
++++ b/drivers/gpu/drm/i915/display/intel_vdsc.c
+@@ -1016,20 +1016,14 @@ static i915_reg_t dss_ctl1_reg(const str
+ {
+ 	enum pipe pipe = to_intel_crtc(crtc_state->uapi.crtc)->pipe;
  
- 	/* Van Gogh */
+-	if (crtc_state->cpu_transcoder == TRANSCODER_EDP)
+-		return DSS_CTL1;
+-
+-	return ICL_PIPE_DSS_CTL1(pipe);
++	return is_pipe_dsc(crtc_state) ? ICL_PIPE_DSS_CTL1(pipe) : DSS_CTL1;
+ }
+ 
+ static i915_reg_t dss_ctl2_reg(const struct intel_crtc_state *crtc_state)
+ {
+ 	enum pipe pipe = to_intel_crtc(crtc_state->uapi.crtc)->pipe;
+ 
+-	if (crtc_state->cpu_transcoder == TRANSCODER_EDP)
+-		return DSS_CTL2;
+-
+-	return ICL_PIPE_DSS_CTL2(pipe);
++	return is_pipe_dsc(crtc_state) ? ICL_PIPE_DSS_CTL2(pipe) : DSS_CTL2;
+ }
+ 
+ void intel_dsc_enable(struct intel_encoder *encoder,
 
 
