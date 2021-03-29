@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 872F534C7BC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3168234C950
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232400AbhC2ISH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
+        id S233316AbhC2I31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232502AbhC2IQM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:16:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86E466197C;
-        Mon, 29 Mar 2021 08:15:51 +0000 (UTC)
+        id S233682AbhC2IZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:25:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EAF8619BB;
+        Mon, 29 Mar 2021 08:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005752;
-        bh=hrQRXO0haOKtYOix5o5YO+Y/U47czDD1F2bh78Y25tg=;
+        s=korg; t=1617006326;
+        bh=mHF8+Ki1w5Z7pryKIf68rubLDuN40bh2yS1C9XqTdpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgqXRUcfIVk0CS2INLTIJHKaSm/8vLINDArMzsW+FwnN6UPulQMJ1+K7V1JAIb9mW
-         78UaRcoVYFBl0urpcVyzvPUMnVcK1sl6GNhIQplZa+x2EbXjNlPX2tpgr+jCH1EAer
-         e4qytORiCcqk7V2FVgf3y15wOJ53gjYgjfMmdl0I=
+        b=JIoNnZNrQnKEAAKeMFPuOdxzNVrCrl+/Z8/bIus9gCI9XndUi4lQyhPcRTBDGAS+A
+         FDzTDZ6gATnc/wZh0Uvh7pAtamh/6SAE9Z+9oyAg+zRCiPagkN3/JSiwcxNuMNQLcl
+         TL7MZ+rTo6BDUzhBrgxv6CKwAT3NfdWvMBD5+/q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/111] scsi: mpt3sas: Fix error return code of mpt3sas_base_attach()
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 200/221] io_uring: fix provide_buffers sign extension
 Date:   Mon, 29 Mar 2021 09:58:51 +0200
-Message-Id: <20210329075618.646796952@linuxfoundation.org>
+Message-Id: <20210329075635.803001996@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 3401ecf7fc1b9458a19d42c0e26a228f18ac7dda ]
+[ Upstream commit d81269fecb8ce16eb07efafc9ff5520b2a31c486 ]
 
-When kzalloc() returns NULL, no error return code of mpt3sas_base_attach()
-is assigned. To fix this bug, r is assigned with -ENOMEM in this case.
+io_provide_buffers_prep()'s "p->len * p->nbufs" to sign extension
+problems. Not a huge problem as it's only used for access_ok() and
+increases the checked length, but better to keep typing right.
 
-Link: https://lore.kernel.org/r/20210308035241.3288-1-baijiaju1990@gmail.com
-Fixes: c696f7b83ede ("scsi: mpt3sas: Implement device_remove_in_progress check in IOCTL path")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Fixes: efe68c1ca8f49 ("io_uring: validate the full range of provided buffers for access")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Reviewed-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/562376a39509e260d8532186a06226e56eb1f594.1616149233.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 7532603aafb1..b6d42b2ce6fe 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -7102,14 +7102,18 @@ mpt3sas_base_attach(struct MPT3SAS_ADAPTER *ioc)
- 		ioc->pend_os_device_add_sz++;
- 	ioc->pend_os_device_add = kzalloc(ioc->pend_os_device_add_sz,
- 	    GFP_KERNEL);
--	if (!ioc->pend_os_device_add)
-+	if (!ioc->pend_os_device_add) {
-+		r = -ENOMEM;
- 		goto out_free_resources;
-+	}
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 06e9c2181995..dde290eb7dd0 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3996,6 +3996,7 @@ static int io_remove_buffers(struct io_kiocb *req, bool force_nonblock,
+ static int io_provide_buffers_prep(struct io_kiocb *req,
+ 				   const struct io_uring_sqe *sqe)
+ {
++	unsigned long size;
+ 	struct io_provide_buf *p = &req->pbuf;
+ 	u64 tmp;
  
- 	ioc->device_remove_in_progress_sz = ioc->pend_os_device_add_sz;
- 	ioc->device_remove_in_progress =
- 		kzalloc(ioc->device_remove_in_progress_sz, GFP_KERNEL);
--	if (!ioc->device_remove_in_progress)
-+	if (!ioc->device_remove_in_progress) {
-+		r = -ENOMEM;
- 		goto out_free_resources;
-+	}
+@@ -4009,7 +4010,8 @@ static int io_provide_buffers_prep(struct io_kiocb *req,
+ 	p->addr = READ_ONCE(sqe->addr);
+ 	p->len = READ_ONCE(sqe->len);
  
- 	ioc->fwfault_debug = mpt3sas_fwfault_debug;
+-	if (!access_ok(u64_to_user_ptr(p->addr), (p->len * p->nbufs)))
++	size = (unsigned long)p->len * p->nbufs;
++	if (!access_ok(u64_to_user_ptr(p->addr), size))
+ 		return -EFAULT;
  
+ 	p->bgid = READ_ONCE(sqe->buf_group);
 -- 
 2.30.1
 
