@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E471F34CA33
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D1F34C846
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232795AbhC2Ifv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:35:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
+        id S231811AbhC2IVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233820AbhC2IeP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A814661580;
-        Mon, 29 Mar 2021 08:34:14 +0000 (UTC)
+        id S232230AbhC2IUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94F0261974;
+        Mon, 29 Mar 2021 08:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006855;
-        bh=sWzzsCkJggXUYwjaqk3ZNQKl7qOP3H5UYuNl4wv49dk=;
+        s=korg; t=1617006030;
+        bh=EOcZtP1C9tkTuNpv/wXJe1TtdV70nAmD3KSU5vRAPBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvDiMnno1WjEt/yx02ias/XDRsBTAsQ7ACXURhmEIJJGhlPietTa4IWKtFudloDkW
-         svO2AhEN41aMINLmcwYB24CjRb0LNZbzrLo2CEfFxnlcYNtL7pbK88WGDgFrZTMQJ1
-         thTr+xt7zSulW0E6uTsiP78pbQWsA3rc/VFTX3M8=
+        b=nX6cjCa1BAvktToZODB6gturfrrIkLwG/igB+2d0j0l1pa5SZ5RGnvpiwnOWi0cJf
+         WUi0F3cXJafwWAjJA1mh+Vyno2VF366+DafWXpvOR15SxtE8vypsydYCAEzzAt4WTA
+         mTaNirenzsR/wC4m+Ey+/c08LGe4FNYtrNDcKQJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 080/254] squashfs: fix xattr id and id lookup sanity checks
+        stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 065/221] netsec: restore phy power state after controller reset
 Date:   Mon, 29 Mar 2021 09:56:36 +0200
-Message-Id: <20210329075635.784620724@linuxfoundation.org>
+Message-Id: <20210329075631.356378032@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Mian Yousaf Kaukab <ykaukab@suse.de>
 
-commit 8b44ca2b634527151af07447a8090a5f3a043321 upstream.
+commit 804741ac7b9f2fdebe3740cb0579cb8d94d49e60 upstream.
 
-The checks for maximum metadata block size is missing
-SQUASHFS_BLOCK_OFFSET (the two byte length count).
+Since commit 8e850f25b581 ("net: socionext: Stop PHY before resetting
+netsec") netsec_netdev_init() power downs phy before resetting the
+controller. However, the state is not restored once the reset is
+complete. As a result it is not possible to bring up network on a
+platform with Broadcom BCM5482 phy.
 
-Link: https://lkml.kernel.org/r/2069685113.2081245.1614583677427@webmail.123-reg.co.uk
-Fixes: f37aa4c7366e23f ("squashfs: add more sanity checks in id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Cc: Sean Nyekjaer <sean@geanix.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fix the issue by restoring phy power state after controller reset is
+complete.
+
+Fixes: 8e850f25b581 ("net: socionext: Stop PHY before resetting netsec")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/id.c       |    6 ++++--
- fs/squashfs/xattr_id.c |    6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/squashfs/id.c
-+++ b/fs/squashfs/id.c
-@@ -97,14 +97,16 @@ __le64 *squashfs_read_id_index_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -1708,14 +1708,17 @@ static int netsec_netdev_init(struct net
+ 		goto err1;
  
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
+ 	/* set phy power down */
+-	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR) |
+-		BMCR_PDOWN;
+-	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
++	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR);
++	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR,
++			 data | BMCR_PDOWN);
  
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= id_table_start || (id_table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -109,14 +109,16 @@ __le64 *squashfs_read_xattr_id_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
+ 	ret = netsec_reset_hardware(priv, true);
+ 	if (ret)
+ 		goto err2;
  
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
++	/* Restore phy power state */
++	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
++
+ 	spin_lock_init(&priv->desc_ring[NETSEC_RING_TX].lock);
+ 	spin_lock_init(&priv->desc_ring[NETSEC_RING_RX].lock);
  
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= table_start || (table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
 
 
