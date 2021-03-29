@@ -2,93 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C33634DBCB
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88AFD34DB72
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232724AbhC2Wap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:30:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47708 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232807AbhC2W2K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:28:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD802619F9;
-        Mon, 29 Mar 2021 22:24:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056664;
-        bh=RnebrUB8+GyygebJkg/+vnrtH37n7d/wSFL/I/9wgDc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGsIftvafscmiJtuVZhBTP0CMw+Qfq+PiGDybHURAuAMR45CNFki1nUI48DI589jP
-         B/GDVqJkmxSW49AOWfGzy+too4SaVXqZ2M4ImYao7kmaTN1scynW+HId2tLZHq9Hwz
-         /8Jhkdl3GLUaLpYSGsYtWbDY5w7es/rprERqCYDNKd2srLpnvBUsB78RuBlrQ7lVaC
-         b0RU+3kIAkWQL1nrPjnTV/aTbzrAPJ0RpxKCjxtZBn7T8ZTnLHJNCsq8FU39xGU3X0
-         Kt37YiVE14wjTO7G5oWt+bVSuPrP12tKhymtdU/Kpp610uE7pJ8SjoxcpSHpQtit0s
-         8DAqOGqRO9TOg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Tom Talpey <tom@talpey.com>, Paulo Alcantara <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.4 8/8] cifs: Silently ignore unknown oplock break handle
-Date:   Mon, 29 Mar 2021 18:24:14 -0400
-Message-Id: <20210329222415.2384075-8-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210329222415.2384075-1-sashal@kernel.org>
-References: <20210329222415.2384075-1-sashal@kernel.org>
+        id S232910AbhC2W2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:28:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35442 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232981AbhC2W0L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 18:26:11 -0400
+Received: from smtp.gentoo.org (mail.gentoo.org [IPv6:2001:470:ea4a:1:5054:ff:fec7:86e4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D3A7C061762;
+        Mon, 29 Mar 2021 15:26:10 -0700 (PDT)
+Received: by sf.home (Postfix, from userid 1000)
+        id E848C5A22061; Mon, 29 Mar 2021 23:26:04 +0100 (BST)
+From:   Sergei Trofimovich <slyfox@gentoo.org>
+To:     Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Sergei Trofimovich <slyfox@gentoo.org>, stable@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: [PATCH v3] mm: page_alloc: ignore init_on_free=1 for debug_pagealloc=1
+Date:   Mon, 29 Mar 2021 23:25:54 +0100
+Message-Id: <20210329222555.3077928-1-slyfox@gentoo.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <ea46d903-d201-5781-1f3c-f8d7fea5070e@suse.cz>
+References: <ea46d903-d201-5781-1f3c-f8d7fea5070e@suse.cz>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+On !ARCH_SUPPORTS_DEBUG_PAGEALLOC (like ia64) debug_pagealloc=1
+implies page_poison=on:
 
-[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
+    if (page_poisoning_enabled() ||
+         (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+          debug_pagealloc_enabled()))
+            static_branch_enable(&_page_poisoning_enabled);
 
-Make SMB2 not print out an error when an oplock break is received for an
-unknown handle, similar to SMB1.  The debug message which is printed for
-these unknown handles may also be misleading, so fix that too.
+page_poison=on needs to override init_on_free=1.
 
-The SMB2 lease break path is not affected by this patch.
+Before the change it did not work as expected for the following case:
+- have PAGE_POISONING=y
+- have page_poison unset
+- have !ARCH_SUPPORTS_DEBUG_PAGEALLOC arch (like ia64)
+- have init_on_free=1
+- have debug_pagealloc=1
 
-Without this, a program which writes to a file from one thread, and
-opens, reads, and writes the same file from another thread triggers the
-below errors several times a minute when run against a Samba server
-configured with "smb2 leases = no".
+That way we get both keys enabled:
+- static_branch_enable(&init_on_free);
+- static_branch_enable(&_page_poisoning_enabled);
 
- CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
- 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
- 00000010: 00000001 00000000 ffffffff ffffffff  ................
- 00000020: 00000000 00000000 00000000 00000000  ................
- 00000030: 00000000 00000000 00000000 00000000  ................
+which leads to poisoned pages returned for __GFP_ZERO pages.
 
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After the change we execute only:
+- static_branch_enable(&_page_poisoning_enabled);
+and ignore init_on_free=1.
+
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Fixes: 8db26a3d4735 ("mm, page_poison: use static key more efficiently")
+Cc: <stable@vger.kernel.org>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: linux-mm@kvack.org
+CC: David Hildenbrand <david@redhat.com>
+CC: Andrey Konovalov <andreyknvl@gmail.com>
+Link: https://lkml.org/lkml/2021/3/26/443
+
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
 ---
- fs/cifs/smb2misc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Change since v2:
+- Added 'Fixes:' and 'CC: stable@' suggested by Vlastimil and David
+- Renamed local variable to 'page_poisoning_requested' for
+  consistency suggested by David
+- Simplified initialization of page_poisoning_requested suggested
+  by David
+- Added 'Acked-by: Vlastimil'
 
-diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
-index 44198b9a5315..19baeb4ca511 100644
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -633,8 +633,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
- 		}
+ mm/page_alloc.c | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index cfc72873961d..4bb3cdfc47f8 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -764,32 +764,36 @@ static inline void clear_page_guard(struct zone *zone, struct page *page,
+  */
+ void init_mem_debugging_and_hardening(void)
+ {
++	bool page_poisoning_requested = false;
++
++#ifdef CONFIG_PAGE_POISONING
++	/*
++	 * Page poisoning is debug page alloc for some arches. If
++	 * either of those options are enabled, enable poisoning.
++	 */
++	if (page_poisoning_enabled() ||
++	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
++	      debug_pagealloc_enabled())) {
++		static_branch_enable(&_page_poisoning_enabled);
++		page_poisoning_requested = true;
++	}
++#endif
++
+ 	if (_init_on_alloc_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_alloc\n");
+ 		else
+ 			static_branch_enable(&init_on_alloc);
  	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
--	return false;
-+	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
-+	return true;
- }
+ 	if (_init_on_free_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_free\n");
+ 		else
+ 			static_branch_enable(&init_on_free);
+ 	}
  
- void
+-#ifdef CONFIG_PAGE_POISONING
+-	/*
+-	 * Page poisoning is debug page alloc for some arches. If
+-	 * either of those options are enabled, enable poisoning.
+-	 */
+-	if (page_poisoning_enabled() ||
+-	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+-	      debug_pagealloc_enabled()))
+-		static_branch_enable(&_page_poisoning_enabled);
+-#endif
+-
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ 	if (!debug_pagealloc_enabled())
+ 		return;
 -- 
-2.30.1
+2.31.1
 
