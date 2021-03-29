@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3434734C9E5
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE92834C821
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233379AbhC2IeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
+        id S233224AbhC2IUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234593AbhC2IdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9351B619BB;
-        Mon, 29 Mar 2021 08:32:13 +0000 (UTC)
+        id S233395AbhC2ITT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:19:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD6B761878;
+        Mon, 29 Mar 2021 08:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006734;
-        bh=cJR31kfGQQ6cjZttozJrDMs4iSToI1B1p7gYoFsNArw=;
+        s=korg; t=1617005959;
+        bh=06AdV+JkCI79bqE8VrXjJjhz6t24lXG9Wq7P9wAxE/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+OEADgDgANYVyiVbkB9C8v2s34fvfHOg9Xi/q/+l47DmbOEL/xtwE2p6SRR24Luh
-         SE8zmiOtEnVmTiC1KtWD5wwh/plk9TBf4n6W11X1H5L1Bqg2lE5XM+immVrqhGI02Q
-         AJaSbeBuPcARefcyxY+gK+6XTCPbegPFBNm5ME2A=
+        b=aPJd4iDQAUhgJMHx0b/7QIWV+GVM0/m+iqVj7A3jkLJiwA+wt7JFFisR1tUynxuJT
+         uiOe6gWgklWW713xAaS8L4mjYKG9/XSUog/NFM4RDjDs1xmswbY9gDZhZ2emw2zc1T
+         dq6qDUvNNErr/cYmdrmeOyCWnM3OHZND0dfuUK3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Dillon Varone <dillon.varone@amd.com>,
-        Jun Lei <Jun.Lei@amd.com>, Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 045/254] drm/amd/display: Enabled pipe harvesting in dcn30
-Date:   Mon, 29 Mar 2021 09:56:01 +0200
-Message-Id: <20210329075634.656274218@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 031/221] irqchip/ingenic: Add support for the JZ4760
+Date:   Mon, 29 Mar 2021 09:56:02 +0200
+Message-Id: <20210329075630.210350350@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,81 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Varone <dillon.varone@amd.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit d2c91285958a3e77db99c352c136af4243f8f529 ]
+[ Upstream commit 5fbecd2389f48e1415799c63130d0cdce1cf3f60 ]
 
-[Why & How]
-Ported logic from dcn21 for reading in pipe fusing to dcn30.
-Supported configurations are 1 and 6 pipes. Invalid fusing
-will revert to 1 pipe being enabled.
+Add support for the interrupt controller found in the JZ4760 SoC, which
+works exactly like the one in the JZ4770.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Dillon Varone <dillon.varone@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210307172014.73481-2-paul@crapouillou.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn30/dcn30_resource.c | 31 +++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ drivers/irqchip/irq-ingenic-tcu.c | 1 +
+ drivers/irqchip/irq-ingenic.c     | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-index 5e126fdf6ec1..7ec8936346b2 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-@@ -2601,6 +2601,19 @@ static const struct resource_funcs dcn30_res_pool_funcs = {
- 	.patch_unknown_plane_state = dcn20_patch_unknown_plane_state,
- };
- 
-+#define CTX ctx
-+
-+#define REG(reg_name) \
-+	(DCN_BASE.instance[0].segment[mm ## reg_name ## _BASE_IDX] + mm ## reg_name)
-+
-+static uint32_t read_pipe_fuses(struct dc_context *ctx)
-+{
-+	uint32_t value = REG_READ(CC_DC_PIPE_DIS);
-+	/* Support for max 6 pipes */
-+	value = value & 0x3f;
-+	return value;
-+}
-+
- static bool dcn30_resource_construct(
- 	uint8_t num_virtual_links,
- 	struct dc *dc,
-@@ -2610,6 +2623,15 @@ static bool dcn30_resource_construct(
- 	struct dc_context *ctx = dc->ctx;
- 	struct irq_service_init_data init_data;
- 	struct ddc_service_init_data ddc_init_data;
-+	uint32_t pipe_fuses = read_pipe_fuses(ctx);
-+	uint32_t num_pipes = 0;
-+
-+	if (!(pipe_fuses == 0 || pipe_fuses == 0x3e)) {
-+		BREAK_TO_DEBUGGER();
-+		dm_error("DC: Unexpected fuse recipe for navi2x !\n");
-+		/* fault to single pipe */
-+		pipe_fuses = 0x3e;
-+	}
- 
- 	DC_FP_START();
- 
-@@ -2739,6 +2761,15 @@ static bool dcn30_resource_construct(
- 	/* PP Lib and SMU interfaces */
- 	init_soc_bounding_box(dc, pool);
- 
-+	num_pipes = dcn3_0_ip.max_num_dpp;
-+
-+	for (i = 0; i < dcn3_0_ip.max_num_dpp; i++)
-+		if (pipe_fuses & 1 << i)
-+			num_pipes--;
-+
-+	dcn3_0_ip.max_num_dpp = num_pipes;
-+	dcn3_0_ip.max_num_otg = num_pipes;
-+
- 	dml_init_instance(&dc->dml, &dcn3_0_soc, &dcn3_0_ip, DML_PROJECT_DCN30);
- 
- 	/* IRQ */
+diff --git a/drivers/irqchip/irq-ingenic-tcu.c b/drivers/irqchip/irq-ingenic-tcu.c
+index 7a7222d4c19c..b938d1d04d96 100644
+--- a/drivers/irqchip/irq-ingenic-tcu.c
++++ b/drivers/irqchip/irq-ingenic-tcu.c
+@@ -179,5 +179,6 @@ static int __init ingenic_tcu_irq_init(struct device_node *np,
+ }
+ IRQCHIP_DECLARE(jz4740_tcu_irq, "ingenic,jz4740-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(jz4725b_tcu_irq, "ingenic,jz4725b-tcu", ingenic_tcu_irq_init);
++IRQCHIP_DECLARE(jz4760_tcu_irq, "ingenic,jz4760-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(jz4770_tcu_irq, "ingenic,jz4770-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(x1000_tcu_irq, "ingenic,x1000-tcu", ingenic_tcu_irq_init);
+diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
+index b61a8901ef72..ea36bb00be80 100644
+--- a/drivers/irqchip/irq-ingenic.c
++++ b/drivers/irqchip/irq-ingenic.c
+@@ -155,6 +155,7 @@ static int __init intc_2chip_of_init(struct device_node *node,
+ {
+ 	return ingenic_intc_of_init(node, 2);
+ }
++IRQCHIP_DECLARE(jz4760_intc, "ingenic,jz4760-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4770_intc, "ingenic,jz4770-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4775_intc, "ingenic,jz4775-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4780_intc, "ingenic,jz4780-intc", intc_2chip_of_init);
 -- 
 2.30.1
 
