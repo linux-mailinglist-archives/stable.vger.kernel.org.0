@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C568934CA31
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F49E34C8A9
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234429AbhC2Ifs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:35:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
+        id S233424AbhC2IXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233848AbhC2IeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAD7861581;
-        Mon, 29 Mar 2021 08:34:16 +0000 (UTC)
+        id S233962AbhC2IWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70E7461601;
+        Mon, 29 Mar 2021 08:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006857;
-        bh=HXxFCLh2hjF3+l+5onHlVjICg7eGsqXjours8iywO+o=;
+        s=korg; t=1617006162;
+        bh=aQL8e2UvMAXGXiDvf3F/f1tSQeYBEynMdQ5zlvgXOe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZmRW8qEwvGocTAqur8kBjNXqPEtHnoH/D56/O6wrG5Nz6dh6edRDvrRaiZ6t5YpW
-         3dCdDi5aNZWtld5+GjTCR23P5ALO2hN0O/jhjRI5FeEiX2aAatKfdo+bNsMuv6MGWq
-         jajfbXDzul7E6dRGmmmn2COfoB7bdREqGre13UmY=
+        b=nw4foYdHU4E3BFBR9hSrkERqHkNADdYmbvy3NPQ82WHfyAN83imCYcm2SKQVYLVAK
+         x0D3DRRhXBg9RUBH1XbciG3pYhAVGSSynnKP0YFgGjY+sMPsf554zKJTDSBVtVhlcf
+         FHrVBV2MSjLaNQtVzlfQrQFy14GsVPknjkxGplRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 119/254] net/mlx5e: E-switch, Fix rate calculation division
+Subject: [PATCH 5.10 104/221] net: dsa: bcm_sf2: Qualify phydev->dev_flags based on port
 Date:   Mon, 29 Mar 2021 09:57:15 +0200
-Message-Id: <20210329075637.128614467@linuxfoundation.org>
+Message-Id: <20210329075632.682144609@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 8b90d897823b28a51811931f3bdc79f8df79407e ]
+[ Upstream commit 47142ed6c34d544ae9f0463e58d482289cbe0d46 ]
 
-do_div() returns reminder, while cited patch wanted to use
-quotient.
-Fix it by using quotient.
+Similar to commit 92696286f3bb37ba50e4bd8d1beb24afb759a799 ("net:
+bcmgenet: Set phydev->dev_flags only for internal PHYs") we need to
+qualify the phydev->dev_flags based on whether the port is connected to
+an internal or external PHY otherwise we risk having a flags collision
+with a completely different interpretation depending on the driver.
 
-Fixes: 0e22bfb7c046 ("net/mlx5e: E-switch, Fix rate calculation for overflow")
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: aa9aef77c761 ("net: dsa: bcm_sf2: communicate integrated PHY revision to PHY driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/dsa/bcm_sf2.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 717fbaa6ce73..e9b7da05f14a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -5040,7 +5040,8 @@ static int apply_police_params(struct mlx5e_priv *priv, u64 rate,
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index edb0a1027b38..510324916e91 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -584,8 +584,10 @@ static u32 bcm_sf2_sw_get_phy_flags(struct dsa_switch *ds, int port)
+ 	 * in bits 15:8 and the patch level in bits 7:0 which is exactly what
+ 	 * the REG_PHY_REVISION register layout is.
  	 */
- 	if (rate) {
- 		rate = (rate * BITS_PER_BYTE) + 500000;
--		rate_mbps = max_t(u64, do_div(rate, 1000000), 1);
-+		do_div(rate, 1000000);
-+		rate_mbps = max_t(u32, rate, 1);
- 	}
+-
+-	return priv->hw_params.gphy_rev;
++	if (priv->int_phy_mask & BIT(port))
++		return priv->hw_params.gphy_rev;
++	else
++		return 0;
+ }
  
- 	err = mlx5_esw_modify_vport_rate(esw, vport_num, rate_mbps);
+ static void bcm_sf2_sw_validate(struct dsa_switch *ds, int port,
 -- 
 2.30.1
 
