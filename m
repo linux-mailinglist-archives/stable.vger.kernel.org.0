@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A19A34CA20
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1E434C893
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234265AbhC2IfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:35:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
+        id S231902AbhC2IX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232422AbhC2Id5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68F1E61934;
-        Mon, 29 Mar 2021 08:33:55 +0000 (UTC)
+        id S233115AbhC2IVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:21:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B47ED6044F;
+        Mon, 29 Mar 2021 08:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006836;
-        bh=uYG8JsPPolPVF+s48unkgv2WX4JeHOJrZ77KGHwgg+A=;
+        s=korg; t=1617006101;
+        bh=Jc0biOn8ajKpHNR/Ryer9lQoSywdZkn5qgvaPyliJbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpBY08LZn8RX939JOfwZU/OJIyeb6fOOd+pQWArUwFVdWUtle2FZgVK/hJ6v93mQc
-         lH10jYWxQklWkdXtTJQVwjt6RQko2AWEjLFOi8RkcFsGK8sSBk9byjEHRcJZtT/toR
-         NrYdB6883LvHD1Fv5Z2g4GtheTzfX+2hNrR2Cj3E=
+        b=P/Biokx0swzvlEQxVnhdkmMCPNibz86VweHquJKxAvzDj+Lg2LEgxfEg/cjtSjFzW
+         JRZmPY9Z0pQdLEEY80JgXkVwpSnC7ovkYPp+MzJiQkx72k84N7idtBWs+kLYWxdH42
+         An2vnwergEV8fQYmdTH2Kd5utDNnluzDVw5y9V80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot+779559d6503f3a56213d@syzkaller.appspotmail.com,
+        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 116/254] net/mlx5e: When changing XDP program without reset, take refs for XSK RQs
+Subject: [PATCH 5.10 101/221] drop_monitor: Perform cleanup upon probe registration failure
 Date:   Mon, 29 Mar 2021 09:57:12 +0200
-Message-Id: <20210329075637.033199401@linuxfoundation.org>
+Message-Id: <20210329075632.568795327@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +42,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit e5eb01344e9b09bb9d255b9727449186f7168df8 ]
+[ Upstream commit 9398e9c0b1d44eeb700e9e766c02bcc765c82570 ]
 
-Each RQ (including XSK RQs) takes a reference to the XDP program. When
-an XDP program is attached or detached, the channels and queues are
-recreated, however, there is a special flow for changing an active XDP
-program to another one. In that flow, channels and queues stay alive,
-but the refcounts of the old and new XDP programs are adjusted. This
-flow didn't increment refcount by the number of active XSK RQs, and this
-commit fixes it.
+In the rare case that drop_monitor fails to register its probe on the
+'napi_poll' tracepoint, it will not deactivate its hysteresis timer as
+part of the error path. If the hysteresis timer was armed by the shortly
+lived 'kfree_skb' probe and user space retries to initiate tracing, a
+warning will be emitted for trying to initialize an active object [1].
 
-Fixes: db05815b36cb ("net/mlx5e: Add XSK zero-copy support")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fix this by properly undoing all the operations that were done prior to
+probe registration, in both software and hardware code paths.
+
+Note that syzkaller managed to fail probe registration by injecting a
+slab allocation failure [2].
+
+[1]
+ODEBUG: init active (active state 0) object type: timer_list hint: sched_send_work+0x0/0x60 include/linux/list.h:135
+WARNING: CPU: 1 PID: 8649 at lib/debugobjects.c:505 debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+Modules linked in:
+CPU: 1 PID: 8649 Comm: syz-executor.0 Not tainted 5.11.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+[...]
+Call Trace:
+ __debug_object_init+0x524/0xd10 lib/debugobjects.c:588
+ debug_timer_init kernel/time/timer.c:722 [inline]
+ debug_init kernel/time/timer.c:770 [inline]
+ init_timer_key+0x2d/0x340 kernel/time/timer.c:814
+ net_dm_trace_on_set net/core/drop_monitor.c:1111 [inline]
+ set_all_monitor_traces net/core/drop_monitor.c:1188 [inline]
+ net_dm_monitor_start net/core/drop_monitor.c:1295 [inline]
+ net_dm_cmd_trace+0x720/0x1220 net/core/drop_monitor.c:1339
+ genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:739
+ genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+ genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2348
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2402
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2435
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+[2]
+ FAULT_INJECTION: forcing a failure.
+ name failslab, interval 1, probability 0, space 0, times 1
+ CPU: 1 PID: 8645 Comm: syz-executor.0 Not tainted 5.11.0-syzkaller #0
+ Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+ Call Trace:
+  dump_stack+0xfa/0x151
+  should_fail.cold+0x5/0xa
+  should_failslab+0x5/0x10
+  __kmalloc+0x72/0x3f0
+  tracepoint_add_func+0x378/0x990
+  tracepoint_probe_register+0x9c/0xe0
+  net_dm_cmd_trace+0x7fc/0x1220
+  genl_family_rcv_msg_doit+0x228/0x320
+  genl_rcv_msg+0x328/0x580
+  netlink_rcv_skb+0x153/0x420
+  genl_rcv+0x24/0x40
+  netlink_unicast+0x533/0x7d0
+  netlink_sendmsg+0x856/0xd90
+  sock_sendmsg+0xcf/0x120
+  ____sys_sendmsg+0x6e8/0x810
+  ___sys_sendmsg+0xf3/0x170
+  __sys_sendmsg+0xe5/0x1b0
+  do_syscall_64+0x2d/0x70
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 70c69274f354 ("drop_monitor: Initialize timer and work item upon tracing enable")
+Fixes: 8ee2267ad33e ("drop_monitor: Convert to using devlink tracepoint")
+Reported-by: syzbot+779559d6503f3a56213d@syzkaller.appspotmail.com
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/drop_monitor.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 3248741af440..1386212ad3f0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4550,8 +4550,10 @@ static int mlx5e_xdp_set(struct net_device *netdev, struct bpf_prog *prog)
- 		struct mlx5e_channel *c = priv->channels.c[i];
+diff --git a/net/core/drop_monitor.c b/net/core/drop_monitor.c
+index 571f191c06d9..db65ce62b625 100644
+--- a/net/core/drop_monitor.c
++++ b/net/core/drop_monitor.c
+@@ -1053,6 +1053,20 @@ static int net_dm_hw_monitor_start(struct netlink_ext_ack *extack)
+ 	return 0;
  
- 		mlx5e_rq_replace_xdp_prog(&c->rq, prog);
--		if (test_bit(MLX5E_CHANNEL_STATE_XSK, c->state))
-+		if (test_bit(MLX5E_CHANNEL_STATE_XSK, c->state)) {
-+			bpf_prog_inc(prog);
- 			mlx5e_rq_replace_xdp_prog(&c->xskrq, prog);
+ err_module_put:
++	for_each_possible_cpu(cpu) {
++		struct per_cpu_dm_data *hw_data = &per_cpu(dm_hw_cpu_data, cpu);
++		struct sk_buff *skb;
++
++		del_timer_sync(&hw_data->send_timer);
++		cancel_work_sync(&hw_data->dm_alert_work);
++		while ((skb = __skb_dequeue(&hw_data->drop_queue))) {
++			struct devlink_trap_metadata *hw_metadata;
++
++			hw_metadata = NET_DM_SKB_CB(skb)->hw_metadata;
++			net_dm_hw_metadata_free(hw_metadata);
++			consume_skb(skb);
 +		}
- 	}
- 
- unlock:
++	}
+ 	module_put(THIS_MODULE);
+ 	return rc;
+ }
+@@ -1134,6 +1148,15 @@ static int net_dm_trace_on_set(struct netlink_ext_ack *extack)
+ err_unregister_trace:
+ 	unregister_trace_kfree_skb(ops->kfree_skb_probe, NULL);
+ err_module_put:
++	for_each_possible_cpu(cpu) {
++		struct per_cpu_dm_data *data = &per_cpu(dm_cpu_data, cpu);
++		struct sk_buff *skb;
++
++		del_timer_sync(&data->send_timer);
++		cancel_work_sync(&data->dm_alert_work);
++		while ((skb = __skb_dequeue(&data->drop_queue)))
++			consume_skb(skb);
++	}
+ 	module_put(THIS_MODULE);
+ 	return rc;
+ }
 -- 
 2.30.1
 
