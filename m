@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 653FB34C82E
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169ED34C9FD
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232063AbhC2IUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
+        id S234096AbhC2Ieh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233327AbhC2ITr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:19:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AF8F61878;
-        Mon, 29 Mar 2021 08:19:46 +0000 (UTC)
+        id S234697AbhC2Id2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19705619D1;
+        Mon, 29 Mar 2021 08:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005987;
-        bh=8cDX63nTsCigsio/tMbSAwIghiv6J75VGU9t0q2FeDA=;
+        s=korg; t=1617006776;
+        bh=2TW9CPbQ/+CJJBqvvlc7FFDOu/dSgrA0mwKG1D8j9BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01JI4HcJNkNMlLpXfh5v9tiUpAcURAtUJSZlr9U+dPxNQ4y849BTiS/RCVQRUd3uW
-         rLh0iLei4I/vB2taPaJEoE3j42rHmPbzVzXXpCB1sEWRRE1lA9eJOTbHlwgXzCzPWK
-         sQQ7KIMkxF6Jw+HM82SqlMGQPG8zVr7dzaOquyzw=
+        b=e0RA6P1f6Mk46tsXKGreIMA8YQS24RTYeEEAXikeyngChTVW7aCgKZv1RFFA1HNBY
+         HHUnQs/Azvm+QEZguriv49zerhIhSlVf+bFLwa6sNGT7sDhagLT6WDvNT+xaXXZBwg
+         MzLsvAJ5YTC3Dc13t9f35Nc2GdQIBy9sXE8IGIiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Ungerer <gerg@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.10 077/221] arm64: dts: ls1046a: mark crypto engine dma coherent
+        stable@vger.kernel.org,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sandeep Sheriker Mallikarjun 
+        <sandeepsheriker.mallikarjun@microchip.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 5.11 092/254] ARM: dts: at91: sam9x60: fix mux-mask to match products datasheet
 Date:   Mon, 29 Mar 2021 09:56:48 +0200
-Message-Id: <20210329075631.764797511@linuxfoundation.org>
+Message-Id: <20210329075636.202249210@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-commit 9c3a16f88385e671b63a0de7b82b85e604a80f42 upstream.
+commit 2c69c8a1736eace8de491d480e6e577a27c2087c upstream.
 
-Crypto engine (CAAM) on LS1046A platform is configured HW-coherent,
-mark accordingly the DT node.
+Fix the whole mux-mask table according to datasheet for the sam9x60
+product.  Too much functions for pins were disabled leading to
+misunderstandings when enabling more peripherals or taking this table
+as an example for another board.
+Take advantage of this fix to move the mux-mask in the SoC file where it
+belongs and use lower case letters for hex numbers like everywhere in
+the file.
 
-As reported by Greg and Sascha, and explained by Robin, lack of
-"dma-coherent" property for an IP that is configured HW-coherent
-can lead to problems, e.g. on v5.11:
-
-> kernel BUG at drivers/crypto/caam/jr.c:247!
-> Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-> Modules linked in:
-> CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.11.0-20210225-3-00039-g434215968816-dirty #12
-> Hardware name: TQ TQMLS1046A SoM on Arkona AT1130 (C300) board (DT)
-> pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
-> pc : caam_jr_dequeue+0x98/0x57c
-> lr : caam_jr_dequeue+0x98/0x57c
-> sp : ffff800010003d50
-> x29: ffff800010003d50 x28: ffff8000118d4000
-> x27: ffff8000118d4328 x26: 00000000000001f0
-> x25: ffff0008022be480 x24: ffff0008022c6410
-> x23: 00000000000001f1 x22: ffff8000118d4329
-> x21: 0000000000004d80 x20: 00000000000001f1
-> x19: 0000000000000001 x18: 0000000000000020
-> x17: 0000000000000000 x16: 0000000000000015
-> x15: ffff800011690230 x14: 2e2e2e2e2e2e2e2e
-> x13: 2e2e2e2e2e2e2020 x12: 3030303030303030
-> x11: ffff800011700a38 x10: 00000000fffff000
-> x9 : ffff8000100ada30 x8 : ffff8000116a8a38
-> x7 : 0000000000000001 x6 : 0000000000000000
-> x5 : 0000000000000000 x4 : 0000000000000000
-> x3 : 00000000ffffffff x2 : 0000000000000000
-> x1 : 0000000000000000 x0 : 0000000000001800
-> Call trace:
->  caam_jr_dequeue+0x98/0x57c
->  tasklet_action_common.constprop.0+0x164/0x18c
->  tasklet_action+0x44/0x54
->  __do_softirq+0x160/0x454
->  __irq_exit_rcu+0x164/0x16c
->  irq_exit+0x1c/0x30
->  __handle_domain_irq+0xc0/0x13c
->  gic_handle_irq+0x5c/0xf0
->  el1_irq+0xb4/0x180
->  arch_cpu_idle+0x18/0x30
->  default_idle_call+0x3c/0x1c0
->  do_idle+0x23c/0x274
->  cpu_startup_entry+0x34/0x70
->  rest_init+0xdc/0xec
->  arch_call_rest_init+0x1c/0x28
->  start_kernel+0x4ac/0x4e4
-> Code: 91392021 912c2000 d377d8c6 97f24d96 (d4210000)
-
-Cc: <stable@vger.kernel.org> # v4.10+
-Fixes: 8126d88162a5 ("arm64: dts: add QorIQ LS1046A SoC support")
-Link: https://lore.kernel.org/linux-crypto/fe6faa24-d8f7-d18f-adfa-44fa0caa1598@arm.com
-Reported-by: Greg Ungerer <gerg@kernel.org>
-Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
-Tested-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Acked-by: Greg Ungerer <gerg@kernel.org>
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
+Cc: <stable@vger.kernel.org> # 5.6+
+Cc: Sandeep Sheriker Mallikarjun <sandeepsheriker.mallikarjun@microchip.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20210310152006.15018-1-nicolas.ferre@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/at91-sam9x60ek.dts |    8 --------
+ arch/arm/boot/dts/sam9x60.dtsi       |    9 +++++++++
+ 2 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-@@ -325,6 +325,7 @@
- 			ranges = <0x0 0x00 0x1700000 0x100000>;
- 			reg = <0x00 0x1700000 0x0 0x100000>;
- 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
-+			dma-coherent;
+--- a/arch/arm/boot/dts/at91-sam9x60ek.dts
++++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
+@@ -334,14 +334,6 @@
+ };
  
- 			sec_jr0: jr@10000 {
- 				compatible = "fsl,sec-v5.4-job-ring",
+ &pinctrl {
+-	atmel,mux-mask = <
+-			 /*	A	B	C	*/
+-			 0xFFFFFEFF 0xC0E039FF 0xEF00019D	/* pioA */
+-			 0x03FFFFFF 0x02FC7E68 0x00780000	/* pioB */
+-			 0xffffffff 0xF83FFFFF 0xB800F3FC	/* pioC */
+-			 0x003FFFFF 0x003F8000 0x00000000	/* pioD */
+-			 >;
+-
+ 	adc {
+ 		pinctrl_adc_default: adc_default {
+ 			atmel,pins = <AT91_PIOB 15 AT91_PERIPH_A AT91_PINCTRL_NONE>;
+--- a/arch/arm/boot/dts/sam9x60.dtsi
++++ b/arch/arm/boot/dts/sam9x60.dtsi
+@@ -606,6 +606,15 @@
+ 				compatible = "microchip,sam9x60-pinctrl", "atmel,at91sam9x5-pinctrl", "atmel,at91rm9200-pinctrl", "simple-bus";
+ 				ranges = <0xfffff400 0xfffff400 0x800>;
+ 
++				/* mux-mask corresponding to sam9x60 SoC in TFBGA228L package */
++				atmel,mux-mask = <
++						 /*	A	B	C	*/
++						 0xffffffff 0xffe03fff 0xef00019d	/* pioA */
++						 0x03ffffff 0x02fc7e7f 0x00780000	/* pioB */
++						 0xffffffff 0xffffffff 0xf83fffff	/* pioC */
++						 0x003fffff 0x003f8000 0x00000000	/* pioD */
++						 >;
++
+ 				pioA: gpio@fffff400 {
+ 					compatible = "microchip,sam9x60-gpio", "atmel,at91sam9x5-gpio", "atmel,at91rm9200-gpio";
+ 					reg = <0xfffff400 0x200>;
 
 
