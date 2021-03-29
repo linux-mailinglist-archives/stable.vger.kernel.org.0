@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F7334C741
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED64734C598
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232640AbhC2INk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:13:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
+        id S231655AbhC2IB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233058AbhC2IMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:12:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90D8E61477;
-        Mon, 29 Mar 2021 08:12:53 +0000 (UTC)
+        id S231404AbhC2IBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:01:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC70E6196C;
+        Mon, 29 Mar 2021 08:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005574;
-        bh=4BLFySzTlZC5OzXVirKvk9nGLRDRCln5urASLOKK0yM=;
+        s=korg; t=1617004876;
+        bh=O+bGaQbgppl7EBlZBXLS8rnc8WcSz3t4LTbgzH+Wb1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zw/vAxEjdp08Hwsxp30cfAzYQxKT/PmObLWVJBZNDo/3+0kvjNjv6Dixwg7FpIvn4
-         tMZn26NOqnDSp6A4otUTplkKHj/+3+FcTXn8LStaIU1I56B/eggxQMmTLfR168cION
-         1SM9IyGbsN5/cItBdOmKQ+Euxc5bn91As0EpiBRo=
+        b=Ns0oTH7ycsqN138A0Jeu4w7GLoHRMSKlkMm7Ehxy7VDIdcvsE80m6ue1JwNNsgM8V
+         ieJCRoknUiQE+UweFMTcCtqA7Mpin3c3VL8pX0apiaTLtuYXSuSzBVbIx7bC4Lb9/x
+         uwUE8d/JdaH3E4YkwwAhsL2tiuqOkj2Ajohefx9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        "Pavel Machek (CIP)" <pavel@denx.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 045/111] ACPI: video: Add missing callback back for Sony VPCEH3U1E
+        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/33] NFS: Correct size calculation for create reply length
 Date:   Mon, 29 Mar 2021 09:57:53 +0200
-Message-Id: <20210329075616.681683733@linuxfoundation.org>
+Message-Id: <20210329075605.549921359@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chris.chiu@canonical.com>
+From: Frank Sorenson <sorenson@redhat.com>
 
-commit c1d1e25a8c542816ae8dee41b81a18d30c7519a0 upstream.
+[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
 
-The .callback of the quirk for Sony VPCEH3U1E was unintetionally
-removed by the commit 25417185e9b5 ("ACPI: video: Add DMI quirk
-for GIGABYTE GB-BXBT-2807"). Add it back to make sure the quirk
-for Sony VPCEH3U1E works as expected.
+CREATE requests return a post_op_fh3, rather than nfs_fh3. The
+post_op_fh3 includes an extra word to indicate 'handle_follows'.
 
-Fixes: 25417185e9b5 ("ACPI: video: Add DMI quirk for GIGABYTE GB-BXBT-2807")
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Reviewed-by: Pavel Machek (CIP) <pavel@denx.de>
-Cc: 5.11+ <stable@vger.kernel.org> # 5.11+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Without that additional word, create fails when full 64-byte
+filehandles are in use.
+
+Add NFS3_post_op_fh_sz, and correct the size calculation for
+NFS3_createres_sz.
+
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/video_detect.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/nfs3xdr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -150,6 +150,7 @@ static const struct dmi_system_id video_
- 		},
- 	},
- 	{
-+	.callback = video_detect_force_vendor,
- 	.ident = "Sony VPCEH3U1E",
- 	.matches = {
- 		DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
+index 267126d32ec0..4a68837e92ea 100644
+--- a/fs/nfs/nfs3xdr.c
++++ b/fs/nfs/nfs3xdr.c
+@@ -33,6 +33,7 @@
+  */
+ #define NFS3_fhandle_sz		(1+16)
+ #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
++#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
+ #define NFS3_sattr_sz		(15)
+ #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
+ #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
+@@ -70,7 +71,7 @@
+ #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1)
+ #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3)
+ #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
+-#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
++#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
+ #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2)
+-- 
+2.30.1
+
 
 
