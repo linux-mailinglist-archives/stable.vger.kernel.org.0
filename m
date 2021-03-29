@@ -2,176 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C7134CD59
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 11:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D323334CD9B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 12:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232155AbhC2JwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 05:52:08 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27704 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232034AbhC2Jvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 05:51:54 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12T9XAQX194653;
-        Mon, 29 Mar 2021 05:51:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=nXxBRDUKwv4tg/UBkzFy6h2ENZzL491+fnndTiowvk4=;
- b=drq38PB5FRwtpw+LxpbQ7I4BjfqCIYqe708C+H4xYrof0a05p80fpy9vZxeFrnQBd7Hp
- Z9Hmpbdu/bje+Q60h0wn4FTXD+URyYPBp1YwgE5Xq3fCdkjxeVnOgY82qLR2S4CAqNFP
- yVAk1s3VKJcFeKbgU9+SlZsx74eZ0UAXRSgt2fjoGz0LdvCVF00QEi87+0H3zn1oxim5
- iUWFpSHPBwRWxZpi12tqfA+0bmU8Yx0X+DUpHY5VY0JVBbhIwsgYECMXAVYFi+Kdp13r
- TIvqjOvs47lH6KBS+N7ODDeYdN2N2nYt9NWkIBa3lo90WH9TX9REbOjT3W4X4jiwXyGf RA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37juxb9d0d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Mar 2021 05:51:14 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12T9bflm017044;
-        Mon, 29 Mar 2021 05:51:13 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37juxb9cyq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Mar 2021 05:51:13 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12T9gTCf008972;
-        Mon, 29 Mar 2021 09:51:11 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 37hvb8gvef-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Mar 2021 09:51:11 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12T9p93F25231686
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 29 Mar 2021 09:51:09 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3C0A111C04A;
-        Mon, 29 Mar 2021 09:51:09 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E16D711C058;
-        Mon, 29 Mar 2021 09:51:03 +0000 (GMT)
-Received: from pomme.local (unknown [9.211.151.38])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 29 Mar 2021 09:51:03 +0000 (GMT)
-Subject: Re: [PATCH] powerpc/vdso: Separate vvar vma from vdso
-To:     Dmitry Safonov <dima@arista.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org
-Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-References: <20210326191720.138155-1-dima@arista.com>
- <52562f46-6767-ba04-7301-04c6209fe4f1@csgroup.eu>
- <1b1494a8-da80-e170-78fa-48dfb3226e75@arista.com>
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-Message-ID: <ff24e583-aab7-6d73-8b19-4a0e47457482@linux.ibm.com>
-Date:   Mon, 29 Mar 2021 11:51:02 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.0
-In-Reply-To: <1b1494a8-da80-e170-78fa-48dfb3226e75@arista.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FAlyGckbWKhcUViz8Ul3CgHiuiimSH8s
-X-Proofpoint-ORIG-GUID: nVhytTAiyqNveN1mzjsuDnanoTdeSsmI
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S231945AbhC2KGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 06:06:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43896 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231313AbhC2KGh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 06:06:37 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F197C061574
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 03:06:37 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id 33so3230928pgy.4
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 03:06:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=csUoKERuRvlOgVTEJ8Ps64qt9ZY8uepSqr/7OtF+YE0=;
+        b=aVn8gCE+3gKljeXxlTdM83foDwqdwBjVaU+KW+hhqzFTtjFvjXvcxp1J7TIzU0E9uR
+         OMCk+v3rn7Sg9QVcvFeMlf4tZi6KLHtkvpWbXl0oOSQittHFMSGO536HM9U1FZC52YYs
+         qqNfDlyTSWh9ulhh1YC/Hmd7rKJfrtnxb2Z48rtjx2CRgLHPRymjxDwCM/QYTK0bOPJq
+         zRpJc27XSetYLVy9RRXDip5J/k3Mx2Zh1BbD3afNzH6/KFeu75/b6kclVLe/TH2o4iJn
+         up2K9jQPlHG7uXm7RmVsWCu/JvR9djII5YL5/6M/uNlZo35tMXQ/ZKjGZO42dHndD5MI
+         tSxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=csUoKERuRvlOgVTEJ8Ps64qt9ZY8uepSqr/7OtF+YE0=;
+        b=C+8ntpHSyAPkPic7sRKa677oWh6NZmQvpYM+LfiaEakFH8pfcdNCjEZYo96kHBLsZV
+         GnH/JPBVlQTYqcoBNQxkcdaTUbN+U/ygNxKMn/IhCF64ggNdRceG4vscXymcXSAkZAbW
+         e5JSMNqh7AovT1n28350cmMdjUNhn8qWTfOI4iWwLguARY7COKiBk4/0EIbQD4WhDLiq
+         jRKFVjaGNeVrfOEgNvPlloUVIBaWAIj7laGfP+IrPlJBy8TXU104HDgQ+OoOQ+Q4iqbC
+         R7rPD6oSggaWapnN1r/kUprNlAS6iIENlJiXLiUDcP6zHhCB5VJYRz9NriTZpDXEAun7
+         aj4w==
+X-Gm-Message-State: AOAM530jPXzNhs4GQARe/fKjMN1JU4RLOpClJFi7N/fl+XP4UYyMDUcO
+        TfAo4GUZRJtsHQhvUPtZZJCnYZstcuTVYg==
+X-Google-Smtp-Source: ABdhPJzlMlIzg+nySHdB0TB8aR1cyIEvTCbYGgtW1JWxsK7186O8CHPMAAZxPgx54a02/C7E4D1vYw==
+X-Received: by 2002:a65:640b:: with SMTP id a11mr3857991pgv.357.1617012396305;
+        Mon, 29 Mar 2021 03:06:36 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l22sm15787597pjl.14.2021.03.29.03.06.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Mar 2021 03:06:35 -0700 (PDT)
+Message-ID: <6061a6ab.1c69fb81.35b90.701a@mx.google.com>
+Date:   Mon, 29 Mar 2021 03:06:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-29_05:2021-03-26,2021-03-29 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- clxscore=1011 priorityscore=1501 bulkscore=0 mlxscore=0 mlxlogscore=999
- spamscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2103250000 definitions=main-2103290071
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.26-204-g20c4f011de84
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 171 runs,
+ 3 regressions (v5.10.26-204-g20c4f011de84)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Christophe and Dimitry,
+stable-rc/queue/5.10 baseline: 171 runs, 3 regressions (v5.10.26-204-g20c4f=
+011de84)
 
-Le 27/03/2021 à 18:43, Dmitry Safonov a écrit :
-> Hi Christophe,
-> 
-> On 3/27/21 5:19 PM, Christophe Leroy wrote:
-> [..]
->>> I opportunistically Cc stable on it: I understand that usually such
->>> stuff isn't a stable material, but that will allow us in CRIU have
->>> one workaround less that is needed just for one release (v5.11) on
->>> one platform (ppc64), which we otherwise have to maintain.
->>
->> Why is that a workaround, and why for one release only ? I think the
->> solution proposed by Laurentto use the aux vector AT_SYSINFO_EHDR should
->> work with any past and future release.
-> 
-> Yeah, I guess.
-> Previously, (before v5.11/power) all kernels had ELF start at "[vdso]"
-> VMA start, now we'll have to carry the offset in the VMA. Probably, not
-> the worst thing, but as it will be only for v5.11 release it can break,
-> so needs separate testing.
-> Kinda life was a bit easier without this additional code.
-The assumption that ELF header is at the start of "[vdso]" is perhaps not a good 
-one, but using a "[vvar]" section looks more conventional and allows to clearly 
-identify the data part. I'd argue for this option.
+Regressions Summary
+-------------------
 
-> 
->>> I wouldn't go as far as to say that the commit 511157ab641e is ABI
->>> regression as no other userspace got broken, but I'd really appreciate
->>> if it gets backported to v5.11 after v5.12 is released, so as not
->>> to complicate already non-simple CRIU-vdso code. Thanks!
->>>
->>> Cc: Andrei Vagin <avagin@gmail.com>
->>> Cc: Andy Lutomirski <luto@kernel.org>
->>> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->>> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
->>> Cc: Laurent Dufour <ldufour@linux.ibm.com>
->>> Cc: Michael Ellerman <mpe@ellerman.id.au>
->>> Cc: Paul Mackerras <paulus@samba.org>
->>> Cc: linuxppc-dev@lists.ozlabs.org
->>> Cc: stable@vger.kernel.org # v5.11
->>> [1]: https://github.com/checkpoint-restore/criu/issues/1417
->>> Signed-off-by: Dmitry Safonov <dima@arista.com>
->>> Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
->>
->> I tested it with sifreturn_vdso selftest and it worked, because that
->> selftest doesn't involve VDSO data.
-> 
-> Thanks again on helping with testing it, I appreciate it!
-> 
->> But if I do a mremap() on the VDSO text vma without remapping VVAR to
->> keep the same distance between the two vmas, gettimeofday() crashes. The
->> reason is that the code obtains the address of the data by calculating a
->> fix difference from its own address with the below macro, the delta
->> being resolved at link time:
->>
->> .macro get_datapage ptr
->>      bcl    20, 31, .+4
->> 999:
->>      mflr    \ptr
->> #if CONFIG_PPC_PAGE_SHIFT > 14
->>      addis    \ptr, \ptr, (_vdso_datapage - 999b)@ha
->> #endif
->>      addi    \ptr, \ptr, (_vdso_datapage - 999b)@l
->> .endm
->>
->> So the datapage needs to remain at the same distance from the code at
->> all time.
->>
->> Wondering how the other architectures do to have two independent VMAs
->> and be able to move one independently of the other.
-> 
-> It's alright as far as I know. If userspace remaps vdso/vvar it should
-> be aware of this (CRIU keeps this in mind, also old vdso image is dumped
-> to compare on restore with the one that the host has).
+platform                 | arch | lab             | compiler | defconfig   =
+        | regressions
+-------------------------+------+-----------------+----------+-------------=
+--------+------------
+imx6q-var-dt6customboard | arm  | lab-baylibre    | gcc-8    | multi_v7_def=
+config  | 2          =
 
-I do agree, playing with the VDSO mapping needs the application to be aware of 
-the mapping details, and prior to 83d3f0e90c6c "powerpc/mm: tracking vDSO 
-remap", remapping the VDSO was not working on PowerPC and nobody complained...
+imx6ul-pico-hobbit       | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_de=
+fconfig | 1          =
 
-Laurent.
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.26-204-g20c4f011de84/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.26-204-g20c4f011de84
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      20c4f011de848823cef23f59a3fd2a2557bd9c47 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab             | compiler | defconfig   =
+        | regressions
+-------------------------+------+-----------------+----------+-------------=
+--------+------------
+imx6q-var-dt6customboard | arm  | lab-baylibre    | gcc-8    | multi_v7_def=
+config  | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60617346c50af95804af02bf
+
+  Results:     3 PASS, 2 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+204-g20c4f011de84/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-=
+var-dt6customboard.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+204-g20c4f011de84/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-=
+var-dt6customboard.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/60617346c50af95=
+804af02c5
+        new failure (last pass: v5.10.26-197-gbede60ff0a573)
+        4 lines
+
+    2021-03-29 06:26:38.467000+00:00  kern  :alert : Unable to handle kerne=
+l NULL pointer dereference at virtual address 00000313
+    2021-03-29 06:26:38.468000+00:00  kern  :alert : pgd =3D (ptrval)<8>[  =
+ 43.741108] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=
+=3Dlines MEASUREMENT=3D4>
+    2021-03-29 06:26:38.468000+00:00  =
+
+    2021-03-29 06:26:38.468000+00:00  kern  :alert : [00000313] *pgd=3D0000=
+0000   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60617346c50af95=
+804af02c6
+        new failure (last pass: v5.10.26-197-gbede60ff0a573)
+        47 lines
+
+    2021-03-29 06:26:38.521000+00:00  kern  :emerg : Process kworker/3:1 (p=
+id: 53, stack limit =3D 0x(ptrval))
+    2021-03-29 06:26:38.521000+00:00  kern  :emerg : Stack: (0xc2437d58 to =
+0xc2438000)
+    2021-03-29 06:26:38.522000+00:00  kern  :emerg : 7d40:                 =
+                                      c3b965b0 c3b965b4
+    2021-03-29 06:26:38.522000+00:00  kern  :emerg : 7d60: c3b96400 c3b9641=
+4 c1449f24 c09c4c0c c2436000 ef83ac20 c09c5fcc c3b96400
+    2021-03-29 06:26:38.522000+00:00  kern  :emerg : 7d80: 000002f3 0000000=
+c c19c77a4 c2001d80 c327dd00 ef85cfa0 c09d2364 c1449f24
+    2021-03-29 06:26:38.563000+00:00  kern  :emerg : 7da0: c19c7788 e4b5ade=
+7 c19c77a4 c21615c0 c3958780 c3b96400 c3b96414 c1449f24
+    2021-03-29 06:26:38.564000+00:00  kern  :emerg : 7dc0: c19c7788 0000000=
+c c19c77a4 c09d2334 c1447c4c 00000000 c3b9640c c3b96400
+    2021-03-29 06:26:38.564000+00:00  kern  :emerg : 7de0: fffffdfb c22d8c1=
+0 c226c7c0 c09a825c c3b96400 bf026000 fffffdfb bf022138
+    2021-03-29 06:26:38.565000+00:00  kern  :emerg : 7e00: c36cb200 c392c50=
+8 00000120 c223f2c0 c226c7c0 c0a01da8 c36cb200 c36cb200
+    2021-03-29 06:26:38.565000+00:00  kern  :emerg : 7e20: 00000040 c36cb20=
+0 c226c7c0 00000000 c19c779c bf049084 bf04a014 0000001c =
+
+    ... (36 line(s) more)  =
+
+ =
+
+
+
+platform                 | arch | lab             | compiler | defconfig   =
+        | regressions
+-------------------------+------+-----------------+----------+-------------=
+--------+------------
+imx6ul-pico-hobbit       | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_de=
+fconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606175f37194965a25af02b8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+204-g20c4f011de84/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
+x6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.26-=
+204-g20c4f011de84/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
+x6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606175f37194965a25af0=
+2b9
+        new failure (last pass: v5.10.26-197-gbede60ff0a573) =
+
+ =20
