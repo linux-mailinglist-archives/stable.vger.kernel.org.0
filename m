@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37FB034C5BC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11D3434C593
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231332AbhC2ICs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:02:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43966 "EHLO mail.kernel.org"
+        id S231629AbhC2IBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231672AbhC2IBz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:01:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91E4461999;
-        Mon, 29 Mar 2021 08:01:53 +0000 (UTC)
+        id S231652AbhC2IBD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:01:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEF3E61969;
+        Mon, 29 Mar 2021 08:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004914;
-        bh=mikj8SRaaaAuYkcikU3kArfo61V6CESsEdkzbdoawmw=;
+        s=korg; t=1617004863;
+        bh=DBdId7ouMFQq8AeyXN09YTnzWyJ06uRoaJZHq7qLu7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YIroXYhz/pty7UkoAV91KIoD09EnZs2diXUEZX5urwQMg5snRBXR+GI+ORMkJT3SY
-         NJKODQatBFYiKymQ5KG4MSjuDNajz+GHaF8s7D1+d0fbeIYRNZIFej9MU0tcDABkWx
-         Aq2lFuD3F7KQ+T6OvG7KuyZlpGjGwT/eQP3pcTr0=
+        b=wfVspEnd1phyRbk+JTF8GVhPHf7Cg9MbmEQf51H2KICwt8eOljeuFbnWDDsZSiD7o
+         7vZptcVhwtoaeuYEadZOKXOTBHgwQ1Sy/9PMCz8RXhSWVQWUuzcodDhV9IfYnb8sOE
+         4cOTnm+7mnx114v3tAKm1MhgCqxvy06gh/oZ+HA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Subject: [PATCH 4.9 13/53] u64_stats,lockdep: Fix u64_stats_init() vs lockdep
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 03/33] atm: eni: dont release is never initialized
 Date:   Mon, 29 Mar 2021 09:57:48 +0200
-Message-Id: <20210329075607.983178066@linuxfoundation.org>
+Message-Id: <20210329075605.397617956@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit d5b0e0677bfd5efd17c5bbb00156931f0d41cb85 ]
+[ Upstream commit 4deb550bc3b698a1f03d0332cde3df154d1b6c1e ]
 
-Jakub reported that:
+label err_eni_release is reachable when eni_start() fail.
+In eni_start() it calls dev->phy->start() in the last step, if start()
+fail we don't need to call phy->stop(), if start() is never called, we
+neither need to call phy->stop(), otherwise null-ptr-deref will happen.
 
-    static struct net_device *rtl8139_init_board(struct pci_dev *pdev)
-    {
-	    ...
-	    u64_stats_init(&tp->rx_stats.syncp);
-	    u64_stats_init(&tp->tx_stats.syncp);
-	    ...
-    }
+In order to fix this issue, don't call phy->stop() in label err_eni_release
 
-results in lockdep getting confused between the RX and TX stats lock.
-This is because u64_stats_init() is an inline calling seqcount_init(),
-which is a macro using a static variable to generate a lockdep class.
+[    4.875714] ==================================================================
+[    4.876091] BUG: KASAN: null-ptr-deref in suni_stop+0x47/0x100 [suni]
+[    4.876433] Read of size 8 at addr 0000000000000030 by task modprobe/95
+[    4.876778]
+[    4.876862] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7-00090-gdcc0b49040c7 #2
+[    4.877290] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd94
+[    4.877876] Call Trace:
+[    4.878009]  dump_stack+0x7d/0xa3
+[    4.878191]  kasan_report.cold+0x10c/0x10e
+[    4.878410]  ? __slab_free+0x2f0/0x340
+[    4.878612]  ? suni_stop+0x47/0x100 [suni]
+[    4.878832]  suni_stop+0x47/0x100 [suni]
+[    4.879043]  eni_do_release+0x3b/0x70 [eni]
+[    4.879269]  eni_init_one.cold+0x1152/0x1747 [eni]
+[    4.879528]  ? _raw_spin_lock_irqsave+0x7b/0xd0
+[    4.879768]  ? eni_ioctl+0x270/0x270 [eni]
+[    4.879990]  ? __mutex_lock_slowpath+0x10/0x10
+[    4.880226]  ? eni_ioctl+0x270/0x270 [eni]
+[    4.880448]  local_pci_probe+0x6f/0xb0
+[    4.880650]  pci_device_probe+0x171/0x240
+[    4.880864]  ? pci_device_remove+0xe0/0xe0
+[    4.881086]  ? kernfs_create_link+0xb6/0x110
+[    4.881315]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
+[    4.881594]  really_probe+0x161/0x420
+[    4.881791]  driver_probe_device+0x6d/0xd0
+[    4.882010]  device_driver_attach+0x82/0x90
+[    4.882233]  ? device_driver_attach+0x90/0x90
+[    4.882465]  __driver_attach+0x60/0x100
+[    4.882671]  ? device_driver_attach+0x90/0x90
+[    4.882903]  bus_for_each_dev+0xe1/0x140
+[    4.883114]  ? subsys_dev_iter_exit+0x10/0x10
+[    4.883346]  ? klist_node_init+0x61/0x80
+[    4.883557]  bus_add_driver+0x254/0x2a0
+[    4.883764]  driver_register+0xd3/0x150
+[    4.883971]  ? 0xffffffffc0038000
+[    4.884149]  do_one_initcall+0x84/0x250
+[    4.884355]  ? trace_event_raw_event_initcall_finish+0x150/0x150
+[    4.884674]  ? unpoison_range+0xf/0x30
+[    4.884875]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.885150]  ? unpoison_range+0xf/0x30
+[    4.885352]  ? unpoison_range+0xf/0x30
+[    4.885557]  do_init_module+0xf8/0x350
+[    4.885760]  load_module+0x3fe6/0x4340
+[    4.885960]  ? vm_unmap_ram+0x1d0/0x1d0
+[    4.886166]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.886441]  ? module_frob_arch_sections+0x20/0x20
+[    4.886697]  ? __do_sys_finit_module+0x108/0x170
+[    4.886941]  __do_sys_finit_module+0x108/0x170
+[    4.887178]  ? __ia32_sys_init_module+0x40/0x40
+[    4.887419]  ? file_open_root+0x200/0x200
+[    4.887634]  ? do_sys_open+0x85/0xe0
+[    4.887826]  ? filp_open+0x50/0x50
+[    4.888009]  ? fpregs_assert_state_consistent+0x4d/0x60
+[    4.888287]  ? exit_to_user_mode_prepare+0x2f/0x130
+[    4.888547]  do_syscall_64+0x33/0x40
+[    4.888739]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    4.889010] RIP: 0033:0x7ff62fcf1cf7
+[    4.889202] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f71
+[    4.890172] RSP: 002b:00007ffe6644ade8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    4.890570] RAX: ffffffffffffffda RBX: 0000000000f2ca70 RCX: 00007ff62fcf1cf7
+[    4.890944] RDX: 0000000000000000 RSI: 0000000000f2b9e0 RDI: 0000000000000003
+[    4.891318] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
+[    4.891691] R10: 00007ff62fd55300 R11: 0000000000000246 R12: 0000000000f2b9e0
+[    4.892064] R13: 0000000000000000 R14: 0000000000f2bdd0 R15: 0000000000000001
+[    4.892439] ==================================================================
 
-By wrapping that in an inline, we negate the effect of the macro and
-fold the static key variable, hence the confusion.
-
-Fix by also making u64_stats_init() a macro for the case where it
-matters, leaving the other case an inline for argument validation
-etc.
-
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Debugged-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: "Erhard F." <erhard_f@mailbox.org>
-Link: https://lkml.kernel.org/r/YEXicy6+9MksdLZh@hirez.programming.kicks-ass.net
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/u64_stats_sync.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/atm/eni.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
-index 650f3dd6b800..f604a8fe9d2e 100644
---- a/include/linux/u64_stats_sync.h
-+++ b/include/linux/u64_stats_sync.h
-@@ -68,12 +68,13 @@ struct u64_stats_sync {
- };
+diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
+index 340a1ee79d28..3d5ad2bc809b 100644
+--- a/drivers/atm/eni.c
++++ b/drivers/atm/eni.c
+@@ -2278,7 +2278,8 @@ static int eni_init_one(struct pci_dev *pci_dev,
+ 	return rc;
  
- 
-+#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
-+#define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
-+#else
- static inline void u64_stats_init(struct u64_stats_sync *syncp)
- {
--#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
--	seqcount_init(&syncp->seq);
--#endif
- }
-+#endif
- 
- static inline void u64_stats_update_begin(struct u64_stats_sync *syncp)
- {
+ err_eni_release:
+-	eni_do_release(dev);
++	dev->phy = NULL;
++	iounmap(ENI_DEV(dev)->ioaddr);
+ err_unregister:
+ 	atm_dev_deregister(dev);
+ err_free_consistent:
 -- 
 2.30.1
 
