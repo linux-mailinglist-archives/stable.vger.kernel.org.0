@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB0D834C6F8
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A265E34CA88
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231446AbhC2ILM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
+        id S234251AbhC2Iiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:38:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232394AbhC2IKn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 956C36196B;
-        Mon, 29 Mar 2021 08:10:42 +0000 (UTC)
+        id S234853AbhC2Ih1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B787F619C5;
+        Mon, 29 Mar 2021 08:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005443;
-        bh=4T5nshDnSfdrBR1gefSFliG79GvTAw5WAZSSBIwntxo=;
+        s=korg; t=1617007010;
+        bh=yKav0Il29ZRjd7L2vycF4NIWmmq44ae3g5LHM4WhjrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FX/rUpP6P4AGRJ47UxwREKG3oU+cFq5rURDWh5/opRRfIt/ZuBbf38iINwJZpCxx0
-         ddkhtpfs1J4ImKLvlNFWMDePA99Co/85fzGH0vXz46sv36g70WiNiPNXpJeJOhFKt+
-         Fyn8Iyx86f14NkNc//mxKjQWb7YPf6EtDX8woIjY=
+        b=M7msx3aJYsDmTjCKJRtRFZCvsIJNp3bQ2L0lF+IKsUyGMwHYFCxG3okWQftOmxMhg
+         +Y7GFnz5B68yZbjEa+uK2FuzPg/IGbu81/T1NH/cykgXyZv2+8A8/RrS1QcfHj5Mdq
+         OOIKr6VBQW8JPxcTb4iw82xVA/vHSudYxsBg4eoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/72] can: c_can: move runtime PM enable/disable to c_can_platform
+Subject: [PATCH 5.11 186/254] libbpf: Fix BTF dump of pointer-to-array-of-struct
 Date:   Mon, 29 Mar 2021 09:58:22 +0200
-Message-Id: <20210329075611.801685477@linuxfoundation.org>
+Message-Id: <20210329075639.242606958@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,131 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-[ Upstream commit 6e2fe01dd6f98da6cae8b07cd5cfa67abc70d97d ]
+[ Upstream commit 901ee1d750f29a335423eeb9463c3ca461ca18c2 ]
 
-Currently doing modprobe c_can_pci will make the kernel complain:
+The vmlinux.h generated from BTF is invalid when building
+drivers/phy/ti/phy-gmii-sel.c with clang:
 
-    Unbalanced pm_runtime_enable!
+vmlinux.h:61702:27: error: array type has incomplete element type ‘struct reg_field’
+61702 |  const struct reg_field (*regfields)[3];
+      |                           ^~~~~~~~~
 
-this is caused by pm_runtime_enable() called before pm is initialized.
+bpftool generates a forward declaration for this struct regfield, which
+compilers aren't happy about. Here's a simplified reproducer:
 
-This fix is similar to 227619c3ff7c, move those pm_enable/disable code
-to c_can_platform.
+	struct inner {
+		int val;
+	};
+	struct outer {
+		struct inner (*ptr_to_array)[2];
+	} A;
 
-Fixes: 4cdd34b26826 ("can: c_can: Add runtime PM support to Bosch C_CAN/D_CAN controller")
-Link: http://lore.kernel.org/r/20210302025542.987600-1-ztong0001@gmail.com
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Tested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+After build with clang -> bpftool btf dump c -> clang/gcc:
+./def-clang.h:11:23: error: array has incomplete element type 'struct inner'
+        struct inner (*ptr_to_array)[2];
+
+Member ptr_to_array of struct outer is a pointer to an array of struct
+inner. In the DWARF generated by clang, struct outer appears before
+struct inner, so when converting BTF of struct outer into C, bpftool
+issues a forward declaration to struct inner. With GCC the DWARF info is
+reversed so struct inner gets fully defined.
+
+That forward declaration is not sufficient when compilers handle an
+array of the struct, even when it's only used through a pointer. Note
+that we can trigger the same issue with an intermediate typedef:
+
+	struct inner {
+	        int val;
+	};
+	typedef struct inner inner2_t[2];
+	struct outer {
+	        inner2_t *ptr_to_array;
+	} A;
+
+Becomes:
+
+	struct inner;
+	typedef struct inner inner2_t[2];
+
+And causes:
+
+./def-clang.h:10:30: error: array has incomplete element type 'struct inner'
+	typedef struct inner inner2_t[2];
+
+To fix this, clear through_ptr whenever we encounter an intermediate
+array, to make the inner struct part of a strong link and force full
+declaration.
+
+Fixes: 351131b51c7a ("libbpf: add btf_dump API for BTF-to-C conversion")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210319112554.794552-2-jean-philippe@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/c_can/c_can.c          | 24 +-----------------------
- drivers/net/can/c_can/c_can_platform.c |  6 +++++-
- 2 files changed, 6 insertions(+), 24 deletions(-)
+ tools/lib/bpf/btf_dump.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/c_can/c_can.c b/drivers/net/can/c_can/c_can.c
-index 24c6015f6c92..2278c5fff5c6 100644
---- a/drivers/net/can/c_can/c_can.c
-+++ b/drivers/net/can/c_can/c_can.c
-@@ -212,18 +212,6 @@ static const struct can_bittiming_const c_can_bittiming_const = {
- 	.brp_inc = 1,
- };
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 2f9d685bd522..0911aea4cdbe 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -462,7 +462,7 @@ static int btf_dump_order_type(struct btf_dump *d, __u32 id, bool through_ptr)
+ 		return err;
  
--static inline void c_can_pm_runtime_enable(const struct c_can_priv *priv)
--{
--	if (priv->device)
--		pm_runtime_enable(priv->device);
--}
--
--static inline void c_can_pm_runtime_disable(const struct c_can_priv *priv)
--{
--	if (priv->device)
--		pm_runtime_disable(priv->device);
--}
--
- static inline void c_can_pm_runtime_get_sync(const struct c_can_priv *priv)
- {
- 	if (priv->device)
-@@ -1318,7 +1306,6 @@ static const struct net_device_ops c_can_netdev_ops = {
+ 	case BTF_KIND_ARRAY:
+-		return btf_dump_order_type(d, btf_array(t)->type, through_ptr);
++		return btf_dump_order_type(d, btf_array(t)->type, false);
  
- int register_c_can_dev(struct net_device *dev)
- {
--	struct c_can_priv *priv = netdev_priv(dev);
- 	int err;
- 
- 	/* Deactivate pins to prevent DRA7 DCAN IP from being
-@@ -1328,28 +1315,19 @@ int register_c_can_dev(struct net_device *dev)
- 	 */
- 	pinctrl_pm_select_sleep_state(dev->dev.parent);
- 
--	c_can_pm_runtime_enable(priv);
--
- 	dev->flags |= IFF_ECHO;	/* we support local echo */
- 	dev->netdev_ops = &c_can_netdev_ops;
- 
- 	err = register_candev(dev);
--	if (err)
--		c_can_pm_runtime_disable(priv);
--	else
-+	if (!err)
- 		devm_can_led_init(dev);
--
- 	return err;
- }
- EXPORT_SYMBOL_GPL(register_c_can_dev);
- 
- void unregister_c_can_dev(struct net_device *dev)
- {
--	struct c_can_priv *priv = netdev_priv(dev);
--
- 	unregister_candev(dev);
--
--	c_can_pm_runtime_disable(priv);
- }
- EXPORT_SYMBOL_GPL(unregister_c_can_dev);
- 
-diff --git a/drivers/net/can/c_can/c_can_platform.c b/drivers/net/can/c_can/c_can_platform.c
-index b5145a7f874c..f2b0408ce87d 100644
---- a/drivers/net/can/c_can/c_can_platform.c
-+++ b/drivers/net/can/c_can/c_can_platform.c
-@@ -29,6 +29,7 @@
- #include <linux/list.h>
- #include <linux/io.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/clk.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-@@ -385,6 +386,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, dev);
- 	SET_NETDEV_DEV(dev, &pdev->dev);
- 
-+	pm_runtime_enable(priv->device);
- 	ret = register_c_can_dev(dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
-@@ -397,6 +399,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
- 	return 0;
- 
- exit_free_device:
-+	pm_runtime_disable(priv->device);
- 	free_c_can_dev(dev);
- exit:
- 	dev_err(&pdev->dev, "probe failed\n");
-@@ -407,9 +410,10 @@ exit:
- static int c_can_plat_remove(struct platform_device *pdev)
- {
- 	struct net_device *dev = platform_get_drvdata(pdev);
-+	struct c_can_priv *priv = netdev_priv(dev);
- 
- 	unregister_c_can_dev(dev);
--
-+	pm_runtime_disable(priv->device);
- 	free_c_can_dev(dev);
- 
- 	return 0;
+ 	case BTF_KIND_STRUCT:
+ 	case BTF_KIND_UNION: {
 -- 
 2.30.1
 
