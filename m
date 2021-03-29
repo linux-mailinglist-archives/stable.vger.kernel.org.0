@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4981234C671
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 985BE34C674
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232042AbhC2IH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:07:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49750 "EHLO mail.kernel.org"
+        id S231509AbhC2IH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:07:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232318AbhC2IG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36EA2619A0;
-        Mon, 29 Mar 2021 08:06:28 +0000 (UTC)
+        id S231613AbhC2IGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:06:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A31AC6197F;
+        Mon, 29 Mar 2021 08:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005188;
-        bh=nOm8l39tJQp6GR6uVTBHiEOZ3QFdvM9/M3vIMGsYA2A=;
+        s=korg; t=1617005191;
+        bh=zNWJ3S6ipAU6dbDVMKFDhWmunigq6V3cEmVjjZAnHXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtkTw7rhIK3rPZ2m7AruTQZX1IfdefJJSJfZfzpIIfVwk5mxj754cNfq4CFdAmOJl
-         fwCu/34ku3BY8pfYVsu1oa41nW0ep21HCDS39HpiFDOK5mCdutUGo6ceBwTM4uKpbY
-         20s9uYsH7BDL6nq3YVwug1a0f3g7pugXhuLCF9nE=
+        b=nLJyjDNEgdx4r2ylJCAE9NN+SZmzs8HAyKghEJwDHciyjRuispm4ufT3rBP7O3BOs
+         rSJtZwzRtBRFW9UBzDk4AkQhmh0w4neYhOD0MO1XYqg+7gUXRpNSWmdKzFo0+CWTJm
+         UDyHsgmUxYCySE8iBam3BvZ7/akx9p04jk23kAig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 56/59] net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
-Date:   Mon, 29 Mar 2021 09:58:36 +0200
-Message-Id: <20210329075610.707354169@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+93976391bf299d425f44@syzkaller.appspotmail.com,
+        Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 57/59] mac80211: fix double free in ibss_leave
+Date:   Mon, 29 Mar 2021 09:58:37 +0200
+Message-Id: <20210329075610.737982828@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
 References: <20210329075608.898173317@linuxfoundation.org>
@@ -41,77 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-commit 50535249f624d0072cd885bcdce4e4b6fb770160 upstream.
+commit 3bd801b14e0c5d29eeddc7336558beb3344efaa3 upstream.
 
-struct sockaddr_qrtr has a 2-byte hole, and qrtr_recvmsg() currently
-does not clear it before copying kernel data to user space.
+Clear beacon ie pointer and ie length after free
+in order to prevent double free.
 
-It might be too late to name the hole since sockaddr_qrtr structure is uapi.
+==================================================================
+BUG: KASAN: double-free or invalid-free \
+in ieee80211_ibss_leave+0x83/0xe0 net/mac80211/ibss.c:1876
 
-BUG: KMSAN: kernel-infoleak in kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
-CPU: 0 PID: 29705 Comm: syz-executor.3 Not tainted 5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+CPU: 0 PID: 8472 Comm: syz-executor100 Not tainted 5.11.0-rc6-syzkaller #0
 Call Trace:
  __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x21c/0x280 lib/dump_stack.c:120
- kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
- kmsan_internal_check_memory+0x202/0x520 mm/kmsan/kmsan.c:402
- kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
- instrument_copy_to_user include/linux/instrumented.h:121 [inline]
- _copy_to_user+0x1ac/0x270 lib/usercopy.c:33
- copy_to_user include/linux/uaccess.h:209 [inline]
- move_addr_to_user+0x3a2/0x640 net/socket.c:237
- ____sys_recvmsg+0x696/0xd50 net/socket.c:2575
- ___sys_recvmsg net/socket.c:2610 [inline]
- do_recvmmsg+0xa97/0x22d0 net/socket.c:2710
- __sys_recvmmsg net/socket.c:2789 [inline]
- __do_sys_recvmmsg net/socket.c:2812 [inline]
- __se_sys_recvmmsg+0x24a/0x410 net/socket.c:2805
- __x64_sys_recvmmsg+0x62/0x80 net/socket.c:2805
- do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ print_address_description.constprop.0.cold+0x5b/0x2c6 mm/kasan/report.c:230
+ kasan_report_invalid_free+0x51/0x80 mm/kasan/report.c:355
+ ____kasan_slab_free+0xcc/0xe0 mm/kasan/common.c:341
+ kasan_slab_free include/linux/kasan.h:192 [inline]
+ __cache_free mm/slab.c:3424 [inline]
+ kfree+0xed/0x270 mm/slab.c:3760
+ ieee80211_ibss_leave+0x83/0xe0 net/mac80211/ibss.c:1876
+ rdev_leave_ibss net/wireless/rdev-ops.h:545 [inline]
+ __cfg80211_leave_ibss+0x19a/0x4c0 net/wireless/ibss.c:212
+ __cfg80211_leave+0x327/0x430 net/wireless/core.c:1172
+ cfg80211_leave net/wireless/core.c:1221 [inline]
+ cfg80211_netdev_notifier_call+0x9e8/0x12c0 net/wireless/core.c:1335
+ notifier_call_chain+0xb5/0x200 kernel/notifier.c:83
+ call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:2040
+ call_netdevice_notifiers_extack net/core/dev.c:2052 [inline]
+ call_netdevice_notifiers net/core/dev.c:2066 [inline]
+ __dev_close_many+0xee/0x2e0 net/core/dev.c:1586
+ __dev_close net/core/dev.c:1624 [inline]
+ __dev_change_flags+0x2cb/0x730 net/core/dev.c:8476
+ dev_change_flags+0x8a/0x160 net/core/dev.c:8549
+ dev_ifsioc+0x210/0xa70 net/core/dev_ioctl.c:265
+ dev_ioctl+0x1b1/0xc40 net/core/dev_ioctl.c:511
+ sock_do_ioctl+0x148/0x2d0 net/socket.c:1060
+ sock_ioctl+0x477/0x6a0 net/socket.c:1177
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl fs/ioctl.c:739 [inline]
+ __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:739
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x465f69
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f43659d6188 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
-RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 0000000000465f69
-RDX: 0000000000000008 RSI: 0000000020003e40 RDI: 0000000000000003
-RBP: 00000000004bfa8f R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000010060 R11: 0000000000000246 R12: 000000000056bf60
-R13: 0000000000a9fb1f R14: 00007f43659d6300 R15: 0000000000022000
 
-Local variable ----addr@____sys_recvmsg created at:
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
-
-Bytes 2-3 of 12 are uninitialized
-Memory access of size 12 starts at ffff88817c627b40
-Data copied to user address 0000000020000140
-
-Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+93976391bf299d425f44@syzkaller.appspotmail.com
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20210213133653.367130-1-markus.theil@tu-ilmenau.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/qrtr.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/mac80211/ibss.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -819,6 +819,11 @@ static int qrtr_recvmsg(struct socket *s
- 	rc = copied;
+--- a/net/mac80211/ibss.c
++++ b/net/mac80211/ibss.c
+@@ -1861,6 +1861,8 @@ int ieee80211_ibss_leave(struct ieee8021
  
- 	if (addr) {
-+		/* There is an anonymous 2-byte hole after sq_family,
-+		 * make sure to clear it.
-+		 */
-+		memset(addr, 0, sizeof(*addr));
-+
- 		addr->sq_family = AF_QIPCRTR;
- 		addr->sq_node = le32_to_cpu(phdr->src_node_id);
- 		addr->sq_port = le32_to_cpu(phdr->src_port_id);
+ 	/* remove beacon */
+ 	kfree(sdata->u.ibss.ie);
++	sdata->u.ibss.ie = NULL;
++	sdata->u.ibss.ie_len = 0;
+ 
+ 	/* on the next join, re-program HT parameters */
+ 	memset(&ifibss->ht_capa, 0, sizeof(ifibss->ht_capa));
 
 
