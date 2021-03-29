@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02A434C657
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4AC34CA89
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbhC2IGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49094 "EHLO mail.kernel.org"
+        id S233786AbhC2Iiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:38:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232187AbhC2IFu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D81861974;
-        Mon, 29 Mar 2021 08:05:49 +0000 (UTC)
+        id S234866AbhC2Ih3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F0E661932;
+        Mon, 29 Mar 2021 08:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005150;
-        bh=Ng5+7RAmAVVpFm4rU5N9Ql0JO0uW5KTAgcyYeOTXTcc=;
+        s=korg; t=1617007013;
+        bh=ySD/AyLDmWAgThpEcTD75lQI0DPswwRh7FMECb82zJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvs4tF2HgrMjeeczEHwbvViTnmwwAtTz7HXmULVXAGEzMs8k3NK+BV394O2f5/SY8
-         ihU7FRHcTAIF/KiZKfVPHNGKSFK744rqcF2kNRzFpSFXElKgYeO0QmeFojM8/zPTOl
-         jwaTBtzf8lqsVaZ0LzLK/QZQ3TnvGGx5eM63q060=
+        b=e/PoX4NxRKmt8upRN8SmBEVjFHdINF8c5V+ILDF8V7OvGojwlIV23TQ8YAr5GXbAr
+         WS8DrlnDaBbuP13DLwQAr0OkdAiD4j8hcVsvdMXiGfvORT5I8QKRsr6agStO0VzYUL
+         qTD1KMRnDU1USYWlSitYmiSPm88ksLpDH342yUYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Belisko Marek <marek.belisko@gmail.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        syzbot+44908bb56d2bfe56b28e@syzkaller.appspotmail.com,
+        Zqiang <qiang.zhang@windriver.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 43/59] net: stmmac: dwmac-sun8i: Provide TX and RX fifo sizes
+Subject: [PATCH 5.11 187/254] bpf: Fix umd memory leak in copy_process()
 Date:   Mon, 29 Mar 2021 09:58:23 +0200
-Message-Id: <20210329075610.300085563@linuxfoundation.org>
+Message-Id: <20210329075639.272517285@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +42,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Zqiang <qiang.zhang@windriver.com>
 
-[ Upstream commit 014dfa26ce1c647af09bf506285ef67e0e3f0a6b ]
+[ Upstream commit f60a85cad677c4f9bb4cadd764f1d106c38c7cf8 ]
 
-MTU cannot be changed on dwmac-sun8i. (ip link set eth0 mtu xxx returning EINVAL)
-This is due to tx_fifo_size being 0, since this value is used to compute valid
-MTU range.
-Like dwmac-sunxi (with commit 806fd188ce2a ("net: stmmac: dwmac-sunxi: Provide TX and RX fifo sizes"))
-dwmac-sun8i need to have tx and rx fifo sizes set.
-I have used values from datasheets.
-After this patch, setting a non-default MTU (like 1000) value works and network is still useable.
+The syzbot reported a memleak as follows:
 
-Tested-on: sun8i-h3-orangepi-pc
-Tested-on: sun8i-r40-bananapi-m2-ultra
-Tested-on: sun50i-a64-bananapi-m64
-Tested-on: sun50i-h5-nanopi-neo-plus2
-Tested-on: sun50i-h6-pine-h64
-Fixes: 9f93ac8d408 ("net-next: stmmac: Add dwmac-sun8i")
-Reported-by: Belisko Marek <marek.belisko@gmail.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BUG: memory leak
+unreferenced object 0xffff888101b41d00 (size 120):
+  comm "kworker/u4:0", pid 8, jiffies 4294944270 (age 12.780s)
+  backtrace:
+    [<ffffffff8125dc56>] alloc_pid+0x66/0x560
+    [<ffffffff81226405>] copy_process+0x1465/0x25e0
+    [<ffffffff81227943>] kernel_clone+0xf3/0x670
+    [<ffffffff812281a1>] kernel_thread+0x61/0x80
+    [<ffffffff81253464>] call_usermodehelper_exec_work
+    [<ffffffff81253464>] call_usermodehelper_exec_work+0xc4/0x120
+    [<ffffffff812591c9>] process_one_work+0x2c9/0x600
+    [<ffffffff81259ab9>] worker_thread+0x59/0x5d0
+    [<ffffffff812611c8>] kthread+0x178/0x1b0
+    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30
+
+unreferenced object 0xffff888110ef5c00 (size 232):
+  comm "kworker/u4:0", pid 8414, jiffies 4294944270 (age 12.780s)
+  backtrace:
+    [<ffffffff8154a0cf>] kmem_cache_zalloc
+    [<ffffffff8154a0cf>] __alloc_file+0x1f/0xf0
+    [<ffffffff8154a809>] alloc_empty_file+0x69/0x120
+    [<ffffffff8154a8f3>] alloc_file+0x33/0x1b0
+    [<ffffffff8154ab22>] alloc_file_pseudo+0xb2/0x140
+    [<ffffffff81559218>] create_pipe_files+0x138/0x2e0
+    [<ffffffff8126c793>] umd_setup+0x33/0x220
+    [<ffffffff81253574>] call_usermodehelper_exec_async+0xb4/0x1b0
+    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30
+
+After the UMD process exits, the pipe_to_umh/pipe_from_umh and
+tgid need to be released.
+
+Fixes: d71fa5c9763c ("bpf: Add kernel module with user mode driver that populates bpffs.")
+Reported-by: syzbot+44908bb56d2bfe56b28e@syzkaller.appspotmail.com
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210317030915.2865-1-qiang.zhang@windriver.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/usermode_driver.h       |  1 +
+ kernel/bpf/preload/bpf_preload_kern.c | 19 +++++++++++++++----
+ kernel/usermode_driver.c              | 21 +++++++++++++++------
+ 3 files changed, 31 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index 149fd0d5e069..8e60315a087c 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -972,6 +972,8 @@ static int sun8i_dwmac_probe(struct platform_device *pdev)
- 	plat_dat->init = sun8i_dwmac_init;
- 	plat_dat->exit = sun8i_dwmac_exit;
- 	plat_dat->setup = sun8i_dwmac_setup;
-+	plat_dat->tx_fifo_size = 4096;
-+	plat_dat->rx_fifo_size = 16384;
+diff --git a/include/linux/usermode_driver.h b/include/linux/usermode_driver.h
+index 073a9e0ec07d..ad970416260d 100644
+--- a/include/linux/usermode_driver.h
++++ b/include/linux/usermode_driver.h
+@@ -14,5 +14,6 @@ struct umd_info {
+ int umd_load_blob(struct umd_info *info, const void *data, size_t len);
+ int umd_unload_blob(struct umd_info *info);
+ int fork_usermode_driver(struct umd_info *info);
++void umd_cleanup_helper(struct umd_info *info);
  
- 	ret = sun8i_dwmac_init(pdev, plat_dat->bsp_priv);
- 	if (ret)
+ #endif /* __LINUX_USERMODE_DRIVER_H__ */
+diff --git a/kernel/bpf/preload/bpf_preload_kern.c b/kernel/bpf/preload/bpf_preload_kern.c
+index 79c5772465f1..53736e52c1df 100644
+--- a/kernel/bpf/preload/bpf_preload_kern.c
++++ b/kernel/bpf/preload/bpf_preload_kern.c
+@@ -60,9 +60,12 @@ static int finish(void)
+ 			 &magic, sizeof(magic), &pos);
+ 	if (n != sizeof(magic))
+ 		return -EPIPE;
++
+ 	tgid = umd_ops.info.tgid;
+-	wait_event(tgid->wait_pidfd, thread_group_exited(tgid));
+-	umd_ops.info.tgid = NULL;
++	if (tgid) {
++		wait_event(tgid->wait_pidfd, thread_group_exited(tgid));
++		umd_cleanup_helper(&umd_ops.info);
++	}
+ 	return 0;
+ }
+ 
+@@ -80,10 +83,18 @@ static int __init load_umd(void)
+ 
+ static void __exit fini_umd(void)
+ {
++	struct pid *tgid;
++
+ 	bpf_preload_ops = NULL;
++
+ 	/* kill UMD in case it's still there due to earlier error */
+-	kill_pid(umd_ops.info.tgid, SIGKILL, 1);
+-	umd_ops.info.tgid = NULL;
++	tgid = umd_ops.info.tgid;
++	if (tgid) {
++		kill_pid(tgid, SIGKILL, 1);
++
++		wait_event(tgid->wait_pidfd, thread_group_exited(tgid));
++		umd_cleanup_helper(&umd_ops.info);
++	}
+ 	umd_unload_blob(&umd_ops.info);
+ }
+ late_initcall(load_umd);
+diff --git a/kernel/usermode_driver.c b/kernel/usermode_driver.c
+index 0b35212ffc3d..bb7bb3b478ab 100644
+--- a/kernel/usermode_driver.c
++++ b/kernel/usermode_driver.c
+@@ -139,13 +139,22 @@ static void umd_cleanup(struct subprocess_info *info)
+ 	struct umd_info *umd_info = info->data;
+ 
+ 	/* cleanup if umh_setup() was successful but exec failed */
+-	if (info->retval) {
+-		fput(umd_info->pipe_to_umh);
+-		fput(umd_info->pipe_from_umh);
+-		put_pid(umd_info->tgid);
+-		umd_info->tgid = NULL;
+-	}
++	if (info->retval)
++		umd_cleanup_helper(umd_info);
++}
++
++/**
++ * umd_cleanup_helper - release the resources which were allocated in umd_setup
++ * @info: information about usermode driver
++ */
++void umd_cleanup_helper(struct umd_info *info)
++{
++	fput(info->pipe_to_umh);
++	fput(info->pipe_from_umh);
++	put_pid(info->tgid);
++	info->tgid = NULL;
+ }
++EXPORT_SYMBOL_GPL(umd_cleanup_helper);
+ 
+ /**
+  * fork_usermode_driver - fork a usermode driver
 -- 
 2.30.1
 
