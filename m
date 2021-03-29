@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B87AD34CAAD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF7634C992
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234552AbhC2Ijc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60708 "EHLO mail.kernel.org"
+        id S233791AbhC2IaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235194AbhC2IiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:38:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D13E261580;
-        Mon, 29 Mar 2021 08:38:17 +0000 (UTC)
+        id S233709AbhC2I0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:26:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C1E6191F;
+        Mon, 29 Mar 2021 08:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007098;
-        bh=0lCD1/QuRPFv8SfgLQ2S7TPoPul1EPAH8F6SqdiNctE=;
+        s=korg; t=1617006340;
+        bh=UPQIX7PxWlx38E8Y1XTqAIo+xV4fACP3vQf7ThL01fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEHwVM1cqfGIfhUYBM7KycFSabAm/o5p2iQkld12WOA3oMB31UsNXuScok8UT4dis
-         v7NTKnWmguBjq+SpIB3Y/1hw3sl54WfFvufJNjD55KiZnFhMxsSXS1DjN36LtVOhZf
-         EUX7gdI5zeFYPbAMvydSeZ3Yw8BtElKdUx5ytCbg=
+        b=Yz7GbyD3dUhVEdWHXeYHm8AOSBUJox4gZJS8Uh7WywTb/dFNirrsV98R7tlbhJFkb
+         do2g7RMrEJ6eFvkzBf5F2bzAl66QxtHFZkfgPbb0N23IQYbzkwYtAsDr0ZFiuyQMu5
+         iXVcGYVNnbBkKJ2I6L6/o/0wHDl6pq5uHFA+GBHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 220/254] Revert "netfilter: x_tables: Switch synchronization to RCU"
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 205/221] smb3: fix cached file size problems in duplicate extents (reflink)
 Date:   Mon, 29 Mar 2021 09:58:56 +0200
-Message-Id: <20210329075640.327279267@linuxfoundation.org>
+Message-Id: <20210329075635.956192163@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,363 +38,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit d3d40f237480abf3268956daf18cdc56edd32834 ]
+commit cfc63fc8126a93cbf95379bc4cad79a7b15b6ece upstream.
 
-This reverts commit cc00bcaa589914096edef7fb87ca5cee4a166b5c.
+There were two problems (one of which could cause data corruption)
+that were noticed with duplicate extents (ie reflink)
+when debugging why various xfstests were being incorrectly skipped
+(e.g. generic/138, generic/140, generic/142). First, we were not
+updating the file size locally in the cache when extending a
+file due to reflink (it would refresh after actimeo expires)
+but xfstest was checking the size immediately which was still
+0 so caused the test to be skipped.  Second, we were setting
+the target file size (which could shrink the file) in all cases
+to the end of the reflinked range rather than only setting the
+target file size when reflink would extend the file.
 
-This (and the preceding) patch basically re-implemented the RCU
-mechanisms of patch 784544739a25. That patch was replaced because of the
-performance problems that it created when replacing tables. Now, we have
-the same issue: the call to synchronize_rcu() makes replacing tables
-slower by as much as an order of magnitude.
-
-Prior to using RCU a script calling "iptables" approx. 200 times was
-taking 1.16s. With RCU this increased to 11.59s.
-
-Revert these patches and fix the issue in a different way.
-
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netfilter/x_tables.h |  5 +--
- net/ipv4/netfilter/arp_tables.c    | 14 ++++-----
- net/ipv4/netfilter/ip_tables.c     | 14 ++++-----
- net/ipv6/netfilter/ip6_tables.c    | 14 ++++-----
- net/netfilter/x_tables.c           | 49 +++++++++++++++++++++---------
- 5 files changed, 56 insertions(+), 40 deletions(-)
+ fs/cifs/smb2ops.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
-index 8ebb64193757..5deb099d156d 100644
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -227,7 +227,7 @@ struct xt_table {
- 	unsigned int valid_hooks;
- 
- 	/* Man behind the curtain... */
--	struct xt_table_info __rcu *private;
-+	struct xt_table_info *private;
- 
- 	/* Set this to THIS_MODULE if you are a module, otherwise NULL */
- 	struct module *me;
-@@ -448,9 +448,6 @@ xt_get_per_cpu_counter(struct xt_counters *cnt, unsigned int cpu)
- 
- struct nf_hook_ops *xt_hook_ops_alloc(const struct xt_table *, nf_hookfn *);
- 
--struct xt_table_info
--*xt_table_get_private_protected(const struct xt_table *table);
--
- #ifdef CONFIG_COMPAT
- #include <net/compat.h>
- 
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index c576a63d09db..04a2010755a6 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -203,7 +203,7 @@ unsigned int arpt_do_table(struct sk_buff *skb,
- 
- 	local_bh_disable();
- 	addend = xt_write_recseq_begin();
--	private = rcu_access_pointer(table->private);
-+	private = READ_ONCE(table->private); /* Address dependency. */
- 	cpu     = smp_processor_id();
- 	table_base = private->entries;
- 	jumpstack  = (struct arpt_entry **)private->jumpstack[cpu];
-@@ -649,7 +649,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1980,6 +1980,7 @@ smb2_duplicate_extents(const unsigned in
  {
- 	unsigned int countersize;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
+ 	int rc;
+ 	unsigned int ret_data_len;
++	struct inode *inode;
+ 	struct duplicate_extents_to_file dup_ext_buf;
+ 	struct cifs_tcon *tcon = tlink_tcon(trgtfile->tlink);
  
- 	/* We need atomic snapshot of counters: rest doesn't change
- 	 * (other than comefrom, which userspace doesn't care
-@@ -673,7 +673,7 @@ static int copy_entries_to_user(unsigned int total_size,
- 	unsigned int off, num;
- 	const struct arpt_entry *e;
- 	struct xt_counters *counters;
--	struct xt_table_info *private = xt_table_get_private_protected(table);
-+	struct xt_table_info *private = table->private;
- 	int ret = 0;
- 	void *loc_cpu_entry;
+@@ -1996,10 +1997,21 @@ smb2_duplicate_extents(const unsigned in
+ 	cifs_dbg(FYI, "Duplicate extents: src off %lld dst off %lld len %lld\n",
+ 		src_off, dest_off, len);
  
-@@ -807,7 +807,7 @@ static int get_info(struct net *net, void __user *user, const int *len)
- 	t = xt_request_find_table_lock(net, NFPROTO_ARP, name);
- 	if (!IS_ERR(t)) {
- 		struct arpt_getinfo info;
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- #ifdef CONFIG_COMPAT
- 		struct xt_table_info tmp;
+-	rc = smb2_set_file_size(xid, tcon, trgtfile, dest_off + len, false);
+-	if (rc)
+-		goto duplicate_extents_out;
++	inode = d_inode(trgtfile->dentry);
++	if (inode->i_size < dest_off + len) {
++		rc = smb2_set_file_size(xid, tcon, trgtfile, dest_off + len, false);
++		if (rc)
++			goto duplicate_extents_out;
  
-@@ -860,7 +860,7 @@ static int get_entries(struct net *net, struct arpt_get_entries __user *uptr,
- 
- 	t = xt_find_table_lock(net, NFPROTO_ARP, get.name);
- 	if (!IS_ERR(t)) {
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- 
- 		if (get.size == private->size)
- 			ret = copy_entries_to_user(private->size,
-@@ -1017,7 +1017,7 @@ static int do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
- 	}
- 
- 	local_bh_disable();
--	private = xt_table_get_private_protected(t);
-+	private = t->private;
- 	if (private->number != tmp.num_counters) {
- 		ret = -EINVAL;
- 		goto unlock_up_free;
-@@ -1330,7 +1330,7 @@ static int compat_copy_entries_to_user(unsigned int total_size,
- 				       void __user *userptr)
- {
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
- 	void __user *pos;
- 	unsigned int size;
- 	int ret = 0;
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index e8f6f9d86237..a5b63f92b7f3 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -258,7 +258,7 @@ ipt_do_table(struct sk_buff *skb,
- 	WARN_ON(!(table->valid_hooks & (1 << hook)));
- 	local_bh_disable();
- 	addend = xt_write_recseq_begin();
--	private = rcu_access_pointer(table->private);
-+	private = READ_ONCE(table->private); /* Address dependency. */
- 	cpu        = smp_processor_id();
- 	table_base = private->entries;
- 	jumpstack  = (struct ipt_entry **)private->jumpstack[cpu];
-@@ -791,7 +791,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
- {
- 	unsigned int countersize;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
- 
- 	/* We need atomic snapshot of counters: rest doesn't change
- 	   (other than comefrom, which userspace doesn't care
-@@ -815,7 +815,7 @@ copy_entries_to_user(unsigned int total_size,
- 	unsigned int off, num;
- 	const struct ipt_entry *e;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
- 	int ret = 0;
- 	const void *loc_cpu_entry;
- 
-@@ -964,7 +964,7 @@ static int get_info(struct net *net, void __user *user, const int *len)
- 	t = xt_request_find_table_lock(net, AF_INET, name);
- 	if (!IS_ERR(t)) {
- 		struct ipt_getinfo info;
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- #ifdef CONFIG_COMPAT
- 		struct xt_table_info tmp;
- 
-@@ -1018,7 +1018,7 @@ get_entries(struct net *net, struct ipt_get_entries __user *uptr,
- 
- 	t = xt_find_table_lock(net, AF_INET, get.name);
- 	if (!IS_ERR(t)) {
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- 		if (get.size == private->size)
- 			ret = copy_entries_to_user(private->size,
- 						   t, uptr->entrytable);
-@@ -1173,7 +1173,7 @@ do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
- 	}
- 
- 	local_bh_disable();
--	private = xt_table_get_private_protected(t);
-+	private = t->private;
- 	if (private->number != tmp.num_counters) {
- 		ret = -EINVAL;
- 		goto unlock_up_free;
-@@ -1543,7 +1543,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
- 			    void __user *userptr)
- {
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
- 	void __user *pos;
- 	unsigned int size;
- 	int ret = 0;
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index 0d453fa9e327..81c042940b21 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -280,7 +280,7 @@ ip6t_do_table(struct sk_buff *skb,
- 
- 	local_bh_disable();
- 	addend = xt_write_recseq_begin();
--	private = rcu_access_pointer(table->private);
-+	private = READ_ONCE(table->private); /* Address dependency. */
- 	cpu        = smp_processor_id();
- 	table_base = private->entries;
- 	jumpstack  = (struct ip6t_entry **)private->jumpstack[cpu];
-@@ -807,7 +807,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
- {
- 	unsigned int countersize;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
- 
- 	/* We need atomic snapshot of counters: rest doesn't change
- 	   (other than comefrom, which userspace doesn't care
-@@ -831,7 +831,7 @@ copy_entries_to_user(unsigned int total_size,
- 	unsigned int off, num;
- 	const struct ip6t_entry *e;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
- 	int ret = 0;
- 	const void *loc_cpu_entry;
- 
-@@ -980,7 +980,7 @@ static int get_info(struct net *net, void __user *user, const int *len)
- 	t = xt_request_find_table_lock(net, AF_INET6, name);
- 	if (!IS_ERR(t)) {
- 		struct ip6t_getinfo info;
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- #ifdef CONFIG_COMPAT
- 		struct xt_table_info tmp;
- 
-@@ -1035,7 +1035,7 @@ get_entries(struct net *net, struct ip6t_get_entries __user *uptr,
- 
- 	t = xt_find_table_lock(net, AF_INET6, get.name);
- 	if (!IS_ERR(t)) {
--		struct xt_table_info *private = xt_table_get_private_protected(t);
-+		struct xt_table_info *private = t->private;
- 		if (get.size == private->size)
- 			ret = copy_entries_to_user(private->size,
- 						   t, uptr->entrytable);
-@@ -1189,7 +1189,7 @@ do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
- 	}
- 
- 	local_bh_disable();
--	private = xt_table_get_private_protected(t);
-+	private = t->private;
- 	if (private->number != tmp.num_counters) {
- 		ret = -EINVAL;
- 		goto unlock_up_free;
-@@ -1552,7 +1552,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
- 			    void __user *userptr)
- {
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = xt_table_get_private_protected(table);
-+	const struct xt_table_info *private = table->private;
- 	void __user *pos;
- 	unsigned int size;
- 	int ret = 0;
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index bce6ca203d46..7df3aef39c5c 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1351,14 +1351,6 @@ struct xt_counters *xt_counters_alloc(unsigned int counters)
- }
- EXPORT_SYMBOL(xt_counters_alloc);
- 
--struct xt_table_info
--*xt_table_get_private_protected(const struct xt_table *table)
--{
--	return rcu_dereference_protected(table->private,
--					 mutex_is_locked(&xt[table->af].mutex));
--}
--EXPORT_SYMBOL(xt_table_get_private_protected);
--
- struct xt_table_info *
- xt_replace_table(struct xt_table *table,
- 	      unsigned int num_counters,
-@@ -1366,6 +1358,7 @@ xt_replace_table(struct xt_table *table,
- 	      int *error)
- {
- 	struct xt_table_info *private;
-+	unsigned int cpu;
- 	int ret;
- 
- 	ret = xt_jumpstack_alloc(newinfo);
-@@ -1375,20 +1368,47 @@ xt_replace_table(struct xt_table *table,
- 	}
- 
- 	/* Do the substitution. */
--	private = xt_table_get_private_protected(table);
-+	local_bh_disable();
-+	private = table->private;
- 
- 	/* Check inside lock: is the old number correct? */
- 	if (num_counters != private->number) {
- 		pr_debug("num_counters != table->private->number (%u/%u)\n",
- 			 num_counters, private->number);
-+		local_bh_enable();
- 		*error = -EAGAIN;
- 		return NULL;
- 	}
- 
- 	newinfo->initial_entries = private->initial_entries;
-+	/*
-+	 * Ensure contents of newinfo are visible before assigning to
-+	 * private.
-+	 */
-+	smp_wmb();
-+	table->private = newinfo;
-+
-+	/* make sure all cpus see new ->private value */
-+	smp_wmb();
- 
--	rcu_assign_pointer(table->private, newinfo);
--	synchronize_rcu();
-+	/*
-+	 * Even though table entries have now been swapped, other CPU's
-+	 * may still be using the old entries...
-+	 */
-+	local_bh_enable();
-+
-+	/* ... so wait for even xt_recseq on all cpus */
-+	for_each_possible_cpu(cpu) {
-+		seqcount_t *s = &per_cpu(xt_recseq, cpu);
-+		u32 seq = raw_read_seqcount(s);
-+
-+		if (seq & 1) {
-+			do {
-+				cond_resched();
-+				cpu_relax();
-+			} while (seq == raw_read_seqcount(s));
-+		}
++		/*
++		 * Although also could set plausible allocation size (i_blocks)
++		 * here in addition to setting the file size, in reflink
++		 * it is likely that the target file is sparse. Its allocation
++		 * size will be queried on next revalidate, but it is important
++		 * to make sure that file's cached size is updated immediately
++		 */
++		cifs_setsize(inode, dest_off + len);
 +	}
- 
- 	audit_log_nfcfg(table->name, table->af, private->number,
- 			!private->number ? AUDIT_XT_OP_REGISTER :
-@@ -1424,12 +1444,12 @@ struct xt_table *xt_register_table(struct net *net,
- 	}
- 
- 	/* Simplifies replace_table code. */
--	rcu_assign_pointer(table->private, bootstrap);
-+	table->private = bootstrap;
- 
- 	if (!xt_replace_table(table, 0, newinfo, &ret))
- 		goto unlock;
- 
--	private = xt_table_get_private_protected(table);
-+	private = table->private;
- 	pr_debug("table->private->number = %u\n", private->number);
- 
- 	/* save number of initial entries */
-@@ -1452,8 +1472,7 @@ void *xt_unregister_table(struct xt_table *table)
- 	struct xt_table_info *private;
- 
- 	mutex_lock(&xt[table->af].mutex);
--	private = xt_table_get_private_protected(table);
--	RCU_INIT_POINTER(table->private, NULL);
-+	private = table->private;
- 	list_del(&table->list);
- 	mutex_unlock(&xt[table->af].mutex);
- 	audit_log_nfcfg(table->name, table->af, private->number,
--- 
-2.30.1
-
+ 	rc = SMB2_ioctl(xid, tcon, trgtfile->fid.persistent_fid,
+ 			trgtfile->fid.volatile_fid,
+ 			FSCTL_DUPLICATE_EXTENTS_TO_FILE,
 
 
