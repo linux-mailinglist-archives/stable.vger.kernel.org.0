@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6AD34C5A5
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1879E34C5E6
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbhC2IBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:01:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43576 "EHLO mail.kernel.org"
+        id S231901AbhC2IDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:03:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231549AbhC2IBb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:01:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4C46196D;
-        Mon, 29 Mar 2021 08:01:29 +0000 (UTC)
+        id S231978AbhC2IDK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:03:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67B0961996;
+        Mon, 29 Mar 2021 08:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004891;
-        bh=1hZorUm9nknrrAGc8BStEaHFamppxax7xD8N5i/V2ac=;
+        s=korg; t=1617004989;
+        bh=g/c6TfSTbNF6xa3LHH7jg47KeE776XHa6nIZONfk/Iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4hYbIeNIG/pMy3NsW9/SjuuOuZDlOTAkvAvvbn5idLqJl95n1lKpmaZ0WxoYlh6l
-         knaGqH27RhYcrMgaxTlJoqGeU3wpD/eaSq6ZviOyxjfHnRyYiLVU3l1LHUzWcmo6D7
-         DTMMpQ2gcI+8Ay+s8QrsyOFncr+vMlrM8zSUTQyE=
+        b=wnJjUN1XX0EdNpe1YT3gnObjeHV83akELnoNEzWW8hqiRirb1GNhzu1tQW/Uv05Bi
+         VdHZngI7zcViw8LmBsrrnqAwtpTzQzXe71K/V2rrd5KiVztNsofLgqFodlNQGAiHHT
+         elNlqZ8hreYicVIPDw4MzqEbSr1lldB/5+52Ohyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 30/33] perf auxtrace: Fix auxtrace queue conflict
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        juri.lelli@arm.com, xlpang@redhat.com, rostedt@goodmis.org,
+        mathieu.desnoyers@efficios.com, jdesfossez@efficios.com,
+        dvhart@infradead.org, bristot@redhat.com,
+        Ben Hutchings <ben@decadent.org.uk>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 4.9 40/53] futex: Drop hb->lock before enqueueing on the rtmutex
 Date:   Mon, 29 Mar 2021 09:58:15 +0200
-Message-Id: <20210329075606.231954595@linuxfoundation.org>
+Message-Id: <20210329075608.827955071@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-References: <20210329075605.290845195@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +44,207 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit b410ed2a8572d41c68bd9208555610e4b07d0703 ]
+commit 56222b212e8edb1cf51f5dd73ff645809b082b40 upstream.
 
-The only requirement of an auxtrace queue is that the buffers are in
-time order.  That is achieved by making separate queues for separate
-perf buffer or AUX area buffer mmaps.
+When PREEMPT_RT_FULL does the spinlock -> rt_mutex substitution the PI
+chain code will (falsely) report a deadlock and BUG.
 
-That generally means a separate queue per cpu for per-cpu contexts, and
-a separate queue per thread for per-task contexts.
+The problem is that it hold hb->lock (now an rt_mutex) while doing
+task_blocks_on_rt_mutex on the futex's pi_state::rtmutex. This, when
+interleaved just right with futex_unlock_pi() leads it to believe to see an
+AB-BA deadlock.
 
-When buffers are added to a queue, perf checks that the buffer cpu and
-thread id (tid) match the queue cpu and thread id.
+  Task1 (holds rt_mutex,	Task2 (does FUTEX_LOCK_PI)
+         does FUTEX_UNLOCK_PI)
 
-However, generally, that need not be true, and perf will queue buffers
-correctly anyway, so the check is not needed.
+				lock hb->lock
+				lock rt_mutex (as per start_proxy)
+  lock hb->lock
 
-In addition, the check gets erroneously hit when using sample mode to
-trace multiple threads.
+Which is a trivial AB-BA.
 
-Consequently, fix that case by removing the check.
+It is not an actual deadlock, because it won't be holding hb->lock by the
+time it actually blocks on the rt_mutex, but the chainwalk code doesn't
+know that and it would be a nightmare to handle this gracefully.
 
-Fixes: e502789302a6 ("perf auxtrace: Add helpers for queuing AUX area tracing data")
-Reported-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: http://lore.kernel.org/lkml/20210308151143.18338-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To avoid this problem, do the same as in futex_unlock_pi() and drop
+hb->lock after acquiring wait_lock. This still fully serializes against
+futex_unlock_pi(), since adding to the wait_list does the very same lock
+dance, and removing it holds both locks.
+
+Aside of solving the RT problem this makes the lock and unlock mechanism
+symetric and reduces the hb->lock held time.
+
+Reported-and-tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: juri.lelli@arm.com
+Cc: xlpang@redhat.com
+Cc: rostedt@goodmis.org
+Cc: mathieu.desnoyers@efficios.com
+Cc: jdesfossez@efficios.com
+Cc: dvhart@infradead.org
+Cc: bristot@redhat.com
+Link: http://lkml.kernel.org/r/20170322104152.161341537@infradead.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/auxtrace.c | 4 ----
- 1 file changed, 4 deletions(-)
+ kernel/futex.c                  |   30 +++++++++++++++++-------
+ kernel/locking/rtmutex.c        |   49 ++++++++++++++++++++++------------------
+ kernel/locking/rtmutex_common.h |    3 ++
+ 3 files changed, 52 insertions(+), 30 deletions(-)
 
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index 4b898b15643d..80e461dd2db2 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -239,10 +239,6 @@ static int auxtrace_queues__add_buffer(struct auxtrace_queues *queues,
- 		queue->set = true;
- 		queue->tid = buffer->tid;
- 		queue->cpu = buffer->cpu;
--	} else if (buffer->cpu != queue->cpu || buffer->tid != queue->tid) {
--		pr_err("auxtrace queue conflict: cpu %d, tid %d vs cpu %d, tid %d\n",
--		       queue->cpu, queue->tid, buffer->cpu, buffer->tid);
--		return -EINVAL;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2948,20 +2948,33 @@ retry_private:
+ 		goto no_block;
  	}
  
- 	buffer->buffer_nr = queues->next_buffer_nr++;
--- 
-2.30.1
-
++	rt_mutex_init_waiter(&rt_waiter);
++
+ 	/*
+-	 * We must add ourselves to the rt_mutex waitlist while holding hb->lock
+-	 * such that the hb and rt_mutex wait lists match.
++	 * On PREEMPT_RT_FULL, when hb->lock becomes an rt_mutex, we must not
++	 * hold it while doing rt_mutex_start_proxy(), because then it will
++	 * include hb->lock in the blocking chain, even through we'll not in
++	 * fact hold it while blocking. This will lead it to report -EDEADLK
++	 * and BUG when futex_unlock_pi() interleaves with this.
++	 *
++	 * Therefore acquire wait_lock while holding hb->lock, but drop the
++	 * latter before calling rt_mutex_start_proxy_lock(). This still fully
++	 * serializes against futex_unlock_pi() as that does the exact same
++	 * lock handoff sequence.
+ 	 */
+-	rt_mutex_init_waiter(&rt_waiter);
+-	ret = rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, current);
++	raw_spin_lock_irq(&q.pi_state->pi_mutex.wait_lock);
++	spin_unlock(q.lock_ptr);
++	ret = __rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, current);
++	raw_spin_unlock_irq(&q.pi_state->pi_mutex.wait_lock);
++
+ 	if (ret) {
+ 		if (ret == 1)
+ 			ret = 0;
+ 
++		spin_lock(q.lock_ptr);
+ 		goto no_block;
+ 	}
+ 
+-	spin_unlock(q.lock_ptr);
+ 
+ 	if (unlikely(to))
+ 		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
+@@ -2974,6 +2987,9 @@ retry_private:
+ 	 * first acquire the hb->lock before removing the lock from the
+ 	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex
+ 	 * wait lists consistent.
++	 *
++	 * In particular; it is important that futex_unlock_pi() can not
++	 * observe this inconsistency.
+ 	 */
+ 	if (ret && !rt_mutex_cleanup_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter))
+ 		ret = 0;
+@@ -3071,10 +3087,6 @@ retry:
+ 
+ 		get_pi_state(pi_state);
+ 		/*
+-		 * Since modifying the wait_list is done while holding both
+-		 * hb->lock and wait_lock, holding either is sufficient to
+-		 * observe it.
+-		 *
+ 		 * By taking wait_lock while still holding hb->lock, we ensure
+ 		 * there is no point where we hold neither; and therefore
+ 		 * wake_futex_pi() must observe a state consistent with what we
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1695,31 +1695,14 @@ void rt_mutex_proxy_unlock(struct rt_mut
+ 	rt_mutex_set_owner(lock, NULL);
+ }
+ 
+-/**
+- * rt_mutex_start_proxy_lock() - Start lock acquisition for another task
+- * @lock:		the rt_mutex to take
+- * @waiter:		the pre-initialized rt_mutex_waiter
+- * @task:		the task to prepare
+- *
+- * Returns:
+- *  0 - task blocked on lock
+- *  1 - acquired the lock for task, caller should wake it up
+- * <0 - error
+- *
+- * Special API call for FUTEX_REQUEUE_PI support.
+- */
+-int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
++int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 			      struct rt_mutex_waiter *waiter,
+ 			      struct task_struct *task)
+ {
+ 	int ret;
+ 
+-	raw_spin_lock_irq(&lock->wait_lock);
+-
+-	if (try_to_take_rt_mutex(lock, task, NULL)) {
+-		raw_spin_unlock_irq(&lock->wait_lock);
++	if (try_to_take_rt_mutex(lock, task, NULL))
+ 		return 1;
+-	}
+ 
+ 	/* We enforce deadlock detection for futexes */
+ 	ret = task_blocks_on_rt_mutex(lock, waiter, task,
+@@ -1738,12 +1721,36 @@ int rt_mutex_start_proxy_lock(struct rt_
+ 	if (unlikely(ret))
+ 		remove_waiter(lock, waiter);
+ 
+-	raw_spin_unlock_irq(&lock->wait_lock);
+-
+ 	debug_rt_mutex_print_deadlock(waiter);
+ 
+ 	return ret;
+ }
++
++/**
++ * rt_mutex_start_proxy_lock() - Start lock acquisition for another task
++ * @lock:		the rt_mutex to take
++ * @waiter:		the pre-initialized rt_mutex_waiter
++ * @task:		the task to prepare
++ *
++ * Returns:
++ *  0 - task blocked on lock
++ *  1 - acquired the lock for task, caller should wake it up
++ * <0 - error
++ *
++ * Special API call for FUTEX_REQUEUE_PI support.
++ */
++int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
++			      struct rt_mutex_waiter *waiter,
++			      struct task_struct *task)
++{
++	int ret;
++
++	raw_spin_lock_irq(&lock->wait_lock);
++	ret = __rt_mutex_start_proxy_lock(lock, waiter, task);
++	raw_spin_unlock_irq(&lock->wait_lock);
++
++	return ret;
++}
+ 
+ /**
+  * rt_mutex_next_owner - return the next owner of the lock
+--- a/kernel/locking/rtmutex_common.h
++++ b/kernel/locking/rtmutex_common.h
+@@ -104,6 +104,9 @@ extern void rt_mutex_init_proxy_locked(s
+ 				       struct task_struct *proxy_owner);
+ extern void rt_mutex_proxy_unlock(struct rt_mutex *lock);
+ extern void rt_mutex_init_waiter(struct rt_mutex_waiter *waiter);
++extern int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
++				     struct rt_mutex_waiter *waiter,
++				     struct task_struct *task);
+ extern int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 				     struct rt_mutex_waiter *waiter,
+ 				     struct task_struct *task);
 
 
