@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D38534C829
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 740CC34CA2A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233266AbhC2IUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:20:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
+        id S233434AbhC2IfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:35:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233313AbhC2ITp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:19:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48FD961932;
-        Mon, 29 Mar 2021 08:19:35 +0000 (UTC)
+        id S233716AbhC2IeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:34:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF11861932;
+        Mon, 29 Mar 2021 08:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005975;
-        bh=TQSv2BXvLW+3o1IcqsLwhZpUcIGkmdd0YbR3yohtGzI=;
+        s=korg; t=1617006850;
+        bh=8cDX63nTsCigsio/tMbSAwIghiv6J75VGU9t0q2FeDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z87b5AEYi+JKU7kqoLolF/b1MG+7ymc1CebpxEtKVPK9dtzsXcz0gnL7pZHOSqd+m
-         hMC7TcuXNLgDo6VHZLWkhymSDmNd6i1deTFprFbu1Ra1GUTe+HnL8FL4Nfp4NQf4SF
-         Hq6VBRgSpNE/dUTciXdQl1+mw9sTEEspaHTwwl4w=
+        b=IXGZ/Z6X+bpySvXrD3wa61TEE32PTQjqCm8JFi11dtkZVZ5A4LjsRQeqOH04jNuYT
+         G6qwvC0bxJufQEbkmiNMe4YWQpLrL3kwp4M8/ooE6S1nXGXHzUjw6u0TKlaj0HclkC
+         PRhJXh8aLPNhukElMpEQTxhfe2zKSEdSH59v9RsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Prasad Sodagudi <psodagud@quicinc.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 073/221] gcov: fix clang-11+ support
+        stable@vger.kernel.org, Greg Ungerer <gerg@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.11 088/254] arm64: dts: ls1046a: mark crypto engine dma coherent
 Date:   Mon, 29 Mar 2021 09:56:44 +0200
-Message-Id: <20210329075631.623446266@linuxfoundation.org>
+Message-Id: <20210329075636.064675120@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,163 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-commit 60bcf728ee7c60ac2a1f9a0eaceb3a7b3954cd2b upstream.
+commit 9c3a16f88385e671b63a0de7b82b85e604a80f42 upstream.
 
-LLVM changed the expected function signatures for llvm_gcda_start_file()
-and llvm_gcda_emit_function() in the clang-11 release.  Users of
-clang-11 or newer may have noticed their kernels failing to boot due to
-a panic when enabling CONFIG_GCOV_KERNEL=y +CONFIG_GCOV_PROFILE_ALL=y.
-Fix up the function signatures so calling these functions doesn't panic
-the kernel.
+Crypto engine (CAAM) on LS1046A platform is configured HW-coherent,
+mark accordingly the DT node.
 
-Link: https://reviews.llvm.org/rGcdd683b516d147925212724b09ec6fb792a40041
-Link: https://reviews.llvm.org/rG13a633b438b6500ecad9e4f936ebadf3411d0f44
-Link: https://lkml.kernel.org/r/20210312224132.3413602-2-ndesaulniers@google.com
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
-Suggested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+As reported by Greg and Sascha, and explained by Robin, lack of
+"dma-coherent" property for an IP that is configured HW-coherent
+can lead to problems, e.g. on v5.11:
+
+> kernel BUG at drivers/crypto/caam/jr.c:247!
+> Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+> Modules linked in:
+> CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.11.0-20210225-3-00039-g434215968816-dirty #12
+> Hardware name: TQ TQMLS1046A SoM on Arkona AT1130 (C300) board (DT)
+> pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
+> pc : caam_jr_dequeue+0x98/0x57c
+> lr : caam_jr_dequeue+0x98/0x57c
+> sp : ffff800010003d50
+> x29: ffff800010003d50 x28: ffff8000118d4000
+> x27: ffff8000118d4328 x26: 00000000000001f0
+> x25: ffff0008022be480 x24: ffff0008022c6410
+> x23: 00000000000001f1 x22: ffff8000118d4329
+> x21: 0000000000004d80 x20: 00000000000001f1
+> x19: 0000000000000001 x18: 0000000000000020
+> x17: 0000000000000000 x16: 0000000000000015
+> x15: ffff800011690230 x14: 2e2e2e2e2e2e2e2e
+> x13: 2e2e2e2e2e2e2020 x12: 3030303030303030
+> x11: ffff800011700a38 x10: 00000000fffff000
+> x9 : ffff8000100ada30 x8 : ffff8000116a8a38
+> x7 : 0000000000000001 x6 : 0000000000000000
+> x5 : 0000000000000000 x4 : 0000000000000000
+> x3 : 00000000ffffffff x2 : 0000000000000000
+> x1 : 0000000000000000 x0 : 0000000000001800
+> Call trace:
+>  caam_jr_dequeue+0x98/0x57c
+>  tasklet_action_common.constprop.0+0x164/0x18c
+>  tasklet_action+0x44/0x54
+>  __do_softirq+0x160/0x454
+>  __irq_exit_rcu+0x164/0x16c
+>  irq_exit+0x1c/0x30
+>  __handle_domain_irq+0xc0/0x13c
+>  gic_handle_irq+0x5c/0xf0
+>  el1_irq+0xb4/0x180
+>  arch_cpu_idle+0x18/0x30
+>  default_idle_call+0x3c/0x1c0
+>  do_idle+0x23c/0x274
+>  cpu_startup_entry+0x34/0x70
+>  rest_init+0xdc/0xec
+>  arch_call_rest_init+0x1c/0x28
+>  start_kernel+0x4ac/0x4e4
+> Code: 91392021 912c2000 d377d8c6 97f24d96 (d4210000)
+
+Cc: <stable@vger.kernel.org> # v4.10+
+Fixes: 8126d88162a5 ("arm64: dts: add QorIQ LS1046A SoC support")
+Link: https://lore.kernel.org/linux-crypto/fe6faa24-d8f7-d18f-adfa-44fa0caa1598@arm.com
+Reported-by: Greg Ungerer <gerg@kernel.org>
+Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
+Tested-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Acked-by: Greg Ungerer <gerg@kernel.org>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/gcov/clang.c |   69 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 69 insertions(+)
+ arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/gcov/clang.c
-+++ b/kernel/gcov/clang.c
-@@ -75,7 +75,9 @@ struct gcov_fn_info {
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+@@ -325,6 +325,7 @@
+ 			ranges = <0x0 0x00 0x1700000 0x100000>;
+ 			reg = <0x00 0x1700000 0x0 0x100000>;
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
++			dma-coherent;
  
- 	u32 num_counters;
- 	u64 *counters;
-+#if CONFIG_CLANG_VERSION < 110000
- 	const char *function_name;
-+#endif
- };
- 
- static struct gcov_info *current_info;
-@@ -105,6 +107,7 @@ void llvm_gcov_init(llvm_gcov_callback w
- }
- EXPORT_SYMBOL(llvm_gcov_init);
- 
-+#if CONFIG_CLANG_VERSION < 110000
- void llvm_gcda_start_file(const char *orig_filename, const char version[4],
- 		u32 checksum)
- {
-@@ -113,7 +116,17 @@ void llvm_gcda_start_file(const char *or
- 	current_info->checksum = checksum;
- }
- EXPORT_SYMBOL(llvm_gcda_start_file);
-+#else
-+void llvm_gcda_start_file(const char *orig_filename, u32 version, u32 checksum)
-+{
-+	current_info->filename = orig_filename;
-+	current_info->version = version;
-+	current_info->checksum = checksum;
-+}
-+EXPORT_SYMBOL(llvm_gcda_start_file);
-+#endif
- 
-+#if CONFIG_CLANG_VERSION < 110000
- void llvm_gcda_emit_function(u32 ident, const char *function_name,
- 		u32 func_checksum, u8 use_extra_checksum, u32 cfg_checksum)
- {
-@@ -133,6 +146,24 @@ void llvm_gcda_emit_function(u32 ident,
- 	list_add_tail(&info->head, &current_info->functions);
- }
- EXPORT_SYMBOL(llvm_gcda_emit_function);
-+#else
-+void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
-+		u8 use_extra_checksum, u32 cfg_checksum)
-+{
-+	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
-+
-+	if (!info)
-+		return;
-+
-+	INIT_LIST_HEAD(&info->head);
-+	info->ident = ident;
-+	info->checksum = func_checksum;
-+	info->use_extra_checksum = use_extra_checksum;
-+	info->cfg_checksum = cfg_checksum;
-+	list_add_tail(&info->head, &current_info->functions);
-+}
-+EXPORT_SYMBOL(llvm_gcda_emit_function);
-+#endif
- 
- void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
- {
-@@ -295,6 +326,7 @@ void gcov_info_add(struct gcov_info *dst
- 	}
- }
- 
-+#if CONFIG_CLANG_VERSION < 110000
- static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
- {
- 	size_t cv_size; /* counter values size */
-@@ -322,6 +354,28 @@ err_name:
- 	kfree(fn_dup);
- 	return NULL;
- }
-+#else
-+static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
-+{
-+	size_t cv_size; /* counter values size */
-+	struct gcov_fn_info *fn_dup = kmemdup(fn, sizeof(*fn),
-+			GFP_KERNEL);
-+	if (!fn_dup)
-+		return NULL;
-+	INIT_LIST_HEAD(&fn_dup->head);
-+
-+	cv_size = fn->num_counters * sizeof(fn->counters[0]);
-+	fn_dup->counters = vmalloc(cv_size);
-+	if (!fn_dup->counters) {
-+		kfree(fn_dup);
-+		return NULL;
-+	}
-+
-+	memcpy(fn_dup->counters, fn->counters, cv_size);
-+
-+	return fn_dup;
-+}
-+#endif
- 
- /**
-  * gcov_info_dup - duplicate profiling data set
-@@ -362,6 +416,7 @@ err:
-  * gcov_info_free - release memory for profiling data set duplicate
-  * @info: profiling data set duplicate to free
-  */
-+#if CONFIG_CLANG_VERSION < 110000
- void gcov_info_free(struct gcov_info *info)
- {
- 	struct gcov_fn_info *fn, *tmp;
-@@ -375,6 +430,20 @@ void gcov_info_free(struct gcov_info *in
- 	kfree(info->filename);
- 	kfree(info);
- }
-+#else
-+void gcov_info_free(struct gcov_info *info)
-+{
-+	struct gcov_fn_info *fn, *tmp;
-+
-+	list_for_each_entry_safe(fn, tmp, &info->functions, head) {
-+		vfree(fn->counters);
-+		list_del(&fn->head);
-+		kfree(fn);
-+	}
-+	kfree(info->filename);
-+	kfree(info);
-+}
-+#endif
- 
- #define ITER_STRIDE	PAGE_SIZE
- 
+ 			sec_jr0: jr@10000 {
+ 				compatible = "fsl,sec-v5.4-job-ring",
 
 
