@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2119C34C8CC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4347F34C6F4
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234247AbhC2IYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49682 "EHLO mail.kernel.org"
+        id S232538AbhC2ILK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:11:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231993AbhC2IGv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF19861601;
-        Mon, 29 Mar 2021 08:06:50 +0000 (UTC)
+        id S232651AbhC2IKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:10:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 219B061959;
+        Mon, 29 Mar 2021 08:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005211;
-        bh=UqKxY8JrXkGafpGGXo/vi1eZjNzvixcPNWB8ebfj0EY=;
+        s=korg; t=1617005424;
+        bh=6e4+xmpVow/CvKkyEOCgAgQ4vxg2xRJd2r8MCYvUuS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vi2Q8NSKDLpChVqC9Z1Cmk+jDgEvvrTQ0oE1Uxtps514fJUAkTrLSINWO6n43s3ap
-         aEQ9isRaQTQ9qEnAujq1Xfj1f9TxkrOJbFgkRwA0mT5M9PUZqFA3soHtTGSLIhLGDp
-         jpZw+ns9Ca7RV5fn6SFF0FiUBgwZx1ZjxD/WE/dA=
+        b=hw8KmslAIJLciUXXqse/4JKkmJoQqg52K62twnkzNeghm78JnXNtx7n86MyTfz0nR
+         EVnWbHUayodyeS4wEVzHDH1f3lmb0ClA30tfvz1hbTw6OeGoasiSk1lWk3OZ1KCyXr
+         NVLTdvZKLiqN4ErF8H01oLnqknLvvp9eNfGl1Cik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/59] can: c_can_pci: c_can_pci_remove(): fix use-after-free
+Subject: [PATCH 4.19 42/72] netfilter: ctnetlink: fix dump of the expect mask attribute
 Date:   Mon, 29 Mar 2021 09:58:18 +0200
-Message-Id: <20210329075610.142096952@linuxfoundation.org>
+Message-Id: <20210329075611.681724926@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 0429d6d89f97ebff4f17f13f5b5069c66bde8138 ]
+[ Upstream commit b58f33d49e426dc66e98ed73afb5d97b15a25f2d ]
 
-There is a UAF in c_can_pci_remove(). dev is released by
-free_c_can_dev() and is used by pci_iounmap(pdev, priv->base) later.
-To fix this issue, save the mmio address before releasing dev.
+Before this change, the mask is never included in the netlink message, so
+"conntrack -E expect" always prints 0.0.0.0.
 
-Fixes: 5b92da0443c2 ("c_can_pci: generic module for C_CAN/D_CAN on PCI")
-Link: https://lore.kernel.org/r/20210301024512.539039-1-ztong0001@gmail.com
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+In older kernels the l3num callback struct was passed as argument, based
+on tuple->src.l3num. After the l3num indirection got removed, the call
+chain is based on m.src.l3num, but this value is 0xffff.
+
+Init l3num to the correct value.
+
+Fixes: f957be9d349a3 ("netfilter: conntrack: remove ctnetlink callbacks from l3 protocol trackers")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/c_can/c_can_pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_netlink.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/c_can/c_can_pci.c b/drivers/net/can/c_can/c_can_pci.c
-index d065c0e2d18e..f3e0b2124a37 100644
---- a/drivers/net/can/c_can/c_can_pci.c
-+++ b/drivers/net/can/c_can/c_can_pci.c
-@@ -239,12 +239,13 @@ static void c_can_pci_remove(struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct c_can_priv *priv = netdev_priv(dev);
-+	void __iomem *addr = priv->base;
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 0b89609a6e9d..15c9fbcd32f2 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -2656,6 +2656,7 @@ static int ctnetlink_exp_dump_mask(struct sk_buff *skb,
+ 	memset(&m, 0xFF, sizeof(m));
+ 	memcpy(&m.src.u3, &mask->src.u3, sizeof(m.src.u3));
+ 	m.src.u.all = mask->src.u.all;
++	m.src.l3num = tuple->src.l3num;
+ 	m.dst.protonum = tuple->dst.protonum;
  
- 	unregister_c_can_dev(dev);
- 
- 	free_c_can_dev(dev);
- 
--	pci_iounmap(pdev, priv->base);
-+	pci_iounmap(pdev, addr);
- 	pci_disable_msi(pdev);
- 	pci_clear_master(pdev);
- 	pci_release_regions(pdev);
+ 	nest_parms = nla_nest_start(skb, CTA_EXPECT_MASK | NLA_F_NESTED);
 -- 
 2.30.1
 
