@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CDA934C65D
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0C934C994
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231821AbhC2IGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47824 "EHLO mail.kernel.org"
+        id S233997AbhC2IaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231629AbhC2IGI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 980D9619B4;
-        Mon, 29 Mar 2021 08:06:07 +0000 (UTC)
+        id S233704AbhC2I0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:26:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 949F4619AB;
+        Mon, 29 Mar 2021 08:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005168;
-        bh=6ux4RafXB43Riu8oKSioC4axeyE7JJrDxxNnz+duII8=;
+        s=korg; t=1617006343;
+        bh=yjv2LKnsY9U0sg39vJh2PawardPbcyh+L50I0kzsIvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLkFT6jbcyh4fhLVXAm+h7McqE8efbHssjF+PXj3y7BxtmE5cJxFHex/XsPZ2fZLE
-         wox8+1xKpFNb+V8gmYA7jhHN/mkEoMbdzP9jc7qGtum81MX23IfUeABv3SG82Yx46u
-         4Mu/FEcWXV3Is5TcXbUM0M0UiLa7cFWCXrmUf79M=
+        b=kGT9m5LafnLIW7jhzwxcepu6XQEbzezFZ1OoDueFJkZbFGx2FrjHacOG5p1BGaSgx
+         1DNy2ZdtnKJ+8QFWBt/tc1Q52Co75EhVAP409HVEyfT5VqvKWLL66LhO/C9nlQgv58
+         CxGslN7b0+dDpLqoEzvOGRcZxWLK5OujOld1AZCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 49/59] ACPI: scan: Use unique number for instance_no
-Date:   Mon, 29 Mar 2021 09:58:29 +0200
-Message-Id: <20210329075610.490962494@linuxfoundation.org>
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 179/221] bpf: Dont do bpf_cgroup_storage_set() for kuprobe/tp programs
+Date:   Mon, 29 Mar 2021 09:58:30 +0200
+Message-Id: <20210329075635.121265630@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+[ Upstream commit 05a68ce5fa51a83c360381630f823545c5757aa2 ]
 
-[ Upstream commit eb50aaf960e3bedfef79063411ffd670da94b84b ]
+For kuprobe and tracepoint bpf programs, kernel calls
+trace_call_bpf() which calls BPF_PROG_RUN_ARRAY_CHECK()
+to run the program array. Currently, BPF_PROG_RUN_ARRAY_CHECK()
+also calls bpf_cgroup_storage_set() to set percpu
+cgroup local storage with NULL value. This is
+due to Commit 394e40a29788 ("bpf: extend bpf_prog_array to store
+pointers to the cgroup storage") which modified
+__BPF_PROG_RUN_ARRAY() to call bpf_cgroup_storage_set()
+and this macro is also used by BPF_PROG_RUN_ARRAY_CHECK().
 
-The decrementation of acpi_device_bus_id->instance_no
-in acpi_device_del() is incorrect, because it may cause
-a duplicate instance number to be allocated next time
-a device with the same acpi_device_bus_id is added.
+kuprobe and tracepoint programs are not allowed to call
+bpf_get_local_storage() helper hence does not
+access percpu cgroup local storage. Let us
+change BPF_PROG_RUN_ARRAY_CHECK() not to
+modify percpu cgroup local storage.
 
-Replace above mentioned approach by using IDA framework.
+The issue is observed when I tried to debug [1] where
+percpu data is overwritten due to
+  preempt_disable -> migration_disable
+change. This patch does not completely fix the above issue,
+which will be addressed separately, e.g., multiple cgroup
+prog runs may preempt each other. But it does fix
+any potential issue caused by tracing program
+overwriting percpu cgroup storage:
+ - in a busy system, a tracing program is to run between
+   bpf_cgroup_storage_set() and the cgroup prog run.
+ - a kprobe program is triggered by a helper in cgroup prog
+   before bpf_get_local_storage() is called.
 
-While at it, define the instance range to be [0, 4096).
+ [1] https://lore.kernel.org/bpf/CAKH8qBuXCfUz=w8L+Fj74OaUpbosO29niYwTki7e3Ag044_aww@mail.gmail.com/T
 
-Fixes: e49bd2dd5a50 ("ACPI: use PNPID:instance_no as bus_id of ACPI device")
-Fixes: ca9dc8d42b30 ("ACPI / scan: Fix acpi_bus_id_list bookkeeping")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 394e40a29788 ("bpf: extend bpf_prog_array to store pointers to the cgroup storage")
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Roman Gushchin <guro@fb.com>
+Link: https://lore.kernel.org/bpf/20210309185028.3763817-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/internal.h |  6 +++++-
- drivers/acpi/scan.c     | 33 ++++++++++++++++++++++++++++-----
- include/acpi/acpi_bus.h |  1 +
- 3 files changed, 34 insertions(+), 6 deletions(-)
+ include/linux/bpf.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
-index e6b10aad55d5..6ac1c6b04199 100644
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -18,6 +18,8 @@
- #ifndef _ACPI_INTERNAL_H_
- #define _ACPI_INTERNAL_H_
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index 76322b6452c8..dd236ef59db3 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1059,7 +1059,7 @@ int bpf_prog_array_copy(struct bpf_prog_array *old_array,
+ 			struct bpf_prog *include_prog,
+ 			struct bpf_prog_array **new_array);
  
-+#include <linux/idr.h>
-+
- #define PREFIX "ACPI: "
+-#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null)	\
++#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null, set_cg_storage) \
+ 	({						\
+ 		struct bpf_prog_array_item *_item;	\
+ 		struct bpf_prog *_prog;			\
+@@ -1072,7 +1072,8 @@ int bpf_prog_array_copy(struct bpf_prog_array *old_array,
+ 			goto _out;			\
+ 		_item = &_array->items[0];		\
+ 		while ((_prog = READ_ONCE(_item->prog))) {		\
+-			bpf_cgroup_storage_set(_item->cgroup_storage);	\
++			if (set_cg_storage)		\
++				bpf_cgroup_storage_set(_item->cgroup_storage);	\
+ 			_ret &= func(_prog, ctx);	\
+ 			_item++;			\
+ 		}					\
+@@ -1133,10 +1134,10 @@ _out:							\
+ 	})
  
- int early_acpi_osi_init(void);
-@@ -97,9 +99,11 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
+ #define BPF_PROG_RUN_ARRAY(array, ctx, func)		\
+-	__BPF_PROG_RUN_ARRAY(array, ctx, func, false)
++	__BPF_PROG_RUN_ARRAY(array, ctx, func, false, true)
  
- extern struct list_head acpi_bus_id_list;
+ #define BPF_PROG_RUN_ARRAY_CHECK(array, ctx, func)	\
+-	__BPF_PROG_RUN_ARRAY(array, ctx, func, true)
++	__BPF_PROG_RUN_ARRAY(array, ctx, func, true, false)
  
-+#define ACPI_MAX_DEVICE_INSTANCES	4096
-+
- struct acpi_device_bus_id {
- 	const char *bus_id;
--	unsigned int instance_no;
-+	struct ida instance_ida;
- 	struct list_head node;
- };
- 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 9ec463da9a50..57a213466721 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -481,9 +481,8 @@ static void acpi_device_del(struct acpi_device *device)
- 	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node)
- 		if (!strcmp(acpi_device_bus_id->bus_id,
- 			    acpi_device_hid(device))) {
--			if (acpi_device_bus_id->instance_no > 0)
--				acpi_device_bus_id->instance_no--;
--			else {
-+			ida_simple_remove(&acpi_device_bus_id->instance_ida, device->pnp.instance_no);
-+			if (ida_is_empty(&acpi_device_bus_id->instance_ida)) {
- 				list_del(&acpi_device_bus_id->node);
- 				kfree_const(acpi_device_bus_id->bus_id);
- 				kfree(acpi_device_bus_id);
-@@ -634,6 +633,21 @@ static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
- 	return NULL;
- }
- 
-+static int acpi_device_set_name(struct acpi_device *device,
-+				struct acpi_device_bus_id *acpi_device_bus_id)
-+{
-+	struct ida *instance_ida = &acpi_device_bus_id->instance_ida;
-+	int result;
-+
-+	result = ida_simple_get(instance_ida, 0, ACPI_MAX_DEVICE_INSTANCES, GFP_KERNEL);
-+	if (result < 0)
-+		return result;
-+
-+	device->pnp.instance_no = result;
-+	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, result);
-+	return 0;
-+}
-+
- int acpi_device_add(struct acpi_device *device,
- 		    void (*release)(struct device *))
- {
-@@ -668,7 +682,9 @@ int acpi_device_add(struct acpi_device *device,
- 
- 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
- 	if (acpi_device_bus_id) {
--		acpi_device_bus_id->instance_no++;
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result)
-+			goto err_unlock;
- 	} else {
- 		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
- 					     GFP_KERNEL);
-@@ -684,9 +700,16 @@ int acpi_device_add(struct acpi_device *device,
- 			goto err_unlock;
- 		}
- 
-+		ida_init(&acpi_device_bus_id->instance_ida);
-+
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result) {
-+			kfree(acpi_device_bus_id);
-+			goto err_unlock;
-+		}
-+
- 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
- 	}
--	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
- 
- 	if (device->parent)
- 		list_add_tail(&device->node, &device->parent->children);
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 67f4fce22209..3746d4ce4857 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -245,6 +245,7 @@ struct acpi_pnp_type {
- 
- struct acpi_device_pnp {
- 	acpi_bus_id bus_id;		/* Object name */
-+	int instance_no;		/* Instance number of this object */
- 	struct acpi_pnp_type type;	/* ID type */
- 	acpi_bus_address bus_address;	/* _ADR */
- 	char *unique_id;		/* _UID */
+ #ifdef CONFIG_BPF_SYSCALL
+ DECLARE_PER_CPU(int, bpf_prog_active);
 -- 
 2.30.1
 
