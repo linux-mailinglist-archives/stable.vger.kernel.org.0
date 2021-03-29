@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B64C34C5AA
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9FCC34C5E1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231706AbhC2IB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:01:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43728 "EHLO mail.kernel.org"
+        id S231818AbhC2IDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:03:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231751AbhC2IBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:01:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFE6B61974;
-        Mon, 29 Mar 2021 08:01:40 +0000 (UTC)
+        id S231154AbhC2IDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:03:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6E4D61969;
+        Mon, 29 Mar 2021 08:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004901;
-        bh=25UboA02eXndeDnz59te/9bC4cvJyc6s1kdDpTMWjFU=;
+        s=korg; t=1617004979;
+        bh=g2vrgh2c805/HPJwRpNuUE/eHD2ka+kPptCk+sRlgDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8hBlXn8dEkUHKfQbs+pj0tneYKrYdeAYTqNiaOASPoiy1u46MiU0ZeumBaKD/MEY
-         05K3/LYmKrVjH4xqrp+XlrDaopuUiprQAZL8AlbrQi4gSDyTVA5ALjddLxWWLI/l43
-         QSXkR+G7Acet9a4ggQjX/bn0NGP2Se7x8by25+9Y=
+        b=CfDCYFdWU5ESX7SiBZG8xGmgKwaGaNZsF2BxRgeajL8ZSSBZLM80aLAspwq3qwWnP
+         xKbpLdnp0BK/QEkAxetb7DgbRGCefJM94k1uazcjgv+3TPJrqeI707Wcxg28jZYmj7
+         wD6LuICHpZM0FbOGY4FqDrU8H7TXU2jJt/8BjqCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 27/33] mac80211: fix rate mask reset
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        juri.lelli@arm.com, bigeasy@linutronix.de, xlpang@redhat.com,
+        rostedt@goodmis.org, mathieu.desnoyers@efficios.com,
+        jdesfossez@efficios.com, dvhart@infradead.org, bristot@redhat.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 37/53] futex: Use smp_store_release() in mark_wake_futex()
 Date:   Mon, 29 Mar 2021 09:58:12 +0200
-Message-Id: <20210329075606.132283469@linuxfoundation.org>
+Message-Id: <20210329075608.735190492@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-References: <20210329075605.290845195@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 1944015fe9c1d9fa5e9eb7ffbbb5ef8954d6753b ]
+commit 1b367ece0d7e696cab1c8501bab282cc6a538b3f upstream.
 
-Coverity reported the strange "if (~...)" condition that's
-always true. It suggested that ! was intended instead of ~,
-but upon further analysis I'm convinced that what really was
-intended was a comparison to 0xff/0xffff (in HT/VHT cases
-respectively), since this indicates that all of the rates
-are enabled.
+Since the futex_q can dissapear the instruction after assigning NULL,
+this really should be a RELEASE barrier. That stops loads from hitting
+dead memory too.
 
-Change the comparison accordingly.
-
-I'm guessing this never really mattered because a reset to
-not having a rate mask is basically equivalent to having a
-mask that enables all rates.
-
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Fixes: 2ffbe6d33366 ("mac80211: fix and optimize MCS mask handling")
-Fixes: b119ad6e726c ("mac80211: add rate mask logic for vht rates")
-Reviewed-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210212112213.36b38078f569.I8546a20c80bc1669058eb453e213630b846e107b@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: juri.lelli@arm.com
+Cc: bigeasy@linutronix.de
+Cc: xlpang@redhat.com
+Cc: rostedt@goodmis.org
+Cc: mathieu.desnoyers@efficios.com
+Cc: jdesfossez@efficios.com
+Cc: dvhart@infradead.org
+Cc: bristot@redhat.com
+Link: http://lkml.kernel.org/r/20170322104151.604296452@infradead.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/cfg.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/futex.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 8360fda24bca..eac20f4ab924 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -2448,14 +2448,14 @@ static int ieee80211_set_bitrate_mask(struct wiphy *wiphy,
- 			continue;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1565,8 +1565,7 @@ static void mark_wake_futex(struct wake_
+ 	 * memory barrier is required here to prevent the following
+ 	 * store to lock_ptr from getting ahead of the plist_del.
+ 	 */
+-	smp_wmb();
+-	q->lock_ptr = NULL;
++	smp_store_release(&q->lock_ptr, NULL);
+ }
  
- 		for (j = 0; j < IEEE80211_HT_MCS_MASK_LEN; j++) {
--			if (~sdata->rc_rateidx_mcs_mask[i][j]) {
-+			if (sdata->rc_rateidx_mcs_mask[i][j] != 0xff) {
- 				sdata->rc_has_mcs_mask[i] = true;
- 				break;
- 			}
- 		}
- 
- 		for (j = 0; j < NL80211_VHT_NSS_MAX; j++) {
--			if (~sdata->rc_rateidx_vht_mcs_mask[i][j]) {
-+			if (sdata->rc_rateidx_vht_mcs_mask[i][j] != 0xffff) {
- 				sdata->rc_has_vht_mcs_mask[i] = true;
- 				break;
- 			}
--- 
-2.30.1
-
+ /*
 
 
