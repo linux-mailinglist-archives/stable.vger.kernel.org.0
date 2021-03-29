@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 330BB34C81C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFE834C9DA
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233372AbhC2IT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:19:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35278 "EHLO mail.kernel.org"
+        id S233287AbhC2IeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233233AbhC2ITL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:19:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DD4961613;
-        Mon, 29 Mar 2021 08:19:10 +0000 (UTC)
+        id S234440AbhC2IdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EA84619AA;
+        Mon, 29 Mar 2021 08:31:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005951;
-        bh=Fki+6t2i693xmHEl2L3+HBbS1O+MLL5WTpNnEgLEha8=;
+        s=korg; t=1617006709;
+        bh=tqEQeU9drxYFYl3iREQ53QdDZ10R3UwAQJN65zBJ8VM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLM3EJcgSjMLv8e6yuUp5lNiyTwb4aC7ardxWvBw/RmRTBsIRNRiOhS5P7DUm8Oyi
-         ZysmohojFkXCoHE6e8/UhJ0T2iqx4FLFUoezhrzzPnbtOvXB+UvFegbNK565fAG031
-         bcPbypfqcfLvYi1O+GC3wINHLXo/s3zUmh4lu8ao=
+        b=RZ05tNWudSJwb7hF1GkC3c/3UegvR1H4fIUhgiMSBbWbADJPqgbEgmMyKe1uV4Vc+
+         lxaU0xRLDsYx9uTJz1Rt30W3SLzS32/6HEA2+PHJBH7pcr9n3ZCFpCf5KAqUjRfFWK
+         KPcmqGIqnU+C+2quVHZ6ZXJeO9p1YsRwJsGE5tq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Sung Lee <sung.lee@amd.com>,
+        Haonan Wang <Haonan.Wang2@amd.com>,
+        Eryk Brol <eryk.brol@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/221] atm: uPD98402: fix incorrect allocation
-Date:   Mon, 29 Mar 2021 09:55:59 +0200
-Message-Id: <20210329075630.113008961@linuxfoundation.org>
+Subject: [PATCH 5.11 044/254] drm/amd/display: Revert dram_clock_change_latency for DCN2.1
+Date:   Mon, 29 Mar 2021 09:56:00 +0200
+Message-Id: <20210329075634.611492588@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Sung Lee <sung.lee@amd.com>
 
-[ Upstream commit 3153724fc084d8ef640c611f269ddfb576d1dcb1 ]
+[ Upstream commit b0075d114c33580f5c9fa9cee8e13d06db41471b ]
 
-dev->dev_data is set in zatm.c, calling zatm_start() will overwrite this
-dev->dev_data in uPD98402_start() and a subsequent PRIV(dev)->lock
-(i.e dev->phy_data->lock) will result in a null-ptr-dereference.
+[WHY & HOW]
+Using values provided by DF for latency may cause hangs in
+multi display configurations. Revert change to previous value.
 
-I believe this is a typo and what it actually want to do is to allocate
-phy_data instead of dev_data.
-
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Sung Lee <sung.lee@amd.com>
+Reviewed-by: Haonan Wang <Haonan.Wang2@amd.com>
+Acked-by: Eryk Brol <eryk.brol@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/uPD98402.c | 2 +-
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/atm/uPD98402.c b/drivers/atm/uPD98402.c
-index 7850758b5bb8..239852d85558 100644
---- a/drivers/atm/uPD98402.c
-+++ b/drivers/atm/uPD98402.c
-@@ -211,7 +211,7 @@ static void uPD98402_int(struct atm_dev *dev)
- static int uPD98402_start(struct atm_dev *dev)
- {
- 	DPRINTK("phy_start\n");
--	if (!(dev->dev_data = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
-+	if (!(dev->phy_data = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
- 		return -ENOMEM;
- 	spin_lock_init(&PRIV(dev)->lock);
- 	memset(&PRIV(dev)->sonet_stats,0,sizeof(struct k_sonet_stats));
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index 4caeab6a09b3..4a3df13c9e49 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -296,7 +296,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
+ 	.num_banks = 8,
+ 	.num_chans = 4,
+ 	.vmm_page_size_bytes = 4096,
+-	.dram_clock_change_latency_us = 11.72,
++	.dram_clock_change_latency_us = 23.84,
+ 	.return_bus_width_bytes = 64,
+ 	.dispclk_dppclk_vco_speed_mhz = 3600,
+ 	.xfc_bus_transport_time_us = 4,
 -- 
 2.30.1
 
