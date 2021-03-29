@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3138434C742
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A06F734C5C0
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232629AbhC2INk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:13:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56226 "EHLO mail.kernel.org"
+        id S231802AbhC2ICu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:02:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233030AbhC2IMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:12:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E6D61932;
-        Mon, 29 Mar 2021 08:12:50 +0000 (UTC)
+        id S231404AbhC2ICF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:02:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2B9561969;
+        Mon, 29 Mar 2021 08:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005570;
-        bh=TQSv2BXvLW+3o1IcqsLwhZpUcIGkmdd0YbR3yohtGzI=;
+        s=korg; t=1617004924;
+        bh=LCXC1wQiEl5fRnvuuHBtnBzqnyTewHr2MiBWlIOyARg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YiA4/0PMtcqPm7aIlbJCgXZUnMkKzB2q/kveVQCmDL4ErIOjEft/aFSuUoqMFNq2s
-         QskHCpfswbBMsblvWqI5/mA8GKKYXLX4ggLGXdoWKJpFtk6CrTrCo310qDQLZ+npFg
-         LX68S+54SxKIN6OV453PJAuqjbbq2wgDDkdedJZo=
+        b=TLl+tnrGfma3neGlraiVdZyGlV0nt4ajcKtb+jyD9kwmj0TE167nQpWdxvzkdLpI7
+         9XO0sEz0VXII005TEFjbk6TdOk3Fw3J9QKvvRyK2JYY82/TyGwe7cKQsae83y4W0nq
+         CBV3rvd4VinzMjZq8EcJuPDV8oX/Y7KQIHP9MVh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Prasad Sodagudi <psodagud@quicinc.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 044/111] gcov: fix clang-11+ support
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Borislav Petkov <bp@suse.de>, Hugh Dickins <hughd@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Babu Moger <babu.moger@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 17/53] x86/tlb: Flush global mappings when KAISER is disabled
 Date:   Mon, 29 Mar 2021 09:57:52 +0200
-Message-Id: <20210329075616.640904517@linuxfoundation.org>
+Message-Id: <20210329075608.115652652@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,163 +42,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 60bcf728ee7c60ac2a1f9a0eaceb3a7b3954cd2b upstream.
+Jim Mattson reported that Debian 9 guests using a 4.9-stable kernel
+are exploding during alternatives patching:
 
-LLVM changed the expected function signatures for llvm_gcda_start_file()
-and llvm_gcda_emit_function() in the clang-11 release.  Users of
-clang-11 or newer may have noticed their kernels failing to boot due to
-a panic when enabling CONFIG_GCOV_KERNEL=y +CONFIG_GCOV_PROFILE_ALL=y.
-Fix up the function signatures so calling these functions doesn't panic
-the kernel.
+  kernel BUG at /build/linux-dqnRSc/linux-4.9.228/arch/x86/kernel/alternative.c:709!
+  invalid opcode: 0000 [#1] SMP
+  Modules linked in:
+  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.9.0-13-amd64 #1 Debian 4.9.228-1
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   swap_entry_free
+   swap_entry_free
+   text_poke_bp
+   swap_entry_free
+   arch_jump_label_transform
+   set_debug_rodata
+   __jump_label_update
+   static_key_slow_inc
+   frontswap_register_ops
+   init_zswap
+   init_frontswap
+   do_one_initcall
+   set_debug_rodata
+   kernel_init_freeable
+   rest_init
+   kernel_init
+   ret_from_fork
 
-Link: https://reviews.llvm.org/rGcdd683b516d147925212724b09ec6fb792a40041
-Link: https://reviews.llvm.org/rG13a633b438b6500ecad9e4f936ebadf3411d0f44
-Link: https://lkml.kernel.org/r/20210312224132.3413602-2-ndesaulniers@google.com
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
-Suggested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+triggering the BUG_ON in text_poke() which verifies whether patched
+instruction bytes have actually landed at the destination.
+
+Further debugging showed that the TLB flush before that check is
+insufficient because there could be global mappings left in the TLB,
+leading to a stale mapping getting used.
+
+I say "global mappings" because the hardware configuration is a new one:
+machine is an AMD, which means, KAISER/PTI doesn't need to be enabled
+there, which also means there's no user/kernel pagetables split and
+therefore the TLB can have global mappings.
+
+And the configuration is new one for a second reason: because that AMD
+machine supports PCID and INVPCID, which leads the CPU detection code to
+set the synthetic X86_FEATURE_INVPCID_SINGLE flag.
+
+Now, __native_flush_tlb_single() does invalidate global mappings when
+X86_FEATURE_INVPCID_SINGLE is *not* set and returns.
+
+When X86_FEATURE_INVPCID_SINGLE is set, however, it invalidates the
+requested address from both PCIDs in the KAISER-enabled case. But if
+KAISER is not enabled and the machine has global mappings in the TLB,
+then those global mappings do not get invalidated, which would lead to
+the above mismatch from using a stale TLB entry.
+
+So make sure to flush those global mappings in the KAISER disabled case.
+
+Co-debugged by Babu Moger <babu.moger@amd.com>.
+
+Reported-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Tested-by: Babu Moger <babu.moger@amd.com>
+Tested-by: Jim Mattson <jmattson@google.com>
+Link: https://lkml.kernel.org/r/CALMp9eRDSW66%2BXvbHVF4ohL7XhThoPoT0BrB0TcS0cgk=dkcBg@mail.gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/clang.c |   69 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 69 insertions(+)
+ arch/x86/include/asm/tlbflush.h | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/kernel/gcov/clang.c
-+++ b/kernel/gcov/clang.c
-@@ -75,7 +75,9 @@ struct gcov_fn_info {
- 
- 	u32 num_counters;
- 	u64 *counters;
-+#if CONFIG_CLANG_VERSION < 110000
- 	const char *function_name;
-+#endif
- };
- 
- static struct gcov_info *current_info;
-@@ -105,6 +107,7 @@ void llvm_gcov_init(llvm_gcov_callback w
- }
- EXPORT_SYMBOL(llvm_gcov_init);
- 
-+#if CONFIG_CLANG_VERSION < 110000
- void llvm_gcda_start_file(const char *orig_filename, const char version[4],
- 		u32 checksum)
- {
-@@ -113,7 +116,17 @@ void llvm_gcda_start_file(const char *or
- 	current_info->checksum = checksum;
- }
- EXPORT_SYMBOL(llvm_gcda_start_file);
-+#else
-+void llvm_gcda_start_file(const char *orig_filename, u32 version, u32 checksum)
-+{
-+	current_info->filename = orig_filename;
-+	current_info->version = version;
-+	current_info->checksum = checksum;
-+}
-+EXPORT_SYMBOL(llvm_gcda_start_file);
-+#endif
- 
-+#if CONFIG_CLANG_VERSION < 110000
- void llvm_gcda_emit_function(u32 ident, const char *function_name,
- 		u32 func_checksum, u8 use_extra_checksum, u32 cfg_checksum)
- {
-@@ -133,6 +146,24 @@ void llvm_gcda_emit_function(u32 ident,
- 	list_add_tail(&info->head, &current_info->functions);
- }
- EXPORT_SYMBOL(llvm_gcda_emit_function);
-+#else
-+void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
-+		u8 use_extra_checksum, u32 cfg_checksum)
-+{
-+	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
-+
-+	if (!info)
-+		return;
-+
-+	INIT_LIST_HEAD(&info->head);
-+	info->ident = ident;
-+	info->checksum = func_checksum;
-+	info->use_extra_checksum = use_extra_checksum;
-+	info->cfg_checksum = cfg_checksum;
-+	list_add_tail(&info->head, &current_info->functions);
-+}
-+EXPORT_SYMBOL(llvm_gcda_emit_function);
-+#endif
- 
- void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
- {
-@@ -295,6 +326,7 @@ void gcov_info_add(struct gcov_info *dst
- 	}
- }
- 
-+#if CONFIG_CLANG_VERSION < 110000
- static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
- {
- 	size_t cv_size; /* counter values size */
-@@ -322,6 +354,28 @@ err_name:
- 	kfree(fn_dup);
- 	return NULL;
- }
-+#else
-+static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
-+{
-+	size_t cv_size; /* counter values size */
-+	struct gcov_fn_info *fn_dup = kmemdup(fn, sizeof(*fn),
-+			GFP_KERNEL);
-+	if (!fn_dup)
-+		return NULL;
-+	INIT_LIST_HEAD(&fn_dup->head);
-+
-+	cv_size = fn->num_counters * sizeof(fn->counters[0]);
-+	fn_dup->counters = vmalloc(cv_size);
-+	if (!fn_dup->counters) {
-+		kfree(fn_dup);
-+		return NULL;
+diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+index f5ca15622dc9..2bfa4deb8cae 100644
+--- a/arch/x86/include/asm/tlbflush.h
++++ b/arch/x86/include/asm/tlbflush.h
+@@ -245,12 +245,15 @@ static inline void __native_flush_tlb_single(unsigned long addr)
+ 	 * ASID.  But, userspace flushes are probably much more
+ 	 * important performance-wise.
+ 	 *
+-	 * Make sure to do only a single invpcid when KAISER is
+-	 * disabled and we have only a single ASID.
++	 * In the KAISER disabled case, do an INVLPG to make sure
++	 * the mapping is flushed in case it is a global one.
+ 	 */
+-	if (kaiser_enabled)
++	if (kaiser_enabled) {
+ 		invpcid_flush_one(X86_CR3_PCID_ASID_USER, addr);
+-	invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
++		invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
++	} else {
++		asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
 +	}
-+
-+	memcpy(fn_dup->counters, fn->counters, cv_size);
-+
-+	return fn_dup;
-+}
-+#endif
- 
- /**
-  * gcov_info_dup - duplicate profiling data set
-@@ -362,6 +416,7 @@ err:
-  * gcov_info_free - release memory for profiling data set duplicate
-  * @info: profiling data set duplicate to free
-  */
-+#if CONFIG_CLANG_VERSION < 110000
- void gcov_info_free(struct gcov_info *info)
- {
- 	struct gcov_fn_info *fn, *tmp;
-@@ -375,6 +430,20 @@ void gcov_info_free(struct gcov_info *in
- 	kfree(info->filename);
- 	kfree(info);
  }
-+#else
-+void gcov_info_free(struct gcov_info *info)
-+{
-+	struct gcov_fn_info *fn, *tmp;
-+
-+	list_for_each_entry_safe(fn, tmp, &info->functions, head) {
-+		vfree(fn->counters);
-+		list_del(&fn->head);
-+		kfree(fn);
-+	}
-+	kfree(info->filename);
-+	kfree(info);
-+}
-+#endif
  
- #define ITER_STRIDE	PAGE_SIZE
- 
+ static inline void __flush_tlb_all(void)
+-- 
+2.30.1
+
 
 
