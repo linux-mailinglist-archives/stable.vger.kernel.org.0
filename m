@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CAD934C8C9
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2D234C7C7
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232705AbhC2IYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50364 "EHLO mail.kernel.org"
+        id S232310AbhC2ISO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231956AbhC2IGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33C376193A;
-        Mon, 29 Mar 2021 08:06:48 +0000 (UTC)
+        id S233178AbhC2IQy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:16:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6837861601;
+        Mon, 29 Mar 2021 08:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005208;
-        bh=sc2CsBgvzXP+fLp5pZVyrT4HIXdkhCFhSe0082mFNDI=;
+        s=korg; t=1617005779;
+        bh=Vg20Nm++ebwyXWmx/Vjif0ME9zKVYghYM6vxJ2aqTy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GpoGk6LPUFFHBWtri3BlC1plXNPapyjCpwrrjolgBKj6wDd2wwBXWiDPiWWJIusbY
-         ls3HQpQ56X63j3yyS2HqZN3S0u9eoTH1Rt1EyHcgDX5SrufTZj4c5bDq1SeMtJcYW5
-         x51cR02MNISI00RmxQ+Qi0VPcC+B/tJVqY2lAnKg=
+        b=0snic1fscl7Nm5kU3oi5bZTPxPW1Cswh5iDu1ZPzEs4LdQqmtQKT6je0NsXptpPof
+         Ouz4X6Tb4R1ELjTytFs/CbIOXo6JoOWympoq9Rsab3s0bdFb6GNn68nFuOHKNBtqik
+         M+4MDBH2QPpmAjOx4ixenGly3Bc+3oLm+VJeOidc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Alexander Ovechkin <ovov@yandex-team.ru>,
+        Oleg Senin <olegsenin@yandex-team.ru>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 37/59] can: peak_usb: add forgotten supported devices
+Subject: [PATCH 5.4 069/111] tcp: relookup sock for RST+ACK packets handled by obsolete req sock
 Date:   Mon, 29 Mar 2021 09:58:17 +0200
-Message-Id: <20210329075610.111229345@linuxfoundation.org>
+Message-Id: <20210329075617.513843886@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Alexander Ovechkin <ovov@yandex-team.ru>
 
-[ Upstream commit 59ec7b89ed3e921cd0625a8c83f31a30d485fdf8 ]
+[ Upstream commit 7233da86697efef41288f8b713c10c2499cffe85 ]
 
-Since the peak_usb driver also supports the CAN-USB interfaces
-"PCAN-USB X6" and "PCAN-Chip USB" from PEAK-System GmbH, this patch adds
-their names to the list of explicitly supported devices.
+Currently tcp_check_req can be called with obsolete req socket for which big
+socket have been already created (because of CPU race or early demux
+assigning req socket to multiple packets in gro batch).
 
-Fixes: ea8b65b596d7 ("can: usb: Add support of PCAN-Chip USB stamp module")
-Fixes: f00b534ded60 ("can: peak: Add support for PCAN-USB X6 USB interface")
-Link: https://lore.kernel.org/r/20210309082128.23125-3-s.grosjean@peak-system.com
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Commit e0f9759f530bf789e984 ("tcp: try to keep packet if SYN_RCV race
+is lost") added retry in case when tcp_check_req is called for PSH|ACK packet.
+But if client sends RST+ACK immediatly after connection being
+established (it is performing healthcheck, for example) retry does not
+occur. In that case tcp_check_req tries to close req socket,
+leaving big socket active.
+
+Fixes: e0f9759f530 ("tcp: try to keep packet if SYN_RCV race is lost")
+Signed-off-by: Alexander Ovechkin <ovov@yandex-team.ru>
+Reported-by: Oleg Senin <olegsenin@yandex-team.ru>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/net/inet_connection_sock.h | 2 +-
+ net/ipv4/inet_connection_sock.c    | 7 +++++--
+ net/ipv4/tcp_minisocks.c           | 7 +++++--
+ 3 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-index 0d762bdac4f8..56280a28e135 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -26,6 +26,8 @@
+diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
+index 6c8f8e5e33c3..13792c0ef46e 100644
+--- a/include/net/inet_connection_sock.h
++++ b/include/net/inet_connection_sock.h
+@@ -287,7 +287,7 @@ static inline int inet_csk_reqsk_queue_is_full(const struct sock *sk)
+ 	return inet_csk_reqsk_queue_len(sk) >= sk->sk_max_ack_backlog;
+ }
  
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB FD adapter");
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB Pro FD adapter");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-Chip USB");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB X6 adapter");
+-void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
++bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
+ void inet_csk_reqsk_queue_drop_and_put(struct sock *sk, struct request_sock *req);
  
- #define PCAN_USBPROFD_CHANNEL_COUNT	2
- #define PCAN_USBFD_CHANNEL_COUNT	1
+ void inet_csk_destroy_sock(struct sock *sk);
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index ac5c4f6cdefe..85a88425edc4 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -700,12 +700,15 @@ static bool reqsk_queue_unlink(struct request_sock *req)
+ 	return found;
+ }
+ 
+-void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
++bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
+ {
+-	if (reqsk_queue_unlink(req)) {
++	bool unlinked = reqsk_queue_unlink(req);
++
++	if (unlinked) {
+ 		reqsk_queue_removed(&inet_csk(sk)->icsk_accept_queue, req);
+ 		reqsk_put(req);
+ 	}
++	return unlinked;
+ }
+ EXPORT_SYMBOL(inet_csk_reqsk_queue_drop);
+ 
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index c802bc80c400..194743bd3fc1 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -796,8 +796,11 @@ embryonic_reset:
+ 		tcp_reset(sk);
+ 	}
+ 	if (!fastopen) {
+-		inet_csk_reqsk_queue_drop(sk, req);
+-		__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
++		bool unlinked = inet_csk_reqsk_queue_drop(sk, req);
++
++		if (unlinked)
++			__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
++		*req_stolen = !unlinked;
+ 	}
+ 	return NULL;
+ }
 -- 
 2.30.1
 
