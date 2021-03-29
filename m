@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52EE134C7FD
+	by mail.lfdr.de (Postfix) with ESMTP id 9E71C34C7FE
 	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbhC2ITA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:19:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34366 "EHLO mail.kernel.org"
+        id S232820AbhC2IS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231629AbhC2ISY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:18:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DBEB61477;
-        Mon, 29 Mar 2021 08:18:23 +0000 (UTC)
+        id S233126AbhC2IS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:18:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 436CB619C7;
+        Mon, 29 Mar 2021 08:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005904;
-        bh=yReQle5R7YyyDgueXMc28fpkDS17842eEJgfaE/Pdt0=;
+        s=korg; t=1617005906;
+        bh=bYMVX2QpqorTMorYYnTQF9J2xirvafrgBhhBzL0/aNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZ8jkWnLHI9kIgi4N+Z07rVikCEPeHr5DpgP4lCSJjttmbj5STLxcv5txAuK0HrjM
-         zNXvfMLIXwM2TWvpmYOuq1t4ycXfTuZCWpa3yiQTuyDTWrnaKBqI76CyrN57ZwDppF
-         t2oJQv9p8VpOj1u17vXZ7ckRKNianagGyz8nGj+g=
+        b=K0H4jlHaTUhbkGIrai05TjojkGz0ryq57xXk3u9OUHFoniut0MZWYnkNv1P/vnvRI
+         Jv4xItO5G4AxB06UtbF5V4q3fRR8M+nXYVnrWCutnLgg4S7/aExUEJ/Cvq+GvpKRLc
+         39aDsOkoHrNinplBoyh9rdt/OGXGThnsG300AdWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
         Keith Busch <kbusch@kernel.org>,
         Sagi Grimberg <sagi@grimberg.me>,
-        Chao Leng <lengchao@huawei.com>,
+        James Smart <jsmart2021@gmail.com>,
         Daniel Wagner <dwagner@suse.de>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/221] nvme: add NVME_REQ_CANCELLED flag in nvme_cancel_request()
-Date:   Mon, 29 Mar 2021 09:56:17 +0200
-Message-Id: <20210329075630.705766592@linuxfoundation.org>
+Subject: [PATCH 5.10 047/221] nvme-fc: set NVME_REQ_CANCELLED in nvme_fc_terminate_exchange()
+Date:   Mon, 29 Mar 2021 09:56:18 +0200
+Message-Id: <20210329075630.744240559@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
 References: <20210329075629.172032742@linuxfoundation.org>
@@ -45,34 +45,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit d3589381987ec879b03f8ce3039df57e87f05901 ]
+[ Upstream commit 3c7aafbc8d3d4d90430dfa126847a796c3e4ecfc ]
 
-NVME_REQ_CANCELLED is translated into -EINTR in nvme_submit_sync_cmd(),
-so we should be setting this flags during nvme_cancel_request() to
-ensure that the callers to nvme_submit_sync_cmd() will get the correct
-error code when the controller is reset.
+nvme_fc_terminate_exchange() is being called when exchanges are
+being deleted, and as such we should be setting the NVME_REQ_CANCELLED
+flag to have identical behaviour on all transports.
 
 Signed-off-by: Hannes Reinecke <hare@suse.de>
 Reviewed-by: Keith Busch <kbusch@kernel.org>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chao Leng <lengchao@huawei.com>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
 Reviewed-by: Daniel Wagner <dwagner@suse.de>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 1 +
+ drivers/nvme/host/fc.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index fbe2918ade78..30e834d84f36 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -346,6 +346,7 @@ bool nvme_cancel_request(struct request *req, void *data, bool reserved)
- 		return true;
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index fab068c8ba02..d221a98a677b 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -2443,6 +2443,7 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
+ 	struct nvme_fc_ctrl *ctrl = to_fc_ctrl(nctrl);
+ 	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(req);
  
- 	nvme_req(req)->status = NVME_SC_HOST_ABORTED_CMD;
-+	nvme_req(req)->flags |= NVME_REQ_CANCELLED;
- 	blk_mq_complete_request(req);
++	op->nreq.flags |= NVME_REQ_CANCELLED;
+ 	__nvme_fc_abort_op(ctrl, op);
  	return true;
  }
 -- 
