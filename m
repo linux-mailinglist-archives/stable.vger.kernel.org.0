@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D61FC34C642
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F8334CA5F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231704AbhC2IGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47768 "EHLO mail.kernel.org"
+        id S232267AbhC2IiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232215AbhC2IFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3637C61959;
-        Mon, 29 Mar 2021 08:05:22 +0000 (UTC)
+        id S234020AbhC2Ifo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:35:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8990361932;
+        Mon, 29 Mar 2021 08:35:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005123;
-        bh=VEN3ZxoX0WczKgsMhHCrbXF8GJn2YARQrGkt7DczAkM=;
+        s=korg; t=1617006913;
+        bh=74oYEkzNjJ8Z+4umsu4SClRr6oN6d0M/PORPD1mKRcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPHpYIrrFNtZmUuJuHW4XMMfVqEzf3YIiRzWDtApb++d3mfsHJQhiLpNBBhOWT459
-         StKpWTtpykfJOWxvLp6ZtttvrFnqVN4Ymqdy7mRrhqd6nE6fdj/cDMMyXd9hOcR1Fw
-         VM8ZUPgJ+7AvYS90ChXg08AWSryp6grI3FJPKL2I=
+        b=TDrnA49XZom3QWPA/aXflpEuXb9dEy8ygsoeiNVKqVCySI4512PXQLPoGkzw8Jn/X
+         3CoJ61Ht/A7nVmAd1TZ8IJMbtyPR6pRDfEdvSpUkijkldrHpVYG6YIVeMnalp1GLYR
+         umHVAVivt7/sojtbLcWkN3JDsPNPWh8EGX1cr4R4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/59] atm: lanai: dont run lanai_dev_close if not open
+Subject: [PATCH 5.11 148/254] can: isotp: TX-path: ensure that CAN frame flags are initialized
 Date:   Mon, 29 Mar 2021 09:57:44 +0200
-Message-Id: <20210329075609.040107656@linuxfoundation.org>
+Message-Id: <20210329075638.072526453@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,145 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit a2bd45834e83d6c5a04d397bde13d744a4812dfc ]
+[ Upstream commit d4eb538e1f48b3cf7bb6cb9eb39fe3e9e8a701f7 ]
 
-lanai_dev_open() can fail. When it fail, lanai->base is unmapped and the
-pci device is disabled. The caller, lanai_init_one(), then tries to run
-atm_dev_deregister(). This will subsequently call lanai_dev_close() and
-use the already released MMIO area.
+The previous patch ensures that the TX flags (struct
+can_isotp_ll_options::tx_flags) are 0 for classic CAN frames or a user
+configured value for CAN-FD frames.
 
-To fix this issue, set the lanai->base to NULL if open fail,
-and test the flag in lanai_dev_close().
+This patch sets the CAN frames flags unconditionally to the ISO-TP TX
+flags, so that they are initialized to a proper value. Otherwise when
+running "candump -x" on a classical CAN ISO-TP stream shows wrongly
+set "B" and "E" flags.
 
-[    8.324153] lanai: lanai_start() failed, err=19
-[    8.324819] lanai(itf 0): shutting down interface
-[    8.325211] BUG: unable to handle page fault for address: ffffc90000180024
-[    8.325781] #PF: supervisor write access in kernel mode
-[    8.326215] #PF: error_code(0x0002) - not-present page
-[    8.326641] PGD 100000067 P4D 100000067 PUD 100139067 PMD 10013a067 PTE 0
-[    8.327206] Oops: 0002 [#1] SMP KASAN NOPTI
-[    8.327557] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7-00090-gdcc0b49040c7 #12
-[    8.328229] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-4
-[    8.329145] RIP: 0010:lanai_dev_close+0x4f/0xe5 [lanai]
-[    8.329587] Code: 00 48 c7 c7 00 d3 01 c0 e8 49 4e 0a c2 48 8d bd 08 02 00 00 e8 6e 52 14 c1 48 80
-[    8.330917] RSP: 0018:ffff8881029ef680 EFLAGS: 00010246
-[    8.331196] RAX: 000000000003fffe RBX: ffff888102fb4800 RCX: ffffffffc001a98a
-[    8.331572] RDX: ffffc90000180000 RSI: 0000000000000246 RDI: ffff888102fb4000
-[    8.331948] RBP: ffff888102fb4000 R08: ffffffff8115da8a R09: ffffed102053deaa
-[    8.332326] R10: 0000000000000003 R11: ffffed102053dea9 R12: ffff888102fb48a4
-[    8.332701] R13: ffffffffc00123c0 R14: ffff888102fb4b90 R15: ffff888102fb4b88
-[    8.333077] FS:  00007f08eb9056a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
-[    8.333502] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    8.333806] CR2: ffffc90000180024 CR3: 0000000102a28000 CR4: 00000000000006f0
-[    8.334182] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    8.334557] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    8.334932] Call Trace:
-[    8.335066]  atm_dev_deregister+0x161/0x1a0 [atm]
-[    8.335324]  lanai_init_one.cold+0x20c/0x96d [lanai]
-[    8.335594]  ? lanai_send+0x2a0/0x2a0 [lanai]
-[    8.335831]  local_pci_probe+0x6f/0xb0
-[    8.336039]  pci_device_probe+0x171/0x240
-[    8.336255]  ? pci_device_remove+0xe0/0xe0
-[    8.336475]  ? kernfs_create_link+0xb6/0x110
-[    8.336704]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
-[    8.336983]  really_probe+0x161/0x420
-[    8.337181]  driver_probe_device+0x6d/0xd0
-[    8.337401]  device_driver_attach+0x82/0x90
-[    8.337626]  ? device_driver_attach+0x90/0x90
-[    8.337859]  __driver_attach+0x60/0x100
-[    8.338065]  ? device_driver_attach+0x90/0x90
-[    8.338298]  bus_for_each_dev+0xe1/0x140
-[    8.338511]  ? subsys_dev_iter_exit+0x10/0x10
-[    8.338745]  ? klist_node_init+0x61/0x80
-[    8.338956]  bus_add_driver+0x254/0x2a0
-[    8.339164]  driver_register+0xd3/0x150
-[    8.339370]  ? 0xffffffffc0028000
-[    8.339550]  do_one_initcall+0x84/0x250
-[    8.339755]  ? trace_event_raw_event_initcall_finish+0x150/0x150
-[    8.340076]  ? free_vmap_area_noflush+0x1a5/0x5c0
-[    8.340329]  ? unpoison_range+0xf/0x30
-[    8.340532]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
-[    8.340806]  ? unpoison_range+0xf/0x30
-[    8.341014]  ? unpoison_range+0xf/0x30
-[    8.341217]  do_init_module+0xf8/0x350
-[    8.341419]  load_module+0x3fe6/0x4340
-[    8.341621]  ? vm_unmap_ram+0x1d0/0x1d0
-[    8.341826]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
-[    8.342101]  ? module_frob_arch_sections+0x20/0x20
-[    8.342358]  ? __do_sys_finit_module+0x108/0x170
-[    8.342604]  __do_sys_finit_module+0x108/0x170
-[    8.342841]  ? __ia32_sys_init_module+0x40/0x40
-[    8.343083]  ? file_open_root+0x200/0x200
-[    8.343298]  ? do_sys_open+0x85/0xe0
-[    8.343491]  ? filp_open+0x50/0x50
-[    8.343675]  ? exit_to_user_mode_prepare+0xfc/0x130
-[    8.343935]  do_syscall_64+0x33/0x40
-[    8.344132]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[    8.344401] RIP: 0033:0x7f08eb887cf7
-[    8.344594] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d6 41
-[    8.345565] RSP: 002b:00007ffcd5c98ad8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[    8.345962] RAX: ffffffffffffffda RBX: 00000000008fea70 RCX: 00007f08eb887cf7
-[    8.346336] RDX: 0000000000000000 RSI: 00000000008fd9e0 RDI: 0000000000000003
-[    8.346711] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
-[    8.347085] R10: 00007f08eb8eb300 R11: 0000000000000246 R12: 00000000008fd9e0
-[    8.347460] R13: 0000000000000000 R14: 00000000008fddd0 R15: 0000000000000001
-[    8.347836] Modules linked in: lanai(+) atm
-[    8.348065] CR2: ffffc90000180024
-[    8.348244] ---[ end trace 7fdc1c668f2003e5 ]---
-[    8.348490] RIP: 0010:lanai_dev_close+0x4f/0xe5 [lanai]
-[    8.348772] Code: 00 48 c7 c7 00 d3 01 c0 e8 49 4e 0a c2 48 8d bd 08 02 00 00 e8 6e 52 14 c1 48 80
-[    8.349745] RSP: 0018:ffff8881029ef680 EFLAGS: 00010246
-[    8.350022] RAX: 000000000003fffe RBX: ffff888102fb4800 RCX: ffffffffc001a98a
-[    8.350397] RDX: ffffc90000180000 RSI: 0000000000000246 RDI: ffff888102fb4000
-[    8.350772] RBP: ffff888102fb4000 R08: ffffffff8115da8a R09: ffffed102053deaa
-[    8.351151] R10: 0000000000000003 R11: ffffed102053dea9 R12: ffff888102fb48a4
-[    8.351525] R13: ffffffffc00123c0 R14: ffff888102fb4b90 R15: ffff888102fb4b88
-[    8.351918] FS:  00007f08eb9056a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
-[    8.352343] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    8.352647] CR2: ffffc90000180024 CR3: 0000000102a28000 CR4: 00000000000006f0
-[    8.353022] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    8.353397] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    8.353958] modprobe (95) used greatest stack depth: 26216 bytes left
+| $ candump any,0:0,#FFFFFFFF -extA
+| [...]
+| can0  TX B E  713   [8]  2B 0A 0B 0C 0D 0E 0F 00
+| can0  TX B E  713   [8]  2C 01 02 03 04 05 06 07
+| can0  TX B E  713   [8]  2D 08 09 0A 0B 0C 0D 0E
+| can0  TX B E  713   [8]  2E 0F 00 01 02 03 04 05
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/r/20210218215434.1708249-2-mkl@pengutronix.de
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/lanai.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/can/isotp.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/atm/lanai.c b/drivers/atm/lanai.c
-index 2351dad78ff5..60e5e496bd3b 100644
---- a/drivers/atm/lanai.c
-+++ b/drivers/atm/lanai.c
-@@ -2240,6 +2240,7 @@ static int lanai_dev_open(struct atm_dev *atmdev)
- 	conf1_write(lanai);
- #endif
- 	iounmap(lanai->base);
-+	lanai->base = NULL;
-     error_pci:
- 	pci_disable_device(lanai->pci);
-     error:
-@@ -2252,6 +2253,8 @@ static int lanai_dev_open(struct atm_dev *atmdev)
- static void lanai_dev_close(struct atm_dev *atmdev)
- {
- 	struct lanai_dev *lanai = (struct lanai_dev *) atmdev->dev_data;
-+	if (lanai->base==NULL)
-+		return;
- 	printk(KERN_INFO DEV_LABEL "(itf %d): shutting down interface\n",
- 	    lanai->number);
- 	lanai_timed_poll_stop(lanai);
-@@ -2561,7 +2564,7 @@ static int lanai_init_one(struct pci_dev *pci,
- 	struct atm_dev *atmdev;
- 	int result;
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index e32d446c121e..430976485d95 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -215,8 +215,7 @@ static int isotp_send_fc(struct sock *sk, int ae, u8 flowstatus)
+ 	if (ae)
+ 		ncf->data[0] = so->opt.ext_address;
  
--	lanai = kmalloc(sizeof(*lanai), GFP_KERNEL);
-+	lanai = kzalloc(sizeof(*lanai), GFP_KERNEL);
- 	if (lanai == NULL) {
- 		printk(KERN_ERR DEV_LABEL
- 		       ": couldn't allocate dev_data structure!\n");
+-	if (so->ll.mtu == CANFD_MTU)
+-		ncf->flags = so->ll.tx_flags;
++	ncf->flags = so->ll.tx_flags;
+ 
+ 	can_send_ret = can_send(nskb, 1);
+ 	if (can_send_ret)
+@@ -790,8 +789,7 @@ isotp_tx_burst:
+ 		so->tx.sn %= 16;
+ 		so->tx.bs++;
+ 
+-		if (so->ll.mtu == CANFD_MTU)
+-			cf->flags = so->ll.tx_flags;
++		cf->flags = so->ll.tx_flags;
+ 
+ 		skb->dev = dev;
+ 		can_skb_set_owner(skb, sk);
+@@ -939,8 +937,7 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	}
+ 
+ 	/* send the first or only CAN frame */
+-	if (so->ll.mtu == CANFD_MTU)
+-		cf->flags = so->ll.tx_flags;
++	cf->flags = so->ll.tx_flags;
+ 
+ 	skb->dev = dev;
+ 	skb->sk = sk;
 -- 
 2.30.1
 
