@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 850C934DB63
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B1434DB60
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232862AbhC2W2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:28:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
+        id S232817AbhC2W2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:28:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231911AbhC2WZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:25:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22F9961613;
-        Mon, 29 Mar 2021 22:23:47 +0000 (UTC)
+        id S232116AbhC2WZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 18:25:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4507461879;
+        Mon, 29 Mar 2021 22:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056627;
-        bh=xijELzIbG11EAeYB9pA2+IKC5TFVDVEPkhj8LCfB5Ew=;
-        h=From:To:Cc:Subject:Date:From;
-        b=a7whbFxrH6UG1X76NSPZv05y71LXL007idmF5GYR2Zy4l3CkDWojdRmwKeefw41P5
-         Z6eC54mba9rGCEQNxZW994VCeZpld0UbxJjgN3712e9jPw4+/2DUGG75CUyvDoVTcn
-         3/0cRdhba4gebvNY/ONLIhEpTG9vE487Pie8NYld9Xx8r8lRpdktGhf55gHJhzOZF3
-         BIOMtdbwanelTRgx0jC1YR6Y/4weA539UKY+y0YF7ZqEoW1H1jBo9KhvHNZ4g1gVvk
-         df68bsUsEKyyqYT8lBB3aL8wV4bjBXWJeyPpSazQ1N9fgEN6KdShD1lP5EdRbPAWBS
-         pjRJLSXRWduRA==
+        s=k20201202; t=1617056628;
+        bh=4QSPQXCRW9420rgYZHaFVS1ibb1VJB4BBSpHXpXVgYQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Ci+oEbgo1BPIRMIUv4H6x6dWJSnMd7VkgGNkvd9DfFJyd+K76kxETznqtGrAliieN
+         Jiv5CMTHk0QWgN14fau0T2Jo40U1NCUTLdb5vm1f1mTGWH981s6bmSTInyEuaQxChT
+         jf0tXggyzivBULqUkrEbud3E2IBXp4U5A1GWDBLd1enRoDdeRrYMP9umj6781fKMp7
+         ONAqQKxpQmilAqKPRvQ5HqeqzbKUWmMwMZD+Oogr0z56qiTteNgAmGCAe+ODJP/iOm
+         bFyVxbWfkb0jg+wcf+YLaxFuZvZ+qDH616xQHjB02Ym/LBdMURnESdDzb6QDPj/C4J
+         MKTZBJg21qDzQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mans Rullgard <mans@mansr.com>, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/12] ARM: dts: am33xx: add aliases for mmc interfaces
-Date:   Mon, 29 Mar 2021 18:23:34 -0400
-Message-Id: <20210329222345.2383777-1-sashal@kernel.org>
+Cc:     Pavel Andrianov <andrianov@ispras.ru>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 02/12] net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
+Date:   Mon, 29 Mar 2021 18:23:35 -0400
+Message-Id: <20210329222345.2383777-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210329222345.2383777-1-sashal@kernel.org>
+References: <20210329222345.2383777-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,39 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Pavel Andrianov <andrianov@ispras.ru>
 
-[ Upstream commit 9bbce32a20d6a72c767a7f85fd6127babd1410ac ]
+[ Upstream commit 0571a753cb07982cc82f4a5115e0b321da89e1f3 ]
 
-Without DT aliases, the numbering of mmc interfaces is unpredictable.
-Adding them makes it possible to refer to devices consistently.  The
-popular suggestion to use UUIDs obviously doesn't work with a blank
-device fresh from the factory.
+pxa168_eth_remove() firstly calls unregister_netdev(),
+then cancels a timeout work. unregister_netdev() shuts down a device
+interface and removes it from the kernel tables. If the timeout occurs
+in parallel, the timeout work (pxa168_eth_tx_timeout_task) performs stop
+and open of the device. It may lead to an inconsistent state and memory
+leaks.
 
-See commit fa2d0aa96941 ("mmc: core: Allow setting slot index via
-device tree alias") for more discussion.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Pavel Andrianov <andrianov@ispras.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am33xx.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/marvell/pxa168_eth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index e58fab8aec5d..8923273a2f73 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -38,6 +38,9 @@ aliases {
- 		ethernet1 = &cpsw_emac1;
- 		spi0 = &spi0;
- 		spi1 = &spi1;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
- 	};
+diff --git a/drivers/net/ethernet/marvell/pxa168_eth.c b/drivers/net/ethernet/marvell/pxa168_eth.c
+index 993724959a7c..1883f0d076e3 100644
+--- a/drivers/net/ethernet/marvell/pxa168_eth.c
++++ b/drivers/net/ethernet/marvell/pxa168_eth.c
+@@ -1553,8 +1553,8 @@ static int pxa168_eth_remove(struct platform_device *pdev)
  
- 	cpus {
+ 	mdiobus_unregister(pep->smi_bus);
+ 	mdiobus_free(pep->smi_bus);
+-	unregister_netdev(dev);
+ 	cancel_work_sync(&pep->tx_timeout_task);
++	unregister_netdev(dev);
+ 	free_netdev(dev);
+ 	return 0;
+ }
 -- 
 2.30.1
 
