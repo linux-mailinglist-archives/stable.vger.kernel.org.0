@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D09D934C6DF
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0418D34CAD2
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232094AbhC2IKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:10:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53540 "EHLO mail.kernel.org"
+        id S234283AbhC2IkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231676AbhC2IJr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:09:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFA536197C;
-        Mon, 29 Mar 2021 08:09:45 +0000 (UTC)
+        id S233953AbhC2IjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:39:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8E636197C;
+        Mon, 29 Mar 2021 08:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005386;
-        bh=uEH3XozcX1cvevLZRcPN/Upho8z/wt3I9uLXB2xUDDM=;
+        s=korg; t=1617007143;
+        bh=VPmFzYTH94jK1g8OOUIIweJz2uveAP7bqSmKgSPeJoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1SaOnqsz2SWOY6NPcgtO4TBRsNQF3fGmpCSibSA5ULmp/8PjX73yWqnLXLsKwqW+
-         WXo9Kf0SECvioALtFV5MVHCvCXLbWmQK09Me1e5oo4r4wOuDnOvEiYEHdzfDcifdmE
-         pXVx6WEiZ1W0iKOt2/IgzzOC2yU04kaXi/8EhPpM=
+        b=Z90FjwAYumBYIIkcgCLEp9PUE+4V7B8RrsgOhJ/3i9yFK89EtUgEeYlGSt6yQwyOE
+         yLPnonUda2ocNS7t3JWie7D0WLDO8cdCYvz8Vbs0PQnjI8BZCpffqfBIFALB0i391E
+         HmqHrhziSqaxwB1C/iUohJopsO5JGnA6xSoQZ+wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 62/72] perf auxtrace: Fix auxtrace queue conflict
+Subject: [PATCH 5.11 202/254] net/mlx5e: Fix error path for ethtool set-priv-flag
 Date:   Mon, 29 Mar 2021 09:58:38 +0200
-Message-Id: <20210329075612.329953483@linuxfoundation.org>
+Message-Id: <20210329075639.743458322@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit b410ed2a8572d41c68bd9208555610e4b07d0703 ]
+[ Upstream commit 4eacfe72e3e037e3fc019113df32c39a705148c2 ]
 
-The only requirement of an auxtrace queue is that the buffers are in
-time order.  That is achieved by making separate queues for separate
-perf buffer or AUX area buffer mmaps.
+Expose error value when failing to comply to command:
+$ ethtool --set-priv-flags eth2 rx_cqe_compress [on/off]
 
-That generally means a separate queue per cpu for per-cpu contexts, and
-a separate queue per thread for per-task contexts.
-
-When buffers are added to a queue, perf checks that the buffer cpu and
-thread id (tid) match the queue cpu and thread id.
-
-However, generally, that need not be true, and perf will queue buffers
-correctly anyway, so the check is not needed.
-
-In addition, the check gets erroneously hit when using sample mode to
-trace multiple threads.
-
-Consequently, fix that case by removing the check.
-
-Fixes: e502789302a6 ("perf auxtrace: Add helpers for queuing AUX area tracing data")
-Reported-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: http://lore.kernel.org/lkml/20210308151143.18338-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: be7e87f92b58 ("net/mlx5e: Fail safe cqe compressing/moderation mode setting")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/auxtrace.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index 40c93d8158b5..f7c4dcb9d582 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -256,10 +256,6 @@ static int auxtrace_queues__queue_buffer(struct auxtrace_queues *queues,
- 		queue->set = true;
- 		queue->tid = buffer->tid;
- 		queue->cpu = buffer->cpu;
--	} else if (buffer->cpu != queue->cpu || buffer->tid != queue->tid) {
--		pr_err("auxtrace queue conflict: cpu %d, tid %d vs cpu %d, tid %d\n",
--		       queue->cpu, queue->tid, buffer->cpu, buffer->tid);
--		return -EINVAL;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index fdf5afc8b058..c9d01e705ab2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -1876,6 +1876,7 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+ 	struct mlx5_core_dev *mdev = priv->mdev;
++	int err;
+ 
+ 	if (!MLX5_CAP_GEN(mdev, cqe_compression))
+ 		return -EOPNOTSUPP;
+@@ -1885,7 +1886,10 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+ 		return -EINVAL;
  	}
  
- 	buffer->buffer_nr = queues->next_buffer_nr++;
+-	mlx5e_modify_rx_cqe_compression_locked(priv, enable);
++	err = mlx5e_modify_rx_cqe_compression_locked(priv, enable);
++	if (err)
++		return err;
++
+ 	priv->channels.params.rx_cqe_compress_def = enable;
+ 
+ 	return 0;
 -- 
 2.30.1
 
