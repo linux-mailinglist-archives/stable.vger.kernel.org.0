@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A34534CA0F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB6334C847
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbhC2Iep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
+        id S233480AbhC2IVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234737AbhC2Ide (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EDD461613;
-        Mon, 29 Mar 2021 08:33:18 +0000 (UTC)
+        id S232879AbhC2IUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B73F61481;
+        Mon, 29 Mar 2021 08:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006799;
-        bh=IJqCyNackXpL528wu5sFIUdHxJsAEA0WXvHutPPDykw=;
+        s=korg; t=1617006014;
+        bh=scYFnPO7AI/FT4LtJjU+VmWJqAOw/DeltX3UR58X2z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kf5rov0M0tHKw/M5LMRhezQ6JWuvOTc93L4uj1IZjUsOyHxyk6yWHEYdvSLMDfuHF
-         JaJV0JqIn+DGuVoXjSXIZKAMzpHCBMtO460C7kIrJFeTlQ+2o+IJ/X4H0nA8ukInt6
-         8cznE8vSjzyZdDao1VICE5qb9FUZMdlqOeB6sQS0=
+        b=GTtXNPJTTjZw+r9WO0DzsOG1fhKklqEG0E4zwsNh6KIvRCUT13skBTLNZvXGXgtXz
+         xSWDcX8Emex1ujgkp9MLm95PGoOqnYAeOXPneIhJno/JK6UNDBz+yxCtS8gHCuwmA8
+         QqaGwU1B9a+8/Bwr1r6wsz8tKRYSpN4axnXyxjaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manasi Navare <manasi.d.navare@intel.com>,
-        Animesh Manna <animesh.manna@intel.com>,
-        Vandita Kulkarni <vandita.kulkarni@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.11 101/254] drm/i915/dsc: fix DSS CTL register usage for ICL DSI transcoders
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Igor Kravchenko <Igor.Kravchenko@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>
+Subject: [PATCH 5.10 086/221] drm/amdgpu/display: restore AUX_DPHY_TX_CONTROL for DCN2.x
 Date:   Mon, 29 Mar 2021 09:56:57 +0200
-Message-Id: <20210329075636.524516879@linuxfoundation.org>
+Message-Id: <20210329075632.079378620@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit b61fde1beb6b1847f1743e75f4d9839acebad76a upstream.
+commit 5c458585c0141754cdcbf25feebb547dd671b559 upstream.
 
-Use the correct DSS CTL registers for ICL DSI transcoders.
+Commit 098214999c8f added fetching of the AUX_DPHY register
+values from the vbios, but it also changed the default values
+in the case when there are no values in the vbios.  This causes
+problems with displays with high refresh rates.  To fix this,
+switch back to the original default value for AUX_DPHY_TX_CONTROL.
 
-As a side effect, this also brings back the sanity check for trying to
-use pipe DSC registers on pipe A on ICL.
-
-Fixes: 8a029c113b17 ("drm/i915/dp: Modify VDSC helpers to configure DSC for Bigjoiner slave")
-Cc: Manasi Navare <manasi.d.navare@intel.com>
-Cc: Animesh Manna <animesh.manna@intel.com>
-Cc: Vandita Kulkarni <vandita.kulkarni@intel.com>
-Cc: <stable@vger.kernel.org> # v5.11+
-Reviewed-by: Manasi Navare <manasi.d.navare@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210319115333.8330-1-jani.nikula@intel.com
-(cherry picked from commit 5706d02871240fdba7ddd6ab1cc31672fc95a90f)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 098214999c8f ("drm/amd/display: Read VBIOS Golden Settings Tbl")
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1426
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Igor Kravchenko <Igor.Kravchenko@amd.com>
+Cc: Aric Cyr <Aric.Cyr@amd.com>
+Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_vdsc.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_link_encoder.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_vdsc.c
-+++ b/drivers/gpu/drm/i915/display/intel_vdsc.c
-@@ -1016,20 +1016,14 @@ static i915_reg_t dss_ctl1_reg(const str
- {
- 	enum pipe pipe = to_intel_crtc(crtc_state->uapi.crtc)->pipe;
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_link_encoder.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_link_encoder.c
+@@ -341,8 +341,7 @@ void enc2_hw_init(struct link_encoder *e
+ 	} else {
+ 		AUX_REG_WRITE(AUX_DPHY_RX_CONTROL0, 0x103d1110);
  
--	if (crtc_state->cpu_transcoder == TRANSCODER_EDP)
--		return DSS_CTL1;
+-		AUX_REG_WRITE(AUX_DPHY_TX_CONTROL, 0x21c4d);
 -
--	return ICL_PIPE_DSS_CTL1(pipe);
-+	return is_pipe_dsc(crtc_state) ? ICL_PIPE_DSS_CTL1(pipe) : DSS_CTL1;
- }
++		AUX_REG_WRITE(AUX_DPHY_TX_CONTROL, 0x21c7a);
+ 	}
  
- static i915_reg_t dss_ctl2_reg(const struct intel_crtc_state *crtc_state)
- {
- 	enum pipe pipe = to_intel_crtc(crtc_state->uapi.crtc)->pipe;
- 
--	if (crtc_state->cpu_transcoder == TRANSCODER_EDP)
--		return DSS_CTL2;
--
--	return ICL_PIPE_DSS_CTL2(pipe);
-+	return is_pipe_dsc(crtc_state) ? ICL_PIPE_DSS_CTL2(pipe) : DSS_CTL2;
- }
- 
- void intel_dsc_enable(struct intel_encoder *encoder,
+ 	//AUX_DPHY_TX_REF_CONTROL'AUX_TX_REF_DIV HW default is 0x32;
 
 
