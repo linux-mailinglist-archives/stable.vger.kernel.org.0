@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A725C34D57D
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2097634D574
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231352AbhC2QvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 12:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44782 "EHLO mail.kernel.org"
+        id S231224AbhC2QvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 12:51:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231145AbhC2Qur (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:50:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AD3761927;
-        Mon, 29 Mar 2021 16:50:47 +0000 (UTC)
+        id S231197AbhC2Quu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:50:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E4616191F;
+        Mon, 29 Mar 2021 16:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617036647;
-        bh=tvrw0mLIJfrnVsMxG1+3K9LBFSDK92FH5/A4EQz4b64=;
+        s=k20201202; t=1617036649;
+        bh=6zKuFg4ohHprzMyUg+UhpNjyLyNFfJcvIiLcm5TspRQ=;
         h=From:To:Cc:Subject:Date:From;
-        b=ljyiLPxBni2Mm+ZdVVe8xAcbqES7c0KiycGD4p/7NynjwZvwOdRG5NrxQgv9hHA+G
-         R4446zcfkZH8+YIB70XU+pfZWjXXOceN6BodbQ7ob8t+63gjQEbt6qfbK1pltehI4F
-         3CsuV1aveunVUFIjXIYyKz9r+W9jB0Ng8ZcDy4H9cIGiceSC7V8tgkc/YmdLAbVdB2
-         Jds1g/vmECElZbfV+hE85VJkRu6irVtP/1+Jn5IuLvBPHibKRRSvwJOmtQ2FzCAkda
-         hxrgqJjCLHhMZLcEILhWP108nWbno+3/w8lvZpTkt2Vlkjyiv6hfszDdWdRh0uwftt
-         oLs+zBfPqLNWw==
+        b=lp2xM0V/OIYmVSzM1rkxtsa2lCQyGVZ6t5H60RX1zsUdlNi1LtvoUKYKdrFCXHnT2
+         T4pMUjxUZwyHri4q2n9RPgStfqgTCY1gs8d1rchHZ0QSkzQoK1ZDp2WymWbUQJQHoV
+         8VSaLAfBSx41tLUTP9yFb0se0wCF5xQ0MICTTFEkgmyOVAQo10pnG0HR8oqH96EWxY
+         qNu5IIdzIyChQ3+89pMepc3LDYgNUuExFxvmAZ2wX337aKc8cnItgnJU7AChvVo2O3
+         x+3JrihN4CkwVLLovQssZl0hVtdqLZB9cxY8DTi5bKL+19A6oFjjlzPt1lns4un+wK
+         sdo6Yfvv3jGkQ==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, daniel@iogearbox.net
-Cc:     "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "net, bpf: Fix ip6ip6 crash with collect_md populated skbs" failed to apply to 4.19-stable tree
-Date:   Mon, 29 Mar 2021 12:50:46 -0400
-Message-Id: <20210329165046.2358666-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, ovov@yandex-team.ru
+Cc:     Oleg Senin <olegsenin@yandex-team.ru>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: FAILED: Patch "tcp: relookup sock for RST+ACK packets handled by obsolete req sock" failed to apply to 4.19-stable tree
+Date:   Mon, 29 Mar 2021 12:50:48 -0400
+Message-Id: <20210329165048.2358733-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -48,87 +50,86 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From a188bb5638d41aa99090ebf2f85d3505ab13fba5 Mon Sep 17 00:00:00 2001
-From: Daniel Borkmann <daniel@iogearbox.net>
-Date: Wed, 10 Mar 2021 01:38:10 +0100
-Subject: [PATCH] net, bpf: Fix ip6ip6 crash with collect_md populated skbs
+From 7233da86697efef41288f8b713c10c2499cffe85 Mon Sep 17 00:00:00 2001
+From: Alexander Ovechkin <ovov@yandex-team.ru>
+Date: Mon, 15 Mar 2021 14:05:45 +0300
+Subject: [PATCH] tcp: relookup sock for RST+ACK packets handled by obsolete
+ req sock
 
-I ran into a crash where setting up a ip6ip6 tunnel device which was /not/
-set to collect_md mode was receiving collect_md populated skbs for xmit.
+Currently tcp_check_req can be called with obsolete req socket for which big
+socket have been already created (because of CPU race or early demux
+assigning req socket to multiple packets in gro batch).
 
-The BPF prog was populating the skb via bpf_skb_set_tunnel_key() which is
-assigning special metadata dst entry and then redirecting the skb to the
-device, taking ip6_tnl_start_xmit() -> ipxip6_tnl_xmit() -> ip6_tnl_xmit()
-and in the latter it performs a neigh lookup based on skb_dst(skb) where
-we trigger a NULL pointer dereference on dst->ops->neigh_lookup() since
-the md_dst_ops do not populate neigh_lookup callback with a fake handler.
+Commit e0f9759f530bf789e984 ("tcp: try to keep packet if SYN_RCV race
+is lost") added retry in case when tcp_check_req is called for PSH|ACK packet.
+But if client sends RST+ACK immediatly after connection being
+established (it is performing healthcheck, for example) retry does not
+occur. In that case tcp_check_req tries to close req socket,
+leaving big socket active.
 
-Transform the md_dst_ops into generic dst_blackhole_ops that can also be
-reused elsewhere when needed, and use them for the metadata dst entries as
-callback ops.
-
-Also, remove the dst_md_discard{,_out}() ops and rely on dst_discard{,_out}()
-from dst_init() which free the skb the same way modulo the splat. Given we
-will be able to recover just fine from there, avoid any potential splats
-iff this gets ever triggered in future (or worse, panic on warns when set).
-
-Fixes: f38a9eb1f77b ("dst: Metadata destinations")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: e0f9759f530 ("tcp: try to keep packet if SYN_RCV race is lost")
+Signed-off-by: Alexander Ovechkin <ovov@yandex-team.ru>
+Reported-by: Oleg Senin <olegsenin@yandex-team.ru>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- net/core/dst.c | 31 +++++++++----------------------
- 1 file changed, 9 insertions(+), 22 deletions(-)
+ include/net/inet_connection_sock.h | 2 +-
+ net/ipv4/inet_connection_sock.c    | 7 +++++--
+ net/ipv4/tcp_minisocks.c           | 7 +++++--
+ 3 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/dst.c b/net/core/dst.c
-index 5f6315601776..fb3bcba87744 100644
---- a/net/core/dst.c
-+++ b/net/core/dst.c
-@@ -275,37 +275,24 @@ unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
+diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
+index 10a625760de9..3c8c59471bc1 100644
+--- a/include/net/inet_connection_sock.h
++++ b/include/net/inet_connection_sock.h
+@@ -282,7 +282,7 @@ static inline int inet_csk_reqsk_queue_is_full(const struct sock *sk)
+ 	return inet_csk_reqsk_queue_len(sk) >= sk->sk_max_ack_backlog;
  }
- EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
  
--static struct dst_ops md_dst_ops = {
--	.family =		AF_UNSPEC,
-+static struct dst_ops dst_blackhole_ops = {
-+	.family		= AF_UNSPEC,
-+	.neigh_lookup	= dst_blackhole_neigh_lookup,
-+	.check		= dst_blackhole_check,
-+	.cow_metrics	= dst_blackhole_cow_metrics,
-+	.update_pmtu	= dst_blackhole_update_pmtu,
-+	.redirect	= dst_blackhole_redirect,
-+	.mtu		= dst_blackhole_mtu,
- };
+-void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
++bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
+ void inet_csk_reqsk_queue_drop_and_put(struct sock *sk, struct request_sock *req);
  
--static int dst_md_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb)
--{
--	WARN_ONCE(1, "Attempting to call output on metadata dst\n");
--	kfree_skb(skb);
--	return 0;
--}
--
--static int dst_md_discard(struct sk_buff *skb)
--{
--	WARN_ONCE(1, "Attempting to call input on metadata dst\n");
--	kfree_skb(skb);
--	return 0;
--}
--
- static void __metadata_dst_init(struct metadata_dst *md_dst,
- 				enum metadata_type type, u8 optslen)
--
+ static inline void inet_csk_prepare_for_destroy_sock(struct sock *sk)
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index 6bd7ca09af03..fd472eae4f5c 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -705,12 +705,15 @@ static bool reqsk_queue_unlink(struct request_sock *req)
+ 	return found;
+ }
+ 
+-void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
++bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
  {
- 	struct dst_entry *dst;
+-	if (reqsk_queue_unlink(req)) {
++	bool unlinked = reqsk_queue_unlink(req);
++
++	if (unlinked) {
+ 		reqsk_queue_removed(&inet_csk(sk)->icsk_accept_queue, req);
+ 		reqsk_put(req);
+ 	}
++	return unlinked;
+ }
+ EXPORT_SYMBOL(inet_csk_reqsk_queue_drop);
  
- 	dst = &md_dst->dst;
--	dst_init(dst, &md_dst_ops, NULL, 1, DST_OBSOLETE_NONE,
-+	dst_init(dst, &dst_blackhole_ops, NULL, 1, DST_OBSOLETE_NONE,
- 		 DST_METADATA | DST_NOCOUNT);
--
--	dst->input = dst_md_discard;
--	dst->output = dst_md_discard_out;
--
- 	memset(dst + 1, 0, sizeof(*md_dst) + optslen - sizeof(*dst));
- 	md_dst->type = type;
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index 0055ae0a3bf8..7513ba45553d 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -804,8 +804,11 @@ embryonic_reset:
+ 		tcp_reset(sk, skb);
+ 	}
+ 	if (!fastopen) {
+-		inet_csk_reqsk_queue_drop(sk, req);
+-		__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
++		bool unlinked = inet_csk_reqsk_queue_drop(sk, req);
++
++		if (unlinked)
++			__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
++		*req_stolen = !unlinked;
+ 	}
+ 	return NULL;
  }
 -- 
 2.30.1
