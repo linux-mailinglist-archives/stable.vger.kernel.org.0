@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D83C734C948
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1C634C6CA
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbhC2I3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40836 "EHLO mail.kernel.org"
+        id S232591AbhC2IKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233659AbhC2IZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:25:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F783619AE;
-        Mon, 29 Mar 2021 08:25:11 +0000 (UTC)
+        id S232517AbhC2IJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:09:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4B2C61494;
+        Mon, 29 Mar 2021 08:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006312;
-        bh=ur5QoLtOwu6/H7SFtp2hAiwQK1B7phpLPDJ6jcafkIk=;
+        s=korg; t=1617005358;
+        bh=lz9v7f47yDgMMpBmFT6qfI1keNphLwq4X56bspJJxwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7gSxKEBgNtAnGXsJY6nREDEcRPCAVLzHGeHK3WTkKZAlsVdemfpEkXr4em/vtqDz
-         a3NVyY03RMiJXkI8t35n20BmsrllzmeKBj9GWBbY4u/Uj8x4ag9nLXmeY8I6vGhZSU
-         Og4e3PAvoSJ88ohg/ZdzcUcWzQfh5nP/A+XofpfQ=
+        b=tAbNcZlj3z5gtZZwOOYvlZA7UEk39OXh8mM0Kggtp+3Zt3ew9VTWPu39b2JX1GZxu
+         4epdHcpZgfDxNaQeJmxW11BXVKxSwvWnoPb8/BQMUpsA/diDX8dgZp87nYjdi+3fpl
+         jppXjT3jystH476nzRGZUlGj7MHg7x8+R3cagohw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 178/221] RDMA/cxgb4: Fix adapter LE hash errors while destroying ipv6 listening server
+Subject: [PATCH 4.19 53/72] net/mlx5e: Fix error path for ethtool set-priv-flag
 Date:   Mon, 29 Mar 2021 09:58:29 +0200
-Message-Id: <20210329075635.089834647@linuxfoundation.org>
+Message-Id: <20210329075612.020145153@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Potnuri Bharat Teja <bharat@chelsio.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit 3408be145a5d6418ff955fe5badde652be90e700 ]
+[ Upstream commit 4eacfe72e3e037e3fc019113df32c39a705148c2 ]
 
-Not setting the ipv6 bit while destroying ipv6 listening servers may
-result in potential fatal adapter errors due to lookup engine memory hash
-errors. Therefore always set ipv6 field while destroying ipv6 listening
-servers.
+Expose error value when failing to comply to command:
+$ ethtool --set-priv-flags eth2 rx_cqe_compress [on/off]
 
-Fixes: 830662f6f032 ("RDMA/cxgb4: Add support for active and passive open connection with IPv6 address")
-Link: https://lore.kernel.org/r/20210324190453.8171-1-bharat@chelsio.com
-Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: be7e87f92b58 ("net/mlx5e: Fail safe cqe compressing/moderation mode setting")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 8769e7aa097f..81903749d241 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -3610,13 +3610,13 @@ int c4iw_destroy_listen(struct iw_cm_id *cm_id)
- 	    ep->com.local_addr.ss_family == AF_INET) {
- 		err = cxgb4_remove_server_filter(
- 			ep->com.dev->rdev.lldi.ports[0], ep->stid,
--			ep->com.dev->rdev.lldi.rxq_ids[0], 0);
-+			ep->com.dev->rdev.lldi.rxq_ids[0], false);
- 	} else {
- 		struct sockaddr_in6 *sin6;
- 		c4iw_init_wr_wait(ep->com.wr_waitp);
- 		err = cxgb4_remove_server(
- 				ep->com.dev->rdev.lldi.ports[0], ep->stid,
--				ep->com.dev->rdev.lldi.rxq_ids[0], 0);
-+				ep->com.dev->rdev.lldi.rxq_ids[0], true);
- 		if (err)
- 			goto done;
- 		err = c4iw_wait_for_reply(&ep->com.dev->rdev, ep->com.wr_waitp,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index a383276eb816..3d824c20d2a4 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -1460,6 +1460,7 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+ 	struct mlx5_core_dev *mdev = priv->mdev;
++	int err;
+ 
+ 	if (!MLX5_CAP_GEN(mdev, cqe_compression))
+ 		return -EOPNOTSUPP;
+@@ -1469,7 +1470,10 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+ 		return -EINVAL;
+ 	}
+ 
+-	mlx5e_modify_rx_cqe_compression_locked(priv, enable);
++	err = mlx5e_modify_rx_cqe_compression_locked(priv, enable);
++	if (err)
++		return err;
++
+ 	priv->channels.params.rx_cqe_compress_def = enable;
+ 
+ 	return 0;
 -- 
 2.30.1
 
