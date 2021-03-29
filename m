@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 105C634C692
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0038934C577
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232290AbhC2IIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50472 "EHLO mail.kernel.org"
+        id S231508AbhC2IAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232516AbhC2IHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:07:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61C3661932;
-        Mon, 29 Mar 2021 08:07:47 +0000 (UTC)
+        id S231449AbhC2IAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:00:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 660A56196E;
+        Mon, 29 Mar 2021 08:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005267;
-        bh=6doY695fcNFJgCQPeD37/bzJKzw8f4iXkCzcMtRpyCU=;
+        s=korg; t=1617004821;
+        bh=NE1a96pDxkwvBxLprRkGw9JSKBj3i2OYm48K5voJhWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuh3slOpfX9k0PEJi5bgFPGdGRN1ho6hIbVLl2ccM/iTraz9u/rMTsVsf9KyKucsS
-         ngmoQHEWyJyd+SFRzPG0Vh8jdA8KEqz7pexo4XxszICxXN0B1mPM05XfKC3yxanH24
-         RThsbQBP79xqDiheNHDl0vrqBwb43sfDS8dQF0Jw=
+        b=qt7jbxEcXcW8gRmKwEvNjqM8fXiWpcH+hG4x3Vbbtq8JN40j1H4wS+VbuhDM3j73D
+         1vLNTj9/lcul4ySuST1Le1XjUJoxLF9/ZFlBmRvxbQ9XVsB98EiRb98rM/CmuhYGkP
+         WDJXiRyPYDkdLWwzthfHcI+3h+fZ6IwVGPLNpzj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Borislav Petkov <bp@suse.de>, Hugh Dickins <hughd@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Babu Moger <babu.moger@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/72] ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
-Date:   Mon, 29 Mar 2021 09:57:59 +0200
-Message-Id: <20210329075611.033570379@linuxfoundation.org>
+Subject: [PATCH 4.4 15/33] x86/tlb: Flush global mappings when KAISER is disabled
+Date:   Mon, 29 Mar 2021 09:58:00 +0200
+Message-Id: <20210329075605.759394499@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +42,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 61bf318eac2c13356f7bd1c6a05421ef504ccc8a ]
+Jim Mattson reported that Debian 9 guests using a 4.9-stable kernel
+are exploding during alternatives patching:
 
-In https://bugs.gentoo.org/769614 Dmitry noticed that
-`ptrace(PTRACE_GET_SYSCALL_INFO)` does not return error sign properly.
+  kernel BUG at /build/linux-dqnRSc/linux-4.9.228/arch/x86/kernel/alternative.c:709!
+  invalid opcode: 0000 [#1] SMP
+  Modules linked in:
+  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.9.0-13-amd64 #1 Debian 4.9.228-1
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   swap_entry_free
+   swap_entry_free
+   text_poke_bp
+   swap_entry_free
+   arch_jump_label_transform
+   set_debug_rodata
+   __jump_label_update
+   static_key_slow_inc
+   frontswap_register_ops
+   init_zswap
+   init_frontswap
+   do_one_initcall
+   set_debug_rodata
+   kernel_init_freeable
+   rest_init
+   kernel_init
+   ret_from_fork
 
-The bug is in mismatch between get/set errors:
+triggering the BUG_ON in text_poke() which verifies whether patched
+instruction bytes have actually landed at the destination.
 
-static inline long syscall_get_error(struct task_struct *task,
-                                     struct pt_regs *regs)
-{
-        return regs->r10 == -1 ? regs->r8:0;
-}
+Further debugging showed that the TLB flush before that check is
+insufficient because there could be global mappings left in the TLB,
+leading to a stale mapping getting used.
 
-static inline long syscall_get_return_value(struct task_struct *task,
-                                            struct pt_regs *regs)
-{
-        return regs->r8;
-}
+I say "global mappings" because the hardware configuration is a new one:
+machine is an AMD, which means, KAISER/PTI doesn't need to be enabled
+there, which also means there's no user/kernel pagetables split and
+therefore the TLB can have global mappings.
 
-static inline void syscall_set_return_value(struct task_struct *task,
-                                            struct pt_regs *regs,
-                                            int error, long val)
-{
-        if (error) {
-                /* error < 0, but ia64 uses > 0 return value */
-                regs->r8 = -error;
-                regs->r10 = -1;
-        } else {
-                regs->r8 = val;
-                regs->r10 = 0;
-        }
-}
+And the configuration is new one for a second reason: because that AMD
+machine supports PCID and INVPCID, which leads the CPU detection code to
+set the synthetic X86_FEATURE_INVPCID_SINGLE flag.
 
-Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
+Now, __native_flush_tlb_single() does invalidate global mappings when
+X86_FEATURE_INVPCID_SINGLE is *not* set and returns.
 
-Link: https://lkml.kernel.org/r/20210221002554.333076-2-slyfox@gentoo.org
-Link: https://bugs.gentoo.org/769614
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Reported-by: Dmitry V. Levin <ldv@altlinux.org>
-Reviewed-by: Dmitry V. Levin <ldv@altlinux.org>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+When X86_FEATURE_INVPCID_SINGLE is set, however, it invalidates the
+requested address from both PCIDs in the KAISER-enabled case. But if
+KAISER is not enabled and the machine has global mappings in the TLB,
+then those global mappings do not get invalidated, which would lead to
+the above mismatch from using a stale TLB entry.
+
+So make sure to flush those global mappings in the KAISER disabled case.
+
+Co-debugged by Babu Moger <babu.moger@amd.com>.
+
+Reported-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Tested-by: Babu Moger <babu.moger@amd.com>
+Tested-by: Jim Mattson <jmattson@google.com>
+Link: https://lkml.kernel.org/r/CALMp9eRDSW66%2BXvbHVF4ohL7XhThoPoT0BrB0TcS0cgk=dkcBg@mail.gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/include/asm/syscall.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/tlbflush.h | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/ia64/include/asm/syscall.h b/arch/ia64/include/asm/syscall.h
-index 1d0b875fec44..ec909eec0b4c 100644
---- a/arch/ia64/include/asm/syscall.h
-+++ b/arch/ia64/include/asm/syscall.h
-@@ -35,7 +35,7 @@ static inline void syscall_rollback(struct task_struct *task,
- static inline long syscall_get_error(struct task_struct *task,
- 				     struct pt_regs *regs)
- {
--	return regs->r10 == -1 ? regs->r8:0;
-+	return regs->r10 == -1 ? -regs->r8:0;
+diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+index 8dab88b85785..33a594f728de 100644
+--- a/arch/x86/include/asm/tlbflush.h
++++ b/arch/x86/include/asm/tlbflush.h
+@@ -245,12 +245,15 @@ static inline void __native_flush_tlb_single(unsigned long addr)
+ 	 * ASID.  But, userspace flushes are probably much more
+ 	 * important performance-wise.
+ 	 *
+-	 * Make sure to do only a single invpcid when KAISER is
+-	 * disabled and we have only a single ASID.
++	 * In the KAISER disabled case, do an INVLPG to make sure
++	 * the mapping is flushed in case it is a global one.
+ 	 */
+-	if (kaiser_enabled)
++	if (kaiser_enabled) {
+ 		invpcid_flush_one(X86_CR3_PCID_ASID_USER, addr);
+-	invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
++		invpcid_flush_one(X86_CR3_PCID_ASID_KERN, addr);
++	} else {
++		asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
++	}
  }
  
- static inline long syscall_get_return_value(struct task_struct *task,
+ static inline void __flush_tlb_all(void)
 -- 
 2.30.1
 
