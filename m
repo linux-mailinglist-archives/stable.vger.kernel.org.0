@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A42CE34C656
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCBD834CABD
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231830AbhC2IGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
+        id S232516AbhC2Ijq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230052AbhC2IFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1776061976;
-        Mon, 29 Mar 2021 08:05:51 +0000 (UTC)
+        id S234879AbhC2Iha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01388619CA;
+        Mon, 29 Mar 2021 08:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005152;
-        bh=9Be9I229U/9Tp7VsCkRUYOH85ZXvpxB2pOi+/Kl8tss=;
+        s=korg; t=1617007015;
+        bh=D69HUUVSB9o1O3V5LnTAspBhe3FxSt43ShUTCttYZ9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rg3fGve8FlMP2ovuGRXgraY4dJrmhHrFgHPRfI16F5lzl/o/yEHkzbTYlaOUpWvuc
-         buLv/VYQr27Rm2JwJwz5Ap/DOKi2JvTAYrcHPSxRo6sYdD3PfO1XK/sZEspRjamqoI
-         7Ioz+UEftxtuyvWGejjutDgEByouKvw6fTNALwXY=
+        b=0G2eMecyNFMQYjHn8JvrmFxjm4AUctcvG1PHWJQxYdB4KKaM5nNtTk7JC5JRt6Wyw
+         NSvdhSpQn96NCDGTe2lWdYwiaNtWC4aXPaZLLquU9rFfLocLjE09Ov1vZSgsnGZLAv
+         J6MJ6gHU6rsGrpWJx3emqYkYNSk8g8ZOFuReesCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 44/59] drm/msm: fix shutdown hook in case GPU components failed to bind
+Subject: [PATCH 5.11 188/254] can: isotp: tx-path: zero initialize outgoing CAN frames
 Date:   Mon, 29 Mar 2021 09:58:24 +0200
-Message-Id: <20210329075610.331093019@linuxfoundation.org>
+Message-Id: <20210329075639.303778978@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 623f279c77811475ac8fd5635cc4e4451aa71291 ]
+[ Upstream commit b5f020f82a8e41201c6ede20fa00389d6980b223 ]
 
-If GPU components have failed to bind, shutdown callback would fail with
-the following backtrace. Add safeguard check to stop that oops from
-happening and allow the board to reboot.
+Commit d4eb538e1f48 ("can: isotp: TX-path: ensure that CAN frame flags are
+initialized") ensured the TX flags to be properly set for outgoing CAN
+frames.
 
-[   66.617046] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[   66.626066] Mem abort info:
-[   66.628939]   ESR = 0x96000006
-[   66.632088]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   66.637542]   SET = 0, FnV = 0
-[   66.640688]   EA = 0, S1PTW = 0
-[   66.643924] Data abort info:
-[   66.646889]   ISV = 0, ISS = 0x00000006
-[   66.650832]   CM = 0, WnR = 0
-[   66.653890] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000107f81000
-[   66.660505] [0000000000000000] pgd=0000000100bb2003, p4d=0000000100bb2003, pud=0000000100897003, pmd=0000000000000000
-[   66.671398] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[   66.677115] Modules linked in:
-[   66.680261] CPU: 6 PID: 352 Comm: reboot Not tainted 5.11.0-rc2-00309-g79e3faa756b2 #38
-[   66.688473] Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
-[   66.695347] pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-[   66.701507] pc : msm_atomic_commit_tail+0x78/0x4e0
-[   66.706437] lr : commit_tail+0xa4/0x184
-[   66.710381] sp : ffff8000108f3af0
-[   66.713791] x29: ffff8000108f3af0 x28: ffff418c44337000
-[   66.719242] x27: 0000000000000000 x26: ffff418c40a24490
-[   66.724693] x25: ffffd3a842a4f1a0 x24: 0000000000000008
-[   66.730146] x23: ffffd3a84313f030 x22: ffff418c444ce000
-[   66.735598] x21: ffff418c408a4980 x20: 0000000000000000
-[   66.741049] x19: 0000000000000000 x18: ffff800010710fbc
-[   66.746500] x17: 000000000000000c x16: 0000000000000001
-[   66.751954] x15: 0000000000010008 x14: 0000000000000068
-[   66.757405] x13: 0000000000000001 x12: 0000000000000000
-[   66.762855] x11: 0000000000000001 x10: 00000000000009b0
-[   66.768306] x9 : ffffd3a843192000 x8 : ffff418c44337000
-[   66.773757] x7 : 0000000000000000 x6 : 00000000a401b34e
-[   66.779210] x5 : 00ffffffffffffff x4 : 0000000000000000
-[   66.784660] x3 : 0000000000000000 x2 : ffff418c444ce000
-[   66.790111] x1 : ffffd3a841dce530 x0 : ffff418c444cf000
-[   66.795563] Call trace:
-[   66.798075]  msm_atomic_commit_tail+0x78/0x4e0
-[   66.802633]  commit_tail+0xa4/0x184
-[   66.806217]  drm_atomic_helper_commit+0x160/0x390
-[   66.811051]  drm_atomic_commit+0x4c/0x60
-[   66.815082]  drm_atomic_helper_disable_all+0x1f4/0x210
-[   66.820355]  drm_atomic_helper_shutdown+0x80/0x130
-[   66.825276]  msm_pdev_shutdown+0x14/0x20
-[   66.829303]  platform_shutdown+0x28/0x40
-[   66.833330]  device_shutdown+0x158/0x330
-[   66.837357]  kernel_restart+0x40/0xa0
-[   66.841122]  __do_sys_reboot+0x228/0x250
-[   66.845148]  __arm64_sys_reboot+0x28/0x34
-[   66.849264]  el0_svc_common.constprop.0+0x74/0x190
-[   66.854187]  do_el0_svc+0x24/0x90
-[   66.857595]  el0_svc+0x14/0x20
-[   66.860739]  el0_sync_handler+0x1a4/0x1b0
-[   66.864858]  el0_sync+0x174/0x180
-[   66.868269] Code: 1ac020a0 2a000273 eb02007f 54ffff01 (f9400285)
-[   66.874525] ---[ end trace 20dedb2a3229fec8 ]---
+In fact the root cause of the issue results from a missing initialization
+of outgoing CAN frames created by isotp. This is no problem on the CAN bus
+as the CAN driver only picks the correctly defined content from the struct
+can(fd)_frame. But when the outgoing frames are monitored (e.g. with
+candump) we potentially leak some bytes in the unused content of
+struct can(fd)_frame.
 
-Fixes: 9d5cbf5fe46e ("drm/msm: add shutdown support for display platform_driver")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20210319100619.10858-1-socketcan@hartkopp.net
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/can/isotp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index c59240b566d8..3dad4687d3dd 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -1137,6 +1137,10 @@ static int msm_pdev_remove(struct platform_device *pdev)
- static void msm_pdev_shutdown(struct platform_device *pdev)
- {
- 	struct drm_device *drm = platform_get_drvdata(pdev);
-+	struct msm_drm_private *priv = drm ? drm->dev_private : NULL;
-+
-+	if (!priv || !priv->kms)
-+		return;
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 430976485d95..15ea1234d457 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -196,7 +196,7 @@ static int isotp_send_fc(struct sock *sk, int ae, u8 flowstatus)
+ 	nskb->dev = dev;
+ 	can_skb_set_owner(nskb, sk);
+ 	ncf = (struct canfd_frame *)nskb->data;
+-	skb_put(nskb, so->ll.mtu);
++	skb_put_zero(nskb, so->ll.mtu);
  
- 	drm_atomic_helper_shutdown(drm);
- }
+ 	/* create & send flow control reply */
+ 	ncf->can_id = so->txid;
+@@ -779,7 +779,7 @@ isotp_tx_burst:
+ 		can_skb_prv(skb)->skbcnt = 0;
+ 
+ 		cf = (struct canfd_frame *)skb->data;
+-		skb_put(skb, so->ll.mtu);
++		skb_put_zero(skb, so->ll.mtu);
+ 
+ 		/* create consecutive frame */
+ 		isotp_fill_dataframe(cf, so, ae, 0);
+@@ -895,7 +895,7 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	so->tx.idx = 0;
+ 
+ 	cf = (struct canfd_frame *)skb->data;
+-	skb_put(skb, so->ll.mtu);
++	skb_put_zero(skb, so->ll.mtu);
+ 
+ 	/* check for single frame transmission depending on TX_DL */
+ 	if (size <= so->tx.ll_dl - SF_PCI_SZ4 - ae - off) {
 -- 
 2.30.1
 
