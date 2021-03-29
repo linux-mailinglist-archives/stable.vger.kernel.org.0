@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0979E34C95F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC00634CACA
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233411AbhC2I3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41084 "EHLO mail.kernel.org"
+        id S231985AbhC2Ijw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233874AbhC2I10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:27:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B769B61601;
-        Mon, 29 Mar 2021 08:26:03 +0000 (UTC)
+        id S234447AbhC2Iin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:38:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B81F61581;
+        Mon, 29 Mar 2021 08:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006364;
-        bh=ZHsArqYuuUC/v9nphoP08BZ8B8MbS87LrXNasQ4cU08=;
+        s=korg; t=1617007123;
+        bh=U98Yu/5RQudYbBGo0L7Tv+gCkT7W42eHmz639tYLuhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWv3JUSbzKfRyUW7mbyXLh8APv4XAR8jkM9J6Md9kn08XRKS0MVfi34xxVJytUvH8
-         P5Bv8OAq5oxl2EYrPHPID2/lv3af0ENgIAdcomDTuB/RK1yQ4m0lEBv3CK9pH0cNUj
-         OkjA76/jBGnndMMslN4BtkZL71IQPTEzeGYYCDnc=
+        b=kpmZ3erMp2eE84VP+mO4l2++okcD6fe2tVJEy/wfASdQ3bD1e3rhxI7AJaP/9To/i
+         a9LffZ4QgZEWWTACgZ2r5bgjjn0n9uHtUxJWuDbl88QJFI2g52LH+OkysPu3Z2r6SP
+         c+7HBI4MBeVUxINsMraRc+LFbANkTDs6qOn+VEAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Blazejowski <paulb@blazebox.homeip.net>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 213/221] r8169: fix DMA being used after buffer free if WoL is enabled
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        David Rientjes <rientjes@google.com>,
+        Ben Gardon <bgardon@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 228/254] mm/mmu_notifiers: ensure range_end() is paired with range_start()
 Date:   Mon, 29 Mar 2021 09:59:04 +0200
-Message-Id: <20210329075636.239478548@linuxfoundation.org>
+Message-Id: <20210329075640.588231248@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +50,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit f658b90977d2e79822a558e48116e059a7e75dec upstream.
+[ Upstream commit c2655835fd8cabdfe7dab737253de3ffb88da126 ]
 
-IOMMU errors have been reported if WoL is enabled and interface is
-brought down. It turned out that the network chip triggers DMA
-transfers after the DMA buffers have been freed. For WoL to work we
-need to leave rx enabled, therefore simply stop the chip from being
-a DMA busmaster.
+If one or more notifiers fails .invalidate_range_start(), invoke
+.invalidate_range_end() for "all" notifiers.  If there are multiple
+notifiers, those that did not fail are expecting _start() and _end() to
+be paired, e.g.  KVM's mmu_notifier_count would become imbalanced.
+Disallow notifiers that can fail _start() from implementing _end() so
+that it's unnecessary to either track which notifiers rejected _start(),
+or had already succeeded prior to a failed _start().
 
-Fixes: 567ca57faa62 ("r8169: add rtl8169_up")
-Tested-by: Paul Blazejowski <paulb@blazebox.homeip.net>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note, the existing behavior of calling _start() on all notifiers even
+after a previous notifier failed _start() was an unintented "feature".
+Make it canon now that the behavior is depended on for correctness.
+
+As of today, the bug is likely benign:
+
+  1. The only caller of the non-blocking notifier is OOM kill.
+  2. The only notifiers that can fail _start() are the i915 and Nouveau
+     drivers.
+  3. The only notifiers that utilize _end() are the SGI UV GRU driver
+     and KVM.
+  4. The GRU driver will never coincide with the i195/Nouveau drivers.
+  5. An imbalanced kvm->mmu_notifier_count only causes soft lockup in the
+     _guest_, and the guest is already doomed due to being an OOM victim.
+
+Fix the bug now to play nice with future usage, e.g.  KVM has a
+potential use case for blocking memslot updates in KVM while an
+invalidation is in-progress, and failure to unblock would result in said
+updates being blocked indefinitely and hanging.
+
+Found by inspection.  Verified by adding a second notifier in KVM that
+periodically returns -EAGAIN on non-blockable ranges, triggering OOM,
+and observing that KVM exits with an elevated notifier count.
+
+Link: https://lkml.kernel.org/r/20210311180057.1582638-1-seanjc@google.com
+Fixes: 93065ac753e4 ("mm, oom: distinguish blockable mode for mmu notifiers")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Ben Gardon <bgardon@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: "Jérôme Glisse" <jglisse@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Dimitri Sivanich <dimitri.sivanich@hpe.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/linux/mmu_notifier.h | 10 +++++-----
+ mm/mmu_notifier.c            | 23 +++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4726,6 +4726,9 @@ static void rtl8169_down(struct rtl8169_
- 
- 	rtl8169_update_counters(tp);
- 
-+	pci_clear_master(tp->pci_dev);
-+	rtl_pci_commit(tp);
+diff --git a/include/linux/mmu_notifier.h b/include/linux/mmu_notifier.h
+index b8200782dede..1a6a9eb6d3fa 100644
+--- a/include/linux/mmu_notifier.h
++++ b/include/linux/mmu_notifier.h
+@@ -169,11 +169,11 @@ struct mmu_notifier_ops {
+ 	 * the last refcount is dropped.
+ 	 *
+ 	 * If blockable argument is set to false then the callback cannot
+-	 * sleep and has to return with -EAGAIN. 0 should be returned
+-	 * otherwise. Please note that if invalidate_range_start approves
+-	 * a non-blocking behavior then the same applies to
+-	 * invalidate_range_end.
+-	 *
++	 * sleep and has to return with -EAGAIN if sleeping would be required.
++	 * 0 should be returned otherwise. Please note that notifiers that can
++	 * fail invalidate_range_start are not allowed to implement
++	 * invalidate_range_end, as there is no mechanism for informing the
++	 * notifier that its start failed.
+ 	 */
+ 	int (*invalidate_range_start)(struct mmu_notifier *subscription,
+ 				      const struct mmu_notifier_range *range);
+diff --git a/mm/mmu_notifier.c b/mm/mmu_notifier.c
+index 61ee40ed804e..459d195d2ff6 100644
+--- a/mm/mmu_notifier.c
++++ b/mm/mmu_notifier.c
+@@ -501,10 +501,33 @@ static int mn_hlist_invalidate_range_start(
+ 						"");
+ 				WARN_ON(mmu_notifier_range_blockable(range) ||
+ 					_ret != -EAGAIN);
++				/*
++				 * We call all the notifiers on any EAGAIN,
++				 * there is no way for a notifier to know if
++				 * its start method failed, thus a start that
++				 * does EAGAIN can't also do end.
++				 */
++				WARN_ON(ops->invalidate_range_end);
+ 				ret = _ret;
+ 			}
+ 		}
+ 	}
 +
- 	rtl8169_cleanup(tp, true);
++	if (ret) {
++		/*
++		 * Must be non-blocking to get here.  If there are multiple
++		 * notifiers and one or more failed start, any that succeeded
++		 * start are expecting their end to be called.  Do so now.
++		 */
++		hlist_for_each_entry_rcu(subscription, &subscriptions->list,
++					 hlist, srcu_read_lock_held(&srcu)) {
++			if (!subscription->ops->invalidate_range_end)
++				continue;
++
++			subscription->ops->invalidate_range_end(subscription,
++								range);
++		}
++	}
+ 	srcu_read_unlock(&srcu, id);
  
- 	rtl_pll_power_down(tp);
-@@ -4733,6 +4736,7 @@ static void rtl8169_down(struct rtl8169_
- 
- static void rtl8169_up(struct rtl8169_private *tp)
- {
-+	pci_set_master(tp->pci_dev);
- 	rtl_pll_power_up(tp);
- 	rtl8169_init_phy(tp);
- 	napi_enable(&tp->napi);
-@@ -5394,8 +5398,6 @@ static int rtl_init_one(struct pci_dev *
- 
- 	rtl_hw_reset(tp);
- 
--	pci_set_master(pdev);
--
- 	rc = rtl_alloc_irq(tp);
- 	if (rc < 0) {
- 		dev_err(&pdev->dev, "Can't allocate interrupt\n");
+ 	return ret;
+-- 
+2.30.1
+
 
 
