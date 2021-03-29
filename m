@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BC1734CA12
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1459534C840
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbhC2Ieu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53562 "EHLO mail.kernel.org"
+        id S232355AbhC2IVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234757AbhC2Idf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB80C61929;
-        Mon, 29 Mar 2021 08:33:27 +0000 (UTC)
+        id S232419AbhC2IUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9036161613;
+        Mon, 29 Mar 2021 08:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006808;
+        s=korg; t=1617006025;
         bh=LCfOYbdDrWCE+GJPVozw9HGEGOggj0If07yc6i7jxEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PloPkVs4RgwoupHYS1bvqwTJUYGnUutycNbnzcCrGT7scjJp+27KF2/gDMZI7g/KG
-         eMlnWUgG425VdsYmSuQfbOIA/dalKViwf6IdUsdzq9R4Az5SzhlZDAFJOktw2dMdYR
-         PNnX/ZM88XTVE0EwRm3+MJkB7KEy6Mvs68oy2hNk=
+        b=n3ETSvgnWhVtLcMZRh0YJlItRw0WXcb55td8KlAjNOxeZ/dYDJthyP/XKmOB9FGv3
+         sOKH3ozhe/HRIFoUItuP7xrihzLiHgDqy4kOwCTwAqsVJavk10ersCNY1b2LAkInn4
+         7Ku9IR5E22mXa/qabOx+BpZlBpivqkb6XNSgQFDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.11 105/254] dm ioctl: fix out of bounds array access when no devices
+Subject: [PATCH 5.10 090/221] dm ioctl: fix out of bounds array access when no devices
 Date:   Mon, 29 Mar 2021 09:57:01 +0200
-Message-Id: <20210329075636.650414186@linuxfoundation.org>
+Message-Id: <20210329075632.214146695@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
