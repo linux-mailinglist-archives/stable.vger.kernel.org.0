@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C1E34CA5D
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E4A34C5AC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233956AbhC2IiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
+        id S231709AbhC2IB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233855AbhC2Ifp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41AFF619AE;
-        Mon, 29 Mar 2021 08:35:15 +0000 (UTC)
+        id S231770AbhC2IBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:01:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAAAE6196F;
+        Mon, 29 Mar 2021 08:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006915;
-        bh=0ZQlFmcvFePedOhfO4OuayrwAIEwjkxJ7wyQud8O1QE=;
+        s=korg; t=1617004906;
+        bh=z6fjfAWkHbVDLjL2M6xlYkNM70LTzfCTKgvyHQgM7V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w7wqE9bhI7j7xIN+nlv1bq3ldkggKpKERvOd5xeKHXPt0x9zKLZRwrTbzVo/jbSrj
-         qrgeKWCo8PLJH8NUA2WhsaeNFPzQMYadAZGb1Mwf/NhIy+L/RpRhicd+6AKxWUGxCo
-         Bi6EoDEd/E3BUGJ17pFwGUoZIZ9+r3i1NyE6GLtc=
+        b=qTouTXQkrqVryERUycDBT3BraO1e5I0o6Q8zLU2oat+8SDJ0rGgVh+0xJA2jJHeyE
+         iMzrJ/vuUMWGSD+QhQ4RVUJSu3xR9FFJkLvNQb2yZswfSA4HdEmm0yvi36DW0Yqf3H
+         mscoea+laWaf22nlv2TQBE4QQAu5rT2ZoyAbRZ9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 149/254] can: peak_usb: add forgotten supported devices
+Subject: [PATCH 4.9 10/53] net: wan: fix error return code of uhdlc_init()
 Date:   Mon, 29 Mar 2021 09:57:45 +0200
-Message-Id: <20210329075638.104228992@linuxfoundation.org>
+Message-Id: <20210329075607.892185921@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 59ec7b89ed3e921cd0625a8c83f31a30d485fdf8 ]
+[ Upstream commit 62765d39553cfd1ad340124fe1e280450e8c89e2 ]
 
-Since the peak_usb driver also supports the CAN-USB interfaces
-"PCAN-USB X6" and "PCAN-Chip USB" from PEAK-System GmbH, this patch adds
-their names to the list of explicitly supported devices.
+When priv->rx_skbuff or priv->tx_skbuff is NULL, no error return code of
+uhdlc_init() is assigned.
+To fix this bug, ret is assigned with -ENOMEM in these cases.
 
-Fixes: ea8b65b596d7 ("can: usb: Add support of PCAN-Chip USB stamp module")
-Fixes: f00b534ded60 ("can: peak: Add support for PCAN-USB X6 USB interface")
-Link: https://lore.kernel.org/r/20210309082128.23125-3-s.grosjean@peak-system.com
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wan/fsl_ucc_hdlc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-index f347ecc79aef..f1d018218c93 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -18,6 +18,8 @@
+diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
+index 87bf05a81db5..fc7d28edee07 100644
+--- a/drivers/net/wan/fsl_ucc_hdlc.c
++++ b/drivers/net/wan/fsl_ucc_hdlc.c
+@@ -169,13 +169,17 @@ static int uhdlc_init(struct ucc_hdlc_private *priv)
  
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB FD adapter");
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB Pro FD adapter");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-Chip USB");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB X6 adapter");
+ 	priv->rx_skbuff = kzalloc(priv->rx_ring_size * sizeof(*priv->rx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->rx_skbuff)
++	if (!priv->rx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_ucc_pram;
++	}
  
- #define PCAN_USBPROFD_CHANNEL_COUNT	2
- #define PCAN_USBFD_CHANNEL_COUNT	1
+ 	priv->tx_skbuff = kzalloc(priv->tx_ring_size * sizeof(*priv->tx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->tx_skbuff)
++	if (!priv->tx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_rx_skbuff;
++	}
+ 
+ 	priv->skb_curtx = 0;
+ 	priv->skb_dirtytx = 0;
 -- 
 2.30.1
 
