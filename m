@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B085734C8A0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C16E134C734
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232622AbhC2IXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39144 "EHLO mail.kernel.org"
+        id S232406AbhC2INR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233666AbhC2IWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:22:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14E8E61601;
-        Mon, 29 Mar 2021 08:22:07 +0000 (UTC)
+        id S232775AbhC2IMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:12:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E766A61477;
+        Mon, 29 Mar 2021 08:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006128;
-        bh=XZdW0vt0XFXg9vIcdEI77opC+PqakfdB/iYPtPi2TXs=;
+        s=korg; t=1617005523;
+        bh=hJdYSGplaMOG7aKd6Syo8Iq0Ut9PQzZ1AwQJJHqbo4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSAVQtBrdY8OscfbqNb8WO7imn8w7SlCtaBHRlSeRDBi2EQkpDsx8POC1gKLIPX5a
-         dXqaAuHx5PYiMpvPV1gCJPR/fZxhoRGpcrWY56hDGwyJkLQL8z5LE0Lgqx1RXkZ/wq
-         Kr+gWqnBqj1mIUcdYtVdPorfhkU0tFv6akTw0JA0=
+        b=XcsBgb1kkO3DbCduUl2oflAkelG1eslQWQd4WxHODSjZeGMZw5QH49uUypSzQKxWg
+         97509LnQm8YFu1oUHm1ER6tI+qUD3fWP9qOgQs628J/uELqgDlayO5BA+u4yomJSkB
+         mHO1HULAZcOp99VbrJ6IfhMowtSxeGiSRxAbIqLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 128/221] can: kvaser_pciefd: Always disable bus load reporting
+Subject: [PATCH 5.4 031/111] drm/radeon: fix AGP dependency
 Date:   Mon, 29 Mar 2021 09:57:39 +0200
-Message-Id: <20210329075633.473109005@linuxfoundation.org>
+Message-Id: <20210329075616.216797183@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Assarsson <extja@kvaser.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 7c6e6bce08f918b64459415f58061d4d6df44994 ]
+[ Upstream commit cba2afb65cb05c3d197d17323fee4e3c9edef9cd ]
 
-Under certain circumstances, when switching from Kvaser's linuxcan driver
-(kvpciefd) to the SocketCAN driver (kvaser_pciefd), the bus load reporting
-is not disabled.
-This is flooding the kernel log with prints like:
-[3485.574677] kvaser_pciefd 0000:02:00.0: Received unexpected packet type 0x00000009
+When AGP is compiled as module radeon must be compiled as module as
+well.
 
-Always put the controller in the expected state, instead of assuming that
-bus load reporting is inactive.
-
-Note: If bus load reporting is enabled when the driver is loaded, you will
-      still get a number of bus load packages (and printouts), before it is
-      disabled.
-
-Fixes: 26ad340e582d ("can: kvaser_pciefd: Add driver for Kvaser PCIEcan devices")
-Link: https://lore.kernel.org/r/20210309091724.31262-1-jimmyassarsson@gmail.com
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/kvaser_pciefd.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/kvaser_pciefd.c b/drivers/net/can/kvaser_pciefd.c
-index 43151dd6cb1c..99323c273aa5 100644
---- a/drivers/net/can/kvaser_pciefd.c
-+++ b/drivers/net/can/kvaser_pciefd.c
-@@ -57,6 +57,7 @@ MODULE_DESCRIPTION("CAN driver for Kvaser CAN/PCIe devices");
- #define KVASER_PCIEFD_KCAN_STAT_REG 0x418
- #define KVASER_PCIEFD_KCAN_MODE_REG 0x41c
- #define KVASER_PCIEFD_KCAN_BTRN_REG 0x420
-+#define KVASER_PCIEFD_KCAN_BUS_LOAD_REG 0x424
- #define KVASER_PCIEFD_KCAN_BTRD_REG 0x428
- #define KVASER_PCIEFD_KCAN_PWM_REG 0x430
- /* Loopback control register */
-@@ -949,6 +950,9 @@ static int kvaser_pciefd_setup_can_ctrls(struct kvaser_pciefd *pcie)
- 		timer_setup(&can->bec_poll_timer, kvaser_pciefd_bec_poll_timer,
- 			    0);
- 
-+		/* Disable Bus load reporting */
-+		iowrite32(0, can->reg_base + KVASER_PCIEFD_KCAN_BUS_LOAD_REG);
-+
- 		tx_npackets = ioread32(can->reg_base +
- 				       KVASER_PCIEFD_KCAN_TX_NPACKETS_REG);
- 		if (((tx_npackets >> KVASER_PCIEFD_KCAN_TX_NPACKETS_MAX_SHIFT) &
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index e67c194c2aca..649f17dfcf45 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -206,6 +206,7 @@ source "drivers/gpu/drm/arm/Kconfig"
+ config DRM_RADEON
+ 	tristate "ATI Radeon"
+ 	depends on DRM && PCI && MMU
++	depends on AGP || !AGP
+ 	select FW_LOADER
+         select DRM_KMS_HELPER
+         select DRM_TTM
 -- 
 2.30.1
 
