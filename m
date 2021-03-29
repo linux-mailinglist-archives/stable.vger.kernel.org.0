@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 316C034CA17
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA8434C855
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234217AbhC2Iev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53644 "EHLO mail.kernel.org"
+        id S232702AbhC2IVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234774AbhC2Idg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FFB26196F;
-        Mon, 29 Mar 2021 08:33:34 +0000 (UTC)
+        id S232729AbhC2IUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F326A6044F;
+        Mon, 29 Mar 2021 08:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006815;
-        bh=4DhnAqqUln9VkTjQiTjETnkRyFF/8p0/XHf7Ei5iNuM=;
+        s=korg; t=1617006035;
+        bh=r4ehLPkTKY7zjo9YBi7v7eopGGdkxE0iKoqPsVpoMic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azSTpPPaObpU+2m1xnN5DRXVMyp8I0kR/vzyHeDLUaYul003zsU8NDYDJjwgYuZ3n
-         yygaHy6fXgAUrx0YP7h/FjIxw4F2ab241H5P9ZJufCLb7X1j+i+aVi+m1l5XccFzn0
-         fJzdY2x84SrYUnIlaRrN9VqEdpWuKIBUWW9K8PE0=
+        b=udNlxWh+n4tW20dS6YbYoyu61DxhlZUgNcnY8G5QE06DzHf9qGCWWJRInRS4BpGzi
+         bO6I80o4HDrduoxjOPH6Fya7ySI9cn/XtLO0Jd3DulLMJnrWZSetVA28t+eEPrarve
+         00wqmzlMHeRppXukuNLIs5LObEEFRSLSlMzazCaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Yongqin Liu <yongqin.liu@linaro.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 108/254] ARM: OMAP2+: Fix smartreflex init regression after dropping legacy data
+Subject: [PATCH 5.10 093/221] soc: ti: omap-prm: Fix occasional abort on reset deassert for dra7 iva
 Date:   Mon, 29 Mar 2021 09:57:04 +0200
-Message-Id: <20210329075636.760292249@linuxfoundation.org>
+Message-Id: <20210329075632.304887135@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,156 +42,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit fbfa463be8dc7957ee4f81556e9e1ea2a951807d ]
+[ Upstream commit effe89e40037038db7711bdab5d3401fe297d72c ]
 
-When I dropped legacy data for omap4 and dra7 smartreflex in favor of
-device tree based data, it seems I only testd for the "SmartReflex Class3
-initialized" line in dmesg. I missed the fact that there is also
-omap_devinit_smartreflex() that happens later, and now it produces an
-error on boot for "No Voltage table for the corresponding vdd. Cannot
-create debugfs entries for n-values".
+On reset deassert, we must wait a bit after the rstst bit change before
+we allow clockdomain autoidle again. Otherwise we get the following oops
+sometimes on dra7 with iva:
 
-This happens as we no longer have the smartreflex instance legacy data,
-and have not yet moved completely to device tree based booting for the
-driver. Let's fix the issue by changing the smartreflex init to use names.
-This should all eventually go away in favor of doing the init in the
-driver based on devicetree compatible value.
+Unhandled fault: imprecise external abort (0x1406) at 0x00000000
+44000000.ocp:L3 Standard Error: MASTER MPU TARGET IVA_CONFIG (Read Link):
+At Address: 0x0005A410 : Data Access in User mode during Functional access
+Internal error: : 1406 [#1] SMP ARM
+...
+(sysc_write_sysconfig) from [<c0782cb0>] (sysc_enable_module+0xcc/0x260)
+(sysc_enable_module) from [<c0782f0c>] (sysc_runtime_resume+0xc8/0x174)
+(sysc_runtime_resume) from [<c0a3e1ac>] (genpd_runtime_resume+0x94/0x224)
+(genpd_runtime_resume) from [<c0a33f0c>] (__rpm_callback+0xd8/0x180)
 
-Note that dra7xx_init_early() is not calling any voltage domain init like
-omap54xx_voltagedomains_init(), or a dra7 specific voltagedomains init.
-This means that on dra7 smartreflex is still not fully initialized, and
-also seems to be missing the related devicetree nodes.
+It is unclear what all devices this might affect, but presumably other
+devices with the rstst bit too can be affected. So let's just enable the
+delay for all the devices with rstst bit for now. Later on we may want to
+limit the list to the know affected devices if needed.
 
-Fixes: a6b1e717e942 ("ARM: OMAP2+: Drop legacy platform data for omap4 smartreflex")
-Fixes: e54740b4afe8 ("ARM: OMAP2+: Drop legacy platform data for dra7 smartreflex")
+Fixes: d30cd83f6853 ("soc: ti: omap-prm: add support for denying idle for reset clockdomain")
+Reported-by: Yongqin Liu <yongqin.liu@linaro.org>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/sr_device.c | 75 +++++++++++++++++++++++++--------
- 1 file changed, 58 insertions(+), 17 deletions(-)
+ drivers/soc/ti/omap_prm.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/sr_device.c b/arch/arm/mach-omap2/sr_device.c
-index 62df666c2bd0..17b66f0d0dee 100644
---- a/arch/arm/mach-omap2/sr_device.c
-+++ b/arch/arm/mach-omap2/sr_device.c
-@@ -88,34 +88,26 @@ static void __init sr_set_nvalues(struct omap_volt_data *volt_data,
+diff --git a/drivers/soc/ti/omap_prm.c b/drivers/soc/ti/omap_prm.c
+index c8b14b3a171f..fb067b5e4a97 100644
+--- a/drivers/soc/ti/omap_prm.c
++++ b/drivers/soc/ti/omap_prm.c
+@@ -522,8 +522,12 @@ static int omap_reset_deassert(struct reset_controller_dev *rcdev,
+ 		       reset->prm->data->name, id);
  
- extern struct omap_sr_data omap_sr_pdata[];
- 
--static int __init sr_dev_init(struct omap_hwmod *oh, void *user)
-+static int __init sr_init_by_name(const char *name, const char *voltdm)
- {
- 	struct omap_sr_data *sr_data = NULL;
- 	struct omap_volt_data *volt_data;
--	struct omap_smartreflex_dev_attr *sr_dev_attr;
- 	static int i;
- 
--	if (!strncmp(oh->name, "smartreflex_mpu_iva", 20) ||
--	    !strncmp(oh->name, "smartreflex_mpu", 16))
-+	if (!strncmp(name, "smartreflex_mpu_iva", 20) ||
-+	    !strncmp(name, "smartreflex_mpu", 16))
- 		sr_data = &omap_sr_pdata[OMAP_SR_MPU];
--	else if (!strncmp(oh->name, "smartreflex_core", 17))
-+	else if (!strncmp(name, "smartreflex_core", 17))
- 		sr_data = &omap_sr_pdata[OMAP_SR_CORE];
--	else if (!strncmp(oh->name, "smartreflex_iva", 16))
-+	else if (!strncmp(name, "smartreflex_iva", 16))
- 		sr_data = &omap_sr_pdata[OMAP_SR_IVA];
- 
- 	if (!sr_data) {
--		pr_err("%s: Unknown instance %s\n", __func__, oh->name);
-+		pr_err("%s: Unknown instance %s\n", __func__, name);
- 		return -EINVAL;
- 	}
- 
--	sr_dev_attr = (struct omap_smartreflex_dev_attr *)oh->dev_attr;
--	if (!sr_dev_attr || !sr_dev_attr->sensor_voltdm_name) {
--		pr_err("%s: No voltage domain specified for %s. Cannot initialize\n",
--		       __func__, oh->name);
--		goto exit;
--	}
--
--	sr_data->name = oh->name;
-+	sr_data->name = name;
- 	if (cpu_is_omap343x())
- 		sr_data->ip_type = 1;
- 	else
-@@ -136,10 +128,10 @@ static int __init sr_dev_init(struct omap_hwmod *oh, void *user)
- 		}
- 	}
- 
--	sr_data->voltdm = voltdm_lookup(sr_dev_attr->sensor_voltdm_name);
-+	sr_data->voltdm = voltdm_lookup(voltdm);
- 	if (!sr_data->voltdm) {
- 		pr_err("%s: Unable to get voltage domain pointer for VDD %s\n",
--			__func__, sr_dev_attr->sensor_voltdm_name);
-+			__func__, voltdm);
- 		goto exit;
- 	}
- 
-@@ -160,6 +152,20 @@ exit:
- 	return 0;
- }
- 
-+static int __init sr_dev_init(struct omap_hwmod *oh, void *user)
-+{
-+	struct omap_smartreflex_dev_attr *sr_dev_attr;
-+
-+	sr_dev_attr = (struct omap_smartreflex_dev_attr *)oh->dev_attr;
-+	if (!sr_dev_attr || !sr_dev_attr->sensor_voltdm_name) {
-+		pr_err("%s: No voltage domain specified for %s. Cannot initialize\n",
-+		       __func__, oh->name);
-+		return 0;
+ exit:
+-	if (reset->clkdm)
++	if (reset->clkdm) {
++		/* At least dra7 iva needs a delay before clkdm idle */
++		if (has_rstst)
++			udelay(1);
+ 		pdata->clkdm_allow_idle(reset->clkdm);
 +	}
-+
-+	return sr_init_by_name(oh->name, sr_dev_attr->sensor_voltdm_name);
-+}
-+
- /*
-  * API to be called from board files to enable smartreflex
-  * autocompensation at init.
-@@ -169,7 +175,42 @@ void __init omap_enable_smartreflex_on_init(void)
- 	sr_enable_on_init = true;
- }
  
-+static const char * const omap4_sr_instances[] = {
-+	"mpu",
-+	"iva",
-+	"core",
-+};
-+
-+static const char * const dra7_sr_instances[] = {
-+	"mpu",
-+	"core",
-+};
-+
- int __init omap_devinit_smartreflex(void)
- {
-+	const char * const *sr_inst;
-+	int i, nr_sr = 0;
-+
-+	if (soc_is_omap44xx()) {
-+		sr_inst = omap4_sr_instances;
-+		nr_sr = ARRAY_SIZE(omap4_sr_instances);
-+
-+	} else if (soc_is_dra7xx()) {
-+		sr_inst = dra7_sr_instances;
-+		nr_sr = ARRAY_SIZE(dra7_sr_instances);
-+	}
-+
-+	if (nr_sr) {
-+		const char *name, *voltdm;
-+
-+		for (i = 0; i < nr_sr; i++) {
-+			name = kasprintf(GFP_KERNEL, "smartreflex_%s", sr_inst[i]);
-+			voltdm = sr_inst[i];
-+			sr_init_by_name(name, voltdm);
-+		}
-+
-+		return 0;
-+	}
-+
- 	return omap_hwmod_for_each_by_class("smartreflex", sr_dev_init, NULL);
+ 	return ret;
  }
 -- 
 2.30.1
