@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C3734C699
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4985C34C58A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:03:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232513AbhC2IIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50986 "EHLO mail.kernel.org"
+        id S231660AbhC2IBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232331AbhC2IIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:08:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52E7461477;
-        Mon, 29 Mar 2021 08:08:10 +0000 (UTC)
+        id S231479AbhC2IAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:00:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ED5D6196C;
+        Mon, 29 Mar 2021 08:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005290;
-        bh=2puVpHFuiEsBtNgPixUzUs9VzL0ity44VWnQpojPA6E=;
+        s=korg; t=1617004846;
+        bh=TPMByftcP4CcZiRfphYDd6yKF/0QDfJVps31PeiKSU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uyo3waTrTBMlflhYBgMyFHqCVgXnq/MzVu6iJ60v5nznW2BHrL338Fe1LwpBafsG1
-         4QS3V7eMoHwY7T05QL4GUYdlh/qNsEtFbiK4qeOFnQtk2mBb4oGvLJBl4b+RlWsOhT
-         gUOX9ozyQnQeKH8oAoQr5SiruVz8RIVVJiL452sA=
+        b=dAyAsuhuDlzmaLCIcQkGatcNdIW0sr3S0MHNjkYlWnqG5VgwDa6XLj99t89TjvryU
+         kRInsbjnTO+F1XDeqeBWpZ026/enciW5ZZbtaa6esv7Ks/ZTW4zCa5Gr+9WPCSVRY+
+         bGKozOmXxLPTt7TSqLvDf5rKAzUupImoSdqRA6io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.19 30/72] arm64: dts: ls1043a: mark crypto engine dma coherent
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Vitaly Lifshits <vitaly.lifshits@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 21/33] e1000e: add rtnl_lock() to e1000_reset_task
 Date:   Mon, 29 Mar 2021 09:58:06 +0200
-Message-Id: <20210329075611.258808993@linuxfoundation.org>
+Message-Id: <20210329075605.946655841@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Vitaly Lifshits <vitaly.lifshits@intel.com>
 
-commit 4fb3a074755b7737c4081cffe0ccfa08c2f2d29d upstream.
+[ Upstream commit 21f857f0321d0d0ea9b1a758bd55dc63d1cb2437 ]
 
-Crypto engine (CAAM) on LS1043A platform is configured HW-coherent,
-mark accordingly the DT node.
+A possible race condition was found in e1000_reset_task,
+after discovering a similar issue in igb driver via
+commit 024a8168b749 ("igb: reinit_locked() should be called
+with rtnl_lock").
 
-Lack of "dma-coherent" property for an IP that is configured HW-coherent
-can lead to problems, similar to what has been reported for LS1046A.
+Added rtnl_lock() and rtnl_unlock() to avoid this.
 
-Cc: <stable@vger.kernel.org> # v4.8+
-Fixes: 63dac35b58f4 ("arm64: dts: ls1043a: add crypto node")
-Link: https://lore.kernel.org/linux-crypto/fe6faa24-d8f7-d18f-adfa-44fa0caa1598@arm.com
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Vitaly Lifshits <vitaly.lifshits@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-@@ -237,6 +237,7 @@
- 			ranges = <0x0 0x00 0x1700000 0x100000>;
- 			reg = <0x00 0x1700000 0x0 0x100000>;
- 			interrupts = <0 75 0x4>;
-+			dma-coherent;
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 3bd0bdbdfa0e..a8ee20ecb3ad 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5875,15 +5875,19 @@ static void e1000_reset_task(struct work_struct *work)
+ 	struct e1000_adapter *adapter;
+ 	adapter = container_of(work, struct e1000_adapter, reset_task);
  
- 			sec_jr0: jr@10000 {
- 				compatible = "fsl,sec-v5.4-job-ring",
++	rtnl_lock();
+ 	/* don't run the task if already down */
+-	if (test_bit(__E1000_DOWN, &adapter->state))
++	if (test_bit(__E1000_DOWN, &adapter->state)) {
++		rtnl_unlock();
+ 		return;
++	}
+ 
+ 	if (!(adapter->flags & FLAG_RESTART_NOW)) {
+ 		e1000e_dump(adapter);
+ 		e_err("Reset adapter unexpectedly\n");
+ 	}
+ 	e1000e_reinit_locked(adapter);
++	rtnl_unlock();
+ }
+ 
+ /**
+-- 
+2.30.1
+
 
 
