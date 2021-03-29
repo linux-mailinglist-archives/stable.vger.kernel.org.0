@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFE834C9DA
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F2EF34C81D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233287AbhC2IeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53552 "EHLO mail.kernel.org"
+        id S233171AbhC2IT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:19:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234440AbhC2IdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EA84619AA;
-        Mon, 29 Mar 2021 08:31:49 +0000 (UTC)
+        id S233247AbhC2ITO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:19:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D10861477;
+        Mon, 29 Mar 2021 08:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006709;
-        bh=tqEQeU9drxYFYl3iREQ53QdDZ10R3UwAQJN65zBJ8VM=;
+        s=korg; t=1617005953;
+        bh=LMlAkPh0AFAChpebs9ayhYBjTS7ZxN6DVOA23qX1478=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZ05tNWudSJwb7hF1GkC3c/3UegvR1H4fIUhgiMSBbWbADJPqgbEgmMyKe1uV4Vc+
-         lxaU0xRLDsYx9uTJz1Rt30W3SLzS32/6HEA2+PHJBH7pcr9n3ZCFpCf5KAqUjRfFWK
-         KPcmqGIqnU+C+2quVHZ6ZXJeO9p1YsRwJsGE5tq4=
+        b=Tvu6UpXvT07ZqHGkjoL0ehqUCg+N+i8Ak9TcQOqTOdPwhlohg1lfdkxqOYKJd7Z1a
+         djIQkyXb65DseyhtuP1FvF4mlsbcKiJS77PTsAlfthyHnvvTs4+nD+Dil2zw9je6c9
+         kAr9msL/BBB7omH5gVKj050PSEWtJjUPxdBYGHgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Sung Lee <sung.lee@amd.com>,
-        Haonan Wang <Haonan.Wang2@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 044/254] drm/amd/display: Revert dram_clock_change_latency for DCN2.1
+Subject: [PATCH 5.10 029/221] atm: idt77252: fix null-ptr-dereference
 Date:   Mon, 29 Mar 2021 09:56:00 +0200
-Message-Id: <20210329075634.611492588@linuxfoundation.org>
+Message-Id: <20210329075630.143726250@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sung Lee <sung.lee@amd.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit b0075d114c33580f5c9fa9cee8e13d06db41471b ]
+[ Upstream commit 4416e98594dc04590ebc498fc4e530009535c511 ]
 
-[WHY & HOW]
-Using values provided by DF for latency may cause hangs in
-multi display configurations. Revert change to previous value.
+this one is similar to the phy_data allocation fix in uPD98402, the
+driver allocate the idt77105_priv and store to dev_data but later
+dereference using dev->dev_data, which will cause null-ptr-dereference.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Sung Lee <sung.lee@amd.com>
-Reviewed-by: Haonan Wang <Haonan.Wang2@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+fix this issue by changing dev_data to phy_data so that PRIV(dev) can
+work correctly.
+
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/atm/idt77105.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index 4caeab6a09b3..4a3df13c9e49 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -296,7 +296,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.num_banks = 8,
- 	.num_chans = 4,
- 	.vmm_page_size_bytes = 4096,
--	.dram_clock_change_latency_us = 11.72,
-+	.dram_clock_change_latency_us = 23.84,
- 	.return_bus_width_bytes = 64,
- 	.dispclk_dppclk_vco_speed_mhz = 3600,
- 	.xfc_bus_transport_time_us = 4,
+diff --git a/drivers/atm/idt77105.c b/drivers/atm/idt77105.c
+index 3c081b6171a8..bfca7b8a6f31 100644
+--- a/drivers/atm/idt77105.c
++++ b/drivers/atm/idt77105.c
+@@ -262,7 +262,7 @@ static int idt77105_start(struct atm_dev *dev)
+ {
+ 	unsigned long flags;
+ 
+-	if (!(dev->dev_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
++	if (!(dev->phy_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	PRIV(dev)->dev = dev;
+ 	spin_lock_irqsave(&idt77105_priv_lock, flags);
+@@ -337,7 +337,7 @@ static int idt77105_stop(struct atm_dev *dev)
+                 else
+                     idt77105_all = walk->next;
+ 	        dev->phy = NULL;
+-                dev->dev_data = NULL;
++                dev->phy_data = NULL;
+                 kfree(walk);
+                 break;
+             }
 -- 
 2.30.1
 
