@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D81334CAA2
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2E0E34C6F0
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234578AbhC2IjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
+        id S232125AbhC2ILI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:11:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234968AbhC2Ihp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7FE561581;
-        Mon, 29 Mar 2021 08:37:44 +0000 (UTC)
+        id S232053AbhC2IKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:10:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A6AE6196D;
+        Mon, 29 Mar 2021 08:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007065;
-        bh=ur5QoLtOwu6/H7SFtp2hAiwQK1B7phpLPDJ6jcafkIk=;
+        s=korg; t=1617005408;
+        bh=XEdT1rkD5uhVOjvNs/ZeSKhfJbb47dQq4m2bfw1UnWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LxhAGLCgDRKRX4wPGF5cg2xgAaAGCySxqGasW7j3x1QHJqgEaeF0CTbe3q8/xE0pn
-         jw5sIfFeVk+7GF8ps3kLq7MTfmJzDwqA0c59PmzSiWLSdznT5tq9ffibTsI7rKC8p6
-         e6IqEVkUjdm+Bu83AU2VnD4hwIL3580OVIFX/Avw=
+        b=kZ8NHe2Yo3G9Pe0N61Q30zH6KXlbUocZhbxQE6e5YjcL/5eXurOiHr6E9J02pOigy
+         /pPqJ5bs7J7NXNw0z93H2q5ZLwZLiuAX7x26tDy6B6/wXXC1KM74D4W9XpzL1SkaVB
+         1iSD+oICTo7fYOaoIDGKLdXxLJlAMCWyRECQqudo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 209/254] RDMA/cxgb4: Fix adapter LE hash errors while destroying ipv6 listening server
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Courtney Cavin <courtney.cavin@sonymobile.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 69/72] net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
 Date:   Mon, 29 Mar 2021 09:58:45 +0200
-Message-Id: <20210329075639.959859802@linuxfoundation.org>
+Message-Id: <20210329075612.555623825@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Potnuri Bharat Teja <bharat@chelsio.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 3408be145a5d6418ff955fe5badde652be90e700 ]
+commit 50535249f624d0072cd885bcdce4e4b6fb770160 upstream.
 
-Not setting the ipv6 bit while destroying ipv6 listening servers may
-result in potential fatal adapter errors due to lookup engine memory hash
-errors. Therefore always set ipv6 field while destroying ipv6 listening
-servers.
+struct sockaddr_qrtr has a 2-byte hole, and qrtr_recvmsg() currently
+does not clear it before copying kernel data to user space.
 
-Fixes: 830662f6f032 ("RDMA/cxgb4: Add support for active and passive open connection with IPv6 address")
-Link: https://lore.kernel.org/r/20210324190453.8171-1-bharat@chelsio.com
-Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It might be too late to name the hole since sockaddr_qrtr structure is uapi.
+
+BUG: KMSAN: kernel-infoleak in kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
+CPU: 0 PID: 29705 Comm: syz-executor.3 Not tainted 5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:120
+ kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
+ kmsan_internal_check_memory+0x202/0x520 mm/kmsan/kmsan.c:402
+ kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
+ instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+ _copy_to_user+0x1ac/0x270 lib/usercopy.c:33
+ copy_to_user include/linux/uaccess.h:209 [inline]
+ move_addr_to_user+0x3a2/0x640 net/socket.c:237
+ ____sys_recvmsg+0x696/0xd50 net/socket.c:2575
+ ___sys_recvmsg net/socket.c:2610 [inline]
+ do_recvmmsg+0xa97/0x22d0 net/socket.c:2710
+ __sys_recvmmsg net/socket.c:2789 [inline]
+ __do_sys_recvmmsg net/socket.c:2812 [inline]
+ __se_sys_recvmmsg+0x24a/0x410 net/socket.c:2805
+ __x64_sys_recvmmsg+0x62/0x80 net/socket.c:2805
+ do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x465f69
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f43659d6188 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
+RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 0000000000465f69
+RDX: 0000000000000008 RSI: 0000000020003e40 RDI: 0000000000000003
+RBP: 00000000004bfa8f R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000010060 R11: 0000000000000246 R12: 000000000056bf60
+R13: 0000000000a9fb1f R14: 00007f43659d6300 R15: 0000000000022000
+
+Local variable ----addr@____sys_recvmsg created at:
+ ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
+ ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
+
+Bytes 2-3 of 12 are uninitialized
+Memory access of size 12 starts at ffff88817c627b40
+Data copied to user address 0000000020000140
+
+Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/qrtr/qrtr.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 8769e7aa097f..81903749d241 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -3610,13 +3610,13 @@ int c4iw_destroy_listen(struct iw_cm_id *cm_id)
- 	    ep->com.local_addr.ss_family == AF_INET) {
- 		err = cxgb4_remove_server_filter(
- 			ep->com.dev->rdev.lldi.ports[0], ep->stid,
--			ep->com.dev->rdev.lldi.rxq_ids[0], 0);
-+			ep->com.dev->rdev.lldi.rxq_ids[0], false);
- 	} else {
- 		struct sockaddr_in6 *sin6;
- 		c4iw_init_wr_wait(ep->com.wr_waitp);
- 		err = cxgb4_remove_server(
- 				ep->com.dev->rdev.lldi.ports[0], ep->stid,
--				ep->com.dev->rdev.lldi.rxq_ids[0], 0);
-+				ep->com.dev->rdev.lldi.rxq_ids[0], true);
- 		if (err)
- 			goto done;
- 		err = c4iw_wait_for_reply(&ep->com.dev->rdev, ep->com.wr_waitp,
--- 
-2.30.1
-
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -868,6 +868,11 @@ static int qrtr_recvmsg(struct socket *s
+ 	rc = copied;
+ 
+ 	if (addr) {
++		/* There is an anonymous 2-byte hole after sq_family,
++		 * make sure to clear it.
++		 */
++		memset(addr, 0, sizeof(*addr));
++
+ 		cb = (struct qrtr_cb *)skb->cb;
+ 		addr->sq_family = AF_QIPCRTR;
+ 		addr->sq_node = cb->src_node;
 
 
