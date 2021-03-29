@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5418734C94B
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B73B34CABE
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232592AbhC2I3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41192 "EHLO mail.kernel.org"
+        id S234790AbhC2Ijr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233391AbhC2IZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:25:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F564619B9;
-        Mon, 29 Mar 2021 08:25:17 +0000 (UTC)
+        id S235029AbhC2Ih4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9975361580;
+        Mon, 29 Mar 2021 08:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006318;
-        bh=rY+5YFDpKMuDRgvs9u29FTM8ifiJUWOzdDt6+CSIXHs=;
+        s=korg; t=1617007076;
+        bh=hnpor7IztdL54/dqqRQe7pND8hi8h6ZeOxhkV6P1OKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2CzrRusj1Ok1bnu/CgzGYU19cFp1VYpUrOT7QBNDVXPJ3TaID09yENcA6MzsxjnC
-         G0/YC85jq3sRL1TQTjkd2vK3Q9/ShlNW1zfUu72v07ewoL0YiEM4SXAo4c2nmjIV54
-         OdwatpVdqOrIxcw6N8okR7V/23ZHioto6dZx+AEg=
+        b=QQZAPfb+QAK9Pgca5JXxbFBUVHOli7piw524nWCTJ4Wh/8I3eiw9uqX59g9qRu9dJ
+         /Wdqx4MiiQWgNKxMh7kqrb4McnGm3alVAIVIS3aKzDXtk6ybFssnxCnjY3R4o/Blbs
+         UjZshZl9Zy7zEMIHYr/Z//qROQvDu/TZJdAsVmxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 197/221] ACPI: scan: Use unique number for instance_no
-Date:   Mon, 29 Mar 2021 09:58:48 +0200
-Message-Id: <20210329075635.697080747@linuxfoundation.org>
+Subject: [PATCH 5.11 213/254] net, bpf: Fix ip6ip6 crash with collect_md populated skbs
+Date:   Mon, 29 Mar 2021 09:58:49 +0200
+Message-Id: <20210329075640.099950129@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit eb50aaf960e3bedfef79063411ffd670da94b84b ]
+[ Upstream commit a188bb5638d41aa99090ebf2f85d3505ab13fba5 ]
 
-The decrementation of acpi_device_bus_id->instance_no
-in acpi_device_del() is incorrect, because it may cause
-a duplicate instance number to be allocated next time
-a device with the same acpi_device_bus_id is added.
+I ran into a crash where setting up a ip6ip6 tunnel device which was /not/
+set to collect_md mode was receiving collect_md populated skbs for xmit.
 
-Replace above mentioned approach by using IDA framework.
+The BPF prog was populating the skb via bpf_skb_set_tunnel_key() which is
+assigning special metadata dst entry and then redirecting the skb to the
+device, taking ip6_tnl_start_xmit() -> ipxip6_tnl_xmit() -> ip6_tnl_xmit()
+and in the latter it performs a neigh lookup based on skb_dst(skb) where
+we trigger a NULL pointer dereference on dst->ops->neigh_lookup() since
+the md_dst_ops do not populate neigh_lookup callback with a fake handler.
 
-While at it, define the instance range to be [0, 4096).
+Transform the md_dst_ops into generic dst_blackhole_ops that can also be
+reused elsewhere when needed, and use them for the metadata dst entries as
+callback ops.
 
-Fixes: e49bd2dd5a50 ("ACPI: use PNPID:instance_no as bus_id of ACPI device")
-Fixes: ca9dc8d42b30 ("ACPI / scan: Fix acpi_bus_id_list bookkeeping")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Also, remove the dst_md_discard{,_out}() ops and rely on dst_discard{,_out}()
+from dst_init() which free the skb the same way modulo the splat. Given we
+will be able to recover just fine from there, avoid any potential splats
+iff this gets ever triggered in future (or worse, panic on warns when set).
+
+Fixes: f38a9eb1f77b ("dst: Metadata destinations")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/internal.h |  6 +++++-
- drivers/acpi/scan.c     | 33 ++++++++++++++++++++++++++++-----
- include/acpi/acpi_bus.h |  1 +
- 3 files changed, 34 insertions(+), 6 deletions(-)
+ net/core/dst.c | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
-index aee023ad0237..a958ad60a339 100644
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -9,6 +9,8 @@
- #ifndef _ACPI_INTERNAL_H_
- #define _ACPI_INTERNAL_H_
+diff --git a/net/core/dst.c b/net/core/dst.c
+index 5f6315601776..fb3bcba87744 100644
+--- a/net/core/dst.c
++++ b/net/core/dst.c
+@@ -275,37 +275,24 @@ unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
+ }
+ EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
  
-+#include <linux/idr.h>
-+
- #define PREFIX "ACPI: "
- 
- int early_acpi_osi_init(void);
-@@ -96,9 +98,11 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
- 
- extern struct list_head acpi_bus_id_list;
- 
-+#define ACPI_MAX_DEVICE_INSTANCES	4096
-+
- struct acpi_device_bus_id {
- 	const char *bus_id;
--	unsigned int instance_no;
-+	struct ida instance_ida;
- 	struct list_head node;
+-static struct dst_ops md_dst_ops = {
+-	.family =		AF_UNSPEC,
++static struct dst_ops dst_blackhole_ops = {
++	.family		= AF_UNSPEC,
++	.neigh_lookup	= dst_blackhole_neigh_lookup,
++	.check		= dst_blackhole_check,
++	.cow_metrics	= dst_blackhole_cow_metrics,
++	.update_pmtu	= dst_blackhole_update_pmtu,
++	.redirect	= dst_blackhole_redirect,
++	.mtu		= dst_blackhole_mtu,
  };
  
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 27292697d6a5..b47f14ac75ae 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -482,9 +482,8 @@ static void acpi_device_del(struct acpi_device *device)
- 	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node)
- 		if (!strcmp(acpi_device_bus_id->bus_id,
- 			    acpi_device_hid(device))) {
--			if (acpi_device_bus_id->instance_no > 0)
--				acpi_device_bus_id->instance_no--;
--			else {
-+			ida_simple_remove(&acpi_device_bus_id->instance_ida, device->pnp.instance_no);
-+			if (ida_is_empty(&acpi_device_bus_id->instance_ida)) {
- 				list_del(&acpi_device_bus_id->node);
- 				kfree_const(acpi_device_bus_id->bus_id);
- 				kfree(acpi_device_bus_id);
-@@ -635,6 +634,21 @@ static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
- 	return NULL;
- }
- 
-+static int acpi_device_set_name(struct acpi_device *device,
-+				struct acpi_device_bus_id *acpi_device_bus_id)
-+{
-+	struct ida *instance_ida = &acpi_device_bus_id->instance_ida;
-+	int result;
-+
-+	result = ida_simple_get(instance_ida, 0, ACPI_MAX_DEVICE_INSTANCES, GFP_KERNEL);
-+	if (result < 0)
-+		return result;
-+
-+	device->pnp.instance_no = result;
-+	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, result);
-+	return 0;
-+}
-+
- int acpi_device_add(struct acpi_device *device,
- 		    void (*release)(struct device *))
+-static int dst_md_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call output on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+-static int dst_md_discard(struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call input on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+ static void __metadata_dst_init(struct metadata_dst *md_dst,
+ 				enum metadata_type type, u8 optslen)
+-
  {
-@@ -669,7 +683,9 @@ int acpi_device_add(struct acpi_device *device,
+ 	struct dst_entry *dst;
  
- 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
- 	if (acpi_device_bus_id) {
--		acpi_device_bus_id->instance_no++;
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result)
-+			goto err_unlock;
- 	} else {
- 		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
- 					     GFP_KERNEL);
-@@ -685,9 +701,16 @@ int acpi_device_add(struct acpi_device *device,
- 			goto err_unlock;
- 		}
- 
-+		ida_init(&acpi_device_bus_id->instance_ida);
-+
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result) {
-+			kfree(acpi_device_bus_id);
-+			goto err_unlock;
-+		}
-+
- 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
- 	}
--	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
- 
- 	if (device->parent)
- 		list_add_tail(&device->node, &device->parent->children);
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 6d1879bf9440..37dac195adbb 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -233,6 +233,7 @@ struct acpi_pnp_type {
- 
- struct acpi_device_pnp {
- 	acpi_bus_id bus_id;		/* Object name */
-+	int instance_no;		/* Instance number of this object */
- 	struct acpi_pnp_type type;	/* ID type */
- 	acpi_bus_address bus_address;	/* _ADR */
- 	char *unique_id;		/* _UID */
+ 	dst = &md_dst->dst;
+-	dst_init(dst, &md_dst_ops, NULL, 1, DST_OBSOLETE_NONE,
++	dst_init(dst, &dst_blackhole_ops, NULL, 1, DST_OBSOLETE_NONE,
+ 		 DST_METADATA | DST_NOCOUNT);
+-
+-	dst->input = dst_md_discard;
+-	dst->output = dst_md_discard_out;
+-
+ 	memset(dst + 1, 0, sizeof(*md_dst) + optslen - sizeof(*dst));
+ 	md_dst->type = type;
+ }
 -- 
 2.30.1
 
