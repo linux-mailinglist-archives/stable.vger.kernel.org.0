@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DAED34C909
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4307934C68B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233309AbhC2I0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42578 "EHLO mail.kernel.org"
+        id S232063AbhC2IIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:08:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233486AbhC2IY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:24:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 935C661477;
-        Mon, 29 Mar 2021 08:24:25 +0000 (UTC)
+        id S232415AbhC2IH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:07:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B18E619A0;
+        Mon, 29 Mar 2021 08:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006266;
-        bh=+/qGBy0DNEW2Gd9JvjdLczG46alVAz5/l/35LavLDXc=;
+        s=korg; t=1617005248;
+        bh=YmdqMCOGIIF1N6stSjszgZ/JdIxQLgQGqkNQIalEejU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdxZ1CHANIvj8wGelLkJxyjSJBIemhcOkPjzCFijwEUimsUXlCQNV0NR6KZ4THmAd
-         B6wmt3njkLg6q1D+t1eWTf9X6lDWPSwHjTu89VzKq4vCTEpJ1rJ4VD2nGduT0IRcbe
-         /SNt+3KLAORK0/mOZQUdoq2LAt5VKN4S0VOsGRus=
+        b=RqLcFEWfaSCByvORA/9h8T6ZMqL6Kh9OnBGPlvRJCdzHTAttDllGdooe16ijx8LqR
+         mzybZU3oxNrUhbn1Ut1eA58dKSZ45hZYgRko4pszbnZmeVxO6PoYHLfa6wmq4oSUtD
+         ldKCAPMvB9D3PPBnYqAdkM4SXV+cE/fTJtgxHHB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 143/221] netfilter: nftables: report EOPNOTSUPP on unsupported flowtable flags
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Erhard F." <erhard_f@mailbox.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Subject: [PATCH 4.19 18/72] u64_stats,lockdep: Fix u64_stats_init() vs lockdep
 Date:   Mon, 29 Mar 2021 09:57:54 +0200
-Message-Id: <20210329075633.944547506@linuxfoundation.org>
+Message-Id: <20210329075610.877791027@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 7e6136f1b7272b2202817cff37ada355eb5e6784 ]
+[ Upstream commit d5b0e0677bfd5efd17c5bbb00156931f0d41cb85 ]
 
-Error was not set accordingly.
+Jakub reported that:
 
-Fixes: 8bb69f3b2918 ("netfilter: nf_tables: add flowtable offload control plane")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+    static struct net_device *rtl8139_init_board(struct pci_dev *pdev)
+    {
+	    ...
+	    u64_stats_init(&tp->rx_stats.syncp);
+	    u64_stats_init(&tp->tx_stats.syncp);
+	    ...
+    }
+
+results in lockdep getting confused between the RX and TX stats lock.
+This is because u64_stats_init() is an inline calling seqcount_init(),
+which is a macro using a static variable to generate a lockdep class.
+
+By wrapping that in an inline, we negate the effect of the macro and
+fold the static key variable, hence the confusion.
+
+Fix by also making u64_stats_init() a macro for the case where it
+matters, leaving the other case an inline for argument validation
+etc.
+
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Debugged-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: "Erhard F." <erhard_f@mailbox.org>
+Link: https://lkml.kernel.org/r/YEXicy6+9MksdLZh@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/u64_stats_sync.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 8739ef135156..7cdbe8733540 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -6753,8 +6753,10 @@ static int nf_tables_newflowtable(struct net *net, struct sock *nlsk,
- 	if (nla[NFTA_FLOWTABLE_FLAGS]) {
- 		flowtable->data.flags =
- 			ntohl(nla_get_be32(nla[NFTA_FLOWTABLE_FLAGS]));
--		if (flowtable->data.flags & ~NFT_FLOWTABLE_MASK)
-+		if (flowtable->data.flags & ~NFT_FLOWTABLE_MASK) {
-+			err = -EOPNOTSUPP;
- 			goto err3;
-+		}
- 	}
+diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
+index a27604f99ed0..11096b561dab 100644
+--- a/include/linux/u64_stats_sync.h
++++ b/include/linux/u64_stats_sync.h
+@@ -69,12 +69,13 @@ struct u64_stats_sync {
+ };
  
- 	write_pnet(&flowtable->data.net, net);
+ 
++#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
++#define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
++#else
+ static inline void u64_stats_init(struct u64_stats_sync *syncp)
+ {
+-#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
+-	seqcount_init(&syncp->seq);
+-#endif
+ }
++#endif
+ 
+ static inline void u64_stats_update_begin(struct u64_stats_sync *syncp)
+ {
 -- 
 2.30.1
 
