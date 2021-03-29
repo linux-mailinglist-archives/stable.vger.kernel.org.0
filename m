@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 827F334C8B6
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEBEC34C62D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231618AbhC2IXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39554 "EHLO mail.kernel.org"
+        id S232154AbhC2IFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234144AbhC2IXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12C3B61481;
-        Mon, 29 Mar 2021 08:23:00 +0000 (UTC)
+        id S231800AbhC2IEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:04:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61A8161969;
+        Mon, 29 Mar 2021 08:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006181;
-        bh=IdFDlIIR39il2hMS2AeD6RVlsSd/FAnv32fcqcq+/AU=;
+        s=korg; t=1617005082;
+        bh=BxilaXV7XE0S12fJPc8l9zTa19OBUe9wL7mbY2xQnQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vx5XpuuC61OGPQaL9lOfm3ag8ZO0t1t5ZTWcH7DXEp9Fi3L9ax6JF3E7vT918iQ5X
-         tSjT9O6O09ypO4p8gddKEDJsWhM4Dcz1nihLNsh/IoXG6H+TUgYFLYEj3lbzy8XGrI
-         gJkbYRlhJDyA8EXSEdR2HdPpkhoGIxChFJw+rbNA=
+        b=2cmLctwHzd+2asujV1DZzUDTZTPmcilOsTyJXgnYDwLReS+BxC3RXFde0E0r07b8t
+         UukFX6WLYVJDWbHQtDufvttOcpPONQrSzXTv6vZhG+ipzarYRZs0FLWgBCjgJ6ULES
+         oMY1Y4EdeHSBJou/TwFXtGFf4iL0Nf4qjKfaAlNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dillon min <dillon.minfei@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 148/221] ARM: dts: imx6ull: fix ubi filesystem mount failed
+Subject: [PATCH 4.14 19/59] nfs: we dont support removing system.nfs4_acl
 Date:   Mon, 29 Mar 2021 09:57:59 +0200
-Message-Id: <20210329075634.107208227@linuxfoundation.org>
+Message-Id: <20210329075609.519617669@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dillon min <dillon.minfei@gmail.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit e4817a1b6b77db538bc0141c3b138f2df803ce87 ]
+[ Upstream commit 4f8be1f53bf615102d103c0509ffa9596f65b718 ]
 
-For NAND Ecc layout, there is a dependency from old kernel's nand driver
-setting and current. if old kernel use 4 bit ecc , we should use 4 bit
-in new kernel either. else will run into following error at filesystem
-mounting.
+The NFSv4 protocol doesn't have any notion of reomoving an attribute, so
+removexattr(path,"system.nfs4_acl") doesn't make sense.
 
-So, enable fsl,use-minimum-ecc from device tree, to fix this mismatch
+There's no documented return value.  Arguably it could be EOPNOTSUPP but
+I'm a little worried an application might take that to mean that we
+don't support ACLs or xattrs.  How about EINVAL?
 
-[    9.449265] ubi0: scanning is finished
-[    9.463968] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading
-22528 bytes from PEB 513:4096, read only 22528 bytes, retry
-[    9.486940] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading
-22528 bytes from PEB 513:4096, read only 22528 bytes, retry
-[    9.509906] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading
-22528 bytes from PEB 513:4096, read only 22528 bytes, retry
-[    9.532845] ubi0 error: ubi_io_read: error -74 (ECC error) while reading
-22528 bytes from PEB 513:4096, read 22528 bytes
-
-Fixes: f9ecf10cb88c ("ARM: dts: imx6ull: add MYiR MYS-6ULX SBC")
-Signed-off-by: dillon min <dillon.minfei@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6ull-myir-mys-6ulx-eval.dts | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/nfs4proc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6ull-myir-mys-6ulx-eval.dts b/arch/arm/boot/dts/imx6ull-myir-mys-6ulx-eval.dts
-index ecbb2cc5b9ab..79cc45728cd2 100644
---- a/arch/arm/boot/dts/imx6ull-myir-mys-6ulx-eval.dts
-+++ b/arch/arm/boot/dts/imx6ull-myir-mys-6ulx-eval.dts
-@@ -14,5 +14,6 @@
- };
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 7f50767af46b..e053fd7f83d8 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5255,6 +5255,9 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
+ 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
+ 	int ret, i;
  
- &gpmi {
-+	fsl,use-minimum-ecc;
- 	status = "okay";
- };
++	/* You can't remove system.nfs4_acl: */
++	if (buflen == 0)
++		return -EINVAL;
+ 	if (!nfs4_server_supports_acls(server))
+ 		return -EOPNOTSUPP;
+ 	if (npages > ARRAY_SIZE(pages))
 -- 
 2.30.1
 
