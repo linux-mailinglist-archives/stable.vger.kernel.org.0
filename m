@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F1A34CABC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D83934C7AC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbhC2Ijq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
+        id S231978AbhC2IRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:17:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234942AbhC2Ihi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3147461879;
-        Mon, 29 Mar 2021 08:37:36 +0000 (UTC)
+        id S233039AbhC2IPt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:15:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 271466197F;
+        Mon, 29 Mar 2021 08:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007057;
-        bh=9IfONxfl7zOM+uNS+hW2gVz03E0r6Wo4qXb85vEd4j4=;
+        s=korg; t=1617005724;
+        bh=LEcBLMiE5RPokK539vdzWTbZEcpEmvq3MboIFtMFCCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMu24Knxl5QyMTXsVvAMAJkoY/lsI8yXZUyOVzooAA76Le6/t8ciM9brnIliNL05y
-         zGWhvGg4LyJ0fCjMQkh7SP6e6KYXxARf5ErpTqoybUtwaQ808vHkM6nuG+kwvl604n
-         dtS2RK2h0ZTnKJ7B5auMQa5JDttDDN51BBRWNevM=
+        b=BdRNQFuyMGQzGt6yRp2ZPUqVhDnRBR4DkcYTG/A5/eUJQjaNkBioXc8Ci2Ig6THYS
+         9JQ1Dr4t5R+Z5ToLWR7RKl1WgQb1UKr2HBJt/LIeXW76FP5jp3ckFnm3O70TF6uEZ+
+         CQ9S11KNWdqIufc6VZdm/MX10oPKl845WA7vMHLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 206/254] net: bridge: dont notify switchdev for local FDB addresses
+Subject: [PATCH 5.4 094/111] Revert "netfilter: x_tables: Switch synchronization to RCU"
 Date:   Mon, 29 Mar 2021 09:58:42 +0200
-Message-Id: <20210329075639.863747060@linuxfoundation.org>
+Message-Id: <20210329075618.343390003@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +41,361 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit 6ab4c3117aec4e08007d9e971fa4133e1de1082d ]
+[ Upstream commit d3d40f237480abf3268956daf18cdc56edd32834 ]
 
-As explained in this discussion:
-https://lore.kernel.org/netdev/20210117193009.io3nungdwuzmo5f7@skbuf/
+This reverts commit cc00bcaa589914096edef7fb87ca5cee4a166b5c.
 
-the switchdev notifiers for FDB entries managed to have a zero-day bug.
-The bridge would not say that this entry is local:
+This (and the preceding) patch basically re-implemented the RCU
+mechanisms of patch 784544739a25. That patch was replaced because of the
+performance problems that it created when replacing tables. Now, we have
+the same issue: the call to synchronize_rcu() makes replacing tables
+slower by as much as an order of magnitude.
 
-ip link add br0 type bridge
-ip link set swp0 master br0
-bridge fdb add dev swp0 00:01:02:03:04:05 master local
+Prior to using RCU a script calling "iptables" approx. 200 times was
+taking 1.16s. With RCU this increased to 11.59s.
 
-and the switchdev driver would be more than happy to offload it as a
-normal static FDB entry. This is despite the fact that 'local' and
-non-'local' entries have completely opposite directions: a local entry
-is locally terminated and not forwarded, whereas a static entry is
-forwarded and not locally terminated. So, for example, DSA would install
-this entry on swp0 instead of installing it on the CPU port as it should.
+Revert these patches and fix the issue in a different way.
 
-There is an even sadder part, which is that the 'local' flag is implicit
-if 'static' is not specified, meaning that this command produces the
-same result of adding a 'local' entry:
-
-bridge fdb add dev swp0 00:01:02:03:04:05 master
-
-I've updated the man pages for 'bridge', and after reading it now, it
-should be pretty clear to any user that the commands above were broken
-and should have never resulted in the 00:01:02:03:04:05 address being
-forwarded (this behavior is coherent with non-switchdev interfaces):
-https://patchwork.kernel.org/project/netdevbpf/cover/20210211104502.2081443-1-olteanv@gmail.com/
-If you're a user reading this and this is what you want, just use:
-
-bridge fdb add dev swp0 00:01:02:03:04:05 master static
-
-Because switchdev should have given drivers the means from day one to
-classify FDB entries as local/non-local, but didn't, it means that all
-drivers are currently broken. So we can just as well omit the switchdev
-notifications for local FDB entries, which is exactly what this patch
-does to close the bug in stable trees. For further development work
-where drivers might want to trap the local FDB entries to the host, we
-can add a 'bool is_local' to br_switchdev_fdb_call_notifiers(), and
-selectively make drivers act upon that bit, while all the others ignore
-those entries if the 'is_local' bit is set.
-
-Fixes: 6b26b51b1d13 ("net: bridge: Add support for notifying devices about FDB add/del")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_switchdev.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/netfilter/x_tables.h |  5 +--
+ net/ipv4/netfilter/arp_tables.c    | 14 ++++-----
+ net/ipv4/netfilter/ip_tables.c     | 14 ++++-----
+ net/ipv6/netfilter/ip6_tables.c    | 14 ++++-----
+ net/netfilter/x_tables.c           | 49 +++++++++++++++++++++---------
+ 5 files changed, 56 insertions(+), 40 deletions(-)
 
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 015209bf44aa..3c42095fa75f 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -123,6 +123,8 @@ br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb, int type)
- {
- 	if (!fdb->dst)
- 		return;
-+	if (test_bit(BR_FDB_LOCAL, &fdb->flags))
-+		return;
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index f5c21b7d2974..1b261c51b3a3 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -227,7 +227,7 @@ struct xt_table {
+ 	unsigned int valid_hooks;
  
- 	switch (type) {
- 	case RTM_DELNEIGH:
+ 	/* Man behind the curtain... */
+-	struct xt_table_info __rcu *private;
++	struct xt_table_info *private;
+ 
+ 	/* Set this to THIS_MODULE if you are a module, otherwise NULL */
+ 	struct module *me;
+@@ -448,9 +448,6 @@ xt_get_per_cpu_counter(struct xt_counters *cnt, unsigned int cpu)
+ 
+ struct nf_hook_ops *xt_hook_ops_alloc(const struct xt_table *, nf_hookfn *);
+ 
+-struct xt_table_info
+-*xt_table_get_private_protected(const struct xt_table *table);
+-
+ #ifdef CONFIG_COMPAT
+ #include <net/compat.h>
+ 
+diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
+index 12d242fedffd..680a1320399d 100644
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -203,7 +203,7 @@ unsigned int arpt_do_table(struct sk_buff *skb,
+ 
+ 	local_bh_disable();
+ 	addend = xt_write_recseq_begin();
+-	private = rcu_access_pointer(table->private);
++	private = READ_ONCE(table->private); /* Address dependency. */
+ 	cpu     = smp_processor_id();
+ 	table_base = private->entries;
+ 	jumpstack  = (struct arpt_entry **)private->jumpstack[cpu];
+@@ -649,7 +649,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+ {
+ 	unsigned int countersize;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 
+ 	/* We need atomic snapshot of counters: rest doesn't change
+ 	 * (other than comefrom, which userspace doesn't care
+@@ -673,7 +673,7 @@ static int copy_entries_to_user(unsigned int total_size,
+ 	unsigned int off, num;
+ 	const struct arpt_entry *e;
+ 	struct xt_counters *counters;
+-	struct xt_table_info *private = xt_table_get_private_protected(table);
++	struct xt_table_info *private = table->private;
+ 	int ret = 0;
+ 	void *loc_cpu_entry;
+ 
+@@ -808,7 +808,7 @@ static int get_info(struct net *net, void __user *user,
+ 	t = xt_request_find_table_lock(net, NFPROTO_ARP, name);
+ 	if (!IS_ERR(t)) {
+ 		struct arpt_getinfo info;
+-		const struct xt_table_info *private = xt_table_get_private_protected(t);
++		const struct xt_table_info *private = t->private;
+ #ifdef CONFIG_COMPAT
+ 		struct xt_table_info tmp;
+ 
+@@ -861,7 +861,7 @@ static int get_entries(struct net *net, struct arpt_get_entries __user *uptr,
+ 
+ 	t = xt_find_table_lock(net, NFPROTO_ARP, get.name);
+ 	if (!IS_ERR(t)) {
+-		const struct xt_table_info *private = xt_table_get_private_protected(t);
++		const struct xt_table_info *private = t->private;
+ 
+ 		if (get.size == private->size)
+ 			ret = copy_entries_to_user(private->size,
+@@ -1020,7 +1020,7 @@ static int do_add_counters(struct net *net, const void __user *user,
+ 	}
+ 
+ 	local_bh_disable();
+-	private = xt_table_get_private_protected(t);
++	private = t->private;
+ 	if (private->number != tmp.num_counters) {
+ 		ret = -EINVAL;
+ 		goto unlock_up_free;
+@@ -1357,7 +1357,7 @@ static int compat_copy_entries_to_user(unsigned int total_size,
+ 				       void __user *userptr)
+ {
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 	void __user *pos;
+ 	unsigned int size;
+ 	int ret = 0;
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index cbbc8a7b8278..8c320b7a423c 100644
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -258,7 +258,7 @@ ipt_do_table(struct sk_buff *skb,
+ 	WARN_ON(!(table->valid_hooks & (1 << hook)));
+ 	local_bh_disable();
+ 	addend = xt_write_recseq_begin();
+-	private = rcu_access_pointer(table->private);
++	private = READ_ONCE(table->private); /* Address dependency. */
+ 	cpu        = smp_processor_id();
+ 	table_base = private->entries;
+ 	jumpstack  = (struct ipt_entry **)private->jumpstack[cpu];
+@@ -791,7 +791,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+ {
+ 	unsigned int countersize;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 
+ 	/* We need atomic snapshot of counters: rest doesn't change
+ 	   (other than comefrom, which userspace doesn't care
+@@ -815,7 +815,7 @@ copy_entries_to_user(unsigned int total_size,
+ 	unsigned int off, num;
+ 	const struct ipt_entry *e;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 	int ret = 0;
+ 	const void *loc_cpu_entry;
+ 
+@@ -965,7 +965,7 @@ static int get_info(struct net *net, void __user *user,
+ 	t = xt_request_find_table_lock(net, AF_INET, name);
+ 	if (!IS_ERR(t)) {
+ 		struct ipt_getinfo info;
+-		const struct xt_table_info *private = xt_table_get_private_protected(t);
++		const struct xt_table_info *private = t->private;
+ #ifdef CONFIG_COMPAT
+ 		struct xt_table_info tmp;
+ 
+@@ -1019,7 +1019,7 @@ get_entries(struct net *net, struct ipt_get_entries __user *uptr,
+ 
+ 	t = xt_find_table_lock(net, AF_INET, get.name);
+ 	if (!IS_ERR(t)) {
+-		const struct xt_table_info *private = xt_table_get_private_protected(t);
++		const struct xt_table_info *private = t->private;
+ 		if (get.size == private->size)
+ 			ret = copy_entries_to_user(private->size,
+ 						   t, uptr->entrytable);
+@@ -1175,7 +1175,7 @@ do_add_counters(struct net *net, const void __user *user,
+ 	}
+ 
+ 	local_bh_disable();
+-	private = xt_table_get_private_protected(t);
++	private = t->private;
+ 	if (private->number != tmp.num_counters) {
+ 		ret = -EINVAL;
+ 		goto unlock_up_free;
+@@ -1570,7 +1570,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
+ 			    void __user *userptr)
+ {
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 	void __user *pos;
+ 	unsigned int size;
+ 	int ret = 0;
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index 01cdde25eb16..85d8ed970cdc 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -280,7 +280,7 @@ ip6t_do_table(struct sk_buff *skb,
+ 
+ 	local_bh_disable();
+ 	addend = xt_write_recseq_begin();
+-	private = rcu_access_pointer(table->private);
++	private = READ_ONCE(table->private); /* Address dependency. */
+ 	cpu        = smp_processor_id();
+ 	table_base = private->entries;
+ 	jumpstack  = (struct ip6t_entry **)private->jumpstack[cpu];
+@@ -807,7 +807,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+ {
+ 	unsigned int countersize;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 
+ 	/* We need atomic snapshot of counters: rest doesn't change
+ 	   (other than comefrom, which userspace doesn't care
+@@ -831,7 +831,7 @@ copy_entries_to_user(unsigned int total_size,
+ 	unsigned int off, num;
+ 	const struct ip6t_entry *e;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 	int ret = 0;
+ 	const void *loc_cpu_entry;
+ 
+@@ -981,7 +981,7 @@ static int get_info(struct net *net, void __user *user,
+ 	t = xt_request_find_table_lock(net, AF_INET6, name);
+ 	if (!IS_ERR(t)) {
+ 		struct ip6t_getinfo info;
+-		const struct xt_table_info *private = xt_table_get_private_protected(t);
++		const struct xt_table_info *private = t->private;
+ #ifdef CONFIG_COMPAT
+ 		struct xt_table_info tmp;
+ 
+@@ -1036,7 +1036,7 @@ get_entries(struct net *net, struct ip6t_get_entries __user *uptr,
+ 
+ 	t = xt_find_table_lock(net, AF_INET6, get.name);
+ 	if (!IS_ERR(t)) {
+-		struct xt_table_info *private = xt_table_get_private_protected(t);
++		struct xt_table_info *private = t->private;
+ 		if (get.size == private->size)
+ 			ret = copy_entries_to_user(private->size,
+ 						   t, uptr->entrytable);
+@@ -1191,7 +1191,7 @@ do_add_counters(struct net *net, const void __user *user, unsigned int len,
+ 	}
+ 
+ 	local_bh_disable();
+-	private = xt_table_get_private_protected(t);
++	private = t->private;
+ 	if (private->number != tmp.num_counters) {
+ 		ret = -EINVAL;
+ 		goto unlock_up_free;
+@@ -1579,7 +1579,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
+ 			    void __user *userptr)
+ {
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = xt_table_get_private_protected(table);
++	const struct xt_table_info *private = table->private;
+ 	void __user *pos;
+ 	unsigned int size;
+ 	int ret = 0;
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 8b60fc04c67c..ef6d51a3798b 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1351,14 +1351,6 @@ struct xt_counters *xt_counters_alloc(unsigned int counters)
+ }
+ EXPORT_SYMBOL(xt_counters_alloc);
+ 
+-struct xt_table_info
+-*xt_table_get_private_protected(const struct xt_table *table)
+-{
+-	return rcu_dereference_protected(table->private,
+-					 mutex_is_locked(&xt[table->af].mutex));
+-}
+-EXPORT_SYMBOL(xt_table_get_private_protected);
+-
+ struct xt_table_info *
+ xt_replace_table(struct xt_table *table,
+ 	      unsigned int num_counters,
+@@ -1366,6 +1358,7 @@ xt_replace_table(struct xt_table *table,
+ 	      int *error)
+ {
+ 	struct xt_table_info *private;
++	unsigned int cpu;
+ 	int ret;
+ 
+ 	ret = xt_jumpstack_alloc(newinfo);
+@@ -1375,20 +1368,47 @@ xt_replace_table(struct xt_table *table,
+ 	}
+ 
+ 	/* Do the substitution. */
+-	private = xt_table_get_private_protected(table);
++	local_bh_disable();
++	private = table->private;
+ 
+ 	/* Check inside lock: is the old number correct? */
+ 	if (num_counters != private->number) {
+ 		pr_debug("num_counters != table->private->number (%u/%u)\n",
+ 			 num_counters, private->number);
++		local_bh_enable();
+ 		*error = -EAGAIN;
+ 		return NULL;
+ 	}
+ 
+ 	newinfo->initial_entries = private->initial_entries;
++	/*
++	 * Ensure contents of newinfo are visible before assigning to
++	 * private.
++	 */
++	smp_wmb();
++	table->private = newinfo;
++
++	/* make sure all cpus see new ->private value */
++	smp_wmb();
+ 
+-	rcu_assign_pointer(table->private, newinfo);
+-	synchronize_rcu();
++	/*
++	 * Even though table entries have now been swapped, other CPU's
++	 * may still be using the old entries...
++	 */
++	local_bh_enable();
++
++	/* ... so wait for even xt_recseq on all cpus */
++	for_each_possible_cpu(cpu) {
++		seqcount_t *s = &per_cpu(xt_recseq, cpu);
++		u32 seq = raw_read_seqcount(s);
++
++		if (seq & 1) {
++			do {
++				cond_resched();
++				cpu_relax();
++			} while (seq == raw_read_seqcount(s));
++		}
++	}
+ 
+ #ifdef CONFIG_AUDIT
+ 	if (audit_enabled) {
+@@ -1429,12 +1449,12 @@ struct xt_table *xt_register_table(struct net *net,
+ 	}
+ 
+ 	/* Simplifies replace_table code. */
+-	rcu_assign_pointer(table->private, bootstrap);
++	table->private = bootstrap;
+ 
+ 	if (!xt_replace_table(table, 0, newinfo, &ret))
+ 		goto unlock;
+ 
+-	private = xt_table_get_private_protected(table);
++	private = table->private;
+ 	pr_debug("table->private->number = %u\n", private->number);
+ 
+ 	/* save number of initial entries */
+@@ -1457,8 +1477,7 @@ void *xt_unregister_table(struct xt_table *table)
+ 	struct xt_table_info *private;
+ 
+ 	mutex_lock(&xt[table->af].mutex);
+-	private = xt_table_get_private_protected(table);
+-	RCU_INIT_POINTER(table->private, NULL);
++	private = table->private;
+ 	list_del(&table->list);
+ 	mutex_unlock(&xt[table->af].mutex);
+ 	kfree(table);
 -- 
 2.30.1
 
