@@ -2,34 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7EC34C95B
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C6B34CAC7
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233149AbhC2I3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41832 "EHLO mail.kernel.org"
+        id S234947AbhC2Ijv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233749AbhC2I0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:26:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA252619CA;
-        Mon, 29 Mar 2021 08:25:52 +0000 (UTC)
+        id S231725AbhC2Iif (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:38:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 826FF61864;
+        Mon, 29 Mar 2021 08:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006353;
-        bh=+bsrpx4cNVUktMcDSEJnM3RMt0AKF3D62/wDJ/q8e/Q=;
+        s=korg; t=1617007115;
+        bh=8km8l5VSew3GbQK2/Vpmt3lL3a2JnnSKkzsZAWyFuuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H3I9X7LKS1hjqqgzqKOHoqX0FmfCWaJa4gDX2naZ54vv6bSeWATZnGTPULxphQBa3
-         DCUtAsfV3/nkK9jcB7S1hkFk0dfDdpflGSyHRNeWPe2iMtArLSHNVVukRLid3KkApw
-         Z5RYw2g9JrRwVlesjt8iubNetsmWDnrpJbV1JJ/M=
+        b=1an+dTIjro9mlhO4D/Exm9OIpdoEki2fbZkF8qIWiCv+YPfdKwyTW0afCp3VNahSE
+         5TPnw9ochHoG2KziLWn1mU3GvD7B4+UuRezLcOdE9iFek6djBth1Gu+3YB+yrqA/wA
+         HbwjNKBZDQ6ogZ4kaJGaLH/HAgwIYyvM/+k8VCgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>
-Subject: [PATCH 5.10 209/221] mm/memcg: fix 5.10 backport of splitting page memcg
-Date:   Mon, 29 Mar 2021 09:59:00 +0200
-Message-Id: <20210329075636.083883684@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Pankaj Gupta <pankaj.gupta@cloud.ionos.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        teawater <teawaterz@linux.alibaba.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 225/254] arm64/mm: define arch_get_mappable_range()
+Date:   Mon, 29 Mar 2021 09:59:01 +0200
+Message-Id: <20210329075640.480623043@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,39 +58,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-The straight backport of 5.12's e1baddf8475b ("mm/memcg: set memcg when
-splitting page") works fine in 5.11, but turned out to be wrong for 5.10:
-because that relies on a separate flag, which must also be set for the
-memcg to be recognized and uncharged and cleared when freeing. Fix that.
+[ Upstream commit 03aaf83fba6e5af08b5dd174c72edee9b7d9ed9b ]
 
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This overrides arch_get_mappable_range() on arm64 platform which will be
+used with recently added generic framework.  It drops
+inside_linear_region() and subsequent check in arch_add_memory() which are
+no longer required.  It also adds a VM_BUG_ON() check that would ensure
+that mhp_range_allowed() has already been called.
+
+Link: https://lkml.kernel.org/r/1612149902-7867-3-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Pankaj Gupta <pankaj.gupta@cloud.ionos.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: teawater <teawaterz@linux.alibaba.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/mm/mmu.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -3274,13 +3274,17 @@ void obj_cgroup_uncharge(struct obj_cgro
- void split_page_memcg(struct page *head, unsigned int nr)
- {
- 	struct mem_cgroup *memcg = head->mem_cgroup;
-+	int kmemcg = PageKmemcg(head);
- 	int i;
- 
- 	if (mem_cgroup_disabled() || !memcg)
- 		return;
- 
--	for (i = 1; i < nr; i++)
-+	for (i = 1; i < nr; i++) {
- 		head[i].mem_cgroup = memcg;
-+		if (kmemcg)
-+			__SetPageKmemcg(head + i);
-+	}
- 	css_get_many(&memcg->css, nr - 1);
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 6f0648777d34..92b3be127796 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1443,16 +1443,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
+ 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
  }
  
+-static bool inside_linear_region(u64 start, u64 size)
++struct range arch_get_mappable_range(void)
+ {
++	struct range mhp_range;
++
+ 	/*
+ 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
+ 	 * accommodating both its ends but excluding PAGE_END. Max physical
+ 	 * range which can be mapped inside this linear mapping range, must
+ 	 * also be derived from its end points.
+ 	 */
+-	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
+-	       (start + size - 1) <= __pa(PAGE_END - 1);
++	mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
++	mhp_range.end =  __pa(PAGE_END - 1);
++	return mhp_range;
+ }
+ 
+ int arch_add_memory(int nid, u64 start, u64 size,
+@@ -1460,11 +1463,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ {
+ 	int ret, flags = 0;
+ 
+-	if (!inside_linear_region(start, size)) {
+-		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
+-		return -EINVAL;
+-	}
+-
++	VM_BUG_ON(!mhp_range_allowed(start, size, true));
+ 	if (rodata_full || debug_pagealloc_enabled())
+ 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
+ 
+-- 
+2.30.1
+
 
 
