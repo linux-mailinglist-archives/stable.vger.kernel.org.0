@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6542D34C88D
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CF834C737
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232834AbhC2IXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
+        id S231596AbhC2INS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233541AbhC2IVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:21:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4528561580;
-        Mon, 29 Mar 2021 08:21:10 +0000 (UTC)
+        id S232798AbhC2IMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:12:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF26C61477;
+        Mon, 29 Mar 2021 08:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006071;
-        bh=b3VEMJT60IezzqEOtJU0IXAyPbI/zH0cbmJTP/1S5g4=;
+        s=korg; t=1617005526;
+        bh=Zc6XYFPEffZtG7EK8WmvbpGxiHnZvtwr2nLFhddDeVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmpyUYbA0U8G6MH9H/5b+3mktcnr355+ffO6BhjUIH59Bk1jXWvgmhSS3mtfZMrcL
-         5rrWYj5HQikWq8k+a1214GaMxdtZLWRQW9HKWGB3b5scLEKoIeZ2p9mhkvlqGH3qWn
-         4WgS/uBHmakbZYcpKc7Vyr9yad+fp0Hnk7Kee85k=
+        b=CUDxVSlLDz494jcY7TQjBKKGzEfVocJDKIq3agD0bwIyIVWbmj37m/Q+w1o5NbvRu
+         tWwBm6cDoFOM+XMGTkmDGigrC+3134NeH3+mUnclGvjTw2TQu17hfUjhJv8jfry2c2
+         wonMyoJZPlVWTgLJllknRw7RjMN4mvDgr14zsoMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Wei Wang <weiwan@google.com>, David Ahern <dsahern@kernel.org>,
-        Ido Schimmel <idosch@idosch.org>,
-        Petr Machata <petrm@nvidia.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Ido Schimmel <idosch@nvidia.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 100/221] ipv6: fix suspecious RCU usage warning
-Date:   Mon, 29 Mar 2021 09:57:11 +0200
-Message-Id: <20210329075632.538293477@linuxfoundation.org>
+Subject: [PATCH 5.4 004/111] atm: eni: dont release is never initialized
+Date:   Mon, 29 Mar 2021 09:57:12 +0200
+Message-Id: <20210329075615.337194777@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,125 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 28259bac7f1dde06d8ba324e222bbec9d4e92f2b ]
+[ Upstream commit 4deb550bc3b698a1f03d0332cde3df154d1b6c1e ]
 
-Syzbot reported the suspecious RCU usage in nexthop_fib6_nh() when
-called from ipv6_route_seq_show(). The reason is ipv6_route_seq_start()
-calls rcu_read_lock_bh(), while nexthop_fib6_nh() calls
-rcu_dereference_rtnl().
-The fix proposed is to add a variant of nexthop_fib6_nh() to use
-rcu_dereference_bh_rtnl() for ipv6_route_seq_show().
+label err_eni_release is reachable when eni_start() fail.
+In eni_start() it calls dev->phy->start() in the last step, if start()
+fail we don't need to call phy->stop(), if start() is never called, we
+neither need to call phy->stop(), otherwise null-ptr-deref will happen.
 
-The reported trace is as follows:
-./include/net/nexthop.h:416 suspicious rcu_dereference_check() usage!
+In order to fix this issue, don't call phy->stop() in label err_eni_release
 
-other info that might help us debug this:
+[    4.875714] ==================================================================
+[    4.876091] BUG: KASAN: null-ptr-deref in suni_stop+0x47/0x100 [suni]
+[    4.876433] Read of size 8 at addr 0000000000000030 by task modprobe/95
+[    4.876778]
+[    4.876862] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7-00090-gdcc0b49040c7 #2
+[    4.877290] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd94
+[    4.877876] Call Trace:
+[    4.878009]  dump_stack+0x7d/0xa3
+[    4.878191]  kasan_report.cold+0x10c/0x10e
+[    4.878410]  ? __slab_free+0x2f0/0x340
+[    4.878612]  ? suni_stop+0x47/0x100 [suni]
+[    4.878832]  suni_stop+0x47/0x100 [suni]
+[    4.879043]  eni_do_release+0x3b/0x70 [eni]
+[    4.879269]  eni_init_one.cold+0x1152/0x1747 [eni]
+[    4.879528]  ? _raw_spin_lock_irqsave+0x7b/0xd0
+[    4.879768]  ? eni_ioctl+0x270/0x270 [eni]
+[    4.879990]  ? __mutex_lock_slowpath+0x10/0x10
+[    4.880226]  ? eni_ioctl+0x270/0x270 [eni]
+[    4.880448]  local_pci_probe+0x6f/0xb0
+[    4.880650]  pci_device_probe+0x171/0x240
+[    4.880864]  ? pci_device_remove+0xe0/0xe0
+[    4.881086]  ? kernfs_create_link+0xb6/0x110
+[    4.881315]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
+[    4.881594]  really_probe+0x161/0x420
+[    4.881791]  driver_probe_device+0x6d/0xd0
+[    4.882010]  device_driver_attach+0x82/0x90
+[    4.882233]  ? device_driver_attach+0x90/0x90
+[    4.882465]  __driver_attach+0x60/0x100
+[    4.882671]  ? device_driver_attach+0x90/0x90
+[    4.882903]  bus_for_each_dev+0xe1/0x140
+[    4.883114]  ? subsys_dev_iter_exit+0x10/0x10
+[    4.883346]  ? klist_node_init+0x61/0x80
+[    4.883557]  bus_add_driver+0x254/0x2a0
+[    4.883764]  driver_register+0xd3/0x150
+[    4.883971]  ? 0xffffffffc0038000
+[    4.884149]  do_one_initcall+0x84/0x250
+[    4.884355]  ? trace_event_raw_event_initcall_finish+0x150/0x150
+[    4.884674]  ? unpoison_range+0xf/0x30
+[    4.884875]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.885150]  ? unpoison_range+0xf/0x30
+[    4.885352]  ? unpoison_range+0xf/0x30
+[    4.885557]  do_init_module+0xf8/0x350
+[    4.885760]  load_module+0x3fe6/0x4340
+[    4.885960]  ? vm_unmap_ram+0x1d0/0x1d0
+[    4.886166]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.886441]  ? module_frob_arch_sections+0x20/0x20
+[    4.886697]  ? __do_sys_finit_module+0x108/0x170
+[    4.886941]  __do_sys_finit_module+0x108/0x170
+[    4.887178]  ? __ia32_sys_init_module+0x40/0x40
+[    4.887419]  ? file_open_root+0x200/0x200
+[    4.887634]  ? do_sys_open+0x85/0xe0
+[    4.887826]  ? filp_open+0x50/0x50
+[    4.888009]  ? fpregs_assert_state_consistent+0x4d/0x60
+[    4.888287]  ? exit_to_user_mode_prepare+0x2f/0x130
+[    4.888547]  do_syscall_64+0x33/0x40
+[    4.888739]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    4.889010] RIP: 0033:0x7ff62fcf1cf7
+[    4.889202] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f71
+[    4.890172] RSP: 002b:00007ffe6644ade8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    4.890570] RAX: ffffffffffffffda RBX: 0000000000f2ca70 RCX: 00007ff62fcf1cf7
+[    4.890944] RDX: 0000000000000000 RSI: 0000000000f2b9e0 RDI: 0000000000000003
+[    4.891318] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
+[    4.891691] R10: 00007ff62fd55300 R11: 0000000000000246 R12: 0000000000f2b9e0
+[    4.892064] R13: 0000000000000000 R14: 0000000000f2bdd0 R15: 0000000000000001
+[    4.892439] ==================================================================
 
-rcu_scheduler_active = 2, debug_locks = 1
-2 locks held by syz-executor.0/17895:
-     at: seq_read+0x71/0x12a0 fs/seq_file.c:169
-     at: seq_file_net include/linux/seq_file_net.h:19 [inline]
-     at: ipv6_route_seq_start+0xaf/0x300 net/ipv6/ip6_fib.c:2616
-
-stack backtrace:
-CPU: 1 PID: 17895 Comm: syz-executor.0 Not tainted 4.15.0-syzkaller #0
-Call Trace:
- [<ffffffff849edf9e>] __dump_stack lib/dump_stack.c:17 [inline]
- [<ffffffff849edf9e>] dump_stack+0xd8/0x147 lib/dump_stack.c:53
- [<ffffffff8480b7fa>] lockdep_rcu_suspicious+0x153/0x15d kernel/locking/lockdep.c:5745
- [<ffffffff8459ada6>] nexthop_fib6_nh include/net/nexthop.h:416 [inline]
- [<ffffffff8459ada6>] ipv6_route_native_seq_show net/ipv6/ip6_fib.c:2488 [inline]
- [<ffffffff8459ada6>] ipv6_route_seq_show+0x436/0x7a0 net/ipv6/ip6_fib.c:2673
- [<ffffffff81c556df>] seq_read+0xccf/0x12a0 fs/seq_file.c:276
- [<ffffffff81dbc62c>] proc_reg_read+0x10c/0x1d0 fs/proc/inode.c:231
- [<ffffffff81bc28ae>] do_loop_readv_writev fs/read_write.c:714 [inline]
- [<ffffffff81bc28ae>] do_loop_readv_writev fs/read_write.c:701 [inline]
- [<ffffffff81bc28ae>] do_iter_read+0x49e/0x660 fs/read_write.c:935
- [<ffffffff81bc81ab>] vfs_readv+0xfb/0x170 fs/read_write.c:997
- [<ffffffff81c88847>] kernel_readv fs/splice.c:361 [inline]
- [<ffffffff81c88847>] default_file_splice_read+0x487/0x9c0 fs/splice.c:416
- [<ffffffff81c86189>] do_splice_to+0x129/0x190 fs/splice.c:879
- [<ffffffff81c86f66>] splice_direct_to_actor+0x256/0x890 fs/splice.c:951
- [<ffffffff81c8777d>] do_splice_direct+0x1dd/0x2b0 fs/splice.c:1060
- [<ffffffff81bc4747>] do_sendfile+0x597/0xce0 fs/read_write.c:1459
- [<ffffffff81bca205>] SYSC_sendfile64 fs/read_write.c:1520 [inline]
- [<ffffffff81bca205>] SyS_sendfile64+0x155/0x170 fs/read_write.c:1506
- [<ffffffff81015fcf>] do_syscall_64+0x1ff/0x310 arch/x86/entry/common.c:305
- [<ffffffff84a00076>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
-
-Fixes: f88d8ea67fbdb ("ipv6: Plumb support for nexthop object in a fib6_info")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Cc: David Ahern <dsahern@kernel.org>
-Cc: Ido Schimmel <idosch@idosch.org>
-Cc: Petr Machata <petrm@nvidia.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/nexthop.h | 24 ++++++++++++++++++++++++
- net/ipv6/ip6_fib.c    |  2 +-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ drivers/atm/eni.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/nexthop.h b/include/net/nexthop.h
-index 2fd76a9b6dc8..4c8c9fe9a3f0 100644
---- a/include/net/nexthop.h
-+++ b/include/net/nexthop.h
-@@ -362,6 +362,7 @@ static inline struct fib_nh *fib_info_nh(struct fib_info *fi, int nhsel)
- int fib6_check_nexthop(struct nexthop *nh, struct fib6_config *cfg,
- 		       struct netlink_ext_ack *extack);
+diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
+index bedaebd5a495..de52428b8833 100644
+--- a/drivers/atm/eni.c
++++ b/drivers/atm/eni.c
+@@ -2281,7 +2281,8 @@ static int eni_init_one(struct pci_dev *pci_dev,
+ 	return rc;
  
-+/* Caller should either hold rcu_read_lock(), or RTNL. */
- static inline struct fib6_nh *nexthop_fib6_nh(struct nexthop *nh)
- {
- 	struct nh_info *nhi;
-@@ -382,6 +383,29 @@ static inline struct fib6_nh *nexthop_fib6_nh(struct nexthop *nh)
- 	return NULL;
- }
- 
-+/* Variant of nexthop_fib6_nh().
-+ * Caller should either hold rcu_read_lock_bh(), or RTNL.
-+ */
-+static inline struct fib6_nh *nexthop_fib6_nh_bh(struct nexthop *nh)
-+{
-+	struct nh_info *nhi;
-+
-+	if (nh->is_group) {
-+		struct nh_group *nh_grp;
-+
-+		nh_grp = rcu_dereference_bh_rtnl(nh->nh_grp);
-+		nh = nexthop_mpath_select(nh_grp, 0);
-+		if (!nh)
-+			return NULL;
-+	}
-+
-+	nhi = rcu_dereference_bh_rtnl(nh->nh_info);
-+	if (nhi->family == AF_INET6)
-+		return &nhi->fib6_nh;
-+
-+	return NULL;
-+}
-+
- static inline struct net_device *fib6_info_nh_dev(struct fib6_info *f6i)
- {
- 	struct fib6_nh *fib6_nh;
-diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
-index f43e27555725..1fb79dbde0cb 100644
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -2485,7 +2485,7 @@ static int ipv6_route_native_seq_show(struct seq_file *seq, void *v)
- 	const struct net_device *dev;
- 
- 	if (rt->nh)
--		fib6_nh = nexthop_fib6_nh(rt->nh);
-+		fib6_nh = nexthop_fib6_nh_bh(rt->nh);
- 
- 	seq_printf(seq, "%pi6 %02x ", &rt->fib6_dst.addr, rt->fib6_dst.plen);
- 
+ err_eni_release:
+-	eni_do_release(dev);
++	dev->phy = NULL;
++	iounmap(ENI_DEV(dev)->ioaddr);
+ err_unregister:
+ 	atm_dev_deregister(dev);
+ err_free_consistent:
 -- 
 2.30.1
 
