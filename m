@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF7634C992
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E9634C7C8
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233791AbhC2IaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:30:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41790 "EHLO mail.kernel.org"
+        id S233049AbhC2ISO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233709AbhC2I0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:26:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C1E6191F;
-        Mon, 29 Mar 2021 08:25:39 +0000 (UTC)
+        id S233181AbhC2IQy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:16:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 291AE61613;
+        Mon, 29 Mar 2021 08:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006340;
-        bh=UPQIX7PxWlx38E8Y1XTqAIo+xV4fACP3vQf7ThL01fw=;
+        s=korg; t=1617005782;
+        bh=AAIT8J0N3XEIAZD0s1sWL4BZGtLYD89PpOiZVOtvJqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz7GbyD3dUhVEdWHXeYHm8AOSBUJox4gZJS8Uh7WywTb/dFNirrsV98R7tlbhJFkb
-         do2g7RMrEJ6eFvkzBf5F2bzAl66QxtHFZkfgPbb0N23IQYbzkwYtAsDr0ZFiuyQMu5
-         iXVcGYVNnbBkKJ2I6L6/o/0wHDl6pq5uHFA+GBHI=
+        b=H9UopKtKoMTXIMp62t8MvQFTNthaA6esZGqkqDJLx0DqGy0nRIhAs7MVRNX6gOLTo
+         iyx7tWGMHvbcQAUWKQ8xbETB7Wt3YTCTCAhbNyVOP6AuHxMPtxfDxidcRMXg5P40n4
+         NGRUVf0QOkDeSCmlAEsAED09IWMvLx3kJpXf56CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 205/221] smb3: fix cached file size problems in duplicate extents (reflink)
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Courtney Cavin <courtney.cavin@sonymobile.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 108/111] net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
 Date:   Mon, 29 Mar 2021 09:58:56 +0200
-Message-Id: <20210329075635.956192163@linuxfoundation.org>
+Message-Id: <20210329075618.796971586@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,63 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit cfc63fc8126a93cbf95379bc4cad79a7b15b6ece upstream.
+commit 50535249f624d0072cd885bcdce4e4b6fb770160 upstream.
 
-There were two problems (one of which could cause data corruption)
-that were noticed with duplicate extents (ie reflink)
-when debugging why various xfstests were being incorrectly skipped
-(e.g. generic/138, generic/140, generic/142). First, we were not
-updating the file size locally in the cache when extending a
-file due to reflink (it would refresh after actimeo expires)
-but xfstest was checking the size immediately which was still
-0 so caused the test to be skipped.  Second, we were setting
-the target file size (which could shrink the file) in all cases
-to the end of the reflinked range rather than only setting the
-target file size when reflink would extend the file.
+struct sockaddr_qrtr has a 2-byte hole, and qrtr_recvmsg() currently
+does not clear it before copying kernel data to user space.
 
-CC: <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+It might be too late to name the hole since sockaddr_qrtr structure is uapi.
+
+BUG: KMSAN: kernel-infoleak in kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
+CPU: 0 PID: 29705 Comm: syz-executor.3 Not tainted 5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:120
+ kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
+ kmsan_internal_check_memory+0x202/0x520 mm/kmsan/kmsan.c:402
+ kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
+ instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+ _copy_to_user+0x1ac/0x270 lib/usercopy.c:33
+ copy_to_user include/linux/uaccess.h:209 [inline]
+ move_addr_to_user+0x3a2/0x640 net/socket.c:237
+ ____sys_recvmsg+0x696/0xd50 net/socket.c:2575
+ ___sys_recvmsg net/socket.c:2610 [inline]
+ do_recvmmsg+0xa97/0x22d0 net/socket.c:2710
+ __sys_recvmmsg net/socket.c:2789 [inline]
+ __do_sys_recvmmsg net/socket.c:2812 [inline]
+ __se_sys_recvmmsg+0x24a/0x410 net/socket.c:2805
+ __x64_sys_recvmmsg+0x62/0x80 net/socket.c:2805
+ do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x465f69
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f43659d6188 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
+RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 0000000000465f69
+RDX: 0000000000000008 RSI: 0000000020003e40 RDI: 0000000000000003
+RBP: 00000000004bfa8f R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000010060 R11: 0000000000000246 R12: 000000000056bf60
+R13: 0000000000a9fb1f R14: 00007f43659d6300 R15: 0000000000022000
+
+Local variable ----addr@____sys_recvmsg created at:
+ ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
+ ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
+
+Bytes 2-3 of 12 are uninitialized
+Memory access of size 12 starts at ffff88817c627b40
+Data copied to user address 0000000020000140
+
+Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ net/qrtr/qrtr.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1980,6 +1980,7 @@ smb2_duplicate_extents(const unsigned in
- {
- 	int rc;
- 	unsigned int ret_data_len;
-+	struct inode *inode;
- 	struct duplicate_extents_to_file dup_ext_buf;
- 	struct cifs_tcon *tcon = tlink_tcon(trgtfile->tlink);
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -862,6 +862,11 @@ static int qrtr_recvmsg(struct socket *s
+ 	rc = copied;
  
-@@ -1996,10 +1997,21 @@ smb2_duplicate_extents(const unsigned in
- 	cifs_dbg(FYI, "Duplicate extents: src off %lld dst off %lld len %lld\n",
- 		src_off, dest_off, len);
- 
--	rc = smb2_set_file_size(xid, tcon, trgtfile, dest_off + len, false);
--	if (rc)
--		goto duplicate_extents_out;
-+	inode = d_inode(trgtfile->dentry);
-+	if (inode->i_size < dest_off + len) {
-+		rc = smb2_set_file_size(xid, tcon, trgtfile, dest_off + len, false);
-+		if (rc)
-+			goto duplicate_extents_out;
- 
-+		/*
-+		 * Although also could set plausible allocation size (i_blocks)
-+		 * here in addition to setting the file size, in reflink
-+		 * it is likely that the target file is sparse. Its allocation
-+		 * size will be queried on next revalidate, but it is important
-+		 * to make sure that file's cached size is updated immediately
+ 	if (addr) {
++		/* There is an anonymous 2-byte hole after sq_family,
++		 * make sure to clear it.
 +		 */
-+		cifs_setsize(inode, dest_off + len);
-+	}
- 	rc = SMB2_ioctl(xid, tcon, trgtfile->fid.persistent_fid,
- 			trgtfile->fid.volatile_fid,
- 			FSCTL_DUPLICATE_EXTENTS_TO_FILE,
++		memset(addr, 0, sizeof(*addr));
++
+ 		cb = (struct qrtr_cb *)skb->cb;
+ 		addr->sq_family = AF_QIPCRTR;
+ 		addr->sq_node = cb->src_node;
 
 
