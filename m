@@ -2,126 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6672134D261
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 16:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 261D134D275
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 16:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230237AbhC2O3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 10:29:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45300 "EHLO
+        id S229822AbhC2Of5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 10:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230506AbhC2O2u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 10:28:50 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2B9C061756
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 07:28:50 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id s2so9382122qtx.10
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 07:28:49 -0700 (PDT)
+        with ESMTP id S229630AbhC2Ofr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 10:35:47 -0400
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989C1C061574;
+        Mon, 29 Mar 2021 07:35:46 -0700 (PDT)
+Received: by mail-lj1-x236.google.com with SMTP id 184so16171249ljf.9;
+        Mon, 29 Mar 2021 07:35:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=soleen.com; s=google;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Dm/wVurAlohhjt5oDyqVhTnciFW3HtIHWRD4m8Eljsw=;
-        b=eSOv0/X4qRNjBNZceFe/tFhg/4p6TzLzpHzcUjj3BGNQ9MvEmVUdq17RgMPnm+JPra
-         LNcueVyGelrmIEpzuZhbEfI+j9Bj3qv7+wY0mepge5LJR5NZ5SZbTdop97yWB8N+Zmlx
-         Tp9C99OOidPbYnO86zKP2DOD7hxO58fJ+ynQVD459BIhdr01R9W0jqOcBmsCKP87FYZE
-         vJY8UNtZaVlPS0FCijYPkeJXgH2wPf4CxqiPOMgL4S+uBtS9XLTGo99+AjIMHGrpf2qw
-         PAa1gQaKVP9A5sTh44ct5Q9VqfmbUQ2IScd/yCTFDjNmIFIwnAjy6XIO1u1tYkhnAGsG
-         YpcA==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
+         :mime-version;
+        bh=m1x7qkeXn/hByih9f1Ls4Wtzy4s/AO+YUDm9O2yD2co=;
+        b=XNmUmT2AuJqL3daZRBsOCLd/wj1scH/Tr13kjsb4aTKAucRiyl49VXv+KxQGJg0ueF
+         ZqF9RZnhle+4heONe+K9NwmDsJg4zVkB3yxqrrQ8CnPjfGMg7HMVbj9beDLh+cHTYgAd
+         hCdQiT6Fn/AG3rYBkv8aXebjl3J2t+VB1jiB3BwDfN9AQJ5YUx0ZYEyPqXKe7F4XaADs
+         p6DwN7ehVMMTiwonRo1XZJjUpNtLR8MVs1zoWE0Q2OK5OgDE3VT2uKMUSmBDcshIpTOn
+         R84o2Wxwquy5BXjIvohdmQKhSd8CZYurjrFe608KfddsTykGDrejNUjPAxCsX0ySh5g0
+         v1fg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Dm/wVurAlohhjt5oDyqVhTnciFW3HtIHWRD4m8Eljsw=;
-        b=BVuJRp9jJ8E5/50aZPPPLivp5/1grMZKAzknhpjKgp3LAUHzywmQqa8a1ltLLViHsM
-         O9UmugsVNmVWbDejcLFUr2XO8VnCC+cCfUnin6WBwhDAt4+9hya5foqH10JyOzZGGGvZ
-         LNYIjA7VNe0Dp5uh+0P4HsD7SomMrFXLlbzyHJIYgeDEwte9lr4A0N35+EHVVdO/pAIy
-         bSthLK8npkWJFoRRhH+p64+wD9IMyxr1iSp2IAgHVij8NvQVTUyBuDbwOfpG9V6c6HCq
-         DmsV5T9psMq/8szXmeUPu4eLvhesulsvs8KpJMT1AHdQ4KinMat1a0wsyb4ysOh0QJJ4
-         lIoA==
-X-Gm-Message-State: AOAM530tPZvHXSE54moSAfvy/n7i0fBEnFhFE3MFdz6GoMSDrDijd4XZ
-        7jlWHT2oVrdZEEWqQcYNs2dcvg==
-X-Google-Smtp-Source: ABdhPJxAR59lGYh39TicUo/TLeKy92Gn4FW0Ih0n0yDxlUib25l3AfiHPV8bcj+xJGYugdxZot+biA==
-X-Received: by 2002:ac8:4508:: with SMTP id q8mr22399408qtn.48.1617028129113;
-        Mon, 29 Mar 2021 07:28:49 -0700 (PDT)
-Received: from localhost.localdomain (c-73-69-118-222.hsd1.nh.comcast.net. [73.69.118.222])
-        by smtp.gmail.com with ESMTPSA id f26sm10960472qtq.29.2021.03.29.07.28.47
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version;
+        bh=m1x7qkeXn/hByih9f1Ls4Wtzy4s/AO+YUDm9O2yD2co=;
+        b=edHhjprFfr8E2cQa0r7hUECAPgNKo0PdP+SnUh3jdHiEI+idg9YwDjjBIDCiUShqFZ
+         aj9rC+QRG2BTVEncfn+iXD+oGtxE2xDlSriqmXVsL0BWTO0M9MgSKFO3Uo9cQoDaRKxg
+         OpyI3TBDevHQO1DYysh/LajUtpsAe/3RcvbGCcfmpINpHOmNy0j9SGhFfJwbzPhL3izu
+         wD0SR30yxgPoq9xfuiz3U29Wxnr6j9+cpbmP04b7ZlPWuGYLQrRp9nOwKH79PjGF09ik
+         YYRYpATMK5yCGxHa3XYgAwJI2fIuKgmiKxqmS3JOp+/D30gsU6oOyj7zV8+dxAmNpmv8
+         lw3w==
+X-Gm-Message-State: AOAM532XjpTELgm6PeggQXOZO4NjDUFuWbilbdFrWO5IXq/Iw1RNn6Au
+        392/iad8A79eDhg2I47sEqI=
+X-Google-Smtp-Source: ABdhPJx8UtK5Fiuw+Hy00AN6fkoVIeQJGIZDBjlQXTx1sn3856kYtBw6mZ9hf15G4oedQVGbJqwGrQ==
+X-Received: by 2002:a2e:87d8:: with SMTP id v24mr17567883ljj.387.1617028545041;
+        Mon, 29 Mar 2021 07:35:45 -0700 (PDT)
+Received: from eldfell ([194.136.85.206])
+        by smtp.gmail.com with ESMTPSA id b9sm1856028lfo.237.2021.03.29.07.35.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Mar 2021 07:28:48 -0700 (PDT)
-From:   Pavel Tatashin <pasha.tatashin@soleen.com>
-To:     pasha.tatashin@soleen.com, tyhicks@linux.microsoft.com,
-        jmorris@namei.org, will@kernel.org, anshuman.khandual@arm.com,
-        ardb@kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: [PATCH] [Backport for stable 5.11] arm64: mm: correct the inside linear map boundaries during hotplug check
-Date:   Mon, 29 Mar 2021 10:28:47 -0400
-Message-Id: <20210329142847.402167-1-pasha.tatashin@soleen.com>
-X-Mailer: git-send-email 2.25.1
+        Mon, 29 Mar 2021 07:35:44 -0700 (PDT)
+Date:   Mon, 29 Mar 2021 17:35:41 +0300
+From:   Pekka Paalanen <ppaalanen@gmail.com>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Simon Ser <contact@emersion.fr>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+        od@zcrc.me, dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH] drm: DON'T require each CRTC to have a unique primary
+ plane
+Message-ID: <20210329173541.00b301ea@eldfell>
+In-Reply-To: <C4BQQQ.FDNJ4NAK9OAD3@crapouillou.net>
+References: <20210327112214.10252-1-paul@crapouillou.net>
+        <1J_tcDPSAZW23jPO8ApyzgINcVRRWcNyFP0LvrSFVIMbZB9lH6lCWvh2ByU9rNt6bj6xpgRgv8n0hBKhXAvXNfLBGfTIsvbhYuHW3IIDd7Y=@emersion.fr>
+        <24LMQQ.CRNKYEI6GB2T1@crapouillou.net>
+        <20210329111533.47e44f72@eldfell>
+        <C4BQQQ.FDNJ4NAK9OAD3@crapouillou.net>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/fR.=hEM3/j_hKrnsh3EjOJN"; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ee7febce051945be28ad86d16a15886f878204de upstream.
+--Sig_/fR.=hEM3/j_hKrnsh3EjOJN
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Memory hotplug may fail on systems with CONFIG_RANDOMIZE_BASE because the
-linear map range is not checked correctly.
+On Mon, 29 Mar 2021 12:41:00 +0100
+Paul Cercueil <paul@crapouillou.net> wrote:
 
-The start physical address that linear map covers can be actually at the
-end of the range because of randomization. Check that and if so reduce it
-to 0.
+> Hi,
+>=20
+> Le lun. 29 mars 2021 =C3=A0 11:15, Pekka Paalanen <ppaalanen@gmail.com> a=
+=20
+> =C3=A9crit :
+> > On Sat, 27 Mar 2021 11:26:26 +0000
+> > Paul Cercueil <paul@crapouillou.net> wrote:
+> >  =20
+> >>  It has two mutually exclusive background planes (same Z level) + one
+> >>  overlay plane. =20
+> >=20
+> > What's the difference between the two background planes?
+> >=20
+> > How will generic userspace know to pick the "right" one? =20
+>=20
+> First primary plane cannot scale, supports RGB and C8. Second primary=20
+> plane goes through the IPU, and as such can scale and convert pixel=20
+> formats; it supports RGB, non-planar YUV, and multi-planar YUV.
+>=20
+> Right now the userspace apps we have will simply pick the first one=20
+> that fits the bill.
 
-This can be verified on QEMU with setting kaslr-seed to ~0ul:
+What would be the downside of exposing just one "virtual" primary
+plane, and then have the driver pick one of the two hardware planes as
+appropriate per modeset?
 
-memstart_offset_seed = 0xffff
-START: __pa(_PAGE_OFFSET(vabits_actual)) = ffff9000c0000000
-END:   __pa(PAGE_END - 1) =  1000bfffffff
 
-Fixes: 58284a901b42 ("arm64/mm: Validate hotplug range before creating linear mapping")
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- arch/arm64/mm/mmu.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+Thanks,
+pq
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 6f0648777d34..ee01f421e1e4 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1445,14 +1445,30 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 
- static bool inside_linear_region(u64 start, u64 size)
- {
-+	u64 start_linear_pa = __pa(_PAGE_OFFSET(vabits_actual));
-+	u64 end_linear_pa = __pa(PAGE_END - 1);
-+
-+	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
-+		/*
-+		 * Check for a wrap, it is possible because of randomized linear
-+		 * mapping the start physical address is actually bigger than
-+		 * the end physical address. In this case set start to zero
-+		 * because [0, end_linear_pa] range must still be able to cover
-+		 * all addressable physical addresses.
-+		 */
-+		if (start_linear_pa > end_linear_pa)
-+			start_linear_pa = 0;
-+	}
-+
-+	WARN_ON(start_linear_pa > end_linear_pa);
-+
- 	/*
- 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
- 	 * accommodating both its ends but excluding PAGE_END. Max physical
- 	 * range which can be mapped inside this linear mapping range, must
- 	 * also be derived from its end points.
- 	 */
--	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
--	       (start + size - 1) <= __pa(PAGE_END - 1);
-+	return start >= start_linear_pa && (start + size - 1) <= end_linear_pa;
- }
- 
- int arch_add_memory(int nid, u64 start, u64 size,
--- 
-2.25.1
+> >>  Le sam. 27 mars 2021 =C3=A0 11:24, Simon Ser <contact@emersion.fr> a=
+=20
+> >> =C3=A9crit
+> >>  : =20
+> >>  > On Saturday, March 27th, 2021 at 12:22 PM, Paul Cercueil
+> >>  > <paul@crapouillou.net> wrote:
+> >>  > =20
+> >>  >>  The ingenic-drm driver has two mutually exclusive primary planes
+> >>  >>  already; so the fact that a CRTC must have one and only one  =20
+> >> primary =20
+> >>  >>  plane is an invalid assumption. =20
+> >>  >
+> >>  > Why does this driver expose two primary planes, if it only has a
+> >>  > single
+> >>  > CRTC? =20
+> >>=20
+> >>=20
+> >>  _______________________________________________
+> >>  dri-devel mailing list
+> >>  dri-devel@lists.freedesktop.org
+> >>  https://lists.freedesktop.org/mailman/listinfo/dri-devel =20
+> >  =20
+>=20
+>=20
 
+
+--Sig_/fR.=hEM3/j_hKrnsh3EjOJN
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAmBh5b0ACgkQI1/ltBGq
+qqcpcRAAs1a0IDl6xxB5DTNPOLZyQ7AJDT7ctuzZg+ncVnmVeqbz/6t6llDJ5ncT
+XYu/FBvAq7mTV3PIjzLNi6kRp615ACSlgAJ8jQ5JEflKHwaw99OVOz01exKJUK81
+tzdbL+Vqeh4X6WGVb6jqWhCWiUiZhlNf0ztHfhZ20N76dmFqgOvVCfCBLH2WYpin
+M2J9P8/EJUdmT9O/0dVgb08B7TGrjL4Jazoj7BSGhuloAL9DovPWi6Qw2Ir72TUM
+5Vkj6XqmT14+6CBUci+tBz/v5dUUuTrsEb6a+Mosx9AEC8YHz0ua9IxhGVXsOTCv
+8lTVFvYtapg4NQmc28VA8AkhvITEiJGZCHRP8H4lFHkmGjUNXXkWjkJKMZsEYL3c
+Qx4TN72CIACbjirsmtm01m/uS4zqJo0lz96ZgPjzg0+GaqBccQCWygG8VKga9U5X
+BWcPNuzOIFTlOOGwfyMjOIqgt+JvC+DQlkg8Ch7p/wIzRHvnJDf0RoeZsU5zzio7
+/diSITyoHk7r0z40IUA5W+WVQRls8MtH0Ytq1qoEhz308+kOEft4DQa/wQ/I85Ki
+/teScjJaLSvfwJHdGTVA0pewfre8AtS0/DHiD2waBYZXftQdr0Tx4ynlX7580zUU
+blqEzXM/SpTJqX2pGHeppPy9BWXjB1dnU9PZCPTTRQe3zDuv9rk=
+=hKzE
+-----END PGP SIGNATURE-----
+
+--Sig_/fR.=hEM3/j_hKrnsh3EjOJN--
