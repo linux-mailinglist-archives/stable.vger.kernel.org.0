@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1786034CA2C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B6134C82A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233674AbhC2IfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
+        id S232543AbhC2IUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:20:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233803AbhC2IeN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 572926195B;
-        Mon, 29 Mar 2021 08:34:12 +0000 (UTC)
+        id S233312AbhC2ITp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:19:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27FA861477;
+        Mon, 29 Mar 2021 08:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006852;
-        bh=l5I2uj1Pewbwli7zwN2E7mc0da241sLeK7x6ZdI096M=;
+        s=korg; t=1617005978;
+        bh=fAfv0dCzxjcggOMs3qlBfIdzQSmtCL0l8bMzWH+lJUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOmSNJ1P7vZRPv+j5UalUzE0dJaJiUEefv52f+ge2JkSIEPKo3Olrc21vITOmOGPD
-         uk+QAL6otxL9i8IebRdu0C8yAkSEX78j4BROKdSA7GEumuyhjNhzOdsmAFghSR1i1o
-         FZa4mgIYqtb1/MY4PzREozDrFsU7ynfk7GIn7DTQ=
+        b=KtYnx6FUSWqUmt+4XjbVEsP7ipoBDnydoeegB2hdg+E2v5G3QkGFoZ6uF16wLTKg3
+         tREwNv2psjs/DLWLHXcBMzLbn5uDuA+Iuy7pqANc9Jk9MzVUznPaSQeCAQ72Hl4BUG
+         OiesQmTd8Yw6/IWfbb7/zs8dYIws3wgOoEm7rbVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.11 089/254] arm64: dts: ls1012a: mark crypto engine dma coherent
+        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        "Pavel Machek (CIP)" <pavel@denx.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 074/221] ACPI: video: Add missing callback back for Sony VPCEH3U1E
 Date:   Mon, 29 Mar 2021 09:56:45 +0200
-Message-Id: <20210329075636.105611425@linuxfoundation.org>
+Message-Id: <20210329075631.661064992@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-commit ba8da03fa7dff59d9400250aebd38f94cde3cb0f upstream.
+commit c1d1e25a8c542816ae8dee41b81a18d30c7519a0 upstream.
 
-Crypto engine (CAAM) on LS1012A platform is configured HW-coherent,
-mark accordingly the DT node.
+The .callback of the quirk for Sony VPCEH3U1E was unintetionally
+removed by the commit 25417185e9b5 ("ACPI: video: Add DMI quirk
+for GIGABYTE GB-BXBT-2807"). Add it back to make sure the quirk
+for Sony VPCEH3U1E works as expected.
 
-Lack of "dma-coherent" property for an IP that is configured HW-coherent
-can lead to problems, similar to what has been reported for LS1046A.
-
-Cc: <stable@vger.kernel.org> # v4.12+
-Fixes: 85b85c569507 ("arm64: dts: ls1012a: add crypto node")
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 25417185e9b5 ("ACPI: video: Add DMI quirk for GIGABYTE GB-BXBT-2807")
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Reviewed-by: Pavel Machek (CIP) <pavel@denx.de>
+Cc: 5.11+ <stable@vger.kernel.org> # 5.11+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi |    1 +
+ drivers/acpi/video_detect.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
-@@ -192,6 +192,7 @@
- 			ranges = <0x0 0x00 0x1700000 0x100000>;
- 			reg = <0x00 0x1700000 0x0 0x100000>;
- 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
-+			dma-coherent;
- 
- 			sec_jr0: jr@10000 {
- 				compatible = "fsl,sec-v5.4-job-ring",
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -147,6 +147,7 @@ static const struct dmi_system_id video_
+ 		},
+ 	},
+ 	{
++	.callback = video_detect_force_vendor,
+ 	.ident = "Sony VPCEH3U1E",
+ 	.matches = {
+ 		DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
 
 
