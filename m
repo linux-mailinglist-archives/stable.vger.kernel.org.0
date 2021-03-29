@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D212334C890
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 406F734C71F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233161AbhC2IXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38422 "EHLO mail.kernel.org"
+        id S233076AbhC2IM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233481AbhC2IV2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:21:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B566196E;
-        Mon, 29 Mar 2021 08:21:26 +0000 (UTC)
+        id S232611AbhC2ILP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:11:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 674EA619A6;
+        Mon, 29 Mar 2021 08:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006087;
-        bh=1w8tX1yoI2pIGLprEeWIUmAeaQBx+sPnlgze9bjc7Sw=;
+        s=korg; t=1617005474;
+        bh=ta3dKZVAV9B/VKNvCRlZ6dIfetMUV3vUg7TK+R3aPeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ovonnmP0WG0pKwzqYIf5rSDsegeI+X2jsSY+3WSkEtL2sVbZrH+LCYOrrfir4Afm
-         l+3kUaGPisieD12kLfwrYtQS+qnuJeAMpI5xPKQIpiF0Mn6YLv3xoYJJ5kevnmNUi0
-         6b43MgRa0btwi97+/LEaGcgCiAkWFCl1f75k01q0=
+        b=2sXvEbnkiGQQVK7AZK2m83Vron6F06Nm9ezOkuN/J0T454a+UhbI9VuyK0mSvU68e
+         M1ReFExcD41R9VgR20H+YzE+HNnXgt/TgPlbkIWyvSb0hfcLB1botM2Onz6S9doIgn
+         /k76KUj/m+qOcNwxpYZY2buq7VGg+zglfNcQPqHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Taniya Das <tdas@codeaurora.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 114/221] clk: qcom: gcc-sc7180: Use floor ops for the correct sdcc1 clk
+Subject: [PATCH 5.4 017/111] NFS: Correct size calculation for create reply length
 Date:   Mon, 29 Mar 2021 09:57:25 +0200
-Message-Id: <20210329075633.013061468@linuxfoundation.org>
+Message-Id: <20210329075615.760393187@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Frank Sorenson <sorenson@redhat.com>
 
-[ Upstream commit 148ddaa89d4a0a927c4353398096cc33687755c1 ]
+[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
 
-While picking commit a8cd989e1a57 ("mmc: sdhci-msm: Warn about
-overclocking SD/MMC") back to my tree I was surprised that it was
-reporting warnings.  I thought I fixed those!  Looking closer at the
-fix, I see that I totally bungled it (or at least I halfway bungled
-it).  The SD card clock got fixed (and that was the one I was really
-focused on fixing), but I totally adjusted the wrong clock for eMMC.
-Sigh.  Let's fix my dumb mistake.
+CREATE requests return a post_op_fh3, rather than nfs_fh3. The
+post_op_fh3 includes an extra word to indicate 'handle_follows'.
 
-Now both SD and eMMC have floor for the "apps" clock.
+Without that additional word, create fails when full 64-byte
+filehandles are in use.
 
-This doesn't matter a lot for the final clock rate for HS400 eMMC but
-could matter if someone happens to put some slower eMMC on a sc7180.
-We also transition through some of these lower rates sometimes and
-having them wrong could cause problems during these transitions.
-These were the messages I was seeing at boot:
-  mmc1: Card appears overclocked; req 52000000 Hz, actual 100000000 Hz
-  mmc1: Card appears overclocked; req 52000000 Hz, actual 100000000 Hz
-  mmc1: Card appears overclocked; req 104000000 Hz, actual 192000000 Hz
+Add NFS3_post_op_fh_sz, and correct the size calculation for
+NFS3_createres_sz.
 
-Fixes: 6d37a8d19283 ("clk: qcom: gcc-sc7180: Use floor ops for sdcc clks")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20210224095013.1.I2e2ba4978cfca06520dfb5d757768f9c42140f7c@changeid
-Reviewed-by: Taniya Das <tdas@codeaurora.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sc7180.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/nfs3xdr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gcc-sc7180.c b/drivers/clk/qcom/gcc-sc7180.c
-index b080739ab0c3..7e80dbd4a3f9 100644
---- a/drivers/clk/qcom/gcc-sc7180.c
-+++ b/drivers/clk/qcom/gcc-sc7180.c
-@@ -620,7 +620,7 @@ static struct clk_rcg2 gcc_sdcc1_apps_clk_src = {
- 		.name = "gcc_sdcc1_apps_clk_src",
- 		.parent_data = gcc_parent_data_1,
- 		.num_parents = 5,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_floor_ops,
- 	},
- };
- 
-@@ -642,7 +642,7 @@ static struct clk_rcg2 gcc_sdcc1_ice_core_clk_src = {
- 		.name = "gcc_sdcc1_ice_core_clk_src",
- 		.parent_data = gcc_parent_data_0,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_floor_ops,
-+		.ops = &clk_rcg2_ops,
- 	},
- };
- 
+diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
+index 1f60ab2535ee..23d75cddbb2e 100644
+--- a/fs/nfs/nfs3xdr.c
++++ b/fs/nfs/nfs3xdr.c
+@@ -35,6 +35,7 @@
+  */
+ #define NFS3_fhandle_sz		(1+16)
+ #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
++#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
+ #define NFS3_sattr_sz		(15)
+ #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
+ #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
+@@ -72,7 +73,7 @@
+ #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1+1)
+ #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3+1)
+ #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
+-#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
++#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
+ #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2+1)
 -- 
 2.30.1
 
