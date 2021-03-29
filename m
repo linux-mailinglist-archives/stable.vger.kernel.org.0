@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5242134C97D
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B9C34C7E2
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233790AbhC2I37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41376 "EHLO mail.kernel.org"
+        id S233133AbhC2IS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234293AbhC2I2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:28:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1BEA619D0;
-        Mon, 29 Mar 2021 08:27:16 +0000 (UTC)
+        id S233356AbhC2IRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:17:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA52A61477;
+        Mon, 29 Mar 2021 08:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006437;
-        bh=sVURH9xQNJTVxxqiD4JO++kz+Hn2GaPDiRIcKKnd0io=;
+        s=korg; t=1617005849;
+        bh=s2eDsaW1ro1iLhAOcNkNv9YFiR0Q4k8z1QIVXQWIZQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRyYWc2+1pd6QDW8a+OMR3TdehKDRBxRJQdrbyyxB/+rf5+RNHDloKNrq/qStcTmg
-         MRS88k/E30qgtyW1D7ekOiPKxvcTcTdvqPMHYlhkQGSS5CwL0OoHQ3MhpHRygqn3Ml
-         KwJZOPgs5SxfKvH3Vlf7hPTGRDAGsSGMhBi6k5Rw=
+        b=epnjDUgN338noveVSnxDbi65BcYgW8/0yCEuZta8Zu5hO1fvk3Kp0HNE/vkcgqcD/
+         +ThVT2MH9VWQMWng7ChLqJ/jxk5M2KQRNfz6h2gj+oiTedVZt5p/CLLLWcMpr0O8Kj
+         GMQp6bog54HDfzaxzH6K7UwtKO8AI8YGTI8+RF+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Feng Tang <feng.tang@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 020/254] gpiolib: acpi: Add missing IRQF_ONESHOT
-Date:   Mon, 29 Mar 2021 09:55:36 +0200
-Message-Id: <20210329075633.814778315@linuxfoundation.org>
+Subject: [PATCH 5.10 006/221] powerpc/4xx: Fix build errors from mfdcr()
+Date:   Mon, 29 Mar 2021 09:55:37 +0200
+Message-Id: <20210329075629.394129707@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 6e5d5791730b55a1f987e1db84b078b91eb49e99 ]
+[ Upstream commit eead089311f4d935ab5d1d8fbb0c42ad44699ada ]
 
-fixed the following coccicheck:
-./drivers/gpio/gpiolib-acpi.c:176:7-27: ERROR: Threaded IRQ with no
-primary handler requested without IRQF_ONESHOT
+lkp reported a build error in fsp2.o:
 
-Make sure threaded IRQs without a primary handler are always request
-with IRQF_ONESHOT
+  CC      arch/powerpc/platforms/44x/fsp2.o
+  {standard input}:577: Error: unsupported relocation against base
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Which comes from:
+
+  pr_err("GESR0: 0x%08x\n", mfdcr(base + PLB4OPB_GESR0));
+
+Where our mfdcr() macro is stringifying "base + PLB4OPB_GESR0", and
+passing that to the assembler, which obviously doesn't work.
+
+The mfdcr() macro already checks that the argument is constant using
+__builtin_constant_p(), and if not calls the out-of-line version of
+mfdcr(). But in this case GCC is smart enough to notice that "base +
+PLB4OPB_GESR0" will be constant, even though it's not something we can
+immediately stringify into a register number.
+
+Segher pointed out that passing the register number to the inline asm
+as a constant would be better, and in fact it fixes the build error,
+presumably because it gives GCC a chance to resolve the value.
+
+While we're at it, change mtdcr() similarly.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Feng Tang <feng.tang@intel.com>
+Link: https://lore.kernel.org/r/20210218123058.748882-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-acpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/dcr-native.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 495f779b2ab9..1aacd2a5a1fd 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -174,7 +174,7 @@ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
- 	int ret, value;
- 
- 	ret = request_threaded_irq(event->irq, NULL, event->handler,
--				   event->irqflags, "ACPI:Event", event);
-+				   event->irqflags | IRQF_ONESHOT, "ACPI:Event", event);
- 	if (ret) {
- 		dev_err(acpi_gpio->chip->parent,
- 			"Failed to setup interrupt handler for %d\n",
+diff --git a/arch/powerpc/include/asm/dcr-native.h b/arch/powerpc/include/asm/dcr-native.h
+index 7141ccea8c94..a92059964579 100644
+--- a/arch/powerpc/include/asm/dcr-native.h
++++ b/arch/powerpc/include/asm/dcr-native.h
+@@ -53,8 +53,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
+ #define mfdcr(rn)						\
+ 	({unsigned int rval;					\
+ 	if (__builtin_constant_p(rn) && rn < 1024)		\
+-		asm volatile("mfdcr %0," __stringify(rn)	\
+-		              : "=r" (rval));			\
++		asm volatile("mfdcr %0, %1" : "=r" (rval)	\
++			      : "n" (rn));			\
+ 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
+ 		rval = mfdcrx(rn);				\
+ 	else							\
+@@ -64,8 +64,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
+ #define mtdcr(rn, v)						\
+ do {								\
+ 	if (__builtin_constant_p(rn) && rn < 1024)		\
+-		asm volatile("mtdcr " __stringify(rn) ",%0"	\
+-			      : : "r" (v)); 			\
++		asm volatile("mtdcr %0, %1"			\
++			      : : "n" (rn), "r" (v));		\
+ 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
+ 		mtdcrx(rn, v);					\
+ 	else							\
 -- 
 2.30.1
 
