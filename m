@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A71234C9EF
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E471F34CA33
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233897AbhC2IeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
+        id S232795AbhC2Ifv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:35:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234617AbhC2IdW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 579A0619C5;
-        Mon, 29 Mar 2021 08:32:31 +0000 (UTC)
+        id S233820AbhC2IeP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:34:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A814661580;
+        Mon, 29 Mar 2021 08:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006751;
-        bh=IqqgAef8aMSmr7MlycYjfyp1izlvDR167gZ7Dbm1wOw=;
+        s=korg; t=1617006855;
+        bh=sWzzsCkJggXUYwjaqk3ZNQKl7qOP3H5UYuNl4wv49dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KC5BxHDfUHmUQRuaGBapP4N2CO9zVDGVOIehrt4nJWs7vNYH8tBmt/IPy5dxIGBdU
-         uw1TVNLkGYyaAaEFcReWhyxlbc3Q11+Li0rzzH8PG2B0P5dQO45I2n0JZwJKBMAR7Q
-         yJvmQemJpeyYYSZy6KrSq0My2at5YArPwEreYKgY=
+        b=OvDiMnno1WjEt/yx02ias/XDRsBTAsQ7ACXURhmEIJJGhlPietTa4IWKtFudloDkW
+         svO2AhEN41aMINLmcwYB24CjRb0LNZbzrLo2CEfFxnlcYNtL7pbK88WGDgFrZTMQJ1
+         thTr+xt7zSulW0E6uTsiP78pbQWsA3rc/VFTX3M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Phillip Lougher <phillip@squashfs.org.uk>,
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        Sean Nyekjaer <sean@geanix.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 079/254] squashfs: fix inode lookup sanity checks
-Date:   Mon, 29 Mar 2021 09:56:35 +0200
-Message-Id: <20210329075635.745459613@linuxfoundation.org>
+Subject: [PATCH 5.11 080/254] squashfs: fix xattr id and id lookup sanity checks
+Date:   Mon, 29 Mar 2021 09:56:36 +0200
+Message-Id: <20210329075635.784620724@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
 References: <20210329075633.135869143@linuxfoundation.org>
@@ -41,61 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-commit c1b2028315c6b15e8d6725e0d5884b15887d3daa upstream.
+commit 8b44ca2b634527151af07447a8090a5f3a043321 upstream.
 
-When mouting a squashfs image created without inode compression it fails
-with: "unable to read inode lookup table"
+The checks for maximum metadata block size is missing
+SQUASHFS_BLOCK_OFFSET (the two byte length count).
 
-It turns out that the BLOCK_OFFSET is missing when checking the
-SQUASHFS_METADATA_SIZE agaist the actual size.
-
-Link: https://lkml.kernel.org/r/20210226092903.1473545-1-sean@geanix.com
-Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Acked-by: Phillip Lougher <phillip@squashfs.org.uk>
+Link: https://lkml.kernel.org/r/2069685113.2081245.1614583677427@webmail.123-reg.co.uk
+Fixes: f37aa4c7366e23f ("squashfs: add more sanity checks in id lookup")
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Cc: Sean Nyekjaer <sean@geanix.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/export.c      |    8 ++++++--
- fs/squashfs/squashfs_fs.h |    1 +
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ fs/squashfs/id.c       |    6 ++++--
+ fs/squashfs/xattr_id.c |    6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/squashfs/export.c
-+++ b/fs/squashfs/export.c
-@@ -152,14 +152,18 @@ __le64 *squashfs_read_inode_lookup_table
+--- a/fs/squashfs/id.c
++++ b/fs/squashfs/id.c
+@@ -97,14 +97,16 @@ __le64 *squashfs_read_id_index_table(str
  		start = le64_to_cpu(table[n]);
  		end = le64_to_cpu(table[n + 1]);
  
 -		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end
-+		    || (end - start) >
-+		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
++		if (start >= end || (end - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
  			kfree(table);
  			return ERR_PTR(-EINVAL);
  		}
  	}
  
  	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= lookup_table_start ||
-+	    (lookup_table_start - start) >
-+	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+-	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= id_table_start || (id_table_start - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
  		kfree(table);
  		return ERR_PTR(-EINVAL);
  	}
---- a/fs/squashfs/squashfs_fs.h
-+++ b/fs/squashfs/squashfs_fs.h
-@@ -17,6 +17,7 @@
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -109,14 +109,16 @@ __le64 *squashfs_read_xattr_id_table(str
+ 		start = le64_to_cpu(table[n]);
+ 		end = le64_to_cpu(table[n + 1]);
  
- /* size of metadata (inode and directory) blocks */
- #define SQUASHFS_METADATA_SIZE		8192
-+#define SQUASHFS_BLOCK_OFFSET		2
+-		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++		if (start >= end || (end - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 			kfree(table);
+ 			return ERR_PTR(-EINVAL);
+ 		}
+ 	}
  
- /* default size of block device I/O */
- #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
+ 	start = le64_to_cpu(table[indexes - 1]);
+-	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= table_start || (table_start - start) >
++				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
 
 
