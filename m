@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 564B434CA8E
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2A134C78E
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbhC2Ii6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
+        id S232373AbhC2IQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:16:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234901AbhC2Ihd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E294E61580;
-        Mon, 29 Mar 2021 08:37:08 +0000 (UTC)
+        id S232929AbhC2IOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:14:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2D4A61477;
+        Mon, 29 Mar 2021 08:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007029;
-        bh=rZ64PLhtiDQUCM6CXMPFjdYiGSdWMpLqdSLZoPJqm/U=;
+        s=korg; t=1617005685;
+        bh=4VQOAETgK4tCSOh11+Uk4AmzYSjvyWfk78A8is7pybo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZJfz1tECl59WmABxGADWqK38r9TjRFkjwc20yS0sVd9deCZ2E8jwHMTGul82KhGn
-         5FV+wgofn2QxD0Kih/aRSsWkhnibt4hkEdSO+gY62twdPMrT/8P71ykPPBiUxr3a5t
-         dlqH+VoQvoq3IVgo+vRA8h/0Wv1TIIfOBzohcSh0=
+        b=yINcY1AlipxuMkQHZ5Kbk/zOoJiwGwZnqtPq30tezl1YyAGslb7FFj+DacUyjgrdU
+         5fj+7xvZ2nksMSFIaSM56/o1TYr9OPNCaLX8K9xhL6MV7DKuL3L9X6gfDekkYIxWmU
+         r0HFrxcxf2ubHEbG+NXzjXziT5O/53tkRx8nUL10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Divya Bharathi <Divya_Bharathi@dell.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Hariprasad Kelam <hkelam@marvell.com>,
+        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 193/254] platform/x86: dell-wmi-sysman: Cleanup sysman_init() error-exit handling
+Subject: [PATCH 5.4 081/111] octeontx2-af: fix infinite loop in unmapping NPC counter
 Date:   Mon, 29 Mar 2021 09:58:29 +0200
-Message-Id: <20210329075639.454244531@linuxfoundation.org>
+Message-Id: <20210329075617.910112474@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,150 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Hariprasad Kelam <hkelam@marvell.com>
 
-[ Upstream commit 9c90cd869747e3492a9306dcd8123c17502ff1fc ]
+[ Upstream commit 64451b98306bf1334a62bcd020ec92bdb4cb68db ]
 
-Cleanup sysman_init() error-exit handling:
+unmapping npc counter works in a way by traversing all mcam
+entries to find which mcam rule is associated with counter.
+But loop cursor variable 'entry' is not incremented before
+checking next mcam entry which resulting in infinite loop.
 
-1. There is no need for the fail_reset_bios and fail_authentication_kset
-   eror-exit cases, these can be handled by release_attributes_data()
+This in turn hogs the kworker thread forever and no other
+mbox message is processed by AF driver after that.
+Fix this by updating entry value before checking next
+mcam entry.
 
-2. Rename all the labels from fail_what_failed, to err_what_to_cleanup
-   this is the usual way to name these and avoids the need to rename
-   them when extra steps are added.
-
-Fixes: e8a60aa7404b ("platform/x86: Introduce support for Systems Management Driver over WMI for Dell Systems")
-Cc: Divya Bharathi <Divya_Bharathi@dell.com>
-Cc: Mario Limonciello <mario.limonciello@dell.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210321115901.35072-6-hdegoede@redhat.com
+Fixes: a958dd59f9ce ("octeontx2-af: Map or unmap NPC MCAM entry and counter")
+Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell-wmi-sysman/sysman.c | 45 +++++++------------
- 1 file changed, 16 insertions(+), 29 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/dell-wmi-sysman/sysman.c b/drivers/platform/x86/dell-wmi-sysman/sysman.c
-index 58dc4571f987..99dc2f3bdf49 100644
---- a/drivers/platform/x86/dell-wmi-sysman/sysman.c
-+++ b/drivers/platform/x86/dell-wmi-sysman/sysman.c
-@@ -508,100 +508,87 @@ static int __init sysman_init(void)
- 	ret = init_bios_attr_set_interface();
- 	if (ret || !wmi_priv.bios_attr_wdev) {
- 		pr_debug("failed to initialize set interface\n");
--		goto fail_set_interface;
-+		return ret;
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+index 15f70273e29c..d82a519a0cd9 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+@@ -1967,10 +1967,10 @@ int rvu_mbox_handler_npc_mcam_free_counter(struct rvu *rvu,
+ 		index = find_next_bit(mcam->bmap, mcam->bmap_entries, entry);
+ 		if (index >= mcam->bmap_entries)
+ 			break;
++		entry = index + 1;
+ 		if (mcam->entry2cntr_map[index] != req->cntr)
+ 			continue;
+ 
+-		entry = index + 1;
+ 		npc_unmap_mcam_entry_and_cntr(rvu, mcam, blkaddr,
+ 					      index, req->cntr);
  	}
- 
- 	ret = init_bios_attr_pass_interface();
- 	if (ret || !wmi_priv.password_attr_wdev) {
- 		pr_debug("failed to initialize pass interface\n");
--		goto fail_pass_interface;
-+		goto err_exit_bios_attr_set_interface;
- 	}
- 
- 	ret = class_register(&firmware_attributes_class);
- 	if (ret)
--		goto fail_class;
-+		goto err_exit_bios_attr_pass_interface;
- 
- 	wmi_priv.class_dev = device_create(&firmware_attributes_class, NULL, MKDEV(0, 0),
- 				  NULL, "%s", DRIVER_NAME);
- 	if (IS_ERR(wmi_priv.class_dev)) {
- 		ret = PTR_ERR(wmi_priv.class_dev);
--		goto fail_classdev;
-+		goto err_unregister_class;
- 	}
- 
- 	wmi_priv.main_dir_kset = kset_create_and_add("attributes", NULL,
- 						     &wmi_priv.class_dev->kobj);
- 	if (!wmi_priv.main_dir_kset) {
- 		ret = -ENOMEM;
--		goto fail_main_kset;
-+		goto err_destroy_classdev;
- 	}
- 
- 	wmi_priv.authentication_dir_kset = kset_create_and_add("authentication", NULL,
- 								&wmi_priv.class_dev->kobj);
- 	if (!wmi_priv.authentication_dir_kset) {
- 		ret = -ENOMEM;
--		goto fail_authentication_kset;
-+		goto err_release_attributes_data;
- 	}
- 
- 	ret = create_attributes_level_sysfs_files();
- 	if (ret) {
- 		pr_debug("could not create reset BIOS attribute\n");
--		goto fail_reset_bios;
-+		goto err_release_attributes_data;
- 	}
- 
- 	ret = init_bios_attributes(ENUM, DELL_WMI_BIOS_ENUMERATION_ATTRIBUTE_GUID);
- 	if (ret) {
- 		pr_debug("failed to populate enumeration type attributes\n");
--		goto fail_create_group;
-+		goto err_release_attributes_data;
- 	}
- 
- 	ret = init_bios_attributes(INT, DELL_WMI_BIOS_INTEGER_ATTRIBUTE_GUID);
- 	if (ret) {
- 		pr_debug("failed to populate integer type attributes\n");
--		goto fail_create_group;
-+		goto err_release_attributes_data;
- 	}
- 
- 	ret = init_bios_attributes(STR, DELL_WMI_BIOS_STRING_ATTRIBUTE_GUID);
- 	if (ret) {
- 		pr_debug("failed to populate string type attributes\n");
--		goto fail_create_group;
-+		goto err_release_attributes_data;
- 	}
- 
- 	ret = init_bios_attributes(PO, DELL_WMI_BIOS_PASSOBJ_ATTRIBUTE_GUID);
- 	if (ret) {
- 		pr_debug("failed to populate pass object type attributes\n");
--		goto fail_create_group;
-+		goto err_release_attributes_data;
- 	}
- 
- 	return 0;
- 
--fail_create_group:
-+err_release_attributes_data:
- 	release_attributes_data();
- 
--fail_reset_bios:
--	if (wmi_priv.authentication_dir_kset) {
--		kset_unregister(wmi_priv.authentication_dir_kset);
--		wmi_priv.authentication_dir_kset = NULL;
--	}
--
--fail_authentication_kset:
--	if (wmi_priv.main_dir_kset) {
--		kset_unregister(wmi_priv.main_dir_kset);
--		wmi_priv.main_dir_kset = NULL;
--	}
--
--fail_main_kset:
-+err_destroy_classdev:
- 	device_destroy(&firmware_attributes_class, MKDEV(0, 0));
- 
--fail_classdev:
-+err_unregister_class:
- 	class_unregister(&firmware_attributes_class);
- 
--fail_class:
-+err_exit_bios_attr_pass_interface:
- 	exit_bios_attr_pass_interface();
- 
--fail_pass_interface:
-+err_exit_bios_attr_set_interface:
- 	exit_bios_attr_set_interface();
- 
--fail_set_interface:
- 	return ret;
- }
- 
 -- 
 2.30.1
 
