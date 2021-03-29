@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4DF34C786
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2119C34C8CC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232741AbhC2IQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:16:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57914 "EHLO mail.kernel.org"
+        id S234247AbhC2IYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232849AbhC2IOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 141D6619C3;
-        Mon, 29 Mar 2021 08:14:35 +0000 (UTC)
+        id S231993AbhC2IGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:06:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF19861601;
+        Mon, 29 Mar 2021 08:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005676;
-        bh=qCOOaa6EfyiklhqncTsoyrChG1edpEURA9rvgktgUhg=;
+        s=korg; t=1617005211;
+        bh=UqKxY8JrXkGafpGGXo/vi1eZjNzvixcPNWB8ebfj0EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmZteLOypT1uWmzHwiX3jXXILgOJBRdUsYXFHD+UzvgQn9Ktl6agrDb2XJKEnObRd
-         +9LBEfhvV/VZ7pX/evuN995IrIVR3AJUhH48o5rurgxEoGPNa6aDGcdlsDjLqKI37n
-         GPNaT0H7/BW0ThROtV6jMkMsCFF2mBLdRVfCHruM=
+        b=Vi2Q8NSKDLpChVqC9Z1Cmk+jDgEvvrTQ0oE1Uxtps514fJUAkTrLSINWO6n43s3ap
+         aEQ9isRaQTQ9qEnAujq1Xfj1f9TxkrOJbFgkRwA0mT5M9PUZqFA3soHtTGSLIhLGDp
+         jpZw+ns9Ca7RV5fn6SFF0FiUBgwZx1ZjxD/WE/dA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/111] can: peak_usb: add forgotten supported devices
+Subject: [PATCH 4.14 38/59] can: c_can_pci: c_can_pci_remove(): fix use-after-free
 Date:   Mon, 29 Mar 2021 09:58:18 +0200
-Message-Id: <20210329075617.544105248@linuxfoundation.org>
+Message-Id: <20210329075610.142096952@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 59ec7b89ed3e921cd0625a8c83f31a30d485fdf8 ]
+[ Upstream commit 0429d6d89f97ebff4f17f13f5b5069c66bde8138 ]
 
-Since the peak_usb driver also supports the CAN-USB interfaces
-"PCAN-USB X6" and "PCAN-Chip USB" from PEAK-System GmbH, this patch adds
-their names to the list of explicitly supported devices.
+There is a UAF in c_can_pci_remove(). dev is released by
+free_c_can_dev() and is used by pci_iounmap(pdev, priv->base) later.
+To fix this issue, save the mmio address before releasing dev.
 
-Fixes: ea8b65b596d7 ("can: usb: Add support of PCAN-Chip USB stamp module")
-Fixes: f00b534ded60 ("can: peak: Add support for PCAN-USB X6 USB interface")
-Link: https://lore.kernel.org/r/20210309082128.23125-3-s.grosjean@peak-system.com
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Fixes: 5b92da0443c2 ("c_can_pci: generic module for C_CAN/D_CAN on PCI")
+Link: https://lore.kernel.org/r/20210301024512.539039-1-ztong0001@gmail.com
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/c_can/c_can_pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-index 96bbdef672bc..17a5641d81b3 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -18,6 +18,8 @@
+diff --git a/drivers/net/can/c_can/c_can_pci.c b/drivers/net/can/c_can/c_can_pci.c
+index d065c0e2d18e..f3e0b2124a37 100644
+--- a/drivers/net/can/c_can/c_can_pci.c
++++ b/drivers/net/can/c_can/c_can_pci.c
+@@ -239,12 +239,13 @@ static void c_can_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct c_can_priv *priv = netdev_priv(dev);
++	void __iomem *addr = priv->base;
  
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB FD adapter");
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB Pro FD adapter");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-Chip USB");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB X6 adapter");
+ 	unregister_c_can_dev(dev);
  
- #define PCAN_USBPROFD_CHANNEL_COUNT	2
- #define PCAN_USBFD_CHANNEL_COUNT	1
+ 	free_c_can_dev(dev);
+ 
+-	pci_iounmap(pdev, priv->base);
++	pci_iounmap(pdev, addr);
+ 	pci_disable_msi(pdev);
+ 	pci_clear_master(pdev);
+ 	pci_release_regions(pdev);
 -- 
 2.30.1
 
