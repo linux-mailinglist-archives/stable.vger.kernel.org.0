@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AADF34CAD0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F375334C90F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233200AbhC2Ij7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33320 "EHLO mail.kernel.org"
+        id S233656AbhC2I0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234062AbhC2IjA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:39:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14A0C619B5;
-        Mon, 29 Mar 2021 08:38:59 +0000 (UTC)
+        id S233001AbhC2IYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:24:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85C1B619B4;
+        Mon, 29 Mar 2021 08:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007140;
-        bh=Rz6N8CqdteZW71jHy4xN44c19xZeIoB/nnmqisRBfCY=;
+        s=korg; t=1617006285;
+        bh=eyBy7NQX+haWMqdNHTQLb7bD6fRAY9Lnc9ZIE3KEXC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KoY3KmswCMyYG2MGE/dSBxq7FcBTPcjsZGOjFhpBVvTHH6E9mzuLZATB1PsD8S2Et
-         4ULRPUxoL4/eWegICCJB+iGTF+sO3to1ikIK1Fo5WdCMtU8DfM2spXgpNiqLtIp6lG
-         osYavoGfKDJzRJzwjBzoau7iYgcjr0CVH6I8hKfg=
+        b=jonJr/hyaWRMJu4v69Mlmgwl/iEEA3ra+6/0JvNlRZTBQc9LUHNfJfpNXnCbNyyLI
+         ZjSGq2JEv0zTwAiF2j5W8OlFqHANA0hRCBmoHVjrh3JhDwdkll3PXu7IyaSxNS8OVb
+         sRCm/cH0NJZENnArlLVAD+IxdCV7lmAfHqzE12AQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
-        Paul Blakey <paulb@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 201/254] net/mlx5e: Offload tuple rewrite for non-CT flows
+Subject: [PATCH 5.10 186/221] net: phy: broadcom: Avoid forward for bcm54xx_config_clock_delay()
 Date:   Mon, 29 Mar 2021 09:58:37 +0200
-Message-Id: <20210329075639.703504178@linuxfoundation.org>
+Message-Id: <20210329075635.336327630@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,106 +41,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dima Chumak <dchumak@nvidia.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 96b5b4585843e3c83fb1930e5dfbefd0fb889c55 ]
+[ Upstream commit 133bf7b4fbbe58cff5492e37e95e75c88161f1b8 ]
 
-Setting connection tracking OVS flows and then setting non-CT flows that
-use tuple rewrite action (e.g. mod_tp_dst), causes the latter flows not
-being offloaded.
+Avoid a forward declaration by moving the callers of
+bcm54xx_config_clock_delay() below its body.
 
-Fix by using a stricter condition in modify_header_match_supported() to
-check tuple rewrite support only for flows with CT action. The check is
-factored out into standalone modify_tuple_supported() function to aid
-readability.
-
-Fixes: 7e36feeb0467 ("net/mlx5e: CT: Don't offload tuple rewrites for established tuples")
-Signed-off-by: Dima Chumak <dchumak@nvidia.com>
-Reviewed-by: Paul Blakey <paulb@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlx5/core/en/tc_ct.c    |  3 +-
- .../net/ethernet/mellanox/mlx5/core/en_tc.c   | 44 ++++++++++++++-----
- 2 files changed, 35 insertions(+), 12 deletions(-)
+ drivers/net/phy/broadcom.c | 74 +++++++++++++++++++-------------------
+ 1 file changed, 36 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-index 24e2c0d955b9..b42396df3111 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-@@ -1182,7 +1182,8 @@ int mlx5_tc_ct_add_no_trk_match(struct mlx5_flow_spec *spec)
+diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
+index 739efcce6dd5..88e9708e0562 100644
+--- a/drivers/net/phy/broadcom.c
++++ b/drivers/net/phy/broadcom.c
+@@ -26,44 +26,6 @@ MODULE_DESCRIPTION("Broadcom PHY driver");
+ MODULE_AUTHOR("Maciej W. Rozycki");
+ MODULE_LICENSE("GPL");
  
- 	mlx5e_tc_match_to_reg_get_match(spec, CTSTATE_TO_REG,
- 					&ctstate, &ctstate_mask);
--	if (ctstate_mask)
-+
-+	if ((ctstate & ctstate_mask) == MLX5_CT_STATE_TRK_BIT)
- 		return -EOPNOTSUPP;
- 
- 	ctstate_mask |= MLX5_CT_STATE_TRK_BIT;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 95cbefed1b32..24fa399b1577 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -3208,6 +3208,37 @@ static int is_action_keys_supported(const struct flow_action_entry *act,
+-static int bcm54xx_config_clock_delay(struct phy_device *phydev);
+-
+-static int bcm54210e_config_init(struct phy_device *phydev)
+-{
+-	int val;
+-
+-	bcm54xx_config_clock_delay(phydev);
+-
+-	if (phydev->dev_flags & PHY_BRCM_EN_MASTER_MODE) {
+-		val = phy_read(phydev, MII_CTRL1000);
+-		val |= CTL1000_AS_MASTER | CTL1000_ENABLE_MASTER;
+-		phy_write(phydev, MII_CTRL1000, val);
+-	}
+-
+-	return 0;
+-}
+-
+-static int bcm54612e_config_init(struct phy_device *phydev)
+-{
+-	int reg;
+-
+-	bcm54xx_config_clock_delay(phydev);
+-
+-	/* Enable CLK125 MUX on LED4 if ref clock is enabled. */
+-	if (!(phydev->dev_flags & PHY_BRCM_RX_REFCLK_UNUSED)) {
+-		int err;
+-
+-		reg = bcm_phy_read_exp(phydev, BCM54612E_EXP_SPARE0);
+-		err = bcm_phy_write_exp(phydev, BCM54612E_EXP_SPARE0,
+-					BCM54612E_LED4_CLK125OUT_EN | reg);
+-
+-		if (err < 0)
+-			return err;
+-	}
+-
+-	return 0;
+-}
+-
+ static int bcm54xx_config_clock_delay(struct phy_device *phydev)
+ {
+ 	int rc, val;
+@@ -105,6 +67,42 @@ static int bcm54xx_config_clock_delay(struct phy_device *phydev)
  	return 0;
  }
  
-+static bool modify_tuple_supported(bool modify_tuple, bool ct_clear,
-+				   bool ct_flow, struct netlink_ext_ack *extack,
-+				   struct mlx5e_priv *priv,
-+				   struct mlx5_flow_spec *spec)
++static int bcm54210e_config_init(struct phy_device *phydev)
 +{
-+	if (!modify_tuple || ct_clear)
-+		return true;
++	int val;
 +
-+	if (ct_flow) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "can't offload tuple modification with non-clear ct()");
-+		netdev_info(priv->netdev,
-+			    "can't offload tuple modification with non-clear ct()");
-+		return false;
++	bcm54xx_config_clock_delay(phydev);
++
++	if (phydev->dev_flags & PHY_BRCM_EN_MASTER_MODE) {
++		val = phy_read(phydev, MII_CTRL1000);
++		val |= CTL1000_AS_MASTER | CTL1000_ENABLE_MASTER;
++		phy_write(phydev, MII_CTRL1000, val);
 +	}
 +
-+	/* Add ct_state=-trk match so it will be offloaded for non ct flows
-+	 * (or after clear action), as otherwise, since the tuple is changed,
-+	 * we can't restore ct state
-+	 */
-+	if (mlx5_tc_ct_add_no_trk_match(spec)) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "can't offload tuple modification with ct matches and no ct(clear) action");
-+		netdev_info(priv->netdev,
-+			    "can't offload tuple modification with ct matches and no ct(clear) action");
-+		return false;
-+	}
-+
-+	return true;
++	return 0;
 +}
 +
- static bool modify_header_match_supported(struct mlx5e_priv *priv,
- 					  struct mlx5_flow_spec *spec,
- 					  struct flow_action *flow_action,
-@@ -3246,18 +3277,9 @@ static bool modify_header_match_supported(struct mlx5e_priv *priv,
- 			return err;
- 	}
- 
--	/* Add ct_state=-trk match so it will be offloaded for non ct flows
--	 * (or after clear action), as otherwise, since the tuple is changed,
--	 *  we can't restore ct state
--	 */
--	if (!ct_clear && modify_tuple &&
--	    mlx5_tc_ct_add_no_trk_match(spec)) {
--		NL_SET_ERR_MSG_MOD(extack,
--				   "can't offload tuple modify header with ct matches");
--		netdev_info(priv->netdev,
--			    "can't offload tuple modify header with ct matches");
-+	if (!modify_tuple_supported(modify_tuple, ct_clear, ct_flow, extack,
-+				    priv, spec))
- 		return false;
--	}
- 
- 	ip_proto = MLX5_GET(fte_match_set_lyr_2_4, headers_v, ip_protocol);
- 	if (modify_ip_header && ip_proto != IPPROTO_TCP &&
++static int bcm54612e_config_init(struct phy_device *phydev)
++{
++	int reg;
++
++	bcm54xx_config_clock_delay(phydev);
++
++	/* Enable CLK125 MUX on LED4 if ref clock is enabled. */
++	if (!(phydev->dev_flags & PHY_BRCM_RX_REFCLK_UNUSED)) {
++		int err;
++
++		reg = bcm_phy_read_exp(phydev, BCM54612E_EXP_SPARE0);
++		err = bcm_phy_write_exp(phydev, BCM54612E_EXP_SPARE0,
++					BCM54612E_LED4_CLK125OUT_EN | reg);
++
++		if (err < 0)
++			return err;
++	}
++
++	return 0;
++}
++
+ /* Needs SMDSP clock enabled via bcm54xx_phydsp_config() */
+ static int bcm50610_a0_workaround(struct phy_device *phydev)
+ {
 -- 
 2.30.1
 
