@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDE7034C95A
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0907C34CAC6
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231670AbhC2I3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
+        id S234980AbhC2Ijv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233560AbhC2I1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:27:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E5D61477;
-        Mon, 29 Mar 2021 08:25:55 +0000 (UTC)
+        id S234080AbhC2Iii (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:38:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F50C61581;
+        Mon, 29 Mar 2021 08:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006356;
-        bh=6R+8QI+IYx6C9rN7feoIDmwQmM5836WsWXCSsTemGiU=;
+        s=korg; t=1617007117;
+        bh=+Dguk+tlJHUA0wg2xs5ieUr1BlRyk8E9wgOK0mSAPqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTEZPHzn6SqOcrvwZBUl1Mburvz3njtyX2x4QLrK2Q37PG9YhrW9D4Ng8n5wTJZtY
-         fbnJB0w4tG6Gh3V1UMw7FDTETN/KSnMpK9ODrMnD1AKz7msz4zQB/8xpHEZdVwsc05
-         HaRJ+cClD//JfsjL3pD2BaxIPq8tA+eqbuJbcSYw=
+        b=BwaudfTWJJgqqDlxPg8fXQRuQEH0e6KiPE4OKwf2ATsIhKHVRoAD0aMW73401EcVW
+         xPpfNiY3M3td0mm27dtj8zl2iknVrgIeqIo2DFGr+58NQs2+0exffenGdFd4lmMPCc
+         QgDHJdwHF1KlA5o67WAr/uCu+MATfYbFQ8CWLyqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Christoph Hellwig <hch@lst.de>,
-        David Howells <dhowells@redhat.com>, kafs-testing@auristor.com,
-        linux-cachefs@redhat.com, linux-mm@kvack.org
-Subject: [PATCH 5.10 210/221] fs/cachefiles: Remove wait_bit_key layout dependency
-Date:   Mon, 29 Mar 2021 09:59:01 +0200
-Message-Id: <20210329075636.118348118@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 226/254] arm64: mm: correct the inside linear map range during hotplug check
+Date:   Mon, 29 Mar 2021 09:59:02 +0200
+Message-Id: <20210329075640.512816658@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-commit 39f985c8f667c80a3d1eb19d31138032fa36b09e upstream.
+[ Upstream commit ee7febce051945be28ad86d16a15886f878204de ]
 
-Cachefiles was relying on wait_page_key and wait_bit_key being the
-same layout, which is fragile.  Now that wait_page_key is exposed in
-the pagemap.h header, we can remove that fragility
+Memory hotplug may fail on systems with CONFIG_RANDOMIZE_BASE because the
+linear map range is not checked correctly.
 
-A comment on the need to maintain structure layout equivalence was added by
-Linus[1] and that is no longer applicable.
+The start physical address that linear map covers can be actually at the
+end of the range because of randomization. Check that and if so reduce it
+to 0.
 
-Fixes: 62906027091f ("mm: add PageWaiters indicating tasks are waiting for a page bit")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: kafs-testing@auristor.com
-cc: linux-cachefs@redhat.com
-cc: linux-mm@kvack.org
-Link: https://lore.kernel.org/r/20210320054104.1300774-2-willy@infradead.org/
-Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3510ca20ece0150af6b10c77a74ff1b5c198e3e2 [1]
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This can be verified on QEMU with setting kaslr-seed to ~0ul:
+
+memstart_offset_seed = 0xffff
+START: __pa(_PAGE_OFFSET(vabits_actual)) = ffff9000c0000000
+END:   __pa(PAGE_END - 1) =  1000bfffffff
+
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Fixes: 58284a901b42 ("arm64/mm: Validate hotplug range before creating linear mapping")
+Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/20210216150351.129018-2-pasha.tatashin@soleen.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cachefiles/rdwr.c    |    7 +++----
- include/linux/pagemap.h |    1 -
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ arch/arm64/mm/mmu.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/fs/cachefiles/rdwr.c
-+++ b/fs/cachefiles/rdwr.c
-@@ -24,17 +24,16 @@ static int cachefiles_read_waiter(wait_q
- 		container_of(wait, struct cachefiles_one_read, monitor);
- 	struct cachefiles_object *object;
- 	struct fscache_retrieval *op = monitor->op;
--	struct wait_bit_key *key = _key;
-+	struct wait_page_key *key = _key;
- 	struct page *page = wait->private;
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 92b3be127796..3ca02e917598 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1446,6 +1446,22 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
+ struct range arch_get_mappable_range(void)
+ {
+ 	struct range mhp_range;
++	u64 start_linear_pa = __pa(_PAGE_OFFSET(vabits_actual));
++	u64 end_linear_pa = __pa(PAGE_END - 1);
++
++	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
++		/*
++		 * Check for a wrap, it is possible because of randomized linear
++		 * mapping the start physical address is actually bigger than
++		 * the end physical address. In this case set start to zero
++		 * because [0, end_linear_pa] range must still be able to cover
++		 * all addressable physical addresses.
++		 */
++		if (start_linear_pa > end_linear_pa)
++			start_linear_pa = 0;
++	}
++
++	WARN_ON(start_linear_pa > end_linear_pa);
  
- 	ASSERT(key);
- 
- 	_enter("{%lu},%u,%d,{%p,%u}",
- 	       monitor->netfs_page->index, mode, sync,
--	       key->flags, key->bit_nr);
-+	       key->page, key->bit_nr);
- 
--	if (key->flags != &page->flags ||
--	    key->bit_nr != PG_locked)
-+	if (key->page != page || key->bit_nr != PG_locked)
- 		return 0;
- 
- 	_debug("--- monitor %p %lx ---", page, page->flags);
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -559,7 +559,6 @@ static inline pgoff_t linear_page_index(
- 	return pgoff;
+ 	/*
+ 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
+@@ -1453,8 +1469,9 @@ struct range arch_get_mappable_range(void)
+ 	 * range which can be mapped inside this linear mapping range, must
+ 	 * also be derived from its end points.
+ 	 */
+-	mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
+-	mhp_range.end =  __pa(PAGE_END - 1);
++	mhp_range.start = start_linear_pa;
++	mhp_range.end =  end_linear_pa;
++
+ 	return mhp_range;
  }
  
--/* This has the same layout as wait_bit_key - see fs/cachefiles/rdwr.c */
- struct wait_page_key {
- 	struct page *page;
- 	int bit_nr;
+-- 
+2.30.1
+
 
 
