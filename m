@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0832D34DA95
+	by mail.lfdr.de (Postfix) with ESMTP id 556D034DA96
 	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231928AbhC2WW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:22:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46650 "EHLO mail.kernel.org"
+        id S232307AbhC2WW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:22:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232134AbhC2WWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232135AbhC2WWe (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 18:22:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D6E5619A0;
-        Mon, 29 Mar 2021 22:22:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ADCF61996;
+        Mon, 29 Mar 2021 22:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056551;
-        bh=MHwa5JohzyHavIM4/OUmGPozr92pgczCuttU/ev3D8Y=;
+        s=k20201202; t=1617056552;
+        bh=2pzgYDNjyD2gl3ASOozDact3qMotPv2R02xghOCXFdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VwegJBgAP+47oukFPQwZW+hTFtILOSgueV7dOowdWXq9284/ZiN7jVOxY9Hm+3/oJ
-         AZMfAjuOCaxysbHpAVpi511wRuv9ra2zrYlwdiT1jrJpeTzeyjZAaW+Kituxwf+lL9
-         S9+dHQNTeEPzpwVB63QOSjyt2vjK8dVcgkFEFSM/fcDKThJmp/YrM0Ws6/QEMb4CZh
-         DkXR9S4ONl0Nx0b7c+J7oisWkEieVhU6uO0HoTfDw4VkDti+FdltvtIBP44o5Z/Snh
-         hwrN4gu3lreDN8wN6EGoOJPhWLeNusLWiyrUigMXsQ6GD3Jr6SAvcUczG8+QCwh+T5
-         Wc7e/V5TdzxMA==
+        b=TtRLVoDelSnsy5p2Ki33R+2ywJ+UOLCpavSfEOJ5U6FoyXvoEgu1BYwKh9r11TK4v
+         e8Had+OKx8lh7wffSszVHQeShQAEfzlCzjWEoUMEjDBx3WDwOVVvUoFdYXCf7s4Gd4
+         dFBypVA5ESOiUlFjHRXS2i2RDINjtgufW/6DPIaVXNRUzL1vwrRepSPYrOUrFD7sLZ
+         CA/cyecMmXp6NAdGJS/ltwqxlH+c3rRHa/dDeb2b2x4lVq8Ah0Nu+aJPG1e7a9RDEY
+         VNM7kC+MmoAlUnL0S6ItBqK6626cTQDybRskfrEiu6RwehfrYI+YWS+1XEDbD3hVpX
+         KLxukoZhCv0vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Gow <davidgow@google.com>,
-        Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.10 07/33] kunit: tool: Fix a python tuple typing error
-Date:   Mon, 29 Mar 2021 18:21:55 -0400
-Message-Id: <20210329222222.2382987-7-sashal@kernel.org>
+Cc:     Tong Zhang <ztong0001@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 08/33] mISDN: fix crash in fritzpci
+Date:   Mon, 29 Mar 2021 18:21:56 -0400
+Message-Id: <20210329222222.2382987-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222222.2382987-1-sashal@kernel.org>
 References: <20210329222222.2382987-1-sashal@kernel.org>
@@ -45,38 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 7421b1a4d10c633ca5f14c8236d3e2c1de07e52b ]
+[ Upstream commit a9f81244d2e33e6dfcef120fefd30c96b3f7cdb0 ]
 
-The first argument to namedtuple() should match the name of the type,
-which wasn't the case for KconfigEntryBase.
+setup_fritz() in avmfritz.c might fail with -EIO and in this case the
+isac.type and isac.write_reg is not initialized and remains 0(NULL).
+A subsequent call to isac_release() will dereference isac->write_reg and
+crash.
 
-Fixing this is enough to make mypy show no python typing errors again.
+[    1.737444] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    1.737809] #PF: supervisor instruction fetch in kernel mode
+[    1.738106] #PF: error_code(0x0010) - not-present page
+[    1.738378] PGD 0 P4D 0
+[    1.738515] Oops: 0010 [#1] SMP NOPTI
+[    1.738711] CPU: 0 PID: 180 Comm: systemd-udevd Not tainted 5.12.0-rc2+ #78
+[    1.739077] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-p
+rebuilt.qemu.org 04/01/2014
+[    1.739664] RIP: 0010:0x0
+[    1.739807] Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+[    1.740200] RSP: 0018:ffffc9000027ba10 EFLAGS: 00010202
+[    1.740478] RAX: 0000000000000000 RBX: ffff888102f41840 RCX: 0000000000000027
+[    1.740853] RDX: 00000000000000ff RSI: 0000000000000020 RDI: ffff888102f41800
+[    1.741226] RBP: ffffc9000027ba20 R08: ffff88817bc18440 R09: ffffc9000027b808
+[    1.741600] R10: 0000000000000001 R11: 0000000000000001 R12: ffff888102f41840
+[    1.741976] R13: 00000000fffffffb R14: ffff888102f41800 R15: ffff8881008b0000
+[    1.742351] FS:  00007fda3a38a8c0(0000) GS:ffff88817bc00000(0000) knlGS:0000000000000000
+[    1.742774] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.743076] CR2: ffffffffffffffd6 CR3: 00000001021ec000 CR4: 00000000000006f0
+[    1.743452] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    1.743828] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    1.744206] Call Trace:
+[    1.744339]  isac_release+0xcc/0xe0 [mISDNipac]
+[    1.744582]  fritzpci_probe.cold+0x282/0x739 [avmfritz]
+[    1.744861]  local_pci_probe+0x48/0x80
+[    1.745063]  pci_device_probe+0x10f/0x1c0
+[    1.745278]  really_probe+0xfb/0x420
+[    1.745471]  driver_probe_device+0xe9/0x160
+[    1.745693]  device_driver_attach+0x5d/0x70
+[    1.745917]  __driver_attach+0x8f/0x150
+[    1.746123]  ? device_driver_attach+0x70/0x70
+[    1.746354]  bus_for_each_dev+0x7e/0xc0
+[    1.746560]  driver_attach+0x1e/0x20
+[    1.746751]  bus_add_driver+0x152/0x1f0
+[    1.746957]  driver_register+0x74/0xd0
+[    1.747157]  ? 0xffffffffc00d8000
+[    1.747334]  __pci_register_driver+0x54/0x60
+[    1.747562]  AVM_init+0x36/0x1000 [avmfritz]
+[    1.747791]  do_one_initcall+0x48/0x1d0
+[    1.747997]  ? __cond_resched+0x19/0x30
+[    1.748206]  ? kmem_cache_alloc_trace+0x390/0x440
+[    1.748458]  ? do_init_module+0x28/0x250
+[    1.748669]  do_init_module+0x62/0x250
+[    1.748870]  load_module+0x23ee/0x26a0
+[    1.749073]  __do_sys_finit_module+0xc2/0x120
+[    1.749307]  ? __do_sys_finit_module+0xc2/0x120
+[    1.749549]  __x64_sys_finit_module+0x1a/0x20
+[    1.749782]  do_syscall_64+0x38/0x90
 
-Fixes 97752c39bd ("kunit: kunit_tool: Allow .kunitconfig to disable config items")
-Signed-off-by: David Gow <davidgow@google.com>
-Reviewed-by: Daniel Latypov <dlatypov@google.com>
-Acked-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/kunit/kunit_config.py | 2 +-
+ drivers/isdn/hardware/mISDN/mISDNipac.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/kunit/kunit_config.py b/tools/testing/kunit/kunit_config.py
-index 02ffc3a3e5dc..b30e9d6db6b4 100644
---- a/tools/testing/kunit/kunit_config.py
-+++ b/tools/testing/kunit/kunit_config.py
-@@ -12,7 +12,7 @@ import re
- CONFIG_IS_NOT_SET_PATTERN = r'^# CONFIG_(\w+) is not set$'
- CONFIG_PATTERN = r'^CONFIG_(\w+)=(\S+|".*")$'
- 
--KconfigEntryBase = collections.namedtuple('KconfigEntry', ['name', 'value'])
-+KconfigEntryBase = collections.namedtuple('KconfigEntryBase', ['name', 'value'])
- 
- class KconfigEntry(KconfigEntryBase):
- 
+diff --git a/drivers/isdn/hardware/mISDN/mISDNipac.c b/drivers/isdn/hardware/mISDN/mISDNipac.c
+index ec475087fbf9..39f841b42488 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNipac.c
++++ b/drivers/isdn/hardware/mISDN/mISDNipac.c
+@@ -694,7 +694,7 @@ isac_release(struct isac_hw *isac)
+ {
+ 	if (isac->type & IPAC_TYPE_ISACX)
+ 		WriteISAC(isac, ISACX_MASK, 0xff);
+-	else
++	else if (isac->type != 0)
+ 		WriteISAC(isac, ISAC_MASK, 0xff);
+ 	if (isac->dch.timer.function != NULL) {
+ 		del_timer(&isac->dch.timer);
 -- 
 2.30.1
 
