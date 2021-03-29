@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B6334CAC8
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F0134C997
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234982AbhC2Ijw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32932 "EHLO mail.kernel.org"
+        id S234011AbhC2IaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:30:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234281AbhC2Iik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:38:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB33761580;
-        Mon, 29 Mar 2021 08:38:39 +0000 (UTC)
+        id S233865AbhC2I10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:27:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ACB761581;
+        Mon, 29 Mar 2021 08:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007120;
-        bh=G9lst5iva3rCBHVaFyoyQEqrDtySlnE1DkvJQkJg+Z8=;
+        s=korg; t=1617006361;
+        bh=KvXms17jIybmqnJ11SALUWgKPvlHfwn+uX60/seO6EI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXrE2xH0adjihQ2tiNtQ4nuWpEZW3oQFxRtWK9E6ERqHAdqhRT32TSZ5mHXcBP2Vt
-         DP28o7Rzyo0kkbJ9BIAb0oBQWgEfgKZuIt0uwEJyIR0Ir2ar5yAy32EejSX+PHorZ0
-         xQAWgLbQ250K5cKP1Cv7wCAb19W7VlkuE3YX2Zek=
+        b=tTZo+dG7kO4GAc7J2kgnnz2YHnSjKzfkPwpASyEHUYMDTER48UNIhXv4xqyrrzJEt
+         /HtLIlM+W1UlRkUWDgLdwK9cq9GKVwCwO+IvpmdlZU5eyBIKhgFsx/yP/ZVWBBrkBn
+         iv23UXRC4jlTjtZXyvSbAukGG82J8rK8ErHSA1Jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 227/254] dm table: Fix zoned model check and zone sectors check
+        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 212/221] can: dev: Move device back to init netns on owning netns delete
 Date:   Mon, 29 Mar 2021 09:59:03 +0200
-Message-Id: <20210329075640.549601982@linuxfoundation.org>
+Message-Id: <20210329075636.193635638@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,163 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Martin Willi <martin@strongswan.org>
 
-[ Upstream commit 2d669ceb69c276f7637cf760287ca4187add082e ]
+commit 3a5ca857079ea022e0b1b17fc154f7ad7dbc150f upstream.
 
-Commit 24f6b6036c9e ("dm table: fix zoned iterate_devices based device
-capability checks") triggered dm table load failure when dm-zoned device
-is set up for zoned block devices and a regular device for cache.
+When a non-initial netns is destroyed, the usual policy is to delete
+all virtual network interfaces contained, but move physical interfaces
+back to the initial netns. This keeps the physical interface visible
+on the system.
 
-The commit inverted logic of two callback functions for iterate_devices:
-device_is_zoned_model() and device_matches_zone_sectors(). The logic of
-device_is_zoned_model() was inverted then all destination devices of all
-targets in dm table are required to have the expected zoned model. This
-is fine for dm-linear, dm-flakey and dm-crypt on zoned block devices
-since each target has only one destination device. However, this results
-in failure for dm-zoned with regular cache device since that target has
-both regular block device and zoned block devices.
+CAN devices are somewhat special, as they define rtnl_link_ops even
+if they are physical devices. If a CAN interface is moved into a
+non-initial netns, destroying that netns lets the interface vanish
+instead of moving it back to the initial netns. default_device_exit()
+skips CAN interfaces due to having rtnl_link_ops set. Reproducer:
 
-As for device_matches_zone_sectors(), the commit inverted the logic to
-require all zoned block devices in each target have the specified
-zone_sectors. This check also fails for regular block device which does
-not have zones.
+  ip netns add foo
+  ip link set can0 netns foo
+  ip netns delete foo
 
-To avoid the check failures, fix the zone model check and the zone
-sectors check. For zone model check, introduce the new feature flag
-DM_TARGET_MIXED_ZONED_MODEL, and set it to dm-zoned target. When the
-target has this flag, allow it to have destination devices with any
-zoned model. For zone sectors check, skip the check if the destination
-device is not a zoned block device. Also add comments and improve an
-error message to clarify expectations to the two checks.
+WARNING: CPU: 1 PID: 84 at net/core/dev.c:11030 ops_exit_list+0x38/0x60
+CPU: 1 PID: 84 Comm: kworker/u4:2 Not tainted 5.10.19 #1
+Workqueue: netns cleanup_net
+[<c010e700>] (unwind_backtrace) from [<c010a1d8>] (show_stack+0x10/0x14)
+[<c010a1d8>] (show_stack) from [<c086dc10>] (dump_stack+0x94/0xa8)
+[<c086dc10>] (dump_stack) from [<c086b938>] (__warn+0xb8/0x114)
+[<c086b938>] (__warn) from [<c086ba10>] (warn_slowpath_fmt+0x7c/0xac)
+[<c086ba10>] (warn_slowpath_fmt) from [<c0629f20>] (ops_exit_list+0x38/0x60)
+[<c0629f20>] (ops_exit_list) from [<c062a5c4>] (cleanup_net+0x230/0x380)
+[<c062a5c4>] (cleanup_net) from [<c0142c20>] (process_one_work+0x1d8/0x438)
+[<c0142c20>] (process_one_work) from [<c0142ee4>] (worker_thread+0x64/0x5a8)
+[<c0142ee4>] (worker_thread) from [<c0148a98>] (kthread+0x148/0x14c)
+[<c0148a98>] (kthread) from [<c0100148>] (ret_from_fork+0x14/0x2c)
 
-Fixes: 24f6b6036c9e ("dm table: fix zoned iterate_devices based device capability checks")
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To properly restore physical CAN devices to the initial netns on owning
+netns exit, introduce a flag on rtnl_link_ops that can be set by drivers.
+For CAN devices setting this flag, default_device_exit() considers them
+non-virtual, applying the usual namespace move.
+
+The issue was introduced in the commit mentioned below, as at that time
+CAN devices did not have a dellink() operation.
+
+Fixes: e008b5fc8dc7 ("net: Simplfy default_device_exit and improve batching.")
+Link: https://lore.kernel.org/r/20210302122423.872326-1-martin@strongswan.org
+Signed-off-by: Martin Willi <martin@strongswan.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-table.c         | 33 +++++++++++++++++++++++++--------
- drivers/md/dm-zoned-target.c  |  2 +-
- include/linux/device-mapper.h | 15 ++++++++++++++-
- 3 files changed, 40 insertions(+), 10 deletions(-)
+ drivers/net/can/dev.c   |    1 +
+ include/net/rtnetlink.h |    2 ++
+ net/core/dev.c          |    2 +-
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 77086db8b920..7291fd3106ff 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1380,6 +1380,13 @@ static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
- 	return !q || blk_queue_zoned_model(q) != *zoned_model;
- }
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -1255,6 +1255,7 @@ static void can_dellink(struct net_devic
  
-+/*
-+ * Check the device zoned model based on the target feature flag. If the target
-+ * has the DM_TARGET_ZONED_HM feature flag set, host-managed zoned devices are
-+ * also accepted but all devices must have the same zoned model. If the target
-+ * has the DM_TARGET_MIXED_ZONED_MODEL feature set, the devices can have any
-+ * zoned model with all zoned devices having the same zone size.
-+ */
- static bool dm_table_supports_zoned_model(struct dm_table *t,
- 					  enum blk_zoned_model zoned_model)
- {
-@@ -1389,13 +1396,15 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
- 	for (i = 0; i < dm_table_get_num_targets(t); i++) {
- 		ti = dm_table_get_target(t, i);
+ static struct rtnl_link_ops can_link_ops __read_mostly = {
+ 	.kind		= "can",
++	.netns_refund	= true,
+ 	.maxtype	= IFLA_CAN_MAX,
+ 	.policy		= can_policy,
+ 	.setup		= can_setup,
+--- a/include/net/rtnetlink.h
++++ b/include/net/rtnetlink.h
+@@ -33,6 +33,7 @@ static inline int rtnl_msg_family(const
+  *
+  *	@list: Used internally
+  *	@kind: Identifier
++ *	@netns_refund: Physical device, move to init_net on netns exit
+  *	@maxtype: Highest device specific netlink attribute number
+  *	@policy: Netlink policy for device specific attribute validation
+  *	@validate: Optional validation function for netlink/changelink parameters
+@@ -64,6 +65,7 @@ struct rtnl_link_ops {
+ 	size_t			priv_size;
+ 	void			(*setup)(struct net_device *dev);
  
--		if (zoned_model == BLK_ZONED_HM &&
--		    !dm_target_supports_zoned_hm(ti->type))
--			return false;
--
--		if (!ti->type->iterate_devices ||
--		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
--			return false;
-+		if (dm_target_supports_zoned_hm(ti->type)) {
-+			if (!ti->type->iterate_devices ||
-+			    ti->type->iterate_devices(ti, device_not_zoned_model,
-+						      &zoned_model))
-+				return false;
-+		} else if (!dm_target_supports_mixed_zoned_model(ti->type)) {
-+			if (zoned_model == BLK_ZONED_HM)
-+				return false;
-+		}
- 	}
++	bool			netns_refund;
+ 	unsigned int		maxtype;
+ 	const struct nla_policy	*policy;
+ 	int			(*validate)(struct nlattr *tb[],
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -11106,7 +11106,7 @@ static void __net_exit default_device_ex
+ 			continue;
  
- 	return true;
-@@ -1407,9 +1416,17 @@ static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 	unsigned int *zone_sectors = data;
+ 		/* Leave virtual devices for the generic cleanup */
+-		if (dev->rtnl_link_ops)
++		if (dev->rtnl_link_ops && !dev->rtnl_link_ops->netns_refund)
+ 			continue;
  
-+	if (!blk_queue_is_zoned(q))
-+		return 0;
-+
- 	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
- }
- 
-+/*
-+ * Check consistency of zoned model and zone sectors across all targets. For
-+ * zone sectors, if the destination device is a zoned block device, it shall
-+ * have the specified zone_sectors.
-+ */
- static int validate_hardware_zoned_model(struct dm_table *table,
- 					 enum blk_zoned_model zoned_model,
- 					 unsigned int zone_sectors)
-@@ -1428,7 +1445,7 @@ static int validate_hardware_zoned_model(struct dm_table *table,
- 		return -EINVAL;
- 
- 	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
--		DMERR("%s: zone sectors is not consistent across all devices",
-+		DMERR("%s: zone sectors is not consistent across all zoned devices",
- 		      dm_device_name(table->md));
- 		return -EINVAL;
- 	}
-diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
-index 697f9de37355..7e88df64d197 100644
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -1143,7 +1143,7 @@ static int dmz_message(struct dm_target *ti, unsigned int argc, char **argv,
- static struct target_type dmz_type = {
- 	.name		 = "zoned",
- 	.version	 = {2, 0, 0},
--	.features	 = DM_TARGET_SINGLETON | DM_TARGET_ZONED_HM,
-+	.features	 = DM_TARGET_SINGLETON | DM_TARGET_MIXED_ZONED_MODEL,
- 	.module		 = THIS_MODULE,
- 	.ctr		 = dmz_ctr,
- 	.dtr		 = dmz_dtr,
-diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
-index d2d7f9b6a276..50cc070cb1f7 100644
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -246,7 +246,11 @@ struct target_type {
- #define dm_target_passes_integrity(type) ((type)->features & DM_TARGET_PASSES_INTEGRITY)
- 
- /*
-- * Indicates that a target supports host-managed zoned block devices.
-+ * Indicates support for zoned block devices:
-+ * - DM_TARGET_ZONED_HM: the target also supports host-managed zoned
-+ *   block devices but does not support combining different zoned models.
-+ * - DM_TARGET_MIXED_ZONED_MODEL: the target supports combining multiple
-+ *   devices with different zoned models.
-  */
- #define DM_TARGET_ZONED_HM		0x00000040
- #define dm_target_supports_zoned_hm(type) ((type)->features & DM_TARGET_ZONED_HM)
-@@ -257,6 +261,15 @@ struct target_type {
- #define DM_TARGET_NOWAIT		0x00000080
- #define dm_target_supports_nowait(type) ((type)->features & DM_TARGET_NOWAIT)
- 
-+#ifdef CONFIG_BLK_DEV_ZONED
-+#define DM_TARGET_MIXED_ZONED_MODEL	0x00000200
-+#define dm_target_supports_mixed_zoned_model(type) \
-+	((type)->features & DM_TARGET_MIXED_ZONED_MODEL)
-+#else
-+#define DM_TARGET_MIXED_ZONED_MODEL	0x00000000
-+#define dm_target_supports_mixed_zoned_model(type) (false)
-+#endif
-+
- struct dm_target {
- 	struct dm_table *table;
- 	struct target_type *type;
--- 
-2.30.1
-
+ 		/* Push remaining network devices to init_net */
 
 
