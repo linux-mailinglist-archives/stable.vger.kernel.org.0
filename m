@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E2134C65B
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDE9034C905
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbhC2IGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
+        id S232576AbhC2I0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:26:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231557AbhC2IF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8270C61477;
-        Mon, 29 Mar 2021 08:05:57 +0000 (UTC)
+        id S232904AbhC2IYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:24:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED00E619C2;
+        Mon, 29 Mar 2021 08:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005158;
-        bh=YJQQg/Bld71goeJBCOYTFZmWBV1ppuLj94AHL3+kFXg=;
+        s=korg; t=1617006260;
+        bh=9IfONxfl7zOM+uNS+hW2gVz03E0r6Wo4qXb85vEd4j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxLwa5nsBj59pzHNh4zLV/oo1Z7azpxE3oMJS7/6u/GPPqCZvNLgod0z2FfG4sXB+
-         LIBYefKpGllT+oS9E5WrlqN+HxNg2B8Aw1FTafzdUerCcUFI3Fq2+9iOwf6K+sgJTd
-         8+CXgcBME61GR16/lAGAsTfEPkMKNdOe6rhc98zU=
+        b=Gn5YU7EWaoR4KqLjv1OcjQ7w1TWj7S5XqHKnv/XNuzve1/VanT9+52FLiUh6T8pkU
+         9/JAL3sGdfsxoaBjoFL+yZrfv1s3w/tkGgwZscI/7OulJAtdOKVFPio9xzcpIWbekM
+         v7k/9KhW88W1UxmPZzJHFlzm4y+u94VlBTSbKPz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 46/59] net/mlx5e: Fix error path for ethtool set-priv-flag
+Subject: [PATCH 5.10 175/221] net: bridge: dont notify switchdev for local FDB addresses
 Date:   Mon, 29 Mar 2021 09:58:26 +0200
-Message-Id: <20210329075610.397144324@linuxfoundation.org>
+Message-Id: <20210329075634.986056008@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 4eacfe72e3e037e3fc019113df32c39a705148c2 ]
+[ Upstream commit 6ab4c3117aec4e08007d9e971fa4133e1de1082d ]
 
-Expose error value when failing to comply to command:
-$ ethtool --set-priv-flags eth2 rx_cqe_compress [on/off]
+As explained in this discussion:
+https://lore.kernel.org/netdev/20210117193009.io3nungdwuzmo5f7@skbuf/
 
-Fixes: be7e87f92b58 ("net/mlx5e: Fail safe cqe compressing/moderation mode setting")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+the switchdev notifiers for FDB entries managed to have a zero-day bug.
+The bridge would not say that this entry is local:
+
+ip link add br0 type bridge
+ip link set swp0 master br0
+bridge fdb add dev swp0 00:01:02:03:04:05 master local
+
+and the switchdev driver would be more than happy to offload it as a
+normal static FDB entry. This is despite the fact that 'local' and
+non-'local' entries have completely opposite directions: a local entry
+is locally terminated and not forwarded, whereas a static entry is
+forwarded and not locally terminated. So, for example, DSA would install
+this entry on swp0 instead of installing it on the CPU port as it should.
+
+There is an even sadder part, which is that the 'local' flag is implicit
+if 'static' is not specified, meaning that this command produces the
+same result of adding a 'local' entry:
+
+bridge fdb add dev swp0 00:01:02:03:04:05 master
+
+I've updated the man pages for 'bridge', and after reading it now, it
+should be pretty clear to any user that the commands above were broken
+and should have never resulted in the 00:01:02:03:04:05 address being
+forwarded (this behavior is coherent with non-switchdev interfaces):
+https://patchwork.kernel.org/project/netdevbpf/cover/20210211104502.2081443-1-olteanv@gmail.com/
+If you're a user reading this and this is what you want, just use:
+
+bridge fdb add dev swp0 00:01:02:03:04:05 master static
+
+Because switchdev should have given drivers the means from day one to
+classify FDB entries as local/non-local, but didn't, it means that all
+drivers are currently broken. So we can just as well omit the switchdev
+notifications for local FDB entries, which is exactly what this patch
+does to close the bug in stable trees. For further development work
+where drivers might want to trap the local FDB entries to the host, we
+can add a 'bool is_local' to br_switchdev_fdb_call_notifiers(), and
+selectively make drivers act upon that bit, while all the others ignore
+those entries if the 'is_local' bit is set.
+
+Fixes: 6b26b51b1d13 ("net: bridge: Add support for notifying devices about FDB add/del")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/bridge/br_switchdev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-index c3f1e2d76a46..377f91885bda 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -1747,6 +1747,7 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 015209bf44aa..3c42095fa75f 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -123,6 +123,8 @@ br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb, int type)
  {
- 	struct mlx5e_priv *priv = netdev_priv(netdev);
- 	struct mlx5_core_dev *mdev = priv->mdev;
-+	int err;
+ 	if (!fdb->dst)
+ 		return;
++	if (test_bit(BR_FDB_LOCAL, &fdb->flags))
++		return;
  
- 	if (!MLX5_CAP_GEN(mdev, cqe_compression))
- 		return -EOPNOTSUPP;
-@@ -1756,7 +1757,10 @@ static int set_pflag_rx_cqe_compress(struct net_device *netdev,
- 		return -EINVAL;
- 	}
- 
--	mlx5e_modify_rx_cqe_compression_locked(priv, enable);
-+	err = mlx5e_modify_rx_cqe_compression_locked(priv, enable);
-+	if (err)
-+		return err;
-+
- 	priv->channels.params.rx_cqe_compress_def = enable;
- 
- 	return 0;
+ 	switch (type) {
+ 	case RTM_DELNEIGH:
 -- 
 2.30.1
 
