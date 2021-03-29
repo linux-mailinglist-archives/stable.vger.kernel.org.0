@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1451234CB14
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D97334C966
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235553AbhC2InO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34862 "EHLO mail.kernel.org"
+        id S233621AbhC2I3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233628AbhC2IkT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:40:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DD5061990;
-        Mon, 29 Mar 2021 08:40:17 +0000 (UTC)
+        id S233985AbhC2I1i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:27:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACEF1619B4;
+        Mon, 29 Mar 2021 08:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007218;
-        bh=ZrFIOHYWwGSPjSXbgqZgOAFLx1Er7G2E1ZfVCRrSVf4=;
+        s=korg; t=1617006389;
+        bh=1JxCDqB+Z2gQkH3rscEGdnqp+eKUllw2PkjyaPjIxbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Chr44ogDDxptQ36RS+lfkXh4nTVFfpZlDsRwPWUovz9fZ5FnnNRVCzXF9+JcDFTqx
-         6AjlSI3V8IAjxCD3XXg3v0DyTzPX6YaVjjvKajwGfyGjkYYIqvXYPWF5uN4F4qB44M
-         2UVCSTUu+L/OjZ0XqOaW5MLn5JGdEeX5yfpGS3VI=
+        b=FN7rrnwzDxII5/utOQSm21jGkMuVbUI2TEfvh2Krw2jRYdUSseShO7SBeF1Y5tR2d
+         3WXTcKvfi/FdFfufhciht9Th3NYsp8NzDqGrn5VJ/tpmdgZA8bLyQZrF6B88gsU57J
+         Wb5gXwfXNq4wECH5RV3svTim7WtIr2ztp0B7NUbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 231/254] ACPI: scan: Use unique number for instance_no
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 216/221] ext4: add reclaim checks to xattr code
 Date:   Mon, 29 Mar 2021 09:59:07 +0200
-Message-Id: <20210329075640.686183811@linuxfoundation.org>
+Message-Id: <20210329075636.345547737@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,138 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit eb50aaf960e3bedfef79063411ffd670da94b84b ]
+commit 163f0ec1df33cf468509ff38cbcbb5eb0d7fac60 upstream.
 
-The decrementation of acpi_device_bus_id->instance_no
-in acpi_device_del() is incorrect, because it may cause
-a duplicate instance number to be allocated next time
-a device with the same acpi_device_bus_id is added.
+Syzbot is reporting that ext4 can enter fs reclaim from kvmalloc() while
+the transaction is started like:
 
-Replace above mentioned approach by using IDA framework.
+  fs_reclaim_acquire+0x117/0x150 mm/page_alloc.c:4340
+  might_alloc include/linux/sched/mm.h:193 [inline]
+  slab_pre_alloc_hook mm/slab.h:493 [inline]
+  slab_alloc_node mm/slub.c:2817 [inline]
+  __kmalloc_node+0x5f/0x430 mm/slub.c:4015
+  kmalloc_node include/linux/slab.h:575 [inline]
+  kvmalloc_node+0x61/0xf0 mm/util.c:587
+  kvmalloc include/linux/mm.h:781 [inline]
+  ext4_xattr_inode_cache_find fs/ext4/xattr.c:1465 [inline]
+  ext4_xattr_inode_lookup_create fs/ext4/xattr.c:1508 [inline]
+  ext4_xattr_set_entry+0x1ce6/0x3780 fs/ext4/xattr.c:1649
+  ext4_xattr_ibody_set+0x78/0x2b0 fs/ext4/xattr.c:2224
+  ext4_xattr_set_handle+0x8f4/0x13e0 fs/ext4/xattr.c:2380
+  ext4_xattr_set+0x13a/0x340 fs/ext4/xattr.c:2493
 
-While at it, define the instance range to be [0, 4096).
+This should be impossible since transaction start sets PF_MEMALLOC_NOFS.
+Add some assertions to the code to catch if something isn't working as
+expected early.
 
-Fixes: e49bd2dd5a50 ("ACPI: use PNPID:instance_no as bus_id of ACPI device")
-Fixes: ca9dc8d42b30 ("ACPI / scan: Fix acpi_bus_id_list bookkeeping")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/linux-ext4/000000000000563a0205bafb7970@google.com/
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210222171626.21884-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/internal.h |  6 +++++-
- drivers/acpi/scan.c     | 33 ++++++++++++++++++++++++++++-----
- include/acpi/acpi_bus.h |  1 +
- 3 files changed, 34 insertions(+), 6 deletions(-)
+ fs/ext4/xattr.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
-index e6a5d997241c..cb8f70842249 100644
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -9,6 +9,8 @@
- #ifndef _ACPI_INTERNAL_H_
- #define _ACPI_INTERNAL_H_
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1459,6 +1459,9 @@ ext4_xattr_inode_cache_find(struct inode
+ 	if (!ce)
+ 		return NULL;
  
-+#include <linux/idr.h>
++	WARN_ON_ONCE(ext4_handle_valid(journal_current_handle()) &&
++		     !(current->flags & PF_MEMALLOC_NOFS));
 +
- #define PREFIX "ACPI: "
- 
- int early_acpi_osi_init(void);
-@@ -96,9 +98,11 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
- 
- extern struct list_head acpi_bus_id_list;
- 
-+#define ACPI_MAX_DEVICE_INSTANCES	4096
-+
- struct acpi_device_bus_id {
- 	const char *bus_id;
--	unsigned int instance_no;
-+	struct ida instance_ida;
- 	struct list_head node;
- };
- 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 1efeb8f78ae4..a4fdf61b0644 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -482,9 +482,8 @@ static void acpi_device_del(struct acpi_device *device)
- 	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node)
- 		if (!strcmp(acpi_device_bus_id->bus_id,
- 			    acpi_device_hid(device))) {
--			if (acpi_device_bus_id->instance_no > 0)
--				acpi_device_bus_id->instance_no--;
--			else {
-+			ida_simple_remove(&acpi_device_bus_id->instance_ida, device->pnp.instance_no);
-+			if (ida_is_empty(&acpi_device_bus_id->instance_ida)) {
- 				list_del(&acpi_device_bus_id->node);
- 				kfree_const(acpi_device_bus_id->bus_id);
- 				kfree(acpi_device_bus_id);
-@@ -635,6 +634,21 @@ static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
- 	return NULL;
- }
- 
-+static int acpi_device_set_name(struct acpi_device *device,
-+				struct acpi_device_bus_id *acpi_device_bus_id)
-+{
-+	struct ida *instance_ida = &acpi_device_bus_id->instance_ida;
-+	int result;
-+
-+	result = ida_simple_get(instance_ida, 0, ACPI_MAX_DEVICE_INSTANCES, GFP_KERNEL);
-+	if (result < 0)
-+		return result;
-+
-+	device->pnp.instance_no = result;
-+	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, result);
-+	return 0;
-+}
-+
- int acpi_device_add(struct acpi_device *device,
- 		    void (*release)(struct device *))
- {
-@@ -669,7 +683,9 @@ int acpi_device_add(struct acpi_device *device,
- 
- 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
- 	if (acpi_device_bus_id) {
--		acpi_device_bus_id->instance_no++;
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result)
-+			goto err_unlock;
- 	} else {
- 		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
- 					     GFP_KERNEL);
-@@ -685,9 +701,16 @@ int acpi_device_add(struct acpi_device *device,
- 			goto err_unlock;
+ 	ea_data = kvmalloc(value_len, GFP_KERNEL);
+ 	if (!ea_data) {
+ 		mb_cache_entry_put(ea_inode_cache, ce);
+@@ -2325,6 +2328,7 @@ ext4_xattr_set_handle(handle_t *handle,
+ 			error = -ENOSPC;
+ 			goto cleanup;
  		}
- 
-+		ida_init(&acpi_device_bus_id->instance_ida);
-+
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result) {
-+			kfree(acpi_device_bus_id);
-+			goto err_unlock;
-+		}
-+
- 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
++		WARN_ON_ONCE(!(current->flags & PF_MEMALLOC_NOFS));
  	}
--	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
  
- 	if (device->parent)
- 		list_add_tail(&device->node, &device->parent->children);
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 6d1879bf9440..37dac195adbb 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -233,6 +233,7 @@ struct acpi_pnp_type {
- 
- struct acpi_device_pnp {
- 	acpi_bus_id bus_id;		/* Object name */
-+	int instance_no;		/* Instance number of this object */
- 	struct acpi_pnp_type type;	/* ID type */
- 	acpi_bus_address bus_address;	/* _ADR */
- 	char *unique_id;		/* _UID */
--- 
-2.30.1
-
+ 	error = ext4_reserve_inode_write(handle, inode, &is.iloc);
 
 
