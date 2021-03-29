@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0F1E34CA7C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B38634C775
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234473AbhC2Iio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55736 "EHLO mail.kernel.org"
+        id S233034AbhC2IPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234686AbhC2IhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98A3B619B7;
-        Mon, 29 Mar 2021 08:36:20 +0000 (UTC)
+        id S232590AbhC2IOM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:14:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D53C66196E;
+        Mon, 29 Mar 2021 08:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006981;
-        bh=tu2wDbXbZgYo5OU+2U5aXiJgpGuERpERTU5bssKNt8Y=;
+        s=korg; t=1617005642;
+        bh=AKLAihQ2Lv+aD1fMnM/vH8LCZkbuoFhLX/jvRzntyrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f98ZRPsTxT0XcST+plp/2yVFJQsNPf/E5pJLyppef/ddyuSFmr9lJosZ1I+DYpZHm
-         r5dENHj7/KP5AkRsxql5Fwog7DopkggpuzsCcTweWsAdNN2YE2JFLiCYiQb/4V/Pgz
-         W4u4mGuygzSytUIgz1dJQNUVw4NZWVfo7FC6kVQQ=
+        b=DmxL+5Q7pfKXUUjvLcT4dOoHLbzAMTy1DUs2NLdr+Djl/Uot9kz2Sm84RNl8voi24
+         +Od/A6ldgDiYmYZACn+GtDht3UJA0lSOnEMQihRwo2dclCH5r2xejclQPqh7n5Eedi
+         wbs5imnwV03dSZUFhAshR+kNDG2KxXR2RXcBU5+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
-        Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 176/254] octeontx2-pf: Clear RSS enable flag on interace down
+Subject: [PATCH 5.4 064/111] e1000e: Fix error handling in e1000_set_d0_lplu_state_82571
 Date:   Mon, 29 Mar 2021 09:58:12 +0200
-Message-Id: <20210329075638.940041930@linuxfoundation.org>
+Message-Id: <20210329075617.341749913@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit f12098ce9b43e1a6fcaa524acbd90f9118a74c0a ]
+[ Upstream commit b52912b8293f2c496f42583e65599aee606a0c18 ]
 
-RSS configuration can not be get/set when interface is in down state
-as they required mbox communication. RSS enable flag status
-is used for set/get configuration. Current code do not clear the
-RSS enable flag on interface down which lead to mbox error while
-trying to set/get RSS configuration.
+There is one e1e_wphy() call in e1000_set_d0_lplu_state_82571
+that we have caught its return value but lack further handling.
+Check and terminate the execution flow just like other e1e_wphy()
+in this function.
 
-Fixes: 85069e95e531 ("octeontx2-pf: Receive side scaling support")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/intel/e1000e/82571.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-index 634d60655a74..07e841df5678 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-@@ -1625,6 +1625,7 @@ int otx2_stop(struct net_device *netdev)
- 	struct otx2_nic *pf = netdev_priv(netdev);
- 	struct otx2_cq_poll *cq_poll = NULL;
- 	struct otx2_qset *qset = &pf->qset;
-+	struct otx2_rss_info *rss;
- 	int qidx, vec, wrk;
- 
- 	netif_carrier_off(netdev);
-@@ -1637,6 +1638,10 @@ int otx2_stop(struct net_device *netdev)
- 	/* First stop packet Rx/Tx */
- 	otx2_rxtx_enable(pf, false);
- 
-+	/* Clear RSS enable flag */
-+	rss = &pf->hw.rss_info;
-+	rss->enable = false;
-+
- 	/* Cleanup Queue IRQ */
- 	vec = pci_irq_vector(pf->pdev,
- 			     pf->hw.nix_msixoff + NIX_LF_QINT_VEC_START);
+diff --git a/drivers/net/ethernet/intel/e1000e/82571.c b/drivers/net/ethernet/intel/e1000e/82571.c
+index 2c1bab377b2a..1fd4406173a8 100644
+--- a/drivers/net/ethernet/intel/e1000e/82571.c
++++ b/drivers/net/ethernet/intel/e1000e/82571.c
+@@ -899,6 +899,8 @@ static s32 e1000_set_d0_lplu_state_82571(struct e1000_hw *hw, bool active)
+ 	} else {
+ 		data &= ~IGP02E1000_PM_D0_LPLU;
+ 		ret_val = e1e_wphy(hw, IGP02E1000_PHY_POWER_MGMT, data);
++		if (ret_val)
++			return ret_val;
+ 		/* LPLU and SmartSpeed are mutually exclusive.  LPLU is used
+ 		 * during Dx states where the power conservation is most
+ 		 * important.  During driver activity we should enable
 -- 
 2.30.1
 
