@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BFE34C76A
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAA934C8C3
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232408AbhC2IPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
+        id S234232AbhC2IYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231753AbhC2IOB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:14:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BE4261932;
-        Mon, 29 Mar 2021 08:13:56 +0000 (UTC)
+        id S233532AbhC2IXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:23:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C9DA61580;
+        Mon, 29 Mar 2021 08:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005636;
-        bh=OMioe41fwUxPCnI4xgzKAmi2drPv4I2OSCRk0BUk84c=;
+        s=korg; t=1617006213;
+        bh=RjTHXO6Y1HVtNgvT3dwUnJOsHYYDzs5H0UOvVN4LW5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0/ONvMWxzvCEntD3N1Z1/PBlb9Cbi4Ntp4hzn9T5B6dCi59pGIXdE7PlTWS5KAmY
-         iybQsUcCRlx1+EghEXHNOpxWeuBy6FLlGCOcwQwI6M6IXpitdKv9TGFaXWEik0s43b
-         Ied2aZSiYl+oggzc+/ta2fmqLenmtH3lhL1Ub8Us=
+        b=BDdUERaNDkIV0z18ipNedtVIJsK2vwMnRt9uktyAXwfNEIPxs6uGouMb675nIrhgQ
+         2IcE81RRMmztVDcQ4HxAmZllwdx4G+dmJquvVOK18Ky0W6qSiNvE7g6va2QuSlwKji
+         /5yZq51EjP7+JqSBScUGUgdh5fncA67e13yx0SWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
-        Malli C <mallikarjuna.chilakala@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Robert Davies <robdavies1977@gmail.com>,
+        Hayes Wang <hayeswang@realtek.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/111] igc: Fix Supported Pause Frame Link Setting
+Subject: [PATCH 5.10 159/221] r8152: limit the RX buffer size of RTL8153A for USB 2.0
 Date:   Mon, 29 Mar 2021 09:58:10 +0200
-Message-Id: <20210329075617.275738958@linuxfoundation.org>
+Message-Id: <20210329075634.467235800@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+From: Hayes Wang <hayeswang@realtek.com>
 
-[ Upstream commit 9a4a1cdc5ab52118c1f2b216f4240830b6528d32 ]
+[ Upstream commit f91a50d8b51b5c8ef1cfb08115a005bba4250507 ]
 
-The Supported Pause Frame always display "No" even though the Advertised
-pause frame showing the correct setting based on the pause parameters via
-ethtool. Set bit in link_ksettings to "Supported" for Pause Frame.
+If the USB host controller is EHCI, the throughput is reduced from
+300Mb/s to 60Mb/s, when the rx buffer size is modified from 16K to
+32K.
 
-Before output:
-Supported pause frame use: No
+According to the EHCI spec, the maximum size of the qTD is 20K.
+Therefore, when the driver uses more than 20K buffer, the latency
+time of EHCI would be increased. And, it let the RTL8153A get worse
+throughput.
 
-Expected output:
-Supported pause frame use: Symmetric
+However, the driver uses alloc_pages() for rx buffer, so I limit
+the rx buffer to 16K rather than 20K.
 
-Fixes: 8c5ad0dae93c ("igc: Add ethtool support")
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Reviewed-by: Malli C <mallikarjuna.chilakala@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205923
+Fixes: ec5791c202ac ("r8152: separate the rx buffer size")
+Reported-by: Robert Davies <robdavies1977@gmail.com>
+Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_ethtool.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/r8152.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_ethtool.c b/drivers/net/ethernet/intel/igc/igc_ethtool.c
-index d1a25d679b89..cbcb8611ab50 100644
---- a/drivers/net/ethernet/intel/igc/igc_ethtool.c
-+++ b/drivers/net/ethernet/intel/igc/igc_ethtool.c
-@@ -1690,6 +1690,9 @@ static int igc_get_link_ksettings(struct net_device *netdev,
- 						     Autoneg);
- 	}
- 
-+	/* Set pause flow control settings */
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+
- 	switch (hw->fc.requested_mode) {
- 	case igc_fc_full:
- 		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index d2862071b697..f5010f8ac1ec 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -6519,7 +6519,10 @@ static int rtl_ops_init(struct r8152 *tp)
+ 		ops->in_nway		= rtl8153_in_nway;
+ 		ops->hw_phy_cfg		= r8153_hw_phy_cfg;
+ 		ops->autosuspend_en	= rtl8153_runtime_enable;
+-		tp->rx_buf_sz		= 32 * 1024;
++		if (tp->udev->speed < USB_SPEED_SUPER)
++			tp->rx_buf_sz	= 16 * 1024;
++		else
++			tp->rx_buf_sz	= 32 * 1024;
+ 		tp->eee_en		= true;
+ 		tp->eee_adv		= MDIO_EEE_1000T | MDIO_EEE_100TX;
+ 		break;
 -- 
 2.30.1
 
