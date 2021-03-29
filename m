@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B814534C56C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A233234CA8F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230452AbhC2IAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:00:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
+        id S234008AbhC2IjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229762AbhC2H7z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 03:59:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB5726196B;
-        Mon, 29 Mar 2021 07:59:54 +0000 (UTC)
+        id S234903AbhC2Ihd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6958261959;
+        Mon, 29 Mar 2021 08:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004795;
-        bh=ELKO9Cy2wCXnBkRN3a+2su6DS9jpGee7xyY3YKS/PnQ=;
+        s=korg; t=1617007031;
+        bh=gPcEVq23ZcHljHYJI94dgaVJ7RvY85qJGeXSIOVsoOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kHZLNHdElddIhfZlqevYhA7sIjo2Tp31+neR3JW4Y4yPJr4KCZG7jRsYq53bkvk4d
-         oHLCiz5sJts5PeOOCr/anacmMYUf0GLNmdaZBY1X7DWuw0IbPiA7ZsFkTz4xEvds6G
-         GvX1s/JrTFmCkblzMRmje8gTcZ+agtt0xHMjtqiY=
+        b=beb73++y0fCLtpdETHMQbGmuBzg40xv88geOfxLmwi9+yfUcy9ZQlori6gD9aEiGK
+         NL5Ax0BL319WnsL9Hop6NAciir92GMFh0X/V/ABFrkovzdu9zlyrzqur0rma5wLDCK
+         lh6zsLqyP410S85RZHpig/5cR5kP8vHtxHOkqYJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Subject: [PATCH 4.4 11/33] u64_stats,lockdep: Fix u64_stats_init() vs lockdep
+        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 160/254] nfp: flower: add ipv6 bit to pre_tunnel control message
 Date:   Mon, 29 Mar 2021 09:57:56 +0200
-Message-Id: <20210329075605.637799024@linuxfoundation.org>
+Message-Id: <20210329075638.450689820@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-References: <20210329075605.290845195@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Louis Peens <louis.peens@corigine.com>
 
-[ Upstream commit d5b0e0677bfd5efd17c5bbb00156931f0d41cb85 ]
+[ Upstream commit 5c4f5e19d6a8e159127b9d653bb67e0dc7a28047 ]
 
-Jakub reported that:
+Differentiate between ipv4 and ipv6 flows when configuring the pre_tunnel
+table to prevent them trampling each other in the table.
 
-    static struct net_device *rtl8139_init_board(struct pci_dev *pdev)
-    {
-	    ...
-	    u64_stats_init(&tp->rx_stats.syncp);
-	    u64_stats_init(&tp->tx_stats.syncp);
-	    ...
-    }
-
-results in lockdep getting confused between the RX and TX stats lock.
-This is because u64_stats_init() is an inline calling seqcount_init(),
-which is a macro using a static variable to generate a lockdep class.
-
-By wrapping that in an inline, we negate the effect of the macro and
-fold the static key variable, hence the confusion.
-
-Fix by also making u64_stats_init() a macro for the case where it
-matters, leaving the other case an inline for argument validation
-etc.
-
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Debugged-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: "Erhard F." <erhard_f@mailbox.org>
-Link: https://lkml.kernel.org/r/YEXicy6+9MksdLZh@hirez.programming.kicks-ass.net
+Fixes: 783461604f7e ("nfp: flower: update flow merge code to support IPv6 tunnels")
+Signed-off-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/u64_stats_sync.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ .../ethernet/netronome/nfp/flower/tunnel_conf.c   | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
-index df89c9bcba7d..7b38288dc239 100644
---- a/include/linux/u64_stats_sync.h
-+++ b/include/linux/u64_stats_sync.h
-@@ -68,12 +68,13 @@ struct u64_stats_sync {
- };
+diff --git a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
+index 7248d248f604..d19c02e99114 100644
+--- a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
+@@ -16,8 +16,9 @@
+ #define NFP_FL_MAX_ROUTES               32
  
+ #define NFP_TUN_PRE_TUN_RULE_LIMIT	32
+-#define NFP_TUN_PRE_TUN_RULE_DEL	0x1
+-#define NFP_TUN_PRE_TUN_IDX_BIT		0x8
++#define NFP_TUN_PRE_TUN_RULE_DEL	BIT(0)
++#define NFP_TUN_PRE_TUN_IDX_BIT		BIT(3)
++#define NFP_TUN_PRE_TUN_IPV6_BIT	BIT(7)
  
-+#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
-+#define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
-+#else
- static inline void u64_stats_init(struct u64_stats_sync *syncp)
+ /**
+  * struct nfp_tun_pre_run_rule - rule matched before decap
+@@ -1268,6 +1269,7 @@ int nfp_flower_xmit_pre_tun_flow(struct nfp_app *app,
  {
--#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
--	seqcount_init(&syncp->seq);
--#endif
- }
-+#endif
+ 	struct nfp_flower_priv *app_priv = app->priv;
+ 	struct nfp_tun_offloaded_mac *mac_entry;
++	struct nfp_flower_meta_tci *key_meta;
+ 	struct nfp_tun_pre_tun_rule payload;
+ 	struct net_device *internal_dev;
+ 	int err;
+@@ -1290,6 +1292,15 @@ int nfp_flower_xmit_pre_tun_flow(struct nfp_app *app,
+ 	if (!mac_entry)
+ 		return -ENOENT;
  
- static inline void u64_stats_update_begin(struct u64_stats_sync *syncp)
- {
++	/* Set/clear IPV6 bit. cpu_to_be16() swap will lead to MSB being
++	 * set/clear for port_idx.
++	 */
++	key_meta = (struct nfp_flower_meta_tci *)flow->unmasked_data;
++	if (key_meta->nfp_flow_key_layer & NFP_FLOWER_LAYER_IPV6)
++		mac_entry->index |= NFP_TUN_PRE_TUN_IPV6_BIT;
++	else
++		mac_entry->index &= ~NFP_TUN_PRE_TUN_IPV6_BIT;
++
+ 	payload.port_idx = cpu_to_be16(mac_entry->index);
+ 
+ 	/* Copy mac id and vlan to flow - dev may not exist at delete time. */
 -- 
 2.30.1
 
