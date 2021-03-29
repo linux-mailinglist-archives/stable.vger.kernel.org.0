@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FD234C96A
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D9834CAE5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233657AbhC2I3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42788 "EHLO mail.kernel.org"
+        id S234851AbhC2Iko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:40:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234051AbhC2I1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:27:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3554661932;
-        Mon, 29 Mar 2021 08:26:34 +0000 (UTC)
+        id S233901AbhC2Ij6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:39:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0EB561581;
+        Mon, 29 Mar 2021 08:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006394;
-        bh=/gQnNQRk1YgMl16NiS70nCo1pvUnpHlNXci7lYC3YBM=;
+        s=korg; t=1617007198;
+        bh=gwhNq8d4fSf+dDzRoH81xsU28DLGzEYLq+NJhnhdaBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqWFdDtQNMv7eWa30O4wBtsrDdLTDkXK17htdswfkRQQCRUJH35oGR57mVSBmXwAQ
-         9hmxSAUQ7wD0FcntoynuTOEuqEewpIJ1Qb5rKgUfmYsVOuafiSyzgGSbDpaSI9Lx6U
-         kFt0ZOodPiESfb7CTVuHBY30NOuYkKhIcmPDiWVI=
+        b=rVfPI8jm4aFHhAymvT07t2pmYHtPuw05aVAHr28mwIYqVRRNX58AxRgt8O5xD9Jbn
+         8QByaxtMwZidMHJGtuYAIre2H3MbHc1aOOcY3nJD8UmlGRZhzH6s/6gAF1IHhROnAS
+         9idw1X7JX4bbqUzoGTac/t2rjF29XQQpRWQJ3OGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.10 218/221] Revert "xen: fix p2m size in dom0 for disabled memory hotplug case"
-Date:   Mon, 29 Mar 2021 09:59:09 +0200
-Message-Id: <20210329075636.413839812@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 234/254] io_uring: fix provide_buffers sign extension
+Date:   Mon, 29 Mar 2021 09:59:10 +0200
+Message-Id: <20210329075640.778664444@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,106 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit af44a387e743ab7aa39d3fb5e29c0a973cf91bdc upstream.
+[ Upstream commit d81269fecb8ce16eb07efafc9ff5520b2a31c486 ]
 
-This partially reverts commit 882213990d32 ("xen: fix p2m size in dom0
-for disabled memory hotplug case")
+io_provide_buffers_prep()'s "p->len * p->nbufs" to sign extension
+problems. Not a huge problem as it's only used for access_ok() and
+increases the checked length, but better to keep typing right.
 
-There's no need to special case XEN_UNPOPULATED_ALLOC anymore in order
-to correctly size the p2m. The generic memory hotplug option has
-already been tied together with the Xen hotplug limit, so enabling
-memory hotplug should already trigger a properly sized p2m on Xen PV.
-
-Note that XEN_UNPOPULATED_ALLOC depends on ZONE_DEVICE which pulls in
-MEMORY_HOTPLUG.
-
-Leave the check added to __set_phys_to_machine and the adjusted
-comment about EXTRA_MEM_RATIO.
-
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210324122424.58685-3-roger.pau@citrix.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-[boris: fixed formatting issues]
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Fixes: efe68c1ca8f49 ("io_uring: validate the full range of provided buffers for access")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Reviewed-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/562376a39509e260d8532186a06226e56eb1f594.1616149233.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/xen/page.h |   12 ------------
- arch/x86/xen/p2m.c              |    3 ---
- arch/x86/xen/setup.c            |   16 ++++++++++++++--
- 3 files changed, 14 insertions(+), 17 deletions(-)
+ fs/io_uring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/xen/page.h
-+++ b/arch/x86/include/asm/xen/page.h
-@@ -87,18 +87,6 @@ clear_foreign_p2m_mapping(struct gnttab_
- #endif
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c3cfaa367138..5c4378694d54 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4214,6 +4214,7 @@ static int io_remove_buffers(struct io_kiocb *req, bool force_nonblock,
+ static int io_provide_buffers_prep(struct io_kiocb *req,
+ 				   const struct io_uring_sqe *sqe)
+ {
++	unsigned long size;
+ 	struct io_provide_buf *p = &req->pbuf;
+ 	u64 tmp;
  
- /*
-- * The maximum amount of extra memory compared to the base size.  The
-- * main scaling factor is the size of struct page.  At extreme ratios
-- * of base:extra, all the base memory can be filled with page
-- * structures for the extra memory, leaving no space for anything
-- * else.
-- *
-- * 10x seems like a reasonable balance between scaling flexibility and
-- * leaving a practically usable system.
-- */
--#define XEN_EXTRA_MEM_RATIO	(10)
--
--/*
-  * Helper functions to write or read unsigned long values to/from
-  * memory, when the access may fault.
-  */
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -416,9 +416,6 @@ void __init xen_vmalloc_p2m_tree(void)
- 	xen_p2m_last_pfn = xen_max_p2m_pfn;
+@@ -4227,7 +4228,8 @@ static int io_provide_buffers_prep(struct io_kiocb *req,
+ 	p->addr = READ_ONCE(sqe->addr);
+ 	p->len = READ_ONCE(sqe->len);
  
- 	p2m_limit = (phys_addr_t)P2M_LIMIT * 1024 * 1024 * 1024 / PAGE_SIZE;
--	if (!p2m_limit && IS_ENABLED(CONFIG_XEN_UNPOPULATED_ALLOC))
--		p2m_limit = xen_start_info->nr_pages * XEN_EXTRA_MEM_RATIO;
--
- 	vm.flags = VM_ALLOC;
- 	vm.size = ALIGN(sizeof(unsigned long) * max(xen_max_p2m_pfn, p2m_limit),
- 			PMD_SIZE * PMDS_PER_MID_PAGE);
---- a/arch/x86/xen/setup.c
-+++ b/arch/x86/xen/setup.c
-@@ -59,6 +59,18 @@ static struct {
- } xen_remap_buf __initdata __aligned(PAGE_SIZE);
- static unsigned long xen_remap_mfn __initdata = INVALID_P2M_ENTRY;
+-	if (!access_ok(u64_to_user_ptr(p->addr), (p->len * p->nbufs)))
++	size = (unsigned long)p->len * p->nbufs;
++	if (!access_ok(u64_to_user_ptr(p->addr), size))
+ 		return -EFAULT;
  
-+/*
-+ * The maximum amount of extra memory compared to the base size.  The
-+ * main scaling factor is the size of struct page.  At extreme ratios
-+ * of base:extra, all the base memory can be filled with page
-+ * structures for the extra memory, leaving no space for anything
-+ * else.
-+ *
-+ * 10x seems like a reasonable balance between scaling flexibility and
-+ * leaving a practically usable system.
-+ */
-+#define EXTRA_MEM_RATIO		(10)
-+
- static bool xen_512gb_limit __initdata = IS_ENABLED(CONFIG_XEN_512GB);
- 
- static void __init xen_parse_512gb(void)
-@@ -778,13 +790,13 @@ char * __init xen_memory_setup(void)
- 		extra_pages += max_pages - max_pfn;
- 
- 	/*
--	 * Clamp the amount of extra memory to a XEN_EXTRA_MEM_RATIO
-+	 * Clamp the amount of extra memory to a EXTRA_MEM_RATIO
- 	 * factor the base size.
- 	 *
- 	 * Make sure we have no memory above max_pages, as this area
- 	 * isn't handled by the p2m management.
- 	 */
--	extra_pages = min3(XEN_EXTRA_MEM_RATIO * min(max_pfn, PFN_DOWN(MAXMEM)),
-+	extra_pages = min3(EXTRA_MEM_RATIO * min(max_pfn, PFN_DOWN(MAXMEM)),
- 			   extra_pages, max_pages - max_pfn);
- 	i = 0;
- 	addr = xen_e820_table.entries[0].addr;
+ 	p->bgid = READ_ONCE(sqe->buf_group);
+-- 
+2.30.1
+
 
 
