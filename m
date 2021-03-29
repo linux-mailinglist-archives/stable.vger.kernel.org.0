@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20CE434C7FF
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0443E34C9DD
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbhC2ITC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35168 "EHLO mail.kernel.org"
+        id S233305AbhC2IeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231484AbhC2ISl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:18:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 007F861601;
-        Mon, 29 Mar 2021 08:18:39 +0000 (UTC)
+        id S234530AbhC2IdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83A7C6193B;
+        Mon, 29 Mar 2021 08:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005920;
-        bh=F92fXOvGK6sqPT6GAX9IwjiAu0qeL13R2TYVYlrvM/0=;
+        s=korg; t=1617006723;
+        bh=yZvJKm230+BL4APwjObdqJRSSQWVaCMgEdxQP7/FmZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2y14N1AeNryREJgA1vHjsXXO5w5lm8VLMZ7Drto97Q7tT9/Ef/fTFpclOcwLZ/tT
-         zh+JYf9bCQxyAXlduaT8oyzCcTI69gMfiznge3YzrnVIKxmQCAu3KHxQ9gcQ/7ZMJ2
-         UuydcvibF8xMVH84/h/V+1oSeGwoSPpe9h2qyP38=
+        b=pLHJPkkT90qc64LrGM4fNHPwqO+CjskAYinXjeBXDYizWl83eZjUb9Lzg+MHYBZgT
+         XzlqBRVdKP4bQkZ0nC/koIdOjPtFpRbWCYzqpzUwpPcVrPC4M3DYYZXbQR6nkO7yg2
+         S4cQPgJ3PtkbthOY2yLnW5HQiDnhN/izxWu7PBcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/221] nfs: we dont support removing system.nfs4_acl
+        stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.11 067/254] btrfs: do not initialize dev stats if we have no dev_root
 Date:   Mon, 29 Mar 2021 09:56:23 +0200
-Message-Id: <20210329075630.916357973@linuxfoundation.org>
+Message-Id: <20210329075635.357251509@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 4f8be1f53bf615102d103c0509ffa9596f65b718 ]
+commit 82d62d06db404d03836cdabbca41d38646d97cbb upstream.
 
-The NFSv4 protocol doesn't have any notion of reomoving an attribute, so
-removexattr(path,"system.nfs4_acl") doesn't make sense.
+Neal reported a panic trying to use -o rescue=all
 
-There's no documented return value.  Arguably it could be EOPNOTSUPP but
-I'm a little worried an application might take that to mean that we
-don't support ACLs or xattrs.  How about EINVAL?
+  BUG: kernel NULL pointer dereference, address: 0000000000000030
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  CPU: 0 PID: 4095 Comm: mount Not tainted 5.11.0-0.rc7.149.fc34.x86_64 #1
+  RIP: 0010:btrfs_device_init_dev_stats+0x4c/0x1f0
+  RSP: 0018:ffffa60285fbfb68 EFLAGS: 00010246
+  RAX: 0000000000000000 RBX: ffff88b88f806498 RCX: ffff88b82e7a2a10
+  RDX: ffffa60285fbfb97 RSI: ffff88b82e7a2a10 RDI: 0000000000000000
+  RBP: ffff88b88f806b3c R08: 0000000000000000 R09: 0000000000000000
+  R10: ffff88b82e7a2a10 R11: 0000000000000000 R12: ffff88b88f806a00
+  R13: ffff88b88f806478 R14: ffff88b88f806a00 R15: ffff88b82e7a2a10
+  FS:  00007f698be1ec40(0000) GS:ffff88b937e00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000030 CR3: 0000000092c9c006 CR4: 00000000003706f0
+  Call Trace:
+  ? btrfs_init_dev_stats+0x1f/0xf0
+  btrfs_init_dev_stats+0x62/0xf0
+  open_ctree+0x1019/0x15ff
+  btrfs_mount_root.cold+0x13/0xfa
+  legacy_get_tree+0x27/0x40
+  vfs_get_tree+0x25/0xb0
+  vfs_kern_mount.part.0+0x71/0xb0
+  btrfs_mount+0x131/0x3d0
+  ? legacy_get_tree+0x27/0x40
+  ? btrfs_show_options+0x640/0x640
+  legacy_get_tree+0x27/0x40
+  vfs_get_tree+0x25/0xb0
+  path_mount+0x441/0xa80
+  __x64_sys_mount+0xf4/0x130
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f698c04e52e
 
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This happens because we unconditionally attempt to initialize device
+stats on mount, but we may not have been able to read the device root.
+Fix this by skipping initializing the device stats if we do not have a
+device root.
+
+Reported-by: Neal Gompa <ngompa13@gmail.com>
+CC: stable@vger.kernel.org # 5.11+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c | 3 +++
+ fs/btrfs/volumes.c |    3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index ba2dfba4854b..15ac6b6893e7 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5891,6 +5891,9 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
- 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
- 	int ret, i;
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7282,6 +7282,9 @@ static int btrfs_device_init_dev_stats(s
+ 	int item_size;
+ 	int i, ret, slot;
  
-+	/* You can't remove system.nfs4_acl: */
-+	if (buflen == 0)
-+		return -EINVAL;
- 	if (!nfs4_server_supports_acls(server))
- 		return -EOPNOTSUPP;
- 	if (npages > ARRAY_SIZE(pages))
--- 
-2.30.1
-
++	if (!device->fs_info->dev_root)
++		return 0;
++
+ 	key.objectid = BTRFS_DEV_STATS_OBJECTID;
+ 	key.type = BTRFS_PERSISTENT_ITEM_KEY;
+ 	key.offset = device->devid;
 
 
