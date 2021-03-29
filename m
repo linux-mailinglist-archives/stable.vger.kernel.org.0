@@ -2,185 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF3034D18F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 15:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 306CA34D1A0
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 15:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230415AbhC2Nms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 09:42:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55152 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230434AbhC2Nmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 09:42:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E280D60C3D;
-        Mon, 29 Mar 2021 13:42:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617025351;
-        bh=bXKpu5laMle//3aIOojAe5vPd2z4rrqpREUMloB3Jrk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PTK0bnutad91cb2Rg7ymrIi6wi9/RkDTxKnMScl91KGu39GstKQcehpgG1SCC8i6o
-         HXPbLTYYBEOIZt1vYhYRVscoj1HDXXqr1Pe2dXR+Fxv+xRYONOYkc0Cg4AD4Lr+VGe
-         AT06puieY/xSz3OP4e69GeS+8iP1FzSdRLHGXXp8=
-Date:   Mon, 29 Mar 2021 15:42:28 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Pankaj Gupta <pankaj.gupta@cloud.ionos.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        teawater <teawaterz@linux.alibaba.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.11 225/254] arm64/mm: define arch_get_mappable_range()
-Message-ID: <YGHZRHgNJkFH+Eiq@kroah.com>
-References: <20210329075633.135869143@linuxfoundation.org>
- <20210329075640.480623043@linuxfoundation.org>
- <CA+G9fYvHsa0TAqPBvHwPhhe_0qt8syEWkGV_GPjOyEOAO9q5Sw@mail.gmail.com>
- <YGGoHdprUT/AscHa@kroah.com>
- <CAMj1kXEwMSbS1LC7sPSjSifLF8jYVyGcHvvkf9nfrf-fwo4d9w@mail.gmail.com>
+        id S231368AbhC2Nqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 09:46:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36166 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229674AbhC2Nqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 09:46:35 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A13AC061574;
+        Mon, 29 Mar 2021 06:46:35 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id t5-20020a1c77050000b029010e62cea9deso6716161wmi.0;
+        Mon, 29 Mar 2021 06:46:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=rZ0ttQmQI38kgtwimwZOypMElesqYSV1+5uAEl6XReI=;
+        b=aXrEUr2HfLf/OkoGix2kXX2gaejpeIC6TS8dm/pMOZ383IzDcRMNlJIOyRWYzFe0SW
+         nySVI9Sx3U87QQwvMpsgSFraJZQ75BFpr3nCfBldspaT6JbL7NPEa+bZlishv3UfKeoU
+         d2HFDwZJ/SisxNV7yVr/uWo5Vs9kzG8DVJY4R6YJnJoEDDw5jZnMuSefFCNVHp/pONbs
+         w718mLUmn0OT4MQwg1RiUiqSdMBF1E50pYWf+rIm8q/BVQF9q3toq6AlWBPvSt8PtJ8o
+         HAe0vKWGlDaBaa6IsdtsfxIIsx7DbI+ih1d48ZA/oNahSgNmbZYOQyHcQkmfzyvrMVb/
+         Ns7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rZ0ttQmQI38kgtwimwZOypMElesqYSV1+5uAEl6XReI=;
+        b=FcZNzoFvQ4WlaLCumxnygnC3OH/qh13AP5cFYyOaAukniBu+tvmiUlhNstPlMHta3c
+         XvyCGWrOIRWLIq9EKW9w9ZY4fgqstDf92q4kDPm95bFpdF2i4JcCywjdqpUkwPm0jKgH
+         fof+KZLIoXzyX8hFmKsrLIaBZh8/YUaJdP9THokrWa4pCFdoe3qKPeSjvlySrC8JdDb1
+         HipYOtkfiivLqqNf10r3gW7od+0OEJxfG+jPDxFjVYD3gSbpIcp3XOWvRPyK/uOF1UOw
+         QyN2gQXAF5dY6UW+P0pQgbc2zuzXSJOgQ6kLmCjinumYPzlaHfD9GxI+IpQMZfKoxfor
+         CuJA==
+X-Gm-Message-State: AOAM532uAgZw5hE7V6JToRU5VUUDV/8LFtBXeTjYPUEmoboOXU3pMmkN
+        4CTAefpn9tSz4A1h2gRcNTrbXPeaUKRHtg==
+X-Google-Smtp-Source: ABdhPJwsFeaTfLQho0KOF6d5TsjacpYyW3Pw0n29HGyU/IuKNc+SapdcNLoG9R2gdUilBHUWOqUPCQ==
+X-Received: by 2002:a05:600c:2247:: with SMTP id a7mr25237250wmm.131.1617025593712;
+        Mon, 29 Mar 2021 06:46:33 -0700 (PDT)
+Received: from ziggy.stardust (80.174.240.175.dyn.user.ono.com. [80.174.240.175])
+        by smtp.gmail.com with ESMTPSA id c131sm26103482wma.37.2021.03.29.06.46.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 29 Mar 2021 06:46:33 -0700 (PDT)
+Subject: Re: [PATCH v5 05/13] arm64: dts: mt8173: fix property typo of 'phys'
+ in dsi node
+To:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Vinod Koul <vkoul@kernel.org>, Rob Herring <robh+dt@kernel.org>
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Jie Qiu <jie.qiu@mediatek.com>, CK Hu <ck.hu@mediatek.com>,
+        Cawa Cheng <cawa.cheng@mediatek.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-usb@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+References: <20210316092232.9806-1-chunfeng.yun@mediatek.com>
+ <20210316092232.9806-5-chunfeng.yun@mediatek.com>
+From:   Matthias Brugger <matthias.bgg@gmail.com>
+Message-ID: <849d620a-a209-f89f-8303-9d0c9b740045@gmail.com>
+Date:   Mon, 29 Mar 2021 15:46:31 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXEwMSbS1LC7sPSjSifLF8jYVyGcHvvkf9nfrf-fwo4d9w@mail.gmail.com>
+In-Reply-To: <20210316092232.9806-5-chunfeng.yun@mediatek.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 29, 2021 at 03:08:52PM +0200, Ard Biesheuvel wrote:
-> On Mon, 29 Mar 2021 at 12:12, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Mon, Mar 29, 2021 at 03:05:25PM +0530, Naresh Kamboju wrote:
-> > > On Mon, 29 Mar 2021 at 14:10, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > From: Anshuman Khandual <anshuman.khandual@arm.com>
-> > > >
-> > > > [ Upstream commit 03aaf83fba6e5af08b5dd174c72edee9b7d9ed9b ]
-> > > >
-> > > > This overrides arch_get_mappable_range() on arm64 platform which will be
-> > > > used with recently added generic framework.  It drops
-> > > > inside_linear_region() and subsequent check in arch_add_memory() which are
-> > > > no longer required.  It also adds a VM_BUG_ON() check that would ensure
-> > > > that mhp_range_allowed() has already been called.
-> > > >
-> > > > Link: https://lkml.kernel.org/r/1612149902-7867-3-git-send-email-anshuman.khandual@arm.com
-> > > > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> > > > Reviewed-by: David Hildenbrand <david@redhat.com>
-> > > > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> > > > Cc: Will Deacon <will@kernel.org>
-> > > > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > > > Cc: Mark Rutland <mark.rutland@arm.com>
-> > > > Cc: Heiko Carstens <hca@linux.ibm.com>
-> > > > Cc: Jason Wang <jasowang@redhat.com>
-> > > > Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > > > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> > > > Cc: Michal Hocko <mhocko@kernel.org>
-> > > > Cc: Oscar Salvador <osalvador@suse.de>
-> > > > Cc: Pankaj Gupta <pankaj.gupta@cloud.ionos.com>
-> > > > Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-> > > > Cc: teawater <teawaterz@linux.alibaba.com>
-> > > > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> > > > Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-> > > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > > ---
-> > > >  arch/arm64/mm/mmu.c | 15 +++++++--------
-> > > >  1 file changed, 7 insertions(+), 8 deletions(-)
-> > > >
-> > > > diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-> > > > index 6f0648777d34..92b3be127796 100644
-> > > > --- a/arch/arm64/mm/mmu.c
-> > > > +++ b/arch/arm64/mm/mmu.c
-> > > > @@ -1443,16 +1443,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
-> > > >         free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
-> > > >  }
-> > > >
-> > > > -static bool inside_linear_region(u64 start, u64 size)
-> > > > +struct range arch_get_mappable_range(void)
-> > > >  {
-> > > > +       struct range mhp_range;
-> > > > +
-> > > >         /*
-> > > >          * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
-> > > >          * accommodating both its ends but excluding PAGE_END. Max physical
-> > > >          * range which can be mapped inside this linear mapping range, must
-> > > >          * also be derived from its end points.
-> > > >          */
-> > > > -       return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
-> > > > -              (start + size - 1) <= __pa(PAGE_END - 1);
-> > > > +       mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-> > > > +       mhp_range.end =  __pa(PAGE_END - 1);
-> > > > +       return mhp_range;
-> > > >  }
-> > > >
-> > > >  int arch_add_memory(int nid, u64 start, u64 size,
-> > > > @@ -1460,11 +1463,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
-> > > >  {
-> > > >         int ret, flags = 0;
-> > > >
-> > > > -       if (!inside_linear_region(start, size)) {
-> > > > -               pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
-> > > > -               return -EINVAL;
-> > > > -       }
-> > > > -
-> > > > +       VM_BUG_ON(!mhp_range_allowed(start, size, true));
-> > > >         if (rodata_full || debug_pagealloc_enabled())
-> > > >                 flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
-> > >
-> > > The stable rc 5.10 and 5.11 builds failed for arm64 architecture
-> > > due to below warnings / errors,
-> > >
-> > > > Anshuman Khandual <anshuman.khandual@arm.com>
-> > > >     arm64/mm: define arch_get_mappable_range()
-> > >
-> > >
-> > >   arch/arm64/mm/mmu.c: In function 'arch_add_memory':
-> > >   arch/arm64/mm/mmu.c:1483:13: error: implicit declaration of function
-> > > 'mhp_range_allowed'; did you mean 'cpu_map_prog_allowed'?
-> > > [-Werror=implicit-function-declaration]
-> > >     VM_BUG_ON(!mhp_range_allowed(start, size, true));
-> > >                ^
-> > >   include/linux/build_bug.h:30:63: note: in definition of macro
-> > > 'BUILD_BUG_ON_INVALID'
-> > >    #define BUILD_BUG_ON_INVALID(e) ((void)(sizeof((__force long)(e))))
-> > >                                                                  ^
-> > >   arch/arm64/mm/mmu.c:1483:2: note: in expansion of macro 'VM_BUG_ON'
-> > >     VM_BUG_ON(!mhp_range_allowed(start, size, true));
-> > >     ^~~~~~~~~
-> > >
-> > > Build link,
-> > > https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.11/DISTRO=lkft,MACHINE=juno,label=docker-buster-lkft/41/consoleText
-> > > https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.10/DISTRO=lkft,MACHINE=dragonboard-410c,label=docker-buster-lkft/120/consoleFull
-> >
-> > thanks, will go drop this, and the patch that was after it in the
-> > series, from both trees and will push out a -rc2.
-> >
+
+
+On 16/03/2021 10:22, Chunfeng Yun wrote:
+> Use 'phys' instead of 'phy'.
 > 
-> Why were these picked up in the first place? I don't see any fixes or
-> cc:stable tags, and the commit log clearly describes that the change
-> is preparatory work for enabling arm64 support into a recently
-> introduced generic framework.
+> Fixes: 81ad4dbaf7af ("arm64: dts: mt8173: Add display subsystem related nodes")
+> Cc: stable <stable@vger.kernel.org>
+> Reviewed-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-This was needed for a follow-on patch in the series that fixed an issue.
-Specifically it was commit ee7febce0519 ("arm64: mm: correct the inside
-linear map range during hotplug check")
+Applied now to v5.12-next/dts64
 
-thanks,
-
-greg k-h
+> ---
+> v5: merged into this series, add Reviewed-by CK
+> ---
+>  arch/arm64/boot/dts/mediatek/mt8173.dtsi | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+> index 7fa870e4386a..ecb37a7e6870 100644
+> --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+> +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+> @@ -1235,7 +1235,7 @@
+>  				 <&mmsys CLK_MM_DSI1_DIGITAL>,
+>  				 <&mipi_tx1>;
+>  			clock-names = "engine", "digital", "hs";
+> -			phy = <&mipi_tx1>;
+> +			phys = <&mipi_tx1>;
+>  			phy-names = "dphy";
+>  			status = "disabled";
+>  		};
+> 
