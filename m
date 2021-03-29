@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58D5134C5C4
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13C234C743
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbhC2ICw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44466 "EHLO mail.kernel.org"
+        id S232648AbhC2INl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231855AbhC2ICK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:02:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B23E361969;
-        Mon, 29 Mar 2021 08:02:09 +0000 (UTC)
+        id S232068AbhC2IM7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:12:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26D7261601;
+        Mon, 29 Mar 2021 08:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004930;
-        bh=EWcyRWDCzbio/IzJEMVtJOeSKiPOeEp8HG9IZTLd1No=;
+        s=korg; t=1617005579;
+        bh=bu9Eq3kNXr4FyHrjK60GQwJP3tzHCRp9scyrY/Xx4yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=culwYKf/kC0PUnTZyEZV8OKVdnHBekDDsO6U3xCIcFf7gadGJMDlsscIK1e2676Xw
-         F7x1mFFNce7Lf8fwoHatjNSZq8+Acoo6neMGTApBMU8GKKFgPfX/HEb0Lu6Bi+mw+R
-         hssQIyp8H9HQT4ga97lIHzu9Nc5bN0VKuz8uMRko=
+        b=tIjuYSFyPvblGDdgNgX69NNZhqKdBqxjJbDA8EP0X2Kz3iBCifzA3aEJTrwS36+pL
+         ac9M1FLDufuR1SKG9voTnlaDMup7EMuCzNKl9nimJhsdnTHqKzTmH/frGK4jajPhCw
+         d9MRhO42tbKMqHYlNcAGuRAGZZlGrFRsYW7auM3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 19/53] squashfs: fix xattr id and id lookup sanity checks
+        stable@vger.kernel.org, Greg Ungerer <gerg@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 046/111] arm64: dts: ls1046a: mark crypto engine dma coherent
 Date:   Mon, 29 Mar 2021 09:57:54 +0200
-Message-Id: <20210329075608.177398196@linuxfoundation.org>
+Message-Id: <20210329075616.721460979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-commit 8b44ca2b634527151af07447a8090a5f3a043321 upstream.
+commit 9c3a16f88385e671b63a0de7b82b85e604a80f42 upstream.
 
-The checks for maximum metadata block size is missing
-SQUASHFS_BLOCK_OFFSET (the two byte length count).
+Crypto engine (CAAM) on LS1046A platform is configured HW-coherent,
+mark accordingly the DT node.
 
-Link: https://lkml.kernel.org/r/2069685113.2081245.1614583677427@webmail.123-reg.co.uk
-Fixes: f37aa4c7366e23f ("squashfs: add more sanity checks in id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Cc: Sean Nyekjaer <sean@geanix.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+As reported by Greg and Sascha, and explained by Robin, lack of
+"dma-coherent" property for an IP that is configured HW-coherent
+can lead to problems, e.g. on v5.11:
+
+> kernel BUG at drivers/crypto/caam/jr.c:247!
+> Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+> Modules linked in:
+> CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.11.0-20210225-3-00039-g434215968816-dirty #12
+> Hardware name: TQ TQMLS1046A SoM on Arkona AT1130 (C300) board (DT)
+> pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
+> pc : caam_jr_dequeue+0x98/0x57c
+> lr : caam_jr_dequeue+0x98/0x57c
+> sp : ffff800010003d50
+> x29: ffff800010003d50 x28: ffff8000118d4000
+> x27: ffff8000118d4328 x26: 00000000000001f0
+> x25: ffff0008022be480 x24: ffff0008022c6410
+> x23: 00000000000001f1 x22: ffff8000118d4329
+> x21: 0000000000004d80 x20: 00000000000001f1
+> x19: 0000000000000001 x18: 0000000000000020
+> x17: 0000000000000000 x16: 0000000000000015
+> x15: ffff800011690230 x14: 2e2e2e2e2e2e2e2e
+> x13: 2e2e2e2e2e2e2020 x12: 3030303030303030
+> x11: ffff800011700a38 x10: 00000000fffff000
+> x9 : ffff8000100ada30 x8 : ffff8000116a8a38
+> x7 : 0000000000000001 x6 : 0000000000000000
+> x5 : 0000000000000000 x4 : 0000000000000000
+> x3 : 00000000ffffffff x2 : 0000000000000000
+> x1 : 0000000000000000 x0 : 0000000000001800
+> Call trace:
+>  caam_jr_dequeue+0x98/0x57c
+>  tasklet_action_common.constprop.0+0x164/0x18c
+>  tasklet_action+0x44/0x54
+>  __do_softirq+0x160/0x454
+>  __irq_exit_rcu+0x164/0x16c
+>  irq_exit+0x1c/0x30
+>  __handle_domain_irq+0xc0/0x13c
+>  gic_handle_irq+0x5c/0xf0
+>  el1_irq+0xb4/0x180
+>  arch_cpu_idle+0x18/0x30
+>  default_idle_call+0x3c/0x1c0
+>  do_idle+0x23c/0x274
+>  cpu_startup_entry+0x34/0x70
+>  rest_init+0xdc/0xec
+>  arch_call_rest_init+0x1c/0x28
+>  start_kernel+0x4ac/0x4e4
+> Code: 91392021 912c2000 d377d8c6 97f24d96 (d4210000)
+
+Cc: <stable@vger.kernel.org> # v4.10+
+Fixes: 8126d88162a5 ("arm64: dts: add QorIQ LS1046A SoC support")
+Link: https://lore.kernel.org/linux-crypto/fe6faa24-d8f7-d18f-adfa-44fa0caa1598@arm.com
+Reported-by: Greg Ungerer <gerg@kernel.org>
+Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
+Tested-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Acked-by: Greg Ungerer <gerg@kernel.org>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/id.c       |    6 ++++--
- fs/squashfs/xattr_id.c |    6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/squashfs/id.c
-+++ b/fs/squashfs/id.c
-@@ -110,14 +110,16 @@ __le64 *squashfs_read_id_index_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+@@ -244,6 +244,7 @@
+ 			ranges = <0x0 0x00 0x1700000 0x100000>;
+ 			reg = <0x00 0x1700000 0x0 0x100000>;
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
++			dma-coherent;
  
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= id_table_start || (id_table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -122,14 +122,16 @@ __le64 *squashfs_read_xattr_id_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
- 
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= table_start || (table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
+ 			sec_jr0: jr@10000 {
+ 				compatible = "fsl,sec-v5.4-job-ring",
 
 
