@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61BDB34C8E6
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA46C34C652
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231724AbhC2IYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
+        id S231825AbhC2IGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:06:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232585AbhC2IXu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C519861601;
-        Mon, 29 Mar 2021 08:23:38 +0000 (UTC)
+        id S231580AbhC2IFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:05:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79A0C61938;
+        Mon, 29 Mar 2021 08:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006219;
-        bh=ffgBIZ4vhWgk3gTAttcgT8LCvnRUFSe9UJzLkuJnyrc=;
+        s=korg; t=1617005142;
+        bh=PzrJR67FvEnJOBrgFZg6b5pr2t3VI0la/+3L64PDOL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsrIWW9yEw8BakkmDiqbct5Wvj+JPNZ5rUQXGTxq0cr5mW3cfPSDBha178k/nCUPU
-         bDULHWiOjnmrW5V3PHywo5nezlT4bv7Rq60P5m+QO6IfxXEsxb0B1Q26n/jw2yZBmP
-         rToOQiqGXSpoG2c+iBb/vdMrkJQwvoczPkwW/l4Q=
+        b=rF6UvN998eAmIniacdv+AcRTi9Jk02bCl/PEZsqTcnywffjb9GCba86n7vYtrynzX
+         gpbXRb1L3EJSKxw0vF8hxRCIxAOYxd1pmCkX1dTM+GM8QroeDiaA/2Rp20YI5rI/Dy
+         TthT0G+3+8roZFe9Sa4vkRG4YVS24XZ2pTON08tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Brazdil <dbrazdil@google.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 161/221] selinux: vsock: Set SID for socket returned by accept()
+Subject: [PATCH 4.14 32/59] net: dsa: bcm_sf2: Qualify phydev->dev_flags based on port
 Date:   Mon, 29 Mar 2021 09:58:12 +0200
-Message-Id: <20210329075634.525785073@linuxfoundation.org>
+Message-Id: <20210329075609.949091231@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Brazdil <dbrazdil@google.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 1f935e8e72ec28dddb2dc0650b3b6626a293d94b ]
+[ Upstream commit 47142ed6c34d544ae9f0463e58d482289cbe0d46 ]
 
-For AF_VSOCK, accept() currently returns sockets that are unlabelled.
-Other socket families derive the child's SID from the SID of the parent
-and the SID of the incoming packet. This is typically done as the
-connected socket is placed in the queue that accept() removes from.
+Similar to commit 92696286f3bb37ba50e4bd8d1beb24afb759a799 ("net:
+bcmgenet: Set phydev->dev_flags only for internal PHYs") we need to
+qualify the phydev->dev_flags based on whether the port is connected to
+an internal or external PHY otherwise we risk having a flags collision
+with a completely different interpretation depending on the driver.
 
-Reuse the existing 'security_sk_clone' hook to copy the SID from the
-parent (server) socket to the child. There is no packet SID in this
-case.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: David Brazdil <dbrazdil@google.com>
+Fixes: aa9aef77c761 ("net: dsa: bcm_sf2: communicate integrated PHY revision to PHY driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/dsa/bcm_sf2.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 791955f5e7ec..cf86c1376b1a 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -738,6 +738,7 @@ static struct sock *__vsock_create(struct net *net,
- 		vsk->buffer_size = psk->buffer_size;
- 		vsk->buffer_min_size = psk->buffer_min_size;
- 		vsk->buffer_max_size = psk->buffer_max_size;
-+		security_sk_clone(parent, sk);
- 	} else {
- 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
- 		vsk->owner = get_current_cred();
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 7fc84ae562a2..11a72c4cbb92 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -613,8 +613,10 @@ static u32 bcm_sf2_sw_get_phy_flags(struct dsa_switch *ds, int port)
+ 	 * in bits 15:8 and the patch level in bits 7:0 which is exactly what
+ 	 * the REG_PHY_REVISION register layout is.
+ 	 */
+-
+-	return priv->hw_params.gphy_rev;
++	if (priv->int_phy_mask & BIT(port))
++		return priv->hw_params.gphy_rev;
++	else
++		return 0;
+ }
+ 
+ static void bcm_sf2_sw_adjust_link(struct dsa_switch *ds, int port,
 -- 
 2.30.1
 
