@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A0734C799
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F9B34C95D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232797AbhC2IQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:16:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S233375AbhC2I3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232951AbhC2IOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:14:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45C6B61601;
-        Mon, 29 Mar 2021 08:14:53 +0000 (UTC)
+        id S233882AbhC2I11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:27:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51D2B61613;
+        Mon, 29 Mar 2021 08:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005693;
-        bh=oCaTWTV0i2Q6BY8iMmVbuqvKd1Hqhy5Gfb+rLpgNUaE=;
+        s=korg; t=1617006369;
+        bh=hnpor7IztdL54/dqqRQe7pND8hi8h6ZeOxhkV6P1OKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w41L1zl+vVUP9X02lgJBPZMgCx/MI7Y+XmXkNwArnD0DJJejmtxshReaqRtnpmsjk
-         bv4a3GQEX3mrldORU2K0SZF46VBN6QRB4gid0p3WzC8z2LqkUvUmoXjmL0235KmSyv
-         IicOjw+yb7REM9bcJnSItulT+cyAQa6U6fjLgnmw=
+        b=ukU9jtkFKGiSWjdocPehlQQriA3Au1W7qNzbI4K1vdltT9v9g3zJnmTsl4SaZZ7XG
+         gmbOZc8cJspkMQRS0tC93ngnPpM0+y/HSIyl9w2u7aPPThDjZeCjP5rtqOrBe8RvOx
+         uTuE5hyLRLFJpuIeJLbJnRr5Gq2HFj8d/3OtkyBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Belisko Marek <marek.belisko@gmail.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/111] net: stmmac: dwmac-sun8i: Provide TX and RX fifo sizes
+Subject: [PATCH 5.10 181/221] net, bpf: Fix ip6ip6 crash with collect_md populated skbs
 Date:   Mon, 29 Mar 2021 09:58:32 +0200
-Message-Id: <20210329075618.015365829@linuxfoundation.org>
+Message-Id: <20210329075635.183563279@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 014dfa26ce1c647af09bf506285ef67e0e3f0a6b ]
+[ Upstream commit a188bb5638d41aa99090ebf2f85d3505ab13fba5 ]
 
-MTU cannot be changed on dwmac-sun8i. (ip link set eth0 mtu xxx returning EINVAL)
-This is due to tx_fifo_size being 0, since this value is used to compute valid
-MTU range.
-Like dwmac-sunxi (with commit 806fd188ce2a ("net: stmmac: dwmac-sunxi: Provide TX and RX fifo sizes"))
-dwmac-sun8i need to have tx and rx fifo sizes set.
-I have used values from datasheets.
-After this patch, setting a non-default MTU (like 1000) value works and network is still useable.
+I ran into a crash where setting up a ip6ip6 tunnel device which was /not/
+set to collect_md mode was receiving collect_md populated skbs for xmit.
 
-Tested-on: sun8i-h3-orangepi-pc
-Tested-on: sun8i-r40-bananapi-m2-ultra
-Tested-on: sun50i-a64-bananapi-m64
-Tested-on: sun50i-h5-nanopi-neo-plus2
-Tested-on: sun50i-h6-pine-h64
-Fixes: 9f93ac8d408 ("net-next: stmmac: Add dwmac-sun8i")
-Reported-by: Belisko Marek <marek.belisko@gmail.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+The BPF prog was populating the skb via bpf_skb_set_tunnel_key() which is
+assigning special metadata dst entry and then redirecting the skb to the
+device, taking ip6_tnl_start_xmit() -> ipxip6_tnl_xmit() -> ip6_tnl_xmit()
+and in the latter it performs a neigh lookup based on skb_dst(skb) where
+we trigger a NULL pointer dereference on dst->ops->neigh_lookup() since
+the md_dst_ops do not populate neigh_lookup callback with a fake handler.
+
+Transform the md_dst_ops into generic dst_blackhole_ops that can also be
+reused elsewhere when needed, and use them for the metadata dst entries as
+callback ops.
+
+Also, remove the dst_md_discard{,_out}() ops and rely on dst_discard{,_out}()
+from dst_init() which free the skb the same way modulo the splat. Given we
+will be able to recover just fine from there, avoid any potential splats
+iff this gets ever triggered in future (or worse, panic on warns when set).
+
+Fixes: f38a9eb1f77b ("dst: Metadata destinations")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/dst.c | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index c4c9cbdeb601..2f6258ca9515 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -1206,6 +1206,8 @@ static int sun8i_dwmac_probe(struct platform_device *pdev)
- 	plat_dat->init = sun8i_dwmac_init;
- 	plat_dat->exit = sun8i_dwmac_exit;
- 	plat_dat->setup = sun8i_dwmac_setup;
-+	plat_dat->tx_fifo_size = 4096;
-+	plat_dat->rx_fifo_size = 16384;
+diff --git a/net/core/dst.c b/net/core/dst.c
+index 5f6315601776..fb3bcba87744 100644
+--- a/net/core/dst.c
++++ b/net/core/dst.c
+@@ -275,37 +275,24 @@ unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
+ }
+ EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
  
- 	ret = sun8i_dwmac_init(pdev, plat_dat->bsp_priv);
- 	if (ret)
+-static struct dst_ops md_dst_ops = {
+-	.family =		AF_UNSPEC,
++static struct dst_ops dst_blackhole_ops = {
++	.family		= AF_UNSPEC,
++	.neigh_lookup	= dst_blackhole_neigh_lookup,
++	.check		= dst_blackhole_check,
++	.cow_metrics	= dst_blackhole_cow_metrics,
++	.update_pmtu	= dst_blackhole_update_pmtu,
++	.redirect	= dst_blackhole_redirect,
++	.mtu		= dst_blackhole_mtu,
+ };
+ 
+-static int dst_md_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call output on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+-static int dst_md_discard(struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call input on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+ static void __metadata_dst_init(struct metadata_dst *md_dst,
+ 				enum metadata_type type, u8 optslen)
+-
+ {
+ 	struct dst_entry *dst;
+ 
+ 	dst = &md_dst->dst;
+-	dst_init(dst, &md_dst_ops, NULL, 1, DST_OBSOLETE_NONE,
++	dst_init(dst, &dst_blackhole_ops, NULL, 1, DST_OBSOLETE_NONE,
+ 		 DST_METADATA | DST_NOCOUNT);
+-
+-	dst->input = dst_md_discard;
+-	dst->output = dst_md_discard_out;
+-
+ 	memset(dst + 1, 0, sizeof(*md_dst) + optslen - sizeof(*dst));
+ 	md_dst->type = type;
+ }
 -- 
 2.30.1
 
