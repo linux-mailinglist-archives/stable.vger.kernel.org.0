@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EA3934C7D3
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13AE834C983
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232683AbhC2IST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S233838AbhC2IaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:30:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233206AbhC2IRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:17:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78620619C8;
-        Mon, 29 Mar 2021 08:16:44 +0000 (UTC)
+        id S234348AbhC2I2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:28:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3A2061996;
+        Mon, 29 Mar 2021 08:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005805;
-        bh=F2Am5AgcwvHFfovPrzkmneKKrUDiOXkJDhQ6FIxVmD8=;
+        s=korg; t=1617006462;
+        bh=Fki+6t2i693xmHEl2L3+HBbS1O+MLL5WTpNnEgLEha8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdIUCICdO1oEQhpKQMoto0Ot2U251PL2HaLIoyvHUHIXQZLD0fEgKpGjGsv1M0HTl
-         nAXsXFDCQYbRuGe0s2iCXpQzKGrmt55idrGHv8VhChyoyNfylFspz9rqvCxEQtXFWt
-         cnfhghxgNPNtpl7DwaBJYySPWl5WGOm9EpCWkab0=
+        b=x/JSCnIpRZO6hb/DSr/nlxkPDLPR8gZ6lHpcgaFfh6yDttDD7khY8yN0MpMRt3p5o
+         QflGhDw3TloCpb6RgvoBJfHNSlW9dLGoF7HfA3W7pYKZDnwe6hQG/S7RR9rf2gCk3Y
+         l+dnHhGXOC0fSjJA01q+uhHJpwHclUv+dSvdCseE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Nitin Rawat <nitirawa@codeaurora.org>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/221] scsi: ufs: ufs-qcom: Disable interrupt in reset path
+Subject: [PATCH 5.11 027/254] atm: uPD98402: fix incorrect allocation
 Date:   Mon, 29 Mar 2021 09:55:43 +0200
-Message-Id: <20210329075629.589757404@linuxfoundation.org>
+Message-Id: <20210329075634.036662533@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nitin Rawat <nitirawa@codeaurora.org>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 4a791574a0ccf36eb3a0a46fbd71d2768df3eef9 ]
+[ Upstream commit 3153724fc084d8ef640c611f269ddfb576d1dcb1 ]
 
-Disable interrupt in reset path to flush pending IRQ handler in order to
-avoid possible NoC issues.
+dev->dev_data is set in zatm.c, calling zatm_start() will overwrite this
+dev->dev_data in uPD98402_start() and a subsequent PRIV(dev)->lock
+(i.e dev->phy_data->lock) will result in a null-ptr-dereference.
 
-Link: https://lore.kernel.org/r/1614145010-36079-3-git-send-email-cang@codeaurora.org
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Nitin Rawat <nitirawa@codeaurora.org>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+I believe this is a typo and what it actually want to do is to allocate
+phy_data instead of dev_data.
+
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-qcom.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/atm/uPD98402.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
-index a244c8ae1b4e..20182e39cb28 100644
---- a/drivers/scsi/ufs/ufs-qcom.c
-+++ b/drivers/scsi/ufs/ufs-qcom.c
-@@ -253,12 +253,17 @@ static int ufs_qcom_host_reset(struct ufs_hba *hba)
+diff --git a/drivers/atm/uPD98402.c b/drivers/atm/uPD98402.c
+index 7850758b5bb8..239852d85558 100644
+--- a/drivers/atm/uPD98402.c
++++ b/drivers/atm/uPD98402.c
+@@ -211,7 +211,7 @@ static void uPD98402_int(struct atm_dev *dev)
+ static int uPD98402_start(struct atm_dev *dev)
  {
- 	int ret = 0;
- 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
-+	bool reenable_intr = false;
- 
- 	if (!host->core_reset) {
- 		dev_warn(hba->dev, "%s: reset control not set\n", __func__);
- 		goto out;
- 	}
- 
-+	reenable_intr = hba->is_irq_enabled;
-+	disable_irq(hba->irq);
-+	hba->is_irq_enabled = false;
-+
- 	ret = reset_control_assert(host->core_reset);
- 	if (ret) {
- 		dev_err(hba->dev, "%s: core_reset assert failed, err = %d\n",
-@@ -280,6 +285,11 @@ static int ufs_qcom_host_reset(struct ufs_hba *hba)
- 
- 	usleep_range(1000, 1100);
- 
-+	if (reenable_intr) {
-+		enable_irq(hba->irq);
-+		hba->is_irq_enabled = true;
-+	}
-+
- out:
- 	return ret;
- }
+ 	DPRINTK("phy_start\n");
+-	if (!(dev->dev_data = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
++	if (!(dev->phy_data = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	spin_lock_init(&PRIV(dev)->lock);
+ 	memset(&PRIV(dev)->sonet_stats,0,sizeof(struct k_sonet_stats));
 -- 
 2.30.1
 
