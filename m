@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0630534C7C0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C70834CAAB
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbhC2ISJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57604 "EHLO mail.kernel.org"
+        id S232756AbhC2Ij3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232053AbhC2IQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:16:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7BB8619B7;
-        Mon, 29 Mar 2021 08:15:59 +0000 (UTC)
+        id S235162AbhC2IiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:38:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A33561581;
+        Mon, 29 Mar 2021 08:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005760;
-        bh=wE3xhMdPeGoNp5bVHudTSYb/w7alIs67ZTkdo/MVYzg=;
+        s=korg; t=1617007092;
+        bh=V4TvJBqhzFML2yANhPpZesnNBosx5XZ/iPEbSSjzk8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eTphMdp03MoTKbuPCl7CDQB7jbi2YWCjaEU3wZPx3v/f9Hjwpsvt0D6QHo4q+Vj0w
-         FbZx4+neh1V7XQAsA8LO+S2Daz1kaEnbdjFWDQjESd2vl8WT20Pdp8GI1m/kM3NTXj
-         cmMKvrjfi63x4eje8JZBW4imj6F5C7uziO+o3aaQ=
+        b=Jvtck5zwVmL+7gn1HJ1Xq+eo+LV61mk7PSyiujco8a+qX7CjEL+h9IrRwubIwy6ko
+         Eqxwr4AIdy9FfUf5pLrOUfIGzjhd3fTlpGrBbJW+t8Xesf3cqYH2VE13te2Y+pusvN
+         km0rAqqQn7PeOYiqF8aswvfBMJoPwP4OD2nljkEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 106/111] can: dev: Move device back to init netns on owning netns delete
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 218/254] net: phy: broadcom: Set proper 1000BaseX/SGMII interface mode for BCM54616S
 Date:   Mon, 29 Mar 2021 09:58:54 +0200
-Message-Id: <20210329075618.736747508@linuxfoundation.org>
+Message-Id: <20210329075640.263424782@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,96 +41,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Willi <martin@strongswan.org>
+From: Robert Hancock <robert.hancock@calian.com>
 
-commit 3a5ca857079ea022e0b1b17fc154f7ad7dbc150f upstream.
+[ Upstream commit 3afd0218992a8d1398e9791d6c2edd4c948ae7ee ]
 
-When a non-initial netns is destroyed, the usual policy is to delete
-all virtual network interfaces contained, but move physical interfaces
-back to the initial netns. This keeps the physical interface visible
-on the system.
+The default configuration for the BCM54616S PHY may not match the desired
+mode when using 1000BaseX or SGMII interface modes, such as when it is on
+an SFP module. Add code to explicitly set the correct mode using
+programming sequences provided by Bel-Fuse:
 
-CAN devices are somewhat special, as they define rtnl_link_ops even
-if they are physical devices. If a CAN interface is moved into a
-non-initial netns, destroying that netns lets the interface vanish
-instead of moving it back to the initial netns. default_device_exit()
-skips CAN interfaces due to having rtnl_link_ops set. Reproducer:
+https://www.belfuse.com/resources/datasheets/powersolutions/ds-bps-sfp-1gbt-05-series.pdf
+https://www.belfuse.com/resources/datasheets/powersolutions/ds-bps-sfp-1gbt-06-series.pdf
 
-  ip netns add foo
-  ip link set can0 netns foo
-  ip netns delete foo
-
-WARNING: CPU: 1 PID: 84 at net/core/dev.c:11030 ops_exit_list+0x38/0x60
-CPU: 1 PID: 84 Comm: kworker/u4:2 Not tainted 5.10.19 #1
-Workqueue: netns cleanup_net
-[<c010e700>] (unwind_backtrace) from [<c010a1d8>] (show_stack+0x10/0x14)
-[<c010a1d8>] (show_stack) from [<c086dc10>] (dump_stack+0x94/0xa8)
-[<c086dc10>] (dump_stack) from [<c086b938>] (__warn+0xb8/0x114)
-[<c086b938>] (__warn) from [<c086ba10>] (warn_slowpath_fmt+0x7c/0xac)
-[<c086ba10>] (warn_slowpath_fmt) from [<c0629f20>] (ops_exit_list+0x38/0x60)
-[<c0629f20>] (ops_exit_list) from [<c062a5c4>] (cleanup_net+0x230/0x380)
-[<c062a5c4>] (cleanup_net) from [<c0142c20>] (process_one_work+0x1d8/0x438)
-[<c0142c20>] (process_one_work) from [<c0142ee4>] (worker_thread+0x64/0x5a8)
-[<c0142ee4>] (worker_thread) from [<c0148a98>] (kthread+0x148/0x14c)
-[<c0148a98>] (kthread) from [<c0100148>] (ret_from_fork+0x14/0x2c)
-
-To properly restore physical CAN devices to the initial netns on owning
-netns exit, introduce a flag on rtnl_link_ops that can be set by drivers.
-For CAN devices setting this flag, default_device_exit() considers them
-non-virtual, applying the usual namespace move.
-
-The issue was introduced in the commit mentioned below, as at that time
-CAN devices did not have a dellink() operation.
-
-Fixes: e008b5fc8dc7 ("net: Simplfy default_device_exit and improve batching.")
-Link: https://lore.kernel.org/r/20210302122423.872326-1-martin@strongswan.org
-Signed-off-by: Martin Willi <martin@strongswan.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c   |    1 +
- include/net/rtnetlink.h |    2 ++
- net/core/dev.c          |    2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/phy/broadcom.c | 84 ++++++++++++++++++++++++++++++++------
+ include/linux/brcmphy.h    |  4 ++
+ 2 files changed, 76 insertions(+), 12 deletions(-)
 
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -1226,6 +1226,7 @@ static void can_dellink(struct net_devic
+diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
+index 407626ddcae7..b160186dc766 100644
+--- a/drivers/net/phy/broadcom.c
++++ b/drivers/net/phy/broadcom.c
+@@ -103,6 +103,64 @@ static int bcm54612e_config_init(struct phy_device *phydev)
+ 	return 0;
+ }
  
- static struct rtnl_link_ops can_link_ops __read_mostly = {
- 	.kind		= "can",
-+	.netns_refund	= true,
- 	.maxtype	= IFLA_CAN_MAX,
- 	.policy		= can_policy,
- 	.setup		= can_setup,
---- a/include/net/rtnetlink.h
-+++ b/include/net/rtnetlink.h
-@@ -33,6 +33,7 @@ static inline int rtnl_msg_family(const
-  *
-  *	@list: Used internally
-  *	@kind: Identifier
-+ *	@netns_refund: Physical device, move to init_net on netns exit
-  *	@maxtype: Highest device specific netlink attribute number
-  *	@policy: Netlink policy for device specific attribute validation
-  *	@validate: Optional validation function for netlink/changelink parameters
-@@ -64,6 +65,7 @@ struct rtnl_link_ops {
- 	size_t			priv_size;
- 	void			(*setup)(struct net_device *dev);
++static int bcm54616s_config_init(struct phy_device *phydev)
++{
++	int rc, val;
++
++	if (phydev->interface != PHY_INTERFACE_MODE_SGMII &&
++	    phydev->interface != PHY_INTERFACE_MODE_1000BASEX)
++		return 0;
++
++	/* Ensure proper interface mode is selected. */
++	/* Disable RGMII mode */
++	val = bcm54xx_auxctl_read(phydev, MII_BCM54XX_AUXCTL_SHDWSEL_MISC);
++	if (val < 0)
++		return val;
++	val &= ~MII_BCM54XX_AUXCTL_SHDWSEL_MISC_RGMII_EN;
++	val |= MII_BCM54XX_AUXCTL_MISC_WREN;
++	rc = bcm54xx_auxctl_write(phydev, MII_BCM54XX_AUXCTL_SHDWSEL_MISC,
++				  val);
++	if (rc < 0)
++		return rc;
++
++	/* Select 1000BASE-X register set (primary SerDes) */
++	val = bcm_phy_read_shadow(phydev, BCM54XX_SHD_MODE);
++	if (val < 0)
++		return val;
++	val |= BCM54XX_SHD_MODE_1000BX;
++	rc = bcm_phy_write_shadow(phydev, BCM54XX_SHD_MODE, val);
++	if (rc < 0)
++		return rc;
++
++	/* Power down SerDes interface */
++	rc = phy_set_bits(phydev, MII_BMCR, BMCR_PDOWN);
++	if (rc < 0)
++		return rc;
++
++	/* Select proper interface mode */
++	val &= ~BCM54XX_SHD_INTF_SEL_MASK;
++	val |= phydev->interface == PHY_INTERFACE_MODE_SGMII ?
++		BCM54XX_SHD_INTF_SEL_SGMII :
++		BCM54XX_SHD_INTF_SEL_GBIC;
++	rc = bcm_phy_write_shadow(phydev, BCM54XX_SHD_MODE, val);
++	if (rc < 0)
++		return rc;
++
++	/* Power up SerDes interface */
++	rc = phy_clear_bits(phydev, MII_BMCR, BMCR_PDOWN);
++	if (rc < 0)
++		return rc;
++
++	/* Select copper register set */
++	val &= ~BCM54XX_SHD_MODE_1000BX;
++	rc = bcm_phy_write_shadow(phydev, BCM54XX_SHD_MODE, val);
++	if (rc < 0)
++		return rc;
++
++	/* Power up copper interface */
++	return phy_clear_bits(phydev, MII_BMCR, BMCR_PDOWN);
++}
++
+ /* Needs SMDSP clock enabled via bcm54xx_phydsp_config() */
+ static int bcm50610_a0_workaround(struct phy_device *phydev)
+ {
+@@ -281,15 +339,17 @@ static int bcm54xx_config_init(struct phy_device *phydev)
  
-+	bool			netns_refund;
- 	unsigned int		maxtype;
- 	const struct nla_policy	*policy;
- 	int			(*validate)(struct nlattr *tb[],
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -10121,7 +10121,7 @@ static void __net_exit default_device_ex
- 			continue;
+ 	bcm54xx_adjust_rxrefclk(phydev);
  
- 		/* Leave virtual devices for the generic cleanup */
--		if (dev->rtnl_link_ops)
-+		if (dev->rtnl_link_ops && !dev->rtnl_link_ops->netns_refund)
- 			continue;
+-	if (BRCM_PHY_MODEL(phydev) == PHY_ID_BCM54210E) {
++	switch (BRCM_PHY_MODEL(phydev)) {
++	case PHY_ID_BCM54210E:
+ 		err = bcm54210e_config_init(phydev);
+-		if (err)
+-			return err;
+-	} else if (BRCM_PHY_MODEL(phydev) == PHY_ID_BCM54612E) {
++		break;
++	case PHY_ID_BCM54612E:
+ 		err = bcm54612e_config_init(phydev);
+-		if (err)
+-			return err;
+-	} else if (BRCM_PHY_MODEL(phydev) == PHY_ID_BCM54810) {
++		break;
++	case PHY_ID_BCM54616S:
++		err = bcm54616s_config_init(phydev);
++		break;
++	case PHY_ID_BCM54810:
+ 		/* For BCM54810, we need to disable BroadR-Reach function */
+ 		val = bcm_phy_read_exp(phydev,
+ 				       BCM54810_EXP_BROADREACH_LRE_MISC_CTL);
+@@ -297,9 +357,10 @@ static int bcm54xx_config_init(struct phy_device *phydev)
+ 		err = bcm_phy_write_exp(phydev,
+ 					BCM54810_EXP_BROADREACH_LRE_MISC_CTL,
+ 					val);
+-		if (err < 0)
+-			return err;
++		break;
+ 	}
++	if (err)
++		return err;
  
- 		/* Push remaining network devices to init_net */
+ 	bcm54xx_phydsp_config(phydev);
+ 
+@@ -478,7 +539,7 @@ static int bcm5481_config_aneg(struct phy_device *phydev)
+ 
+ static int bcm54616s_probe(struct phy_device *phydev)
+ {
+-	int val, intf_sel;
++	int val;
+ 
+ 	val = bcm_phy_read_shadow(phydev, BCM54XX_SHD_MODE);
+ 	if (val < 0)
+@@ -490,8 +551,7 @@ static int bcm54616s_probe(struct phy_device *phydev)
+ 	 * RGMII-1000Base-X is properly supported, but RGMII-100Base-FX
+ 	 * support is still missing as of now.
+ 	 */
+-	intf_sel = (val & BCM54XX_SHD_INTF_SEL_MASK) >> 1;
+-	if (intf_sel == 1) {
++	if ((val & BCM54XX_SHD_INTF_SEL_MASK) == BCM54XX_SHD_INTF_SEL_RGMII) {
+ 		val = bcm_phy_read_shadow(phydev, BCM54616S_SHD_100FX_CTRL);
+ 		if (val < 0)
+ 			return val;
+diff --git a/include/linux/brcmphy.h b/include/linux/brcmphy.h
+index d0bd226d6bd9..54665952d6ad 100644
+--- a/include/linux/brcmphy.h
++++ b/include/linux/brcmphy.h
+@@ -136,6 +136,7 @@
+ 
+ #define MII_BCM54XX_AUXCTL_SHDWSEL_MISC			0x07
+ #define MII_BCM54XX_AUXCTL_SHDWSEL_MISC_WIRESPEED_EN	0x0010
++#define MII_BCM54XX_AUXCTL_SHDWSEL_MISC_RGMII_EN	0x0080
+ #define MII_BCM54XX_AUXCTL_SHDWSEL_MISC_RGMII_SKEW_EN	0x0100
+ #define MII_BCM54XX_AUXCTL_MISC_FORCE_AMDIX		0x0200
+ #define MII_BCM54XX_AUXCTL_MISC_WREN			0x8000
+@@ -222,6 +223,9 @@
+ /* 11111: Mode Control Register */
+ #define BCM54XX_SHD_MODE		0x1f
+ #define BCM54XX_SHD_INTF_SEL_MASK	GENMASK(2, 1)	/* INTERF_SEL[1:0] */
++#define BCM54XX_SHD_INTF_SEL_RGMII	0x02
++#define BCM54XX_SHD_INTF_SEL_SGMII	0x04
++#define BCM54XX_SHD_INTF_SEL_GBIC	0x06
+ #define BCM54XX_SHD_MODE_1000BX		BIT(0)	/* Enable 1000-X registers */
+ 
+ /*
+-- 
+2.30.1
+
 
 
