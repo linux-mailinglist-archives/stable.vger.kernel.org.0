@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D667D34C957
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 867B634CAC1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233125AbhC2I33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41252 "EHLO mail.kernel.org"
+        id S234929AbhC2Ijt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233368AbhC2I0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:26:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49262619C1;
-        Mon, 29 Mar 2021 08:25:50 +0000 (UTC)
+        id S233825AbhC2Ii1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:38:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 277EF61580;
+        Mon, 29 Mar 2021 08:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006350;
-        bh=jDaxwurOAMo41ggXWSfxUng3tmQmN0UDPAc2n7ZuL4U=;
+        s=korg; t=1617007106;
+        bh=eghLgthahG554ZGl0095jz9fFgId/FojoOKssZKR2NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SClb2Jp/feONwY9eUp9hzsNEDPYxJcdwGfIPLkblz9A3bAVvoDlri86tXHr2XjK4t
-         VjrAzOOeFpnbXVv/KdTvtBKe5jlWs/32hYBFIYpwupNaMH4iYQaNNRY/bIwEZvcDMQ
-         1mu6Du7tmDET59ONtf1NjympeAeNi8qbuh5ovX8Y=
+        b=aNbQ1tpsgjYuByZl4Efts4V9ffm6OVM5GecAC/F/jWztsgnV49frgpWWo1t2VfgSP
+         6hL4RhCXIUvnUVNj30NXUK4+3Er/18e6aZvEl5HlTdCPYrnxQJqbx5NJXP3oav6aWj
+         OAhqdPOa7ivFoWOwN+koUGFddlV616TWj8xCnlTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Isaku Yamahata <isaku.yamahata@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 5.10 208/221] x86/mem_encrypt: Correct physical address calculation in __set_clr_pte_enc()
+        stable@vger.kernel.org, Stanislav Fomichev <sdf@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 223/254] bpf: Use NOP_ATOMIC5 instead of emit_nops(&prog, 5) for BPF_TRAMP_F_CALL_ORIG
 Date:   Mon, 29 Mar 2021 09:58:59 +0200
-Message-Id: <20210329075636.053789669@linuxfoundation.org>
+Message-Id: <20210329075640.419966788@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaku Yamahata <isaku.yamahata@intel.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-commit 8249d17d3194eac064a8ca5bc5ca0abc86feecde upstream.
+[ Upstream commit b9082970478009b778aa9b22d5561eef35b53b63 ]
 
-The pfn variable contains the page frame number as returned by the
-pXX_pfn() functions, shifted to the right by PAGE_SHIFT to remove the
-page bits. After page protection computations are done to it, it gets
-shifted back to the physical address using page_level_shift().
+__bpf_arch_text_poke does rewrite only for atomic nop5, emit_nops(xxx, 5)
+emits non-atomic one which breaks fentry/fexit with k8 atomics:
 
-That is wrong, of course, because that function determines the shift
-length based on the level of the page in the page table but in all the
-cases, it was shifted by PAGE_SHIFT before.
+P6_NOP5 == P6_NOP5_ATOMIC (0f1f440000 == 0f1f440000)
+K8_NOP5 != K8_NOP5_ATOMIC (6666906690 != 6666666690)
 
-Therefore, shift it back using PAGE_SHIFT to get the correct physical
-address.
+Can be reproduced by doing "ideal_nops = k8_nops" in "arch_init_ideal_nops()
+and running fexit_bpf2bpf selftest.
 
- [ bp: Rewrite commit message. ]
-
-Fixes: dfaaec9033b8 ("x86: Add support for changing memory encryption attribute in early boot")
-Signed-off-by: Isaku Yamahata <isaku.yamahata@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/81abbae1657053eccc535c16151f63cd049dcb97.1616098294.git.isaku.yamahata@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e21aa341785c ("bpf: Fix fexit trampoline.")
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210320000001.915366-1-sdf@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/mem_encrypt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/net/bpf_jit_comp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -231,7 +231,7 @@ static void __init __set_clr_pte_enc(pte
- 	if (pgprot_val(old_prot) == pgprot_val(new_prot))
- 		return;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 652bd64e422d..023ac12f54a2 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -1811,7 +1811,8 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
+ 		/* remember return value in a stack for bpf prog to access */
+ 		emit_stx(&prog, BPF_DW, BPF_REG_FP, BPF_REG_0, -8);
+ 		im->ip_after_call = prog;
+-		emit_nops(&prog, 5);
++		memcpy(prog, ideal_nops[NOP_ATOMIC5], X86_PATCH_SIZE);
++		prog += X86_PATCH_SIZE;
+ 	}
  
--	pa = pfn << page_level_shift(level);
-+	pa = pfn << PAGE_SHIFT;
- 	size = page_level_size(level);
- 
- 	/*
+ 	if (fmod_ret->nr_progs) {
+-- 
+2.30.1
+
 
 
