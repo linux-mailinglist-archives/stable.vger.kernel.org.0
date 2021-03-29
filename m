@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C3B34C97C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B705634C7D2
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233802AbhC2I37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43598 "EHLO mail.kernel.org"
+        id S232084AbhC2IST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234347AbhC2I2L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:28:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71C1A614A7;
-        Mon, 29 Mar 2021 08:27:36 +0000 (UTC)
+        id S233213AbhC2IRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:17:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA6D619D7;
+        Mon, 29 Mar 2021 08:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006457;
-        bh=kND7Cz2zXPj+L8zoy0kdq0IzF1L4MlyVpJsPhHES+DI=;
+        s=korg; t=1617005802;
+        bh=Qf6WRzLXOfkPVr6+tyAWYIuSf30ymOOqJmelHgbPUp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npNFjthbsHwmkj2MG17Gfo5qsB+sPLJIUjlwqkMlBvgd25T81WN/pqh86wZFcvsWj
-         jSJCp8KrbwLa8++O5dsX8aEC17vCdMshFO9jsi1RkcYV+tBbpSPBbcOOtH4iCkGAna
-         OBLk0PFMkBf+rWEfAMsdjjDq1VcXV5VTA1xeR7EA=
+        b=o8EwzPzxWyppwLDAlbiYwvU8qtkrZH+Jl2HpegBMMCxOp1N46vmxBvV6YN7lGYO3H
+         1tNZuSqks+G9f34V39HxcDQtLnU0ZzpGHy/O1Ov7XipSH6cL/ONja4bboXyuFrb+wV
+         2J76L8fBy4sQYNUDbHm2h5ZJ/f0jYjrPt8sKUgqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alex Marginean <alexandru.marginean@nxp.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Jason Liu <jason.hui.liu@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 026/254] net: enetc: set MAC RX FIFO to recommended value
+Subject: [PATCH 5.10 011/221] ixgbe: Fix memleak in ixgbe_configure_clsu32
 Date:   Mon, 29 Mar 2021 09:55:42 +0200
-Message-Id: <20210329075634.004206230@linuxfoundation.org>
+Message-Id: <20210329075629.560476143@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Marginean <alexandru.marginean@nxp.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 1b2395dfff5bb40228a187f21f577cd90673d344 ]
+[ Upstream commit 7a766381634da19fc837619b0a34590498d9d29a ]
 
-On LS1028A, the MAC RX FIFO defaults to the value 2, which is too high
-and may lead to RX lock-up under traffic at a rate higher than 6 Gbps.
-Set it to 1 instead, as recommended by the hardware design team and by
-later versions of the ENETC block guide.
+When ixgbe_fdir_write_perfect_filter_82599() fails,
+input allocated by kzalloc() has not been freed,
+which leads to memleak.
 
-Signed-off-by: Alex Marginean <alexandru.marginean@nxp.com>
-Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Reviewed-by: Jason Liu <jason.hui.liu@nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_hw.h | 2 ++
- drivers/net/ethernet/freescale/enetc/enetc_pf.c | 6 ++++++
- 2 files changed, 8 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_hw.h b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-index de0d20b0f489..00938f7960a4 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-@@ -234,6 +234,8 @@ enum enetc_bdr_type {TX, RX};
- #define ENETC_PM0_MAXFRM	0x8014
- #define ENETC_SET_TX_MTU(val)	((val) << 16)
- #define ENETC_SET_MAXFRM(val)	((val) & 0xffff)
-+#define ENETC_PM0_RX_FIFO	0x801c
-+#define ENETC_PM0_RX_FIFO_VAL	1
- 
- #define ENETC_PM_IMDIO_BASE	0x8030
- 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index ca02f033bea2..224fc37a6757 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -490,6 +490,12 @@ static void enetc_configure_port_mac(struct enetc_hw *hw)
- 
- 	enetc_port_wr(hw, ENETC_PM1_CMD_CFG, ENETC_PM0_CMD_PHY_TX_EN |
- 		      ENETC_PM0_CMD_TXP	| ENETC_PM0_PROMISC);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index f3f449f53920..278fc866fad4 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -9582,8 +9582,10 @@ static int ixgbe_configure_clsu32(struct ixgbe_adapter *adapter,
+ 	ixgbe_atr_compute_perfect_hash_82599(&input->filter, mask);
+ 	err = ixgbe_fdir_write_perfect_filter_82599(hw, &input->filter,
+ 						    input->sw_idx, queue);
+-	if (!err)
+-		ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
++	if (err)
++		goto err_out_w_lock;
 +
-+	/* On LS1028A, the MAC RX FIFO defaults to 2, which is too high
-+	 * and may lead to RX lock-up under traffic. Set it to 1 instead,
-+	 * as recommended by the hardware team.
-+	 */
-+	enetc_port_wr(hw, ENETC_PM0_RX_FIFO, ENETC_PM0_RX_FIFO_VAL);
- }
++	ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
+ 	spin_unlock(&adapter->fdir_perfect_lock);
  
- static void enetc_mac_config(struct enetc_hw *hw, phy_interface_t phy_mode)
+ 	if ((uhtid != 0x800) && (adapter->jump_tables[uhtid]))
 -- 
 2.30.1
 
