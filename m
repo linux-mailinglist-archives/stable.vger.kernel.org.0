@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 440BC34C8AC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C8334C8CE
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233489AbhC2IXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39332 "EHLO mail.kernel.org"
+        id S231479AbhC2IYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233969AbhC2IWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:22:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0107C6044F;
-        Mon, 29 Mar 2021 08:22:32 +0000 (UTC)
+        id S232263AbhC2IHI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:07:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E6D861974;
+        Mon, 29 Mar 2021 08:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006153;
-        bh=nkqi4Jbyl0Uzy75QU92FnrknwYWEDlHlfIZNVoCIv+A=;
+        s=korg; t=1617005228;
+        bh=hxKPIy9xQ4pAbVLd6IuSOXfvIsSt1TcXC72K92hLpB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2eOCleY14GS3a3UHsCclPhhcpbCqtesKu12pLppcMgyjwh92s/Tq52lXlYWBaC6o
-         jxRZbus/jA1C0TZ9K6Fp2fR2TOuqsQrU7UVWP5amVShBJ50ZLGqygD+7nFORH/KZ63
-         v2vtON3ZREpO2FGIg7J430RYDFBc7+ppJWaUvvAU=
+        b=wZXKjsIh+B4Dy96uwXNYYMDPxa/yXUaZxJaMOvcKMDZp7OCu0DFRKpuY4GTpdCehk
+         aWWrO7YSeW5SX6Fq96mypM3R9TDKlTeSS0IrrUwUHux03mS9WuacUcfYLTndlZlCgo
+         yvvcDFHY8ALF5R9Hgqjwt4cxpkvcxFlfrprTxxfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Timo Rothenpieler <timo@rothenpieler.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 136/221] nfp: flower: fix unsupported pre_tunnel flows
+Subject: [PATCH 4.19 11/72] nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
 Date:   Mon, 29 Mar 2021 09:57:47 +0200
-Message-Id: <20210329075633.723005706@linuxfoundation.org>
+Message-Id: <20210329075610.656522316@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Louis Peens <louis.peens@corigine.com>
+From: Timo Rothenpieler <timo@rothenpieler.org>
 
-[ Upstream commit 982e5ee23d764fe6158f67a7813d416335e978b0 ]
+[ Upstream commit a0590473c5e6c4ef17c3132ad08fbad170f72d55 ]
 
-There are some pre_tunnel flows combinations which are incorrectly being
-offloaded without proper support, fix these.
+This follows what was done in 8c2fabc6542d9d0f8b16bd1045c2eda59bdcde13.
+With the default being m, it's impossible to build the module into the
+kernel.
 
-- Matching on MPLS is not supported for pre_tun.
-- Match on IPv4/IPv6 layer must be present.
-- Destination MAC address must match pre_tun.dev MAC
-
-Fixes: 120ffd84a9ec ("nfp: flower: verify pre-tunnel rules")
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Timo Rothenpieler <timo@rothenpieler.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/netronome/nfp/flower/offload.c    | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ fs/nfs/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/offload.c b/drivers/net/ethernet/netronome/nfp/flower/offload.c
-index 1c59aff2163c..d72225d64a75 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/offload.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/offload.c
-@@ -1142,6 +1142,12 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
- 		return -EOPNOTSUPP;
- 	}
+diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+index ac3e06367cb6..e55f86713948 100644
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -127,7 +127,7 @@ config PNFS_BLOCK
+ config PNFS_FLEXFILE_LAYOUT
+ 	tristate
+ 	depends on NFS_V4_1 && NFS_V3
+-	default m
++	default NFS_V4
  
-+	if (!(key_layer & NFP_FLOWER_LAYER_IPV4) &&
-+	    !(key_layer & NFP_FLOWER_LAYER_IPV6)) {
-+		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: match on ipv4/ipv6 eth_type must be present");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	/* Skip fields known to exist. */
- 	mask += sizeof(struct nfp_flower_meta_tci);
- 	ext += sizeof(struct nfp_flower_meta_tci);
-@@ -1152,6 +1158,13 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
- 	mask += sizeof(struct nfp_flower_in_port);
- 	ext += sizeof(struct nfp_flower_in_port);
- 
-+	/* Ensure destination MAC address matches pre_tun_dev. */
-+	mac = (struct nfp_flower_mac_mpls *)ext;
-+	if (memcmp(&mac->mac_dst[0], flow->pre_tun_rule.dev->dev_addr, 6)) {
-+		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: dest MAC must match output dev MAC");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	/* Ensure destination MAC address is fully matched. */
- 	mac = (struct nfp_flower_mac_mpls *)mask;
- 	if (!is_broadcast_ether_addr(&mac->mac_dst[0])) {
-@@ -1159,6 +1172,11 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
- 		return -EOPNOTSUPP;
- 	}
- 
-+	if (mac->mpls_lse) {
-+		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: MPLS not supported");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	mask += sizeof(struct nfp_flower_mac_mpls);
- 	ext += sizeof(struct nfp_flower_mac_mpls);
- 	if (key_layer & NFP_FLOWER_LAYER_IPV4 ||
+ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
+ 	string "NFSv4.1 Implementation ID Domain"
 -- 
 2.30.1
 
