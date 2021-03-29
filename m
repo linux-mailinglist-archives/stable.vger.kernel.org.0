@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78FF134C8CD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C889134C8AB
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232328AbhC2IYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50504 "EHLO mail.kernel.org"
+        id S233030AbhC2IXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232126AbhC2IHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:07:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F009961999;
-        Mon, 29 Mar 2021 08:07:03 +0000 (UTC)
+        id S233961AbhC2IWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3048761580;
+        Mon, 29 Mar 2021 08:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005224;
-        bh=x/d2VF/3A3poxqsgLamUeBQ3qhEg9TOMAM6esh+e0qY=;
+        s=korg; t=1617006150;
+        bh=KC7cYA3GCnH1sNAc2tHBgiwFe0CGHB7A53pDDXKoVps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1G7th7ajtUJmG4I+sXE53BUIOa32uxO8EvddY1qGv3OJk9XL5fqznLlkgB1Er4PyZ
-         YNQfR8gz9DnMS5LGF/45bzDtkt5coXePd4FV2AmAMUdqn7va5Spu/L2T88IKiGlRqf
-         r4o0ObiyudmGdu+rw5ui0fkYaREisyhOysI7t3Sw=
+        b=I6xbfCMHn8Ph5Iu710bmfWUuy6WQ0ThinNN4VAMcqiwxsBTfXCOb/63uvhokT8W47
+         KY3JwnQuCWMgvlldNQwKJi6SOXcabKRInDr4cgLO4WRnw//O2Herh8CcNvbaFkixHC
+         59QbUQYurbijGh9514viuy2kymU8+ukxtcJXblrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Carlos Llamas <cmllamas@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/72] gpiolib: acpi: Add missing IRQF_ONESHOT
+Subject: [PATCH 5.10 135/221] selftests/net: fix warnings on reuseaddr_ports_exhausted
 Date:   Mon, 29 Mar 2021 09:57:46 +0200
-Message-Id: <20210329075610.627181065@linuxfoundation.org>
+Message-Id: <20210329075633.691517664@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Carlos Llamas <cmllamas@google.com>
 
-[ Upstream commit 6e5d5791730b55a1f987e1db84b078b91eb49e99 ]
+[ Upstream commit 81f711d67a973bf8a6db9556faf299b4074d536e ]
 
-fixed the following coccicheck:
-./drivers/gpio/gpiolib-acpi.c:176:7-27: ERROR: Threaded IRQ with no
-primary handler requested without IRQF_ONESHOT
+Fix multiple warnings seen with gcc 10.2.1:
+reuseaddr_ports_exhausted.c:32:41: warning: missing braces around initializer [-Wmissing-braces]
+   32 | struct reuse_opts unreusable_opts[12] = {
+      |                                         ^
+   33 |  {0, 0, 0, 0},
+      |   {   } {   }
 
-Make sure threaded IRQs without a primary handler are always request
-with IRQF_ONESHOT
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 7f204a7de8b0 ("selftests: net: Add SO_REUSEADDR test to check if 4-tuples are fully utilized.")
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-acpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../selftests/net/reuseaddr_ports_exhausted.c | 32 +++++++++----------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 18f5973b9697..4ad34c6803ad 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -177,7 +177,7 @@ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
- 	int ret, value;
+diff --git a/tools/testing/selftests/net/reuseaddr_ports_exhausted.c b/tools/testing/selftests/net/reuseaddr_ports_exhausted.c
+index 7b01b7c2ec10..066efd30e294 100644
+--- a/tools/testing/selftests/net/reuseaddr_ports_exhausted.c
++++ b/tools/testing/selftests/net/reuseaddr_ports_exhausted.c
+@@ -30,25 +30,25 @@ struct reuse_opts {
+ };
  
- 	ret = request_threaded_irq(event->irq, NULL, event->handler,
--				   event->irqflags, "ACPI:Event", event);
-+				   event->irqflags | IRQF_ONESHOT, "ACPI:Event", event);
- 	if (ret) {
- 		dev_err(acpi_gpio->chip->parent,
- 			"Failed to setup interrupt handler for %d\n",
+ struct reuse_opts unreusable_opts[12] = {
+-	{0, 0, 0, 0},
+-	{0, 0, 0, 1},
+-	{0, 0, 1, 0},
+-	{0, 0, 1, 1},
+-	{0, 1, 0, 0},
+-	{0, 1, 0, 1},
+-	{0, 1, 1, 0},
+-	{0, 1, 1, 1},
+-	{1, 0, 0, 0},
+-	{1, 0, 0, 1},
+-	{1, 0, 1, 0},
+-	{1, 0, 1, 1},
++	{{0, 0}, {0, 0}},
++	{{0, 0}, {0, 1}},
++	{{0, 0}, {1, 0}},
++	{{0, 0}, {1, 1}},
++	{{0, 1}, {0, 0}},
++	{{0, 1}, {0, 1}},
++	{{0, 1}, {1, 0}},
++	{{0, 1}, {1, 1}},
++	{{1, 0}, {0, 0}},
++	{{1, 0}, {0, 1}},
++	{{1, 0}, {1, 0}},
++	{{1, 0}, {1, 1}},
+ };
+ 
+ struct reuse_opts reusable_opts[4] = {
+-	{1, 1, 0, 0},
+-	{1, 1, 0, 1},
+-	{1, 1, 1, 0},
+-	{1, 1, 1, 1},
++	{{1, 1}, {0, 0}},
++	{{1, 1}, {0, 1}},
++	{{1, 1}, {1, 0}},
++	{{1, 1}, {1, 1}},
+ };
+ 
+ int bind_port(struct __test_metadata *_metadata, int reuseaddr, int reuseport)
 -- 
 2.30.1
 
