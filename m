@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E6F34C9A2
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3495934C8D9
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234037AbhC2Iai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:30:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49474 "EHLO mail.kernel.org"
+        id S233235AbhC2IYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233714AbhC2I3p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:29:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7157619EA;
-        Mon, 29 Mar 2021 08:29:37 +0000 (UTC)
+        id S233401AbhC2IRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:17:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD34361878;
+        Mon, 29 Mar 2021 08:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006585;
-        bh=K1j1U7j24OoKSGW34SRxXl9SHbrgiM5w89vvUwSaNl4=;
+        s=korg; t=1617005863;
+        bh=JKy01XnkOhs0NojHS5kfHMLe1XdiJ4ykRPzETY1oIzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6NnEM9ThldenhrJdzhfJz57qFCgpuc1mBSDmHFfQ/SdiTgGobIlnogbcWk8RkB8p
-         gs+GJNAdGFOxIDn9b3X8SsKeVVyrR8af/OjYejPdT0UiS6LgROxs9rixJuOAy+8OX5
-         EzFT96pN5wnXv/UyK5rvz2kIeeG1+k3CQiElEqu4=
+        b=bJVgquiv/izMuYfExs0pO4BNE2aNI3xK385KkMkt3QGdIBN15u5I39/eClYJavcvy
+         1jr70/wcbxFud+lXMy17FyR1hW3LpgakioRU/5LPRS60b+1n5RhsDmvyZY18xI6fYP
+         xvbs2yjpZiR0N/D3a1v2+Sm0dHso4aDQ7jtnuvog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, satya priya <skakit@codeaurora.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 040/254] regulator: qcom-rpmh: Correct the pmic5_hfsmps515 buck
+Subject: [PATCH 5.10 025/221] net: wan: fix error return code of uhdlc_init()
 Date:   Mon, 29 Mar 2021 09:55:56 +0200
-Message-Id: <20210329075634.469335890@linuxfoundation.org>
+Message-Id: <20210329075630.018742705@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: satya priya <skakit@codeaurora.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit e610e072c87a30658479a7b4c51e1801cb3f450c ]
+[ Upstream commit 62765d39553cfd1ad340124fe1e280450e8c89e2 ]
 
-Correct the REGULATOR_LINEAR_RANGE and n_voltges for
-pmic5_hfsmps515 buck.
+When priv->rx_skbuff or priv->tx_skbuff is NULL, no error return code of
+uhdlc_init() is assigned.
+To fix this bug, ret is assigned with -ENOMEM in these cases.
 
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Link: https://lore.kernel.org/r/1614155592-14060-4-git-send-email-skakit@codeaurora.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom-rpmh-regulator.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wan/fsl_ucc_hdlc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
-index 37a2abbe85c7..2351a232d90e 100644
---- a/drivers/regulator/qcom-rpmh-regulator.c
-+++ b/drivers/regulator/qcom-rpmh-regulator.c
-@@ -726,8 +726,8 @@ static const struct rpmh_vreg_hw_data pmic5_ftsmps510 = {
- static const struct rpmh_vreg_hw_data pmic5_hfsmps515 = {
- 	.regulator_type = VRM,
- 	.ops = &rpmh_regulator_vrm_ops,
--	.voltage_range = REGULATOR_LINEAR_RANGE(2800000, 0, 4, 16000),
--	.n_voltages = 5,
-+	.voltage_range = REGULATOR_LINEAR_RANGE(320000, 0, 235, 16000),
-+	.n_voltages = 236,
- 	.pmic_mode_map = pmic_mode_map_pmic5_smps,
- 	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
- };
+diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
+index dca97cd7c4e7..7eac6a3e1cde 100644
+--- a/drivers/net/wan/fsl_ucc_hdlc.c
++++ b/drivers/net/wan/fsl_ucc_hdlc.c
+@@ -204,14 +204,18 @@ static int uhdlc_init(struct ucc_hdlc_private *priv)
+ 	priv->rx_skbuff = kcalloc(priv->rx_ring_size,
+ 				  sizeof(*priv->rx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->rx_skbuff)
++	if (!priv->rx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_ucc_pram;
++	}
+ 
+ 	priv->tx_skbuff = kcalloc(priv->tx_ring_size,
+ 				  sizeof(*priv->tx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->tx_skbuff)
++	if (!priv->tx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_rx_skbuff;
++	}
+ 
+ 	priv->skb_curtx = 0;
+ 	priv->skb_dirtytx = 0;
 -- 
 2.30.1
 
