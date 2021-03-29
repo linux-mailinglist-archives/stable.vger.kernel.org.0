@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBCF34C66C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4918A34C79B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231876AbhC2IHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48792 "EHLO mail.kernel.org"
+        id S231875AbhC2IQo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:16:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232311AbhC2IGV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 470DE61601;
-        Mon, 29 Mar 2021 08:06:20 +0000 (UTC)
+        id S232953AbhC2IO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:14:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F8F461613;
+        Mon, 29 Mar 2021 08:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005180;
-        bh=dvwga2nMKL8CsJFWYAJjwpoMbFDPkbN6S2CCxlHVpXQ=;
+        s=korg; t=1617005696;
+        bh=iBauD/YwGNRCek8/X8z7f22gVG1rUIanDYdTEaY0FK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gn9AoVsCtxrvbn4vmKodq3X2TD0mhQKPODnDnDU/KKM/1NstVGt3pwyjmT38nyeI9
-         0Fw6AtQ6ssZvG2lC9xgGcvUt2AFlhO5/OFKAZ/PojH4QSU08YLT1hcumo5N/qOdviH
-         r49+y1C8nBpWkj9/QB/RX5HPu/y+SjzDFghLEu70=
+        b=qAiyiG/LsYzWF42rwHYJ2elcmWCIzqVMovGsxIBGnsTKdFIqkfCU42tzAymXnZpoX
+         q8GQQ3ZrghLUam+UdTFbMMBio6lHiqep51JcRduKCK0SRGMI0fDXhm335xMqatzlLS
+         H+kzbxoIiVm2vQ2j2Xk7R21T5ru3SNv06cokS8ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.14 53/59] locking/mutex: Fix non debug version of mutex_lock_io_nested()
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 085/111] selftests: forwarding: vxlan_bridge_1d: Fix vxlan ecn decapsulate value
 Date:   Mon, 29 Mar 2021 09:58:33 +0200
-Message-Id: <20210329075610.615824399@linuxfoundation.org>
+Message-Id: <20210329075618.046531793@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 291da9d4a9eb3a1cb0610b7f4480f5b52b1825e7 upstream.
+[ Upstream commit 5aa3c334a449bab24519c4967f5ac2b3304c8dcf ]
 
-If CONFIG_DEBUG_LOCK_ALLOC=n then mutex_lock_io_nested() maps to
-mutex_lock() which is clearly wrong because mutex_lock() lacks the
-io_schedule_prepare()/finish() invocations.
+The ECN bit defines ECT(1) = 1, ECT(0) = 2. So inner 0x02 + outer 0x01
+should be inner ECT(0) + outer ECT(1). Based on the description of
+__INET_ECN_decapsulate, the final decapsulate value should be
+ECT(1). So fix the test expect value to 0x01.
 
-Map it to mutex_lock_io().
+Before the fix:
+TEST: VXLAN: ECN decap: 01/02->0x02                                 [FAIL]
+        Expected to capture 10 packets, got 0.
 
-Fixes: f21860bac05b ("locking/mutex, sched/wait: Fix the mutex_lock_io_nested() define")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/878s6fshii.fsf@nanos.tec.linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After the fix:
+TEST: VXLAN: ECN decap: 01/02->0x01                                 [ OK ]
+
+Fixes: a0b61f3d8ebf ("selftests: forwarding: vxlan_bridge_1d: Add an ECN decap test")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mutex.h |    2 +-
+ tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/mutex.h
-+++ b/include/linux/mutex.h
-@@ -183,7 +183,7 @@ extern void mutex_lock_io(struct mutex *
- # define mutex_lock_interruptible_nested(lock, subclass) mutex_lock_interruptible(lock)
- # define mutex_lock_killable_nested(lock, subclass) mutex_lock_killable(lock)
- # define mutex_lock_nest_lock(lock, nest_lock) mutex_lock(lock)
--# define mutex_lock_io_nested(lock, subclass) mutex_lock(lock)
-+# define mutex_lock_io_nested(lock, subclass) mutex_lock_io(lock)
- #endif
- 
- /*
+diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+index ce6bea9675c0..0ccb1dda099a 100755
+--- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
++++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+@@ -658,7 +658,7 @@ test_ecn_decap()
+ 	# In accordance with INET_ECN_decapsulate()
+ 	__test_ecn_decap 00 00 0x00
+ 	__test_ecn_decap 01 01 0x01
+-	__test_ecn_decap 02 01 0x02
++	__test_ecn_decap 02 01 0x01
+ 	__test_ecn_decap 01 03 0x03
+ 	__test_ecn_decap 02 03 0x03
+ 	test_ecn_decap_error
+-- 
+2.30.1
+
 
 
