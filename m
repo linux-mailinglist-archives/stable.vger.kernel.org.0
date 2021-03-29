@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F20534C5EC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BDA134C8F0
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231663AbhC2ID6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45110 "EHLO mail.kernel.org"
+        id S233476AbhC2IZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:25:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232026AbhC2IDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:03:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5319861981;
-        Mon, 29 Mar 2021 08:03:20 +0000 (UTC)
+        id S233044AbhC2IYB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:24:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CADB46044F;
+        Mon, 29 Mar 2021 08:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005001;
-        bh=lmEPBLVgIU6iXSGIJhGttAIrGiQ3KcEsOLjkepM9wZE=;
+        s=korg; t=1617006241;
+        bh=X37DBp6Ormim7xfW0XxjlYmJjt/SCXjIhAHFNaJKq0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QxoQhzZya+Myn5mH/dopFw8LzwbY0olrlsUF7kKfa3lsgEFF2FG/7iGlGhSENlCQd
-         4auetahzkINyzff0gw1x9bFZQp/tlZy/NAFPq3I+da4gIbckLCFoY/k+7XAMZ9Z7RX
-         la3ozXXTWHqCIcvIz2r5jvueLQRG8IubwpbCxZ4c=
+        b=UR3T29+gn+w3/cjONt9tRagGmzRcHX95Qu9WSEHkpMk9gPRmGFvM3lCE5TWvLQl5d
+         zFWOxewzg6GGtr8PMgRWLhm+f/x3WgZtWT+tXEfLwyoIxeWp9tDMTUCI37Frdh3sxj
+         Clxq+Djx2BKAFJWKev4DaMri60kDNagA3bqpQBKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 44/53] futex: Fix (possible) missed wakeup
+        stable@vger.kernel.org, Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 168/221] arm64: kdump: update ppos when reading elfcorehdr
 Date:   Mon, 29 Mar 2021 09:58:19 +0200
-Message-Id: <20210329075608.956552582@linuxfoundation.org>
+Message-Id: <20210329075634.752777974@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-commit b061c38bef43406df8e73c5be06cbfacad5ee6ad upstream.
+[ Upstream commit 141f8202cfa4192c3af79b6cbd68e7760bb01b5a ]
 
-We must not rely on wake_q_add() to delay the wakeup; in particular
-commit:
+The ppos points to a position in the old kernel memory (and in case of
+arm64 in the crash kernel since elfcorehdr is passed as a segment). The
+function should update the ppos by the amount that was read. This bug is
+not exposed by accident, but other platforms update this value properly.
+So, fix it in ARM64 version of elfcorehdr_read() as well.
 
-  1d0dcb3ad9d3 ("futex: Implement lockless wakeups")
-
-moved wake_q_add() before smp_store_release(&q->lock_ptr, NULL), which
-could result in futex_wait() waking before observing ->lock_ptr ==
-NULL and going back to sleep again.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 1d0dcb3ad9d3 ("futex: Implement lockless wakeups")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Fixes: e62aaeac426a ("arm64: kdump: provide /proc/vmcore file")
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20210319205054.743368-1-pasha.tatashin@soleen.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/crash_dump.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -1553,11 +1553,7 @@ static void mark_wake_futex(struct wake_
- 	if (WARN(q->pi_state || q->rt_waiter, "refusing to wake PI futex\n"))
- 		return;
- 
--	/*
--	 * Queue the task for later wakeup for after we've released
--	 * the hb->lock. wake_q_add() grabs reference to p.
--	 */
--	wake_q_add(wake_q, p);
-+	get_task_struct(p);
- 	__unqueue_futex(q);
- 	/*
- 	 * The waiting task can free the futex_q as soon as
-@@ -1566,6 +1562,13 @@ static void mark_wake_futex(struct wake_
- 	 * store to lock_ptr from getting ahead of the plist_del.
- 	 */
- 	smp_store_release(&q->lock_ptr, NULL);
+diff --git a/arch/arm64/kernel/crash_dump.c b/arch/arm64/kernel/crash_dump.c
+index e6e284265f19..58303a9ec32c 100644
+--- a/arch/arm64/kernel/crash_dump.c
++++ b/arch/arm64/kernel/crash_dump.c
+@@ -64,5 +64,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
+ ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
+ {
+ 	memcpy(buf, phys_to_virt((phys_addr_t)*ppos), count);
++	*ppos += count;
 +
-+	/*
-+	 * Queue the task for later wakeup for after we've released
-+	 * the hb->lock. wake_q_add() grabs reference to p.
-+	 */
-+	wake_q_add(wake_q, p);
-+	put_task_struct(p);
+ 	return count;
  }
- 
- /*
+-- 
+2.30.1
+
 
 
