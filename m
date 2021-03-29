@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3426934DAAD
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66C834DAB3
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232487AbhC2WXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:23:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46638 "EHLO mail.kernel.org"
+        id S231705AbhC2WXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232186AbhC2WWl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:22:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBDA0619A6;
-        Mon, 29 Mar 2021 22:22:39 +0000 (UTC)
+        id S232201AbhC2WWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 18:22:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25A1261985;
+        Mon, 29 Mar 2021 22:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056560;
-        bh=AbfZNAVrVdAXkaXBMh0tMeyE6LfWTDezyo6Qkci3oXo=;
+        s=k20201202; t=1617056562;
+        bh=VBA9o2EIdCUut3Sn5HLHtWT4SJ8aHzBGbxbctElJdEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJ7aqA6kyecj/O8LzjY6xhqDHSCPTJsOHD6Mvoi83C/huwM5ahT6bWLpCq6j1nCJY
-         VhAUWNA5hYjDBg6n87RVak6CrbBKP9fXIcp7eH8CEAsoAZ7MRAs3dQGMVaSop+i1Wj
-         WMXk1S00nZa4A+5jpaO5EFgNgtldkgZO8tH4ev6F4OcmApqs70ewNQEDZDZlwAHP7a
-         Lgy+s86HUcAT2If7hhxo8Y9wMlogjdV40FRcsoHHATYtaU8IEzy66336DUSc7S50c9
-         lKn9uKwhGzZgSNPmvQXdEReIVDwH17zh9Iu5H6+PtX5a57/OomKlRqTM49ekt6tL/R
-         2/HRpFG5421nA==
+        b=bTI4fILIcwgpn0BzwxYSt0w7coUCjufpA+5dkhJNuACQIQEiY7LF4GWTmBOE13R0X
+         3jF/ka2tm7tyLZhmywXVt9SC/nYU7zxgWNi48WKtwZYGle4yYGr8Bik4iIPLgsHvo/
+         pODMqq1++6cya/bCHyBTiMvKVHUmPJF4vSmcgH6eI+eHpNR7GumWP/RhWVN7LgusUI
+         Xk+7S5qHJXMXj73ajd/WJygY5FNV0ANHgpOjxSgo5nHan8dxGj9pVgcChQQfd0HNUU
+         d2LS8p62iOndB0juor3YN+23RKx6/erFrKOOAGLnMDV36bRJP9VEtntKKAWSmUwYKC
+         YjMYNKuXnOl1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 15/33] drm/msm: Ratelimit invalid-fence message
-Date:   Mon, 29 Mar 2021 18:22:03 -0400
-Message-Id: <20210329222222.2382987-15-sashal@kernel.org>
+Cc:     Ludovic Senecaux <linuxludo@free.fr>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 16/33] netfilter: conntrack: Fix gre tunneling over ipv6
+Date:   Mon, 29 Mar 2021 18:22:04 -0400
+Message-Id: <20210329222222.2382987-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222222.2382987-1-sashal@kernel.org>
 References: <20210329222222.2382987-1-sashal@kernel.org>
@@ -43,35 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Ludovic Senecaux <linuxludo@free.fr>
 
-[ Upstream commit 7ad48d27a2846bfda29214fb454d001c3e02b9e7 ]
+[ Upstream commit 8b2030b4305951f44afef80225f1475618e25a73 ]
 
-We have seen a couple cases where low memory situations cause something
-bad to happen, followed by a flood of these messages obscuring the root
-cause.  Lets ratelimit the dmesg spam so that next time it happens we
-don't lose the kernel traces leading up to this.
+This fix permits gre connections to be tracked within ip6tables rules
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Ludovic Senecaux <linuxludo@free.fr>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_fence.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_proto_gre.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
-index ad2703698b05..cd59a5918038 100644
---- a/drivers/gpu/drm/msm/msm_fence.c
-+++ b/drivers/gpu/drm/msm/msm_fence.c
-@@ -45,7 +45,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
- 	int ret;
+diff --git a/net/netfilter/nf_conntrack_proto_gre.c b/net/netfilter/nf_conntrack_proto_gre.c
+index 5b05487a60d2..db11e403d818 100644
+--- a/net/netfilter/nf_conntrack_proto_gre.c
++++ b/net/netfilter/nf_conntrack_proto_gre.c
+@@ -218,9 +218,6 @@ int nf_conntrack_gre_packet(struct nf_conn *ct,
+ 			    enum ip_conntrack_info ctinfo,
+ 			    const struct nf_hook_state *state)
+ {
+-	if (state->pf != NFPROTO_IPV4)
+-		return -NF_ACCEPT;
+-
+ 	if (!nf_ct_is_confirmed(ct)) {
+ 		unsigned int *timeouts = nf_ct_timeout_lookup(ct);
  
- 	if (fence > fctx->last_fence) {
--		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
-+		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
- 				fctx->name, fence, fctx->last_fence);
- 		return -EINVAL;
- 	}
 -- 
 2.30.1
 
