@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC2234C6E4
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85CC334C944
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231770AbhC2IKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:10:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53636 "EHLO mail.kernel.org"
+        id S231675AbhC2I3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232373AbhC2IJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:09:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22BB561481;
-        Mon, 29 Mar 2021 08:09:56 +0000 (UTC)
+        id S233637AbhC2IZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:25:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2104E61964;
+        Mon, 29 Mar 2021 08:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005397;
-        bh=0xRdbrB0xuQ3Ts6p9oWJ0s1cE/ZeXtxrAoJGvZehE34=;
+        s=korg; t=1617006301;
+        bh=XRTg73zs/e0zLhEgkqO05U36uGTaz5h2cV9VcugN0HY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3ZAZskEneR0+iKAjl/fwAbplOwODyg1l7S6qV0rwbpToZyxcPQtcGFDcrV+2bhwq
-         bDV70hrFPbc7GPPPDcsdM1972TwQz2jYo63O4iq6e4Y/C2alXatIgSvrqjBcyCnO8N
-         zDyvlHd2bCxur8n+8yzzVx3qyA+m+jvis91Tnr/0=
+        b=QMbr7i8nvwoue0MvAsMCuPIYS2NpdMR86qJC7MPM7GieU5ly7s5+CzzAIma9771bW
+         Z1kHktafMJRJsiMDufpWxl/c5JufIeBGWPTlh1F4w9l+F4FbwPVUmnsqouD+jp7jYi
+         6vrPxI74LnACr3LzBs8vf75zCHQDw0WJ1oT/EUWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Isaku Yamahata <isaku.yamahata@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 4.19 66/72] x86/mem_encrypt: Correct physical address calculation in __set_clr_pte_enc()
-Date:   Mon, 29 Mar 2021 09:58:42 +0200
-Message-Id: <20210329075612.451242002@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 192/221] arm64: mm: correct the inside linear map range during hotplug check
+Date:   Mon, 29 Mar 2021 09:58:43 +0200
+Message-Id: <20210329075635.533435595@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaku Yamahata <isaku.yamahata@intel.com>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-commit 8249d17d3194eac064a8ca5bc5ca0abc86feecde upstream.
+[ Upstream commit ee7febce051945be28ad86d16a15886f878204de ]
 
-The pfn variable contains the page frame number as returned by the
-pXX_pfn() functions, shifted to the right by PAGE_SHIFT to remove the
-page bits. After page protection computations are done to it, it gets
-shifted back to the physical address using page_level_shift().
+Memory hotplug may fail on systems with CONFIG_RANDOMIZE_BASE because the
+linear map range is not checked correctly.
 
-That is wrong, of course, because that function determines the shift
-length based on the level of the page in the page table but in all the
-cases, it was shifted by PAGE_SHIFT before.
+The start physical address that linear map covers can be actually at the
+end of the range because of randomization. Check that and if so reduce it
+to 0.
 
-Therefore, shift it back using PAGE_SHIFT to get the correct physical
-address.
+This can be verified on QEMU with setting kaslr-seed to ~0ul:
 
- [ bp: Rewrite commit message. ]
+memstart_offset_seed = 0xffff
+START: __pa(_PAGE_OFFSET(vabits_actual)) = ffff9000c0000000
+END:   __pa(PAGE_END - 1) =  1000bfffffff
 
-Fixes: dfaaec9033b8 ("x86: Add support for changing memory encryption attribute in early boot")
-Signed-off-by: Isaku Yamahata <isaku.yamahata@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/81abbae1657053eccc535c16151f63cd049dcb97.1616098294.git.isaku.yamahata@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Fixes: 58284a901b42 ("arm64/mm: Validate hotplug range before creating linear mapping")
+Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/20210216150351.129018-2-pasha.tatashin@soleen.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/mem_encrypt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/mmu.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -228,7 +228,7 @@ static void __init __set_clr_pte_enc(pte
- 	if (pgprot_val(old_prot) == pgprot_val(new_prot))
- 		return;
- 
--	pa = pfn << page_level_shift(level);
-+	pa = pfn << PAGE_SHIFT;
- 	size = page_level_size(level);
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 0635803463a5..10938dbe1f11 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1448,6 +1448,22 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
+ struct range arch_get_mappable_range(void)
+ {
+ 	struct range mhp_range;
++	u64 start_linear_pa = __pa(_PAGE_OFFSET(vabits_actual));
++	u64 end_linear_pa = __pa(PAGE_END - 1);
++
++	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
++		/*
++		 * Check for a wrap, it is possible because of randomized linear
++		 * mapping the start physical address is actually bigger than
++		 * the end physical address. In this case set start to zero
++		 * because [0, end_linear_pa] range must still be able to cover
++		 * all addressable physical addresses.
++		 */
++		if (start_linear_pa > end_linear_pa)
++			start_linear_pa = 0;
++	}
++
++	WARN_ON(start_linear_pa > end_linear_pa);
  
  	/*
+ 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
+@@ -1455,8 +1471,9 @@ struct range arch_get_mappable_range(void)
+ 	 * range which can be mapped inside this linear mapping range, must
+ 	 * also be derived from its end points.
+ 	 */
+-	mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
+-	mhp_range.end =  __pa(PAGE_END - 1);
++	mhp_range.start = start_linear_pa;
++	mhp_range.end =  end_linear_pa;
++
+ 	return mhp_range;
+ }
+ 
+-- 
+2.30.1
+
 
 
