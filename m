@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E85234CA69
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B1334C88A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233961AbhC2Iid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S232828AbhC2IXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234469AbhC2IgA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:36:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36B15619B5;
-        Mon, 29 Mar 2021 08:35:42 +0000 (UTC)
+        id S233270AbhC2IVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:21:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B099E61554;
+        Mon, 29 Mar 2021 08:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006942;
-        bh=OwXO/HiN+vWFBMyr5p8yncZ3dYdxBpPbHIb7UfnZ9O4=;
+        s=korg; t=1617006079;
+        bh=Qa5G5wdax085QRuIxKwFZtL3LCLuobDr38WuPDQeiR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fw2AGWTrUX/U19UTBRDof0zO6UFqzL1KUoDJcEUDBFsjf+/kv01TPHIVd/q5Op+UH
-         UMGZO5QJBOGMnDNuDDMA90U6vMHk8piZ+YC8BOXVIt3HzKNiQxdjIFn851OQSLNkm5
-         FA9QHtENbwZbIOVsI4/Sp0Ey/9jcQLNtjpKlZxYQ=
+        b=lJ3uKEXdlEjek0FAz7wLLxUaEE05HSRjDwk6icjzHmXUv6t3q28W/MACg2AmKNdcf
+         iRSnWgGyqxZNNR2Vpn22IEEUaRVWDztwJKf1gCKBErxiaRlKzNxhYpyDkEpwJZ3OL+
+         slUKiK3aXItIeS88QlLYO9+nw25HNlRD87/d6hec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
-        Malli C <mallikarjuna.chilakala@intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 126/254] igc: Fix Pause Frame Advertising
+Subject: [PATCH 5.10 111/221] net/qlcnic: Fix a use after free in qlcnic_83xx_get_minidump_template
 Date:   Mon, 29 Mar 2021 09:57:22 +0200
-Message-Id: <20210329075637.365325139@linuxfoundation.org>
+Message-Id: <20210329075632.916173766@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 8876529465c368beafd51a70f79d7a738f2aadf4 ]
+[ Upstream commit db74623a3850db99cb9692fda9e836a56b74198d ]
 
-Fix Pause Frame Advertising when getting the advertisement via ethtool.
-Remove setting the "advertising" bit in link_ksettings during default
-case when Tx and Rx are in off state with Auto Negotiate off.
+In qlcnic_83xx_get_minidump_template, fw_dump->tmpl_hdr was freed by
+vfree(). But unfortunately, it is used when extended is true.
 
-Below is the original output of advertisement link during Tx and Rx off:
-Advertised pause frame use: Symmetric Receive-only
-
-Expected output:
-Advertised pause frame use: No
-
-Fixes: 8c5ad0dae93c ("igc: Add ethtool support")
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Reviewed-by: Malli C <mallikarjuna.chilakala@intel.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 7061b2bdd620e ("qlogic: Deletion of unnecessary checks before two function calls")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_ethtool.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_ethtool.c b/drivers/net/ethernet/intel/igc/igc_ethtool.c
-index ec8cd69d4992..35c104a02bed 100644
---- a/drivers/net/ethernet/intel/igc/igc_ethtool.c
-+++ b/drivers/net/ethernet/intel/igc/igc_ethtool.c
-@@ -1709,9 +1709,7 @@ static int igc_ethtool_get_link_ksettings(struct net_device *netdev,
- 						     Asym_Pause);
- 		break;
- 	default:
--		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
--		ethtool_link_ksettings_add_link_mode(cmd, advertising,
--						     Asym_Pause);
-+		break;
- 	}
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
+index 7760a3394e93..7ecb3dfe30bd 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
+@@ -1425,6 +1425,7 @@ void qlcnic_83xx_get_minidump_template(struct qlcnic_adapter *adapter)
  
- 	status = pm_runtime_suspended(&adapter->pdev->dev) ?
+ 	if (fw_dump->tmpl_hdr == NULL || current_version > prev_version) {
+ 		vfree(fw_dump->tmpl_hdr);
++		fw_dump->tmpl_hdr = NULL;
+ 
+ 		if (qlcnic_83xx_md_check_extended_dump_capability(adapter))
+ 			extended = !qlcnic_83xx_extend_md_capab(adapter);
+@@ -1443,6 +1444,8 @@ void qlcnic_83xx_get_minidump_template(struct qlcnic_adapter *adapter)
+ 			struct qlcnic_83xx_dump_template_hdr *hdr;
+ 
+ 			hdr = fw_dump->tmpl_hdr;
++			if (!hdr)
++				return;
+ 			hdr->drv_cap_mask = 0x1f;
+ 			fw_dump->cap_mask = 0x1f;
+ 			dev_info(&pdev->dev,
 -- 
 2.30.1
 
