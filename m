@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3ED034C94F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D61234C951
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233140AbhC2I3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42578 "EHLO mail.kernel.org"
+        id S233264AbhC2I31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233178AbhC2IZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:25:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E1E7619CB;
-        Mon, 29 Mar 2021 08:25:20 +0000 (UTC)
+        id S233546AbhC2IZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:25:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26648614A7;
+        Mon, 29 Mar 2021 08:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006320;
-        bh=iDy0QarVjMwLqY/B2SxYpXmyhbxazrFMkU3lM6u9kDA=;
+        s=korg; t=1617006323;
+        bh=zb6U6309W+wIdgkhmMqWm87hvVyw6zYof3eZim7Rrw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/nztIaFOHi/lKLrD8SmvNGb5z6NE72RZlOpv/qxwWUvj/GkfrTFoyVbdoSerbxUl
-         6zCX+ULak7ECGI5mHbEeUN9c4u1nPZmYLTD8DX74PaqoYIr4nNTouBIq/zMsvRRuAM
-         /T/KglkeldiGF87yJcuPm2BxzL3Wu/aq46Yo+QLM=
+        b=1377hEZSRBu3xysI5bg8kfEm5i4Mw1AUyoUpjaS1xwdCCiDNq8t0zKg8o+r/K3mDG
+         qe6MoWDwpFQXD7en2pU+V1VtOM7u9wFgSxzP89s6m7yakItdfMvlyCFZ6jQtQ9LL7X
+         8QUFOKVoCisIhxbqaX4rXg1FxYD/5JBarj3kW8kY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Jiri Olsa <jolsa@redhat.com>, Ingo Molnar <mingo@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 198/221] perf auxtrace: Fix auxtrace queue conflict
-Date:   Mon, 29 Mar 2021 09:58:49 +0200
-Message-Id: <20210329075635.733341214@linuxfoundation.org>
+Subject: [PATCH 5.10 199/221] perf synthetic events: Avoid write of uninitialized memory when generating PERF_RECORD_MMAP* records
+Date:   Mon, 29 Mar 2021 09:58:50 +0200
+Message-Id: <20210329075635.762121600@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
 References: <20210329075629.172032742@linuxfoundation.org>
@@ -42,55 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit b410ed2a8572d41c68bd9208555610e4b07d0703 ]
+[ Upstream commit 2a76f6de07906f0bb5f2a13fb02845db1695cc29 ]
 
-The only requirement of an auxtrace queue is that the buffers are in
-time order.  That is achieved by making separate queues for separate
-perf buffer or AUX area buffer mmaps.
+Account for alignment bytes in the zero-ing memset.
 
-That generally means a separate queue per cpu for per-cpu contexts, and
-a separate queue per thread for per-task contexts.
-
-When buffers are added to a queue, perf checks that the buffer cpu and
-thread id (tid) match the queue cpu and thread id.
-
-However, generally, that need not be true, and perf will queue buffers
-correctly anyway, so the check is not needed.
-
-In addition, the check gets erroneously hit when using sample mode to
-trace multiple threads.
-
-Consequently, fix that case by removing the check.
-
-Fixes: e502789302a6 ("perf auxtrace: Add helpers for queuing AUX area tracing data")
-Reported-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: http://lore.kernel.org/lkml/20210308151143.18338-1-adrian.hunter@intel.com
+Fixes: 1a853e36871b533c ("perf record: Allow specifying a pid to record")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20210309234945.419254-1-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/auxtrace.c | 4 ----
- 1 file changed, 4 deletions(-)
+ tools/perf/util/synthetic-events.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index 42a85c86421d..d8ada6a3c555 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -300,10 +300,6 @@ static int auxtrace_queues__queue_buffer(struct auxtrace_queues *queues,
- 		queue->set = true;
- 		queue->tid = buffer->tid;
- 		queue->cpu = buffer->cpu;
--	} else if (buffer->cpu != queue->cpu || buffer->tid != queue->tid) {
--		pr_err("auxtrace queue conflict: cpu %d, tid %d vs cpu %d, tid %d\n",
--		       queue->cpu, queue->tid, buffer->cpu, buffer->tid);
--		return -EINVAL;
- 	}
+diff --git a/tools/perf/util/synthetic-events.c b/tools/perf/util/synthetic-events.c
+index d9c624377da7..b4cf6dd57dd6 100644
+--- a/tools/perf/util/synthetic-events.c
++++ b/tools/perf/util/synthetic-events.c
+@@ -384,7 +384,7 @@ int perf_event__synthesize_mmap_events(struct perf_tool *tool,
  
- 	buffer->buffer_nr = queues->next_buffer_nr++;
+ 	while (!io.eof) {
+ 		static const char anonstr[] = "//anon";
+-		size_t size;
++		size_t size, aligned_size;
+ 
+ 		/* ensure null termination since stack will be reused. */
+ 		event->mmap2.filename[0] = '\0';
+@@ -444,11 +444,12 @@ int perf_event__synthesize_mmap_events(struct perf_tool *tool,
+ 		}
+ 
+ 		size = strlen(event->mmap2.filename) + 1;
+-		size = PERF_ALIGN(size, sizeof(u64));
++		aligned_size = PERF_ALIGN(size, sizeof(u64));
+ 		event->mmap2.len -= event->mmap.start;
+ 		event->mmap2.header.size = (sizeof(event->mmap2) -
+-					(sizeof(event->mmap2.filename) - size));
+-		memset(event->mmap2.filename + size, 0, machine->id_hdr_size);
++					(sizeof(event->mmap2.filename) - aligned_size));
++		memset(event->mmap2.filename + size, 0, machine->id_hdr_size +
++			(aligned_size - size));
+ 		event->mmap2.header.size += machine->id_hdr_size;
+ 		event->mmap2.pid = tgid;
+ 		event->mmap2.tid = pid;
 -- 
 2.30.1
 
