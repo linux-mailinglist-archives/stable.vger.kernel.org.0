@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D00BA34C814
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A909134C9EB
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232854AbhC2ITh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:19:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35870 "EHLO mail.kernel.org"
+        id S233622AbhC2IeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232800AbhC2ITG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:19:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 248066044F;
-        Mon, 29 Mar 2021 08:19:04 +0000 (UTC)
+        id S234603AbhC2IdV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72BEA619AE;
+        Mon, 29 Mar 2021 08:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005945;
-        bh=B22kD/XnsYNocZglVpNcOJIKq0At9U2B2UD0+lqKMmU=;
+        s=korg; t=1617006742;
+        bh=SopsyA0vO07sbLLPBW87Kh0w+yJ5r24GHvSWAtZLiQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/bnsNBVFigbuGpFOCQ3UIJUdLfjYXDgS7JkBmwfdkTHmzscPP0kvdPOwAyfCLo8t
-         xIcyNDluAmsHdOLwIWRfp7Mrd0KFsxVszb+sjjZgJfZL7jOUPSDunpNAJ1lQQb43/V
-         d3J4YtuxM52cq8V4oins6ulS1TQG9hGGambOmBoQ=
+        b=lPvlqq2UUL2DZU/H6Ad16N4Z9p4Kiwh8VE4udMlK3yhfSKGNKZZJZR2Vb+ugttVho
+         vk95xDJf53db9KtbFIA1Sc54rhCrqTre/ztWswALzkhiWz8XZ8G+3SG6lbPf/SMEZP
+         EqpV70WvJHmzgJOUFGtutT7BMfWJEf4wiZYrWAkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/221] static_call: Fix static_call_set_init()
+        stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 075/254] netsec: restore phy power state after controller reset
 Date:   Mon, 29 Mar 2021 09:56:31 +0200
-Message-Id: <20210329075631.189242024@linuxfoundation.org>
+Message-Id: <20210329075635.614673361@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Mian Yousaf Kaukab <ykaukab@suse.de>
 
-[ Upstream commit 68b1eddd421d2b16c6655eceb48918a1e896bbbc ]
+commit 804741ac7b9f2fdebe3740cb0579cb8d94d49e60 upstream.
 
-It turns out that static_call_set_init() does not preserve the other
-flags; IOW. it clears TAIL if it was set.
+Since commit 8e850f25b581 ("net: socionext: Stop PHY before resetting
+netsec") netsec_netdev_init() power downs phy before resetting the
+controller. However, the state is not restored once the reset is
+complete. As a result it is not possible to bring up network on a
+platform with Broadcom BCM5482 phy.
 
-Fixes: 9183c3f9ed710 ("static_call: Add inline static call infrastructure")
-Reported-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Sumit Garg <sumit.garg@linaro.org>
-Link: https://lkml.kernel.org/r/20210318113610.519406371@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the issue by restoring phy power state after controller reset is
+complete.
+
+Fixes: 8e850f25b581 ("net: socionext: Stop PHY before resetting netsec")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/static_call.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/static_call.c b/kernel/static_call.c
-index 5d53c354fbe7..49efbdc5b480 100644
---- a/kernel/static_call.c
-+++ b/kernel/static_call.c
-@@ -35,27 +35,30 @@ static inline void *static_call_addr(struct static_call_site *site)
- 	return (void *)((long)site->addr + (long)&site->addr);
- }
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -1718,14 +1718,17 @@ static int netsec_netdev_init(struct net
+ 		goto err1;
  
-+static inline unsigned long __static_call_key(const struct static_call_site *site)
-+{
-+	return (long)site->key + (long)&site->key;
-+}
+ 	/* set phy power down */
+-	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR) |
+-		BMCR_PDOWN;
+-	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
++	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR);
++	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR,
++			 data | BMCR_PDOWN);
  
- static inline struct static_call_key *static_call_key(const struct static_call_site *site)
- {
--	return (struct static_call_key *)
--		(((long)site->key + (long)&site->key) & ~STATIC_CALL_SITE_FLAGS);
-+	return (void *)(__static_call_key(site) & ~STATIC_CALL_SITE_FLAGS);
- }
+ 	ret = netsec_reset_hardware(priv, true);
+ 	if (ret)
+ 		goto err2;
  
- /* These assume the key is word-aligned. */
- static inline bool static_call_is_init(struct static_call_site *site)
- {
--	return ((long)site->key + (long)&site->key) & STATIC_CALL_SITE_INIT;
-+	return __static_call_key(site) & STATIC_CALL_SITE_INIT;
- }
++	/* Restore phy power state */
++	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
++
+ 	spin_lock_init(&priv->desc_ring[NETSEC_RING_TX].lock);
+ 	spin_lock_init(&priv->desc_ring[NETSEC_RING_RX].lock);
  
- static inline bool static_call_is_tail(struct static_call_site *site)
- {
--	return ((long)site->key + (long)&site->key) & STATIC_CALL_SITE_TAIL;
-+	return __static_call_key(site) & STATIC_CALL_SITE_TAIL;
- }
- 
- static inline void static_call_set_init(struct static_call_site *site)
- {
--	site->key = ((long)static_call_key(site) | STATIC_CALL_SITE_INIT) -
-+	site->key = (__static_call_key(site) | STATIC_CALL_SITE_INIT) -
- 		    (long)&site->key;
- }
- 
-@@ -199,7 +202,7 @@ void __static_call_update(struct static_call_key *key, void *tramp, void *func)
- 			}
- 
- 			arch_static_call_transform(site_addr, NULL, func,
--				static_call_is_tail(site));
-+						   static_call_is_tail(site));
- 		}
- 	}
- 
-@@ -358,7 +361,7 @@ static int static_call_add_module(struct module *mod)
- 	struct static_call_site *site;
- 
- 	for (site = start; site != stop; site++) {
--		unsigned long s_key = (long)site->key + (long)&site->key;
-+		unsigned long s_key = __static_call_key(site);
- 		unsigned long addr = s_key & ~STATIC_CALL_SITE_FLAGS;
- 		unsigned long key;
- 
--- 
-2.30.1
-
 
 
