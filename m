@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C44C34DA63
+	by mail.lfdr.de (Postfix) with ESMTP id C938E34DA65
 	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232125AbhC2WWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:22:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46164 "EHLO mail.kernel.org"
+        id S232145AbhC2WWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:22:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231624AbhC2WWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:22:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7176198A;
-        Mon, 29 Mar 2021 22:22:09 +0000 (UTC)
+        id S231964AbhC2WWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 18:22:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B386661990;
+        Mon, 29 Mar 2021 22:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056530;
-        bh=vWRBsgeifkSEGdDN43XjQ99C3pOTI2n8xztY6JaE9is=;
+        s=k20201202; t=1617056531;
+        bh=ifP7GrAvdHy3PvqZQPZ0OgZ30TQlGNsg5g+sx/xnfZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHOn0h8nAqsFtWd4MfmFciZ0RdhmoYErE040DKmF79i9jznoiTFUzYCImmmI77b2R
-         5iH+EO7RbiFBsf0TefFlczDNPb1PodAdtLTqxnldUNdXzUlYlWMGzo0PB04ednW7Vh
-         ojRsvq1s8xi763P5Dx7czxpegkZ3+eowcQmL0La6j4zd+6rsb+Gaf1xOUOOXefEhQA
-         gKSrIXaVqK+4Bd/pOkMvqU0bv4BkxMU0+v0znXl+l+zArw0bHVK9CkSteGav5iW0NB
-         V14D/qs8EJMw+5ySk8mSIFR6IoDMrtnEuFlMNlJVnmb8tHnS3D8s2hkQrQpvXYCQyv
-         Mmra5gLPGgbqQ==
+        b=P5Iq+4JaYvOAWqqToT2P2RQpjBBkpk6+BKh0gnFyB2jNDs+pbqN4Wi3O6rcN01fZX
+         cGwDsKKsHstY/VIutPMCWV2U7qEp5U5moNzoG005Pc6abcOXpwTosDkPkVthlcrSrk
+         EDfPIASNt8XMLncA5FdvfY+4Megk/4isoRGHXMvDlkXxRsUzB9jCIUQYQMCH8NX8ab
+         V/Mpyc5krIbhERkLnlXOOpaJjjDj17Twnpuq4PwGsdaRHcgJjHnBv2WutAmTdVJpHT
+         SoiKQUykdTkXEgHfTimpBTohJEVXhfTnHsvM/ZU0h3fSa1hPBuaxMo/esYlZbBv5qt
+         dVQ7kPQzVDoDA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yangbo Lu <yangbo.lu@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 29/38] ptp_qoriq: fix overflow in ptp_qoriq_adjfine() u64 calcalation
-Date:   Mon, 29 Mar 2021 18:21:24 -0400
-Message-Id: <20210329222133.2382393-29-sashal@kernel.org>
+Cc:     Martin Wilck <mwilck@suse.com>, Christoph Hellwig <hch@lst.de>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 30/38] scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+Date:   Mon, 29 Mar 2021 18:21:25 -0400
+Message-Id: <20210329222133.2382393-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222133.2382393-1-sashal@kernel.org>
 References: <20210329222133.2382393-1-sashal@kernel.org>
@@ -42,52 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangbo Lu <yangbo.lu@nxp.com>
+From: Martin Wilck <mwilck@suse.com>
 
-[ Upstream commit f51d7bf1dbe5522c51c93fe8faa5f4abbdf339cd ]
+[ Upstream commit 36fa766faa0c822c860e636fe82b1affcd022974 ]
 
-Current calculation for diff of TMR_ADD register value may have
-64-bit overflow in this code line, when long type scaled_ppm is
-large.
+If pscsi_map_sg() fails, make sure to drop references to already allocated
+bios.
 
-adj *= scaled_ppm;
-
-This patch is to resolve it by using mul_u64_u64_div_u64().
-
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210323212431.15306-2-mwilck@suse.com
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ptp/ptp_qoriq.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/target/target_core_pscsi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/ptp/ptp_qoriq.c b/drivers/ptp/ptp_qoriq.c
-index beb5f74944cd..08f4cf0ad9e3 100644
---- a/drivers/ptp/ptp_qoriq.c
-+++ b/drivers/ptp/ptp_qoriq.c
-@@ -189,15 +189,16 @@ int ptp_qoriq_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
- 	tmr_add = ptp_qoriq->tmr_add;
- 	adj = tmr_add;
- 
--	/* calculate diff as adj*(scaled_ppm/65536)/1000000
--	 * and round() to the nearest integer
-+	/*
-+	 * Calculate diff and round() to the nearest integer
-+	 *
-+	 * diff = adj * (ppb / 1000000000)
-+	 *      = adj * scaled_ppm / 65536000000
- 	 */
--	adj *= scaled_ppm;
--	diff = div_u64(adj, 8000000);
--	diff = (diff >> 13) + ((diff >> 12) & 1);
-+	diff = mul_u64_u64_div_u64(adj, scaled_ppm, 32768000000);
-+	diff = DIV64_U64_ROUND_UP(diff, 2);
- 
- 	tmr_add = neg_adj ? tmr_add - diff : tmr_add + diff;
--
- 	ptp_qoriq->write(&regs->ctrl_regs->tmr_add, tmr_add);
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index 7994f27e4527..0689d550c37a 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -939,6 +939,14 @@ pscsi_map_sg(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
  
  	return 0;
+ fail:
++	if (bio)
++		bio_put(bio);
++	while (req->bio) {
++		bio = req->bio;
++		req->bio = bio->bi_next;
++		bio_put(bio);
++	}
++	req->biotail = NULL;
+ 	return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
+ }
+ 
 -- 
 2.30.1
 
