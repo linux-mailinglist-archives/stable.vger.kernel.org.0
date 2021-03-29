@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8706434C856
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903CC34C85C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbhC2IVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:21:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37726 "EHLO mail.kernel.org"
+        id S233296AbhC2IVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232884AbhC2IUi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:20:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D335861580;
-        Mon, 29 Mar 2021 08:20:37 +0000 (UTC)
+        id S233366AbhC2IUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AAEA61554;
+        Mon, 29 Mar 2021 08:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006038;
-        bh=mbIcklrKa9uyC5TkTIfMY6FQFk9sK8UD1psPnJ36iqQ=;
+        s=korg; t=1617006041;
+        bh=vTiQ4lbdj/zsCApx9tl3LVRNY6OLYz9huurQkgXcsIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3UL0UQZjytfXeGT7W2jgyDX/wDII0Fl2iaVCkFS/NkodYTIy6x4G72YlaArp5T+v
-         Oqx35IpdXpkKINmO2xztJ2ZfhGsFPV84OBSROSDAKMa4+qU3QbDqZI3RpRayQUBCI/
-         iuaorSQ/FAHcO5QHlf8y2zZq7RSHx4mz7CjMa4BI=
+        b=qSTScNiyC/E72thRdC3eujDg+KBovqj3ajev4kZKE19kgt3z45nzfo+9jqWP3t5mE
+         ai1CbEklbXzYv893snmOU/KEX7pO5T1mbTd37p1gng8ArLKhfh3+ZoCoelWAnfZRb+
+         7nRhyOlCMD8R9Xtdg1r7EKNDxsugBWkmxhXAYvkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        stable@vger.kernel.org, Tal Lossos <tallossos@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
+        Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/221] veth: Store queue_mapping independently of XDP prog presence
-Date:   Mon, 29 Mar 2021 09:57:05 +0200
-Message-Id: <20210329075632.340556167@linuxfoundation.org>
+Subject: [PATCH 5.10 095/221] bpf: Change inode_storages lookup_elem return value from NULL to -EBADF
+Date:   Mon, 29 Mar 2021 09:57:06 +0200
+Message-Id: <20210329075632.374491687@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
 References: <20210329075629.172032742@linuxfoundation.org>
@@ -42,44 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Tal Lossos <tallossos@gmail.com>
 
-[ Upstream commit edbea922025169c0e5cdca5ebf7bf5374cc5566c ]
+[ Upstream commit 769c18b254ca191b45047e1fcb3b2ce56fada0b6 ]
 
-Currently, veth_xmit() would call the skb_record_rx_queue() only when
-there is XDP program loaded on peer interface in native mode.
+bpf_fd_inode_storage_lookup_elem() returned NULL when getting a bad FD,
+which caused -ENOENT in bpf_map_copy_value. -EBADF error is better than
+-ENOENT for a bad FD behaviour.
 
-If peer has XDP prog in generic mode, then netif_receive_generic_xdp()
-has a call to netif_get_rxqueue(skb), so for multi-queue veth it will
-not be possible to grab a correct rxq.
+The patch was partially contributed by CyberArk Software, Inc.
 
-To fix that, store queue_mapping independently of XDP prog presence on
-peer interface.
-
-Fixes: 638264dc9022 ("veth: Support per queue XDP ring")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Fixes: 8ea636848aca ("bpf: Implement bpf_local_storage for inodes")
+Signed-off-by: Tal Lossos <tallossos@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Link: https://lore.kernel.org/bpf/20210303152903.11172-1-maciej.fijalkowski@intel.com
+Acked-by: Yonghong Song <yhs@fb.com>
+Acked-by: KP Singh <kpsingh@kernel.org>
+Link: https://lore.kernel.org/bpf/20210307120948.61414-1-tallossos@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/veth.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/bpf/bpf_inode_storage.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index 8c737668008a..be18b243642f 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -301,8 +301,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (rxq < rcv->real_num_rx_queues) {
- 		rq = &rcv_priv->rq[rxq];
- 		rcv_xdp = rcu_access_pointer(rq->xdp_prog);
--		if (rcv_xdp)
--			skb_record_rx_queue(skb, rxq);
-+		skb_record_rx_queue(skb, rxq);
- 	}
+diff --git a/kernel/bpf/bpf_inode_storage.c b/kernel/bpf/bpf_inode_storage.c
+index c2a501cd90eb..a4ac48c7dada 100644
+--- a/kernel/bpf/bpf_inode_storage.c
++++ b/kernel/bpf/bpf_inode_storage.c
+@@ -109,7 +109,7 @@ static void *bpf_fd_inode_storage_lookup_elem(struct bpf_map *map, void *key)
+ 	fd = *(int *)key;
+ 	f = fget_raw(fd);
+ 	if (!f)
+-		return NULL;
++		return ERR_PTR(-EBADF);
  
- 	skb_tx_timestamp(skb);
+ 	sdata = inode_storage_lookup(f->f_inode, map, true);
+ 	fput(f);
 -- 
 2.30.1
 
