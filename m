@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB6334C847
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E6D34CA11
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbhC2IVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37294 "EHLO mail.kernel.org"
+        id S234185AbhC2Iet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232879AbhC2IUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:20:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B73F61481;
-        Mon, 29 Mar 2021 08:20:13 +0000 (UTC)
+        id S234741AbhC2Ide (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D306261883;
+        Mon, 29 Mar 2021 08:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006014;
-        bh=scYFnPO7AI/FT4LtJjU+VmWJqAOw/DeltX3UR58X2z8=;
+        s=korg; t=1617006801;
+        bh=qyMHGP+SBVIDUMUTI3TBPKrqIWEfEvW+V0jy7ZCVG7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTtXNPJTTjZw+r9WO0DzsOG1fhKklqEG0E4zwsNh6KIvRCUT13skBTLNZvXGXgtXz
-         xSWDcX8Emex1ujgkp9MLm95PGoOqnYAeOXPneIhJno/JK6UNDBz+yxCtS8gHCuwmA8
-         QqaGwU1B9a+8/Bwr1r6wsz8tKRYSpN4axnXyxjaE=
+        b=Xcw8BiagaWmZ0WT8HAQ7SR8UKeHW8BI1ybuvyyTqPEawWZ0zt+kwOYrH+ZHjda37B
+         xPt5WcrNmOK0SIKZh0KRFQu7Jm+BlN3c7nMCyJhP2sj7BiJNYNiNM748vJR74LutL/
+         4llxIOcfV4qOwDtN8ILFix1jlGbkslh3ByRu5gSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Igor Kravchenko <Igor.Kravchenko@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>
-Subject: [PATCH 5.10 086/221] drm/amdgpu/display: restore AUX_DPHY_TX_CONTROL for DCN2.x
-Date:   Mon, 29 Mar 2021 09:56:57 +0200
-Message-Id: <20210329075632.079378620@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Imre Deak <imre.deak@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.11 102/254] drm/i915: Fix the GT fence revocation runtime PM logic
+Date:   Mon, 29 Mar 2021 09:56:58 +0200
+Message-Id: <20210329075636.557513626@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +40,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Imre Deak <imre.deak@intel.com>
 
-commit 5c458585c0141754cdcbf25feebb547dd671b559 upstream.
+commit 8840e3bd981f128846b01c12d3966d115e8617c9 upstream.
 
-Commit 098214999c8f added fetching of the AUX_DPHY register
-values from the vbios, but it also changed the default values
-in the case when there are no values in the vbios.  This causes
-problems with displays with high refresh rates.  To fix this,
-switch back to the original default value for AUX_DPHY_TX_CONTROL.
+To optimize some task deferring it until runtime resume unless someone
+holds a runtime PM reference (because in this case the task can be done
+w/o the overhead of runtime resume), we have to use the runtime PM
+get-if-active logic: If the runtime PM usage count is 0 (and so
+get-if-in-use would return false) the runtime suspend handler is not
+necessarily called yet (it could be just pending), so the device is not
+necessarily powered down, and so the runtime resume handler is not
+guaranteed to be called.
 
-Fixes: 098214999c8f ("drm/amd/display: Read VBIOS Golden Settings Tbl")
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1426
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: Igor Kravchenko <Igor.Kravchenko@amd.com>
-Cc: Aric Cyr <Aric.Cyr@amd.com>
-Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Cc: stable@vger.kernel.org
+The fence revocation depends on the above deferral, so add a
+get-if-active helper and use it during fence revocation.
+
+v2:
+- Add code comment explaining the fence reg programming deferral logic
+  to i915_vma_revoke_fence(). (Chris)
+- Add Cc: stable and Fixes: tags. (Chris)
+- Fix the function docbook comment.
+
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v4.12+
+Fixes: 181df2d458f3 ("drm/i915: Take rpm wakelock for releasing the fence on unbind")
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210322204223.919936-1-imre.deak@intel.com
+(cherry picked from commit 9d58aa46291d4d696bb1eac3436d3118f7bf2573)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_link_encoder.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c |   13 +++++++++++-
+ drivers/gpu/drm/i915/intel_runtime_pm.c      |   29 ++++++++++++++++++++++-----
+ drivers/gpu/drm/i915/intel_runtime_pm.h      |    5 ++++
+ 3 files changed, 41 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_link_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_link_encoder.c
-@@ -341,8 +341,7 @@ void enc2_hw_init(struct link_encoder *e
- 	} else {
- 		AUX_REG_WRITE(AUX_DPHY_RX_CONTROL0, 0x103d1110);
+--- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
++++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+@@ -316,7 +316,18 @@ void i915_vma_revoke_fence(struct i915_v
+ 	WRITE_ONCE(fence->vma, NULL);
+ 	vma->fence = NULL;
  
--		AUX_REG_WRITE(AUX_DPHY_TX_CONTROL, 0x21c4d);
--
-+		AUX_REG_WRITE(AUX_DPHY_TX_CONTROL, 0x21c7a);
+-	with_intel_runtime_pm_if_in_use(fence_to_uncore(fence)->rpm, wakeref)
++	/*
++	 * Skip the write to HW if and only if the device is currently
++	 * suspended.
++	 *
++	 * If the driver does not currently hold a wakeref (if_in_use == 0),
++	 * the device may currently be runtime suspended, or it may be woken
++	 * up before the suspend takes place. If the device is not suspended
++	 * (powered down) and we skip clearing the fence register, the HW is
++	 * left in an undefined state where we may end up with multiple
++	 * registers overlapping.
++	 */
++	with_intel_runtime_pm_if_active(fence_to_uncore(fence)->rpm, wakeref)
+ 		fence_write(fence);
+ }
+ 
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.c
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
+@@ -412,12 +412,20 @@ intel_wakeref_t intel_runtime_pm_get(str
+ }
+ 
+ /**
+- * intel_runtime_pm_get_if_in_use - grab a runtime pm reference if device in use
++ * __intel_runtime_pm_get_if_active - grab a runtime pm reference if device is active
+  * @rpm: the intel_runtime_pm structure
++ * @ignore_usecount: get a ref even if dev->power.usage_count is 0
+  *
+  * This function grabs a device-level runtime pm reference if the device is
+- * already in use and ensures that it is powered up. It is illegal to try
+- * and access the HW should intel_runtime_pm_get_if_in_use() report failure.
++ * already active and ensures that it is powered up. It is illegal to try
++ * and access the HW should intel_runtime_pm_get_if_active() report failure.
++ *
++ * If @ignore_usecount=true, a reference will be acquired even if there is no
++ * user requiring the device to be powered up (dev->power.usage_count == 0).
++ * If the function returns false in this case then it's guaranteed that the
++ * device's runtime suspend hook has been called already or that it will be
++ * called (and hence it's also guaranteed that the device's runtime resume
++ * hook will be called eventually).
+  *
+  * Any runtime pm reference obtained by this function must have a symmetric
+  * call to intel_runtime_pm_put() to release the reference again.
+@@ -425,7 +433,8 @@ intel_wakeref_t intel_runtime_pm_get(str
+  * Returns: the wakeref cookie to pass to intel_runtime_pm_put(), evaluates
+  * as True if the wakeref was acquired, or False otherwise.
+  */
+-intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
++static intel_wakeref_t __intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm,
++							bool ignore_usecount)
+ {
+ 	if (IS_ENABLED(CONFIG_PM)) {
+ 		/*
+@@ -434,7 +443,7 @@ intel_wakeref_t intel_runtime_pm_get_if_
+ 		 * function, since the power state is undefined. This applies
+ 		 * atm to the late/early system suspend/resume handlers.
+ 		 */
+-		if (pm_runtime_get_if_in_use(rpm->kdev) <= 0)
++		if (pm_runtime_get_if_active(rpm->kdev, ignore_usecount) <= 0)
+ 			return 0;
  	}
  
- 	//AUX_DPHY_TX_REF_CONTROL'AUX_TX_REF_DIV HW default is 0x32;
+@@ -443,6 +452,16 @@ intel_wakeref_t intel_runtime_pm_get_if_
+ 	return track_intel_runtime_pm_wakeref(rpm);
+ }
+ 
++intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm)
++{
++	return __intel_runtime_pm_get_if_active(rpm, false);
++}
++
++intel_wakeref_t intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm)
++{
++	return __intel_runtime_pm_get_if_active(rpm, true);
++}
++
+ /**
+  * intel_runtime_pm_get_noresume - grab a runtime pm reference
+  * @rpm: the intel_runtime_pm structure
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.h
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.h
+@@ -177,6 +177,7 @@ void intel_runtime_pm_driver_release(str
+ 
+ intel_wakeref_t intel_runtime_pm_get(struct intel_runtime_pm *rpm);
+ intel_wakeref_t intel_runtime_pm_get_if_in_use(struct intel_runtime_pm *rpm);
++intel_wakeref_t intel_runtime_pm_get_if_active(struct intel_runtime_pm *rpm);
+ intel_wakeref_t intel_runtime_pm_get_noresume(struct intel_runtime_pm *rpm);
+ intel_wakeref_t intel_runtime_pm_get_raw(struct intel_runtime_pm *rpm);
+ 
+@@ -188,6 +189,10 @@ intel_wakeref_t intel_runtime_pm_get_raw
+ 	for ((wf) = intel_runtime_pm_get_if_in_use(rpm); (wf); \
+ 	     intel_runtime_pm_put((rpm), (wf)), (wf) = 0)
+ 
++#define with_intel_runtime_pm_if_active(rpm, wf) \
++	for ((wf) = intel_runtime_pm_get_if_active(rpm); (wf); \
++	     intel_runtime_pm_put((rpm), (wf)), (wf) = 0)
++
+ void intel_runtime_pm_put_unchecked(struct intel_runtime_pm *rpm);
+ #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_RUNTIME_PM)
+ void intel_runtime_pm_put(struct intel_runtime_pm *rpm, intel_wakeref_t wref);
 
 
