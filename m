@@ -2,37 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB2034C999
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC97F34C7CD
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231702AbhC2IaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:30:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
+        id S232136AbhC2ISS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234262AbhC2I2A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:28:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DFC761964;
-        Mon, 29 Mar 2021 08:27:06 +0000 (UTC)
+        id S233193AbhC2IRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:17:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18EE961878;
+        Mon, 29 Mar 2021 08:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006427;
-        bh=mKRV0N9SBwXvBTUfqsAVI/V+AL+T3H/bcTuTKgboNPc=;
+        s=korg; t=1617005796;
+        bh=+GMuBe7YXhCwuPEwA/qmcdT63q+40w2qaBExFqlb20o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vm+gJbxVlHvl3t45iYfNGM8O8yf5sBX+B+1DWmGreFGGbLIS6d5PQl3tjsTW0AtdZ
-         YCw4uNsVkR4W1k1XINkM+pQEn6OpXFCyysvlHSf2kl60RYZLCgXXvpeAL/kqKi9ifE
-         72RNaNmy8jVjoZkuq+54QtSi7d/BqIXdg19A/rMM=
+        b=QBFUNXvCaRfNlTDjH0CcrAuv0fOSMgmPJnRq574gVFVCxBpMEASVM0wo7OgWXBHoj
+         vLQ3PrDr4AqwELL4hAx/595y1E99ytdLyc6ZPNIgryrQa9H8g/LzXpvXKIJHZTzYem
+         U+cpiEtcBiaFzT0tpFY23+plmdo3DiV+Dis1m0x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 016/254] gianfar: fix jumbo packets+napi+rx overrun crash
+        stable@vger.kernel.org, Zhou Guanghui <zhouguanghui1@huawei.com>,
+        Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Tianhong Ding <dingtianhong@huawei.com>,
+        Weilong Chen <chenweilong@huawei.com>,
+        Rui Xiang <rui.xiang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 001/221] mm/memcg: rename mem_cgroup_split_huge_fixup to split_page_memcg and add nr_pages argument
 Date:   Mon, 29 Mar 2021 09:55:32 +0200
-Message-Id: <20210329075633.678231045@linuxfoundation.org>
+Message-Id: <20210329075629.220507977@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,101 +53,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Braun <michael-dev@fami-braun.de>
+From: Zhou Guanghui <zhouguanghui1@huawei.com>
 
-[ Upstream commit d8861bab48b6c1fc3cdbcab8ff9d1eaea43afe7f ]
+commit be6c8982e4ab9a41907555f601b711a7e2a17d4c upstream.
 
-When using jumbo packets and overrunning rx queue with napi enabled,
-the following sequence is observed in gfar_add_rx_frag:
+Rename mem_cgroup_split_huge_fixup to split_page_memcg and explicitly pass
+in page number argument.
 
-   | lstatus                              |       | skb                   |
-t  | lstatus,  size, flags                | first | len, data_len, *ptr   |
----+--------------------------------------+-------+-----------------------+
-13 | 18002348, 9032, INTERRUPT LAST       | 0     | 9600, 8000,  f554c12e |
-12 | 10000640, 1600, INTERRUPT            | 0     | 8000, 6400,  f554c12e |
-11 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  f554c12e |
-10 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  f554c12e |
-09 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  f554c12e |
-08 | 14000640, 1600, INTERRUPT FIRST      | 0     | 1600, 0,     f554c12e |
-07 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     f554c12e |
-06 | 1c000080, 128,  INTERRUPT LAST FIRST | 1     | 0,    0,     abf3bd6e |
-05 | 18002348, 9032, INTERRUPT LAST       | 0     | 8000, 6400,  c5a57780 |
-04 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  c5a57780 |
-03 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  c5a57780 |
-02 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  c5a57780 |
-01 | 10000640, 1600, INTERRUPT            | 0     | 1600, 0,     c5a57780 |
-00 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     c5a57780 |
+In this way, the interface name is more common and can be used by
+potential users.  In addition, the complete info(memcg and flag) of the
+memcg needs to be set to the tail pages.
 
-So at t=7 a new packets is started but not finished, probably due to rx
-overrun - but rx overrun is not indicated in the flags. Instead a new
-packets starts at t=8. This results in skb->len to exceed size for the LAST
-fragment at t=13 and thus a negative fragment size added to the skb.
-
-This then crashes:
-
-kernel BUG at include/linux/skbuff.h:2277!
-Oops: Exception in kernel mode, sig: 5 [#1]
-...
-NIP [c04689f4] skb_pull+0x2c/0x48
-LR [c03f62ac] gfar_clean_rx_ring+0x2e4/0x844
-Call Trace:
-[ec4bfd38] [c06a84c4] _raw_spin_unlock_irqrestore+0x60/0x7c (unreliable)
-[ec4bfda8] [c03f6a44] gfar_poll_rx_sq+0x48/0xe4
-[ec4bfdc8] [c048d504] __napi_poll+0x54/0x26c
-[ec4bfdf8] [c048d908] net_rx_action+0x138/0x2c0
-[ec4bfe68] [c06a8f34] __do_softirq+0x3a4/0x4fc
-[ec4bfed8] [c0040150] run_ksoftirqd+0x58/0x70
-[ec4bfee8] [c0066ecc] smpboot_thread_fn+0x184/0x1cc
-[ec4bff08] [c0062718] kthread+0x140/0x144
-[ec4bff38] [c0012350] ret_from_kernel_thread+0x14/0x1c
-
-This patch fixes this by checking for computed LAST fragment size, so a
-negative sized fragment is never added.
-In order to prevent the newer rx frame from getting corrupted, the FIRST
-flag is checked to discard the incomplete older frame.
-
-Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20210304074053.65527-2-zhouguanghui1@huawei.com
+Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Tianhong Ding <dingtianhong@huawei.com>
+Cc: Weilong Chen <chenweilong@huawei.com>
+Cc: Rui Xiang <rui.xiang@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ include/linux/memcontrol.h |    6 ++----
+ mm/huge_memory.c           |    2 +-
+ mm/memcontrol.c            |   15 +++++----------
+ 3 files changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index d391a45cebb6..4fab2ee5bbf5 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -2391,6 +2391,10 @@ static bool gfar_add_rx_frag(struct gfar_rx_buff *rxb, u32 lstatus,
- 		if (lstatus & BD_LFLAG(RXBD_LAST))
- 			size -= skb->len;
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -937,9 +937,7 @@ static inline void memcg_memory_event_mm
+ 	rcu_read_unlock();
+ }
  
-+		WARN(size < 0, "gianfar: rx fragment size underflow");
-+		if (size < 0)
-+			return false;
-+
- 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page,
- 				rxb->page_offset + RXBUF_ALIGNMENT,
- 				size, GFAR_RXB_TRUESIZE);
-@@ -2553,6 +2557,17 @@ static int gfar_clean_rx_ring(struct gfar_priv_rx_q *rx_queue,
- 		if (lstatus & BD_LFLAG(RXBD_EMPTY))
- 			break;
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-void mem_cgroup_split_huge_fixup(struct page *head);
+-#endif
++void split_page_memcg(struct page *head, unsigned int nr);
  
-+		/* lost RXBD_LAST descriptor due to overrun */
-+		if (skb &&
-+		    (lstatus & BD_LFLAG(RXBD_FIRST))) {
-+			/* discard faulty buffer */
-+			dev_kfree_skb(skb);
-+			skb = NULL;
-+			rx_queue->stats.rx_dropped++;
-+
-+			/* can continue normally */
-+		}
-+
- 		/* order rx buffer descriptor reads */
- 		rmb();
+ #else /* CONFIG_MEMCG */
  
--- 
-2.30.1
-
+@@ -1267,7 +1265,7 @@ unsigned long mem_cgroup_soft_limit_recl
+ 	return 0;
+ }
+ 
+-static inline void mem_cgroup_split_huge_fixup(struct page *head)
++static inline void split_page_memcg(struct page *head, unsigned int nr)
+ {
+ }
+ 
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2433,7 +2433,7 @@ static void __split_huge_page(struct pag
+ 	lruvec = mem_cgroup_page_lruvec(head, pgdat);
+ 
+ 	/* complete memcg works before add pages to LRU */
+-	mem_cgroup_split_huge_fixup(head);
++	split_page_memcg(head, nr);
+ 
+ 	if (PageAnon(head) && PageSwapCache(head)) {
+ 		swp_entry_t entry = { .val = page_private(head) };
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3268,26 +3268,21 @@ void obj_cgroup_uncharge(struct obj_cgro
+ 
+ #endif /* CONFIG_MEMCG_KMEM */
+ 
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-
+ /*
+- * Because tail pages are not marked as "used", set it. We're under
+- * pgdat->lru_lock and migration entries setup in all page mappings.
++ * Because head->mem_cgroup is not set on tails, set it now.
+  */
+-void mem_cgroup_split_huge_fixup(struct page *head)
++void split_page_memcg(struct page *head, unsigned int nr)
+ {
+ 	struct mem_cgroup *memcg = head->mem_cgroup;
+ 	int i;
+ 
+-	if (mem_cgroup_disabled())
++	if (mem_cgroup_disabled() || !memcg)
+ 		return;
+ 
+-	for (i = 1; i < HPAGE_PMD_NR; i++) {
+-		css_get(&memcg->css);
++	for (i = 1; i < nr; i++)
+ 		head[i].mem_cgroup = memcg;
+-	}
++	css_get_many(&memcg->css, nr - 1);
+ }
+-#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+ #ifdef CONFIG_MEMCG_SWAP
+ /**
 
 
