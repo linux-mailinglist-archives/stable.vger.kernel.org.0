@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1AD34C8A4
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A997E34C6B8
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233576AbhC2IXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39230 "EHLO mail.kernel.org"
+        id S232505AbhC2IJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233750AbhC2IWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:22:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A2B66044F;
-        Mon, 29 Mar 2021 08:22:18 +0000 (UTC)
+        id S230364AbhC2IIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:08:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE88361938;
+        Mon, 29 Mar 2021 08:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006139;
-        bh=Zz4sB49Lgw3eaw/7i1rS61h7Lvh2UQ4b98XzT2wkO3A=;
+        s=korg; t=1617005318;
+        bh=sXnRPHr0FhJAX0X7M0EATilAKgmtpfNIuhcP3QuKYyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FoQcfxlM1mVR7O8xP9Fv4qt8ku8+Dc9Xki15Z5yFROH/o8q6Gu+1td7oPpZy9xJiy
-         oatEl6rwEePtRS8VJ0OIStiQsf5izaZK2TL4Q0mktdDuQPlMZ8we9KG+wfNk/K+7qp
-         rvJlhIoMaIr/YYct38LgmW9k5I7IKLS+VmpY3XUQ=
+        b=bYhVkqQPF95M9wGVf9Bs7vmxreUP/5jZg0L3BjutxP9O9rDQmb+Lb/jnFuDGPaX9q
+         dj0cO3OfNrHFX3Md+SABkzTvUokbJPOoDhWwApHdJgjr6Lkct9JoNHuAz0OZ/xBrkG
+         n/RlMVMNdiAiSgnMRckO/NO6pWa9rwLttYwdLn8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mariusz Madej <mariusz.madej@xtrack.com>,
-        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/221] can: m_can: m_can_do_rx_poll(): fix extraneous msg loss warning
-Date:   Mon, 29 Mar 2021 09:57:42 +0200
-Message-Id: <20210329075633.569256674@linuxfoundation.org>
+Subject: [PATCH 4.19 07/72] net: tehuti: fix error return code in bdx_probe()
+Date:   Mon, 29 Mar 2021 09:57:43 +0200
+Message-Id: <20210329075610.540117883@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Torin Cooper-Bennun <torin@maxiluxsystems.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit c0e399f3baf42279f48991554240af8c457535d1 ]
+[ Upstream commit 38c26ff3048af50eee3fcd591921357ee5bfd9ee ]
 
-Message loss from RX FIFO 0 is already handled in
-m_can_handle_lost_msg(), with netdev output included.
+When bdx_read_mac() fails, no error return code of bdx_probe()
+is assigned.
+To fix this bug, err is assigned with -EFAULT as error return code.
 
-Removing this warning also improves driver performance under heavy
-load, where m_can_do_rx_poll() may be called many times before this
-interrupt is cleared, causing this message to be output many
-times (thanks Mariusz Madej for this report).
-
-Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
-Link: https://lore.kernel.org/r/20210303103151.3760532-1-torin@maxiluxsystems.com
-Reported-by: Mariusz Madej <mariusz.madej@xtrack.com>
-Signed-off-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/ethernet/tehuti/tehuti.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 3c1e37975168..6952d5b396e8 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -502,9 +502,6 @@ static int m_can_do_rx_poll(struct net_device *dev, int quota)
- 	}
- 
- 	while ((rxfs & RXFS_FFL_MASK) && (quota > 0)) {
--		if (rxfs & RXFS_RFL)
--			netdev_warn(dev, "Rx FIFO 0 Message Lost\n");
--
- 		m_can_read_fifo(dev, rxfs);
- 
- 		quota--;
+diff --git a/drivers/net/ethernet/tehuti/tehuti.c b/drivers/net/ethernet/tehuti/tehuti.c
+index dc966ddb6d81..358f911fcd9d 100644
+--- a/drivers/net/ethernet/tehuti/tehuti.c
++++ b/drivers/net/ethernet/tehuti/tehuti.c
+@@ -2056,6 +2056,7 @@ bdx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		/*bdx_hw_reset(priv); */
+ 		if (bdx_read_mac(priv)) {
+ 			pr_err("load MAC address failed\n");
++			err = -EFAULT;
+ 			goto err_out_iomap;
+ 		}
+ 		SET_NETDEV_DEV(ndev, &pdev->dev);
 -- 
 2.30.1
 
