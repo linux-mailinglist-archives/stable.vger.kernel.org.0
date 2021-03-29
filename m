@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5589E34C958
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 975BA34CABF
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbhC2I33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41812 "EHLO mail.kernel.org"
+        id S234871AbhC2Ijs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233268AbhC2I0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:26:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 351D9619BA;
-        Mon, 29 Mar 2021 08:25:45 +0000 (UTC)
+        id S235199AbhC2IiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:38:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBF7161582;
+        Mon, 29 Mar 2021 08:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006345;
-        bh=m5j3xD98rNlsrXKtffDpqWcxJPFyqZUtmk903+mBrGE=;
+        s=korg; t=1617007101;
+        bh=sDBqcHPhIHDIZShWpfUiPbvZed99NKuOLc6eLpnFItw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nwe+5jyEkDWc3+d2EUoZIUgDxPGXjQ/oV/mbK4YLAb34zuNwj7NC0LIW2v6qewvKc
-         qwihuHPlTIzFZINcRTGApleyL9d/R4x8oRE3jwU6Pdkm3efuUV70wBr0m8hP4w94Yh
-         G3dslmsphis8alPaILxyReYLwz5+gR0uzhRgLwvk=
+        b=O2u0FujA85wfhAkJQvFZu+s19BJ+RLaHg/D1DZ69KCpg8Hak+lYwbj2wD+fRSobXA
+         AhAeYqJtN1J5eoB8zkM/yxEbqJBTyEafstsBOIzQTKEUlfsSqZciZDrO2L1pXTxZz+
+         Zpun9SKR31ovw5YW50NhZ71WvmUF0NzFtO6LGqFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 206/221] cifs: Adjust key sizes and key generation routines for AES256 encryption
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 221/254] netfilter: x_tables: Use correct memory barriers.
 Date:   Mon, 29 Mar 2021 09:58:57 +0200
-Message-Id: <20210329075635.992970826@linuxfoundation.org>
+Message-Id: <20210329075640.359001827@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,183 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-commit 45a4546c6167a2da348a31ca439d8a8ff773b6ea upstream.
+[ Upstream commit 175e476b8cdf2a4de7432583b49c871345e4f8a1 ]
 
-For AES256 encryption (GCM and CCM), we need to adjust the size of a few
-fields to 32 bytes instead of 16 to accommodate the larger keys.
+When a new table value was assigned, it was followed by a write memory
+barrier. This ensured that all writes before this point would complete
+before any writes after this point. However, to determine whether the
+rules are unused, the sequence counter is read. To ensure that all
+writes have been done before these reads, a full memory barrier is
+needed, not just a write memory barrier. The same argument applies when
+incrementing the counter, before the rules are read.
 
-Also, the L value supplied to the key generator needs to be changed from
-to 256 when these algorithms are used.
+Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
+reported in cc00bcaa5899 (which is still present), while still
+maintaining the same speed of replacing tables.
 
-Keeping the ioctl struct for dumping keys of the same size for now.
-Will send out a different patch for that one.
+The smb_mb() barriers potentially slow the packet path, however testing
+has shown no measurable change in performance on a 4-core MIPS64
+platform.
 
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-CC: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsglob.h      |    4 ++--
- fs/cifs/cifspdu.h       |    5 +++++
- fs/cifs/smb2glob.h      |    1 +
- fs/cifs/smb2ops.c       |    9 +++++----
- fs/cifs/smb2transport.c |   37 ++++++++++++++++++++++++++++---------
- 5 files changed, 41 insertions(+), 15 deletions(-)
+ include/linux/netfilter/x_tables.h | 2 +-
+ net/netfilter/x_tables.c           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -1002,8 +1002,8 @@ struct cifs_ses {
- 	bool binding:1; /* are we binding the session? */
- 	__u16 session_flags;
- 	__u8 smb3signingkey[SMB3_SIGN_KEY_SIZE];
--	__u8 smb3encryptionkey[SMB3_SIGN_KEY_SIZE];
--	__u8 smb3decryptionkey[SMB3_SIGN_KEY_SIZE];
-+	__u8 smb3encryptionkey[SMB3_ENC_DEC_KEY_SIZE];
-+	__u8 smb3decryptionkey[SMB3_ENC_DEC_KEY_SIZE];
- 	__u8 preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index 5deb099d156d..8ec48466410a 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -376,7 +376,7 @@ static inline unsigned int xt_write_recseq_begin(void)
+ 	 * since addend is most likely 1
+ 	 */
+ 	__this_cpu_add(xt_recseq.sequence, addend);
+-	smp_wmb();
++	smp_mb();
  
- 	__u8 binding_preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
---- a/fs/cifs/cifspdu.h
-+++ b/fs/cifs/cifspdu.h
-@@ -147,6 +147,11 @@
-  */
- #define SMB3_SIGN_KEY_SIZE (16)
+ 	return addend;
+ }
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 7df3aef39c5c..6bd31a7a27fc 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1389,7 +1389,7 @@ xt_replace_table(struct xt_table *table,
+ 	table->private = newinfo;
  
-+/*
-+ * Size of the smb3 encryption/decryption keys
-+ */
-+#define SMB3_ENC_DEC_KEY_SIZE (32)
-+
- #define CIFS_CLIENT_CHALLENGE_SIZE (8)
- #define CIFS_SERVER_CHALLENGE_SIZE (8)
- #define CIFS_HMAC_MD5_HASH_SIZE (16)
---- a/fs/cifs/smb2glob.h
-+++ b/fs/cifs/smb2glob.h
-@@ -58,6 +58,7 @@
- #define SMB2_HMACSHA256_SIZE (32)
- #define SMB2_CMACAES_SIZE (16)
- #define SMB3_SIGNKEY_SIZE (16)
-+#define SMB3_GCM128_CRYPTKEY_SIZE (16)
- #define SMB3_GCM256_CRYPTKEY_SIZE (32)
- 
- /* Maximum buffer size value we can send with 1 credit */
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -4068,7 +4068,7 @@ smb2_get_enc_key(struct TCP_Server_Info
- 			if (ses->Suid == ses_id) {
- 				ses_enc_key = enc ? ses->smb3encryptionkey :
- 					ses->smb3decryptionkey;
--				memcpy(key, ses_enc_key, SMB3_SIGN_KEY_SIZE);
-+				memcpy(key, ses_enc_key, SMB3_ENC_DEC_KEY_SIZE);
- 				spin_unlock(&cifs_tcp_ses_lock);
- 				return 0;
- 			}
-@@ -4095,7 +4095,7 @@ crypt_message(struct TCP_Server_Info *se
- 	int rc = 0;
- 	struct scatterlist *sg;
- 	u8 sign[SMB2_SIGNATURE_SIZE] = {};
--	u8 key[SMB3_SIGN_KEY_SIZE];
-+	u8 key[SMB3_ENC_DEC_KEY_SIZE];
- 	struct aead_request *req;
- 	char *iv;
- 	unsigned int iv_len;
-@@ -4119,10 +4119,11 @@ crypt_message(struct TCP_Server_Info *se
- 	tfm = enc ? server->secmech.ccmaesencrypt :
- 						server->secmech.ccmaesdecrypt;
- 
--	if (server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)
-+	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
-+		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
- 		rc = crypto_aead_setkey(tfm, key, SMB3_GCM256_CRYPTKEY_SIZE);
- 	else
--		rc = crypto_aead_setkey(tfm, key, SMB3_SIGN_KEY_SIZE);
-+		rc = crypto_aead_setkey(tfm, key, SMB3_GCM128_CRYPTKEY_SIZE);
- 
- 	if (rc) {
- 		cifs_server_dbg(VFS, "%s: Failed to set aead key %d\n", __func__, rc);
---- a/fs/cifs/smb2transport.c
-+++ b/fs/cifs/smb2transport.c
-@@ -298,7 +298,8 @@ static int generate_key(struct cifs_ses
- {
- 	unsigned char zero = 0x0;
- 	__u8 i[4] = {0, 0, 0, 1};
--	__u8 L[4] = {0, 0, 0, 128};
-+	__u8 L128[4] = {0, 0, 0, 128};
-+	__u8 L256[4] = {0, 0, 1, 0};
- 	int rc = 0;
- 	unsigned char prfhash[SMB2_HMACSHA256_SIZE];
- 	unsigned char *hashptr = prfhash;
-@@ -354,8 +355,14 @@ static int generate_key(struct cifs_ses
- 		goto smb3signkey_ret;
- 	}
- 
--	rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
--				L, 4);
-+	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
-+		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)) {
-+		rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
-+				L256, 4);
-+	} else {
-+		rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
-+				L128, 4);
-+	}
- 	if (rc) {
- 		cifs_server_dbg(VFS, "%s: Could not update with L\n", __func__);
- 		goto smb3signkey_ret;
-@@ -390,6 +397,9 @@ generate_smb3signingkey(struct cifs_ses
- 			const struct derivation_triplet *ptriplet)
- {
- 	int rc;
-+#ifdef CONFIG_CIFS_DEBUG_DUMP_KEYS
-+	struct TCP_Server_Info *server = ses->server;
-+#endif
+ 	/* make sure all cpus see new ->private value */
+-	smp_wmb();
++	smp_mb();
  
  	/*
- 	 * All channels use the same encryption/decryption keys but
-@@ -422,11 +432,11 @@ generate_smb3signingkey(struct cifs_ses
- 		rc = generate_key(ses, ptriplet->encryption.label,
- 				  ptriplet->encryption.context,
- 				  ses->smb3encryptionkey,
--				  SMB3_SIGN_KEY_SIZE);
-+				  SMB3_ENC_DEC_KEY_SIZE);
- 		rc = generate_key(ses, ptriplet->decryption.label,
- 				  ptriplet->decryption.context,
- 				  ses->smb3decryptionkey,
--				  SMB3_SIGN_KEY_SIZE);
-+				  SMB3_ENC_DEC_KEY_SIZE);
- 		if (rc)
- 			return rc;
- 	}
-@@ -442,14 +452,23 @@ generate_smb3signingkey(struct cifs_ses
- 	 */
- 	cifs_dbg(VFS, "Session Id    %*ph\n", (int)sizeof(ses->Suid),
- 			&ses->Suid);
-+	cifs_dbg(VFS, "Cipher type   %d\n", server->cipher_type);
- 	cifs_dbg(VFS, "Session Key   %*ph\n",
- 		 SMB2_NTLMV2_SESSKEY_SIZE, ses->auth_key.response);
- 	cifs_dbg(VFS, "Signing Key   %*ph\n",
- 		 SMB3_SIGN_KEY_SIZE, ses->smb3signingkey);
--	cifs_dbg(VFS, "ServerIn Key  %*ph\n",
--		 SMB3_SIGN_KEY_SIZE, ses->smb3encryptionkey);
--	cifs_dbg(VFS, "ServerOut Key %*ph\n",
--		 SMB3_SIGN_KEY_SIZE, ses->smb3decryptionkey);
-+	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
-+		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)) {
-+		cifs_dbg(VFS, "ServerIn Key  %*ph\n",
-+				SMB3_GCM256_CRYPTKEY_SIZE, ses->smb3encryptionkey);
-+		cifs_dbg(VFS, "ServerOut Key %*ph\n",
-+				SMB3_GCM256_CRYPTKEY_SIZE, ses->smb3decryptionkey);
-+	} else {
-+		cifs_dbg(VFS, "ServerIn Key  %*ph\n",
-+				SMB3_GCM128_CRYPTKEY_SIZE, ses->smb3encryptionkey);
-+		cifs_dbg(VFS, "ServerOut Key %*ph\n",
-+				SMB3_GCM128_CRYPTKEY_SIZE, ses->smb3decryptionkey);
-+	}
- #endif
- 	return rc;
- }
+ 	 * Even though table entries have now been swapped, other CPU's
+-- 
+2.30.1
+
 
 
