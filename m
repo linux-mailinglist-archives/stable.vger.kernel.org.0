@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9783634C613
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8260834C56A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231738AbhC2IEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:04:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
+        id S230395AbhC2IAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:00:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232094AbhC2IEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:04:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC70061601;
-        Mon, 29 Mar 2021 08:04:09 +0000 (UTC)
+        id S229655AbhC2H7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 03:59:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D2BE61969;
+        Mon, 29 Mar 2021 07:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005050;
-        bh=HLyvqv6KeKN5vDhCQR9UUaivBet8DbRXIuO0u5O415A=;
+        s=korg; t=1617004792;
+        bh=796XK1fpdEtnF+BeXuqvdxkJ3JhwrCxFlzAY/6NgDkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeqyAreO7rubSOknMbPARi7NejaIaTVVFt+UM9yBVDJhDFsQzemF0H6Ityj7cuU+x
-         N746ZVuN8h5Vgwg2ChdLpdAtUglL30gmi4YjZ/S4M67IVONekV4DlZm+2k3m9Bl1Cm
-         vDe/pxWp5R+hogL8Sd5v+2B7h+OpD6dE9bDFKJTA=
+        b=t5nCUv8pDHXFMRPaYjaaD4rFU4ukGFINciY4NX9KWWMg9oEIBQjNyfhiRjR6plpA6
+         XGhqTRI6zqODXNcWnlVw3NCexWsURuuYxXQOiciyVIBOz+sQhajM1ei37TObbymwf4
+         BQem2DbZ1A4mSnc27aYnVTJ3xAyA6vxUCAcN2PhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.9 20/53] arm64: dts: ls1043a: mark crypto engine dma coherent
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 10/33] atm: idt77252: fix null-ptr-dereference
 Date:   Mon, 29 Mar 2021 09:57:55 +0200
-Message-Id: <20210329075608.208746569@linuxfoundation.org>
+Message-Id: <20210329075605.608064757@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit 4fb3a074755b7737c4081cffe0ccfa08c2f2d29d upstream.
+[ Upstream commit 4416e98594dc04590ebc498fc4e530009535c511 ]
 
-Crypto engine (CAAM) on LS1043A platform is configured HW-coherent,
-mark accordingly the DT node.
+this one is similar to the phy_data allocation fix in uPD98402, the
+driver allocate the idt77105_priv and store to dev_data but later
+dereference using dev->dev_data, which will cause null-ptr-dereference.
 
-Lack of "dma-coherent" property for an IP that is configured HW-coherent
-can lead to problems, similar to what has been reported for LS1046A.
+fix this issue by changing dev_data to phy_data so that PRIV(dev) can
+work correctly.
 
-Cc: <stable@vger.kernel.org> # v4.8+
-Fixes: 63dac35b58f4 ("arm64: dts: ls1043a: add crypto node")
-Link: https://lore.kernel.org/linux-crypto/fe6faa24-d8f7-d18f-adfa-44fa0caa1598@arm.com
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/atm/idt77105.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-@@ -177,6 +177,7 @@
- 			ranges = <0x0 0x00 0x1700000 0x100000>;
- 			reg = <0x00 0x1700000 0x0 0x100000>;
- 			interrupts = <0 75 0x4>;
-+			dma-coherent;
+diff --git a/drivers/atm/idt77105.c b/drivers/atm/idt77105.c
+index feb023d7eebd..40644670cff2 100644
+--- a/drivers/atm/idt77105.c
++++ b/drivers/atm/idt77105.c
+@@ -261,7 +261,7 @@ static int idt77105_start(struct atm_dev *dev)
+ {
+ 	unsigned long flags;
  
- 			sec_jr0: jr@10000 {
- 				compatible = "fsl,sec-v5.4-job-ring",
+-	if (!(dev->dev_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
++	if (!(dev->phy_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	PRIV(dev)->dev = dev;
+ 	spin_lock_irqsave(&idt77105_priv_lock, flags);
+@@ -338,7 +338,7 @@ static int idt77105_stop(struct atm_dev *dev)
+                 else
+                     idt77105_all = walk->next;
+ 	        dev->phy = NULL;
+-                dev->dev_data = NULL;
++                dev->phy_data = NULL;
+                 kfree(walk);
+                 break;
+             }
+-- 
+2.30.1
+
 
 
