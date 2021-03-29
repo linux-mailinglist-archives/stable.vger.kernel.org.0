@@ -2,157 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 261D134D275
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 16:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CABB34D27E
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 16:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229822AbhC2Of5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 10:35:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46772 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229630AbhC2Ofr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 10:35:47 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989C1C061574;
-        Mon, 29 Mar 2021 07:35:46 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id 184so16171249ljf.9;
-        Mon, 29 Mar 2021 07:35:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:in-reply-to:references
-         :mime-version;
-        bh=m1x7qkeXn/hByih9f1Ls4Wtzy4s/AO+YUDm9O2yD2co=;
-        b=XNmUmT2AuJqL3daZRBsOCLd/wj1scH/Tr13kjsb4aTKAucRiyl49VXv+KxQGJg0ueF
-         ZqF9RZnhle+4heONe+K9NwmDsJg4zVkB3yxqrrQ8CnPjfGMg7HMVbj9beDLh+cHTYgAd
-         hCdQiT6Fn/AG3rYBkv8aXebjl3J2t+VB1jiB3BwDfN9AQJ5YUx0ZYEyPqXKe7F4XaADs
-         p6DwN7ehVMMTiwonRo1XZJjUpNtLR8MVs1zoWE0Q2OK5OgDE3VT2uKMUSmBDcshIpTOn
-         R84o2Wxwquy5BXjIvohdmQKhSd8CZYurjrFe608KfddsTykGDrejNUjPAxCsX0ySh5g0
-         v1fg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version;
-        bh=m1x7qkeXn/hByih9f1Ls4Wtzy4s/AO+YUDm9O2yD2co=;
-        b=edHhjprFfr8E2cQa0r7hUECAPgNKo0PdP+SnUh3jdHiEI+idg9YwDjjBIDCiUShqFZ
-         aj9rC+QRG2BTVEncfn+iXD+oGtxE2xDlSriqmXVsL0BWTO0M9MgSKFO3Uo9cQoDaRKxg
-         OpyI3TBDevHQO1DYysh/LajUtpsAe/3RcvbGCcfmpINpHOmNy0j9SGhFfJwbzPhL3izu
-         wD0SR30yxgPoq9xfuiz3U29Wxnr6j9+cpbmP04b7ZlPWuGYLQrRp9nOwKH79PjGF09ik
-         YYRYpATMK5yCGxHa3XYgAwJI2fIuKgmiKxqmS3JOp+/D30gsU6oOyj7zV8+dxAmNpmv8
-         lw3w==
-X-Gm-Message-State: AOAM532XjpTELgm6PeggQXOZO4NjDUFuWbilbdFrWO5IXq/Iw1RNn6Au
-        392/iad8A79eDhg2I47sEqI=
-X-Google-Smtp-Source: ABdhPJx8UtK5Fiuw+Hy00AN6fkoVIeQJGIZDBjlQXTx1sn3856kYtBw6mZ9hf15G4oedQVGbJqwGrQ==
-X-Received: by 2002:a2e:87d8:: with SMTP id v24mr17567883ljj.387.1617028545041;
-        Mon, 29 Mar 2021 07:35:45 -0700 (PDT)
-Received: from eldfell ([194.136.85.206])
-        by smtp.gmail.com with ESMTPSA id b9sm1856028lfo.237.2021.03.29.07.35.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Mar 2021 07:35:44 -0700 (PDT)
-Date:   Mon, 29 Mar 2021 17:35:41 +0300
-From:   Pekka Paalanen <ppaalanen@gmail.com>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Simon Ser <contact@emersion.fr>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
-        od@zcrc.me, dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH] drm: DON'T require each CRTC to have a unique primary
- plane
-Message-ID: <20210329173541.00b301ea@eldfell>
-In-Reply-To: <C4BQQQ.FDNJ4NAK9OAD3@crapouillou.net>
-References: <20210327112214.10252-1-paul@crapouillou.net>
-        <1J_tcDPSAZW23jPO8ApyzgINcVRRWcNyFP0LvrSFVIMbZB9lH6lCWvh2ByU9rNt6bj6xpgRgv8n0hBKhXAvXNfLBGfTIsvbhYuHW3IIDd7Y=@emersion.fr>
-        <24LMQQ.CRNKYEI6GB2T1@crapouillou.net>
-        <20210329111533.47e44f72@eldfell>
-        <C4BQQQ.FDNJ4NAK9OAD3@crapouillou.net>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/fR.=hEM3/j_hKrnsh3EjOJN"; protocol="application/pgp-signature"
+        id S230437AbhC2Oii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 10:38:38 -0400
+Received: from a27-107.smtp-out.us-west-2.amazonses.com ([54.240.27.107]:46015
+        "EHLO a27-107.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230402AbhC2OiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 10:38:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=zzmz6pik4loqlrvo6grmnyszsx3fszus; d=nh6z.net; t=1617028686;
+        h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:In-Reply-To:References:Message-Id;
+        bh=6QDlTzhgIg8bRCekF5YD0wses94UlKnnwhKWHNH9fvw=;
+        b=CwO3ztsggD89iRsiWpAclw7dJnnP83skdQyalJDOFB/kv30qIw9JwItILIk6N0FL
+        lIk1oPhu50PiPorxacaZxY7AsdXCBlMWZfXcDueOm4/iku/rYNhf7HKsHrEcsGDRfNG
+        OJ1gOGczckX6jQFGeEk6/+a9+bm7fcKr2K1elKmU=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=7v7vs6w47njt4pimodk5mmttbegzsi6n; d=amazonses.com; t=1617028686;
+        h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:In-Reply-To:References:Message-Id:Feedback-ID;
+        bh=6QDlTzhgIg8bRCekF5YD0wses94UlKnnwhKWHNH9fvw=;
+        b=LyZI+wCeXRCH0ryN+bNLWx7qG3VY+omN1RNndPQ+bUKdOFjM6Eo/XBwHyjPLvC9o
+        UfQ3bw2Rz5/hYpXUlU60TZmuysKr+770b6GK2oDwYPPHX7gAmb+vfOG1hPgArN89+i1
+        H3IocA2LoVWZw3JxwoGfDyoPC9x3RFXHAzTkAWuU=
+Subject: [PATCH 2/2] ASoC: tlv320aic32x4: Register clocks before registering
+ component
+From:   =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>
+To:     =?UTF-8?Q?alsa-devel=40alsa-project=2Eorg?= 
+        <alsa-devel@alsa-project.org>
+Cc:     =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>,
+        =?UTF-8?Q?team=40nwdigitalradio=2Ecom?= <team@nwdigitalradio.com>,
+        =?UTF-8?Q?stable=40vger=2Ekernel=2Eorg?= <stable@vger.kernel.org>
+Date:   Mon, 29 Mar 2021 14:38:06 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210329143756.408604-1-nh6z@nh6z.net>
+References: <20210329143756.408604-1-nh6z@nh6z.net> 
+ <20210329143756.408604-3-nh6z@nh6z.net>
+X-Mailer: Amazon WorkMail
+Thread-Index: AQHXJKkg/ojtMl+8SNWm7v/u1huSVgAAAEpD
+Thread-Topic: [PATCH 2/2] ASoC: tlv320aic32x4: Register clocks before
+ registering component
+X-Original-Mailer: git-send-email 2.27.0
+X-Wm-Sent-Timestamp: 1617028686
+Message-ID: <010101787e6ba3ea-c69f7c7b-b586-4a5a-8297-50be27ce3534-000000@us-west-2.amazonses.com>
+X-SES-Outgoing: 2021.03.29-54.240.27.107
+Feedback-ID: 1.us-west-2.An468LAV0jCjQDrDLvlZjeAthld7qrhZr+vow8irkvU=:AmazonSES
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---Sig_/fR.=hEM3/j_hKrnsh3EjOJN
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 29 Mar 2021 12:41:00 +0100
-Paul Cercueil <paul@crapouillou.net> wrote:
-
-> Hi,
->=20
-> Le lun. 29 mars 2021 =C3=A0 11:15, Pekka Paalanen <ppaalanen@gmail.com> a=
-=20
-> =C3=A9crit :
-> > On Sat, 27 Mar 2021 11:26:26 +0000
-> > Paul Cercueil <paul@crapouillou.net> wrote:
-> >  =20
-> >>  It has two mutually exclusive background planes (same Z level) + one
-> >>  overlay plane. =20
-> >=20
-> > What's the difference between the two background planes?
-> >=20
-> > How will generic userspace know to pick the "right" one? =20
->=20
-> First primary plane cannot scale, supports RGB and C8. Second primary=20
-> plane goes through the IPU, and as such can scale and convert pixel=20
-> formats; it supports RGB, non-planar YUV, and multi-planar YUV.
->=20
-> Right now the userspace apps we have will simply pick the first one=20
-> that fits the bill.
-
-What would be the downside of exposing just one "virtual" primary
-plane, and then have the driver pick one of the two hardware planes as
-appropriate per modeset?
-
-
-Thanks,
-pq
-
-> >>  Le sam. 27 mars 2021 =C3=A0 11:24, Simon Ser <contact@emersion.fr> a=
-=20
-> >> =C3=A9crit
-> >>  : =20
-> >>  > On Saturday, March 27th, 2021 at 12:22 PM, Paul Cercueil
-> >>  > <paul@crapouillou.net> wrote:
-> >>  > =20
-> >>  >>  The ingenic-drm driver has two mutually exclusive primary planes
-> >>  >>  already; so the fact that a CRTC must have one and only one  =20
-> >> primary =20
-> >>  >>  plane is an invalid assumption. =20
-> >>  >
-> >>  > Why does this driver expose two primary planes, if it only has a
-> >>  > single
-> >>  > CRTC? =20
-> >>=20
-> >>=20
-> >>  _______________________________________________
-> >>  dri-devel mailing list
-> >>  dri-devel@lists.freedesktop.org
-> >>  https://lists.freedesktop.org/mailman/listinfo/dri-devel =20
-> >  =20
->=20
->=20
-
-
---Sig_/fR.=hEM3/j_hKrnsh3EjOJN
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAmBh5b0ACgkQI1/ltBGq
-qqcpcRAAs1a0IDl6xxB5DTNPOLZyQ7AJDT7ctuzZg+ncVnmVeqbz/6t6llDJ5ncT
-XYu/FBvAq7mTV3PIjzLNi6kRp615ACSlgAJ8jQ5JEflKHwaw99OVOz01exKJUK81
-tzdbL+Vqeh4X6WGVb6jqWhCWiUiZhlNf0ztHfhZ20N76dmFqgOvVCfCBLH2WYpin
-M2J9P8/EJUdmT9O/0dVgb08B7TGrjL4Jazoj7BSGhuloAL9DovPWi6Qw2Ir72TUM
-5Vkj6XqmT14+6CBUci+tBz/v5dUUuTrsEb6a+Mosx9AEC8YHz0ua9IxhGVXsOTCv
-8lTVFvYtapg4NQmc28VA8AkhvITEiJGZCHRP8H4lFHkmGjUNXXkWjkJKMZsEYL3c
-Qx4TN72CIACbjirsmtm01m/uS4zqJo0lz96ZgPjzg0+GaqBccQCWygG8VKga9U5X
-BWcPNuzOIFTlOOGwfyMjOIqgt+JvC+DQlkg8Ch7p/wIzRHvnJDf0RoeZsU5zzio7
-/diSITyoHk7r0z40IUA5W+WVQRls8MtH0Ytq1qoEhz308+kOEft4DQa/wQ/I85Ki
-/teScjJaLSvfwJHdGTVA0pewfre8AtS0/DHiD2waBYZXftQdr0Tx4ynlX7580zUU
-blqEzXM/SpTJqX2pGHeppPy9BWXjB1dnU9PZCPTTRQe3zDuv9rk=
-=hKzE
------END PGP SIGNATURE-----
-
---Sig_/fR.=hEM3/j_hKrnsh3EjOJN--
+Clock registration must be performed before the component is=0D=0Aregiste=
+red.  aic32x4_component_probe attempts to get all the=0D=0Aclocks right o=
+ff the bat.  If the component is registered before=0D=0Athe clocks there =
+is a race condition where the clocks may not=0D=0Abe registered by the ti=
+me aic32x4_componet_probe actually runs.=0D=0A=0D=0AFixes: d1c859d ("ASoC=
+: codec: tlv3204: Increased maximum supported channels")=0D=0ACc: stable@=
+vger.kernel.org=0D=0ASigned-off-by: Annaliese McDermond <nh6z@nh6z.net>=0D=
+=0A---=0D=0A sound/soc/codecs/tlv320aic32x4.c | 8 ++++----=0D=0A 1 file c=
+hanged, 4 insertions(+), 4 deletions(-)=0D=0A=0D=0Adiff --git a/sound/soc=
+/codecs/tlv320aic32x4.c b/sound/soc/codecs/tlv320aic32x4.c=0D=0Aindex 1ac=
+3b3b12dc6..b689f26fc4be 100644=0D=0A--- a/sound/soc/codecs/tlv320aic32x4.=
+c=0D=0A+++ b/sound/soc/codecs/tlv320aic32x4.c=0D=0A@@ -1243,6 +1243,10 @@=
+ int aic32x4_probe(struct device *dev, struct regmap *regmap)=0D=0A =09if=
+ (ret)=0D=0A =09=09goto err_disable_regulators;=0D=0A=20=0D=0A+=09ret =3D=
+ aic32x4_register_clocks(dev, aic32x4->mclk_name);=0D=0A+=09if (ret)=0D=0A=
++=09=09goto err_disable_regulators;=0D=0A+=0D=0A =09ret =3D devm_snd_soc_=
+register_component(dev,=0D=0A =09=09=09&soc_component_dev_aic32x4, &aic32=
+x4_dai, 1);=0D=0A =09if (ret) {=0D=0A@@ -1250,10 +1254,6 @@ int aic32x4_p=
+robe(struct device *dev, struct regmap *regmap)=0D=0A =09=09goto err_disa=
+ble_regulators;=0D=0A =09}=0D=0A=20=0D=0A-=09ret =3D aic32x4_register_clo=
+cks(dev, aic32x4->mclk_name);=0D=0A-=09if (ret)=0D=0A-=09=09goto err_disa=
+ble_regulators;=0D=0A-=0D=0A =09return 0;=0D=0A=20=0D=0A err_disable_regu=
+lators:=0D=0A--=20=0D=0A2.27.0=0D=0A=0D=0A
