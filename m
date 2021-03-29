@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD20A34C8B7
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E6F34C631
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234214AbhC2IYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
+        id S232172AbhC2IFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:05:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234182AbhC2IXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8619361481;
-        Mon, 29 Mar 2021 08:23:06 +0000 (UTC)
+        id S232038AbhC2IEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:04:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9B5961601;
+        Mon, 29 Mar 2021 08:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006187;
-        bh=GAO/aHh5HfP4Qn8Y9b4sPnLNDBe//JDfYBy7SdgXTvI=;
+        s=korg; t=1617005090;
+        bh=6doY695fcNFJgCQPeD37/bzJKzw8f4iXkCzcMtRpyCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuwsOliUsrMZPv8Ffcw90uqzaPfgPXCJx6Ad6S0uTDolKD8uWszcOOvg2Fh6roOkR
-         jYuKxQ3zsq1zUweOXakz7js25wnuhF0r/f1EewV1qUs8eNfWaOWimmO09KBz8Prvgm
-         EBbdy340gcGY8fx4KR7JUFUSqjiSFuxHY30HvkAs=
+        b=ErKA5e0VwfFHJ2v3j/jQKd2DCl+j3xxPQExW2s/3aVVzVrlVflEpl7viQG/be+wQv
+         inMg8aLiN7lx1C8d8e0LHX4iTnDOIKeWvmi4GykS8FtYZVbtrOVCc18hioN04lYOS4
+         NJzkEQnCDVojYcIhb4jHKT+womvawKFZzNXNGM3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Babu <rsaladi2@marvell.com>,
-        Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 150/221] octeontx2-af: Formatting debugfs entry rsrc_alloc.
+Subject: [PATCH 4.14 21/59] ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
 Date:   Mon, 29 Mar 2021 09:58:01 +0200
-Message-Id: <20210329075634.176505771@linuxfoundation.org>
+Message-Id: <20210329075609.583543523@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,138 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Babu <rsaladi2@marvell.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-[ Upstream commit f7884097141b615b6ce89c16f456a53902b4eec3 ]
+[ Upstream commit 61bf318eac2c13356f7bd1c6a05421ef504ccc8a ]
 
-With the existing rsrc_alloc's format, there is misalignment for the
-pcifunc entries whose VF's index is a double digit. This patch fixes
-this.
+In https://bugs.gentoo.org/769614 Dmitry noticed that
+`ptrace(PTRACE_GET_SYSCALL_INFO)` does not return error sign properly.
 
-    pcifunc     NPA         NIX0        NIX1        SSO GROUP   SSOWS
-    TIM         CPT0        CPT1        REE0        REE1
-    PF0:VF0     8           5
-    PF0:VF1     9                       3
-    PF0:VF10    18          10
-    PF0:VF11    19                      8
-    PF0:VF12    20          11
-    PF0:VF13    21                      9
-    PF0:VF14    22          12
-    PF0:VF15    23                      10
-    PF1         0           0
+The bug is in mismatch between get/set errors:
 
-Fixes: 23205e6d06d4 ("octeontx2-af: Dump current resource provisioning status")
-Signed-off-by: Rakesh Babu <rsaladi2@marvell.com>
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+static inline long syscall_get_error(struct task_struct *task,
+                                     struct pt_regs *regs)
+{
+        return regs->r10 == -1 ? regs->r8:0;
+}
+
+static inline long syscall_get_return_value(struct task_struct *task,
+                                            struct pt_regs *regs)
+{
+        return regs->r8;
+}
+
+static inline void syscall_set_return_value(struct task_struct *task,
+                                            struct pt_regs *regs,
+                                            int error, long val)
+{
+        if (error) {
+                /* error < 0, but ia64 uses > 0 return value */
+                regs->r8 = -error;
+                regs->r10 = -1;
+        } else {
+                regs->r8 = val;
+                regs->r10 = 0;
+        }
+}
+
+Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
+
+Link: https://lkml.kernel.org/r/20210221002554.333076-2-slyfox@gentoo.org
+Link: https://bugs.gentoo.org/769614
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Reported-by: Dmitry V. Levin <ldv@altlinux.org>
+Reviewed-by: Dmitry V. Levin <ldv@altlinux.org>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../marvell/octeontx2/af/rvu_debugfs.c        | 46 ++++++++++++-------
- 1 file changed, 29 insertions(+), 17 deletions(-)
+ arch/ia64/include/asm/syscall.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
-index 809f50ab0432..c018121d4cc5 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
-@@ -144,12 +144,14 @@ static ssize_t rvu_dbg_rsrc_attach_status(struct file *filp,
- 					  char __user *buffer,
- 					  size_t count, loff_t *ppos)
+diff --git a/arch/ia64/include/asm/syscall.h b/arch/ia64/include/asm/syscall.h
+index 1d0b875fec44..ec909eec0b4c 100644
+--- a/arch/ia64/include/asm/syscall.h
++++ b/arch/ia64/include/asm/syscall.h
+@@ -35,7 +35,7 @@ static inline void syscall_rollback(struct task_struct *task,
+ static inline long syscall_get_error(struct task_struct *task,
+ 				     struct pt_regs *regs)
  {
--	int index, off = 0, flag = 0, go_back = 0, off_prev;
-+	int index, off = 0, flag = 0, go_back = 0, len = 0;
- 	struct rvu *rvu = filp->private_data;
- 	int lf, pf, vf, pcifunc;
- 	struct rvu_block block;
- 	int bytes_not_copied;
-+	int lf_str_size = 12;
- 	int buf_size = 2048;
-+	char *lfs;
- 	char *buf;
+-	return regs->r10 == -1 ? regs->r8:0;
++	return regs->r10 == -1 ? -regs->r8:0;
+ }
  
- 	/* don't allow partial reads */
-@@ -159,12 +161,18 @@ static ssize_t rvu_dbg_rsrc_attach_status(struct file *filp,
- 	buf = kzalloc(buf_size, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOSPC;
--	off +=	scnprintf(&buf[off], buf_size - 1 - off, "\npcifunc\t\t");
-+
-+	lfs = kzalloc(lf_str_size, GFP_KERNEL);
-+	if (!lfs)
-+		return -ENOMEM;
-+	off +=	scnprintf(&buf[off], buf_size - 1 - off, "%-*s", lf_str_size,
-+			  "pcifunc");
- 	for (index = 0; index < BLK_COUNT; index++)
--		if (strlen(rvu->hw->block[index].name))
--			off +=	scnprintf(&buf[off], buf_size - 1 - off,
--					  "%*s\t", (index - 1) * 2,
--					  rvu->hw->block[index].name);
-+		if (strlen(rvu->hw->block[index].name)) {
-+			off += scnprintf(&buf[off], buf_size - 1 - off,
-+					 "%-*s", lf_str_size,
-+					 rvu->hw->block[index].name);
-+		}
- 	off += scnprintf(&buf[off], buf_size - 1 - off, "\n");
- 	for (pf = 0; pf < rvu->hw->total_pfs; pf++) {
- 		for (vf = 0; vf <= rvu->hw->total_vfs; vf++) {
-@@ -173,14 +181,15 @@ static ssize_t rvu_dbg_rsrc_attach_status(struct file *filp,
- 				continue;
- 
- 			if (vf) {
-+				sprintf(lfs, "PF%d:VF%d", pf, vf - 1);
- 				go_back = scnprintf(&buf[off],
- 						    buf_size - 1 - off,
--						    "PF%d:VF%d\t\t", pf,
--						    vf - 1);
-+						    "%-*s", lf_str_size, lfs);
- 			} else {
-+				sprintf(lfs, "PF%d", pf);
- 				go_back = scnprintf(&buf[off],
- 						    buf_size - 1 - off,
--						    "PF%d\t\t", pf);
-+						    "%-*s", lf_str_size, lfs);
- 			}
- 
- 			off += go_back;
-@@ -188,20 +197,22 @@ static ssize_t rvu_dbg_rsrc_attach_status(struct file *filp,
- 				block = rvu->hw->block[index];
- 				if (!strlen(block.name))
- 					continue;
--				off_prev = off;
-+				len = 0;
-+				lfs[len] = '\0';
- 				for (lf = 0; lf < block.lf.max; lf++) {
- 					if (block.fn_map[lf] != pcifunc)
- 						continue;
- 					flag = 1;
--					off += scnprintf(&buf[off], buf_size - 1
--							- off, "%3d,", lf);
-+					len += sprintf(&lfs[len], "%d,", lf);
- 				}
--				if (flag && off_prev != off)
--					off--;
--				else
--					go_back++;
-+
-+				if (flag)
-+					len--;
-+				lfs[len] = '\0';
- 				off += scnprintf(&buf[off], buf_size - 1 - off,
--						"\t");
-+						 "%-*s", lf_str_size, lfs);
-+				if (!strlen(lfs))
-+					go_back += lf_str_size;
- 			}
- 			if (!flag)
- 				off -= go_back;
-@@ -213,6 +224,7 @@ static ssize_t rvu_dbg_rsrc_attach_status(struct file *filp,
- 	}
- 
- 	bytes_not_copied = copy_to_user(buffer, buf, off);
-+	kfree(lfs);
- 	kfree(buf);
- 
- 	if (bytes_not_copied)
+ static inline long syscall_get_return_value(struct task_struct *task,
 -- 
 2.30.1
 
