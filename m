@@ -2,578 +2,1028 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 484AF34C4B3
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 09:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D395234C4F4
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 09:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbhC2HQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 03:16:20 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:39819 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230347AbhC2HQA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 03:16:00 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 443DE1940B5D;
-        Mon, 29 Mar 2021 03:16:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 29 Mar 2021 03:16:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2dIMS5
-        KWVyiNqMdKmDd4SncnnQeVqZmYehSDGAaL9II=; b=TuQg8Ec6ygUXstD9O9+4e4
-        ODQY2EohUMHF7qMWLKwH3Jcm5tzWZEK6Df0/4UealSN748nAYrCuLt3Q4TX1KcIJ
-        VErdlMZoeJXyP5WQW1oPGR/uQCdbxgb2VdsVjfbZBUd0bd5d3GIK2OcMOl998Q4k
-        NmmpRDgnVhY8gyEKqBEib8l9D7fZy8LU7zbrhtZS+736zkOlSO7T5TXptG60yZUh
-        OVFWEh4SOLLBzRK6NSmhoLOEvssTAs2W696cJg82R08iscYTri4FVndpcx6mD8J/
-        ShcbGLtduSrsuEI/9a3BCrwodZ8liG789kVZuOip2RVKFUT7mRPP4X8w2yVsADYA
-        ==
-X-ME-Sender: <xms:sH5hYKD9O0710ml6dfVpFMFfJa9skSg-SICqBU7kV_oBWdidqFF--g>
-    <xme:sH5hYEjZ3gwl0aWXXrN0Yc9H-MhWPSuFzLoScpiQmCHVXSzpYPXN9VxNSCv3pqeSi
-    tRQOpd3PAXw7g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudehjedguddujecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:sH5hYNmL2Wd_2RPBCxVIzCd5U4I1KwMcHZcw59xYw3R0yW07U2LK4Q>
-    <xmx:sH5hYIztNApVl3ZOOtcDzFhVKQQNOYvo2GjJ65249UmPAMVLfLw5Ng>
-    <xmx:sH5hYPSwSIfOLMcKwbeWNsU5rAU9vUgZVSb_vGMi2M0eOF_QC3uM1Q>
-    <xmx:sH5hYKdoVXJ8dwtkSSZdoKFtkiIMqN96sIr1HG-U8-op9mLt3p5laQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D4C5C1080057;
-        Mon, 29 Mar 2021 03:15:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bpf: Fix fexit trampoline." failed to apply to 5.4-stable tree
-To:     ast@kernel.org, andrii@kernel.org, daniel@iogearbox.net,
-        paulmck@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Mar 2021 09:15:50 +0200
-Message-ID: <1617002150237196@kroah.com>
+        id S229706AbhC2Hba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 03:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37380 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230252AbhC2HbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 03:31:20 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37591C061574
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 00:31:19 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id m11so9293572pfc.11
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 00:31:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vhc0Pg4OVFguSMlGCE3iAoSnFG+4bKdAXrssqT4qrqU=;
+        b=paqkm9yzsTisIuR9APPWO6Rk4AWSa/A7qpMCPrnwfQGeVjeyWBReeyOaKTSt7bWfam
+         LBsDqiI0+Sz4Ma/oRt4I7BmY1EqZxeHLJOkiz17iH9+fZluXArWK0yiYBqpOeE/O9gne
+         GWlgHF6NdCZo+gxIkLGH/TwVt0SGM68ZSLysl3wGggvOw9M4zow+PgD04oVvdGIsWeAo
+         SlKa+IAWNT53mMyRxMg6zDeiqmLgDXGg84v9jnWmbG31Yq/kXJr8g0jU/s1ChmxDP2Xo
+         RBNaRXBhFLqMzL84Mxf8zDSn07qoj075Xm9ehccxMFz0r7+wQdouekDo/3wHCs4h7+FI
+         BkpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vhc0Pg4OVFguSMlGCE3iAoSnFG+4bKdAXrssqT4qrqU=;
+        b=c2OCbEkrgH4RyFsk2bHI6QM2Oggxn5Dl5zdSv5HNRkr4scs0q2jRfW+b4FzBjpT6BE
+         SNQAyHBLOwtEOzrJqSZzRtS2yYTqnteTePQYFc1l7s/2Az4W0CoToC2LDvfs7cGifhKY
+         ci89/uAFHsCjIQtKodgoABU+DEAxiWVwujYgLVdRo5IcA40+64zoAF/Xr25PMAlukGlR
+         PVDKK58cLlvGOBttqd/Rz0hhPyYwy4sWGaQtPhNXksFNvj6pcQ2LNhl+2gJCJHRlXBnS
+         +b4GkUjZ9RcA0AL+NM78heQ/7svbeFqfr/3oFZOeUYfyx0b5aw7H33Jif5lQyoWYceB5
+         bsNw==
+X-Gm-Message-State: AOAM533Kedx5ba1nMWStS9055JI0AIDK95uxx1ML2miUH5rkSNke9cfZ
+        wyeTJnre8muB7ByAoD/yGkIn242bMrgm5g==
+X-Google-Smtp-Source: ABdhPJy+k1ekH9/62iG0RtlJw7asnOXMrl+CnQ87LMexp31VuRRY6uaBqSpdJr+6LYfTebwy6BjFTQ==
+X-Received: by 2002:a62:92cc:0:b029:1fa:515d:808f with SMTP id o195-20020a6292cc0000b02901fa515d808fmr23668214pfd.43.1617003077865;
+        Mon, 29 Mar 2021 00:31:17 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i14sm7176085pgl.79.2021.03.29.00.31.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Mar 2021 00:31:17 -0700 (PDT)
+Message-ID: <60618245.1c69fb81.8925b.276f@mx.google.com>
+Date:   Mon, 29 Mar 2021 00:31:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.4.263-31-gf077f3da076e
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 build: 173 builds: 0 failed, 173 passed,
+ 10 warnings (v4.4.263-31-gf077f3da076e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.4 build: 173 builds: 0 failed, 173 passed, 10 warnings (v=
+4.4.263-31-gf077f3da076e)
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.4=
+/kernel/v4.4.263-31-gf077f3da076e/
 
-thanks,
+Tree: stable-rc
+Branch: queue/4.4
+Git Describe: v4.4.263-31-gf077f3da076e
+Git Commit: f077f3da076e5a4370c502a4f5ad65848c016a50
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
 
-greg k-h
+Warnings Detected:
 
------------------- original commit in Linus's tree ------------------
+arc:
+    tinyconfig (gcc-8): 4 warnings
 
-From e21aa341785c679dd409c8cb71f864c00fe6c463 Mon Sep 17 00:00:00 2001
-From: Alexei Starovoitov <ast@kernel.org>
-Date: Tue, 16 Mar 2021 14:00:07 -0700
-Subject: [PATCH] bpf: Fix fexit trampoline.
+arm64:
 
-The fexit/fmod_ret programs can be attached to kernel functions that can sleep.
-The synchronize_rcu_tasks() will not wait for such tasks to complete.
-In such case the trampoline image will be freed and when the task
-wakes up the return IP will point to freed memory causing the crash.
-Solve this by adding percpu_ref_get/put for the duration of trampoline
-and separate trampoline vs its image life times.
-The "half page" optimization has to be removed, since
-first_half->second_half->first_half transition cannot be guaranteed to
-complete in deterministic time. Every trampoline update becomes a new image.
-The image with fmod_ret or fexit progs will be freed via percpu_ref_kill and
-call_rcu_tasks. Together they will wait for the original function and
-trampoline asm to complete. The trampoline is patched from nop to jmp to skip
-fexit progs. They are freed independently from the trampoline. The image with
-fentry progs only will be freed via call_rcu_tasks_trace+call_rcu_tasks which
-will wait for both sleepable and non-sleepable progs to complete.
+arm:
+    clps711x_defconfig (gcc-8): 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    lpc32xx_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 warning
 
-Fixes: fec56f5890d9 ("bpf: Introduce BPF trampoline")
-Reported-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>  # for RCU
-Link: https://lore.kernel.org/bpf/20210316210007.38949-1-alexei.starovoitov@gmail.com
+i386:
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 747bba0a584a..72b5a57e9e31 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1936,7 +1936,7 @@ static int invoke_bpf_mod_ret(const struct btf_func_model *m, u8 **pprog,
-  * add rsp, 8                      // skip eth_type_trans's frame
-  * ret                             // return to its caller
-  */
--int arch_prepare_bpf_trampoline(void *image, void *image_end,
-+int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *image_end,
- 				const struct btf_func_model *m, u32 flags,
- 				struct bpf_tramp_progs *tprogs,
- 				void *orig_call)
-@@ -1975,6 +1975,15 @@ int arch_prepare_bpf_trampoline(void *image, void *image_end,
- 
- 	save_regs(m, &prog, nr_args, stack_size);
- 
-+	if (flags & BPF_TRAMP_F_CALL_ORIG) {
-+		/* arg1: mov rdi, im */
-+		emit_mov_imm64(&prog, BPF_REG_1, (long) im >> 32, (u32) (long) im);
-+		if (emit_call(&prog, __bpf_tramp_enter, prog)) {
-+			ret = -EINVAL;
-+			goto cleanup;
-+		}
-+	}
-+
- 	if (fentry->nr_progs)
- 		if (invoke_bpf(m, &prog, fentry, stack_size))
- 			return -EINVAL;
-@@ -1993,8 +2002,7 @@ int arch_prepare_bpf_trampoline(void *image, void *image_end,
- 	}
- 
- 	if (flags & BPF_TRAMP_F_CALL_ORIG) {
--		if (fentry->nr_progs || fmod_ret->nr_progs)
--			restore_regs(m, &prog, nr_args, stack_size);
-+		restore_regs(m, &prog, nr_args, stack_size);
- 
- 		/* call original function */
- 		if (emit_call(&prog, orig_call, prog)) {
-@@ -2003,6 +2011,8 @@ int arch_prepare_bpf_trampoline(void *image, void *image_end,
- 		}
- 		/* remember return value in a stack for bpf prog to access */
- 		emit_stx(&prog, BPF_DW, BPF_REG_FP, BPF_REG_0, -8);
-+		im->ip_after_call = prog;
-+		emit_nops(&prog, 5);
- 	}
- 
- 	if (fmod_ret->nr_progs) {
-@@ -2033,9 +2043,17 @@ int arch_prepare_bpf_trampoline(void *image, void *image_end,
- 	 * the return value is only updated on the stack and still needs to be
- 	 * restored to R0.
- 	 */
--	if (flags & BPF_TRAMP_F_CALL_ORIG)
-+	if (flags & BPF_TRAMP_F_CALL_ORIG) {
-+		im->ip_epilogue = prog;
-+		/* arg1: mov rdi, im */
-+		emit_mov_imm64(&prog, BPF_REG_1, (long) im >> 32, (u32) (long) im);
-+		if (emit_call(&prog, __bpf_tramp_exit, prog)) {
-+			ret = -EINVAL;
-+			goto cleanup;
-+		}
- 		/* restore original return value back into RAX */
- 		emit_ldx(&prog, BPF_DW, BPF_REG_0, BPF_REG_FP, -8);
-+	}
- 
- 	EMIT1(0x5B); /* pop rbx */
- 	EMIT1(0xC9); /* leave */
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index d7e0f479a5b0..3625f019767d 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -21,6 +21,7 @@
- #include <linux/capability.h>
- #include <linux/sched/mm.h>
- #include <linux/slab.h>
-+#include <linux/percpu-refcount.h>
- 
- struct bpf_verifier_env;
- struct bpf_verifier_log;
-@@ -556,7 +557,8 @@ struct bpf_tramp_progs {
-  *      fentry = a set of program to run before calling original function
-  *      fexit = a set of program to run after original function
-  */
--int arch_prepare_bpf_trampoline(void *image, void *image_end,
-+struct bpf_tramp_image;
-+int arch_prepare_bpf_trampoline(struct bpf_tramp_image *tr, void *image, void *image_end,
- 				const struct btf_func_model *m, u32 flags,
- 				struct bpf_tramp_progs *tprogs,
- 				void *orig_call);
-@@ -565,6 +567,8 @@ u64 notrace __bpf_prog_enter(struct bpf_prog *prog);
- void notrace __bpf_prog_exit(struct bpf_prog *prog, u64 start);
- u64 notrace __bpf_prog_enter_sleepable(struct bpf_prog *prog);
- void notrace __bpf_prog_exit_sleepable(struct bpf_prog *prog, u64 start);
-+void notrace __bpf_tramp_enter(struct bpf_tramp_image *tr);
-+void notrace __bpf_tramp_exit(struct bpf_tramp_image *tr);
- 
- struct bpf_ksym {
- 	unsigned long		 start;
-@@ -583,6 +587,18 @@ enum bpf_tramp_prog_type {
- 	BPF_TRAMP_REPLACE, /* more than MAX */
- };
- 
-+struct bpf_tramp_image {
-+	void *image;
-+	struct bpf_ksym ksym;
-+	struct percpu_ref pcref;
-+	void *ip_after_call;
-+	void *ip_epilogue;
-+	union {
-+		struct rcu_head rcu;
-+		struct work_struct work;
-+	};
-+};
-+
- struct bpf_trampoline {
- 	/* hlist for trampoline_table */
- 	struct hlist_node hlist;
-@@ -605,9 +621,8 @@ struct bpf_trampoline {
- 	/* Number of attached programs. A counter per kind. */
- 	int progs_cnt[BPF_TRAMP_MAX];
- 	/* Executable image of trampoline */
--	void *image;
-+	struct bpf_tramp_image *cur_image;
- 	u64 selector;
--	struct bpf_ksym ksym;
- };
- 
- struct bpf_attach_target_info {
-@@ -691,6 +706,8 @@ void bpf_image_ksym_add(void *data, struct bpf_ksym *ksym);
- void bpf_image_ksym_del(struct bpf_ksym *ksym);
- void bpf_ksym_add(struct bpf_ksym *ksym);
- void bpf_ksym_del(struct bpf_ksym *ksym);
-+int bpf_jit_charge_modmem(u32 pages);
-+void bpf_jit_uncharge_modmem(u32 pages);
- #else
- static inline int bpf_trampoline_link_prog(struct bpf_prog *prog,
- 					   struct bpf_trampoline *tr)
-@@ -787,7 +804,6 @@ struct bpf_prog_aux {
- 	bool func_proto_unreliable;
- 	bool sleepable;
- 	bool tail_call_reachable;
--	enum bpf_tramp_prog_type trampoline_prog_type;
- 	struct hlist_node tramp_hlist;
- 	/* BTF_KIND_FUNC_PROTO for valid attach_btf_id */
- 	const struct btf_type *attach_func_proto;
-diff --git a/kernel/bpf/bpf_struct_ops.c b/kernel/bpf/bpf_struct_ops.c
-index 1a666a975416..70f6fd4fa305 100644
---- a/kernel/bpf/bpf_struct_ops.c
-+++ b/kernel/bpf/bpf_struct_ops.c
-@@ -430,7 +430,7 @@ static int bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
- 
- 		tprogs[BPF_TRAMP_FENTRY].progs[0] = prog;
- 		tprogs[BPF_TRAMP_FENTRY].nr_progs = 1;
--		err = arch_prepare_bpf_trampoline(image,
-+		err = arch_prepare_bpf_trampoline(NULL, image,
- 						  st_map->image + PAGE_SIZE,
- 						  &st_ops->func_models[i], 0,
- 						  tprogs, NULL);
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 3a283bf97f2f..75244ecb2389 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -827,7 +827,7 @@ static int __init bpf_jit_charge_init(void)
- }
- pure_initcall(bpf_jit_charge_init);
- 
--static int bpf_jit_charge_modmem(u32 pages)
-+int bpf_jit_charge_modmem(u32 pages)
- {
- 	if (atomic_long_add_return(pages, &bpf_jit_current) >
- 	    (bpf_jit_limit >> PAGE_SHIFT)) {
-@@ -840,7 +840,7 @@ static int bpf_jit_charge_modmem(u32 pages)
- 	return 0;
- }
- 
--static void bpf_jit_uncharge_modmem(u32 pages)
-+void bpf_jit_uncharge_modmem(u32 pages)
- {
- 	atomic_long_sub(pages, &bpf_jit_current);
- }
-diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
-index 7bc3b3209224..1f3a4be4b175 100644
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -57,19 +57,10 @@ void bpf_image_ksym_del(struct bpf_ksym *ksym)
- 			   PAGE_SIZE, true, ksym->name);
- }
- 
--static void bpf_trampoline_ksym_add(struct bpf_trampoline *tr)
--{
--	struct bpf_ksym *ksym = &tr->ksym;
--
--	snprintf(ksym->name, KSYM_NAME_LEN, "bpf_trampoline_%llu", tr->key);
--	bpf_image_ksym_add(tr->image, ksym);
--}
--
- static struct bpf_trampoline *bpf_trampoline_lookup(u64 key)
- {
- 	struct bpf_trampoline *tr;
- 	struct hlist_head *head;
--	void *image;
- 	int i;
- 
- 	mutex_lock(&trampoline_mutex);
-@@ -84,14 +75,6 @@ static struct bpf_trampoline *bpf_trampoline_lookup(u64 key)
- 	if (!tr)
- 		goto out;
- 
--	/* is_root was checked earlier. No need for bpf_jit_charge_modmem() */
--	image = bpf_jit_alloc_exec_page();
--	if (!image) {
--		kfree(tr);
--		tr = NULL;
--		goto out;
--	}
--
- 	tr->key = key;
- 	INIT_HLIST_NODE(&tr->hlist);
- 	hlist_add_head(&tr->hlist, head);
-@@ -99,9 +82,6 @@ static struct bpf_trampoline *bpf_trampoline_lookup(u64 key)
- 	mutex_init(&tr->mutex);
- 	for (i = 0; i < BPF_TRAMP_MAX; i++)
- 		INIT_HLIST_HEAD(&tr->progs_hlist[i]);
--	tr->image = image;
--	INIT_LIST_HEAD_RCU(&tr->ksym.lnode);
--	bpf_trampoline_ksym_add(tr);
- out:
- 	mutex_unlock(&trampoline_mutex);
- 	return tr;
-@@ -185,10 +165,142 @@ bpf_trampoline_get_progs(const struct bpf_trampoline *tr, int *total)
- 	return tprogs;
- }
- 
-+static void __bpf_tramp_image_put_deferred(struct work_struct *work)
-+{
-+	struct bpf_tramp_image *im;
-+
-+	im = container_of(work, struct bpf_tramp_image, work);
-+	bpf_image_ksym_del(&im->ksym);
-+	bpf_jit_free_exec(im->image);
-+	bpf_jit_uncharge_modmem(1);
-+	percpu_ref_exit(&im->pcref);
-+	kfree_rcu(im, rcu);
-+}
-+
-+/* callback, fexit step 3 or fentry step 2 */
-+static void __bpf_tramp_image_put_rcu(struct rcu_head *rcu)
-+{
-+	struct bpf_tramp_image *im;
-+
-+	im = container_of(rcu, struct bpf_tramp_image, rcu);
-+	INIT_WORK(&im->work, __bpf_tramp_image_put_deferred);
-+	schedule_work(&im->work);
-+}
-+
-+/* callback, fexit step 2. Called after percpu_ref_kill confirms. */
-+static void __bpf_tramp_image_release(struct percpu_ref *pcref)
-+{
-+	struct bpf_tramp_image *im;
-+
-+	im = container_of(pcref, struct bpf_tramp_image, pcref);
-+	call_rcu_tasks(&im->rcu, __bpf_tramp_image_put_rcu);
-+}
-+
-+/* callback, fexit or fentry step 1 */
-+static void __bpf_tramp_image_put_rcu_tasks(struct rcu_head *rcu)
-+{
-+	struct bpf_tramp_image *im;
-+
-+	im = container_of(rcu, struct bpf_tramp_image, rcu);
-+	if (im->ip_after_call)
-+		/* the case of fmod_ret/fexit trampoline and CONFIG_PREEMPTION=y */
-+		percpu_ref_kill(&im->pcref);
-+	else
-+		/* the case of fentry trampoline */
-+		call_rcu_tasks(&im->rcu, __bpf_tramp_image_put_rcu);
-+}
-+
-+static void bpf_tramp_image_put(struct bpf_tramp_image *im)
-+{
-+	/* The trampoline image that calls original function is using:
-+	 * rcu_read_lock_trace to protect sleepable bpf progs
-+	 * rcu_read_lock to protect normal bpf progs
-+	 * percpu_ref to protect trampoline itself
-+	 * rcu tasks to protect trampoline asm not covered by percpu_ref
-+	 * (which are few asm insns before __bpf_tramp_enter and
-+	 *  after __bpf_tramp_exit)
-+	 *
-+	 * The trampoline is unreachable before bpf_tramp_image_put().
-+	 *
-+	 * First, patch the trampoline to avoid calling into fexit progs.
-+	 * The progs will be freed even if the original function is still
-+	 * executing or sleeping.
-+	 * In case of CONFIG_PREEMPT=y use call_rcu_tasks() to wait on
-+	 * first few asm instructions to execute and call into
-+	 * __bpf_tramp_enter->percpu_ref_get.
-+	 * Then use percpu_ref_kill to wait for the trampoline and the original
-+	 * function to finish.
-+	 * Then use call_rcu_tasks() to make sure few asm insns in
-+	 * the trampoline epilogue are done as well.
-+	 *
-+	 * In !PREEMPT case the task that got interrupted in the first asm
-+	 * insns won't go through an RCU quiescent state which the
-+	 * percpu_ref_kill will be waiting for. Hence the first
-+	 * call_rcu_tasks() is not necessary.
-+	 */
-+	if (im->ip_after_call) {
-+		int err = bpf_arch_text_poke(im->ip_after_call, BPF_MOD_JUMP,
-+					     NULL, im->ip_epilogue);
-+		WARN_ON(err);
-+		if (IS_ENABLED(CONFIG_PREEMPTION))
-+			call_rcu_tasks(&im->rcu, __bpf_tramp_image_put_rcu_tasks);
-+		else
-+			percpu_ref_kill(&im->pcref);
-+		return;
-+	}
-+
-+	/* The trampoline without fexit and fmod_ret progs doesn't call original
-+	 * function and doesn't use percpu_ref.
-+	 * Use call_rcu_tasks_trace() to wait for sleepable progs to finish.
-+	 * Then use call_rcu_tasks() to wait for the rest of trampoline asm
-+	 * and normal progs.
-+	 */
-+	call_rcu_tasks_trace(&im->rcu, __bpf_tramp_image_put_rcu_tasks);
-+}
-+
-+static struct bpf_tramp_image *bpf_tramp_image_alloc(u64 key, u32 idx)
-+{
-+	struct bpf_tramp_image *im;
-+	struct bpf_ksym *ksym;
-+	void *image;
-+	int err = -ENOMEM;
-+
-+	im = kzalloc(sizeof(*im), GFP_KERNEL);
-+	if (!im)
-+		goto out;
-+
-+	err = bpf_jit_charge_modmem(1);
-+	if (err)
-+		goto out_free_im;
-+
-+	err = -ENOMEM;
-+	im->image = image = bpf_jit_alloc_exec_page();
-+	if (!image)
-+		goto out_uncharge;
-+
-+	err = percpu_ref_init(&im->pcref, __bpf_tramp_image_release, 0, GFP_KERNEL);
-+	if (err)
-+		goto out_free_image;
-+
-+	ksym = &im->ksym;
-+	INIT_LIST_HEAD_RCU(&ksym->lnode);
-+	snprintf(ksym->name, KSYM_NAME_LEN, "bpf_trampoline_%llu_%u", key, idx);
-+	bpf_image_ksym_add(image, ksym);
-+	return im;
-+
-+out_free_image:
-+	bpf_jit_free_exec(im->image);
-+out_uncharge:
-+	bpf_jit_uncharge_modmem(1);
-+out_free_im:
-+	kfree(im);
-+out:
-+	return ERR_PTR(err);
-+}
-+
- static int bpf_trampoline_update(struct bpf_trampoline *tr)
- {
--	void *old_image = tr->image + ((tr->selector + 1) & 1) * PAGE_SIZE/2;
--	void *new_image = tr->image + (tr->selector & 1) * PAGE_SIZE/2;
-+	struct bpf_tramp_image *im;
- 	struct bpf_tramp_progs *tprogs;
- 	u32 flags = BPF_TRAMP_F_RESTORE_REGS;
- 	int err, total;
-@@ -198,41 +310,42 @@ static int bpf_trampoline_update(struct bpf_trampoline *tr)
- 		return PTR_ERR(tprogs);
- 
- 	if (total == 0) {
--		err = unregister_fentry(tr, old_image);
-+		err = unregister_fentry(tr, tr->cur_image->image);
-+		bpf_tramp_image_put(tr->cur_image);
-+		tr->cur_image = NULL;
- 		tr->selector = 0;
- 		goto out;
- 	}
- 
-+	im = bpf_tramp_image_alloc(tr->key, tr->selector);
-+	if (IS_ERR(im)) {
-+		err = PTR_ERR(im);
-+		goto out;
-+	}
-+
- 	if (tprogs[BPF_TRAMP_FEXIT].nr_progs ||
- 	    tprogs[BPF_TRAMP_MODIFY_RETURN].nr_progs)
- 		flags = BPF_TRAMP_F_CALL_ORIG | BPF_TRAMP_F_SKIP_FRAME;
- 
--	/* Though the second half of trampoline page is unused a task could be
--	 * preempted in the middle of the first half of trampoline and two
--	 * updates to trampoline would change the code from underneath the
--	 * preempted task. Hence wait for tasks to voluntarily schedule or go
--	 * to userspace.
--	 * The same trampoline can hold both sleepable and non-sleepable progs.
--	 * synchronize_rcu_tasks_trace() is needed to make sure all sleepable
--	 * programs finish executing.
--	 * Wait for these two grace periods together.
--	 */
--	synchronize_rcu_mult(call_rcu_tasks, call_rcu_tasks_trace);
--
--	err = arch_prepare_bpf_trampoline(new_image, new_image + PAGE_SIZE / 2,
-+	err = arch_prepare_bpf_trampoline(im, im->image, im->image + PAGE_SIZE,
- 					  &tr->func.model, flags, tprogs,
- 					  tr->func.addr);
- 	if (err < 0)
- 		goto out;
- 
--	if (tr->selector)
-+	WARN_ON(tr->cur_image && tr->selector == 0);
-+	WARN_ON(!tr->cur_image && tr->selector);
-+	if (tr->cur_image)
- 		/* progs already running at this address */
--		err = modify_fentry(tr, old_image, new_image);
-+		err = modify_fentry(tr, tr->cur_image->image, im->image);
- 	else
- 		/* first time registering */
--		err = register_fentry(tr, new_image);
-+		err = register_fentry(tr, im->image);
- 	if (err)
- 		goto out;
-+	if (tr->cur_image)
-+		bpf_tramp_image_put(tr->cur_image);
-+	tr->cur_image = im;
- 	tr->selector++;
- out:
- 	kfree(tprogs);
-@@ -364,17 +477,12 @@ void bpf_trampoline_put(struct bpf_trampoline *tr)
- 		goto out;
- 	if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[BPF_TRAMP_FEXIT])))
- 		goto out;
--	bpf_image_ksym_del(&tr->ksym);
--	/* This code will be executed when all bpf progs (both sleepable and
--	 * non-sleepable) went through
--	 * bpf_prog_put()->call_rcu[_tasks_trace]()->bpf_prog_free_deferred().
--	 * Hence no need for another synchronize_rcu_tasks_trace() here,
--	 * but synchronize_rcu_tasks() is still needed, since trampoline
--	 * may not have had any sleepable programs and we need to wait
--	 * for tasks to get out of trampoline code before freeing it.
-+	/* This code will be executed even when the last bpf_tramp_image
-+	 * is alive. All progs are detached from the trampoline and the
-+	 * trampoline image is patched with jmp into epilogue to skip
-+	 * fexit progs. The fentry-only trampoline will be freed via
-+	 * multiple rcu callbacks.
- 	 */
--	synchronize_rcu_tasks();
--	bpf_jit_free_exec(tr->image);
- 	hlist_del(&tr->hlist);
- 	kfree(tr);
- out:
-@@ -478,8 +586,18 @@ void notrace __bpf_prog_exit_sleepable(struct bpf_prog *prog, u64 start)
- 	rcu_read_unlock_trace();
- }
- 
-+void notrace __bpf_tramp_enter(struct bpf_tramp_image *tr)
-+{
-+	percpu_ref_get(&tr->pcref);
-+}
-+
-+void notrace __bpf_tramp_exit(struct bpf_tramp_image *tr)
-+{
-+	percpu_ref_put(&tr->pcref);
-+}
-+
- int __weak
--arch_prepare_bpf_trampoline(void *image, void *image_end,
-+arch_prepare_bpf_trampoline(struct bpf_tramp_image *tr, void *image, void *image_end,
- 			    const struct btf_func_model *m, u32 flags,
- 			    struct bpf_tramp_progs *tprogs,
- 			    void *orig_call)
+mips:
+    ip22_defconfig (gcc-8): 1 warning
+    ip28_defconfig (gcc-8): 1 warning
 
+x86_64:
+
+
+Warnings summary:
+
+    4    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
+ependencies (FUTEX)
+    2    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
+ent 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer withou=
+t a cast [-Wint-conversion]
+    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98c=
+onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=
+=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=
+=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
+ =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate =E2=
+=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=98con=
+st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argument 5=
+ of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer without a c=
+ast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argument 5=
+ of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer without a c=
+ast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=98con=
+st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ls1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98const=
+=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+sead3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sead3micro_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
+matches
+
+Warnings:
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
