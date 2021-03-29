@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B0634C78F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC2B434C6CB
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232923AbhC2IQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
+        id S232523AbhC2IKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:10:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232936AbhC2IOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:14:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A058E61481;
-        Mon, 29 Mar 2021 08:14:47 +0000 (UTC)
+        id S232249AbhC2IJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:09:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A74CE6196D;
+        Mon, 29 Mar 2021 08:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005688;
-        bh=sZvI42GUOkQjiXCr3sVO3przbU+jstsNxuX6Dbary1E=;
+        s=korg; t=1617005361;
+        bh=GKCWmwvr6jnDSUWA8Hk3ABJLRYaAYeRTg3Z37R7ggIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pX38Gel2LGbscLf6co7hV9uYUVuL6iwJuYQm/vlR9uIp0ZIEkrHuTna+0z475xB9v
-         0azY2tFBKhkummf35CsBxkR2wQU0BXrgAiTjDgLQJlTiKlfuwzOFiOmnhixDU+748w
-         UrkEAtSTRHNDj+XS0fLSa6VXPoq1NI0ZoTuuvNPI=
+        b=jvefcXtx23+1cf/SBITWgqCB78Z30JtRKsClBXHPfaEG68Do6O1UiIUssQIzol7Ui
+         sv6Je0NCPbQL2lrl/M3zKAbcu+IPt47SixuWsgBcitTcSVhlYDRrKgcs3eP1gsoGfX
+         PrgaWKJFHWLD3coGRd76b2LUSPkPjkTRhyM0Abxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/111] net: cdc-phonet: fix data-interface release on probe failure
+Subject: [PATCH 4.19 54/72] RDMA/cxgb4: Fix adapter LE hash errors while destroying ipv6 listening server
 Date:   Mon, 29 Mar 2021 09:58:30 +0200
-Message-Id: <20210329075617.941682764@linuxfoundation.org>
+Message-Id: <20210329075612.058912618@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit c79a707072fe3fea0e3c92edee6ca85c1e53c29f ]
+[ Upstream commit 3408be145a5d6418ff955fe5badde652be90e700 ]
 
-Set the disconnected flag before releasing the data interface in case
-netdev registration fails to avoid having the disconnect callback try to
-deregister the never registered netdev (and trigger a WARN_ON()).
+Not setting the ipv6 bit while destroying ipv6 listening servers may
+result in potential fatal adapter errors due to lookup engine memory hash
+errors. Therefore always set ipv6 field while destroying ipv6 listening
+servers.
 
-Fixes: 87cf65601e17 ("USB host CDC Phonet network interface driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 830662f6f032 ("RDMA/cxgb4: Add support for active and passive open connection with IPv6 address")
+Link: https://lore.kernel.org/r/20210324190453.8171-1-bharat@chelsio.com
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc-phonet.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/cxgb4/cm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/cdc-phonet.c b/drivers/net/usb/cdc-phonet.c
-index bcabd39d136a..f778172356e6 100644
---- a/drivers/net/usb/cdc-phonet.c
-+++ b/drivers/net/usb/cdc-phonet.c
-@@ -387,6 +387,8 @@ static int usbpn_probe(struct usb_interface *intf, const struct usb_device_id *i
- 
- 	err = register_netdev(dev);
- 	if (err) {
-+		/* Set disconnected flag so that disconnect() returns early. */
-+		pnd->disconnected = 1;
- 		usb_driver_release_interface(&usbpn_driver, data_intf);
- 		goto out;
- 	}
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index 3fd3dfa3478b..b728a1bf916f 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -3517,13 +3517,13 @@ int c4iw_destroy_listen(struct iw_cm_id *cm_id)
+ 	    ep->com.local_addr.ss_family == AF_INET) {
+ 		err = cxgb4_remove_server_filter(
+ 			ep->com.dev->rdev.lldi.ports[0], ep->stid,
+-			ep->com.dev->rdev.lldi.rxq_ids[0], 0);
++			ep->com.dev->rdev.lldi.rxq_ids[0], false);
+ 	} else {
+ 		struct sockaddr_in6 *sin6;
+ 		c4iw_init_wr_wait(ep->com.wr_waitp);
+ 		err = cxgb4_remove_server(
+ 				ep->com.dev->rdev.lldi.ports[0], ep->stid,
+-				ep->com.dev->rdev.lldi.rxq_ids[0], 0);
++				ep->com.dev->rdev.lldi.rxq_ids[0], true);
+ 		if (err)
+ 			goto done;
+ 		err = c4iw_wait_for_reply(&ep->com.dev->rdev, ep->com.wr_waitp,
 -- 
 2.30.1
 
