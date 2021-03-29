@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0443E34C9DD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC2A234C9DC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbhC2IeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53644 "EHLO mail.kernel.org"
+        id S233381AbhC2IeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234530AbhC2IdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234528AbhC2IdR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 04:33:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83A7C6193B;
-        Mon, 29 Mar 2021 08:32:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C165961601;
+        Mon, 29 Mar 2021 08:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006723;
-        bh=yZvJKm230+BL4APwjObdqJRSSQWVaCMgEdxQP7/FmZI=;
+        s=korg; t=1617006725;
+        bh=/2fTOAQOoXW4vjMQADVMxZOcP011X+DBEPZprpL4H5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLHJPkkT90qc64LrGM4fNHPwqO+CjskAYinXjeBXDYizWl83eZjUb9Lzg+MHYBZgT
-         XzlqBRVdKP4bQkZ0nC/koIdOjPtFpRbWCYzqpzUwpPcVrPC4M3DYYZXbQR6nkO7yg2
-         S4cQPgJ3PtkbthOY2yLnW5HQiDnhN/izxWu7PBcw=
+        b=1WQjfWdCLL0NyD4xTee/xhqeqECPm9vj1576g4CqGQ+QmF+yTrf3MA4Q4dxXMrFyr
+         UKEeb119gcNTBMyDFBxJ9Zv45xr6yJAuJHC0Sp/cE3UKY+2bAEsz3wi7ZOPPHa/QbU
+         0fvH3J2+BT3wCNKldKDZTPrtZoVckSZQfwxi+3iI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
         Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.11 067/254] btrfs: do not initialize dev stats if we have no dev_root
-Date:   Mon, 29 Mar 2021 09:56:23 +0200
-Message-Id: <20210329075635.357251509@linuxfoundation.org>
+Subject: [PATCH 5.11 068/254] btrfs: do not initialize dev replace for bad dev root
+Date:   Mon, 29 Mar 2021 09:56:24 +0200
+Message-Id: <20210329075635.388141565@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
 References: <20210329075633.135869143@linuxfoundation.org>
@@ -42,69 +42,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-commit 82d62d06db404d03836cdabbca41d38646d97cbb upstream.
+commit 3cb894972f1809aa8d087c42e5e8b26c64b7d508 upstream.
 
-Neal reported a panic trying to use -o rescue=all
+While helping Neal fix his broken file system I added a debug patch to
+catch if we were calling btrfs_search_slot with a NULL root, and this
+stack trace popped:
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000030
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  CPU: 0 PID: 4095 Comm: mount Not tainted 5.11.0-0.rc7.149.fc34.x86_64 #1
-  RIP: 0010:btrfs_device_init_dev_stats+0x4c/0x1f0
-  RSP: 0018:ffffa60285fbfb68 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff88b88f806498 RCX: ffff88b82e7a2a10
-  RDX: ffffa60285fbfb97 RSI: ffff88b82e7a2a10 RDI: 0000000000000000
-  RBP: ffff88b88f806b3c R08: 0000000000000000 R09: 0000000000000000
-  R10: ffff88b82e7a2a10 R11: 0000000000000000 R12: ffff88b88f806a00
-  R13: ffff88b88f806478 R14: ffff88b88f806a00 R15: ffff88b82e7a2a10
-  FS:  00007f698be1ec40(0000) GS:ffff88b937e00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000030 CR3: 0000000092c9c006 CR4: 00000000003706f0
+  we tried to search with a NULL root
+  CPU: 0 PID: 1760 Comm: mount Not tainted 5.11.0-155.nealbtrfstest.1.fc34.x86_64 #1
+  Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 07/22/2020
   Call Trace:
-  ? btrfs_init_dev_stats+0x1f/0xf0
-  btrfs_init_dev_stats+0x62/0xf0
-  open_ctree+0x1019/0x15ff
-  btrfs_mount_root.cold+0x13/0xfa
-  legacy_get_tree+0x27/0x40
-  vfs_get_tree+0x25/0xb0
-  vfs_kern_mount.part.0+0x71/0xb0
-  btrfs_mount+0x131/0x3d0
-  ? legacy_get_tree+0x27/0x40
-  ? btrfs_show_options+0x640/0x640
-  legacy_get_tree+0x27/0x40
-  vfs_get_tree+0x25/0xb0
-  path_mount+0x441/0xa80
-  __x64_sys_mount+0xf4/0x130
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f698c04e52e
+   dump_stack+0x6b/0x83
+   btrfs_search_slot.cold+0x11/0x1b
+   ? btrfs_init_dev_replace+0x36/0x450
+   btrfs_init_dev_replace+0x71/0x450
+   open_ctree+0x1054/0x1610
+   btrfs_mount_root.cold+0x13/0xfa
+   legacy_get_tree+0x27/0x40
+   vfs_get_tree+0x25/0xb0
+   vfs_kern_mount.part.0+0x71/0xb0
+   btrfs_mount+0x131/0x3d0
+   ? legacy_get_tree+0x27/0x40
+   ? btrfs_show_options+0x640/0x640
+   legacy_get_tree+0x27/0x40
+   vfs_get_tree+0x25/0xb0
+   path_mount+0x441/0xa80
+   __x64_sys_mount+0xf4/0x130
+   do_syscall_64+0x33/0x40
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f644730352e
 
-This happens because we unconditionally attempt to initialize device
-stats on mount, but we may not have been able to read the device root.
-Fix this by skipping initializing the device stats if we do not have a
-device root.
+Fix this by not starting the device replace stuff if we do not have a
+NULL dev root.
 
 Reported-by: Neal Gompa <ngompa13@gmail.com>
 CC: stable@vger.kernel.org # 5.11+
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |    3 +++
+ fs/btrfs/dev-replace.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -7282,6 +7282,9 @@ static int btrfs_device_init_dev_stats(s
- 	int item_size;
- 	int i, ret, slot;
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -80,6 +80,9 @@ int btrfs_init_dev_replace(struct btrfs_
+ 	struct btrfs_dev_replace_item *ptr;
+ 	u64 src_devid;
  
-+	if (!device->fs_info->dev_root)
++	if (!dev_root)
 +		return 0;
 +
- 	key.objectid = BTRFS_DEV_STATS_OBJECTID;
- 	key.type = BTRFS_PERSISTENT_ITEM_KEY;
- 	key.offset = device->devid;
+ 	path = btrfs_alloc_path();
+ 	if (!path) {
+ 		ret = -ENOMEM;
 
 
