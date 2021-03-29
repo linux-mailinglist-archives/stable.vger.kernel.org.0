@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 404C734D577
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A725C34D57D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231342AbhC2QvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231352AbhC2QvN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Mar 2021 12:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44764 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231138AbhC2Qup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:50:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48A1361920;
-        Mon, 29 Mar 2021 16:50:45 +0000 (UTC)
+        id S231145AbhC2Qur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:50:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AD3761927;
+        Mon, 29 Mar 2021 16:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617036645;
-        bh=fyXB/Yz7d6PNhGiMjR845I2a33jDFPEXWYQwlqaftfw=;
+        s=k20201202; t=1617036647;
+        bh=tvrw0mLIJfrnVsMxG1+3K9LBFSDK92FH5/A4EQz4b64=;
         h=From:To:Cc:Subject:Date:From;
-        b=cxw9dDynbUD1jHYGqGLDqck+9xgAlVieGZvgY6EzcyYROwV6PjTchvLzdCjz4qxmW
-         cMZRSE6BN8pAR/N5DA0kRzedds4XjsWbrOd4q7BvCnwCU6l8aicb6MjW2wty/OLlyC
-         7/L3ssQe1BYx0RQ9WEARd8ks0DkWdRyt6B8ZykuEHFbiy3g69HAviN4OyxgO8Bs8Sz
-         wpkoca/FohgNPsxEnmjgQ8XBgSFHyME266wsw8G9pikZ40IhU0aqavGupYopqhOrfg
-         NJdYwj/JuZSHYWbAd2H8GWGsCr2krCktbXBKeoCdkEgsPfQlEvyqMVmZlmLl1ejDFh
-         R+I2lMReguJIg==
+        b=ljyiLPxBni2Mm+ZdVVe8xAcbqES7c0KiycGD4p/7NynjwZvwOdRG5NrxQgv9hHA+G
+         R4446zcfkZH8+YIB70XU+pfZWjXXOceN6BodbQ7ob8t+63gjQEbt6qfbK1pltehI4F
+         3CsuV1aveunVUFIjXIYyKz9r+W9jB0Ng8ZcDy4H9cIGiceSC7V8tgkc/YmdLAbVdB2
+         Jds1g/vmECElZbfV+hE85VJkRu6irVtP/1+Jn5IuLvBPHibKRRSvwJOmtQ2FzCAkda
+         hxrgqJjCLHhMZLcEILhWP108nWbno+3/w8lvZpTkt2Vlkjyiv6hfszDdWdRh0uwftt
+         oLs+zBfPqLNWw==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, vladimir.oltean@nxp.com
+To:     stable@vger.kernel.org, daniel@iogearbox.net
 Cc:     "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "net: bridge: don't notify switchdev for local FDB addresses" failed to apply to 5.4-stable tree
-Date:   Mon, 29 Mar 2021 12:50:44 -0400
-Message-Id: <20210329165044.2358598-1-sashal@kernel.org>
+Subject: FAILED: Patch "net, bpf: Fix ip6ip6 crash with collect_md populated skbs" failed to apply to 4.19-stable tree
+Date:   Mon, 29 Mar 2021 12:50:46 -0400
+Message-Id: <20210329165046.2358666-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -38,7 +38,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -48,73 +48,88 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6ab4c3117aec4e08007d9e971fa4133e1de1082d Mon Sep 17 00:00:00 2001
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 22 Mar 2021 20:21:08 +0200
-Subject: [PATCH] net: bridge: don't notify switchdev for local FDB addresses
+From a188bb5638d41aa99090ebf2f85d3505ab13fba5 Mon Sep 17 00:00:00 2001
+From: Daniel Borkmann <daniel@iogearbox.net>
+Date: Wed, 10 Mar 2021 01:38:10 +0100
+Subject: [PATCH] net, bpf: Fix ip6ip6 crash with collect_md populated skbs
 
-As explained in this discussion:
-https://lore.kernel.org/netdev/20210117193009.io3nungdwuzmo5f7@skbuf/
+I ran into a crash where setting up a ip6ip6 tunnel device which was /not/
+set to collect_md mode was receiving collect_md populated skbs for xmit.
 
-the switchdev notifiers for FDB entries managed to have a zero-day bug.
-The bridge would not say that this entry is local:
+The BPF prog was populating the skb via bpf_skb_set_tunnel_key() which is
+assigning special metadata dst entry and then redirecting the skb to the
+device, taking ip6_tnl_start_xmit() -> ipxip6_tnl_xmit() -> ip6_tnl_xmit()
+and in the latter it performs a neigh lookup based on skb_dst(skb) where
+we trigger a NULL pointer dereference on dst->ops->neigh_lookup() since
+the md_dst_ops do not populate neigh_lookup callback with a fake handler.
 
-ip link add br0 type bridge
-ip link set swp0 master br0
-bridge fdb add dev swp0 00:01:02:03:04:05 master local
+Transform the md_dst_ops into generic dst_blackhole_ops that can also be
+reused elsewhere when needed, and use them for the metadata dst entries as
+callback ops.
 
-and the switchdev driver would be more than happy to offload it as a
-normal static FDB entry. This is despite the fact that 'local' and
-non-'local' entries have completely opposite directions: a local entry
-is locally terminated and not forwarded, whereas a static entry is
-forwarded and not locally terminated. So, for example, DSA would install
-this entry on swp0 instead of installing it on the CPU port as it should.
+Also, remove the dst_md_discard{,_out}() ops and rely on dst_discard{,_out}()
+from dst_init() which free the skb the same way modulo the splat. Given we
+will be able to recover just fine from there, avoid any potential splats
+iff this gets ever triggered in future (or worse, panic on warns when set).
 
-There is an even sadder part, which is that the 'local' flag is implicit
-if 'static' is not specified, meaning that this command produces the
-same result of adding a 'local' entry:
-
-bridge fdb add dev swp0 00:01:02:03:04:05 master
-
-I've updated the man pages for 'bridge', and after reading it now, it
-should be pretty clear to any user that the commands above were broken
-and should have never resulted in the 00:01:02:03:04:05 address being
-forwarded (this behavior is coherent with non-switchdev interfaces):
-https://patchwork.kernel.org/project/netdevbpf/cover/20210211104502.2081443-1-olteanv@gmail.com/
-If you're a user reading this and this is what you want, just use:
-
-bridge fdb add dev swp0 00:01:02:03:04:05 master static
-
-Because switchdev should have given drivers the means from day one to
-classify FDB entries as local/non-local, but didn't, it means that all
-drivers are currently broken. So we can just as well omit the switchdev
-notifications for local FDB entries, which is exactly what this patch
-does to close the bug in stable trees. For further development work
-where drivers might want to trap the local FDB entries to the host, we
-can add a 'bool is_local' to br_switchdev_fdb_call_notifiers(), and
-selectively make drivers act upon that bit, while all the others ignore
-those entries if the 'is_local' bit is set.
-
-Fixes: 6b26b51b1d13 ("net: bridge: Add support for notifying devices about FDB add/del")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: f38a9eb1f77b ("dst: Metadata destinations")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- net/bridge/br_switchdev.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/dst.c | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index b89503832fcc..1e24d9a2c9a7 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -128,6 +128,8 @@ br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb, int type)
- {
- 	if (!fdb->dst)
- 		return;
-+	if (test_bit(BR_FDB_LOCAL, &fdb->flags))
-+		return;
+diff --git a/net/core/dst.c b/net/core/dst.c
+index 5f6315601776..fb3bcba87744 100644
+--- a/net/core/dst.c
++++ b/net/core/dst.c
+@@ -275,37 +275,24 @@ unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
+ }
+ EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
  
- 	switch (type) {
- 	case RTM_DELNEIGH:
+-static struct dst_ops md_dst_ops = {
+-	.family =		AF_UNSPEC,
++static struct dst_ops dst_blackhole_ops = {
++	.family		= AF_UNSPEC,
++	.neigh_lookup	= dst_blackhole_neigh_lookup,
++	.check		= dst_blackhole_check,
++	.cow_metrics	= dst_blackhole_cow_metrics,
++	.update_pmtu	= dst_blackhole_update_pmtu,
++	.redirect	= dst_blackhole_redirect,
++	.mtu		= dst_blackhole_mtu,
+ };
+ 
+-static int dst_md_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call output on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+-static int dst_md_discard(struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call input on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+ static void __metadata_dst_init(struct metadata_dst *md_dst,
+ 				enum metadata_type type, u8 optslen)
+-
+ {
+ 	struct dst_entry *dst;
+ 
+ 	dst = &md_dst->dst;
+-	dst_init(dst, &md_dst_ops, NULL, 1, DST_OBSOLETE_NONE,
++	dst_init(dst, &dst_blackhole_ops, NULL, 1, DST_OBSOLETE_NONE,
+ 		 DST_METADATA | DST_NOCOUNT);
+-
+-	dst->input = dst_md_discard;
+-	dst->output = dst_md_discard_out;
+-
+ 	memset(dst + 1, 0, sizeof(*md_dst) + optslen - sizeof(*dst));
+ 	md_dst->type = type;
+ }
 -- 
 2.30.1
 
