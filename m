@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D917034CA67
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CD634C8B1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233946AbhC2Iic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54738 "EHLO mail.kernel.org"
+        id S233670AbhC2IXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234118AbhC2Ifz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63AC06193B;
-        Mon, 29 Mar 2021 08:35:35 +0000 (UTC)
+        id S234034AbhC2IWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDC9C61554;
+        Mon, 29 Mar 2021 08:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006936;
-        bh=xyOzNcKNxQ31rKSIVlUGH6cD7Htjr8jGLfbvlaJ96Yc=;
+        s=korg; t=1617006173;
+        bh=EyJ19PmcJrJrQoziqBfQQkVFwOGfqLv3AECK8JWZtMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q66oityJIwTW9Ach6qaCo4kKkJrYOFeBokpJKPPWAmMDT9IuhWpRpIRmhP/XMZjMD
-         v2iXz/iyKPhcuBBCBGzylOf3BR8h9igtj5DFHhgZRp522FUbgjHhE5kvvHV0IgN9mt
-         xF+1Z4ya7nYkQ6Krv6tCebSrmewMJtsTEqlLOLTE=
+        b=zuJNMnk0yanMzH7+O3ChIjAKPQAk0YFA1hq6Y+XwfWEvJ53PIjGNsaMpkjSLb4D4R
+         AiRVl+vrXPWmgJRHPvpsnm88wre9Wr9bAP42IfBknkBY6Dq2cPoeUAAMde0cUs+CZU
+         RRDwfjqlNWfpFj/KWl5613BdwXknbm5M1y9zfObo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Andre Guedes <andre.guedes@intel.com>,
+        Vedang Patel <vedang.patel@intel.com>,
+        Jithu Joseph <jithu.joseph@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 123/254] net: sched: validate stab values
+Subject: [PATCH 5.10 108/221] igc: Fix igc_ptp_rx_pktstamp()
 Date:   Mon, 29 Mar 2021 09:57:19 +0200
-Message-Id: <20210329075637.266118757@linuxfoundation.org>
+Message-Id: <20210329075632.816219711@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,189 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Andre Guedes <andre.guedes@intel.com>
 
-[ Upstream commit e323d865b36134e8c5c82c834df89109a5c60dab ]
+[ Upstream commit fc9e5020971d57d7d0b3fef9e2ab2108fcb5588b ]
 
-iproute2 package is well behaved, but malicious user space can
-provide illegal shift values and trigger UBSAN reports.
+The comment describing the timestamps layout in the packet buffer is
+wrong and the code is actually retrieving the timestamp in Timer 1
+reference instead of Timer 0. This hasn't been a big issue so far
+because hardware is configured to report both timestamps using Timer 0
+(see IGC_SRRCTL register configuration in igc_ptp_enable_rx_timestamp()
+helper). This patch fixes the comment and the code so we retrieve the
+timestamp in Timer 0 reference as expected.
 
-Add stab parameter to red_check_params() to validate user input.
+This patch also takes the opportunity to get rid of the hw.mac.type check
+since it is not required.
 
-syzbot reported:
-
-UBSAN: shift-out-of-bounds in ./include/net/red.h:312:18
-shift exponent 111 is too large for 64-bit type 'long unsigned int'
-CPU: 1 PID: 14662 Comm: syz-executor.3 Not tainted 5.12.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
- red_calc_qavg_from_idle_time include/net/red.h:312 [inline]
- red_calc_qavg include/net/red.h:353 [inline]
- choke_enqueue.cold+0x18/0x3dd net/sched/sch_choke.c:221
- __dev_xmit_skb net/core/dev.c:3837 [inline]
- __dev_queue_xmit+0x1943/0x2e00 net/core/dev.c:4150
- neigh_hh_output include/net/neighbour.h:499 [inline]
- neigh_output include/net/neighbour.h:508 [inline]
- ip6_finish_output2+0x911/0x1700 net/ipv6/ip6_output.c:117
- __ip6_finish_output net/ipv6/ip6_output.c:182 [inline]
- __ip6_finish_output+0x4c1/0xe10 net/ipv6/ip6_output.c:161
- ip6_finish_output+0x35/0x200 net/ipv6/ip6_output.c:192
- NF_HOOK_COND include/linux/netfilter.h:290 [inline]
- ip6_output+0x1e4/0x530 net/ipv6/ip6_output.c:215
- dst_output include/net/dst.h:448 [inline]
- NF_HOOK include/linux/netfilter.h:301 [inline]
- NF_HOOK include/linux/netfilter.h:295 [inline]
- ip6_xmit+0x127e/0x1eb0 net/ipv6/ip6_output.c:320
- inet6_csk_xmit+0x358/0x630 net/ipv6/inet6_connection_sock.c:135
- dccp_transmit_skb+0x973/0x12c0 net/dccp/output.c:138
- dccp_send_reset+0x21b/0x2b0 net/dccp/output.c:535
- dccp_finish_passive_close net/dccp/proto.c:123 [inline]
- dccp_finish_passive_close+0xed/0x140 net/dccp/proto.c:118
- dccp_terminate_connection net/dccp/proto.c:958 [inline]
- dccp_close+0xb3c/0xe60 net/dccp/proto.c:1028
- inet_release+0x12e/0x280 net/ipv4/af_inet.c:431
- inet6_release+0x4c/0x70 net/ipv6/af_inet6.c:478
- __sock_release+0xcd/0x280 net/socket.c:599
- sock_close+0x18/0x20 net/socket.c:1258
- __fput+0x288/0x920 fs/file_table.c:280
- task_work_run+0xdd/0x1a0 kernel/task_work.c:140
- tracehook_notify_resume include/linux/tracehook.h:189 [inline]
-
-Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 81b055205e8ba ("igc: Add support for RX timestamping")
+Signed-off-by: Andre Guedes <andre.guedes@intel.com>
+Signed-off-by: Vedang Patel <vedang.patel@intel.com>
+Signed-off-by: Jithu Joseph <jithu.joseph@intel.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/red.h     | 10 +++++++++-
- net/sched/sch_choke.c |  7 ++++---
- net/sched/sch_gred.c  |  2 +-
- net/sched/sch_red.c   |  7 +++++--
- net/sched/sch_sfq.c   |  2 +-
- 5 files changed, 20 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/igc/igc.h     |  2 +-
+ drivers/net/ethernet/intel/igc/igc_ptp.c | 72 +++++++++++++-----------
+ 2 files changed, 41 insertions(+), 33 deletions(-)
 
-diff --git a/include/net/red.h b/include/net/red.h
-index 932f0d79d60c..9e6647c4ccd1 100644
---- a/include/net/red.h
-+++ b/include/net/red.h
-@@ -168,7 +168,8 @@ static inline void red_set_vars(struct red_vars *v)
- 	v->qcount	= -1;
+diff --git a/drivers/net/ethernet/intel/igc/igc.h b/drivers/net/ethernet/intel/igc/igc.h
+index 35baae900c1f..6dca67d9c25d 100644
+--- a/drivers/net/ethernet/intel/igc/igc.h
++++ b/drivers/net/ethernet/intel/igc/igc.h
+@@ -545,7 +545,7 @@ void igc_ptp_init(struct igc_adapter *adapter);
+ void igc_ptp_reset(struct igc_adapter *adapter);
+ void igc_ptp_suspend(struct igc_adapter *adapter);
+ void igc_ptp_stop(struct igc_adapter *adapter);
+-void igc_ptp_rx_pktstamp(struct igc_q_vector *q_vector, void *va,
++void igc_ptp_rx_pktstamp(struct igc_q_vector *q_vector, __le32 *va,
+ 			 struct sk_buff *skb);
+ int igc_ptp_set_ts_config(struct net_device *netdev, struct ifreq *ifr);
+ int igc_ptp_get_ts_config(struct net_device *netdev, struct ifreq *ifr);
+diff --git a/drivers/net/ethernet/intel/igc/igc_ptp.c b/drivers/net/ethernet/intel/igc/igc_ptp.c
+index ac0b9c85da7c..545f4d0e67cf 100644
+--- a/drivers/net/ethernet/intel/igc/igc_ptp.c
++++ b/drivers/net/ethernet/intel/igc/igc_ptp.c
+@@ -152,46 +152,54 @@ static void igc_ptp_systim_to_hwtstamp(struct igc_adapter *adapter,
  }
  
--static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
-+static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog,
-+				    u8 Scell_log, u8 *stab)
+ /**
+- * igc_ptp_rx_pktstamp - retrieve Rx per packet timestamp
++ * igc_ptp_rx_pktstamp - Retrieve timestamp from Rx packet buffer
+  * @q_vector: Pointer to interrupt specific structure
+  * @va: Pointer to address containing Rx buffer
+  * @skb: Buffer containing timestamp and packet
+  *
+- * This function is meant to retrieve the first timestamp from the
+- * first buffer of an incoming frame. The value is stored in little
+- * endian format starting on byte 0. There's a second timestamp
+- * starting on byte 8.
+- **/
+-void igc_ptp_rx_pktstamp(struct igc_q_vector *q_vector, void *va,
++ * This function retrieves the timestamp saved in the beginning of packet
++ * buffer. While two timestamps are available, one in timer0 reference and the
++ * other in timer1 reference, this function considers only the timestamp in
++ * timer0 reference.
++ */
++void igc_ptp_rx_pktstamp(struct igc_q_vector *q_vector, __le32 *va,
+ 			 struct sk_buff *skb)
  {
- 	if (fls(qth_min) + Wlog > 32)
- 		return false;
-@@ -178,6 +179,13 @@ static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_
- 		return false;
- 	if (qth_max < qth_min)
- 		return false;
-+	if (stab) {
-+		int i;
-+
-+		for (i = 0; i < RED_STAB_SIZE; i++)
-+			if (stab[i] >= 32)
-+				return false;
-+	}
- 	return true;
- }
- 
-diff --git a/net/sched/sch_choke.c b/net/sched/sch_choke.c
-index 50f680f03a54..2adbd945bf15 100644
---- a/net/sched/sch_choke.c
-+++ b/net/sched/sch_choke.c
-@@ -345,6 +345,7 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
- 	struct sk_buff **old = NULL;
- 	unsigned int mask;
- 	u32 max_P;
-+	u8 *stab;
- 
- 	if (opt == NULL)
- 		return -EINVAL;
-@@ -361,8 +362,8 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
- 	max_P = tb[TCA_CHOKE_MAX_P] ? nla_get_u32(tb[TCA_CHOKE_MAX_P]) : 0;
- 
- 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+ 	struct igc_adapter *adapter = q_vector->adapter;
+-	__le64 *regval = (__le64 *)va;
+-	int adjust = 0;
 -
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
-+	stab = nla_data(tb[TCA_CHOKE_STAB]);
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
- 		return -EINVAL;
- 
- 	if (ctl->limit > CHOKE_MAX_QUEUE)
-@@ -412,7 +413,7 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
- 
- 	red_set_parms(&q->parms, ctl->qth_min, ctl->qth_max, ctl->Wlog,
- 		      ctl->Plog, ctl->Scell_log,
--		      nla_data(tb[TCA_CHOKE_STAB]),
-+		      stab,
- 		      max_P);
- 	red_set_vars(&q->vars);
- 
-diff --git a/net/sched/sch_gred.c b/net/sched/sch_gred.c
-index e0bc77533acc..f4132dc25ac0 100644
---- a/net/sched/sch_gred.c
-+++ b/net/sched/sch_gred.c
-@@ -480,7 +480,7 @@ static inline int gred_change_vq(struct Qdisc *sch, int dp,
- 	struct gred_sched *table = qdisc_priv(sch);
- 	struct gred_sched_data *q = table->tab[dp];
- 
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log)) {
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab)) {
- 		NL_SET_ERR_MSG_MOD(extack, "invalid RED parameters");
- 		return -EINVAL;
+-	/* The timestamp is recorded in little endian format.
+-	 * DWORD: | 0          | 1           | 2          | 3
+-	 * Field: | Timer0 Low | Timer0 High | Timer1 Low | Timer1 High
++	u64 regval;
++	int adjust;
++
++	/* Timestamps are saved in little endian at the beginning of the packet
++	 * buffer following the layout:
++	 *
++	 * DWORD: | 0              | 1              | 2              | 3              |
++	 * Field: | Timer1 SYSTIML | Timer1 SYSTIMH | Timer0 SYSTIML | Timer0 SYSTIMH |
++	 *
++	 * SYSTIML holds the nanoseconds part while SYSTIMH holds the seconds
++	 * part of the timestamp.
+ 	 */
+-	igc_ptp_systim_to_hwtstamp(adapter, skb_hwtstamps(skb),
+-				   le64_to_cpu(regval[0]));
+-
+-	/* adjust timestamp for the RX latency based on link speed */
+-	if (adapter->hw.mac.type == igc_i225) {
+-		switch (adapter->link_speed) {
+-		case SPEED_10:
+-			adjust = IGC_I225_RX_LATENCY_10;
+-			break;
+-		case SPEED_100:
+-			adjust = IGC_I225_RX_LATENCY_100;
+-			break;
+-		case SPEED_1000:
+-			adjust = IGC_I225_RX_LATENCY_1000;
+-			break;
+-		case SPEED_2500:
+-			adjust = IGC_I225_RX_LATENCY_2500;
+-			break;
+-		}
++	regval = le32_to_cpu(va[2]);
++	regval |= (u64)le32_to_cpu(va[3]) << 32;
++	igc_ptp_systim_to_hwtstamp(adapter, skb_hwtstamps(skb), regval);
++
++	/* Adjust timestamp for the RX latency based on link speed */
++	switch (adapter->link_speed) {
++	case SPEED_10:
++		adjust = IGC_I225_RX_LATENCY_10;
++		break;
++	case SPEED_100:
++		adjust = IGC_I225_RX_LATENCY_100;
++		break;
++	case SPEED_1000:
++		adjust = IGC_I225_RX_LATENCY_1000;
++		break;
++	case SPEED_2500:
++		adjust = IGC_I225_RX_LATENCY_2500;
++		break;
++	default:
++		adjust = 0;
++		netdev_warn_once(adapter->netdev, "Imprecise timestamp\n");
++		break;
  	}
-diff --git a/net/sched/sch_red.c b/net/sched/sch_red.c
-index b4ae34d7aa96..40adf1f07a82 100644
---- a/net/sched/sch_red.c
-+++ b/net/sched/sch_red.c
-@@ -242,6 +242,7 @@ static int __red_change(struct Qdisc *sch, struct nlattr **tb,
- 	unsigned char flags;
- 	int err;
- 	u32 max_P;
-+	u8 *stab;
- 
- 	if (tb[TCA_RED_PARMS] == NULL ||
- 	    tb[TCA_RED_STAB] == NULL)
-@@ -250,7 +251,9 @@ static int __red_change(struct Qdisc *sch, struct nlattr **tb,
- 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
- 
- 	ctl = nla_data(tb[TCA_RED_PARMS]);
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
-+	stab = nla_data(tb[TCA_RED_STAB]);
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog,
-+			      ctl->Scell_log, stab))
- 		return -EINVAL;
- 
- 	err = red_get_flags(ctl->flags, TC_RED_HISTORIC_FLAGS,
-@@ -288,7 +291,7 @@ static int __red_change(struct Qdisc *sch, struct nlattr **tb,
- 	red_set_parms(&q->parms,
- 		      ctl->qth_min, ctl->qth_max, ctl->Wlog,
- 		      ctl->Plog, ctl->Scell_log,
--		      nla_data(tb[TCA_RED_STAB]),
-+		      stab,
- 		      max_P);
- 	red_set_vars(&q->vars);
- 
-diff --git a/net/sched/sch_sfq.c b/net/sched/sch_sfq.c
-index b25e51440623..066754a18569 100644
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -647,7 +647,7 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
- 	}
- 
- 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
--					ctl_v1->Wlog, ctl_v1->Scell_log))
-+					ctl_v1->Wlog, ctl_v1->Scell_log, NULL))
- 		return -EINVAL;
- 	if (ctl_v1 && ctl_v1->qth_min) {
- 		p = kmalloc(sizeof(*p), GFP_KERNEL);
+ 	skb_hwtstamps(skb)->hwtstamp =
+ 		ktime_sub_ns(skb_hwtstamps(skb)->hwtstamp, adjust);
 -- 
 2.30.1
 
