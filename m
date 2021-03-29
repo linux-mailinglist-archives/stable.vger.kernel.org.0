@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F1E434C893
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DB534C736
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231902AbhC2IX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38266 "EHLO mail.kernel.org"
+        id S232422AbhC2INS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233115AbhC2IVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:21:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B47ED6044F;
-        Mon, 29 Mar 2021 08:21:40 +0000 (UTC)
+        id S232807AbhC2IMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:12:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A78B561494;
+        Mon, 29 Mar 2021 08:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006101;
-        bh=Jc0biOn8ajKpHNR/Ryer9lQoSywdZkn5qgvaPyliJbo=;
+        s=korg; t=1617005529;
+        bh=kbDaZe2/kZ5vMMsOndNBVim3i+CzIXnVFlyKzsWhDjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/Biokx0swzvlEQxVnhdkmMCPNibz86VweHquJKxAvzDj+Lg2LEgxfEg/cjtSjFzW
-         JRZmPY9Z0pQdLEEY80JgXkVwpSnC7ovkYPp+MzJiQkx72k84N7idtBWs+kLYWxdH42
-         An2vnwergEV8fQYmdTH2Kd5utDNnluzDVw5y9V80=
+        b=UXXtDp/pp0oXcf9r+wbHOobQoIyCcNIgiA5FzZf3xOYpRae3W6oEWGF6J2rZdaVxp
+         28Rp9WoEgMgRpinSSATVc34dDiGd83TLuo9UxHrrG3lJ4hwUycjUzS0vfHwAwl9kpC
+         LhFWcWrGK3U7GlafVNGyrf7RrMlBX9gKpESdB6CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+779559d6503f3a56213d@syzkaller.appspotmail.com,
-        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 101/221] drop_monitor: Perform cleanup upon probe registration failure
-Date:   Mon, 29 Mar 2021 09:57:12 +0200
-Message-Id: <20210329075632.568795327@linuxfoundation.org>
+Subject: [PATCH 5.4 005/111] atm: lanai: dont run lanai_dev_close if not open
+Date:   Mon, 29 Mar 2021 09:57:13 +0200
+Message-Id: <20210329075615.368606678@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,133 +40,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 9398e9c0b1d44eeb700e9e766c02bcc765c82570 ]
+[ Upstream commit a2bd45834e83d6c5a04d397bde13d744a4812dfc ]
 
-In the rare case that drop_monitor fails to register its probe on the
-'napi_poll' tracepoint, it will not deactivate its hysteresis timer as
-part of the error path. If the hysteresis timer was armed by the shortly
-lived 'kfree_skb' probe and user space retries to initiate tracing, a
-warning will be emitted for trying to initialize an active object [1].
+lanai_dev_open() can fail. When it fail, lanai->base is unmapped and the
+pci device is disabled. The caller, lanai_init_one(), then tries to run
+atm_dev_deregister(). This will subsequently call lanai_dev_close() and
+use the already released MMIO area.
 
-Fix this by properly undoing all the operations that were done prior to
-probe registration, in both software and hardware code paths.
+To fix this issue, set the lanai->base to NULL if open fail,
+and test the flag in lanai_dev_close().
 
-Note that syzkaller managed to fail probe registration by injecting a
-slab allocation failure [2].
+[    8.324153] lanai: lanai_start() failed, err=19
+[    8.324819] lanai(itf 0): shutting down interface
+[    8.325211] BUG: unable to handle page fault for address: ffffc90000180024
+[    8.325781] #PF: supervisor write access in kernel mode
+[    8.326215] #PF: error_code(0x0002) - not-present page
+[    8.326641] PGD 100000067 P4D 100000067 PUD 100139067 PMD 10013a067 PTE 0
+[    8.327206] Oops: 0002 [#1] SMP KASAN NOPTI
+[    8.327557] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7-00090-gdcc0b49040c7 #12
+[    8.328229] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-4
+[    8.329145] RIP: 0010:lanai_dev_close+0x4f/0xe5 [lanai]
+[    8.329587] Code: 00 48 c7 c7 00 d3 01 c0 e8 49 4e 0a c2 48 8d bd 08 02 00 00 e8 6e 52 14 c1 48 80
+[    8.330917] RSP: 0018:ffff8881029ef680 EFLAGS: 00010246
+[    8.331196] RAX: 000000000003fffe RBX: ffff888102fb4800 RCX: ffffffffc001a98a
+[    8.331572] RDX: ffffc90000180000 RSI: 0000000000000246 RDI: ffff888102fb4000
+[    8.331948] RBP: ffff888102fb4000 R08: ffffffff8115da8a R09: ffffed102053deaa
+[    8.332326] R10: 0000000000000003 R11: ffffed102053dea9 R12: ffff888102fb48a4
+[    8.332701] R13: ffffffffc00123c0 R14: ffff888102fb4b90 R15: ffff888102fb4b88
+[    8.333077] FS:  00007f08eb9056a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
+[    8.333502] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    8.333806] CR2: ffffc90000180024 CR3: 0000000102a28000 CR4: 00000000000006f0
+[    8.334182] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    8.334557] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    8.334932] Call Trace:
+[    8.335066]  atm_dev_deregister+0x161/0x1a0 [atm]
+[    8.335324]  lanai_init_one.cold+0x20c/0x96d [lanai]
+[    8.335594]  ? lanai_send+0x2a0/0x2a0 [lanai]
+[    8.335831]  local_pci_probe+0x6f/0xb0
+[    8.336039]  pci_device_probe+0x171/0x240
+[    8.336255]  ? pci_device_remove+0xe0/0xe0
+[    8.336475]  ? kernfs_create_link+0xb6/0x110
+[    8.336704]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
+[    8.336983]  really_probe+0x161/0x420
+[    8.337181]  driver_probe_device+0x6d/0xd0
+[    8.337401]  device_driver_attach+0x82/0x90
+[    8.337626]  ? device_driver_attach+0x90/0x90
+[    8.337859]  __driver_attach+0x60/0x100
+[    8.338065]  ? device_driver_attach+0x90/0x90
+[    8.338298]  bus_for_each_dev+0xe1/0x140
+[    8.338511]  ? subsys_dev_iter_exit+0x10/0x10
+[    8.338745]  ? klist_node_init+0x61/0x80
+[    8.338956]  bus_add_driver+0x254/0x2a0
+[    8.339164]  driver_register+0xd3/0x150
+[    8.339370]  ? 0xffffffffc0028000
+[    8.339550]  do_one_initcall+0x84/0x250
+[    8.339755]  ? trace_event_raw_event_initcall_finish+0x150/0x150
+[    8.340076]  ? free_vmap_area_noflush+0x1a5/0x5c0
+[    8.340329]  ? unpoison_range+0xf/0x30
+[    8.340532]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    8.340806]  ? unpoison_range+0xf/0x30
+[    8.341014]  ? unpoison_range+0xf/0x30
+[    8.341217]  do_init_module+0xf8/0x350
+[    8.341419]  load_module+0x3fe6/0x4340
+[    8.341621]  ? vm_unmap_ram+0x1d0/0x1d0
+[    8.341826]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    8.342101]  ? module_frob_arch_sections+0x20/0x20
+[    8.342358]  ? __do_sys_finit_module+0x108/0x170
+[    8.342604]  __do_sys_finit_module+0x108/0x170
+[    8.342841]  ? __ia32_sys_init_module+0x40/0x40
+[    8.343083]  ? file_open_root+0x200/0x200
+[    8.343298]  ? do_sys_open+0x85/0xe0
+[    8.343491]  ? filp_open+0x50/0x50
+[    8.343675]  ? exit_to_user_mode_prepare+0xfc/0x130
+[    8.343935]  do_syscall_64+0x33/0x40
+[    8.344132]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    8.344401] RIP: 0033:0x7f08eb887cf7
+[    8.344594] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d6 41
+[    8.345565] RSP: 002b:00007ffcd5c98ad8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    8.345962] RAX: ffffffffffffffda RBX: 00000000008fea70 RCX: 00007f08eb887cf7
+[    8.346336] RDX: 0000000000000000 RSI: 00000000008fd9e0 RDI: 0000000000000003
+[    8.346711] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
+[    8.347085] R10: 00007f08eb8eb300 R11: 0000000000000246 R12: 00000000008fd9e0
+[    8.347460] R13: 0000000000000000 R14: 00000000008fddd0 R15: 0000000000000001
+[    8.347836] Modules linked in: lanai(+) atm
+[    8.348065] CR2: ffffc90000180024
+[    8.348244] ---[ end trace 7fdc1c668f2003e5 ]---
+[    8.348490] RIP: 0010:lanai_dev_close+0x4f/0xe5 [lanai]
+[    8.348772] Code: 00 48 c7 c7 00 d3 01 c0 e8 49 4e 0a c2 48 8d bd 08 02 00 00 e8 6e 52 14 c1 48 80
+[    8.349745] RSP: 0018:ffff8881029ef680 EFLAGS: 00010246
+[    8.350022] RAX: 000000000003fffe RBX: ffff888102fb4800 RCX: ffffffffc001a98a
+[    8.350397] RDX: ffffc90000180000 RSI: 0000000000000246 RDI: ffff888102fb4000
+[    8.350772] RBP: ffff888102fb4000 R08: ffffffff8115da8a R09: ffffed102053deaa
+[    8.351151] R10: 0000000000000003 R11: ffffed102053dea9 R12: ffff888102fb48a4
+[    8.351525] R13: ffffffffc00123c0 R14: ffff888102fb4b90 R15: ffff888102fb4b88
+[    8.351918] FS:  00007f08eb9056a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
+[    8.352343] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    8.352647] CR2: ffffc90000180024 CR3: 0000000102a28000 CR4: 00000000000006f0
+[    8.353022] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    8.353397] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    8.353958] modprobe (95) used greatest stack depth: 26216 bytes left
 
-[1]
-ODEBUG: init active (active state 0) object type: timer_list hint: sched_send_work+0x0/0x60 include/linux/list.h:135
-WARNING: CPU: 1 PID: 8649 at lib/debugobjects.c:505 debug_print_object+0x16e/0x250 lib/debugobjects.c:505
-Modules linked in:
-CPU: 1 PID: 8649 Comm: syz-executor.0 Not tainted 5.11.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:debug_print_object+0x16e/0x250 lib/debugobjects.c:505
-[...]
-Call Trace:
- __debug_object_init+0x524/0xd10 lib/debugobjects.c:588
- debug_timer_init kernel/time/timer.c:722 [inline]
- debug_init kernel/time/timer.c:770 [inline]
- init_timer_key+0x2d/0x340 kernel/time/timer.c:814
- net_dm_trace_on_set net/core/drop_monitor.c:1111 [inline]
- set_all_monitor_traces net/core/drop_monitor.c:1188 [inline]
- net_dm_monitor_start net/core/drop_monitor.c:1295 [inline]
- net_dm_cmd_trace+0x720/0x1220 net/core/drop_monitor.c:1339
- genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:739
- genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
- genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:800
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
- netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2348
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2402
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2435
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-[2]
- FAULT_INJECTION: forcing a failure.
- name failslab, interval 1, probability 0, space 0, times 1
- CPU: 1 PID: 8645 Comm: syz-executor.0 Not tainted 5.11.0-syzkaller #0
- Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
- Call Trace:
-  dump_stack+0xfa/0x151
-  should_fail.cold+0x5/0xa
-  should_failslab+0x5/0x10
-  __kmalloc+0x72/0x3f0
-  tracepoint_add_func+0x378/0x990
-  tracepoint_probe_register+0x9c/0xe0
-  net_dm_cmd_trace+0x7fc/0x1220
-  genl_family_rcv_msg_doit+0x228/0x320
-  genl_rcv_msg+0x328/0x580
-  netlink_rcv_skb+0x153/0x420
-  genl_rcv+0x24/0x40
-  netlink_unicast+0x533/0x7d0
-  netlink_sendmsg+0x856/0xd90
-  sock_sendmsg+0xcf/0x120
-  ____sys_sendmsg+0x6e8/0x810
-  ___sys_sendmsg+0xf3/0x170
-  __sys_sendmsg+0xe5/0x1b0
-  do_syscall_64+0x2d/0x70
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 70c69274f354 ("drop_monitor: Initialize timer and work item upon tracing enable")
-Fixes: 8ee2267ad33e ("drop_monitor: Convert to using devlink tracepoint")
-Reported-by: syzbot+779559d6503f3a56213d@syzkaller.appspotmail.com
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/drop_monitor.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/atm/lanai.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/drop_monitor.c b/net/core/drop_monitor.c
-index 571f191c06d9..db65ce62b625 100644
---- a/net/core/drop_monitor.c
-+++ b/net/core/drop_monitor.c
-@@ -1053,6 +1053,20 @@ static int net_dm_hw_monitor_start(struct netlink_ext_ack *extack)
- 	return 0;
+diff --git a/drivers/atm/lanai.c b/drivers/atm/lanai.c
+index 645a6bc1df88..c6b38112bcf4 100644
+--- a/drivers/atm/lanai.c
++++ b/drivers/atm/lanai.c
+@@ -2234,6 +2234,7 @@ static int lanai_dev_open(struct atm_dev *atmdev)
+ 	conf1_write(lanai);
+ #endif
+ 	iounmap(lanai->base);
++	lanai->base = NULL;
+     error_pci:
+ 	pci_disable_device(lanai->pci);
+     error:
+@@ -2246,6 +2247,8 @@ static int lanai_dev_open(struct atm_dev *atmdev)
+ static void lanai_dev_close(struct atm_dev *atmdev)
+ {
+ 	struct lanai_dev *lanai = (struct lanai_dev *) atmdev->dev_data;
++	if (lanai->base==NULL)
++		return;
+ 	printk(KERN_INFO DEV_LABEL "(itf %d): shutting down interface\n",
+ 	    lanai->number);
+ 	lanai_timed_poll_stop(lanai);
+@@ -2555,7 +2558,7 @@ static int lanai_init_one(struct pci_dev *pci,
+ 	struct atm_dev *atmdev;
+ 	int result;
  
- err_module_put:
-+	for_each_possible_cpu(cpu) {
-+		struct per_cpu_dm_data *hw_data = &per_cpu(dm_hw_cpu_data, cpu);
-+		struct sk_buff *skb;
-+
-+		del_timer_sync(&hw_data->send_timer);
-+		cancel_work_sync(&hw_data->dm_alert_work);
-+		while ((skb = __skb_dequeue(&hw_data->drop_queue))) {
-+			struct devlink_trap_metadata *hw_metadata;
-+
-+			hw_metadata = NET_DM_SKB_CB(skb)->hw_metadata;
-+			net_dm_hw_metadata_free(hw_metadata);
-+			consume_skb(skb);
-+		}
-+	}
- 	module_put(THIS_MODULE);
- 	return rc;
- }
-@@ -1134,6 +1148,15 @@ static int net_dm_trace_on_set(struct netlink_ext_ack *extack)
- err_unregister_trace:
- 	unregister_trace_kfree_skb(ops->kfree_skb_probe, NULL);
- err_module_put:
-+	for_each_possible_cpu(cpu) {
-+		struct per_cpu_dm_data *data = &per_cpu(dm_cpu_data, cpu);
-+		struct sk_buff *skb;
-+
-+		del_timer_sync(&data->send_timer);
-+		cancel_work_sync(&data->dm_alert_work);
-+		while ((skb = __skb_dequeue(&data->drop_queue)))
-+			consume_skb(skb);
-+	}
- 	module_put(THIS_MODULE);
- 	return rc;
- }
+-	lanai = kmalloc(sizeof(*lanai), GFP_KERNEL);
++	lanai = kzalloc(sizeof(*lanai), GFP_KERNEL);
+ 	if (lanai == NULL) {
+ 		printk(KERN_ERR DEV_LABEL
+ 		       ": couldn't allocate dev_data structure!\n");
 -- 
 2.30.1
 
