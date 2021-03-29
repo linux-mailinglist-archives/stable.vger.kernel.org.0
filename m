@@ -2,121 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C08334D8BE
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 22:00:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 703E334D8E0
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 22:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230346AbhC2UAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 16:00:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60448 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231830AbhC2T7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 15:59:38 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95F4AC061574
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 12:59:38 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id k128so7193812wmk.4
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 12:59:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=DKVpcQ+QpAoXvlyjRMhAGyT+Qqak2JfgZMLiBaSa29E=;
-        b=YJPerRzl5+2JaKjv1Eb55P40KGWj7y6pfAam3YE3y8qhoEgUMMSGIdVfB6lepj10yJ
-         D9JgvhbtBcvf8hfGDmq8z3Zv50QkNtIZMKlL7qEOsF0W8nlkcRq2Gz4nkYLLJ4Opvwcy
-         GeQxTIHi0wGIiu/1stxEX8XdpEX32jglLEn2f5JXz86HT81AdRitSFe+KAw4HGbMqphK
-         DL1N4R+sQxYSbcUqJpXZk6egdDmBADKsmQ/uJ+kUO2jfcDoV/VEjpB4e2hoPxcjqs62B
-         jlYp0Woty23AO0P9Hdodnyz6GSb0jC1JbWGj8zhE4+rI4qkYA+zhreLGydVxQMXtRKcv
-         NAiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=DKVpcQ+QpAoXvlyjRMhAGyT+Qqak2JfgZMLiBaSa29E=;
-        b=dmn+HyltEc0K6hmJAuzO8ksSZhmcAtJ+LNa0L/mnE91Ls47p7dFYqeOQpfYOuPML9W
-         yOpwcxjGSyZS8Kn4rJV18LsFki+uUgivllEtUyX2JnKUQEgK/N4Y9bKD8ksp13Phrv/V
-         QhzfhWd0D5DmQaaNsGji5LDQsQJt0nvjeo0WFjtOjj1cJvyEN5grBHcLRYMAzo755ZWM
-         yx4z9YK/ZXpgOyLhe37zPNi374/btA6epb06OOHxq7T7+CwH3vkWXmhjo4NfSwNqt6Ll
-         P2rPYniXVK3zJiFQG2aWUbrFrIo98lp75qXcncOf5Ki7SkQ5aA2syZ5fRY7gmoxFQHD1
-         M0rQ==
-X-Gm-Message-State: AOAM532wmv9Tgj23+RlmCC3kC14NxzGcfby0ZlUTlHuHDQrr42j+jvk0
-        DJQTYyubkxZ4kHAr21yILu5Hbg==
-X-Google-Smtp-Source: ABdhPJxY4+UJ5NboEvKsiKSfoZc8oEQ4w+NW1XvxfFLt4qF5Y5WCR92gIYO1xNtxtzr0yNW21PC1TQ==
-X-Received: by 2002:a7b:cbcd:: with SMTP id n13mr624923wmi.112.1617047977314;
-        Mon, 29 Mar 2021 12:59:37 -0700 (PDT)
-Received: from ?IPv6:2a02:8084:e84:2480:228:f8ff:fe6f:83a8? ([2a02:8084:e84:2480:228:f8ff:fe6f:83a8])
-        by smtp.gmail.com with ESMTPSA id l6sm32426474wrn.3.2021.03.29.12.59.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Mar 2021 12:59:36 -0700 (PDT)
-Subject: Re: [PATCH] powerpc/vdso: Separate vvar vma from vdso
-To:     Laurent Dufour <ldufour@linux.ibm.com>,
-        linux-kernel@vger.kernel.org
-Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Andrei Vagin <avagin@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-References: <20210326191720.138155-1-dima@arista.com>
- <f97f3ff9-6ae2-64cc-fada-49fcac34ae47@linux.ibm.com>
-From:   Dmitry Safonov <dima@arista.com>
-Message-ID: <50b7a78a-76e6-7d28-5324-a3ada9c43019@arista.com>
-Date:   Mon, 29 Mar 2021 20:59:35 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
-MIME-Version: 1.0
-In-Reply-To: <f97f3ff9-6ae2-64cc-fada-49fcac34ae47@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S231319AbhC2UK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 16:10:57 -0400
+Received: from a27-81.smtp-out.us-west-2.amazonses.com ([54.240.27.81]:55039
+        "EHLO a27-81.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230395AbhC2UKu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 16:10:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=zzmz6pik4loqlrvo6grmnyszsx3fszus; d=nh6z.net; t=1617048649;
+        h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:References:Message-Id;
+        bh=K7KIbWMyfNkSCg4+/gHzQaPHfkkMmVADENdA1HNdl1I=;
+        b=R0Dvtv5p5WU/1fwv4JbgF5bZdz31q72q+gwFZseQzBrHTRny+vjmDgZIe1Kr9jz/
+        CXySZBy5fyc8jyMawNyb//gIk1TDEb2g+eMDhRX4suE9i3IXJI6pbEeNcUnVoB9z+tn
+        aJyXgn8DQztL+/A/d37OafXezfh/eD7NMrG3qjx0=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=7v7vs6w47njt4pimodk5mmttbegzsi6n; d=amazonses.com; t=1617048649;
+        h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:References:Message-Id:Feedback-ID;
+        bh=K7KIbWMyfNkSCg4+/gHzQaPHfkkMmVADENdA1HNdl1I=;
+        b=L9yEBe+VAxejLLUEFDZE+4qcdfnGVQEmhK+JDF+ESm1YTsTGqmUbuCp5dy6NXtnS
+        aP5P25MPFGatIo9vEYR5XXymZHizLosZOtbYCh1PLNpXbqmJiIGE6TEV73Uvd9PVXqC
+        jneIPzuulK0SsOXjLd7Slx0UW5oXTZnV9PsTzBis=
+Subject: [PATCH v2] sc16is7xx: Defer probe if device read fails
+From:   =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>
+To:     =?UTF-8?Q?linux-serial=40vger=2Ekernel=2Eorg?= 
+        <linux-serial@vger.kernel.org>,
+        =?UTF-8?Q?gregkh=40linuxfoundation=2Eo?= =?UTF-8?Q?rg?= 
+        <gregkh@linuxfoundation.org>
+Cc:     =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>,
+        =?UTF-8?Q?jirislaby=40kernel=2Eorg?= <jirislaby@kernel.org>,
+        =?UTF-8?Q?team=40nwdigitalradio=2Ecom?= <team@nwdigitalradio.com>,
+        =?UTF-8?Q?stable=40vger=2Ekernel=2Eorg?= <stable@vger.kernel.org>
+Date:   Mon, 29 Mar 2021 20:10:49 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <20210329200848.409660-1-nh6z@nh6z.net>
+X-Mailer: Amazon WorkMail
+Thread-Index: AQHXJNebtcpZwxGpQ4q0FBV1tWCzFg==
+Thread-Topic: [PATCH v2] sc16is7xx: Defer probe if device read fails
+X-Original-Mailer: git-send-email 2.27.0
+X-Wm-Sent-Timestamp: 1617048648
+Message-ID: <010101787f9c3fd8-c1815c00-2d6b-4c85-a96a-a13e68597fda-000000@us-west-2.amazonses.com>
+X-SES-Outgoing: 2021.03.29-54.240.27.81
+Feedback-ID: 1.us-west-2.An468LAV0jCjQDrDLvlZjeAthld7qrhZr+vow8irkvU=:AmazonSES
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/29/21 4:14 PM, Laurent Dufour wrote:
-> Le 26/03/2021 à 20:17, Dmitry Safonov a écrit :
->> Since commit 511157ab641e ("powerpc/vdso: Move vdso datapage up front")
->> VVAR page is in front of the VDSO area. In result it breaks CRIU
->> (Checkpoint Restore In Userspace) [1], where CRIU expects that "[vdso]"
->> from /proc/../maps points at ELF/vdso image, rather than at VVAR data
->> page.
->> Laurent made a patch to keep CRIU working (by reading aux vector).
->> But I think it still makes sence to separate two mappings into different
->> VMAs. It will also make ppc64 less "special" for userspace and as
->> a side-bonus will make VVAR page un-writable by debugger (which
->> previously
->> would COW page and can be unexpected).
->>
->> I opportunistically Cc stable on it: I understand that usually such
->> stuff isn't a stable material, but that will allow us in CRIU have
->> one workaround less that is needed just for one release (v5.11) on
->> one platform (ppc64), which we otherwise have to maintain.
->> I wouldn't go as far as to say that the commit 511157ab641e is ABI
->> regression as no other userspace got broken, but I'd really appreciate
->> if it gets backported to v5.11 after v5.12 is released, so as not
->> to complicate already non-simple CRIU-vdso code. Thanks!
->>
->> Cc: Andrei Vagin <avagin@gmail.com>
->> Cc: Andy Lutomirski <luto@kernel.org>
->> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
->> Cc: Laurent Dufour <ldufour@linux.ibm.com>
->> Cc: Michael Ellerman <mpe@ellerman.id.au>
->> Cc: Paul Mackerras <paulus@samba.org>
->> Cc: linuxppc-dev@lists.ozlabs.org
->> Cc: stable@vger.kernel.org # v5.11
->> [1]: https://github.com/checkpoint-restore/criu/issues/1417
->> Signed-off-by: Dmitry Safonov <dima@arista.com>
->> Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> 
-> I run the CRIU's test suite and except the usual suspects, all the tests
-> passed.
-> 
-> Tested-by: Laurent Dufour <ldufour@linux.ibm.com>
-
-Thank you, Laurent!
-
--- 
-          Dmitry
+A test was added to the probe function to ensure the device was=0D=0Aactu=
+ally connected and working before successfully completing a=0D=0Aprobe.  =
+If the device was actually there, but the I2C bus was not=0D=0Aready yet =
+for whatever reason, the probe fails permanently.=0D=0A=0D=0AChange the p=
+robe so that we defer the probe on a regmap read=0D=0Afailure so that we =
+try the probe again when the dependent drivers=0D=0Aare potentially loade=
+d.  This should not affect the case where the=0D=0Adevice truly isn't pre=
+sent because the probe will never successfully=0D=0Acomplete.=0D=0A=0D=0A=
+Fixes: 2aa916e67db3 ("sc16is7xx: Read the LSR register for basic device p=
+resence check")=0D=0ACc: stable@vger.kernel.org=0D=0ASigned-off-by: Annal=
+iese McDermond <nh6z@nh6z.net>=0D=0A---=0D=0A drivers/tty/serial/sc16is7x=
+x.c | 2 +-=0D=0A 1 file changed, 1 insertion(+), 1 deletion(-)=0D=0A=0D=0A=
+diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7x=
+x.c=0D=0Aindex f86ec2d2635b..9adb8362578c 100644=0D=0A--- a/drivers/tty/s=
+erial/sc16is7xx.c=0D=0A+++ b/drivers/tty/serial/sc16is7xx.c=0D=0A@@ -1196=
+,7 +1196,7 @@ static int sc16is7xx_probe(struct device *dev,=0D=0A =09ret=
+ =3D regmap_read(regmap,=0D=0A =09=09=09  SC16IS7XX_LSR_REG << SC16IS7XX_=
+REG_SHIFT, &val);=0D=0A =09if (ret < 0)=0D=0A-=09=09return ret;=0D=0A+=09=
+=09return -EPROBE_DEFER;=0D=0A=20=0D=0A =09/* Alloc port structure */=0D=0A=
+ =09s =3D devm_kzalloc(dev, struct_size(s, p, devtype->nr_uart), GFP_KERN=
+EL);=0D=0A--=20=0D=0A2.27.0=0D=0A=0D=0A
