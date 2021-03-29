@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4181034C67D
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E369034C8E1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232160AbhC2IID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49960 "EHLO mail.kernel.org"
+        id S232692AbhC2IYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231725AbhC2IGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46D9A619B4;
-        Mon, 29 Mar 2021 08:06:40 +0000 (UTC)
+        id S233697AbhC2IXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51EB961580;
+        Mon, 29 Mar 2021 08:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005200;
-        bh=Sepos0qn7ogREQUQReaVRdvkH4LNy6TqoeWdQ4e0K/U=;
+        s=korg; t=1617006224;
+        bh=yKav0Il29ZRjd7L2vycF4NIWmmq44ae3g5LHM4WhjrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wl6OZryCLGuYzSr1Pa7Kroo84rFlGgrQXADhjF0JRI2kQ2S26ljNDTRyy5Q3bYOBl
-         1D5/eMUB8KbJFR7xM6TpQ2o0bbeTXv6gIF4pT/NlHDkWDSPZ0SP2xZ9uVc0iQ1nAgE
-         QcOAjqQXY0QUDDme66vU9bolbST7GXVxt7u9IScY=
+        b=rp3sHTHv5QzZRofzzEAsN4Ajj4IADDBAwWpgHTF10QcS0S8j0vwMX4TCKJZPsKW/I
+         t6sopD8J4LhR1iePSjesSkghABRhCESaRdAV4dC6yiP5Ex35hLrxnyLpEdUo1PmPZK
+         w5z8Ok8dtTF+vpVTpbmNkg+Fn7C0KxqrXvQ3dN28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/59] e1000e: Fix error handling in e1000_set_d0_lplu_state_82571
+Subject: [PATCH 5.10 163/221] libbpf: Fix BTF dump of pointer-to-array-of-struct
 Date:   Mon, 29 Mar 2021 09:58:14 +0200
-Message-Id: <20210329075610.009394028@linuxfoundation.org>
+Message-Id: <20210329075634.586217410@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-[ Upstream commit b52912b8293f2c496f42583e65599aee606a0c18 ]
+[ Upstream commit 901ee1d750f29a335423eeb9463c3ca461ca18c2 ]
 
-There is one e1e_wphy() call in e1000_set_d0_lplu_state_82571
-that we have caught its return value but lack further handling.
-Check and terminate the execution flow just like other e1e_wphy()
-in this function.
+The vmlinux.h generated from BTF is invalid when building
+drivers/phy/ti/phy-gmii-sel.c with clang:
 
-Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+vmlinux.h:61702:27: error: array type has incomplete element type ‘struct reg_field’
+61702 |  const struct reg_field (*regfields)[3];
+      |                           ^~~~~~~~~
+
+bpftool generates a forward declaration for this struct regfield, which
+compilers aren't happy about. Here's a simplified reproducer:
+
+	struct inner {
+		int val;
+	};
+	struct outer {
+		struct inner (*ptr_to_array)[2];
+	} A;
+
+After build with clang -> bpftool btf dump c -> clang/gcc:
+./def-clang.h:11:23: error: array has incomplete element type 'struct inner'
+        struct inner (*ptr_to_array)[2];
+
+Member ptr_to_array of struct outer is a pointer to an array of struct
+inner. In the DWARF generated by clang, struct outer appears before
+struct inner, so when converting BTF of struct outer into C, bpftool
+issues a forward declaration to struct inner. With GCC the DWARF info is
+reversed so struct inner gets fully defined.
+
+That forward declaration is not sufficient when compilers handle an
+array of the struct, even when it's only used through a pointer. Note
+that we can trigger the same issue with an intermediate typedef:
+
+	struct inner {
+	        int val;
+	};
+	typedef struct inner inner2_t[2];
+	struct outer {
+	        inner2_t *ptr_to_array;
+	} A;
+
+Becomes:
+
+	struct inner;
+	typedef struct inner inner2_t[2];
+
+And causes:
+
+./def-clang.h:10:30: error: array has incomplete element type 'struct inner'
+	typedef struct inner inner2_t[2];
+
+To fix this, clear through_ptr whenever we encounter an intermediate
+array, to make the inner struct part of a strong link and force full
+declaration.
+
+Fixes: 351131b51c7a ("libbpf: add btf_dump API for BTF-to-C conversion")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210319112554.794552-2-jean-philippe@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/82571.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/lib/bpf/btf_dump.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/82571.c b/drivers/net/ethernet/intel/e1000e/82571.c
-index 6b03c8553e59..65deaf8f3004 100644
---- a/drivers/net/ethernet/intel/e1000e/82571.c
-+++ b/drivers/net/ethernet/intel/e1000e/82571.c
-@@ -917,6 +917,8 @@ static s32 e1000_set_d0_lplu_state_82571(struct e1000_hw *hw, bool active)
- 	} else {
- 		data &= ~IGP02E1000_PM_D0_LPLU;
- 		ret_val = e1e_wphy(hw, IGP02E1000_PHY_POWER_MGMT, data);
-+		if (ret_val)
-+			return ret_val;
- 		/* LPLU and SmartSpeed are mutually exclusive.  LPLU is used
- 		 * during Dx states where the power conservation is most
- 		 * important.  During driver activity we should enable
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 2f9d685bd522..0911aea4cdbe 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -462,7 +462,7 @@ static int btf_dump_order_type(struct btf_dump *d, __u32 id, bool through_ptr)
+ 		return err;
+ 
+ 	case BTF_KIND_ARRAY:
+-		return btf_dump_order_type(d, btf_array(t)->type, through_ptr);
++		return btf_dump_order_type(d, btf_array(t)->type, false);
+ 
+ 	case BTF_KIND_STRUCT:
+ 	case BTF_KIND_UNION: {
 -- 
 2.30.1
 
