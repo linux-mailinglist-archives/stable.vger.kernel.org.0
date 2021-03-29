@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 310D234CA87
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0246A34C90A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234040AbhC2Iiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
+        id S233371AbhC2I0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234828AbhC2IhZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42CF3619C3;
-        Mon, 29 Mar 2021 08:36:47 +0000 (UTC)
+        id S232805AbhC2IYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:24:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40E5761554;
+        Mon, 29 Mar 2021 08:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007007;
-        bh=nkqi4Jbyl0Uzy75QU92FnrknwYWEDlHlfIZNVoCIv+A=;
+        s=korg; t=1617006268;
+        bh=fscim5rqV5KT8QAGKZOcvA8IucXtpvJgBoTeLkI4qhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lemPCZSR6ClmClHLHIG38tp08+ATEzjawn3N+PkaRy8u3Da65IyuFVBQ9zWgBoxxB
-         SHUPHa7O6GWf5roaUmfWATKSn8Ao7YQo59Hj1kdvDerFvKp4HzGUYodw0scl+u7Lie
-         B7pK3O7RYnHAdHaU9pr84kpgPI6J5znzX2KWns/c=
+        b=KxzRvUP98l/n5+6eh14z8HbEeeSzUyxfvNKwPvvIPPtAmvYJUdqqllkqTjtIVnn9y
+         WBcyqOCmpNt3IG1GYvowD1tPE9hNxLLjfNuB4R3rzhW+YTvIlFcTaqZtAU9zpJrETA
+         cWHJc7gahzFr/NLRImQv07MCdO+w6pvGM+3m5sd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 159/254] nfp: flower: fix unsupported pre_tunnel flows
+Subject: [PATCH 5.10 144/221] netfilter: nftables: allow to update flowtable flags
 Date:   Mon, 29 Mar 2021 09:57:55 +0200
-Message-Id: <20210329075638.420023870@linuxfoundation.org>
+Message-Id: <20210329075633.974871349@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Louis Peens <louis.peens@corigine.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 982e5ee23d764fe6158f67a7813d416335e978b0 ]
+[ Upstream commit 7b35582cd04ace2fd1807c1b624934e465cc939d ]
 
-There are some pre_tunnel flows combinations which are incorrectly being
-offloaded without proper support, fix these.
+Honor flowtable flags from the control update path. Disallow disabling
+to toggle hardware offload support though.
 
-- Matching on MPLS is not supported for pre_tun.
-- Match on IPv4/IPv6 layer must be present.
-- Destination MAC address must match pre_tun.dev MAC
-
-Fixes: 120ffd84a9ec ("nfp: flower: verify pre-tunnel rules")
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8bb69f3b2918 ("netfilter: nf_tables: add flowtable offload control plane")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/netronome/nfp/flower/offload.c    | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ include/net/netfilter/nf_tables.h |  3 +++
+ net/netfilter/nf_tables_api.c     | 15 +++++++++++++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/offload.c b/drivers/net/ethernet/netronome/nfp/flower/offload.c
-index 1c59aff2163c..d72225d64a75 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/offload.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/offload.c
-@@ -1142,6 +1142,12 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
- 		return -EOPNOTSUPP;
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index c1c0a4ff92ae..ed4a9d098164 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -1508,6 +1508,7 @@ struct nft_trans_flowtable {
+ 	struct nft_flowtable		*flowtable;
+ 	bool				update;
+ 	struct list_head		hook_list;
++	u32				flags;
+ };
+ 
+ #define nft_trans_flowtable(trans)	\
+@@ -1516,6 +1517,8 @@ struct nft_trans_flowtable {
+ 	(((struct nft_trans_flowtable *)trans->data)->update)
+ #define nft_trans_flowtable_hooks(trans)	\
+ 	(((struct nft_trans_flowtable *)trans->data)->hook_list)
++#define nft_trans_flowtable_flags(trans)	\
++	(((struct nft_trans_flowtable *)trans->data)->flags)
+ 
+ int __init nft_chain_filter_init(void);
+ void nft_chain_filter_fini(void);
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 7cdbe8733540..978a968d7aed 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -6632,6 +6632,7 @@ static int nft_flowtable_update(struct nft_ctx *ctx, const struct nlmsghdr *nlh,
+ 	struct nft_hook *hook, *next;
+ 	struct nft_trans *trans;
+ 	bool unregister = false;
++	u32 flags;
+ 	int err;
+ 
+ 	err = nft_flowtable_parse_hook(ctx, nla[NFTA_FLOWTABLE_HOOK],
+@@ -6646,6 +6647,17 @@ static int nft_flowtable_update(struct nft_ctx *ctx, const struct nlmsghdr *nlh,
+ 		}
  	}
  
-+	if (!(key_layer & NFP_FLOWER_LAYER_IPV4) &&
-+	    !(key_layer & NFP_FLOWER_LAYER_IPV6)) {
-+		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: match on ipv4/ipv6 eth_type must be present");
-+		return -EOPNOTSUPP;
++	if (nla[NFTA_FLOWTABLE_FLAGS]) {
++		flags = ntohl(nla_get_be32(nla[NFTA_FLOWTABLE_FLAGS]));
++		if (flags & ~NFT_FLOWTABLE_MASK)
++			return -EOPNOTSUPP;
++		if ((flowtable->data.flags & NFT_FLOWTABLE_HW_OFFLOAD) ^
++		    (flags & NFT_FLOWTABLE_HW_OFFLOAD))
++			return -EOPNOTSUPP;
++	} else {
++		flags = flowtable->data.flags;
 +	}
 +
- 	/* Skip fields known to exist. */
- 	mask += sizeof(struct nfp_flower_meta_tci);
- 	ext += sizeof(struct nfp_flower_meta_tci);
-@@ -1152,6 +1158,13 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
- 	mask += sizeof(struct nfp_flower_in_port);
- 	ext += sizeof(struct nfp_flower_in_port);
- 
-+	/* Ensure destination MAC address matches pre_tun_dev. */
-+	mac = (struct nfp_flower_mac_mpls *)ext;
-+	if (memcmp(&mac->mac_dst[0], flow->pre_tun_rule.dev->dev_addr, 6)) {
-+		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: dest MAC must match output dev MAC");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	/* Ensure destination MAC address is fully matched. */
- 	mac = (struct nfp_flower_mac_mpls *)mask;
- 	if (!is_broadcast_ether_addr(&mac->mac_dst[0])) {
-@@ -1159,6 +1172,11 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
- 		return -EOPNOTSUPP;
+ 	err = nft_register_flowtable_net_hooks(ctx->net, ctx->table,
+ 					       &flowtable_hook.list, flowtable);
+ 	if (err < 0)
+@@ -6659,6 +6671,7 @@ static int nft_flowtable_update(struct nft_ctx *ctx, const struct nlmsghdr *nlh,
+ 		goto err_flowtable_update_hook;
  	}
  
-+	if (mac->mpls_lse) {
-+		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: MPLS not supported");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	mask += sizeof(struct nfp_flower_mac_mpls);
- 	ext += sizeof(struct nfp_flower_mac_mpls);
- 	if (key_layer & NFP_FLOWER_LAYER_IPV4 ||
++	nft_trans_flowtable_flags(trans) = flags;
+ 	nft_trans_flowtable(trans) = flowtable;
+ 	nft_trans_flowtable_update(trans) = true;
+ 	INIT_LIST_HEAD(&nft_trans_flowtable_hooks(trans));
+@@ -7968,6 +7981,8 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 			break;
+ 		case NFT_MSG_NEWFLOWTABLE:
+ 			if (nft_trans_flowtable_update(trans)) {
++				nft_trans_flowtable(trans)->data.flags =
++					nft_trans_flowtable_flags(trans);
+ 				nf_tables_flowtable_notify(&trans->ctx,
+ 							   nft_trans_flowtable(trans),
+ 							   &nft_trans_flowtable_hooks(trans),
 -- 
 2.30.1
 
