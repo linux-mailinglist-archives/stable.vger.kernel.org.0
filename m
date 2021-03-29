@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6161234C9FA
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1D534C832
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234090AbhC2Ief (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53704 "EHLO mail.kernel.org"
+        id S232839AbhC2IUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:20:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234705AbhC2Id3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6E3F619D3;
-        Mon, 29 Mar 2021 08:33:02 +0000 (UTC)
+        id S232317AbhC2IT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:19:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65F3B61477;
+        Mon, 29 Mar 2021 08:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006783;
-        bh=jaObR1/HBjGzBGeaeR6jD15n/1J7qNL3EcTToXAExcY=;
+        s=korg; t=1617005997;
+        bh=2TW9CPbQ/+CJJBqvvlc7FFDOu/dSgrA0mwKG1D8j9BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/LU9uoY2s22EDBWDTqJoP5wqBJDCScacZfo4lip7bOZiDccW8gEDxzve8mfhlxAO
-         s+z+Y9A6mkovrm7hfbYIdQcX/5eAQkrfwydWmRx7R0AEd+sZkMRjpEuviHlcEpB4kv
-         0xm1JU4EkbqoAMzIy/+J5gC6x/UWsjixTR+7LChg=
+        b=iWUEW83jxwrVeNVnKPRYutYHEMBCylKy+F5RgXMhhgcDyfVASenVCBW1MEnewM+yV
+         kgub5OqgmzvISZohnb1HJGGdZsLRjxYf6YIfBCYAL85ntQVOKs6tvGlJN6upUJbvZP
+         8Q1uS5WO9xTB8qyFVqxfsa/E4GoAjduirb8VAg3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>
-Subject: [PATCH 5.11 095/254] drm/nouveau/kms/nve4-nv108: Limit cursors to 128x128
-Date:   Mon, 29 Mar 2021 09:56:51 +0200
-Message-Id: <20210329075636.315462853@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sandeep Sheriker Mallikarjun 
+        <sandeepsheriker.mallikarjun@microchip.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 5.10 081/221] ARM: dts: at91: sam9x60: fix mux-mask to match products datasheet
+Date:   Mon, 29 Mar 2021 09:56:52 +0200
+Message-Id: <20210329075631.917184845@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-commit d3999c1f7bbbc100c167d7ad3cd79c1d10446ba2 upstream.
+commit 2c69c8a1736eace8de491d480e6e577a27c2087c upstream.
 
-While Kepler does technically support 256x256 cursors, it turns out that
-Kepler actually has some additional requirements for scanout surfaces that
-we're not enforcing correctly, which aren't present on Maxwell and later.
-Cursor surfaces must always use small pages (4K), and overlay surfaces must
-always use large pages (128K).
+Fix the whole mux-mask table according to datasheet for the sam9x60
+product.  Too much functions for pins were disabled leading to
+misunderstandings when enabling more peripherals or taking this table
+as an example for another board.
+Take advantage of this fix to move the mux-mask in the SoC file where it
+belongs and use lower case letters for hex numbers like everywhere in
+the file.
 
-Fixing this correctly though will take a bit more work: as we'll need to
-add some code in prepare_fb() to move cursor FBs in large pages to small
-pages, and vice-versa for overlay FBs. So until we have the time to do
-that, just limit cursor surfaces to 128x128 - a size small enough to always
-default to small pages.
-
-This means small ovlys are still broken on Kepler, but it is extremely
-unlikely anyone cares about those anyway :).
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: d3b2f0f7921c ("drm/nouveau/kms/nv50-: Report max cursor size to userspace")
-Cc: <stable@vger.kernel.org> # v5.11+
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
+Cc: <stable@vger.kernel.org> # 5.6+
+Cc: Sandeep Sheriker Mallikarjun <sandeepsheriker.mallikarjun@microchip.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20210310152006.15018-1-nicolas.ferre@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/at91-sam9x60ek.dts |    8 --------
+ arch/arm/boot/dts/sam9x60.dtsi       |    9 +++++++++
+ 2 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -2663,9 +2663,20 @@ nv50_display_create(struct drm_device *d
- 	else
- 		nouveau_display(dev)->format_modifiers = disp50xx_modifiers;
+--- a/arch/arm/boot/dts/at91-sam9x60ek.dts
++++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
+@@ -334,14 +334,6 @@
+ };
  
--	if (disp->disp->object.oclass >= GK104_DISP) {
-+	/* FIXME: 256x256 cursors are supported on Kepler, however unlike Maxwell and later
-+	 * generations Kepler requires that we use small pages (4K) for cursor scanout surfaces. The
-+	 * proper fix for this is to teach nouveau to migrate fbs being used for the cursor plane to
-+	 * small page allocations in prepare_fb(). When this is implemented, we should also force
-+	 * large pages (128K) for ovly fbs in order to fix Kepler ovlys.
-+	 * But until then, just limit cursors to 128x128 - which is small enough to avoid ever using
-+	 * large pages.
-+	 */
-+	if (disp->disp->object.oclass >= GM107_DISP) {
- 		dev->mode_config.cursor_width = 256;
- 		dev->mode_config.cursor_height = 256;
-+	} else if (disp->disp->object.oclass >= GK104_DISP) {
-+		dev->mode_config.cursor_width = 128;
-+		dev->mode_config.cursor_height = 128;
- 	} else {
- 		dev->mode_config.cursor_width = 64;
- 		dev->mode_config.cursor_height = 64;
+ &pinctrl {
+-	atmel,mux-mask = <
+-			 /*	A	B	C	*/
+-			 0xFFFFFEFF 0xC0E039FF 0xEF00019D	/* pioA */
+-			 0x03FFFFFF 0x02FC7E68 0x00780000	/* pioB */
+-			 0xffffffff 0xF83FFFFF 0xB800F3FC	/* pioC */
+-			 0x003FFFFF 0x003F8000 0x00000000	/* pioD */
+-			 >;
+-
+ 	adc {
+ 		pinctrl_adc_default: adc_default {
+ 			atmel,pins = <AT91_PIOB 15 AT91_PERIPH_A AT91_PINCTRL_NONE>;
+--- a/arch/arm/boot/dts/sam9x60.dtsi
++++ b/arch/arm/boot/dts/sam9x60.dtsi
+@@ -606,6 +606,15 @@
+ 				compatible = "microchip,sam9x60-pinctrl", "atmel,at91sam9x5-pinctrl", "atmel,at91rm9200-pinctrl", "simple-bus";
+ 				ranges = <0xfffff400 0xfffff400 0x800>;
+ 
++				/* mux-mask corresponding to sam9x60 SoC in TFBGA228L package */
++				atmel,mux-mask = <
++						 /*	A	B	C	*/
++						 0xffffffff 0xffe03fff 0xef00019d	/* pioA */
++						 0x03ffffff 0x02fc7e7f 0x00780000	/* pioB */
++						 0xffffffff 0xffffffff 0xf83fffff	/* pioC */
++						 0x003fffff 0x003f8000 0x00000000	/* pioD */
++						 >;
++
+ 				pioA: gpio@fffff400 {
+ 					compatible = "microchip,sam9x60-gpio", "atmel,at91sam9x5-gpio", "atmel,at91rm9200-gpio";
+ 					reg = <0xfffff400 0x200>;
 
 
