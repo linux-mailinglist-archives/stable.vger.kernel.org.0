@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3925034CA61
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 440BC34C8AC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233631AbhC2Ii0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55600 "EHLO mail.kernel.org"
+        id S233489AbhC2IXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233715AbhC2Ifr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F7A0619E8;
-        Mon, 29 Mar 2021 08:35:20 +0000 (UTC)
+        id S233969AbhC2IWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0107C6044F;
+        Mon, 29 Mar 2021 08:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006920;
-        bh=2Yymh7UoYzvt39/OBVceDQNNT0AXD3CzFp1nOlcBs48=;
+        s=korg; t=1617006153;
+        bh=nkqi4Jbyl0Uzy75QU92FnrknwYWEDlHlfIZNVoCIv+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tK9OfLf3frSNbe5kXSiYDwXQh3V2jOd026P/oU4512GFKxS3zM2Z2tGQ5hPGMzujb
-         387uSPOl6l6VVBAEcFUvNNrN5M6H73E4erANNtc/oU2gSy54KJcGqc8c+oTyjqcwdX
-         ehMR6Ber1FoDw2dUExidV2zX3J/qInPhZr098I/Y=
+        b=o2eOCleY14GS3a3UHsCclPhhcpbCqtesKu12pLppcMgyjwh92s/Tq52lXlYWBaC6o
+         jxRZbus/jA1C0TZ9K6Fp2fR2TOuqsQrU7UVWP5amVShBJ50ZLGqygD+7nFORH/KZ63
+         v2vtON3ZREpO2FGIg7J430RYDFBc7+ppJWaUvvAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 151/254] can: kvaser_pciefd: Always disable bus load reporting
+Subject: [PATCH 5.10 136/221] nfp: flower: fix unsupported pre_tunnel flows
 Date:   Mon, 29 Mar 2021 09:57:47 +0200
-Message-Id: <20210329075638.169218147@linuxfoundation.org>
+Message-Id: <20210329075633.723005706@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Assarsson <extja@kvaser.com>
+From: Louis Peens <louis.peens@corigine.com>
 
-[ Upstream commit 7c6e6bce08f918b64459415f58061d4d6df44994 ]
+[ Upstream commit 982e5ee23d764fe6158f67a7813d416335e978b0 ]
 
-Under certain circumstances, when switching from Kvaser's linuxcan driver
-(kvpciefd) to the SocketCAN driver (kvaser_pciefd), the bus load reporting
-is not disabled.
-This is flooding the kernel log with prints like:
-[3485.574677] kvaser_pciefd 0000:02:00.0: Received unexpected packet type 0x00000009
+There are some pre_tunnel flows combinations which are incorrectly being
+offloaded without proper support, fix these.
 
-Always put the controller in the expected state, instead of assuming that
-bus load reporting is inactive.
+- Matching on MPLS is not supported for pre_tun.
+- Match on IPv4/IPv6 layer must be present.
+- Destination MAC address must match pre_tun.dev MAC
 
-Note: If bus load reporting is enabled when the driver is loaded, you will
-      still get a number of bus load packages (and printouts), before it is
-      disabled.
-
-Fixes: 26ad340e582d ("can: kvaser_pciefd: Add driver for Kvaser PCIEcan devices")
-Link: https://lore.kernel.org/r/20210309091724.31262-1-jimmyassarsson@gmail.com
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 120ffd84a9ec ("nfp: flower: verify pre-tunnel rules")
+Signed-off-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/kvaser_pciefd.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../ethernet/netronome/nfp/flower/offload.c    | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/net/can/kvaser_pciefd.c b/drivers/net/can/kvaser_pciefd.c
-index 969cedb9b0b6..0d77c60f775e 100644
---- a/drivers/net/can/kvaser_pciefd.c
-+++ b/drivers/net/can/kvaser_pciefd.c
-@@ -57,6 +57,7 @@ MODULE_DESCRIPTION("CAN driver for Kvaser CAN/PCIe devices");
- #define KVASER_PCIEFD_KCAN_STAT_REG 0x418
- #define KVASER_PCIEFD_KCAN_MODE_REG 0x41c
- #define KVASER_PCIEFD_KCAN_BTRN_REG 0x420
-+#define KVASER_PCIEFD_KCAN_BUS_LOAD_REG 0x424
- #define KVASER_PCIEFD_KCAN_BTRD_REG 0x428
- #define KVASER_PCIEFD_KCAN_PWM_REG 0x430
- /* Loopback control register */
-@@ -949,6 +950,9 @@ static int kvaser_pciefd_setup_can_ctrls(struct kvaser_pciefd *pcie)
- 		timer_setup(&can->bec_poll_timer, kvaser_pciefd_bec_poll_timer,
- 			    0);
+diff --git a/drivers/net/ethernet/netronome/nfp/flower/offload.c b/drivers/net/ethernet/netronome/nfp/flower/offload.c
+index 1c59aff2163c..d72225d64a75 100644
+--- a/drivers/net/ethernet/netronome/nfp/flower/offload.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/offload.c
+@@ -1142,6 +1142,12 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
+ 		return -EOPNOTSUPP;
+ 	}
  
-+		/* Disable Bus load reporting */
-+		iowrite32(0, can->reg_base + KVASER_PCIEFD_KCAN_BUS_LOAD_REG);
++	if (!(key_layer & NFP_FLOWER_LAYER_IPV4) &&
++	    !(key_layer & NFP_FLOWER_LAYER_IPV6)) {
++		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: match on ipv4/ipv6 eth_type must be present");
++		return -EOPNOTSUPP;
++	}
 +
- 		tx_npackets = ioread32(can->reg_base +
- 				       KVASER_PCIEFD_KCAN_TX_NPACKETS_REG);
- 		if (((tx_npackets >> KVASER_PCIEFD_KCAN_TX_NPACKETS_MAX_SHIFT) &
+ 	/* Skip fields known to exist. */
+ 	mask += sizeof(struct nfp_flower_meta_tci);
+ 	ext += sizeof(struct nfp_flower_meta_tci);
+@@ -1152,6 +1158,13 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
+ 	mask += sizeof(struct nfp_flower_in_port);
+ 	ext += sizeof(struct nfp_flower_in_port);
+ 
++	/* Ensure destination MAC address matches pre_tun_dev. */
++	mac = (struct nfp_flower_mac_mpls *)ext;
++	if (memcmp(&mac->mac_dst[0], flow->pre_tun_rule.dev->dev_addr, 6)) {
++		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: dest MAC must match output dev MAC");
++		return -EOPNOTSUPP;
++	}
++
+ 	/* Ensure destination MAC address is fully matched. */
+ 	mac = (struct nfp_flower_mac_mpls *)mask;
+ 	if (!is_broadcast_ether_addr(&mac->mac_dst[0])) {
+@@ -1159,6 +1172,11 @@ nfp_flower_validate_pre_tun_rule(struct nfp_app *app,
+ 		return -EOPNOTSUPP;
+ 	}
+ 
++	if (mac->mpls_lse) {
++		NL_SET_ERR_MSG_MOD(extack, "unsupported pre-tunnel rule: MPLS not supported");
++		return -EOPNOTSUPP;
++	}
++
+ 	mask += sizeof(struct nfp_flower_mac_mpls);
+ 	ext += sizeof(struct nfp_flower_mac_mpls);
+ 	if (key_layer & NFP_FLOWER_LAYER_IPV4 ||
 -- 
 2.30.1
 
