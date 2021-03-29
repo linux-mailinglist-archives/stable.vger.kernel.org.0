@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBF634C6DC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4981234C671
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231721AbhC2IKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53496 "EHLO mail.kernel.org"
+        id S232042AbhC2IH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231904AbhC2IJl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:09:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F2EC6196E;
-        Mon, 29 Mar 2021 08:09:40 +0000 (UTC)
+        id S232318AbhC2IG3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:06:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36EA2619A0;
+        Mon, 29 Mar 2021 08:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005381;
-        bh=d7w7WLi1zn3iaD1xtp9XUdjL9C90ikUPfQAdBI9KAQo=;
+        s=korg; t=1617005188;
+        bh=nOm8l39tJQp6GR6uVTBHiEOZ3QFdvM9/M3vIMGsYA2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8vi3KGBPhZYVOUEvyioBtk1mLg7cwGvlzobZ8H5b2yFfyl0/ZKPl14XnkztCSjmC
-         U2+0pRnPJV3zMdQU1MFooFrdpapWzRPo6QpuJ7G2VspEvQWkdb3eWsj5rTAGwNyAc9
-         ZmVO8Z99zVskQqKdGzKOqeOUn5FQ5u4Gi65CVpmM=
+        b=rtkTw7rhIK3rPZ2m7AruTQZX1IfdefJJSJfZfzpIIfVwk5mxj754cNfq4CFdAmOJl
+         fwCu/34ku3BY8pfYVsu1oa41nW0ep21HCDS39HpiFDOK5mCdutUGo6ceBwTM4uKpbY
+         20s9uYsH7BDL6nq3YVwug1a0f3g7pugXhuLCF9nE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 60/72] ACPI: scan: Use unique number for instance_no
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Courtney Cavin <courtney.cavin@sonymobile.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 56/59] net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
 Date:   Mon, 29 Mar 2021 09:58:36 +0200
-Message-Id: <20210329075612.269984763@linuxfoundation.org>
+Message-Id: <20210329075610.707354169@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,138 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit eb50aaf960e3bedfef79063411ffd670da94b84b ]
+commit 50535249f624d0072cd885bcdce4e4b6fb770160 upstream.
 
-The decrementation of acpi_device_bus_id->instance_no
-in acpi_device_del() is incorrect, because it may cause
-a duplicate instance number to be allocated next time
-a device with the same acpi_device_bus_id is added.
+struct sockaddr_qrtr has a 2-byte hole, and qrtr_recvmsg() currently
+does not clear it before copying kernel data to user space.
 
-Replace above mentioned approach by using IDA framework.
+It might be too late to name the hole since sockaddr_qrtr structure is uapi.
 
-While at it, define the instance range to be [0, 4096).
+BUG: KMSAN: kernel-infoleak in kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
+CPU: 0 PID: 29705 Comm: syz-executor.3 Not tainted 5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:120
+ kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
+ kmsan_internal_check_memory+0x202/0x520 mm/kmsan/kmsan.c:402
+ kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
+ instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+ _copy_to_user+0x1ac/0x270 lib/usercopy.c:33
+ copy_to_user include/linux/uaccess.h:209 [inline]
+ move_addr_to_user+0x3a2/0x640 net/socket.c:237
+ ____sys_recvmsg+0x696/0xd50 net/socket.c:2575
+ ___sys_recvmsg net/socket.c:2610 [inline]
+ do_recvmmsg+0xa97/0x22d0 net/socket.c:2710
+ __sys_recvmmsg net/socket.c:2789 [inline]
+ __do_sys_recvmmsg net/socket.c:2812 [inline]
+ __se_sys_recvmmsg+0x24a/0x410 net/socket.c:2805
+ __x64_sys_recvmmsg+0x62/0x80 net/socket.c:2805
+ do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x465f69
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f43659d6188 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
+RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 0000000000465f69
+RDX: 0000000000000008 RSI: 0000000020003e40 RDI: 0000000000000003
+RBP: 00000000004bfa8f R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000010060 R11: 0000000000000246 R12: 000000000056bf60
+R13: 0000000000a9fb1f R14: 00007f43659d6300 R15: 0000000000022000
 
-Fixes: e49bd2dd5a50 ("ACPI: use PNPID:instance_no as bus_id of ACPI device")
-Fixes: ca9dc8d42b30 ("ACPI / scan: Fix acpi_bus_id_list bookkeeping")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Local variable ----addr@____sys_recvmsg created at:
+ ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
+ ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
+
+Bytes 2-3 of 12 are uninitialized
+Memory access of size 12 starts at ffff88817c627b40
+Data copied to user address 0000000020000140
+
+Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/internal.h |  6 +++++-
- drivers/acpi/scan.c     | 33 ++++++++++++++++++++++++++++-----
- include/acpi/acpi_bus.h |  1 +
- 3 files changed, 34 insertions(+), 6 deletions(-)
+ net/qrtr/qrtr.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
-index 6def196cc23c..913613cf5c53 100644
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -18,6 +18,8 @@
- #ifndef _ACPI_INTERNAL_H_
- #define _ACPI_INTERNAL_H_
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -819,6 +819,11 @@ static int qrtr_recvmsg(struct socket *s
+ 	rc = copied;
  
-+#include <linux/idr.h>
+ 	if (addr) {
++		/* There is an anonymous 2-byte hole after sq_family,
++		 * make sure to clear it.
++		 */
++		memset(addr, 0, sizeof(*addr));
 +
- #define PREFIX "ACPI: "
- 
- int early_acpi_osi_init(void);
-@@ -97,9 +99,11 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
- 
- extern struct list_head acpi_bus_id_list;
- 
-+#define ACPI_MAX_DEVICE_INSTANCES	4096
-+
- struct acpi_device_bus_id {
- 	const char *bus_id;
--	unsigned int instance_no;
-+	struct ida instance_ida;
- 	struct list_head node;
- };
- 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 712599019892..d3c551bdc2da 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -482,9 +482,8 @@ static void acpi_device_del(struct acpi_device *device)
- 	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node)
- 		if (!strcmp(acpi_device_bus_id->bus_id,
- 			    acpi_device_hid(device))) {
--			if (acpi_device_bus_id->instance_no > 0)
--				acpi_device_bus_id->instance_no--;
--			else {
-+			ida_simple_remove(&acpi_device_bus_id->instance_ida, device->pnp.instance_no);
-+			if (ida_is_empty(&acpi_device_bus_id->instance_ida)) {
- 				list_del(&acpi_device_bus_id->node);
- 				kfree_const(acpi_device_bus_id->bus_id);
- 				kfree(acpi_device_bus_id);
-@@ -635,6 +634,21 @@ static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
- 	return NULL;
- }
- 
-+static int acpi_device_set_name(struct acpi_device *device,
-+				struct acpi_device_bus_id *acpi_device_bus_id)
-+{
-+	struct ida *instance_ida = &acpi_device_bus_id->instance_ida;
-+	int result;
-+
-+	result = ida_simple_get(instance_ida, 0, ACPI_MAX_DEVICE_INSTANCES, GFP_KERNEL);
-+	if (result < 0)
-+		return result;
-+
-+	device->pnp.instance_no = result;
-+	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, result);
-+	return 0;
-+}
-+
- int acpi_device_add(struct acpi_device *device,
- 		    void (*release)(struct device *))
- {
-@@ -669,7 +683,9 @@ int acpi_device_add(struct acpi_device *device,
- 
- 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
- 	if (acpi_device_bus_id) {
--		acpi_device_bus_id->instance_no++;
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result)
-+			goto err_unlock;
- 	} else {
- 		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
- 					     GFP_KERNEL);
-@@ -685,9 +701,16 @@ int acpi_device_add(struct acpi_device *device,
- 			goto err_unlock;
- 		}
- 
-+		ida_init(&acpi_device_bus_id->instance_ida);
-+
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result) {
-+			kfree(acpi_device_bus_id);
-+			goto err_unlock;
-+		}
-+
- 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
- 	}
--	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
- 
- 	if (device->parent)
- 		list_add_tail(&device->node, &device->parent->children);
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index d9773df60a36..8b19618bad0a 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -248,6 +248,7 @@ struct acpi_pnp_type {
- 
- struct acpi_device_pnp {
- 	acpi_bus_id bus_id;		/* Object name */
-+	int instance_no;		/* Instance number of this object */
- 	struct acpi_pnp_type type;	/* ID type */
- 	acpi_bus_address bus_address;	/* _ADR */
- 	char *unique_id;		/* _UID */
--- 
-2.30.1
-
+ 		addr->sq_family = AF_QIPCRTR;
+ 		addr->sq_node = le32_to_cpu(phdr->src_node_id);
+ 		addr->sq_port = le32_to_cpu(phdr->src_port_id);
 
 
