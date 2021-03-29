@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D24434CA53
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D24B34C5CC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234613AbhC2Igx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:36:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
+        id S231946AbhC2IC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:02:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234381AbhC2Ifd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 635EE619B9;
-        Mon, 29 Mar 2021 08:35:07 +0000 (UTC)
+        id S231736AbhC2ICb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:02:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72AFE61976;
+        Mon, 29 Mar 2021 08:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006907;
-        bh=Knma5qnz+dz3inPfmmtNceFH4HfcpVpK4qQ2jqRcOSA=;
+        s=korg; t=1617004951;
+        bh=O+bGaQbgppl7EBlZBXLS8rnc8WcSz3t4LTbgzH+Wb1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmfkYSNxgVBDIYgvg8acEPkXSK0Mqm+JDELKc+EKUlytyh2mAVec6QwFRhdpp442C
-         XJambOsI4SYvGKyD63Ow+trNPQsUfXs58CS7TaUlFPbHaD3O4kdQNauIoZuuezmLOD
-         tTt6jj3ca8OViVU0eR10zp0Psq2mkh+P8ALnjS3s=
+        b=lzpqIcmBN9/KbZjJD8C10EGlq3Bu4iAPPrikGA0jNFPnNHnbZ9LkMjmH8JBYDhRtp
+         Y5wdrrOZvuEiJpQPfOmxGKjvNbULzXF+E9HlP5C4+XJTbXC+WtJ6ZbePdVE0qLAlW/
+         1fltkAFX+q52mz8KfBI+hMr4x9dd/fk6+ftPuptM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 147/254] can: isotp: isotp_setsockopt(): only allow to set low level TX flags for CAN-FD
-Date:   Mon, 29 Mar 2021 09:57:43 +0200
-Message-Id: <20210329075638.043401350@linuxfoundation.org>
+Subject: [PATCH 4.9 09/53] NFS: Correct size calculation for create reply length
+Date:   Mon, 29 Mar 2021 09:57:44 +0200
+Message-Id: <20210329075607.858323142@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Frank Sorenson <sorenson@redhat.com>
 
-[ Upstream commit e4912459bd5edd493b61bc7c3a5d9b2eb17f5a89 ]
+[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
 
-CAN-FD frames have struct canfd_frame::flags, while classic CAN frames
-don't.
+CREATE requests return a post_op_fh3, rather than nfs_fh3. The
+post_op_fh3 includes an extra word to indicate 'handle_follows'.
 
-This patch refuses to set TX flags (struct
-can_isotp_ll_options::tx_flags) on non CAN-FD isotp sockets.
+Without that additional word, create fails when full 64-byte
+filehandles are in use.
 
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/r/20210218215434.1708249-2-mkl@pengutronix.de
-Cc: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Add NFS3_post_op_fh_sz, and correct the size calculation for
+NFS3_createres_sz.
+
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/isotp.c | 3 ++-
+ fs/nfs/nfs3xdr.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 3ef7f78e553b..e32d446c121e 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1228,7 +1228,8 @@ static int isotp_setsockopt(struct socket *sock, int level, int optname,
- 			if (ll.mtu != CAN_MTU && ll.mtu != CANFD_MTU)
- 				return -EINVAL;
- 
--			if (ll.mtu == CAN_MTU && ll.tx_dl > CAN_MAX_DLEN)
-+			if (ll.mtu == CAN_MTU &&
-+			    (ll.tx_dl > CAN_MAX_DLEN || ll.tx_flags != 0))
- 				return -EINVAL;
- 
- 			memcpy(&so->ll, &ll, sizeof(ll));
+diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
+index 267126d32ec0..4a68837e92ea 100644
+--- a/fs/nfs/nfs3xdr.c
++++ b/fs/nfs/nfs3xdr.c
+@@ -33,6 +33,7 @@
+  */
+ #define NFS3_fhandle_sz		(1+16)
+ #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
++#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
+ #define NFS3_sattr_sz		(15)
+ #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
+ #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
+@@ -70,7 +71,7 @@
+ #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1)
+ #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3)
+ #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
+-#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
++#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
+ #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2)
 -- 
 2.30.1
 
