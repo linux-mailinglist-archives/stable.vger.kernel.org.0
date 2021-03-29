@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7EFD34C8A3
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A4DB34C738
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233550AbhC2IXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38360 "EHLO mail.kernel.org"
+        id S232500AbhC2INU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233689AbhC2IWL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:22:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4D0A61477;
-        Mon, 29 Mar 2021 08:22:10 +0000 (UTC)
+        id S232823AbhC2IMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:12:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 780EB61481;
+        Mon, 29 Mar 2021 08:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006131;
-        bh=ysffmYUDo0/7c8mGFGOe47UZnwJ8LUZUvFt5CO9ScjY=;
+        s=korg; t=1617005532;
+        bh=uxChkiT9kwx0wJFCpkTuGEJciCORHWx3NueifW3y3oU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDmDhrWN0c6fY4MQLGf2ebAmNNesl5D67H+bMUo5Ro1VTXS1CcJwJIHCbkLqGrqWE
-         HZMPQVwIVYUK2ADgTQ0Fs3xeDxQK7O2ab6mkapBS+ABdm3ydP/HcEJR0wphoDQ9M42
-         ihhR4aI7QnshvOgKcSEmcWaaGgOgG7kZXy48pRR0=
+        b=ZhX4lYxeX8Mx2gSu8CiFudgSH5i/+b5qGd727nUmJCU1vv94tXItDyZboKmNGG6zH
+         C0P98DsvwosTi+1r/1DR2oWm9LsWhSSIQHukL4a86hhOooQmuvxizIgeE1euGLdDdj
+         3CXrq9FcjyH5u5Na9Y5hlay4smRLdrz889PEOaFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 102/221] macvlan: macvlan_count_rx() needs to be aware of preemption
-Date:   Mon, 29 Mar 2021 09:57:13 +0200
-Message-Id: <20210329075632.608593193@linuxfoundation.org>
+Subject: [PATCH 5.4 006/111] Revert "r8152: adjust the settings about MAC clock speed down for RTL8153"
+Date:   Mon, 29 Mar 2021 09:57:14 +0200
+Message-Id: <20210329075615.405527510@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +40,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Hayes Wang <hayeswang@realtek.com>
 
-[ Upstream commit dd4fa1dae9f4847cc1fd78ca468ad69e16e5db3e ]
+[ Upstream commit 4b5dc1a94d4f92b5845e98bd9ae344b26d933aad ]
 
-macvlan_count_rx() can be called from process context, it is thus
-necessary to disable preemption before calling u64_stats_update_begin()
+This reverts commit 134f98bcf1b898fb9d6f2b91bc85dd2e5478b4b8.
 
-syzbot was able to spot this on 32bit arch:
+The r8153_mac_clk_spd() is used for RTL8153A only, because the register
+table of RTL8153B is different from RTL8153A. However, this function would
+be called when RTL8153B calls r8153_first_init() and r8153_enter_oob().
+That causes RTL8153B becomes unstable when suspending and resuming. The
+worst case may let the device stop working.
 
-WARNING: CPU: 1 PID: 4632 at include/linux/seqlock.h:271 __seqprop_assert include/linux/seqlock.h:271 [inline]
-WARNING: CPU: 1 PID: 4632 at include/linux/seqlock.h:271 __seqprop_assert.constprop.0+0xf0/0x11c include/linux/seqlock.h:269
-Modules linked in:
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 1 PID: 4632 Comm: kworker/1:3 Not tainted 5.12.0-rc2-syzkaller #0
-Hardware name: ARM-Versatile Express
-Workqueue: events macvlan_process_broadcast
-Backtrace:
-[<82740468>] (dump_backtrace) from [<827406dc>] (show_stack+0x18/0x1c arch/arm/kernel/traps.c:252)
- r7:00000080 r6:60000093 r5:00000000 r4:8422a3c4
-[<827406c4>] (show_stack) from [<82751b58>] (__dump_stack lib/dump_stack.c:79 [inline])
-[<827406c4>] (show_stack) from [<82751b58>] (dump_stack+0xb8/0xe8 lib/dump_stack.c:120)
-[<82751aa0>] (dump_stack) from [<82741270>] (panic+0x130/0x378 kernel/panic.c:231)
- r7:830209b4 r6:84069ea4 r5:00000000 r4:844350d0
-[<82741140>] (panic) from [<80244924>] (__warn+0xb0/0x164 kernel/panic.c:605)
- r3:8404ec8c r2:00000000 r1:00000000 r0:830209b4
- r7:0000010f
-[<80244874>] (__warn) from [<82741520>] (warn_slowpath_fmt+0x68/0xd4 kernel/panic.c:628)
- r7:81363f70 r6:0000010f r5:83018e50 r4:00000000
-[<827414bc>] (warn_slowpath_fmt) from [<81363f70>] (__seqprop_assert include/linux/seqlock.h:271 [inline])
-[<827414bc>] (warn_slowpath_fmt) from [<81363f70>] (__seqprop_assert.constprop.0+0xf0/0x11c include/linux/seqlock.h:269)
- r8:5a109000 r7:0000000f r6:a568dac0 r5:89802300 r4:00000001
-[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (u64_stats_update_begin include/linux/u64_stats_sync.h:128 [inline])
-[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (macvlan_count_rx include/linux/if_macvlan.h:47 [inline])
-[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (macvlan_broadcast+0x154/0x26c drivers/net/macvlan.c:291)
- r5:89802300 r4:8a927740
-[<8136499c>] (macvlan_broadcast) from [<81365020>] (macvlan_process_broadcast+0x258/0x2d0 drivers/net/macvlan.c:317)
- r10:81364f78 r9:8a86d000 r8:8a9c7e7c r7:8413aa5c r6:00000000 r5:00000000
- r4:89802840
-[<81364dc8>] (macvlan_process_broadcast) from [<802696a4>] (process_one_work+0x2d4/0x998 kernel/workqueue.c:2275)
- r10:00000008 r9:8404ec98 r8:84367a02 r7:ddfe6400 r6:ddfe2d40 r5:898dac80
- r4:8a86d43c
-[<802693d0>] (process_one_work) from [<80269dcc>] (worker_thread+0x64/0x54c kernel/workqueue.c:2421)
- r10:00000008 r9:8a9c6000 r8:84006d00 r7:ddfe2d78 r6:898dac94 r5:ddfe2d40
- r4:898dac80
-[<80269d68>] (worker_thread) from [<80271f40>] (kthread+0x184/0x1a4 kernel/kthread.c:292)
- r10:85247e64 r9:898dac80 r8:80269d68 r7:00000000 r6:8a9c6000 r5:89a2ee40
- r4:8a97bd00
-[<80271dbc>] (kthread) from [<80200114>] (ret_from_fork+0x14/0x20 arch/arm/kernel/entry-common.S:158)
-Exception stack(0x8a9c7fb0 to 0x8a9c7ff8)
+Besides, revert this commit to disable MAC clock speed down for RTL8153A.
+It would avoid the known issue when enabling U1. The data of the first
+control transfer may be wrong when exiting U1.
 
-Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Hayes Wang <hayeswang@realtek.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/if_macvlan.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/r8152.c | 35 ++++++-----------------------------
+ 1 file changed, 6 insertions(+), 29 deletions(-)
 
-diff --git a/include/linux/if_macvlan.h b/include/linux/if_macvlan.h
-index a367ead4bf4b..e11555989090 100644
---- a/include/linux/if_macvlan.h
-+++ b/include/linux/if_macvlan.h
-@@ -42,13 +42,14 @@ static inline void macvlan_count_rx(const struct macvlan_dev *vlan,
- 	if (likely(success)) {
- 		struct vlan_pcpu_stats *pcpu_stats;
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 22f093797f41..486cf511d2bf 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -2836,29 +2836,6 @@ static void __rtl_set_wol(struct r8152 *tp, u32 wolopts)
+ 		device_set_wakeup_enable(&tp->udev->dev, false);
+ }
  
--		pcpu_stats = this_cpu_ptr(vlan->pcpu_stats);
-+		pcpu_stats = get_cpu_ptr(vlan->pcpu_stats);
- 		u64_stats_update_begin(&pcpu_stats->syncp);
- 		pcpu_stats->rx_packets++;
- 		pcpu_stats->rx_bytes += len;
- 		if (multicast)
- 			pcpu_stats->rx_multicast++;
- 		u64_stats_update_end(&pcpu_stats->syncp);
-+		put_cpu_ptr(vlan->pcpu_stats);
+-static void r8153_mac_clk_spd(struct r8152 *tp, bool enable)
+-{
+-	/* MAC clock speed down */
+-	if (enable) {
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL,
+-			       ALDPS_SPDWN_RATIO);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2,
+-			       EEE_SPDWN_RATIO);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3,
+-			       PKT_AVAIL_SPDWN_EN | SUSPEND_SPDWN_EN |
+-			       U1U2_SPDWN_EN | L1_SPDWN_EN);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4,
+-			       PWRSAVE_SPDWN_EN | RXDV_SPDWN_EN | TX10MIDLE_EN |
+-			       TP100_SPDWN_EN | TP500_SPDWN_EN | EEE_SPDWN_EN |
+-			       TP1000_SPDWN_EN);
+-	} else {
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
+-	}
+-}
+-
+ static void r8153_u1u2en(struct r8152 *tp, bool enable)
+ {
+ 	u8 u1u2[8];
+@@ -3158,11 +3135,9 @@ static void rtl8153_runtime_enable(struct r8152 *tp, bool enable)
+ 	if (enable) {
+ 		r8153_u1u2en(tp, false);
+ 		r8153_u2p3en(tp, false);
+-		r8153_mac_clk_spd(tp, true);
+ 		rtl_runtime_suspend_enable(tp, true);
  	} else {
- 		this_cpu_inc(vlan->pcpu_stats->rx_errors);
- 	}
+ 		rtl_runtime_suspend_enable(tp, false);
+-		r8153_mac_clk_spd(tp, false);
+ 
+ 		switch (tp->version) {
+ 		case RTL_VER_03:
+@@ -3727,7 +3702,6 @@ static void r8153_first_init(struct r8152 *tp)
+ 	u32 ocp_data;
+ 	int i;
+ 
+-	r8153_mac_clk_spd(tp, false);
+ 	rxdy_gated_en(tp, true);
+ 	r8153_teredo_off(tp);
+ 
+@@ -3789,8 +3763,6 @@ static void r8153_enter_oob(struct r8152 *tp)
+ 	u32 ocp_data;
+ 	int i;
+ 
+-	r8153_mac_clk_spd(tp, true);
+-
+ 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL);
+ 	ocp_data &= ~NOW_IS_OOB;
+ 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
+@@ -4498,9 +4470,14 @@ static void r8153_init(struct r8152 *tp)
+ 
+ 	ocp_write_word(tp, MCU_TYPE_USB, USB_CONNECT_TIMER, 0x0001);
+ 
++	/* MAC clock speed down */
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
++
+ 	r8153_power_cut_en(tp, false);
+ 	r8153_u1u2en(tp, true);
+-	r8153_mac_clk_spd(tp, false);
+ 	usb_enable_lpm(tp->udev);
+ 
+ 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_CONFIG6);
 -- 
 2.30.1
 
