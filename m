@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6353434C9F2
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC3034C83E
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233930AbhC2IeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
+        id S233112AbhC2IVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234615AbhC2IdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20A24619C1;
-        Mon, 29 Mar 2021 08:32:28 +0000 (UTC)
+        id S232256AbhC2IUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13556619CA;
+        Mon, 29 Mar 2021 08:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006749;
-        bh=hdkWxzRMAcCjGnAWEFjGL1Buz4+gvPt+cTA6iWGL5Qw=;
+        s=korg; t=1617006000;
+        bh=ZMl16UAd9pVTrK0QjJ1Fi3BOD/lFDmcZlzwI6WsV3y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXlHUoqYmlgoZ9KM8pUJJ5lVMpN6slMc8WTFRe+kVTpg3zb7jA2zSGfQT/wKtQ812
-         JrHxJc36J42nKEb7CHencA2hIxsaaYeAF017JTHqIs+H+LHhf6WdSa0IYp1IWP8oh5
-         qg0gn0VtWee6zjsPk1mTpjTd9WyKfMkO96+UZy+A=
+        b=AoK1ri9tuVkfQnqM+SaA+s9pNDaa21djjSio3sN1vbLP43NSJgzGND9oCbJ5Cu/TE
+         6F3yLRRYGaovbWP4r1hthqXOXYxd4af/Op8r4bOxverrx9xspbrS6c1qKcGZkLsGPR
+         QisicGlEZRCNcbYq4dUClglA3kY/Ol5fbwggeoOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Vitaly Wool <vitaly.wool@konsulko.com>,
-        Jongseok Kim <ks77sj@gmail.com>, Snild Dolkow <snild@sony.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 078/254] z3fold: prevent reclaim/free race for headless pages
-Date:   Mon, 29 Mar 2021 09:56:34 +0200
-Message-Id: <20210329075635.707164743@linuxfoundation.org>
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.10 064/221] selinux: fix variable scope issue in live sidtab conversion
+Date:   Mon, 29 Mar 2021 09:56:35 +0200
+Message-Id: <20210329075631.325895612@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,98 +40,279 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit 6d679578fe9c762c8fbc3d796a067cbba84a7884 upstream.
+commit 6406887a12ee5dcdaffff1a8508d91113d545559 upstream.
 
-Commit ca0246bb97c2 ("z3fold: fix possible reclaim races") introduced
-the PAGE_CLAIMED flag "to avoid racing on a z3fold 'headless' page
-release." By atomically testing and setting the bit in each of
-z3fold_free() and z3fold_reclaim_page(), a double-free was avoided.
+Commit 02a52c5c8c3b ("selinux: move policy commit after updating
+selinuxfs") moved the selinux_policy_commit() call out of
+security_load_policy() into sel_write_load(), which caused a subtle yet
+rather serious bug.
 
-However, commit dcf5aedb24f8 ("z3fold: stricter locking and more careful
-reclaim") appears to have unintentionally broken this behavior by moving
-the PAGE_CLAIMED check in z3fold_reclaim_page() to after the page lock
-gets taken, which only happens for non-headless pages.  For headless
-pages, the check is now skipped entirely and races can occur again.
+The problem is that security_load_policy() passes a reference to the
+convert_params local variable to sidtab_convert(), which stores it in
+the sidtab, where it may be accessed until the policy is swapped over
+and RCU synchronized. Before 02a52c5c8c3b, selinux_policy_commit() was
+called directly from security_load_policy(), so the convert_params
+pointer remained valid all the way until the old sidtab was destroyed,
+but now that's no longer the case and calls to sidtab_context_to_sid()
+on the old sidtab after security_load_policy() returns may cause invalid
+memory accesses.
 
-I have observed such a race on my system:
+This can be easily triggered using the stress test from commit
+ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
+performance"):
+```
+function rand_cat() {
+	echo $(( $RANDOM % 1024 ))
+}
 
-    page:00000000ffbd76b7 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x165316
-    flags: 0x2ffff0000000000()
-    raw: 02ffff0000000000 ffffea0004535f48 ffff8881d553a170 0000000000000000
-    raw: 0000000000000000 0000000000000011 00000000ffffffff 0000000000000000
-    page dumped because: VM_BUG_ON_PAGE(page_ref_count(page) == 0)
-    ------------[ cut here ]------------
-    kernel BUG at include/linux/mm.h:707!
-    invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-    CPU: 2 PID: 291928 Comm: kworker/2:0 Tainted: G    B             5.10.7-arch1-1-kasan #1
-    Hardware name: Gigabyte Technology Co., Ltd. H97N-WIFI/H97N-WIFI, BIOS F9b 03/03/2016
-    Workqueue: zswap-shrink shrink_worker
-    RIP: 0010:__free_pages+0x10a/0x130
-    Code: c1 e7 06 48 01 ef 45 85 e4 74 d1 44 89 e6 31 d2 41 83 ec 01 e8 e7 b0 ff ff eb da 48 c7 c6 e0 32 91 88 48 89 ef e8 a6 89 f8 ff <0f> 0b 4c 89 e7 e8 fc 79 07 00 e9 33 ff ff ff 48 89 ef e8 ff 79 07
-    RSP: 0000:ffff88819a2ffb98 EFLAGS: 00010296
-    RAX: 0000000000000000 RBX: ffffea000594c5a8 RCX: 0000000000000000
-    RDX: 1ffffd4000b298b7 RSI: 0000000000000000 RDI: ffffea000594c5b8
-    RBP: ffffea000594c580 R08: 000000000000003e R09: ffff8881d5520bbb
-    R10: ffffed103aaa4177 R11: 0000000000000001 R12: ffffea000594c5b4
-    R13: 0000000000000000 R14: ffff888165316000 R15: ffffea000594c588
-    FS:  0000000000000000(0000) GS:ffff8881d5500000(0000) knlGS:0000000000000000
-    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    CR2: 00007f7c8c3654d8 CR3: 0000000103f42004 CR4: 00000000001706e0
-    Call Trace:
-     z3fold_zpool_shrink+0x9b6/0x1240
-     shrink_worker+0x35/0x90
-     process_one_work+0x70c/0x1210
-     worker_thread+0x539/0x1200
-     kthread+0x330/0x400
-     ret_from_fork+0x22/0x30
-    Modules linked in: rfcomm ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter ccm algif_aead des_generic libdes ecb algif_skcipher cmac bnep md4 algif_hash af_alg vfat fat intel_rapl_msr intel_rapl_common x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel iwlmvm hid_logitech_hidpp kvm at24 mac80211 snd_hda_codec_realtek iTCO_wdt snd_hda_codec_generic intel_pmc_bxt snd_hda_codec_hdmi ledtrig_audio iTCO_vendor_support mei_wdt mei_hdcp snd_hda_intel snd_intel_dspcfg libarc4 soundwire_intel irqbypass iwlwifi soundwire_generic_allocation rapl soundwire_cadence intel_cstate snd_hda_codec intel_uncore btusb joydev mousedev snd_usb_audio pcspkr btrtl uvcvideo nouveau btbcm i2c_i801 btintel snd_hda_core videobuf2_vmalloc i2c_smbus snd_usbmidi_lib videobuf2_memops bluetooth snd_hwdep soundwire_bus snd_soc_rt5640 videobuf2_v4l2 cfg80211 snd_soc_rl6231 videobuf2_common snd_rawmidi lpc_ich alx videodev mdio snd_seq_device snd_soc_core mc ecdh_generic mxm_wmi mei_me
-     hid_logitech_dj wmi snd_compress e1000e ac97_bus mei ttm rfkill snd_pcm_dmaengine ecc snd_pcm snd_timer snd soundcore mac_hid acpi_pad pkcs8_key_parser it87 hwmon_vid crypto_user fuse ip_tables x_tables ext4 crc32c_generic crc16 mbcache jbd2 dm_crypt cbc encrypted_keys trusted tpm rng_core usbhid dm_mod crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel crypto_simd cryptd glue_helper xhci_pci xhci_pci_renesas i915 video intel_gtt i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops cec drm agpgart
-    ---[ end trace 126d646fc3dc0ad8 ]---
+function do_work() {
+	while true; do
+		echo -n "system_u:system_r:kernel_t:s0:c$(rand_cat),c$(rand_cat)" \
+			>/sys/fs/selinux/context 2>/dev/null || true
+	done
+}
 
-To fix the issue, re-add the earlier test and set in the case where we
-have a headless page.
+do_work >/dev/null &
+do_work >/dev/null &
+do_work >/dev/null &
 
-Link: https://lkml.kernel.org/r/c8106dbe6d8390b290cd1d7f873a2942e805349e.1615452048.git.tommyhebb@gmail.com
-Fixes: dcf5aedb24f8 ("z3fold: stricter locking and more careful reclaim")
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Reviewed-by: Vitaly Wool <vitaly.wool@konsulko.com>
-Cc: Jongseok Kim <ks77sj@gmail.com>
-Cc: Snild Dolkow <snild@sony.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+while load_policy; do echo -n .; sleep 0.1; done
+
+kill %1
+kill %2
+kill %3
+```
+
+Fix this by allocating the temporary sidtab convert structures
+dynamically and passing them among the
+selinux_policy_{load,cancel,commit} functions.
+
+Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
+Cc: stable@vger.kernel.org
+Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+[PM: merge fuzz in security.h and services.c]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/z3fold.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ security/selinux/include/security.h |   15 ++++++--
+ security/selinux/selinuxfs.c        |   10 ++---
+ security/selinux/ss/services.c      |   65 ++++++++++++++++++++++--------------
+ 3 files changed, 56 insertions(+), 34 deletions(-)
 
---- a/mm/z3fold.c
-+++ b/mm/z3fold.c
-@@ -1353,8 +1353,22 @@ static int z3fold_reclaim_page(struct z3
- 			page = list_entry(pos, struct page, lru);
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -219,14 +219,21 @@ static inline bool selinux_policycap_gen
+ 	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
+ }
  
- 			zhdr = page_address(page);
--			if (test_bit(PAGE_HEADLESS, &page->private))
-+			if (test_bit(PAGE_HEADLESS, &page->private)) {
-+				/*
-+				 * For non-headless pages, we wait to do this
-+				 * until we have the page lock to avoid racing
-+				 * with __z3fold_alloc(). Headless pages don't
-+				 * have a lock (and __z3fold_alloc() will never
-+				 * see them), but we still need to test and set
-+				 * PAGE_CLAIMED to avoid racing with
-+				 * z3fold_free(), so just do it now before
-+				 * leaving the loop.
-+				 */
-+				if (test_and_set_bit(PAGE_CLAIMED, &page->private))
-+					continue;
++struct selinux_policy_convert_data;
 +
- 				break;
-+			}
++struct selinux_load_state {
++	struct selinux_policy *policy;
++	struct selinux_policy_convert_data *convert_data;
++};
++
+ int security_mls_enabled(struct selinux_state *state);
+ int security_load_policy(struct selinux_state *state,
+-			void *data, size_t len,
+-			struct selinux_policy **newpolicyp);
++			 void *data, size_t len,
++			 struct selinux_load_state *load_state);
+ void selinux_policy_commit(struct selinux_state *state,
+-			struct selinux_policy *newpolicy);
++			   struct selinux_load_state *load_state);
+ void selinux_policy_cancel(struct selinux_state *state,
+-			struct selinux_policy *policy);
++			   struct selinux_load_state *load_state);
+ int security_read_policy(struct selinux_state *state,
+ 			 void **data, size_t *len);
  
- 			if (kref_get_unless_zero(&zhdr->refcount) == 0) {
- 				zhdr = NULL;
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -616,7 +616,7 @@ static ssize_t sel_write_load(struct fil
+ 
+ {
+ 	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
+-	struct selinux_policy *newpolicy;
++	struct selinux_load_state load_state;
+ 	ssize_t length;
+ 	void *data = NULL;
+ 
+@@ -642,19 +642,19 @@ static ssize_t sel_write_load(struct fil
+ 	if (copy_from_user(data, buf, count) != 0)
+ 		goto out;
+ 
+-	length = security_load_policy(fsi->state, data, count, &newpolicy);
++	length = security_load_policy(fsi->state, data, count, &load_state);
+ 	if (length) {
+ 		pr_warn_ratelimited("SELinux: failed to load policy\n");
+ 		goto out;
+ 	}
+ 
+-	length = sel_make_policy_nodes(fsi, newpolicy);
++	length = sel_make_policy_nodes(fsi, load_state.policy);
+ 	if (length) {
+-		selinux_policy_cancel(fsi->state, newpolicy);
++		selinux_policy_cancel(fsi->state, &load_state);
+ 		goto out;
+ 	}
+ 
+-	selinux_policy_commit(fsi->state, newpolicy);
++	selinux_policy_commit(fsi->state, &load_state);
+ 
+ 	length = count;
+ 
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -66,6 +66,17 @@
+ #include "audit.h"
+ #include "policycap_names.h"
+ 
++struct convert_context_args {
++	struct selinux_state *state;
++	struct policydb *oldp;
++	struct policydb *newp;
++};
++
++struct selinux_policy_convert_data {
++	struct convert_context_args args;
++	struct sidtab_convert_params sidtab_params;
++};
++
+ /* Forward declaration. */
+ static int context_struct_to_string(struct policydb *policydb,
+ 				    struct context *context,
+@@ -1975,12 +1986,6 @@ static inline int convert_context_handle
+ 	return 0;
+ }
+ 
+-struct convert_context_args {
+-	struct selinux_state *state;
+-	struct policydb *oldp;
+-	struct policydb *newp;
+-};
+-
+ /*
+  * Convert the values in the security context
+  * structure `oldc' from the values specified
+@@ -2160,7 +2165,7 @@ static void selinux_policy_cond_free(str
+ }
+ 
+ void selinux_policy_cancel(struct selinux_state *state,
+-			struct selinux_policy *policy)
++			   struct selinux_load_state *load_state)
+ {
+ 	struct selinux_policy *oldpolicy;
+ 
+@@ -2168,7 +2173,8 @@ void selinux_policy_cancel(struct selinu
+ 					lockdep_is_held(&state->policy_mutex));
+ 
+ 	sidtab_cancel_convert(oldpolicy->sidtab);
+-	selinux_policy_free(policy);
++	selinux_policy_free(load_state->policy);
++	kfree(load_state->convert_data);
+ }
+ 
+ static void selinux_notify_policy_change(struct selinux_state *state,
+@@ -2183,9 +2189,9 @@ static void selinux_notify_policy_change
+ }
+ 
+ void selinux_policy_commit(struct selinux_state *state,
+-			struct selinux_policy *newpolicy)
++			   struct selinux_load_state *load_state)
+ {
+-	struct selinux_policy *oldpolicy;
++	struct selinux_policy *oldpolicy, *newpolicy = load_state->policy;
+ 	u32 seqno;
+ 
+ 	oldpolicy = rcu_dereference_protected(state->policy,
+@@ -2225,6 +2231,7 @@ void selinux_policy_commit(struct selinu
+ 	/* Free the old policy */
+ 	synchronize_rcu();
+ 	selinux_policy_free(oldpolicy);
++	kfree(load_state->convert_data);
+ 
+ 	/* Notify others of the policy change */
+ 	selinux_notify_policy_change(state, seqno);
+@@ -2241,11 +2248,10 @@ void selinux_policy_commit(struct selinu
+  * loading the new policy.
+  */
+ int security_load_policy(struct selinux_state *state, void *data, size_t len,
+-			struct selinux_policy **newpolicyp)
++			 struct selinux_load_state *load_state)
+ {
+ 	struct selinux_policy *newpolicy, *oldpolicy;
+-	struct sidtab_convert_params convert_params;
+-	struct convert_context_args args;
++	struct selinux_policy_convert_data *convert_data;
+ 	int rc = 0;
+ 	struct policy_file file = { data, len }, *fp = &file;
+ 
+@@ -2275,10 +2281,10 @@ int security_load_policy(struct selinux_
+ 		goto err_mapping;
+ 	}
+ 
+-
+ 	if (!selinux_initialized(state)) {
+ 		/* First policy load, so no need to preserve state from old policy */
+-		*newpolicyp = newpolicy;
++		load_state->policy = newpolicy;
++		load_state->convert_data = NULL;
+ 		return 0;
+ 	}
+ 
+@@ -2292,29 +2298,38 @@ int security_load_policy(struct selinux_
+ 		goto err_free_isids;
+ 	}
+ 
++	convert_data = kmalloc(sizeof(*convert_data), GFP_KERNEL);
++	if (!convert_data) {
++		rc = -ENOMEM;
++		goto err_free_isids;
++	}
++
+ 	/*
+ 	 * Convert the internal representations of contexts
+ 	 * in the new SID table.
+ 	 */
+-	args.state = state;
+-	args.oldp = &oldpolicy->policydb;
+-	args.newp = &newpolicy->policydb;
+-
+-	convert_params.func = convert_context;
+-	convert_params.args = &args;
+-	convert_params.target = newpolicy->sidtab;
++	convert_data->args.state = state;
++	convert_data->args.oldp = &oldpolicy->policydb;
++	convert_data->args.newp = &newpolicy->policydb;
++
++	convert_data->sidtab_params.func = convert_context;
++	convert_data->sidtab_params.args = &convert_data->args;
++	convert_data->sidtab_params.target = newpolicy->sidtab;
+ 
+-	rc = sidtab_convert(oldpolicy->sidtab, &convert_params);
++	rc = sidtab_convert(oldpolicy->sidtab, &convert_data->sidtab_params);
+ 	if (rc) {
+ 		pr_err("SELinux:  unable to convert the internal"
+ 			" representation of contexts in the new SID"
+ 			" table\n");
+-		goto err_free_isids;
++		goto err_free_convert_data;
+ 	}
+ 
+-	*newpolicyp = newpolicy;
++	load_state->policy = newpolicy;
++	load_state->convert_data = convert_data;
+ 	return 0;
+ 
++err_free_convert_data:
++	kfree(convert_data);
+ err_free_isids:
+ 	sidtab_destroy(newpolicy->sidtab);
+ err_mapping:
 
 
