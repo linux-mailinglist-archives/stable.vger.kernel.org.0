@@ -2,180 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2A9434CAEE
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F09034C7AA
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234326AbhC2IlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:41:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34754 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234872AbhC2IkL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:40:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 399F460C41;
-        Mon, 29 Mar 2021 08:39:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007195;
-        bh=J+OJapO/LU9j+9AC6CZF501CwFFDmYzO23IbBdyCzNU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZXNvhtN6o2+ZMXer6aB0a6EEhRecgtJOWAm3ktGmNyDRYftGCv6xfRL4K5IRgZtQg
-         NCXJf0aFt6QoBcjO3D6cTzdueLmb4Qyv9Nbwx8Paif9G+yc2njuZBvtH+rQBubKt4X
-         BURNXdaAVqfa7gVIcvv+wJcI4WutcRaaZj9gp4s0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.11 254/254] selftest/bpf: Add a test to check trampoline freeing logic.
-Date:   Mon, 29 Mar 2021 09:59:30 +0200
-Message-Id: <20210329075641.411827417@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S232165AbhC2IRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:17:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46914 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232428AbhC2IPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 04:15:39 -0400
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F635C061756;
+        Mon, 29 Mar 2021 01:15:39 -0700 (PDT)
+Received: by mail-lf1-x130.google.com with SMTP id 75so17165092lfa.2;
+        Mon, 29 Mar 2021 01:15:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
+         :mime-version;
+        bh=zBv0H2aHUbMd9Rp97TANmEJVCBnTx2DEtozoJt1A8Hw=;
+        b=gqg3KfnxyAcBj5KVMSHNHSQk4DvXTHeH0jrYz+9wzgYu/WHvEzXx44yKBgixeoXyZ9
+         Zjsb50FuF6UyrMxrJdyCOnc7rKLTEHh8u3+jbQhHdbm1WbwNR9p9r62CVLzntuS8jK2i
+         rzo5Es377XuBH66gjk7Py5O4N9VV34mK3pvLQikNI4U2MFNiV8guQoBbXo5R1HsW6zVV
+         MXBTsfj3mh3P2IxcvZp/RTmefhT1BxBHB4uVSq4oU5e0jgJPugUNBC+fHJqFkoYvVkPW
+         cixTqFezaTagg/OoELfAKOFUERhoF4BG1uQUPzMbq/skSmqTvtf2b/DZDHucMxDfIvt6
+         SpZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version;
+        bh=zBv0H2aHUbMd9Rp97TANmEJVCBnTx2DEtozoJt1A8Hw=;
+        b=kq5Qd9wANFJKi/uiMhj3fsggCSUtroLoEMq7SYQQLo1BcjV39xyeXzvjmCFZxZwarT
+         DQ7hcaDkgSpp6afPZEJohGTjsg/Iw1mIcnvNCNHrYfdqo7Mq5Pkfv6ClhUo7vcc/VMzt
+         IbK8SOqGi7hSZH6P3JmPVXbXSkvUsI4Zt/zibVLgVwHkwkc3cswDQ3J3Amnj6ux0amqW
+         bIdEFStAzl4FpvPJmm9HdK/vrNkN9wbPcMoFZOWC4onAoHKNzkxoyBj1S17T/362Ir4C
+         BGaKfJioPart0cICXVASgXhPT51Zz8eRJH0j1wpa882MlMT3SrSiJ8RfNENfcd1MZGe4
+         lcOg==
+X-Gm-Message-State: AOAM533zK/40qdRVpUClrrDtSYqKDEOfZw1eCeqqscBy7RlIwiT9MiKL
+        tTkhpQBUkL2ldGRvypLP6YY=
+X-Google-Smtp-Source: ABdhPJzxgGD/4gmDa6/iAxicckA149Q3A/tIhIR7r08sRje8rOLmys2iDv4Z15DavZDyNBP+8/aMgA==
+X-Received: by 2002:ac2:4316:: with SMTP id l22mr16161690lfh.338.1617005737725;
+        Mon, 29 Mar 2021 01:15:37 -0700 (PDT)
+Received: from eldfell ([194.136.85.206])
+        by smtp.gmail.com with ESMTPSA id n8sm1665977lfu.172.2021.03.29.01.15.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Mar 2021 01:15:37 -0700 (PDT)
+Date:   Mon, 29 Mar 2021 11:15:33 +0300
+From:   Pekka Paalanen <ppaalanen@gmail.com>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Simon Ser <contact@emersion.fr>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+        od@zcrc.me, dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH] drm: DON'T require each CRTC to have a unique primary
+ plane
+Message-ID: <20210329111533.47e44f72@eldfell>
+In-Reply-To: <24LMQQ.CRNKYEI6GB2T1@crapouillou.net>
+References: <20210327112214.10252-1-paul@crapouillou.net>
+        <1J_tcDPSAZW23jPO8ApyzgINcVRRWcNyFP0LvrSFVIMbZB9lH6lCWvh2ByU9rNt6bj6xpgRgv8n0hBKhXAvXNfLBGfTIsvbhYuHW3IIDd7Y=@emersion.fr>
+        <24LMQQ.CRNKYEI6GB2T1@crapouillou.net>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/VjwGWdRbYYmHwPtJmbJ.naq"; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+--Sig_/VjwGWdRbYYmHwPtJmbJ.naq
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-commit eddbe8e6521401003e37e7848ef72e75c10ee2aa upstream.
+On Sat, 27 Mar 2021 11:26:26 +0000
+Paul Cercueil <paul@crapouillou.net> wrote:
 
-Add a selftest for commit e21aa341785c ("bpf: Fix fexit trampoline.")
-to make sure that attaching fexit prog to a sleeping kernel function
-will trigger appropriate trampoline and program destruction.
+> It has two mutually exclusive background planes (same Z level) + one=20
+> overlay plane.
 
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210318004523.55908-1-alexei.starovoitov@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/bpf/prog_tests/fexit_sleep.c |   82 +++++++++++++++++++
- tools/testing/selftests/bpf/progs/fexit_sleep.c      |   31 +++++++
- 2 files changed, 113 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/fexit_sleep.c
- create mode 100644 tools/testing/selftests/bpf/progs/fexit_sleep.c
+What's the difference between the two background planes?
 
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/fexit_sleep.c
-@@ -0,0 +1,82 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright (c) 2021 Facebook */
-+#define _GNU_SOURCE
-+#include <sched.h>
-+#include <test_progs.h>
-+#include <time.h>
-+#include <sys/mman.h>
-+#include <sys/syscall.h>
-+#include "fexit_sleep.skel.h"
-+
-+static int do_sleep(void *skel)
-+{
-+	struct fexit_sleep *fexit_skel = skel;
-+	struct timespec ts1 = { .tv_nsec = 1 };
-+	struct timespec ts2 = { .tv_sec = 10 };
-+
-+	fexit_skel->bss->pid = getpid();
-+	(void)syscall(__NR_nanosleep, &ts1, NULL);
-+	(void)syscall(__NR_nanosleep, &ts2, NULL);
-+	return 0;
-+}
-+
-+#define STACK_SIZE (1024 * 1024)
-+static char child_stack[STACK_SIZE];
-+
-+void test_fexit_sleep(void)
-+{
-+	struct fexit_sleep *fexit_skel = NULL;
-+	int wstatus, duration = 0;
-+	pid_t cpid;
-+	int err, fexit_cnt;
-+
-+	fexit_skel = fexit_sleep__open_and_load();
-+	if (CHECK(!fexit_skel, "fexit_skel_load", "fexit skeleton failed\n"))
-+		goto cleanup;
-+
-+	err = fexit_sleep__attach(fexit_skel);
-+	if (CHECK(err, "fexit_attach", "fexit attach failed: %d\n", err))
-+		goto cleanup;
-+
-+	cpid = clone(do_sleep, child_stack + STACK_SIZE, CLONE_FILES | SIGCHLD, fexit_skel);
-+	if (CHECK(cpid == -1, "clone", strerror(errno)))
-+		goto cleanup;
-+
-+	/* wait until first sys_nanosleep ends and second sys_nanosleep starts */
-+	while (READ_ONCE(fexit_skel->bss->fentry_cnt) != 2);
-+	fexit_cnt = READ_ONCE(fexit_skel->bss->fexit_cnt);
-+	if (CHECK(fexit_cnt != 1, "fexit_cnt", "%d", fexit_cnt))
-+		goto cleanup;
-+
-+	/* close progs and detach them. That will trigger two nop5->jmp5 rewrites
-+	 * in the trampolines to skip nanosleep_fexit prog.
-+	 * The nanosleep_fentry prog will get detached first.
-+	 * The nanosleep_fexit prog will get detached second.
-+	 * Detaching will trigger freeing of both progs JITed images.
-+	 * There will be two dying bpf_tramp_image-s, but only the initial
-+	 * bpf_tramp_image (with both _fentry and _fexit progs will be stuck
-+	 * waiting for percpu_ref_kill to confirm). The other one
-+	 * will be freed quickly.
-+	 */
-+	close(bpf_program__fd(fexit_skel->progs.nanosleep_fentry));
-+	close(bpf_program__fd(fexit_skel->progs.nanosleep_fexit));
-+	fexit_sleep__detach(fexit_skel);
-+
-+	/* kill the thread to unwind sys_nanosleep stack through the trampoline */
-+	kill(cpid, 9);
-+
-+	if (CHECK(waitpid(cpid, &wstatus, 0) == -1, "waitpid", strerror(errno)))
-+		goto cleanup;
-+	if (CHECK(WEXITSTATUS(wstatus) != 0, "exitstatus", "failed"))
-+		goto cleanup;
-+
-+	/* The bypassed nanosleep_fexit prog shouldn't have executed.
-+	 * Unlike progs the maps were not freed and directly accessible.
-+	 */
-+	fexit_cnt = READ_ONCE(fexit_skel->bss->fexit_cnt);
-+	if (CHECK(fexit_cnt != 1, "fexit_cnt", "%d", fexit_cnt))
-+		goto cleanup;
-+
-+cleanup:
-+	fexit_sleep__destroy(fexit_skel);
-+}
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/fexit_sleep.c
-@@ -0,0 +1,31 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright (c) 2021 Facebook */
-+#include "vmlinux.h"
-+#include <bpf/bpf_helpers.h>
-+#include <bpf/bpf_tracing.h>
-+
-+char LICENSE[] SEC("license") = "GPL";
-+
-+int pid = 0;
-+int fentry_cnt = 0;
-+int fexit_cnt = 0;
-+
-+SEC("fentry/__x64_sys_nanosleep")
-+int BPF_PROG(nanosleep_fentry, const struct pt_regs *regs)
-+{
-+	if ((int)bpf_get_current_pid_tgid() != pid)
-+		return 0;
-+
-+	fentry_cnt++;
-+	return 0;
-+}
-+
-+SEC("fexit/__x64_sys_nanosleep")
-+int BPF_PROG(nanosleep_fexit, const struct pt_regs *regs, int ret)
-+{
-+	if ((int)bpf_get_current_pid_tgid() != pid)
-+		return 0;
-+
-+	fexit_cnt++;
-+	return 0;
-+}
+How will generic userspace know to pick the "right" one?
 
 
+Thanks,
+pq
+
+> Le sam. 27 mars 2021 =C3=A0 11:24, Simon Ser <contact@emersion.fr> a =C3=
+=A9crit=20
+> :
+> > On Saturday, March 27th, 2021 at 12:22 PM, Paul Cercueil=20
+> > <paul@crapouillou.net> wrote:
+> >  =20
+> >>  The ingenic-drm driver has two mutually exclusive primary planes
+> >>  already; so the fact that a CRTC must have one and only one primary
+> >>  plane is an invalid assumption. =20
+> >=20
+> > Why does this driver expose two primary planes, if it only has a=20
+> > single
+> > CRTC? =20
+>=20
+>=20
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+
+--Sig_/VjwGWdRbYYmHwPtJmbJ.naq
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAmBhjKUACgkQI1/ltBGq
+qqf4zQ/8CTYQltHBAYzKNRwXrfze1iZznMXlxhTX0k079z6Vx/dqAUtOXtF5lU69
+QIcj/I5rzbdgNFYg/PZv1txTlTJp12GrdynXWxEgvD9ovZhRG3cpqKHABkmPB3LO
+s5mfv++oIP5go+xOjGn8BRtzmuOB93u3yORJYeJv2yu0KkBMtXJ9/O0z4DEoSPfH
+lZgd50KlOG9pLwJNsxNEkHahrfam20UcCA//kR8GFBMp/QfjLcuExcAj1sef3IP4
+awHTaBcP3SxyKzjMrqBPipzxAZENjWXQNHv0SETNj8FftIhSEcxSmAyqtDMbY2kf
+B5xJfzplu88D5op7zO/IvjILey1eikJFKbp950TDvmjsDHCqHWcDzSXWXOZeNyOx
+Bh0xwk+i0qcFLI19IGdJUGuFsyxewKpnr3OSp7KZ7mqa5VLX8leVodRpX6cA2/9x
+C8ozpYeoAMESD5hraGlXPu5AYqFuMK394QhawcePltUQuzi23XcZdIxuE15h+B9d
+VkpVIZ5xc83WUI6tW7oGjDzAC0IFcKP3XvtKFXoQfA2r5AnhMh8ZCAQkOzn1Yy25
+CKFTZWhkfdZOWv/mudRPz65OrCy1F/JX+MdS8xTM8sFyLLYMyHgj7mffcxr+F5S6
+nkg4lHFo9Z+icZiJiN/RprnkqwEocgqQx+/p3uZNeUOmsrcuiqA=
+=Dre6
+-----END PGP SIGNATURE-----
+
+--Sig_/VjwGWdRbYYmHwPtJmbJ.naq--
