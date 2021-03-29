@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EBC34C776
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A50F834C8DE
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbhC2IPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:15:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57602 "EHLO mail.kernel.org"
+        id S232487AbhC2IYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232556AbhC2IOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:14:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6611619B1;
-        Mon, 29 Mar 2021 08:14:04 +0000 (UTC)
+        id S233627AbhC2IXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:23:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72BAB61481;
+        Mon, 29 Mar 2021 08:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005645;
-        bh=2qmzm636+u8cGdoJQcTbbGmnfV8jMSjmuYBwgIGaiQw=;
+        s=korg; t=1617006222;
+        bh=iBauD/YwGNRCek8/X8z7f22gVG1rUIanDYdTEaY0FK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBqyPe+ijd2EMfTNPRoGXv7VRizdkE5SwKwqzRYBS5I0yX4Zr6ToFm/RI3pHAg5gW
-         wpUTj9X5vmMxLMx0njfaaINU+lGYDYtF90hL7EvF251iZsttod2T1YsFg2ouVtXqJP
-         QcwO2QuitKJYapX044NL+QNZ348zM3FHah/26I60=
+        b=vXKE8jxhmSQTd4nPwF+taU8dBEGBNtFJye7qVYJNba7bEKhacVw2jhpEaYwoLDzn8
+         XwI6EZvP1j1vYYXYjg4pAzNlyoYyYa8eg2YMkMVlghL9RAZVHThrsf2fcUiSyhJDEi
+         3jZnb/jELjcKi+GNcdjOzgZg1mpPJ/PgouSXO/gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/111] net/qlcnic: Fix a use after free in qlcnic_83xx_get_minidump_template
+Subject: [PATCH 5.10 162/221] selftests: forwarding: vxlan_bridge_1d: Fix vxlan ecn decapsulate value
 Date:   Mon, 29 Mar 2021 09:58:13 +0200
-Message-Id: <20210329075617.371746958@linuxfoundation.org>
+Message-Id: <20210329075634.555865507@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit db74623a3850db99cb9692fda9e836a56b74198d ]
+[ Upstream commit 5aa3c334a449bab24519c4967f5ac2b3304c8dcf ]
 
-In qlcnic_83xx_get_minidump_template, fw_dump->tmpl_hdr was freed by
-vfree(). But unfortunately, it is used when extended is true.
+The ECN bit defines ECT(1) = 1, ECT(0) = 2. So inner 0x02 + outer 0x01
+should be inner ECT(0) + outer ECT(1). Based on the description of
+__INET_ECN_decapsulate, the final decapsulate value should be
+ECT(1). So fix the test expect value to 0x01.
 
-Fixes: 7061b2bdd620e ("qlogic: Deletion of unnecessary checks before two function calls")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Before the fix:
+TEST: VXLAN: ECN decap: 01/02->0x02                                 [FAIL]
+        Expected to capture 10 packets, got 0.
+
+After the fix:
+TEST: VXLAN: ECN decap: 01/02->0x01                                 [ OK ]
+
+Fixes: a0b61f3d8ebf ("selftests: forwarding: vxlan_bridge_1d: Add an ECN decap test")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-index f34ae8c75bc5..61a39d167c8b 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-@@ -1426,6 +1426,7 @@ void qlcnic_83xx_get_minidump_template(struct qlcnic_adapter *adapter)
- 
- 	if (fw_dump->tmpl_hdr == NULL || current_version > prev_version) {
- 		vfree(fw_dump->tmpl_hdr);
-+		fw_dump->tmpl_hdr = NULL;
- 
- 		if (qlcnic_83xx_md_check_extended_dump_capability(adapter))
- 			extended = !qlcnic_83xx_extend_md_capab(adapter);
-@@ -1444,6 +1445,8 @@ void qlcnic_83xx_get_minidump_template(struct qlcnic_adapter *adapter)
- 			struct qlcnic_83xx_dump_template_hdr *hdr;
- 
- 			hdr = fw_dump->tmpl_hdr;
-+			if (!hdr)
-+				return;
- 			hdr->drv_cap_mask = 0x1f;
- 			fw_dump->cap_mask = 0x1f;
- 			dev_info(&pdev->dev,
+diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+index ce6bea9675c0..0ccb1dda099a 100755
+--- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
++++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+@@ -658,7 +658,7 @@ test_ecn_decap()
+ 	# In accordance with INET_ECN_decapsulate()
+ 	__test_ecn_decap 00 00 0x00
+ 	__test_ecn_decap 01 01 0x01
+-	__test_ecn_decap 02 01 0x02
++	__test_ecn_decap 02 01 0x01
+ 	__test_ecn_decap 01 03 0x03
+ 	__test_ecn_decap 02 03 0x03
+ 	test_ecn_decap_error
 -- 
 2.30.1
 
