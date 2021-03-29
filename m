@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54DCC34DB22
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9087934DB2F
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbhC2WZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:25:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48712 "EHLO mail.kernel.org"
+        id S232966AbhC2W0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:26:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232359AbhC2WXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232351AbhC2WXw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 18:23:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B4A361990;
-        Mon, 29 Mar 2021 22:23:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 799BE61999;
+        Mon, 29 Mar 2021 22:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056605;
-        bh=ABixJEs+1GDjJj499aO3kybyji/C5xFLQDGqqXEFmSs=;
+        s=k20201202; t=1617056606;
+        bh=VS+G6bXMJNFdYt7lAreBIpGlSxaBqhnKtMhsDtoxpBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PAzj/awBKwbVq/lhKTX2byWwR1dHRxJRHB3wHMhMdCVZY0uDDZbr6cQVp+aptp0Ks
-         CgoDo6DX+hEIwLYYP6HKaBkBVjCyMltQjvaIano7OHzhu7HeOoZaZheuCkLupBTJWR
-         HMo/tqFuokBfRg7HXGfVfohPvrHZOLNAtQv0JmEMuDMatG5pevrHGgCNGfc8QvQDQ2
-         eu/ElWMOQ2VV880HNk5VsPm4LQSEwRm1AxJjA6IL7IZ5PGIAeL38UYDkZwqWa1NwP9
-         v1xOUB/DJmoCBLqWI35guOw6uMOKlBZ5e8j67yOfPSljImAJNkj8iLu+9z+VUNvF5w
-         fAebS+A3HI3WA==
+        b=bIbelUmvtEuiPK7Wm7hUQFAV7kN+gxYexRH6AeumsE3KwdljEnIMRfIxFU9ega36f
+         RGkYEkitoQ+7m/PiQ8jdXSAGqrv6MSvYvxkH3kqF3ZjUCj2wqsYkbrNHSlQVLADzGt
+         4D8CZatXEveAVLkB9v5veZD3ijNjmV8iw/wdfoJX/7bDZi7fbMI4mumhXJCb8QmQTN
+         6NMnHdlnErxhCzOETn39x9Vbmojnrqjd0VrmtgIJZjdCeqHuF9jmYQTPNpoAAWu0mL
+         hoC0vWLtyCljHwbav1zl1UviGdlGgolioaIm9gLVPNGk2uF6wCo1BLTGE4kM9Z/yTM
+         yzc4+6zoJNomQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>, Paulo Alcantara <pc@cjr.nz>,
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Tom Talpey <tom@talpey.com>, Paulo Alcantara <pc@cjr.nz>,
         Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
         samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.4 18/19] cifs: revalidate mapping when we open files for SMB1 POSIX
-Date:   Mon, 29 Mar 2021 18:23:01 -0400
-Message-Id: <20210329222303.2383319-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 19/19] cifs: Silently ignore unknown oplock break handle
+Date:   Mon, 29 Mar 2021 18:23:02 -0400
+Message-Id: <20210329222303.2383319-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222303.2383319-1-sashal@kernel.org>
 References: <20210329222303.2383319-1-sashal@kernel.org>
@@ -43,40 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit cee8f4f6fcabfdf229542926128e9874d19016d5 ]
+[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
 
-RHBZ: 1933527
+Make SMB2 not print out an error when an oplock break is received for an
+unknown handle, similar to SMB1.  The debug message which is printed for
+these unknown handles may also be misleading, so fix that too.
 
-Under SMB1 + POSIX, if an inode is reused on a server after we have read and
-cached a part of a file, when we then open the new file with the
-re-cycled inode there is a chance that we may serve the old data out of cache
-to the application.
-This only happens for SMB1 (deprecated) and when posix are used.
-The simplest solution to avoid this race is to force a revalidate
-on smb1-posix open.
+The SMB2 lease break path is not affected by this patch.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Without this, a program which writes to a file from one thread, and
+opens, reads, and writes the same file from another thread triggers the
+below errors several times a minute when run against a Samba server
+configured with "smb2 leases = no".
+
+ CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
+ 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
+ 00000010: 00000001 00000000 ffffffff ffffffff  ................
+ 00000020: 00000000 00000000 00000000 00000000  ................
+ 00000030: 00000000 00000000 00000000 00000000  ................
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Tom Talpey <tom@talpey.com>
 Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2misc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 31d578739341..1aac8d38f887 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -164,6 +164,7 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
- 			goto posix_open_ret;
+diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+index 7d875a47d022..7177720e822e 100644
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -738,8 +738,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
  		}
- 	} else {
-+		cifs_revalidate_mapping(*pinode);
- 		cifs_fattr_to_inode(*pinode, &fattr);
  	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+-	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
+-	return false;
++	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
++	return true;
+ }
  
+ void
 -- 
 2.30.1
 
