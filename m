@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6A634C601
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0D834C6F8
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231697AbhC2IEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:04:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46164 "EHLO mail.kernel.org"
+        id S231446AbhC2ILM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231824AbhC2IDc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:03:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B7C06196F;
-        Mon, 29 Mar 2021 08:03:29 +0000 (UTC)
+        id S232394AbhC2IKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:10:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 956C36196B;
+        Mon, 29 Mar 2021 08:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005010;
-        bh=6/OsgvX7lLVnk2CLuIwpxb5pkxJ4iNe/de//xAvy95w=;
+        s=korg; t=1617005443;
+        bh=4T5nshDnSfdrBR1gefSFliG79GvTAw5WAZSSBIwntxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLNKi3ltFXDWWOS4LUoUctHufdCASZgaTSvSTsxw/jEKGh+pjz2Ll+ra6t7jswaQ4
-         jCLNJcpGzIXu6v9oaIZU8xCtgLaXsZEm/Pm8ylPRDD3hyeUJOljXMcCpNb86IOY8K4
-         fCpDDvnZzJQE04dhls6T8qvai3NjJMjJ/P4tfhus=
+        b=FX/rUpP6P4AGRJ47UxwREKG3oU+cFq5rURDWh5/opRRfIt/ZuBbf38iINwJZpCxx0
+         ddkhtpfs1J4ImKLvlNFWMDePA99Co/85fzGH0vXz46sv36g70WiNiPNXpJeJOhFKt+
+         Fyn8Iyx86f14NkNc//mxKjQWb7YPf6EtDX8woIjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Yang Tao <yang.tao172@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 47/53] futex: Prevent robust futex exit race
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 46/72] can: c_can: move runtime PM enable/disable to c_can_platform
 Date:   Mon, 29 Mar 2021 09:58:22 +0200
-Message-Id: <20210329075609.058176310@linuxfoundation.org>
+Message-Id: <20210329075611.801685477@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,262 +42,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Tao <yang.tao172@zte.com.cn>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit ca16d5bee59807bf04deaab0a8eccecd5061528c upstream.
+[ Upstream commit 6e2fe01dd6f98da6cae8b07cd5cfa67abc70d97d ]
 
-Robust futexes utilize the robust_list mechanism to allow the kernel to
-release futexes which are held when a task exits. The exit can be voluntary
-or caused by a signal or fault. This prevents that waiters block forever.
+Currently doing modprobe c_can_pci will make the kernel complain:
 
-The futex operations in user space store a pointer to the futex they are
-either locking or unlocking in the op_pending member of the per task robust
-list.
+    Unbalanced pm_runtime_enable!
 
-After a lock operation has succeeded the futex is queued in the robust list
-linked list and the op_pending pointer is cleared.
+this is caused by pm_runtime_enable() called before pm is initialized.
 
-After an unlock operation has succeeded the futex is removed from the
-robust list linked list and the op_pending pointer is cleared.
+This fix is similar to 227619c3ff7c, move those pm_enable/disable code
+to c_can_platform.
 
-The robust list exit code checks for the pending operation and any futex
-which is queued in the linked list. It carefully checks whether the futex
-value is the TID of the exiting task. If so, it sets the OWNER_DIED bit and
-tries to wake up a potential waiter.
-
-This is race free for the lock operation but unlock has two race scenarios
-where waiters might not be woken up. These issues can be observed with
-regular robust pthread mutexes. PI aware pthread mutexes are not affected.
-
-(1) Unlocking task is killed after unlocking the futex value in user space
-    before being able to wake a waiter.
-
-        pthread_mutex_unlock()
-                |
-                V
-        atomic_exchange_rel (&mutex->__data.__lock, 0)
-                        <------------------------killed
-            lll_futex_wake ()                   |
-                                                |
-                                                |(__lock = 0)
-                                                |(enter kernel)
-                                                |
-                                                V
-                                            do_exit()
-                                            exit_mm()
-                                          mm_release()
-                                        exit_robust_list()
-                                        handle_futex_death()
-                                                |
-                                                |(__lock = 0)
-                                                |(uval = 0)
-                                                |
-                                                V
-        if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
-                return 0;
-
-    The sanity check which ensures that the user space futex is owned by
-    the exiting task prevents the wakeup of waiters which in consequence
-    block infinitely.
-
-(2) Waiting task is killed after a wakeup and before it can acquire the
-    futex in user space.
-
-        OWNER                         WAITER
-				futex_wait()
-   pthread_mutex_unlock()               |
-                |                       |
-                |(__lock = 0)           |
-                |                       |
-                V                       |
-         futex_wake() ------------>  wakeup()
-                                        |
-                                        |(return to userspace)
-                                        |(__lock = 0)
-                                        |
-                                        V
-                        oldval = mutex->__data.__lock
-                                          <-----------------killed
-    atomic_compare_and_exchange_val_acq (&mutex->__data.__lock,  |
-                        id | assume_other_futex_waiters, 0)      |
-                                                                 |
-                                                                 |
-                                                   (enter kernel)|
-                                                                 |
-                                                                 V
-                                                         do_exit()
-                                                        |
-                                                        |
-                                                        V
-                                        handle_futex_death()
-                                        |
-                                        |(__lock = 0)
-                                        |(uval = 0)
-                                        |
-                                        V
-        if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
-                return 0;
-
-    The sanity check which ensures that the user space futex is owned
-    by the exiting task prevents the wakeup of waiters, which seems to
-    be correct as the exiting task does not own the futex value, but
-    the consequence is that other waiters wont be woken up and block
-    infinitely.
-
-In both scenarios the following conditions are true:
-
-   - task->robust_list->list_op_pending != NULL
-   - user space futex value == 0
-   - Regular futex (not PI)
-
-If these conditions are met then it is reasonably safe to wake up a
-potential waiter in order to prevent the above problems.
-
-As this might be a false positive it can cause spurious wakeups, but the
-waiter side has to handle other types of unrelated wakeups, e.g. signals
-gracefully anyway. So such a spurious wakeup will not affect the
-correctness of these operations.
-
-This workaround must not touch the user space futex value and cannot set
-the OWNER_DIED bit because the lock value is 0, i.e. uncontended. Setting
-OWNER_DIED in this case would result in inconsistent state and subsequently
-in malfunction of the owner died handling in user space.
-
-The rest of the user space state is still consistent as no other task can
-observe the list_op_pending entry in the exiting tasks robust list.
-
-The eventually woken up waiter will observe the uncontended lock value and
-take it over.
-
-[ tglx: Massaged changelog and comment. Made the return explicit and not
-  	depend on the subsequent check and added constants to hand into
-  	handle_futex_death() instead of plain numbers. Fixed a few coding
-	style issues. ]
-
-Fixes: 0771dfefc9e5 ("[PATCH] lightweight robust futexes: core")
-Signed-off-by: Yang Tao <yang.tao172@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1573010582-35297-1-git-send-email-wang.yi59@zte.com.cn
-Link: https://lkml.kernel.org/r/20191106224555.943191378@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4cdd34b26826 ("can: c_can: Add runtime PM support to Bosch C_CAN/D_CAN controller")
+Link: http://lore.kernel.org/r/20210302025542.987600-1-ztong0001@gmail.com
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Tested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/futex.c |   58 ++++++++++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 51 insertions(+), 7 deletions(-)
+ drivers/net/can/c_can/c_can.c          | 24 +-----------------------
+ drivers/net/can/c_can/c_can_platform.c |  6 +++++-
+ 2 files changed, 6 insertions(+), 24 deletions(-)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3526,11 +3526,16 @@ err_unlock:
- 	return ret;
- }
+diff --git a/drivers/net/can/c_can/c_can.c b/drivers/net/can/c_can/c_can.c
+index 24c6015f6c92..2278c5fff5c6 100644
+--- a/drivers/net/can/c_can/c_can.c
++++ b/drivers/net/can/c_can/c_can.c
+@@ -212,18 +212,6 @@ static const struct can_bittiming_const c_can_bittiming_const = {
+ 	.brp_inc = 1,
+ };
  
-+/* Constants for the pending_op argument of handle_futex_death */
-+#define HANDLE_DEATH_PENDING	true
-+#define HANDLE_DEATH_LIST	false
-+
- /*
-  * Process a futex-list entry, check whether it's owned by the
-  * dying task, and do notification if so:
-  */
--static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int pi)
-+static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
-+			      bool pi, bool pending_op)
+-static inline void c_can_pm_runtime_enable(const struct c_can_priv *priv)
+-{
+-	if (priv->device)
+-		pm_runtime_enable(priv->device);
+-}
+-
+-static inline void c_can_pm_runtime_disable(const struct c_can_priv *priv)
+-{
+-	if (priv->device)
+-		pm_runtime_disable(priv->device);
+-}
+-
+ static inline void c_can_pm_runtime_get_sync(const struct c_can_priv *priv)
  {
- 	u32 uval, uninitialized_var(nval), mval;
+ 	if (priv->device)
+@@ -1318,7 +1306,6 @@ static const struct net_device_ops c_can_netdev_ops = {
+ 
+ int register_c_can_dev(struct net_device *dev)
+ {
+-	struct c_can_priv *priv = netdev_priv(dev);
  	int err;
-@@ -3543,6 +3548,42 @@ retry:
- 	if (get_user(uval, uaddr))
- 		return -1;
  
-+	/*
-+	 * Special case for regular (non PI) futexes. The unlock path in
-+	 * user space has two race scenarios:
-+	 *
-+	 * 1. The unlock path releases the user space futex value and
-+	 *    before it can execute the futex() syscall to wake up
-+	 *    waiters it is killed.
-+	 *
-+	 * 2. A woken up waiter is killed before it can acquire the
-+	 *    futex in user space.
-+	 *
-+	 * In both cases the TID validation below prevents a wakeup of
-+	 * potential waiters which can cause these waiters to block
-+	 * forever.
-+	 *
-+	 * In both cases the following conditions are met:
-+	 *
-+	 *	1) task->robust_list->list_op_pending != NULL
-+	 *	   @pending_op == true
-+	 *	2) User space futex value == 0
-+	 *	3) Regular futex: @pi == false
-+	 *
-+	 * If these conditions are met, it is safe to attempt waking up a
-+	 * potential waiter without touching the user space futex value and
-+	 * trying to set the OWNER_DIED bit. The user space futex value is
-+	 * uncontended and the rest of the user space mutex state is
-+	 * consistent, so a woken waiter will just take over the
-+	 * uncontended futex. Setting the OWNER_DIED bit would create
-+	 * inconsistent state and malfunction of the user space owner died
-+	 * handling.
-+	 */
-+	if (pending_op && !pi && !uval) {
-+		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
-+		return 0;
-+	}
-+
- 	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
- 		return 0;
+ 	/* Deactivate pins to prevent DRA7 DCAN IP from being
+@@ -1328,28 +1315,19 @@ int register_c_can_dev(struct net_device *dev)
+ 	 */
+ 	pinctrl_pm_select_sleep_state(dev->dev.parent);
  
-@@ -3662,10 +3703,11 @@ static void exit_robust_list(struct task
- 		 * A pending lock might already be on the list, so
- 		 * don't process it twice:
- 		 */
--		if (entry != pending)
-+		if (entry != pending) {
- 			if (handle_futex_death((void __user *)entry + futex_offset,
--						curr, pi))
-+						curr, pi, HANDLE_DEATH_LIST))
- 				return;
-+		}
- 		if (rc)
- 			return;
- 		entry = next_entry;
-@@ -3679,9 +3721,10 @@ static void exit_robust_list(struct task
- 		cond_resched();
- 	}
+-	c_can_pm_runtime_enable(priv);
+-
+ 	dev->flags |= IFF_ECHO;	/* we support local echo */
+ 	dev->netdev_ops = &c_can_netdev_ops;
  
--	if (pending)
-+	if (pending) {
- 		handle_futex_death((void __user *)pending + futex_offset,
--				   curr, pip);
-+				   curr, pip, HANDLE_DEATH_PENDING);
-+	}
+ 	err = register_candev(dev);
+-	if (err)
+-		c_can_pm_runtime_disable(priv);
+-	else
++	if (!err)
+ 		devm_can_led_init(dev);
+-
+ 	return err;
  }
+ EXPORT_SYMBOL_GPL(register_c_can_dev);
  
- static void futex_cleanup(struct task_struct *tsk)
-@@ -3964,7 +4007,8 @@ void compat_exit_robust_list(struct task
- 		if (entry != pending) {
- 			void __user *uaddr = futex_uaddr(entry, futex_offset);
- 
--			if (handle_futex_death(uaddr, curr, pi))
-+			if (handle_futex_death(uaddr, curr, pi,
-+					       HANDLE_DEATH_LIST))
- 				return;
- 		}
- 		if (rc)
-@@ -3983,7 +4027,7 @@ void compat_exit_robust_list(struct task
- 	if (pending) {
- 		void __user *uaddr = futex_uaddr(pending, futex_offset);
- 
--		handle_futex_death(uaddr, curr, pip);
-+		handle_futex_death(uaddr, curr, pip, HANDLE_DEATH_PENDING);
- 	}
+ void unregister_c_can_dev(struct net_device *dev)
+ {
+-	struct c_can_priv *priv = netdev_priv(dev);
+-
+ 	unregister_candev(dev);
+-
+-	c_can_pm_runtime_disable(priv);
  }
+ EXPORT_SYMBOL_GPL(unregister_c_can_dev);
  
+diff --git a/drivers/net/can/c_can/c_can_platform.c b/drivers/net/can/c_can/c_can_platform.c
+index b5145a7f874c..f2b0408ce87d 100644
+--- a/drivers/net/can/c_can/c_can_platform.c
++++ b/drivers/net/can/c_can/c_can_platform.c
+@@ -29,6 +29,7 @@
+ #include <linux/list.h>
+ #include <linux/io.h>
+ #include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
+ #include <linux/clk.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+@@ -385,6 +386,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, dev);
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+ 
++	pm_runtime_enable(priv->device);
+ 	ret = register_c_can_dev(dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
+@@ -397,6 +399,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ exit_free_device:
++	pm_runtime_disable(priv->device);
+ 	free_c_can_dev(dev);
+ exit:
+ 	dev_err(&pdev->dev, "probe failed\n");
+@@ -407,9 +410,10 @@ exit:
+ static int c_can_plat_remove(struct platform_device *pdev)
+ {
+ 	struct net_device *dev = platform_get_drvdata(pdev);
++	struct c_can_priv *priv = netdev_priv(dev);
+ 
+ 	unregister_c_can_dev(dev);
+-
++	pm_runtime_disable(priv->device);
+ 	free_c_can_dev(dev);
+ 
+ 	return 0;
+-- 
+2.30.1
+
 
 
