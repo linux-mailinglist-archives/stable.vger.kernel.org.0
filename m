@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 248BF34C9B3
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C0634C9C9
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbhC2Ibb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:31:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50686 "EHLO mail.kernel.org"
+        id S233276AbhC2Idl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:33:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234031AbhC2Iah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:30:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8FF261613;
-        Mon, 29 Mar 2021 08:30:32 +0000 (UTC)
+        id S233430AbhC2Iat (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:30:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86C7561601;
+        Mon, 29 Mar 2021 08:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006636;
-        bh=8lIR2o4v18WR/2YlHYIn96RC4k9ZocX631GO7STRiBc=;
+        s=korg; t=1617006648;
+        bh=6zCBC/4Ay8E64Gk3VftGD6thbYiKa1cldVTsTpcgUXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbxSycq/+St+9Nh+CpChc7MnXFzEQiZ0YZvZPl88418X50rMfehTsEDwwJU0Q28r0
-         S1HT09znHF8MdNoGaK72uqlCaxZLCASOqAaS3JhRh14XT6+/G8I69zJpocrZpUKMvx
-         kFTlGPS3sTeEimrEuEiJEeyVSRG+opuY7/CF0GJY=
+        b=yZqG7h09ZUK5am6sk+71rb5vTvfszfKAYttGLboyZRvczHbY6I9qfmrnCV99wiO1r
+         HZuDbkpwDJQAtCbNSOVeTpQxuSHsr6WdTU4147PsLgzch7GHxjGpM86y0YLFE7LJhZ
+         ZtgxCP8SWoBcp8/0WyNYHCPkn/mlj28KnG1Eiddc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Philipp Leskovitz <philipp.leskovitz@secunet.com>,
-        Mark Pearson <markpearson@lenovo.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 009/254] ALSA: hda: ignore invalid NHLT table
-Date:   Mon, 29 Mar 2021 09:55:25 +0200
-Message-Id: <20210329075633.456839964@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 010/254] ixgbe: Fix memleak in ixgbe_configure_clsu32
+Date:   Mon, 29 Mar 2021 09:55:26 +0200
+Message-Id: <20210329075633.485498681@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
 References: <20210329075633.135869143@linuxfoundation.org>
@@ -42,48 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <markpearson@lenovo.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit a14a6219996ee6f6e858d83b11affc7907633687 ]
+[ Upstream commit 7a766381634da19fc837619b0a34590498d9d29a ]
 
-On some Lenovo systems if the microphone is disabled in the BIOS
-only the NHLT table header is created, with no data. This means
-the endpoints field is not correctly set to zero - leading to an
-unintialised variable and hence invalid descriptors are parsed
-leading to page faults.
+When ixgbe_fdir_write_perfect_filter_82599() fails,
+input allocated by kzalloc() has not been freed,
+which leads to memleak.
 
-The Lenovo firmware team is addressing this, but adding a check
-preventing invalid tables being parsed is worthwhile.
-
-Tested on a Lenovo T14.
-
-Tested-by: Philipp Leskovitz <philipp.leskovitz@secunet.com>
-Reported-by: Philipp Leskovitz <philipp.leskovitz@secunet.com>
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210302141003.7342-1-markpearson@lenovo.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/intel-nhlt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
-index d053beccfaec..e2237239d922 100644
---- a/sound/hda/intel-nhlt.c
-+++ b/sound/hda/intel-nhlt.c
-@@ -39,6 +39,11 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
- 	if (!nhlt)
- 		return 0;
- 
-+	if (nhlt->header.length <= sizeof(struct acpi_table_header)) {
-+		dev_warn(dev, "Invalid DMIC description table\n");
-+		return 0;
-+	}
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 393d1c2cd853..e9c2d28efc81 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -9582,8 +9582,10 @@ static int ixgbe_configure_clsu32(struct ixgbe_adapter *adapter,
+ 	ixgbe_atr_compute_perfect_hash_82599(&input->filter, mask);
+ 	err = ixgbe_fdir_write_perfect_filter_82599(hw, &input->filter,
+ 						    input->sw_idx, queue);
+-	if (!err)
+-		ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
++	if (err)
++		goto err_out_w_lock;
 +
- 	for (j = 0, epnt = nhlt->desc; j < nhlt->endpoint_count; j++,
- 	     epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length)) {
++	ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
+ 	spin_unlock(&adapter->fdir_perfect_lock);
  
+ 	if ((uhtid != 0x800) && (adapter->jump_tables[uhtid]))
 -- 
 2.30.1
 
