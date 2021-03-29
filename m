@@ -2,218 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E92334D201
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 16:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85C3A34D21A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 16:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229441AbhC2N75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 09:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35568 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230210AbhC2N74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 09:59:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C1186191B;
-        Mon, 29 Mar 2021 13:59:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617026395;
-        bh=DCBZz8px5deYRkkddBKC1usc1yFRvfSmu4Va0AsvYFQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lhmezTFyYyqJetNwZgFYIibddfOnx/4fzXI6kaAfmGAhQtVVUoNLF2rKZ3JqG8OPG
-         sEu4nxmOdt+jywqMvOyptgYij2cytfhQA+gmJMKVfiB4Z4w9+E9hZqPoc+9ROo4O5y
-         oEovTVtYtif26B/uilKbkBGUim4VrhTr4uFiD8mc=
-Date:   Mon, 29 Mar 2021 15:59:52 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Pankaj Gupta <pankaj.gupta@cloud.ionos.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        teawater <teawaterz@linux.alibaba.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.11 225/254] arm64/mm: define arch_get_mappable_range()
-Message-ID: <YGHdWKxeZfp/zxE8@kroah.com>
-References: <20210329075633.135869143@linuxfoundation.org>
- <20210329075640.480623043@linuxfoundation.org>
- <CA+G9fYvHsa0TAqPBvHwPhhe_0qt8syEWkGV_GPjOyEOAO9q5Sw@mail.gmail.com>
- <YGGoHdprUT/AscHa@kroah.com>
- <CAMj1kXEwMSbS1LC7sPSjSifLF8jYVyGcHvvkf9nfrf-fwo4d9w@mail.gmail.com>
- <YGHZRHgNJkFH+Eiq@kroah.com>
- <CAMj1kXFERgODEEmK-ohSErV5At6SJGKU1a6=9ZfeBnFE0ZJ-AA@mail.gmail.com>
- <YGHbcXMlWAwAjteN@kroah.com>
- <CA+CK2bCqf7Bw13ibUbUfEtsGikv3Vhye-UTmNo4JgLZ=uAqbmA@mail.gmail.com>
+        id S229628AbhC2OH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 10:07:58 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:60007 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229502AbhC2OHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 10:07:37 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 6EC9617A9;
+        Mon, 29 Mar 2021 10:07:36 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 29 Mar 2021 10:07:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=e7OaR4l6KaD5n4UnPI6CYcLv6KC
+        5usIANcXzbQv2syo=; b=KlqRsgIWH3+HiU/khNzVntBtxW9EA3p05bUPkxuIQ4H
+        qZTJBUZCqbcKZp6ttzcIpQtqJYySw2pNqIpbxMaTwNDgFSAnL1YHj0ibd8jVLHS6
+        EVvhFDkhGC09JLeB5GyMMckHBGR5dqyrTQ7eLmiCV9zbdeucF2qAjjKwpd4KKWUf
+        dc6hyODv6Q559NCemcPrTuvd71gSPeW+IPdudib/xsBJC+Wzf/Q8WTNf7zkTlhDm
+        e1cIaIZ6rdpBnZ0BnlZr0X+lBmFDP1JjETerPjTKdi42rR0TWn/U99zi71wanCb2
+        VLoi7AVYJSBD1xoyi0pyHfktrGT5XoCvn2Q01//B0Wg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=e7OaR4
+        l6KaD5n4UnPI6CYcLv6KC5usIANcXzbQv2syo=; b=wfY+dSbW3LRSqqUWUj9SC0
+        mQIHzNv1HgLEvMVHr8kAIFUUEGUHUdDu2Esj3AYnRJ05bNBJTy3zv1NGhMd3cLNd
+        Pxyx2vsoykz2atgka1Nz1Ic3MlHDXdRzJNCup0elQFzwzc56EcKn1eM1UaT3IrvY
+        0bWfXl9/tQt9iWcTwdkQsgIwKqqLeudWMIwxLTnjdfx1qWA0+EzH/SgWDz6GXXIj
+        56g4jgrkDps9OA+o0dpQ/e3Af1ECLL7+U5pEocY/GRIZCiq++pIjFoHm1CUdXVip
+        lmuTnL0Bt510CwD80aW/iFAruvCqkW71YmPnvHjqxRwAlD/7YYViGbwK2jWGWETw
+        ==
+X-ME-Sender: <xms:Jt9hYKgZTUNE4_NhoNprUdiL5PwGafHrQQjt8M2WAOJ6m6Yo4GtIKw>
+    <xme:Jt9hYLD4tot5cHC_7tDDijvvMqGWYr3nXao2bWZP6QjAa1rNJvM2_Flsi8BpGd3KK
+    SavGQrqIbYzU7fre4o>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudehkedgjeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehgtderredttddvnecuhfhrohhmpeforgigihhm
+    vgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrfgrth
+    htvghrnhepleekgeehhfdutdeljefgleejffehfffgieejhffgueefhfdtveetgeehieeh
+    gedunecukfhppeeltddrkeelrdeikedrjeeinecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepmhgrgihimhgvsegtvghrnhhordhtvggthh
+X-ME-Proxy: <xmx:Jt9hYCFb9rnpmhX2nzZhKRqUF3LZOf8_2GXhU0CCobBBH-lWU_4Bbw>
+    <xmx:Jt9hYDTfE2ndM76EphWv3SL_ri8o46Q6CxlPiz2RosrU9JMalIH4VQ>
+    <xmx:Jt9hYHyFMrCjq0GKxcCAs3YdguVcmZEfc3zYtkQMgyqVUupYkRjIMg>
+    <xmx:KN9hYOwOkIllRqQyNky0O3BczfasznFyR7zHRzFlfHsn476192vfUw>
+Received: from localhost (lfbn-tou-1-1502-76.w90-89.abo.wanadoo.fr [90.89.68.76])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AD5741080067;
+        Mon, 29 Mar 2021 10:07:33 -0400 (EDT)
+Date:   Mon, 29 Mar 2021 16:07:31 +0200
+From:   Maxime Ripard <maxime@cerno.tech>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Simon Ser <contact@emersion.fr>, od@zcrc.me,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] drm: DON'T require each CRTC to have a unique primary
+ plane
+Message-ID: <20210329140731.tvkfxic4fu47v3rz@gilmour>
+References: <20210327112214.10252-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ma4fyhct6ctei5gf"
 Content-Disposition: inline
-In-Reply-To: <CA+CK2bCqf7Bw13ibUbUfEtsGikv3Vhye-UTmNo4JgLZ=uAqbmA@mail.gmail.com>
+In-Reply-To: <20210327112214.10252-1-paul@crapouillou.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 29, 2021 at 09:53:10AM -0400, Pavel Tatashin wrote:
-> On Mon, Mar 29, 2021 at 9:51 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Mon, Mar 29, 2021 at 03:49:19PM +0200, Ard Biesheuvel wrote:
-> > > (+ Pavel)
-> > >
-> > > On Mon, 29 Mar 2021 at 15:42, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Mon, Mar 29, 2021 at 03:08:52PM +0200, Ard Biesheuvel wrote:
-> > > > > On Mon, 29 Mar 2021 at 12:12, Greg Kroah-Hartman
-> > > > > <gregkh@linuxfoundation.org> wrote:
-> > > > > >
-> > > > > > On Mon, Mar 29, 2021 at 03:05:25PM +0530, Naresh Kamboju wrote:
-> > > > > > > On Mon, 29 Mar 2021 at 14:10, Greg Kroah-Hartman
-> > > > > > > <gregkh@linuxfoundation.org> wrote:
-> > > > > > > >
-> > > > > > > > From: Anshuman Khandual <anshuman.khandual@arm.com>
-> > > > > > > >
-> > > > > > > > [ Upstream commit 03aaf83fba6e5af08b5dd174c72edee9b7d9ed9b ]
-> > > > > > > >
-> > > > > > > > This overrides arch_get_mappable_range() on arm64 platform which will be
-> > > > > > > > used with recently added generic framework.  It drops
-> > > > > > > > inside_linear_region() and subsequent check in arch_add_memory() which are
-> > > > > > > > no longer required.  It also adds a VM_BUG_ON() check that would ensure
-> > > > > > > > that mhp_range_allowed() has already been called.
-> > > > > > > >
-> > > > > > > > Link: https://lkml.kernel.org/r/1612149902-7867-3-git-send-email-anshuman.khandual@arm.com
-> > > > > > > > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> > > > > > > > Reviewed-by: David Hildenbrand <david@redhat.com>
-> > > > > > > > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> > > > > > > > Cc: Will Deacon <will@kernel.org>
-> > > > > > > > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > > > > > > > Cc: Mark Rutland <mark.rutland@arm.com>
-> > > > > > > > Cc: Heiko Carstens <hca@linux.ibm.com>
-> > > > > > > > Cc: Jason Wang <jasowang@redhat.com>
-> > > > > > > > Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > > > > > > > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> > > > > > > > Cc: Michal Hocko <mhocko@kernel.org>
-> > > > > > > > Cc: Oscar Salvador <osalvador@suse.de>
-> > > > > > > > Cc: Pankaj Gupta <pankaj.gupta@cloud.ionos.com>
-> > > > > > > > Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-> > > > > > > > Cc: teawater <teawaterz@linux.alibaba.com>
-> > > > > > > > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> > > > > > > > Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-> > > > > > > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > > > > > > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > > > > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > > > > > > ---
-> > > > > > > >  arch/arm64/mm/mmu.c | 15 +++++++--------
-> > > > > > > >  1 file changed, 7 insertions(+), 8 deletions(-)
-> > > > > > > >
-> > > > > > > > diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-> > > > > > > > index 6f0648777d34..92b3be127796 100644
-> > > > > > > > --- a/arch/arm64/mm/mmu.c
-> > > > > > > > +++ b/arch/arm64/mm/mmu.c
-> > > > > > > > @@ -1443,16 +1443,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
-> > > > > > > >         free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
-> > > > > > > >  }
-> > > > > > > >
-> > > > > > > > -static bool inside_linear_region(u64 start, u64 size)
-> > > > > > > > +struct range arch_get_mappable_range(void)
-> > > > > > > >  {
-> > > > > > > > +       struct range mhp_range;
-> > > > > > > > +
-> > > > > > > >         /*
-> > > > > > > >          * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
-> > > > > > > >          * accommodating both its ends but excluding PAGE_END. Max physical
-> > > > > > > >          * range which can be mapped inside this linear mapping range, must
-> > > > > > > >          * also be derived from its end points.
-> > > > > > > >          */
-> > > > > > > > -       return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
-> > > > > > > > -              (start + size - 1) <= __pa(PAGE_END - 1);
-> > > > > > > > +       mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-> > > > > > > > +       mhp_range.end =  __pa(PAGE_END - 1);
-> > > > > > > > +       return mhp_range;
-> > > > > > > >  }
-> > > > > > > >
-> > > > > > > >  int arch_add_memory(int nid, u64 start, u64 size,
-> > > > > > > > @@ -1460,11 +1463,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
-> > > > > > > >  {
-> > > > > > > >         int ret, flags = 0;
-> > > > > > > >
-> > > > > > > > -       if (!inside_linear_region(start, size)) {
-> > > > > > > > -               pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
-> > > > > > > > -               return -EINVAL;
-> > > > > > > > -       }
-> > > > > > > > -
-> > > > > > > > +       VM_BUG_ON(!mhp_range_allowed(start, size, true));
-> > > > > > > >         if (rodata_full || debug_pagealloc_enabled())
-> > > > > > > >                 flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
-> > > > > > >
-> > > > > > > The stable rc 5.10 and 5.11 builds failed for arm64 architecture
-> > > > > > > due to below warnings / errors,
-> > > > > > >
-> > > > > > > > Anshuman Khandual <anshuman.khandual@arm.com>
-> > > > > > > >     arm64/mm: define arch_get_mappable_range()
-> > > > > > >
-> > > > > > >
-> > > > > > >   arch/arm64/mm/mmu.c: In function 'arch_add_memory':
-> > > > > > >   arch/arm64/mm/mmu.c:1483:13: error: implicit declaration of function
-> > > > > > > 'mhp_range_allowed'; did you mean 'cpu_map_prog_allowed'?
-> > > > > > > [-Werror=implicit-function-declaration]
-> > > > > > >     VM_BUG_ON(!mhp_range_allowed(start, size, true));
-> > > > > > >                ^
-> > > > > > >   include/linux/build_bug.h:30:63: note: in definition of macro
-> > > > > > > 'BUILD_BUG_ON_INVALID'
-> > > > > > >    #define BUILD_BUG_ON_INVALID(e) ((void)(sizeof((__force long)(e))))
-> > > > > > >                                                                  ^
-> > > > > > >   arch/arm64/mm/mmu.c:1483:2: note: in expansion of macro 'VM_BUG_ON'
-> > > > > > >     VM_BUG_ON(!mhp_range_allowed(start, size, true));
-> > > > > > >     ^~~~~~~~~
-> > > > > > >
-> > > > > > > Build link,
-> > > > > > > https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.11/DISTRO=lkft,MACHINE=juno,label=docker-buster-lkft/41/consoleText
-> > > > > > > https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.10/DISTRO=lkft,MACHINE=dragonboard-410c,label=docker-buster-lkft/120/consoleFull
-> > > > > >
-> > > > > > thanks, will go drop this, and the patch that was after it in the
-> > > > > > series, from both trees and will push out a -rc2.
-> > > > > >
-> > > > >
-> > > > > Why were these picked up in the first place? I don't see any fixes or
-> > > > > cc:stable tags, and the commit log clearly describes that the change
-> > > > > is preparatory work for enabling arm64 support into a recently
-> > > > > introduced generic framework.
-> > > >
-> > > > This was needed for a follow-on patch in the series that fixed an issue.
-> > > > Specifically it was commit ee7febce0519 ("arm64: mm: correct the inside
-> > > > linear map range during hotplug check")
-> > > >
-> > >
-> > > Yeah, but during the discussion of that patch [0], we pointed out that
-> > > it needed to be rebased because of these new changes. So trying to
-> > > backport this rebased version is obviously not the right approach:
-> > > Pavel's original patch would be much more suitable for that.
-> > >
-> > > Could we have annotated this patch in a better way to make this more obvious?
-> >
-> > Yes, given that there was no annotation on the patch at all to let us
-> > know this :)
-> >
-> > You can say things like "do not apply to stable trees" or "needs total
-> > rework for older kernels" or other fun such things that when we read
-> > them, we know to ask for help.  As it is, the patch provided nothing so
-> > we guessed and got it wrong...
-> 
-> I will send the patch for stable trees with the commit id included as requested.
 
-Wonderful, thank you so much.
+--ma4fyhct6ctei5gf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-greg k-h
+On Sat, Mar 27, 2021 at 11:22:14AM +0000, Paul Cercueil wrote:
+> The ingenic-drm driver has two mutually exclusive primary planes
+> already; so the fact that a CRTC must have one and only one primary
+> plane is an invalid assumption.
+
+I mean, no? It's been documented for a while that a CRTC should only
+have a single primary, so I'd say that the invalid assumption was that
+it was possible to have multiple primary planes for a CRTC.
+
+Since it looks like you have two mutually exclusive planes, just expose
+one and be done with it?
+
+Maxime
+
+--ma4fyhct6ctei5gf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCYGHfIwAKCRDj7w1vZxhR
+xUSDAPsGqc5zzSnYZCfcmnojYZS7LuvWh9Kha68wIFR3M6Oh3QEAqnn4XrHQSQK6
+VUKwLex2PKocNX/KvUrb6Mi0W++SgQo=
+=PloT
+-----END PGP SIGNATURE-----
+
+--ma4fyhct6ctei5gf--
