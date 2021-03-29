@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8BA34C57C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F98434CAB9
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231522AbhC2IAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42122 "EHLO mail.kernel.org"
+        id S234756AbhC2Ijn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231296AbhC2IAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:00:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B95161969;
-        Mon, 29 Mar 2021 08:00:28 +0000 (UTC)
+        id S234559AbhC2IgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:36:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BD7761A0A;
+        Mon, 29 Mar 2021 08:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004832;
-        bh=EWcyRWDCzbio/IzJEMVtJOeSKiPOeEp8HG9IZTLd1No=;
+        s=korg; t=1617006952;
+        bh=Jvs8TPoftQgiAHSGIQRTNmP/+YFUSdSAJ0TJq4mD6Ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZuN5dv8ssR+kzfBuOsfSAHc8L1n/ngE7RZJiZMGOhBW66O6i7toMqRMZb6Ug0GJAK
-         1gtCRpxSp1JbatxKkqrVjw6te7n6kuVpLJvTbxLzwAJKhI4tQepI2VIydGpCmsOlRN
-         jlKoPoI2hoUfukG8945V3SgHL2xbLCwusOG0Bzsk=
+        b=N0fVZ4yWanetQBmnfp4O9b6OfgIo6oGP43VYqJ/mAM5OhnkjdIwkH4hPkpALVglSW
+         wgRAzvbD+sbj2RmD/AX/Zn7VS+6ldUt8EXoB9wTjNtiJo+0O8vx0mj3RX+waxEohdv
+         KmkBFSzTBNVfvHh2ilWF0G42J7stA/qznDmnVs6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 17/33] squashfs: fix xattr id and id lookup sanity checks
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 166/254] netfilter: nftables: report EOPNOTSUPP on unsupported flowtable flags
 Date:   Mon, 29 Mar 2021 09:58:02 +0200
-Message-Id: <20210329075605.825682530@linuxfoundation.org>
+Message-Id: <20210329075638.630914350@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-References: <20210329075605.290845195@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 8b44ca2b634527151af07447a8090a5f3a043321 upstream.
+[ Upstream commit 7e6136f1b7272b2202817cff37ada355eb5e6784 ]
 
-The checks for maximum metadata block size is missing
-SQUASHFS_BLOCK_OFFSET (the two byte length count).
+Error was not set accordingly.
 
-Link: https://lkml.kernel.org/r/2069685113.2081245.1614583677427@webmail.123-reg.co.uk
-Fixes: f37aa4c7366e23f ("squashfs: add more sanity checks in id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Cc: Sean Nyekjaer <sean@geanix.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8bb69f3b2918 ("netfilter: nf_tables: add flowtable offload control plane")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/squashfs/id.c       |    6 ++++--
- fs/squashfs/xattr_id.c |    6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ net/netfilter/nf_tables_api.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/squashfs/id.c
-+++ b/fs/squashfs/id.c
-@@ -110,14 +110,16 @@ __le64 *squashfs_read_id_index_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
- 
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 8ee9f40cc0ea..2aae0df0d70d 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -6929,8 +6929,10 @@ static int nf_tables_newflowtable(struct net *net, struct sock *nlsk,
+ 	if (nla[NFTA_FLOWTABLE_FLAGS]) {
+ 		flowtable->data.flags =
+ 			ntohl(nla_get_be32(nla[NFTA_FLOWTABLE_FLAGS]));
+-		if (flowtable->data.flags & ~NFT_FLOWTABLE_MASK)
++		if (flowtable->data.flags & ~NFT_FLOWTABLE_MASK) {
++			err = -EOPNOTSUPP;
+ 			goto err3;
++		}
  	}
  
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= id_table_start || (id_table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -122,14 +122,16 @@ __le64 *squashfs_read_xattr_id_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
- 
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= table_start || (table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
+ 	write_pnet(&flowtable->data.net, net);
+-- 
+2.30.1
+
 
 
