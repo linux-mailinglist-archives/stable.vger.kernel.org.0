@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BC134C945
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8186034C6E6
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232228AbhC2I3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
+        id S231824AbhC2IKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232468AbhC2IZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:25:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0119B61864;
-        Mon, 29 Mar 2021 08:25:03 +0000 (UTC)
+        id S232593AbhC2IKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:10:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8372961976;
+        Mon, 29 Mar 2021 08:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006304;
-        bh=/U9OayEP9seZoWp8frEnEOHONJ43U6EX8rW+mNWSftg=;
+        s=korg; t=1617005406;
+        bh=Rcub71EIQL/IR4MxJPOU5eTyxLplhTm4kcreeS3FCQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08Q/s/Ty8Z1EQmpjZ4LhLvArDunLzTyc7TuwTR5iqJRZau6SresPhiS6ZLiAX0+XY
-         2kzDfuP1TMfFM5erLiOhHQjGSQahXfC02AlcnJ3UjwgtGGxTcsj1tCjFUiFT2TyLZ+
-         FmclSwRFDtb2vjqj1lk6Lh51erZQ4fxkjZpUe2t8=
+        b=Zys0MuK9hbx0cvmfZ2NKdRaojk/BAQMrDhC44+H7t/d2VvBF7+IGnfCrv75dYOJRh
+         cRlLmUwZ1pfmvDjBPCG+WAHazveNRc+/alidQI475z0xzu37M5fcpnXpmFRDOSbYDg
+         GHIKkh7HnsBdToy7Jk6/wG/hm7JYApPH2mE5JuwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 193/221] dm table: Fix zoned model check and zone sectors check
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 68/72] net: sched: validate stab values
 Date:   Mon, 29 Mar 2021 09:58:44 +0200
-Message-Id: <20210329075635.565181084@linuxfoundation.org>
+Message-Id: <20210329075612.518506765@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,163 +40,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 2d669ceb69c276f7637cf760287ca4187add082e ]
+commit e323d865b36134e8c5c82c834df89109a5c60dab upstream.
 
-Commit 24f6b6036c9e ("dm table: fix zoned iterate_devices based device
-capability checks") triggered dm table load failure when dm-zoned device
-is set up for zoned block devices and a regular device for cache.
+iproute2 package is well behaved, but malicious user space can
+provide illegal shift values and trigger UBSAN reports.
 
-The commit inverted logic of two callback functions for iterate_devices:
-device_is_zoned_model() and device_matches_zone_sectors(). The logic of
-device_is_zoned_model() was inverted then all destination devices of all
-targets in dm table are required to have the expected zoned model. This
-is fine for dm-linear, dm-flakey and dm-crypt on zoned block devices
-since each target has only one destination device. However, this results
-in failure for dm-zoned with regular cache device since that target has
-both regular block device and zoned block devices.
+Add stab parameter to red_check_params() to validate user input.
 
-As for device_matches_zone_sectors(), the commit inverted the logic to
-require all zoned block devices in each target have the specified
-zone_sectors. This check also fails for regular block device which does
-not have zones.
+syzbot reported:
 
-To avoid the check failures, fix the zone model check and the zone
-sectors check. For zone model check, introduce the new feature flag
-DM_TARGET_MIXED_ZONED_MODEL, and set it to dm-zoned target. When the
-target has this flag, allow it to have destination devices with any
-zoned model. For zone sectors check, skip the check if the destination
-device is not a zoned block device. Also add comments and improve an
-error message to clarify expectations to the two checks.
+UBSAN: shift-out-of-bounds in ./include/net/red.h:312:18
+shift exponent 111 is too large for 64-bit type 'long unsigned int'
+CPU: 1 PID: 14662 Comm: syz-executor.3 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
+ red_calc_qavg_from_idle_time include/net/red.h:312 [inline]
+ red_calc_qavg include/net/red.h:353 [inline]
+ choke_enqueue.cold+0x18/0x3dd net/sched/sch_choke.c:221
+ __dev_xmit_skb net/core/dev.c:3837 [inline]
+ __dev_queue_xmit+0x1943/0x2e00 net/core/dev.c:4150
+ neigh_hh_output include/net/neighbour.h:499 [inline]
+ neigh_output include/net/neighbour.h:508 [inline]
+ ip6_finish_output2+0x911/0x1700 net/ipv6/ip6_output.c:117
+ __ip6_finish_output net/ipv6/ip6_output.c:182 [inline]
+ __ip6_finish_output+0x4c1/0xe10 net/ipv6/ip6_output.c:161
+ ip6_finish_output+0x35/0x200 net/ipv6/ip6_output.c:192
+ NF_HOOK_COND include/linux/netfilter.h:290 [inline]
+ ip6_output+0x1e4/0x530 net/ipv6/ip6_output.c:215
+ dst_output include/net/dst.h:448 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ NF_HOOK include/linux/netfilter.h:295 [inline]
+ ip6_xmit+0x127e/0x1eb0 net/ipv6/ip6_output.c:320
+ inet6_csk_xmit+0x358/0x630 net/ipv6/inet6_connection_sock.c:135
+ dccp_transmit_skb+0x973/0x12c0 net/dccp/output.c:138
+ dccp_send_reset+0x21b/0x2b0 net/dccp/output.c:535
+ dccp_finish_passive_close net/dccp/proto.c:123 [inline]
+ dccp_finish_passive_close+0xed/0x140 net/dccp/proto.c:118
+ dccp_terminate_connection net/dccp/proto.c:958 [inline]
+ dccp_close+0xb3c/0xe60 net/dccp/proto.c:1028
+ inet_release+0x12e/0x280 net/ipv4/af_inet.c:431
+ inet6_release+0x4c/0x70 net/ipv6/af_inet6.c:478
+ __sock_release+0xcd/0x280 net/socket.c:599
+ sock_close+0x18/0x20 net/socket.c:1258
+ __fput+0x288/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
 
-Fixes: 24f6b6036c9e ("dm table: fix zoned iterate_devices based device capability checks")
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-table.c         | 33 +++++++++++++++++++++++++--------
- drivers/md/dm-zoned-target.c  |  2 +-
- include/linux/device-mapper.h | 15 ++++++++++++++-
- 3 files changed, 40 insertions(+), 10 deletions(-)
+ include/net/red.h     |   10 +++++++++-
+ net/sched/sch_choke.c |    7 ++++---
+ net/sched/sch_gred.c  |    2 +-
+ net/sched/sch_red.c   |    7 +++++--
+ net/sched/sch_sfq.c   |    2 +-
+ 5 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 9b824c21580a..5c590895c14c 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1387,6 +1387,13 @@ static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
- 	return !q || blk_queue_zoned_model(q) != *zoned_model;
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -168,7 +168,8 @@ static inline void red_set_vars(struct r
+ 	v->qcount	= -1;
  }
  
-+/*
-+ * Check the device zoned model based on the target feature flag. If the target
-+ * has the DM_TARGET_ZONED_HM feature flag set, host-managed zoned devices are
-+ * also accepted but all devices must have the same zoned model. If the target
-+ * has the DM_TARGET_MIXED_ZONED_MODEL feature set, the devices can have any
-+ * zoned model with all zoned devices having the same zone size.
-+ */
- static bool dm_table_supports_zoned_model(struct dm_table *t,
- 					  enum blk_zoned_model zoned_model)
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog,
++				    u8 Scell_log, u8 *stab)
  {
-@@ -1396,13 +1403,15 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
- 	for (i = 0; i < dm_table_get_num_targets(t); i++) {
- 		ti = dm_table_get_target(t, i);
- 
--		if (zoned_model == BLK_ZONED_HM &&
--		    !dm_target_supports_zoned_hm(ti->type))
--			return false;
--
--		if (!ti->type->iterate_devices ||
--		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
--			return false;
-+		if (dm_target_supports_zoned_hm(ti->type)) {
-+			if (!ti->type->iterate_devices ||
-+			    ti->type->iterate_devices(ti, device_not_zoned_model,
-+						      &zoned_model))
-+				return false;
-+		} else if (!dm_target_supports_mixed_zoned_model(ti->type)) {
-+			if (zoned_model == BLK_ZONED_HM)
-+				return false;
-+		}
- 	}
- 
- 	return true;
-@@ -1414,9 +1423,17 @@ static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 	unsigned int *zone_sectors = data;
- 
-+	if (!blk_queue_is_zoned(q))
-+		return 0;
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+@@ -178,6 +179,13 @@ static inline bool red_check_params(u32
+ 		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
++	if (stab) {
++		int i;
 +
- 	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
++		for (i = 0; i < RED_STAB_SIZE; i++)
++			if (stab[i] >= 32)
++				return false;
++	}
+ 	return true;
  }
  
-+/*
-+ * Check consistency of zoned model and zone sectors across all targets. For
-+ * zone sectors, if the destination device is a zoned block device, it shall
-+ * have the specified zone_sectors.
-+ */
- static int validate_hardware_zoned_model(struct dm_table *table,
- 					 enum blk_zoned_model zoned_model,
- 					 unsigned int zone_sectors)
-@@ -1435,7 +1452,7 @@ static int validate_hardware_zoned_model(struct dm_table *table,
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -355,6 +355,7 @@ static int choke_change(struct Qdisc *sc
+ 	struct sk_buff **old = NULL;
+ 	unsigned int mask;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -370,8 +371,8 @@ static int choke_change(struct Qdisc *sc
+ 	max_P = tb[TCA_CHOKE_MAX_P] ? nla_get_u32(tb[TCA_CHOKE_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+-
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_CHOKE_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
  		return -EINVAL;
  
- 	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
--		DMERR("%s: zone sectors is not consistent across all devices",
-+		DMERR("%s: zone sectors is not consistent across all zoned devices",
- 		      dm_device_name(table->md));
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+@@ -421,7 +422,7 @@ static int choke_change(struct Qdisc *sc
+ 
+ 	red_set_parms(&q->parms, ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_CHOKE_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -357,7 +357,7 @@ static inline int gred_change_vq(struct
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
  		return -EINVAL;
+ 
+ 	if (!q) {
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -199,6 +199,7 @@ static int red_change(struct Qdisc *sch,
+ 	struct Qdisc *child = NULL;
+ 	int err;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -214,7 +215,9 @@ static int red_change(struct Qdisc *sch,
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_RED_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog,
++			      ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+@@ -240,7 +243,7 @@ static int red_change(struct Qdisc *sch,
+ 	red_set_parms(&q->parms,
+ 		      ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_RED_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -651,7 +651,7 @@ static int sfq_change(struct Qdisc *sch,
  	}
-diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
-index 697f9de37355..7e88df64d197 100644
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -1143,7 +1143,7 @@ static int dmz_message(struct dm_target *ti, unsigned int argc, char **argv,
- static struct target_type dmz_type = {
- 	.name		 = "zoned",
- 	.version	 = {2, 0, 0},
--	.features	 = DM_TARGET_SINGLETON | DM_TARGET_ZONED_HM,
-+	.features	 = DM_TARGET_SINGLETON | DM_TARGET_MIXED_ZONED_MODEL,
- 	.module		 = THIS_MODULE,
- 	.ctr		 = dmz_ctr,
- 	.dtr		 = dmz_dtr,
-diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
-index d2d7f9b6a276..50cc070cb1f7 100644
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -246,7 +246,11 @@ struct target_type {
- #define dm_target_passes_integrity(type) ((type)->features & DM_TARGET_PASSES_INTEGRITY)
  
- /*
-- * Indicates that a target supports host-managed zoned block devices.
-+ * Indicates support for zoned block devices:
-+ * - DM_TARGET_ZONED_HM: the target also supports host-managed zoned
-+ *   block devices but does not support combining different zoned models.
-+ * - DM_TARGET_MIXED_ZONED_MODEL: the target supports combining multiple
-+ *   devices with different zoned models.
-  */
- #define DM_TARGET_ZONED_HM		0x00000040
- #define dm_target_supports_zoned_hm(type) ((type)->features & DM_TARGET_ZONED_HM)
-@@ -257,6 +261,15 @@ struct target_type {
- #define DM_TARGET_NOWAIT		0x00000080
- #define dm_target_supports_nowait(type) ((type)->features & DM_TARGET_NOWAIT)
- 
-+#ifdef CONFIG_BLK_DEV_ZONED
-+#define DM_TARGET_MIXED_ZONED_MODEL	0x00000200
-+#define dm_target_supports_mixed_zoned_model(type) \
-+	((type)->features & DM_TARGET_MIXED_ZONED_MODEL)
-+#else
-+#define DM_TARGET_MIXED_ZONED_MODEL	0x00000000
-+#define dm_target_supports_mixed_zoned_model(type) (false)
-+#endif
-+
- struct dm_target {
- 	struct dm_table *table;
- 	struct target_type *type;
--- 
-2.30.1
-
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog, ctl_v1->Scell_log))
++					ctl_v1->Wlog, ctl_v1->Scell_log, NULL))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
