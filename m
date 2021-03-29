@@ -2,137 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D249D34D546
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4344634D58F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231218AbhC2QkH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 12:40:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42610 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230329AbhC2Qjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:39:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 085C06157E;
-        Mon, 29 Mar 2021 16:39:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617035975;
-        bh=Yqe60TFRt/IILuS8fLMQTy/VuZ2P/I9D3r0qkjJFqB4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=J43+8Q9gU3rxXEFKu3vcV9xiz2kItxw/JC3CpsJwPr6eDENEoydv7IQF/llpGVB8b
-         SZhAoUUWa5E9HNoKhYIPyTVZsFX1aBLSa7vRTdL83NSZ8NOtrNYnChmNqj+odBpvSj
-         kgsptLo8K2j4QV9K7g94ilzalcDvWajM5hJOhaXSvsHWo/GSLkHe0sRMsm8YDnQPa9
-         OSbkBEompS7hi635bP/GJymmuVHOtmDWviaD2rnygI3yc7ZddrePcOinbVbc2tci0M
-         eBzMgs2N2EvYJzQN4+ueqNRnS2CvnFN1CBsGn4ikQugN4WbIjZLQY2RPMbwEo0gQ0s
-         HKykwWatryu4w==
-From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, daniel@iogearbox.net
-Cc:     "David S . Miller" <davem@davemloft.net>
-Subject: Patch "net, bpf: Fix ip6ip6 crash with collect_md populated skbs" failed to apply to 5.4-stable tree
-Date:   Mon, 29 Mar 2021 12:39:31 -0400
-Message-Id: <20210329163931.2358017-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.1
+        id S229711AbhC2Qxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 12:53:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48632 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229689AbhC2Qxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 12:53:52 -0400
+X-Greylist: delayed 312 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 29 Mar 2021 09:53:52 PDT
+Received: from smtp-190a.mail.infomaniak.ch (smtp-190a.mail.infomaniak.ch [IPv6:2001:1600:4:17::190a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FFDDC061574
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 09:53:52 -0700 (PDT)
+Received: from smtp-2-0000.mail.infomaniak.ch (unknown [10.5.36.107])
+        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4F8JS42VlrzMpnYQ;
+        Mon, 29 Mar 2021 18:48:36 +0200 (CEST)
+Received: from localhost (unknown [23.97.221.149])
+        by smtp-2-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4F8JS36lhyzlppyy;
+        Mon, 29 Mar 2021 18:48:35 +0200 (CEST)
+From:   =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+To:     Miklos Szeredi <miklos@szeredi.hu>
+Cc:     =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-unionfs@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Vivek Goyal <vgoyal@redhat.com>, stable@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>
+Subject: [PATCH v1] ovl: Fix leaked dentry
+Date:   Mon, 29 Mar 2021 18:49:07 +0200
+Message-Id: <20210329164907.2133175-1-mic@digikod.net>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-X-Patchwork-Hint: ignore
-X-stable: review
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+From: Mickaël Salaün <mic@linux.microsoft.com>
 
-Thanks,
-Sasha
+Since commit 6815f479ca90 ("ovl: use only uppermetacopy state in
+ovl_lookup()"), overlayfs doesn't put temporary dentry when there is a
+metacopy error, which leads to dentry leaks when shutting down the
+related superblock:
 
------------------- original commit in Linus's tree ------------------
+  overlayfs: refusing to follow metacopy origin for (/file0)
+  ...
+  BUG: Dentry (____ptrval____){i=3f33,n=file3}  still in use (1) [unmount of overlay overlay]
+  ...
+  WARNING: CPU: 1 PID: 432 at umount_check.cold+0x107/0x14d
+  CPU: 1 PID: 432 Comm: unmount-overlay Not tainted 5.12.0-rc5 #1
+  ...
+  RIP: 0010:umount_check.cold+0x107/0x14d
+  ...
+  Call Trace:
+   d_walk+0x28c/0x950
+   ? dentry_lru_isolate+0x2b0/0x2b0
+   ? __kasan_slab_free+0x12/0x20
+   do_one_tree+0x33/0x60
+   shrink_dcache_for_umount+0x78/0x1d0
+   generic_shutdown_super+0x70/0x440
+   kill_anon_super+0x3e/0x70
+   deactivate_locked_super+0xc4/0x160
+   deactivate_super+0xfa/0x140
+   cleanup_mnt+0x22e/0x370
+   __cleanup_mnt+0x1a/0x30
+   task_work_run+0x139/0x210
+   do_exit+0xb0c/0x2820
+   ? __kasan_check_read+0x1d/0x30
+   ? find_held_lock+0x35/0x160
+   ? lock_release+0x1b6/0x660
+   ? mm_update_next_owner+0xa20/0xa20
+   ? reacquire_held_locks+0x3f0/0x3f0
+   ? __sanitizer_cov_trace_const_cmp4+0x22/0x30
+   do_group_exit+0x135/0x380
+   __do_sys_exit_group.isra.0+0x20/0x20
+   __x64_sys_exit_group+0x3c/0x50
+   do_syscall_64+0x45/0x70
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  ...
+  VFS: Busy inodes after unmount of overlay. Self-destruct in 5 seconds.  Have a nice day...
 
-From a188bb5638d41aa99090ebf2f85d3505ab13fba5 Mon Sep 17 00:00:00 2001
-From: Daniel Borkmann <daniel@iogearbox.net>
-Date: Wed, 10 Mar 2021 01:38:10 +0100
-Subject: [PATCH] net, bpf: Fix ip6ip6 crash with collect_md populated skbs
+This fix has been tested with a syzkaller reproducer.
 
-I ran into a crash where setting up a ip6ip6 tunnel device which was /not/
-set to collect_md mode was receiving collect_md populated skbs for xmit.
-
-The BPF prog was populating the skb via bpf_skb_set_tunnel_key() which is
-assigning special metadata dst entry and then redirecting the skb to the
-device, taking ip6_tnl_start_xmit() -> ipxip6_tnl_xmit() -> ip6_tnl_xmit()
-and in the latter it performs a neigh lookup based on skb_dst(skb) where
-we trigger a NULL pointer dereference on dst->ops->neigh_lookup() since
-the md_dst_ops do not populate neigh_lookup callback with a fake handler.
-
-Transform the md_dst_ops into generic dst_blackhole_ops that can also be
-reused elsewhere when needed, and use them for the metadata dst entries as
-callback ops.
-
-Also, remove the dst_md_discard{,_out}() ops and rely on dst_discard{,_out}()
-from dst_init() which free the skb the same way modulo the splat. Given we
-will be able to recover just fine from there, avoid any potential splats
-iff this gets ever triggered in future (or worse, panic on warns when set).
-
-Fixes: f38a9eb1f77b ("dst: Metadata destinations")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: <stable@vger.kernel.org> # v5.7+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 6815f479ca90 ("ovl: use only uppermetacopy state in ovl_lookup()")
+Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20210329164907.2133175-1-mic@digikod.net
 ---
- net/core/dst.c | 31 +++++++++----------------------
- 1 file changed, 9 insertions(+), 22 deletions(-)
+ fs/overlayfs/namei.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/dst.c b/net/core/dst.c
-index 5f6315601776..fb3bcba87744 100644
---- a/net/core/dst.c
-+++ b/net/core/dst.c
-@@ -275,37 +275,24 @@ unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
- }
- EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
+diff --git a/fs/overlayfs/namei.c b/fs/overlayfs/namei.c
+index 3fe05fb5d145..424c594afd79 100644
+--- a/fs/overlayfs/namei.c
++++ b/fs/overlayfs/namei.c
+@@ -921,6 +921,7 @@ struct dentry *ovl_lookup(struct inode *dir, struct dentry *dentry,
+ 		if ((uppermetacopy || d.metacopy) && !ofs->config.metacopy) {
+ 			err = -EPERM;
+ 			pr_warn_ratelimited("refusing to follow metacopy origin for (%pd2)\n", dentry);
++			dput(this);
+ 			goto out_put;
+ 		}
  
--static struct dst_ops md_dst_ops = {
--	.family =		AF_UNSPEC,
-+static struct dst_ops dst_blackhole_ops = {
-+	.family		= AF_UNSPEC,
-+	.neigh_lookup	= dst_blackhole_neigh_lookup,
-+	.check		= dst_blackhole_check,
-+	.cow_metrics	= dst_blackhole_cow_metrics,
-+	.update_pmtu	= dst_blackhole_update_pmtu,
-+	.redirect	= dst_blackhole_redirect,
-+	.mtu		= dst_blackhole_mtu,
- };
- 
--static int dst_md_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb)
--{
--	WARN_ONCE(1, "Attempting to call output on metadata dst\n");
--	kfree_skb(skb);
--	return 0;
--}
--
--static int dst_md_discard(struct sk_buff *skb)
--{
--	WARN_ONCE(1, "Attempting to call input on metadata dst\n");
--	kfree_skb(skb);
--	return 0;
--}
--
- static void __metadata_dst_init(struct metadata_dst *md_dst,
- 				enum metadata_type type, u8 optslen)
--
- {
- 	struct dst_entry *dst;
- 
- 	dst = &md_dst->dst;
--	dst_init(dst, &md_dst_ops, NULL, 1, DST_OBSOLETE_NONE,
-+	dst_init(dst, &dst_blackhole_ops, NULL, 1, DST_OBSOLETE_NONE,
- 		 DST_METADATA | DST_NOCOUNT);
--
--	dst->input = dst_md_discard;
--	dst->output = dst_md_discard_out;
--
- 	memset(dst + 1, 0, sizeof(*md_dst) + optslen - sizeof(*dst));
- 	md_dst->type = type;
- }
+
+base-commit: a5e13c6df0e41702d2b2c77c8ad41677ebb065b3
 -- 
-2.30.1
-
-
-
+2.30.2
 
