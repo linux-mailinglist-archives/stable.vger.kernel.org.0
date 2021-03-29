@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA55234C701
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9654534C703
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232699AbhC2ILh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54616 "EHLO mail.kernel.org"
+        id S231569AbhC2ILi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:11:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232311AbhC2IK4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94BE061481;
-        Mon, 29 Mar 2021 08:10:55 +0000 (UTC)
+        id S231952AbhC2IK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:10:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D853D61959;
+        Mon, 29 Mar 2021 08:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005456;
-        bh=rezSUajyOwGvrBS091GQ5TWRlPTr1Ulfg7nX0QDqBmU=;
+        s=korg; t=1617005459;
+        bh=xjkLFI71+IdKQBK9NXQJF5gVWv+Ph6M/uqIXc5QuuCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M8hA0PlwytSIoBf6HbFFlqblsQqzdG+tzoRxrRrR3V6h2V22uDl4T+unJncZGDPI5
-         K9im1V5t7azBaRejcEMsZDDo6hJ8ni1bxYoZOH2Zk57tHhdn689qz1cd1uA+JiBBsd
-         PTn/Cw0glQVGtc8wG0oT+4ajIcGf0rk3cR5ptusM=
+        b=fd0EeAD+98IaVoKw7E3A9q6MtarpIddx8W78r9o5Au9/zpkmapIeWXgh0PdIPBoeA
+         4P4WhiA7nwrhsd+CMjCb4c+LdzVVzFopbhuLlBpe/LCIt3f592xHbA7CxxGTxp+J9S
+         s5QDPcdwjm7AVUvji9PmIqiUklm7C/tO5kkwq7Gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
+        stable@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/111] sun/niu: fix wrong RXMAC_BC_FRM_CNT_COUNT count
-Date:   Mon, 29 Mar 2021 09:57:19 +0200
-Message-Id: <20210329075615.580347787@linuxfoundation.org>
+Subject: [PATCH 5.4 012/111] gianfar: fix jumbo packets+napi+rx overrun crash
+Date:   Mon, 29 Mar 2021 09:57:20 +0200
+Message-Id: <20210329075615.610142145@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
 References: <20210329075615.186199980@linuxfoundation.org>
@@ -40,33 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Michael Braun <michael-dev@fami-braun.de>
 
-[ Upstream commit 155b23e6e53475ca3b8c2a946299b4d4dd6a5a1e ]
+[ Upstream commit d8861bab48b6c1fc3cdbcab8ff9d1eaea43afe7f ]
 
-RXMAC_BC_FRM_CNT_COUNT added to mp->rx_bcasts twice in a row
-in niu_xmac_interrupt(). Remove the second addition.
+When using jumbo packets and overrunning rx queue with napi enabled,
+the following sequence is observed in gfar_add_rx_frag:
 
-Signed-off-by: Denis Efremov <efremov@linux.com>
+   | lstatus                              |       | skb                   |
+t  | lstatus,  size, flags                | first | len, data_len, *ptr   |
+---+--------------------------------------+-------+-----------------------+
+13 | 18002348, 9032, INTERRUPT LAST       | 0     | 9600, 8000,  f554c12e |
+12 | 10000640, 1600, INTERRUPT            | 0     | 8000, 6400,  f554c12e |
+11 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  f554c12e |
+10 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  f554c12e |
+09 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  f554c12e |
+08 | 14000640, 1600, INTERRUPT FIRST      | 0     | 1600, 0,     f554c12e |
+07 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     f554c12e |
+06 | 1c000080, 128,  INTERRUPT LAST FIRST | 1     | 0,    0,     abf3bd6e |
+05 | 18002348, 9032, INTERRUPT LAST       | 0     | 8000, 6400,  c5a57780 |
+04 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  c5a57780 |
+03 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  c5a57780 |
+02 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  c5a57780 |
+01 | 10000640, 1600, INTERRUPT            | 0     | 1600, 0,     c5a57780 |
+00 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     c5a57780 |
+
+So at t=7 a new packets is started but not finished, probably due to rx
+overrun - but rx overrun is not indicated in the flags. Instead a new
+packets starts at t=8. This results in skb->len to exceed size for the LAST
+fragment at t=13 and thus a negative fragment size added to the skb.
+
+This then crashes:
+
+kernel BUG at include/linux/skbuff.h:2277!
+Oops: Exception in kernel mode, sig: 5 [#1]
+...
+NIP [c04689f4] skb_pull+0x2c/0x48
+LR [c03f62ac] gfar_clean_rx_ring+0x2e4/0x844
+Call Trace:
+[ec4bfd38] [c06a84c4] _raw_spin_unlock_irqrestore+0x60/0x7c (unreliable)
+[ec4bfda8] [c03f6a44] gfar_poll_rx_sq+0x48/0xe4
+[ec4bfdc8] [c048d504] __napi_poll+0x54/0x26c
+[ec4bfdf8] [c048d908] net_rx_action+0x138/0x2c0
+[ec4bfe68] [c06a8f34] __do_softirq+0x3a4/0x4fc
+[ec4bfed8] [c0040150] run_ksoftirqd+0x58/0x70
+[ec4bfee8] [c0066ecc] smpboot_thread_fn+0x184/0x1cc
+[ec4bff08] [c0062718] kthread+0x140/0x144
+[ec4bff38] [c0012350] ret_from_kernel_thread+0x14/0x1c
+
+This patch fixes this by checking for computed LAST fragment size, so a
+negative sized fragment is never added.
+In order to prevent the newer rx frame from getting corrupted, the FIRST
+flag is checked to discard the incomplete older frame.
+
+Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/niu.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/freescale/gianfar.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/net/ethernet/sun/niu.c b/drivers/net/ethernet/sun/niu.c
-index f5fd1f3c07cc..2911740af706 100644
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -3931,8 +3931,6 @@ static void niu_xmac_interrupt(struct niu *np)
- 		mp->rx_mcasts += RXMAC_MC_FRM_CNT_COUNT;
- 	if (val & XRXMAC_STATUS_RXBCAST_CNT_EXP)
- 		mp->rx_bcasts += RXMAC_BC_FRM_CNT_COUNT;
--	if (val & XRXMAC_STATUS_RXBCAST_CNT_EXP)
--		mp->rx_bcasts += RXMAC_BC_FRM_CNT_COUNT;
- 	if (val & XRXMAC_STATUS_RXHIST1_CNT_EXP)
- 		mp->rx_hist_cnt1 += RXMAC_HIST_CNT1_COUNT;
- 	if (val & XRXMAC_STATUS_RXHIST2_CNT_EXP)
+diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
+index 5cb58ab1eec9..a8959a092344 100644
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -2388,6 +2388,10 @@ static bool gfar_add_rx_frag(struct gfar_rx_buff *rxb, u32 lstatus,
+ 		if (lstatus & BD_LFLAG(RXBD_LAST))
+ 			size -= skb->len;
+ 
++		WARN(size < 0, "gianfar: rx fragment size underflow");
++		if (size < 0)
++			return false;
++
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page,
+ 				rxb->page_offset + RXBUF_ALIGNMENT,
+ 				size, GFAR_RXB_TRUESIZE);
+@@ -2550,6 +2554,17 @@ static int gfar_clean_rx_ring(struct gfar_priv_rx_q *rx_queue,
+ 		if (lstatus & BD_LFLAG(RXBD_EMPTY))
+ 			break;
+ 
++		/* lost RXBD_LAST descriptor due to overrun */
++		if (skb &&
++		    (lstatus & BD_LFLAG(RXBD_FIRST))) {
++			/* discard faulty buffer */
++			dev_kfree_skb(skb);
++			skb = NULL;
++			rx_queue->stats.rx_dropped++;
++
++			/* can continue normally */
++		}
++
+ 		/* order rx buffer descriptor reads */
+ 		rmb();
+ 
 -- 
 2.30.1
 
