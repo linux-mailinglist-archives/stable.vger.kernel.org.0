@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C643D34C643
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E127534CA60
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232198AbhC2IGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48570 "EHLO mail.kernel.org"
+        id S233565AbhC2Ii0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:38:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231643AbhC2IF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D9966196F;
-        Mon, 29 Mar 2021 08:05:28 +0000 (UTC)
+        id S234166AbhC2Ifp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:35:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8398619C1;
+        Mon, 29 Mar 2021 08:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005129;
-        bh=6OcSODOYqwJboTZ9frUoduypl0F1XliqrHBhqruTSDQ=;
+        s=korg; t=1617006918;
+        bh=nWwZMBbHDGySQIls979FUmWdlGjDxo5ApWKN9T37VD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifjPKv5BBaTCRMMs377etgZOM+JeejpCah6sgB0lbGq9P6K8/wR5dX9lyJlRRhgBj
-         UvXUc0eORtD2oNfFR4EmoR/N7F69pO6Ut2bPoDRxp4xrXhwdmCTbTLt3IKkc27Divh
-         LO02ecBaoXq87a233IS1hB4GX56j4TquAVV2y3JY=
+        b=cQh13/fER5+OanO6e4ljnm3ijQIbS6qE35rif9V5GuojlTRSWsmCsavM/ToaRPrlD
+         f+amoGjvuSuylsnfstBOWgsYpm+pAAP6ZIuYoftrevTDLx5po8beFp7v2016CZixvg
+         6/KgRIfTy1oeJiQj5cvz59DGFDGp0R5bPcpLIAWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        Angelo Dureghello <angelo@kernel-space.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/59] ixgbe: Fix memleak in ixgbe_configure_clsu32
+Subject: [PATCH 5.11 150/254] can: flexcan: flexcan_chip_freeze(): fix chip freeze for missing bitrate
 Date:   Mon, 29 Mar 2021 09:57:46 +0200
-Message-Id: <20210329075609.106903223@linuxfoundation.org>
+Message-Id: <20210329075638.135306988@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Angelo Dureghello <angelo@kernel-space.org>
 
-[ Upstream commit 7a766381634da19fc837619b0a34590498d9d29a ]
+[ Upstream commit 47c5e474bc1e1061fb037d13b5000b38967eb070 ]
 
-When ixgbe_fdir_write_perfect_filter_82599() fails,
-input allocated by kzalloc() has not been freed,
-which leads to memleak.
+For cases when flexcan is built-in, bitrate is still not set at
+registering. So flexcan_chip_freeze() generates:
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+[    1.860000] *** ZERO DIVIDE ***   FORMAT=4
+[    1.860000] Current process id is 1
+[    1.860000] BAD KERNEL TRAP: 00000000
+[    1.860000] PC: [<402e70c8>] flexcan_chip_freeze+0x1a/0xa8
+
+To allow chip freeze, using an hardcoded timeout when bitrate is still
+not set.
+
+Fixes: ec15e27cc890 ("can: flexcan: enable RX FIFO after FRZ/HALT valid")
+Link: https://lore.kernel.org/r/20210315231510.650593-1-angelo@kernel-space.org
+Signed-off-by: Angelo Dureghello <angelo@kernel-space.org>
+[mkl: use if instead of ? operator]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/can/flexcan.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index 9c3fa0b55551..e9205c893531 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -9266,8 +9266,10 @@ static int ixgbe_configure_clsu32(struct ixgbe_adapter *adapter,
- 	ixgbe_atr_compute_perfect_hash_82599(&input->filter, mask);
- 	err = ixgbe_fdir_write_perfect_filter_82599(hw, &input->filter,
- 						    input->sw_idx, queue);
--	if (!err)
--		ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
-+	if (err)
-+		goto err_out_w_lock;
-+
-+	ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
- 	spin_unlock(&adapter->fdir_perfect_lock);
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index 2893297555eb..a9502fbc6dd6 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -697,9 +697,15 @@ static int flexcan_chip_disable(struct flexcan_priv *priv)
+ static int flexcan_chip_freeze(struct flexcan_priv *priv)
+ {
+ 	struct flexcan_regs __iomem *regs = priv->regs;
+-	unsigned int timeout = 1000 * 1000 * 10 / priv->can.bittiming.bitrate;
++	unsigned int timeout;
++	u32 bitrate = priv->can.bittiming.bitrate;
+ 	u32 reg;
  
- 	if ((uhtid != 0x800) && (adapter->jump_tables[uhtid]))
++	if (bitrate)
++		timeout = 1000 * 1000 * 10 / bitrate;
++	else
++		timeout = FLEXCAN_TIMEOUT_US / 10;
++
+ 	reg = priv->read(&regs->mcr);
+ 	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
+ 	priv->write(reg, &regs->mcr);
 -- 
 2.30.1
 
