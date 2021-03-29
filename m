@@ -2,54 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C6B34CAC7
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE7034C95A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234947AbhC2Ijv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32858 "EHLO mail.kernel.org"
+        id S231670AbhC2I3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231725AbhC2Iif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:38:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 826FF61864;
-        Mon, 29 Mar 2021 08:38:34 +0000 (UTC)
+        id S233560AbhC2I1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:27:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E5D61477;
+        Mon, 29 Mar 2021 08:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007115;
-        bh=8km8l5VSew3GbQK2/Vpmt3lL3a2JnnSKkzsZAWyFuuo=;
+        s=korg; t=1617006356;
+        bh=6R+8QI+IYx6C9rN7feoIDmwQmM5836WsWXCSsTemGiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1an+dTIjro9mlhO4D/Exm9OIpdoEki2fbZkF8qIWiCv+YPfdKwyTW0afCp3VNahSE
-         5TPnw9ochHoG2KziLWn1mU3GvD7B4+UuRezLcOdE9iFek6djBth1Gu+3YB+yrqA/wA
-         HbwjNKBZDQ6ogZ4kaJGaLH/HAgwIYyvM/+k8VCgs=
+        b=RTEZPHzn6SqOcrvwZBUl1Mburvz3njtyX2x4QLrK2Q37PG9YhrW9D4Ng8n5wTJZtY
+         fbnJB0w4tG6Gh3V1UMw7FDTETN/KSnMpK9ODrMnD1AKz7msz4zQB/8xpHEZdVwsc05
+         HaRJ+cClD//JfsjL3pD2BaxIPq8tA+eqbuJbcSYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Pankaj Gupta <pankaj.gupta@cloud.ionos.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        teawater <teawaterz@linux.alibaba.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 225/254] arm64/mm: define arch_get_mappable_range()
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        David Howells <dhowells@redhat.com>, kafs-testing@auristor.com,
+        linux-cachefs@redhat.com, linux-mm@kvack.org
+Subject: [PATCH 5.10 210/221] fs/cachefiles: Remove wait_bit_key layout dependency
 Date:   Mon, 29 Mar 2021 09:59:01 +0200
-Message-Id: <20210329075640.480623043@linuxfoundation.org>
+Message-Id: <20210329075636.118348118@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,83 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 03aaf83fba6e5af08b5dd174c72edee9b7d9ed9b ]
+commit 39f985c8f667c80a3d1eb19d31138032fa36b09e upstream.
 
-This overrides arch_get_mappable_range() on arm64 platform which will be
-used with recently added generic framework.  It drops
-inside_linear_region() and subsequent check in arch_add_memory() which are
-no longer required.  It also adds a VM_BUG_ON() check that would ensure
-that mhp_range_allowed() has already been called.
+Cachefiles was relying on wait_page_key and wait_bit_key being the
+same layout, which is fragile.  Now that wait_page_key is exposed in
+the pagemap.h header, we can remove that fragility
 
-Link: https://lkml.kernel.org/r/1612149902-7867-3-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Pankaj Gupta <pankaj.gupta@cloud.ionos.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: teawater <teawaterz@linux.alibaba.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A comment on the need to maintain structure layout equivalence was added by
+Linus[1] and that is no longer applicable.
+
+Fixes: 62906027091f ("mm: add PageWaiters indicating tasks are waiting for a page bit")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: kafs-testing@auristor.com
+cc: linux-cachefs@redhat.com
+cc: linux-mm@kvack.org
+Link: https://lore.kernel.org/r/20210320054104.1300774-2-willy@infradead.org/
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3510ca20ece0150af6b10c77a74ff1b5c198e3e2 [1]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/mm/mmu.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ fs/cachefiles/rdwr.c    |    7 +++----
+ include/linux/pagemap.h |    1 -
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 6f0648777d34..92b3be127796 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1443,16 +1443,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
+--- a/fs/cachefiles/rdwr.c
++++ b/fs/cachefiles/rdwr.c
+@@ -24,17 +24,16 @@ static int cachefiles_read_waiter(wait_q
+ 		container_of(wait, struct cachefiles_one_read, monitor);
+ 	struct cachefiles_object *object;
+ 	struct fscache_retrieval *op = monitor->op;
+-	struct wait_bit_key *key = _key;
++	struct wait_page_key *key = _key;
+ 	struct page *page = wait->private;
+ 
+ 	ASSERT(key);
+ 
+ 	_enter("{%lu},%u,%d,{%p,%u}",
+ 	       monitor->netfs_page->index, mode, sync,
+-	       key->flags, key->bit_nr);
++	       key->page, key->bit_nr);
+ 
+-	if (key->flags != &page->flags ||
+-	    key->bit_nr != PG_locked)
++	if (key->page != page || key->bit_nr != PG_locked)
+ 		return 0;
+ 
+ 	_debug("--- monitor %p %lx ---", page, page->flags);
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -559,7 +559,6 @@ static inline pgoff_t linear_page_index(
+ 	return pgoff;
  }
  
--static bool inside_linear_region(u64 start, u64 size)
-+struct range arch_get_mappable_range(void)
- {
-+	struct range mhp_range;
-+
- 	/*
- 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
- 	 * accommodating both its ends but excluding PAGE_END. Max physical
- 	 * range which can be mapped inside this linear mapping range, must
- 	 * also be derived from its end points.
- 	 */
--	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
--	       (start + size - 1) <= __pa(PAGE_END - 1);
-+	mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-+	mhp_range.end =  __pa(PAGE_END - 1);
-+	return mhp_range;
- }
- 
- int arch_add_memory(int nid, u64 start, u64 size,
-@@ -1460,11 +1463,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- {
- 	int ret, flags = 0;
- 
--	if (!inside_linear_region(start, size)) {
--		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
--		return -EINVAL;
--	}
--
-+	VM_BUG_ON(!mhp_range_allowed(start, size, true));
- 	if (rodata_full || debug_pagealloc_enabled())
- 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
--- 
-2.30.1
-
+-/* This has the same layout as wait_bit_key - see fs/cachefiles/rdwr.c */
+ struct wait_page_key {
+ 	struct page *page;
+ 	int bit_nr;
 
 
