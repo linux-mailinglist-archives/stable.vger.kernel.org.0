@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAA934C8C3
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F3A134C6A9
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234232AbhC2IYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
+        id S231937AbhC2II4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:08:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233532AbhC2IXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C9DA61580;
-        Mon, 29 Mar 2021 08:23:33 +0000 (UTC)
+        id S232252AbhC2IIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:08:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4785861477;
+        Mon, 29 Mar 2021 08:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006213;
-        bh=RjTHXO6Y1HVtNgvT3dwUnJOsHYYDzs5H0UOvVN4LW5M=;
+        s=korg; t=1617005301;
+        bh=GQ25XYlmhriTUSqz13rXz1MKWRd4eaKqssJQYl9P4pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDdUERaNDkIV0z18ipNedtVIJsK2vwMnRt9uktyAXwfNEIPxs6uGouMb675nIrhgQ
-         2IcE81RRMmztVDcQ4HxAmZllwdx4G+dmJquvVOK18Ky0W6qSiNvE7g6va2QuSlwKji
-         /5yZq51EjP7+JqSBScUGUgdh5fncA67e13yx0SWc=
+        b=YEwUWF8k25Gs2H3aieOik9fU5Ia/7gpREvFf5A/5YC375oeIux3MwsEgLDkP3v7Ly
+         C/VW7CoKPKvqPV4FmCUKbfB8C3TYN9giWFuxExCMN/cjcK9rAwpZzLyBhCdHKF4lxt
+         ziF9d9E8orD1xS0D7nQ7SE74n0Q+H0uwP+dmKCxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Davies <robdavies1977@gmail.com>,
-        Hayes Wang <hayeswang@realtek.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Toshiaki Makita <toshiaki.makita1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 159/221] r8152: limit the RX buffer size of RTL8153A for USB 2.0
+Subject: [PATCH 4.19 34/72] veth: Store queue_mapping independently of XDP prog presence
 Date:   Mon, 29 Mar 2021 09:58:10 +0200
-Message-Id: <20210329075634.467235800@linuxfoundation.org>
+Message-Id: <20210329075611.410468033@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit f91a50d8b51b5c8ef1cfb08115a005bba4250507 ]
+[ Upstream commit edbea922025169c0e5cdca5ebf7bf5374cc5566c ]
 
-If the USB host controller is EHCI, the throughput is reduced from
-300Mb/s to 60Mb/s, when the rx buffer size is modified from 16K to
-32K.
+Currently, veth_xmit() would call the skb_record_rx_queue() only when
+there is XDP program loaded on peer interface in native mode.
 
-According to the EHCI spec, the maximum size of the qTD is 20K.
-Therefore, when the driver uses more than 20K buffer, the latency
-time of EHCI would be increased. And, it let the RTL8153A get worse
-throughput.
+If peer has XDP prog in generic mode, then netif_receive_generic_xdp()
+has a call to netif_get_rxqueue(skb), so for multi-queue veth it will
+not be possible to grab a correct rxq.
 
-However, the driver uses alloc_pages() for rx buffer, so I limit
-the rx buffer to 16K rather than 20K.
+To fix that, store queue_mapping independently of XDP prog presence on
+peer interface.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205923
-Fixes: ec5791c202ac ("r8152: separate the rx buffer size")
-Reported-by: Robert Davies <robdavies1977@gmail.com>
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 638264dc9022 ("veth: Support per queue XDP ring")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Link: https://lore.kernel.org/bpf/20210303152903.11172-1-maciej.fijalkowski@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/veth.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index d2862071b697..f5010f8ac1ec 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -6519,7 +6519,10 @@ static int rtl_ops_init(struct r8152 *tp)
- 		ops->in_nway		= rtl8153_in_nway;
- 		ops->hw_phy_cfg		= r8153_hw_phy_cfg;
- 		ops->autosuspend_en	= rtl8153_runtime_enable;
--		tp->rx_buf_sz		= 32 * 1024;
-+		if (tp->udev->speed < USB_SPEED_SUPER)
-+			tp->rx_buf_sz	= 16 * 1024;
-+		else
-+			tp->rx_buf_sz	= 32 * 1024;
- 		tp->eee_en		= true;
- 		tp->eee_adv		= MDIO_EEE_1000T | MDIO_EEE_100TX;
- 		break;
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index 2abbad1abaf2..fd1843fd256b 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -197,8 +197,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (rxq < rcv->real_num_rx_queues) {
+ 		rq = &rcv_priv->rq[rxq];
+ 		rcv_xdp = rcu_access_pointer(rq->xdp_prog);
+-		if (rcv_xdp)
+-			skb_record_rx_queue(skb, rxq);
++		skb_record_rx_queue(skb, rxq);
+ 	}
+ 
+ 	if (likely(veth_forward_skb(rcv, skb, rq, rcv_xdp) == NET_RX_SUCCESS)) {
 -- 
 2.30.1
 
