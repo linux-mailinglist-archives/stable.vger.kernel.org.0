@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0C834C576
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:01:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 105C634C692
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231480AbhC2IAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:00:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
+        id S232290AbhC2IIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:08:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231313AbhC2IAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2637F6196C;
-        Mon, 29 Mar 2021 08:00:12 +0000 (UTC)
+        id S232516AbhC2IHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:07:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61C3661932;
+        Mon, 29 Mar 2021 08:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004816;
+        s=korg; t=1617005267;
         bh=6doY695fcNFJgCQPeD37/bzJKzw8f4iXkCzcMtRpyCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BxinMDRiGp1XMEDhqkhPYnR6H45o4huI5oNhUj9f2f/hcda7MQo+0z2xl5wdkk7A
-         BfZV+ddMsTMb3b56RRt7ub+JrDumNcMnvGzoYwJ3frPZlk/7ZQ8dyvDrp57G9XPvh9
-         CpErTt/muoYpIxrhBC6Pe6CUBDEVBm1CsbF63L8k=
+        b=nuh3slOpfX9k0PEJi5bgFPGdGRN1ho6hIbVLl2ccM/iTraz9u/rMTsVsf9KyKucsS
+         ngmoQHEWyJyd+SFRzPG0Vh8jdA8KEqz7pexo4XxszICxXN0B1mPM05XfKC3yxanH24
+         RThsbQBP79xqDiheNHDl0vrqBwb43sfDS8dQF0Jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/33] ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
+Subject: [PATCH 4.19 23/72] ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
 Date:   Mon, 29 Mar 2021 09:57:59 +0200
-Message-Id: <20210329075605.729833210@linuxfoundation.org>
+Message-Id: <20210329075611.033570379@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-References: <20210329075605.290845195@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
