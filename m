@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B47134C646
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA97834C6BC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbhC2IGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48548 "EHLO mail.kernel.org"
+        id S231598AbhC2IJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:09:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231839AbhC2IF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD866196D;
-        Mon, 29 Mar 2021 08:05:25 +0000 (UTC)
+        id S231831AbhC2IIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:08:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC1F161494;
+        Mon, 29 Mar 2021 08:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005126;
-        bh=T0XYuJ7bt3efLYHejuax+Hnm6PgGx25y4+Ae9fUrFZM=;
+        s=korg; t=1617005327;
+        bh=w+fQJ/TgGcEIpgdzhLwbxdhESitBAvYdqm/4JxzlqDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05kRYMfg8BN63gKL+6RL8I5eTJugQZuJeWICb0+CFQUdCEFH5Zu/5fUR2IYyEjZ84
-         cuKmoU3LwrHRs3KjMvi+YuYcZdj/6KmvCZcZuByfReNXv8ewBzTwVkvREyWtEH/zpk
-         /IvNnxsjO9r9LzgI56uZlXFLpefxlTWPMOMLgX+A=
+        b=YSRAOQ923KBtt2n2opDzYq1ZdAsNiKDFcgf/KZWzaT8IODIONeaWklmFtTSOPSeUf
+         kPQqfW/qIpZdiHhDQt9HpCrBbtWugwcymdBTsL1vC5jF9mIUAUDm+IDOwpB5khNhu8
+         C5+t03l6gn+Eem8MiLtEaXmqC8EX2vpgWkmvGXhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
+        stable@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/59] Revert "r8152: adjust the settings about MAC clock speed down for RTL8153"
+Subject: [PATCH 4.19 09/72] gianfar: fix jumbo packets+napi+rx overrun crash
 Date:   Mon, 29 Mar 2021 09:57:45 +0200
-Message-Id: <20210329075609.077059147@linuxfoundation.org>
+Message-Id: <20210329075610.598949073@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,108 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Michael Braun <michael-dev@fami-braun.de>
 
-[ Upstream commit 4b5dc1a94d4f92b5845e98bd9ae344b26d933aad ]
+[ Upstream commit d8861bab48b6c1fc3cdbcab8ff9d1eaea43afe7f ]
 
-This reverts commit 134f98bcf1b898fb9d6f2b91bc85dd2e5478b4b8.
+When using jumbo packets and overrunning rx queue with napi enabled,
+the following sequence is observed in gfar_add_rx_frag:
 
-The r8153_mac_clk_spd() is used for RTL8153A only, because the register
-table of RTL8153B is different from RTL8153A. However, this function would
-be called when RTL8153B calls r8153_first_init() and r8153_enter_oob().
-That causes RTL8153B becomes unstable when suspending and resuming. The
-worst case may let the device stop working.
+   | lstatus                              |       | skb                   |
+t  | lstatus,  size, flags                | first | len, data_len, *ptr   |
+---+--------------------------------------+-------+-----------------------+
+13 | 18002348, 9032, INTERRUPT LAST       | 0     | 9600, 8000,  f554c12e |
+12 | 10000640, 1600, INTERRUPT            | 0     | 8000, 6400,  f554c12e |
+11 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  f554c12e |
+10 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  f554c12e |
+09 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  f554c12e |
+08 | 14000640, 1600, INTERRUPT FIRST      | 0     | 1600, 0,     f554c12e |
+07 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     f554c12e |
+06 | 1c000080, 128,  INTERRUPT LAST FIRST | 1     | 0,    0,     abf3bd6e |
+05 | 18002348, 9032, INTERRUPT LAST       | 0     | 8000, 6400,  c5a57780 |
+04 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  c5a57780 |
+03 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  c5a57780 |
+02 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  c5a57780 |
+01 | 10000640, 1600, INTERRUPT            | 0     | 1600, 0,     c5a57780 |
+00 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     c5a57780 |
 
-Besides, revert this commit to disable MAC clock speed down for RTL8153A.
-It would avoid the known issue when enabling U1. The data of the first
-control transfer may be wrong when exiting U1.
+So at t=7 a new packets is started but not finished, probably due to rx
+overrun - but rx overrun is not indicated in the flags. Instead a new
+packets starts at t=8. This results in skb->len to exceed size for the LAST
+fragment at t=13 and thus a negative fragment size added to the skb.
 
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+This then crashes:
+
+kernel BUG at include/linux/skbuff.h:2277!
+Oops: Exception in kernel mode, sig: 5 [#1]
+...
+NIP [c04689f4] skb_pull+0x2c/0x48
+LR [c03f62ac] gfar_clean_rx_ring+0x2e4/0x844
+Call Trace:
+[ec4bfd38] [c06a84c4] _raw_spin_unlock_irqrestore+0x60/0x7c (unreliable)
+[ec4bfda8] [c03f6a44] gfar_poll_rx_sq+0x48/0xe4
+[ec4bfdc8] [c048d504] __napi_poll+0x54/0x26c
+[ec4bfdf8] [c048d908] net_rx_action+0x138/0x2c0
+[ec4bfe68] [c06a8f34] __do_softirq+0x3a4/0x4fc
+[ec4bfed8] [c0040150] run_ksoftirqd+0x58/0x70
+[ec4bfee8] [c0066ecc] smpboot_thread_fn+0x184/0x1cc
+[ec4bff08] [c0062718] kthread+0x140/0x144
+[ec4bff38] [c0012350] ret_from_kernel_thread+0x14/0x1c
+
+This patch fixes this by checking for computed LAST fragment size, so a
+negative sized fragment is never added.
+In order to prevent the newer rx frame from getting corrupted, the FIRST
+flag is checked to discard the incomplete older frame.
+
+Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 35 ++++++-----------------------------
- 1 file changed, 6 insertions(+), 29 deletions(-)
+ drivers/net/ethernet/freescale/gianfar.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index bd91d4bad49b..f9c531a6ce06 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -2588,29 +2588,6 @@ static void __rtl_set_wol(struct r8152 *tp, u32 wolopts)
- 		device_set_wakeup_enable(&tp->udev->dev, false);
- }
+diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
+index 8db0924ec681..df03cf63cb02 100644
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -2940,6 +2940,10 @@ static bool gfar_add_rx_frag(struct gfar_rx_buff *rxb, u32 lstatus,
+ 		if (lstatus & BD_LFLAG(RXBD_LAST))
+ 			size -= skb->len;
  
--static void r8153_mac_clk_spd(struct r8152 *tp, bool enable)
--{
--	/* MAC clock speed down */
--	if (enable) {
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL,
--			       ALDPS_SPDWN_RATIO);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2,
--			       EEE_SPDWN_RATIO);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3,
--			       PKT_AVAIL_SPDWN_EN | SUSPEND_SPDWN_EN |
--			       U1U2_SPDWN_EN | L1_SPDWN_EN);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4,
--			       PWRSAVE_SPDWN_EN | RXDV_SPDWN_EN | TX10MIDLE_EN |
--			       TP100_SPDWN_EN | TP500_SPDWN_EN | EEE_SPDWN_EN |
--			       TP1000_SPDWN_EN);
--	} else {
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
--	}
--}
--
- static void r8153_u1u2en(struct r8152 *tp, bool enable)
- {
- 	u8 u1u2[8];
-@@ -2841,11 +2818,9 @@ static void rtl8153_runtime_enable(struct r8152 *tp, bool enable)
- 	if (enable) {
- 		r8153_u1u2en(tp, false);
- 		r8153_u2p3en(tp, false);
--		r8153_mac_clk_spd(tp, true);
- 		rtl_runtime_suspend_enable(tp, true);
- 	} else {
- 		rtl_runtime_suspend_enable(tp, false);
--		r8153_mac_clk_spd(tp, false);
- 
- 		switch (tp->version) {
- 		case RTL_VER_03:
-@@ -3407,7 +3382,6 @@ static void r8153_first_init(struct r8152 *tp)
- 	u32 ocp_data;
- 	int i;
- 
--	r8153_mac_clk_spd(tp, false);
- 	rxdy_gated_en(tp, true);
- 	r8153_teredo_off(tp);
- 
-@@ -3469,8 +3443,6 @@ static void r8153_enter_oob(struct r8152 *tp)
- 	u32 ocp_data;
- 	int i;
- 
--	r8153_mac_clk_spd(tp, true);
--
- 	ocp_data = ocp_read_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL);
- 	ocp_data &= ~NOW_IS_OOB;
- 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
-@@ -4134,9 +4106,14 @@ static void r8153_init(struct r8152 *tp)
- 
- 	ocp_write_word(tp, MCU_TYPE_USB, USB_CONNECT_TIMER, 0x0001);
- 
-+	/* MAC clock speed down */
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL2, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL3, 0);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_MAC_PWR_CTRL4, 0);
++		WARN(size < 0, "gianfar: rx fragment size underflow");
++		if (size < 0)
++			return false;
 +
- 	r8153_power_cut_en(tp, false);
- 	r8153_u1u2en(tp, true);
--	r8153_mac_clk_spd(tp, false);
- 	usb_enable_lpm(tp->udev);
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page,
+ 				rxb->page_offset + RXBUF_ALIGNMENT,
+ 				size, GFAR_RXB_TRUESIZE);
+@@ -3101,6 +3105,17 @@ int gfar_clean_rx_ring(struct gfar_priv_rx_q *rx_queue, int rx_work_limit)
+ 		if (lstatus & BD_LFLAG(RXBD_EMPTY))
+ 			break;
  
- 	/* rx aggregation */
++		/* lost RXBD_LAST descriptor due to overrun */
++		if (skb &&
++		    (lstatus & BD_LFLAG(RXBD_FIRST))) {
++			/* discard faulty buffer */
++			dev_kfree_skb(skb);
++			skb = NULL;
++			rx_queue->stats.rx_dropped++;
++
++			/* can continue normally */
++		}
++
+ 		/* order rx buffer descriptor reads */
+ 		rmb();
+ 
 -- 
 2.30.1
 
