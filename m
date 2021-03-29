@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A704834C7E9
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F096C34C9F9
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233220AbhC2ISa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33678 "EHLO mail.kernel.org"
+        id S234070AbhC2Ief (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232164AbhC2IRv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:17:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED2EA6044F;
-        Mon, 29 Mar 2021 08:17:49 +0000 (UTC)
+        id S234653AbhC2IdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A42619CA;
+        Mon, 29 Mar 2021 08:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005870;
-        bh=7UBMc4X3Jzz8xGANcBroRUpjrifXZzex4w0Bq7V40Ng=;
+        s=korg; t=1617006765;
+        bh=u2WoqnrokWYYEN1yuapQYMfVOIeZTzxABQuyxzush1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iiHO+hZaOxj2hMBclhiMURuxcJq0efZyWQ4qt28HrIKBLvWZ9ZlOBEHGf2Yafrz8d
-         tCV3ygaJy0RFwzfVSJNzFLaPJ4zIEQVV1tIb0J5FCnotLDgO0f0yQ6dBfe/rD5UDfN
-         S9Xiqu5ATj42Gsfo/R/1KSHeDRIO3W1Jk3553XaA=
+        b=KPxmLP4I/04TMEDnOaKtdjgAu/+Kz2qCKM2r9OXz3w5xWXm0BNl4dazqnjuVpZ7P/
+         7+5Z1Y7lIEnAqN4PqKKhUKgDhILKBDDOS+H1/O/0pNRkgqdXAi0qPKqa3zgF+DQKcR
+         KZZVolTkHhpZlM+A1CR9hMqy9oP3uRCkq2GfkR24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Gardner <rob.gardner@oracle.com>,
-        Anatoly Pugachev <matorola@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/221] sparc64: Fix opcode filtering in handling of no fault loads
-Date:   Mon, 29 Mar 2021 09:56:06 +0200
-Message-Id: <20210329075630.336945600@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        James Smart <jsmart2021@gmail.com>,
+        Daniel Wagner <dwagner@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 051/254] nvme-fc: set NVME_REQ_CANCELLED in nvme_fc_terminate_exchange()
+Date:   Mon, 29 Mar 2021 09:56:07 +0200
+Message-Id: <20210329075634.851433311@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Gardner <rob.gardner@oracle.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit e5e8b80d352ec999d2bba3ea584f541c83f4ca3f ]
+[ Upstream commit 3c7aafbc8d3d4d90430dfa126847a796c3e4ecfc ]
 
-is_no_fault_exception() has two bugs which were discovered via random
-opcode testing with stress-ng. Both are caused by improper filtering
-of opcodes.
+nvme_fc_terminate_exchange() is being called when exchanges are
+being deleted, and as such we should be setting the NVME_REQ_CANCELLED
+flag to have identical behaviour on all transports.
 
-The first bug can be triggered by a floating point store with a no-fault
-ASI, for instance "sta %f0, [%g0] #ASI_PNF", opcode C1A01040.
-
-The code first tests op3[5] (0x1000000), which denotes a floating
-point instruction, and then tests op3[2] (0x200000), which denotes a
-store instruction. But these bits are not mutually exclusive, and the
-above mentioned opcode has both bits set. The intent is to filter out
-stores, so the test for stores must be done first in order to have
-any effect.
-
-The second bug can be triggered by a floating point load with one of
-the invalid ASI values 0x8e or 0x8f, which pass this check in
-is_no_fault_exception():
-     if ((asi & 0xf2) == ASI_PNF)
-
-An example instruction is "ldqa [%l7 + %o7] #ASI 0x8f, %f38",
-opcode CF95D1EF. Asi values greater than 0x8b (ASI_SNFL) are fatal
-in handle_ldf_stq(), and is_no_fault_exception() must not allow these
-invalid asi values to make it that far.
-
-In both of these cases, handle_ldf_stq() reacts by calling
-sun4v_data_access_exception() or spitfire_data_access_exception(),
-which call is_no_fault_exception() and results in an infinite
-recursion.
-
-Signed-off-by: Rob Gardner <rob.gardner@oracle.com>
-Tested-by: Anatoly Pugachev <matorola@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/traps_64.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/nvme/host/fc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/sparc/kernel/traps_64.c b/arch/sparc/kernel/traps_64.c
-index d92e5eaa4c1d..a850dccd78ea 100644
---- a/arch/sparc/kernel/traps_64.c
-+++ b/arch/sparc/kernel/traps_64.c
-@@ -275,14 +275,13 @@ bool is_no_fault_exception(struct pt_regs *regs)
- 			asi = (regs->tstate >> 24); /* saved %asi       */
- 		else
- 			asi = (insn >> 5);	    /* immediate asi    */
--		if ((asi & 0xf2) == ASI_PNF) {
--			if (insn & 0x1000000) {     /* op3[5:4]=3       */
--				handle_ldf_stq(insn, regs);
--				return true;
--			} else if (insn & 0x200000) { /* op3[2], stores */
-+		if ((asi & 0xf6) == ASI_PNF) {
-+			if (insn & 0x200000)        /* op3[2], stores   */
- 				return false;
--			}
--			handle_ld_nf(insn, regs);
-+			if (insn & 0x1000000)       /* op3[5:4]=3 (fp)  */
-+				handle_ldf_stq(insn, regs);
-+			else
-+				handle_ld_nf(insn, regs);
- 			return true;
- 		}
- 	}
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 7ec6869b3e5b..0ddd2514b401 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -2443,6 +2443,7 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
+ 	struct nvme_fc_ctrl *ctrl = to_fc_ctrl(nctrl);
+ 	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(req);
+ 
++	op->nreq.flags |= NVME_REQ_CANCELLED;
+ 	__nvme_fc_abort_op(ctrl, op);
+ 	return true;
+ }
 -- 
 2.30.1
 
