@@ -2,78 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B855934CDD0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 12:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6F834D655
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 19:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbhC2KSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 06:18:36 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:37528 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229655AbhC2KSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 06:18:14 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 314991C0B81; Mon, 29 Mar 2021 12:18:12 +0200 (CEST)
-Date:   Mon, 29 Mar 2021 12:18:10 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 00/33] 4.4.264-rc1 review
-Message-ID: <20210329101810.GA31197@amd>
-References: <20210329075605.290845195@linuxfoundation.org>
+        id S230437AbhC2RwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 13:52:07 -0400
+Received: from email.indiamr.com ([202.53.11.28]:49934 "EHLO email.indiamr.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230520AbhC2Rvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 13:51:40 -0400
+X-Greylist: delayed 12982 seconds by postgrey-1.27 at vger.kernel.org; Mon, 29 Mar 2021 13:51:40 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by email.indiamr.com (Postfix) with ESMTP id 62F6A309B965E
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 17:49:58 +0530 (IST)
+Received: from email.indiamr.com ([127.0.0.1])
+        by localhost (email.indiamr.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id ZRqFnLCqJahY for <stable@vger.kernel.org>;
+        Mon, 29 Mar 2021 17:49:58 +0530 (IST)
+Received: from localhost (localhost [127.0.0.1])
+        by email.indiamr.com (Postfix) with ESMTP id 1E98F309B965C
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 17:49:58 +0530 (IST)
+X-Virus-Scanned: amavisd-new at indiamr.com
+Received: from email.indiamr.com ([127.0.0.1])
+        by localhost (email.indiamr.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 4KRp5tnoFJ5B for <stable@vger.kernel.org>;
+        Mon, 29 Mar 2021 17:49:57 +0530 (IST)
+Received: from User (gateway [192.168.1.1])
+        by email.indiamr.com (Postfix) with SMTP id 3DABC309B965F
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 17:49:55 +0530 (IST)
+Reply-To: <j.t.elyseerene@gmail.com>
+From:   "Jacquet Thierry Elysee Rene" <aaa@nourmail.com.sa>
+To:     stable@vger.kernel.org
+Subject: Investment Offer
+Date:   Mon, 29 Mar 2021 03:19:22 -0700
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Content-Disposition: inline
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <20210329121956.3DABC309B965F@email.indiamr.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Attention Sir,
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I represent an investor seeking to invest  in any lucrative investment in your country, If you have a solid background and the idea of making good profit in real estate or in any  business, Please write to me for possible business cooperation. My email is     j.t.elyseerene@gmail.com
 
-Hi!
+Regards,
+Jacquet Thierry Elysee Rene. 
 
-> This is the start of the stable review cycle for the 4.4.264 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-
-CIP testing did not find any problems here:
-
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.4.y
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.19.y
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y
-
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
-
-Best regards,
-								Pavel
-								=09
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmBhqWIACgkQMOfwapXb+vIiswCfQ3uEAlu/EDEbL3ExaHDBNOOq
-8z0Anjs9nQxecq5QIpaX7X6h0yDzlf0Q
-=6xA+
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
