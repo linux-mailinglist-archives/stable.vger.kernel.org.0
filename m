@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86B9C34C7E2
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62EF234C97B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233133AbhC2IS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57912 "EHLO mail.kernel.org"
+        id S233687AbhC2I36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233356AbhC2IRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:17:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA52A61477;
-        Mon, 29 Mar 2021 08:17:28 +0000 (UTC)
+        id S234296AbhC2I2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:28:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35882619D3;
+        Mon, 29 Mar 2021 08:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005849;
-        bh=s2eDsaW1ro1iLhAOcNkNv9YFiR0Q4k8z1QIVXQWIZQw=;
+        s=korg; t=1617006439;
+        bh=yVGfVRO7Xj7U+lHvrEE+sQIiCYb5eGK2AG3Ak+dYvGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=epnjDUgN338noveVSnxDbi65BcYgW8/0yCEuZta8Zu5hO1fvk3Kp0HNE/vkcgqcD/
-         +ThVT2MH9VWQMWng7ChLqJ/jxk5M2KQRNfz6h2gj+oiTedVZt5p/CLLLWcMpr0O8Kj
-         GMQp6bog54HDfzaxzH6K7UwtKO8AI8YGTI8+RF+s=
+        b=hLWTovUiStEt9DmY1dVbb1hz101kS+QK+rncaTgi+i8hNW2pgTYs5Ux6qX+b27o8G
+         1QqVIsXlSqW5ENkExejLpGHosafvD/RvqJXxDZZFqGKvKjcIFfkw+9WKuxx7wBlrfb
+         eYZSc7Mln8MeGSlMmWP5En9xL/ehm5csGtYNm00U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Feng Tang <feng.tang@intel.com>,
+        stable@vger.kernel.org, Timo Rothenpieler <timo@rothenpieler.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/221] powerpc/4xx: Fix build errors from mfdcr()
+Subject: [PATCH 5.11 021/254] nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
 Date:   Mon, 29 Mar 2021 09:55:37 +0200
-Message-Id: <20210329075629.394129707@linuxfoundation.org>
+Message-Id: <20210329075633.846633943@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Timo Rothenpieler <timo@rothenpieler.org>
 
-[ Upstream commit eead089311f4d935ab5d1d8fbb0c42ad44699ada ]
+[ Upstream commit a0590473c5e6c4ef17c3132ad08fbad170f72d55 ]
 
-lkp reported a build error in fsp2.o:
+This follows what was done in 8c2fabc6542d9d0f8b16bd1045c2eda59bdcde13.
+With the default being m, it's impossible to build the module into the
+kernel.
 
-  CC      arch/powerpc/platforms/44x/fsp2.o
-  {standard input}:577: Error: unsupported relocation against base
-
-Which comes from:
-
-  pr_err("GESR0: 0x%08x\n", mfdcr(base + PLB4OPB_GESR0));
-
-Where our mfdcr() macro is stringifying "base + PLB4OPB_GESR0", and
-passing that to the assembler, which obviously doesn't work.
-
-The mfdcr() macro already checks that the argument is constant using
-__builtin_constant_p(), and if not calls the out-of-line version of
-mfdcr(). But in this case GCC is smart enough to notice that "base +
-PLB4OPB_GESR0" will be constant, even though it's not something we can
-immediately stringify into a register number.
-
-Segher pointed out that passing the register number to the inline asm
-as a constant would be better, and in fact it fixes the build error,
-presumably because it gives GCC a chance to resolve the value.
-
-While we're at it, change mtdcr() similarly.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Acked-by: Feng Tang <feng.tang@intel.com>
-Link: https://lore.kernel.org/r/20210218123058.748882-1-mpe@ellerman.id.au
+Signed-off-by: Timo Rothenpieler <timo@rothenpieler.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/dcr-native.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/nfs/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/dcr-native.h b/arch/powerpc/include/asm/dcr-native.h
-index 7141ccea8c94..a92059964579 100644
---- a/arch/powerpc/include/asm/dcr-native.h
-+++ b/arch/powerpc/include/asm/dcr-native.h
-@@ -53,8 +53,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
- #define mfdcr(rn)						\
- 	({unsigned int rval;					\
- 	if (__builtin_constant_p(rn) && rn < 1024)		\
--		asm volatile("mfdcr %0," __stringify(rn)	\
--		              : "=r" (rval));			\
-+		asm volatile("mfdcr %0, %1" : "=r" (rval)	\
-+			      : "n" (rn));			\
- 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
- 		rval = mfdcrx(rn);				\
- 	else							\
-@@ -64,8 +64,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
- #define mtdcr(rn, v)						\
- do {								\
- 	if (__builtin_constant_p(rn) && rn < 1024)		\
--		asm volatile("mtdcr " __stringify(rn) ",%0"	\
--			      : : "r" (v)); 			\
-+		asm volatile("mtdcr %0, %1"			\
-+			      : : "n" (rn), "r" (v));		\
- 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
- 		mtdcrx(rn, v);					\
- 	else							\
+diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+index e2a488d403a6..14a72224b657 100644
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -127,7 +127,7 @@ config PNFS_BLOCK
+ config PNFS_FLEXFILE_LAYOUT
+ 	tristate
+ 	depends on NFS_V4_1 && NFS_V3
+-	default m
++	default NFS_V4
+ 
+ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
+ 	string "NFSv4.1 Implementation ID Domain"
 -- 
 2.30.1
 
