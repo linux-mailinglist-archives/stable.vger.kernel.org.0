@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B62134C6C0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BEA34C606
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231764AbhC2IJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:09:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52376 "EHLO mail.kernel.org"
+        id S232064AbhC2IEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232354AbhC2IJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:09:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2BD561477;
-        Mon, 29 Mar 2021 08:09:09 +0000 (UTC)
+        id S231529AbhC2IDo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:03:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7553E6197F;
+        Mon, 29 Mar 2021 08:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005350;
-        bh=5jfMjQVQa+Jz/Cu6Mly0VKQNQ/tjZGovQqeqfgKaLcI=;
+        s=korg; t=1617005024;
+        bh=tqZMQWvnmuLFIUGCzxrH5iKoGmauhrdvP5QFvrqN6aQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDDi0uMw2NT2R0bIXITsKqwUm7WmaioT8FOY5bnM7WHpZf+I7XOWGgOBbhDJsH3ZQ
-         B/q54L8Vb4NuzSE5wHQmdlbi91BVKo1tGeNqZ0DCkrqSdSQaalgRypbcgA1x5rk/f4
-         TR9vZyoH95X81nS/ZCXnkIRosiGLLKdn4FSj964w=
+        b=CxOPuNXU0y72/p8a6RwVplwX8WGl9Je374pdAmtk9roDetH+XVQGiNJmYfj38m/ya
+         DPRVkyvFKBnLswW4I2I4RD23QEqM5jIiVgEou+PRUkejh/ZXXg2TtYGtsh6HarJVNt
+         YhGJWh57C5NDXZ/NKVwYUFu9GKOQRxzDrTsk7p+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Belisko Marek <marek.belisko@gmail.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/72] net: stmmac: dwmac-sun8i: Provide TX and RX fifo sizes
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 51/53] net: sched: validate stab values
 Date:   Mon, 29 Mar 2021 09:58:26 +0200
-Message-Id: <20210329075611.930390137@linuxfoundation.org>
+Message-Id: <20210329075609.193504389@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 014dfa26ce1c647af09bf506285ef67e0e3f0a6b ]
+commit e323d865b36134e8c5c82c834df89109a5c60dab upstream.
 
-MTU cannot be changed on dwmac-sun8i. (ip link set eth0 mtu xxx returning EINVAL)
-This is due to tx_fifo_size being 0, since this value is used to compute valid
-MTU range.
-Like dwmac-sunxi (with commit 806fd188ce2a ("net: stmmac: dwmac-sunxi: Provide TX and RX fifo sizes"))
-dwmac-sun8i need to have tx and rx fifo sizes set.
-I have used values from datasheets.
-After this patch, setting a non-default MTU (like 1000) value works and network is still useable.
+iproute2 package is well behaved, but malicious user space can
+provide illegal shift values and trigger UBSAN reports.
 
-Tested-on: sun8i-h3-orangepi-pc
-Tested-on: sun8i-r40-bananapi-m2-ultra
-Tested-on: sun50i-a64-bananapi-m64
-Tested-on: sun50i-h5-nanopi-neo-plus2
-Tested-on: sun50i-h6-pine-h64
-Fixes: 9f93ac8d408 ("net-next: stmmac: Add dwmac-sun8i")
-Reported-by: Belisko Marek <marek.belisko@gmail.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Add stab parameter to red_check_params() to validate user input.
+
+syzbot reported:
+
+UBSAN: shift-out-of-bounds in ./include/net/red.h:312:18
+shift exponent 111 is too large for 64-bit type 'long unsigned int'
+CPU: 1 PID: 14662 Comm: syz-executor.3 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
+ red_calc_qavg_from_idle_time include/net/red.h:312 [inline]
+ red_calc_qavg include/net/red.h:353 [inline]
+ choke_enqueue.cold+0x18/0x3dd net/sched/sch_choke.c:221
+ __dev_xmit_skb net/core/dev.c:3837 [inline]
+ __dev_queue_xmit+0x1943/0x2e00 net/core/dev.c:4150
+ neigh_hh_output include/net/neighbour.h:499 [inline]
+ neigh_output include/net/neighbour.h:508 [inline]
+ ip6_finish_output2+0x911/0x1700 net/ipv6/ip6_output.c:117
+ __ip6_finish_output net/ipv6/ip6_output.c:182 [inline]
+ __ip6_finish_output+0x4c1/0xe10 net/ipv6/ip6_output.c:161
+ ip6_finish_output+0x35/0x200 net/ipv6/ip6_output.c:192
+ NF_HOOK_COND include/linux/netfilter.h:290 [inline]
+ ip6_output+0x1e4/0x530 net/ipv6/ip6_output.c:215
+ dst_output include/net/dst.h:448 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ NF_HOOK include/linux/netfilter.h:295 [inline]
+ ip6_xmit+0x127e/0x1eb0 net/ipv6/ip6_output.c:320
+ inet6_csk_xmit+0x358/0x630 net/ipv6/inet6_connection_sock.c:135
+ dccp_transmit_skb+0x973/0x12c0 net/dccp/output.c:138
+ dccp_send_reset+0x21b/0x2b0 net/dccp/output.c:535
+ dccp_finish_passive_close net/dccp/proto.c:123 [inline]
+ dccp_finish_passive_close+0xed/0x140 net/dccp/proto.c:118
+ dccp_terminate_connection net/dccp/proto.c:958 [inline]
+ dccp_close+0xb3c/0xe60 net/dccp/proto.c:1028
+ inet_release+0x12e/0x280 net/ipv4/af_inet.c:431
+ inet6_release+0x4c/0x70 net/ipv6/af_inet6.c:478
+ __sock_release+0xcd/0x280 net/socket.c:599
+ sock_close+0x18/0x20 net/socket.c:1258
+ __fput+0x288/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/net/red.h     |   10 +++++++++-
+ net/sched/sch_choke.c |    7 ++++---
+ net/sched/sch_gred.c  |    2 +-
+ net/sched/sch_red.c   |    7 +++++--
+ net/sched/sch_sfq.c   |    2 +-
+ 5 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index 1e5e831718db..4382deaeb570 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -1179,6 +1179,8 @@ static int sun8i_dwmac_probe(struct platform_device *pdev)
- 	plat_dat->init = sun8i_dwmac_init;
- 	plat_dat->exit = sun8i_dwmac_exit;
- 	plat_dat->setup = sun8i_dwmac_setup;
-+	plat_dat->tx_fifo_size = 4096;
-+	plat_dat->rx_fifo_size = 16384;
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -167,7 +167,8 @@ static inline void red_set_vars(struct r
+ 	v->qcount	= -1;
+ }
  
- 	ret = sun8i_dwmac_init(pdev, plat_dat->bsp_priv);
- 	if (ret)
--- 
-2.30.1
-
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog,
++				    u8 Scell_log, u8 *stab)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+@@ -177,6 +178,13 @@ static inline bool red_check_params(u32
+ 		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
++	if (stab) {
++		int i;
++
++		for (i = 0; i < RED_STAB_SIZE; i++)
++			if (stab[i] >= 32)
++				return false;
++	}
+ 	return true;
+ }
+ 
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -409,6 +409,7 @@ static int choke_change(struct Qdisc *sc
+ 	struct sk_buff **old = NULL;
+ 	unsigned int mask;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -424,8 +425,8 @@ static int choke_change(struct Qdisc *sc
+ 	max_P = tb[TCA_CHOKE_MAX_P] ? nla_get_u32(tb[TCA_CHOKE_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+-
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_CHOKE_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+@@ -478,7 +479,7 @@ static int choke_change(struct Qdisc *sc
+ 
+ 	red_set_parms(&q->parms, ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_CHOKE_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -356,7 +356,7 @@ static inline int gred_change_vq(struct
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (!q) {
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -169,6 +169,7 @@ static int red_change(struct Qdisc *sch,
+ 	struct Qdisc *child = NULL;
+ 	int err;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -184,7 +185,9 @@ static int red_change(struct Qdisc *sch,
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_RED_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog,
++			      ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+@@ -206,7 +209,7 @@ static int red_change(struct Qdisc *sch,
+ 	red_set_parms(&q->parms,
+ 		      ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_RED_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -645,7 +645,7 @@ static int sfq_change(struct Qdisc *sch,
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog, ctl_v1->Scell_log))
++					ctl_v1->Wlog, ctl_v1->Scell_log, NULL))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
