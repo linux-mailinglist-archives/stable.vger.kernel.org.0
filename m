@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEA2D34C5DA
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E33E734C8BC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231458AbhC2ID3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:03:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S232769AbhC2IYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231384AbhC2ICt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:02:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09A896196F;
-        Mon, 29 Mar 2021 08:02:41 +0000 (UTC)
+        id S231806AbhC2IXU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:23:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FFDD619CF;
+        Mon, 29 Mar 2021 08:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004962;
-        bh=i6PZcyS32+Q2rUoQb+Rle8pEw7OWb2VASrVtpl35CK0=;
+        s=korg; t=1617006200;
+        bh=drVuqeO6EH03hFK4B3qDi0ktNDzprxhN07ztrzp0zHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGCC5YaGQhsXxmRyHgz7wgQ6jucEFWRmKu8KyB2/5so7K2kpJL6DqsUhizgj4nB0Z
-         l7im4U2UMfpxjpMIRO8yA3/t6FSQXH4CpFNhtI+NQXA6euS1crJjE8O7URQTKz+7xd
-         5vC4d4zRufUnQMf/VUw5hJd26yBtkbzHzqYR7weY=
+        b=xVhcIRQi9B3ZQpuV5Wq2iQEWU8lPLCA53QorV4XX8CAIqM3Fyvp9rJH36gViUeM06
+         RcOvv1tnHnfwwmWb0DW2IQywxS4YOaMnz/0iGxrVfwgpotLgJ4XOFcKoz1RgAs8b5n
+         iIVJgB5wLjrCuUzc9f+C9oRMpljV845qFFH/Oz+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Hariprasad Kelam <hkelam@marvell.com>,
+        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 31/53] net: cdc-phonet: fix data-interface release on probe failure
+Subject: [PATCH 5.10 155/221] octeontx2-af: fix infinite loop in unmapping NPC counter
 Date:   Mon, 29 Mar 2021 09:58:06 +0200
-Message-Id: <20210329075608.546251464@linuxfoundation.org>
+Message-Id: <20210329075634.334220868@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Hariprasad Kelam <hkelam@marvell.com>
 
-[ Upstream commit c79a707072fe3fea0e3c92edee6ca85c1e53c29f ]
+[ Upstream commit 64451b98306bf1334a62bcd020ec92bdb4cb68db ]
 
-Set the disconnected flag before releasing the data interface in case
-netdev registration fails to avoid having the disconnect callback try to
-deregister the never registered netdev (and trigger a WARN_ON()).
+unmapping npc counter works in a way by traversing all mcam
+entries to find which mcam rule is associated with counter.
+But loop cursor variable 'entry' is not incremented before
+checking next mcam entry which resulting in infinite loop.
 
-Fixes: 87cf65601e17 ("USB host CDC Phonet network interface driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
+This in turn hogs the kworker thread forever and no other
+mbox message is processed by AF driver after that.
+Fix this by updating entry value before checking next
+mcam entry.
+
+Fixes: a958dd59f9ce ("octeontx2-af: Map or unmap NPC MCAM entry and counter")
+Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc-phonet.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/cdc-phonet.c b/drivers/net/usb/cdc-phonet.c
-index ff2270ead2e6..84e0e7f78029 100644
---- a/drivers/net/usb/cdc-phonet.c
-+++ b/drivers/net/usb/cdc-phonet.c
-@@ -406,6 +406,8 @@ static int usbpn_probe(struct usb_interface *intf, const struct usb_device_id *i
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+index 511b01dd03ed..169ae491f978 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+@@ -2035,10 +2035,10 @@ int rvu_mbox_handler_npc_mcam_free_counter(struct rvu *rvu,
+ 		index = find_next_bit(mcam->bmap, mcam->bmap_entries, entry);
+ 		if (index >= mcam->bmap_entries)
+ 			break;
++		entry = index + 1;
+ 		if (mcam->entry2cntr_map[index] != req->cntr)
+ 			continue;
  
- 	err = register_netdev(dev);
- 	if (err) {
-+		/* Set disconnected flag so that disconnect() returns early. */
-+		pnd->disconnected = 1;
- 		usb_driver_release_interface(&usbpn_driver, data_intf);
- 		goto out;
+-		entry = index + 1;
+ 		npc_unmap_mcam_entry_and_cntr(rvu, mcam, blkaddr,
+ 					      index, req->cntr);
  	}
 -- 
 2.30.1
