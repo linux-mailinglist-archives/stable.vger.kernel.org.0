@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACEA934C731
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6969A34C5C2
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232173AbhC2INL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:13:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
+        id S231779AbhC2ICw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:02:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231901AbhC2ILz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:11:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 473A16196D;
-        Mon, 29 Mar 2021 08:11:54 +0000 (UTC)
+        id S231874AbhC2ICN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:02:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CC636196F;
+        Mon, 29 Mar 2021 08:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005514;
-        bh=ycdKLRkXafHBSwEDjvdu5pheyZU7MTyYgWw4zPjDw9c=;
+        s=korg; t=1617004932;
+        bh=eyvwRZIPlZpP72HysB9lTTUVYz1mj0WrErunU7kassk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2dIRgPTAt9cJSN0cDjlOc1/seRpuYo/DlJNJi5COOLyXfz4MCAE6dO6pwnOEK2kF
-         UqAxbPKgNiy8/mjLuPv0ds/FODx6MHWRT4S3b8dV66jftHZfJMVUEkrqBjq102onYw
-         q5OhU1RZGRu39yLa8CoeHawbprOWbaOugHqEX7Sk=
+        b=JzeZQW3a0SIPUC/OHx6H9wa2rqohTn06J4OsRaI5TxAp1bxVkTccFf5zEMWb5PNeP
+         GymxsbK/pFZ36Bw9hyKdvrSi3CIOBLYai7TPvZPYS4G4QFxP6PqRJPVvvZwvyZhWbP
+         zn66g/5ApEwmVsyZRpMGj5rK723WlZU0BevzH7Ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Sung Lee <sung.lee@amd.com>,
-        Haonan Wang <Haonan.Wang2@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Feng Tang <feng.tang@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/111] drm/amd/display: Revert dram_clock_change_latency for DCN2.1
+Subject: [PATCH 4.9 02/53] powerpc/4xx: Fix build errors from mfdcr()
 Date:   Mon, 29 Mar 2021 09:57:37 +0200
-Message-Id: <20210329075616.150349243@linuxfoundation.org>
+Message-Id: <20210329075607.642341122@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sung Lee <sung.lee@amd.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit b0075d114c33580f5c9fa9cee8e13d06db41471b ]
+[ Upstream commit eead089311f4d935ab5d1d8fbb0c42ad44699ada ]
 
-[WHY & HOW]
-Using values provided by DF for latency may cause hangs in
-multi display configurations. Revert change to previous value.
+lkp reported a build error in fsp2.o:
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Sung Lee <sung.lee@amd.com>
-Reviewed-by: Haonan Wang <Haonan.Wang2@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  CC      arch/powerpc/platforms/44x/fsp2.o
+  {standard input}:577: Error: unsupported relocation against base
+
+Which comes from:
+
+  pr_err("GESR0: 0x%08x\n", mfdcr(base + PLB4OPB_GESR0));
+
+Where our mfdcr() macro is stringifying "base + PLB4OPB_GESR0", and
+passing that to the assembler, which obviously doesn't work.
+
+The mfdcr() macro already checks that the argument is constant using
+__builtin_constant_p(), and if not calls the out-of-line version of
+mfdcr(). But in this case GCC is smart enough to notice that "base +
+PLB4OPB_GESR0" will be constant, even though it's not something we can
+immediately stringify into a register number.
+
+Segher pointed out that passing the register number to the inline asm
+as a constant would be better, and in fact it fixes the build error,
+presumably because it gives GCC a chance to resolve the value.
+
+While we're at it, change mtdcr() similarly.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Feng Tang <feng.tang@intel.com>
+Link: https://lore.kernel.org/r/20210218123058.748882-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/dcr-native.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index f63cbbee7b33..11a4c4029a90 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -257,7 +257,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.num_banks = 8,
- 	.num_chans = 4,
- 	.vmm_page_size_bytes = 4096,
--	.dram_clock_change_latency_us = 11.72,
-+	.dram_clock_change_latency_us = 23.84,
- 	.return_bus_width_bytes = 64,
- 	.dispclk_dppclk_vco_speed_mhz = 3600,
- 	.xfc_bus_transport_time_us = 4,
+diff --git a/arch/powerpc/include/asm/dcr-native.h b/arch/powerpc/include/asm/dcr-native.h
+index 4a2beef74277..86fdda16bb73 100644
+--- a/arch/powerpc/include/asm/dcr-native.h
++++ b/arch/powerpc/include/asm/dcr-native.h
+@@ -65,8 +65,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
+ #define mfdcr(rn)						\
+ 	({unsigned int rval;					\
+ 	if (__builtin_constant_p(rn) && rn < 1024)		\
+-		asm volatile("mfdcr %0," __stringify(rn)	\
+-		              : "=r" (rval));			\
++		asm volatile("mfdcr %0, %1" : "=r" (rval)	\
++			      : "n" (rn));			\
+ 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
+ 		rval = mfdcrx(rn);				\
+ 	else							\
+@@ -76,8 +76,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
+ #define mtdcr(rn, v)						\
+ do {								\
+ 	if (__builtin_constant_p(rn) && rn < 1024)		\
+-		asm volatile("mtdcr " __stringify(rn) ",%0"	\
+-			      : : "r" (v)); 			\
++		asm volatile("mtdcr %0, %1"			\
++			      : : "n" (rn), "r" (v));		\
+ 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
+ 		mtdcrx(rn, v);					\
+ 	else							\
 -- 
 2.30.1
 
