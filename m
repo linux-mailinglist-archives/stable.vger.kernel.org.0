@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0E534C765
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3014B34C63C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232170AbhC2IPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:15:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
+        id S231970AbhC2IGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232704AbhC2INo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:13:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07148619D4;
-        Mon, 29 Mar 2021 08:13:39 +0000 (UTC)
+        id S231785AbhC2IFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:05:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7975E619AE;
+        Mon, 29 Mar 2021 08:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005619;
-        bh=0zUDoc+wPY9j5AqycS282QWZ0wNBQ6ee7nXyR6ZOi2k=;
+        s=korg; t=1617005106;
+        bh=cPtpdCwZKVRc8k84qWAHSiZocYWCCmPitO+YUJc2QEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rC+2E/VShCYoP+4mEZpKJpZUn5KbCFF2aSmw+iOYV7lXn05Ks+FVV/IWIElR+TEMd
-         OUui21XkvjZ1PmIDDPPodnasTMUPF+EEO16UnEkICSHGJYiokzfAALXqmKofoQY8Lp
-         ofeB7RTTjV25P1FTW6nyMFA2MORQ2ML0HXktfQv0=
+        b=1nE2OhAtdmlAtay6QWvRwHMz5aLpY78GJkMwWQ/YjuFw829w+yAS0wIZwt6rDeJbW
+         dEs7j8xAcqXJOZYFQF/mNGOF4WbO2VKg5By6njAGZlNOzCpnjgGR7yJ7LYuGMYKRUX
+         OIivJs/X7kgNZEzHdyfRIbMNaD/Sy5F6DjkZOhjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Wei Wang <weiwan@google.com>, David Ahern <dsahern@kernel.org>,
-        Ido Schimmel <idosch@idosch.org>,
-        Petr Machata <petrm@nvidia.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/111] ipv6: fix suspecious RCU usage warning
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.14 25/59] arm64: dts: ls1012a: mark crypto engine dma coherent
 Date:   Mon, 29 Mar 2021 09:58:05 +0200
-Message-Id: <20210329075617.105197711@linuxfoundation.org>
+Message-Id: <20210329075609.715433564@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,127 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit 28259bac7f1dde06d8ba324e222bbec9d4e92f2b ]
+commit ba8da03fa7dff59d9400250aebd38f94cde3cb0f upstream.
 
-Syzbot reported the suspecious RCU usage in nexthop_fib6_nh() when
-called from ipv6_route_seq_show(). The reason is ipv6_route_seq_start()
-calls rcu_read_lock_bh(), while nexthop_fib6_nh() calls
-rcu_dereference_rtnl().
-The fix proposed is to add a variant of nexthop_fib6_nh() to use
-rcu_dereference_bh_rtnl() for ipv6_route_seq_show().
+Crypto engine (CAAM) on LS1012A platform is configured HW-coherent,
+mark accordingly the DT node.
 
-The reported trace is as follows:
-./include/net/nexthop.h:416 suspicious rcu_dereference_check() usage!
+Lack of "dma-coherent" property for an IP that is configured HW-coherent
+can lead to problems, similar to what has been reported for LS1046A.
 
-other info that might help us debug this:
-
-rcu_scheduler_active = 2, debug_locks = 1
-2 locks held by syz-executor.0/17895:
-     at: seq_read+0x71/0x12a0 fs/seq_file.c:169
-     at: seq_file_net include/linux/seq_file_net.h:19 [inline]
-     at: ipv6_route_seq_start+0xaf/0x300 net/ipv6/ip6_fib.c:2616
-
-stack backtrace:
-CPU: 1 PID: 17895 Comm: syz-executor.0 Not tainted 4.15.0-syzkaller #0
-Call Trace:
- [<ffffffff849edf9e>] __dump_stack lib/dump_stack.c:17 [inline]
- [<ffffffff849edf9e>] dump_stack+0xd8/0x147 lib/dump_stack.c:53
- [<ffffffff8480b7fa>] lockdep_rcu_suspicious+0x153/0x15d kernel/locking/lockdep.c:5745
- [<ffffffff8459ada6>] nexthop_fib6_nh include/net/nexthop.h:416 [inline]
- [<ffffffff8459ada6>] ipv6_route_native_seq_show net/ipv6/ip6_fib.c:2488 [inline]
- [<ffffffff8459ada6>] ipv6_route_seq_show+0x436/0x7a0 net/ipv6/ip6_fib.c:2673
- [<ffffffff81c556df>] seq_read+0xccf/0x12a0 fs/seq_file.c:276
- [<ffffffff81dbc62c>] proc_reg_read+0x10c/0x1d0 fs/proc/inode.c:231
- [<ffffffff81bc28ae>] do_loop_readv_writev fs/read_write.c:714 [inline]
- [<ffffffff81bc28ae>] do_loop_readv_writev fs/read_write.c:701 [inline]
- [<ffffffff81bc28ae>] do_iter_read+0x49e/0x660 fs/read_write.c:935
- [<ffffffff81bc81ab>] vfs_readv+0xfb/0x170 fs/read_write.c:997
- [<ffffffff81c88847>] kernel_readv fs/splice.c:361 [inline]
- [<ffffffff81c88847>] default_file_splice_read+0x487/0x9c0 fs/splice.c:416
- [<ffffffff81c86189>] do_splice_to+0x129/0x190 fs/splice.c:879
- [<ffffffff81c86f66>] splice_direct_to_actor+0x256/0x890 fs/splice.c:951
- [<ffffffff81c8777d>] do_splice_direct+0x1dd/0x2b0 fs/splice.c:1060
- [<ffffffff81bc4747>] do_sendfile+0x597/0xce0 fs/read_write.c:1459
- [<ffffffff81bca205>] SYSC_sendfile64 fs/read_write.c:1520 [inline]
- [<ffffffff81bca205>] SyS_sendfile64+0x155/0x170 fs/read_write.c:1506
- [<ffffffff81015fcf>] do_syscall_64+0x1ff/0x310 arch/x86/entry/common.c:305
- [<ffffffff84a00076>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
-
-Fixes: f88d8ea67fbdb ("ipv6: Plumb support for nexthop object in a fib6_info")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Cc: David Ahern <dsahern@kernel.org>
-Cc: Ido Schimmel <idosch@idosch.org>
-Cc: Petr Machata <petrm@nvidia.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v4.12+
+Fixes: 85b85c569507 ("arm64: dts: ls1012a: add crypto node")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/nexthop.h | 24 ++++++++++++++++++++++++
- net/ipv6/ip6_fib.c    |  2 +-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/nexthop.h b/include/net/nexthop.h
-index 3bb618e5ecf7..18a5aca26476 100644
---- a/include/net/nexthop.h
-+++ b/include/net/nexthop.h
-@@ -291,6 +291,7 @@ static inline struct fib_nh *fib_info_nh(struct fib_info *fi, int nhsel)
- int fib6_check_nexthop(struct nexthop *nh, struct fib6_config *cfg,
- 		       struct netlink_ext_ack *extack);
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
+@@ -164,6 +164,7 @@
+ 			ranges = <0x0 0x00 0x1700000 0x100000>;
+ 			reg = <0x00 0x1700000 0x0 0x100000>;
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
++			dma-coherent;
  
-+/* Caller should either hold rcu_read_lock(), or RTNL. */
- static inline struct fib6_nh *nexthop_fib6_nh(struct nexthop *nh)
- {
- 	struct nh_info *nhi;
-@@ -311,6 +312,29 @@ static inline struct fib6_nh *nexthop_fib6_nh(struct nexthop *nh)
- 	return NULL;
- }
- 
-+/* Variant of nexthop_fib6_nh().
-+ * Caller should either hold rcu_read_lock_bh(), or RTNL.
-+ */
-+static inline struct fib6_nh *nexthop_fib6_nh_bh(struct nexthop *nh)
-+{
-+	struct nh_info *nhi;
-+
-+	if (nh->is_group) {
-+		struct nh_group *nh_grp;
-+
-+		nh_grp = rcu_dereference_bh_rtnl(nh->nh_grp);
-+		nh = nexthop_mpath_select(nh_grp, 0);
-+		if (!nh)
-+			return NULL;
-+	}
-+
-+	nhi = rcu_dereference_bh_rtnl(nh->nh_info);
-+	if (nhi->family == AF_INET6)
-+		return &nhi->fib6_nh;
-+
-+	return NULL;
-+}
-+
- static inline struct net_device *fib6_info_nh_dev(struct fib6_info *f6i)
- {
- 	struct fib6_nh *fib6_nh;
-diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
-index 906ac5e6d96c..bb68290ad68d 100644
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -2382,7 +2382,7 @@ static int ipv6_route_seq_show(struct seq_file *seq, void *v)
- 	const struct net_device *dev;
- 
- 	if (rt->nh)
--		fib6_nh = nexthop_fib6_nh(rt->nh);
-+		fib6_nh = nexthop_fib6_nh_bh(rt->nh);
- 
- 	seq_printf(seq, "%pi6 %02x ", &rt->fib6_dst.addr, rt->fib6_dst.plen);
- 
--- 
-2.30.1
-
+ 			sec_jr0: jr@10000 {
+ 				compatible = "fsl,sec-v5.4-job-ring",
 
 
