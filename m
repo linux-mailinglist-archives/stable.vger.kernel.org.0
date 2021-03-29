@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2FB034C9FB
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B134D34C82F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234116AbhC2Ieh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53532 "EHLO mail.kernel.org"
+        id S232440AbhC2IUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:20:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234695AbhC2Id2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50378619D0;
-        Mon, 29 Mar 2021 08:32:58 +0000 (UTC)
+        id S232302AbhC2ITu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:19:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43B9661964;
+        Mon, 29 Mar 2021 08:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006778;
-        bh=IqcPHXLgtrtzAZhXUaILknZGz7KfL7ZOlFcg20FTnB0=;
+        s=korg; t=1617005989;
+        bh=l5I2uj1Pewbwli7zwN2E7mc0da241sLeK7x6ZdI096M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NqjK6EbYivSq0pE4PT30g3AHyim/ncaKq1ilcUWGde+rSaYM7RyFO8Yz5FABDH7I0
-         ShaTSxkHoOA2yjOcRQBLRQYQgEaEwvTUb+n/MWdHq58ILOM8NczJEJ54QtA9Jj4pIH
-         SQ5gnWgeRLJcpnPgCDd+NBePQyHWtRzeFK4RvPKQ=
+        b=e986yjIoSNKoHRToyXted+GdQ5VTI0iKStP14pE4fniPT0R57AqCCAIU+GGGBJGBw
+         1LpRMYTmqGooI2ob6awDJ+mDSdKGZC1o6494iQypPJDqw/mfr2IyP1WNLuDrqFZgR0
+         AsaWUpdCJ8ODHMGbNVD86ipvmZ/Iz9ZPL3HVSyeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [PATCH 5.11 093/254] ARM: dts: at91-sama5d27_som1: fix phy address to 7
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.10 078/221] arm64: dts: ls1012a: mark crypto engine dma coherent
 Date:   Mon, 29 Mar 2021 09:56:49 +0200
-Message-Id: <20210329075636.237914913@linuxfoundation.org>
+Message-Id: <20210329075631.806164233@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-commit 221c3a09ddf70a0a51715e6c2878d8305e95c558 upstream.
+commit ba8da03fa7dff59d9400250aebd38f94cde3cb0f upstream.
 
-Fix the phy address to 7 for Ethernet PHY on SAMA5D27 SOM1. No
-connection established if phy address 0 is used.
+Crypto engine (CAAM) on LS1012A platform is configured HW-coherent,
+mark accordingly the DT node.
 
-The board uses the 24 pins version of the KSZ8081RNA part, KSZ8081RNA
-pin 16 REFCLK as PHYAD bit [2] has weak internal pull-down.  But at
-reset, connected to PD09 of the MPU it's connected with an internal
-pull-up forming PHYAD[2:0] = 7.
+Lack of "dma-coherent" property for an IP that is configured HW-coherent
+can lead to problems, similar to what has been reported for LS1046A.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Fixes: 2f61929eb10a ("ARM: dts: at91: at91-sama5d27_som1: fix PHY ID")
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: <stable@vger.kernel.org> # 4.14+
+Cc: <stable@vger.kernel.org> # v4.12+
+Fixes: 85b85c569507 ("arm64: dts: ls1012a: add crypto node")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/at91-sama5d27_som1.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm/boot/dts/at91-sama5d27_som1.dtsi
-+++ b/arch/arm/boot/dts/at91-sama5d27_som1.dtsi
-@@ -84,8 +84,8 @@
- 				pinctrl-0 = <&pinctrl_macb0_default>;
- 				phy-mode = "rmii";
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
+@@ -192,6 +192,7 @@
+ 			ranges = <0x0 0x00 0x1700000 0x100000>;
+ 			reg = <0x00 0x1700000 0x0 0x100000>;
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
++			dma-coherent;
  
--				ethernet-phy@0 {
--					reg = <0x0>;
-+				ethernet-phy@7 {
-+					reg = <0x7>;
- 					interrupt-parent = <&pioA>;
- 					interrupts = <PIN_PD31 IRQ_TYPE_LEVEL_LOW>;
- 					pinctrl-names = "default";
+ 			sec_jr0: jr@10000 {
+ 				compatible = "fsl,sec-v5.4-job-ring",
 
 
