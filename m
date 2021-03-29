@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5275734CA01
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC2034C83C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233538AbhC2Iem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53534 "EHLO mail.kernel.org"
+        id S233453AbhC2IVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234712AbhC2Idc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69BCA619D6;
-        Mon, 29 Mar 2021 08:33:07 +0000 (UTC)
+        id S233493AbhC2IUG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADBBC61554;
+        Mon, 29 Mar 2021 08:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006787;
-        bh=yg78pSpcrneJnvZ3vEKM6hNShWUr02Z0X8iWo7ylfgg=;
+        s=korg; t=1617006006;
+        bh=jJeqaqIRW+9vGMbSvhZ/Ja9P9yQbphsEMcXoaK5bPUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ii7xP9q2US2ioMiK3ilvcTiUwHuY/XRKEYpAxCNMnJbxN2UPcX00L3j4mi1xE7bn5
-         +oiV4RjFy8+XDio4rqmAnGwaTq1xXaHntkdQZ73CzXObqK4B6dB4PP/xmux4Ql014R
-         U55cMy5+XNaEsg64shSfc8r2PMT47NZ80J24BkTE=
+        b=knV3oih+I7R/n1NcETVt/W/VkftM9LKO4gPoz5XRSKDyd5i9kzaLdC/p4fEp0/i5m
+         iGPDyrkAEdcD7Kd6dDILqaNqAB0yUK38gWuZZZbi1cRk+dOV+EoBSeKBIo3nXz+7wS
+         HSoKRmarv2ECs87ibvQvIx8WMdZ7ayNGsUlrU3Bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 097/254] drm/amd/pm: workaround for audio noise issue
-Date:   Mon, 29 Mar 2021 09:56:53 +0200
-Message-Id: <20210329075636.383384211@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.10 083/221] integrity: double check iint_cache was initialized
+Date:   Mon, 29 Mar 2021 09:56:54 +0200
+Message-Id: <20210329075631.980796613@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,314 +39,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kenneth Feng <kenneth.feng@amd.com>
+From: Mimi Zohar <zohar@linux.ibm.com>
 
-commit 9d03730ecbc5afabfda26d4dbb014310bc4ea4d9 upstream.
+commit 92063f3ca73aab794bd5408d3361fd5b5ea33079 upstream.
 
-On some Intel platforms, audio noise can be detected due to
-high pcie speed switch latency.
-This patch leaverages ppfeaturemask to fix to the highest pcie
-speed then disable pcie switching.
+The kernel may be built with multiple LSMs, but only a subset may be
+enabled on the boot command line by specifying "lsm=".  Not including
+"integrity" on the ordered LSM list may result in a NULL deref.
 
-v2:
-coding style fix
+As reported by Dmitry Vyukov:
+in qemu:
+qemu-system-x86_64       -enable-kvm     -machine q35,nvdimm -cpu
+max,migratable=off -smp 4       -m 4G,slots=4,maxmem=16G        -hda
+wheezy.img      -kernel arch/x86/boot/bzImage   -nographic -vga std
+ -soundhw all     -usb -usbdevice tablet  -bt hci -bt device:keyboard
+   -net user,host=10.0.2.10,hostfwd=tcp::10022-:22 -net
+nic,model=virtio-net-pci   -object
+memory-backend-file,id=pmem1,share=off,mem-path=/dev/zero,size=64M
+  -device nvdimm,id=nvdimm1,memdev=pmem1  -append "console=ttyS0
+root=/dev/sda earlyprintk=serial rodata=n oops=panic panic_on_warn=1
+panic=86400 lsm=smack numa=fake=2 nopcid dummy_hcd.num=8"   -pidfile
+vm_pid -m 2G -cpu host
 
-Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+But it crashes on NULL deref in integrity_inode_get during boot:
+
+Run /sbin/init as init process
+BUG: kernel NULL pointer dereference, address: 000000000000001c
+PGD 0 P4D 0
+Oops: 0000 [#1] PREEMPT SMP KASAN
+CPU: 3 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc2+ #97
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
+rel-1.13.0-44-g88ab0c15525c-prebuilt.qemu.org 04/01/2014
+RIP: 0010:kmem_cache_alloc+0x2b/0x370 mm/slub.c:2920
+Code: 57 41 56 41 55 41 54 41 89 f4 55 48 89 fd 53 48 83 ec 10 44 8b
+3d d9 1f 90 0b 65 48 8b 04 25 28 00 00 00 48 89 44 24 08 31 c0 <8b> 5f
+1c 4cf
+RSP: 0000:ffffc9000032f9d8 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: ffff888017fc4f00 RCX: 0000000000000000
+RDX: ffff888040220000 RSI: 0000000000000c40 RDI: 0000000000000000
+RBP: 0000000000000000 R08: 0000000000000000 R09: ffff888019263627
+R10: ffffffff83937cd1 R11: 0000000000000000 R12: 0000000000000c40
+R13: ffff888019263538 R14: 0000000000000000 R15: 0000000000ffffff
+FS:  0000000000000000(0000) GS:ffff88802d180000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000000001c CR3: 000000000b48e000 CR4: 0000000000750ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ integrity_inode_get+0x47/0x260 security/integrity/iint.c:105
+ process_measurement+0x33d/0x17e0 security/integrity/ima/ima_main.c:237
+ ima_bprm_check+0xde/0x210 security/integrity/ima/ima_main.c:474
+ security_bprm_check+0x7d/0xa0 security/security.c:845
+ search_binary_handler fs/exec.c:1708 [inline]
+ exec_binprm fs/exec.c:1761 [inline]
+ bprm_execve fs/exec.c:1830 [inline]
+ bprm_execve+0x764/0x19a0 fs/exec.c:1792
+ kernel_execve+0x370/0x460 fs/exec.c:1973
+ try_to_run_init_process+0x14/0x4e init/main.c:1366
+ kernel_init+0x11d/0x1b8 init/main.c:1477
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+Modules linked in:
+CR2: 000000000000001c
+---[ end trace 22d601a500de7d79 ]---
+
+Since LSMs and IMA may be configured at build time, but not enabled at
+run time, panic the system if "integrity" was not initialized before use.
+
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Fixes: 79f7865d844c ("LSM: Introduce "lsm=" for boottime LSM selection")
 Cc: stable@vger.kernel.org
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c   |   54 +++++++++++++
- drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c |   74 +++++++++++++++---
- drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega12_hwmgr.c |   24 +++++
- drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c |   25 ++++++
- 4 files changed, 166 insertions(+), 11 deletions(-)
+ security/integrity/iint.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
-@@ -587,6 +587,48 @@ static int smu7_force_switch_to_arbf0(st
- 			tmp, MC_CG_ARB_FREQ_F0);
- }
+--- a/security/integrity/iint.c
++++ b/security/integrity/iint.c
+@@ -98,6 +98,14 @@ struct integrity_iint_cache *integrity_i
+ 	struct rb_node *node, *parent = NULL;
+ 	struct integrity_iint_cache *iint, *test_iint;
  
-+static uint16_t smu7_override_pcie_speed(struct pp_hwmgr *hwmgr)
-+{
-+	struct amdgpu_device *adev = (struct amdgpu_device *)(hwmgr->adev);
-+	uint16_t pcie_gen = 0;
++	/*
++	 * The integrity's "iint_cache" is initialized at security_init(),
++	 * unless it is not included in the ordered list of LSMs enabled
++	 * on the boot command line.
++	 */
++	if (!iint_cache)
++		panic("%s: lsm=integrity required.\n", __func__);
 +
-+	if (adev->pm.pcie_gen_mask & CAIL_PCIE_LINK_SPEED_SUPPORT_GEN4 &&
-+	    adev->pm.pcie_gen_mask & CAIL_ASIC_PCIE_LINK_SPEED_SUPPORT_GEN4)
-+		pcie_gen = 3;
-+	else if (adev->pm.pcie_gen_mask & CAIL_PCIE_LINK_SPEED_SUPPORT_GEN3 &&
-+		adev->pm.pcie_gen_mask & CAIL_ASIC_PCIE_LINK_SPEED_SUPPORT_GEN3)
-+		pcie_gen = 2;
-+	else if (adev->pm.pcie_gen_mask & CAIL_PCIE_LINK_SPEED_SUPPORT_GEN2 &&
-+		adev->pm.pcie_gen_mask & CAIL_ASIC_PCIE_LINK_SPEED_SUPPORT_GEN2)
-+		pcie_gen = 1;
-+	else if (adev->pm.pcie_gen_mask & CAIL_PCIE_LINK_SPEED_SUPPORT_GEN1 &&
-+		adev->pm.pcie_gen_mask & CAIL_ASIC_PCIE_LINK_SPEED_SUPPORT_GEN1)
-+		pcie_gen = 0;
-+
-+	return pcie_gen;
-+}
-+
-+static uint16_t smu7_override_pcie_width(struct pp_hwmgr *hwmgr)
-+{
-+	struct amdgpu_device *adev = (struct amdgpu_device *)(hwmgr->adev);
-+	uint16_t pcie_width = 0;
-+
-+	if (adev->pm.pcie_mlw_mask & CAIL_PCIE_LINK_WIDTH_SUPPORT_X16)
-+		pcie_width = 16;
-+	else if (adev->pm.pcie_mlw_mask & CAIL_PCIE_LINK_WIDTH_SUPPORT_X12)
-+		pcie_width = 12;
-+	else if (adev->pm.pcie_mlw_mask & CAIL_PCIE_LINK_WIDTH_SUPPORT_X8)
-+		pcie_width = 8;
-+	else if (adev->pm.pcie_mlw_mask & CAIL_PCIE_LINK_WIDTH_SUPPORT_X4)
-+		pcie_width = 4;
-+	else if (adev->pm.pcie_mlw_mask & CAIL_PCIE_LINK_WIDTH_SUPPORT_X2)
-+		pcie_width = 2;
-+	else if (adev->pm.pcie_mlw_mask & CAIL_PCIE_LINK_WIDTH_SUPPORT_X1)
-+		pcie_width = 1;
-+
-+	return pcie_width;
-+}
-+
- static int smu7_setup_default_pcie_table(struct pp_hwmgr *hwmgr)
- {
- 	struct smu7_hwmgr *data = (struct smu7_hwmgr *)(hwmgr->backend);
-@@ -683,6 +725,11 @@ static int smu7_setup_default_pcie_table
- 					PP_Min_PCIEGen),
- 			get_pcie_lane_support(data->pcie_lane_cap,
- 					PP_Max_PCIELane));
-+
-+		if (data->pcie_dpm_key_disabled)
-+			phm_setup_pcie_table_entry(&data->dpm_table.pcie_speed_table,
-+				data->dpm_table.pcie_speed_table.count,
-+				smu7_override_pcie_speed(hwmgr), smu7_override_pcie_width(hwmgr));
- 	}
- 	return 0;
- }
-@@ -1248,6 +1295,13 @@ static int smu7_start_dpm(struct pp_hwmg
- 						NULL)),
- 				"Failed to enable pcie DPM during DPM Start Function!",
- 				return -EINVAL);
-+	} else {
-+		PP_ASSERT_WITH_CODE(
-+				(0 == smum_send_msg_to_smc(hwmgr,
-+						PPSMC_MSG_PCIeDPM_Disable,
-+						NULL)),
-+				"Failed to disble pcie DPM during DPM Start Function!",
-+				return -EINVAL);
- 	}
- 
- 	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
-@@ -54,6 +54,9 @@
- #include "smuio/smuio_9_0_offset.h"
- #include "smuio/smuio_9_0_sh_mask.h"
- 
-+#define smnPCIE_LC_SPEED_CNTL			0x11140290
-+#define smnPCIE_LC_LINK_WIDTH_CNTL		0x11140288
-+
- #define HBM_MEMORY_CHANNEL_WIDTH    128
- 
- static const uint32_t channel_number[] = {1, 2, 0, 4, 0, 8, 0, 16, 2};
-@@ -443,8 +446,7 @@ static void vega10_init_dpm_defaults(str
- 	if (PP_CAP(PHM_PlatformCaps_VCEDPM))
- 		data->smu_features[GNLD_DPM_VCE].supported = true;
- 
--	if (!data->registry_data.pcie_dpm_key_disabled)
--		data->smu_features[GNLD_DPM_LINK].supported = true;
-+	data->smu_features[GNLD_DPM_LINK].supported = true;
- 
- 	if (!data->registry_data.dcefclk_dpm_key_disabled)
- 		data->smu_features[GNLD_DPM_DCEFCLK].supported = true;
-@@ -1545,6 +1547,13 @@ static int vega10_override_pcie_paramete
- 			pp_table->PcieLaneCount[i] = pcie_width;
- 	}
- 
-+	if (data->registry_data.pcie_dpm_key_disabled) {
-+		for (i = 0; i < NUM_LINK_LEVELS; i++) {
-+			pp_table->PcieGenSpeed[i] = pcie_gen;
-+			pp_table->PcieLaneCount[i] = pcie_width;
-+		}
-+	}
-+
- 	return 0;
- }
- 
-@@ -2967,6 +2976,14 @@ static int vega10_start_dpm(struct pp_hw
- 		}
- 	}
- 
-+	if (data->registry_data.pcie_dpm_key_disabled) {
-+		PP_ASSERT_WITH_CODE(!vega10_enable_smc_features(hwmgr,
-+				false, data->smu_features[GNLD_DPM_LINK].smu_feature_bitmap),
-+		"Attempt to Disable Link DPM feature Failed!", return -EINVAL);
-+		data->smu_features[GNLD_DPM_LINK].enabled = false;
-+		data->smu_features[GNLD_DPM_LINK].supported = false;
-+	}
-+
- 	return 0;
- }
- 
-@@ -4585,6 +4602,24 @@ static int vega10_set_ppfeature_status(s
- 	return 0;
- }
- 
-+static int vega10_get_current_pcie_link_width_level(struct pp_hwmgr *hwmgr)
-+{
-+	struct amdgpu_device *adev = hwmgr->adev;
-+
-+	return (RREG32_PCIE(smnPCIE_LC_LINK_WIDTH_CNTL) &
-+		PCIE_LC_LINK_WIDTH_CNTL__LC_LINK_WIDTH_RD_MASK)
-+		>> PCIE_LC_LINK_WIDTH_CNTL__LC_LINK_WIDTH_RD__SHIFT;
-+}
-+
-+static int vega10_get_current_pcie_link_speed_level(struct pp_hwmgr *hwmgr)
-+{
-+	struct amdgpu_device *adev = hwmgr->adev;
-+
-+	return (RREG32_PCIE(smnPCIE_LC_SPEED_CNTL) &
-+		PSWUSP0_PCIE_LC_SPEED_CNTL__LC_CURRENT_DATA_RATE_MASK)
-+		>> PSWUSP0_PCIE_LC_SPEED_CNTL__LC_CURRENT_DATA_RATE__SHIFT;
-+}
-+
- static int vega10_print_clock_levels(struct pp_hwmgr *hwmgr,
- 		enum pp_clock_type type, char *buf)
- {
-@@ -4593,8 +4628,9 @@ static int vega10_print_clock_levels(str
- 	struct vega10_single_dpm_table *mclk_table = &(data->dpm_table.mem_table);
- 	struct vega10_single_dpm_table *soc_table = &(data->dpm_table.soc_table);
- 	struct vega10_single_dpm_table *dcef_table = &(data->dpm_table.dcef_table);
--	struct vega10_pcie_table *pcie_table = &(data->dpm_table.pcie_table);
- 	struct vega10_odn_clock_voltage_dependency_table *podn_vdd_dep = NULL;
-+	uint32_t gen_speed, lane_width, current_gen_speed, current_lane_width;
-+	PPTable_t *pptable = &(data->smc_state_table.pp_table);
- 
- 	int i, now, size = 0, count = 0;
- 
-@@ -4651,15 +4687,31 @@ static int vega10_print_clock_levels(str
- 					"*" : "");
- 		break;
- 	case PP_PCIE:
--		smum_send_msg_to_smc(hwmgr, PPSMC_MSG_GetCurrentLinkIndex, &now);
--
--		for (i = 0; i < pcie_table->count; i++)
--			size += sprintf(buf + size, "%d: %s %s\n", i,
--					(pcie_table->pcie_gen[i] == 0) ? "2.5GT/s, x1" :
--					(pcie_table->pcie_gen[i] == 1) ? "5.0GT/s, x16" :
--					(pcie_table->pcie_gen[i] == 2) ? "8.0GT/s, x16" : "",
--					(i == now) ? "*" : "");
-+		current_gen_speed =
-+			vega10_get_current_pcie_link_speed_level(hwmgr);
-+		current_lane_width =
-+			vega10_get_current_pcie_link_width_level(hwmgr);
-+		for (i = 0; i < NUM_LINK_LEVELS; i++) {
-+			gen_speed = pptable->PcieGenSpeed[i];
-+			lane_width = pptable->PcieLaneCount[i];
-+
-+			size += sprintf(buf + size, "%d: %s %s %s\n", i,
-+					(gen_speed == 0) ? "2.5GT/s," :
-+					(gen_speed == 1) ? "5.0GT/s," :
-+					(gen_speed == 2) ? "8.0GT/s," :
-+					(gen_speed == 3) ? "16.0GT/s," : "",
-+					(lane_width == 1) ? "x1" :
-+					(lane_width == 2) ? "x2" :
-+					(lane_width == 3) ? "x4" :
-+					(lane_width == 4) ? "x8" :
-+					(lane_width == 5) ? "x12" :
-+					(lane_width == 6) ? "x16" : "",
-+					(current_gen_speed == gen_speed) &&
-+					(current_lane_width == lane_width) ?
-+					"*" : "");
-+		}
- 		break;
-+
- 	case OD_SCLK:
- 		if (hwmgr->od_enabled) {
- 			size = sprintf(buf, "%s:\n", "OD_SCLK");
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega12_hwmgr.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega12_hwmgr.c
-@@ -133,6 +133,7 @@ static void vega12_set_default_registry_
- 	data->registry_data.auto_wattman_debug = 0;
- 	data->registry_data.auto_wattman_sample_period = 100;
- 	data->registry_data.auto_wattman_threshold = 50;
-+	data->registry_data.pcie_dpm_key_disabled = !(hwmgr->feature_mask & PP_PCIE_DPM_MASK);
- }
- 
- static int vega12_set_features_platform_caps(struct pp_hwmgr *hwmgr)
-@@ -539,6 +540,29 @@ static int vega12_override_pcie_paramete
- 		pp_table->PcieLaneCount[i] = pcie_width_arg;
- 	}
- 
-+	/* override to the highest if it's disabled from ppfeaturmask */
-+	if (data->registry_data.pcie_dpm_key_disabled) {
-+		for (i = 0; i < NUM_LINK_LEVELS; i++) {
-+			smu_pcie_arg = (i << 16) | (pcie_gen << 8) | pcie_width;
-+			ret = smum_send_msg_to_smc_with_parameter(hwmgr,
-+				PPSMC_MSG_OverridePcieParameters, smu_pcie_arg,
-+				NULL);
-+			PP_ASSERT_WITH_CODE(!ret,
-+				"[OverridePcieParameters] Attempt to override pcie params failed!",
-+				return ret);
-+
-+			pp_table->PcieGenSpeed[i] = pcie_gen;
-+			pp_table->PcieLaneCount[i] = pcie_width;
-+		}
-+		ret = vega12_enable_smc_features(hwmgr,
-+				false,
-+				data->smu_features[GNLD_DPM_LINK].smu_feature_bitmap);
-+		PP_ASSERT_WITH_CODE(!ret,
-+				"Attempt to Disable DPM LINK Failed!",
-+				return ret);
-+		data->smu_features[GNLD_DPM_LINK].enabled = false;
-+		data->smu_features[GNLD_DPM_LINK].supported = false;
-+	}
- 	return 0;
- }
- 
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
-@@ -171,6 +171,7 @@ static void vega20_set_default_registry_
- 	data->registry_data.gfxoff_controlled_by_driver = 1;
- 	data->gfxoff_allowed = false;
- 	data->counter_gfxoff = 0;
-+	data->registry_data.pcie_dpm_key_disabled = !(hwmgr->feature_mask & PP_PCIE_DPM_MASK);
- }
- 
- static int vega20_set_features_platform_caps(struct pp_hwmgr *hwmgr)
-@@ -885,6 +886,30 @@ static int vega20_override_pcie_paramete
- 		pp_table->PcieLaneCount[i] = pcie_width_arg;
- 	}
- 
-+	/* override to the highest if it's disabled from ppfeaturmask */
-+	if (data->registry_data.pcie_dpm_key_disabled) {
-+		for (i = 0; i < NUM_LINK_LEVELS; i++) {
-+			smu_pcie_arg = (i << 16) | (pcie_gen << 8) | pcie_width;
-+			ret = smum_send_msg_to_smc_with_parameter(hwmgr,
-+				PPSMC_MSG_OverridePcieParameters, smu_pcie_arg,
-+				NULL);
-+			PP_ASSERT_WITH_CODE(!ret,
-+				"[OverridePcieParameters] Attempt to override pcie params failed!",
-+				return ret);
-+
-+			pp_table->PcieGenSpeed[i] = pcie_gen;
-+			pp_table->PcieLaneCount[i] = pcie_width;
-+		}
-+		ret = vega20_enable_smc_features(hwmgr,
-+				false,
-+				data->smu_features[GNLD_DPM_LINK].smu_feature_bitmap);
-+		PP_ASSERT_WITH_CODE(!ret,
-+				"Attempt to Disable DPM LINK Failed!",
-+				return ret);
-+		data->smu_features[GNLD_DPM_LINK].enabled = false;
-+		data->smu_features[GNLD_DPM_LINK].supported = false;
-+	}
-+
- 	return 0;
- }
- 
+ 	iint = integrity_iint_find(inode);
+ 	if (iint)
+ 		return iint;
 
 
