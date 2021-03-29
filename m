@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A0E34C98E
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE16934C8D8
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233989AbhC2IaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47284 "EHLO mail.kernel.org"
+        id S233158AbhC2IYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234627AbhC2I2u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:28:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70B1161582;
-        Mon, 29 Mar 2021 08:28:49 +0000 (UTC)
+        id S233341AbhC2IRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:17:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D79786197C;
+        Mon, 29 Mar 2021 08:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006530;
-        bh=aHHX94pO+/nv5v+FslfTPdu/pYAxmkK4mU+H8BMjvnQ=;
+        s=korg; t=1617005832;
+        bh=JQUZyqb78MXj8z49UGNMLLgCd8q5U5XxGdDhNop6REE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EB8VkCYKVeV+g7Z1mSvMpqfAQB20Xy8bB7R8W2ZbUt5rfuPmTjh1p9KX59/3s8I4t
-         +oiNZkaG7zCI+EeNRB22ht83kLfWa+eBX1yqPBSwueXgkPMOd9YVY5heyNmhP+WbI2
-         W2DuLznvGPNL9FQkEW86ggYF+e7zlNStnCr85PD0=
+        b=Fujx+/6oar2UiETR3n0Ziw+q9REbpXbowK53Ukpx0U2AGrlaO6Wy0idu3vwLxAjYi
+         HvBEOKI+ktrChjbkxQvh/iY7RkTPSqBV47XAB9iRWKwYm9diAO1AGjdF7RA9uqyS/Q
+         RzE7N0BlRyIj7eDNjg2GGvv27qDW9qh33H6o6XhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomer Tayar <ttayar@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 035/254] habanalabs: Call put_pid() when releasing control device
-Date:   Mon, 29 Mar 2021 09:55:51 +0200
-Message-Id: <20210329075634.303375780@linuxfoundation.org>
+Subject: [PATCH 5.10 021/221] gpiolib: acpi: Add missing IRQF_ONESHOT
+Date:   Mon, 29 Mar 2021 09:55:52 +0200
+Message-Id: <20210329075629.895499764@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomer Tayar <ttayar@habana.ai>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 27ac5aada024e0821c86540ad18f37edadd77d5e ]
+[ Upstream commit 6e5d5791730b55a1f987e1db84b078b91eb49e99 ]
 
-The refcount of the "hl_fpriv" structure is not used for the control
-device, and thus hl_hpriv_put() is not called when releasing this
-device.
-This results with no call to put_pid(), so add it explicitly in
-hl_device_release_ctrl().
+fixed the following coccicheck:
+./drivers/gpio/gpiolib-acpi.c:176:7-27: ERROR: Threaded IRQ with no
+primary handler requested without IRQF_ONESHOT
 
-Signed-off-by: Tomer Tayar <ttayar@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Make sure threaded IRQs without a primary handler are always request
+with IRQF_ONESHOT
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/device.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpio/gpiolib-acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
-index 69d04eca767f..6785329eee27 100644
---- a/drivers/misc/habanalabs/common/device.c
-+++ b/drivers/misc/habanalabs/common/device.c
-@@ -117,6 +117,8 @@ static int hl_device_release_ctrl(struct inode *inode, struct file *filp)
- 	list_del(&hpriv->dev_node);
- 	mutex_unlock(&hdev->fpriv_list_lock);
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 49a1f8ce4baa..863f059bc498 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -174,7 +174,7 @@ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
+ 	int ret, value;
  
-+	put_pid(hpriv->taskpid);
-+
- 	kfree(hpriv);
- 
- 	return 0;
+ 	ret = request_threaded_irq(event->irq, NULL, event->handler,
+-				   event->irqflags, "ACPI:Event", event);
++				   event->irqflags | IRQF_ONESHOT, "ACPI:Event", event);
+ 	if (ret) {
+ 		dev_err(acpi_gpio->chip->parent,
+ 			"Failed to setup interrupt handler for %d\n",
 -- 
 2.30.1
 
