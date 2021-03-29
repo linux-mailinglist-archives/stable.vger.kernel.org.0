@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8648434CA49
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7752134C8A2
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233366AbhC2Ig2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:36:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
+        id S233556AbhC2IXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234256AbhC2Ie5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F8C3619B1;
-        Mon, 29 Mar 2021 08:34:54 +0000 (UTC)
+        id S233731AbhC2IWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33FC06044F;
+        Mon, 29 Mar 2021 08:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006895;
-        bh=ikM35ZXyxBcvzKVFUCevC1eXLU5FwCni+tC4GjejoD0=;
+        s=korg; t=1617006125;
+        bh=WNjIOSWreC0GQTlW1iRMYz47SgwQa5dd35GM4wDeaeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2gGcJkHj3oKQ3mcJkJKBtp9EHlTdXgD8j5L1Oq9xi0Oy7lXf5I0Mx21fAxdNqcLM
-         uPMLl/jk7r7/vmxUNi7WHmXSu7zRfn4pcmvwZbYJUdhpw6ohu+bdgB+iO5JeDr6hSO
-         zBTs1YzcqhOmKMs8oqiHIPzKl4HHn6jOP8HrfK3E=
+        b=Klfqmg/HkYDWkARCOR9Gobsd3Rj4e1cO5zb1bccIuDceWxlyzyQnTCodG7tNNBpnQ
+         ilfgBJH+D3mqAP0pXf35eQVE+SuMTg0oWpVkdf1KiTmlRodzoMIfTs3mquaaXKorvU
+         yQkI3bhn2BolosA6MI8TK4nT5Fqgt5vhRWaIbAQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Angelo Dureghello <angelo@kernel-space.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 142/254] net: hdlc_x25: Prevent racing between "x25_close" and "x25_xmit"/"x25_rx"
+Subject: [PATCH 5.10 127/221] can: flexcan: flexcan_chip_freeze(): fix chip freeze for missing bitrate
 Date:   Mon, 29 Mar 2021 09:57:38 +0200
-Message-Id: <20210329075637.879647940@linuxfoundation.org>
+Message-Id: <20210329075633.441753261@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,163 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Angelo Dureghello <angelo@kernel-space.org>
 
-[ Upstream commit bf0ffea336b493c0a8c8bc27b46683ecf1e8f294 ]
+[ Upstream commit 47c5e474bc1e1061fb037d13b5000b38967eb070 ]
 
-"x25_close" is called by "hdlc_close" in "hdlc.c", which is called by
-hardware drivers' "ndo_stop" function.
-"x25_xmit" is called by "hdlc_start_xmit" in "hdlc.c", which is hardware
-drivers' "ndo_start_xmit" function.
-"x25_rx" is called by "hdlc_rcv" in "hdlc.c", which receives HDLC frames
-from "net/core/dev.c".
+For cases when flexcan is built-in, bitrate is still not set at
+registering. So flexcan_chip_freeze() generates:
 
-"x25_close" races with "x25_xmit" and "x25_rx" because their callers race.
+[    1.860000] *** ZERO DIVIDE ***   FORMAT=4
+[    1.860000] Current process id is 1
+[    1.860000] BAD KERNEL TRAP: 00000000
+[    1.860000] PC: [<402e70c8>] flexcan_chip_freeze+0x1a/0xa8
 
-However, we need to ensure that the LAPB APIs called in "x25_xmit" and
-"x25_rx" are called before "lapb_unregister" is called in "x25_close".
+To allow chip freeze, using an hardcoded timeout when bitrate is still
+not set.
 
-This patch adds locking to ensure when "x25_xmit" and "x25_rx" are doing
-their work, "lapb_unregister" is not yet called in "x25_close".
-
-Reasons for not solving the racing between "x25_close" and "x25_xmit" by
-calling "netif_tx_disable" in "x25_close":
-1. We still need to solve the racing between "x25_close" and "x25_rx";
-2. The design of the HDLC subsystem assumes the HDLC hardware drivers
-have full control over the TX queue, and the HDLC protocol drivers (like
-this driver) have no control. Controlling the queue here in the protocol
-driver may interfere with hardware drivers' control of the queue.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ec15e27cc890 ("can: flexcan: enable RX FIFO after FRZ/HALT valid")
+Link: https://lore.kernel.org/r/20210315231510.650593-1-angelo@kernel-space.org
+Signed-off-by: Angelo Dureghello <angelo@kernel-space.org>
+[mkl: use if instead of ? operator]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_x25.c | 42 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+), 1 deletion(-)
+ drivers/net/can/flexcan.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index 4aaa6388b9ee..5a6a945f6c81 100644
---- a/drivers/net/wan/hdlc_x25.c
-+++ b/drivers/net/wan/hdlc_x25.c
-@@ -23,6 +23,8 @@
- 
- struct x25_state {
- 	x25_hdlc_proto settings;
-+	bool up;
-+	spinlock_t up_lock; /* Protects "up" */
- };
- 
- static int x25_ioctl(struct net_device *dev, struct ifreq *ifr);
-@@ -104,6 +106,8 @@ static void x25_data_transmit(struct net_device *dev, struct sk_buff *skb)
- 
- static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index d712c6fdbc87..7cbaac238ff6 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -658,9 +658,15 @@ static int flexcan_chip_disable(struct flexcan_priv *priv)
+ static int flexcan_chip_freeze(struct flexcan_priv *priv)
  {
-+	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
- 	int result;
+ 	struct flexcan_regs __iomem *regs = priv->regs;
+-	unsigned int timeout = 1000 * 1000 * 10 / priv->can.bittiming.bitrate;
++	unsigned int timeout;
++	u32 bitrate = priv->can.bittiming.bitrate;
+ 	u32 reg;
  
- 	/* There should be a pseudo header of 1 byte added by upper layers.
-@@ -114,11 +118,19 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
- 		return NETDEV_TX_OK;
- 	}
- 
-+	spin_lock_bh(&x25st->up_lock);
-+	if (!x25st->up) {
-+		spin_unlock_bh(&x25st->up_lock);
-+		kfree_skb(skb);
-+		return NETDEV_TX_OK;
-+	}
++	if (bitrate)
++		timeout = 1000 * 1000 * 10 / bitrate;
++	else
++		timeout = FLEXCAN_TIMEOUT_US / 10;
 +
- 	switch (skb->data[0]) {
- 	case X25_IFACE_DATA:	/* Data to be transmitted */
- 		skb_pull(skb, 1);
- 		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
- 			dev_kfree_skb(skb);
-+		spin_unlock_bh(&x25st->up_lock);
- 		return NETDEV_TX_OK;
- 
- 	case X25_IFACE_CONNECT:
-@@ -147,6 +159,7 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
- 		break;
- 	}
- 
-+	spin_unlock_bh(&x25st->up_lock);
- 	dev_kfree_skb(skb);
- 	return NETDEV_TX_OK;
- }
-@@ -164,6 +177,7 @@ static int x25_open(struct net_device *dev)
- 		.data_transmit = x25_data_transmit,
- 	};
- 	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
- 	struct lapb_parms_struct params;
- 	int result;
- 
-@@ -190,6 +204,10 @@ static int x25_open(struct net_device *dev)
- 	if (result != LAPB_OK)
- 		return -EINVAL;
- 
-+	spin_lock_bh(&x25st->up_lock);
-+	x25st->up = true;
-+	spin_unlock_bh(&x25st->up_lock);
-+
- 	return 0;
- }
- 
-@@ -197,6 +215,13 @@ static int x25_open(struct net_device *dev)
- 
- static void x25_close(struct net_device *dev)
- {
-+	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
-+
-+	spin_lock_bh(&x25st->up_lock);
-+	x25st->up = false;
-+	spin_unlock_bh(&x25st->up_lock);
-+
- 	lapb_unregister(dev);
- }
- 
-@@ -205,15 +230,28 @@ static void x25_close(struct net_device *dev)
- static int x25_rx(struct sk_buff *skb)
- {
- 	struct net_device *dev = skb->dev;
-+	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
- 
- 	if ((skb = skb_share_check(skb, GFP_ATOMIC)) == NULL) {
- 		dev->stats.rx_dropped++;
- 		return NET_RX_DROP;
- 	}
- 
--	if (lapb_data_received(dev, skb) == LAPB_OK)
-+	spin_lock_bh(&x25st->up_lock);
-+	if (!x25st->up) {
-+		spin_unlock_bh(&x25st->up_lock);
-+		kfree_skb(skb);
-+		dev->stats.rx_dropped++;
-+		return NET_RX_DROP;
-+	}
-+
-+	if (lapb_data_received(dev, skb) == LAPB_OK) {
-+		spin_unlock_bh(&x25st->up_lock);
- 		return NET_RX_SUCCESS;
-+	}
- 
-+	spin_unlock_bh(&x25st->up_lock);
- 	dev->stats.rx_errors++;
- 	dev_kfree_skb_any(skb);
- 	return NET_RX_DROP;
-@@ -298,6 +336,8 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
- 			return result;
- 
- 		memcpy(&state(hdlc)->settings, &new_settings, size);
-+		state(hdlc)->up = false;
-+		spin_lock_init(&state(hdlc)->up_lock);
- 
- 		/* There's no header_ops so hard_header_len should be 0. */
- 		dev->hard_header_len = 0;
+ 	reg = priv->read(&regs->mcr);
+ 	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
+ 	priv->write(reg, &regs->mcr);
 -- 
 2.30.1
 
