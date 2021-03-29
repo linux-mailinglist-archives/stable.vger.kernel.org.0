@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E4234C9EC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD2E134C9F1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233801AbhC2IeM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53712 "EHLO mail.kernel.org"
+        id S233917AbhC2IeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234605AbhC2IdV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234610AbhC2IdV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 04:33:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE5E619C2;
-        Mon, 29 Mar 2021 08:32:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E31B3619C3;
+        Mon, 29 Mar 2021 08:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006745;
-        bh=P/OFSjQAwsXIXLJPAKu1SZ6A04vfJzoRTPx4IfTHktY=;
+        s=korg; t=1617006747;
+        bh=eCvm4I9ZRMNN0HQ3CUV1uqnU6AChyXBaa02oYgA/Wag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/OcZKMj9+t7cjRSZMi8rrzuhmdhXJZcOUFxUNrqhruKQHHcEaQRL19J5Kn5LMEk/
-         Mo2tYONhB2cbUzR2DjMZrIvAPbdS2rS1XvquKxEz8zKlDzJyX7YoHkHmJjYx6MD51V
-         Nm8cxGmDaQ27o+2IbnSl557ABr85JjzPDGAKK1mE=
+        b=GGqbfQlUuz+wWGKA0rT4rbLVkuyGBG10kLJKPn8tlU1Lt3NlUvWxJWyGNXND7aJdT
+         p9DJJRPUcWmpG1+kE6jENjJYM6umwLjmdccnVDOa7nfyW0tfbPvFdWO/Mx1jhvGeHv
+         W/qX66BftECBrVMJ0vWxA5Kg6Anmga65ovMsVsT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.11 076/254] platform/x86: intel-vbtn: Stop reporting SW_DOCK events
-Date:   Mon, 29 Mar 2021 09:56:32 +0200
-Message-Id: <20210329075635.647905087@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Adiel Bidani <adielb@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 077/254] psample: Fix user API breakage
+Date:   Mon, 29 Mar 2021 09:56:33 +0200
+Message-Id: <20210329075635.678778504@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
 References: <20210329075633.135869143@linuxfoundation.org>
@@ -38,61 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 538d2dd0b9920334e6596977a664e9e7bac73703 upstream.
+commit e43accba9b071dcd106b5e7643b1b106a158cbb1 upstream.
 
-Stop reporting SW_DOCK events because this breaks suspend-on-lid-close.
+Cited commit added a new attribute before the existing group reference
+count attribute, thereby changing its value and breaking existing
+applications on new kernels.
 
-SW_DOCK should only be reported for docking stations, but all the DSDTs in
-my DSDT collection which use the intel-vbtn code, always seem to use this
-for 2-in-1s / convertibles and set SW_DOCK=1 when in laptop-mode (in tandem
-with setting SW_TABLET_MODE=0).
+Before:
 
-This causes userspace to think the laptop is docked to a port-replicator
-and to disable suspend-on-lid-close, which is undesirable.
+ # psample -l
+ libpsample ERROR psample_group_foreach: failed to recv message: Operation not supported
 
-Map the dock events to KEY_IGNORE to avoid this broken SW_DOCK reporting.
+After:
 
-Note this may theoretically cause us to stop reporting SW_DOCK on some
-device where the 0xCA and 0xCB intel-vbtn events are actually used for
-reporting docking to a classic docking-station / port-replicator but
-I'm not aware of any such devices.
+ # psample -l
+ Group Num       Refcount        Group Seq
+ 1               1               0
 
-Also the most important thing is that we only report SW_DOCK when it
-reliably reports being docked to a classic docking-station without any
-false positives, which clearly is not the case here. If there is a
-chance of reporting false positives then it is better to not report
-SW_DOCK at all.
+Fix by restoring the value of the old attribute and remove the
+misleading comments from the enumerator to avoid future bugs.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210321163513.72328-1-hdegoede@redhat.com
+Fixes: d8bed686ab96 ("net: psample: Add tunnel support")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reported-by: Adiel Bidani <adielb@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/intel-vbtn.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ include/uapi/linux/psample.h |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -47,8 +47,16 @@ static const struct key_entry intel_vbtn
- };
+--- a/include/uapi/linux/psample.h
++++ b/include/uapi/linux/psample.h
+@@ -3,7 +3,6 @@
+ #define __UAPI_PSAMPLE_H
  
- static const struct key_entry intel_vbtn_switchmap[] = {
--	{ KE_SW,     0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
--	{ KE_SW,     0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
-+	/*
-+	 * SW_DOCK should only be reported for docking stations, but DSDTs using the
-+	 * intel-vbtn code, always seem to use this for 2-in-1s / convertibles and set
-+	 * SW_DOCK=1 when in laptop-mode (in tandem with setting SW_TABLET_MODE=0).
-+	 * This causes userspace to think the laptop is docked to a port-replicator
-+	 * and to disable suspend-on-lid-close, which is undesirable.
-+	 * Map the dock events to KEY_IGNORE to avoid this broken SW_DOCK reporting.
-+	 */
-+	{ KE_IGNORE, 0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
-+	{ KE_IGNORE, 0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
- 	{ KE_SW,     0xCC, { .sw = { SW_TABLET_MODE, 1 } } },	/* Tablet */
- 	{ KE_SW,     0xCD, { .sw = { SW_TABLET_MODE, 0 } } },	/* Laptop */
+ enum {
+-	/* sampled packet metadata */
+ 	PSAMPLE_ATTR_IIFINDEX,
+ 	PSAMPLE_ATTR_OIFINDEX,
+ 	PSAMPLE_ATTR_ORIGSIZE,
+@@ -11,10 +10,8 @@ enum {
+ 	PSAMPLE_ATTR_GROUP_SEQ,
+ 	PSAMPLE_ATTR_SAMPLE_RATE,
+ 	PSAMPLE_ATTR_DATA,
+-	PSAMPLE_ATTR_TUNNEL,
+-
+-	/* commands attributes */
+ 	PSAMPLE_ATTR_GROUP_REFCOUNT,
++	PSAMPLE_ATTR_TUNNEL,
+ 
+ 	__PSAMPLE_ATTR_MAX
  };
 
 
