@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFA6634D588
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9164634D58A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbhC2Qvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 12:51:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45130 "EHLO mail.kernel.org"
+        id S231134AbhC2Qvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 12:51:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231366AbhC2QvO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:51:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A465161927;
-        Mon, 29 Mar 2021 16:51:13 +0000 (UTC)
+        id S231384AbhC2QvQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:51:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F1BA6191F;
+        Mon, 29 Mar 2021 16:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617036674;
-        bh=ZPiGnDzRD1/rsUG1OFoaYSH6jCBRzYdwtfQdVeDgXN4=;
+        s=k20201202; t=1617036676;
+        bh=hAOxfi8IxIKKNHDkptOjt8XOhydQ42cCpi3Qeq4BW7k=;
         h=From:To:Cc:Subject:Date:From;
-        b=JSeG7I63rWuMobMqNmRbJJugFocWPCYo8VrOhI12D4GsQKRxZYt7cY6RHtPAlV+Dl
-         dFDkCrRo7lvQ8bKuKW/582u3s1Nwo42CpIqJSqGoNJSaCKLWOfRZK257TgT9fNYT++
-         Dc7JPuqH7uK+/rQtw/fh+VxYFFG6bI6HUcjqwY1GbbxM5q0Qr/DmSbv15mLcH9/yTh
-         MgX5j605C1A+XbflOuCBWq66JEhQG92OWNbNL9up0bwR5pHFae0+jfuaEy7p87FjoV
-         zaAM2a5sy5YP8fWLRYO1g+1/rLtUMdbEy49Av+EHvgh51AXv7wvtcMuPV3HdsEc+aw
-         BB/23jBf4JFdw==
+        b=HTcR5aggdpQmvJjbK67MFHWPIbTTpEPqw9AS1yivkHhJT8NA0yLQx9NoqbrAtm2KD
+         +z3o1/XUXTc1oGEjGTGylKzniv65GhDvCnlNyljdBPq/WkpFOiu/Rnp5MAroCAgd4l
+         hAD0lw9uv73o1acgh5kW6f038P8S5pAJgni7CMnG03W7ZYr/DNEGdpwSxqjcqDvxlh
+         JcHf4RaVL9GKX/+srjNVguR2FRuPxLMGpKREPABQyx3BclYOeqj0gQoyLcC8E4Xo05
+         rJuMEIf55JbVBTIG0IB5TJENAwMakqvzozb8jgvv9NtxEOg73u1Ubc+APGU2p/TRJL
+         cTxgvvHogUk0A==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, dbrazdil@google.com
+To:     stable@vger.kernel.org, daniel@iogearbox.net
 Cc:     "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "selinux: vsock: Set SID for socket returned by accept()" failed to apply to 4.9-stable tree
-Date:   Mon, 29 Mar 2021 12:51:12 -0400
-Message-Id: <20210329165112.2359542-1-sashal@kernel.org>
+Subject: FAILED: Patch "net, bpf: Fix ip6ip6 crash with collect_md populated skbs" failed to apply to 4.4-stable tree
+Date:   Mon, 29 Mar 2021 12:51:14 -0400
+Message-Id: <20210329165114.2359609-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -38,7 +38,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -48,39 +48,88 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1f935e8e72ec28dddb2dc0650b3b6626a293d94b Mon Sep 17 00:00:00 2001
-From: David Brazdil <dbrazdil@google.com>
-Date: Fri, 19 Mar 2021 13:05:41 +0000
-Subject: [PATCH] selinux: vsock: Set SID for socket returned by accept()
+From a188bb5638d41aa99090ebf2f85d3505ab13fba5 Mon Sep 17 00:00:00 2001
+From: Daniel Borkmann <daniel@iogearbox.net>
+Date: Wed, 10 Mar 2021 01:38:10 +0100
+Subject: [PATCH] net, bpf: Fix ip6ip6 crash with collect_md populated skbs
 
-For AF_VSOCK, accept() currently returns sockets that are unlabelled.
-Other socket families derive the child's SID from the SID of the parent
-and the SID of the incoming packet. This is typically done as the
-connected socket is placed in the queue that accept() removes from.
+I ran into a crash where setting up a ip6ip6 tunnel device which was /not/
+set to collect_md mode was receiving collect_md populated skbs for xmit.
 
-Reuse the existing 'security_sk_clone' hook to copy the SID from the
-parent (server) socket to the child. There is no packet SID in this
-case.
+The BPF prog was populating the skb via bpf_skb_set_tunnel_key() which is
+assigning special metadata dst entry and then redirecting the skb to the
+device, taking ip6_tnl_start_xmit() -> ipxip6_tnl_xmit() -> ip6_tnl_xmit()
+and in the latter it performs a neigh lookup based on skb_dst(skb) where
+we trigger a NULL pointer dereference on dst->ops->neigh_lookup() since
+the md_dst_ops do not populate neigh_lookup callback with a fake handler.
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: David Brazdil <dbrazdil@google.com>
+Transform the md_dst_ops into generic dst_blackhole_ops that can also be
+reused elsewhere when needed, and use them for the metadata dst entries as
+callback ops.
+
+Also, remove the dst_md_discard{,_out}() ops and rely on dst_discard{,_out}()
+from dst_init() which free the skb the same way modulo the splat. Given we
+will be able to recover just fine from there, avoid any potential splats
+iff this gets ever triggered in future (or worse, panic on warns when set).
+
+Fixes: f38a9eb1f77b ("dst: Metadata destinations")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- net/vmw_vsock/af_vsock.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/dst.c | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 5546710d8ac1..bc7fb9bf3351 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -755,6 +755,7 @@ static struct sock *__vsock_create(struct net *net,
- 		vsk->buffer_size = psk->buffer_size;
- 		vsk->buffer_min_size = psk->buffer_min_size;
- 		vsk->buffer_max_size = psk->buffer_max_size;
-+		security_sk_clone(parent, sk);
- 	} else {
- 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
- 		vsk->owner = get_current_cred();
+diff --git a/net/core/dst.c b/net/core/dst.c
+index 5f6315601776..fb3bcba87744 100644
+--- a/net/core/dst.c
++++ b/net/core/dst.c
+@@ -275,37 +275,24 @@ unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
+ }
+ EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
+ 
+-static struct dst_ops md_dst_ops = {
+-	.family =		AF_UNSPEC,
++static struct dst_ops dst_blackhole_ops = {
++	.family		= AF_UNSPEC,
++	.neigh_lookup	= dst_blackhole_neigh_lookup,
++	.check		= dst_blackhole_check,
++	.cow_metrics	= dst_blackhole_cow_metrics,
++	.update_pmtu	= dst_blackhole_update_pmtu,
++	.redirect	= dst_blackhole_redirect,
++	.mtu		= dst_blackhole_mtu,
+ };
+ 
+-static int dst_md_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call output on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+-static int dst_md_discard(struct sk_buff *skb)
+-{
+-	WARN_ONCE(1, "Attempting to call input on metadata dst\n");
+-	kfree_skb(skb);
+-	return 0;
+-}
+-
+ static void __metadata_dst_init(struct metadata_dst *md_dst,
+ 				enum metadata_type type, u8 optslen)
+-
+ {
+ 	struct dst_entry *dst;
+ 
+ 	dst = &md_dst->dst;
+-	dst_init(dst, &md_dst_ops, NULL, 1, DST_OBSOLETE_NONE,
++	dst_init(dst, &dst_blackhole_ops, NULL, 1, DST_OBSOLETE_NONE,
+ 		 DST_METADATA | DST_NOCOUNT);
+-
+-	dst->input = dst_md_discard;
+-	dst->output = dst_md_discard_out;
+-
+ 	memset(dst + 1, 0, sizeof(*md_dst) + optslen - sizeof(*dst));
+ 	md_dst->type = type;
+ }
 -- 
 2.30.1
 
