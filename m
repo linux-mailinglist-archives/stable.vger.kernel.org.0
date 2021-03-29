@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9894134C75A
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 523A334C57D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232896AbhC2IOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:14:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57604 "EHLO mail.kernel.org"
+        id S231512AbhC2IAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232637AbhC2INk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:13:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADD7361959;
-        Mon, 29 Mar 2021 08:13:27 +0000 (UTC)
+        id S231469AbhC2IAY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:00:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A06561974;
+        Mon, 29 Mar 2021 08:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005608;
-        bh=o4u/VcO69L7DhtcHtxq/rNaFbwGDQVYq3qt12Vub5Pk=;
+        s=korg; t=1617004824;
+        bh=A7Dod5oX9lcDvyzu55/c1vP1GrYr53ekQ6EyH788SmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRE77AZ9hnRxYeFeBF8WoNfXh7A5icHExTWcA5EptjhCI3hGz0KOZLO24XzRLsi9u
-         CF/00pP2ceKwO+P+olUePXnLtyTNoumI0LyIUkm3tULwBC4fVpomliZ7PyRFKvzlNt
-         GxDCCdpoMTAAULDUAR/0cBNn1WTae7MMIwXOeb+c=
+        b=U9voqCYgO6SpOFXmt9+q9tNvKIhdOlw0QcnyXSZNKiG1PVGuiiAk4H+2ex2sheSYc
+         uBwrDeW/RpKNjZnQQdmAA9UsTxx/Kb4iFW8vn5XC7YDdZv2JU+zcaGToFrnhuGAkC0
+         QwXkEVZjqUHUNiCJ8Lg0XrBgQtADrwnpBGOBFGZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/111] bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 16/33] squashfs: fix inode lookup sanity checks
 Date:   Mon, 29 Mar 2021 09:58:01 +0200
-Message-Id: <20210329075616.958656004@linuxfoundation.org>
+Message-Id: <20210329075605.788613551@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Sean Nyekjaer <sean@geanix.com>
 
-[ Upstream commit 7d7275b3e866cf8092bd12553ec53ba26864f7bb ]
+commit c1b2028315c6b15e8d6725e0d5884b15887d3daa upstream.
 
-The main purpose of l3 IRQs is to catch OCP bus access errors and identify
-corresponding code places by showing call stack, so it's important to
-handle L3 interconnect errors as fast as possible. On RT these IRQs will
-became threaded and will be scheduled much more late from the moment actual
-error occurred so showing completely useless information.
+When mouting a squashfs image created without inode compression it fails
+with: "unable to read inode lookup table"
 
-Hence, mark l3 IRQs as IRQF_NO_THREAD so they will not be forced threaded
-on RT or if force_irqthreads = true.
+It turns out that the BLOCK_OFFSET is missing when checking the
+SQUASHFS_METADATA_SIZE agaist the actual size.
 
-Fixes: 0ee7261c9212 ("drivers: bus: Move the OMAP interconnect driver to drivers/bus/")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20210226092903.1473545-1-sean@geanix.com
+Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Acked-by: Phillip Lougher <phillip@squashfs.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/omap_l3_noc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/squashfs/export.c      |    8 ++++++--
+ fs/squashfs/squashfs_fs.h |    1 +
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bus/omap_l3_noc.c b/drivers/bus/omap_l3_noc.c
-index b040447575ad..dcfb32ee5cb6 100644
---- a/drivers/bus/omap_l3_noc.c
-+++ b/drivers/bus/omap_l3_noc.c
-@@ -285,7 +285,7 @@ static int omap_l3_probe(struct platform_device *pdev)
- 	 */
- 	l3->debug_irq = platform_get_irq(pdev, 0);
- 	ret = devm_request_irq(l3->dev, l3->debug_irq, l3_interrupt_handler,
--			       0x0, "l3-dbg-irq", l3);
-+			       IRQF_NO_THREAD, "l3-dbg-irq", l3);
- 	if (ret) {
- 		dev_err(l3->dev, "request_irq failed for %d\n",
- 			l3->debug_irq);
-@@ -294,7 +294,7 @@ static int omap_l3_probe(struct platform_device *pdev)
+--- a/fs/squashfs/export.c
++++ b/fs/squashfs/export.c
+@@ -165,14 +165,18 @@ __le64 *squashfs_read_inode_lookup_table
+ 		start = le64_to_cpu(table[n]);
+ 		end = le64_to_cpu(table[n + 1]);
  
- 	l3->app_irq = platform_get_irq(pdev, 1);
- 	ret = devm_request_irq(l3->dev, l3->app_irq, l3_interrupt_handler,
--			       0x0, "l3-app-irq", l3);
-+			       IRQF_NO_THREAD, "l3-app-irq", l3);
- 	if (ret)
- 		dev_err(l3->dev, "request_irq failed for %d\n", l3->app_irq);
+-		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++		if (start >= end
++		    || (end - start) >
++		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 			kfree(table);
+ 			return ERR_PTR(-EINVAL);
+ 		}
+ 	}
  
--- 
-2.30.1
-
+ 	start = le64_to_cpu(table[indexes - 1]);
+-	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= lookup_table_start ||
++	    (lookup_table_start - start) >
++	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+--- a/fs/squashfs/squashfs_fs.h
++++ b/fs/squashfs/squashfs_fs.h
+@@ -30,6 +30,7 @@
+ 
+ /* size of metadata (inode and directory) blocks */
+ #define SQUASHFS_METADATA_SIZE		8192
++#define SQUASHFS_BLOCK_OFFSET		2
+ 
+ /* default size of block device I/O */
+ #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
 
 
