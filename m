@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B7334C704
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BFDA34C889
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232499AbhC2ILj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54794 "EHLO mail.kernel.org"
+        id S232815AbhC2IXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232457AbhC2ILD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:11:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2737C61960;
-        Mon, 29 Mar 2021 08:11:01 +0000 (UTC)
+        id S233525AbhC2IVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:21:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D091161601;
+        Mon, 29 Mar 2021 08:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005462;
-        bh=xVKSMKGIWpO1GBcmuKdqsKwbK1EeZMVxxrB8EVYVhfE=;
+        s=korg; t=1617006076;
+        bh=0lk667QrNTk1uGXBGMcmQArzTf7hHjurO3OmPT+KT2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWkkKi0gJn9phToR3UaRe9Cih31hHN/MvS1viLd/hb9vNvauADb0hvorcJKhGN8OU
-         UbZCFiNulNmU2jywsUHy7ykNflYSWoDpN50pTdq+0GwTgSZ9Ur+igPuEWYptkFkYhT
-         Ij4jtvddp2tFcWV1o90vrXq0QA/MqRwaVyQyLcjI=
+        b=kJAWu7T0jUF+RoSaC63mR3b1nFZ14iDwCcjryJfm9rPBRabVaPbFxatudgFvI/yqe
+         WITN/re79aSmQXip8iQZ7KQGvqvd/GtY7VYpeXNvXm3lCXxiPuu+X+1HijZH2aGZjI
+         e4lMeKGMwsGp/SymVsbEj7ac34bycf0p9e8OT76c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 013/111] cifs: ask for more credit on async read/write code paths
+Subject: [PATCH 5.10 110/221] e1000e: Fix error handling in e1000_set_d0_lplu_state_82571
 Date:   Mon, 29 Mar 2021 09:57:21 +0200
-Message-Id: <20210329075615.639410527@linuxfoundation.org>
+Message-Id: <20210329075632.886991812@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Aptel <aaptel@suse.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 88fd98a2306755b965e4f4567f84e73db3b6738c ]
+[ Upstream commit b52912b8293f2c496f42583e65599aee606a0c18 ]
 
-When doing a large read or write workload we only
-very gradually increase the number of credits
-which can cause problems with parallelizing large i/o
-(I/O ramps up more slowly than it should for large
-read/write workloads) especially with multichannel
-when the number of credits on the secondary channels
-starts out low (e.g. less than about 130) or when
-recovering after server throttled back the number
-of credit.
+There is one e1e_wphy() call in e1000_set_d0_lplu_state_82571
+that we have caught its return value but lack further handling.
+Check and terminate the execution flow just like other e1e_wphy()
+in this function.
 
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/e1000e/82571.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 7adecfd0c1e9..81d9c4ea0e8f 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -3743,8 +3743,7 @@ smb2_async_readv(struct cifs_readdata *rdata)
- 	if (rdata->credits.value > 0) {
- 		shdr->CreditCharge = cpu_to_le16(DIV_ROUND_UP(rdata->bytes,
- 						SMB2_MAX_BUFFER_SIZE));
--		shdr->CreditRequest =
--			cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 1);
-+		shdr->CreditRequest = cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 8);
- 
- 		rc = adjust_credits(server, &rdata->credits, rdata->bytes);
- 		if (rc)
-@@ -4038,8 +4037,7 @@ smb2_async_writev(struct cifs_writedata *wdata,
- 	if (wdata->credits.value > 0) {
- 		shdr->CreditCharge = cpu_to_le16(DIV_ROUND_UP(wdata->bytes,
- 						    SMB2_MAX_BUFFER_SIZE));
--		shdr->CreditRequest =
--			cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 1);
-+		shdr->CreditRequest = cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 8);
- 
- 		rc = adjust_credits(server, &wdata->credits, wdata->bytes);
- 		if (rc)
+diff --git a/drivers/net/ethernet/intel/e1000e/82571.c b/drivers/net/ethernet/intel/e1000e/82571.c
+index 88faf05e23ba..0b1e890dd583 100644
+--- a/drivers/net/ethernet/intel/e1000e/82571.c
++++ b/drivers/net/ethernet/intel/e1000e/82571.c
+@@ -899,6 +899,8 @@ static s32 e1000_set_d0_lplu_state_82571(struct e1000_hw *hw, bool active)
+ 	} else {
+ 		data &= ~IGP02E1000_PM_D0_LPLU;
+ 		ret_val = e1e_wphy(hw, IGP02E1000_PHY_POWER_MGMT, data);
++		if (ret_val)
++			return ret_val;
+ 		/* LPLU and SmartSpeed are mutually exclusive.  LPLU is used
+ 		 * during Dx states where the power conservation is most
+ 		 * important.  During driver activity we should enable
 -- 
 2.30.1
 
