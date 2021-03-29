@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D07D734C694
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1561234C755
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232468AbhC2IIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
+        id S232871AbhC2IOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:14:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232165AbhC2IHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:07:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 277536193A;
-        Mon, 29 Mar 2021 08:07:49 +0000 (UTC)
+        id S232624AbhC2INZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:13:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45D2E61494;
+        Mon, 29 Mar 2021 08:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005270;
-        bh=K4fqc7zoVmAvq0J3bVVpDAlwhg06AUxZdqlVtI7sLss=;
+        s=korg; t=1617005604;
+        bh=LCfOYbdDrWCE+GJPVozw9HGEGOggj0If07yc6i7jxEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RKBW6n9ca+TcxngggdXJNoN91TqqHZe+JjWSoH6sceNh+jH5ncYvkFqjRD9lNQ6Z
-         nlsN4+2s6LuUq7MxDr8pYb9eszsppLZwrJvlHmb+7mJnL4b1ssGr5hrAhEnAp3yylu
-         XA8P58GDF/HuzWIl9YN4SFmC0Qzh/h+P/bBRQJO0=
+        b=mEKgKyAX8MgoqXroU9n+4F6n0NhsYpfvMxc6ZRK9tLmD8/ouvGY1J7J2j6/yXz70K
+         k8yAmbDDdHGOG5b4aSNk8B4XoBO1s47gnCkQBvRuAXOvugssQYaKvYiUjfDiqWP0RW
+         gswGjFgH+8c8GPrU0VDuSiwK4ir6p2pv9CydLUYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 24/72] netsec: restore phy power state after controller reset
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 052/111] dm ioctl: fix out of bounds array access when no devices
 Date:   Mon, 29 Mar 2021 09:58:00 +0200
-Message-Id: <20210329075611.065101539@linuxfoundation.org>
+Message-Id: <20210329075616.927073964@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mian Yousaf Kaukab <ykaukab@suse.de>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 804741ac7b9f2fdebe3740cb0579cb8d94d49e60 upstream.
+commit 4edbe1d7bcffcd6269f3b5eb63f710393ff2ec7a upstream.
 
-Since commit 8e850f25b581 ("net: socionext: Stop PHY before resetting
-netsec") netsec_netdev_init() power downs phy before resetting the
-controller. However, the state is not restored once the reset is
-complete. As a result it is not possible to bring up network on a
-platform with Broadcom BCM5482 phy.
+If there are not any dm devices, we need to zero the "dev" argument in
+the first structure dm_name_list. However, this can cause out of
+bounds write, because the "needed" variable is zero and len may be
+less than eight.
 
-Fix the issue by restoring phy power state after controller reset is
-complete.
+Fix this bug by reporting DM_BUFFER_FULL_FLAG if the result buffer is
+too small to hold the "nl->dev" value.
 
-Fixes: 8e850f25b581 ("net: socionext: Stop PHY before resetting netsec")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/socionext/netsec.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/md/dm-ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/socionext/netsec.c
-+++ b/drivers/net/ethernet/socionext/netsec.c
-@@ -1386,14 +1386,17 @@ static int netsec_netdev_init(struct net
- 		goto err1;
- 
- 	/* set phy power down */
--	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR) |
--		BMCR_PDOWN;
--	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
-+	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR);
-+	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR,
-+			 data | BMCR_PDOWN);
- 
- 	ret = netsec_reset_hardware(priv, true);
- 	if (ret)
- 		goto err2;
- 
-+	/* Restore phy power state */
-+	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
-+
- 	return 0;
- err2:
- 	netsec_free_dring(priv, NETSEC_RING_RX);
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -529,7 +529,7 @@ static int list_devices(struct file *fil
+ 	 * Grab our output buffer.
+ 	 */
+ 	nl = orig_nl = get_result_buffer(param, param_size, &len);
+-	if (len < needed) {
++	if (len < needed || len < sizeof(nl->dev)) {
+ 		param->flags |= DM_BUFFER_FULL_FLAG;
+ 		goto out;
+ 	}
 
 
