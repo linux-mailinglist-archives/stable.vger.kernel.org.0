@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9DFB34C977
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A185A34C7E5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232540AbhC2I3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
+        id S231876AbhC2IS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234277AbhC2I2B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:28:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3A68619CF;
-        Mon, 29 Mar 2021 08:27:11 +0000 (UTC)
+        id S233351AbhC2IRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:17:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 382C1619AB;
+        Mon, 29 Mar 2021 08:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006432;
-        bh=kGD9Zz7cfSBPI5bkMvB6A+uKjgg/mNyjnW8fvUtKCUY=;
+        s=korg; t=1617005840;
+        bh=shqrO44CNEbaZ037D9y/bUKPrsaXZ/uQPtoYKuIQUlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEnpY50a+zhB1pttzoCt2qm2ZkSMtRPJYH6pd6+jaXNFSSNuu6f0HqjTVnYat1rYR
-         CE7PrrkX7XCs+bhnvTihLH7Y8clySFBqtjZ3c1QhwlzI7/0RYqC17e0TZPZ9ANoz+A
-         RiSG4TP4bz7wxDkjEGVRAsy0/v6zKD4Oe0sz53Gg=
+        b=FOKSkHbukGiK1FcNBxQ4tgve5F83BwPX3QyP38btQmUplijPDqjmFaP/5LVhaAOEg
+         YSHt1PjYBaZrOvxeF7KKuJkIoG1SEkP9/7xV5gGDKbQ4V/C4CjbZExw/ewtHAzbE0v
+         Tmv5y/QcLonmAPwSvbD5+FYksvRsW8IgygRNKRdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Price <anprice@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 018/254] gfs2: fix use-after-free in trans_drain
+Subject: [PATCH 5.10 003/221] mt76: fix tx skb error handling in mt76_dma_tx_queue_skb
 Date:   Mon, 29 Mar 2021 09:55:34 +0200
-Message-Id: <20210329075633.750442954@linuxfoundation.org>
+Message-Id: <20210329075629.288629093@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 1a5a2cfd34c17db73c53ef127272c8c1ae220485 ]
+[ Upstream commit ae064fc0e32a4d28389086d9f4b260a0c157cfee ]
 
-This patch adds code to function trans_drain to remove drained
-bd elements from the ail lists, if queued, before freeing the bd.
-If we don't remove the bd from the ail, function ail_drain will
-try to reference the bd after it has been freed by trans_drain.
+When running out of room in the tx queue after calling drv->tx_prepare_skb,
+the buffer list will already have been modified on MT7615 and newer drivers.
+This can leak a DMA mapping and will show up as swiotlb allocation failures
+on x86.
 
-Thanks to Andy Price for his analysis of the problem.
+Fix this by moving the queue length check further up. This is less accurate,
+since it can overestimate the needed room in the queue on MT7615 and newer,
+but the difference is small enough to not matter in practice.
 
-Reported-by: Andy Price <anprice@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210216135119.23809-1-nbd@nbd.name
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/log.c   | 4 ++++
- fs/gfs2/trans.c | 2 ++
- 2 files changed, 6 insertions(+)
+ drivers/net/wireless/mediatek/mt76/dma.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
-index 2e9314091c81..1955dea999f7 100644
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -935,12 +935,16 @@ static void trans_drain(struct gfs2_trans *tr)
- 	while (!list_empty(head)) {
- 		bd = list_first_entry(head, struct gfs2_bufdata, bd_list);
- 		list_del_init(&bd->bd_list);
-+		if (!list_empty(&bd->bd_ail_st_list))
-+			gfs2_remove_from_ail(bd);
- 		kmem_cache_free(gfs2_bufdata_cachep, bd);
+diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
+index 262c40dc14a6..665a03ebf9ef 100644
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -355,7 +355,6 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
+ 	};
+ 	struct ieee80211_hw *hw;
+ 	int len, n = 0, ret = -ENOMEM;
+-	struct mt76_queue_entry e;
+ 	struct mt76_txwi_cache *t;
+ 	struct sk_buff *iter;
+ 	dma_addr_t addr;
+@@ -397,6 +396,11 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
  	}
- 	head = &tr->tr_databuf;
- 	while (!list_empty(head)) {
- 		bd = list_first_entry(head, struct gfs2_bufdata, bd_list);
- 		list_del_init(&bd->bd_list);
-+		if (!list_empty(&bd->bd_ail_st_list))
-+			gfs2_remove_from_ail(bd);
- 		kmem_cache_free(gfs2_bufdata_cachep, bd);
- 	}
- }
-diff --git a/fs/gfs2/trans.c b/fs/gfs2/trans.c
-index 6d4bf7ea7b3b..7f850ff6a05d 100644
---- a/fs/gfs2/trans.c
-+++ b/fs/gfs2/trans.c
-@@ -134,6 +134,8 @@ static struct gfs2_bufdata *gfs2_alloc_bufdata(struct gfs2_glock *gl,
- 	bd->bd_bh = bh;
- 	bd->bd_gl = gl;
- 	INIT_LIST_HEAD(&bd->bd_list);
-+	INIT_LIST_HEAD(&bd->bd_ail_st_list);
-+	INIT_LIST_HEAD(&bd->bd_ail_gl_list);
- 	bh->b_private = bd;
- 	return bd;
+ 	tx_info.nbuf = n;
+ 
++	if (q->queued + (tx_info.nbuf + 1) / 2 >= q->ndesc - 1) {
++		ret = -ENOMEM;
++		goto unmap;
++	}
++
+ 	dma_sync_single_for_cpu(dev->dev, t->dma_addr, dev->drv->txwi_size,
+ 				DMA_TO_DEVICE);
+ 	ret = dev->drv->tx_prepare_skb(dev, txwi, qid, wcid, sta, &tx_info);
+@@ -405,11 +409,6 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
+ 	if (ret < 0)
+ 		goto unmap;
+ 
+-	if (q->queued + (tx_info.nbuf + 1) / 2 >= q->ndesc - 1) {
+-		ret = -ENOMEM;
+-		goto unmap;
+-	}
+-
+ 	return mt76_dma_add_buf(dev, q, tx_info.buf, tx_info.nbuf,
+ 				tx_info.info, tx_info.skb, t);
+ 
+@@ -425,9 +424,7 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
+ 		dev->test.tx_done--;
+ #endif
+ 
+-	e.skb = tx_info.skb;
+-	e.txwi = t;
+-	dev->drv->tx_complete_skb(dev, &e);
++	dev_kfree_skb(tx_info.skb);
+ 	mt76_put_txwi(dev, t);
+ 	return ret;
  }
 -- 
 2.30.1
