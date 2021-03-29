@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A233234CA8F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F49F34C90C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234008AbhC2IjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55704 "EHLO mail.kernel.org"
+        id S233193AbhC2I0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234903AbhC2Ihd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6958261959;
-        Mon, 29 Mar 2021 08:37:11 +0000 (UTC)
+        id S232489AbhC2IYb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:24:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED92861601;
+        Mon, 29 Mar 2021 08:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007031;
-        bh=gPcEVq23ZcHljHYJI94dgaVJ7RvY85qJGeXSIOVsoOA=;
+        s=korg; t=1617006271;
+        bh=KPcYmxIsnUGx5m7FKjSmupJ5Uhrm65quTBUIhkOylzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beb73++y0fCLtpdETHMQbGmuBzg40xv88geOfxLmwi9+yfUcy9ZQlori6gD9aEiGK
-         NL5Ax0BL319WnsL9Hop6NAciir92GMFh0X/V/ABFrkovzdu9zlyrzqur0rma5wLDCK
-         lh6zsLqyP410S85RZHpig/5cR5kP8vHtxHOkqYJo=
+        b=O2out5YoqcGo47UJPHOAaKyx9q/5EuBNwEJ0LiPJt7VItWGyvTQnKLNhdssHpQ9Jm
+         sxm7zOmFsiBVBtMmzpiRd1ddXRKt03+s3MlIK3st3ZhDwL118mAgBnN3bf+o1K95kG
+         dF/CE8I4E+P0OXkh5wyxNhBAgCVE1R1axDwIHg6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
+        stable@vger.kernel.org, Yinjun Zhang <yinjun.zhang@corigine.com>,
+        Louis Peens <louis.peens@corigine.com>,
         Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 160/254] nfp: flower: add ipv6 bit to pre_tunnel control message
+Subject: [PATCH 5.10 145/221] netfilter: flowtable: Make sure GC works periodically in idle system
 Date:   Mon, 29 Mar 2021 09:57:56 +0200
-Message-Id: <20210329075638.450689820@linuxfoundation.org>
+Message-Id: <20210329075634.014644035@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Louis Peens <louis.peens@corigine.com>
+From: Yinjun Zhang <yinjun.zhang@corigine.com>
 
-[ Upstream commit 5c4f5e19d6a8e159127b9d653bb67e0dc7a28047 ]
+[ Upstream commit 740b486a8d1f966e68ac0666f1fd57441a7cda94 ]
 
-Differentiate between ipv4 and ipv6 flows when configuring the pre_tunnel
-table to prevent them trampling each other in the table.
+Currently flowtable's GC work is initialized as deferrable, which
+means GC cannot work on time when system is idle. So the hardware
+offloaded flow may be deleted for timeout, since its used time is
+not timely updated.
 
-Fixes: 783461604f7e ("nfp: flower: update flow merge code to support IPv6 tunnels")
+Resolve it by initializing the GC work as delayed work instead of
+deferrable.
+
+Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
+Signed-off-by: Yinjun Zhang <yinjun.zhang@corigine.com>
 Signed-off-by: Louis Peens <louis.peens@corigine.com>
 Signed-off-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/netronome/nfp/flower/tunnel_conf.c   | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ net/netfilter/nf_flow_table_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
-index 7248d248f604..d19c02e99114 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
-@@ -16,8 +16,9 @@
- #define NFP_FL_MAX_ROUTES               32
- 
- #define NFP_TUN_PRE_TUN_RULE_LIMIT	32
--#define NFP_TUN_PRE_TUN_RULE_DEL	0x1
--#define NFP_TUN_PRE_TUN_IDX_BIT		0x8
-+#define NFP_TUN_PRE_TUN_RULE_DEL	BIT(0)
-+#define NFP_TUN_PRE_TUN_IDX_BIT		BIT(3)
-+#define NFP_TUN_PRE_TUN_IPV6_BIT	BIT(7)
- 
- /**
-  * struct nfp_tun_pre_run_rule - rule matched before decap
-@@ -1268,6 +1269,7 @@ int nfp_flower_xmit_pre_tun_flow(struct nfp_app *app,
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index 4a4acbba78ff..b03feb6e1226 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -506,7 +506,7 @@ int nf_flow_table_init(struct nf_flowtable *flowtable)
  {
- 	struct nfp_flower_priv *app_priv = app->priv;
- 	struct nfp_tun_offloaded_mac *mac_entry;
-+	struct nfp_flower_meta_tci *key_meta;
- 	struct nfp_tun_pre_tun_rule payload;
- 	struct net_device *internal_dev;
  	int err;
-@@ -1290,6 +1292,15 @@ int nfp_flower_xmit_pre_tun_flow(struct nfp_app *app,
- 	if (!mac_entry)
- 		return -ENOENT;
  
-+	/* Set/clear IPV6 bit. cpu_to_be16() swap will lead to MSB being
-+	 * set/clear for port_idx.
-+	 */
-+	key_meta = (struct nfp_flower_meta_tci *)flow->unmasked_data;
-+	if (key_meta->nfp_flow_key_layer & NFP_FLOWER_LAYER_IPV6)
-+		mac_entry->index |= NFP_TUN_PRE_TUN_IPV6_BIT;
-+	else
-+		mac_entry->index &= ~NFP_TUN_PRE_TUN_IPV6_BIT;
-+
- 	payload.port_idx = cpu_to_be16(mac_entry->index);
+-	INIT_DEFERRABLE_WORK(&flowtable->gc_work, nf_flow_offload_work_gc);
++	INIT_DELAYED_WORK(&flowtable->gc_work, nf_flow_offload_work_gc);
+ 	flow_block_init(&flowtable->flow_block);
+ 	init_rwsem(&flowtable->flow_block_lock);
  
- 	/* Copy mac id and vlan to flow - dev may not exist at delete time. */
 -- 
 2.30.1
 
