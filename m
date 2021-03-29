@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E591C34C6F3
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3BE434CA83
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232572AbhC2ILK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
+        id S233498AbhC2Iis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:38:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232663AbhC2IKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A3BA61481;
-        Mon, 29 Mar 2021 08:10:28 +0000 (UTC)
+        id S234779AbhC2IhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84DF8619B9;
+        Mon, 29 Mar 2021 08:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005429;
-        bh=62QVEbroNMzCrjQrgGEozezDsRbKEuTH4LbWoXT03G0=;
+        s=korg; t=1617007000;
+        bh=eEJVoYkaI1r84j3V+kCRgMCnPWmDDoAETWzeYyE3snY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIrcjZ0B4FMUFersPRzGAkEalLtbn54OHT3z4vdI59Ry3rUGaBWi6M3qGopQYtksa
-         q71MmBgeDPesPOlUr3AteDDkAtE9ricrvc/dahl9dfhOST5iQ4W6MHXidZeDcvHyYu
-         5P2GslhDxCgEEnM/9F2AtRXk7UCVqk861gWFZBLs=
+        b=YkJcTQfUDezq66sXbybUpCD7TO7GJRGiHGH9QE9xSvd0hLZ1GNrZEKoALqySzU9Qf
+         hbyBwyS9cpP+o23g21gHCDaZurEVKCcWDikRiCaqz/qEjV9TEg81CAgHkGuw/SmDl7
+         2xlYzeCMsabvaoqApOr40P8MjPaPzrn3KqQ9XyKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Belisko Marek <marek.belisko@gmail.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/72] can: peak_usb: add forgotten supported devices
+Subject: [PATCH 5.11 183/254] net: stmmac: dwmac-sun8i: Provide TX and RX fifo sizes
 Date:   Mon, 29 Mar 2021 09:58:19 +0200
-Message-Id: <20210329075611.710415404@linuxfoundation.org>
+Message-Id: <20210329075639.150267204@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 59ec7b89ed3e921cd0625a8c83f31a30d485fdf8 ]
+[ Upstream commit 014dfa26ce1c647af09bf506285ef67e0e3f0a6b ]
 
-Since the peak_usb driver also supports the CAN-USB interfaces
-"PCAN-USB X6" and "PCAN-Chip USB" from PEAK-System GmbH, this patch adds
-their names to the list of explicitly supported devices.
+MTU cannot be changed on dwmac-sun8i. (ip link set eth0 mtu xxx returning EINVAL)
+This is due to tx_fifo_size being 0, since this value is used to compute valid
+MTU range.
+Like dwmac-sunxi (with commit 806fd188ce2a ("net: stmmac: dwmac-sunxi: Provide TX and RX fifo sizes"))
+dwmac-sun8i need to have tx and rx fifo sizes set.
+I have used values from datasheets.
+After this patch, setting a non-default MTU (like 1000) value works and network is still useable.
 
-Fixes: ea8b65b596d7 ("can: usb: Add support of PCAN-Chip USB stamp module")
-Fixes: f00b534ded60 ("can: peak: Add support for PCAN-USB X6 USB interface")
-Link: https://lore.kernel.org/r/20210309082128.23125-3-s.grosjean@peak-system.com
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-on: sun8i-h3-orangepi-pc
+Tested-on: sun8i-r40-bananapi-m2-ultra
+Tested-on: sun50i-a64-bananapi-m64
+Tested-on: sun50i-h5-nanopi-neo-plus2
+Tested-on: sun50i-h6-pine-h64
+Fixes: 9f93ac8d408 ("net-next: stmmac: Add dwmac-sun8i")
+Reported-by: Belisko Marek <marek.belisko@gmail.com>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 2 ++
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-index 40ac37fe9dcd..1649687ab924 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -26,6 +26,8 @@
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+index a5e0eff4a387..9f5ccf1a0a54 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+@@ -1217,6 +1217,8 @@ static int sun8i_dwmac_probe(struct platform_device *pdev)
+ 	plat_dat->init = sun8i_dwmac_init;
+ 	plat_dat->exit = sun8i_dwmac_exit;
+ 	plat_dat->setup = sun8i_dwmac_setup;
++	plat_dat->tx_fifo_size = 4096;
++	plat_dat->rx_fifo_size = 16384;
  
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB FD adapter");
- MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB Pro FD adapter");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-Chip USB");
-+MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB X6 adapter");
- 
- #define PCAN_USBPROFD_CHANNEL_COUNT	2
- #define PCAN_USBFD_CHANNEL_COUNT	1
+ 	ret = sun8i_dwmac_set_syscon(&pdev->dev, plat_dat);
+ 	if (ret)
 -- 
 2.30.1
 
