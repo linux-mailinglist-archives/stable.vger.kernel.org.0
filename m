@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA7C34C7AB
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E565934C918
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231616AbhC2IRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:17:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
+        id S233745AbhC2I0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:26:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231892AbhC2IPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:15:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AF8F6196E;
-        Mon, 29 Mar 2021 08:15:21 +0000 (UTC)
+        id S233433AbhC2IZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:25:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8B661959;
+        Mon, 29 Mar 2021 08:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005721;
-        bh=OHCAsr7MAWtX8+VlevmMJtG1ceTBWQ4npATKbT+Ha6k=;
+        s=korg; t=1617006296;
+        bh=sDBqcHPhIHDIZShWpfUiPbvZed99NKuOLc6eLpnFItw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZvcqlTxHqli3VHp0WR0LQqeafkkU2jib9Y4gqI6qhI5QQ5zVjP3GtRa3aQEb4lTlN
-         ShTjy2UzK8Zuo5ZNILlVmVNYOpOp9Yg7+T1Qz9Ebg9RKnkHuyaFEaBFdV8qX+LnA6h
-         wKXSDV98KRmbEgAa2cT3a5SPJ7GbBEB3CwdNFLlM=
+        b=mIZf3nUIGBTYxQWpaslSmMvaGdbq8moRA3+KEOhbkaJK9JdAF+4DHNzjQZ8flB1c7
+         WwLi5AEVZgMvsJXYpXk8h02rQsrvqrofNid+KWMSbUjBDKOuaO8IqBOy2hj95ASJfO
+         bddIUarkshAlwUgiaAaIbkufqYPh4N5ZCG3aeRF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/111] bpf: Dont do bpf_cgroup_storage_set() for kuprobe/tp programs
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 190/221] netfilter: x_tables: Use correct memory barriers.
 Date:   Mon, 29 Mar 2021 09:58:41 +0200
-Message-Id: <20210329075618.312149729@linuxfoundation.org>
+Message-Id: <20210329075635.466633947@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 05a68ce5fa51a83c360381630f823545c5757aa2 ]
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-For kuprobe and tracepoint bpf programs, kernel calls
-trace_call_bpf() which calls BPF_PROG_RUN_ARRAY_CHECK()
-to run the program array. Currently, BPF_PROG_RUN_ARRAY_CHECK()
-also calls bpf_cgroup_storage_set() to set percpu
-cgroup local storage with NULL value. This is
-due to Commit 394e40a29788 ("bpf: extend bpf_prog_array to store
-pointers to the cgroup storage") which modified
-__BPF_PROG_RUN_ARRAY() to call bpf_cgroup_storage_set()
-and this macro is also used by BPF_PROG_RUN_ARRAY_CHECK().
+[ Upstream commit 175e476b8cdf2a4de7432583b49c871345e4f8a1 ]
 
-kuprobe and tracepoint programs are not allowed to call
-bpf_get_local_storage() helper hence does not
-access percpu cgroup local storage. Let us
-change BPF_PROG_RUN_ARRAY_CHECK() not to
-modify percpu cgroup local storage.
+When a new table value was assigned, it was followed by a write memory
+barrier. This ensured that all writes before this point would complete
+before any writes after this point. However, to determine whether the
+rules are unused, the sequence counter is read. To ensure that all
+writes have been done before these reads, a full memory barrier is
+needed, not just a write memory barrier. The same argument applies when
+incrementing the counter, before the rules are read.
 
-The issue is observed when I tried to debug [1] where
-percpu data is overwritten due to
-  preempt_disable -> migration_disable
-change. This patch does not completely fix the above issue,
-which will be addressed separately, e.g., multiple cgroup
-prog runs may preempt each other. But it does fix
-any potential issue caused by tracing program
-overwriting percpu cgroup storage:
- - in a busy system, a tracing program is to run between
-   bpf_cgroup_storage_set() and the cgroup prog run.
- - a kprobe program is triggered by a helper in cgroup prog
-   before bpf_get_local_storage() is called.
+Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
+reported in cc00bcaa5899 (which is still present), while still
+maintaining the same speed of replacing tables.
 
- [1] https://lore.kernel.org/bpf/CAKH8qBuXCfUz=w8L+Fj74OaUpbosO29niYwTki7e3Ag044_aww@mail.gmail.com/T
+The smb_mb() barriers potentially slow the packet path, however testing
+has shown no measurable change in performance on a 4-core MIPS64
+platform.
 
-Fixes: 394e40a29788 ("bpf: extend bpf_prog_array to store pointers to the cgroup storage")
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Roman Gushchin <guro@fb.com>
-Link: https://lore.kernel.org/bpf/20210309185028.3763817-1-yhs@fb.com
+Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/linux/netfilter/x_tables.h | 2 +-
+ net/netfilter/x_tables.c           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 007147f64390..66590ae89c97 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -535,7 +535,7 @@ int bpf_prog_array_copy(struct bpf_prog_array *old_array,
- 			struct bpf_prog *include_prog,
- 			struct bpf_prog_array **new_array);
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index 5deb099d156d..8ec48466410a 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -376,7 +376,7 @@ static inline unsigned int xt_write_recseq_begin(void)
+ 	 * since addend is most likely 1
+ 	 */
+ 	__this_cpu_add(xt_recseq.sequence, addend);
+-	smp_wmb();
++	smp_mb();
  
--#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null)	\
-+#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null, set_cg_storage) \
- 	({						\
- 		struct bpf_prog_array_item *_item;	\
- 		struct bpf_prog *_prog;			\
-@@ -548,7 +548,8 @@ int bpf_prog_array_copy(struct bpf_prog_array *old_array,
- 			goto _out;			\
- 		_item = &_array->items[0];		\
- 		while ((_prog = READ_ONCE(_item->prog))) {		\
--			bpf_cgroup_storage_set(_item->cgroup_storage);	\
-+			if (set_cg_storage)		\
-+				bpf_cgroup_storage_set(_item->cgroup_storage);	\
- 			_ret &= func(_prog, ctx);	\
- 			_item++;			\
- 		}					\
-@@ -609,10 +610,10 @@ _out:							\
- 	})
+ 	return addend;
+ }
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 7df3aef39c5c..6bd31a7a27fc 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1389,7 +1389,7 @@ xt_replace_table(struct xt_table *table,
+ 	table->private = newinfo;
  
- #define BPF_PROG_RUN_ARRAY(array, ctx, func)		\
--	__BPF_PROG_RUN_ARRAY(array, ctx, func, false)
-+	__BPF_PROG_RUN_ARRAY(array, ctx, func, false, true)
+ 	/* make sure all cpus see new ->private value */
+-	smp_wmb();
++	smp_mb();
  
- #define BPF_PROG_RUN_ARRAY_CHECK(array, ctx, func)	\
--	__BPF_PROG_RUN_ARRAY(array, ctx, func, true)
-+	__BPF_PROG_RUN_ARRAY(array, ctx, func, true, false)
- 
- #ifdef CONFIG_BPF_SYSCALL
- DECLARE_PER_CPU(int, bpf_prog_active);
+ 	/*
+ 	 * Even though table entries have now been swapped, other CPU's
 -- 
 2.30.1
 
