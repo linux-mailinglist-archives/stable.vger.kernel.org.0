@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ADA134C8C1
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF15834C58F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233088AbhC2IYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
+        id S231479AbhC2IBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233522AbhC2IXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E3C61481;
-        Mon, 29 Mar 2021 08:23:30 +0000 (UTC)
+        id S231584AbhC2IAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:00:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D1C961969;
+        Mon, 29 Mar 2021 08:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006211;
-        bh=2n0mZF2elhNL9VE8jrKJ6Bz4F6JknDGtsalWgWtOPSM=;
+        s=korg; t=1617004854;
+        bh=UqKxY8JrXkGafpGGXo/vi1eZjNzvixcPNWB8ebfj0EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JziUJdUYLMO4Y9FmUxd+T9mQvsMZPmAOdi0xrzVQyYQGwC9B63I2BIuOhSPwU7Jmw
-         tH6b3SdcoCVlbEnNvOW5QxjkznSSdBZGSZviFBLQkwb9T+qEBCIPtZ9g6TdRqtYoJl
-         4cL1ZN2mQDCws/dLlRl53lfBm/eyrf81T9uiq48o=
+        b=If5pOyvcu83p1AvF3Ug/cTZdgXZDd6Th72YBim0PXqbQFiGfx5QhnmPlm4bItEiF5
+         Hxyy6vIAXKiLasAorI5I+kd1AktkiLP+ojWOrLaZFgt01xDtHR8/bJ6vD/lSfQCiOW
+         YgWVIIU96Tb8DNY0bwKLOEe5y6hNl9nc4GrHtvOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 158/221] igb: check timestamp validity
+Subject: [PATCH 4.4 24/33] can: c_can_pci: c_can_pci_remove(): fix use-after-free
 Date:   Mon, 29 Mar 2021 09:58:09 +0200
-Message-Id: <20210329075634.436384852@linuxfoundation.org>
+Message-Id: <20210329075606.038519009@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,152 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit f0a03a026857d6c7766eb7d5835edbf5523ca15c ]
+[ Upstream commit 0429d6d89f97ebff4f17f13f5b5069c66bde8138 ]
 
-Add a couple of checks to make sure timestamping is on and that the
-timestamp value from DMA is valid. This avoids any functional issues
-that could come from a misinterpreted time stamp.
+There is a UAF in c_can_pci_remove(). dev is released by
+free_c_can_dev() and is used by pci_iounmap(pdev, priv->base) later.
+To fix this issue, save the mmio address before releasing dev.
 
-One of the functions changed doesn't need a return value added because
-there was no value in checking from the calling locations.
-
-While here, fix a couple of reverse christmas tree issues next to
-the code being changed.
-
-Fixes: f56e7bba22fa ("igb: Pull timestamp from fragment before adding it to skb")
-Fixes: 9cbc948b5a20 ("igb: add XDP support")
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 5b92da0443c2 ("c_can_pci: generic module for C_CAN/D_CAN on PCI")
+Link: https://lore.kernel.org/r/20210301024512.539039-1-ztong0001@gmail.com
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb.h      |  4 +--
- drivers/net/ethernet/intel/igb/igb_main.c | 11 ++++----
- drivers/net/ethernet/intel/igb/igb_ptp.c  | 31 ++++++++++++++++++-----
- 3 files changed, 32 insertions(+), 14 deletions(-)
+ drivers/net/can/c_can/c_can_pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb.h b/drivers/net/ethernet/intel/igb/igb.h
-index aaa954aae574..7bda8c5edea5 100644
---- a/drivers/net/ethernet/intel/igb/igb.h
-+++ b/drivers/net/ethernet/intel/igb/igb.h
-@@ -748,8 +748,8 @@ void igb_ptp_suspend(struct igb_adapter *adapter);
- void igb_ptp_rx_hang(struct igb_adapter *adapter);
- void igb_ptp_tx_hang(struct igb_adapter *adapter);
- void igb_ptp_rx_rgtstamp(struct igb_q_vector *q_vector, struct sk_buff *skb);
--void igb_ptp_rx_pktstamp(struct igb_q_vector *q_vector, void *va,
--			 struct sk_buff *skb);
-+int igb_ptp_rx_pktstamp(struct igb_q_vector *q_vector, void *va,
-+			struct sk_buff *skb);
- int igb_ptp_set_ts_config(struct net_device *netdev, struct ifreq *ifr);
- int igb_ptp_get_ts_config(struct net_device *netdev, struct ifreq *ifr);
- void igb_set_flag_queue_pairs(struct igb_adapter *, const u32);
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 0d343d050973..ebe80ec6e437 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -8319,9 +8319,10 @@ static struct sk_buff *igb_construct_skb(struct igb_ring *rx_ring,
- 		return NULL;
- 
- 	if (unlikely(igb_test_staterr(rx_desc, E1000_RXDADV_STAT_TSIP))) {
--		igb_ptp_rx_pktstamp(rx_ring->q_vector, xdp->data, skb);
--		xdp->data += IGB_TS_HDR_LEN;
--		size -= IGB_TS_HDR_LEN;
-+		if (!igb_ptp_rx_pktstamp(rx_ring->q_vector, xdp->data, skb)) {
-+			xdp->data += IGB_TS_HDR_LEN;
-+			size -= IGB_TS_HDR_LEN;
-+		}
- 	}
- 
- 	/* Determine available headroom for copy */
-@@ -8382,8 +8383,8 @@ static struct sk_buff *igb_build_skb(struct igb_ring *rx_ring,
- 
- 	/* pull timestamp out of packet data */
- 	if (igb_test_staterr(rx_desc, E1000_RXDADV_STAT_TSIP)) {
--		igb_ptp_rx_pktstamp(rx_ring->q_vector, skb->data, skb);
--		__skb_pull(skb, IGB_TS_HDR_LEN);
-+		if (!igb_ptp_rx_pktstamp(rx_ring->q_vector, skb->data, skb))
-+			__skb_pull(skb, IGB_TS_HDR_LEN);
- 	}
- 
- 	/* update buffer offset */
-diff --git a/drivers/net/ethernet/intel/igb/igb_ptp.c b/drivers/net/ethernet/intel/igb/igb_ptp.c
-index 7cc5428c3b3d..86a576201f5f 100644
---- a/drivers/net/ethernet/intel/igb/igb_ptp.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ptp.c
-@@ -856,6 +856,9 @@ static void igb_ptp_tx_hwtstamp(struct igb_adapter *adapter)
- 	dev_kfree_skb_any(skb);
- }
- 
-+#define IGB_RET_PTP_DISABLED 1
-+#define IGB_RET_PTP_INVALID 2
-+
- /**
-  * igb_ptp_rx_pktstamp - retrieve Rx per packet timestamp
-  * @q_vector: Pointer to interrupt specific structure
-@@ -864,19 +867,29 @@ static void igb_ptp_tx_hwtstamp(struct igb_adapter *adapter)
-  *
-  * This function is meant to retrieve a timestamp from the first buffer of an
-  * incoming frame.  The value is stored in little endian format starting on
-- * byte 8.
-+ * byte 8
-+ *
-+ * Returns: 0 if success, nonzero if failure
-  **/
--void igb_ptp_rx_pktstamp(struct igb_q_vector *q_vector, void *va,
--			 struct sk_buff *skb)
-+int igb_ptp_rx_pktstamp(struct igb_q_vector *q_vector, void *va,
-+			struct sk_buff *skb)
+diff --git a/drivers/net/can/c_can/c_can_pci.c b/drivers/net/can/c_can/c_can_pci.c
+index d065c0e2d18e..f3e0b2124a37 100644
+--- a/drivers/net/can/c_can/c_can_pci.c
++++ b/drivers/net/can/c_can/c_can_pci.c
+@@ -239,12 +239,13 @@ static void c_can_pci_remove(struct pci_dev *pdev)
  {
--	__le64 *regval = (__le64 *)va;
- 	struct igb_adapter *adapter = q_vector->adapter;
-+	__le64 *regval = (__le64 *)va;
- 	int adjust = 0;
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct c_can_priv *priv = netdev_priv(dev);
++	void __iomem *addr = priv->base;
  
-+	if (!(adapter->ptp_flags & IGB_PTP_ENABLED))
-+		return IGB_RET_PTP_DISABLED;
-+
- 	/* The timestamp is recorded in little endian format.
- 	 * DWORD: 0        1        2        3
- 	 * Field: Reserved Reserved SYSTIML  SYSTIMH
- 	 */
-+
-+	/* check reserved dwords are zero, be/le doesn't matter for zero */
-+	if (regval[0])
-+		return IGB_RET_PTP_INVALID;
-+
- 	igb_ptp_systim_to_hwtstamp(adapter, skb_hwtstamps(skb),
- 				   le64_to_cpu(regval[1]));
+ 	unregister_c_can_dev(dev);
  
-@@ -896,6 +909,8 @@ void igb_ptp_rx_pktstamp(struct igb_q_vector *q_vector, void *va,
- 	}
- 	skb_hwtstamps(skb)->hwtstamp =
- 		ktime_sub_ns(skb_hwtstamps(skb)->hwtstamp, adjust);
-+
-+	return 0;
- }
+ 	free_c_can_dev(dev);
  
- /**
-@@ -906,13 +921,15 @@ void igb_ptp_rx_pktstamp(struct igb_q_vector *q_vector, void *va,
-  * This function is meant to retrieve a timestamp from the internal registers
-  * of the adapter and store it in the skb.
-  **/
--void igb_ptp_rx_rgtstamp(struct igb_q_vector *q_vector,
--			 struct sk_buff *skb)
-+void igb_ptp_rx_rgtstamp(struct igb_q_vector *q_vector, struct sk_buff *skb)
- {
- 	struct igb_adapter *adapter = q_vector->adapter;
- 	struct e1000_hw *hw = &adapter->hw;
--	u64 regval;
- 	int adjust = 0;
-+	u64 regval;
-+
-+	if (!(adapter->ptp_flags & IGB_PTP_ENABLED))
-+		return;
- 
- 	/* If this bit is set, then the RX registers contain the time stamp. No
- 	 * other packet will be time stamped until we read these registers, so
+-	pci_iounmap(pdev, priv->base);
++	pci_iounmap(pdev, addr);
+ 	pci_disable_msi(pdev);
+ 	pci_clear_master(pdev);
+ 	pci_release_regions(pdev);
 -- 
 2.30.1
 
