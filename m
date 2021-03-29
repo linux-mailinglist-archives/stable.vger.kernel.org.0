@@ -2,272 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BF8234D7BF
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 21:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC1834D81C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 21:28:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230359AbhC2TFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 15:05:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230122AbhC2TFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 15:05:20 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD93C061574
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 12:05:20 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id l123so10469700pfl.8
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 12:05:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=v9dqqGCDyFrZqFqIqWpVaydIthXxJtFNunZgXkcHebc=;
-        b=ZCsfsNppmgf5r/pxj7YuseeNn3nvt5ETX/2+QYo9w+V9OIHQcAl5weEj42rPER+nkw
-         Z20Bw/OCdyQ/Nnz+Bmd060ER2HcuTKxOX1uY3tjcpFtdJmQJmyVF0RtfMcMu7K+eGh+U
-         vxIHiIo1UCRe1D8ZVQvWYQJZrGVe3ZundVg/2YEcjLQ1miQJe6LJQpFmhbHH7V7/pH9G
-         XGoFF/Q1Zvr7vO9ed72BkaY/ySt0EN0w6m5c4fmyDLiBdiGUHB/1a59UfeZ3d9mKsCwy
-         rl5br5w95UTiv1toxkAcjJ9N8/tNy3tMqFy6Ak9IsvG+IClDRUjBuT/owW7I2nv2wOs2
-         e+bQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=v9dqqGCDyFrZqFqIqWpVaydIthXxJtFNunZgXkcHebc=;
-        b=LeecHwsymJVFhOlPhWzizR64XKJUJRB+3D8UXDi3xvsnLOVCDZr8Ux3H2X0VCHzuue
-         2YOaWfNwF+GMrT4IIrOALcExTDWMW6g4mBXaYk2lSCnWVIazH1LoeY91oBrkNcGNKYt3
-         ftLiJqLtPdo37Sgd2fYKDfCVbMfdSP8vE0moKbOnHKNspGoRa6PrvBTj8HHI3FVMGXdu
-         YBYhA/bU3jo/J0d/yxn2+9s2Yz+vbP1SXSRW7aMPrVFIknU4awLze5ZR838zMaDVk1Zv
-         zcRFKJTHBtzpKX67Dn12dmTXSdviTUtFFzPfESd0klv7zOwj453fw+3ut5mnli7z/3fE
-         YxgQ==
-X-Gm-Message-State: AOAM532N9/TDQjxxyprv9IPqMraB6r+4TkYqyBjUpvgc2IlzfippUVon
-        lq7RWqynYIVUb41XCF7K2ZLjWagZlmoF/1Sb
-X-Google-Smtp-Source: ABdhPJz5kz2775Rjw/xSj5J578IwWJ4/bw7MrulzPJig/npDHbRbqGFtMiQAmCnoKPv1kMWP6krqDw==
-X-Received: by 2002:a63:e713:: with SMTP id b19mr25355028pgi.425.1617044719055;
-        Mon, 29 Mar 2021 12:05:19 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a13sm16487459pgm.43.2021.03.29.12.05.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Mar 2021 12:05:18 -0700 (PDT)
-Message-ID: <606224ee.1c69fb81.2d97f.8d4b@mx.google.com>
-Date:   Mon, 29 Mar 2021 12:05:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231289AbhC2T14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 15:27:56 -0400
+Received: from mengyan1223.wang ([89.208.246.23]:54130 "EHLO mengyan1223.wang"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229955AbhC2T1f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 15:27:35 -0400
+Received: from [IPv6:240e:35a:1037:8a00:70b2:e35d:833c:af3e] (unknown [IPv6:240e:35a:1037:8a00:70b2:e35d:833c:af3e])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature ECDSA (P-384) server-digest SHA384)
+        (Client did not present a certificate)
+        (Authenticated sender: xry111@mengyan1223.wang)
+        by mengyan1223.wang (Postfix) with ESMTPSA id D718C65B2D;
+        Mon, 29 Mar 2021 15:27:23 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mengyan1223.wang;
+        s=mail; t=1617046055;
+        bh=q5jy06gXbsh54zTcjXzkpHo6iPU/YhiGMix3TqY8BK4=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=hg/Gc597690mti/NLTwXW6eufoo40Y0FP61MRrSTcqtmdukiixS07cWw2xjn9/Ipn
+         nNFA4csrZtwx0neVRRo6IQNXbOwejpumm2sQN8z/eQuoSwoZ/AXHcNASsM9Z+Qr+Pz
+         +ZHCHnG+6iUs46Z4iYdKoJvTabQwRWdaLymrD1B8ijcWq7UX06Q79eiohSyCktTKng
+         a14eSX2wdS3GSIliKyke8imRGdN2ITbYjwwwCN0v/d5gXUjOJvs1Xs7CAAI15g2xyK
+         aHaPfvz4cagvj2dz+MlehKdzSNxmR+cLosYlmKvV1YG90qEqf0rDe9I90xdZBj2rq8
+         mBNCzDIY/CN/Q==
+Message-ID: <97c520ce107aa4d5fd96e2c380c8acdb63d45c37.camel@mengyan1223.wang>
+Subject: Re: [PATCH] drm/amdgpu: fix an underflow on non-4KB-page systems
+From:   Xi Ruoyao <xry111@mengyan1223.wang>
+To:     Christian =?ISO-8859-1?Q?K=F6nig?= 
+        <ckoenig.leichtzumerken@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Christian =?ISO-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Dan =?ISO-8859-1?Q?Hor=E1k?= <dan@danny.cz>,
+        amd-gfx@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
+        stable@vger.kernel.org
+Date:   Tue, 30 Mar 2021 03:27:15 +0800
+In-Reply-To: <84b3911173ad6beb246ba0a77f93d888ee6b393e.camel@mengyan1223.wang>
+References: <20210329175348.26859-1-xry111@mengyan1223.wang>
+         <d192e2a8-8baf-0a8c-93a9-9abbad992c7d@gmail.com>
+         <be9042b9294bda450659d3cd418c5e8759d57319.camel@mengyan1223.wang>
+         <9a11c873-a362-b5d1-6d9c-e937034e267d@gmail.com>
+         <bf9e05d4a6ece3e8bf1f732b011d3e54bbf8000e.camel@mengyan1223.wang>
+         <84b3911173ad6beb246ba0a77f93d888ee6b393e.camel@mengyan1223.wang>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.0 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.108-112-g7b78fa4bf15f0
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y baseline: 160 runs,
- 5 regressions (v5.4.108-112-g7b78fa4bf15f0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 160 runs, 5 regressions (v5.4.108-112-g7b78=
-fa4bf15f0)
+Hi Christian,
 
-Regressions Summary
--------------------
+I don't think there is any constraint implemented to ensure `num_entries %
+AMDGPU_GPU_PAGES_IN_CPU_PAGE == 0`.  For example, in `amdgpu_vm_bo_map()`:
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+        /* validate the parameters */
+        if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
+            size == 0 || size & AMDGPU_GPU_PAGE_MASK)
+                return -EINVAL;
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+/* snip */
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
+        saddr /= AMDGPU_GPU_PAGE_SIZE;
+        eaddr /= AMDGPU_GPU_PAGE_SIZE;
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+/* snip */
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+        mapping->start = saddr;
+        mapping->last = eaddr;
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.108-112-g7b78fa4bf15f0/plan/baseline/
+If we really want to ensure (mapping->last - mapping->start + 1) %
+AMDGPU_GPU_PAGES_IN_CPU_PAGE == 0, then we should replace "AMDGPU_GPU_PAGE_MASK"
+in "validate the parameters" with "PAGE_MASK".
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.108-112-g7b78fa4bf15f0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7b78fa4bf15f02997c4dba22fe2bf2ca8aa9906f =
+I tried it and it broke userspace: Xorg startup fails with EINVAL with this
+change.
 
+On 2021-03-30 02:30 +0800, Xi Ruoyao wrote:
+> On 2021-03-30 02:21 +0800, Xi Ruoyao wrote:
+> > On 2021-03-29 20:10 +0200, Christian König wrote:
+> > > You need to identify the root cause of this, most likely start or last 
+> > > are not a multiple of AMDGPU_GPU_PAGES_IN_CPU_PAGE.
+> > 
+> > I printk'ed the value of start & last, they are all a multiple of 4
+> > (AMDGPU_GPU_PAGES_IN_CPU_PAGE).
+> > 
+> > However... `num_entries = last - start + 1` so it became some irrational
+> > thing...  Either this line is wrong, or someone called
+> > amdgpu_vm_bo_update_mapping with [start, last) instead of [start, last], which
+> > is unexpected.
+> 
+> I added BUG_ON(num_entries % AMDGPU_GPU_PAGES_IN_CPU_PAGE != 0), get:
+> 
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff83c90750>]
+> > amdgpu_vm_bo_update_mapping.constprop.0+0x218/0xae8
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff83c922b8>]
+> > amdgpu_vm_bo_update+0x270/0x4c0
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff83c823ec>]
+> > amdgpu_gem_va_ioctl+0x40c/0x430
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff83c1cae4>]
+> > drm_ioctl_kernel+0xcc/0x120
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff83c1cfd8>]
+> > drm_ioctl+0x220/0x408
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff83c5ea48>]
+> > amdgpu_drm_ioctl+0x58/0x98
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff838feac4>] sys_ioctl+0xcc/0xe8
+> > Mar 30 02:28:27 xry111-A1901 kernel: [<ffffffff836e74f0>]
+> > syscall_common+0x34/0x58
+> > 
+> 
+> > > > > > BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1549
+> > > > > > Fixes: a39f2a8d7066 ("drm/amdgpu: nuke amdgpu_vm_bo_split_mapping v2")
+> > > > > > Reported-by: Xi Ruoyao <xry111@mengyan1223.wang>
+> > > > > > Reported-by: Dan Horák <dan@danny.cz>
+> > > > > > Cc: stable@vger.kernel.org
+> > > > > > Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
+> > > > > > ---
+> > > > > >    drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 2 +-
+> > > > > >    1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > > 
+> > > > > > diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+> > > > > > b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+> > > > > > index ad91c0c3c423..cee0cc9c8085 100644
+> > > > > > --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+> > > > > > +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+> > > > > > @@ -1707,7 +1707,7 @@ static int amdgpu_vm_bo_update_mapping(struct
+> > > > > > amdgpu_device *adev,
+> > > > > >                  }
+> > > > > >                  start = tmp;
+> > > > > >    
+> > > > > > -       } while (unlikely(start != last + 1));
+> > > > > > +       } while (unlikely(start < last + 1));
+> > > > > >    
+> > > > > >          r = vm->update_funcs->commit(&params, fence);
+> > > > > >    
+> > > > > > 
+> > > > > > base-commit: a5e13c6df0e41702d2b2c77c8ad41677ebb065b3
+> > > 
+> > 
+> 
 
+-- 
+Xi Ruoyao <xry111@mengyan1223.wang>
+School of Aerospace Science and Technology, Xidian University
 
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6061eed1e75476daa4af02bc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unle=
-ashed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unle=
-ashed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6061eed1e75476daa4af0=
-2bd
-        failing since 129 days (last pass: v5.4.77-152-ga3746663c3479, firs=
-t fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6061ef11ab0a1dd13faf02b2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6061ef11ab0a1dd13faf0=
-2b3
-        failing since 134 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6061eef65794fbb3f8af02bf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6061eef65794fbb3f8af0=
-2c0
-        failing since 134 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6061ef04665910c864af02b0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6061ef04665910c864af0=
-2b1
-        failing since 134 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6062112c06dcf20439af02dd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.108=
--112-g7b78fa4bf15f0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6062112c06dcf20439af0=
-2de
-        failing since 134 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =20
