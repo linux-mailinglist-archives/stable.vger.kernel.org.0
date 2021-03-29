@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E1C34C5BD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B06F334C8EF
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231555AbhC2ICt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:02:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44384 "EHLO mail.kernel.org"
+        id S233461AbhC2IZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231734AbhC2ICD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:02:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BD936196B;
-        Mon, 29 Mar 2021 08:02:01 +0000 (UTC)
+        id S232967AbhC2IX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:23:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DA8E61864;
+        Mon, 29 Mar 2021 08:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004922;
-        bh=6doY695fcNFJgCQPeD37/bzJKzw8f4iXkCzcMtRpyCU=;
+        s=korg; t=1617006238;
+        bh=cWLFlxRpnfTW3jazWMtjHO0zfOXI348YmMK6xEDq2Ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=leeyaJ5NC8Mw4GWMDJT0wPhHMUPZRs7EbKhIweQxIPgXa1GxUaWqCP4BefSCguRqU
-         pi8uHPdJMh5GhSejYf0nI9F8frSt1jsHauF7cfYssBppOT+j40aU7GY1R1yK4u9Wen
-         QxlbnL10piuO4QgsqW29KFujMAzlYTNQ3EqSLHOs=
+        b=yQDnZbRro057RoOyMNPPL5nHRfpuibjW1MManQfl6Lf4Z9X8G7yJCcUa6XgKMG+lO
+         5YCqZxBe+Talv8aZ0K6AAVe8zv+vsbDnVccATeeqWJQ9c+VDH+zq78PTvqOzUv6HBe
+         JwUbQA9P8JE1dnAHbbZwLfe8JMiAeYTalEbwp5Dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/53] ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
-Date:   Mon, 29 Mar 2021 09:57:51 +0200
-Message-Id: <20210329075608.085917535@linuxfoundation.org>
+Subject: [PATCH 5.10 141/221] ionic: linearize tso skb with too many frags
+Date:   Mon, 29 Mar 2021 09:57:52 +0200
+Message-Id: <20210329075633.875778077@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 61bf318eac2c13356f7bd1c6a05421ef504ccc8a ]
+[ Upstream commit d2c21422323b06938b3c070361dc544f047489d7 ]
 
-In https://bugs.gentoo.org/769614 Dmitry noticed that
-`ptrace(PTRACE_GET_SYSCALL_INFO)` does not return error sign properly.
+We were linearizing non-TSO skbs that had too many frags, but
+we weren't checking number of frags on TSO skbs.  This could
+lead to a bad page reference when we received a TSO skb with
+more frags than the Tx descriptor could support.
 
-The bug is in mismatch between get/set errors:
+v2: use gso_segs rather than yet another division
+    don't rework the check on the nr_frags
 
-static inline long syscall_get_error(struct task_struct *task,
-                                     struct pt_regs *regs)
-{
-        return regs->r10 == -1 ? regs->r8:0;
-}
-
-static inline long syscall_get_return_value(struct task_struct *task,
-                                            struct pt_regs *regs)
-{
-        return regs->r8;
-}
-
-static inline void syscall_set_return_value(struct task_struct *task,
-                                            struct pt_regs *regs,
-                                            int error, long val)
-{
-        if (error) {
-                /* error < 0, but ia64 uses > 0 return value */
-                regs->r8 = -error;
-                regs->r10 = -1;
-        } else {
-                regs->r8 = val;
-                regs->r10 = 0;
-        }
-}
-
-Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
-
-Link: https://lkml.kernel.org/r/20210221002554.333076-2-slyfox@gentoo.org
-Link: https://bugs.gentoo.org/769614
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Reported-by: Dmitry V. Levin <ldv@altlinux.org>
-Reviewed-by: Dmitry V. Levin <ldv@altlinux.org>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 0f3154e6bcb3 ("ionic: Add Tx and Rx handling")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/include/asm/syscall.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/pensando/ionic/ionic_txrx.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/arch/ia64/include/asm/syscall.h b/arch/ia64/include/asm/syscall.h
-index 1d0b875fec44..ec909eec0b4c 100644
---- a/arch/ia64/include/asm/syscall.h
-+++ b/arch/ia64/include/asm/syscall.h
-@@ -35,7 +35,7 @@ static inline void syscall_rollback(struct task_struct *task,
- static inline long syscall_get_error(struct task_struct *task,
- 				     struct pt_regs *regs)
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+index a81feffb09b8..909eca14f647 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+@@ -1077,15 +1077,17 @@ static int ionic_tx_descs_needed(struct ionic_queue *q, struct sk_buff *skb)
  {
--	return regs->r10 == -1 ? regs->r8:0;
-+	return regs->r10 == -1 ? -regs->r8:0;
+ 	int sg_elems = q->lif->qtype_info[IONIC_QTYPE_TXQ].max_sg_elems;
+ 	struct ionic_tx_stats *stats = q_to_tx_stats(q);
++	int ndescs;
+ 	int err;
+ 
+-	/* If TSO, need roundup(skb->len/mss) descs */
++	/* Each desc is mss long max, so a descriptor for each gso_seg */
+ 	if (skb_is_gso(skb))
+-		return (skb->len / skb_shinfo(skb)->gso_size) + 1;
++		ndescs = skb_shinfo(skb)->gso_segs;
++	else
++		ndescs = 1;
+ 
+-	/* If non-TSO, just need 1 desc and nr_frags sg elems */
+ 	if (skb_shinfo(skb)->nr_frags <= sg_elems)
+-		return 1;
++		return ndescs;
+ 
+ 	/* Too many frags, so linearize */
+ 	err = skb_linearize(skb);
+@@ -1094,8 +1096,7 @@ static int ionic_tx_descs_needed(struct ionic_queue *q, struct sk_buff *skb)
+ 
+ 	stats->linearize++;
+ 
+-	/* Need 1 desc and zero sg elems */
+-	return 1;
++	return ndescs;
  }
  
- static inline long syscall_get_return_value(struct task_struct *task,
+ static int ionic_maybe_stop_tx(struct ionic_queue *q, int ndescs)
 -- 
 2.30.1
 
