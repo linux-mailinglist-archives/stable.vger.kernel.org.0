@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35A8C34C6E5
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D133034C7B0
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbhC2IKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:10:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53916 "EHLO mail.kernel.org"
+        id S232482AbhC2IR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:17:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232283AbhC2IKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD33A61494;
-        Mon, 29 Mar 2021 08:10:02 +0000 (UTC)
+        id S233046AbhC2IPt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:15:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D59546196D;
+        Mon, 29 Mar 2021 08:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005403;
-        bh=MaAHh7af1WtedWFYydJEUtjtHLQ9CfEMuqj1NeMl2sM=;
+        s=korg; t=1617005727;
+        bh=43SFuyqFDg25OjiCtBvWthzGUpSNIkUtCbK5kUNqPKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifQLFVZkwkW6TTESgL09tTOI8y9wjuyoae/SP6K+Wka17RNkm37p9POK+cVICupS+
-         Dqj8rpQsZcEFHjSORcOSPQxALek1AVBQj3/BHTLhSJB5mkU4h1ju/j5wfbhMkr4ljN
-         sTlScg7zTI7PspHcDxQGSilNtHdN6warVKX0AciE=
+        b=0AxwziBZNUNTd8RDABUV3XIGFKno5el/5F+HRbPrcpROmKC/kaI8Gc8s4u0V6Dkis
+         i6PF7BuRNOGhY741AhJ5xXN8JSNdr1FZ5fLKBMkiP9pqhIwMPA7Vgw8v0VO5o1zYMz
+         FHLcNKgXqVhNjOozYMv3muDFEKnGiJUIoHGZRTsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 67/72] can: dev: Move device back to init netns on owning netns delete
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 095/111] netfilter: x_tables: Use correct memory barriers.
 Date:   Mon, 29 Mar 2021 09:58:43 +0200
-Message-Id: <20210329075612.481693343@linuxfoundation.org>
+Message-Id: <20210329075618.372991371@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,96 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Willi <martin@strongswan.org>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-commit 3a5ca857079ea022e0b1b17fc154f7ad7dbc150f upstream.
+[ Upstream commit 175e476b8cdf2a4de7432583b49c871345e4f8a1 ]
 
-When a non-initial netns is destroyed, the usual policy is to delete
-all virtual network interfaces contained, but move physical interfaces
-back to the initial netns. This keeps the physical interface visible
-on the system.
+When a new table value was assigned, it was followed by a write memory
+barrier. This ensured that all writes before this point would complete
+before any writes after this point. However, to determine whether the
+rules are unused, the sequence counter is read. To ensure that all
+writes have been done before these reads, a full memory barrier is
+needed, not just a write memory barrier. The same argument applies when
+incrementing the counter, before the rules are read.
 
-CAN devices are somewhat special, as they define rtnl_link_ops even
-if they are physical devices. If a CAN interface is moved into a
-non-initial netns, destroying that netns lets the interface vanish
-instead of moving it back to the initial netns. default_device_exit()
-skips CAN interfaces due to having rtnl_link_ops set. Reproducer:
+Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
+reported in cc00bcaa5899 (which is still present), while still
+maintaining the same speed of replacing tables.
 
-  ip netns add foo
-  ip link set can0 netns foo
-  ip netns delete foo
+The smb_mb() barriers potentially slow the packet path, however testing
+has shown no measurable change in performance on a 4-core MIPS64
+platform.
 
-WARNING: CPU: 1 PID: 84 at net/core/dev.c:11030 ops_exit_list+0x38/0x60
-CPU: 1 PID: 84 Comm: kworker/u4:2 Not tainted 5.10.19 #1
-Workqueue: netns cleanup_net
-[<c010e700>] (unwind_backtrace) from [<c010a1d8>] (show_stack+0x10/0x14)
-[<c010a1d8>] (show_stack) from [<c086dc10>] (dump_stack+0x94/0xa8)
-[<c086dc10>] (dump_stack) from [<c086b938>] (__warn+0xb8/0x114)
-[<c086b938>] (__warn) from [<c086ba10>] (warn_slowpath_fmt+0x7c/0xac)
-[<c086ba10>] (warn_slowpath_fmt) from [<c0629f20>] (ops_exit_list+0x38/0x60)
-[<c0629f20>] (ops_exit_list) from [<c062a5c4>] (cleanup_net+0x230/0x380)
-[<c062a5c4>] (cleanup_net) from [<c0142c20>] (process_one_work+0x1d8/0x438)
-[<c0142c20>] (process_one_work) from [<c0142ee4>] (worker_thread+0x64/0x5a8)
-[<c0142ee4>] (worker_thread) from [<c0148a98>] (kthread+0x148/0x14c)
-[<c0148a98>] (kthread) from [<c0100148>] (ret_from_fork+0x14/0x2c)
-
-To properly restore physical CAN devices to the initial netns on owning
-netns exit, introduce a flag on rtnl_link_ops that can be set by drivers.
-For CAN devices setting this flag, default_device_exit() considers them
-non-virtual, applying the usual namespace move.
-
-The issue was introduced in the commit mentioned below, as at that time
-CAN devices did not have a dellink() operation.
-
-Fixes: e008b5fc8dc7 ("net: Simplfy default_device_exit and improve batching.")
-Link: https://lore.kernel.org/r/20210302122423.872326-1-martin@strongswan.org
-Signed-off-by: Martin Willi <martin@strongswan.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c   |    1 +
- include/net/rtnetlink.h |    2 ++
- net/core/dev.c          |    2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ include/linux/netfilter/x_tables.h | 2 +-
+ net/netfilter/x_tables.c           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -1235,6 +1235,7 @@ static void can_dellink(struct net_devic
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index 1b261c51b3a3..04e7f5630509 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -376,7 +376,7 @@ static inline unsigned int xt_write_recseq_begin(void)
+ 	 * since addend is most likely 1
+ 	 */
+ 	__this_cpu_add(xt_recseq.sequence, addend);
+-	smp_wmb();
++	smp_mb();
  
- static struct rtnl_link_ops can_link_ops __read_mostly = {
- 	.kind		= "can",
-+	.netns_refund	= true,
- 	.maxtype	= IFLA_CAN_MAX,
- 	.policy		= can_policy,
- 	.setup		= can_setup,
---- a/include/net/rtnetlink.h
-+++ b/include/net/rtnetlink.h
-@@ -33,6 +33,7 @@ static inline int rtnl_msg_family(const
-  *
-  *	@list: Used internally
-  *	@kind: Identifier
-+ *	@netns_refund: Physical device, move to init_net on netns exit
-  *	@maxtype: Highest device specific netlink attribute number
-  *	@policy: Netlink policy for device specific attribute validation
-  *	@validate: Optional validation function for netlink/changelink parameters
-@@ -64,6 +65,7 @@ struct rtnl_link_ops {
- 	size_t			priv_size;
- 	void			(*setup)(struct net_device *dev);
+ 	return addend;
+ }
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index ef6d51a3798b..5c35d64d1f34 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1389,7 +1389,7 @@ xt_replace_table(struct xt_table *table,
+ 	table->private = newinfo;
  
-+	bool			netns_refund;
- 	unsigned int		maxtype;
- 	const struct nla_policy	*policy;
- 	int			(*validate)(struct nlattr *tb[],
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -9708,7 +9708,7 @@ static void __net_exit default_device_ex
- 			continue;
+ 	/* make sure all cpus see new ->private value */
+-	smp_wmb();
++	smp_mb();
  
- 		/* Leave virtual devices for the generic cleanup */
--		if (dev->rtnl_link_ops)
-+		if (dev->rtnl_link_ops && !dev->rtnl_link_ops->netns_refund)
- 			continue;
- 
- 		/* Push remaining network devices to init_net */
+ 	/*
+ 	 * Even though table entries have now been swapped, other CPU's
+-- 
+2.30.1
+
 
 
