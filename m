@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE92834C821
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADA7734C9EE
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233224AbhC2IUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:20:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35994 "EHLO mail.kernel.org"
+        id S233854AbhC2IeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233395AbhC2ITT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:19:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD6B761878;
-        Mon, 29 Mar 2021 08:19:18 +0000 (UTC)
+        id S234622AbhC2IdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A92E619C7;
+        Mon, 29 Mar 2021 08:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005959;
-        bh=06AdV+JkCI79bqE8VrXjJjhz6t24lXG9Wq7P9wAxE/M=;
+        s=korg; t=1617006754;
+        bh=5rIhYsyhLKT6aAO0BKtbxp2bcFQuLbnBCgGvZd217ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPJd4iDQAUhgJMHx0b/7QIWV+GVM0/m+iqVj7A3jkLJiwA+wt7JFFisR1tUynxuJT
-         uiOe6gWgklWW713xAaS8L4mjYKG9/XSUog/NFM4RDjDs1xmswbY9gDZhZ2emw2zc1T
-         dq6qDUvNNErr/cYmdrmeOyCWnM3OHZND0dfuUK3c=
+        b=qd91zp/KjukR6LCHdBuIz9/iKGFW3ZfDNWjiQQlkIGkvabxuVHcrexUkc7oqT1wIk
+         aYpkJUp5Th26gsEPf2PsJdxvevX/IRh/wa5RfZKfjMmHS+429/+IeN9SMObESQupF/
+         vniX324m/CFxaUAOm8tOJCD0PzBDLu6BGAyFk9Qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 031/221] irqchip/ingenic: Add support for the JZ4760
+        stable@vger.kernel.org, Leo Li <sunpeng.li@amd.com>,
+        Zhan Liu <zhan.liu@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 046/254] drm/amdgpu/display: Use wm_table.entries for dcn301 calculate_wm
 Date:   Mon, 29 Mar 2021 09:56:02 +0200
-Message-Id: <20210329075630.210350350@linuxfoundation.org>
+Message-Id: <20210329075634.687840889@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +42,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Zhan Liu <zhan.liu@amd.com>
 
-[ Upstream commit 5fbecd2389f48e1415799c63130d0cdce1cf3f60 ]
+[ Upstream commit eda29602f1a8b2b32d8c8c354232d9d1ee1c064d ]
 
-Add support for the interrupt controller found in the JZ4760 SoC, which
-works exactly like the one in the JZ4770.
+[Why]
+For DGPU Navi, the wm_table.nv_entries are used. These entires are not
+populated for DCN301 Vangogh APU, but instead wm_table.entries are.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210307172014.73481-2-paul@crapouillou.net
+[How]
+Use DCN21 Renoir style wm calculations.
+
+Signed-off-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Zhan Liu <zhan.liu@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Zhan Liu <zhan.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-ingenic-tcu.c | 1 +
- drivers/irqchip/irq-ingenic.c     | 1 +
- 2 files changed, 2 insertions(+)
+ .../amd/display/dc/dcn301/dcn301_resource.c   | 96 ++++++++++++++++++-
+ 1 file changed, 95 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-ingenic-tcu.c b/drivers/irqchip/irq-ingenic-tcu.c
-index 7a7222d4c19c..b938d1d04d96 100644
---- a/drivers/irqchip/irq-ingenic-tcu.c
-+++ b/drivers/irqchip/irq-ingenic-tcu.c
-@@ -179,5 +179,6 @@ static int __init ingenic_tcu_irq_init(struct device_node *np,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
+index 35f5bf08ae96..23bc208cbfa4 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
+@@ -1722,12 +1722,106 @@ static void dcn301_update_bw_bounding_box(struct dc *dc, struct clk_bw_params *b
+ 	dml_init_instance(&dc->dml, &dcn3_01_soc, &dcn3_01_ip, DML_PROJECT_DCN30);
  }
- IRQCHIP_DECLARE(jz4740_tcu_irq, "ingenic,jz4740-tcu", ingenic_tcu_irq_init);
- IRQCHIP_DECLARE(jz4725b_tcu_irq, "ingenic,jz4725b-tcu", ingenic_tcu_irq_init);
-+IRQCHIP_DECLARE(jz4760_tcu_irq, "ingenic,jz4760-tcu", ingenic_tcu_irq_init);
- IRQCHIP_DECLARE(jz4770_tcu_irq, "ingenic,jz4770-tcu", ingenic_tcu_irq_init);
- IRQCHIP_DECLARE(x1000_tcu_irq, "ingenic,x1000-tcu", ingenic_tcu_irq_init);
-diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
-index b61a8901ef72..ea36bb00be80 100644
---- a/drivers/irqchip/irq-ingenic.c
-+++ b/drivers/irqchip/irq-ingenic.c
-@@ -155,6 +155,7 @@ static int __init intc_2chip_of_init(struct device_node *node,
- {
- 	return ingenic_intc_of_init(node, 2);
- }
-+IRQCHIP_DECLARE(jz4760_intc, "ingenic,jz4760-intc", intc_2chip_of_init);
- IRQCHIP_DECLARE(jz4770_intc, "ingenic,jz4770-intc", intc_2chip_of_init);
- IRQCHIP_DECLARE(jz4775_intc, "ingenic,jz4775-intc", intc_2chip_of_init);
- IRQCHIP_DECLARE(jz4780_intc, "ingenic,jz4780-intc", intc_2chip_of_init);
+ 
++static void calculate_wm_set_for_vlevel(
++		int vlevel,
++		struct wm_range_table_entry *table_entry,
++		struct dcn_watermarks *wm_set,
++		struct display_mode_lib *dml,
++		display_e2e_pipe_params_st *pipes,
++		int pipe_cnt)
++{
++	double dram_clock_change_latency_cached = dml->soc.dram_clock_change_latency_us;
++
++	ASSERT(vlevel < dml->soc.num_states);
++	/* only pipe 0 is read for voltage and dcf/soc clocks */
++	pipes[0].clks_cfg.voltage = vlevel;
++	pipes[0].clks_cfg.dcfclk_mhz = dml->soc.clock_limits[vlevel].dcfclk_mhz;
++	pipes[0].clks_cfg.socclk_mhz = dml->soc.clock_limits[vlevel].socclk_mhz;
++
++	dml->soc.dram_clock_change_latency_us = table_entry->pstate_latency_us;
++	dml->soc.sr_exit_time_us = table_entry->sr_exit_time_us;
++	dml->soc.sr_enter_plus_exit_time_us = table_entry->sr_enter_plus_exit_time_us;
++
++	wm_set->urgent_ns = get_wm_urgent(dml, pipes, pipe_cnt) * 1000;
++	wm_set->cstate_pstate.cstate_enter_plus_exit_ns = get_wm_stutter_enter_exit(dml, pipes, pipe_cnt) * 1000;
++	wm_set->cstate_pstate.cstate_exit_ns = get_wm_stutter_exit(dml, pipes, pipe_cnt) * 1000;
++	wm_set->cstate_pstate.pstate_change_ns = get_wm_dram_clock_change(dml, pipes, pipe_cnt) * 1000;
++	wm_set->pte_meta_urgent_ns = get_wm_memory_trip(dml, pipes, pipe_cnt) * 1000;
++	wm_set->frac_urg_bw_nom = get_fraction_of_urgent_bandwidth(dml, pipes, pipe_cnt) * 1000;
++	wm_set->frac_urg_bw_flip = get_fraction_of_urgent_bandwidth_imm_flip(dml, pipes, pipe_cnt) * 1000;
++	wm_set->urgent_latency_ns = get_urgent_latency(dml, pipes, pipe_cnt) * 1000;
++	dml->soc.dram_clock_change_latency_us = dram_clock_change_latency_cached;
++
++}
++
++static void dcn301_calculate_wm_and_dlg(
++		struct dc *dc, struct dc_state *context,
++		display_e2e_pipe_params_st *pipes,
++		int pipe_cnt,
++		int vlevel_req)
++{
++	int i, pipe_idx;
++	int vlevel, vlevel_max;
++	struct wm_range_table_entry *table_entry;
++	struct clk_bw_params *bw_params = dc->clk_mgr->bw_params;
++
++	ASSERT(bw_params);
++
++	vlevel_max = bw_params->clk_table.num_entries - 1;
++
++	/* WM Set D */
++	table_entry = &bw_params->wm_table.entries[WM_D];
++	if (table_entry->wm_type == WM_TYPE_RETRAINING)
++		vlevel = 0;
++	else
++		vlevel = vlevel_max;
++	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.d,
++						&context->bw_ctx.dml, pipes, pipe_cnt);
++	/* WM Set C */
++	table_entry = &bw_params->wm_table.entries[WM_C];
++	vlevel = min(max(vlevel_req, 2), vlevel_max);
++	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.c,
++						&context->bw_ctx.dml, pipes, pipe_cnt);
++	/* WM Set B */
++	table_entry = &bw_params->wm_table.entries[WM_B];
++	vlevel = min(max(vlevel_req, 1), vlevel_max);
++	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.b,
++						&context->bw_ctx.dml, pipes, pipe_cnt);
++
++	/* WM Set A */
++	table_entry = &bw_params->wm_table.entries[WM_A];
++	vlevel = min(vlevel_req, vlevel_max);
++	calculate_wm_set_for_vlevel(vlevel, table_entry, &context->bw_ctx.bw.dcn.watermarks.a,
++						&context->bw_ctx.dml, pipes, pipe_cnt);
++
++	for (i = 0, pipe_idx = 0; i < dc->res_pool->pipe_count; i++) {
++		if (!context->res_ctx.pipe_ctx[i].stream)
++			continue;
++
++		pipes[pipe_idx].clks_cfg.dispclk_mhz = get_dispclk_calculated(&context->bw_ctx.dml, pipes, pipe_cnt);
++		pipes[pipe_idx].clks_cfg.dppclk_mhz = get_dppclk_calculated(&context->bw_ctx.dml, pipes, pipe_cnt, pipe_idx);
++
++		if (dc->config.forced_clocks) {
++			pipes[pipe_idx].clks_cfg.dispclk_mhz = context->bw_ctx.dml.soc.clock_limits[0].dispclk_mhz;
++			pipes[pipe_idx].clks_cfg.dppclk_mhz = context->bw_ctx.dml.soc.clock_limits[0].dppclk_mhz;
++		}
++		if (dc->debug.min_disp_clk_khz > pipes[pipe_idx].clks_cfg.dispclk_mhz * 1000)
++			pipes[pipe_idx].clks_cfg.dispclk_mhz = dc->debug.min_disp_clk_khz / 1000.0;
++		if (dc->debug.min_dpp_clk_khz > pipes[pipe_idx].clks_cfg.dppclk_mhz * 1000)
++			pipes[pipe_idx].clks_cfg.dppclk_mhz = dc->debug.min_dpp_clk_khz / 1000.0;
++
++		pipe_idx++;
++	}
++
++	dcn20_calculate_dlg_params(dc, context, pipes, pipe_cnt, vlevel);
++}
++
+ static struct resource_funcs dcn301_res_pool_funcs = {
+ 	.destroy = dcn301_destroy_resource_pool,
+ 	.link_enc_create = dcn301_link_encoder_create,
+ 	.panel_cntl_create = dcn301_panel_cntl_create,
+ 	.validate_bandwidth = dcn30_validate_bandwidth,
+-	.calculate_wm_and_dlg = dcn30_calculate_wm_and_dlg,
++	.calculate_wm_and_dlg = dcn301_calculate_wm_and_dlg,
+ 	.populate_dml_pipes = dcn30_populate_dml_pipes_from_context,
+ 	.acquire_idle_pipe_for_layer = dcn20_acquire_idle_pipe_for_layer,
+ 	.add_stream_to_ctx = dcn30_add_stream_to_ctx,
 -- 
 2.30.1
 
