@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C0234DABB
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4990334DABD
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbhC2WX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:23:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
+        id S232518AbhC2WX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:23:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232255AbhC2WWv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:22:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91F18619A7;
-        Mon, 29 Mar 2021 22:22:49 +0000 (UTC)
+        id S231926AbhC2WWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 18:22:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF08561989;
+        Mon, 29 Mar 2021 22:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056570;
-        bh=dvqJDRbD2yEG3C1IfWVltxL+m6zIpiSLZWbf/J7c7gE=;
+        s=k20201202; t=1617056571;
+        bh=FQDotDYB2kx0DiCenCNSx/Ze6Fyb9n9SGNI8bgThfK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LakA5mRguLe8BNkbP4hpSTXXoJWIVK/vZb9wigtyfV3hvpIJ5dNhirlUcQETIQsZ8
-         5sMlNMeEhUgSvahXfGytssscHoFmtEju7XWZ5rgViz/BuhYebZzA0e2sikwpjpb9bu
-         9dBzPzzqQrrBSB4J1ZMLcH82TlQnoAGPAO11oyHZBOJgbUAzfAU9HAfra/usX62vTQ
-         IDLzTMwlLbvIpWJVPKgewoDCW+Ay2/K7ph4okL1+6PzbBzBzmy763W+7IupNPmM0/i
-         7CdujkskCfkg4Ev9p3FZyh012oTnOsMqPvaquPEeVkZ4pGGw2HG+QrUI+izvWKkiGz
-         KDxQXHMZBmZFw==
+        b=hDMowY99yTNcg4/ztiipy8f3tN1iZpRhjxRDuYxNoxkiEusXvS1KfEkLJ2BWre4B/
+         x+YQU+XM1PvhC6heBGPkIcYCEQoU5d51u4846A3SPH4kKc+xq8/MUQb9QeeALtGe2T
+         DuAbswZgoduP1XzYKzUSo/QB/PiK2UOhpVe91z8qF+I9PErgwLusdyZjVJYHgYWkIq
+         YvDTdJ5Mn6A6l7wpiaCDClxjEF5W9aSyCQie9ribXyXJCvrwQhjYCAQuQ4bWr0RA80
+         ynd9clJRnCfhl0kUONB0hHlgHGUPk9FzAzXiFqblobUbcsklBHa1tmMceJnH8HvWQn
+         G4tOdlXi9UCcA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Chiu <chris.chiu@canonical.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 23/33] block: clear GD_NEED_PART_SCAN later in bdev_disk_changed
-Date:   Mon, 29 Mar 2021 18:22:11 -0400
-Message-Id: <20210329222222.2382987-23-sashal@kernel.org>
+Cc:     "David E. Box" <david.e.box@linux.intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        intel-wired-lan@lists.osuosl.org,
+        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 24/33] platform/x86: intel_pmc_core: Ignore GBE LTR on Tiger Lake platforms
+Date:   Mon, 29 Mar 2021 18:22:12 -0400
+Message-Id: <20210329222222.2382987-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222222.2382987-1-sashal@kernel.org>
 References: <20210329222222.2382987-1-sashal@kernel.org>
@@ -43,51 +46,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chris.chiu@canonical.com>
+From: "David E. Box" <david.e.box@linux.intel.com>
 
-[ Upstream commit 5116784039f0421e9a619023cfba3e302c3d9adc ]
+[ Upstream commit d1635448f1105e549b4041aab930dbc6945fc635 ]
 
-The GD_NEED_PART_SCAN is set by bdev_check_media_change to initiate
-a partition scan while removing a block device. It should be cleared
-after blk_drop_paritions because blk_drop_paritions could return
--EBUSY and then the consequence __blkdev_get has no chance to do
-delete_partition if GD_NEED_PART_SCAN already cleared.
+Due to a HW limitation, the Latency Tolerance Reporting (LTR) value
+programmed in the Tiger Lake GBE controller is not large enough to allow
+the platform to enter Package C10, which in turn prevents the platform from
+achieving its low power target during suspend-to-idle.  Ignore the GBE LTR
+value on Tiger Lake. LTR ignore functionality is currently performed solely
+by a debugfs write call. Split out the LTR code into its own function that
+can be called by both the debugfs writer and by this work around.
 
-It causes some problems on some card readers. Ex. Realtek card
-reader 0bda:0328 and 0bda:0158. The device node of the partition
-will not disappear after the memory card removed. Thus the user
-applications can not update the device mapping correctly.
-
-BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1920874
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210323085219.24428-1-chris.chiu@canonical.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+Reviewed-by: Sasha Neftin <sasha.neftin@intel.com>
+Cc: intel-wired-lan@lists.osuosl.org
+Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
+Link: https://lore.kernel.org/r/20210319201844.3305399-2-david.e.box@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/block_dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/intel_pmc_core.c | 50 +++++++++++++++++++--------
+ 1 file changed, 35 insertions(+), 15 deletions(-)
 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index fe201b757baa..6516051807b8 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1404,13 +1404,13 @@ int bdev_disk_changed(struct block_device *bdev, bool invalidate)
+diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
+index 3e5fe66333f1..e06b36e87a33 100644
+--- a/drivers/platform/x86/intel_pmc_core.c
++++ b/drivers/platform/x86/intel_pmc_core.c
+@@ -863,34 +863,45 @@ static int pmc_core_pll_show(struct seq_file *s, void *unused)
+ }
+ DEFINE_SHOW_ATTRIBUTE(pmc_core_pll);
  
- 	lockdep_assert_held(&bdev->bd_mutex);
- 
--	clear_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
+-static ssize_t pmc_core_ltr_ignore_write(struct file *file,
+-					 const char __user *userbuf,
+-					 size_t count, loff_t *ppos)
++static int pmc_core_send_ltr_ignore(u32 value)
+ {
+ 	struct pmc_dev *pmcdev = &pmc;
+ 	const struct pmc_reg_map *map = pmcdev->map;
+-	u32 val, buf_size, fd;
+-	int err;
 -
- rescan:
- 	ret = blk_drop_partitions(bdev);
- 	if (ret)
- 		return ret;
+-	buf_size = count < 64 ? count : 64;
+-
+-	err = kstrtou32_from_user(userbuf, buf_size, 10, &val);
+-	if (err)
+-		return err;
++	u32 reg;
++	int err = 0;
  
-+	clear_bit(GD_NEED_PART_SCAN, &disk->state);
+ 	mutex_lock(&pmcdev->lock);
+ 
+-	if (val > map->ltr_ignore_max) {
++	if (value > map->ltr_ignore_max) {
+ 		err = -EINVAL;
+ 		goto out_unlock;
+ 	}
+ 
+-	fd = pmc_core_reg_read(pmcdev, map->ltr_ignore_offset);
+-	fd |= (1U << val);
+-	pmc_core_reg_write(pmcdev, map->ltr_ignore_offset, fd);
++	reg = pmc_core_reg_read(pmcdev, map->ltr_ignore_offset);
++	reg |= BIT(value);
++	pmc_core_reg_write(pmcdev, map->ltr_ignore_offset, reg);
+ 
+ out_unlock:
+ 	mutex_unlock(&pmcdev->lock);
 +
- 	/*
- 	 * Historically we only set the capacity to zero for devices that
- 	 * support partitions (independ of actually having partitions created).
++	return err;
++}
++
++static ssize_t pmc_core_ltr_ignore_write(struct file *file,
++					 const char __user *userbuf,
++					 size_t count, loff_t *ppos)
++{
++	u32 buf_size, value;
++	int err;
++
++	buf_size = min_t(u32, count, 64);
++
++	err = kstrtou32_from_user(userbuf, buf_size, 10, &value);
++	if (err)
++		return err;
++
++	err = pmc_core_send_ltr_ignore(value);
++
+ 	return err == 0 ? count : err;
+ }
+ 
+@@ -1244,6 +1255,15 @@ static int pmc_core_probe(struct platform_device *pdev)
+ 	pmcdev->pmc_xram_read_bit = pmc_core_check_read_lock_bit();
+ 	dmi_check_system(pmc_core_dmi_table);
+ 
++	/*
++	 * On TGL, due to a hardware limitation, the GBE LTR blocks PC10 when
++	 * a cable is attached. Tell the PMC to ignore it.
++	 */
++	if (pmcdev->map == &tgl_reg_map) {
++		dev_dbg(&pdev->dev, "ignoring GBE LTR\n");
++		pmc_core_send_ltr_ignore(3);
++	}
++
+ 	pmc_core_dbgfs_register(pmcdev);
+ 
+ 	device_initialized = true;
 -- 
 2.30.1
 
