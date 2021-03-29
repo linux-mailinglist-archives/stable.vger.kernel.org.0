@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1AA334CA16
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84CAA34C848
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233541AbhC2Iev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
+        id S232689AbhC2IVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234769AbhC2Idg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E341861959;
-        Mon, 29 Mar 2021 08:33:29 +0000 (UTC)
+        id S231508AbhC2IU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B4136196F;
+        Mon, 29 Mar 2021 08:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006810;
+        s=korg; t=1617006027;
         bh=o4u/VcO69L7DhtcHtxq/rNaFbwGDQVYq3qt12Vub5Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JyWZ/al/B5UCWy3qvip7h9zmAsk0PFtIt5lEJhW43LqZ9UK/ABWdVWT8plKrnxw2R
-         WIrsq5AZjYihPFw9d4ZNDHII+B2UopEN+vyJ4DoDl5SPPjs3pDnwQ1eu0dmto9bXKa
-         uLCCBox8smbN99tDSwT6v5WDSPXwKDY7l+XCbBjg=
+        b=r07KEI4xUeiUjiOOQfG7HLsWArIk15AV55x6M01QGWr6ErwpNgMfhkr7r6TaKVBuo
+         5vpFgSAAFWPg7iC1psGA7SZUAxE3AcryVOyNmsnHC3u7JyvYJfgw84/NA9t6jD8iuN
+         EFk1ZunoTA0r3YBIuaHwjq+Vi6fHAtLdIJ2EQEB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Grygorii Strashko <grygorii.strashko@ti.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 106/254] bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
+Subject: [PATCH 5.10 091/221] bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
 Date:   Mon, 29 Mar 2021 09:57:02 +0200
-Message-Id: <20210329075636.688254699@linuxfoundation.org>
+Message-Id: <20210329075632.245418539@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
