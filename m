@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE44434CA6C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A61A34C706
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231493AbhC2Iif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:38:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
+        id S232294AbhC2ILl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234478AbhC2IgB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:36:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 892236196F;
-        Mon, 29 Mar 2021 08:35:44 +0000 (UTC)
+        id S231796AbhC2ILK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:11:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B86B461494;
+        Mon, 29 Mar 2021 08:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006945;
-        bh=4TpIWM0Iw3OCYVJdAt9Issv49bFdkaG9NC/gB3Ax5Go=;
+        s=korg; t=1617005469;
+        bh=SE5/41DFwNWyQScSzmT4GzGmsWmPaOb5nqr7RPV1HwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qrYNDf8zfPhmeXX6IUG6DEBzNrSLEAmUWie8dkEUSGAZYt8rSvepoo6wDvBv9Kq4e
-         L3GhImU+1wCfq8WIg/qA+qRTxEp7rNjrDcqgDI4FUzG2BshgAi37749R9PSHsVORRy
-         7cjIguNvQR5UFlQuiEr/E0vWva1ByNS5FUr6nmbk=
+        b=vgyxExyfv6WJHa/2KLY3Mnk8cfh3ScRFWYfQGu38veBrfOhS9qj1gqmvcEC8Kyt+x
+         dx53slSbe5guOhbEdnU5NlVkq9jDoHzogrGLplH8aYXAyOBmb5s8Rw4dpcoZoj1OVb
+         I8j3L6Tz2y2SCxycghsdeM+Z/OYx8p9ry1zHwe6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
-        Malli C <mallikarjuna.chilakala@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 127/254] igc: Fix Supported Pause Frame Link Setting
+Subject: [PATCH 5.4 015/111] gpiolib: acpi: Add missing IRQF_ONESHOT
 Date:   Mon, 29 Mar 2021 09:57:23 +0200
-Message-Id: <20210329075637.397781592@linuxfoundation.org>
+Message-Id: <20210329075615.699706924@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 9a4a1cdc5ab52118c1f2b216f4240830b6528d32 ]
+[ Upstream commit 6e5d5791730b55a1f987e1db84b078b91eb49e99 ]
 
-The Supported Pause Frame always display "No" even though the Advertised
-pause frame showing the correct setting based on the pause parameters via
-ethtool. Set bit in link_ksettings to "Supported" for Pause Frame.
+fixed the following coccicheck:
+./drivers/gpio/gpiolib-acpi.c:176:7-27: ERROR: Threaded IRQ with no
+primary handler requested without IRQF_ONESHOT
 
-Before output:
-Supported pause frame use: No
+Make sure threaded IRQs without a primary handler are always request
+with IRQF_ONESHOT
 
-Expected output:
-Supported pause frame use: Symmetric
-
-Fixes: 8c5ad0dae93c ("igc: Add ethtool support")
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Reviewed-by: Malli C <mallikarjuna.chilakala@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_ethtool.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/gpiolib-acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_ethtool.c b/drivers/net/ethernet/intel/igc/igc_ethtool.c
-index 35c104a02bed..da259cd59add 100644
---- a/drivers/net/ethernet/intel/igc/igc_ethtool.c
-+++ b/drivers/net/ethernet/intel/igc/igc_ethtool.c
-@@ -1695,6 +1695,9 @@ static int igc_ethtool_get_link_ksettings(struct net_device *netdev,
- 						     Autoneg);
- 	}
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index b2e186047014..66dcab6ab26d 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -174,7 +174,7 @@ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
+ 	int ret, value;
  
-+	/* Set pause flow control settings */
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+
- 	switch (hw->fc.requested_mode) {
- 	case igc_fc_full:
- 		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+ 	ret = request_threaded_irq(event->irq, NULL, event->handler,
+-				   event->irqflags, "ACPI:Event", event);
++				   event->irqflags | IRQF_ONESHOT, "ACPI:Event", event);
+ 	if (ret) {
+ 		dev_err(acpi_gpio->chip->parent,
+ 			"Failed to setup interrupt handler for %d\n",
 -- 
 2.30.1
 
