@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B81434C688
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA6A34C5C1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232363AbhC2IIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50688 "EHLO mail.kernel.org"
+        id S231816AbhC2ICv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:02:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232414AbhC2IH0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:07:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC05C61996;
-        Mon, 29 Mar 2021 08:07:25 +0000 (UTC)
+        id S231817AbhC2ICH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:02:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E7F6196D;
+        Mon, 29 Mar 2021 08:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005246;
-        bh=4b1tEAHbreg0k9BU17gZ4Fz/tfFYOrkQpGtKWm6Mkqw=;
+        s=korg; t=1617004926;
+        bh=A7Dod5oX9lcDvyzu55/c1vP1GrYr53ekQ6EyH788SmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVDVDZeTzEwaU7j+5jirxUJALrZhBS5U8M1Q2YeZN5BNzhqH5HXmHs0ocSSevGXun
-         DjQ+AUoUKjq6Vp9sWI6In6j6ThwDeKIr/Pf0CoaeXl4KbMGZt0sAJHe2u7MgQpuBei
-         WIZFIOzq252gkhyQ+uYhUYfh3eXQETCnU5TZ/xZI=
+        b=ui75lL2Bu7Rk45yviWfewZCD1beAfa5mZf8HsjvkMC+jaotPhfqiIe+PXvxj/6r6n
+         itdkBYBc1jyK/748CKjkedxuYQXuL9p2cbprjYq/1FY5ASdwqoItxv05fc01OO9VyB
+         dZ1GjgN+oMCSoTvHJhnKMzqjIV80K+QduiN61Dno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Gardner <rob.gardner@oracle.com>,
-        Anatoly Pugachev <matorola@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/72] sparc64: Fix opcode filtering in handling of no fault loads
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 18/53] squashfs: fix inode lookup sanity checks
 Date:   Mon, 29 Mar 2021 09:57:53 +0200
-Message-Id: <20210329075610.848341167@linuxfoundation.org>
+Message-Id: <20210329075608.146534249@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,74 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Gardner <rob.gardner@oracle.com>
+From: Sean Nyekjaer <sean@geanix.com>
 
-[ Upstream commit e5e8b80d352ec999d2bba3ea584f541c83f4ca3f ]
+commit c1b2028315c6b15e8d6725e0d5884b15887d3daa upstream.
 
-is_no_fault_exception() has two bugs which were discovered via random
-opcode testing with stress-ng. Both are caused by improper filtering
-of opcodes.
+When mouting a squashfs image created without inode compression it fails
+with: "unable to read inode lookup table"
 
-The first bug can be triggered by a floating point store with a no-fault
-ASI, for instance "sta %f0, [%g0] #ASI_PNF", opcode C1A01040.
+It turns out that the BLOCK_OFFSET is missing when checking the
+SQUASHFS_METADATA_SIZE agaist the actual size.
 
-The code first tests op3[5] (0x1000000), which denotes a floating
-point instruction, and then tests op3[2] (0x200000), which denotes a
-store instruction. But these bits are not mutually exclusive, and the
-above mentioned opcode has both bits set. The intent is to filter out
-stores, so the test for stores must be done first in order to have
-any effect.
-
-The second bug can be triggered by a floating point load with one of
-the invalid ASI values 0x8e or 0x8f, which pass this check in
-is_no_fault_exception():
-     if ((asi & 0xf2) == ASI_PNF)
-
-An example instruction is "ldqa [%l7 + %o7] #ASI 0x8f, %f38",
-opcode CF95D1EF. Asi values greater than 0x8b (ASI_SNFL) are fatal
-in handle_ldf_stq(), and is_no_fault_exception() must not allow these
-invalid asi values to make it that far.
-
-In both of these cases, handle_ldf_stq() reacts by calling
-sun4v_data_access_exception() or spitfire_data_access_exception(),
-which call is_no_fault_exception() and results in an infinite
-recursion.
-
-Signed-off-by: Rob Gardner <rob.gardner@oracle.com>
-Tested-by: Anatoly Pugachev <matorola@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20210226092903.1473545-1-sean@geanix.com
+Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Acked-by: Phillip Lougher <phillip@squashfs.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/kernel/traps_64.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/squashfs/export.c      |    8 ++++++--
+ fs/squashfs/squashfs_fs.h |    1 +
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/kernel/traps_64.c b/arch/sparc/kernel/traps_64.c
-index aa624ed79db1..86879c28910b 100644
---- a/arch/sparc/kernel/traps_64.c
-+++ b/arch/sparc/kernel/traps_64.c
-@@ -274,14 +274,13 @@ bool is_no_fault_exception(struct pt_regs *regs)
- 			asi = (regs->tstate >> 24); /* saved %asi       */
- 		else
- 			asi = (insn >> 5);	    /* immediate asi    */
--		if ((asi & 0xf2) == ASI_PNF) {
--			if (insn & 0x1000000) {     /* op3[5:4]=3       */
--				handle_ldf_stq(insn, regs);
--				return true;
--			} else if (insn & 0x200000) { /* op3[2], stores */
-+		if ((asi & 0xf6) == ASI_PNF) {
-+			if (insn & 0x200000)        /* op3[2], stores   */
- 				return false;
--			}
--			handle_ld_nf(insn, regs);
-+			if (insn & 0x1000000)       /* op3[5:4]=3 (fp)  */
-+				handle_ldf_stq(insn, regs);
-+			else
-+				handle_ld_nf(insn, regs);
- 			return true;
+--- a/fs/squashfs/export.c
++++ b/fs/squashfs/export.c
+@@ -165,14 +165,18 @@ __le64 *squashfs_read_inode_lookup_table
+ 		start = le64_to_cpu(table[n]);
+ 		end = le64_to_cpu(table[n + 1]);
+ 
+-		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++		if (start >= end
++		    || (end - start) >
++		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 			kfree(table);
+ 			return ERR_PTR(-EINVAL);
  		}
  	}
--- 
-2.30.1
-
+ 
+ 	start = le64_to_cpu(table[indexes - 1]);
+-	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= lookup_table_start ||
++	    (lookup_table_start - start) >
++	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+--- a/fs/squashfs/squashfs_fs.h
++++ b/fs/squashfs/squashfs_fs.h
+@@ -30,6 +30,7 @@
+ 
+ /* size of metadata (inode and directory) blocks */
+ #define SQUASHFS_METADATA_SIZE		8192
++#define SQUASHFS_BLOCK_OFFSET		2
+ 
+ /* default size of block device I/O */
+ #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
 
 
