@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDC4034C8C0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C475434CABA
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232929AbhC2IYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40324 "EHLO mail.kernel.org"
+        id S234834AbhC2Ijo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233256AbhC2IX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0E2619BB;
-        Mon, 29 Mar 2021 08:23:16 +0000 (UTC)
+        id S234565AbhC2Ign (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:36:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 559EB61964;
+        Mon, 29 Mar 2021 08:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006197;
-        bh=mqr5PF43DWPLKILTuuTBEO1NrWrz3vQ6zdgv4HfU4Ek=;
+        s=korg; t=1617006959;
+        bh=f5Jd1I1YqHOtxAZ2CJiWWDMJ6igW5Nk4+P5kqtAdMQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzQwuEwaFGoKYNaPRo03Xw7TvlZR1/XRgUKRcyMFAecPFIclgRfakYvcSFWzNtlUf
-         h0AsJbZ4rM4LV5LFNaie21cfyJDMnq5KRyD8YHtkI5f8xJbeyfugF/UabQBZfmDrCM
-         dxqNxaYEuPz4NwAkTF2ctykCecy8TmbcglcKGkoE=
+        b=KWQt18RpujctYbGdWRd2iev6ImyuRTedG5f7F0pWZh3UoqQU0o0/NPl/FHE9Pipvn
+         YWlICyLdUop/aJNrMub/0NjEJR7xAVxSC0vMRZ/WF65YbimeXiL/R1WRU8ptKLxK3n
+         UlMkMWjjI0c+EJ5eG82/aZ42Pda1PuEI91qvHMRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
-        Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 154/221] octeontx2-pf: Clear RSS enable flag on interace down
+Subject: [PATCH 5.11 169/254] libbpf: Fix error path in bpf_object__elf_init()
 Date:   Mon, 29 Mar 2021 09:58:05 +0200
-Message-Id: <20210329075634.300950792@linuxfoundation.org>
+Message-Id: <20210329075638.722281973@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit f12098ce9b43e1a6fcaa524acbd90f9118a74c0a ]
+[ Upstream commit 8f3f5792f2940c16ab63c614b26494c8689c9c1e ]
 
-RSS configuration can not be get/set when interface is in down state
-as they required mbox communication. RSS enable flag status
-is used for set/get configuration. Current code do not clear the
-RSS enable flag on interface down which lead to mbox error while
-trying to set/get RSS configuration.
+When it failed to get section names, it should call into
+bpf_object__elf_finish() like others.
 
-Fixes: 85069e95e531 ("octeontx2-pf: Receive side scaling support")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 88a82120282b ("libbpf: Factor out common ELF operations and improve logging")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210317145414.884817-1-namhyung@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ tools/lib/bpf/libbpf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-index 66f1a212f1f4..9fef9be015e5 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-@@ -1616,6 +1616,7 @@ int otx2_stop(struct net_device *netdev)
- 	struct otx2_nic *pf = netdev_priv(netdev);
- 	struct otx2_cq_poll *cq_poll = NULL;
- 	struct otx2_qset *qset = &pf->qset;
-+	struct otx2_rss_info *rss;
- 	int qidx, vec, wrk;
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index a0d4fc4de402..8913e5e7bedb 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -1180,7 +1180,8 @@ static int bpf_object__elf_init(struct bpf_object *obj)
+ 	if (!elf_rawdata(elf_getscn(obj->efile.elf, obj->efile.shstrndx), NULL)) {
+ 		pr_warn("elf: failed to get section names strings from %s: %s\n",
+ 			obj->path, elf_errmsg(-1));
+-		return -LIBBPF_ERRNO__FORMAT;
++		err = -LIBBPF_ERRNO__FORMAT;
++		goto errout;
+ 	}
  
- 	netif_carrier_off(netdev);
-@@ -1628,6 +1629,10 @@ int otx2_stop(struct net_device *netdev)
- 	/* First stop packet Rx/Tx */
- 	otx2_rxtx_enable(pf, false);
- 
-+	/* Clear RSS enable flag */
-+	rss = &pf->hw.rss_info;
-+	rss->enable = false;
-+
- 	/* Cleanup Queue IRQ */
- 	vec = pci_irq_vector(pf->pdev,
- 			     pf->hw.nix_msixoff + NIX_LF_QINT_VEC_START);
+ 	/* Old LLVM set e_machine to EM_NONE */
 -- 
 2.30.1
 
