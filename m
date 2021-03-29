@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CD6134C7FB
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5574534C9D4
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231676AbhC2IS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34298 "EHLO mail.kernel.org"
+        id S231569AbhC2Id5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233010AbhC2ISW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:18:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DF816044F;
-        Mon, 29 Mar 2021 08:18:20 +0000 (UTC)
+        id S234431AbhC2IdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96BD361996;
+        Mon, 29 Mar 2021 08:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005901;
-        bh=Vm04plOsjhlfLiwtFfQDIF+xCKzVZSCaeinJiKu6Zt4=;
+        s=korg; t=1617006705;
+        bh=5WcsBCMMJEH0F7EVQ0ABvWSoSFKpthcKFqYdhUYdt9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UYlkXq0Y+kbZ7pMrhIX50SXSn3IXqg5j2xCQxEzOjXaURdEL2EuLIAdZ00pHFf9pE
-         RFlGZegIggETFqXe59PMtEDV3qw5z6levi5mRgMd9IssltYer4rVmlWj/BcygsWFhd
-         bC1WzlW4Z3n9LR6qBFGl08Ush4khbWxuDtb6aHEs=
+        b=Ve4KSgANShgl1UcCeEsUR7PxEfjrytWU7OQ5xWGh4UgMIkW1ojR0cV8080IGuq+Fc
+         yyt59t8R53gvhf8IDwm+u85BZ89f/spLyDxq6ksZCld+9Ry55ucyD1EXbaP1JD7t99
+         cuopxsJRRfT23x4YVPwTpj6Hh4Go6qijJHUazU3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Daniel Wagner <dwagner@suse.de>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/221] nvme: simplify error logic in nvme_validate_ns()
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 060/254] ia64: fix ia64_syscall_get_set_arguments() for break-based syscalls
 Date:   Mon, 29 Mar 2021 09:56:16 +0200
-Message-Id: <20210329075630.675406720@linuxfoundation.org>
+Message-Id: <20210329075635.144519096@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-[ Upstream commit d95c1f4179a7f3ea8aa728ed00252a8ed0f8158f ]
+[ Upstream commit 0ceb1ace4a2778e34a5414e5349712ae4dc41d85 ]
 
-We only should remove namespaces when we get fatal error back from
-the device or when the namespace IDs have changed.
-So instead of painfully masking out error numbers which might indicate
-that the error should be ignored we could use an NVME status code
-to indicated when the namespace should be removed.
-That simplifies the final logic and makes it less error-prone.
+In https://bugs.gentoo.org/769614 Dmitry noticed that
+`ptrace(PTRACE_GET_SYSCALL_INFO)` does not work for syscalls called via
+glibc's syscall() wrapper.
 
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+ia64 has two ways to call syscalls from userspace: via `break` and via
+`eps` instructions.
+
+The difference is in stack layout:
+
+1. `eps` creates simple stack frame: no locals, in{0..7} == out{0..8}
+2. `break` uses userspace stack frame: may be locals (glibc provides
+   one), in{0..7} == out{0..8}.
+
+Both work fine in syscall handling cde itself.
+
+But `ptrace(PTRACE_GET_SYSCALL_INFO)` uses unwind mechanism to
+re-extract syscall arguments but it does not account for locals.
+
+The change always skips locals registers. It should not change `eps`
+path as kernel's handler already enforces locals=0 and fixes `break`.
+
+Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
+
+Link: https://lkml.kernel.org/r/20210221002554.333076-1-slyfox@gentoo.org
+Link: https://bugs.gentoo.org/769614
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Reported-by: Dmitry V. Levin <ldv@altlinux.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/ia64/kernel/ptrace.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index de846aaa8728..fbe2918ade78 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1371,7 +1371,7 @@ static int nvme_identify_ns(struct nvme_ctrl *ctrl, unsigned nsid,
- 		goto out_free_id;
+diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
+index c3490ee2daa5..e14f5653393a 100644
+--- a/arch/ia64/kernel/ptrace.c
++++ b/arch/ia64/kernel/ptrace.c
+@@ -2013,27 +2013,39 @@ static void syscall_get_set_args_cb(struct unw_frame_info *info, void *data)
+ {
+ 	struct syscall_get_set_args *args = data;
+ 	struct pt_regs *pt = args->regs;
+-	unsigned long *krbs, cfm, ndirty;
++	unsigned long *krbs, cfm, ndirty, nlocals, nouts;
+ 	int i, count;
+ 
+ 	if (unw_unwind_to_user(info) < 0)
+ 		return;
+ 
++	/*
++	 * We get here via a few paths:
++	 * - break instruction: cfm is shared with caller.
++	 *   syscall args are in out= regs, locals are non-empty.
++	 * - epsinstruction: cfm is set by br.call
++	 *   locals don't exist.
++	 *
++	 * For both cases argguments are reachable in cfm.sof - cfm.sol.
++	 * CFM: [ ... | sor: 17..14 | sol : 13..7 | sof : 6..0 ]
++	 */
+ 	cfm = pt->cr_ifs;
++	nlocals = (cfm >> 7) & 0x7f; /* aka sol */
++	nouts = (cfm & 0x7f) - nlocals; /* aka sof - sol */
+ 	krbs = (unsigned long *)info->task + IA64_RBS_OFFSET/8;
+ 	ndirty = ia64_rse_num_regs(krbs, krbs + (pt->loadrs >> 19));
+ 
+ 	count = 0;
+ 	if (in_syscall(pt))
+-		count = min_t(int, args->n, cfm & 0x7f);
++		count = min_t(int, args->n, nouts);
+ 
++	/* Iterate over outs. */
+ 	for (i = 0; i < count; i++) {
++		int j = ndirty + nlocals + i + args->i;
+ 		if (args->rw)
+-			*ia64_rse_skip_regs(krbs, ndirty + i + args->i) =
+-				args->args[i];
++			*ia64_rse_skip_regs(krbs, j) = args->args[i];
+ 		else
+-			args->args[i] = *ia64_rse_skip_regs(krbs,
+-				ndirty + i + args->i);
++			args->args[i] = *ia64_rse_skip_regs(krbs, j);
  	}
  
--	error = -ENODEV;
-+	error = NVME_SC_INVALID_NS | NVME_SC_DNR;
- 	if ((*id)->ncap == 0) /* namespace not allocated or attached */
- 		goto out_free_id;
- 
-@@ -3959,7 +3959,7 @@ static void nvme_ns_remove_by_nsid(struct nvme_ctrl *ctrl, u32 nsid)
- static void nvme_validate_ns(struct nvme_ns *ns, struct nvme_ns_ids *ids)
- {
- 	struct nvme_id_ns *id;
--	int ret = -ENODEV;
-+	int ret = NVME_SC_INVALID_NS | NVME_SC_DNR;
- 
- 	if (test_bit(NVME_NS_DEAD, &ns->flags))
- 		goto out;
-@@ -3968,7 +3968,7 @@ static void nvme_validate_ns(struct nvme_ns *ns, struct nvme_ns_ids *ids)
- 	if (ret)
- 		goto out;
- 
--	ret = -ENODEV;
-+	ret = NVME_SC_INVALID_NS | NVME_SC_DNR;
- 	if (!nvme_ns_ids_equal(&ns->head->ids, ids)) {
- 		dev_err(ns->ctrl->device,
- 			"identifiers changed for nsid %d\n", ns->head->ns_id);
-@@ -3986,7 +3986,7 @@ static void nvme_validate_ns(struct nvme_ns *ns, struct nvme_ns_ids *ids)
- 	 *
- 	 * TODO: we should probably schedule a delayed retry here.
- 	 */
--	if (ret && ret != -ENOMEM && !(ret > 0 && !(ret & NVME_SC_DNR)))
-+	if (ret > 0 && (ret & NVME_SC_DNR))
- 		nvme_ns_remove(ns);
- 	else
- 		revalidate_disk_size(ns->disk, true);
+ 	if (!args->rw) {
 -- 
 2.30.1
 
