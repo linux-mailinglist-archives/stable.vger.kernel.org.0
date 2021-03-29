@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9087934DB2F
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:26:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7864834DB27
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:26:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232966AbhC2W0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:26:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
+        id S232678AbhC2WZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:25:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232351AbhC2WXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232356AbhC2WXw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 18:23:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 799BE61999;
-        Mon, 29 Mar 2021 22:23:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21E1D61989;
+        Mon, 29 Mar 2021 22:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056606;
-        bh=VS+G6bXMJNFdYt7lAreBIpGlSxaBqhnKtMhsDtoxpBE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIbelUmvtEuiPK7Wm7hUQFAV7kN+gxYexRH6AeumsE3KwdljEnIMRfIxFU9ega36f
-         RGkYEkitoQ+7m/PiQ8jdXSAGqrv6MSvYvxkH3kqF3ZjUCj2wqsYkbrNHSlQVLADzGt
-         4D8CZatXEveAVLkB9v5veZD3ijNjmV8iw/wdfoJX/7bDZi7fbMI4mumhXJCb8QmQTN
-         6NMnHdlnErxhCzOETn39x9Vbmojnrqjd0VrmtgIJZjdCeqHuF9jmYQTPNpoAAWu0mL
-         hoC0vWLtyCljHwbav1zl1UviGdlGgolioaIm9gLVPNGk2uF6wCo1BLTGE4kM9Z/yTM
-         yzc4+6zoJNomQ==
+        s=k20201202; t=1617056608;
+        bh=QYf+o391oxwQiLlr8qRgJfQwrpwQtS4oM5GXM2xDvmw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vHWcbk5Eb3FvSVyGhleUTWnMRv9ETTpd29jop4bJs2fbcbAEqXUQX890qxtW4tWUB
+         KRAqOHRudHjXgZ8xhBxr5A3doDvBekF1S97NeAAGNTOBAkGxsd1Gp4cCuDvEwmv9UB
+         asH/83EU33fWduruzwVTWrpkLM9w/0sIrXEzrPW43Gov1DH3SC5NF13/P06FGD2BmW
+         6UFuFvcg55boIT78XEy/SJo1Ux9VBUVfrp4apruppxQyayScYP5hTH+zsk4sYaUUe+
+         DIBJ5l1uypDDvQ5J5XLBoIyouwjIp57SqHKCL6af5KIVq8RJklDU2O1CBP4iX+kXmd
+         nWbfbvLnhWgAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Tom Talpey <tom@talpey.com>, Paulo Alcantara <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.4 19/19] cifs: Silently ignore unknown oplock break handle
-Date:   Mon, 29 Mar 2021 18:23:02 -0400
-Message-Id: <20210329222303.2383319-19-sashal@kernel.org>
+Cc:     Mans Rullgard <mans@mansr.com>, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/15] ARM: dts: am33xx: add aliases for mmc interfaces
+Date:   Mon, 29 Mar 2021 18:23:12 -0400
+Message-Id: <20210329222327.2383533-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210329222303.2383319-1-sashal@kernel.org>
-References: <20210329222303.2383319-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,51 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Mans Rullgard <mans@mansr.com>
 
-[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
+[ Upstream commit 9bbce32a20d6a72c767a7f85fd6127babd1410ac ]
 
-Make SMB2 not print out an error when an oplock break is received for an
-unknown handle, similar to SMB1.  The debug message which is printed for
-these unknown handles may also be misleading, so fix that too.
+Without DT aliases, the numbering of mmc interfaces is unpredictable.
+Adding them makes it possible to refer to devices consistently.  The
+popular suggestion to use UUIDs obviously doesn't work with a blank
+device fresh from the factory.
 
-The SMB2 lease break path is not affected by this patch.
+See commit fa2d0aa96941 ("mmc: core: Allow setting slot index via
+device tree alias") for more discussion.
 
-Without this, a program which writes to a file from one thread, and
-opens, reads, and writes the same file from another thread triggers the
-below errors several times a minute when run against a Samba server
-configured with "smb2 leases = no".
-
- CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
- 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
- 00000010: 00000001 00000000 ffffffff ffffffff  ................
- 00000020: 00000000 00000000 00000000 00000000  ................
- 00000030: 00000000 00000000 00000000 00000000  ................
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2misc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/am33xx.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
-index 7d875a47d022..7177720e822e 100644
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -738,8 +738,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
--	return false;
-+	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
-+	return true;
- }
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index d3dd6a16e70a..e321acaf35d6 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -39,6 +39,9 @@ aliases {
+ 		ethernet1 = &cpsw_emac1;
+ 		spi0 = &spi0;
+ 		spi1 = &spi1;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
+ 	};
  
- void
+ 	cpus {
 -- 
 2.30.1
 
