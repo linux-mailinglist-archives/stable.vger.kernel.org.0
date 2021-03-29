@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2A234C9DC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C5534C80A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233381AbhC2IeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
+        id S231983AbhC2IT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234528AbhC2IdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C165961601;
-        Mon, 29 Mar 2021 08:32:04 +0000 (UTC)
+        id S232748AbhC2ISn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:18:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6ABC61932;
+        Mon, 29 Mar 2021 08:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006725;
-        bh=/2fTOAQOoXW4vjMQADVMxZOcP011X+DBEPZprpL4H5M=;
+        s=korg; t=1617005923;
+        bh=BST6BERa959iMhTwUiAolYvYPSiDPLKLUM2upjFG3ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WQjfWdCLL0NyD4xTee/xhqeqECPm9vj1576g4CqGQ+QmF+yTrf3MA4Q4dxXMrFyr
-         UKEeb119gcNTBMyDFBxJ9Zv45xr6yJAuJHC0Sp/cE3UKY+2bAEsz3wi7ZOPPHa/QbU
-         0fvH3J2+BT3wCNKldKDZTPrtZoVckSZQfwxi+3iI=
+        b=krfCfn8Zu3v7U25SeEXfQGxLsSDTd3P/ZhIPb9hdwlvbpmlylxLEPobiljzNOOtYt
+         7toYU7YgxTRTPfw1+ecdOC96o/BUkzpwj7ITrIgsckfrevSYEfHmqp22oYhZ18npDf
+         boIPycWpCZRkKvb8x4PvBS0L6nTb/rhf4AUuI+kc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.11 068/254] btrfs: do not initialize dev replace for bad dev root
+        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Martin Wilck <mwilck@suse.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 053/221] block: Suppress uevent for hidden device when removed
 Date:   Mon, 29 Mar 2021 09:56:24 +0200
-Message-Id: <20210329075635.388141565@linuxfoundation.org>
+Message-Id: <20210329075630.953928489@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-commit 3cb894972f1809aa8d087c42e5e8b26c64b7d508 upstream.
+[ Upstream commit 9ec491447b90ad6a4056a9656b13f0b3a1e83043 ]
 
-While helping Neal fix his broken file system I added a debug patch to
-catch if we were calling btrfs_search_slot with a NULL root, and this
-stack trace popped:
+register_disk() suppress uevents for devices with the GENHD_FL_HIDDEN
+but enables uevents at the end again in order to announce disk after
+possible partitions are created.
 
-  we tried to search with a NULL root
-  CPU: 0 PID: 1760 Comm: mount Not tainted 5.11.0-155.nealbtrfstest.1.fc34.x86_64 #1
-  Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 07/22/2020
-  Call Trace:
-   dump_stack+0x6b/0x83
-   btrfs_search_slot.cold+0x11/0x1b
-   ? btrfs_init_dev_replace+0x36/0x450
-   btrfs_init_dev_replace+0x71/0x450
-   open_ctree+0x1054/0x1610
-   btrfs_mount_root.cold+0x13/0xfa
-   legacy_get_tree+0x27/0x40
-   vfs_get_tree+0x25/0xb0
-   vfs_kern_mount.part.0+0x71/0xb0
-   btrfs_mount+0x131/0x3d0
-   ? legacy_get_tree+0x27/0x40
-   ? btrfs_show_options+0x640/0x640
-   legacy_get_tree+0x27/0x40
-   vfs_get_tree+0x25/0xb0
-   path_mount+0x441/0xa80
-   __x64_sys_mount+0xf4/0x130
-   do_syscall_64+0x33/0x40
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f644730352e
+When the device is removed the uevents are still on and user land sees
+'remove' messages for devices which were never 'add'ed to the system.
 
-Fix this by not starting the device replace stuff if we do not have a
-NULL dev root.
+  KERNEL[95481.571887] remove   /devices/virtual/nvme-fabrics/ctl/nvme5/nvme0c5n1 (block)
 
-Reported-by: Neal Gompa <ngompa13@gmail.com>
-CC: stable@vger.kernel.org # 5.11+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's suppress the uevents for GENHD_FL_HIDDEN by not enabling the
+uevents at all.
+
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Martin Wilck <mwilck@suse.com>
+Link: https://lore.kernel.org/r/20210311151917.136091-1-dwagner@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/dev-replace.c |    3 +++
- 1 file changed, 3 insertions(+)
+ block/genhd.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -80,6 +80,9 @@ int btrfs_init_dev_replace(struct btrfs_
- 	struct btrfs_dev_replace_item *ptr;
- 	u64 src_devid;
+diff --git a/block/genhd.c b/block/genhd.c
+index ec6264e2ed67..796baf761202 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -732,10 +732,8 @@ static void register_disk(struct device *parent, struct gendisk *disk,
+ 	disk->part0.holder_dir = kobject_create_and_add("holders", &ddev->kobj);
+ 	disk->slave_dir = kobject_create_and_add("slaves", &ddev->kobj);
  
-+	if (!dev_root)
-+		return 0;
-+
- 	path = btrfs_alloc_path();
- 	if (!path) {
- 		ret = -ENOMEM;
+-	if (disk->flags & GENHD_FL_HIDDEN) {
+-		dev_set_uevent_suppress(ddev, 0);
++	if (disk->flags & GENHD_FL_HIDDEN)
+ 		return;
+-	}
+ 
+ 	disk_scan_partitions(disk);
+ 
+-- 
+2.30.1
+
 
 
