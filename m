@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7BE34CA4E
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB17734C757
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233731AbhC2Igd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
+        id S232877AbhC2IOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:14:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233607AbhC2IfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:35:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 071D0619B7;
-        Mon, 29 Mar 2021 08:35:04 +0000 (UTC)
+        id S232630AbhC2IN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:13:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 769A56193A;
+        Mon, 29 Mar 2021 08:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006905;
-        bh=CWEkAvu3GxHKMXrz/HoF9TR8kjbU4r78qr+NTCyShWQ=;
+        s=korg; t=1617005600;
+        bh=b2C6VvTe+kyFYywxTJ91iYhgpxqhfnXJOwYVJWjwK0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PX7It5+6LKR/CVs7kfx3tuJov/C4FoGZ08DJmWuur6izYeasxfVzV+6HnR1Ez+3Cq
-         hbL6cbq258BhPuI8i7suwnGnNvDknXP1Ri1zQh9mGUmIwS/F57N2BRac55RJYKAi2Z
-         R7VKmI7s8uCfPNBuclHQyaDKKL9Hu/VCk1hjK340=
+        b=C4TbdhRtmkoD5VyIyYcTOePMHKbGD2CUl9qJXVUJXVZQyAanyTLDwFpIlm3a1D44d
+         tHa/9Ehznj65H95lKMXfhcwOolxAQpW3THQ+o8bI2haUdlN/exIcBny6CCEm/EVVuR
+         F9nSzHJhKKDQajgMYzWZ6Is9mnIJwgDGaAYc4Y0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Geliang Tang <geliangtang@gmail.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 146/254] mptcp: fix ADD_ADDR HMAC in case port is specified
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/111] nvme-pci: add the DISABLE_WRITE_ZEROES quirk for a Samsung PM1725a
 Date:   Mon, 29 Mar 2021 09:57:42 +0200
-Message-Id: <20210329075638.006194240@linuxfoundation.org>
+Message-Id: <20210329075616.310270607@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
 
-[ Upstream commit 13832ae2755395b2585500c85b64f5109a44227e ]
+[ Upstream commit abbb5f5929ec6c52574c430c5475c158a65c2a8c ]
 
-Currently, Linux computes the HMAC contained in ADD_ADDR sub-option using
-the Address Id and the IP Address, and hardcodes a destination port equal
-to zero. This is not ok for ADD_ADDR with port: ensure to account for the
-endpoint port when computing the HMAC, in compliance with RFC8684 §3.4.1.
+This adds a quirk for Samsung PM1725a drive which fixes timeouts and
+I/O errors due to the fact that the controller does not properly
+handle the Write Zeroes command, dmesg log:
 
-Fixes: 22fb85ffaefb ("mptcp: add port support for ADD_ADDR suboption writing")
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Acked-by: Geliang Tang <geliangtang@gmail.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+nvme nvme0: I/O 528 QID 10 timeout, aborting
+nvme nvme0: I/O 529 QID 10 timeout, aborting
+nvme nvme0: I/O 530 QID 10 timeout, aborting
+nvme nvme0: I/O 531 QID 10 timeout, aborting
+nvme nvme0: I/O 532 QID 10 timeout, aborting
+nvme nvme0: I/O 533 QID 10 timeout, aborting
+nvme nvme0: I/O 534 QID 10 timeout, aborting
+nvme nvme0: I/O 535 QID 10 timeout, aborting
+nvme nvme0: Abort status: 0x0
+nvme nvme0: Abort status: 0x0
+nvme nvme0: Abort status: 0x0
+nvme nvme0: Abort status: 0x0
+nvme nvme0: Abort status: 0x0
+nvme nvme0: Abort status: 0x0
+nvme nvme0: Abort status: 0x0
+nvme nvme0: Abort status: 0x0
+nvme nvme0: I/O 528 QID 10 timeout, reset controller
+nvme nvme0: controller is down; will reset: CSTS=0x3, PCI_STATUS=0x10
+nvme nvme0: Device not ready; aborting reset, CSTS=0x3
+nvme nvme0: Device not ready; aborting reset, CSTS=0x3
+nvme nvme0: Removing after probe failure status: -19
+nvme0n1: detected capacity change from 6251233968 to 0
+blk_update_request: I/O error, dev nvme0n1, sector 32776 op 0x1:(WRITE) flags 0x3000 phys_seg 6 prio class 0
+blk_update_request: I/O error, dev nvme0n1, sector 113319936 op 0x9:(WRITE_ZEROES) flags 0x800 phys_seg 0 prio class 0
+Buffer I/O error on dev nvme0n1p2, logical block 1, lost async page write
+blk_update_request: I/O error, dev nvme0n1, sector 113319680 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+Buffer I/O error on dev nvme0n1p2, logical block 2, lost async page write
+blk_update_request: I/O error, dev nvme0n1, sector 113319424 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+Buffer I/O error on dev nvme0n1p2, logical block 3, lost async page write
+blk_update_request: I/O error, dev nvme0n1, sector 113319168 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+Buffer I/O error on dev nvme0n1p2, logical block 4, lost async page write
+blk_update_request: I/O error, dev nvme0n1, sector 113318912 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+Buffer I/O error on dev nvme0n1p2, logical block 5, lost async page write
+blk_update_request: I/O error, dev nvme0n1, sector 113318656 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+Buffer I/O error on dev nvme0n1p2, logical block 6, lost async page write
+blk_update_request: I/O error, dev nvme0n1, sector 113318400 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+blk_update_request: I/O error, dev nvme0n1, sector 113318144 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+blk_update_request: I/O error, dev nvme0n1, sector 113317888 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+
+Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/options.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ drivers/nvme/host/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mptcp/options.c b/net/mptcp/options.c
-index 2e26e39169b8..37ef0bf098f6 100644
---- a/net/mptcp/options.c
-+++ b/net/mptcp/options.c
-@@ -555,15 +555,15 @@ static bool mptcp_established_options_dss(struct sock *sk, struct sk_buff *skb,
- }
- 
- static u64 add_addr_generate_hmac(u64 key1, u64 key2, u8 addr_id,
--				  struct in_addr *addr)
-+				  struct in_addr *addr, u16 port)
- {
- 	u8 hmac[SHA256_DIGEST_SIZE];
- 	u8 msg[7];
- 
- 	msg[0] = addr_id;
- 	memcpy(&msg[1], &addr->s_addr, 4);
--	msg[5] = 0;
--	msg[6] = 0;
-+	msg[5] = port >> 8;
-+	msg[6] = port & 0xFF;
- 
- 	mptcp_crypto_hmac_sha(key1, key2, msg, 7, hmac);
- 
-@@ -572,15 +572,15 @@ static u64 add_addr_generate_hmac(u64 key1, u64 key2, u8 addr_id,
- 
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
- static u64 add_addr6_generate_hmac(u64 key1, u64 key2, u8 addr_id,
--				   struct in6_addr *addr)
-+				   struct in6_addr *addr, u16 port)
- {
- 	u8 hmac[SHA256_DIGEST_SIZE];
- 	u8 msg[19];
- 
- 	msg[0] = addr_id;
- 	memcpy(&msg[1], &addr->s6_addr, 16);
--	msg[17] = 0;
--	msg[18] = 0;
-+	msg[17] = port >> 8;
-+	msg[18] = port & 0xFF;
- 
- 	mptcp_crypto_hmac_sha(key1, key2, msg, 19, hmac);
- 
-@@ -634,7 +634,8 @@ static bool mptcp_established_options_add_addr(struct sock *sk, struct sk_buff *
- 			opts->ahmac = add_addr_generate_hmac(msk->local_key,
- 							     msk->remote_key,
- 							     opts->addr_id,
--							     &opts->addr);
-+							     &opts->addr,
-+							     opts->port);
- 		}
- 	}
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
-@@ -645,7 +646,8 @@ static bool mptcp_established_options_add_addr(struct sock *sk, struct sk_buff *
- 			opts->ahmac = add_addr6_generate_hmac(msk->local_key,
- 							      msk->remote_key,
- 							      opts->addr_id,
--							      &opts->addr6);
-+							      &opts->addr6,
-+							      opts->port);
- 		}
- 	}
- #endif
-@@ -922,12 +924,14 @@ static bool add_addr_hmac_valid(struct mptcp_sock *msk,
- 	if (mp_opt->family == MPTCP_ADDR_IPVERSION_4)
- 		hmac = add_addr_generate_hmac(msk->remote_key,
- 					      msk->local_key,
--					      mp_opt->addr_id, &mp_opt->addr);
-+					      mp_opt->addr_id, &mp_opt->addr,
-+					      mp_opt->port);
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
- 	else
- 		hmac = add_addr6_generate_hmac(msk->remote_key,
- 					       msk->local_key,
--					       mp_opt->addr_id, &mp_opt->addr6);
-+					       mp_opt->addr_id, &mp_opt->addr6,
-+					       mp_opt->port);
- #endif
- 
- 	pr_debug("msk=%p, ahmac=%llu, mp_opt->ahmac=%llu\n",
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index fc18738dcf8f..3bee3724e9fa 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3176,6 +3176,7 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+ 	{ PCI_DEVICE(0x144d, 0xa822),   /* Samsung PM1725a */
+ 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY |
++				NVME_QUIRK_DISABLE_WRITE_ZEROES|
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(0x1987, 0x5016),	/* Phison E16 */
+ 		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
 -- 
 2.30.1
 
