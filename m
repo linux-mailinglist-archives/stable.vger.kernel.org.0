@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E4734CACF
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBF634C6DC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233215AbhC2Ij6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
+        id S231721AbhC2IKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232058AbhC2Ii6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:38:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D7B561581;
-        Mon, 29 Mar 2021 08:38:56 +0000 (UTC)
+        id S231904AbhC2IJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:09:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F2EC6196E;
+        Mon, 29 Mar 2021 08:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007137;
-        bh=LatsfoIWkuAEW3l1DdWNftvFA8jWNeJrMMS4hSV3nMs=;
+        s=korg; t=1617005381;
+        bh=d7w7WLi1zn3iaD1xtp9XUdjL9C90ikUPfQAdBI9KAQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1IjJsqRBavDs6Q2ZmZU5ZOMc3jc2jdSfsOv3uiPErxs86L7lgmdxSRNuXu7sU7u4
-         JNQSE6Y9UYcX0HRvHBueXXq+1+hxDNh2wm8rlN8e270/baNVUPHGuaufI6iePgaH3E
-         rCCSVWCIvbUZVp4c/Ra+eE4Fc/s5leMfxrK1Z7uY=
+        b=k8vi3KGBPhZYVOUEvyioBtk1mLg7cwGvlzobZ8H5b2yFfyl0/ZKPl14XnkztCSjmC
+         U2+0pRnPJV3zMdQU1MFooFrdpapWzRPo6QpuJ7G2VspEvQWkdb3eWsj5rTAGwNyAc9
+         ZmVO8Z99zVskQqKdGzKOqeOUn5FQ5u4Gi65CVpmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alaa Hleihel <alaa@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 200/254] net/mlx5e: Allow to match on MPLS parameters only for MPLS over UDP
+Subject: [PATCH 4.19 60/72] ACPI: scan: Use unique number for instance_no
 Date:   Mon, 29 Mar 2021 09:58:36 +0200
-Message-Id: <20210329075639.671172004@linuxfoundation.org>
+Message-Id: <20210329075612.269984763@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Hleihel <alaa@nvidia.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 7d6c86e3ccb5ceea767df5c7a9a17cdfccd3df9a ]
+[ Upstream commit eb50aaf960e3bedfef79063411ffd670da94b84b ]
 
-Currently, we support hardware offload only for MPLS over UDP.
-However, rules matching on MPLS parameters are now wrongly offloaded
-for regular MPLS, without actually taking the parameters into
-consideration when doing the offload.
-Fix it by rejecting such unsupported rules.
+The decrementation of acpi_device_bus_id->instance_no
+in acpi_device_del() is incorrect, because it may cause
+a duplicate instance number to be allocated next time
+a device with the same acpi_device_bus_id is added.
 
-Fixes: 72046a91d134 ("net/mlx5e: Allow to match on mpls parameters")
-Signed-off-by: Alaa Hleihel <alaa@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Replace above mentioned approach by using IDA framework.
+
+While at it, define the instance range to be [0, 4096).
+
+Fixes: e49bd2dd5a50 ("ACPI: use PNPID:instance_no as bus_id of ACPI device")
+Fixes: ca9dc8d42b30 ("ACPI / scan: Fix acpi_bus_id_list bookkeeping")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/acpi/internal.h |  6 +++++-
+ drivers/acpi/scan.c     | 33 ++++++++++++++++++++++++++++-----
+ include/acpi/acpi_bus.h |  1 +
+ 3 files changed, 34 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index e9b7da05f14a..95cbefed1b32 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -2595,6 +2595,16 @@ static int __parse_cls_flower(struct mlx5e_priv *priv,
- 			*match_level = MLX5_MATCH_L4;
- 	}
+diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
+index 6def196cc23c..913613cf5c53 100644
+--- a/drivers/acpi/internal.h
++++ b/drivers/acpi/internal.h
+@@ -18,6 +18,8 @@
+ #ifndef _ACPI_INTERNAL_H_
+ #define _ACPI_INTERNAL_H_
  
-+	/* Currenlty supported only for MPLS over UDP */
-+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_MPLS) &&
-+	    !netif_is_bareudp(filter_dev)) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Matching on MPLS is supported only for MPLS over UDP");
-+		netdev_err(priv->netdev,
-+			   "Matching on MPLS is supported only for MPLS over UDP\n");
-+		return -EOPNOTSUPP;
-+	}
++#include <linux/idr.h>
 +
- 	return 0;
+ #define PREFIX "ACPI: "
+ 
+ int early_acpi_osi_init(void);
+@@ -97,9 +99,11 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
+ 
+ extern struct list_head acpi_bus_id_list;
+ 
++#define ACPI_MAX_DEVICE_INSTANCES	4096
++
+ struct acpi_device_bus_id {
+ 	const char *bus_id;
+-	unsigned int instance_no;
++	struct ida instance_ida;
+ 	struct list_head node;
+ };
+ 
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 712599019892..d3c551bdc2da 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -482,9 +482,8 @@ static void acpi_device_del(struct acpi_device *device)
+ 	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node)
+ 		if (!strcmp(acpi_device_bus_id->bus_id,
+ 			    acpi_device_hid(device))) {
+-			if (acpi_device_bus_id->instance_no > 0)
+-				acpi_device_bus_id->instance_no--;
+-			else {
++			ida_simple_remove(&acpi_device_bus_id->instance_ida, device->pnp.instance_no);
++			if (ida_is_empty(&acpi_device_bus_id->instance_ida)) {
+ 				list_del(&acpi_device_bus_id->node);
+ 				kfree_const(acpi_device_bus_id->bus_id);
+ 				kfree(acpi_device_bus_id);
+@@ -635,6 +634,21 @@ static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
+ 	return NULL;
  }
  
++static int acpi_device_set_name(struct acpi_device *device,
++				struct acpi_device_bus_id *acpi_device_bus_id)
++{
++	struct ida *instance_ida = &acpi_device_bus_id->instance_ida;
++	int result;
++
++	result = ida_simple_get(instance_ida, 0, ACPI_MAX_DEVICE_INSTANCES, GFP_KERNEL);
++	if (result < 0)
++		return result;
++
++	device->pnp.instance_no = result;
++	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, result);
++	return 0;
++}
++
+ int acpi_device_add(struct acpi_device *device,
+ 		    void (*release)(struct device *))
+ {
+@@ -669,7 +683,9 @@ int acpi_device_add(struct acpi_device *device,
+ 
+ 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
+ 	if (acpi_device_bus_id) {
+-		acpi_device_bus_id->instance_no++;
++		result = acpi_device_set_name(device, acpi_device_bus_id);
++		if (result)
++			goto err_unlock;
+ 	} else {
+ 		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
+ 					     GFP_KERNEL);
+@@ -685,9 +701,16 @@ int acpi_device_add(struct acpi_device *device,
+ 			goto err_unlock;
+ 		}
+ 
++		ida_init(&acpi_device_bus_id->instance_ida);
++
++		result = acpi_device_set_name(device, acpi_device_bus_id);
++		if (result) {
++			kfree(acpi_device_bus_id);
++			goto err_unlock;
++		}
++
+ 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
+ 	}
+-	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
+ 
+ 	if (device->parent)
+ 		list_add_tail(&device->node, &device->parent->children);
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index d9773df60a36..8b19618bad0a 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -248,6 +248,7 @@ struct acpi_pnp_type {
+ 
+ struct acpi_device_pnp {
+ 	acpi_bus_id bus_id;		/* Object name */
++	int instance_no;		/* Instance number of this object */
+ 	struct acpi_pnp_type type;	/* ID type */
+ 	acpi_bus_address bus_address;	/* _ADR */
+ 	char *unique_id;		/* _UID */
 -- 
 2.30.1
 
