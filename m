@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B9D34C79D
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:18:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D36F34C66F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232717AbhC2IQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
+        id S231983AbhC2IH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:07:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232838AbhC2IPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:15:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 919ED61878;
-        Mon, 29 Mar 2021 08:15:01 +0000 (UTC)
+        id S231446AbhC2IG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:06:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B330961999;
+        Mon, 29 Mar 2021 08:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005702;
-        bh=wl4V805fBjHAjcpKQ6YA+uHRIfZHcxQbYdBybM2z4Vw=;
+        s=korg; t=1617005186;
+        bh=xbszp6+5zVJiiTG5eoXDt6qy7SMvtfeYnLO4wdXWGdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+nh35Z+umfHuNuEzPEIsXCCQazRFI15qlJSdsbsUdOZEuWHHITsdR6s1BMJxe2V1
-         OS9INq8aRDAs0XttUXSRhzPbqu692uXXw3NSnp+BsEQI/4BFFN/GcqiRNtygB6X90u
-         Y6Lu+D2Jk6oIG47W2pZkYEYn6nckQQTndRwtiF8w=
+        b=J3yz+hT8rHcfzH6sIv4oOplcGCR5xCyasKFk5/BKCNDhbKLWNR7VakmRZR3hCTeWG
+         gXGAOne13piwhKQkDib7aBekaptshAnNlcBkGN3JKQUmV4O52V9fliRdQ5R4fCPbGM
+         JUo/GL1HU948YuJMmPdpKFYj4LMnVhv8SKzrRmQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/111] drm/msm: fix shutdown hook in case GPU components failed to bind
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 55/59] net: sched: validate stab values
 Date:   Mon, 29 Mar 2021 09:58:35 +0200
-Message-Id: <20210329075618.107591223@linuxfoundation.org>
+Message-Id: <20210329075610.677031387@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,95 +40,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 623f279c77811475ac8fd5635cc4e4451aa71291 ]
+commit e323d865b36134e8c5c82c834df89109a5c60dab upstream.
 
-If GPU components have failed to bind, shutdown callback would fail with
-the following backtrace. Add safeguard check to stop that oops from
-happening and allow the board to reboot.
+iproute2 package is well behaved, but malicious user space can
+provide illegal shift values and trigger UBSAN reports.
 
-[   66.617046] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[   66.626066] Mem abort info:
-[   66.628939]   ESR = 0x96000006
-[   66.632088]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   66.637542]   SET = 0, FnV = 0
-[   66.640688]   EA = 0, S1PTW = 0
-[   66.643924] Data abort info:
-[   66.646889]   ISV = 0, ISS = 0x00000006
-[   66.650832]   CM = 0, WnR = 0
-[   66.653890] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000107f81000
-[   66.660505] [0000000000000000] pgd=0000000100bb2003, p4d=0000000100bb2003, pud=0000000100897003, pmd=0000000000000000
-[   66.671398] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[   66.677115] Modules linked in:
-[   66.680261] CPU: 6 PID: 352 Comm: reboot Not tainted 5.11.0-rc2-00309-g79e3faa756b2 #38
-[   66.688473] Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
-[   66.695347] pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-[   66.701507] pc : msm_atomic_commit_tail+0x78/0x4e0
-[   66.706437] lr : commit_tail+0xa4/0x184
-[   66.710381] sp : ffff8000108f3af0
-[   66.713791] x29: ffff8000108f3af0 x28: ffff418c44337000
-[   66.719242] x27: 0000000000000000 x26: ffff418c40a24490
-[   66.724693] x25: ffffd3a842a4f1a0 x24: 0000000000000008
-[   66.730146] x23: ffffd3a84313f030 x22: ffff418c444ce000
-[   66.735598] x21: ffff418c408a4980 x20: 0000000000000000
-[   66.741049] x19: 0000000000000000 x18: ffff800010710fbc
-[   66.746500] x17: 000000000000000c x16: 0000000000000001
-[   66.751954] x15: 0000000000010008 x14: 0000000000000068
-[   66.757405] x13: 0000000000000001 x12: 0000000000000000
-[   66.762855] x11: 0000000000000001 x10: 00000000000009b0
-[   66.768306] x9 : ffffd3a843192000 x8 : ffff418c44337000
-[   66.773757] x7 : 0000000000000000 x6 : 00000000a401b34e
-[   66.779210] x5 : 00ffffffffffffff x4 : 0000000000000000
-[   66.784660] x3 : 0000000000000000 x2 : ffff418c444ce000
-[   66.790111] x1 : ffffd3a841dce530 x0 : ffff418c444cf000
-[   66.795563] Call trace:
-[   66.798075]  msm_atomic_commit_tail+0x78/0x4e0
-[   66.802633]  commit_tail+0xa4/0x184
-[   66.806217]  drm_atomic_helper_commit+0x160/0x390
-[   66.811051]  drm_atomic_commit+0x4c/0x60
-[   66.815082]  drm_atomic_helper_disable_all+0x1f4/0x210
-[   66.820355]  drm_atomic_helper_shutdown+0x80/0x130
-[   66.825276]  msm_pdev_shutdown+0x14/0x20
-[   66.829303]  platform_shutdown+0x28/0x40
-[   66.833330]  device_shutdown+0x158/0x330
-[   66.837357]  kernel_restart+0x40/0xa0
-[   66.841122]  __do_sys_reboot+0x228/0x250
-[   66.845148]  __arm64_sys_reboot+0x28/0x34
-[   66.849264]  el0_svc_common.constprop.0+0x74/0x190
-[   66.854187]  do_el0_svc+0x24/0x90
-[   66.857595]  el0_svc+0x14/0x20
-[   66.860739]  el0_sync_handler+0x1a4/0x1b0
-[   66.864858]  el0_sync+0x174/0x180
-[   66.868269] Code: 1ac020a0 2a000273 eb02007f 54ffff01 (f9400285)
-[   66.874525] ---[ end trace 20dedb2a3229fec8 ]---
+Add stab parameter to red_check_params() to validate user input.
 
-Fixes: 9d5cbf5fe46e ("drm/msm: add shutdown support for display platform_driver")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+syzbot reported:
+
+UBSAN: shift-out-of-bounds in ./include/net/red.h:312:18
+shift exponent 111 is too large for 64-bit type 'long unsigned int'
+CPU: 1 PID: 14662 Comm: syz-executor.3 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
+ red_calc_qavg_from_idle_time include/net/red.h:312 [inline]
+ red_calc_qavg include/net/red.h:353 [inline]
+ choke_enqueue.cold+0x18/0x3dd net/sched/sch_choke.c:221
+ __dev_xmit_skb net/core/dev.c:3837 [inline]
+ __dev_queue_xmit+0x1943/0x2e00 net/core/dev.c:4150
+ neigh_hh_output include/net/neighbour.h:499 [inline]
+ neigh_output include/net/neighbour.h:508 [inline]
+ ip6_finish_output2+0x911/0x1700 net/ipv6/ip6_output.c:117
+ __ip6_finish_output net/ipv6/ip6_output.c:182 [inline]
+ __ip6_finish_output+0x4c1/0xe10 net/ipv6/ip6_output.c:161
+ ip6_finish_output+0x35/0x200 net/ipv6/ip6_output.c:192
+ NF_HOOK_COND include/linux/netfilter.h:290 [inline]
+ ip6_output+0x1e4/0x530 net/ipv6/ip6_output.c:215
+ dst_output include/net/dst.h:448 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ NF_HOOK include/linux/netfilter.h:295 [inline]
+ ip6_xmit+0x127e/0x1eb0 net/ipv6/ip6_output.c:320
+ inet6_csk_xmit+0x358/0x630 net/ipv6/inet6_connection_sock.c:135
+ dccp_transmit_skb+0x973/0x12c0 net/dccp/output.c:138
+ dccp_send_reset+0x21b/0x2b0 net/dccp/output.c:535
+ dccp_finish_passive_close net/dccp/proto.c:123 [inline]
+ dccp_finish_passive_close+0xed/0x140 net/dccp/proto.c:118
+ dccp_terminate_connection net/dccp/proto.c:958 [inline]
+ dccp_close+0xb3c/0xe60 net/dccp/proto.c:1028
+ inet_release+0x12e/0x280 net/ipv4/af_inet.c:431
+ inet6_release+0x4c/0x70 net/ipv6/af_inet6.c:478
+ __sock_release+0xcd/0x280 net/socket.c:599
+ sock_close+0x18/0x20 net/socket.c:1258
+ __fput+0x288/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/net/red.h     |   10 +++++++++-
+ net/sched/sch_choke.c |    7 ++++---
+ net/sched/sch_gred.c  |    2 +-
+ net/sched/sch_red.c   |    7 +++++--
+ net/sched/sch_sfq.c   |    2 +-
+ 5 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 8d9d86c76a4e..896d6f95a960 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -1326,6 +1326,10 @@ static int msm_pdev_remove(struct platform_device *pdev)
- static void msm_pdev_shutdown(struct platform_device *pdev)
- {
- 	struct drm_device *drm = platform_get_drvdata(pdev);
-+	struct msm_drm_private *priv = drm ? drm->dev_private : NULL;
-+
-+	if (!priv || !priv->kms)
-+		return;
- 
- 	drm_atomic_helper_shutdown(drm);
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -168,7 +168,8 @@ static inline void red_set_vars(struct r
+ 	v->qcount	= -1;
  }
--- 
-2.30.1
-
+ 
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog,
++				    u8 Scell_log, u8 *stab)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+@@ -178,6 +179,13 @@ static inline bool red_check_params(u32
+ 		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
++	if (stab) {
++		int i;
++
++		for (i = 0; i < RED_STAB_SIZE; i++)
++			if (stab[i] >= 32)
++				return false;
++	}
+ 	return true;
+ }
+ 
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -354,6 +354,7 @@ static int choke_change(struct Qdisc *sc
+ 	struct sk_buff **old = NULL;
+ 	unsigned int mask;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -369,8 +370,8 @@ static int choke_change(struct Qdisc *sc
+ 	max_P = tb[TCA_CHOKE_MAX_P] ? nla_get_u32(tb[TCA_CHOKE_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+-
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_CHOKE_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+@@ -420,7 +421,7 @@ static int choke_change(struct Qdisc *sc
+ 
+ 	red_set_parms(&q->parms, ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_CHOKE_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -356,7 +356,7 @@ static inline int gred_change_vq(struct
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (!q) {
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -169,6 +169,7 @@ static int red_change(struct Qdisc *sch,
+ 	struct Qdisc *child = NULL;
+ 	int err;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -184,7 +185,9 @@ static int red_change(struct Qdisc *sch,
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_RED_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog,
++			      ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+@@ -209,7 +212,7 @@ static int red_change(struct Qdisc *sch,
+ 	red_set_parms(&q->parms,
+ 		      ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_RED_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -649,7 +649,7 @@ static int sfq_change(struct Qdisc *sch,
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog, ctl_v1->Scell_log))
++					ctl_v1->Wlog, ctl_v1->Scell_log, NULL))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
