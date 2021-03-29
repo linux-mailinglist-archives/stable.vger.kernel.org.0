@@ -2,116 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4344634D58F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ADEA34D56E
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbhC2Qxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 12:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48632 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229689AbhC2Qxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 12:53:52 -0400
-X-Greylist: delayed 312 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 29 Mar 2021 09:53:52 PDT
-Received: from smtp-190a.mail.infomaniak.ch (smtp-190a.mail.infomaniak.ch [IPv6:2001:1600:4:17::190a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FFDDC061574
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 09:53:52 -0700 (PDT)
-Received: from smtp-2-0000.mail.infomaniak.ch (unknown [10.5.36.107])
-        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4F8JS42VlrzMpnYQ;
-        Mon, 29 Mar 2021 18:48:36 +0200 (CEST)
-Received: from localhost (unknown [23.97.221.149])
-        by smtp-2-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4F8JS36lhyzlppyy;
-        Mon, 29 Mar 2021 18:48:35 +0200 (CEST)
-From:   =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-unionfs@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Vivek Goyal <vgoyal@redhat.com>, stable@vger.kernel.org,
-        syzbot <syzkaller@googlegroups.com>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>
-Subject: [PATCH v1] ovl: Fix leaked dentry
-Date:   Mon, 29 Mar 2021 18:49:07 +0200
-Message-Id: <20210329164907.2133175-1-mic@digikod.net>
-X-Mailer: git-send-email 2.30.2
+        id S230370AbhC2Quk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 12:50:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44698 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230362AbhC2Quj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:50:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 637CB61927;
+        Mon, 29 Mar 2021 16:50:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1617036638;
+        bh=cfz+LFf6zP0RE81I9NTF7CRss7AMBy7tNc3BoxXCXAM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eemVsartXamCEmhBXfbWoHeQM8GZyH9olRG5BOw2ey8bo5Lp718c+SJT5wkf1MB5M
+         vUz3qRfgYupuOxN8RultpRgcC4WbYYoOr4zc9M3vbeCVIptuU4g/i8FQPU9swPloWl
+         JZhezwx7QPhK3EKnWd+egHQ511hFLFK3oA36jscOEaeQSvoLLOfBoLHkpMaagaEpJR
+         eZn3xIXWStvbzKG6YDSoRgxGpp3WMc8z5zFJgQnoHuUSLR1wgUKlO2KDk6riiUEGHI
+         M3Iih1JCX4D0oNPnQE2X4bfwqD0UnPreZ749snDwmeQwKTFDnPFGCOBzG7ULLegs0c
+         xIsHp0oWy1tRw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     stable@vger.kernel.org, idosch@nvidia.com
+Cc:     syzbot+779559d6503f3a56213d@syzkaller.appspotmail.com,
+        Jiri Pirko <jiri@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: FAILED: Patch "drop_monitor: Perform cleanup upon probe registration failure" failed to apply to 5.4-stable tree
+Date:   Mon, 29 Mar 2021 12:50:36 -0400
+Message-Id: <20210329165036.2358397-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-Patchwork-Hint: ignore
+X-stable: review
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@linux.microsoft.com>
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Since commit 6815f479ca90 ("ovl: use only uppermetacopy state in
-ovl_lookup()"), overlayfs doesn't put temporary dentry when there is a
-metacopy error, which leads to dentry leaks when shutting down the
-related superblock:
+Thanks,
+Sasha
 
-  overlayfs: refusing to follow metacopy origin for (/file0)
-  ...
-  BUG: Dentry (____ptrval____){i=3f33,n=file3}  still in use (1) [unmount of overlay overlay]
-  ...
-  WARNING: CPU: 1 PID: 432 at umount_check.cold+0x107/0x14d
-  CPU: 1 PID: 432 Comm: unmount-overlay Not tainted 5.12.0-rc5 #1
-  ...
-  RIP: 0010:umount_check.cold+0x107/0x14d
-  ...
-  Call Trace:
-   d_walk+0x28c/0x950
-   ? dentry_lru_isolate+0x2b0/0x2b0
-   ? __kasan_slab_free+0x12/0x20
-   do_one_tree+0x33/0x60
-   shrink_dcache_for_umount+0x78/0x1d0
-   generic_shutdown_super+0x70/0x440
-   kill_anon_super+0x3e/0x70
-   deactivate_locked_super+0xc4/0x160
-   deactivate_super+0xfa/0x140
-   cleanup_mnt+0x22e/0x370
-   __cleanup_mnt+0x1a/0x30
-   task_work_run+0x139/0x210
-   do_exit+0xb0c/0x2820
-   ? __kasan_check_read+0x1d/0x30
-   ? find_held_lock+0x35/0x160
-   ? lock_release+0x1b6/0x660
-   ? mm_update_next_owner+0xa20/0xa20
-   ? reacquire_held_locks+0x3f0/0x3f0
-   ? __sanitizer_cov_trace_const_cmp4+0x22/0x30
-   do_group_exit+0x135/0x380
-   __do_sys_exit_group.isra.0+0x20/0x20
-   __x64_sys_exit_group+0x3c/0x50
-   do_syscall_64+0x45/0x70
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  ...
-  VFS: Busy inodes after unmount of overlay. Self-destruct in 5 seconds.  Have a nice day...
+------------------ original commit in Linus's tree ------------------
 
-This fix has been tested with a syzkaller reproducer.
+From 9398e9c0b1d44eeb700e9e766c02bcc765c82570 Mon Sep 17 00:00:00 2001
+From: Ido Schimmel <idosch@nvidia.com>
+Date: Wed, 10 Mar 2021 12:28:01 +0200
+Subject: [PATCH] drop_monitor: Perform cleanup upon probe registration failure
 
-Cc: Amir Goldstein <amir73il@gmail.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: <stable@vger.kernel.org> # v5.7+
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Fixes: 6815f479ca90 ("ovl: use only uppermetacopy state in ovl_lookup()")
-Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
-Link: https://lore.kernel.org/r/20210329164907.2133175-1-mic@digikod.net
+In the rare case that drop_monitor fails to register its probe on the
+'napi_poll' tracepoint, it will not deactivate its hysteresis timer as
+part of the error path. If the hysteresis timer was armed by the shortly
+lived 'kfree_skb' probe and user space retries to initiate tracing, a
+warning will be emitted for trying to initialize an active object [1].
+
+Fix this by properly undoing all the operations that were done prior to
+probe registration, in both software and hardware code paths.
+
+Note that syzkaller managed to fail probe registration by injecting a
+slab allocation failure [2].
+
+[1]
+ODEBUG: init active (active state 0) object type: timer_list hint: sched_send_work+0x0/0x60 include/linux/list.h:135
+WARNING: CPU: 1 PID: 8649 at lib/debugobjects.c:505 debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+Modules linked in:
+CPU: 1 PID: 8649 Comm: syz-executor.0 Not tainted 5.11.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+[...]
+Call Trace:
+ __debug_object_init+0x524/0xd10 lib/debugobjects.c:588
+ debug_timer_init kernel/time/timer.c:722 [inline]
+ debug_init kernel/time/timer.c:770 [inline]
+ init_timer_key+0x2d/0x340 kernel/time/timer.c:814
+ net_dm_trace_on_set net/core/drop_monitor.c:1111 [inline]
+ set_all_monitor_traces net/core/drop_monitor.c:1188 [inline]
+ net_dm_monitor_start net/core/drop_monitor.c:1295 [inline]
+ net_dm_cmd_trace+0x720/0x1220 net/core/drop_monitor.c:1339
+ genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:739
+ genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+ genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2348
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2402
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2435
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+[2]
+ FAULT_INJECTION: forcing a failure.
+ name failslab, interval 1, probability 0, space 0, times 1
+ CPU: 1 PID: 8645 Comm: syz-executor.0 Not tainted 5.11.0-syzkaller #0
+ Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+ Call Trace:
+  dump_stack+0xfa/0x151
+  should_fail.cold+0x5/0xa
+  should_failslab+0x5/0x10
+  __kmalloc+0x72/0x3f0
+  tracepoint_add_func+0x378/0x990
+  tracepoint_probe_register+0x9c/0xe0
+  net_dm_cmd_trace+0x7fc/0x1220
+  genl_family_rcv_msg_doit+0x228/0x320
+  genl_rcv_msg+0x328/0x580
+  netlink_rcv_skb+0x153/0x420
+  genl_rcv+0x24/0x40
+  netlink_unicast+0x533/0x7d0
+  netlink_sendmsg+0x856/0xd90
+  sock_sendmsg+0xcf/0x120
+  ____sys_sendmsg+0x6e8/0x810
+  ___sys_sendmsg+0xf3/0x170
+  __sys_sendmsg+0xe5/0x1b0
+  do_syscall_64+0x2d/0x70
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 70c69274f354 ("drop_monitor: Initialize timer and work item upon tracing enable")
+Fixes: 8ee2267ad33e ("drop_monitor: Convert to using devlink tracepoint")
+Reported-by: syzbot+779559d6503f3a56213d@syzkaller.appspotmail.com
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- fs/overlayfs/namei.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/drop_monitor.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/fs/overlayfs/namei.c b/fs/overlayfs/namei.c
-index 3fe05fb5d145..424c594afd79 100644
---- a/fs/overlayfs/namei.c
-+++ b/fs/overlayfs/namei.c
-@@ -921,6 +921,7 @@ struct dentry *ovl_lookup(struct inode *dir, struct dentry *dentry,
- 		if ((uppermetacopy || d.metacopy) && !ofs->config.metacopy) {
- 			err = -EPERM;
- 			pr_warn_ratelimited("refusing to follow metacopy origin for (%pd2)\n", dentry);
-+			dput(this);
- 			goto out_put;
- 		}
+diff --git a/net/core/drop_monitor.c b/net/core/drop_monitor.c
+index 571f191c06d9..db65ce62b625 100644
+--- a/net/core/drop_monitor.c
++++ b/net/core/drop_monitor.c
+@@ -1053,6 +1053,20 @@ static int net_dm_hw_monitor_start(struct netlink_ext_ack *extack)
+ 	return 0;
  
-
-base-commit: a5e13c6df0e41702d2b2c77c8ad41677ebb065b3
+ err_module_put:
++	for_each_possible_cpu(cpu) {
++		struct per_cpu_dm_data *hw_data = &per_cpu(dm_hw_cpu_data, cpu);
++		struct sk_buff *skb;
++
++		del_timer_sync(&hw_data->send_timer);
++		cancel_work_sync(&hw_data->dm_alert_work);
++		while ((skb = __skb_dequeue(&hw_data->drop_queue))) {
++			struct devlink_trap_metadata *hw_metadata;
++
++			hw_metadata = NET_DM_SKB_CB(skb)->hw_metadata;
++			net_dm_hw_metadata_free(hw_metadata);
++			consume_skb(skb);
++		}
++	}
+ 	module_put(THIS_MODULE);
+ 	return rc;
+ }
+@@ -1134,6 +1148,15 @@ static int net_dm_trace_on_set(struct netlink_ext_ack *extack)
+ err_unregister_trace:
+ 	unregister_trace_kfree_skb(ops->kfree_skb_probe, NULL);
+ err_module_put:
++	for_each_possible_cpu(cpu) {
++		struct per_cpu_dm_data *data = &per_cpu(dm_cpu_data, cpu);
++		struct sk_buff *skb;
++
++		del_timer_sync(&data->send_timer);
++		cancel_work_sync(&data->dm_alert_work);
++		while ((skb = __skb_dequeue(&data->drop_queue)))
++			consume_skb(skb);
++	}
+ 	module_put(THIS_MODULE);
+ 	return rc;
+ }
 -- 
-2.30.2
+2.30.1
+
+
+
 
