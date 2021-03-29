@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB04D34C6F6
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D20634CA85
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231958AbhC2ILL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54318 "EHLO mail.kernel.org"
+        id S234100AbhC2Iit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:38:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232403AbhC2IKd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10AF46196E;
-        Mon, 29 Mar 2021 08:10:31 +0000 (UTC)
+        id S234785AbhC2IhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F40E8619C4;
+        Mon, 29 Mar 2021 08:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005432;
-        bh=Ml4y9bHf7XklWxUPh29tC6OcUJc0s/Dd11vTEoq3Yk4=;
+        s=korg; t=1617007002;
+        bh=50bq1V/OJBYTOS4GglO9HpASZA32TGS3U7ESGsOpvcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVb2Wl55sGcUphjuZHvLCr9QgqpDo1Ct54irDYtCFjZGkYWCx1Zz+4H4hIMyICWCT
-         8IJ5ToOfUFRgYMnIWuzpWl1NlnmHfwiCVF1T6sJ/TuQX5K8a16biL88ONNuvdYwE+M
-         lqVbMUlJcTaeDTf7+1JOd68m6MCNDaMrmww4/OFE=
+        b=GOBukRRkSPQc4lUFfMr6SLkDS1bSZeAKoAT2uSXjjbkNcnry4itMc+tG0naIhxMKC
+         wTNsRo1SK6QzjufIHBD2hoZQcE0w0sRHVfU6N6cF73BH3Bceknq/7XrROE7tNKCHkI
+         HQcIYHLAnTpI0K10OzfQIbHfkB4IRc3sy9xeGqZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Angelo Dureghello <angelo@kernel-space.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, David Brazdil <dbrazdil@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 44/72] can: flexcan: flexcan_chip_freeze(): fix chip freeze for missing bitrate
+Subject: [PATCH 5.11 184/254] selinux: vsock: Set SID for socket returned by accept()
 Date:   Mon, 29 Mar 2021 09:58:20 +0200
-Message-Id: <20210329075611.740847544@linuxfoundation.org>
+Message-Id: <20210329075639.181254030@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Dureghello <angelo@kernel-space.org>
+From: David Brazdil <dbrazdil@google.com>
 
-[ Upstream commit 47c5e474bc1e1061fb037d13b5000b38967eb070 ]
+[ Upstream commit 1f935e8e72ec28dddb2dc0650b3b6626a293d94b ]
 
-For cases when flexcan is built-in, bitrate is still not set at
-registering. So flexcan_chip_freeze() generates:
+For AF_VSOCK, accept() currently returns sockets that are unlabelled.
+Other socket families derive the child's SID from the SID of the parent
+and the SID of the incoming packet. This is typically done as the
+connected socket is placed in the queue that accept() removes from.
 
-[    1.860000] *** ZERO DIVIDE ***   FORMAT=4
-[    1.860000] Current process id is 1
-[    1.860000] BAD KERNEL TRAP: 00000000
-[    1.860000] PC: [<402e70c8>] flexcan_chip_freeze+0x1a/0xa8
+Reuse the existing 'security_sk_clone' hook to copy the SID from the
+parent (server) socket to the child. There is no packet SID in this
+case.
 
-To allow chip freeze, using an hardcoded timeout when bitrate is still
-not set.
-
-Fixes: ec15e27cc890 ("can: flexcan: enable RX FIFO after FRZ/HALT valid")
-Link: https://lore.kernel.org/r/20210315231510.650593-1-angelo@kernel-space.org
-Signed-off-by: Angelo Dureghello <angelo@kernel-space.org>
-[mkl: use if instead of ? operator]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: David Brazdil <dbrazdil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/vmw_vsock/af_vsock.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
-index cb6bc2058542..d4dfa0247ebb 100644
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -422,9 +422,15 @@ static int flexcan_chip_disable(struct flexcan_priv *priv)
- static int flexcan_chip_freeze(struct flexcan_priv *priv)
- {
- 	struct flexcan_regs __iomem *regs = priv->regs;
--	unsigned int timeout = 1000 * 1000 * 10 / priv->can.bittiming.bitrate;
-+	unsigned int timeout;
-+	u32 bitrate = priv->can.bittiming.bitrate;
- 	u32 reg;
- 
-+	if (bitrate)
-+		timeout = 1000 * 1000 * 10 / bitrate;
-+	else
-+		timeout = FLEXCAN_TIMEOUT_US / 10;
-+
- 	reg = priv->read(&regs->mcr);
- 	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
- 	priv->write(reg, &regs->mcr);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 5546710d8ac1..bc7fb9bf3351 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -755,6 +755,7 @@ static struct sock *__vsock_create(struct net *net,
+ 		vsk->buffer_size = psk->buffer_size;
+ 		vsk->buffer_min_size = psk->buffer_min_size;
+ 		vsk->buffer_max_size = psk->buffer_max_size;
++		security_sk_clone(parent, sk);
+ 	} else {
+ 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+ 		vsk->owner = get_current_cred();
 -- 
 2.30.1
 
