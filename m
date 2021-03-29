@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 781E934C99E
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD6A34C7E0
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232313AbhC2Ia2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:30:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47460 "EHLO mail.kernel.org"
+        id S231796AbhC2IS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231653AbhC2I3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:29:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92942614A7;
-        Mon, 29 Mar 2021 08:29:02 +0000 (UTC)
+        id S233343AbhC2IRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:17:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9248C619AA;
+        Mon, 29 Mar 2021 08:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006544;
-        bh=zAtzDfQAXaeOAB0+XE+qy9KzeC4/LjIy8j9dzfmTH9g=;
+        s=korg; t=1617005835;
+        bh=yVGfVRO7Xj7U+lHvrEE+sQIiCYb5eGK2AG3Ak+dYvGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQX8y3n7Z43JC/rGUan2EIaB2akm72Q0FjxMAyY9+qV47H6GaSnbd4r4C4q0ddna9
-         Ypwg/4A8AS68wb07PddhjIkf2baXM1Gs/Be291GyEcVH7hDyUpkaK1Y7fIJUT+PUVl
-         o89JFzxeP/xgux6KeKA5jRgGHTEi7pfbVfiduAmk=
+        b=U6yBihHOkflud7CxYU4BS5yRjKe2WfvuitPQ++Q8vHPI0RHVvFNgLAIaRiedzBJLL
+         Tlcc81TwWJq5ZUHOg4sm0qprRPAykdM6zx4HzUx04lkx2mWRF1UrlCIJUIJl5wn+Mw
+         Bjtu0zSJONZB0XeOJSTDNn9IC9iogWb0g/adEEwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Julian Braha <julianbraha@gmail.com>,
+        stable@vger.kernel.org, Timo Rothenpieler <timo@rothenpieler.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 037/254] staging: rtl8192e: fix kconfig dependency on CRYPTO
+Subject: [PATCH 5.10 022/221] nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
 Date:   Mon, 29 Mar 2021 09:55:53 +0200
-Message-Id: <20210329075634.368710522@linuxfoundation.org>
+Message-Id: <20210329075629.928194934@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Braha <julianbraha@gmail.com>
+From: Timo Rothenpieler <timo@rothenpieler.org>
 
-[ Upstream commit 7c36194558cf49a86a53b5f60db8046c5e3013ae ]
+[ Upstream commit a0590473c5e6c4ef17c3132ad08fbad170f72d55 ]
 
-When RTLLIB_CRYPTO_TKIP is enabled and CRYPTO is disabled,
-Kbuild gives the following warning:
+This follows what was done in 8c2fabc6542d9d0f8b16bd1045c2eda59bdcde13.
+With the default being m, it's impossible to build the module into the
+kernel.
 
-WARNING: unmet direct dependencies detected for CRYPTO_MICHAEL_MIC
-  Depends on [n]: CRYPTO [=n]
-  Selected by [m]:
-  - RTLLIB_CRYPTO_TKIP [=m] && STAGING [=y] && RTLLIB [=m]
-
-WARNING: unmet direct dependencies detected for CRYPTO_LIB_ARC4
-  Depends on [n]: CRYPTO [=n]
-  Selected by [m]:
-  - RTLLIB_CRYPTO_TKIP [=m] && STAGING [=y] && RTLLIB [=m]
-  - RTLLIB_CRYPTO_WEP [=m] && STAGING [=y] && RTLLIB [=m]
-
-This is because RTLLIB_CRYPTO_TKIP selects CRYPTO_MICHAEL_MIC and
-CRYPTO_LIB_ARC4, without depending on or selecting CRYPTO,
-despite those config options being subordinate to CRYPTO.
-
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
-Link: https://lore.kernel.org/r/20210222180607.399753-1-julianbraha@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Timo Rothenpieler <timo@rothenpieler.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8192e/Kconfig b/drivers/staging/rtl8192e/Kconfig
-index 03fcc23516fd..6e7d84ac06f5 100644
---- a/drivers/staging/rtl8192e/Kconfig
-+++ b/drivers/staging/rtl8192e/Kconfig
-@@ -26,6 +26,7 @@ config RTLLIB_CRYPTO_CCMP
- config RTLLIB_CRYPTO_TKIP
- 	tristate "Support for rtllib TKIP crypto"
- 	depends on RTLLIB
-+	select CRYPTO
- 	select CRYPTO_LIB_ARC4
- 	select CRYPTO_MICHAEL_MIC
- 	default y
+diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+index e2a488d403a6..14a72224b657 100644
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -127,7 +127,7 @@ config PNFS_BLOCK
+ config PNFS_FLEXFILE_LAYOUT
+ 	tristate
+ 	depends on NFS_V4_1 && NFS_V3
+-	default m
++	default NFS_V4
+ 
+ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
+ 	string "NFSv4.1 Implementation ID Domain"
 -- 
 2.30.1
 
