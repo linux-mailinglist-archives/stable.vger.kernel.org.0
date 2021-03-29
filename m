@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F10C34C764
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68C1D34C767
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232757AbhC2IPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:15:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
+        id S232688AbhC2IPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:15:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232705AbhC2INo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:13:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF03A61477;
-        Mon, 29 Mar 2021 08:13:41 +0000 (UTC)
+        id S232221AbhC2INx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:13:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7F006044F;
+        Mon, 29 Mar 2021 08:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005622;
-        bh=ysffmYUDo0/7c8mGFGOe47UZnwJ8LUZUvFt5CO9ScjY=;
+        s=korg; t=1617005625;
+        bh=ApNTptpCeJSpR+IMFXy3Wpu+mjjEIBV97QnZCV8cffA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDStjHnm/g/e6Jv+h8f3i0GH7LNejo2bjp+lkvVQ8z19IqmbSdY8AqorwC1zRCFYP
-         9yIs/76bCjmDrADdWTR02D47YhuXQBQdnXxxh7v82XI5Y6wnpHEUj1h5+zj7fZA4q2
-         dL+1nx0NSjrU9mNHx4NyhREM6gb1+diLaHv/kue4=
+        b=X0caFywDQZffwcyRsR7f/pkiQEO6witD/fq5RyURz+LKTs0/B3ZwJcfXc48GU/q0P
+         eK7Q3JxYRTfFLk8aMgdqLf2A8UJZUp9fy6sXk+wlGUWaBk+jZwyLwlLf2Ijs+Tg8VE
+         R6IFBolipeNPMHFP8TJ3ndJLUmglW6QOKQUQwG5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/111] macvlan: macvlan_count_rx() needs to be aware of preemption
-Date:   Mon, 29 Mar 2021 09:58:06 +0200
-Message-Id: <20210329075617.134768780@linuxfoundation.org>
+Subject: [PATCH 5.4 059/111] net: sched: validate stab values
+Date:   Mon, 29 Mar 2021 09:58:07 +0200
+Message-Id: <20210329075617.171315425@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
 References: <20210329075615.186199980@linuxfoundation.org>
@@ -44,85 +43,187 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit dd4fa1dae9f4847cc1fd78ca468ad69e16e5db3e ]
+[ Upstream commit e323d865b36134e8c5c82c834df89109a5c60dab ]
 
-macvlan_count_rx() can be called from process context, it is thus
-necessary to disable preemption before calling u64_stats_update_begin()
+iproute2 package is well behaved, but malicious user space can
+provide illegal shift values and trigger UBSAN reports.
 
-syzbot was able to spot this on 32bit arch:
+Add stab parameter to red_check_params() to validate user input.
 
-WARNING: CPU: 1 PID: 4632 at include/linux/seqlock.h:271 __seqprop_assert include/linux/seqlock.h:271 [inline]
-WARNING: CPU: 1 PID: 4632 at include/linux/seqlock.h:271 __seqprop_assert.constprop.0+0xf0/0x11c include/linux/seqlock.h:269
-Modules linked in:
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 1 PID: 4632 Comm: kworker/1:3 Not tainted 5.12.0-rc2-syzkaller #0
-Hardware name: ARM-Versatile Express
-Workqueue: events macvlan_process_broadcast
-Backtrace:
-[<82740468>] (dump_backtrace) from [<827406dc>] (show_stack+0x18/0x1c arch/arm/kernel/traps.c:252)
- r7:00000080 r6:60000093 r5:00000000 r4:8422a3c4
-[<827406c4>] (show_stack) from [<82751b58>] (__dump_stack lib/dump_stack.c:79 [inline])
-[<827406c4>] (show_stack) from [<82751b58>] (dump_stack+0xb8/0xe8 lib/dump_stack.c:120)
-[<82751aa0>] (dump_stack) from [<82741270>] (panic+0x130/0x378 kernel/panic.c:231)
- r7:830209b4 r6:84069ea4 r5:00000000 r4:844350d0
-[<82741140>] (panic) from [<80244924>] (__warn+0xb0/0x164 kernel/panic.c:605)
- r3:8404ec8c r2:00000000 r1:00000000 r0:830209b4
- r7:0000010f
-[<80244874>] (__warn) from [<82741520>] (warn_slowpath_fmt+0x68/0xd4 kernel/panic.c:628)
- r7:81363f70 r6:0000010f r5:83018e50 r4:00000000
-[<827414bc>] (warn_slowpath_fmt) from [<81363f70>] (__seqprop_assert include/linux/seqlock.h:271 [inline])
-[<827414bc>] (warn_slowpath_fmt) from [<81363f70>] (__seqprop_assert.constprop.0+0xf0/0x11c include/linux/seqlock.h:269)
- r8:5a109000 r7:0000000f r6:a568dac0 r5:89802300 r4:00000001
-[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (u64_stats_update_begin include/linux/u64_stats_sync.h:128 [inline])
-[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (macvlan_count_rx include/linux/if_macvlan.h:47 [inline])
-[<81363e80>] (__seqprop_assert.constprop.0) from [<81364af0>] (macvlan_broadcast+0x154/0x26c drivers/net/macvlan.c:291)
- r5:89802300 r4:8a927740
-[<8136499c>] (macvlan_broadcast) from [<81365020>] (macvlan_process_broadcast+0x258/0x2d0 drivers/net/macvlan.c:317)
- r10:81364f78 r9:8a86d000 r8:8a9c7e7c r7:8413aa5c r6:00000000 r5:00000000
- r4:89802840
-[<81364dc8>] (macvlan_process_broadcast) from [<802696a4>] (process_one_work+0x2d4/0x998 kernel/workqueue.c:2275)
- r10:00000008 r9:8404ec98 r8:84367a02 r7:ddfe6400 r6:ddfe2d40 r5:898dac80
- r4:8a86d43c
-[<802693d0>] (process_one_work) from [<80269dcc>] (worker_thread+0x64/0x54c kernel/workqueue.c:2421)
- r10:00000008 r9:8a9c6000 r8:84006d00 r7:ddfe2d78 r6:898dac94 r5:ddfe2d40
- r4:898dac80
-[<80269d68>] (worker_thread) from [<80271f40>] (kthread+0x184/0x1a4 kernel/kthread.c:292)
- r10:85247e64 r9:898dac80 r8:80269d68 r7:00000000 r6:8a9c6000 r5:89a2ee40
- r4:8a97bd00
-[<80271dbc>] (kthread) from [<80200114>] (ret_from_fork+0x14/0x20 arch/arm/kernel/entry-common.S:158)
-Exception stack(0x8a9c7fb0 to 0x8a9c7ff8)
+syzbot reported:
 
-Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
+UBSAN: shift-out-of-bounds in ./include/net/red.h:312:18
+shift exponent 111 is too large for 64-bit type 'long unsigned int'
+CPU: 1 PID: 14662 Comm: syz-executor.3 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
+ red_calc_qavg_from_idle_time include/net/red.h:312 [inline]
+ red_calc_qavg include/net/red.h:353 [inline]
+ choke_enqueue.cold+0x18/0x3dd net/sched/sch_choke.c:221
+ __dev_xmit_skb net/core/dev.c:3837 [inline]
+ __dev_queue_xmit+0x1943/0x2e00 net/core/dev.c:4150
+ neigh_hh_output include/net/neighbour.h:499 [inline]
+ neigh_output include/net/neighbour.h:508 [inline]
+ ip6_finish_output2+0x911/0x1700 net/ipv6/ip6_output.c:117
+ __ip6_finish_output net/ipv6/ip6_output.c:182 [inline]
+ __ip6_finish_output+0x4c1/0xe10 net/ipv6/ip6_output.c:161
+ ip6_finish_output+0x35/0x200 net/ipv6/ip6_output.c:192
+ NF_HOOK_COND include/linux/netfilter.h:290 [inline]
+ ip6_output+0x1e4/0x530 net/ipv6/ip6_output.c:215
+ dst_output include/net/dst.h:448 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ NF_HOOK include/linux/netfilter.h:295 [inline]
+ ip6_xmit+0x127e/0x1eb0 net/ipv6/ip6_output.c:320
+ inet6_csk_xmit+0x358/0x630 net/ipv6/inet6_connection_sock.c:135
+ dccp_transmit_skb+0x973/0x12c0 net/dccp/output.c:138
+ dccp_send_reset+0x21b/0x2b0 net/dccp/output.c:535
+ dccp_finish_passive_close net/dccp/proto.c:123 [inline]
+ dccp_finish_passive_close+0xed/0x140 net/dccp/proto.c:118
+ dccp_terminate_connection net/dccp/proto.c:958 [inline]
+ dccp_close+0xb3c/0xe60 net/dccp/proto.c:1028
+ inet_release+0x12e/0x280 net/ipv4/af_inet.c:431
+ inet6_release+0x4c/0x70 net/ipv6/af_inet6.c:478
+ __sock_release+0xcd/0x280 net/socket.c:599
+ sock_close+0x18/0x20 net/socket.c:1258
+ __fput+0x288/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/if_macvlan.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/red.h     | 10 +++++++++-
+ net/sched/sch_choke.c |  7 ++++---
+ net/sched/sch_gred.c  |  2 +-
+ net/sched/sch_red.c   |  7 +++++--
+ net/sched/sch_sfq.c   |  2 +-
+ 5 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/if_macvlan.h b/include/linux/if_macvlan.h
-index a367ead4bf4b..e11555989090 100644
---- a/include/linux/if_macvlan.h
-+++ b/include/linux/if_macvlan.h
-@@ -42,13 +42,14 @@ static inline void macvlan_count_rx(const struct macvlan_dev *vlan,
- 	if (likely(success)) {
- 		struct vlan_pcpu_stats *pcpu_stats;
+diff --git a/include/net/red.h b/include/net/red.h
+index e21e7fd4fe07..8fe55b8b2fb8 100644
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -168,7 +168,8 @@ static inline void red_set_vars(struct red_vars *v)
+ 	v->qcount	= -1;
+ }
  
--		pcpu_stats = this_cpu_ptr(vlan->pcpu_stats);
-+		pcpu_stats = get_cpu_ptr(vlan->pcpu_stats);
- 		u64_stats_update_begin(&pcpu_stats->syncp);
- 		pcpu_stats->rx_packets++;
- 		pcpu_stats->rx_bytes += len;
- 		if (multicast)
- 			pcpu_stats->rx_multicast++;
- 		u64_stats_update_end(&pcpu_stats->syncp);
-+		put_cpu_ptr(vlan->pcpu_stats);
- 	} else {
- 		this_cpu_inc(vlan->pcpu_stats->rx_errors);
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog,
++				    u8 Scell_log, u8 *stab)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+@@ -178,6 +179,13 @@ static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_
+ 		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
++	if (stab) {
++		int i;
++
++		for (i = 0; i < RED_STAB_SIZE; i++)
++			if (stab[i] >= 32)
++				return false;
++	}
+ 	return true;
+ }
+ 
+diff --git a/net/sched/sch_choke.c b/net/sched/sch_choke.c
+index d856b395ee8e..e54f6eabfa0c 100644
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -351,6 +351,7 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
+ 	struct sk_buff **old = NULL;
+ 	unsigned int mask;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -367,8 +368,8 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
+ 	max_P = tb[TCA_CHOKE_MAX_P] ? nla_get_u32(tb[TCA_CHOKE_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+-
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_CHOKE_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+@@ -418,7 +419,7 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
+ 
+ 	red_set_parms(&q->parms, ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_CHOKE_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+diff --git a/net/sched/sch_gred.c b/net/sched/sch_gred.c
+index e0bc77533acc..f4132dc25ac0 100644
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -480,7 +480,7 @@ static inline int gred_change_vq(struct Qdisc *sch, int dp,
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log)) {
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log, stab)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "invalid RED parameters");
+ 		return -EINVAL;
  	}
+diff --git a/net/sched/sch_red.c b/net/sched/sch_red.c
+index 71e167e91a48..7741f102be4a 100644
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -197,6 +197,7 @@ static int red_change(struct Qdisc *sch, struct nlattr *opt,
+ 	struct tc_red_qopt *ctl;
+ 	int err;
+ 	u32 max_P;
++	u8 *stab;
+ 
+ 	if (opt == NULL)
+ 		return -EINVAL;
+@@ -213,7 +214,9 @@ static int red_change(struct Qdisc *sch, struct nlattr *opt,
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
++	stab = nla_data(tb[TCA_RED_STAB]);
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog,
++			      ctl->Scell_log, stab))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+@@ -238,7 +241,7 @@ static int red_change(struct Qdisc *sch, struct nlattr *opt,
+ 	red_set_parms(&q->parms,
+ 		      ctl->qth_min, ctl->qth_max, ctl->Wlog,
+ 		      ctl->Plog, ctl->Scell_log,
+-		      nla_data(tb[TCA_RED_STAB]),
++		      stab,
+ 		      max_P);
+ 	red_set_vars(&q->vars);
+ 
+diff --git a/net/sched/sch_sfq.c b/net/sched/sch_sfq.c
+index 6e13e137883c..b92bafaf83f3 100644
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -647,7 +647,7 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog, ctl_v1->Scell_log))
++					ctl_v1->Wlog, ctl_v1->Scell_log, NULL))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 -- 
 2.30.1
 
