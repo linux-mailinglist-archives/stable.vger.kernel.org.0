@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A997E34C6B8
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0237B34C8DB
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232505AbhC2IJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:09:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52166 "EHLO mail.kernel.org"
+        id S231382AbhC2IY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230364AbhC2IIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:08:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE88361938;
-        Mon, 29 Mar 2021 08:08:37 +0000 (UTC)
+        id S233867AbhC2IWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC6E961477;
+        Mon, 29 Mar 2021 08:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005318;
-        bh=sXnRPHr0FhJAX0X7M0EATilAKgmtpfNIuhcP3QuKYyw=;
+        s=korg; t=1617006142;
+        bh=40apNtwK/ByI1t+hK7o7y4DD75s4fZeBKofqvxd5EFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYhVkqQPF95M9wGVf9Bs7vmxreUP/5jZg0L3BjutxP9O9rDQmb+Lb/jnFuDGPaX9q
-         dj0cO3OfNrHFX3Md+SABkzTvUokbJPOoDhWwApHdJgjr6Lkct9JoNHuAz0OZ/xBrkG
-         n/RlMVMNdiAiSgnMRckO/NO6pWa9rwLttYwdLn8U=
+        b=p53mPjMUxhH7BOnU5nKYFDtP98V3uF1O0KcsVauprz3+y2xe3Y1OCu5v0i733TqqQ
+         GwdOCdKM/ZZeB95e97850qhbAFvfCUOXzYId5AbU2puWH8ZGHU+I09aWf6xfQQFotX
+         g8aI5APwtYLvxafPv/ce5+IEIBJ2osLTXlWvoRA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/72] net: tehuti: fix error return code in bdx_probe()
+Subject: [PATCH 5.10 132/221] can: m_can: m_can_rx_peripheral(): fix RX being blocked by errors
 Date:   Mon, 29 Mar 2021 09:57:43 +0200
-Message-Id: <20210329075610.540117883@linuxfoundation.org>
+Message-Id: <20210329075633.597200987@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Torin Cooper-Bennun <torin@maxiluxsystems.com>
 
-[ Upstream commit 38c26ff3048af50eee3fcd591921357ee5bfd9ee ]
+[ Upstream commit e98d9ee64ee2cc9b1d1a8e26610ec4d0392ebe50 ]
 
-When bdx_read_mac() fails, no error return code of bdx_probe()
-is assigned.
-To fix this bug, err is assigned with -EFAULT as error return code.
+For M_CAN peripherals, m_can_rx_handler() was called with quota = 1,
+which caused any error handling to block RX from taking place until
+the next time the IRQ handler is called. This had been observed to
+cause RX to be blocked indefinitely in some cases.
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is fixed by calling m_can_rx_handler with a sensibly high quota.
+
+Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
+Link: https://lore.kernel.org/r/20210303144350.4093750-1-torin@maxiluxsystems.com
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/tehuti/tehuti.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/m_can/m_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/tehuti/tehuti.c b/drivers/net/ethernet/tehuti/tehuti.c
-index dc966ddb6d81..358f911fcd9d 100644
---- a/drivers/net/ethernet/tehuti/tehuti.c
-+++ b/drivers/net/ethernet/tehuti/tehuti.c
-@@ -2056,6 +2056,7 @@ bdx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		/*bdx_hw_reset(priv); */
- 		if (bdx_read_mac(priv)) {
- 			pr_err("load MAC address failed\n");
-+			err = -EFAULT;
- 			goto err_out_iomap;
- 		}
- 		SET_NETDEV_DEV(ndev, &pdev->dev);
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 6952d5b396e8..6f0bf5db885c 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -882,7 +882,7 @@ static int m_can_rx_peripheral(struct net_device *dev)
+ {
+ 	struct m_can_classdev *cdev = netdev_priv(dev);
+ 
+-	m_can_rx_handler(dev, 1);
++	m_can_rx_handler(dev, M_CAN_NAPI_WEIGHT);
+ 
+ 	m_can_enable_all_interrupts(cdev);
+ 
 -- 
 2.30.1
 
