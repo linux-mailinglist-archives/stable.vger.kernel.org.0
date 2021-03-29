@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E92634CAD5
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3741134C968
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235004AbhC2IkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:40:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34102 "EHLO mail.kernel.org"
+        id S233642AbhC2I3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233087AbhC2IjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:39:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92E3560234;
-        Mon, 29 Mar 2021 08:39:11 +0000 (UTC)
+        id S234041AbhC2I1l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:27:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EC04619B1;
+        Mon, 29 Mar 2021 08:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007152;
-        bh=RmaEA6E08th5zT+hvTUCWj30Ny5e73vOWoZyCs8iO7M=;
+        s=korg; t=1617006392;
+        bh=bYcSuwf76wKELwNvz/lNKM+CZvDdOnA/sw+MIR5doo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rsj63TDwYdwuyK8au/WDKdZNDmxQOM2Xje6F4e8a70vvXjEITO4v8GFibA8n52OnP
-         1sW5Chx4Icis1WgIUutUgDjWt2NIZToPM51vURhNAynDnbIL/XnSUdtJu8ULx+xNXn
-         1rXxml6KxYsT9+oAdBtiLHq0j8NynOgoSt9gWQQM=
+        b=iRUQfqHhi4PNXNcwyr1W+lQJnVsz0Eufq7MSlaqpHOqgIx5WJONZZEwFAezJoBI3l
+         DHQ+VllRoIn/4zlYsj0YhxoKgndRt4HFwt6E1ASNdMQDmKb1XOQxFEtaT8GHyFXVmr
+         5HQLqOoBOsfijJzNms5n3Vov6RYmcJMEnVI8KzDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 232/254] perf auxtrace: Fix auxtrace queue conflict
+        stable@vger.kernel.org,
+        syzbot+a8b4b0c60155e87e9484@syzkaller.appspotmail.com,
+        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 217/221] fs/ext4: fix integer overflow in s_log_groups_per_flex
 Date:   Mon, 29 Mar 2021 09:59:08 +0200
-Message-Id: <20210329075640.716886579@linuxfoundation.org>
+Message-Id: <20210329075636.375839941@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-[ Upstream commit b410ed2a8572d41c68bd9208555610e4b07d0703 ]
+commit f91436d55a279f045987e8b8c1385585dca54be9 upstream.
 
-The only requirement of an auxtrace queue is that the buffers are in
-time order.  That is achieved by making separate queues for separate
-perf buffer or AUX area buffer mmaps.
+syzbot found UBSAN: shift-out-of-bounds in ext4_mb_init [1], when
+1 << sbi->s_es->s_log_groups_per_flex is bigger than UINT_MAX,
+where sbi->s_mb_prefetch is unsigned integer type.
 
-That generally means a separate queue per cpu for per-cpu contexts, and
-a separate queue per thread for per-task contexts.
+32 is the maximum allowed power of s_log_groups_per_flex. Following if
+check will also trigger UBSAN shift-out-of-bound:
 
-When buffers are added to a queue, perf checks that the buffer cpu and
-thread id (tid) match the queue cpu and thread id.
+if (1 << sbi->s_es->s_log_groups_per_flex >= UINT_MAX) {
 
-However, generally, that need not be true, and perf will queue buffers
-correctly anyway, so the check is not needed.
+So I'm checking it against the raw number, perhaps there is another way
+to calculate UINT_MAX max power. Also use min_t as to make sure it's
+uint type.
 
-In addition, the check gets erroneously hit when using sample mode to
-trace multiple threads.
+[1] UBSAN: shift-out-of-bounds in fs/ext4/mballoc.c:2713:24
+shift exponent 60 is too large for 32-bit type 'int'
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x137/0x1be lib/dump_stack.c:120
+ ubsan_epilogue lib/ubsan.c:148 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
+ ext4_mb_init_backend fs/ext4/mballoc.c:2713 [inline]
+ ext4_mb_init+0x19bc/0x19f0 fs/ext4/mballoc.c:2898
+ ext4_fill_super+0xc2ec/0xfbe0 fs/ext4/super.c:4983
 
-Consequently, fix that case by removing the check.
-
-Fixes: e502789302a6 ("perf auxtrace: Add helpers for queuing AUX area tracing data")
-Reported-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: http://lore.kernel.org/lkml/20210308151143.18338-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+a8b4b0c60155e87e9484@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210224095800.3350002-1-snovitoll@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/auxtrace.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/ext4/mballoc.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index a60878498139..2723082f3817 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -298,10 +298,6 @@ static int auxtrace_queues__queue_buffer(struct auxtrace_queues *queues,
- 		queue->set = true;
- 		queue->tid = buffer->tid;
- 		queue->cpu = buffer->cpu;
--	} else if (buffer->cpu != queue->cpu || buffer->tid != queue->tid) {
--		pr_err("auxtrace queue conflict: cpu %d, tid %d vs cpu %d, tid %d\n",
--		       queue->cpu, queue->tid, buffer->cpu, buffer->tid);
--		return -EINVAL;
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -2732,8 +2732,15 @@ static int ext4_mb_init_backend(struct s
  	}
  
- 	buffer->buffer_nr = queues->next_buffer_nr++;
--- 
-2.30.1
-
+ 	if (ext4_has_feature_flex_bg(sb)) {
+-		/* a single flex group is supposed to be read by a single IO */
+-		sbi->s_mb_prefetch = min(1 << sbi->s_es->s_log_groups_per_flex,
++		/* a single flex group is supposed to be read by a single IO.
++		 * 2 ^ s_log_groups_per_flex != UINT_MAX as s_mb_prefetch is
++		 * unsigned integer, so the maximum shift is 32.
++		 */
++		if (sbi->s_es->s_log_groups_per_flex >= 32) {
++			ext4_msg(sb, KERN_ERR, "too many log groups per flexible block group");
++			goto err_freesgi;
++		}
++		sbi->s_mb_prefetch = min_t(uint, 1 << sbi->s_es->s_log_groups_per_flex,
+ 			BLK_MAX_SEGMENT_SIZE >> (sb->s_blocksize_bits - 9));
+ 		sbi->s_mb_prefetch *= 8; /* 8 prefetch IOs in flight at most */
+ 	} else {
 
 
