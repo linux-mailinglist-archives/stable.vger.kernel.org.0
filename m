@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A17834CA42
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB34A34C72D
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231941AbhC2IgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:36:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55736 "EHLO mail.kernel.org"
+        id S232088AbhC2INJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233270AbhC2Iel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:34:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7EFA619AB;
-        Mon, 29 Mar 2021 08:34:40 +0000 (UTC)
+        id S232255AbhC2ILo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:11:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 132636196F;
+        Mon, 29 Mar 2021 08:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006881;
-        bh=WTJcMEegiKcxEk43R4BYWCA/O9UUUJxOtBYag4De+vc=;
+        s=korg; t=1617005503;
+        bh=tJppkkQxH6U1OjcQEgVnWQ7WGA+4wOLEyT5G0NsQy78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hUsvNtkONWX5jAI5ggUkN2r07vSzRVwPxinrpEHM4ZHpsW+qLBEMb0/KsBl/ZTn/b
-         AEWrcnhbw5c8wpK2jiRogpMYdQRZsO2QimZ8KTyhZddyOs5lQuM3dDRniX+URIwXbt
-         nUjVEizhhOQpT0huWKhWzqUZD+lgrGnLhpkUelI0=
+        b=KlSSvKdzejtXoiNFr/3mQRAdIWwOkcrxyWSLJZYG/+FvEJysnsniRgRR2BQ6WMwAY
+         GYzShojh4mptIKIcL0vcUohajdodUrhnjrlWzKhs13Cff4LSfawanGBTygyQRVGKwS
+         nEW48b0N3i4vJxnles19IFTdRcDeQkHPBUMB4yKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sujit Kautkar <sujitka@chromium.org>,
-        Alex Elder <elder@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Rob Gardner <rob.gardner@oracle.com>,
+        Anatoly Pugachev <matorola@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 137/254] net: ipa: terminate message handler arrays
+Subject: [PATCH 5.4 025/111] sparc64: Fix opcode filtering in handling of no fault loads
 Date:   Mon, 29 Mar 2021 09:57:33 +0200
-Message-Id: <20210329075637.725042865@linuxfoundation.org>
+Message-Id: <20210329075616.022760832@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Rob Gardner <rob.gardner@oracle.com>
 
-[ Upstream commit 3a9ef3e11c5d33e5cb355b4aad1a4caad2407541 ]
+[ Upstream commit e5e8b80d352ec999d2bba3ea584f541c83f4ca3f ]
 
-When a QMI handle is initialized, an array of message handler
-structures is provided, defining how any received message should
-be handled based on its type and message ID.  The QMI core code
-traverses this array when a message arrives and calls the function
-associated with the (type, msg_id) found in the array.
+is_no_fault_exception() has two bugs which were discovered via random
+opcode testing with stress-ng. Both are caused by improper filtering
+of opcodes.
 
-The array is supposed to be terminated with an empty (all zero)
-entry though.  Without it, an unsupported message will cause
-the QMI core code to go past the end of the array.
+The first bug can be triggered by a floating point store with a no-fault
+ASI, for instance "sta %f0, [%g0] #ASI_PNF", opcode C1A01040.
 
-Fix this bug, by properly terminating the message handler arrays
-provided when QMI handles are set up by the IPA driver.
+The code first tests op3[5] (0x1000000), which denotes a floating
+point instruction, and then tests op3[2] (0x200000), which denotes a
+store instruction. But these bits are not mutually exclusive, and the
+above mentioned opcode has both bits set. The intent is to filter out
+stores, so the test for stores must be done first in order to have
+any effect.
 
-Fixes: 530f9216a9537 ("soc: qcom: ipa: AP/modem communications")
-Reported-by: Sujit Kautkar <sujitka@chromium.org>
-Signed-off-by: Alex Elder <elder@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+The second bug can be triggered by a floating point load with one of
+the invalid ASI values 0x8e or 0x8f, which pass this check in
+is_no_fault_exception():
+     if ((asi & 0xf2) == ASI_PNF)
+
+An example instruction is "ldqa [%l7 + %o7] #ASI 0x8f, %f38",
+opcode CF95D1EF. Asi values greater than 0x8b (ASI_SNFL) are fatal
+in handle_ldf_stq(), and is_no_fault_exception() must not allow these
+invalid asi values to make it that far.
+
+In both of these cases, handle_ldf_stq() reacts by calling
+sun4v_data_access_exception() or spitfire_data_access_exception(),
+which call is_no_fault_exception() and results in an infinite
+recursion.
+
+Signed-off-by: Rob Gardner <rob.gardner@oracle.com>
+Tested-by: Anatoly Pugachev <matorola@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_qmi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/sparc/kernel/traps_64.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ipa/ipa_qmi.c b/drivers/net/ipa/ipa_qmi.c
-index 2fc64483f275..e594bf3b600f 100644
---- a/drivers/net/ipa/ipa_qmi.c
-+++ b/drivers/net/ipa/ipa_qmi.c
-@@ -249,6 +249,7 @@ static const struct qmi_msg_handler ipa_server_msg_handlers[] = {
- 		.decoded_size	= IPA_QMI_DRIVER_INIT_COMPLETE_REQ_SZ,
- 		.fn		= ipa_server_driver_init_complete,
- 	},
-+	{ },
- };
- 
- /* Handle an INIT_DRIVER response message from the modem. */
-@@ -269,6 +270,7 @@ static const struct qmi_msg_handler ipa_client_msg_handlers[] = {
- 		.decoded_size	= IPA_QMI_INIT_DRIVER_RSP_SZ,
- 		.fn		= ipa_client_init_driver,
- 	},
-+	{ },
- };
- 
- /* Return a pointer to an init modem driver request structure, which contains
+diff --git a/arch/sparc/kernel/traps_64.c b/arch/sparc/kernel/traps_64.c
+index 27778b65a965..f2b22c496fb9 100644
+--- a/arch/sparc/kernel/traps_64.c
++++ b/arch/sparc/kernel/traps_64.c
+@@ -275,14 +275,13 @@ bool is_no_fault_exception(struct pt_regs *regs)
+ 			asi = (regs->tstate >> 24); /* saved %asi       */
+ 		else
+ 			asi = (insn >> 5);	    /* immediate asi    */
+-		if ((asi & 0xf2) == ASI_PNF) {
+-			if (insn & 0x1000000) {     /* op3[5:4]=3       */
+-				handle_ldf_stq(insn, regs);
+-				return true;
+-			} else if (insn & 0x200000) { /* op3[2], stores */
++		if ((asi & 0xf6) == ASI_PNF) {
++			if (insn & 0x200000)        /* op3[2], stores   */
+ 				return false;
+-			}
+-			handle_ld_nf(insn, regs);
++			if (insn & 0x1000000)       /* op3[5:4]=3 (fp)  */
++				handle_ldf_stq(insn, regs);
++			else
++				handle_ld_nf(insn, regs);
+ 			return true;
+ 		}
+ 	}
 -- 
 2.30.1
 
