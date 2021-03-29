@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B63B34C854
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 316C034CA17
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233562AbhC2IVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
+        id S234217AbhC2Iev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232596AbhC2IUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:20:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3873B619BA;
-        Mon, 29 Mar 2021 08:20:32 +0000 (UTC)
+        id S234774AbhC2Idg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FFB26196F;
+        Mon, 29 Mar 2021 08:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006032;
+        s=korg; t=1617006815;
         bh=4DhnAqqUln9VkTjQiTjETnkRyFF/8p0/XHf7Ei5iNuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m0ZjtsXvn0c7SqOragZ9E51PzB/VZ56blsS+7LGUfTReSkSiXGZ/nJfHCJF0yfXVB
-         ADMThRqevmEevgcslui+QP0SdJr0Ea9yMODLRME7+XSlyOHbvhoin0CCK5u8Q+ZHjS
-         aFOE4ociFIjbbfpkaGEsLVJleq0ViMeT04ODKryE=
+        b=azSTpPPaObpU+2m1xnN5DRXVMyp8I0kR/vzyHeDLUaYul003zsU8NDYDJjwgYuZ3n
+         yygaHy6fXgAUrx0YP7h/FjIxw4F2ab241H5P9ZJufCLb7X1j+i+aVi+m1l5XccFzn0
+         fJzdY2x84SrYUnIlaRrN9VqEdpWuKIBUWW9K8PE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 092/221] ARM: OMAP2+: Fix smartreflex init regression after dropping legacy data
-Date:   Mon, 29 Mar 2021 09:57:03 +0200
-Message-Id: <20210329075632.275046918@linuxfoundation.org>
+Subject: [PATCH 5.11 108/254] ARM: OMAP2+: Fix smartreflex init regression after dropping legacy data
+Date:   Mon, 29 Mar 2021 09:57:04 +0200
+Message-Id: <20210329075636.760292249@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
