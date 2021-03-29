@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EAF834C69B
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A951034C63B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232479AbhC2II3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50472 "EHLO mail.kernel.org"
+        id S231939AbhC2IGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231877AbhC2IIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:08:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0019761601;
-        Mon, 29 Mar 2021 08:07:59 +0000 (UTC)
+        id S232090AbhC2IFE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:05:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ACF561974;
+        Mon, 29 Mar 2021 08:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005280;
-        bh=uJEWT2Mks7b5/c5WQ3Cv4IVWnqyVOz3wjEY7skCB3gM=;
+        s=korg; t=1617005103;
+        bh=bu9Eq3kNXr4FyHrjK60GQwJP3tzHCRp9scyrY/Xx4yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfxT5n8HmQGG3+MIRQvzcz0O5ezcHvGEDa914hnYZ9TtAl8QYTqsVUZxk3Z3a8H4U
-         QGd2TxZ8JiWspo89RiXWoVxXYYp/TO9yMb3hG9PwfMgv2hjSJ0W2XjYVWzCkfczx5x
-         5OAmNL/6oZ/hMmuSFPxUA95jfdw/FWLqlLM7JVIE=
+        b=jSJBo8p61AekOf+kwCFIwzTlxgy/hmu7NPuug15fqkLrxbnjipZCcfgXeKIVaUFin
+         I+tz1HkoPS+Et7BBBprr9lVZBR1h+p9gk/cdFWm4RZycy3ZLsjWBGX2WRBJjVIftEj
+         hkeAvyZDbPUwugZ9+tkzrxPkmcyDGJ47115c0jSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sascha Hauer <s.hauer@pengutronix.de>,
         =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
         Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.19 28/72] arm64: dts: ls1046a: mark crypto engine dma coherent
+Subject: [PATCH 4.14 24/59] arm64: dts: ls1046a: mark crypto engine dma coherent
 Date:   Mon, 29 Mar 2021 09:58:04 +0200
-Message-Id: <20210329075611.191231713@linuxfoundation.org>
+Message-Id: <20210329075609.683634115@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -112,7 +112,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-@@ -243,6 +243,7 @@
+@@ -244,6 +244,7 @@
  			ranges = <0x0 0x00 0x1700000 0x100000>;
  			reg = <0x00 0x1700000 0x0 0x100000>;
  			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
