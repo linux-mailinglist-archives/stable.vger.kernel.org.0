@@ -2,50 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC97F34C7CD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 993F034C979
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232136AbhC2ISS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
+        id S233429AbhC2I34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233193AbhC2IRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:17:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18EE961878;
-        Mon, 29 Mar 2021 08:16:36 +0000 (UTC)
+        id S234271AbhC2I2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:28:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54F98619C8;
+        Mon, 29 Mar 2021 08:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005796;
-        bh=+GMuBe7YXhCwuPEwA/qmcdT63q+40w2qaBExFqlb20o=;
+        s=korg; t=1617006429;
+        bh=ay1pn4ySndbEBJDvHwEjIDAYLrbbLtL1itocjZCDnIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBFUNXvCaRfNlTDjH0CcrAuv0fOSMgmPJnRq574gVFVCxBpMEASVM0wo7OgWXBHoj
-         vLQ3PrDr4AqwELL4hAx/595y1E99ytdLyc6ZPNIgryrQa9H8g/LzXpvXKIJHZTzYem
-         U+cpiEtcBiaFzT0tpFY23+plmdo3DiV+Dis1m0x0=
+        b=IyljKrqVYNoath7vol5i6pgAXAzXefkLEmRu7HsxrjSzhf/OFKJp9RUHkTUYd7XoF
+         i5OMj6cVrshTbns4vFoCIB2HS+1UFWo5AcoRU3QgSUfYRz6TIKq/hbCtdwrkcYQtcX
+         0qbyU/wuc3bqr0RvYjRloHrO2/Y3sF+Ny5fiCZ+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Guanghui <zhouguanghui1@huawei.com>,
-        Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Tianhong Ding <dingtianhong@huawei.com>,
-        Weilong Chen <chenweilong@huawei.com>,
-        Rui Xiang <rui.xiang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 001/221] mm/memcg: rename mem_cgroup_split_huge_fixup to split_page_memcg and add nr_pages argument
-Date:   Mon, 29 Mar 2021 09:55:32 +0200
-Message-Id: <20210329075629.220507977@linuxfoundation.org>
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 017/254] cifs: ask for more credit on async read/write code paths
+Date:   Mon, 29 Mar 2021 09:55:33 +0200
+Message-Id: <20210329075633.715055819@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,108 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Guanghui <zhouguanghui1@huawei.com>
+From: Aurelien Aptel <aaptel@suse.com>
 
-commit be6c8982e4ab9a41907555f601b711a7e2a17d4c upstream.
+[ Upstream commit 88fd98a2306755b965e4f4567f84e73db3b6738c ]
 
-Rename mem_cgroup_split_huge_fixup to split_page_memcg and explicitly pass
-in page number argument.
+When doing a large read or write workload we only
+very gradually increase the number of credits
+which can cause problems with parallelizing large i/o
+(I/O ramps up more slowly than it should for large
+read/write workloads) especially with multichannel
+when the number of credits on the secondary channels
+starts out low (e.g. less than about 130) or when
+recovering after server throttled back the number
+of credit.
 
-In this way, the interface name is more common and can be used by
-potential users.  In addition, the complete info(memcg and flag) of the
-memcg needs to be set to the tail pages.
-
-Link: https://lkml.kernel.org/r/20210304074053.65527-2-zhouguanghui1@huawei.com
-Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Tianhong Ding <dingtianhong@huawei.com>
-Cc: Weilong Chen <chenweilong@huawei.com>
-Cc: Rui Xiang <rui.xiang@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/memcontrol.h |    6 ++----
- mm/huge_memory.c           |    2 +-
- mm/memcontrol.c            |   15 +++++----------
- 3 files changed, 8 insertions(+), 15 deletions(-)
+ fs/cifs/smb2pdu.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/include/linux/memcontrol.h
-+++ b/include/linux/memcontrol.h
-@@ -937,9 +937,7 @@ static inline void memcg_memory_event_mm
- 	rcu_read_unlock();
- }
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 794fc3b68b4f..6a1af5545f67 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -4033,8 +4033,7 @@ smb2_async_readv(struct cifs_readdata *rdata)
+ 	if (rdata->credits.value > 0) {
+ 		shdr->CreditCharge = cpu_to_le16(DIV_ROUND_UP(rdata->bytes,
+ 						SMB2_MAX_BUFFER_SIZE));
+-		shdr->CreditRequest =
+-			cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 1);
++		shdr->CreditRequest = cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 8);
  
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--void mem_cgroup_split_huge_fixup(struct page *head);
--#endif
-+void split_page_memcg(struct page *head, unsigned int nr);
+ 		rc = adjust_credits(server, &rdata->credits, rdata->bytes);
+ 		if (rc)
+@@ -4340,8 +4339,7 @@ smb2_async_writev(struct cifs_writedata *wdata,
+ 	if (wdata->credits.value > 0) {
+ 		shdr->CreditCharge = cpu_to_le16(DIV_ROUND_UP(wdata->bytes,
+ 						    SMB2_MAX_BUFFER_SIZE));
+-		shdr->CreditRequest =
+-			cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 1);
++		shdr->CreditRequest = cpu_to_le16(le16_to_cpu(shdr->CreditCharge) + 8);
  
- #else /* CONFIG_MEMCG */
- 
-@@ -1267,7 +1265,7 @@ unsigned long mem_cgroup_soft_limit_recl
- 	return 0;
- }
- 
--static inline void mem_cgroup_split_huge_fixup(struct page *head)
-+static inline void split_page_memcg(struct page *head, unsigned int nr)
- {
- }
- 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2433,7 +2433,7 @@ static void __split_huge_page(struct pag
- 	lruvec = mem_cgroup_page_lruvec(head, pgdat);
- 
- 	/* complete memcg works before add pages to LRU */
--	mem_cgroup_split_huge_fixup(head);
-+	split_page_memcg(head, nr);
- 
- 	if (PageAnon(head) && PageSwapCache(head)) {
- 		swp_entry_t entry = { .val = page_private(head) };
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -3268,26 +3268,21 @@ void obj_cgroup_uncharge(struct obj_cgro
- 
- #endif /* CONFIG_MEMCG_KMEM */
- 
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--
- /*
-- * Because tail pages are not marked as "used", set it. We're under
-- * pgdat->lru_lock and migration entries setup in all page mappings.
-+ * Because head->mem_cgroup is not set on tails, set it now.
-  */
--void mem_cgroup_split_huge_fixup(struct page *head)
-+void split_page_memcg(struct page *head, unsigned int nr)
- {
- 	struct mem_cgroup *memcg = head->mem_cgroup;
- 	int i;
- 
--	if (mem_cgroup_disabled())
-+	if (mem_cgroup_disabled() || !memcg)
- 		return;
- 
--	for (i = 1; i < HPAGE_PMD_NR; i++) {
--		css_get(&memcg->css);
-+	for (i = 1; i < nr; i++)
- 		head[i].mem_cgroup = memcg;
--	}
-+	css_get_many(&memcg->css, nr - 1);
- }
--#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
- 
- #ifdef CONFIG_MEMCG_SWAP
- /**
+ 		rc = adjust_credits(server, &wdata->credits, wdata->bytes);
+ 		if (rc)
+-- 
+2.30.1
+
 
 
