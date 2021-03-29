@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD1F34C759
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 409F234C698
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232890AbhC2IOe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:14:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57602 "EHLO mail.kernel.org"
+        id S232090AbhC2II1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:08:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232636AbhC2INk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:13:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B71E96196D;
-        Mon, 29 Mar 2021 08:13:30 +0000 (UTC)
+        id S231886AbhC2IHz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:07:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC8BE61959;
+        Mon, 29 Mar 2021 08:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005611;
-        bh=42qRDQwA3PzQ8gXbf6yCGbRBR9F6Rn83WITUPpQJlB8=;
+        s=korg; t=1617005275;
+        bh=A7Dod5oX9lcDvyzu55/c1vP1GrYr53ekQ6EyH788SmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPqyxWEn/OmmnMPkbPquqIYU8npw5VhW3CnYvxfsUpGo/wi8cICFgXpDtip624Cla
-         NYGKdJXqugnxA/BU/ho5zwE4oAzqSSXrgHda4i7CXtb5NMzQGgZ/QT87IH2stnONdH
-         WovU+Uk3rBy/8BYwoJXIBqshg8KJyrYjTsW84b8o=
+        b=jeF/2U7cqoN2nUrR7n0TVyYE2qM/jw2NoGKoXbCmsxZUcU3TBRXVz41NnBITQEFJG
+         djjwzgU/VAsQBTRWgofBFxHO5ezGTkX+uF3E2SY1cfctQGV0oDqn3F0l315z3N+hUI
+         GfPlVEsaUVj355LxrSc+i4yGDPdSLycowIOek2D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/111] veth: Store queue_mapping independently of XDP prog presence
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 26/72] squashfs: fix inode lookup sanity checks
 Date:   Mon, 29 Mar 2021 09:58:02 +0200
-Message-Id: <20210329075616.995366898@linuxfoundation.org>
+Message-Id: <20210329075611.130561039@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Sean Nyekjaer <sean@geanix.com>
 
-[ Upstream commit edbea922025169c0e5cdca5ebf7bf5374cc5566c ]
+commit c1b2028315c6b15e8d6725e0d5884b15887d3daa upstream.
 
-Currently, veth_xmit() would call the skb_record_rx_queue() only when
-there is XDP program loaded on peer interface in native mode.
+When mouting a squashfs image created without inode compression it fails
+with: "unable to read inode lookup table"
 
-If peer has XDP prog in generic mode, then netif_receive_generic_xdp()
-has a call to netif_get_rxqueue(skb), so for multi-queue veth it will
-not be possible to grab a correct rxq.
+It turns out that the BLOCK_OFFSET is missing when checking the
+SQUASHFS_METADATA_SIZE agaist the actual size.
 
-To fix that, store queue_mapping independently of XDP prog presence on
-peer interface.
-
-Fixes: 638264dc9022 ("veth: Support per queue XDP ring")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Link: https://lore.kernel.org/bpf/20210303152903.11172-1-maciej.fijalkowski@intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20210226092903.1473545-1-sean@geanix.com
+Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Acked-by: Phillip Lougher <phillip@squashfs.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/veth.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/squashfs/export.c      |    8 ++++++--
+ fs/squashfs/squashfs_fs.h |    1 +
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index 88cfd63f08a6..44ad412f9a06 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -254,8 +254,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (rxq < rcv->real_num_rx_queues) {
- 		rq = &rcv_priv->rq[rxq];
- 		rcv_xdp = rcu_access_pointer(rq->xdp_prog);
--		if (rcv_xdp)
--			skb_record_rx_queue(skb, rxq);
-+		skb_record_rx_queue(skb, rxq);
+--- a/fs/squashfs/export.c
++++ b/fs/squashfs/export.c
+@@ -165,14 +165,18 @@ __le64 *squashfs_read_inode_lookup_table
+ 		start = le64_to_cpu(table[n]);
+ 		end = le64_to_cpu(table[n + 1]);
+ 
+-		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++		if (start >= end
++		    || (end - start) >
++		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 			kfree(table);
+ 			return ERR_PTR(-EINVAL);
+ 		}
  	}
  
- 	skb_tx_timestamp(skb);
--- 
-2.30.1
-
+ 	start = le64_to_cpu(table[indexes - 1]);
+-	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= lookup_table_start ||
++	    (lookup_table_start - start) >
++	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+--- a/fs/squashfs/squashfs_fs.h
++++ b/fs/squashfs/squashfs_fs.h
+@@ -30,6 +30,7 @@
+ 
+ /* size of metadata (inode and directory) blocks */
+ #define SQUASHFS_METADATA_SIZE		8192
++#define SQUASHFS_BLOCK_OFFSET		2
+ 
+ /* default size of block device I/O */
+ #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
 
 
