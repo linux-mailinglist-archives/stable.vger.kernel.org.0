@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D01234DB37
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4749634DBC0
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:31:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233026AbhC2W0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:26:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47708 "EHLO mail.kernel.org"
+        id S232224AbhC2Wak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:30:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232743AbhC2WYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 18:24:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A80B9619BB;
-        Mon, 29 Mar 2021 22:23:34 +0000 (UTC)
+        id S232803AbhC2WYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 18:24:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C83619BC;
+        Mon, 29 Mar 2021 22:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056615;
-        bh=ESaG5xY99YlSyH/jJMtYspYTLm0ub+JFq0HjG/Ioor0=;
+        s=k20201202; t=1617056616;
+        bh=4BQ34GgzZal7sDaL7wotX1inHcJq9PRvyQIM7/egSko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQLfA5spiUC/2dkDDenxHKQLIweZk8RKNx56h1UsdynKyjy1giBI46fJkKa6C4b1e
-         OfB7w+9g1zQq1uG7AmXb0JzS0L54rQVF/JSY1zjrTLV9HbrssuKSfXKNhB2S7quTcc
-         tcuTZvukERNigWcs9qcPlyif15iVU8OkpJ1KlFJ+4WfC/SC/NKoFHB0Jf2u1G24gfX
-         tF/Jz11BS6AR/9EMdWLFmGUbCMIUsOejR4jdh2Pkl5m2crTxusq3i1zwYe0/+b3J9P
-         1nyZwDeHKrIkKdBxYySjW2XeTTslekr1taAz49Xudg6LLeur9P/Tz2CgWWLwkMIJwY
-         K9VC9Hh8IqT+A==
+        b=tgvt4jtgumh5CUXT4jRaDkAXj5CvCc0I7HytB22LyG/389tWgfq34qZiF3UDVo9mr
+         93OCo+yfG0ulUNCW6Q82twVNTSYAf2acpsLq2XV2ATPeLikJqpOYvaKKMeyA7f5e6Z
+         eWvpY6d/s5pUtvmVPWZv1GgxTNrulPqHlwEiUndRQzCvpJkWeOnDmyGjvCl3k0q7Is
+         uQ/NpxGiQ9OqbQ+Q3Jmvn749Q5Qn8l95Djz0BcsSuqmc61bZELSjeF7rs0KuJfQ1xS
+         8cZmi5FTMQDRDCyUIbE/cFLLUMPCYbB6BCPGr7QmpoFOdUqQDR9HZnkbz0r9DmZLXo
+         vA+ULDN/iABSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Karthikeyan Kathirvel <kathirve@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/15] mac80211: choose first enabled channel for monitor
-Date:   Mon, 29 Mar 2021 18:23:18 -0400
-Message-Id: <20210329222327.2383533-7-sashal@kernel.org>
+Cc:     Rob Clark <robdclark@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 08/15] drm/msm: Ratelimit invalid-fence message
+Date:   Mon, 29 Mar 2021 18:23:19 -0400
+Message-Id: <20210329222327.2383533-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222327.2383533-1-sashal@kernel.org>
 References: <20210329222327.2383533-1-sashal@kernel.org>
@@ -43,51 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 041c881a0ba8a75f71118bd9766b78f04beed469 ]
+[ Upstream commit 7ad48d27a2846bfda29214fb454d001c3e02b9e7 ]
 
-Even if the first channel from sband channel list is invalid
-or disabled mac80211 ends up choosing it as the default channel
-for monitor interfaces, making them not usable.
+We have seen a couple cases where low memory situations cause something
+bad to happen, followed by a flood of these messages obscuring the root
+cause.  Lets ratelimit the dmesg spam so that next time it happens we
+don't lose the kernel traces leading up to this.
 
-Fix this by assigning the first available valid or enabled
-channel instead.
-
-Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
-Link: https://lore.kernel.org/r/1615440547-7661-1-git-send-email-kathirve@codeaurora.org
-[reword commit message, comment, code cleanups]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/main.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/msm_fence.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-index 68db2a356443..f44d00f35fe7 100644
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -931,8 +931,19 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
- 			continue;
+diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
+index 349c12f670eb..6c11be79574e 100644
+--- a/drivers/gpu/drm/msm/msm_fence.c
++++ b/drivers/gpu/drm/msm/msm_fence.c
+@@ -56,7 +56,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
+ 	int ret;
  
- 		if (!dflt_chandef.chan) {
-+			/*
-+			 * Assign the first enabled channel to dflt_chandef
-+			 * from the list of channels
-+			 */
-+			for (i = 0; i < sband->n_channels; i++)
-+				if (!(sband->channels[i].flags &
-+						IEEE80211_CHAN_DISABLED))
-+					break;
-+			/* if none found then use the first anyway */
-+			if (i == sband->n_channels)
-+				i = 0;
- 			cfg80211_chandef_create(&dflt_chandef,
--						&sband->channels[0],
-+						&sband->channels[i],
- 						NL80211_CHAN_NO_HT);
- 			/* init channel we're on */
- 			if (!local->use_chanctx && !local->_oper_chandef.chan) {
+ 	if (fence > fctx->last_fence) {
+-		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
++		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
+ 				fctx->name, fence, fctx->last_fence);
+ 		return -EINVAL;
+ 	}
 -- 
 2.30.1
 
