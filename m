@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0699F34C882
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D2A34CA24
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234197AbhC2IXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37726 "EHLO mail.kernel.org"
+        id S234320AbhC2IfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:35:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233465AbhC2IVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:21:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC80461481;
-        Mon, 29 Mar 2021 08:21:02 +0000 (UTC)
+        id S233354AbhC2IeD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:34:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3AF561883;
+        Mon, 29 Mar 2021 08:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006063;
-        bh=sWzzsCkJggXUYwjaqk3ZNQKl7qOP3H5UYuNl4wv49dk=;
+        s=korg; t=1617006843;
+        bh=fAfv0dCzxjcggOMs3qlBfIdzQSmtCL0l8bMzWH+lJUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKfOLOq2SHFih1FxcAyQRFVTBS/fULAAb+AkKzBbEvwpocNfLYv95lbABCCKydnPc
-         mZMAasDqc8fKvtQ6GxGfEr3qpS4o25CASfbG9dg6c1i4HzHxT44C6Gbjaxv1SWRMG/
-         9oQOIwIgFQSAJAfQ4sPFmIXTmQIc0kML1i5eD2ec=
+        b=SUGABZfTREdqI3Llm5fDGZ3NzkeWiQ5xbuDUJ0KbNtaLVupKYcPyQ/t/oFM6Wzf4b
+         wkmlG59A/93dcMU49y3qozQFvKdXM+NSgtucUGsYHzGAu/sNUsS/FBNHTJ9IFX6wqI
+         4ColOngKxz9nl4k3wpb+2Z36AEsZaMK2ozu5nBCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 070/221] squashfs: fix xattr id and id lookup sanity checks
+        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        "Pavel Machek (CIP)" <pavel@denx.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.11 085/254] ACPI: video: Add missing callback back for Sony VPCEH3U1E
 Date:   Mon, 29 Mar 2021 09:56:41 +0200
-Message-Id: <20210329075631.517785964@linuxfoundation.org>
+Message-Id: <20210329075635.962409037@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-commit 8b44ca2b634527151af07447a8090a5f3a043321 upstream.
+commit c1d1e25a8c542816ae8dee41b81a18d30c7519a0 upstream.
 
-The checks for maximum metadata block size is missing
-SQUASHFS_BLOCK_OFFSET (the two byte length count).
+The .callback of the quirk for Sony VPCEH3U1E was unintetionally
+removed by the commit 25417185e9b5 ("ACPI: video: Add DMI quirk
+for GIGABYTE GB-BXBT-2807"). Add it back to make sure the quirk
+for Sony VPCEH3U1E works as expected.
 
-Link: https://lkml.kernel.org/r/2069685113.2081245.1614583677427@webmail.123-reg.co.uk
-Fixes: f37aa4c7366e23f ("squashfs: add more sanity checks in id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Cc: Sean Nyekjaer <sean@geanix.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 25417185e9b5 ("ACPI: video: Add DMI quirk for GIGABYTE GB-BXBT-2807")
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Reviewed-by: Pavel Machek (CIP) <pavel@denx.de>
+Cc: 5.11+ <stable@vger.kernel.org> # 5.11+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/id.c       |    6 ++++--
- fs/squashfs/xattr_id.c |    6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/acpi/video_detect.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/squashfs/id.c
-+++ b/fs/squashfs/id.c
-@@ -97,14 +97,16 @@ __le64 *squashfs_read_id_index_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
- 
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= id_table_start || (id_table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -109,14 +109,16 @@ __le64 *squashfs_read_xattr_id_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
- 
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= table_start || (table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -147,6 +147,7 @@ static const struct dmi_system_id video_
+ 		},
+ 	},
+ 	{
++	.callback = video_detect_force_vendor,
+ 	.ident = "Sony VPCEH3U1E",
+ 	.matches = {
+ 		DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
 
 
