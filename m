@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB6834C777
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A6AD34C5A5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232347AbhC2IPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58450 "EHLO mail.kernel.org"
+        id S231128AbhC2IBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232818AbhC2ION (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:14:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C3106197F;
-        Mon, 29 Mar 2021 08:14:10 +0000 (UTC)
+        id S231549AbhC2IBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:01:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4C46196D;
+        Mon, 29 Mar 2021 08:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005650;
-        bh=TO5E2VfsyTREnWidqi4mMJ/6Hg/Y5gALTB5wcWzuZJM=;
+        s=korg; t=1617004891;
+        bh=1hZorUm9nknrrAGc8BStEaHFamppxax7xD8N5i/V2ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2a1TlKyjo5TfWT6xseu18+r7G6alWE4FvyTvUrUhMJk3UDyenQylAUxFjK6hH9qf
-         f6rTzHBbGu7O4sbnTozOG3Jfl7/kV66X3sjGkmP36Ox2kAnhl4or/olrvJwbrCyi4x
-         XyLO8nfsZhOQ6mcguAEZ15Bvh92YIa0c+Fftn42c=
+        b=K4hYbIeNIG/pMy3NsW9/SjuuOuZDlOTAkvAvvbn5idLqJl95n1lKpmaZ0WxoYlh6l
+         knaGqH27RhYcrMgaxTlJoqGeU3wpD/eaSq6ZviOyxjfHnRyYiLVU3l1LHUzWcmo6D7
+         DTMMpQ2gcI+8Ay+s8QrsyOFncr+vMlrM8zSUTQyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        William Tu <u9012063@gmail.com>,
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/111] selftests/bpf: Set gopt opt_class to 0 if get tunnel opt failed
+Subject: [PATCH 4.4 30/33] perf auxtrace: Fix auxtrace queue conflict
 Date:   Mon, 29 Mar 2021 09:58:15 +0200
-Message-Id: <20210329075617.435790291@linuxfoundation.org>
+Message-Id: <20210329075606.231954595@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 31254dc9566221429d2cfb45fd5737985d70f2b6 ]
+[ Upstream commit b410ed2a8572d41c68bd9208555610e4b07d0703 ]
 
-When fixing the bpf test_tunnel.sh geneve failure. I only fixed the IPv4
-part but forgot the IPv6 issue. Similar with the IPv4 fixes 557c223b643a
-("selftests/bpf: No need to drop the packet when there is no geneve opt"),
-when there is no tunnel option and bpf_skb_get_tunnel_opt() returns error,
-there is no need to drop the packets and break all geneve rx traffic.
-Just set opt_class to 0 and keep returning TC_ACT_OK at the end.
+The only requirement of an auxtrace queue is that the buffers are in
+time order.  That is achieved by making separate queues for separate
+perf buffer or AUX area buffer mmaps.
 
-Fixes: 557c223b643a ("selftests/bpf: No need to drop the packet when there is no geneve opt")
-Fixes: 933a741e3b82 ("selftests/bpf: bpf tunnel test.")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: William Tu <u9012063@gmail.com>
-Link: https://lore.kernel.org/bpf/20210309032214.2112438-1-liuhangbin@gmail.com
+That generally means a separate queue per cpu for per-cpu contexts, and
+a separate queue per thread for per-task contexts.
+
+When buffers are added to a queue, perf checks that the buffer cpu and
+thread id (tid) match the queue cpu and thread id.
+
+However, generally, that need not be true, and perf will queue buffers
+correctly anyway, so the check is not needed.
+
+In addition, the check gets erroneously hit when using sample mode to
+trace multiple threads.
+
+Consequently, fix that case by removing the check.
+
+Fixes: e502789302a6 ("perf auxtrace: Add helpers for queuing AUX area tracing data")
+Reported-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Link: http://lore.kernel.org/lkml/20210308151143.18338-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/test_tunnel_kern.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/perf/util/auxtrace.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_tunnel_kern.c b/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
-index b4e9a1d8c6cd..141670ab4e67 100644
---- a/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
-+++ b/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
-@@ -508,10 +508,8 @@ int _ip6geneve_get_tunnel(struct __sk_buff *skb)
+diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
+index 4b898b15643d..80e461dd2db2 100644
+--- a/tools/perf/util/auxtrace.c
++++ b/tools/perf/util/auxtrace.c
+@@ -239,10 +239,6 @@ static int auxtrace_queues__add_buffer(struct auxtrace_queues *queues,
+ 		queue->set = true;
+ 		queue->tid = buffer->tid;
+ 		queue->cpu = buffer->cpu;
+-	} else if (buffer->cpu != queue->cpu || buffer->tid != queue->tid) {
+-		pr_err("auxtrace queue conflict: cpu %d, tid %d vs cpu %d, tid %d\n",
+-		       queue->cpu, queue->tid, buffer->cpu, buffer->tid);
+-		return -EINVAL;
  	}
  
- 	ret = bpf_skb_get_tunnel_opt(skb, &gopt, sizeof(gopt));
--	if (ret < 0) {
--		ERROR(ret);
--		return TC_ACT_SHOT;
--	}
-+	if (ret < 0)
-+		gopt.opt_class = 0;
- 
- 	bpf_trace_printk(fmt, sizeof(fmt),
- 			key.tunnel_id, key.remote_ipv4, gopt.opt_class);
+ 	buffer->buffer_nr = queues->next_buffer_nr++;
 -- 
 2.30.1
 
