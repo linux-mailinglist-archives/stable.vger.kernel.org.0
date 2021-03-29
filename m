@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEAA334C630
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA7134C612
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231728AbhC2IFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:05:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47402 "EHLO mail.kernel.org"
+        id S231902AbhC2IEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:04:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231904AbhC2IEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:04:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 103D461938;
-        Mon, 29 Mar 2021 08:04:46 +0000 (UTC)
+        id S231618AbhC2IDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:03:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C27461959;
+        Mon, 29 Mar 2021 08:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005088;
-        bh=Iq5FXPDhFOfOwScZYi6m5AIIwfnC4IBfoCPjd3956Ms=;
+        s=korg; t=1617005035;
+        bh=Sepos0qn7ogREQUQReaVRdvkH4LNy6TqoeWdQ4e0K/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqF6sn9iMFedm2o0JM28PzEMcK56jcUx+oGE27KdPcyYlVFyKryf4Ujfs8NzpVuWQ
-         tisDX0QXyoxOj9pTFUMmkMnzZpRNQstbqJEOzvPBBZaIOzSRI1Ys1NpEXLbELt/k/+
-         TPT4tbzUSVqsxf5ZUc6t5absoRFGyfyzquO+3IaA=
+        b=zuhOn6rRAkhn6Xeu2ntYS9WCpM875x+1vyty/OvyCw1tkrIWJDUzheVZJGF+CSy/O
+         bPwTRBf4I3FMUeZYKEC6+B1etYTYd5Xme8MZF7V6P4YMTV899U51mL8scE9i3mWA85
+         iV1eaWvb5e+IiqeZKL5bGvVCU6V/3+0Tu+YHQRc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/59] ia64: fix ia64_syscall_get_set_arguments() for break-based syscalls
+Subject: [PATCH 4.9 25/53] e1000e: Fix error handling in e1000_set_d0_lplu_state_82571
 Date:   Mon, 29 Mar 2021 09:58:00 +0200
-Message-Id: <20210329075609.552547217@linuxfoundation.org>
+Message-Id: <20210329075608.363613459@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 0ceb1ace4a2778e34a5414e5349712ae4dc41d85 ]
+[ Upstream commit b52912b8293f2c496f42583e65599aee606a0c18 ]
 
-In https://bugs.gentoo.org/769614 Dmitry noticed that
-`ptrace(PTRACE_GET_SYSCALL_INFO)` does not work for syscalls called via
-glibc's syscall() wrapper.
+There is one e1e_wphy() call in e1000_set_d0_lplu_state_82571
+that we have caught its return value but lack further handling.
+Check and terminate the execution flow just like other e1e_wphy()
+in this function.
 
-ia64 has two ways to call syscalls from userspace: via `break` and via
-`eps` instructions.
-
-The difference is in stack layout:
-
-1. `eps` creates simple stack frame: no locals, in{0..7} == out{0..8}
-2. `break` uses userspace stack frame: may be locals (glibc provides
-   one), in{0..7} == out{0..8}.
-
-Both work fine in syscall handling cde itself.
-
-But `ptrace(PTRACE_GET_SYSCALL_INFO)` uses unwind mechanism to
-re-extract syscall arguments but it does not account for locals.
-
-The change always skips locals registers. It should not change `eps`
-path as kernel's handler already enforces locals=0 and fixes `break`.
-
-Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
-
-Link: https://lkml.kernel.org/r/20210221002554.333076-1-slyfox@gentoo.org
-Link: https://bugs.gentoo.org/769614
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Reported-by: Dmitry V. Levin <ldv@altlinux.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/ptrace.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/e1000e/82571.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
-index 427cd565fd61..799400287cda 100644
---- a/arch/ia64/kernel/ptrace.c
-+++ b/arch/ia64/kernel/ptrace.c
-@@ -2147,27 +2147,39 @@ static void syscall_get_set_args_cb(struct unw_frame_info *info, void *data)
- {
- 	struct syscall_get_set_args *args = data;
- 	struct pt_regs *pt = args->regs;
--	unsigned long *krbs, cfm, ndirty;
-+	unsigned long *krbs, cfm, ndirty, nlocals, nouts;
- 	int i, count;
- 
- 	if (unw_unwind_to_user(info) < 0)
- 		return;
- 
-+	/*
-+	 * We get here via a few paths:
-+	 * - break instruction: cfm is shared with caller.
-+	 *   syscall args are in out= regs, locals are non-empty.
-+	 * - epsinstruction: cfm is set by br.call
-+	 *   locals don't exist.
-+	 *
-+	 * For both cases argguments are reachable in cfm.sof - cfm.sol.
-+	 * CFM: [ ... | sor: 17..14 | sol : 13..7 | sof : 6..0 ]
-+	 */
- 	cfm = pt->cr_ifs;
-+	nlocals = (cfm >> 7) & 0x7f; /* aka sol */
-+	nouts = (cfm & 0x7f) - nlocals; /* aka sof - sol */
- 	krbs = (unsigned long *)info->task + IA64_RBS_OFFSET/8;
- 	ndirty = ia64_rse_num_regs(krbs, krbs + (pt->loadrs >> 19));
- 
- 	count = 0;
- 	if (in_syscall(pt))
--		count = min_t(int, args->n, cfm & 0x7f);
-+		count = min_t(int, args->n, nouts);
- 
-+	/* Iterate over outs. */
- 	for (i = 0; i < count; i++) {
-+		int j = ndirty + nlocals + i + args->i;
- 		if (args->rw)
--			*ia64_rse_skip_regs(krbs, ndirty + i + args->i) =
--				args->args[i];
-+			*ia64_rse_skip_regs(krbs, j) = args->args[i];
- 		else
--			args->args[i] = *ia64_rse_skip_regs(krbs,
--				ndirty + i + args->i);
-+			args->args[i] = *ia64_rse_skip_regs(krbs, j);
- 	}
- 
- 	if (!args->rw) {
+diff --git a/drivers/net/ethernet/intel/e1000e/82571.c b/drivers/net/ethernet/intel/e1000e/82571.c
+index 6b03c8553e59..65deaf8f3004 100644
+--- a/drivers/net/ethernet/intel/e1000e/82571.c
++++ b/drivers/net/ethernet/intel/e1000e/82571.c
+@@ -917,6 +917,8 @@ static s32 e1000_set_d0_lplu_state_82571(struct e1000_hw *hw, bool active)
+ 	} else {
+ 		data &= ~IGP02E1000_PM_D0_LPLU;
+ 		ret_val = e1e_wphy(hw, IGP02E1000_PHY_POWER_MGMT, data);
++		if (ret_val)
++			return ret_val;
+ 		/* LPLU and SmartSpeed are mutually exclusive.  LPLU is used
+ 		 * during Dx states where the power conservation is most
+ 		 * important.  During driver activity we should enable
 -- 
 2.30.1
 
