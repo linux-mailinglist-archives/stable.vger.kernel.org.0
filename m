@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE8B34C653
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A38134C7BE
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbhC2IGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49048 "EHLO mail.kernel.org"
+        id S232895AbhC2ISI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231947AbhC2IFp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07A156193A;
-        Mon, 29 Mar 2021 08:05:43 +0000 (UTC)
+        id S232677AbhC2IQg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:16:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B08619BA;
+        Mon, 29 Mar 2021 08:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005144;
-        bh=Stt3el1RGNMbuP8ddki3DXmtkzJ91OnqXkPeQd9NlEk=;
+        s=korg; t=1617005763;
+        bh=JqQYKn1ZTnx1pruKnmZr2f/O7Y9btMH/+S13rtg3ZGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndKaaju6F0TPFvDpck37ZTgAnaT/sTmvAyOOuwRSzr5U6zLspzPvNSez7d/ofwWqX
-         ni93gMZMYo9cu98q+4ZJQ2u2HAEVWn662Jdh4rt/I9Paw7dRDbQbOoRhq4o/+Y/afT
-         utT601UBVU/ZdXJi+sxuCP66sSsdplCdbwsprIN4=
+        b=xhUA+wtQ+wC4UZr0lVZqvjHLHFnYIMyT+gxAoK6bSmfHWzZdytG3J/L7LktdwZ8Bo
+         tuILadCqPHyi1WfyHWztLB1hVhl61utq74x9Y5S3YZqRUl3TUVP9r9e71zSIn5I700
+         +NvhdOTC66LfpCbvkEVsDTD1Ts5ATDL0mlZHr5GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/59] mac80211: fix rate mask reset
+Subject: [PATCH 5.4 073/111] can: c_can_pci: c_can_pci_remove(): fix use-after-free
 Date:   Mon, 29 Mar 2021 09:58:21 +0200
-Message-Id: <20210329075610.239979344@linuxfoundation.org>
+Message-Id: <20210329075617.643637506@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 1944015fe9c1d9fa5e9eb7ffbbb5ef8954d6753b ]
+[ Upstream commit 0429d6d89f97ebff4f17f13f5b5069c66bde8138 ]
 
-Coverity reported the strange "if (~...)" condition that's
-always true. It suggested that ! was intended instead of ~,
-but upon further analysis I'm convinced that what really was
-intended was a comparison to 0xff/0xffff (in HT/VHT cases
-respectively), since this indicates that all of the rates
-are enabled.
+There is a UAF in c_can_pci_remove(). dev is released by
+free_c_can_dev() and is used by pci_iounmap(pdev, priv->base) later.
+To fix this issue, save the mmio address before releasing dev.
 
-Change the comparison accordingly.
-
-I'm guessing this never really mattered because a reset to
-not having a rate mask is basically equivalent to having a
-mask that enables all rates.
-
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Fixes: 2ffbe6d33366 ("mac80211: fix and optimize MCS mask handling")
-Fixes: b119ad6e726c ("mac80211: add rate mask logic for vht rates")
-Reviewed-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210212112213.36b38078f569.I8546a20c80bc1669058eb453e213630b846e107b@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 5b92da0443c2 ("c_can_pci: generic module for C_CAN/D_CAN on PCI")
+Link: https://lore.kernel.org/r/20210301024512.539039-1-ztong0001@gmail.com
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/c_can/c_can_pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 0b82d8da4ab0..0563bde0c285 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -2752,14 +2752,14 @@ static int ieee80211_set_bitrate_mask(struct wiphy *wiphy,
- 			continue;
+diff --git a/drivers/net/can/c_can/c_can_pci.c b/drivers/net/can/c_can/c_can_pci.c
+index 406b4847e5dc..7efb60b50876 100644
+--- a/drivers/net/can/c_can/c_can_pci.c
++++ b/drivers/net/can/c_can/c_can_pci.c
+@@ -239,12 +239,13 @@ static void c_can_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct c_can_priv *priv = netdev_priv(dev);
++	void __iomem *addr = priv->base;
  
- 		for (j = 0; j < IEEE80211_HT_MCS_MASK_LEN; j++) {
--			if (~sdata->rc_rateidx_mcs_mask[i][j]) {
-+			if (sdata->rc_rateidx_mcs_mask[i][j] != 0xff) {
- 				sdata->rc_has_mcs_mask[i] = true;
- 				break;
- 			}
- 		}
+ 	unregister_c_can_dev(dev);
  
- 		for (j = 0; j < NL80211_VHT_NSS_MAX; j++) {
--			if (~sdata->rc_rateidx_vht_mcs_mask[i][j]) {
-+			if (sdata->rc_rateidx_vht_mcs_mask[i][j] != 0xffff) {
- 				sdata->rc_has_vht_mcs_mask[i] = true;
- 				break;
- 			}
+ 	free_c_can_dev(dev);
+ 
+-	pci_iounmap(pdev, priv->base);
++	pci_iounmap(pdev, addr);
+ 	pci_disable_msi(pdev);
+ 	pci_clear_master(pdev);
+ 	pci_release_regions(pdev);
 -- 
 2.30.1
 
