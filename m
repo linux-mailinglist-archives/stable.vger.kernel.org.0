@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 722A834C7DF
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C6634C97A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233119AbhC2IS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
+        id S233681AbhC2I35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233365AbhC2IRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:17:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAAC261481;
-        Mon, 29 Mar 2021 08:17:31 +0000 (UTC)
+        id S234298AbhC2I2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:28:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4F17619D1;
+        Mon, 29 Mar 2021 08:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005852;
-        bh=aZFwvCcMVDAlQR0XiyWFdTzwIfbn7vpwJQyJy17W43s=;
+        s=korg; t=1617006442;
+        bh=vQ9jruZV5MO/69WlijaSDOFKPbNF0BPnqPswopqhNys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFVbaXsWP0CdyEUcaoos3RQFj5rQXM2W52TMDJiPPooqxpbLHsH/Q7V86bme7n4pL
-         Hc7LIya2R66DQpkj8jTq5bDmQnG5DrLMoBB/HlUPNH13C5L+Ov7BwmGGOA+/uim3vf
-         dpgrB/y3+ykF4ZWl+tjxZevSrqJDBkzzH4lfM4as=
+        b=eCPhy3KOA29OWBfWkiS4TqZpA0r2liBOAd2pW5nGxD8OCxe6gjhLRKTJrTgKnr5VW
+         FhwYmXocGHdLCVsyDGmPTVeLcPBb4kYOeY0XEs9h2aIDMXiPA7Gh719FffHYclqLSE
+         0w0wSOslVs+QlPWEbm7JmBPa4Th6D7CD9Wseg0LY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 007/221] atm: eni: dont release is never initialized
+Subject: [PATCH 5.11 022/254] NFS: Correct size calculation for create reply length
 Date:   Mon, 29 Mar 2021 09:55:38 +0200
-Message-Id: <20210329075629.427707880@linuxfoundation.org>
+Message-Id: <20210329075633.877091345@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,104 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Frank Sorenson <sorenson@redhat.com>
 
-[ Upstream commit 4deb550bc3b698a1f03d0332cde3df154d1b6c1e ]
+[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
 
-label err_eni_release is reachable when eni_start() fail.
-In eni_start() it calls dev->phy->start() in the last step, if start()
-fail we don't need to call phy->stop(), if start() is never called, we
-neither need to call phy->stop(), otherwise null-ptr-deref will happen.
+CREATE requests return a post_op_fh3, rather than nfs_fh3. The
+post_op_fh3 includes an extra word to indicate 'handle_follows'.
 
-In order to fix this issue, don't call phy->stop() in label err_eni_release
+Without that additional word, create fails when full 64-byte
+filehandles are in use.
 
-[    4.875714] ==================================================================
-[    4.876091] BUG: KASAN: null-ptr-deref in suni_stop+0x47/0x100 [suni]
-[    4.876433] Read of size 8 at addr 0000000000000030 by task modprobe/95
-[    4.876778]
-[    4.876862] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7-00090-gdcc0b49040c7 #2
-[    4.877290] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd94
-[    4.877876] Call Trace:
-[    4.878009]  dump_stack+0x7d/0xa3
-[    4.878191]  kasan_report.cold+0x10c/0x10e
-[    4.878410]  ? __slab_free+0x2f0/0x340
-[    4.878612]  ? suni_stop+0x47/0x100 [suni]
-[    4.878832]  suni_stop+0x47/0x100 [suni]
-[    4.879043]  eni_do_release+0x3b/0x70 [eni]
-[    4.879269]  eni_init_one.cold+0x1152/0x1747 [eni]
-[    4.879528]  ? _raw_spin_lock_irqsave+0x7b/0xd0
-[    4.879768]  ? eni_ioctl+0x270/0x270 [eni]
-[    4.879990]  ? __mutex_lock_slowpath+0x10/0x10
-[    4.880226]  ? eni_ioctl+0x270/0x270 [eni]
-[    4.880448]  local_pci_probe+0x6f/0xb0
-[    4.880650]  pci_device_probe+0x171/0x240
-[    4.880864]  ? pci_device_remove+0xe0/0xe0
-[    4.881086]  ? kernfs_create_link+0xb6/0x110
-[    4.881315]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
-[    4.881594]  really_probe+0x161/0x420
-[    4.881791]  driver_probe_device+0x6d/0xd0
-[    4.882010]  device_driver_attach+0x82/0x90
-[    4.882233]  ? device_driver_attach+0x90/0x90
-[    4.882465]  __driver_attach+0x60/0x100
-[    4.882671]  ? device_driver_attach+0x90/0x90
-[    4.882903]  bus_for_each_dev+0xe1/0x140
-[    4.883114]  ? subsys_dev_iter_exit+0x10/0x10
-[    4.883346]  ? klist_node_init+0x61/0x80
-[    4.883557]  bus_add_driver+0x254/0x2a0
-[    4.883764]  driver_register+0xd3/0x150
-[    4.883971]  ? 0xffffffffc0038000
-[    4.884149]  do_one_initcall+0x84/0x250
-[    4.884355]  ? trace_event_raw_event_initcall_finish+0x150/0x150
-[    4.884674]  ? unpoison_range+0xf/0x30
-[    4.884875]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
-[    4.885150]  ? unpoison_range+0xf/0x30
-[    4.885352]  ? unpoison_range+0xf/0x30
-[    4.885557]  do_init_module+0xf8/0x350
-[    4.885760]  load_module+0x3fe6/0x4340
-[    4.885960]  ? vm_unmap_ram+0x1d0/0x1d0
-[    4.886166]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
-[    4.886441]  ? module_frob_arch_sections+0x20/0x20
-[    4.886697]  ? __do_sys_finit_module+0x108/0x170
-[    4.886941]  __do_sys_finit_module+0x108/0x170
-[    4.887178]  ? __ia32_sys_init_module+0x40/0x40
-[    4.887419]  ? file_open_root+0x200/0x200
-[    4.887634]  ? do_sys_open+0x85/0xe0
-[    4.887826]  ? filp_open+0x50/0x50
-[    4.888009]  ? fpregs_assert_state_consistent+0x4d/0x60
-[    4.888287]  ? exit_to_user_mode_prepare+0x2f/0x130
-[    4.888547]  do_syscall_64+0x33/0x40
-[    4.888739]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[    4.889010] RIP: 0033:0x7ff62fcf1cf7
-[    4.889202] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f71
-[    4.890172] RSP: 002b:00007ffe6644ade8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[    4.890570] RAX: ffffffffffffffda RBX: 0000000000f2ca70 RCX: 00007ff62fcf1cf7
-[    4.890944] RDX: 0000000000000000 RSI: 0000000000f2b9e0 RDI: 0000000000000003
-[    4.891318] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
-[    4.891691] R10: 00007ff62fd55300 R11: 0000000000000246 R12: 0000000000f2b9e0
-[    4.892064] R13: 0000000000000000 R14: 0000000000f2bdd0 R15: 0000000000000001
-[    4.892439] ==================================================================
+Add NFS3_post_op_fh_sz, and correct the size calculation for
+NFS3_createres_sz.
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/eni.c | 3 ++-
+ fs/nfs/nfs3xdr.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
-index 316a9947541f..b574cce98dc3 100644
---- a/drivers/atm/eni.c
-+++ b/drivers/atm/eni.c
-@@ -2260,7 +2260,8 @@ static int eni_init_one(struct pci_dev *pci_dev,
- 	return rc;
- 
- err_eni_release:
--	eni_do_release(dev);
-+	dev->phy = NULL;
-+	iounmap(ENI_DEV(dev)->ioaddr);
- err_unregister:
- 	atm_dev_deregister(dev);
- err_free_consistent:
+diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
+index ca10072644ff..ed1c83738c30 100644
+--- a/fs/nfs/nfs3xdr.c
++++ b/fs/nfs/nfs3xdr.c
+@@ -36,6 +36,7 @@
+ #define NFS3_pagepad_sz		(1) /* Page padding */
+ #define NFS3_fhandle_sz		(1+16)
+ #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
++#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
+ #define NFS3_sattr_sz		(15)
+ #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
+ #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
+@@ -73,7 +74,7 @@
+ #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1+NFS3_pagepad_sz)
+ #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3+NFS3_pagepad_sz)
+ #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
+-#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
++#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
+ #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+ #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2+NFS3_pagepad_sz)
 -- 
 2.30.1
 
