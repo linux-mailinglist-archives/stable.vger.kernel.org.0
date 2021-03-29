@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F66034C590
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1793F34C5E5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbhC2IBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:01:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42748 "EHLO mail.kernel.org"
+        id S231842AbhC2IDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231602AbhC2IA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:00:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1378F6196E;
-        Mon, 29 Mar 2021 08:00:56 +0000 (UTC)
+        id S231945AbhC2IC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:02:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBAE361981;
+        Mon, 29 Mar 2021 08:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004857;
-        bh=XBmUbx/B1aNooX2Qdv1DWXS5wfUGu1CjAdZlOct0fcs=;
+        s=korg; t=1617004976;
+        bh=ZBb9QnG7mWbrzHbYSTMzFpV6te9HFeDdkcDwdmm7FzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2DKkb2x1iOMs5ok/iBNMDe6G9Z9bfIyiaNO+6Z6k82hB9B8CIkmHpmCzZc8E7DAq
-         GrQs/o8FlBLZSQjlTlThn8oRijE+MJwRX9ZAXwF8+GQSF+VC7RQCgMGYtsMHFJ9+gs
-         CB2WfqkGAcZZ2604s8tNvgE7KuRR1ASlTiMk32Fg=
+        b=ASr03FRaP5cyGEEIr+qwZcpptzPtX1ZnJUiITl84bW3bx1AWRHW1rjJKIwkz4/hDb
+         XEcEreXsWSsPyIS1KYqKAJq5pXH0CiI1hkNMWDPknUnpcPoPob3+ERhCsKTU3nK09x
+         skQUz8chiivyYEcFgICAE6HzxhT5e4vAC34YqBjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@linux.intel.com>,
+        Konstantin Khlebnikov <koct9i@gmail.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Ross Zwisler <ross.zwisler@linux.intel.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Michal Nazarewicz <mina86@mina86.com>,
+        Matthew Wilcox <mawilcox@microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 25/33] can: c_can: move runtime PM enable/disable to c_can_platform
-Date:   Mon, 29 Mar 2021 09:58:10 +0200
-Message-Id: <20210329075606.068198676@linuxfoundation.org>
+Subject: [PATCH 4.9 36/53] idr: add ida_is_empty
+Date:   Mon, 29 Mar 2021 09:58:11 +0200
+Message-Id: <20210329075608.698857395@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
-References: <20210329075605.290845195@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,131 +47,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Matthew Wilcox <willy@linux.intel.com>
 
-[ Upstream commit 6e2fe01dd6f98da6cae8b07cd5cfa67abc70d97d ]
+[ Upstream commit 99c494077e2d4282a17120a772eecc00ec3004cc ]
 
-Currently doing modprobe c_can_pci will make the kernel complain:
+Two of the USB Gadgets were poking around in the internals of struct ida
+in order to determine if it is empty.  Add the appropriate abstraction.
 
-    Unbalanced pm_runtime_enable!
-
-this is caused by pm_runtime_enable() called before pm is initialized.
-
-This fix is similar to 227619c3ff7c, move those pm_enable/disable code
-to c_can_platform.
-
-Fixes: 4cdd34b26826 ("can: c_can: Add runtime PM support to Bosch C_CAN/D_CAN controller")
-Link: http://lore.kernel.org/r/20210302025542.987600-1-ztong0001@gmail.com
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Tested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: http://lkml.kernel.org/r/1480369871-5271-63-git-send-email-mawilcox@linuxonhyperv.com
+Signed-off-by: Matthew Wilcox <willy@linux.intel.com>
+Acked-by: Konstantin Khlebnikov <koct9i@gmail.com>
+Tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Michal Nazarewicz <mina86@mina86.com>
+Cc: Matthew Wilcox <mawilcox@microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/c_can/c_can.c          | 24 +-----------------------
- drivers/net/can/c_can/c_can_platform.c |  6 +++++-
- 2 files changed, 6 insertions(+), 24 deletions(-)
+ drivers/usb/gadget/function/f_hid.c     | 6 +++---
+ drivers/usb/gadget/function/f_printer.c | 6 +++---
+ include/linux/idr.h                     | 5 +++++
+ 3 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/can/c_can/c_can.c b/drivers/net/can/c_can/c_can.c
-index 4ead5a18b794..c41ab2cb272e 100644
---- a/drivers/net/can/c_can/c_can.c
-+++ b/drivers/net/can/c_can/c_can.c
-@@ -212,18 +212,6 @@ static const struct can_bittiming_const c_can_bittiming_const = {
- 	.brp_inc = 1,
- };
+diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
+index 8e83649f77ce..42e5677d932d 100644
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -932,7 +932,7 @@ static void hidg_free_inst(struct usb_function_instance *f)
+ 	mutex_lock(&hidg_ida_lock);
  
--static inline void c_can_pm_runtime_enable(const struct c_can_priv *priv)
--{
--	if (priv->device)
--		pm_runtime_enable(priv->device);
--}
--
--static inline void c_can_pm_runtime_disable(const struct c_can_priv *priv)
--{
--	if (priv->device)
--		pm_runtime_disable(priv->device);
--}
--
- static inline void c_can_pm_runtime_get_sync(const struct c_can_priv *priv)
- {
- 	if (priv->device)
-@@ -1318,7 +1306,6 @@ static const struct net_device_ops c_can_netdev_ops = {
+ 	hidg_put_minor(opts->minor);
+-	if (idr_is_empty(&hidg_ida.idr))
++	if (ida_is_empty(&hidg_ida))
+ 		ghid_cleanup();
  
- int register_c_can_dev(struct net_device *dev)
- {
--	struct c_can_priv *priv = netdev_priv(dev);
- 	int err;
+ 	mutex_unlock(&hidg_ida_lock);
+@@ -958,7 +958,7 @@ static struct usb_function_instance *hidg_alloc_inst(void)
  
- 	/* Deactivate pins to prevent DRA7 DCAN IP from being
-@@ -1328,28 +1315,19 @@ int register_c_can_dev(struct net_device *dev)
- 	 */
- 	pinctrl_pm_select_sleep_state(dev->dev.parent);
+ 	mutex_lock(&hidg_ida_lock);
  
--	c_can_pm_runtime_enable(priv);
--
- 	dev->flags |= IFF_ECHO;	/* we support local echo */
- 	dev->netdev_ops = &c_can_netdev_ops;
+-	if (idr_is_empty(&hidg_ida.idr)) {
++	if (ida_is_empty(&hidg_ida)) {
+ 		status = ghid_setup(NULL, HIDG_MINORS);
+ 		if (status)  {
+ 			ret = ERR_PTR(status);
+@@ -971,7 +971,7 @@ static struct usb_function_instance *hidg_alloc_inst(void)
+ 	if (opts->minor < 0) {
+ 		ret = ERR_PTR(opts->minor);
+ 		kfree(opts);
+-		if (idr_is_empty(&hidg_ida.idr))
++		if (ida_is_empty(&hidg_ida))
+ 			ghid_cleanup();
+ 		goto unlock;
+ 	}
+diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
+index b962f24b500b..b3d036d06553 100644
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -1276,7 +1276,7 @@ static void gprinter_free_inst(struct usb_function_instance *f)
+ 	mutex_lock(&printer_ida_lock);
  
- 	err = register_candev(dev);
--	if (err)
--		c_can_pm_runtime_disable(priv);
--	else
-+	if (!err)
- 		devm_can_led_init(dev);
--
- 	return err;
+ 	gprinter_put_minor(opts->minor);
+-	if (idr_is_empty(&printer_ida.idr))
++	if (ida_is_empty(&printer_ida))
+ 		gprinter_cleanup();
+ 
+ 	mutex_unlock(&printer_ida_lock);
+@@ -1300,7 +1300,7 @@ static struct usb_function_instance *gprinter_alloc_inst(void)
+ 
+ 	mutex_lock(&printer_ida_lock);
+ 
+-	if (idr_is_empty(&printer_ida.idr)) {
++	if (ida_is_empty(&printer_ida)) {
+ 		status = gprinter_setup(PRINTER_MINORS);
+ 		if (status) {
+ 			ret = ERR_PTR(status);
+@@ -1313,7 +1313,7 @@ static struct usb_function_instance *gprinter_alloc_inst(void)
+ 	if (opts->minor < 0) {
+ 		ret = ERR_PTR(opts->minor);
+ 		kfree(opts);
+-		if (idr_is_empty(&printer_ida.idr))
++		if (ida_is_empty(&printer_ida))
+ 			gprinter_cleanup();
+ 		goto unlock;
+ 	}
+diff --git a/include/linux/idr.h b/include/linux/idr.h
+index 083d61e92706..3639a28188c9 100644
+--- a/include/linux/idr.h
++++ b/include/linux/idr.h
+@@ -195,6 +195,11 @@ static inline int ida_get_new(struct ida *ida, int *p_id)
+ 	return ida_get_new_above(ida, 0, p_id);
  }
- EXPORT_SYMBOL_GPL(register_c_can_dev);
  
- void unregister_c_can_dev(struct net_device *dev)
- {
--	struct c_can_priv *priv = netdev_priv(dev);
--
- 	unregister_candev(dev);
--
--	c_can_pm_runtime_disable(priv);
- }
- EXPORT_SYMBOL_GPL(unregister_c_can_dev);
++static inline bool ida_is_empty(struct ida *ida)
++{
++	return idr_is_empty(&ida->idr);
++}
++
+ void __init idr_init_cache(void);
  
-diff --git a/drivers/net/can/c_can/c_can_platform.c b/drivers/net/can/c_can/c_can_platform.c
-index 717530eac70c..c6a03f565e3f 100644
---- a/drivers/net/can/c_can/c_can_platform.c
-+++ b/drivers/net/can/c_can/c_can_platform.c
-@@ -29,6 +29,7 @@
- #include <linux/list.h>
- #include <linux/io.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/clk.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-@@ -385,6 +386,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, dev);
- 	SET_NETDEV_DEV(dev, &pdev->dev);
- 
-+	pm_runtime_enable(priv->device);
- 	ret = register_c_can_dev(dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
-@@ -397,6 +399,7 @@ static int c_can_plat_probe(struct platform_device *pdev)
- 	return 0;
- 
- exit_free_device:
-+	pm_runtime_disable(priv->device);
- 	free_c_can_dev(dev);
- exit:
- 	dev_err(&pdev->dev, "probe failed\n");
-@@ -407,9 +410,10 @@ exit:
- static int c_can_plat_remove(struct platform_device *pdev)
- {
- 	struct net_device *dev = platform_get_drvdata(pdev);
-+	struct c_can_priv *priv = netdev_priv(dev);
- 
- 	unregister_c_can_dev(dev);
--
-+	pm_runtime_disable(priv->device);
- 	free_c_can_dev(dev);
- 
- 	return 0;
+ #endif /* __IDR_H__ */
 -- 
 2.30.1
 
