@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A039334C73F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CFCE34C8DC
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbhC2INf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:13:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56180 "EHLO mail.kernel.org"
+        id S233095AbhC2IYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232969AbhC2IMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:12:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4530C61477;
-        Mon, 29 Mar 2021 08:12:45 +0000 (UTC)
+        id S233513AbhC2IXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:23:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C21816044F;
+        Mon, 29 Mar 2021 08:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005566;
-        bh=sWzzsCkJggXUYwjaqk3ZNQKl7qOP3H5UYuNl4wv49dk=;
+        s=korg; t=1617006208;
+        bh=RHIqCcF0DTcyY7IN0URo8sQrH/fKoLvRgDD/wApvKZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivwH/R5AU5YsZ7hyMO+fX9yICon8Uk3fflFAHmkpf56uQKUm8VWP0pxSIldlAfOkY
-         /NrK4hry7OWT8EPCRSpdXSf2yAT2soZnjx2nUCUxoVct6mYa9M0WZdCQ1mBj2Sa3r2
-         ML1v/y8vPZGcbX2bbhjjpoxTrwReZTqoNw5y9Llc=
+        b=NI6ongDAmP+QOelX1PmSAAox/ODDhmDy4p0aUFSL2r/U1ISArXXzdFc9pFJEuvckF
+         se+AIHb9594qaSpQr041BV0+hyNu7eQL0VnPcnWb8bvTv+8Wh9rx++MTyTMBum3onJ
+         9JhVpTXvK58He7ipNwNLgGa3u7gShDI/dxGL8QfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 042/111] squashfs: fix xattr id and id lookup sanity checks
-Date:   Mon, 29 Mar 2021 09:57:50 +0200
-Message-Id: <20210329075616.575615175@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 140/221] drm/msm/dsi: fix check-before-set in the 7nm dsi_pll code
+Date:   Mon, 29 Mar 2021 09:57:51 +0200
+Message-Id: <20210329075633.846380275@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 8b44ca2b634527151af07447a8090a5f3a043321 upstream.
+[ Upstream commit 3b24cdfc721a5f1098da22f9f68ff5f4a5efccc9 ]
 
-The checks for maximum metadata block size is missing
-SQUASHFS_BLOCK_OFFSET (the two byte length count).
+Fix setting min/max DSI PLL rate for the V4.1 7nm DSI PLL (used on
+sm8250). Current code checks for pll->type before it is set (as it is
+set in the msm_dsi_pll_init() after calling device-specific functions.
 
-Link: https://lkml.kernel.org/r/2069685113.2081245.1614583677427@webmail.123-reg.co.uk
-Fixes: f37aa4c7366e23f ("squashfs: add more sanity checks in id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Cc: Sean Nyekjaer <sean@geanix.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jonathan Marek <jonathan@marek.ca>
+Fixes: 1ef7c99d145c ("drm/msm/dsi: add support for 7nm DSI PHY/PLL")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/squashfs/id.c       |    6 ++++--
- fs/squashfs/xattr_id.c |    6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/dsi/pll/dsi_pll.c     | 2 +-
+ drivers/gpu/drm/msm/dsi/pll/dsi_pll.h     | 6 ++++--
+ drivers/gpu/drm/msm/dsi/pll/dsi_pll_7nm.c | 5 +++--
+ 3 files changed, 8 insertions(+), 5 deletions(-)
 
---- a/fs/squashfs/id.c
-+++ b/fs/squashfs/id.c
-@@ -97,14 +97,16 @@ __le64 *squashfs_read_id_index_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
+diff --git a/drivers/gpu/drm/msm/dsi/pll/dsi_pll.c b/drivers/gpu/drm/msm/dsi/pll/dsi_pll.c
+index a45fe95aff49..3dc65877fa10 100644
+--- a/drivers/gpu/drm/msm/dsi/pll/dsi_pll.c
++++ b/drivers/gpu/drm/msm/dsi/pll/dsi_pll.c
+@@ -163,7 +163,7 @@ struct msm_dsi_pll *msm_dsi_pll_init(struct platform_device *pdev,
+ 		break;
+ 	case MSM_DSI_PHY_7NM:
+ 	case MSM_DSI_PHY_7NM_V4_1:
+-		pll = msm_dsi_pll_7nm_init(pdev, id);
++		pll = msm_dsi_pll_7nm_init(pdev, type, id);
+ 		break;
+ 	default:
+ 		pll = ERR_PTR(-ENXIO);
+diff --git a/drivers/gpu/drm/msm/dsi/pll/dsi_pll.h b/drivers/gpu/drm/msm/dsi/pll/dsi_pll.h
+index 3405982a092c..bbecb1de5678 100644
+--- a/drivers/gpu/drm/msm/dsi/pll/dsi_pll.h
++++ b/drivers/gpu/drm/msm/dsi/pll/dsi_pll.h
+@@ -117,10 +117,12 @@ msm_dsi_pll_10nm_init(struct platform_device *pdev, int id)
+ }
+ #endif
+ #ifdef CONFIG_DRM_MSM_DSI_7NM_PHY
+-struct msm_dsi_pll *msm_dsi_pll_7nm_init(struct platform_device *pdev, int id);
++struct msm_dsi_pll *msm_dsi_pll_7nm_init(struct platform_device *pdev,
++					enum msm_dsi_phy_type type, int id);
+ #else
+ static inline struct msm_dsi_pll *
+-msm_dsi_pll_7nm_init(struct platform_device *pdev, int id)
++msm_dsi_pll_7nm_init(struct platform_device *pdev,
++					enum msm_dsi_phy_type type, int id)
+ {
+ 	return ERR_PTR(-ENODEV);
+ }
+diff --git a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_7nm.c b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_7nm.c
+index 93bf142e4a4e..c1f6708367ae 100644
+--- a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_7nm.c
++++ b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_7nm.c
+@@ -852,7 +852,8 @@ err_base_clk_hw:
+ 	return ret;
+ }
  
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= id_table_start || (id_table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -109,14 +109,16 @@ __le64 *squashfs_read_xattr_id_table(str
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
- 
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end || (end - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= table_start || (table_start - start) >
-+				(SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
+-struct msm_dsi_pll *msm_dsi_pll_7nm_init(struct platform_device *pdev, int id)
++struct msm_dsi_pll *msm_dsi_pll_7nm_init(struct platform_device *pdev,
++					enum msm_dsi_phy_type type, int id)
+ {
+ 	struct dsi_pll_7nm *pll_7nm;
+ 	struct msm_dsi_pll *pll;
+@@ -885,7 +886,7 @@ struct msm_dsi_pll *msm_dsi_pll_7nm_init(struct platform_device *pdev, int id)
+ 	pll = &pll_7nm->base;
+ 	pll->min_rate = 1000000000UL;
+ 	pll->max_rate = 3500000000UL;
+-	if (pll->type == MSM_DSI_PHY_7NM_V4_1) {
++	if (type == MSM_DSI_PHY_7NM_V4_1) {
+ 		pll->min_rate = 600000000UL;
+ 		pll->max_rate = (unsigned long)5000000000ULL;
+ 		/* workaround for max rate overflowing on 32-bit builds: */
+-- 
+2.30.1
+
 
 
