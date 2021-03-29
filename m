@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6969A34C5C2
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F6234C5C5
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231779AbhC2ICw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44488 "EHLO mail.kernel.org"
+        id S231840AbhC2ICx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231874AbhC2ICN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:02:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CC636196F;
-        Mon, 29 Mar 2021 08:02:12 +0000 (UTC)
+        id S231549AbhC2ICQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:02:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0EC761974;
+        Mon, 29 Mar 2021 08:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004932;
-        bh=eyvwRZIPlZpP72HysB9lTTUVYz1mj0WrErunU7kassk=;
+        s=korg; t=1617004935;
+        bh=BbmKUjPokDAQWq/Y/0QBlEfVMLoFH8LvkxLQoeClTL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzeZQW3a0SIPUC/OHx6H9wa2rqohTn06J4OsRaI5TxAp1bxVkTccFf5zEMWb5PNeP
-         GymxsbK/pFZ36Bw9hyKdvrSi3CIOBLYai7TPvZPYS4G4QFxP6PqRJPVvvZwvyZhWbP
-         zn66g/5ApEwmVsyZRpMGj5rK723WlZU0BevzH7Ho=
+        b=ghan2aZLhgc8t7sLH47aUFUzBRKmucVzIo3db4UYuMPoE2kDXdwnyaB4a8EiD9W3G
+         CZ4UFjjcauVvRZN9bj0Mwj7KAhLx/D/wpAtYP9pf+FzpoqDBWsyFWj8Lux5RAHp4cx
+         cn9LyXNpyBXmrbkH3KXrfIXBRJlUilhBmBAnoVQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Feng Tang <feng.tang@intel.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 02/53] powerpc/4xx: Fix build errors from mfdcr()
-Date:   Mon, 29 Mar 2021 09:57:37 +0200
-Message-Id: <20210329075607.642341122@linuxfoundation.org>
+Subject: [PATCH 4.9 03/53] atm: eni: dont release is never initialized
+Date:   Mon, 29 Mar 2021 09:57:38 +0200
+Message-Id: <20210329075607.672914062@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
 References: <20210329075607.561619583@linuxfoundation.org>
@@ -42,70 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit eead089311f4d935ab5d1d8fbb0c42ad44699ada ]
+[ Upstream commit 4deb550bc3b698a1f03d0332cde3df154d1b6c1e ]
 
-lkp reported a build error in fsp2.o:
+label err_eni_release is reachable when eni_start() fail.
+In eni_start() it calls dev->phy->start() in the last step, if start()
+fail we don't need to call phy->stop(), if start() is never called, we
+neither need to call phy->stop(), otherwise null-ptr-deref will happen.
 
-  CC      arch/powerpc/platforms/44x/fsp2.o
-  {standard input}:577: Error: unsupported relocation against base
+In order to fix this issue, don't call phy->stop() in label err_eni_release
 
-Which comes from:
+[    4.875714] ==================================================================
+[    4.876091] BUG: KASAN: null-ptr-deref in suni_stop+0x47/0x100 [suni]
+[    4.876433] Read of size 8 at addr 0000000000000030 by task modprobe/95
+[    4.876778]
+[    4.876862] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7-00090-gdcc0b49040c7 #2
+[    4.877290] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd94
+[    4.877876] Call Trace:
+[    4.878009]  dump_stack+0x7d/0xa3
+[    4.878191]  kasan_report.cold+0x10c/0x10e
+[    4.878410]  ? __slab_free+0x2f0/0x340
+[    4.878612]  ? suni_stop+0x47/0x100 [suni]
+[    4.878832]  suni_stop+0x47/0x100 [suni]
+[    4.879043]  eni_do_release+0x3b/0x70 [eni]
+[    4.879269]  eni_init_one.cold+0x1152/0x1747 [eni]
+[    4.879528]  ? _raw_spin_lock_irqsave+0x7b/0xd0
+[    4.879768]  ? eni_ioctl+0x270/0x270 [eni]
+[    4.879990]  ? __mutex_lock_slowpath+0x10/0x10
+[    4.880226]  ? eni_ioctl+0x270/0x270 [eni]
+[    4.880448]  local_pci_probe+0x6f/0xb0
+[    4.880650]  pci_device_probe+0x171/0x240
+[    4.880864]  ? pci_device_remove+0xe0/0xe0
+[    4.881086]  ? kernfs_create_link+0xb6/0x110
+[    4.881315]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
+[    4.881594]  really_probe+0x161/0x420
+[    4.881791]  driver_probe_device+0x6d/0xd0
+[    4.882010]  device_driver_attach+0x82/0x90
+[    4.882233]  ? device_driver_attach+0x90/0x90
+[    4.882465]  __driver_attach+0x60/0x100
+[    4.882671]  ? device_driver_attach+0x90/0x90
+[    4.882903]  bus_for_each_dev+0xe1/0x140
+[    4.883114]  ? subsys_dev_iter_exit+0x10/0x10
+[    4.883346]  ? klist_node_init+0x61/0x80
+[    4.883557]  bus_add_driver+0x254/0x2a0
+[    4.883764]  driver_register+0xd3/0x150
+[    4.883971]  ? 0xffffffffc0038000
+[    4.884149]  do_one_initcall+0x84/0x250
+[    4.884355]  ? trace_event_raw_event_initcall_finish+0x150/0x150
+[    4.884674]  ? unpoison_range+0xf/0x30
+[    4.884875]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.885150]  ? unpoison_range+0xf/0x30
+[    4.885352]  ? unpoison_range+0xf/0x30
+[    4.885557]  do_init_module+0xf8/0x350
+[    4.885760]  load_module+0x3fe6/0x4340
+[    4.885960]  ? vm_unmap_ram+0x1d0/0x1d0
+[    4.886166]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.886441]  ? module_frob_arch_sections+0x20/0x20
+[    4.886697]  ? __do_sys_finit_module+0x108/0x170
+[    4.886941]  __do_sys_finit_module+0x108/0x170
+[    4.887178]  ? __ia32_sys_init_module+0x40/0x40
+[    4.887419]  ? file_open_root+0x200/0x200
+[    4.887634]  ? do_sys_open+0x85/0xe0
+[    4.887826]  ? filp_open+0x50/0x50
+[    4.888009]  ? fpregs_assert_state_consistent+0x4d/0x60
+[    4.888287]  ? exit_to_user_mode_prepare+0x2f/0x130
+[    4.888547]  do_syscall_64+0x33/0x40
+[    4.888739]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    4.889010] RIP: 0033:0x7ff62fcf1cf7
+[    4.889202] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f71
+[    4.890172] RSP: 002b:00007ffe6644ade8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    4.890570] RAX: ffffffffffffffda RBX: 0000000000f2ca70 RCX: 00007ff62fcf1cf7
+[    4.890944] RDX: 0000000000000000 RSI: 0000000000f2b9e0 RDI: 0000000000000003
+[    4.891318] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
+[    4.891691] R10: 00007ff62fd55300 R11: 0000000000000246 R12: 0000000000f2b9e0
+[    4.892064] R13: 0000000000000000 R14: 0000000000f2bdd0 R15: 0000000000000001
+[    4.892439] ==================================================================
 
-  pr_err("GESR0: 0x%08x\n", mfdcr(base + PLB4OPB_GESR0));
-
-Where our mfdcr() macro is stringifying "base + PLB4OPB_GESR0", and
-passing that to the assembler, which obviously doesn't work.
-
-The mfdcr() macro already checks that the argument is constant using
-__builtin_constant_p(), and if not calls the out-of-line version of
-mfdcr(). But in this case GCC is smart enough to notice that "base +
-PLB4OPB_GESR0" will be constant, even though it's not something we can
-immediately stringify into a register number.
-
-Segher pointed out that passing the register number to the inline asm
-as a constant would be better, and in fact it fixes the build error,
-presumably because it gives GCC a chance to resolve the value.
-
-While we're at it, change mtdcr() similarly.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Acked-by: Feng Tang <feng.tang@intel.com>
-Link: https://lore.kernel.org/r/20210218123058.748882-1-mpe@ellerman.id.au
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/dcr-native.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/atm/eni.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/dcr-native.h b/arch/powerpc/include/asm/dcr-native.h
-index 4a2beef74277..86fdda16bb73 100644
---- a/arch/powerpc/include/asm/dcr-native.h
-+++ b/arch/powerpc/include/asm/dcr-native.h
-@@ -65,8 +65,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
- #define mfdcr(rn)						\
- 	({unsigned int rval;					\
- 	if (__builtin_constant_p(rn) && rn < 1024)		\
--		asm volatile("mfdcr %0," __stringify(rn)	\
--		              : "=r" (rval));			\
-+		asm volatile("mfdcr %0, %1" : "=r" (rval)	\
-+			      : "n" (rn));			\
- 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
- 		rval = mfdcrx(rn);				\
- 	else							\
-@@ -76,8 +76,8 @@ static inline void mtdcrx(unsigned int reg, unsigned int val)
- #define mtdcr(rn, v)						\
- do {								\
- 	if (__builtin_constant_p(rn) && rn < 1024)		\
--		asm volatile("mtdcr " __stringify(rn) ",%0"	\
--			      : : "r" (v)); 			\
-+		asm volatile("mtdcr %0, %1"			\
-+			      : : "n" (rn), "r" (v));		\
- 	else if (likely(cpu_has_feature(CPU_FTR_INDEXED_DCR)))	\
- 		mtdcrx(rn, v);					\
- 	else							\
+diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
+index 9d16743c4917..2b7786cd548f 100644
+--- a/drivers/atm/eni.c
++++ b/drivers/atm/eni.c
+@@ -2279,7 +2279,8 @@ static int eni_init_one(struct pci_dev *pci_dev,
+ 	return rc;
+ 
+ err_eni_release:
+-	eni_do_release(dev);
++	dev->phy = NULL;
++	iounmap(ENI_DEV(dev)->ioaddr);
+ err_unregister:
+ 	atm_dev_deregister(dev);
+ err_free_consistent:
 -- 
 2.30.1
 
