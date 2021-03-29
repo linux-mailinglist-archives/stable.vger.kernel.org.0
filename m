@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A1834C946
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED69334C6EE
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232245AbhC2I3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42390 "EHLO mail.kernel.org"
+        id S231842AbhC2ILE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:11:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233661AbhC2IZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:25:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82423619AA;
-        Mon, 29 Mar 2021 08:25:09 +0000 (UTC)
+        id S232605AbhC2IKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:10:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB59A61601;
+        Mon, 29 Mar 2021 08:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006310;
-        bh=nwJmXZyvikEUvajC3mgvchdhiH/JCT/IkbHTO2+XaO4=;
+        s=korg; t=1617005414;
+        bh=fY47xEmJQyx92oKopzN4a/8ixjqicGOjl0v9iKPX+eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmDI/IRJNAxyvxKT0KIjJs1KXjx351sBPMJ/V5lBnrsu4hvfcAJlLZbMDbfPX2Odj
-         PttH0qUZbXdcAKWEt5Yix8lix2WrzLJWktwA0A7ytcG+FywraIgMeB2yZeU7L2qvpF
-         rsG01aOBn+BoiZK0Lu8B/52iz0bYzqm8PqThcjDM=
+        b=1D6nuBzMq8jZfgVAYAoqWUKvgVk2cHIIkiUZ/uzWOhLkoAjytcsDX3/U4Wu8BbJ6d
+         XCD8b0XTvRoVCo3y2eWwvmDTYsZUJx1t7IWIMtmLoaUP8ZW/RGn84P088W2Nm1jPId
+         qzOpN1q7joUqXZIpRoZ3HJOuOzM3DdZ5Nplzm/lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 195/221] Revert "netfilter: x_tables: Update remaining dereference to RCU"
-Date:   Mon, 29 Mar 2021 09:58:46 +0200
-Message-Id: <20210329075635.629309677@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 71/72] ext4: add reclaim checks to xattr code
+Date:   Mon, 29 Mar 2021 09:58:47 +0200
+Message-Id: <20210329075612.629606876@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit abe7034b9a8d57737e80cc16d60ed3666990bdbf ]
+commit 163f0ec1df33cf468509ff38cbcbb5eb0d7fac60 upstream.
 
-This reverts commit 443d6e86f821a165fae3fc3fc13086d27ac140b1.
+Syzbot is reporting that ext4 can enter fs reclaim from kvmalloc() while
+the transaction is started like:
 
-This (and the following) patch basically re-implemented the RCU
-mechanisms of patch 784544739a25. That patch was replaced because of the
-performance problems that it created when replacing tables. Now, we have
-the same issue: the call to synchronize_rcu() makes replacing tables
-slower by as much as an order of magnitude.
+  fs_reclaim_acquire+0x117/0x150 mm/page_alloc.c:4340
+  might_alloc include/linux/sched/mm.h:193 [inline]
+  slab_pre_alloc_hook mm/slab.h:493 [inline]
+  slab_alloc_node mm/slub.c:2817 [inline]
+  __kmalloc_node+0x5f/0x430 mm/slub.c:4015
+  kmalloc_node include/linux/slab.h:575 [inline]
+  kvmalloc_node+0x61/0xf0 mm/util.c:587
+  kvmalloc include/linux/mm.h:781 [inline]
+  ext4_xattr_inode_cache_find fs/ext4/xattr.c:1465 [inline]
+  ext4_xattr_inode_lookup_create fs/ext4/xattr.c:1508 [inline]
+  ext4_xattr_set_entry+0x1ce6/0x3780 fs/ext4/xattr.c:1649
+  ext4_xattr_ibody_set+0x78/0x2b0 fs/ext4/xattr.c:2224
+  ext4_xattr_set_handle+0x8f4/0x13e0 fs/ext4/xattr.c:2380
+  ext4_xattr_set+0x13a/0x340 fs/ext4/xattr.c:2493
 
-Revert these patches and fix the issue in a different way.
+This should be impossible since transaction start sets PF_MEMALLOC_NOFS.
+Add some assertions to the code to catch if something isn't working as
+expected early.
 
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/linux-ext4/000000000000563a0205bafb7970@google.com/
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210222171626.21884-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/netfilter/arp_tables.c | 2 +-
- net/ipv4/netfilter/ip_tables.c  | 2 +-
- net/ipv6/netfilter/ip6_tables.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ fs/ext4/xattr.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index 04a2010755a6..d1e04d2b5170 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -1379,7 +1379,7 @@ static int compat_get_entries(struct net *net,
- 	xt_compat_lock(NFPROTO_ARP);
- 	t = xt_find_table_lock(net, NFPROTO_ARP, get.name);
- 	if (!IS_ERR(t)) {
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- 		struct xt_table_info info;
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1480,6 +1480,9 @@ ext4_xattr_inode_cache_find(struct inode
+ 	if (!ce)
+ 		return NULL;
  
- 		ret = compat_table_info(private, &info);
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index a5b63f92b7f3..f15bc21d7301 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -1589,7 +1589,7 @@ compat_get_entries(struct net *net, struct compat_ipt_get_entries __user *uptr,
- 	xt_compat_lock(AF_INET);
- 	t = xt_find_table_lock(net, AF_INET, get.name);
- 	if (!IS_ERR(t)) {
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- 		struct xt_table_info info;
- 		ret = compat_table_info(private, &info);
- 		if (!ret && get.size == info.size)
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index 81c042940b21..2e2119bfcf13 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -1598,7 +1598,7 @@ compat_get_entries(struct net *net, struct compat_ip6t_get_entries __user *uptr,
- 	xt_compat_lock(AF_INET6);
- 	t = xt_find_table_lock(net, AF_INET6, get.name);
- 	if (!IS_ERR(t)) {
--		const struct xt_table_info *private = xt_table_get_private_protected(t);
-+		const struct xt_table_info *private = t->private;
- 		struct xt_table_info info;
- 		ret = compat_table_info(private, &info);
- 		if (!ret && get.size == info.size)
--- 
-2.30.1
-
++	WARN_ON_ONCE(ext4_handle_valid(journal_current_handle()) &&
++		     !(current->flags & PF_MEMALLOC_NOFS));
++
+ 	ea_data = ext4_kvmalloc(value_len, GFP_NOFS);
+ 	if (!ea_data) {
+ 		mb_cache_entry_put(ea_inode_cache, ce);
+@@ -2346,6 +2349,7 @@ ext4_xattr_set_handle(handle_t *handle,
+ 			error = -ENOSPC;
+ 			goto cleanup;
+ 		}
++		WARN_ON_ONCE(!(current->flags & PF_MEMALLOC_NOFS));
+ 	}
+ 
+ 	error = ext4_reserve_inode_write(handle, inode, &is.iloc);
 
 
