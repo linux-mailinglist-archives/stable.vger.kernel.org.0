@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D24B34C5CC
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C54AB34C8A6
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231946AbhC2IC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:02:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44678 "EHLO mail.kernel.org"
+        id S233582AbhC2IXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:23:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231736AbhC2ICb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:02:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72AFE61976;
-        Mon, 29 Mar 2021 08:02:30 +0000 (UTC)
+        id S233778AbhC2IWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:22:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCE276044F;
+        Mon, 29 Mar 2021 08:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004951;
-        bh=O+bGaQbgppl7EBlZBXLS8rnc8WcSz3t4LTbgzH+Wb1s=;
+        s=korg; t=1617006145;
+        bh=UEQoMXZ6WL4a5lcnMnICIkdCGCryPENNnGQhxaMdqrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzpqIcmBN9/KbZjJD8C10EGlq3Bu4iAPPrikGA0jNFPnNHnbZ9LkMjmH8JBYDhRtp
-         Y5wdrrOZvuEiJpQPfOmxGKjvNbULzXF+E9HlP5C4+XJTbXC+WtJ6ZbePdVE0qLAlW/
-         1fltkAFX+q52mz8KfBI+hMr4x9dd/fk6+ftPuptM=
+        b=orrk2BT88LizM5aQe7WTw9sDE1KIt+1Vedlj/F8mgKK64bhAssE+3Mmx0e+0X63Nq
+         3gp/MW3vKnmVxD2YmRXIsNyv98AYULeV74TSWBuamVNmkG0aPZlKjSoUmSyq8iQJ79
+         TTFEl4k1npZ1ckywEBDZg1zNO6oBXVlJkSUTyX2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/53] NFS: Correct size calculation for create reply length
+Subject: [PATCH 5.10 133/221] mac80211: fix rate mask reset
 Date:   Mon, 29 Mar 2021 09:57:44 +0200
-Message-Id: <20210329075607.858323142@linuxfoundation.org>
+Message-Id: <20210329075633.630474453@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Sorenson <sorenson@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
+[ Upstream commit 1944015fe9c1d9fa5e9eb7ffbbb5ef8954d6753b ]
 
-CREATE requests return a post_op_fh3, rather than nfs_fh3. The
-post_op_fh3 includes an extra word to indicate 'handle_follows'.
+Coverity reported the strange "if (~...)" condition that's
+always true. It suggested that ! was intended instead of ~,
+but upon further analysis I'm convinced that what really was
+intended was a comparison to 0xff/0xffff (in HT/VHT cases
+respectively), since this indicates that all of the rates
+are enabled.
 
-Without that additional word, create fails when full 64-byte
-filehandles are in use.
+Change the comparison accordingly.
 
-Add NFS3_post_op_fh_sz, and correct the size calculation for
-NFS3_createres_sz.
+I'm guessing this never really mattered because a reset to
+not having a rate mask is basically equivalent to having a
+mask that enables all rates.
 
-Signed-off-by: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 2ffbe6d33366 ("mac80211: fix and optimize MCS mask handling")
+Fixes: b119ad6e726c ("mac80211: add rate mask logic for vht rates")
+Reviewed-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210212112213.36b38078f569.I8546a20c80bc1669058eb453e213630b846e107b@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs3xdr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mac80211/cfg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 267126d32ec0..4a68837e92ea 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -33,6 +33,7 @@
-  */
- #define NFS3_fhandle_sz		(1+16)
- #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
-+#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
- #define NFS3_sattr_sz		(15)
- #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
- #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
-@@ -70,7 +71,7 @@
- #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1)
- #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3)
- #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
--#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
-+#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
- #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2)
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 7276e66ae435..2bf6271d9e3f 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -2961,14 +2961,14 @@ static int ieee80211_set_bitrate_mask(struct wiphy *wiphy,
+ 			continue;
+ 
+ 		for (j = 0; j < IEEE80211_HT_MCS_MASK_LEN; j++) {
+-			if (~sdata->rc_rateidx_mcs_mask[i][j]) {
++			if (sdata->rc_rateidx_mcs_mask[i][j] != 0xff) {
+ 				sdata->rc_has_mcs_mask[i] = true;
+ 				break;
+ 			}
+ 		}
+ 
+ 		for (j = 0; j < NL80211_VHT_NSS_MAX; j++) {
+-			if (~sdata->rc_rateidx_vht_mcs_mask[i][j]) {
++			if (sdata->rc_rateidx_vht_mcs_mask[i][j] != 0xffff) {
+ 				sdata->rc_has_vht_mcs_mask[i] = true;
+ 				break;
+ 			}
 -- 
 2.30.1
 
