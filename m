@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 802B034C686
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E802834C745
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232339AbhC2IIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:08:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49074 "EHLO mail.kernel.org"
+        id S232070AbhC2INm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232429AbhC2IHj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:07:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC3FD619A5;
-        Mon, 29 Mar 2021 08:07:30 +0000 (UTC)
+        id S231735AbhC2IND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:13:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B90761959;
+        Mon, 29 Mar 2021 08:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005251;
-        bh=n7t8f2l0CysmlHiuZW++Ft9mjEipInAmI5pBKnZIFSU=;
+        s=korg; t=1617005582;
+        bh=CJJC+7+roP+Z3hPoDhpmr7Ua2PL4N31J/HJepvRUkWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mrXcBIgdT/oZwpNRkYgfrPB5NYDEjwrJjq+jkleZBw7l8Tw2vd/YfI+pXsq8yyC21
-         VAVVHADssdzIJ9DlbVdL6bhHi2Y+c/tXkV+SLvs2vfQy3z4oLfOaqRzp7erERYAVLz
-         cgKYkKG8fHDB0x0KqFN4axEtppJICvLtWLfLsDQc=
+        b=TXlXwg+Jd8JS84u7RFddB3zM6Si8x3cATFDZ5L+3NSLUv5RRVGSH8MHyddRiw8tP1
+         0ZDKV+QMgdz3KKLRAGPZ2sq0Zy9dcs/XHaR7/KORaEqce7LFUZ7cm5pmuSBxpbZYNB
+         11gq8uUXFbDA7iVwRm1B3fUAJRxh8q23xfRO54NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/72] drm/radeon: fix AGP dependency
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 047/111] arm64: dts: ls1012a: mark crypto engine dma coherent
 Date:   Mon, 29 Mar 2021 09:57:55 +0200
-Message-Id: <20210329075610.908095039@linuxfoundation.org>
+Message-Id: <20210329075616.751738601@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit cba2afb65cb05c3d197d17323fee4e3c9edef9cd ]
+commit ba8da03fa7dff59d9400250aebd38f94cde3cb0f upstream.
 
-When AGP is compiled as module radeon must be compiled as module as
-well.
+Crypto engine (CAAM) on LS1012A platform is configured HW-coherent,
+mark accordingly the DT node.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Lack of "dma-coherent" property for an IP that is configured HW-coherent
+can lead to problems, similar to what has been reported for LS1046A.
+
+Cc: <stable@vger.kernel.org> # v4.12+
+Fixes: 85b85c569507 ("arm64: dts: ls1012a: add crypto node")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/Kconfig | 1 +
+ arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index e44e567bd789..a050a9aa9a5e 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -192,6 +192,7 @@ source "drivers/gpu/drm/arm/Kconfig"
- config DRM_RADEON
- 	tristate "ATI Radeon"
- 	depends on DRM && PCI && MMU
-+	depends on AGP || !AGP
- 	select FW_LOADER
-         select DRM_KMS_HELPER
-         select DRM_TTM
--- 
-2.30.1
-
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
+@@ -177,6 +177,7 @@
+ 			ranges = <0x0 0x00 0x1700000 0x100000>;
+ 			reg = <0x00 0x1700000 0x0 0x100000>;
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
++			dma-coherent;
+ 
+ 			sec_jr0: jr@10000 {
+ 				compatible = "fsl,sec-v5.4-job-ring",
 
 
