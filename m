@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FC3034C83E
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A71234C9EF
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:34:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233112AbhC2IVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:21:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
+        id S233897AbhC2IeX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:34:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232256AbhC2IUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:20:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13556619CA;
-        Mon, 29 Mar 2021 08:19:59 +0000 (UTC)
+        id S234617AbhC2IdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:33:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 579A0619C5;
+        Mon, 29 Mar 2021 08:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006000;
-        bh=ZMl16UAd9pVTrK0QjJ1Fi3BOD/lFDmcZlzwI6WsV3y0=;
+        s=korg; t=1617006751;
+        bh=IqqgAef8aMSmr7MlycYjfyp1izlvDR167gZ7Dbm1wOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoK1ri9tuVkfQnqM+SaA+s9pNDaa21djjSio3sN1vbLP43NSJgzGND9oCbJ5Cu/TE
-         6F3yLRRYGaovbWP4r1hthqXOXYxd4af/Op8r4bOxverrx9xspbrS6c1qKcGZkLsGPR
-         QisicGlEZRCNcbYq4dUClglA3kY/Ol5fbwggeoOM=
+        b=KC5BxHDfUHmUQRuaGBapP4N2CO9zVDGVOIehrt4nJWs7vNYH8tBmt/IPy5dxIGBdU
+         uw1TVNLkGYyaAaEFcReWhyxlbc3Q11+Li0rzzH8PG2B0P5dQO45I2n0JZwJKBMAR7Q
+         yJvmQemJpeyYYSZy6KrSq0My2at5YArPwEreYKgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.10 064/221] selinux: fix variable scope issue in live sidtab conversion
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 079/254] squashfs: fix inode lookup sanity checks
 Date:   Mon, 29 Mar 2021 09:56:35 +0200
-Message-Id: <20210329075631.325895612@linuxfoundation.org>
+Message-Id: <20210329075635.745459613@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,279 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Sean Nyekjaer <sean@geanix.com>
 
-commit 6406887a12ee5dcdaffff1a8508d91113d545559 upstream.
+commit c1b2028315c6b15e8d6725e0d5884b15887d3daa upstream.
 
-Commit 02a52c5c8c3b ("selinux: move policy commit after updating
-selinuxfs") moved the selinux_policy_commit() call out of
-security_load_policy() into sel_write_load(), which caused a subtle yet
-rather serious bug.
+When mouting a squashfs image created without inode compression it fails
+with: "unable to read inode lookup table"
 
-The problem is that security_load_policy() passes a reference to the
-convert_params local variable to sidtab_convert(), which stores it in
-the sidtab, where it may be accessed until the policy is swapped over
-and RCU synchronized. Before 02a52c5c8c3b, selinux_policy_commit() was
-called directly from security_load_policy(), so the convert_params
-pointer remained valid all the way until the old sidtab was destroyed,
-but now that's no longer the case and calls to sidtab_context_to_sid()
-on the old sidtab after security_load_policy() returns may cause invalid
-memory accesses.
+It turns out that the BLOCK_OFFSET is missing when checking the
+SQUASHFS_METADATA_SIZE agaist the actual size.
 
-This can be easily triggered using the stress test from commit
-ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
-performance"):
-```
-function rand_cat() {
-	echo $(( $RANDOM % 1024 ))
-}
-
-function do_work() {
-	while true; do
-		echo -n "system_u:system_r:kernel_t:s0:c$(rand_cat),c$(rand_cat)" \
-			>/sys/fs/selinux/context 2>/dev/null || true
-	done
-}
-
-do_work >/dev/null &
-do_work >/dev/null &
-do_work >/dev/null &
-
-while load_policy; do echo -n .; sleep 0.1; done
-
-kill %1
-kill %2
-kill %3
-```
-
-Fix this by allocating the temporary sidtab convert structures
-dynamically and passing them among the
-selinux_policy_{load,cancel,commit} functions.
-
-Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
-Cc: stable@vger.kernel.org
-Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-[PM: merge fuzz in security.h and services.c]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Link: https://lkml.kernel.org/r/20210226092903.1473545-1-sean@geanix.com
+Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Acked-by: Phillip Lougher <phillip@squashfs.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/selinux/include/security.h |   15 ++++++--
- security/selinux/selinuxfs.c        |   10 ++---
- security/selinux/ss/services.c      |   65 ++++++++++++++++++++++--------------
- 3 files changed, 56 insertions(+), 34 deletions(-)
+ fs/squashfs/export.c      |    8 ++++++--
+ fs/squashfs/squashfs_fs.h |    1 +
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -219,14 +219,21 @@ static inline bool selinux_policycap_gen
- 	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
- }
+--- a/fs/squashfs/export.c
++++ b/fs/squashfs/export.c
+@@ -152,14 +152,18 @@ __le64 *squashfs_read_inode_lookup_table
+ 		start = le64_to_cpu(table[n]);
+ 		end = le64_to_cpu(table[n + 1]);
  
-+struct selinux_policy_convert_data;
-+
-+struct selinux_load_state {
-+	struct selinux_policy *policy;
-+	struct selinux_policy_convert_data *convert_data;
-+};
-+
- int security_mls_enabled(struct selinux_state *state);
- int security_load_policy(struct selinux_state *state,
--			void *data, size_t len,
--			struct selinux_policy **newpolicyp);
-+			 void *data, size_t len,
-+			 struct selinux_load_state *load_state);
- void selinux_policy_commit(struct selinux_state *state,
--			struct selinux_policy *newpolicy);
-+			   struct selinux_load_state *load_state);
- void selinux_policy_cancel(struct selinux_state *state,
--			struct selinux_policy *policy);
-+			   struct selinux_load_state *load_state);
- int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len);
- 
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -616,7 +616,7 @@ static ssize_t sel_write_load(struct fil
- 
- {
- 	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
--	struct selinux_policy *newpolicy;
-+	struct selinux_load_state load_state;
- 	ssize_t length;
- 	void *data = NULL;
- 
-@@ -642,19 +642,19 @@ static ssize_t sel_write_load(struct fil
- 	if (copy_from_user(data, buf, count) != 0)
- 		goto out;
- 
--	length = security_load_policy(fsi->state, data, count, &newpolicy);
-+	length = security_load_policy(fsi->state, data, count, &load_state);
- 	if (length) {
- 		pr_warn_ratelimited("SELinux: failed to load policy\n");
- 		goto out;
+-		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++		if (start >= end
++		    || (end - start) >
++		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 			kfree(table);
+ 			return ERR_PTR(-EINVAL);
+ 		}
  	}
  
--	length = sel_make_policy_nodes(fsi, newpolicy);
-+	length = sel_make_policy_nodes(fsi, load_state.policy);
- 	if (length) {
--		selinux_policy_cancel(fsi->state, newpolicy);
-+		selinux_policy_cancel(fsi->state, &load_state);
- 		goto out;
+ 	start = le64_to_cpu(table[indexes - 1]);
+-	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
++	if (start >= lookup_table_start ||
++	    (lookup_table_start - start) >
++	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
  	}
+--- a/fs/squashfs/squashfs_fs.h
++++ b/fs/squashfs/squashfs_fs.h
+@@ -17,6 +17,7 @@
  
--	selinux_policy_commit(fsi->state, newpolicy);
-+	selinux_policy_commit(fsi->state, &load_state);
+ /* size of metadata (inode and directory) blocks */
+ #define SQUASHFS_METADATA_SIZE		8192
++#define SQUASHFS_BLOCK_OFFSET		2
  
- 	length = count;
- 
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -66,6 +66,17 @@
- #include "audit.h"
- #include "policycap_names.h"
- 
-+struct convert_context_args {
-+	struct selinux_state *state;
-+	struct policydb *oldp;
-+	struct policydb *newp;
-+};
-+
-+struct selinux_policy_convert_data {
-+	struct convert_context_args args;
-+	struct sidtab_convert_params sidtab_params;
-+};
-+
- /* Forward declaration. */
- static int context_struct_to_string(struct policydb *policydb,
- 				    struct context *context,
-@@ -1975,12 +1986,6 @@ static inline int convert_context_handle
- 	return 0;
- }
- 
--struct convert_context_args {
--	struct selinux_state *state;
--	struct policydb *oldp;
--	struct policydb *newp;
--};
--
- /*
-  * Convert the values in the security context
-  * structure `oldc' from the values specified
-@@ -2160,7 +2165,7 @@ static void selinux_policy_cond_free(str
- }
- 
- void selinux_policy_cancel(struct selinux_state *state,
--			struct selinux_policy *policy)
-+			   struct selinux_load_state *load_state)
- {
- 	struct selinux_policy *oldpolicy;
- 
-@@ -2168,7 +2173,8 @@ void selinux_policy_cancel(struct selinu
- 					lockdep_is_held(&state->policy_mutex));
- 
- 	sidtab_cancel_convert(oldpolicy->sidtab);
--	selinux_policy_free(policy);
-+	selinux_policy_free(load_state->policy);
-+	kfree(load_state->convert_data);
- }
- 
- static void selinux_notify_policy_change(struct selinux_state *state,
-@@ -2183,9 +2189,9 @@ static void selinux_notify_policy_change
- }
- 
- void selinux_policy_commit(struct selinux_state *state,
--			struct selinux_policy *newpolicy)
-+			   struct selinux_load_state *load_state)
- {
--	struct selinux_policy *oldpolicy;
-+	struct selinux_policy *oldpolicy, *newpolicy = load_state->policy;
- 	u32 seqno;
- 
- 	oldpolicy = rcu_dereference_protected(state->policy,
-@@ -2225,6 +2231,7 @@ void selinux_policy_commit(struct selinu
- 	/* Free the old policy */
- 	synchronize_rcu();
- 	selinux_policy_free(oldpolicy);
-+	kfree(load_state->convert_data);
- 
- 	/* Notify others of the policy change */
- 	selinux_notify_policy_change(state, seqno);
-@@ -2241,11 +2248,10 @@ void selinux_policy_commit(struct selinu
-  * loading the new policy.
-  */
- int security_load_policy(struct selinux_state *state, void *data, size_t len,
--			struct selinux_policy **newpolicyp)
-+			 struct selinux_load_state *load_state)
- {
- 	struct selinux_policy *newpolicy, *oldpolicy;
--	struct sidtab_convert_params convert_params;
--	struct convert_context_args args;
-+	struct selinux_policy_convert_data *convert_data;
- 	int rc = 0;
- 	struct policy_file file = { data, len }, *fp = &file;
- 
-@@ -2275,10 +2281,10 @@ int security_load_policy(struct selinux_
- 		goto err_mapping;
- 	}
- 
--
- 	if (!selinux_initialized(state)) {
- 		/* First policy load, so no need to preserve state from old policy */
--		*newpolicyp = newpolicy;
-+		load_state->policy = newpolicy;
-+		load_state->convert_data = NULL;
- 		return 0;
- 	}
- 
-@@ -2292,29 +2298,38 @@ int security_load_policy(struct selinux_
- 		goto err_free_isids;
- 	}
- 
-+	convert_data = kmalloc(sizeof(*convert_data), GFP_KERNEL);
-+	if (!convert_data) {
-+		rc = -ENOMEM;
-+		goto err_free_isids;
-+	}
-+
- 	/*
- 	 * Convert the internal representations of contexts
- 	 * in the new SID table.
- 	 */
--	args.state = state;
--	args.oldp = &oldpolicy->policydb;
--	args.newp = &newpolicy->policydb;
--
--	convert_params.func = convert_context;
--	convert_params.args = &args;
--	convert_params.target = newpolicy->sidtab;
-+	convert_data->args.state = state;
-+	convert_data->args.oldp = &oldpolicy->policydb;
-+	convert_data->args.newp = &newpolicy->policydb;
-+
-+	convert_data->sidtab_params.func = convert_context;
-+	convert_data->sidtab_params.args = &convert_data->args;
-+	convert_data->sidtab_params.target = newpolicy->sidtab;
- 
--	rc = sidtab_convert(oldpolicy->sidtab, &convert_params);
-+	rc = sidtab_convert(oldpolicy->sidtab, &convert_data->sidtab_params);
- 	if (rc) {
- 		pr_err("SELinux:  unable to convert the internal"
- 			" representation of contexts in the new SID"
- 			" table\n");
--		goto err_free_isids;
-+		goto err_free_convert_data;
- 	}
- 
--	*newpolicyp = newpolicy;
-+	load_state->policy = newpolicy;
-+	load_state->convert_data = convert_data;
- 	return 0;
- 
-+err_free_convert_data:
-+	kfree(convert_data);
- err_free_isids:
- 	sidtab_destroy(newpolicy->sidtab);
- err_mapping:
+ /* default size of block device I/O */
+ #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
 
 
