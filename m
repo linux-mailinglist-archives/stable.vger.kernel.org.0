@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BAF34C669
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F1C34C6D3
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231769AbhC2IHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49560 "EHLO mail.kernel.org"
+        id S232667AbhC2IKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:10:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232228AbhC2IGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:06:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 330C86193C;
-        Mon, 29 Mar 2021 08:06:15 +0000 (UTC)
+        id S232082AbhC2IJY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:09:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EBE161477;
+        Mon, 29 Mar 2021 08:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005175;
-        bh=QYYBqPgpf6rdxTRU5J/O3iAC7Ni8jeHSeg2wLg/r/Y4=;
+        s=korg; t=1617005364;
+        bh=yywFeTFmyBEUS+7GkJST7ioadp1BSgJZUfLO1NiJT8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6f4ZfBlo2x/lg9EFk89sgqvlnp9MWYBzZUGQD3VTjD+bDUMs7nnwvFwMrkeKzta1
-         hSVf/I1GwhE6WOmaA4xhDSUnGuPebc8uduES+xJaenetNk+QZKtQy+qgk29GK20Rfk
-         09VBL8Lv7CQTjSoPHtQSY7XkSLcnl6jrOXNRZadU=
+        b=jfw3e+/ARhfaIpSr10f77YwgMwgJnD+O2ijSL+3j/W/j4tRNKXmoluW/qkioulINv
+         vIrHZl8bIZxAOqsj+v7AJrf8JVZ6mcLpZQrR0HiYDgmOVzaauwOGtG1NbSzMBijUYm
+         e2NHpnTH5kK8iIfQrUT0w6wFcL/+ThoRepfkNK20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 51/59] scsi: qedi: Fix error return code of qedi_alloc_global_queues()
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 55/72] bpf: Dont do bpf_cgroup_storage_set() for kuprobe/tp programs
 Date:   Mon, 29 Mar 2021 09:58:31 +0200
-Message-Id: <20210329075610.553655128@linuxfoundation.org>
+Message-Id: <20210329075612.094491422@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+[ Upstream commit 05a68ce5fa51a83c360381630f823545c5757aa2 ]
 
-[ Upstream commit f69953837ca5d98aa983a138dc0b90a411e9c763 ]
+For kuprobe and tracepoint bpf programs, kernel calls
+trace_call_bpf() which calls BPF_PROG_RUN_ARRAY_CHECK()
+to run the program array. Currently, BPF_PROG_RUN_ARRAY_CHECK()
+also calls bpf_cgroup_storage_set() to set percpu
+cgroup local storage with NULL value. This is
+due to Commit 394e40a29788 ("bpf: extend bpf_prog_array to store
+pointers to the cgroup storage") which modified
+__BPF_PROG_RUN_ARRAY() to call bpf_cgroup_storage_set()
+and this macro is also used by BPF_PROG_RUN_ARRAY_CHECK().
 
-When kzalloc() returns NULL to qedi->global_queues[i], no error return code
-of qedi_alloc_global_queues() is assigned.  To fix this bug, status is
-assigned with -ENOMEM in this case.
+kuprobe and tracepoint programs are not allowed to call
+bpf_get_local_storage() helper hence does not
+access percpu cgroup local storage. Let us
+change BPF_PROG_RUN_ARRAY_CHECK() not to
+modify percpu cgroup local storage.
 
-Link: https://lore.kernel.org/r/20210308033024.27147-1-baijiaju1990@gmail.com
-Fixes: ace7f46ba5fd ("scsi: qedi: Add QLogic FastLinQ offload iSCSI driver framework.")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The issue is observed when I tried to debug [1] where
+percpu data is overwritten due to
+  preempt_disable -> migration_disable
+change. This patch does not completely fix the above issue,
+which will be addressed separately, e.g., multiple cgroup
+prog runs may preempt each other. But it does fix
+any potential issue caused by tracing program
+overwriting percpu cgroup storage:
+ - in a busy system, a tracing program is to run between
+   bpf_cgroup_storage_set() and the cgroup prog run.
+ - a kprobe program is triggered by a helper in cgroup prog
+   before bpf_get_local_storage() is called.
+
+ [1] https://lore.kernel.org/bpf/CAKH8qBuXCfUz=w8L+Fj74OaUpbosO29niYwTki7e3Ag044_aww@mail.gmail.com/T
+
+Fixes: 394e40a29788 ("bpf: extend bpf_prog_array to store pointers to the cgroup storage")
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Roman Gushchin <guro@fb.com>
+Link: https://lore.kernel.org/bpf/20210309185028.3763817-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/bpf.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
-index a742b8856776..b0a404d4e676 100644
---- a/drivers/scsi/qedi/qedi_main.c
-+++ b/drivers/scsi/qedi/qedi_main.c
-@@ -1354,6 +1354,7 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
- 		if (!qedi->global_queues[i]) {
- 			QEDI_ERR(&qedi->dbg_ctx,
- 				 "Unable to allocation global queue %d.\n", i);
-+			status = -ENOMEM;
- 			goto mem_alloc_failure;
- 		}
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index 16f6beef5cad..3b3337333cfd 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -382,7 +382,7 @@ int bpf_prog_array_copy(struct bpf_prog_array __rcu *old_array,
+ 			struct bpf_prog *include_prog,
+ 			struct bpf_prog_array **new_array);
  
+-#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null)	\
++#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null, set_cg_storage) \
+ 	({						\
+ 		struct bpf_prog_array_item *_item;	\
+ 		struct bpf_prog *_prog;			\
+@@ -395,7 +395,8 @@ int bpf_prog_array_copy(struct bpf_prog_array __rcu *old_array,
+ 			goto _out;			\
+ 		_item = &_array->items[0];		\
+ 		while ((_prog = READ_ONCE(_item->prog))) {		\
+-			bpf_cgroup_storage_set(_item->cgroup_storage);	\
++			if (set_cg_storage)		\
++				bpf_cgroup_storage_set(_item->cgroup_storage);	\
+ 			_ret &= func(_prog, ctx);	\
+ 			_item++;			\
+ 		}					\
+@@ -406,10 +407,10 @@ _out:							\
+ 	 })
+ 
+ #define BPF_PROG_RUN_ARRAY(array, ctx, func)		\
+-	__BPF_PROG_RUN_ARRAY(array, ctx, func, false)
++	__BPF_PROG_RUN_ARRAY(array, ctx, func, false, true)
+ 
+ #define BPF_PROG_RUN_ARRAY_CHECK(array, ctx, func)	\
+-	__BPF_PROG_RUN_ARRAY(array, ctx, func, true)
++	__BPF_PROG_RUN_ARRAY(array, ctx, func, true, false)
+ 
+ #ifdef CONFIG_BPF_SYSCALL
+ DECLARE_PER_CPU(int, bpf_prog_active);
 -- 
 2.30.1
 
