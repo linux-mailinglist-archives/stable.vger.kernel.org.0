@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63F9D34C956
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A51534C7C1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232463AbhC2I32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:29:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41376 "EHLO mail.kernel.org"
+        id S232917AbhC2ISJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:18:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233684AbhC2IZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:25:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9371619A0;
-        Mon, 29 Mar 2021 08:25:28 +0000 (UTC)
+        id S233142AbhC2IQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:16:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06E74619B6;
+        Mon, 29 Mar 2021 08:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006329;
-        bh=bGayc2YXh4BbZm3nhhpsa38t+xHmVhk1xIR6XObiINM=;
+        s=korg; t=1617005757;
+        bh=EOa11RZwNgvPKh4FIH77lBDp4EpkgIU/FYcA/vOLmv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UI+qIl4CdTMy37/RtRMPMnZHUT9p89PqK1FhSt6PcTQnOU3cVs6HV0TTyF8wjVTf1
-         UeU1kURy7D1ImpQF40tqqfBLhuXnI5ndLFIqzLZSkvSvZveaWTeHhnCWK+CGeHJujJ
-         Cec9B09hesJtkVloQg/cQOx75KUhZJFd8QhpXFh4=
+        b=x2qETX3HfxWm/DAxf+ZjinZpf3IzxpWXOG9kkiZrtlnIrXHFX8tlyAORYmT/0d5f/
+         tYrJee6SSai9BoVt5Z6Ynbb1DOapYk6nuzEYS00s3t6wjpV7sTGbtE1xfH2scjQbLz
+         +X3NZAAtBsZL7KrChR+1TfrtC/szNTIKiajLpQ40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jeffery <djeffery@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Laurence Oberman <loberman@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 201/221] block: recalculate segment count for multi-segment discards correctly
-Date:   Mon, 29 Mar 2021 09:58:52 +0200
-Message-Id: <20210329075635.832773144@linuxfoundation.org>
+        stable@vger.kernel.org, Isaku Yamahata <isaku.yamahata@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.4 105/111] x86/mem_encrypt: Correct physical address calculation in __set_clr_pte_enc()
+Date:   Mon, 29 Mar 2021 09:58:53 +0200
+Message-Id: <20210329075618.706472734@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,89 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Isaku Yamahata <isaku.yamahata@intel.com>
 
-[ Upstream commit a958937ff166fc60d1c3a721036f6ff41bfa2821 ]
+commit 8249d17d3194eac064a8ca5bc5ca0abc86feecde upstream.
 
-When a stacked block device inserts a request into another block device
-using blk_insert_cloned_request, the request's nr_phys_segments field gets
-recalculated by a call to blk_recalc_rq_segments in
-blk_cloned_rq_check_limits. But blk_recalc_rq_segments does not know how to
-handle multi-segment discards. For disk types which can handle
-multi-segment discards like nvme, this results in discard requests which
-claim a single segment when it should report several, triggering a warning
-in nvme and causing nvme to fail the discard from the invalid state.
+The pfn variable contains the page frame number as returned by the
+pXX_pfn() functions, shifted to the right by PAGE_SHIFT to remove the
+page bits. After page protection computations are done to it, it gets
+shifted back to the physical address using page_level_shift().
 
- WARNING: CPU: 5 PID: 191 at drivers/nvme/host/core.c:700 nvme_setup_discard+0x170/0x1e0 [nvme_core]
- ...
- nvme_setup_cmd+0x217/0x270 [nvme_core]
- nvme_loop_queue_rq+0x51/0x1b0 [nvme_loop]
- __blk_mq_try_issue_directly+0xe7/0x1b0
- blk_mq_request_issue_directly+0x41/0x70
- ? blk_account_io_start+0x40/0x50
- dm_mq_queue_rq+0x200/0x3e0
- blk_mq_dispatch_rq_list+0x10a/0x7d0
- ? __sbitmap_queue_get+0x25/0x90
- ? elv_rb_del+0x1f/0x30
- ? deadline_remove_request+0x55/0xb0
- ? dd_dispatch_request+0x181/0x210
- __blk_mq_do_dispatch_sched+0x144/0x290
- ? bio_attempt_discard_merge+0x134/0x1f0
- __blk_mq_sched_dispatch_requests+0x129/0x180
- blk_mq_sched_dispatch_requests+0x30/0x60
- __blk_mq_run_hw_queue+0x47/0xe0
- __blk_mq_delay_run_hw_queue+0x15b/0x170
- blk_mq_sched_insert_requests+0x68/0xe0
- blk_mq_flush_plug_list+0xf0/0x170
- blk_finish_plug+0x36/0x50
- xlog_cil_committed+0x19f/0x290 [xfs]
- xlog_cil_process_committed+0x57/0x80 [xfs]
- xlog_state_do_callback+0x1e0/0x2a0 [xfs]
- xlog_ioend_work+0x2f/0x80 [xfs]
- process_one_work+0x1b6/0x350
- worker_thread+0x53/0x3e0
- ? process_one_work+0x350/0x350
- kthread+0x11b/0x140
- ? __kthread_bind_mask+0x60/0x60
- ret_from_fork+0x22/0x30
+That is wrong, of course, because that function determines the shift
+length based on the level of the page in the page table but in all the
+cases, it was shifted by PAGE_SHIFT before.
 
-This patch fixes blk_recalc_rq_segments to be aware of devices which can
-have multi-segment discards. It calculates the correct discard segment
-count by counting the number of bio as each discard bio is considered its
-own segment.
+Therefore, shift it back using PAGE_SHIFT to get the correct physical
+address.
 
-Fixes: 1e739730c5b9 ("block: optionally merge discontiguous discard bios into a single request")
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Link: https://lore.kernel.org/r/20210211143807.GA115624@redhat
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ [ bp: Rewrite commit message. ]
+
+Fixes: dfaaec9033b8 ("x86: Add support for changing memory encryption attribute in early boot")
+Signed-off-by: Isaku Yamahata <isaku.yamahata@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/81abbae1657053eccc535c16151f63cd049dcb97.1616098294.git.isaku.yamahata@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-merge.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/mm/mem_encrypt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index 97b7c2821565..7cdd56696647 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -375,6 +375,14 @@ unsigned int blk_recalc_rq_segments(struct request *rq)
- 	switch (bio_op(rq->bio)) {
- 	case REQ_OP_DISCARD:
- 	case REQ_OP_SECURE_ERASE:
-+		if (queue_max_discard_segments(rq->q) > 1) {
-+			struct bio *bio = rq->bio;
-+
-+			for_each_bio(bio)
-+				nr_phys_segs++;
-+			return nr_phys_segs;
-+		}
-+		return 1;
- 	case REQ_OP_WRITE_ZEROES:
- 		return 0;
- 	case REQ_OP_WRITE_SAME:
--- 
-2.30.1
-
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -229,7 +229,7 @@ static void __init __set_clr_pte_enc(pte
+ 	if (pgprot_val(old_prot) == pgprot_val(new_prot))
+ 		return;
+ 
+-	pa = pfn << page_level_shift(level);
++	pa = pfn << PAGE_SHIFT;
+ 	size = page_level_size(level);
+ 
+ 	/*
 
 
