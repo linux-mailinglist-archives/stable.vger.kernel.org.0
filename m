@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8210D34C891
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8185E34C723
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233195AbhC2IXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38466 "EHLO mail.kernel.org"
+        id S231700AbhC2INB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232065AbhC2IVd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:21:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C4E76197C;
-        Mon, 29 Mar 2021 08:21:32 +0000 (UTC)
+        id S231687AbhC2ILY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:11:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE8356196D;
+        Mon, 29 Mar 2021 08:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006093;
-        bh=NFRGoH2I14XIttQ8SkMKpRIyZdGV73E3L7CqyUTrvXE=;
+        s=korg; t=1617005484;
+        bh=5rv8c7kyMAxRJg+yYsF27054nnZTHkRMZa1i7Aw+PRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPENFdV4enYQ7KMpyIq6xxbZUQygBRifsmdGoHIaOIKuktuG7ZAhrNlG7yd62kKF2
-         NpLN7IAyNGJ8eZCR5VPfRm4iEIc1R7IwBJcB3OReiqKq0w6uBLUzmyALlJg2tlMNyu
-         AZPYCHKQYQLn72I/Mjz+jkJJMRcpGsTcT7mg6+es=
+        b=Q0V9t8lojbM4aFmuvn1YugToeln5A//XWDlAgO+l4Xz+r7E9Gt9fnPAnQpD0g9Zfn
+         zclZsjwX+XHWaYVwTUYHWsK3FqVgCUuR7LYC3aDj2jUJySt5nKxVLsCFDdtOWQ/spp
+         NFNJI8xPckdIAvxeIO5YL3fmlmCPOqaoRB4LPo6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 116/221] net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
+Subject: [PATCH 5.4 019/111] net: wan: fix error return code of uhdlc_init()
 Date:   Mon, 29 Mar 2021 09:57:27 +0200
-Message-Id: <20210329075633.080146853@linuxfoundation.org>
+Message-Id: <20210329075615.828225746@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,80 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 50535249f624d0072cd885bcdce4e4b6fb770160 ]
+[ Upstream commit 62765d39553cfd1ad340124fe1e280450e8c89e2 ]
 
-struct sockaddr_qrtr has a 2-byte hole, and qrtr_recvmsg() currently
-does not clear it before copying kernel data to user space.
+When priv->rx_skbuff or priv->tx_skbuff is NULL, no error return code of
+uhdlc_init() is assigned.
+To fix this bug, ret is assigned with -ENOMEM in these cases.
 
-It might be too late to name the hole since sockaddr_qrtr structure is uapi.
-
-BUG: KMSAN: kernel-infoleak in kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
-CPU: 0 PID: 29705 Comm: syz-executor.3 Not tainted 5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x21c/0x280 lib/dump_stack.c:120
- kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
- kmsan_internal_check_memory+0x202/0x520 mm/kmsan/kmsan.c:402
- kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
- instrument_copy_to_user include/linux/instrumented.h:121 [inline]
- _copy_to_user+0x1ac/0x270 lib/usercopy.c:33
- copy_to_user include/linux/uaccess.h:209 [inline]
- move_addr_to_user+0x3a2/0x640 net/socket.c:237
- ____sys_recvmsg+0x696/0xd50 net/socket.c:2575
- ___sys_recvmsg net/socket.c:2610 [inline]
- do_recvmmsg+0xa97/0x22d0 net/socket.c:2710
- __sys_recvmmsg net/socket.c:2789 [inline]
- __do_sys_recvmmsg net/socket.c:2812 [inline]
- __se_sys_recvmmsg+0x24a/0x410 net/socket.c:2805
- __x64_sys_recvmmsg+0x62/0x80 net/socket.c:2805
- do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x465f69
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f43659d6188 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
-RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 0000000000465f69
-RDX: 0000000000000008 RSI: 0000000020003e40 RDI: 0000000000000003
-RBP: 00000000004bfa8f R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000010060 R11: 0000000000000246 R12: 000000000056bf60
-R13: 0000000000a9fb1f R14: 00007f43659d6300 R15: 0000000000022000
-
-Local variable ----addr@____sys_recvmsg created at:
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
-
-Bytes 2-3 of 12 are uninitialized
-Memory access of size 12 starts at ffff88817c627b40
-Data copied to user address 0000000020000140
-
-Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/qrtr.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wan/fsl_ucc_hdlc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/qrtr/qrtr.c b/net/qrtr/qrtr.c
-index 54031ee079a2..45fbf5f4dcd2 100644
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -1035,6 +1035,11 @@ static int qrtr_recvmsg(struct socket *sock, struct msghdr *msg,
- 	rc = copied;
+diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
+index 4ad0a0c33d85..034eb6535ab7 100644
+--- a/drivers/net/wan/fsl_ucc_hdlc.c
++++ b/drivers/net/wan/fsl_ucc_hdlc.c
+@@ -204,14 +204,18 @@ static int uhdlc_init(struct ucc_hdlc_private *priv)
+ 	priv->rx_skbuff = kcalloc(priv->rx_ring_size,
+ 				  sizeof(*priv->rx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->rx_skbuff)
++	if (!priv->rx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_ucc_pram;
++	}
  
- 	if (addr) {
-+		/* There is an anonymous 2-byte hole after sq_family,
-+		 * make sure to clear it.
-+		 */
-+		memset(addr, 0, sizeof(*addr));
-+
- 		addr->sq_family = AF_QIPCRTR;
- 		addr->sq_node = cb->src_node;
- 		addr->sq_port = cb->src_port;
+ 	priv->tx_skbuff = kcalloc(priv->tx_ring_size,
+ 				  sizeof(*priv->tx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->tx_skbuff)
++	if (!priv->tx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_rx_skbuff;
++	}
+ 
+ 	priv->skb_curtx = 0;
+ 	priv->skb_dirtytx = 0;
 -- 
 2.30.1
 
