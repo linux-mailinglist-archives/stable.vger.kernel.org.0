@@ -2,325 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8B334C651
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C634434C6B3
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231571AbhC2IGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
+        id S232575AbhC2IJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:09:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231548AbhC2IFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E75EE6197F;
-        Mon, 29 Mar 2021 08:05:38 +0000 (UTC)
+        id S231142AbhC2IIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:08:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E52E6193A;
+        Mon, 29 Mar 2021 08:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005139;
-        bh=s93cCE69bRU877bXU3Kh3E7puSU1RWOmtIOQytrlOMY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=fPf4R0D2lnOIiEA1xLNy6ohAYBmSr8iFJuEsqk/We78IJVweA8Nrjo4czA+R2q8DK
-         eQnPrqVMTWFr35u27F1bbElecDNEh+I+r6emvadr9/Ixanevv83cLbe9Isgtgzo/NN
-         BdizRsg/O2h48HaMnjb7cgapgZrkYEMePlZyZU5M=
+        s=korg; t=1617005309;
+        bh=AIivty2AEo8v9FC7DZrwUbZQ0imNbkHpmN+0EAn4RoE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RW5Eu4sczJjThDmcaQfmYqooxY+f3j9A2jsNSrUv/cZktr0W7XzC2GedCrbZSvsdR
+         n/SjcJI+C4N1mV9kDpNwleygTc808WAxa08xeDuHBaqQxBCPeN5baO8sdU1CcsDJnF
+         L2pf6vmcAH7bSgBSOB/RLk/GUlYihNIW2Nm2boW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.14 00/59] 4.14.228-rc1 review
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 04/72] atm: lanai: dont run lanai_dev_close if not open
 Date:   Mon, 29 Mar 2021 09:57:40 +0200
-Message-Id: <20210329075608.898173317@linuxfoundation.org>
+Message-Id: <20210329075610.440834483@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.228-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.228-rc1
-X-KernelTest-Deadline: 2021-03-31T07:56+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.228 release.
-There are 59 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Tong Zhang <ztong0001@gmail.com>
+
+[ Upstream commit a2bd45834e83d6c5a04d397bde13d744a4812dfc ]
+
+lanai_dev_open() can fail. When it fail, lanai->base is unmapped and the
+pci device is disabled. The caller, lanai_init_one(), then tries to run
+atm_dev_deregister(). This will subsequently call lanai_dev_close() and
+use the already released MMIO area.
+
+To fix this issue, set the lanai->base to NULL if open fail,
+and test the flag in lanai_dev_close().
+
+[    8.324153] lanai: lanai_start() failed, err=19
+[    8.324819] lanai(itf 0): shutting down interface
+[    8.325211] BUG: unable to handle page fault for address: ffffc90000180024
+[    8.325781] #PF: supervisor write access in kernel mode
+[    8.326215] #PF: error_code(0x0002) - not-present page
+[    8.326641] PGD 100000067 P4D 100000067 PUD 100139067 PMD 10013a067 PTE 0
+[    8.327206] Oops: 0002 [#1] SMP KASAN NOPTI
+[    8.327557] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7-00090-gdcc0b49040c7 #12
+[    8.328229] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-4
+[    8.329145] RIP: 0010:lanai_dev_close+0x4f/0xe5 [lanai]
+[    8.329587] Code: 00 48 c7 c7 00 d3 01 c0 e8 49 4e 0a c2 48 8d bd 08 02 00 00 e8 6e 52 14 c1 48 80
+[    8.330917] RSP: 0018:ffff8881029ef680 EFLAGS: 00010246
+[    8.331196] RAX: 000000000003fffe RBX: ffff888102fb4800 RCX: ffffffffc001a98a
+[    8.331572] RDX: ffffc90000180000 RSI: 0000000000000246 RDI: ffff888102fb4000
+[    8.331948] RBP: ffff888102fb4000 R08: ffffffff8115da8a R09: ffffed102053deaa
+[    8.332326] R10: 0000000000000003 R11: ffffed102053dea9 R12: ffff888102fb48a4
+[    8.332701] R13: ffffffffc00123c0 R14: ffff888102fb4b90 R15: ffff888102fb4b88
+[    8.333077] FS:  00007f08eb9056a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
+[    8.333502] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    8.333806] CR2: ffffc90000180024 CR3: 0000000102a28000 CR4: 00000000000006f0
+[    8.334182] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    8.334557] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    8.334932] Call Trace:
+[    8.335066]  atm_dev_deregister+0x161/0x1a0 [atm]
+[    8.335324]  lanai_init_one.cold+0x20c/0x96d [lanai]
+[    8.335594]  ? lanai_send+0x2a0/0x2a0 [lanai]
+[    8.335831]  local_pci_probe+0x6f/0xb0
+[    8.336039]  pci_device_probe+0x171/0x240
+[    8.336255]  ? pci_device_remove+0xe0/0xe0
+[    8.336475]  ? kernfs_create_link+0xb6/0x110
+[    8.336704]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
+[    8.336983]  really_probe+0x161/0x420
+[    8.337181]  driver_probe_device+0x6d/0xd0
+[    8.337401]  device_driver_attach+0x82/0x90
+[    8.337626]  ? device_driver_attach+0x90/0x90
+[    8.337859]  __driver_attach+0x60/0x100
+[    8.338065]  ? device_driver_attach+0x90/0x90
+[    8.338298]  bus_for_each_dev+0xe1/0x140
+[    8.338511]  ? subsys_dev_iter_exit+0x10/0x10
+[    8.338745]  ? klist_node_init+0x61/0x80
+[    8.338956]  bus_add_driver+0x254/0x2a0
+[    8.339164]  driver_register+0xd3/0x150
+[    8.339370]  ? 0xffffffffc0028000
+[    8.339550]  do_one_initcall+0x84/0x250
+[    8.339755]  ? trace_event_raw_event_initcall_finish+0x150/0x150
+[    8.340076]  ? free_vmap_area_noflush+0x1a5/0x5c0
+[    8.340329]  ? unpoison_range+0xf/0x30
+[    8.340532]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    8.340806]  ? unpoison_range+0xf/0x30
+[    8.341014]  ? unpoison_range+0xf/0x30
+[    8.341217]  do_init_module+0xf8/0x350
+[    8.341419]  load_module+0x3fe6/0x4340
+[    8.341621]  ? vm_unmap_ram+0x1d0/0x1d0
+[    8.341826]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    8.342101]  ? module_frob_arch_sections+0x20/0x20
+[    8.342358]  ? __do_sys_finit_module+0x108/0x170
+[    8.342604]  __do_sys_finit_module+0x108/0x170
+[    8.342841]  ? __ia32_sys_init_module+0x40/0x40
+[    8.343083]  ? file_open_root+0x200/0x200
+[    8.343298]  ? do_sys_open+0x85/0xe0
+[    8.343491]  ? filp_open+0x50/0x50
+[    8.343675]  ? exit_to_user_mode_prepare+0xfc/0x130
+[    8.343935]  do_syscall_64+0x33/0x40
+[    8.344132]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    8.344401] RIP: 0033:0x7f08eb887cf7
+[    8.344594] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d6 41
+[    8.345565] RSP: 002b:00007ffcd5c98ad8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    8.345962] RAX: ffffffffffffffda RBX: 00000000008fea70 RCX: 00007f08eb887cf7
+[    8.346336] RDX: 0000000000000000 RSI: 00000000008fd9e0 RDI: 0000000000000003
+[    8.346711] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
+[    8.347085] R10: 00007f08eb8eb300 R11: 0000000000000246 R12: 00000000008fd9e0
+[    8.347460] R13: 0000000000000000 R14: 00000000008fddd0 R15: 0000000000000001
+[    8.347836] Modules linked in: lanai(+) atm
+[    8.348065] CR2: ffffc90000180024
+[    8.348244] ---[ end trace 7fdc1c668f2003e5 ]---
+[    8.348490] RIP: 0010:lanai_dev_close+0x4f/0xe5 [lanai]
+[    8.348772] Code: 00 48 c7 c7 00 d3 01 c0 e8 49 4e 0a c2 48 8d bd 08 02 00 00 e8 6e 52 14 c1 48 80
+[    8.349745] RSP: 0018:ffff8881029ef680 EFLAGS: 00010246
+[    8.350022] RAX: 000000000003fffe RBX: ffff888102fb4800 RCX: ffffffffc001a98a
+[    8.350397] RDX: ffffc90000180000 RSI: 0000000000000246 RDI: ffff888102fb4000
+[    8.350772] RBP: ffff888102fb4000 R08: ffffffff8115da8a R09: ffffed102053deaa
+[    8.351151] R10: 0000000000000003 R11: ffffed102053dea9 R12: ffff888102fb48a4
+[    8.351525] R13: ffffffffc00123c0 R14: ffff888102fb4b90 R15: ffff888102fb4b88
+[    8.351918] FS:  00007f08eb9056a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
+[    8.352343] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    8.352647] CR2: ffffc90000180024 CR3: 0000000102a28000 CR4: 00000000000006f0
+[    8.353022] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    8.353397] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    8.353958] modprobe (95) used greatest stack depth: 26216 bytes left
+
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/atm/lanai.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/atm/lanai.c b/drivers/atm/lanai.c
+index 5f8e009b2da1..34e6e4b90f74 100644
+--- a/drivers/atm/lanai.c
++++ b/drivers/atm/lanai.c
+@@ -2238,6 +2238,7 @@ static int lanai_dev_open(struct atm_dev *atmdev)
+ 	conf1_write(lanai);
+ #endif
+ 	iounmap(lanai->base);
++	lanai->base = NULL;
+     error_pci:
+ 	pci_disable_device(lanai->pci);
+     error:
+@@ -2250,6 +2251,8 @@ static int lanai_dev_open(struct atm_dev *atmdev)
+ static void lanai_dev_close(struct atm_dev *atmdev)
+ {
+ 	struct lanai_dev *lanai = (struct lanai_dev *) atmdev->dev_data;
++	if (lanai->base==NULL)
++		return;
+ 	printk(KERN_INFO DEV_LABEL "(itf %d): shutting down interface\n",
+ 	    lanai->number);
+ 	lanai_timed_poll_stop(lanai);
+@@ -2559,7 +2562,7 @@ static int lanai_init_one(struct pci_dev *pci,
+ 	struct atm_dev *atmdev;
+ 	int result;
+ 
+-	lanai = kmalloc(sizeof(*lanai), GFP_KERNEL);
++	lanai = kzalloc(sizeof(*lanai), GFP_KERNEL);
+ 	if (lanai == NULL) {
+ 		printk(KERN_ERR DEV_LABEL
+ 		       ": couldn't allocate dev_data structure!\n");
+-- 
+2.30.1
 
-Responses should be made by Wed, 31 Mar 2021 07:55:56 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.228-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.228-rc1
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: peak_usb: Revert "can: peak_usb: add forgotten supported devices"
-
-Jan Kara <jack@suse.cz>
-    ext4: add reclaim checks to xattr code
-
-Markus Theil <markus.theil@tu-ilmenau.de>
-    mac80211: fix double free in ibss_leave
-
-Eric Dumazet <edumazet@google.com>
-    net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
-
-Eric Dumazet <edumazet@google.com>
-    net: sched: validate stab values
-
-Martin Willi <martin@strongswan.org>
-    can: dev: Move device back to init netns on owning netns delete
-
-Thomas Gleixner <tglx@linutronix.de>
-    locking/mutex: Fix non debug version of mutex_lock_io_nested()
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    scsi: mpt3sas: Fix error return code of mpt3sas_base_attach()
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    scsi: qedi: Fix error return code of qedi_alloc_global_queues()
-
-Adrian Hunter <adrian.hunter@intel.com>
-    perf auxtrace: Fix auxtrace queue conflict
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    ACPI: scan: Use unique number for instance_no
-
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    ACPI: scan: Rearrange memory allocation in acpi_device_add()
-
-Potnuri Bharat Teja <bharat@chelsio.com>
-    RDMA/cxgb4: Fix adapter LE hash errors while destroying ipv6 listening server
-
-Aya Levin <ayal@nvidia.com>
-    net/mlx5e: Fix error path for ethtool set-priv-flag
-
-Pavel Tatashin <pasha.tatashin@soleen.com>
-    arm64: kdump: update ppos when reading elfcorehdr
-
-Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-    drm/msm: fix shutdown hook in case GPU components failed to bind
-
-Corentin Labbe <clabbe@baylibre.com>
-    net: stmmac: dwmac-sun8i: Provide TX and RX fifo sizes
-
-Johan Hovold <johan@kernel.org>
-    net: cdc-phonet: fix data-interface release on probe failure
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: fix rate mask reset
-
-Torin Cooper-Bennun <torin@maxiluxsystems.com>
-    can: m_can: m_can_do_rx_poll(): fix extraneous msg loss warning
-
-Tong Zhang <ztong0001@gmail.com>
-    can: c_can: move runtime PM enable/disable to c_can_platform
-
-Tong Zhang <ztong0001@gmail.com>
-    can: c_can_pci: c_can_pci_remove(): fix use-after-free
-
-Stephane Grosjean <s.grosjean@peak-system.com>
-    can: peak_usb: add forgotten supported devices
-
-Dylan Hung <dylan_hung@aspeedtech.com>
-    ftgmac100: Restart MAC HW once
-
-Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-    net/qlcnic: Fix a use after free in qlcnic_83xx_get_minidump_template
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    e1000e: Fix error handling in e1000_set_d0_lplu_state_82571
-
-Vitaly Lifshits <vitaly.lifshits@intel.com>
-    e1000e: add rtnl_lock() to e1000_reset_task
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: dsa: bcm_sf2: Qualify phydev->dev_flags based on port
-
-Eric Dumazet <edumazet@google.com>
-    macvlan: macvlan_count_rx() needs to be aware of preemption
-
-Georgi Valkov <gvalkov@abv.bg>
-    libbpf: Fix INSTALL flag order
-
-Grygorii Strashko <grygorii.strashko@ti.com>
-    bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm ioctl: fix out of bounds array access when no devices
-
-Claudiu Beznea <claudiu.beznea@microchip.com>
-    ARM: dts: at91-sama5d27_som1: fix phy address to 7
-
-Horia Geantă <horia.geanta@nxp.com>
-    arm64: dts: ls1043a: mark crypto engine dma coherent
-
-Horia Geantă <horia.geanta@nxp.com>
-    arm64: dts: ls1012a: mark crypto engine dma coherent
-
-Horia Geantă <horia.geanta@nxp.com>
-    arm64: dts: ls1046a: mark crypto engine dma coherent
-
-Phillip Lougher <phillip@squashfs.org.uk>
-    squashfs: fix xattr id and id lookup sanity checks
-
-Sean Nyekjaer <sean@geanix.com>
-    squashfs: fix inode lookup sanity checks
-
-Sergei Trofimovich <slyfox@gentoo.org>
-    ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
-
-Sergei Trofimovich <slyfox@gentoo.org>
-    ia64: fix ia64_syscall_get_set_arguments() for break-based syscalls
-
-J. Bruce Fields <bfields@redhat.com>
-    nfs: we don't support removing system.nfs4_acl
-
-Christian König <christian.koenig@amd.com>
-    drm/radeon: fix AGP dependency
-
-Peter Zijlstra <peterz@infradead.org>
-    u64_stats,lockdep: Fix u64_stats_init() vs lockdep
-
-Rob Gardner <rob.gardner@oracle.com>
-    sparc64: Fix opcode filtering in handling of no fault loads
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: idt77252: fix null-ptr-dereference
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: uPD98402: fix incorrect allocation
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    net: wan: fix error return code of uhdlc_init()
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    net: hisilicon: hns: fix error return code of hns_nic_clear_all_rx_fetch()
-
-Frank Sorenson <sorenson@redhat.com>
-    NFS: Correct size calculation for create reply length
-
-Timo Rothenpieler <timo@rothenpieler.org>
-    nfs: fix PNFS_FLEXFILE_LAYOUT Kconfig default
-
-Yang Li <yang.lee@linux.alibaba.com>
-    gpiolib: acpi: Add missing IRQF_ONESHOT
-
-Denis Efremov <efremov@linux.com>
-    sun/niu: fix wrong RXMAC_BC_FRM_CNT_COUNT count
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    net: tehuti: fix error return code in bdx_probe()
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    ixgbe: Fix memleak in ixgbe_configure_clsu32
-
-Hayes Wang <hayeswang@realtek.com>
-    Revert "r8152: adjust the settings about MAC clock speed down for RTL8153"
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: lanai: dont run lanai_dev_close if not open
-
-Tong Zhang <ztong0001@gmail.com>
-    atm: eni: dont release is never initialized
-
-Michael Ellerman <mpe@ellerman.id.au>
-    powerpc/4xx: Fix build errors from mfdcr()
-
-Heiko Thiery <heiko.thiery@gmail.com>
-    net: fec: ptp: avoid register access when ipg clock is disabled
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/at91-sama5d27_som1.dtsi          |  4 +-
- arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi     |  1 +
- arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi     |  1 +
- arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi     |  1 +
- arch/arm64/kernel/crash_dump.c                     |  2 +
- arch/ia64/include/asm/syscall.h                    |  2 +-
- arch/ia64/kernel/ptrace.c                          | 24 ++++--
- arch/powerpc/include/asm/dcr-native.h              |  8 +-
- arch/sparc/kernel/traps_64.c                       | 13 ++--
- drivers/acpi/internal.h                            |  6 +-
- drivers/acpi/scan.c                                | 88 +++++++++++++---------
- drivers/atm/eni.c                                  |  3 +-
- drivers/atm/idt77105.c                             |  4 +-
- drivers/atm/lanai.c                                |  5 +-
- drivers/atm/uPD98402.c                             |  2 +-
- drivers/bus/omap_l3_noc.c                          |  4 +-
- drivers/gpio/gpiolib-acpi.c                        |  2 +-
- drivers/gpu/drm/Kconfig                            |  1 +
- drivers/gpu/drm/msm/msm_drv.c                      |  4 +
- drivers/infiniband/hw/cxgb4/cm.c                   |  4 +-
- drivers/md/dm-ioctl.c                              |  2 +-
- drivers/net/can/c_can/c_can.c                      | 24 +-----
- drivers/net/can/c_can/c_can_pci.c                  |  3 +-
- drivers/net/can/c_can/c_can_platform.c             |  6 +-
- drivers/net/can/dev.c                              |  1 +
- drivers/net/can/m_can/m_can.c                      |  3 -
- drivers/net/dsa/bcm_sf2.c                          |  6 +-
- drivers/net/ethernet/faraday/ftgmac100.c           |  1 +
- drivers/net/ethernet/freescale/fec_ptp.c           |  7 ++
- drivers/net/ethernet/hisilicon/hns/hns_enet.c      |  4 +-
- drivers/net/ethernet/intel/e1000e/82571.c          |  2 +
- drivers/net/ethernet/intel/e1000e/netdev.c         |  6 +-
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c      |  6 +-
- .../net/ethernet/mellanox/mlx5/core/en_ethtool.c   |  6 +-
- .../net/ethernet/qlogic/qlcnic/qlcnic_minidump.c   |  3 +
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c  |  2 +
- drivers/net/ethernet/sun/niu.c                     |  2 -
- drivers/net/ethernet/tehuti/tehuti.c               |  1 +
- drivers/net/usb/cdc-phonet.c                       |  2 +
- drivers/net/usb/r8152.c                            | 35 ++-------
- drivers/net/wan/fsl_ucc_hdlc.c                     |  8 +-
- drivers/scsi/mpt3sas/mpt3sas_base.c                |  8 +-
- drivers/scsi/qedi/qedi_main.c                      |  1 +
- fs/ext4/xattr.c                                    |  4 +
- fs/nfs/Kconfig                                     |  2 +-
- fs/nfs/nfs3xdr.c                                   |  3 +-
- fs/nfs/nfs4proc.c                                  |  3 +
- fs/squashfs/export.c                               |  8 +-
- fs/squashfs/id.c                                   |  6 +-
- fs/squashfs/squashfs_fs.h                          |  1 +
- fs/squashfs/xattr_id.c                             |  6 +-
- include/acpi/acpi_bus.h                            |  1 +
- include/linux/if_macvlan.h                         |  3 +-
- include/linux/mutex.h                              |  2 +-
- include/linux/u64_stats_sync.h                     |  7 +-
- include/net/red.h                                  | 10 ++-
- include/net/rtnetlink.h                            |  2 +
- net/core/dev.c                                     |  2 +-
- net/mac80211/cfg.c                                 |  4 +-
- net/mac80211/ibss.c                                |  2 +
- net/qrtr/qrtr.c                                    |  5 ++
- net/sched/sch_choke.c                              |  7 +-
- net/sched/sch_gred.c                               |  2 +-
- net/sched/sch_red.c                                |  7 +-
- net/sched/sch_sfq.c                                |  2 +-
- tools/lib/bpf/Makefile                             |  2 +-
- tools/perf/util/auxtrace.c                         |  4 -
- 68 files changed, 249 insertions(+), 168 deletions(-)
 
 
