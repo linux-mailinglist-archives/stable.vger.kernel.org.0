@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4169C34C644
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BFE34C76A
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232218AbhC2IGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:06:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48512 "EHLO mail.kernel.org"
+        id S232408AbhC2IPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:15:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232221AbhC2IFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:05:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85EC2619A6;
-        Mon, 29 Mar 2021 08:05:20 +0000 (UTC)
+        id S231753AbhC2IOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:14:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BE4261932;
+        Mon, 29 Mar 2021 08:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005121;
-        bh=W08GJSeIMMLzF16cGv85/Nq/gNBkFj2teDRdoAaF/lE=;
+        s=korg; t=1617005636;
+        bh=OMioe41fwUxPCnI4xgzKAmi2drPv4I2OSCRk0BUk84c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yamdjDEVwC6b145VsvCGwrmu350gvdWcUCBk9LEK3Bjo4pT1Q7ctURidqoGRg1Yhu
-         RoccSxTkRrovdBO/c/M57H4fx0pafMaywvWO6947SX8T2BDJqLRXlKE7Q7tdVwTqpA
-         NPQ9UoRNlndGX9k30/F6gNKmNwg3vGEU9BM/coTI=
+        b=e0/ONvMWxzvCEntD3N1Z1/PBlb9Cbi4Ntp4hzn9T5B6dCi59pGIXdE7PlTWS5KAmY
+         iybQsUcCRlx1+EghEXHNOpxWeuBy6FLlGCOcwQwI6M6IXpitdKv9TGFaXWEik0s43b
+         Ied2aZSiYl+oggzc+/ta2fmqLenmtH3lhL1Ub8Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Georgi Valkov <gvalkov@abv.bg>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Malli C <mallikarjuna.chilakala@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/59] libbpf: Fix INSTALL flag order
+Subject: [PATCH 5.4 062/111] igc: Fix Supported Pause Frame Link Setting
 Date:   Mon, 29 Mar 2021 09:58:10 +0200
-Message-Id: <20210329075609.887656104@linuxfoundation.org>
+Message-Id: <20210329075617.275738958@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-References: <20210329075608.898173317@linuxfoundation.org>
+In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075615.186199980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgi Valkov <gvalkov@abv.bg>
+From: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
 
-[ Upstream commit e7fb6465d4c8e767e39cbee72464e0060ab3d20c ]
+[ Upstream commit 9a4a1cdc5ab52118c1f2b216f4240830b6528d32 ]
 
-It was reported ([0]) that having optional -m flag between source and
-destination arguments in install command breaks bpftools cross-build
-on MacOS. Move -m to the front to fix this issue.
+The Supported Pause Frame always display "No" even though the Advertised
+pause frame showing the correct setting based on the pause parameters via
+ethtool. Set bit in link_ksettings to "Supported" for Pause Frame.
 
-  [0] https://github.com/openwrt/openwrt/pull/3959
+Before output:
+Supported pause frame use: No
 
-Fixes: 7110d80d53f4 ("libbpf: Makefile set specified permission mode")
-Signed-off-by: Georgi Valkov <gvalkov@abv.bg>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210308183038.613432-1-andrii@kernel.org
+Expected output:
+Supported pause frame use: Symmetric
+
+Fixes: 8c5ad0dae93c ("igc: Add ethtool support")
+Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Reviewed-by: Malli C <mallikarjuna.chilakala@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igc/igc_ethtool.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
-index f02448e86d38..9fa466d4417b 100644
---- a/tools/lib/bpf/Makefile
-+++ b/tools/lib/bpf/Makefile
-@@ -183,7 +183,7 @@ define do_install
- 	if [ ! -d '$(DESTDIR_SQ)$2' ]; then		\
- 		$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$2';	\
- 	fi;						\
--	$(INSTALL) $1 $(if $3,-m $3,) '$(DESTDIR_SQ)$2'
-+	$(INSTALL) $(if $3,-m $3,) $1 '$(DESTDIR_SQ)$2'
- endef
+diff --git a/drivers/net/ethernet/intel/igc/igc_ethtool.c b/drivers/net/ethernet/intel/igc/igc_ethtool.c
+index d1a25d679b89..cbcb8611ab50 100644
+--- a/drivers/net/ethernet/intel/igc/igc_ethtool.c
++++ b/drivers/net/ethernet/intel/igc/igc_ethtool.c
+@@ -1690,6 +1690,9 @@ static int igc_get_link_ksettings(struct net_device *netdev,
+ 						     Autoneg);
+ 	}
  
- install_lib: all_cmd
++	/* Set pause flow control settings */
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
++
+ 	switch (hw->fc.requested_mode) {
+ 	case igc_fc_full:
+ 		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
 -- 
 2.30.1
 
