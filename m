@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5CDF34CAA4
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC4334C6F1
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234721AbhC2IjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
+        id S231871AbhC2ILJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:11:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235006AbhC2Ihx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:37:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC59C61582;
-        Mon, 29 Mar 2021 08:37:52 +0000 (UTC)
+        id S232614AbhC2IKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:10:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9242261477;
+        Mon, 29 Mar 2021 08:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617007073;
-        bh=PxMKnjmEzLv7mm0zhH4T+gmw83uwBCRxAgQrhIa79o8=;
+        s=korg; t=1617005417;
+        bh=EOvfSR2zZnuuYQRmLsCwFvncGUc8rhfGvu4gbiiYr1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NBJBYBexWtTcM9vQoWeobvIJjgxgTb/X58not3OJ2Ltn/BtCKmouHytcmqRUvuPeM
-         8c6eF9oKrzJf9Zv+U/aNnE198pXAVSWyegAJKt6K8CwlDhacIwbUzIZpdoS7fT2JCD
-         4roTLB9ZyVvwUlta1jusFer108sD9bsfXtJ2+ULM=
+        b=bWU1ByLsbSSBNqpvdtC2Z8dq770f6CTaM8pOcRCizkJnb9Jq1vdxFH5w3ZMUxcA52
+         iBN7MHNWQkzzIGx79uqvViLd24hVsUrefewI2eQZMcGVs5ZEYj8XhxpoF+k7AF2aPI
+         rBkM4hHaGSWABSQYIFU2vdoCEsTaRuUA0DA0degk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 212/254] net: Consolidate common blackhole dst ops
+        stable@vger.kernel.org, Leon Romanovsky <leon@kernel.org>,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 72/72] can: peak_usb: Revert "can: peak_usb: add forgotten supported devices"
 Date:   Mon, 29 Mar 2021 09:58:48 +0200
-Message-Id: <20210329075640.068992922@linuxfoundation.org>
+Message-Id: <20210329075612.660559702@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,201 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit c4c877b2732466b4c63217baad05c96f775912c7 ]
+commit 5d7047ed6b7214fbabc16d8712a822e256b1aa44 upstream.
 
-Move generic blackhole dst ops to the core and use them from both
-ipv4_dst_blackhole_ops and ip6_dst_blackhole_ops where possible. No
-functional change otherwise. We need these also in other locations
-and having to define them over and over again is not great.
+In commit 6417f03132a6 ("module: remove never implemented
+MODULE_SUPPORTED_DEVICE") the MODULE_SUPPORTED_DEVICE macro was
+removed from the kerne entirely. Shortly before this patch was applied
+mainline the commit 59ec7b89ed3e ("can: peak_usb: add forgotten
+supported devices") was added to net/master. As this would result in a
+merge conflict, let's revert this patch.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 59ec7b89ed3e ("can: peak_usb: add forgotten supported devices")
+Link: https://lore.kernel.org/r/20210320192649.341832-1-mkl@pengutronix.de
+Suggested-by: Leon Romanovsky <leon@kernel.org>
+Cc: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/dst.h | 11 +++++++++++
- net/core/dst.c    | 38 ++++++++++++++++++++++++++++++++++++++
- net/ipv4/route.c  | 45 ++++++++-------------------------------------
- net/ipv6/route.c  | 36 +++++++++---------------------------
- 4 files changed, 66 insertions(+), 64 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/include/net/dst.h b/include/net/dst.h
-index 10f0a8399867..8d7cf51766c4 100644
---- a/include/net/dst.h
-+++ b/include/net/dst.h
-@@ -533,4 +533,15 @@ static inline void skb_dst_update_pmtu_no_confirm(struct sk_buff *skb, u32 mtu)
- 		dst->ops->update_pmtu(dst, NULL, skb, mtu, false);
- }
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -26,8 +26,6 @@
  
-+struct dst_entry *dst_blackhole_check(struct dst_entry *dst, u32 cookie);
-+void dst_blackhole_update_pmtu(struct dst_entry *dst, struct sock *sk,
-+			       struct sk_buff *skb, u32 mtu, bool confirm_neigh);
-+void dst_blackhole_redirect(struct dst_entry *dst, struct sock *sk,
-+			    struct sk_buff *skb);
-+u32 *dst_blackhole_cow_metrics(struct dst_entry *dst, unsigned long old);
-+struct neighbour *dst_blackhole_neigh_lookup(const struct dst_entry *dst,
-+					     struct sk_buff *skb,
-+					     const void *daddr);
-+unsigned int dst_blackhole_mtu(const struct dst_entry *dst);
-+
- #endif /* _NET_DST_H */
-diff --git a/net/core/dst.c b/net/core/dst.c
-index 0c01bd8d9d81..5f6315601776 100644
---- a/net/core/dst.c
-+++ b/net/core/dst.c
-@@ -237,6 +237,44 @@ void __dst_destroy_metrics_generic(struct dst_entry *dst, unsigned long old)
- }
- EXPORT_SYMBOL(__dst_destroy_metrics_generic);
+ MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB FD adapter");
+ MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB Pro FD adapter");
+-MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-Chip USB");
+-MODULE_SUPPORTED_DEVICE("PEAK-System PCAN-USB X6 adapter");
  
-+struct dst_entry *dst_blackhole_check(struct dst_entry *dst, u32 cookie)
-+{
-+	return NULL;
-+}
-+
-+u32 *dst_blackhole_cow_metrics(struct dst_entry *dst, unsigned long old)
-+{
-+	return NULL;
-+}
-+
-+struct neighbour *dst_blackhole_neigh_lookup(const struct dst_entry *dst,
-+					     struct sk_buff *skb,
-+					     const void *daddr)
-+{
-+	return NULL;
-+}
-+
-+void dst_blackhole_update_pmtu(struct dst_entry *dst, struct sock *sk,
-+			       struct sk_buff *skb, u32 mtu,
-+			       bool confirm_neigh)
-+{
-+}
-+EXPORT_SYMBOL_GPL(dst_blackhole_update_pmtu);
-+
-+void dst_blackhole_redirect(struct dst_entry *dst, struct sock *sk,
-+			    struct sk_buff *skb)
-+{
-+}
-+EXPORT_SYMBOL_GPL(dst_blackhole_redirect);
-+
-+unsigned int dst_blackhole_mtu(const struct dst_entry *dst)
-+{
-+	unsigned int mtu = dst_metric_raw(dst, RTAX_MTU);
-+
-+	return mtu ? : dst->dev->mtu;
-+}
-+EXPORT_SYMBOL_GPL(dst_blackhole_mtu);
-+
- static struct dst_ops md_dst_ops = {
- 	.family =		AF_UNSPEC,
- };
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index e26652ff7059..983b4db1868f 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2682,44 +2682,15 @@ out:
- 	return rth;
- }
- 
--static struct dst_entry *ipv4_blackhole_dst_check(struct dst_entry *dst, u32 cookie)
--{
--	return NULL;
--}
--
--static unsigned int ipv4_blackhole_mtu(const struct dst_entry *dst)
--{
--	unsigned int mtu = dst_metric_raw(dst, RTAX_MTU);
--
--	return mtu ? : dst->dev->mtu;
--}
--
--static void ipv4_rt_blackhole_update_pmtu(struct dst_entry *dst, struct sock *sk,
--					  struct sk_buff *skb, u32 mtu,
--					  bool confirm_neigh)
--{
--}
--
--static void ipv4_rt_blackhole_redirect(struct dst_entry *dst, struct sock *sk,
--				       struct sk_buff *skb)
--{
--}
--
--static u32 *ipv4_rt_blackhole_cow_metrics(struct dst_entry *dst,
--					  unsigned long old)
--{
--	return NULL;
--}
--
- static struct dst_ops ipv4_dst_blackhole_ops = {
--	.family			=	AF_INET,
--	.check			=	ipv4_blackhole_dst_check,
--	.mtu			=	ipv4_blackhole_mtu,
--	.default_advmss		=	ipv4_default_advmss,
--	.update_pmtu		=	ipv4_rt_blackhole_update_pmtu,
--	.redirect		=	ipv4_rt_blackhole_redirect,
--	.cow_metrics		=	ipv4_rt_blackhole_cow_metrics,
--	.neigh_lookup		=	ipv4_neigh_lookup,
-+	.family			= AF_INET,
-+	.default_advmss		= ipv4_default_advmss,
-+	.neigh_lookup		= ipv4_neigh_lookup,
-+	.check			= dst_blackhole_check,
-+	.cow_metrics		= dst_blackhole_cow_metrics,
-+	.update_pmtu		= dst_blackhole_update_pmtu,
-+	.redirect		= dst_blackhole_redirect,
-+	.mtu			= dst_blackhole_mtu,
- };
- 
- struct dst_entry *ipv4_blackhole_route(struct net *net, struct dst_entry *dst_orig)
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 188e114b29b4..0bbfaa55e3c8 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -258,34 +258,16 @@ static struct dst_ops ip6_dst_ops_template = {
- 	.confirm_neigh		=	ip6_confirm_neigh,
- };
- 
--static unsigned int ip6_blackhole_mtu(const struct dst_entry *dst)
--{
--	unsigned int mtu = dst_metric_raw(dst, RTAX_MTU);
--
--	return mtu ? : dst->dev->mtu;
--}
--
--static void ip6_rt_blackhole_update_pmtu(struct dst_entry *dst, struct sock *sk,
--					 struct sk_buff *skb, u32 mtu,
--					 bool confirm_neigh)
--{
--}
--
--static void ip6_rt_blackhole_redirect(struct dst_entry *dst, struct sock *sk,
--				      struct sk_buff *skb)
--{
--}
--
- static struct dst_ops ip6_dst_blackhole_ops = {
--	.family			=	AF_INET6,
--	.destroy		=	ip6_dst_destroy,
--	.check			=	ip6_dst_check,
--	.mtu			=	ip6_blackhole_mtu,
--	.default_advmss		=	ip6_default_advmss,
--	.update_pmtu		=	ip6_rt_blackhole_update_pmtu,
--	.redirect		=	ip6_rt_blackhole_redirect,
--	.cow_metrics		=	dst_cow_metrics_generic,
--	.neigh_lookup		=	ip6_dst_neigh_lookup,
-+	.family			= AF_INET6,
-+	.default_advmss		= ip6_default_advmss,
-+	.neigh_lookup		= ip6_dst_neigh_lookup,
-+	.check			= ip6_dst_check,
-+	.destroy		= ip6_dst_destroy,
-+	.cow_metrics		= dst_cow_metrics_generic,
-+	.update_pmtu		= dst_blackhole_update_pmtu,
-+	.redirect		= dst_blackhole_redirect,
-+	.mtu			= dst_blackhole_mtu,
- };
- 
- static const u32 ip6_template_metrics[RTAX_MAX] = {
--- 
-2.30.1
-
+ #define PCAN_USBPROFD_CHANNEL_COUNT	2
+ #define PCAN_USBFD_CHANNEL_COUNT	1
 
 
