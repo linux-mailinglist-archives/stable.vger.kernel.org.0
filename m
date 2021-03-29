@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E9634C7C8
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5589E34C958
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233049AbhC2ISO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:18:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
+        id S233352AbhC2I33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233181AbhC2IQy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:16:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 291AE61613;
-        Mon, 29 Mar 2021 08:16:21 +0000 (UTC)
+        id S233268AbhC2I0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:26:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 351D9619BA;
+        Mon, 29 Mar 2021 08:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005782;
-        bh=AAIT8J0N3XEIAZD0s1sWL4BZGtLYD89PpOiZVOtvJqQ=;
+        s=korg; t=1617006345;
+        bh=m5j3xD98rNlsrXKtffDpqWcxJPFyqZUtmk903+mBrGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9UopKtKoMTXIMp62t8MvQFTNthaA6esZGqkqDJLx0DqGy0nRIhAs7MVRNX6gOLTo
-         iyx7tWGMHvbcQAUWKQ8xbETB7Wt3YTCTCAhbNyVOP6AuHxMPtxfDxidcRMXg5P40n4
-         NGRUVf0QOkDeSCmlAEsAED09IWMvLx3kJpXf56CY=
+        b=nwe+5jyEkDWc3+d2EUoZIUgDxPGXjQ/oV/mbK4YLAb34zuNwj7NC0LIW2v6qewvKc
+         qwihuHPlTIzFZINcRTGApleyL9d/R4x8oRE3jwU6Pdkm3efuUV70wBr0m8hP4w94Yh
+         G3dslmsphis8alPaILxyReYLwz5+gR0uzhRgLwvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 108/111] net: qrtr: fix a kernel-infoleak in qrtr_recvmsg()
-Date:   Mon, 29 Mar 2021 09:58:56 +0200
-Message-Id: <20210329075618.796971586@linuxfoundation.org>
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 206/221] cifs: Adjust key sizes and key generation routines for AES256 encryption
+Date:   Mon, 29 Mar 2021 09:58:57 +0200
+Message-Id: <20210329075635.992970826@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,77 +40,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit 50535249f624d0072cd885bcdce4e4b6fb770160 upstream.
+commit 45a4546c6167a2da348a31ca439d8a8ff773b6ea upstream.
 
-struct sockaddr_qrtr has a 2-byte hole, and qrtr_recvmsg() currently
-does not clear it before copying kernel data to user space.
+For AES256 encryption (GCM and CCM), we need to adjust the size of a few
+fields to 32 bytes instead of 16 to accommodate the larger keys.
 
-It might be too late to name the hole since sockaddr_qrtr structure is uapi.
+Also, the L value supplied to the key generator needs to be changed from
+to 256 when these algorithms are used.
 
-BUG: KMSAN: kernel-infoleak in kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
-CPU: 0 PID: 29705 Comm: syz-executor.3 Not tainted 5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x21c/0x280 lib/dump_stack.c:120
- kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
- kmsan_internal_check_memory+0x202/0x520 mm/kmsan/kmsan.c:402
- kmsan_copy_to_user+0x9c/0xb0 mm/kmsan/kmsan_hooks.c:249
- instrument_copy_to_user include/linux/instrumented.h:121 [inline]
- _copy_to_user+0x1ac/0x270 lib/usercopy.c:33
- copy_to_user include/linux/uaccess.h:209 [inline]
- move_addr_to_user+0x3a2/0x640 net/socket.c:237
- ____sys_recvmsg+0x696/0xd50 net/socket.c:2575
- ___sys_recvmsg net/socket.c:2610 [inline]
- do_recvmmsg+0xa97/0x22d0 net/socket.c:2710
- __sys_recvmmsg net/socket.c:2789 [inline]
- __do_sys_recvmmsg net/socket.c:2812 [inline]
- __se_sys_recvmmsg+0x24a/0x410 net/socket.c:2805
- __x64_sys_recvmmsg+0x62/0x80 net/socket.c:2805
- do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x465f69
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f43659d6188 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
-RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 0000000000465f69
-RDX: 0000000000000008 RSI: 0000000020003e40 RDI: 0000000000000003
-RBP: 00000000004bfa8f R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000010060 R11: 0000000000000246 R12: 000000000056bf60
-R13: 0000000000a9fb1f R14: 00007f43659d6300 R15: 0000000000022000
+Keeping the ioctl struct for dumping keys of the same size for now.
+Will send out a different patch for that one.
 
-Local variable ----addr@____sys_recvmsg created at:
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
- ____sys_recvmsg+0x168/0xd50 net/socket.c:2550
-
-Bytes 2-3 of 12 are uninitialized
-Memory access of size 12 starts at ffff88817c627b40
-Data copied to user address 0000000020000140
-
-Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+CC: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/qrtr.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/cifs/cifsglob.h      |    4 ++--
+ fs/cifs/cifspdu.h       |    5 +++++
+ fs/cifs/smb2glob.h      |    1 +
+ fs/cifs/smb2ops.c       |    9 +++++----
+ fs/cifs/smb2transport.c |   37 ++++++++++++++++++++++++++++---------
+ 5 files changed, 41 insertions(+), 15 deletions(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -862,6 +862,11 @@ static int qrtr_recvmsg(struct socket *s
- 	rc = copied;
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1002,8 +1002,8 @@ struct cifs_ses {
+ 	bool binding:1; /* are we binding the session? */
+ 	__u16 session_flags;
+ 	__u8 smb3signingkey[SMB3_SIGN_KEY_SIZE];
+-	__u8 smb3encryptionkey[SMB3_SIGN_KEY_SIZE];
+-	__u8 smb3decryptionkey[SMB3_SIGN_KEY_SIZE];
++	__u8 smb3encryptionkey[SMB3_ENC_DEC_KEY_SIZE];
++	__u8 smb3decryptionkey[SMB3_ENC_DEC_KEY_SIZE];
+ 	__u8 preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
  
- 	if (addr) {
-+		/* There is an anonymous 2-byte hole after sq_family,
-+		 * make sure to clear it.
-+		 */
-+		memset(addr, 0, sizeof(*addr));
+ 	__u8 binding_preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
+--- a/fs/cifs/cifspdu.h
++++ b/fs/cifs/cifspdu.h
+@@ -147,6 +147,11 @@
+  */
+ #define SMB3_SIGN_KEY_SIZE (16)
+ 
++/*
++ * Size of the smb3 encryption/decryption keys
++ */
++#define SMB3_ENC_DEC_KEY_SIZE (32)
 +
- 		cb = (struct qrtr_cb *)skb->cb;
- 		addr->sq_family = AF_QIPCRTR;
- 		addr->sq_node = cb->src_node;
+ #define CIFS_CLIENT_CHALLENGE_SIZE (8)
+ #define CIFS_SERVER_CHALLENGE_SIZE (8)
+ #define CIFS_HMAC_MD5_HASH_SIZE (16)
+--- a/fs/cifs/smb2glob.h
++++ b/fs/cifs/smb2glob.h
+@@ -58,6 +58,7 @@
+ #define SMB2_HMACSHA256_SIZE (32)
+ #define SMB2_CMACAES_SIZE (16)
+ #define SMB3_SIGNKEY_SIZE (16)
++#define SMB3_GCM128_CRYPTKEY_SIZE (16)
+ #define SMB3_GCM256_CRYPTKEY_SIZE (32)
+ 
+ /* Maximum buffer size value we can send with 1 credit */
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -4068,7 +4068,7 @@ smb2_get_enc_key(struct TCP_Server_Info
+ 			if (ses->Suid == ses_id) {
+ 				ses_enc_key = enc ? ses->smb3encryptionkey :
+ 					ses->smb3decryptionkey;
+-				memcpy(key, ses_enc_key, SMB3_SIGN_KEY_SIZE);
++				memcpy(key, ses_enc_key, SMB3_ENC_DEC_KEY_SIZE);
+ 				spin_unlock(&cifs_tcp_ses_lock);
+ 				return 0;
+ 			}
+@@ -4095,7 +4095,7 @@ crypt_message(struct TCP_Server_Info *se
+ 	int rc = 0;
+ 	struct scatterlist *sg;
+ 	u8 sign[SMB2_SIGNATURE_SIZE] = {};
+-	u8 key[SMB3_SIGN_KEY_SIZE];
++	u8 key[SMB3_ENC_DEC_KEY_SIZE];
+ 	struct aead_request *req;
+ 	char *iv;
+ 	unsigned int iv_len;
+@@ -4119,10 +4119,11 @@ crypt_message(struct TCP_Server_Info *se
+ 	tfm = enc ? server->secmech.ccmaesencrypt :
+ 						server->secmech.ccmaesdecrypt;
+ 
+-	if (server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)
++	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
++		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
+ 		rc = crypto_aead_setkey(tfm, key, SMB3_GCM256_CRYPTKEY_SIZE);
+ 	else
+-		rc = crypto_aead_setkey(tfm, key, SMB3_SIGN_KEY_SIZE);
++		rc = crypto_aead_setkey(tfm, key, SMB3_GCM128_CRYPTKEY_SIZE);
+ 
+ 	if (rc) {
+ 		cifs_server_dbg(VFS, "%s: Failed to set aead key %d\n", __func__, rc);
+--- a/fs/cifs/smb2transport.c
++++ b/fs/cifs/smb2transport.c
+@@ -298,7 +298,8 @@ static int generate_key(struct cifs_ses
+ {
+ 	unsigned char zero = 0x0;
+ 	__u8 i[4] = {0, 0, 0, 1};
+-	__u8 L[4] = {0, 0, 0, 128};
++	__u8 L128[4] = {0, 0, 0, 128};
++	__u8 L256[4] = {0, 0, 1, 0};
+ 	int rc = 0;
+ 	unsigned char prfhash[SMB2_HMACSHA256_SIZE];
+ 	unsigned char *hashptr = prfhash;
+@@ -354,8 +355,14 @@ static int generate_key(struct cifs_ses
+ 		goto smb3signkey_ret;
+ 	}
+ 
+-	rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
+-				L, 4);
++	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
++		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)) {
++		rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
++				L256, 4);
++	} else {
++		rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
++				L128, 4);
++	}
+ 	if (rc) {
+ 		cifs_server_dbg(VFS, "%s: Could not update with L\n", __func__);
+ 		goto smb3signkey_ret;
+@@ -390,6 +397,9 @@ generate_smb3signingkey(struct cifs_ses
+ 			const struct derivation_triplet *ptriplet)
+ {
+ 	int rc;
++#ifdef CONFIG_CIFS_DEBUG_DUMP_KEYS
++	struct TCP_Server_Info *server = ses->server;
++#endif
+ 
+ 	/*
+ 	 * All channels use the same encryption/decryption keys but
+@@ -422,11 +432,11 @@ generate_smb3signingkey(struct cifs_ses
+ 		rc = generate_key(ses, ptriplet->encryption.label,
+ 				  ptriplet->encryption.context,
+ 				  ses->smb3encryptionkey,
+-				  SMB3_SIGN_KEY_SIZE);
++				  SMB3_ENC_DEC_KEY_SIZE);
+ 		rc = generate_key(ses, ptriplet->decryption.label,
+ 				  ptriplet->decryption.context,
+ 				  ses->smb3decryptionkey,
+-				  SMB3_SIGN_KEY_SIZE);
++				  SMB3_ENC_DEC_KEY_SIZE);
+ 		if (rc)
+ 			return rc;
+ 	}
+@@ -442,14 +452,23 @@ generate_smb3signingkey(struct cifs_ses
+ 	 */
+ 	cifs_dbg(VFS, "Session Id    %*ph\n", (int)sizeof(ses->Suid),
+ 			&ses->Suid);
++	cifs_dbg(VFS, "Cipher type   %d\n", server->cipher_type);
+ 	cifs_dbg(VFS, "Session Key   %*ph\n",
+ 		 SMB2_NTLMV2_SESSKEY_SIZE, ses->auth_key.response);
+ 	cifs_dbg(VFS, "Signing Key   %*ph\n",
+ 		 SMB3_SIGN_KEY_SIZE, ses->smb3signingkey);
+-	cifs_dbg(VFS, "ServerIn Key  %*ph\n",
+-		 SMB3_SIGN_KEY_SIZE, ses->smb3encryptionkey);
+-	cifs_dbg(VFS, "ServerOut Key %*ph\n",
+-		 SMB3_SIGN_KEY_SIZE, ses->smb3decryptionkey);
++	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
++		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)) {
++		cifs_dbg(VFS, "ServerIn Key  %*ph\n",
++				SMB3_GCM256_CRYPTKEY_SIZE, ses->smb3encryptionkey);
++		cifs_dbg(VFS, "ServerOut Key %*ph\n",
++				SMB3_GCM256_CRYPTKEY_SIZE, ses->smb3decryptionkey);
++	} else {
++		cifs_dbg(VFS, "ServerIn Key  %*ph\n",
++				SMB3_GCM128_CRYPTKEY_SIZE, ses->smb3encryptionkey);
++		cifs_dbg(VFS, "ServerOut Key %*ph\n",
++				SMB3_GCM128_CRYPTKEY_SIZE, ses->smb3decryptionkey);
++	}
+ #endif
+ 	return rc;
+ }
 
 
