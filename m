@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6579634CA1C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:40:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8706434C856
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232615AbhC2Ie6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
+        id S232753AbhC2IVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:21:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234794AbhC2Idh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:33:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9AF161996;
-        Mon, 29 Mar 2021 08:33:36 +0000 (UTC)
+        id S232884AbhC2IUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:20:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D335861580;
+        Mon, 29 Mar 2021 08:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006817;
-        bh=2bB1BsYi0wvmxmdT/8Bv5WpePpyBBSxXMSL7H9MiJmg=;
+        s=korg; t=1617006038;
+        bh=mbIcklrKa9uyC5TkTIfMY6FQFk9sK8UD1psPnJ36iqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qK3dDGykwyhIqpRwW4v9fHuR8HqNuYXKL2fbtb4MW2tAEpEtxjtILBWsXLpdjUAC
-         EzgNJ34BARCqSIPoNhrvdfVeGEoHy0VD6zJZmTYF9nFueMJw4OkqW4H3LTHL/r7kA1
-         tU94ydjIeB06+je6gqM0XwE5ZLPw8QhlcX3v7OnY=
+        b=V3UL0UQZjytfXeGT7W2jgyDX/wDII0Fl2iaVCkFS/NkodYTIy6x4G72YlaArp5T+v
+         Oqx35IpdXpkKINmO2xztJ2ZfhGsFPV84OBSROSDAKMa4+qU3QbDqZI3RpRayQUBCI/
+         iuaorSQ/FAHcO5QHlf8y2zZq7RSHx4mz7CjMa4BI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongqin Liu <yongqin.liu@linaro.org>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Toshiaki Makita <toshiaki.makita1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 109/254] soc: ti: omap-prm: Fix occasional abort on reset deassert for dra7 iva
+Subject: [PATCH 5.10 094/221] veth: Store queue_mapping independently of XDP prog presence
 Date:   Mon, 29 Mar 2021 09:57:05 +0200
-Message-Id: <20210329075636.791911470@linuxfoundation.org>
+Message-Id: <20210329075632.340556167@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
-References: <20210329075633.135869143@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit effe89e40037038db7711bdab5d3401fe297d72c ]
+[ Upstream commit edbea922025169c0e5cdca5ebf7bf5374cc5566c ]
 
-On reset deassert, we must wait a bit after the rstst bit change before
-we allow clockdomain autoidle again. Otherwise we get the following oops
-sometimes on dra7 with iva:
+Currently, veth_xmit() would call the skb_record_rx_queue() only when
+there is XDP program loaded on peer interface in native mode.
 
-Unhandled fault: imprecise external abort (0x1406) at 0x00000000
-44000000.ocp:L3 Standard Error: MASTER MPU TARGET IVA_CONFIG (Read Link):
-At Address: 0x0005A410 : Data Access in User mode during Functional access
-Internal error: : 1406 [#1] SMP ARM
-...
-(sysc_write_sysconfig) from [<c0782cb0>] (sysc_enable_module+0xcc/0x260)
-(sysc_enable_module) from [<c0782f0c>] (sysc_runtime_resume+0xc8/0x174)
-(sysc_runtime_resume) from [<c0a3e1ac>] (genpd_runtime_resume+0x94/0x224)
-(genpd_runtime_resume) from [<c0a33f0c>] (__rpm_callback+0xd8/0x180)
+If peer has XDP prog in generic mode, then netif_receive_generic_xdp()
+has a call to netif_get_rxqueue(skb), so for multi-queue veth it will
+not be possible to grab a correct rxq.
 
-It is unclear what all devices this might affect, but presumably other
-devices with the rstst bit too can be affected. So let's just enable the
-delay for all the devices with rstst bit for now. Later on we may want to
-limit the list to the know affected devices if needed.
+To fix that, store queue_mapping independently of XDP prog presence on
+peer interface.
 
-Fixes: d30cd83f6853 ("soc: ti: omap-prm: add support for denying idle for reset clockdomain")
-Reported-by: Yongqin Liu <yongqin.liu@linaro.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 638264dc9022 ("veth: Support per queue XDP ring")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Link: https://lore.kernel.org/bpf/20210303152903.11172-1-maciej.fijalkowski@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/omap_prm.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/veth.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/soc/ti/omap_prm.c b/drivers/soc/ti/omap_prm.c
-index 17ea6a74a988..51143a68a889 100644
---- a/drivers/soc/ti/omap_prm.c
-+++ b/drivers/soc/ti/omap_prm.c
-@@ -830,8 +830,12 @@ static int omap_reset_deassert(struct reset_controller_dev *rcdev,
- 		       reset->prm->data->name, id);
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index 8c737668008a..be18b243642f 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -301,8 +301,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (rxq < rcv->real_num_rx_queues) {
+ 		rq = &rcv_priv->rq[rxq];
+ 		rcv_xdp = rcu_access_pointer(rq->xdp_prog);
+-		if (rcv_xdp)
+-			skb_record_rx_queue(skb, rxq);
++		skb_record_rx_queue(skb, rxq);
+ 	}
  
- exit:
--	if (reset->clkdm)
-+	if (reset->clkdm) {
-+		/* At least dra7 iva needs a delay before clkdm idle */
-+		if (has_rstst)
-+			udelay(1);
- 		pdata->clkdm_allow_idle(reset->clkdm);
-+	}
- 
- 	return ret;
- }
+ 	skb_tx_timestamp(skb);
 -- 
 2.30.1
 
