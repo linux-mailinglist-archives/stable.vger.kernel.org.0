@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F0134C997
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0979E34C95F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234011AbhC2IaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:30:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40836 "EHLO mail.kernel.org"
+        id S233411AbhC2I3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233865AbhC2I10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233874AbhC2I10 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 04:27:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ACB761581;
-        Mon, 29 Mar 2021 08:26:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B769B61601;
+        Mon, 29 Mar 2021 08:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006361;
-        bh=KvXms17jIybmqnJ11SALUWgKPvlHfwn+uX60/seO6EI=;
+        s=korg; t=1617006364;
+        bh=ZHsArqYuuUC/v9nphoP08BZ8B8MbS87LrXNasQ4cU08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTZo+dG7kO4GAc7J2kgnnz2YHnSjKzfkPwpASyEHUYMDTER48UNIhXv4xqyrrzJEt
-         /HtLIlM+W1UlRkUWDgLdwK9cq9GKVwCwO+IvpmdlZU5eyBIKhgFsx/yP/ZVWBBrkBn
-         iv23UXRC4jlTjtZXyvSbAukGG82J8rK8ErHSA1Jg=
+        b=yWv3JUSbzKfRyUW7mbyXLh8APv4XAR8jkM9J6Md9kn08XRKS0MVfi34xxVJytUvH8
+         P5Bv8OAq5oxl2EYrPHPID2/lv3af0ENgIAdcomDTuB/RK1yQ4m0lEBv3CK9pH0cNUj
+         OkjA76/jBGnndMMslN4BtkZL71IQPTEzeGYYCDnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 212/221] can: dev: Move device back to init netns on owning netns delete
-Date:   Mon, 29 Mar 2021 09:59:03 +0200
-Message-Id: <20210329075636.193635638@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Paul Blazejowski <paulb@blazebox.homeip.net>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 213/221] r8169: fix DMA being used after buffer free if WoL is enabled
+Date:   Mon, 29 Mar 2021 09:59:04 +0200
+Message-Id: <20210329075636.239478548@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
 References: <20210329075629.172032742@linuxfoundation.org>
@@ -39,96 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Willi <martin@strongswan.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 3a5ca857079ea022e0b1b17fc154f7ad7dbc150f upstream.
+commit f658b90977d2e79822a558e48116e059a7e75dec upstream.
 
-When a non-initial netns is destroyed, the usual policy is to delete
-all virtual network interfaces contained, but move physical interfaces
-back to the initial netns. This keeps the physical interface visible
-on the system.
+IOMMU errors have been reported if WoL is enabled and interface is
+brought down. It turned out that the network chip triggers DMA
+transfers after the DMA buffers have been freed. For WoL to work we
+need to leave rx enabled, therefore simply stop the chip from being
+a DMA busmaster.
 
-CAN devices are somewhat special, as they define rtnl_link_ops even
-if they are physical devices. If a CAN interface is moved into a
-non-initial netns, destroying that netns lets the interface vanish
-instead of moving it back to the initial netns. default_device_exit()
-skips CAN interfaces due to having rtnl_link_ops set. Reproducer:
-
-  ip netns add foo
-  ip link set can0 netns foo
-  ip netns delete foo
-
-WARNING: CPU: 1 PID: 84 at net/core/dev.c:11030 ops_exit_list+0x38/0x60
-CPU: 1 PID: 84 Comm: kworker/u4:2 Not tainted 5.10.19 #1
-Workqueue: netns cleanup_net
-[<c010e700>] (unwind_backtrace) from [<c010a1d8>] (show_stack+0x10/0x14)
-[<c010a1d8>] (show_stack) from [<c086dc10>] (dump_stack+0x94/0xa8)
-[<c086dc10>] (dump_stack) from [<c086b938>] (__warn+0xb8/0x114)
-[<c086b938>] (__warn) from [<c086ba10>] (warn_slowpath_fmt+0x7c/0xac)
-[<c086ba10>] (warn_slowpath_fmt) from [<c0629f20>] (ops_exit_list+0x38/0x60)
-[<c0629f20>] (ops_exit_list) from [<c062a5c4>] (cleanup_net+0x230/0x380)
-[<c062a5c4>] (cleanup_net) from [<c0142c20>] (process_one_work+0x1d8/0x438)
-[<c0142c20>] (process_one_work) from [<c0142ee4>] (worker_thread+0x64/0x5a8)
-[<c0142ee4>] (worker_thread) from [<c0148a98>] (kthread+0x148/0x14c)
-[<c0148a98>] (kthread) from [<c0100148>] (ret_from_fork+0x14/0x2c)
-
-To properly restore physical CAN devices to the initial netns on owning
-netns exit, introduce a flag on rtnl_link_ops that can be set by drivers.
-For CAN devices setting this flag, default_device_exit() considers them
-non-virtual, applying the usual namespace move.
-
-The issue was introduced in the commit mentioned below, as at that time
-CAN devices did not have a dellink() operation.
-
-Fixes: e008b5fc8dc7 ("net: Simplfy default_device_exit and improve batching.")
-Link: https://lore.kernel.org/r/20210302122423.872326-1-martin@strongswan.org
-Signed-off-by: Martin Willi <martin@strongswan.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 567ca57faa62 ("r8169: add rtl8169_up")
+Tested-by: Paul Blazejowski <paulb@blazebox.homeip.net>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/dev.c   |    1 +
- include/net/rtnetlink.h |    2 ++
- net/core/dev.c          |    2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -1255,6 +1255,7 @@ static void can_dellink(struct net_devic
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -4726,6 +4726,9 @@ static void rtl8169_down(struct rtl8169_
  
- static struct rtnl_link_ops can_link_ops __read_mostly = {
- 	.kind		= "can",
-+	.netns_refund	= true,
- 	.maxtype	= IFLA_CAN_MAX,
- 	.policy		= can_policy,
- 	.setup		= can_setup,
---- a/include/net/rtnetlink.h
-+++ b/include/net/rtnetlink.h
-@@ -33,6 +33,7 @@ static inline int rtnl_msg_family(const
-  *
-  *	@list: Used internally
-  *	@kind: Identifier
-+ *	@netns_refund: Physical device, move to init_net on netns exit
-  *	@maxtype: Highest device specific netlink attribute number
-  *	@policy: Netlink policy for device specific attribute validation
-  *	@validate: Optional validation function for netlink/changelink parameters
-@@ -64,6 +65,7 @@ struct rtnl_link_ops {
- 	size_t			priv_size;
- 	void			(*setup)(struct net_device *dev);
+ 	rtl8169_update_counters(tp);
  
-+	bool			netns_refund;
- 	unsigned int		maxtype;
- 	const struct nla_policy	*policy;
- 	int			(*validate)(struct nlattr *tb[],
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -11106,7 +11106,7 @@ static void __net_exit default_device_ex
- 			continue;
++	pci_clear_master(tp->pci_dev);
++	rtl_pci_commit(tp);
++
+ 	rtl8169_cleanup(tp, true);
  
- 		/* Leave virtual devices for the generic cleanup */
--		if (dev->rtnl_link_ops)
-+		if (dev->rtnl_link_ops && !dev->rtnl_link_ops->netns_refund)
- 			continue;
+ 	rtl_pll_power_down(tp);
+@@ -4733,6 +4736,7 @@ static void rtl8169_down(struct rtl8169_
  
- 		/* Push remaining network devices to init_net */
+ static void rtl8169_up(struct rtl8169_private *tp)
+ {
++	pci_set_master(tp->pci_dev);
+ 	rtl_pll_power_up(tp);
+ 	rtl8169_init_phy(tp);
+ 	napi_enable(&tp->napi);
+@@ -5394,8 +5398,6 @@ static int rtl_init_one(struct pci_dev *
+ 
+ 	rtl_hw_reset(tp);
+ 
+-	pci_set_master(pdev);
+-
+ 	rc = rtl_alloc_irq(tp);
+ 	if (rc < 0) {
+ 		dev_err(&pdev->dev, "Can't allocate interrupt\n");
 
 
