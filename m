@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4347F34C6F4
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A80C34C8E7
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbhC2ILK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
+        id S232989AbhC2IYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:24:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232651AbhC2IKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 219B061959;
-        Mon, 29 Mar 2021 08:10:23 +0000 (UTC)
+        id S234204AbhC2IX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:23:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 483D0619C4;
+        Mon, 29 Mar 2021 08:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005424;
-        bh=6e4+xmpVow/CvKkyEOCgAgQ4vxg2xRJd2r8MCYvUuS8=;
+        s=korg; t=1617006235;
+        bh=Hw9A6Psap29M1k2WTByEluXpzjwHWq9t16vzcJNwzyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hw8KmslAIJLciUXXqse/4JKkmJoQqg52K62twnkzNeghm78JnXNtx7n86MyTfz0nR
-         EVnWbHUayodyeS4wEVzHDH1f3lmb0ClA30tfvz1hbTw6OeGoasiSk1lWk3OZ1KCyXr
-         NVLTdvZKLiqN4ErF8H01oLnqknLvvp9eNfGl1Cik=
+        b=SqfZYiZH4OyfUM9GuEDVqJNHIK6xWB0TsKPn+X+kbEIaO0pSpBipHTixRC6RYHwBa
+         AReOpl7hCW1GxV6hfe1JrHieGpL23vvO6fCXJOQIlX25AlyYOgIlPOz2LUA/Xhfj7K
+         4r/oGJwyF42L+nnPSd9rWArF+Kelq/GvVQ9mQ818=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/72] netfilter: ctnetlink: fix dump of the expect mask attribute
+Subject: [PATCH 5.10 167/221] drm/msm: Fix suspend/resume on i.MX5
 Date:   Mon, 29 Mar 2021 09:58:18 +0200
-Message-Id: <20210329075611.681724926@linuxfoundation.org>
+Message-Id: <20210329075634.718810265@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit b58f33d49e426dc66e98ed73afb5d97b15a25f2d ]
+[ Upstream commit a9748134ea4aad989e52a6a91479e0acfd306e5b ]
 
-Before this change, the mask is never included in the netlink message, so
-"conntrack -E expect" always prints 0.0.0.0.
+When putting iMX5 into suspend, the following flow is
+observed:
 
-In older kernels the l3num callback struct was passed as argument, based
-on tuple->src.l3num. After the l3num indirection got removed, the call
-chain is based on m.src.l3num, but this value is 0xffff.
+[   70.023427] [<c07755f0>] (msm_atomic_commit_tail) from [<c06e7218>]
+(commit_tail+0x9c/0x18c)
+[   70.031890] [<c06e7218>] (commit_tail) from [<c0e2920c>]
+(drm_atomic_helper_commit+0x1a0/0x1d4)
+[   70.040627] [<c0e2920c>] (drm_atomic_helper_commit) from
+[<c06e74d4>] (drm_atomic_helper_disable_all+0x1c4/0x1d4)
+[   70.050913] [<c06e74d4>] (drm_atomic_helper_disable_all) from
+[<c0e2943c>] (drm_atomic_helper_suspend+0xb8/0x170)
+[   70.061198] [<c0e2943c>] (drm_atomic_helper_suspend) from
+[<c06e84bc>] (drm_mode_config_helper_suspend+0x24/0x58)
 
-Init l3num to the correct value.
+In the i.MX5 case, priv->kms is not populated (as i.MX5 does not use any
+of the Qualcomm display controllers), causing a NULL pointer
+dereference in msm_atomic_commit_tail():
 
-Fixes: f957be9d349a3 ("netfilter: conntrack: remove ctnetlink callbacks from l3 protocol trackers")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[   24.268964] 8<--- cut here ---
+[   24.274602] Unable to handle kernel NULL pointer dereference at
+virtual address 00000000
+[   24.283434] pgd = (ptrval)
+[   24.286387] [00000000] *pgd=ca212831
+[   24.290788] Internal error: Oops: 17 [#1] SMP ARM
+[   24.295609] Modules linked in:
+[   24.298777] CPU: 0 PID: 197 Comm: init Not tainted 5.11.0-rc2-next-20210111 #333
+[   24.306276] Hardware name: Freescale i.MX53 (Device Tree Support)
+[   24.312442] PC is at msm_atomic_commit_tail+0x54/0xb9c
+[   24.317743] LR is at commit_tail+0xa4/0x1b0
+
+Fix the problem by calling drm_mode_config_helper_suspend/resume()
+only when priv->kms is available.
+
+Fixes: ca8199f13498 ("drm/msm/dpu: ensure device suspend happens during PM sleep")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/msm_drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 0b89609a6e9d..15c9fbcd32f2 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -2656,6 +2656,7 @@ static int ctnetlink_exp_dump_mask(struct sk_buff *skb,
- 	memset(&m, 0xFF, sizeof(m));
- 	memcpy(&m.src.u3, &mask->src.u3, sizeof(m.src.u3));
- 	m.src.u.all = mask->src.u.all;
-+	m.src.l3num = tuple->src.l3num;
- 	m.dst.protonum = tuple->dst.protonum;
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 45e325c982c2..b38ebccad42f 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1079,6 +1079,10 @@ static int __maybe_unused msm_pm_resume(struct device *dev)
+ static int __maybe_unused msm_pm_prepare(struct device *dev)
+ {
+ 	struct drm_device *ddev = dev_get_drvdata(dev);
++	struct msm_drm_private *priv = ddev ? ddev->dev_private : NULL;
++
++	if (!priv || !priv->kms)
++		return 0;
  
- 	nest_parms = nla_nest_start(skb, CTA_EXPECT_MASK | NLA_F_NESTED);
+ 	return drm_mode_config_helper_suspend(ddev);
+ }
+@@ -1086,6 +1090,10 @@ static int __maybe_unused msm_pm_prepare(struct device *dev)
+ static void __maybe_unused msm_pm_complete(struct device *dev)
+ {
+ 	struct drm_device *ddev = dev_get_drvdata(dev);
++	struct msm_drm_private *priv = ddev ? ddev->dev_private : NULL;
++
++	if (!priv || !priv->kms)
++		return;
+ 
+ 	drm_mode_config_helper_resume(ddev);
+ }
 -- 
 2.30.1
 
