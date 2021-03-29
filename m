@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 588D434D58C
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9A334D58B
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231201AbhC2Qvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 12:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45168 "EHLO mail.kernel.org"
+        id S231213AbhC2Qvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 12:51:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231404AbhC2QvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:51:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 975456196E;
-        Mon, 29 Mar 2021 16:51:17 +0000 (UTC)
+        id S231281AbhC2QvU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:51:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD22861927;
+        Mon, 29 Mar 2021 16:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617036678;
-        bh=wZVa1phDDnsLOm6DwbhMvBlsylxST9slJ7Izp0GKTAk=;
+        s=k20201202; t=1617036680;
+        bh=taHqwvFJ9fZ2wEe3o/t28HaqXAaIxLUw/rxWxbvb14k=;
         h=From:To:Cc:Subject:Date:From;
-        b=CpKGoa5GUd+JakwCPqjb2BnKflOnfAuh4y6XTw7wvIxWm4SbmFdAWaLMPqdmw7Os+
-         rc1aBP4Xup7HHVcFWSWA4ljzCez21RIszUMOKad+CcaizjLeseDpS1UbwjdjgsbIlt
-         +FWyok5jNrf9rMHvAUcU3eExSJoItpDgjxf61JAtzd+XkwrnuValkGJakOFhdMt08W
-         YM7UUfoKn4QQXEJrjUARwvtOyJDhFwCkUh1Fycw+GWNPY2TAKaUe0L4HU0sMiCQgbR
-         8z+o3ojhayQCZqCCTIlQYJNR50RK8JIZ9vHZRyLE0AVA3gXLVxbgTHejvw5QWEZmYo
-         xahUoO2GtrPfQ==
+        b=WUNU6/I9ZrGqDQeIRXVpyl44LNDASv3vqlzoep1hgtnGMZIyWMq9GLaPIFd7VBbRV
+         2BjvuyGWKFfkjO9TNAU59ctoMu/S8KBIQCtWkr9uox5f+oz4x+YDfZItqDSwFzFkny
+         zL+o0eZdMtzRsOYIJI7S0wBQkeQYwTDi+U6C1TBj1sIc4fv6JvbhEFuik/KvuQoaLr
+         6EejoGY4zQbBpCkH2UlRU11WE558ANj230VwwOpqJpx2iIAHDwP7T2SiGLs+tBdnQ0
+         v1HA2jg1bGmOtC0Pd48oj7Y2gMtY9GltfszFVPEaoUdqnBWzPxL0Biz0VlZyGDCAOg
+         rv+QiTP+GqEpA==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, mark.tomlinson@alliedtelesis.co.nz
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: FAILED: Patch "netfilter: x_tables: Use correct memory barriers." failed to apply to 4.4-stable tree
-Date:   Mon, 29 Mar 2021 12:51:16 -0400
-Message-Id: <20210329165116.2359676-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, kuba@kernel.org
+Cc:     Sunyi Shao <sunyishao@fb.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: FAILED: Patch "ipv6: weaken the v4mapped source check" failed to apply to 4.4-stable tree
+Date:   Mon, 29 Mar 2021 12:51:18 -0400
+Message-Id: <20210329165118.2359743-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -48,61 +51,117 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 175e476b8cdf2a4de7432583b49c871345e4f8a1 Mon Sep 17 00:00:00 2001
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Date: Mon, 8 Mar 2021 14:24:13 +1300
-Subject: [PATCH] netfilter: x_tables: Use correct memory barriers.
+From dcc32f4f183ab8479041b23a1525d48233df1d43 Mon Sep 17 00:00:00 2001
+From: Jakub Kicinski <kuba@kernel.org>
+Date: Wed, 17 Mar 2021 09:55:15 -0700
+Subject: [PATCH] ipv6: weaken the v4mapped source check
 
-When a new table value was assigned, it was followed by a write memory
-barrier. This ensured that all writes before this point would complete
-before any writes after this point. However, to determine whether the
-rules are unused, the sequence counter is read. To ensure that all
-writes have been done before these reads, a full memory barrier is
-needed, not just a write memory barrier. The same argument applies when
-incrementing the counter, before the rules are read.
+This reverts commit 6af1799aaf3f1bc8defedddfa00df3192445bbf3.
 
-Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
-reported in cc00bcaa5899 (which is still present), while still
-maintaining the same speed of replacing tables.
+Commit 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped
+source address") introduced an input check against v4mapped addresses.
+Use of such addresses on the wire is indeed questionable and not
+allowed on public Internet. As the commit pointed out
 
-The smb_mb() barriers potentially slow the packet path, however testing
-has shown no measurable change in performance on a 4-core MIPS64
-platform.
+  https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
 
-Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+lists potential issues.
+
+Unfortunately there are applications which use v4mapped addresses,
+and breaking them is a clear regression. For example v4mapped
+addresses (or any semi-valid addresses, really) may be used
+for uni-direction event streams or packet export.
+
+Since the issue which sparked the addition of the check was with
+TCP and request_socks in particular push the check down to TCPv6
+and DCCP. This restores the ability to receive UDPv6 packets with
+v4mapped address as the source.
+
+Keep using the IPSTATS_MIB_INHDRERRORS statistic to minimize the
+user-visible changes.
+
+Fixes: 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped source address")
+Reported-by: Sunyi Shao <sunyishao@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- include/linux/netfilter/x_tables.h | 2 +-
- net/netfilter/x_tables.c           | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/dccp/ipv6.c      |  5 +++++
+ net/ipv6/ip6_input.c | 10 ----------
+ net/ipv6/tcp_ipv6.c  |  5 +++++
+ net/mptcp/subflow.c  |  5 +++++
+ 4 files changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
-index 5deb099d156d..8ec48466410a 100644
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -376,7 +376,7 @@ static inline unsigned int xt_write_recseq_begin(void)
- 	 * since addend is most likely 1
- 	 */
- 	__this_cpu_add(xt_recseq.sequence, addend);
--	smp_wmb();
-+	smp_mb();
+diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
+index 1f73603913f5..2be5c69824f9 100644
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -319,6 +319,11 @@ static int dccp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ 	if (!ipv6_unicast_destination(skb))
+ 		return 0;	/* discard, don't send a reset here */
  
- 	return addend;
- }
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 7df3aef39c5c..6bd31a7a27fc 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1389,7 +1389,7 @@ xt_replace_table(struct xt_table *table,
- 	table->private = newinfo;
++	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
++		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
++		return 0;
++	}
++
+ 	if (dccp_bad_service_code(sk, service)) {
+ 		dcb->dccpd_reset_code = DCCP_RESET_CODE_BAD_SERVICE_CODE;
+ 		goto drop;
+diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
+index e9d2a4a409aa..80256717868e 100644
+--- a/net/ipv6/ip6_input.c
++++ b/net/ipv6/ip6_input.c
+@@ -245,16 +245,6 @@ static struct sk_buff *ip6_rcv_core(struct sk_buff *skb, struct net_device *dev,
+ 	if (ipv6_addr_is_multicast(&hdr->saddr))
+ 		goto err;
  
- 	/* make sure all cpus see new ->private value */
--	smp_wmb();
-+	smp_mb();
+-	/* While RFC4291 is not explicit about v4mapped addresses
+-	 * in IPv6 headers, it seems clear linux dual-stack
+-	 * model can not deal properly with these.
+-	 * Security models could be fooled by ::ffff:127.0.0.1 for example.
+-	 *
+-	 * https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
+-	 */
+-	if (ipv6_addr_v4mapped(&hdr->saddr))
+-		goto err;
+-
+ 	skb->transport_header = skb->network_header + sizeof(*hdr);
+ 	IP6CB(skb)->nhoff = offsetof(struct ipv6hdr, nexthdr);
  
- 	/*
- 	 * Even though table entries have now been swapped, other CPU's
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index bd44ded7e50c..d0f007741e8e 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -1175,6 +1175,11 @@ static int tcp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ 	if (!ipv6_unicast_destination(skb))
+ 		goto drop;
+ 
++	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
++		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
++		return 0;
++	}
++
+ 	return tcp_conn_request(&tcp6_request_sock_ops,
+ 				&tcp_request_sock_ipv6_ops, sk, skb);
+ 
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 3d47d670e665..d17d39ccdf34 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -477,6 +477,11 @@ static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ 	if (!ipv6_unicast_destination(skb))
+ 		goto drop;
+ 
++	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
++		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
++		return 0;
++	}
++
+ 	return tcp_conn_request(&mptcp_subflow_request_sock_ops,
+ 				&subflow_request_sock_ipv6_ops, sk, skb);
+ 
 -- 
 2.30.1
 
