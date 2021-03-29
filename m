@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD7834C8D1
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4460934C8CF
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231911AbhC2IYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232131AbhC2IYU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Mar 2021 04:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50564 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232388AbhC2IHK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:07:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 024FD6193C;
-        Mon, 29 Mar 2021 08:07:09 +0000 (UTC)
+        id S232410AbhC2IHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:07:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7F736197C;
+        Mon, 29 Mar 2021 08:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005230;
-        bh=MV/3/qb1PE/vzEFEs3JRSELdMgkH0lcziOW1fw2UHGE=;
+        s=korg; t=1617005233;
+        bh=Jb7J8ybGRwKaJZxg5YiVhsYyJlD8UuxxVDlBolx7tHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVAwRq7/j+oTB0pUgN5FEBJNiQyjAkuVV5FONM8Uey+oNkcBkuBnuraWUUzL56tci
-         oXeg//ChCo0lsizWHdOe6wLfa4K4zOeHQ6lj8U1J6B5bBZfCT42yvK5N0lqX7gxMZh
-         VyNl/vPykIeRVY8QjaS5vSAQLoWTNLtCbDpDtOp8=
+        b=H9vI0ZdWlZynwSrXHGbfvBG8axfNa7U89UXJ8LkQaw6tRlfCC+BNYPTmD7IIUp1jR
+         XgH5f8xKV+sJwAUBSp3fcbCDIkpYEsZZrEi849KhUPFxnD4Il6nO7+6/Sm1UNJvYHm
+         hkGAfVkkJAoTTew3ID2Wp8cSniDfa8A+ZExe+VFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/72] NFS: Correct size calculation for create reply length
-Date:   Mon, 29 Mar 2021 09:57:48 +0200
-Message-Id: <20210329075610.686264753@linuxfoundation.org>
+Subject: [PATCH 4.19 13/72] net: hisilicon: hns: fix error return code of hns_nic_clear_all_rx_fetch()
+Date:   Mon, 29 Mar 2021 09:57:49 +0200
+Message-Id: <20210329075610.714005918@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
 References: <20210329075610.300795746@linuxfoundation.org>
@@ -40,47 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Sorenson <sorenson@redhat.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
+[ Upstream commit 143c253f42bad20357e7e4432087aca747c43384 ]
 
-CREATE requests return a post_op_fh3, rather than nfs_fh3. The
-post_op_fh3 includes an extra word to indicate 'handle_follows'.
+When hns_assemble_skb() returns NULL to skb, no error return code of
+hns_nic_clear_all_rx_fetch() is assigned.
+To fix this bug, ret is assigned with -ENOMEM in this case.
 
-Without that additional word, create fails when full 64-byte
-filehandles are in use.
-
-Add NFS3_post_op_fh_sz, and correct the size calculation for
-NFS3_createres_sz.
-
-Signed-off-by: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs3xdr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 9956453aa6ff..0ed419bb02b0 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -34,6 +34,7 @@
-  */
- #define NFS3_fhandle_sz		(1+16)
- #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
-+#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
- #define NFS3_sattr_sz		(15)
- #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
- #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
-@@ -71,7 +72,7 @@
- #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1)
- #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3)
- #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
--#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
-+#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
- #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2)
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index 4de65a9de0a6..b7fe3e849872 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -1677,8 +1677,10 @@ static int hns_nic_clear_all_rx_fetch(struct net_device *ndev)
+ 			for (j = 0; j < fetch_num; j++) {
+ 				/* alloc one skb and init */
+ 				skb = hns_assemble_skb(ndev);
+-				if (!skb)
++				if (!skb) {
++					ret = -ENOMEM;
+ 					goto out;
++				}
+ 				rd = &tx_ring_data(priv, skb->queue_mapping);
+ 				hns_nic_net_xmit_hw(ndev, skb, rd);
+ 
 -- 
 2.30.1
 
