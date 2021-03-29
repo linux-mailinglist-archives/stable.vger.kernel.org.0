@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8195934DB32
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A763534DB35
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 00:27:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232271AbhC2W0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 18:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S231971AbhC2W0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 18:26:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232694AbhC2WYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232695AbhC2WYA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Mar 2021 18:24:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A31C619A0;
-        Mon, 29 Mar 2021 22:23:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EEDF61994;
+        Mon, 29 Mar 2021 22:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617056609;
-        bh=MxYQJrrkYXo3xLfPUwr3yKL/oc9EhmY0TSkiN6AG4WE=;
+        s=k20201202; t=1617056610;
+        bh=vkE6ky8uZ48JdJ16FrsIoKGvS87thA+aDM3cl8N55Rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHxByrJyibr2TPV9rHXtb7meesD/0/1wdiBRpcPQ6xMlnI6LBC9IsAy50vnpXAEFx
-         8IQI56vuhQyZlebOwng0pYbO7bYsG0Tqlb1sj5kykAqknBcsS8WNS9T9E8NRxoQKuv
-         Jm2ZsRv1uve6b1khVlcMXXaygIWK/vW5NBdzph4JaGIcAW2u+dCb46pwaX+vts7Ssi
-         b/WOe1PgEAUGFRLywAgpbe7T8FR+1mBSp9nVRNtrq10xWQAhiSItsyAvVhCipdFhHU
-         P3WsQPPhcqN2IE9nmVDwaUyvdY2gUP3ezX9+IBSSR4lRYoHGg8T669qtZgx8vYiemw
-         tQZ/w2FP8FLNw==
+        b=nbY8xBH9jLYGkPCZPq2iNT/hunpzilrfSd46PwMDEgt1srSVoQQ7dHsMRr1Id//Rd
+         J/PBkioSk/72JlHo8gbKsYWO1PLBD5jeAE+TFA1BQcaoasVhzF9sflVpmfeKG8NdI5
+         YjE3y0blzENKyTutxGAZsICGj58pnhjIe20cBNg8XUK1vR+X90l0JLn8JuHOWx0zqk
+         ZDflTYWxaNFYHnZYNyQfxRWPcC+k4XGhqA/PXz4KaMfsdZhfQTl8jTaR228SUUeYow
+         xKMmBWDEVk/2CSeXcAC3JtHi1sv/pi6cML2JiPtiBIL/7kRCVybtHonsY2Su8+15Ty
+         xNpaJj2N7xvsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/15] bus: ti-sysc: Fix warning on unbind if reset is not deasserted
-Date:   Mon, 29 Mar 2021 18:23:13 -0400
-Message-Id: <20210329222327.2383533-2-sashal@kernel.org>
+Cc:     Alban Bedel <albeu@free.fr>, Alexander Kobel <a-kobel@a-kobel.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 03/15] platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
+Date:   Mon, 29 Mar 2021 18:23:14 -0400
+Message-Id: <20210329222327.2383533-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210329222327.2383533-1-sashal@kernel.org>
 References: <20210329222327.2383533-1-sashal@kernel.org>
@@ -41,45 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Alban Bedel <albeu@free.fr>
 
-[ Upstream commit a7b5d7c4969aba8d1f04c29048906abaa71fb6a9 ]
+[ Upstream commit 56678a5f44ef5f0ad9a67194bbee2280c6286534 ]
 
-We currently get thefollowing on driver unbind if a reset is configured
-and asserted:
+Like a few other system the Lenovo ThinkPad X1 Tablet Gen 2 miss the
+HEBC method, which prevent the power button from working. Add a quirk
+to enable the button array on this system family and fix the power
+button.
 
-WARNING: CPU: 0 PID: 993 at drivers/reset/core.c:432 reset_control_assert
-...
-(reset_control_assert) from [<c0fecda8>] (sysc_remove+0x190/0x1e4)
-(sysc_remove) from [<c0a2bb58>] (platform_remove+0x24/0x3c)
-(platform_remove) from [<c0a292fc>] (__device_release_driver+0x154/0x214)
-(__device_release_driver) from [<c0a2a210>] (device_driver_detach+0x3c/0x8c)
-(device_driver_detach) from [<c0a27d64>] (unbind_store+0x60/0xd4)
-(unbind_store) from [<c0546bec>] (kernfs_fop_write_iter+0x10c/0x1cc)
-
-Let's fix it by checking the reset status.
-
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Alban Bedel <albeu@free.fr>
+Tested-by: Alexander Kobel <a-kobel@a-kobel.de>
+Link: https://lore.kernel.org/r/20210222141559.3775-1-albeu@free.fr
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/intel-hid.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 54c8c8644df2..b6a278183d82 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1814,7 +1814,9 @@ static int sysc_remove(struct platform_device *pdev)
+diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
+index d7d69eadb9bb..fa3cda69cec9 100644
+--- a/drivers/platform/x86/intel-hid.c
++++ b/drivers/platform/x86/intel-hid.c
+@@ -94,6 +94,13 @@ static const struct dmi_system_id button_array_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x2 Detachable"),
+ 		},
+ 	},
++	{
++		.ident = "Lenovo ThinkPad X1 Tablet Gen 2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Tablet Gen 2"),
++		},
++	},
+ 	{ }
+ };
  
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
--	reset_control_assert(ddata->rsts);
-+
-+	if (!reset_control_status(ddata->rsts))
-+		reset_control_assert(ddata->rsts);
- 
- unprepare:
- 	sysc_unprepare(ddata);
 -- 
 2.30.1
 
