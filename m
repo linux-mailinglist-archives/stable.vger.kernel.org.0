@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D133034C7B0
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BC134C945
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232482AbhC2IR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:17:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
+        id S232228AbhC2I3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:29:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233046AbhC2IPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:15:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D59546196D;
-        Mon, 29 Mar 2021 08:15:26 +0000 (UTC)
+        id S232468AbhC2IZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:25:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0119B61864;
+        Mon, 29 Mar 2021 08:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005727;
-        bh=43SFuyqFDg25OjiCtBvWthzGUpSNIkUtCbK5kUNqPKU=;
+        s=korg; t=1617006304;
+        bh=/U9OayEP9seZoWp8frEnEOHONJ43U6EX8rW+mNWSftg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AxwziBZNUNTd8RDABUV3XIGFKno5el/5F+HRbPrcpROmKC/kaI8Gc8s4u0V6Dkis
-         i6PF7BuRNOGhY741AhJ5xXN8JSNdr1FZ5fLKBMkiP9pqhIwMPA7Vgw8v0VO5o1zYMz
-         FHLcNKgXqVhNjOozYMv3muDFEKnGiJUIoHGZRTsk=
+        b=08Q/s/Ty8Z1EQmpjZ4LhLvArDunLzTyc7TuwTR5iqJRZau6SresPhiS6ZLiAX0+XY
+         2kzDfuP1TMfFM5erLiOhHQjGSQahXfC02AlcnJ3UjwgtGGxTcsj1tCjFUiFT2TyLZ+
+         FmclSwRFDtb2vjqj1lk6Lh51erZQ4fxkjZpUe2t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/111] netfilter: x_tables: Use correct memory barriers.
-Date:   Mon, 29 Mar 2021 09:58:43 +0200
-Message-Id: <20210329075618.372991371@linuxfoundation.org>
+Subject: [PATCH 5.10 193/221] dm table: Fix zoned model check and zone sectors check
+Date:   Mon, 29 Mar 2021 09:58:44 +0200
+Message-Id: <20210329075635.565181084@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
+References: <20210329075629.172032742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +42,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-[ Upstream commit 175e476b8cdf2a4de7432583b49c871345e4f8a1 ]
+[ Upstream commit 2d669ceb69c276f7637cf760287ca4187add082e ]
 
-When a new table value was assigned, it was followed by a write memory
-barrier. This ensured that all writes before this point would complete
-before any writes after this point. However, to determine whether the
-rules are unused, the sequence counter is read. To ensure that all
-writes have been done before these reads, a full memory barrier is
-needed, not just a write memory barrier. The same argument applies when
-incrementing the counter, before the rules are read.
+Commit 24f6b6036c9e ("dm table: fix zoned iterate_devices based device
+capability checks") triggered dm table load failure when dm-zoned device
+is set up for zoned block devices and a regular device for cache.
 
-Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
-reported in cc00bcaa5899 (which is still present), while still
-maintaining the same speed of replacing tables.
+The commit inverted logic of two callback functions for iterate_devices:
+device_is_zoned_model() and device_matches_zone_sectors(). The logic of
+device_is_zoned_model() was inverted then all destination devices of all
+targets in dm table are required to have the expected zoned model. This
+is fine for dm-linear, dm-flakey and dm-crypt on zoned block devices
+since each target has only one destination device. However, this results
+in failure for dm-zoned with regular cache device since that target has
+both regular block device and zoned block devices.
 
-The smb_mb() barriers potentially slow the packet path, however testing
-has shown no measurable change in performance on a 4-core MIPS64
-platform.
+As for device_matches_zone_sectors(), the commit inverted the logic to
+require all zoned block devices in each target have the specified
+zone_sectors. This check also fails for regular block device which does
+not have zones.
 
-Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+To avoid the check failures, fix the zone model check and the zone
+sectors check. For zone model check, introduce the new feature flag
+DM_TARGET_MIXED_ZONED_MODEL, and set it to dm-zoned target. When the
+target has this flag, allow it to have destination devices with any
+zoned model. For zone sectors check, skip the check if the destination
+device is not a zoned block device. Also add comments and improve an
+error message to clarify expectations to the two checks.
+
+Fixes: 24f6b6036c9e ("dm table: fix zoned iterate_devices based device capability checks")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter/x_tables.h | 2 +-
- net/netfilter/x_tables.c           | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-table.c         | 33 +++++++++++++++++++++++++--------
+ drivers/md/dm-zoned-target.c  |  2 +-
+ include/linux/device-mapper.h | 15 ++++++++++++++-
+ 3 files changed, 40 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
-index 1b261c51b3a3..04e7f5630509 100644
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -376,7 +376,7 @@ static inline unsigned int xt_write_recseq_begin(void)
- 	 * since addend is most likely 1
- 	 */
- 	__this_cpu_add(xt_recseq.sequence, addend);
--	smp_wmb();
-+	smp_mb();
- 
- 	return addend;
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index 9b824c21580a..5c590895c14c 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1387,6 +1387,13 @@ static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
+ 	return !q || blk_queue_zoned_model(q) != *zoned_model;
  }
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index ef6d51a3798b..5c35d64d1f34 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1389,7 +1389,7 @@ xt_replace_table(struct xt_table *table,
- 	table->private = newinfo;
  
- 	/* make sure all cpus see new ->private value */
--	smp_wmb();
-+	smp_mb();
++/*
++ * Check the device zoned model based on the target feature flag. If the target
++ * has the DM_TARGET_ZONED_HM feature flag set, host-managed zoned devices are
++ * also accepted but all devices must have the same zoned model. If the target
++ * has the DM_TARGET_MIXED_ZONED_MODEL feature set, the devices can have any
++ * zoned model with all zoned devices having the same zone size.
++ */
+ static bool dm_table_supports_zoned_model(struct dm_table *t,
+ 					  enum blk_zoned_model zoned_model)
+ {
+@@ -1396,13 +1403,15 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
+ 	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+ 		ti = dm_table_get_target(t, i);
  
- 	/*
- 	 * Even though table entries have now been swapped, other CPU's
+-		if (zoned_model == BLK_ZONED_HM &&
+-		    !dm_target_supports_zoned_hm(ti->type))
+-			return false;
+-
+-		if (!ti->type->iterate_devices ||
+-		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
+-			return false;
++		if (dm_target_supports_zoned_hm(ti->type)) {
++			if (!ti->type->iterate_devices ||
++			    ti->type->iterate_devices(ti, device_not_zoned_model,
++						      &zoned_model))
++				return false;
++		} else if (!dm_target_supports_mixed_zoned_model(ti->type)) {
++			if (zoned_model == BLK_ZONED_HM)
++				return false;
++		}
+ 	}
+ 
+ 	return true;
+@@ -1414,9 +1423,17 @@ static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 	unsigned int *zone_sectors = data;
+ 
++	if (!blk_queue_is_zoned(q))
++		return 0;
++
+ 	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
+ }
+ 
++/*
++ * Check consistency of zoned model and zone sectors across all targets. For
++ * zone sectors, if the destination device is a zoned block device, it shall
++ * have the specified zone_sectors.
++ */
+ static int validate_hardware_zoned_model(struct dm_table *table,
+ 					 enum blk_zoned_model zoned_model,
+ 					 unsigned int zone_sectors)
+@@ -1435,7 +1452,7 @@ static int validate_hardware_zoned_model(struct dm_table *table,
+ 		return -EINVAL;
+ 
+ 	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
+-		DMERR("%s: zone sectors is not consistent across all devices",
++		DMERR("%s: zone sectors is not consistent across all zoned devices",
+ 		      dm_device_name(table->md));
+ 		return -EINVAL;
+ 	}
+diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
+index 697f9de37355..7e88df64d197 100644
+--- a/drivers/md/dm-zoned-target.c
++++ b/drivers/md/dm-zoned-target.c
+@@ -1143,7 +1143,7 @@ static int dmz_message(struct dm_target *ti, unsigned int argc, char **argv,
+ static struct target_type dmz_type = {
+ 	.name		 = "zoned",
+ 	.version	 = {2, 0, 0},
+-	.features	 = DM_TARGET_SINGLETON | DM_TARGET_ZONED_HM,
++	.features	 = DM_TARGET_SINGLETON | DM_TARGET_MIXED_ZONED_MODEL,
+ 	.module		 = THIS_MODULE,
+ 	.ctr		 = dmz_ctr,
+ 	.dtr		 = dmz_dtr,
+diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
+index d2d7f9b6a276..50cc070cb1f7 100644
+--- a/include/linux/device-mapper.h
++++ b/include/linux/device-mapper.h
+@@ -246,7 +246,11 @@ struct target_type {
+ #define dm_target_passes_integrity(type) ((type)->features & DM_TARGET_PASSES_INTEGRITY)
+ 
+ /*
+- * Indicates that a target supports host-managed zoned block devices.
++ * Indicates support for zoned block devices:
++ * - DM_TARGET_ZONED_HM: the target also supports host-managed zoned
++ *   block devices but does not support combining different zoned models.
++ * - DM_TARGET_MIXED_ZONED_MODEL: the target supports combining multiple
++ *   devices with different zoned models.
+  */
+ #define DM_TARGET_ZONED_HM		0x00000040
+ #define dm_target_supports_zoned_hm(type) ((type)->features & DM_TARGET_ZONED_HM)
+@@ -257,6 +261,15 @@ struct target_type {
+ #define DM_TARGET_NOWAIT		0x00000080
+ #define dm_target_supports_nowait(type) ((type)->features & DM_TARGET_NOWAIT)
+ 
++#ifdef CONFIG_BLK_DEV_ZONED
++#define DM_TARGET_MIXED_ZONED_MODEL	0x00000200
++#define dm_target_supports_mixed_zoned_model(type) \
++	((type)->features & DM_TARGET_MIXED_ZONED_MODEL)
++#else
++#define DM_TARGET_MIXED_ZONED_MODEL	0x00000000
++#define dm_target_supports_mixed_zoned_model(type) (false)
++#endif
++
+ struct dm_target {
+ 	struct dm_table *table;
+ 	struct target_type *type;
 -- 
 2.30.1
 
