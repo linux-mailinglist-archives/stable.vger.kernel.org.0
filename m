@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB9B34C72F
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFBF34C5AB
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232271AbhC2INK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:13:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55872 "EHLO mail.kernel.org"
+        id S231400AbhC2IB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:01:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231856AbhC2ILw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:11:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7442F61932;
-        Mon, 29 Mar 2021 08:11:51 +0000 (UTC)
+        id S231758AbhC2IBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:01:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 640D361969;
+        Mon, 29 Mar 2021 08:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005512;
-        bh=UZkiUS5VU/CJAW2Dy68Jg1kT2hdab6xvmILpYTbU4Hc=;
+        s=korg; t=1617004903;
+        bh=L+OjKZDtRg77oC6iupFoK//kSUoajNgKI8lXu5a7W84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aAzCfFqyx5p9X39ve8Ur7REdllZbj+CQiSF8c7mvsrRXV20aQB7NuHDU9sXKftDZJ
-         mTfjNLJL+gzNK8u+9dHTHvS0bL5uSXcFbppwvsSzotAp/0i9HlvOTB78pDbpghd/W5
-         rEjzAyXJrlRJCQ8wKdpFvVoC6sjjbeVGrEnJi15s=
+        b=QqIFBCT4Rxo5Fb1SrYmlh79Qwkry5ePeGk/vmwwPQuTXMigAnMFVw1brauKmAuElw
+         C7GK+PS/foH+5HVUw7Xudo/fVYb5ZPdVfMKSFI04GjbzqKYXheIf8U3NNullXRLkX1
+         iqvb5PtL3OIGeo48VboxdlNWNTXdqaZ64v7ZpUHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, satya priya <skakit@codeaurora.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Heiko Thiery <heiko.thiery@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 028/111] regulator: qcom-rpmh: Correct the pmic5_hfsmps515 buck
+Subject: [PATCH 4.9 01/53] net: fec: ptp: avoid register access when ipg clock is disabled
 Date:   Mon, 29 Mar 2021 09:57:36 +0200
-Message-Id: <20210329075616.120613096@linuxfoundation.org>
+Message-Id: <20210329075607.612193188@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
-References: <20210329075615.186199980@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,36 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: satya priya <skakit@codeaurora.org>
+From: Heiko Thiery <heiko.thiery@gmail.com>
 
-[ Upstream commit e610e072c87a30658479a7b4c51e1801cb3f450c ]
+[ Upstream commit 6a4d7234ae9a3bb31181f348ade9bbdb55aeb5c5 ]
 
-Correct the REGULATOR_LINEAR_RANGE and n_voltges for
-pmic5_hfsmps515 buck.
+When accessing the timecounter register on an i.MX8MQ the kernel hangs.
+This is only the case when the interface is down. This can be reproduced
+by reading with 'phc_ctrl eth0 get'.
 
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Link: https://lore.kernel.org/r/1614155592-14060-4-git-send-email-skakit@codeaurora.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Like described in the change in 91c0d987a9788dcc5fe26baafd73bf9242b68900
+the igp clock is disabled when the interface is down and leads to a
+system hang.
+
+So we check if the ptp clock status before reading the timecounter
+register.
+
+Signed-off-by: Heiko Thiery <heiko.thiery@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Link: https://lore.kernel.org/r/20210225211514.9115-1-heiko.thiery@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom-rpmh-regulator.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_ptp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
-index 68d22acdb037..2de7af13288e 100644
---- a/drivers/regulator/qcom-rpmh-regulator.c
-+++ b/drivers/regulator/qcom-rpmh-regulator.c
-@@ -726,8 +726,8 @@ static const struct rpmh_vreg_hw_data pmic5_ftsmps510 = {
- static const struct rpmh_vreg_hw_data pmic5_hfsmps515 = {
- 	.regulator_type = VRM,
- 	.ops = &rpmh_regulator_vrm_ops,
--	.voltage_range = REGULATOR_LINEAR_RANGE(2800000, 0, 4, 16000),
--	.n_voltages = 5,
-+	.voltage_range = REGULATOR_LINEAR_RANGE(320000, 0, 235, 16000),
-+	.n_voltages = 236,
- 	.pmic_mode_map = pmic_mode_map_pmic5_smps,
- 	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
- };
+diff --git a/drivers/net/ethernet/freescale/fec_ptp.c b/drivers/net/ethernet/freescale/fec_ptp.c
+index f9e74461bdc0..123181612595 100644
+--- a/drivers/net/ethernet/freescale/fec_ptp.c
++++ b/drivers/net/ethernet/freescale/fec_ptp.c
+@@ -396,9 +396,16 @@ static int fec_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
+ 	u64 ns;
+ 	unsigned long flags;
+ 
++	mutex_lock(&adapter->ptp_clk_mutex);
++	/* Check the ptp clock */
++	if (!adapter->ptp_clk_on) {
++		mutex_unlock(&adapter->ptp_clk_mutex);
++		return -EINVAL;
++	}
+ 	spin_lock_irqsave(&adapter->tmreg_lock, flags);
+ 	ns = timecounter_read(&adapter->tc);
+ 	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
++	mutex_unlock(&adapter->ptp_clk_mutex);
+ 
+ 	*ts = ns_to_timespec64(ns);
+ 
 -- 
 2.30.1
 
