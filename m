@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2097634D574
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5715834D57C
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 18:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231224AbhC2QvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231197AbhC2QvO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Mar 2021 12:51:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44800 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231197AbhC2Quu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 12:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E4616191F;
-        Mon, 29 Mar 2021 16:50:49 +0000 (UTC)
+        id S231134AbhC2Quw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 12:50:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C4F61920;
+        Mon, 29 Mar 2021 16:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617036649;
-        bh=6zKuFg4ohHprzMyUg+UhpNjyLyNFfJcvIiLcm5TspRQ=;
+        s=k20201202; t=1617036651;
+        bh=fp2kIKq0OU01AqZvGsYF5qXDxMIiVZvTMvpOxYL8mWU=;
         h=From:To:Cc:Subject:Date:From;
-        b=lp2xM0V/OIYmVSzM1rkxtsa2lCQyGVZ6t5H60RX1zsUdlNi1LtvoUKYKdrFCXHnT2
-         T4pMUjxUZwyHri4q2n9RPgStfqgTCY1gs8d1rchHZ0QSkzQoK1ZDp2WymWbUQJQHoV
-         8VSaLAfBSx41tLUTP9yFb0se0wCF5xQ0MICTTFEkgmyOVAQo10pnG0HR8oqH96EWxY
-         qNu5IIdzIyChQ3+89pMepc3LDYgNUuExFxvmAZ2wX337aKc8cnItgnJU7AChvVo2O3
-         x+3JrihN4CkwVLLovQssZl0hVtdqLZB9cxY8DTi5bKL+19A6oFjjlzPt1lns4un+wK
-         sdo6Yfvv3jGkQ==
+        b=iOi+qWDMDQRbIlW9ti9vl0mpKm/hIdDKz4QgDPEyfD0gqUU6529NVkfifT9iYXxmr
+         qosc1dqhcVZLxQ3+lLekzta3ZGkguFTD1DGaQIndkEDt/DMjVD55yY7en1cNFZjr1v
+         W4teHJc3TiHRxO2Kmdw9s9R3fGNkNrk5a4SSFQus/kKxyMQcDXcMQMn/VrtKHHZfip
+         /0NEPuiofNKMYOaveUwOn85gk3NzBH/EK7/J0jl9cJTVwlhUDVmgXZXUVyMN4/g7wF
+         2oaG1k+LyUQ9YTJhKuuz9K887G78vxg/hlJ0toFqdU66iC0NqbXcG6ZEBz2SHZEgQ1
+         XTF4p/8OGW93g==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, ovov@yandex-team.ru
-Cc:     Oleg Senin <olegsenin@yandex-team.ru>,
+To:     stable@vger.kernel.org, kuba@kernel.org
+Cc:     Sunyi Shao <sunyishao@fb.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
         Eric Dumazet <edumazet@google.com>,
         "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "tcp: relookup sock for RST+ACK packets handled by obsolete req sock" failed to apply to 4.19-stable tree
-Date:   Mon, 29 Mar 2021 12:50:48 -0400
-Message-Id: <20210329165048.2358733-1-sashal@kernel.org>
+Subject: FAILED: Patch "ipv6: weaken the v4mapped source check" failed to apply to 4.19-stable tree
+Date:   Mon, 29 Mar 2021 12:50:50 -0400
+Message-Id: <20210329165050.2358800-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -50,87 +51,117 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7233da86697efef41288f8b713c10c2499cffe85 Mon Sep 17 00:00:00 2001
-From: Alexander Ovechkin <ovov@yandex-team.ru>
-Date: Mon, 15 Mar 2021 14:05:45 +0300
-Subject: [PATCH] tcp: relookup sock for RST+ACK packets handled by obsolete
- req sock
+From dcc32f4f183ab8479041b23a1525d48233df1d43 Mon Sep 17 00:00:00 2001
+From: Jakub Kicinski <kuba@kernel.org>
+Date: Wed, 17 Mar 2021 09:55:15 -0700
+Subject: [PATCH] ipv6: weaken the v4mapped source check
 
-Currently tcp_check_req can be called with obsolete req socket for which big
-socket have been already created (because of CPU race or early demux
-assigning req socket to multiple packets in gro batch).
+This reverts commit 6af1799aaf3f1bc8defedddfa00df3192445bbf3.
 
-Commit e0f9759f530bf789e984 ("tcp: try to keep packet if SYN_RCV race
-is lost") added retry in case when tcp_check_req is called for PSH|ACK packet.
-But if client sends RST+ACK immediatly after connection being
-established (it is performing healthcheck, for example) retry does not
-occur. In that case tcp_check_req tries to close req socket,
-leaving big socket active.
+Commit 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped
+source address") introduced an input check against v4mapped addresses.
+Use of such addresses on the wire is indeed questionable and not
+allowed on public Internet. As the commit pointed out
 
-Fixes: e0f9759f530 ("tcp: try to keep packet if SYN_RCV race is lost")
-Signed-off-by: Alexander Ovechkin <ovov@yandex-team.ru>
-Reported-by: Oleg Senin <olegsenin@yandex-team.ru>
+  https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
+
+lists potential issues.
+
+Unfortunately there are applications which use v4mapped addresses,
+and breaking them is a clear regression. For example v4mapped
+addresses (or any semi-valid addresses, really) may be used
+for uni-direction event streams or packet export.
+
+Since the issue which sparked the addition of the check was with
+TCP and request_socks in particular push the check down to TCPv6
+and DCCP. This restores the ability to receive UDPv6 packets with
+v4mapped address as the source.
+
+Keep using the IPSTATS_MIB_INHDRERRORS statistic to minimize the
+user-visible changes.
+
+Fixes: 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped source address")
+Reported-by: Sunyi Shao <sunyishao@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- include/net/inet_connection_sock.h | 2 +-
- net/ipv4/inet_connection_sock.c    | 7 +++++--
- net/ipv4/tcp_minisocks.c           | 7 +++++--
- 3 files changed, 11 insertions(+), 5 deletions(-)
+ net/dccp/ipv6.c      |  5 +++++
+ net/ipv6/ip6_input.c | 10 ----------
+ net/ipv6/tcp_ipv6.c  |  5 +++++
+ net/mptcp/subflow.c  |  5 +++++
+ 4 files changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
-index 10a625760de9..3c8c59471bc1 100644
---- a/include/net/inet_connection_sock.h
-+++ b/include/net/inet_connection_sock.h
-@@ -282,7 +282,7 @@ static inline int inet_csk_reqsk_queue_is_full(const struct sock *sk)
- 	return inet_csk_reqsk_queue_len(sk) >= sk->sk_max_ack_backlog;
- }
+diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
+index 1f73603913f5..2be5c69824f9 100644
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -319,6 +319,11 @@ static int dccp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ 	if (!ipv6_unicast_destination(skb))
+ 		return 0;	/* discard, don't send a reset here */
  
--void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
-+bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
- void inet_csk_reqsk_queue_drop_and_put(struct sock *sk, struct request_sock *req);
- 
- static inline void inet_csk_prepare_for_destroy_sock(struct sock *sk)
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index 6bd7ca09af03..fd472eae4f5c 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -705,12 +705,15 @@ static bool reqsk_queue_unlink(struct request_sock *req)
- 	return found;
- }
- 
--void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
-+bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
- {
--	if (reqsk_queue_unlink(req)) {
-+	bool unlinked = reqsk_queue_unlink(req);
++	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
++		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
++		return 0;
++	}
 +
-+	if (unlinked) {
- 		reqsk_queue_removed(&inet_csk(sk)->icsk_accept_queue, req);
- 		reqsk_put(req);
- 	}
-+	return unlinked;
- }
- EXPORT_SYMBOL(inet_csk_reqsk_queue_drop);
+ 	if (dccp_bad_service_code(sk, service)) {
+ 		dcb->dccpd_reset_code = DCCP_RESET_CODE_BAD_SERVICE_CODE;
+ 		goto drop;
+diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
+index e9d2a4a409aa..80256717868e 100644
+--- a/net/ipv6/ip6_input.c
++++ b/net/ipv6/ip6_input.c
+@@ -245,16 +245,6 @@ static struct sk_buff *ip6_rcv_core(struct sk_buff *skb, struct net_device *dev,
+ 	if (ipv6_addr_is_multicast(&hdr->saddr))
+ 		goto err;
  
-diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-index 0055ae0a3bf8..7513ba45553d 100644
---- a/net/ipv4/tcp_minisocks.c
-+++ b/net/ipv4/tcp_minisocks.c
-@@ -804,8 +804,11 @@ embryonic_reset:
- 		tcp_reset(sk, skb);
- 	}
- 	if (!fastopen) {
--		inet_csk_reqsk_queue_drop(sk, req);
--		__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
-+		bool unlinked = inet_csk_reqsk_queue_drop(sk, req);
+-	/* While RFC4291 is not explicit about v4mapped addresses
+-	 * in IPv6 headers, it seems clear linux dual-stack
+-	 * model can not deal properly with these.
+-	 * Security models could be fooled by ::ffff:127.0.0.1 for example.
+-	 *
+-	 * https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
+-	 */
+-	if (ipv6_addr_v4mapped(&hdr->saddr))
+-		goto err;
+-
+ 	skb->transport_header = skb->network_header + sizeof(*hdr);
+ 	IP6CB(skb)->nhoff = offsetof(struct ipv6hdr, nexthdr);
+ 
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index bd44ded7e50c..d0f007741e8e 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -1175,6 +1175,11 @@ static int tcp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ 	if (!ipv6_unicast_destination(skb))
+ 		goto drop;
+ 
++	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
++		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
++		return 0;
++	}
 +
-+		if (unlinked)
-+			__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
-+		*req_stolen = !unlinked;
- 	}
- 	return NULL;
- }
+ 	return tcp_conn_request(&tcp6_request_sock_ops,
+ 				&tcp_request_sock_ipv6_ops, sk, skb);
+ 
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 3d47d670e665..d17d39ccdf34 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -477,6 +477,11 @@ static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ 	if (!ipv6_unicast_destination(skb))
+ 		goto drop;
+ 
++	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
++		__IP6_INC_STATS(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
++		return 0;
++	}
++
+ 	return tcp_conn_request(&mptcp_subflow_request_sock_ops,
+ 				&subflow_request_sock_ipv6_ops, sk, skb);
+ 
 -- 
 2.30.1
 
