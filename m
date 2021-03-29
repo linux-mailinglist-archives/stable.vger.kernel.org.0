@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED69334C6EE
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084F834CA9F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231842AbhC2ILE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:11:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54150 "EHLO mail.kernel.org"
+        id S234529AbhC2IjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232605AbhC2IKO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:10:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB59A61601;
-        Mon, 29 Mar 2021 08:10:13 +0000 (UTC)
+        id S234985AbhC2Ihv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:37:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AADB61601;
+        Mon, 29 Mar 2021 08:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617005414;
-        bh=fY47xEmJQyx92oKopzN4a/8ixjqicGOjl0v9iKPX+eE=;
+        s=korg; t=1617007070;
+        bh=fg/t+/tVwYZGF8Il71r0gie7VKbpu3SQYEB7sXz4v+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1D6nuBzMq8jZfgVAYAoqWUKvgVk2cHIIkiUZ/uzWOhLkoAjytcsDX3/U4Wu8BbJ6d
-         XCD8b0XTvRoVCo3y2eWwvmDTYsZUJx1t7IWIMtmLoaUP8ZW/RGn84P088W2Nm1jPId
-         qzOpN1q7joUqXZIpRoZ3HJOuOzM3DdZ5Nplzm/lM=
+        b=2eP4it1v7/bWwA5q7EbLgxYOjPxAlkz+bj5rMTnhvXA6n2hRfQ24XhMIppWmiRBte
+         xt3DUCFgMVGGXVR1WSzw9f0ORySpLipKbRVKwV6C+gr2+FrWhZCHAF6WPlIKqNl0r5
+         U6RSYDPAR99nXp08VyFlL+qlH5WKLfFXl2utd06w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 71/72] ext4: add reclaim checks to xattr code
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Roman Gushchin <guro@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 211/254] bpf: Dont do bpf_cgroup_storage_set() for kuprobe/tp programs
 Date:   Mon, 29 Mar 2021 09:58:47 +0200
-Message-Id: <20210329075612.629606876@linuxfoundation.org>
+Message-Id: <20210329075640.030705612@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
-References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075633.135869143@linuxfoundation.org>
+References: <20210329075633.135869143@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+[ Upstream commit 05a68ce5fa51a83c360381630f823545c5757aa2 ]
 
-commit 163f0ec1df33cf468509ff38cbcbb5eb0d7fac60 upstream.
+For kuprobe and tracepoint bpf programs, kernel calls
+trace_call_bpf() which calls BPF_PROG_RUN_ARRAY_CHECK()
+to run the program array. Currently, BPF_PROG_RUN_ARRAY_CHECK()
+also calls bpf_cgroup_storage_set() to set percpu
+cgroup local storage with NULL value. This is
+due to Commit 394e40a29788 ("bpf: extend bpf_prog_array to store
+pointers to the cgroup storage") which modified
+__BPF_PROG_RUN_ARRAY() to call bpf_cgroup_storage_set()
+and this macro is also used by BPF_PROG_RUN_ARRAY_CHECK().
 
-Syzbot is reporting that ext4 can enter fs reclaim from kvmalloc() while
-the transaction is started like:
+kuprobe and tracepoint programs are not allowed to call
+bpf_get_local_storage() helper hence does not
+access percpu cgroup local storage. Let us
+change BPF_PROG_RUN_ARRAY_CHECK() not to
+modify percpu cgroup local storage.
 
-  fs_reclaim_acquire+0x117/0x150 mm/page_alloc.c:4340
-  might_alloc include/linux/sched/mm.h:193 [inline]
-  slab_pre_alloc_hook mm/slab.h:493 [inline]
-  slab_alloc_node mm/slub.c:2817 [inline]
-  __kmalloc_node+0x5f/0x430 mm/slub.c:4015
-  kmalloc_node include/linux/slab.h:575 [inline]
-  kvmalloc_node+0x61/0xf0 mm/util.c:587
-  kvmalloc include/linux/mm.h:781 [inline]
-  ext4_xattr_inode_cache_find fs/ext4/xattr.c:1465 [inline]
-  ext4_xattr_inode_lookup_create fs/ext4/xattr.c:1508 [inline]
-  ext4_xattr_set_entry+0x1ce6/0x3780 fs/ext4/xattr.c:1649
-  ext4_xattr_ibody_set+0x78/0x2b0 fs/ext4/xattr.c:2224
-  ext4_xattr_set_handle+0x8f4/0x13e0 fs/ext4/xattr.c:2380
-  ext4_xattr_set+0x13a/0x340 fs/ext4/xattr.c:2493
+The issue is observed when I tried to debug [1] where
+percpu data is overwritten due to
+  preempt_disable -> migration_disable
+change. This patch does not completely fix the above issue,
+which will be addressed separately, e.g., multiple cgroup
+prog runs may preempt each other. But it does fix
+any potential issue caused by tracing program
+overwriting percpu cgroup storage:
+ - in a busy system, a tracing program is to run between
+   bpf_cgroup_storage_set() and the cgroup prog run.
+ - a kprobe program is triggered by a helper in cgroup prog
+   before bpf_get_local_storage() is called.
 
-This should be impossible since transaction start sets PF_MEMALLOC_NOFS.
-Add some assertions to the code to catch if something isn't working as
-expected early.
+ [1] https://lore.kernel.org/bpf/CAKH8qBuXCfUz=w8L+Fj74OaUpbosO29niYwTki7e3Ag044_aww@mail.gmail.com/T
 
-Link: https://lore.kernel.org/linux-ext4/000000000000563a0205bafb7970@google.com/
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210222171626.21884-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 394e40a29788 ("bpf: extend bpf_prog_array to store pointers to the cgroup storage")
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Roman Gushchin <guro@fb.com>
+Link: https://lore.kernel.org/bpf/20210309185028.3763817-1-yhs@fb.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/bpf.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1480,6 +1480,9 @@ ext4_xattr_inode_cache_find(struct inode
- 	if (!ce)
- 		return NULL;
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index 6e585dbc10df..f4242865cc86 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1066,7 +1066,7 @@ int bpf_prog_array_copy(struct bpf_prog_array *old_array,
+ 			struct bpf_prog *include_prog,
+ 			struct bpf_prog_array **new_array);
  
-+	WARN_ON_ONCE(ext4_handle_valid(journal_current_handle()) &&
-+		     !(current->flags & PF_MEMALLOC_NOFS));
-+
- 	ea_data = ext4_kvmalloc(value_len, GFP_NOFS);
- 	if (!ea_data) {
- 		mb_cache_entry_put(ea_inode_cache, ce);
-@@ -2346,6 +2349,7 @@ ext4_xattr_set_handle(handle_t *handle,
- 			error = -ENOSPC;
- 			goto cleanup;
- 		}
-+		WARN_ON_ONCE(!(current->flags & PF_MEMALLOC_NOFS));
- 	}
+-#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null)	\
++#define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null, set_cg_storage) \
+ 	({						\
+ 		struct bpf_prog_array_item *_item;	\
+ 		struct bpf_prog *_prog;			\
+@@ -1079,7 +1079,8 @@ int bpf_prog_array_copy(struct bpf_prog_array *old_array,
+ 			goto _out;			\
+ 		_item = &_array->items[0];		\
+ 		while ((_prog = READ_ONCE(_item->prog))) {		\
+-			bpf_cgroup_storage_set(_item->cgroup_storage);	\
++			if (set_cg_storage)		\
++				bpf_cgroup_storage_set(_item->cgroup_storage);	\
+ 			_ret &= func(_prog, ctx);	\
+ 			_item++;			\
+ 		}					\
+@@ -1140,10 +1141,10 @@ _out:							\
+ 	})
  
- 	error = ext4_reserve_inode_write(handle, inode, &is.iloc);
+ #define BPF_PROG_RUN_ARRAY(array, ctx, func)		\
+-	__BPF_PROG_RUN_ARRAY(array, ctx, func, false)
++	__BPF_PROG_RUN_ARRAY(array, ctx, func, false, true)
+ 
+ #define BPF_PROG_RUN_ARRAY_CHECK(array, ctx, func)	\
+-	__BPF_PROG_RUN_ARRAY(array, ctx, func, true)
++	__BPF_PROG_RUN_ARRAY(array, ctx, func, true, false)
+ 
+ #ifdef CONFIG_BPF_SYSCALL
+ DECLARE_PER_CPU(int, bpf_prog_active);
+-- 
+2.30.1
+
 
 
