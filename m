@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F9034C8B9
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:25:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C64234C615
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233250AbhC2IYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:24:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40044 "EHLO mail.kernel.org"
+        id S231740AbhC2IEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:04:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232058AbhC2IXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:23:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5333B61878;
-        Mon, 29 Mar 2021 08:23:14 +0000 (UTC)
+        id S232053AbhC2IEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:04:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E33A86193C;
+        Mon, 29 Mar 2021 08:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617006194;
-        bh=szo+i99XAlECFY6ZOW5TvB0FQPM9zL/u94zq0Ht52IE=;
+        s=korg; t=1617005047;
+        bh=My0QLuzKZiQ4X4RCd6u2RmzL/Espwu/uby9EaZh+6qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y6fEpJcJPpghxL3/W3FVo1v8Wonqv2WTSWUow838A1uyb91rQ1mrRSihF492ZI598
-         J95huGwZFywOC7CXtk5uUCZc9xVZW9E8nMZy0NGYhNrhiqoj/cQ8icMLY2Et2vtTg0
-         Fl82RMRf4YsIAHIYebmkNq3nNXiRwkhxQR3yo180=
+        b=zOgAH7s4hyYBgKb/XMdVPiSF2Rr6LRxJZ/2xl7TNlHcVc6vaxeOYKXY0ZLqlpRfxX
+         2WYyyd5l0cMKaSHghmOYtflS/d843UKj7nV8tEnKygvBlGMgizuppfOJdDdgg4gwzw
+         LDMmGyPU/WSP8uP2FhMVmDA5YsWhc9U836bk36co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
-        Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Mariusz Madej <mariusz.madej@xtrack.com>,
+        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 153/221] octeontx2-af: Fix irq free in rvu teardown
+Subject: [PATCH 4.9 29/53] can: m_can: m_can_do_rx_poll(): fix extraneous msg loss warning
 Date:   Mon, 29 Mar 2021 09:58:04 +0200
-Message-Id: <20210329075634.270098675@linuxfoundation.org>
+Message-Id: <20210329075608.485913686@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075629.172032742@linuxfoundation.org>
-References: <20210329075629.172032742@linuxfoundation.org>
+In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075607.561619583@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Torin Cooper-Bennun <torin@maxiluxsystems.com>
 
-[ Upstream commit ae2619dd4fccdad9876aa5f900bd85484179c50f ]
+[ Upstream commit c0e399f3baf42279f48991554240af8c457535d1 ]
 
-Current devlink code try to free already freed irqs as the
-irq_allocate flag is not cleared after free leading to kernel
-crash while removing rvu driver. The patch fixes the irq free
-sequence and clears the irq_allocate flag on free.
+Message loss from RX FIFO 0 is already handled in
+m_can_handle_lost_msg(), with netdev output included.
 
-Fixes: 7304ac4567bc ("octeontx2-af: Add mailbox IRQ and msg handlers")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Removing this warning also improves driver performance under heavy
+load, where m_can_do_rx_poll() may be called many times before this
+interrupt is cleared, causing this message to be output many
+times (thanks Mariusz Madej for this report).
+
+Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
+Link: https://lore.kernel.org/r/20210303103151.3760532-1-torin@maxiluxsystems.com
+Reported-by: Mariusz Madej <mariusz.madej@xtrack.com>
+Signed-off-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/can/m_can/m_can.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-index e1f918960730..644d28b0692b 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-@@ -2151,8 +2151,10 @@ static void rvu_unregister_interrupts(struct rvu *rvu)
- 		    INTR_MASK(rvu->hw->total_pfs) & ~1ULL);
- 
- 	for (irq = 0; irq < rvu->num_vec; irq++) {
--		if (rvu->irq_allocated[irq])
-+		if (rvu->irq_allocated[irq]) {
- 			free_irq(pci_irq_vector(rvu->pdev, irq), rvu);
-+			rvu->irq_allocated[irq] = false;
-+		}
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 0bd7e7164796..197c27d8f584 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -428,9 +428,6 @@ static int m_can_do_rx_poll(struct net_device *dev, int quota)
  	}
  
- 	pci_free_irq_vectors(rvu->pdev);
+ 	while ((rxfs & RXFS_FFL_MASK) && (quota > 0)) {
+-		if (rxfs & RXFS_RFL)
+-			netdev_warn(dev, "Rx FIFO 0 Message Lost\n");
+-
+ 		m_can_read_fifo(dev, rxfs);
+ 
+ 		quota--;
 -- 
 2.30.1
 
