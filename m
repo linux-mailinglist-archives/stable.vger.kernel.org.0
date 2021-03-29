@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B3434C5DD
-	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB6334C63F
+	for <lists+stable@lfdr.de>; Mon, 29 Mar 2021 10:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231721AbhC2IDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 04:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
+        id S232152AbhC2IGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 04:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231811AbhC2ICv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:02:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AD1B61974;
-        Mon, 29 Mar 2021 08:02:50 +0000 (UTC)
+        id S231603AbhC2IFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Mar 2021 04:05:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABC0061996;
+        Mon, 29 Mar 2021 08:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617004971;
-        bh=IGzx/z0atjFt2CmN893coapUylVptbAO4uO4oi2LZpY=;
+        s=korg; t=1617005116;
+        bh=BG4jTp2DQEnJmUtlKC/+k9EQ3yB9/XQr/geX0VFuXlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coUAXIw3dg04qwibuWVtGRT1DnLqy+ZXsv177yu5ddTQi2NCzznxbvyd/vNm4xBn/
-         MXBYLZPadYKKbex+IonOJVagAERp8+X4pGhblN4OrzL6fN13zUiuj8AYwW+aKgev+r
-         MQZdIHOvPXszPojKnlHS5aB8umXnkBpjg18OXK4M=
+        b=e3QVjqv0HmphjWJEQoyebRSANeW9+vdylv+mYuS9DYDPW8thRaE2jMuDjp8SSdinI
+         280RS8MdlU4//4Y2qU6oa9iczkpZOl+nS9kfYRfdpvH2XWmuPXIy1wIEZAMGCi/9ZA
+         HwjOeAV9ANbA2CGZCQkCAF3DGWsAPQAKh1pR9IY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 34/53] ACPI: scan: Use unique number for instance_no
+Subject: [PATCH 4.14 29/59] bus: omap_l3_noc: mark l3 irqs as IRQF_NO_THREAD
 Date:   Mon, 29 Mar 2021 09:58:09 +0200
-Message-Id: <20210329075608.636926713@linuxfoundation.org>
+Message-Id: <20210329075609.848198127@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
+References: <20210329075608.898173317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit eb50aaf960e3bedfef79063411ffd670da94b84b ]
+[ Upstream commit 7d7275b3e866cf8092bd12553ec53ba26864f7bb ]
 
-The decrementation of acpi_device_bus_id->instance_no
-in acpi_device_del() is incorrect, because it may cause
-a duplicate instance number to be allocated next time
-a device with the same acpi_device_bus_id is added.
+The main purpose of l3 IRQs is to catch OCP bus access errors and identify
+corresponding code places by showing call stack, so it's important to
+handle L3 interconnect errors as fast as possible. On RT these IRQs will
+became threaded and will be scheduled much more late from the moment actual
+error occurred so showing completely useless information.
 
-Replace above mentioned approach by using IDA framework.
+Hence, mark l3 IRQs as IRQF_NO_THREAD so they will not be forced threaded
+on RT or if force_irqthreads = true.
 
-While at it, define the instance range to be [0, 4096).
-
-Fixes: e49bd2dd5a50 ("ACPI: use PNPID:instance_no as bus_id of ACPI device")
-Fixes: ca9dc8d42b30 ("ACPI / scan: Fix acpi_bus_id_list bookkeeping")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 0ee7261c9212 ("drivers: bus: Move the OMAP interconnect driver to drivers/bus/")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/internal.h |  6 +++++-
- drivers/acpi/scan.c     | 33 ++++++++++++++++++++++++++++-----
- include/acpi/acpi_bus.h |  1 +
- 3 files changed, 34 insertions(+), 6 deletions(-)
+ drivers/bus/omap_l3_noc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
-index eae0b278d517..56c429ea6aaf 100644
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -18,6 +18,8 @@
- #ifndef _ACPI_INTERNAL_H_
- #define _ACPI_INTERNAL_H_
+diff --git a/drivers/bus/omap_l3_noc.c b/drivers/bus/omap_l3_noc.c
+index 5012e3ad1225..624f74d03a83 100644
+--- a/drivers/bus/omap_l3_noc.c
++++ b/drivers/bus/omap_l3_noc.c
+@@ -285,7 +285,7 @@ static int omap_l3_probe(struct platform_device *pdev)
+ 	 */
+ 	l3->debug_irq = platform_get_irq(pdev, 0);
+ 	ret = devm_request_irq(l3->dev, l3->debug_irq, l3_interrupt_handler,
+-			       0x0, "l3-dbg-irq", l3);
++			       IRQF_NO_THREAD, "l3-dbg-irq", l3);
+ 	if (ret) {
+ 		dev_err(l3->dev, "request_irq failed for %d\n",
+ 			l3->debug_irq);
+@@ -294,7 +294,7 @@ static int omap_l3_probe(struct platform_device *pdev)
  
-+#include <linux/idr.h>
-+
- #define PREFIX "ACPI: "
+ 	l3->app_irq = platform_get_irq(pdev, 1);
+ 	ret = devm_request_irq(l3->dev, l3->app_irq, l3_interrupt_handler,
+-			       0x0, "l3-app-irq", l3);
++			       IRQF_NO_THREAD, "l3-app-irq", l3);
+ 	if (ret)
+ 		dev_err(l3->dev, "request_irq failed for %d\n", l3->app_irq);
  
- int early_acpi_osi_init(void);
-@@ -97,9 +99,11 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
- 
- extern struct list_head acpi_bus_id_list;
- 
-+#define ACPI_MAX_DEVICE_INSTANCES	4096
-+
- struct acpi_device_bus_id {
- 	const char *bus_id;
--	unsigned int instance_no;
-+	struct ida instance_ida;
- 	struct list_head node;
- };
- 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index c1066487c06b..d749fe20fbfc 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -481,9 +481,8 @@ static void acpi_device_del(struct acpi_device *device)
- 	list_for_each_entry(acpi_device_bus_id, &acpi_bus_id_list, node)
- 		if (!strcmp(acpi_device_bus_id->bus_id,
- 			    acpi_device_hid(device))) {
--			if (acpi_device_bus_id->instance_no > 0)
--				acpi_device_bus_id->instance_no--;
--			else {
-+			ida_simple_remove(&acpi_device_bus_id->instance_ida, device->pnp.instance_no);
-+			if (ida_is_empty(&acpi_device_bus_id->instance_ida)) {
- 				list_del(&acpi_device_bus_id->node);
- 				kfree_const(acpi_device_bus_id->bus_id);
- 				kfree(acpi_device_bus_id);
-@@ -634,6 +633,21 @@ static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
- 	return NULL;
- }
- 
-+static int acpi_device_set_name(struct acpi_device *device,
-+				struct acpi_device_bus_id *acpi_device_bus_id)
-+{
-+	struct ida *instance_ida = &acpi_device_bus_id->instance_ida;
-+	int result;
-+
-+	result = ida_simple_get(instance_ida, 0, ACPI_MAX_DEVICE_INSTANCES, GFP_KERNEL);
-+	if (result < 0)
-+		return result;
-+
-+	device->pnp.instance_no = result;
-+	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, result);
-+	return 0;
-+}
-+
- int acpi_device_add(struct acpi_device *device,
- 		    void (*release)(struct device *))
- {
-@@ -668,7 +682,9 @@ int acpi_device_add(struct acpi_device *device,
- 
- 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(device));
- 	if (acpi_device_bus_id) {
--		acpi_device_bus_id->instance_no++;
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result)
-+			goto err_unlock;
- 	} else {
- 		acpi_device_bus_id = kzalloc(sizeof(*acpi_device_bus_id),
- 					     GFP_KERNEL);
-@@ -684,9 +700,16 @@ int acpi_device_add(struct acpi_device *device,
- 			goto err_unlock;
- 		}
- 
-+		ida_init(&acpi_device_bus_id->instance_ida);
-+
-+		result = acpi_device_set_name(device, acpi_device_bus_id);
-+		if (result) {
-+			kfree(acpi_device_bus_id);
-+			goto err_unlock;
-+		}
-+
- 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
- 	}
--	dev_set_name(&device->dev, "%s:%02x", acpi_device_bus_id->bus_id, acpi_device_bus_id->instance_no);
- 
- 	if (device->parent)
- 		list_add_tail(&device->node, &device->parent->children);
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index c1a524de67c5..53b2a1f320f9 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -241,6 +241,7 @@ struct acpi_pnp_type {
- 
- struct acpi_device_pnp {
- 	acpi_bus_id bus_id;		/* Object name */
-+	int instance_no;		/* Instance number of this object */
- 	struct acpi_pnp_type type;	/* ID type */
- 	acpi_bus_address bus_address;	/* _ADR */
- 	char *unique_id;		/* _UID */
 -- 
 2.30.1
 
