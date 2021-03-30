@@ -2,72 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C061F34E831
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 15:00:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5115934E870
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 15:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231434AbhC3NAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 09:00:24 -0400
-Received: from mail1.protonmail.ch ([185.70.40.18]:37920 "EHLO
-        mail1.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232139AbhC3NAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 09:00:18 -0400
-Date:   Tue, 30 Mar 2021 12:59:54 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=emersion.fr;
-        s=protonmail3; t=1617109216;
-        bh=nQumvZO7k2adxWbuuWRUUjrAO0hDimI1WyGmzZ72k6Y=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=MXEFZuKv9U1YOGPmBHoOT1TB7fu7j1AXDA20G3PQzfLp1iei5Diip2TDX2yZDLwtg
-         tXfYzD/Rsk0PXApszamq4O4HVVjHSeRbSbZb6v4/Z9A9/33mIflziROwyxbT0LPDcE
-         YoLZvbgqDlS8jINRANGrVJnEOa46QKDPNZOJyEUk4H8Mwg2UmIWOZZJLJ7iN2LDsbt
-         BWJOuH8q4lj0Pjj7f7j3BNcFX38hU12lEXdIjcY/Jd+Zv0XTR5QlAv4CiMYbpCSsc7
-         Dnfv7n4LFoe3xLAN/0JgBH2S7H95LAG42GL6pduD0lUEcmlEs8s5Lyrn7qYwYFEH+G
-         R47kopOnny1nQ==
-To:     Paul Cercueil <paul@crapouillou.net>
-From:   Simon Ser <contact@emersion.fr>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>, od@zcrc.me,
-        linux-mips@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Reply-To: Simon Ser <contact@emersion.fr>
-Subject: Re: [PATCH 1/2] drm/ingenic: Switch IPU plane to type OVERLAY
-Message-ID: <X2G0dUjYzRbISgSRQgMfjkybzYl-AXZR8nUGHdzBk6Wi_aQFCiir_c9fmBM2fV9N9FIxYl5emBtyGrDk0AfpFx4RRNys4Grco3CKsNZsxPU=@emersion.fr>
-In-Reply-To: <GC6SQQ.1R937FBY9A9A1@crapouillou.net>
-References: <20210329175046.214629-1-paul@crapouillou.net> <20210329175046.214629-2-paul@crapouillou.net> <BH3N8QICMyp64pmUQyXLwYMnCNBvXxThwvKJIOmyMU0XIgTtorcGd7s7AjnIFXQrLGEoJMuvPcWTiv38syiYOTCDv-bSxswFBX6y3UYqTwE=@emersion.fr> <GC6SQQ.1R937FBY9A9A1@crapouillou.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
-        mailout.protonmail.ch
+        id S230369AbhC3NI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 09:08:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232000AbhC3NIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 09:08:00 -0400
+X-Greylist: delayed 449 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 30 Mar 2021 06:07:59 PDT
+Received: from redcrew.org (redcrew.org [IPv6:2a02:2b88:2:1::1cde:1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72158C061574;
+        Tue, 30 Mar 2021 06:07:59 -0700 (PDT)
+Received: from server.danny.cz (19.161.broadband4.iol.cz [85.71.161.19])
+        by redcrew.org (Postfix) with ESMTP id D101369;
+        Tue, 30 Mar 2021 15:00:06 +0200 (CEST)
+Received: from talos.danny.cz (talos.danny.cz [192.168.160.68])
+        by server.danny.cz (Postfix) with SMTP id 88900DA004;
+        Tue, 30 Mar 2021 15:00:06 +0200 (CEST)
+Date:   Tue, 30 Mar 2021 15:00:04 +0200
+From:   Dan =?UTF-8?B?SG9yw6Fr?= <dan@danny.cz>
+To:     Christian =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>
+Cc:     Xi Ruoyao <xry111@mengyan1223.wang>,
+        Christian =?UTF-8?B?S8O2bmln?= <ckoenig.leichtzumerken@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        David Airlie <airlied@linux.ie>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        amd-gfx@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] drm/amdgpu: fix an underflow on non-4KB-page systems
+Message-Id: <20210330150004.857ae73704c3533692cf79f0@danny.cz>
+In-Reply-To: <c3caf16b-584a-3e4c-0104-15bb41613136@amd.com>
+References: <20210329175348.26859-1-xry111@mengyan1223.wang>
+        <d192e2a8-8baf-0a8c-93a9-9abbad992c7d@gmail.com>
+        <be9042b9294bda450659d3cd418c5e8759d57319.camel@mengyan1223.wang>
+        <9a11c873-a362-b5d1-6d9c-e937034e267d@gmail.com>
+        <bf9e05d4a6ece3e8bf1f732b011d3e54bbf8000e.camel@mengyan1223.wang>
+        <84b3911173ad6beb246ba0a77f93d888ee6b393e.camel@mengyan1223.wang>
+        <97c520ce107aa4d5fd96e2c380c8acdb63d45c37.camel@mengyan1223.wang>
+        <7701fb71-9243-2d90-e1e1-d347a53b7d77@gmail.com>
+        <368b9b1b7343e35b446bb1028ccf0ae75dc2adc4.camel@mengyan1223.wang>
+        <71e3905a5b72c5b97df837041b19175540ebb023.camel@mengyan1223.wang>
+        <c3caf16b-584a-3e4c-0104-15bb41613136@amd.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; powerpc64le-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tuesday, March 30th, 2021 at 1:53 PM, Paul Cercueil <paul@crapouillou.ne=
-t> wrote:
+On Tue, 30 Mar 2021 14:55:01 +0200
+Christian König <christian.koenig@amd.com> wrote:
 
-> > I don't know about this driver but=E2=80=A6 is this really the same as =
-the
-> > previous
-> > condition? The previous condition would match two planes, this one
-> > seems to
-> > match only a single plane. What am I missing?
->
-> There are three planes, which we will call here f0, f1, and ipu.
-> Previously, the "plane->type =3D=3D DRM_PLANE_TYPE_PRIMARY" matched f1 an=
-d
-> ipu. Since ipu is now OVERLAY we have to change the condition or the
-> behaviour will be different, as otherwise it would only match the f1
-> plane.
+> Am 30.03.21 um 14:04 schrieb Xi Ruoyao:
+> > On 2021-03-30 03:40 +0800, Xi Ruoyao wrote:
+> >> On 2021-03-29 21:36 +0200, Christian König wrote:
+> >>> Am 29.03.21 um 21:27 schrieb Xi Ruoyao:
+> >>>> Hi Christian,
+> >>>>
+> >>>> I don't think there is any constraint implemented to ensure `num_entries %
+> >>>> AMDGPU_GPU_PAGES_IN_CPU_PAGE == 0`.  For example, in `amdgpu_vm_bo_map()`:
+> >>>>
+> >>>>           /* validate the parameters */
+> >>>>           if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK
+> >>>>               size == 0 || size & AMDGPU_GPU_PAGE_MASK)
+> >>>>                   return -EINVAL;
+> >>>>
+> >>>> /* snip */
+> >>>>
+> >>>>           saddr /= AMDGPU_GPU_PAGE_SIZE;
+> >>>>           eaddr /= AMDGPU_GPU_PAGE_SIZE;
+> >>>>
+> >>>> /* snip */
+> >>>>
+> >>>>           mapping->start = saddr;
+> >>>>           mapping->last = eaddr;
+> >>>>
+> >>>>
+> >>>> If we really want to ensure (mapping->last - mapping->start + 1) %
+> >>>> AMDGPU_GPU_PAGES_IN_CPU_PAGE == 0, then we should replace
+> >>>> "AMDGPU_GPU_PAGE_MASK"
+> >>>> in "validate the parameters" with "PAGE_MASK".
+> > It should be "~PAGE_MASK", "PAGE_MASK" has an opposite convention of
+> > "AMDGPU_GPU_PAGE_MASK" :(.
+> >
+> >>> Yeah, good point.
+> >>>
+> >>>> I tried it and it broke userspace: Xorg startup fails with EINVAL with
+> >>>> this
+> >>>> change.
+> >>> Well in theory it is possible that we always fill the GPUVM on a 4k
+> >>> basis while the native page size of the CPU is larger. Let me double
+> >>> check the code.
+> > On my platform, there are two issues both causing the VM corruption.  One is
+> > fixed by agd5f/linux@fe001e7.
+> 
+> What is fe001e7? A commit id? If yes then that is to short and I can't 
+> find it.
 
-Oh okay, I thought f0 was one of the primary planes, but it's not.
-Thanks for the explanation.
+it's a gitlab shortcut for
+https://gitlab.freedesktop.org/agd5f/linux/-/commit/fe001e70a55d0378328612be1fdc3abfc68b9ccc
 
-For the user-space visible change:
 
-Acked-by: Simon Ser <contact@emersion.fr>
+		Dan
+> 
+> >    Another is in Mesa from userspace:  it uses
+> > `dev_info->gart_page_size` as the alignment, but the kernel AMDGPU driver
+> > expects it to use `dev_info->virtual_address_alignment`.
+> 
+> Mhm, looking at the kernel code I would rather say Mesa is correct and 
+> the kernel driver is broken.
+> 
+> The gart_page_size is limited by the CPU page size, but the 
+> virtual_address_alignment isn't.
+> 
+> > If we can make the change to fill the GPUVM on a 4k basis, we can fix this issue
+> > and make virtual_address_alignment = 4K.  Otherwise, we should fortify the
+> > parameter validation, changing "AMDGPU_GPU_PAGE_MASK" to "~PAGE_MASK".  Then the
+> > userspace will just get an EINVAL, instead of a slient VM corruption.  And
+> > someone should tell Mesa developers to fix the code in this case.
+> 
+> I rather see this as a kernel bug. Can you test if this code fragment 
+> fixes your issue:
+> 
+> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c 
+> b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+> index 64beb3399604..e1260b517e1b 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+> @@ -780,7 +780,7 @@ int amdgpu_info_ioctl(struct drm_device *dev, void 
+> *data, struct drm_file *filp)
+>                  }
+>                  dev_info->virtual_address_alignment = 
+> max((int)PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
+>                  dev_info->pte_fragment_size = (1 << 
+> adev->vm_manager.fragment_size) * AMDGPU_GPU_PAGE_SIZE;
+> -               dev_info->gart_page_size = AMDGPU_GPU_PAGE_SIZE;
+> +               dev_info->gart_page_size = 
+> dev_info->virtual_address_alignment;
+>                  dev_info->cu_active_number = adev->gfx.cu_info.number;
+>                  dev_info->cu_ao_mask = adev->gfx.cu_info.ao_cu_mask;
+>                  dev_info->ce_ram_size = adev->gfx.ce_ram_size;
+> 
+> 
+> Thanks,
+> Christian.
+> 
+> > --
+> > Xi Ruoyao <xry111@mengyan1223.wang>
+> > School of Aerospace Science and Technology, Xidian University
+> >
+> 
