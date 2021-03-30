@@ -2,234 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FBA34E192
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 08:54:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5055334E196
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 08:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbhC3Gxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 02:53:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59482 "EHLO
+        id S231194AbhC3Gzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 02:55:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbhC3Gxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 02:53:34 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBB9C061762
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 23:53:34 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id x21so16894288eds.4
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 23:53:34 -0700 (PDT)
+        with ESMTP id S231299AbhC3GzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 02:55:22 -0400
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76F5CC061762;
+        Mon, 29 Mar 2021 23:55:22 -0700 (PDT)
+Received: by mail-lf1-x134.google.com with SMTP id o126so22210325lfa.0;
+        Mon, 29 Mar 2021 23:55:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Yl6Jy7MuWjHimvar2yIAZHCUQGma25nEMpVmobdsF1s=;
-        b=DjZPsg8EuhGUIJtQjsPhnbpTsSeTHzlq2g6PoQ9yxShFewdaaG3ag019yCt2GeIdCk
-         A6BjzxyrCGCHRuGZmzDAPsc6D1C51g3KEfLV18YzKDnZF5oGoS6HKs15VKuGgNqaIExi
-         WJlRwk/RTxzOCOISypnZXjUYvTCbqak95m5tZgiJfAWBUbVYo5bwLttjhRZhs6loyGum
-         170wooWgRq3ewKYTx03TtLlmKX/KpQYT0S+Vw8MByFXPB+CTvQIBQexYZFCIBKBFBM8d
-         QVUf5V2xg6Tbw01E8x919Iu+QaDRBBk4jjIcm2ASr0D7/9mC9kMdEXrr9Q6t3jOKfUXS
-         SLvg==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
+         :mime-version;
+        bh=1jsWOxoyQCfkTr5+5+z2lN/kkkTcVyNslggcaR8Rk2c=;
+        b=izuMf6e/BLLxHjV5UU54CW7NNsqwSVf0eKAMlC+1b4+sLursxvOB8k0lFWd90wlUJc
+         sOpX5nS77HyPpZhoxS4Kt3Esu3JBD9NahRCU8+gcTnzNUlRUqRbDrMWhHPQ28dB+8nmd
+         GHZeo2TGa6iTxJQek+yB8X+tV1OavGqOz/WEV7oiVvyB8HMqSG74dnU/EacBct/Il56f
+         m6KfDNIdYztG3E9oDqubqTmq+YDsNc1MGFtOFIluHOezKOcWeA2P6ogjY1SXOkQPS5Pz
+         qkws9qoQWTtcvkxYmRJkRBJzL36lcY/LD7+Ant4yGrQfHmaLur20uqhxv0rH+cmDSWj9
+         f7+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Yl6Jy7MuWjHimvar2yIAZHCUQGma25nEMpVmobdsF1s=;
-        b=NvP2dtfB5wPZlaHytuSCRZaZZUtkMA7+TWyW9hYUhIqr85tes4eTTf/Gl8iNNKxmPN
-         WuY8p3ZM9y2iGx4LzLcwvsJt5V9jq8VMk3oA+lbc6At4JbQxt239pVNBgolBjLz/b5ds
-         +gzNICoKpGY7S/V70Mqrx/zTZS/MrcmgWrZIZqm08e7Zxhfeh8jnGmboxJZwIiOwhTFy
-         L0XjGu/19S+zRi45MtGHHhW+WG3hJS/WtR/QYBxMqn2ye95xhMFbuIYBjI1+oHZkydlM
-         eU+9yaM+B+iFVIy6eAGwz7rzYAWR2M/O3wJVwHEdg1buzOvJmyYNwyVhh1i59HG9+OVd
-         NALQ==
-X-Gm-Message-State: AOAM530D0u135H9VUP0nNiJiX+VQR1yMlmDtKDEkFf6zhP5QixWK5XN1
-        c4HT6H62KkcqlgbylYmTXHYbwp4Q+C5FFIaT3ZW2ow==
-X-Google-Smtp-Source: ABdhPJxnLjTWUyelEY1C2zvLk514sIRLuwQuy1QlZZoyh8pYtGC9qrfUjJ0QqQPgneLLa0K+oITHCTxZvRLrB5G6meE=
-X-Received: by 2002:a05:6402:5113:: with SMTP id m19mr32641986edd.78.1617087212964;
- Mon, 29 Mar 2021 23:53:32 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version;
+        bh=1jsWOxoyQCfkTr5+5+z2lN/kkkTcVyNslggcaR8Rk2c=;
+        b=g1dmOy/NtICeXlU1Ipr2bkixb+GbLzQIa0IdoQJ/n4kV3pzBZ79OI5CFtj0ozBzFD4
+         EMhbGde2LcOMwabhWsxVAarnYmuMnQR8bNMK6mG/u/Fj6DBNFX8ecb+y6TGrrVk0EvyH
+         bMHMScJun4Op6VY+PeBnZAx+EBQ2ITBR4TePPLDUd9TkS1s13bBH27BC2ogVIUm3ik98
+         RhuhtuZsGCrOl2AAATOqa4aqfMYTBDU+HjHR5P3IjeIhPRFYvE1VT1L27Y+XNDFuonA2
+         PHLyuvuGzv1Zat+Ot6+75hLoeOwc/nYzBF+Sz+eFawUmvNU7yj7nRPqh1to3A5lOQSln
+         m83A==
+X-Gm-Message-State: AOAM530WiCXbjD8wkl932Xz1NZjQjdPJJAwWug2ycA8R409sbwF7EfM6
+        lvLAm6/t+7HxH4uTmYZTAc0=
+X-Google-Smtp-Source: ABdhPJx0HuuT53YJq6EkxNoywPsAENHibGEd6ZjdO3S1YqjgBzCAuJ1csyt80CVEqKwBP3fN/M25rQ==
+X-Received: by 2002:ac2:4205:: with SMTP id y5mr18633234lfh.375.1617087321043;
+        Mon, 29 Mar 2021 23:55:21 -0700 (PDT)
+Received: from eldfell ([194.136.85.206])
+        by smtp.gmail.com with ESMTPSA id q3sm2080022lfp.233.2021.03.29.23.55.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Mar 2021 23:55:20 -0700 (PDT)
+Date:   Tue, 30 Mar 2021 09:55:10 +0300
+From:   Pekka Paalanen <ppaalanen@gmail.com>
+To:     Simon Ser <contact@emersion.fr>,
+        Paul Cercueil <paul@crapouillou.net>
+Cc:     Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, od@zcrc.me,
+        Maxime Ripard <maxime@cerno.tech>, stable@vger.kernel.org
+Subject: Re: [PATCH] drm: DON'T require each CRTC to have a unique primary
+ plane
+Message-ID: <20210330095510.4c6432f7@eldfell>
+In-Reply-To: <f_BApfXCctltkOAAKup7ZXRsq8N81SZgbxIEFbHWzeoKZCo8z169Bkk4DDwk9WmMNKXpyxaMQCxbWzwVMgfNav0ZYVf3s_6bXRO89LKD_AM=@emersion.fr>
+References: <20210327112214.10252-1-paul@crapouillou.net>
+        <20210329140731.tvkfxic4fu47v3rz@gilmour>
+        <BoDZUOZSsZmHjkYkjHPb18dMl_t_U8ldrh8jZezjkA6a2O-IBkPGaER4wxZ2KlqRYuXlWM8xZwPnvweWEAATzoX-yuBJnBzjGKD3oXNfh5Y=@emersion.fr>
+        <TTLQQQ.OCR65URAWJVQ2@crapouillou.net>
+        <f_BApfXCctltkOAAKup7ZXRsq8N81SZgbxIEFbHWzeoKZCo8z169Bkk4DDwk9WmMNKXpyxaMQCxbWzwVMgfNav0ZYVf3s_6bXRO89LKD_AM=@emersion.fr>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-References: <20210329075608.898173317@linuxfoundation.org>
-In-Reply-To: <20210329075608.898173317@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 30 Mar 2021 12:23:21 +0530
-Message-ID: <CA+G9fYvStCWDgpuwB3M8ZYBLfyQYMcJjbphTSg_UTSaWUESJrQ@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/59] 4.14.228-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/Ll+nnIQGkWAZjFxx5fyo+ff"; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Mar 2021 at 13:37, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.228 release.
-> There are 59 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 31 Mar 2021 07:55:56 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.228-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+--Sig_/Ll+nnIQGkWAZjFxx5fyo+ff
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 29 Mar 2021 15:36:27 +0000
+Simon Ser <contact@emersion.fr> wrote:
+
+> On Monday, March 29th, 2021 at 5:32 PM, Paul Cercueil <paul@crapouillou.n=
+et> wrote:
+>=20
+> > Making the second plane an overlay would break the ABI, which is never
+> > something I'm happy to do; but I'd prefer to do it now than later. =20
+>=20
+> Yeah, I wonder if some user-space depends on this behavior somehow?
+>=20
+> > I still have concerns about the user-space being "clever" enough to
+> > know it can disable the primary plane. Can e.g. wlroots handle that? =20
+>=20
+> wlroots will always pick the first primary plane, and will never use
+> overlays. The plan is to use libliftoff [1] to make use of overlay
+> planes. libliftoff should already support the scenario you describe.
+>=20
+> I think Weston supports that too.
+
+Weston supports overlays, but I don't think it will try without "the"
+primary plane, IIRC. I'd need to verify.
+
+I'm not quite sure what Weston would do with multiple primary planes.
+It probably picks one for a CRTC ahead of time, and then sticks to it,
+always using it.
+
+But if Weston never worked with a driver to begin with, it also can't
+regress, so you're safe.
 
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Thanks,
+pq
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>=20
+> [1]: https://github.com/emersion/libliftoff
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
-Summary
-------------------------------------------------------------------------
 
-kernel: 4.14.228-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 4cee23773c6e6701bbedeed75e7d4dd2fe5bb8c0
-git describe: v4.14.227-60-g4cee23773c6e
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14=
-.y/build/v4.14.227-60-g4cee23773c6e
+--Sig_/Ll+nnIQGkWAZjFxx5fyo+ff
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
-No regressions (compared to build v4.14.227)
+-----BEGIN PGP SIGNATURE-----
 
-No fixes (compared to build v4.14.227)
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAmBiy04ACgkQI1/ltBGq
+qqe2JQ//Q12xC+K+PQC1SxJESBwT4t1YaA85MpemH6/+/66zluM5BqGAyC3Yi/bT
+YaTeWCrF2wbRx+Ei8aSymFHWypf9D2/eYz2vXra8oYxP3wrGtIM6a4hHo+oCC+XG
+TEBtdcvatzWNVLcxs3p0Y6Pe6lgKZr5uPkA/3nrU2FzRkaWIuhs8akYB+KqNv19r
+oyYg1Wdcvd57s0OhwcbNZOPuPEt/U5X0gY5HB4LV8v98oPdixrN+4z4ysXgCq2Ka
+PvR0kOEkDPSYO2e9KCMthq6lq1J6kcDpd61Jb+sDpUVRnae/s4rr9zD6ddqWgycD
+ljw0yuD+c+F6QNYwIIz2NU8uGSfFyUGZAcJfwjZJni4ieG66XEI8nhqHPT4V7qZB
+r2n2wx4URDzUdnGoo3XmqO/TA1szHr5aGfwIOIktKVT9l3Gr/ZOptPzRlzjcOc4P
+gAjQAhcaHlYYPvHhx1+ainKx0KsJ1hG2CcHGH+7KlglX7DuDCpjTGTg46j+LSrUy
+4w6EaLwZgee9vCtH9lH55RnAtyL3hbofnlZmNaUTf/0jAKU7LiV3nqkEAQH9ffoP
+HtucrchZO1yqTIdLRY9PITwqKsHOrkcoQP/xkHjyzanmLFYBo+zdyp1/dU99rl9A
+Fltv1H3pi7+6+33jb8JN8lnZBC8t3zJVMjugi92D8jAP8xzHRjw=
+=gBJ/
+-----END PGP SIGNATURE-----
 
-Ran 50616 total tests in the following environments and test suites.
-
-Environments
---------------
-- arm
-- arm64
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-64k_page_size
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- qemu-arm-debug
-- qemu-arm64-debug
-- qemu-arm64-kasan
-- qemu-i386-debug
-- qemu-x86_64-debug
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* ltp-controllers-tests
-* ltp-cve-tests
-* ltp-ipc-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* perf
-* fwts
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-mm-tests
-* network-basic-tests
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-vm
-* kselftest-x86
-* ltp-commands-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-open-posix-tests
-* v4l2-compliance
-* kvm-unit-tests
-* rcutorture
-* kselftest-kexec
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+--Sig_/Ll+nnIQGkWAZjFxx5fyo+ff--
