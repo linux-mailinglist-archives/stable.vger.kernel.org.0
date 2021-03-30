@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B7E34E0DE
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 07:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB54D34E18A
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 08:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbhC3Fu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 01:50:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46038 "EHLO
+        id S229483AbhC3Gwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 02:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230244AbhC3Fuw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 01:50:52 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FA6AC061764
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 22:50:52 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id z1so16749806edb.8
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 22:50:52 -0700 (PDT)
+        with ESMTP id S231206AbhC3GwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 02:52:21 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE481C061764
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 23:52:20 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id x21so16891048eds.4
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 23:52:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Q7mjnvITW5POKusZesCDDAXlzdQv7Zg52myaiOsYaKU=;
-        b=h6EKKILdhOMo3nj+X7yTX/WnO2fS754IlwJ7yuibHwBw0OuJQAq9NthRXts+JsMTtL
-         KSBCV+nM0UKnHe3W6RUe5O1mYcLDjSp5uAc2GxcCA5QouWayBQOjUgYAGMXhg3JLk2mn
-         Pq8/BSt9+BUa6+siA9PM5uQHr6eUVKcRQD7S7TU/M7/8yY5vzB1uAKy64sNVw1WEfMU1
-         NncG09TW/FO634ya4QFp5uLgiT90NCzHcTcsnSIQgDOv3XcnXdC6j7OakYieTHeQieP7
-         Y2h08Gegw7s0+uTk+TB97YG2Hft1FhEzYtdjdN5Y10mxnGv8i/ZWTvK3qwpKDL/Hlmj8
-         lEHw==
+        bh=WPlavxZjx/CyaIqXYJqYgJcpIj73IOHsePZspM3MA+w=;
+        b=g95hRnCcekZQvzrjQ01I2gsQEe3rHCooMbaObjIIoXVvpmWxdSOUKcIxL/5GMKsdvU
+         HBZVQZ6upe+pTZE2rsUr+6Tz09JGlLDPeS3azrBIN9Pgt9Hr99FjT3D7bMZpFutg0HWY
+         dQX74wJ019zVGEpdZBfAFUKBiUQWSCuzHKPURdZbm+ScLUzQPDxcHKk1y6cOaRX+p74L
+         h12HRVu8qiKsykshn2CA/7/TZqJpZT5dxXjXEmrDEz4eVxFPZB5ctnbgwdQDmRJE6GDs
+         0MOzHHCUne7j1aGrE9wuGnMvER3z0yM+2pTImH5y2c6NxzLeOVxw385lGfWk/33r01Op
+         YRAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Q7mjnvITW5POKusZesCDDAXlzdQv7Zg52myaiOsYaKU=;
-        b=n8LZo08Bl+OJRfJvGpGm14qCvxhqMtoafqPfW7MUPRA5e+VoyxLSR66DwEoHDoJOUK
-         WH3npXxrrI5DddQ4X4hPU+YoiugwACWgxHdsG+kvkEW7vHwRfYHPnivIdoqJfFU1Z8ty
-         CEBhEKjOKNmTTDG1cgVQvfdkF1AF/wKpY3aZH6FGqNNzQmNY8mtSQMME/Y72QXhukpBX
-         LP6M4LxDZAWqihOaw7PJ6QzmmYjphwTqK0V3Dcr5bF0lYgqkTnvgRM8Co958Rdzell5E
-         D6YErH9+oNcRE/2m9kBEAbXwR5y2c12S7DhJ+Ud5DoWuvMVuJzC/BAucGzZVBQbUEqnH
-         dKrw==
-X-Gm-Message-State: AOAM531DYGFXfDVGLLltcbSi00EZCaTh2i+LuIvHgUrk6sk7truKdKLi
-        RROoF2/tRpwZGFBXBqLkZgBbTgV/ecdzCqXmdwSBGQ==
-X-Google-Smtp-Source: ABdhPJy6Tv10yyHVHI+Fl+Wj3tJfowaAtuTKGJ9SHoed2IDJ0VEgwjL/q/1AhyqIaK+PYzwXWUewcoJfWTNtJT7tB1Q=
-X-Received: by 2002:aa7:d287:: with SMTP id w7mr31517351edq.23.1617083451172;
- Mon, 29 Mar 2021 22:50:51 -0700 (PDT)
+        bh=WPlavxZjx/CyaIqXYJqYgJcpIj73IOHsePZspM3MA+w=;
+        b=S5fmsv5WBED0zQMWnfeFKookdOU8GEj8+G5XkiTbp2DzTjo0S1bRmJL3ElpkUNXzjZ
+         D30ipS0/hokVnzYRcSha36fE7vOYF44RqtVSWM71q8S0rXT3HsCPUNH95KJjGvTj94Kb
+         +1/t2MKOjzAPcucmpA2TjFsCLgT19xhf8/WeZIBVlukYe2GTO4xKxpOrA91wR7AelGQg
+         JMQ7oT8EftPtcoOh3zD7RnZUljG8jtTAMxbz8aR8PPRLV0HeJWFcOIVGQQhRpF/2nHTk
+         OXfyQ/s8E2ry1rpWQlKB2bZs9/1N4ZjbOyP/brwAB0XlBkVXC2h9V8CY0cAQG+ik54P9
+         rGlA==
+X-Gm-Message-State: AOAM531F07V2Uc8RSm8eH6eQUrs0zszwZ5E/NcJ5nnZseml8vm1YgIED
+        G6TteqrGpLZojaAdZFlfCsbyByAgCTP0UOfl1gT53w==
+X-Google-Smtp-Source: ABdhPJwR6UYcq49jWqG8rRJ37y+CmMERl2g2zWlLK5kdjYcTq2RwRbGmIBeaX2P9qU8oyENDAZNWx+FhDVGhgcamoCA=
+X-Received: by 2002:a05:6402:13ce:: with SMTP id a14mr32215276edx.365.1617087139272;
+ Mon, 29 Mar 2021 23:52:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210329075615.186199980@linuxfoundation.org>
-In-Reply-To: <20210329075615.186199980@linuxfoundation.org>
+References: <20210329075610.300795746@linuxfoundation.org>
+In-Reply-To: <20210329075610.300795746@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 30 Mar 2021 11:20:39 +0530
-Message-ID: <CA+G9fYuhZ-xO58ZxMUO9DHd+j4H-j4fG6nkgPzTThkw_Zheniw@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/111] 5.4.109-rc1 review
+Date:   Tue, 30 Mar 2021 12:22:07 +0530
+Message-ID: <CA+G9fYukKdQWRwXPC2V-9FvF8vgZbbvC0qGpBbRkix4WLUxMOw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/72] 4.19.184-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Mar 2021 at 13:44, Greg Kroah-Hartman
+On Mon, 29 Mar 2021 at 13:40, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.4.109 release.
-> There are 111 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.19.184 release.
+> There are 72 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -78,17 +78,16 @@ On Mon, 29 Mar 2021 at 13:44, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.109-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.184-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
+-rc.git linux-4.19.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
-
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -98,38 +97,34 @@ Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.4.109-rc1
+kernel: 4.19.184-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.4.y
-git commit: 7b78fa4bf15f02997c4dba22fe2bf2ca8aa9906f
-git describe: v5.4.108-112-g7b78fa4bf15f
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
-y/build/v5.4.108-112-g7b78fa4bf15f
+git branch: linux-4.19.y
+git commit: bbd08292bae4049381e5537588ba9f581456c4d5
+git describe: v4.19.183-73-gbbd08292bae4
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.183-73-gbbd08292bae4
 
-No regressions (compared to build v5.4.108)
+No regressions (compared to build v4.19.183)
 
-No fixes (compared to build v5.4.108)
+No fixes (compared to build v4.19.183)
 
-Ran 59776 total tests in the following environments and test suites.
+Ran 57059 total tests in the following environments and test suites.
 
 Environments
 --------------
-- arc
 - arm
 - arm64
-- dragonboard-410c
-- hi6220-hikey
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
 - i386
-- juno-r2
+- juno-r2 - arm64
 - juno-r2-compat
 - juno-r2-kasan
 - mips
 - nxp-ls2088
 - nxp-ls2088-64k_page_size
-- parisc
-- powerpc
-- qemu-arm-clang
 - qemu-arm-debug
 - qemu-arm64-clang
 - qemu-arm64-debug
@@ -138,19 +133,16 @@ Environments
 - qemu-x86_64-clang
 - qemu-x86_64-debug
 - qemu-x86_64-kasan
-- qemu-x86_64-kcsan
 - qemu_arm
 - qemu_arm64
 - qemu_arm64-compat
 - qemu_i386
 - qemu_x86_64
 - qemu_x86_64-compat
-- riscv
 - s390
-- sh
 - sparc
-- x15
-- x86
+- x15 - arm
+- x86_64
 - x86-kasan
 - x86_64
 
@@ -158,7 +150,16 @@ Test Suites
 -----------
 * build
 * linux-log-parser
+* igt-gpu-tools
 * install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
 * kselftest-efivarfs
 * kselftest-filesystems
 * kselftest-firmware
@@ -170,7 +171,6 @@ Test Suites
 * kselftest-kcmp
 * kselftest-kvm
 * kselftest-lib
-* kselftest-lkdtm
 * kselftest-membarrier
 * kselftest-memfd
 * kselftest-memory-hotplug
@@ -186,11 +186,13 @@ Test Suites
 * kselftest-proc
 * kselftest-pstore
 * kselftest-tc-testing
+* libhugetlbfs
 * ltp-cap_bounds-tests
+* ltp-commands-tests
 * ltp-containers-tests
+* ltp-controllers-tests
 * ltp-cpuhotplug-tests
 * ltp-crypto-tests
-* ltp-cve-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
 * ltp-fs_bind-tests
@@ -199,21 +201,18 @@ Test Suites
 * ltp-hugetlb-tests
 * ltp-math-tests
 * ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
 * ltp-sched-tests
-* ltp-tracing-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
 * perf
 * v4l2-compliance
 * fwts
-* kselftest-android
 * kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
 * kselftest-intel_pstate
 * kselftest-livepatch
+* kselftest-lkdtm
 * kselftest-ptrace
 * kselftest-rseq
 * kselftest-rtc
@@ -230,27 +229,22 @@ Test Suites
 * kselftest-tpm2
 * kselftest-user
 * kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-dio-tests
 * ltp-fs-tests
 * ltp-io-tests
 * ltp-ipc-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
+* ltp-tracing-tests
 * network-basic-tests
 * kselftest-kexec
 * kselftest-vm
 * kselftest-x86
+* ltp-cve-tests
+* ltp-dio-tests
 * ltp-open-posix-tests
+* kvm-unit-tests
 * rcutorture
-* igt-gpu-tools
 * ssuite
 * kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
 
 --=20
 Linaro LKFT
