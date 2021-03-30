@@ -2,175 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4978134E34C
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 10:40:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AA6C34E35C
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 10:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231138AbhC3IkH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 04:40:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36916 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231537AbhC3Ijs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 04:39:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617093588;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=KXQmTQDu9c+2SYac0KGEwbkl0f73KbuMpkS546ZCxxU=;
-        b=a8J8rAHoNgc9cJ9m+64LFCALLV5yb0lEGU4/eUS6xjpXBXmzfBskNh7Rh60D+OIaZAslEf
-        liCU+74sjy1xm97vrGi/Amx0Um5QihcLbmZSZpp1gUbxBS9Vsgq5qsNM0sGzVW4ZNp2QhM
-        sRJ8gEv0JPkhVlnOllouELaAI3YjslQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-499-JfDCLdmgMPezIKTDgvIweA-1; Tue, 30 Mar 2021 04:39:45 -0400
-X-MC-Unique: JfDCLdmgMPezIKTDgvIweA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 82F241927800;
-        Tue, 30 Mar 2021 08:39:43 +0000 (UTC)
-Received: from [10.36.114.210] (ovpn-114-210.ams2.redhat.com [10.36.114.210])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 700A1299C4;
-        Tue, 30 Mar 2021 08:39:41 +0000 (UTC)
-Subject: Re: [PATCH v3] mm: page_alloc: ignore init_on_free=1 for
- debug_pagealloc=1
-To:     Sergei Trofimovich <slyfox@gentoo.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Konovalov <andreyknvl@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-mm@kvack.org
-References: <ea46d903-d201-5781-1f3c-f8d7fea5070e@suse.cz>
- <20210329222555.3077928-1-slyfox@gentoo.org>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <181e57b8-d606-e974-47d4-7cceebfdfc87@redhat.com>
-Date:   Tue, 30 Mar 2021 10:39:40 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        id S231609AbhC3Ilr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 04:41:47 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:7415 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231629AbhC3IlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Mar 2021 04:41:24 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4F8jbP4gGqz9ty5J;
+        Tue, 30 Mar 2021 10:41:21 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id m5ZcP1WejqMt; Tue, 30 Mar 2021 10:41:21 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4F8jbP3rhZz9ty58;
+        Tue, 30 Mar 2021 10:41:21 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id C8D888B7EC;
+        Tue, 30 Mar 2021 10:41:21 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id K2Y0u5_WTgnD; Tue, 30 Mar 2021 10:41:21 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 13DDC8B75B;
+        Tue, 30 Mar 2021 10:41:21 +0200 (CEST)
+Subject: Re: [PATCH] powerpc/vdso: Separate vvar vma from vdso
+To:     Dmitry Safonov <dima@arista.com>, linux-kernel@vger.kernel.org
+Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+References: <20210326191720.138155-1-dima@arista.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <09e8d68d-54fe-e327-b44f-8f68543edba1@csgroup.eu>
+Date:   Tue, 30 Mar 2021 10:41:18 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.0
 MIME-Version: 1.0
-In-Reply-To: <20210329222555.3077928-1-slyfox@gentoo.org>
+In-Reply-To: <20210326191720.138155-1-dima@arista.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30.03.21 00:25, Sergei Trofimovich wrote:
-> On !ARCH_SUPPORTS_DEBUG_PAGEALLOC (like ia64) debug_pagealloc=1
-> implies page_poison=on:
+
+
+Le 26/03/2021 à 20:17, Dmitry Safonov a écrit :
+> Since commit 511157ab641e ("powerpc/vdso: Move vdso datapage up front")
+> VVAR page is in front of the VDSO area. In result it breaks CRIU
+> (Checkpoint Restore In Userspace) [1], where CRIU expects that "[vdso]"
+> from /proc/../maps points at ELF/vdso image, rather than at VVAR data page.
+> Laurent made a patch to keep CRIU working (by reading aux vector).
+> But I think it still makes sence to separate two mappings into different
+> VMAs. It will also make ppc64 less "special" for userspace and as
+> a side-bonus will make VVAR page un-writable by debugger (which previously
+> would COW page and can be unexpected).
 > 
->      if (page_poisoning_enabled() ||
->           (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
->            debug_pagealloc_enabled()))
->              static_branch_enable(&_page_poisoning_enabled);
+> I opportunistically Cc stable on it: I understand that usually such
+> stuff isn't a stable material, but that will allow us in CRIU have
+> one workaround less that is needed just for one release (v5.11) on
+> one platform (ppc64), which we otherwise have to maintain.
+> I wouldn't go as far as to say that the commit 511157ab641e is ABI
+> regression as no other userspace got broken, but I'd really appreciate
+> if it gets backported to v5.11 after v5.12 is released, so as not
+> to complicate already non-simple CRIU-vdso code. Thanks!
 > 
-> page_poison=on needs to override init_on_free=1.
-> 
-> Before the change it did not work as expected for the following case:
-> - have PAGE_POISONING=y
-> - have page_poison unset
-> - have !ARCH_SUPPORTS_DEBUG_PAGEALLOC arch (like ia64)
-> - have init_on_free=1
-> - have debug_pagealloc=1
-> 
-> That way we get both keys enabled:
-> - static_branch_enable(&init_on_free);
-> - static_branch_enable(&_page_poisoning_enabled);
-> 
-> which leads to poisoned pages returned for __GFP_ZERO pages.
-> 
-> After the change we execute only:
-> - static_branch_enable(&_page_poisoning_enabled);
-> and ignore init_on_free=1.
-> 
-> Acked-by: Vlastimil Babka <vbabka@suse.cz>
-> Fixes: 8db26a3d4735 ("mm, page_poison: use static key more efficiently")
-> Cc: <stable@vger.kernel.org>
-> CC: Andrew Morton <akpm@linux-foundation.org>
-> CC: linux-mm@kvack.org
-> CC: David Hildenbrand <david@redhat.com>
-> CC: Andrey Konovalov <andreyknvl@gmail.com>
-> Link: https://lkml.org/lkml/2021/3/26/443
-> 
-> Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+> Cc: Andrei Vagin <avagin@gmail.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Cc: Laurent Dufour <ldufour@linux.ibm.com>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: stable@vger.kernel.org # v5.11
+> [1]: https://github.com/checkpoint-restore/criu/issues/1417
+> Signed-off-by: Dmitry Safonov <dima@arista.com>
+> Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 > ---
-> Change since v2:
-> - Added 'Fixes:' and 'CC: stable@' suggested by Vlastimil and David
-> - Renamed local variable to 'page_poisoning_requested' for
->    consistency suggested by David
-> - Simplified initialization of page_poisoning_requested suggested
->    by David
-> - Added 'Acked-by: Vlastimil'
+>   arch/powerpc/include/asm/mmu_context.h |  2 +-
+>   arch/powerpc/kernel/vdso.c             | 54 +++++++++++++++++++-------
+>   2 files changed, 40 insertions(+), 16 deletions(-)
 > 
->   mm/page_alloc.c | 30 +++++++++++++++++-------------
->   1 file changed, 17 insertions(+), 13 deletions(-)
-> 
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index cfc72873961d..4bb3cdfc47f8 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -764,32 +764,36 @@ static inline void clear_page_guard(struct zone *zone, struct page *page,
->    */
->   void init_mem_debugging_and_hardening(void)
->   {
-> +	bool page_poisoning_requested = false;
+
+> @@ -133,7 +135,13 @@ static int __arch_setup_additional_pages(struct linux_binprm *bprm, int uses_int
+>   	 * install_special_mapping or the perf counter mmap tracking code
+>   	 * will fail to recognise it as a vDSO.
+>   	 */
+> -	mm->context.vdso = (void __user *)vdso_base + PAGE_SIZE;
+> +	mm->context.vdso = (void __user *)vdso_base + vvar_size;
 > +
-> +#ifdef CONFIG_PAGE_POISONING
-> +	/*
-> +	 * Page poisoning is debug page alloc for some arches. If
-> +	 * either of those options are enabled, enable poisoning.
-> +	 */
-> +	if (page_poisoning_enabled() ||
-> +	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
-> +	      debug_pagealloc_enabled())) {
-> +		static_branch_enable(&_page_poisoning_enabled);
-> +		page_poisoning_requested = true;
-> +	}
-> +#endif
-> +
->   	if (_init_on_alloc_enabled_early) {
-> -		if (page_poisoning_enabled())
-> +		if (page_poisoning_requested)
->   			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
->   				"will take precedence over init_on_alloc\n");
->   		else
->   			static_branch_enable(&init_on_alloc);
->   	}
->   	if (_init_on_free_enabled_early) {
-> -		if (page_poisoning_enabled())
-> +		if (page_poisoning_requested)
->   			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
->   				"will take precedence over init_on_free\n");
->   		else
->   			static_branch_enable(&init_on_free);
->   	}
+> +	vma = _install_special_mapping(mm, vdso_base, vvar_size,
+> +				       VM_READ | VM_MAYREAD | VM_IO |
+> +				       VM_DONTDUMP | VM_PFNMAP, &vvar_spec);
+> +	if (IS_ERR(vma))
+> +		return PTR_ERR(vma);
 >   
-> -#ifdef CONFIG_PAGE_POISONING
-> -	/*
-> -	 * Page poisoning is debug page alloc for some arches. If
-> -	 * either of those options are enabled, enable poisoning.
-> -	 */
-> -	if (page_poisoning_enabled() ||
-> -	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
-> -	      debug_pagealloc_enabled()))
-> -		static_branch_enable(&_page_poisoning_enabled);
-> -#endif
-> -
->   #ifdef CONFIG_DEBUG_PAGEALLOC
->   	if (!debug_pagealloc_enabled())
->   		return;
-> 
+>   	/*
+>   	 * our vma flags don't have VM_WRITE so by default, the process isn't
 
-Thanks!
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+IIUC, VM_PFNMAP is for when we have a vvar_fault handler.
+Allthough we will soon have one for handle TIME_NS, at the moment powerpc doesn't have that handler.
+Isn't it dangerous to set VM_PFNMAP then ?
 
--- 
-Thanks,
-
-David / dhildenb
-
+Christophe
