@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1C434F0E6
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 20:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14AFB34F0E3
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 20:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232851AbhC3STo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 14:19:44 -0400
-Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:29503 "EHLO
+        id S232782AbhC3STj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 14:19:39 -0400
+Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:29474 "EHLO
         smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232846AbhC3STN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 14:19:13 -0400
+        with ESMTP id S232842AbhC3STM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 14:19:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1617128353; x=1648664353;
+  t=1617128352; x=1648664352;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version;
-  bh=duwQVjGYkOrOvXtM8bKl9OMPh3xurpKbK0qbhH01PVU=;
-  b=cYmcGVUNEnfZmiRMacdjTkBuo2FV9FRePwRYrAzE5hBUun6ltjIQ/uTa
-   azE4YPOa1uoz8YAvs91WxVdcP3mdhlXpiYXeTzR0qnDJEMdq2HPdKpmIT
-   6rEYsFOs9+QF6yU+haEUJVRsk3F99hbZA0IIzSSLn5IVnD2PV/B+vDskQ
-   8=;
+  bh=QIY4SWZ3YKZ4CmJ4f08vv74wpEgfEWwbtZCHee2ZFwg=;
+  b=n94v1e3rZzuR3Ij8NhykCV+gVZYcklq+fNpz/I6TtSAi1aoHUOaf7Y+w
+   qY3uuodJm0vtaAGD3LZAiRlA7rRL5nvnue7RRWZoZPpRiYrIeyogljHCJ
+   2lMz01xkyNBdMXVoTJMdpQFV2TXWLSDCYfxOArhMUOFESkOqtrQ2Rp4Pw
+   k=;
 X-IronPort-AV: E=Sophos;i="5.81,291,1610409600"; 
-   d="scan'208";a="922494444"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1a-16acd5e0.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-9103.sea19.amazon.com with ESMTP; 30 Mar 2021 18:19:12 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1a-16acd5e0.us-east-1.amazon.com (Postfix) with ESMTPS id 742A4A2F16
-        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 18:19:12 +0000 (UTC)
-Received: from EX13D13UWA002.ant.amazon.com (10.43.160.172) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 30 Mar 2021 18:19:12 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (10.43.62.24) by
- EX13D13UWA002.ant.amazon.com (10.43.160.172) with Microsoft SMTP Server (TLS)
+   d="scan'208";a="922494441"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1a-821c648d.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-9103.sea19.amazon.com with ESMTP; 30 Mar 2021 18:19:11 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-1a-821c648d.us-east-1.amazon.com (Postfix) with ESMTPS id 90F19A28B8
+        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 18:19:11 +0000 (UTC)
+Received: from EX13D13UWB003.ant.amazon.com (10.43.161.233) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 30 Mar 2021 18:19:11 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
+ EX13D13UWB003.ant.amazon.com (10.43.161.233) with Microsoft SMTP Server (TLS)
  id 15.0.1497.2; Tue, 30 Mar 2021 18:19:11 +0000
 Received: from dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
- (172.23.141.97) by mail-relay.amazon.com (10.43.62.224) with Microsoft SMTP
- Server id 15.0.1497.2 via Frontend Transport; Tue, 30 Mar 2021 18:19:10 +0000
+ (172.23.141.97) by mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP
+ Server id 15.0.1497.2 via Frontend Transport; Tue, 30 Mar 2021 18:19:11 +0000
 Received: by dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id E5F6DDF92E; Tue, 30 Mar 2021 18:19:10 +0000 (UTC)
+        id E8E69DF92F; Tue, 30 Mar 2021 18:19:10 +0000 (UTC)
 From:   Frank van der Linden <fllinden@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     <fllinden@amazon.com>
-Subject: [PATCH 4.14 4/5] mm: fix oom_kill event handling
-Date:   Tue, 30 Mar 2021 18:19:09 +0000
-Message-ID: <20210330181910.15378-5-fllinden@amazon.com>
+Subject: [PATCH 4.14 5/5] mm: writeback: use exact memcg dirty counts
+Date:   Tue, 30 Mar 2021 18:19:10 +0000
+Message-ID: <20210330181910.15378-6-fllinden@amazon.com>
 X-Mailer: git-send-email 2.16.6
 In-Reply-To: <20210330181910.15378-1-fllinden@amazon.com>
 References: <20210330181910.15378-1-fllinden@amazon.com>
@@ -54,135 +54,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Greg Thelen <gthelen@google.com>
 
-commit fe6bdfc8e1e131720abbe77a2eb990c94c9024cb upstream.
+commit 0b3d6e6f2dd0a7b697b1aa8c167265908940624b upstream.
 
-Commit e27be240df53 ("mm: memcg: make sure memory.events is uptodate
-when waking pollers") converted most of memcg event counters to
-per-memcg atomics, which made them less confusing for a user.  The
-"oom_kill" counter remained untouched, so now it behaves differently
-than other counters (including "oom").  This adds nothing but confusion.
+Since commit a983b5ebee57 ("mm: memcontrol: fix excessive complexity in
+memory.stat reporting") memcg dirty and writeback counters are managed
+as:
 
-Let's fix this by adding the MEMCG_OOM_KILL event, and follow the
-MEMCG_OOM approach.
+ 1) per-memcg per-cpu values in range of [-32..32]
 
-This also removes a hack from count_memcg_event_mm(), introduced earlier
-specially for the OOM_KILL counter.
+ 2) per-memcg atomic counter
 
-[akpm@linux-foundation.org: fix for droppage of memcg-replace-mm-owner-with-mm-memcg.patch]
-Link: http://lkml.kernel.org/r/20180508124637.29984-1-guro@fb.com
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Acked-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+When a per-cpu counter cannot fit in [-32..32] it's flushed to the
+atomic.  Stat readers only check the atomic.  Thus readers such as
+balance_dirty_pages() may see a nontrivial error margin: 32 pages per
+cpu.
+
+Assuming 100 cpus:
+   4k x86 page_size:  13 MiB error per memcg
+  64k ppc page_size: 200 MiB error per memcg
+
+Considering that dirty+writeback are used together for some decisions the
+errors double.
+
+This inaccuracy can lead to undeserved oom kills.  One nasty case is
+when all per-cpu counters hold positive values offsetting an atomic
+negative value (i.e.  per_cpu[*]=32, atomic=n_cpu*-32).
+balance_dirty_pages() only consults the atomic and does not consider
+throttling the next n_cpu*32 dirty pages.  If the file_lru is in the
+13..200 MiB range then there's absolutely no dirty throttling, which
+burdens vmscan with only dirty+writeback pages thus resorting to oom
+kill.
+
+It could be argued that tiny containers are not supported, but it's more
+subtle.  It's the amount the space available for file lru that matters.
+If a container has memory.max-200MiB of non reclaimable memory, then it
+will also suffer such oom kills on a 100 cpu machine.
+
+The following test reliably ooms without this patch.  This patch avoids
+oom kills.
+
+  $ cat test
+  mount -t cgroup2 none /dev/cgroup
+  cd /dev/cgroup
+  echo +io +memory > cgroup.subtree_control
+  mkdir test
+  cd test
+  echo 10M > memory.max
+  (echo $BASHPID > cgroup.procs && exec /memcg-writeback-stress /foo)
+  (echo $BASHPID > cgroup.procs && exec dd if=/dev/zero of=/foo bs=2M count=100)
+
+  $ cat memcg-writeback-stress.c
+  /*
+   * Dirty pages from all but one cpu.
+   * Clean pages from the non dirtying cpu.
+   * This is to stress per cpu counter imbalance.
+   * On a 100 cpu machine:
+   * - per memcg per cpu dirty count is 32 pages for each of 99 cpus
+   * - per memcg atomic is -99*32 pages
+   * - thus the complete dirty limit: sum of all counters 0
+   * - balance_dirty_pages() only sees atomic count -99*32 pages, which
+   *   it max()s to 0.
+   * - So a workload can dirty -99*32 pages before balance_dirty_pages()
+   *   cares.
+   */
+  #define _GNU_SOURCE
+  #include <err.h>
+  #include <fcntl.h>
+  #include <sched.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+  #include <sys/stat.h>
+  #include <sys/sysinfo.h>
+  #include <sys/types.h>
+  #include <unistd.h>
+
+  static char *buf;
+  static int bufSize;
+
+  static void set_affinity(int cpu)
+  {
+  	cpu_set_t affinity;
+
+  	CPU_ZERO(&affinity);
+  	CPU_SET(cpu, &affinity);
+  	if (sched_setaffinity(0, sizeof(affinity), &affinity))
+  		err(1, "sched_setaffinity");
+  }
+
+  static void dirty_on(int output_fd, int cpu)
+  {
+  	int i, wrote;
+
+  	set_affinity(cpu);
+  	for (i = 0; i < 32; i++) {
+  		for (wrote = 0; wrote < bufSize; ) {
+  			int ret = write(output_fd, buf+wrote, bufSize-wrote);
+  			if (ret == -1)
+  				err(1, "write");
+  			wrote += ret;
+  		}
+  	}
+  }
+
+  int main(int argc, char **argv)
+  {
+  	int cpu, flush_cpu = 1, output_fd;
+  	const char *output;
+
+  	if (argc != 2)
+  		errx(1, "usage: output_file");
+
+  	output = argv[1];
+  	bufSize = getpagesize();
+  	buf = malloc(getpagesize());
+  	if (buf == NULL)
+  		errx(1, "malloc failed");
+
+  	output_fd = open(output, O_CREAT|O_RDWR);
+  	if (output_fd == -1)
+  		err(1, "open(%s)", output);
+
+  	for (cpu = 0; cpu < get_nprocs(); cpu++) {
+  		if (cpu != flush_cpu)
+  			dirty_on(output_fd, cpu);
+  	}
+
+  	set_affinity(flush_cpu);
+  	if (fsync(output_fd))
+  		err(1, "fsync(%s)", output);
+  	if (close(output_fd))
+  		err(1, "close(%s)", output);
+  	free(buf);
+  }
+
+Make balance_dirty_pages() and wb_over_bg_thresh() work harder to
+collect exact per memcg counters.  This avoids the aforementioned oom
+kills.
+
+This does not affect the overhead of memory.stat, which still reads the
+single atomic counter.
+
+Why not use percpu_counter? memcg already handles cpus going offline, so
+no need for that overhead from percpu_counter.  And the percpu_counter
+spinlocks are more heavyweight than is required.
+
+It probably also makes sense to use exact dirty and writeback counters
+in memcg oom reports.  But that is saved for later.
+
+Link: http://lkml.kernel.org/r/20190329174609.164344-1-gthelen@google.com
+Signed-off-by: Greg Thelen <gthelen@google.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
 Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Michal Hocko <mhocko@kernel.org>
 Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.16+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[fllinden@amazon.com: backport to 4.14, minor contextual changes]
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 ---
- include/linux/memcontrol.h | 26 ++++++++++++++++++++++----
- mm/memcontrol.c            |  6 ++++--
- mm/oom_kill.c              |  2 +-
- 3 files changed, 27 insertions(+), 7 deletions(-)
+ include/linux/memcontrol.h |  5 ++++-
+ mm/memcontrol.c            | 20 ++++++++++++++++++--
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
 diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index c7876eadd206..b5cd86e320ff 100644
+index b5cd86e320ff..365d5079d1cb 100644
 --- a/include/linux/memcontrol.h
 +++ b/include/linux/memcontrol.h
-@@ -53,6 +53,7 @@ enum memcg_memory_event {
- 	MEMCG_HIGH,
- 	MEMCG_MAX,
- 	MEMCG_OOM,
-+	MEMCG_OOM_KILL,
- 	MEMCG_NR_MEMORY_EVENTS,
- };
+@@ -507,7 +507,10 @@ struct mem_cgroup *lock_page_memcg(struct page *page);
+ void __unlock_page_memcg(struct mem_cgroup *memcg);
+ void unlock_page_memcg(struct page *page);
  
-@@ -706,11 +707,8 @@ static inline void count_memcg_event_mm(struct mm_struct *mm,
- 
- 	rcu_read_lock();
- 	memcg = mem_cgroup_from_task(rcu_dereference(mm->owner));
--	if (likely(memcg)) {
-+	if (likely(memcg))
- 		count_memcg_events(memcg, idx, 1);
--		if (idx == OOM_KILL)
--			cgroup_file_notify(&memcg->events_file);
--	}
- 	rcu_read_unlock();
- }
- 
-@@ -721,6 +719,21 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
- 	cgroup_file_notify(&memcg->events_file);
- }
- 
-+static inline void memcg_memory_event_mm(struct mm_struct *mm,
-+					 enum memcg_memory_event event)
-+{
-+	struct mem_cgroup *memcg;
-+
-+	if (mem_cgroup_disabled())
-+		return;
-+
-+	rcu_read_lock();
-+	memcg = mem_cgroup_from_task(rcu_dereference(mm->owner));
-+	if (likely(memcg))
-+		memcg_memory_event(memcg, event);
-+	rcu_read_unlock();
-+}
-+
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- void mem_cgroup_split_huge_fixup(struct page *head);
- #endif
-@@ -742,6 +755,11 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
- {
- }
- 
-+static inline void memcg_memory_event_mm(struct mm_struct *mm,
-+					 enum memcg_memory_event event)
-+{
-+}
-+
- static inline bool mem_cgroup_low(struct mem_cgroup *root,
- 				  struct mem_cgroup *memcg)
+-/* idx can be of type enum memcg_stat_item or node_stat_item */
++/*
++ * idx can be of type enum memcg_stat_item or node_stat_item.
++ * Keep in sync with memcg_exact_page_state().
++ */
+ static inline unsigned long memcg_page_state(struct mem_cgroup *memcg,
+ 					     int idx)
  {
 diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 31972189a827..ef6d996a920a 100644
+index ef6d996a920a..5e8b8e1b7d90 100644
 --- a/mm/memcontrol.c
 +++ b/mm/memcontrol.c
-@@ -3648,7 +3648,8 @@ static int mem_cgroup_oom_control_read(struct seq_file *sf, void *v)
- 
- 	seq_printf(sf, "oom_kill_disable %d\n", memcg->oom_kill_disable);
- 	seq_printf(sf, "under_oom %d\n", (bool)memcg->under_oom);
--	seq_printf(sf, "oom_kill %lu\n", memcg_sum_events(memcg, OOM_KILL));
-+	seq_printf(sf, "oom_kill %lu\n",
-+		   atomic_long_read(&memcg->memory_events[MEMCG_OOM_KILL]));
- 	return 0;
+@@ -3701,6 +3701,22 @@ struct wb_domain *mem_cgroup_wb_domain(struct bdi_writeback *wb)
+ 	return &memcg->cgwb_domain;
  }
  
-@@ -5320,7 +5321,8 @@ static int memory_events_show(struct seq_file *m, void *v)
- 		   atomic_long_read(&memcg->memory_events[MEMCG_MAX]));
- 	seq_printf(m, "oom %lu\n",
- 		   atomic_long_read(&memcg->memory_events[MEMCG_OOM]));
--	seq_printf(m, "oom_kill %lu\n", memcg_sum_events(memcg, OOM_KILL));
-+	seq_printf(m, "oom_kill %lu\n",
-+		   atomic_long_read(&memcg->memory_events[MEMCG_OOM_KILL]));
++/*
++ * idx can be of type enum memcg_stat_item or node_stat_item.
++ * Keep in sync with memcg_exact_page().
++ */
++static unsigned long memcg_exact_page_state(struct mem_cgroup *memcg, int idx)
++{
++	long x = atomic_long_read(&memcg->stat[idx]);
++	int cpu;
++
++	for_each_online_cpu(cpu)
++		x += per_cpu_ptr(memcg->stat_cpu, cpu)->count[idx];
++	if (x < 0)
++		x = 0;
++	return x;
++}
++
+ /**
+  * mem_cgroup_wb_stats - retrieve writeback related stats from its memcg
+  * @wb: bdi_writeback in question
+@@ -3726,10 +3742,10 @@ void mem_cgroup_wb_stats(struct bdi_writeback *wb, unsigned long *pfilepages,
+ 	struct mem_cgroup *memcg = mem_cgroup_from_css(wb->memcg_css);
+ 	struct mem_cgroup *parent;
  
- 	return 0;
- }
-diff --git a/mm/oom_kill.c b/mm/oom_kill.c
-index 6482d743c5c8..6f1bed211122 100644
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -917,7 +917,7 @@ static void oom_kill_process(struct oom_control *oc, const char *message)
+-	*pdirty = memcg_page_state(memcg, NR_FILE_DIRTY);
++	*pdirty = memcg_exact_page_state(memcg, NR_FILE_DIRTY);
  
- 	/* Raise event before sending signal: task reaper must see this */
- 	count_vm_event(OOM_KILL);
--	count_memcg_event_mm(mm, OOM_KILL);
-+	memcg_memory_event_mm(mm, MEMCG_OOM_KILL);
- 
- 	/*
- 	 * We should send SIGKILL before granting access to memory reserves
+ 	/* this should eventually include NR_UNSTABLE_NFS */
+-	*pwriteback = memcg_page_state(memcg, NR_WRITEBACK);
++	*pwriteback = memcg_exact_page_state(memcg, NR_WRITEBACK);
+ 	*pfilepages = mem_cgroup_nr_lru_pages(memcg, (1 << LRU_INACTIVE_FILE) |
+ 						     (1 << LRU_ACTIVE_FILE));
+ 	*pheadroom = PAGE_COUNTER_MAX;
 -- 
 2.23.3
 
