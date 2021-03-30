@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67ABE34F0E4
+	by mail.lfdr.de (Postfix) with ESMTP id 035E234F0E2
 	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 20:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232848AbhC3STk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 14:19:40 -0400
-Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:36953 "EHLO
-        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232841AbhC3STM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 14:19:12 -0400
+        id S232847AbhC3STi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 14:19:38 -0400
+Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:60972 "EHLO
+        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232845AbhC3STN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 14:19:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1617128352; x=1648664352;
+  t=1617128354; x=1648664354;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version;
-  bh=8jmiwvqaZ8CIZpxMDB5Pi77CQq7iHqtOPPhM/hHYWSA=;
-  b=aMNSr2BIjs80+cN2Znxs195oPaABgMKhqt5PNMipuf4uN1y0SG9HzxvR
-   IZbDfc83qAE0hL8d6dkuFde5OLuQPTYPImzMJRepgNgGQXfp9CPJacYpU
-   xLKM4XQLIs24fouLmQpXHAXLHLaBmUK2sL4ylRMQ1S7/PMwiUvEli4Scs
-   c=;
+  bh=WBO2yQnZLyZ58LHMkJapbcc4AeOJTQQnOQmr0JkNZno=;
+  b=gi7NmSi7CZqhC7VBXFthraDIr5j5FDZmdljlAzXUvnapPuoKMIIGQ6Zr
+   gy0KHE3v/HTsa6b8uG/R2ppoJXQHM831DIWvEKZyK5/b3/pv9rB4fl0Tx
+   oq3dkF2yUe70xoUcC4i2ZP00GqzAN95rWJHWtnLefejr6a5632wXG1fqd
+   M=;
 X-IronPort-AV: E=Sophos;i="5.81,291,1610409600"; 
-   d="scan'208";a="103538032"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-57e1d233.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 30 Mar 2021 18:19:12 +0000
+   d="scan'208";a="97732965"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1d-5dd976cd.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 30 Mar 2021 18:19:13 +0000
 Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1e-57e1d233.us-east-1.amazon.com (Postfix) with ESMTPS id 896071414EA
-        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 18:19:11 +0000 (UTC)
-Received: from EX13D13UWA002.ant.amazon.com (10.43.160.172) by
+        by email-inbound-relay-1d-5dd976cd.us-east-1.amazon.com (Postfix) with ESMTPS id 68971A1C16
+        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 18:19:12 +0000 (UTC)
+Received: from EX13D13UWB002.ant.amazon.com (10.43.161.21) by
  EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 30 Mar 2021 18:19:12 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (10.43.61.77) by
+ EX13D13UWB002.ant.amazon.com (10.43.161.21) with Microsoft SMTP Server (TLS)
  id 15.0.1497.2; Tue, 30 Mar 2021 18:19:11 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
- EX13D13UWA002.ant.amazon.com (10.43.160.172) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 30 Mar 2021 18:19:10 +0000
 Received: from dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
- (172.23.141.97) by mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP
+ (172.23.141.97) by mail-relay.amazon.com (10.43.61.169) with Microsoft SMTP
  Server id 15.0.1497.2 via Frontend Transport; Tue, 30 Mar 2021 18:19:11 +0000
 Received: by dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id DFFF7DF92C; Tue, 30 Mar 2021 18:19:10 +0000 (UTC)
+        id E3096DF92D; Tue, 30 Mar 2021 18:19:10 +0000 (UTC)
 From:   Frank van der Linden <fllinden@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     <fllinden@amazon.com>
-Subject: [PATCH 4.14 2/5] mm: memcg: make sure memory.events is uptodate when waking pollers
-Date:   Tue, 30 Mar 2021 18:19:07 +0000
-Message-ID: <20210330181910.15378-3-fllinden@amazon.com>
+Subject: [PATCH 4.14 3/5] mem_cgroup: make sure moving_account, move_lock_task and stat_cpu in the same cacheline
+Date:   Tue, 30 Mar 2021 18:19:08 +0000
+Message-ID: <20210330181910.15378-4-fllinden@amazon.com>
 X-Mailer: git-send-email 2.16.6
 In-Reply-To: <20210330181910.15378-1-fllinden@amazon.com>
 References: <20210330181910.15378-1-fllinden@amazon.com>
@@ -54,261 +54,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+From: Aaron Lu <aaron.lu@intel.com>
 
-commit 2d978806d863e926345185d084a90a4c35846e37 upstream.
+commit e81bf9793b1861d74953ef041b4f6c7faecc2dbd upstream.
 
-Commit a983b5ebee57 ("mm: memcontrol: fix excessive complexity in
-memory.stat reporting") added per-cpu drift to all memory cgroup stats
-and events shown in memory.stat and memory.events.
+The LKP robot found a 27% will-it-scale/page_fault3 performance
+regression regarding commit e27be240df53("mm: memcg: make sure
+memory.events is uptodate when waking pollers").
 
-For memory.stat this is acceptable.  But memory.events issues file
-notifications, and somebody polling the file for changes will be
-confused when the counters in it are unchanged after a wakeup.
+What the test does is:
+ 1 mkstemp() a 128M file on a tmpfs;
+ 2 start $nr_cpu processes, each to loop the following:
+   2.1 mmap() this file in shared write mode;
+   2.2 write 0 to this file in a PAGE_SIZE step till the end of the file;
+   2.3 unmap() this file and repeat this process.
+ 3 After 5 minutes, check how many loops they managed to complete, the
+   higher the better.
 
-Luckily, the events in memory.events - MEMCG_LOW, MEMCG_HIGH, MEMCG_MAX,
-MEMCG_OOM - are sufficiently rare and high-level that we don't need
-per-cpu buffering for them: MEMCG_HIGH and MEMCG_MAX would be the most
-frequent, but they're counting invocations of reclaim, which is a
-complex operation that touches many shared cachelines.
+The commit itself looks innocent enough as it merely changed some event
+counting mechanism and this test didn't trigger those events at all.
+Perf shows increased cycles spent on accessing root_mem_cgroup->stat_cpu
+in count_memcg_event_mm()(called by handle_mm_fault()) and in
+__mod_memcg_state() called by page_add_file_rmap().  So it's likely due
+to the changed layout of 'struct mem_cgroup' that either make stat_cpu
+falling into a constantly modifying cacheline or some hot fields stop
+being in the same cacheline.
 
-This splits memory.events from the generic VM events and tracks them in
-their own, unbuffered atomic counters.  That's also cleaner, as it
-eliminates the ugly enum nesting of VM and cgroup events.
+I verified this by moving memory_events[] back to where it was:
 
-[hannes@cmpxchg.org: "array subscript is above array bounds"]
-  Link: http://lkml.kernel.org/r/20180406155441.GA20806@cmpxchg.org
-Link: http://lkml.kernel.org/r/20180405175507.GA24817@cmpxchg.org
-Fixes: a983b5ebee57 ("mm: memcontrol: fix excessive complexity in memory.stat reporting")
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reported-by: Tejun Heo <tj@kernel.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+: --- a/include/linux/memcontrol.h
+: +++ b/include/linux/memcontrol.h
+: @@ -205,7 +205,6 @@ struct mem_cgroup {
+:  	int		oom_kill_disable;
+:
+:  	/* memory.events */
+: -	atomic_long_t memory_events[MEMCG_NR_MEMORY_EVENTS];
+:  	struct cgroup_file events_file;
+:
+:  	/* protect arrays of thresholds */
+: @@ -238,6 +237,7 @@ struct mem_cgroup {
+:  	struct mem_cgroup_stat_cpu __percpu *stat_cpu;
+:  	atomic_long_t		stat[MEMCG_NR_STAT];
+:  	atomic_long_t		events[NR_VM_EVENT_ITEMS];
+: +	atomic_long_t memory_events[MEMCG_NR_MEMORY_EVENTS];
+:
+:  	unsigned long		socket_pressure;
+
+And performance restored.
+
+Later investigation found that as long as the following 3 fields
+moving_account, move_lock_task and stat_cpu are in the same cacheline,
+performance will be good.  To avoid future performance surprise by other
+commits changing the layout of 'struct mem_cgroup', this patch makes
+sure the 3 fields stay in the same cacheline.
+
+One concern of this approach is, moving_account and move_lock_task could
+be modified when a process changes memory cgroup while stat_cpu is a
+always read field, it might hurt to place them in the same cacheline.  I
+assume it is rare for a process to change memory cgroup so this should
+be OK.
+
+Link: https://lkml.kernel.org/r/20180528114019.GF9904@yexl-desktop
+Link: http://lkml.kernel.org/r/20180601071115.GA27302@intel.com
+Signed-off-by: Aaron Lu <aaron.lu@intel.com>
+Reported-by: kernel test robot <xiaolong.ye@intel.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
- include/linux/memcontrol.h | 35 ++++++++++++++++++-----------------
- mm/memcontrol.c            | 28 ++++++++++++++++------------
- mm/vmscan.c                |  2 +-
- 3 files changed, 35 insertions(+), 30 deletions(-)
+ include/linux/memcontrol.h | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
 diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index c46016bb25eb..6503a9ca27c1 100644
+index 6503a9ca27c1..c7876eadd206 100644
 --- a/include/linux/memcontrol.h
 +++ b/include/linux/memcontrol.h
-@@ -48,13 +48,12 @@ enum memcg_stat_item {
- 	MEMCG_NR_STAT,
+@@ -155,6 +155,15 @@ enum memcg_kmem_state {
+ 	KMEM_ONLINE,
  };
  
--/* Cgroup-specific events, on top of universal VM events */
--enum memcg_event_item {
--	MEMCG_LOW = NR_VM_EVENT_ITEMS,
-+enum memcg_memory_event {
-+	MEMCG_LOW,
- 	MEMCG_HIGH,
- 	MEMCG_MAX,
- 	MEMCG_OOM,
--	MEMCG_NR_EVENTS,
-+	MEMCG_NR_MEMORY_EVENTS,
- };
- 
- struct mem_cgroup_reclaim_cookie {
-@@ -88,7 +87,7 @@ enum mem_cgroup_events_target {
- 
- struct mem_cgroup_stat_cpu {
- 	long count[MEMCG_NR_STAT];
--	unsigned long events[MEMCG_NR_EVENTS];
-+	unsigned long events[NR_VM_EVENT_ITEMS];
- 	unsigned long nr_page_events;
- 	unsigned long targets[MEM_CGROUP_NTARGETS];
- };
-@@ -202,7 +201,8 @@ struct mem_cgroup {
- 	/* OOM-Killer disable */
++#if defined(CONFIG_SMP)
++struct memcg_padding {
++	char x[0];
++} ____cacheline_internodealigned_in_smp;
++#define MEMCG_PADDING(name)      struct memcg_padding name;
++#else
++#define MEMCG_PADDING(name)
++#endif
++
+ /*
+  * The memory controller data structure. The memory controller controls both
+  * page cache and RSS per cgroup. We would eventually like to provide
+@@ -202,7 +211,6 @@ struct mem_cgroup {
  	int		oom_kill_disable;
  
--	/* handle for "memory.events" */
-+	/* memory.events */
-+	atomic_long_t memory_events[MEMCG_NR_MEMORY_EVENTS];
+ 	/* memory.events */
+-	atomic_long_t memory_events[MEMCG_NR_MEMORY_EVENTS];
  	struct cgroup_file events_file;
  
  	/* protect arrays of thresholds */
-@@ -231,9 +231,10 @@ struct mem_cgroup {
+@@ -222,19 +230,26 @@ struct mem_cgroup {
+ 	 * mem_cgroup ? And what type of charges should we move ?
+ 	 */
+ 	unsigned long move_charge_at_immigrate;
++	/* taken only while moving_account > 0 */
++	spinlock_t		move_lock;
++	unsigned long		move_lock_flags;
++
++	MEMCG_PADDING(_pad1_);
++
+ 	/*
+ 	 * set > 0 if pages under this cgroup are moving to other cgroup.
+ 	 */
+ 	atomic_t		moving_account;
+-	/* taken only while moving_account > 0 */
+-	spinlock_t		move_lock;
  	struct task_struct	*move_lock_task;
- 	unsigned long		move_lock_flags;
+-	unsigned long		move_lock_flags;
  
-+	/* memory.stat */
+ 	/* memory.stat */
  	struct mem_cgroup_stat_cpu __percpu *stat_cpu;
++
++	MEMCG_PADDING(_pad2_);
++
  	atomic_long_t		stat[MEMCG_NR_STAT];
--	atomic_long_t		events[MEMCG_NR_EVENTS];
-+	atomic_long_t		events[NR_VM_EVENT_ITEMS];
+ 	atomic_long_t		events[NR_VM_EVENT_ITEMS];
++	atomic_long_t memory_events[MEMCG_NR_MEMORY_EVENTS];
  
  	unsigned long		socket_pressure;
  
-@@ -645,9 +646,9 @@ unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
- 						gfp_t gfp_mask,
- 						unsigned long *total_scanned);
- 
--/* idx can be of type enum memcg_event_item or vm_event_item */
- static inline void __count_memcg_events(struct mem_cgroup *memcg,
--					int idx, unsigned long count)
-+					enum vm_event_item idx,
-+					unsigned long count)
- {
- 	unsigned long x;
- 
-@@ -663,7 +664,8 @@ static inline void __count_memcg_events(struct mem_cgroup *memcg,
- }
- 
- static inline void count_memcg_events(struct mem_cgroup *memcg,
--				      int idx, unsigned long count)
-+				      enum vm_event_item idx,
-+				      unsigned long count)
- {
- 	unsigned long flags;
- 
-@@ -672,9 +674,8 @@ static inline void count_memcg_events(struct mem_cgroup *memcg,
- 	local_irq_restore(flags);
- }
- 
--/* idx can be of type enum memcg_event_item or vm_event_item */
- static inline void count_memcg_page_event(struct page *page,
--					  int idx)
-+					  enum vm_event_item idx)
- {
- 	if (page->mem_cgroup)
- 		count_memcg_events(page->mem_cgroup, idx, 1);
-@@ -698,10 +699,10 @@ static inline void count_memcg_event_mm(struct mm_struct *mm,
- 	rcu_read_unlock();
- }
- 
--static inline void mem_cgroup_event(struct mem_cgroup *memcg,
--				    enum memcg_event_item event)
-+static inline void memcg_memory_event(struct mem_cgroup *memcg,
-+				      enum memcg_memory_event event)
- {
--	count_memcg_events(memcg, event, 1);
-+	atomic_long_inc(&memcg->memory_events[event]);
- 	cgroup_file_notify(&memcg->events_file);
- }
- 
-@@ -721,8 +722,8 @@ static inline bool mem_cgroup_disabled(void)
- 	return true;
- }
- 
--static inline void mem_cgroup_event(struct mem_cgroup *memcg,
--				    enum memcg_event_item event)
-+static inline void memcg_memory_event(struct mem_cgroup *memcg,
-+				      enum memcg_memory_event event)
- {
- }
- 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 4e763cdccb33..31972189a827 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -1872,7 +1872,7 @@ static int memcg_hotplug_cpu_dead(unsigned int cpu)
- 			}
- 		}
- 
--		for (i = 0; i < MEMCG_NR_EVENTS; i++) {
-+		for (i = 0; i < NR_VM_EVENT_ITEMS; i++) {
- 			long x;
- 
- 			x = this_cpu_xchg(memcg->stat_cpu->events[i], 0);
-@@ -1891,7 +1891,7 @@ static void reclaim_high(struct mem_cgroup *memcg,
- 	do {
- 		if (page_counter_read(&memcg->memory) <= memcg->high)
- 			continue;
--		mem_cgroup_event(memcg, MEMCG_HIGH);
-+		memcg_memory_event(memcg, MEMCG_HIGH);
- 		try_to_free_mem_cgroup_pages(memcg, nr_pages, gfp_mask, true);
- 	} while ((memcg = parent_mem_cgroup(memcg)));
- }
-@@ -1982,7 +1982,7 @@ static int try_charge(struct mem_cgroup *memcg, gfp_t gfp_mask,
- 	if (!gfpflags_allow_blocking(gfp_mask))
- 		goto nomem;
- 
--	mem_cgroup_event(mem_over_limit, MEMCG_MAX);
-+	memcg_memory_event(mem_over_limit, MEMCG_MAX);
- 
- 	nr_reclaimed = try_to_free_mem_cgroup_pages(mem_over_limit, nr_pages,
- 						    gfp_mask, may_swap);
-@@ -2025,7 +2025,7 @@ static int try_charge(struct mem_cgroup *memcg, gfp_t gfp_mask,
- 	if (fatal_signal_pending(current))
- 		goto force;
- 
--	mem_cgroup_event(mem_over_limit, MEMCG_OOM);
-+	memcg_memory_event(mem_over_limit, MEMCG_OOM);
- 
- 	mem_cgroup_oom(mem_over_limit, gfp_mask,
- 		       get_order(nr_pages * PAGE_SIZE));
-@@ -2790,10 +2790,10 @@ static void tree_events(struct mem_cgroup *memcg, unsigned long *events)
- 	struct mem_cgroup *iter;
- 	int i;
- 
--	memset(events, 0, sizeof(*events) * MEMCG_NR_EVENTS);
-+	memset(events, 0, sizeof(*events) * NR_VM_EVENT_ITEMS);
- 
- 	for_each_mem_cgroup_tree(iter, memcg) {
--		for (i = 0; i < MEMCG_NR_EVENTS; i++)
-+		for (i = 0; i < NR_VM_EVENT_ITEMS; i++)
- 			events[i] += memcg_sum_events(iter, i);
- 	}
- }
-@@ -5299,7 +5299,7 @@ static ssize_t memory_max_write(struct kernfs_open_file *of,
- 			continue;
- 		}
- 
--		mem_cgroup_event(memcg, MEMCG_OOM);
-+		memcg_memory_event(memcg, MEMCG_OOM);
- 		if (!mem_cgroup_out_of_memory(memcg, GFP_KERNEL, 0))
- 			break;
- 	}
-@@ -5312,10 +5312,14 @@ static int memory_events_show(struct seq_file *m, void *v)
- {
- 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
- 
--	seq_printf(m, "low %lu\n", memcg_sum_events(memcg, MEMCG_LOW));
--	seq_printf(m, "high %lu\n", memcg_sum_events(memcg, MEMCG_HIGH));
--	seq_printf(m, "max %lu\n", memcg_sum_events(memcg, MEMCG_MAX));
--	seq_printf(m, "oom %lu\n", memcg_sum_events(memcg, MEMCG_OOM));
-+	seq_printf(m, "low %lu\n",
-+		   atomic_long_read(&memcg->memory_events[MEMCG_LOW]));
-+	seq_printf(m, "high %lu\n",
-+		   atomic_long_read(&memcg->memory_events[MEMCG_HIGH]));
-+	seq_printf(m, "max %lu\n",
-+		   atomic_long_read(&memcg->memory_events[MEMCG_MAX]));
-+	seq_printf(m, "oom %lu\n",
-+		   atomic_long_read(&memcg->memory_events[MEMCG_OOM]));
- 	seq_printf(m, "oom_kill %lu\n", memcg_sum_events(memcg, OOM_KILL));
- 
- 	return 0;
-@@ -5325,7 +5329,7 @@ static int memory_stat_show(struct seq_file *m, void *v)
- {
- 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
- 	unsigned long stat[MEMCG_NR_STAT];
--	unsigned long events[MEMCG_NR_EVENTS];
-+	unsigned long events[NR_VM_EVENT_ITEMS];
- 	int i;
- 
- 	/*
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 5ee6fbdec8a8..b37e6dd50925 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2628,7 +2628,7 @@ static bool shrink_node(pg_data_t *pgdat, struct scan_control *sc)
- 					sc->memcg_low_skipped = 1;
- 					continue;
- 				}
--				mem_cgroup_event(memcg, MEMCG_LOW);
-+				memcg_memory_event(memcg, MEMCG_LOW);
- 			}
- 
- 			reclaimed = sc->nr_reclaimed;
 -- 
 2.23.3
 
