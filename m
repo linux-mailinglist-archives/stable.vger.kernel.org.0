@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D35834DD78
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 03:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CED234DD7A
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 03:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229628AbhC3B2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Mar 2021 21:28:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46124 "EHLO
+        id S230449AbhC3B2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Mar 2021 21:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230446AbhC3B2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 21:28:01 -0400
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A456C061762
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 18:28:01 -0700 (PDT)
-Received: by mail-io1-xd32.google.com with SMTP id x16so14724451iob.1
-        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 18:28:01 -0700 (PDT)
+        with ESMTP id S230411AbhC3B2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Mar 2021 21:28:21 -0400
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D6AC061764
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 18:28:20 -0700 (PDT)
+Received: by mail-il1-x12d.google.com with SMTP id c17so12834380ilj.7
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 18:28:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxfoundation.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=qwcXVymEU/ZJLMA71UNTq1rRmsQJ0OyPmER1NfJWWqQ=;
-        b=BvFzhJJrQqUuSpzJet1erfFVq+ppk7DvL/ktYDUTlwrHqDZdNNMzDcpoyeyXkCsch8
-         bkkoZw0qhXUeSJY/I3b71qBCSPMS3htB57vW0GpIk1TR5gaMj3w+Y727EAAyaMqn3OF8
-         GqYWs6NyXP0dgxwNjk8v2BxEHXlh28zNVQkX4=
+        bh=q4fT9GDDnemAhHBqdK9yrAIrxFWXoWZ0aF4SGoPq204=;
+        b=ZOUH7LtBeLP94znfKH2DHVk6PLBiGAM0aI/fkeBHkjvPme7bcehISmJ20IxDhuONPV
+         xD2DYmxaG8/1ImDsrC29712MyFaWHV+ufXVIZfdXbOo4UZTD1pav86I6+QDYG0xwPq9T
+         qPP+boxxQE+ek8qFbrzJMcQs9j1lADMqqV9ZM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=qwcXVymEU/ZJLMA71UNTq1rRmsQJ0OyPmER1NfJWWqQ=;
-        b=JvyKaEQe/HSAY/B/bSEEWyCk5YC6gr0+n8kncwBv58mNEn4VHE+diPwd4/a/X2QdR+
-         9i7cbxOcD5hT/7wS2qBFpwjEniUF7fS+ad6cYBE8HLGrf7gHDWnNz2fFjmBeX+RftMb+
-         m3z5EGqrUncew8lLkrjFMAaerqT89jC4fZXVwQnIyN+NEAEnYTNdte6zCQQvnfLwJmfH
-         24X6olHYMUa7a69m2USKd4CZo7ABVOwufCkt83M9Tub/gajUpmrq1gxzlN97OCPxk3Cz
-         lAxJ77826uI6bpAfCauStS/uaTMJDKSzidzrzN9ddtb8C8bwne2sKN3RTf2ZeX6m6eWo
-         XiwQ==
-X-Gm-Message-State: AOAM532EtIrbc2m+wIlQvFIQ6jHln0Ladx7xpUvugwrEaCRwjDAitWlA
-        3XPldAtBpySqqMJU+pf2dHPaPQ==
-X-Google-Smtp-Source: ABdhPJzNQDTQQdzKN4s7uCpEG9fT9O2vxnyblbcEsR/2lY6GtzlAxlQK/hkEpWM5oxPp21rCeVUoxg==
-X-Received: by 2002:a05:6638:3399:: with SMTP id h25mr26795575jav.15.1617067680706;
-        Mon, 29 Mar 2021 18:28:00 -0700 (PDT)
+        bh=q4fT9GDDnemAhHBqdK9yrAIrxFWXoWZ0aF4SGoPq204=;
+        b=gs1ltOrU0MgScyLoT6sRtE7F0UIOuGhSmMyQ4CTRso5ccITd9+a7tqgpUqeB0HlfFT
+         Pcg9Rqfvg8274g1Se9DfqNONGo0HD8jBm8xsnXY1JW3G7r2ps0XOwff1jfId8+HlVriz
+         F0GWXq8w806osiAWx1pDT0bHwRKi33PnVDHQi4BQXGqImE0uwL62C7fNuMwV78+O/kWi
+         5QJUqVpMU3MiBbh/VMnS/xg6NYRfINaYC7UKEBYDUol6JyZmUippEU3KRuYjuDOMtRTG
+         StacE3zEPDrqa+l/jz4+pjK/WhAtHBysljMvaBWDO4MNYW8S0PZ/8oRRW3aJLcyyl7dC
+         JY3w==
+X-Gm-Message-State: AOAM533ADEnQ3fsR0Mz5AJqqWWAbQu/4BH9MEfUFVqoZyU3qXMY4JRgA
+        k6LKnOYvcYzqHJF/rPqNoeTCBQ==
+X-Google-Smtp-Source: ABdhPJwCMjSRvbi6xRWgTWRXMiy0E3QL3DIxWkXOJxJQJQmIgXfcTCgyAUjZ/pxXePHCtLzBrS2b+A==
+X-Received: by 2002:a92:4b08:: with SMTP id m8mr20439823ilg.140.1617067700451;
+        Mon, 29 Mar 2021 18:28:20 -0700 (PDT)
 Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id b15sm10347660ilm.25.2021.03.29.18.27.59
+        by smtp.gmail.com with ESMTPSA id l6sm10413952iln.45.2021.03.29.18.28.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Mar 2021 18:28:00 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/53] 4.9.264-rc1 review
+        Mon, 29 Mar 2021 18:28:20 -0700 (PDT)
+Subject: Re: [PATCH 4.4 00/33] 4.4.264-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -53,14 +53,14 @@ Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, stable@vger.kernel.org,
         Shuah Khan <skhan@linuxfoundation.org>
-References: <20210329075607.561619583@linuxfoundation.org>
+References: <20210329075605.290845195@linuxfoundation.org>
 From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <20d28e84-15e9-a14f-a104-c5d7830e86c0@linuxfoundation.org>
-Date:   Mon, 29 Mar 2021 19:27:59 -0600
+Message-ID: <9e5edeb4-bea1-e4ce-3b2d-da0f000462e1@linuxfoundation.org>
+Date:   Mon, 29 Mar 2021 19:28:19 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <20210329075607.561619583@linuxfoundation.org>
+In-Reply-To: <20210329075605.290845195@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -69,8 +69,8 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 3/29/21 1:57 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.264 release.
-> There are 53 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.4.264 release.
+> There are 33 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -78,9 +78,9 @@ On 3/29/21 1:57 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.264-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.264-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -94,4 +94,3 @@ Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
 thanks,
 -- Shuah
-
