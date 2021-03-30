@@ -2,106 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B5934E858
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 15:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A30A434E883
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 15:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbhC3NEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 09:04:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232017AbhC3NE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 09:04:28 -0400
-Received: from postout1.mail.lrz.de (postout1.mail.lrz.de [IPv6:2001:4ca0:0:103::81bb:ff89])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B0DC061574;
-        Tue, 30 Mar 2021 06:04:27 -0700 (PDT)
-Received: from lxmhs51.srv.lrz.de (localhost [127.0.0.1])
-        by postout1.mail.lrz.de (Postfix) with ESMTP id 4F8qQw6YtNzyVs;
-        Tue, 30 Mar 2021 15:04:24 +0200 (CEST)
-Authentication-Results: postout.lrz.de (amavisd-new); dkim=pass (2048-bit key)
-        reason="pass (just generated, assumed good)" header.d=tum.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tum.de; h=
-        in-reply-to:content-disposition:content-type:content-type
-        :mime-version:references:message-id:subject:subject:from:from
-        :date:date:received:received; s=postout; t=1617109464; bh=sfDhCO
-        DWlyQVGUuyDwdvVxAO3aVQ6nsZvUx5T1fGqy0=; b=GcddPUYZ2zYnMZ8IxAL5Vi
-        TKrAcrepSBhojh1JNXLzO8ZEjKxJN5jXK9q6vJEHpKBJLNOE36QH8BdKrVc9lKdM
-        aGLSs1jNuHRGBkZFtpDE9p5U1jjwnzrUng2p4XRYvAkmSkiO8URR2UCKk3BmnaHr
-        3uaQFH8M9YMIwCxgmzfUsJBhPSRCc0rc/4jtjUrJ7RDIHEv+O88dXGNvZSIzeFgv
-        Bhd5QcoeetLfP7ZDFDm0lcJsmeJcRy4I6eIQeEYSzR1jFoGHj+XsOZQKCk9xM7T9
-        SsLgtYtt4jKLWz/NRL1x8N2QAEX5b8OjuyaWV3/fG6rug79XKd23nH6+/tJwaL/Q
-        ==
-X-Virus-Scanned: by amavisd-new at lrz.de in lxmhs51.srv.lrz.de
-X-Spam-Flag: NO
-X-Spam-Score: -2.876
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.876 tagged_above=-999 required=5
-        tests=[ALL_TRUSTED=-1, BAYES_00=-1.9, DMARC_ADKIM_RELAXED=0.001,
-        DMARC_ASPF_RELAXED=0.001, DMARC_POLICY_NONE=0.001,
-        LRZ_DMARC_FAIL=0.001, LRZ_DMARC_FAIL_NONE=0.001,
-        LRZ_DMARC_POLICY=0.001, LRZ_DMARC_TUM_FAIL=0.001,
-        LRZ_DMARC_TUM_REJECT=3.5, LRZ_DMARC_TUM_REJECT_PO=-3.5,
-        LRZ_ENVFROM_FROM_ALIGNED_STRICT=0.001, LRZ_ENVFROM_FROM_MATCH=0.001,
-        LRZ_ENVFROM_TUM_S=0.001, LRZ_FROM_HAS_A=0.001,
-        LRZ_FROM_HAS_AAAA=0.001, LRZ_FROM_HAS_MDOM=0.001,
-        LRZ_FROM_HAS_MX=0.001, LRZ_FROM_HOSTED_DOMAIN=0.001,
-        LRZ_FROM_NAME_IN_ADDR=0.001, LRZ_FROM_PHRASE=0.001,
-        LRZ_FROM_PRE_SUR_PHRASE=0.001, LRZ_FROM_TUM_S=0.001,
-        LRZ_HAS_IN_REPLY_TO=0.001, LRZ_HAS_SPF=0.001, LRZ_HAS_URL_HTTP=0.001,
-        LRZ_URL_HTTP_SINGLE=0.001, LRZ_URL_PLAIN_SINGLE=0.001]
-        autolearn=no autolearn_force=no
-Received: from postout1.mail.lrz.de ([127.0.0.1])
-        by lxmhs51.srv.lrz.de (lxmhs51.srv.lrz.de [127.0.0.1]) (amavisd-new, port 20024)
-        with LMTP id aijYiZpF6ltN; Tue, 30 Mar 2021 15:04:24 +0200 (CEST)
-Received: from endor.yaviniv (unknown [IPv6:2001:4ca0:0:f294:bce0:50e2:fadb:742a])
+        id S232005AbhC3NKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 09:10:02 -0400
+Received: from mengyan1223.wang ([89.208.246.23]:60066 "EHLO mengyan1223.wang"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232033AbhC3NJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Mar 2021 09:09:36 -0400
+Received: from [IPv6:240e:35a:1037:8a00:70b2:e35d:833c:af3e] (unknown [IPv6:240e:35a:1037:8a00:70b2:e35d:833c:af3e])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+         key-exchange ECDHE (P-256) server-signature ECDSA (P-384))
         (Client did not present a certificate)
-        by postout1.mail.lrz.de (Postfix) with ESMTPSA id 4F8qQv3nPJzyWS;
-        Tue, 30 Mar 2021 15:04:23 +0200 (CEST)
-Date:   Tue, 30 Mar 2021 15:04:18 +0200
-From:   Andrei Rabusov <a.rabusov@tum.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/219] 5.10.27-rc2 review
-Message-ID: <YGMh0t1iMOP8uqe9@endor.yaviniv>
-References: <20210329101340.196712908@linuxfoundation.org>
+        (Authenticated sender: xry111@mengyan1223.wang)
+        by mengyan1223.wang (Postfix) with ESMTPSA id 5D1C765C14;
+        Tue, 30 Mar 2021 09:09:23 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mengyan1223.wang;
+        s=mail; t=1617109776;
+        bh=3iP3rLSkq+VHRv9oXI55n1v+WgpcbUG9Pj6ypqndVyM=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=jlPQQcKuSJNeAKBfBqLWKzTAZ6N3flgBhFW3Ivu2XobvF0fkmyiHwYvb0HYY7nIZS
+         EBh7I34Aisb+H8iNJUk3xZs/BiLYHW++v/XmWX/jf4Cbx4JrIWmZjQl0MjILUeF/1K
+         xQdpbmBBBpAD+PN9Hay0/EduuiMHirfHM5ih+7WqO+HWmI17Md3WelMnUP8QFlI1hb
+         +gyjmh3U67Y5rwG1qJaBq/SfFhaaFz+ITR1uTpf6zaGyb7Elk0WXQdpSyHX6S/qiv6
+         87TdrlOY3uqwScMSVkaLwGfXUsy0fESYLEcLKt+Af+m4bbWtgROcHaKY5ESNYCHmmG
+         lTlQjar0XhL5w==
+Message-ID: <63f5f6b39d22d9833a4c1503a34840eb08050f75.camel@mengyan1223.wang>
+Subject: Re: [PATCH] drm/amdgpu: fix an underflow on non-4KB-page systems
+From:   Xi Ruoyao <xry111@mengyan1223.wang>
+To:     Christian =?ISO-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        Christian =?ISO-8859-1?Q?K=F6nig?= 
+        <ckoenig.leichtzumerken@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Dan =?ISO-8859-1?Q?Hor=E1k?= <dan@danny.cz>,
+        amd-gfx@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
+        stable@vger.kernel.org
+Date:   Tue, 30 Mar 2021 21:09:12 +0800
+In-Reply-To: <f3fb57055f0bd3f19bb6ac397dc92113e1555764.camel@mengyan1223.wang>
+References: <20210329175348.26859-1-xry111@mengyan1223.wang>
+         <d192e2a8-8baf-0a8c-93a9-9abbad992c7d@gmail.com>
+         <be9042b9294bda450659d3cd418c5e8759d57319.camel@mengyan1223.wang>
+         <9a11c873-a362-b5d1-6d9c-e937034e267d@gmail.com>
+         <bf9e05d4a6ece3e8bf1f732b011d3e54bbf8000e.camel@mengyan1223.wang>
+         <84b3911173ad6beb246ba0a77f93d888ee6b393e.camel@mengyan1223.wang>
+         <97c520ce107aa4d5fd96e2c380c8acdb63d45c37.camel@mengyan1223.wang>
+         <7701fb71-9243-2d90-e1e1-d347a53b7d77@gmail.com>
+         <368b9b1b7343e35b446bb1028ccf0ae75dc2adc4.camel@mengyan1223.wang>
+         <71e3905a5b72c5b97df837041b19175540ebb023.camel@mengyan1223.wang>
+         <c3caf16b-584a-3e4c-0104-15bb41613136@amd.com>
+         <f3fb57055f0bd3f19bb6ac397dc92113e1555764.camel@mengyan1223.wang>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.0 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210329101340.196712908@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 29, 2021 at 12:14:07PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.27 release.
-> There are 219 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2021-03-30 21:02 +0800, Xi Ruoyao wrote:
+> On 2021-03-30 14:55 +0200, Christian König wrote:
+> > 
+> > I rather see this as a kernel bug. Can you test if this code fragment 
+> > fixes your issue:
+> > 
+> > diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c 
+> > b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+> > index 64beb3399604..e1260b517e1b 100644
+> > --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+> > +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+> > @@ -780,7 +780,7 @@ int amdgpu_info_ioctl(struct drm_device *dev, void 
+> > *data, struct drm_file *filp)
+> >                  }
+> >                  dev_info->virtual_address_alignment = 
+> > max((int)PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
+> >                  dev_info->pte_fragment_size = (1 << 
+> > adev->vm_manager.fragment_size) * AMDGPU_GPU_PAGE_SIZE;
+> > -               dev_info->gart_page_size = AMDGPU_GPU_PAGE_SIZE;
+> > +               dev_info->gart_page_size = 
+> > dev_info->virtual_address_alignment;
+> >                  dev_info->cu_active_number = adev->gfx.cu_info.number;
+> >                  dev_info->cu_ao_mask = adev->gfx.cu_info.ao_cu_mask;
+> >                  dev_info->ce_ram_size = adev->gfx.ce_ram_size;
 > 
-> Responses should be made by Wed, 31 Mar 2021 10:13:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.27-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> It works.  I've seen it at
+> https://github.com/xen0n/linux/commit/84ada72983838bd7ce54bc32f5d34ac5b5aae191
+> before (with a common sub-expression, though :).
 
-I found no problems with 5.10.27-rc2 on my i686, gcc 10.2
-Selftest results [ok/not ok]: [1437/80]
-Improvement (compared with -rc1): rtctest.1 now is ok:
+Some comment: on an old version of Fedora ported by Loongson, Xorg just hangs
+without this commit.  But on the system I built from source, I didn't see any
+issue before Linux 5.11.  So I misbelieved that it was something already fixed.
 
-$ grep rtctest ../log/5.10.27/rc2/selftests.log | grep ok
-ok 1 selftests: rtc: rtctest
-$ grep rtctest ../log/5.10.27/rc1/selftests.log | grep ok
-not ok 1 selftests: rtc: rtctest # TIMEOUT 90 seconds
+Dan: you can try it on your PPC 64 with non-4K page as well.
+-- 
+Xi Ruoyao <xry111@mengyan1223.wang>
+School of Aerospace Science and Technology, Xidian University
 
-Tested-by: Andrei Rabusov <a.rabusov@tum.de>
