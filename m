@@ -2,119 +2,259 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0E4A34E07B
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 07:00:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC6C34E0BF
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 07:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229479AbhC3E75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 00:59:57 -0400
-Received: from out28-146.mail.aliyun.com ([115.124.28.146]:38054 "EHLO
-        out28-146.mail.aliyun.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbhC3E7c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 00:59:32 -0400
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.07441275|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.00478279-0.00110423-0.994113;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047201;MF=zhouyanjie@wanyeetech.com;NM=1;PH=DS;RN=7;RT=7;SR=0;TI=SMTPD_---.JsM3E1E_1617080368;
-Received: from 192.168.123.38(mailfrom:zhouyanjie@wanyeetech.com fp:SMTPD_---.JsM3E1E_1617080368)
-          by smtp.aliyun-inc.com(10.147.42.22);
-          Tue, 30 Mar 2021 12:59:28 +0800
-Subject: Re: [PATCH v3] mm: fix race by making init_zero_pfn() early_initcall
-To:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     Hugh Dickins <hughd@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, stable@vger.kernel.org
-References: <20210329052922.1130493-1-ilya.lipnitskiy@gmail.com>
- <20210330044208.8305-1-ilya.lipnitskiy@gmail.com>
-From:   Zhou Yanjie <zhouyanjie@wanyeetech.com>
-Message-ID: <51e3affb-ea09-65a4-99e1-daba968e6dc8@wanyeetech.com>
-Date:   Tue, 30 Mar 2021 12:59:27 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S229675AbhC3Fk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 01:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43678 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229630AbhC3Fjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 01:39:55 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27E8EC061764
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 22:39:55 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id kt15so22863786ejb.12
+        for <stable@vger.kernel.org>; Mon, 29 Mar 2021 22:39:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Hroys88JGmvJUmHfPEHvZaUwXpyKigO3zNzUlmaHVHE=;
+        b=NyWQMP6hKkunnWRE2FJVzrsTdwg48BIBoawJW/N8ukzhzS28uP+rDSLYXVoZ6lZXmi
+         0v5FiztxpD6k82dGzI8BvJqRCwhYhN7Q5MV/P1Z6tkmTLPhzvWQ0YgGyVeqYOSlBYlHr
+         V4nmC3VO3G67CAxPFtX810MI04lLFC4GsBMdKqRdE6YVeIxTQbijujvMGg3E9nt4dx+3
+         SnZvEkC/GEh2KVw1sp8eBrm1e+MEgNAwriOQq5l1FDl4B9KcMQi0G0xfh4j+CyXNlOL3
+         GJOr3Jx5Owg5pxJ+gMLmZLfng4FPwyMlQiMrWA6ELITm4z0acnWzYQRagqP75wsOSk4K
+         Z2DA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Hroys88JGmvJUmHfPEHvZaUwXpyKigO3zNzUlmaHVHE=;
+        b=Lh7n5lqb0VLkknpETXXXDQHNCwTb3kGKRpyswcyGylwpF/dQWuuJJnKDG82YrT22aj
+         h7FZTpJWnglf/La7fi57HzjQBAky+fkMCH+a8abHCNqMcDhaT2wqf4Ttxjkwn/eFH/R6
+         5FtTICsHwjy1QnIvMqqUgosrJ6qBuVEJaYCEB9f0pXCSOdrTmBOGFvtuxnQQmBs4bGjl
+         vUXqiSiwZBk6rLy/Ik6cEZFESfOx0NNUkQKJWldxtio+T6olzJYCdSZClVc8xosnK9aa
+         vPkRwDGvVga623YMFivR40ZIVoVRCD5AX3odRezPayVYwQcW/NIM2dLzzLH61OFeBpfi
+         cpdw==
+X-Gm-Message-State: AOAM530E8gbyhd0tlvseL13AJLP71ScnbIgXvN9hjPWscwnobhJkBnlG
+        IWYclqAYY9AtirWzlqFYTLuIjeHV5CTpCGKGyhnKLg==
+X-Google-Smtp-Source: ABdhPJyApvgtDhTuNQElD901+lXBwc/we44N+u96SPdNhRTaer6eLhNIS32SIcE4+xeMxYw9imrNFcNk2GyvFHQAUQk=
+X-Received: by 2002:a17:907:7785:: with SMTP id ky5mr30812724ejc.133.1617082793715;
+ Mon, 29 Mar 2021 22:39:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210330044208.8305-1-ilya.lipnitskiy@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20210329101340.196712908@linuxfoundation.org>
+In-Reply-To: <20210329101340.196712908@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 30 Mar 2021 11:09:42 +0530
+Message-ID: <CA+G9fYsdPaSRwuXGowmXxbWybrupH9ny4geTKGBzAttN_a+Tdg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/219] 5.10.27-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Ilya,
+On Mon, 29 Mar 2021 at 15:44, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.27 release.
+> There are 219 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 31 Mar 2021 10:13:09 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.27-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On 2021/3/30 下午12:42, Ilya Lipnitskiy wrote:
-> There are code paths that rely on zero_pfn to be fully initialized
-> before core_initcall. For example, wq_sysfs_init() is a core_initcall
-> function that eventually results in a call to kernel_execve, which
-> causes a page fault with a subsequent mmput. If zero_pfn is not
-> initialized by then it may not get cleaned up properly and result in an
-> error:
->    BUG: Bad rss-counter state mm:(ptrval) type:MM_ANONPAGES val:1
->
-> Here is an analysis of the race as seen on a MIPS device. On this
-> particular MT7621 device (Ubiquiti ER-X), zero_pfn is PFN 0 until
-> initialized, at which point it becomes PFN 5120:
->    1. wq_sysfs_init calls into kobject_uevent_env at core_initcall:
->         [<80340dc8>] kobject_uevent_env+0x7e4/0x7ec
->         [<8033f8b8>] kset_register+0x68/0x88
->         [<803cf824>] bus_register+0xdc/0x34c
->         [<803cfac8>] subsys_virtual_register+0x34/0x78
->         [<8086afb0>] wq_sysfs_init+0x1c/0x4c
->         [<80001648>] do_one_initcall+0x50/0x1a8
->         [<8086503c>] kernel_init_freeable+0x230/0x2c8
->         [<8066bca0>] kernel_init+0x10/0x100
->         [<80003038>] ret_from_kernel_thread+0x14/0x1c
->
->    2. kobject_uevent_env() calls call_usermodehelper_exec() which executes
->       kernel_execve asynchronously.
->
->    3. Memory allocations in kernel_execve cause a page fault, bumping the
->       MM reference counter:
->         [<8015adb4>] add_mm_counter_fast+0xb4/0xc0
->         [<80160d58>] handle_mm_fault+0x6e4/0xea0
->         [<80158aa4>] __get_user_pages.part.78+0x190/0x37c
->         [<8015992c>] __get_user_pages_remote+0x128/0x360
->         [<801a6d9c>] get_arg_page+0x34/0xa0
->         [<801a7394>] copy_string_kernel+0x194/0x2a4
->         [<801a880c>] kernel_execve+0x11c/0x298
->         [<800420f4>] call_usermodehelper_exec_async+0x114/0x194
->
->    4. In case zero_pfn has not been initialized yet, zap_pte_range does
->       not decrement the MM_ANONPAGES RSS counter and the BUG message is
->       triggered shortly afterwards when __mmdrop checks the ref counters:
->         [<800285e8>] __mmdrop+0x98/0x1d0
->         [<801a6de8>] free_bprm+0x44/0x118
->         [<801a86a8>] kernel_execve+0x160/0x1d8
->         [<800420f4>] call_usermodehelper_exec_async+0x114/0x194
->         [<80003198>] ret_from_kernel_thread+0x14/0x1c
->
-> To avoid races such as described above, initialize init_zero_pfn at
-> early_initcall level. Depending on the architecture, ZERO_PAGE is either
-> constant or gets initialized even earlier, at paging_init, so there is
-> no issue with initializing zero_pfn earlier.
->
-> Discussion: https://lkml.kernel.org/r/CALCv0x2YqOXEAy2Q=hafjhHCtTHVodChv1qpM=niAXOpqEbt7w@mail.gmail.com
->
-> Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-> Cc: Hugh Dickins <hughd@google.com>
-> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-> Cc: stable@vger.kernel.org
-> ---
->   mm/memory.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.10.27-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.10.y
+git commit: 8c8bcec351223764ccc3ab7551540172989b5194
+git describe: v5.10.26-220-g8c8bcec35122
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10=
+.y/build/v5.10.26-220-g8c8bcec35122
+
+No regressions (compared to build v5.10.26)
+
+No fixes (compared to build v5.10.26)
 
 
-Tested-by: 周琰杰 (Zhou Yanjie)<zhouyanjie@wanyeetech.com> # on 
-CU1000-Neo/X1000E and CU1830-Neo/X1830
+Ran 65388 total tests in the following environments and test suites.
 
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm-debug
+- qemu-arm64-clang
+- qemu-arm64-debug
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-i386-debug
+- qemu-x86_64-clang
+- qemu-x86_64-debug
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+- x86_64
 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index 5c3b29d3af66..e66b11ac1659 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -166,7 +166,7 @@ static int __init init_zero_pfn(void)
->   	zero_pfn = page_to_pfn(ZERO_PAGE(0));
->   	return 0;
->   }
-> -core_initcall(init_zero_pfn);
-> +early_initcall(init_zero_pfn);
->   
->   void mm_trace_rss_stat(struct mm_struct *mm, int member, long count)
->   {
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* kvm-unit-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* v4l2-compliance
+* fwts
+* kselftest-intel_pstate
+* kselftest-kvm
+* kselftest-livepatch
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* network-basic-tests
+* perf
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-lib
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-tc-testing
+* kselftest-vm
+* kselftest-x86
+* ltp-controllers-tests
+* ltp-dio-tests
+* ltp-open-posix-tests
+* kunit
+* rcutorture
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
