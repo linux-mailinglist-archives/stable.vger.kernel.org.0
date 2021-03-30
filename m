@@ -2,131 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 798C834E53C
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 12:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1388E34E541
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 12:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231742AbhC3KR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 06:17:56 -0400
-Received: from mail-mw2nam10on2061.outbound.protection.outlook.com ([40.107.94.61]:23649
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231699AbhC3KRe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Mar 2021 06:17:34 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iULcVX7peZRrH9z4I7arx9zTnzOIkA8NBt3nb8pv6eQOKFdtrPyhawVydjEXBN6pTQhqfsQDNJNqCE+JulWD1CuT9+kHyrXFKqSR1KqMGH0TBgELa3s6mHE9Pp0OESBWor40Nf/iLGITjsyT2vS5lI8ZrS6D/n7mzfiNiF/QgThoWMNx7Q2ogmlC81knFILeHtEx2GVmTapdBFbrj/0fEsUstETTObaVw4bW0sAxud3zJYc/7iR66hRdt2fKMk0E+B0JHethQOCR7SC4ARzevmq+kFawTvwPJLxQOs2e/n61M2JCNoqVoAdn8MfolPn1KlGw25+phlHP9dhsweUjUQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Wy6FCbOUOlqHqDsVDmPxrPG8fxR7RlBKgkGlfHBVHTc=;
- b=JQp2bV2dITthH1stBzQILBllwNjk8r8DpM3GF+cqSyRFM+mBJzAAQq3O16vXvXxXZzuuMKTPriG/TuqUjfTLY4oZyHzSpNXAyKHldXeOErfRErM3nlAsikD3jShWhHs3JDiBA7dBEH3LWFzKAwaHhELR/yqPg7Sc+RyYk16HUcWeSRX3DOVmkpXDcqbnDENk+MJKXDjmLbJz+TSgK+qZzTZon59xr/vYH2BqbrWMH4HUvowB26yy4ZVfLqQpglfmcqp3dPjofAgbmV5PkRucVaAFbz2MWVnPnvvwxJMvBpnKrWJHYrTw6QLAQXNTErwoL8CvYPzFBfQMlbp2LOyWHQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.35) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Wy6FCbOUOlqHqDsVDmPxrPG8fxR7RlBKgkGlfHBVHTc=;
- b=VTq0nwejLsmi3R3nEL1Vb/EusbW03XAXI+NUrCrOsYfBnxgqtI1OqOkxMqdAl7dZYVbqEbhx0fTbLIxBULEHGcPdLk2qkoFQQ28M6JwqUY/Pfe8cX10bjD5cu2yXIUHHsSliFAlmjKMVoTlt+7RhvntHLfVpcW36QHOgyrioDvCXSXnyqbhxMcQP+SJA/lcAta1QhfFJkgsLA7Fzubn1o7NazLXyiyfIlKzzvjuoDXyaNdPxFdfj3DCj88QwHj/1MroqlMyZ/oKL+S83GcKBP/UR7/P0nGOqwLRAPm/nivaNUAXNm8zqoFF4rCyplnMZBAQVfTfWhdqfeYGIHb2pvg==
-Received: from BN9PR03CA0390.namprd03.prod.outlook.com (2603:10b6:408:f7::35)
- by CH2PR12MB4168.namprd12.prod.outlook.com (2603:10b6:610:a8::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3977.26; Tue, 30 Mar
- 2021 10:17:30 +0000
-Received: from BN8NAM11FT011.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:f7:cafe::29) by BN9PR03CA0390.outlook.office365.com
- (2603:10b6:408:f7::35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3977.24 via Frontend
- Transport; Tue, 30 Mar 2021 10:17:30 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.35)
- smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
- header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.35 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.35; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.35) by
- BN8NAM11FT011.mail.protection.outlook.com (10.13.176.140) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.3955.18 via Frontend Transport; Tue, 30 Mar 2021 10:17:29 +0000
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 30 Mar
- 2021 10:17:29 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
- Transport; Tue, 30 Mar 2021 10:17:29 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.11 000/252] 5.11.11-rc2 review
-In-Reply-To: <20210329101343.082590961@linuxfoundation.org>
-References: <20210329101343.082590961@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S231584AbhC3KS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 06:18:27 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:39010 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231621AbhC3KSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Mar 2021 06:18:04 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4F8lky0Skxz9ty55;
+        Tue, 30 Mar 2021 12:18:02 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id ps5lNHgb8olB; Tue, 30 Mar 2021 12:18:01 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4F8lkx5tzKz9ty52;
+        Tue, 30 Mar 2021 12:18:01 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id DEAD38B7F0;
+        Tue, 30 Mar 2021 12:18:01 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id 0dt7KnvUNDCa; Tue, 30 Mar 2021 12:18:01 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id EF9C88B7EE;
+        Tue, 30 Mar 2021 12:18:00 +0200 (CEST)
+Subject: Re: [PATCH] powerpc/vdso: Separate vvar vma from vdso
+To:     Dmitry Safonov <dima@arista.com>, linux-kernel@vger.kernel.org
+Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+References: <20210326191720.138155-1-dima@arista.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <47623d02-eb29-0fcb-0cfd-a9c11c9fab02@csgroup.eu>
+Date:   Tue, 30 Mar 2021 12:17:59 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.0
 MIME-Version: 1.0
-Message-ID: <62a3a701a5a74eee97e35c3b916a7efd@HQMAIL105.nvidia.com>
-Date:   Tue, 30 Mar 2021 10:17:29 +0000
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e58d940d-ba8b-4ed9-c09b-08d8f365069b
-X-MS-TrafficTypeDiagnostic: CH2PR12MB4168:
-X-Microsoft-Antispam-PRVS: <CH2PR12MB4168D0E8868516CE76E008C5D97D9@CH2PR12MB4168.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: nuKB1ndkHRe/61uUmvSniyEtwN6c3TsCwnn1qjuFTNnMe3U6Q8msYGMXUI7pEJsSjS8qrKjQ6zd2hu8KzrLExXBwiTinqtC2QUgOtLbjwzbsnLwH/iiYS56n/zI91R+h7Jxu3MbVwGj5D9JWb9zIuSdYtBEMWWpRJ6LXK7wH/TQLuhqj2d1ApQOCVYAe9XNe6+j0Q/jcgP7DRBz1QoY4g85sBDgk9fbBRRg1KGfBsYoVqsd9T7iIafaQihZNxTNqTi8gspUwBDcxuFR82AJs5L5asSONvnCyQZihp+IBFLW/xfcACZjIWqHEXPAkmDRePmjUDAID13ctVZ4CkxLjUuGGI6anJxn/Lx85N9nmuA4xmeuWjVoxeZJg23df7Ms42DbfyfXzhx+r3mQG0cYK0sf6SgEu2iEhAtUq2IoB+9erC2/SXT3Zq+Ohk4D/NGVnJ2WDL7nXYPBGlaTeiU/uR76YvI1g2r/sqOceiigT2wSxClmdYtNzkuoaDddxWddQ+wbOP6fuuIKVihJRgpacGAjJQ2NG1REuebAJpEsbDtiY8tlRYnbQhHnwUSMWEF+cgCtmEG/Q8nfCyvhR5kUJZfvQG1lQVwgOYXCWsPdzW9/OJujQ6Z22tIVyJTQ2gieRqRb7zY4W5E8sulhOuvM8m+qlPmnPovJ01hwH7KqEqVOtc/CxRkn1kOMBnbQa51sTlZrGxG8i4q5uFT5KLLmpw8gDBRcZcgAuZAy+XH10y+s=
-X-Forefront-Antispam-Report: CIP:216.228.112.35;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid02.nvidia.com;CAT:NONE;SFS:(4636009)(376002)(346002)(396003)(136003)(39860400002)(46966006)(36840700001)(82740400003)(8676002)(36860700001)(7416002)(4326008)(6916009)(36906005)(426003)(82310400003)(26005)(478600001)(336012)(8936002)(47076005)(54906003)(966005)(24736004)(108616005)(316002)(356005)(7636003)(70206006)(70586007)(2906002)(186003)(86362001)(5660300002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Mar 2021 10:17:29.9363
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e58d940d-ba8b-4ed9-c09b-08d8f365069b
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.35];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT011.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4168
+In-Reply-To: <20210326191720.138155-1-dima@arista.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Mar 2021 12:14:20 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.11.11 release.
-> There are 252 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+
+
+Le 26/03/2021 à 20:17, Dmitry Safonov a écrit :
+> Since commit 511157ab641e ("powerpc/vdso: Move vdso datapage up front")
+> VVAR page is in front of the VDSO area. In result it breaks CRIU
+> (Checkpoint Restore In Userspace) [1], where CRIU expects that "[vdso]"
+> from /proc/../maps points at ELF/vdso image, rather than at VVAR data page.
+> Laurent made a patch to keep CRIU working (by reading aux vector).
+> But I think it still makes sence to separate two mappings into different
+> VMAs. It will also make ppc64 less "special" for userspace and as
+> a side-bonus will make VVAR page un-writable by debugger (which previously
+> would COW page and can be unexpected).
 > 
-> Responses should be made by Wed, 31 Mar 2021 10:13:07 +0000.
-> Anything received after that time might be too late.
+> I opportunistically Cc stable on it: I understand that usually such
+> stuff isn't a stable material, but that will allow us in CRIU have
+> one workaround less that is needed just for one release (v5.11) on
+> one platform (ppc64), which we otherwise have to maintain.
+> I wouldn't go as far as to say that the commit 511157ab641e is ABI
+> regression as no other userspace got broken, but I'd really appreciate
+> if it gets backported to v5.11 after v5.12 is released, so as not
+> to complicate already non-simple CRIU-vdso code. Thanks!
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.11-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
-> and the diffstat can be found below.
+> Cc: Andrei Vagin <avagin@gmail.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Cc: Laurent Dufour <ldufour@linux.ibm.com>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: stable@vger.kernel.org # v5.11
+> [1]: https://github.com/checkpoint-restore/criu/issues/1417
+> Signed-off-by: Dmitry Safonov <dima@arista.com>
+> Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> ---
+>   arch/powerpc/include/asm/mmu_context.h |  2 +-
+>   arch/powerpc/kernel/vdso.c             | 54 +++++++++++++++++++-------
+>   2 files changed, 40 insertions(+), 16 deletions(-)
 > 
-> thanks,
-> 
-> greg k-h
+> diff --git a/arch/powerpc/include/asm/mmu_context.h b/arch/powerpc/include/asm/mmu_context.h
+> index 652ce85f9410..4bc45d3ed8b0 100644
+> --- a/arch/powerpc/include/asm/mmu_context.h
+> +++ b/arch/powerpc/include/asm/mmu_context.h
+> @@ -263,7 +263,7 @@ extern void arch_exit_mmap(struct mm_struct *mm);
+>   static inline void arch_unmap(struct mm_struct *mm,
+>   			      unsigned long start, unsigned long end)
+>   {
+> -	unsigned long vdso_base = (unsigned long)mm->context.vdso - PAGE_SIZE;
+> +	unsigned long vdso_base = (unsigned long)mm->context.vdso;
+>   
+>   	if (start <= vdso_base && vdso_base < end)
+>   		mm->context.vdso = NULL;
+> diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
+> index e839a906fdf2..b14907209822 100644
+> --- a/arch/powerpc/kernel/vdso.c
+> +++ b/arch/powerpc/kernel/vdso.c
+> @@ -55,10 +55,10 @@ static int vdso_mremap(const struct vm_special_mapping *sm, struct vm_area_struc
+>   {
+>   	unsigned long new_size = new_vma->vm_end - new_vma->vm_start;
+>   
+> -	if (new_size != text_size + PAGE_SIZE)
+> +	if (new_size != text_size)
+>   		return -EINVAL;
 
-All tests passing for Tegra ...
+In ARM64 you have removed the above test in commit 871402e05b24cb56 ("mm: forbid splitting special 
+mappings"). Do we need to keep it here ?
 
-Test results for stable-v5.11:
-    12 builds:	12 pass, 0 fail
-    28 boots:	28 pass, 0 fail
-    70 tests:	70 pass, 0 fail
+>   
+> -	current->mm->context.vdso = (void __user *)new_vma->vm_start + PAGE_SIZE;
+> +	current->mm->context.vdso = (void __user *)new_vma->vm_start;
+>   
+>   	return 0;
+>   }
 
-Linux version:	5.11.11-rc2-gf288f3edc688
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
-                tegra20-ventana, tegra210-p2371-2180,
-                tegra210-p3450-0000, tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
