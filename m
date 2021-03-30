@@ -2,485 +2,331 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 107CB34F218
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 22:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43A3934F24A
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 22:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231951AbhC3UXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 16:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37676 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbhC3UXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 16:23:06 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F6AC061574
-        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 13:23:05 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id j6-20020a17090adc86b02900cbfe6f2c96so45025pjv.1
-        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 13:23:05 -0700 (PDT)
+        id S232126AbhC3UfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 16:35:13 -0400
+Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:17487 "EHLO
+        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232246AbhC3Uel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 16:34:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=UKruTnlWVQaNXBUhpajGD9yPNz7MneFnMQVG+UlZScY=;
-        b=MWdin9vw9YC1lLJO69OYW00dTNrSQhc/IwtXUVgPt7++ktPhJUhczrJfZjZ0Tssnkh
-         rVrzLGrbcMsr6gIefeoj//OZQJa43AxPvNaxD9TCQNO1Mfyvta3KhIjjHtZByQeKdhlx
-         4PD//DiXzkx+6DJ1BtXfeFMHhyJfDnhhaUVGgNLv7kGDHm0F0/nEALZ8L+EeCjRyDhEc
-         XndoEq8h4dULRBPSi9kJQgS46N0FTpLB56OqhxYRKcwLRrKv0h+iTFdRYFsgaRR3lcu7
-         Th7S5GCYo8gz3jA59qZnnE6t2swF90vKM6GmcLI2hdxq8A9K7FtHQhuXq4nmZFHbTeSi
-         kzCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=UKruTnlWVQaNXBUhpajGD9yPNz7MneFnMQVG+UlZScY=;
-        b=phARFlkuGoRprF8py3taSUvO+668dSKU/Z8X+V6fFlhExAI2B7lu4+IP7gFZKaWRcx
-         4y8UiXUTa0oWXO6etq+gFM3kqTTXQd8GKTJkWA7edkfWvPd5iUpzkJMbGUnP77MO3wVJ
-         3VmCQ5PHHUMtvCpoadhEeQr+AsFrdCicZ82ED4/vfwT9YhiMDP0F8oLGm/Ww6G+nG2Ie
-         zWtXtd8YBDlCw6dv09ZVhOhyRNu2k+z7ggF0LfQDHTzr+hBCDXMguuz6RKkUmtk/p/GR
-         ec5zMhKc0ALFNTD4d3nULSlVTiSVm49zWo8+u4A//Y/rPa90Mf+Q4NOK406zlkxQ25U1
-         xHig==
-X-Gm-Message-State: AOAM531p8Pi+7u3WHBW5J18o+L2/YSa2S29GxDW+ogeWJ/SGtSDHcvxR
-        BvnRMmfuYiYYEHqns4IisE/8Lv1xq8unfg==
-X-Google-Smtp-Source: ABdhPJww6ciS/RKqXQtEXtnq3izEA8C+GnTt/BezSPFwERHD7Ul14icstwQL17kvmQGPEJYqD/Xjhg==
-X-Received: by 2002:a17:90b:4008:: with SMTP id ie8mr62321pjb.231.1617135784940;
-        Tue, 30 Mar 2021 13:23:04 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i13sm74448pgi.3.2021.03.30.13.23.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Mar 2021 13:23:04 -0700 (PDT)
-Message-ID: <606388a8.1c69fb81.6cf3.04ef@mx.google.com>
-Date:   Tue, 30 Mar 2021 13:23:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1617136481; x=1648672481;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=K4HHufMNciX8+L1F/zw4B6v2vlVq/r1VQaY15M5rAQ8=;
+  b=joI057LkT7iQb2WoRdbG+Khg2FEYe04rnxTDd1wT2S6qpO/G9eur7453
+   lLWmjRhll22zFzFI71PAoZnKZqDW1tuOJIpgYHuCVjplFveihAURf031Y
+   EDNZCOsAG6B7lXa6RagABCuNiGok211nfQUEKyhBm9RnoHwWbNWU6YC0L
+   4=;
+X-IronPort-AV: E=Sophos;i="5.81,291,1610409600"; 
+   d="scan'208";a="922522939"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1e-c7f73527.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-9103.sea19.amazon.com with ESMTP; 30 Mar 2021 20:34:41 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-1e-c7f73527.us-east-1.amazon.com (Postfix) with ESMTPS id A5112B35D2
+        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 20:34:40 +0000 (UTC)
+Received: from EX13D13UWB002.ant.amazon.com (10.43.161.21) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 30 Mar 2021 20:34:40 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
+ EX13D13UWB002.ant.amazon.com (10.43.161.21) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 30 Mar 2021 20:34:40 +0000
+Received: from dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
+ (172.23.141.97) by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP
+ Server id 15.0.1497.2 via Frontend Transport; Tue, 30 Mar 2021 20:34:39 +0000
+Received: by dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com (Postfix, from userid 6262777)
+        id 1EEDFDF935; Tue, 30 Mar 2021 20:34:38 +0000 (UTC)
+From:   Frank van der Linden <fllinden@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <fllinden@amazon.com>
+Subject: [PATCH 5.4] module: harden ELF info handling
+Date:   Tue, 30 Mar 2021 20:34:38 +0000
+Message-ID: <20210330203438.4171-1-fllinden@amazon.com>
+X-Mailer: git-send-email 2.16.6
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.263-34-ga05a69b2d166
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.4 baseline: 94 runs,
- 11 regressions (v4.4.263-34-ga05a69b2d166)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 94 runs, 11 regressions (v4.4.263-34-ga05a69b=
-2d166)
+commit ec2a29593c83ed71a7f16e3243941ebfcf75fdf6 upstream.
+
+5fdc7db644 ("module: setup load info before module_sig_check()")
+moved the ELF setup, so that it was done before the signature
+check. This made the module name available to signature error
+messages.
+
+However, the checks for ELF correctness in setup_load_info
+are not sufficient to prevent bad memory references due to
+corrupted offset fields, indices, etc.
+
+So, there's a regression in behavior here: a corrupt and unsigned
+(or badly signed) module, which might previously have been rejected
+immediately, can now cause an oops/crash.
+
+Harden ELF handling for module loading by doing the following:
+
+- Move the signature check back up so that it comes before ELF
+  initialization. It's best to do the signature check to see
+  if we can trust the module, before using the ELF structures
+  inside it. This also makes checks against info->len
+  more accurate again, as this field will be reduced by the
+  length of the signature in mod_check_sig().
+
+  The module name is now once again not available for error
+  messages during the signature check, but that seems like
+  a fair tradeoff.
+
+- Check if sections have offset / size fields that at least don't
+  exceed the length of the module.
+
+- Check if sections have section name offsets that don't fall
+  outside the section name table.
+
+- Add a few other sanity checks against invalid section indices,
+  etc.
+
+This is not an exhaustive consistency check, but the idea is to
+at least get through the signature and blacklist checks without
+crashing because of corrupted ELF info, and to error out gracefully
+for most issues that would have caused problems later on.
+
+Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
+[fllinden@amazon.com: backport to 5.4]
+---
+ kernel/module.c           | 141 +++++++++++++++++++++++++++++++++-----
+ kernel/module_signature.c |   2 +-
+ kernel/module_signing.c   |   2 +-
+ 3 files changed, 126 insertions(+), 19 deletions(-)
+
+diff --git a/kernel/module.c b/kernel/module.c
+index ab1f97cfe18d..b8c9989dc0e3 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2938,9 +2938,33 @@ static int module_sig_check(struct load_info *info, int flags)
+ }
+ #endif /* !CONFIG_MODULE_SIG */
+ 
+-/* Sanity checks against invalid binaries, wrong arch, weird elf version. */
+-static int elf_header_check(struct load_info *info)
++static int validate_section_offset(struct load_info *info, Elf_Shdr *shdr)
+ {
++	unsigned long secend;
++
++	/*
++	 * Check for both overflow and offset/size being
++	 * too large.
++	 */
++	secend = shdr->sh_offset + shdr->sh_size;
++	if (secend < shdr->sh_offset || secend > info->len)
++		return -ENOEXEC;
++
++	return 0;
++}
++
++/*
++ * Sanity checks against invalid binaries, wrong arch, weird elf version.
++ *
++ * Also do basic validity checks against section offsets and sizes, the
++ * section name string table, and the indices used for it (sh_name).
++ */
++static int elf_validity_check(struct load_info *info)
++{
++	unsigned int i;
++	Elf_Shdr *shdr, *strhdr;
++	int err;
++
+ 	if (info->len < sizeof(*(info->hdr)))
+ 		return -ENOEXEC;
+ 
+@@ -2950,11 +2974,78 @@ static int elf_header_check(struct load_info *info)
+ 	    || info->hdr->e_shentsize != sizeof(Elf_Shdr))
+ 		return -ENOEXEC;
+ 
++	/*
++	 * e_shnum is 16 bits, and sizeof(Elf_Shdr) is
++	 * known and small. So e_shnum * sizeof(Elf_Shdr)
++	 * will not overflow unsigned long on any platform.
++	 */
+ 	if (info->hdr->e_shoff >= info->len
+ 	    || (info->hdr->e_shnum * sizeof(Elf_Shdr) >
+ 		info->len - info->hdr->e_shoff))
+ 		return -ENOEXEC;
+ 
++	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
++
++	/*
++	 * Verify if the section name table index is valid.
++	 */
++	if (info->hdr->e_shstrndx == SHN_UNDEF
++	    || info->hdr->e_shstrndx >= info->hdr->e_shnum)
++		return -ENOEXEC;
++
++	strhdr = &info->sechdrs[info->hdr->e_shstrndx];
++	err = validate_section_offset(info, strhdr);
++	if (err < 0)
++		return err;
++
++	/*
++	 * The section name table must be NUL-terminated, as required
++	 * by the spec. This makes strcmp and pr_* calls that access
++	 * strings in the section safe.
++	 */
++	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
++	if (info->secstrings[strhdr->sh_size - 1] != '\0')
++		return -ENOEXEC;
++
++	/*
++	 * The code assumes that section 0 has a length of zero and
++	 * an addr of zero, so check for it.
++	 */
++	if (info->sechdrs[0].sh_type != SHT_NULL
++	    || info->sechdrs[0].sh_size != 0
++	    || info->sechdrs[0].sh_addr != 0)
++		return -ENOEXEC;
++
++	for (i = 1; i < info->hdr->e_shnum; i++) {
++		shdr = &info->sechdrs[i];
++		switch (shdr->sh_type) {
++		case SHT_NULL:
++		case SHT_NOBITS:
++			continue;
++		case SHT_SYMTAB:
++			if (shdr->sh_link == SHN_UNDEF
++			    || shdr->sh_link >= info->hdr->e_shnum)
++				return -ENOEXEC;
++			fallthrough;
++		default:
++			err = validate_section_offset(info, shdr);
++			if (err < 0) {
++				pr_err("Invalid ELF section in module (section %u type %u)\n",
++					i, shdr->sh_type);
++				return err;
++			}
++
++			if (shdr->sh_flags & SHF_ALLOC) {
++				if (shdr->sh_name >= strhdr->sh_size) {
++					pr_err("Invalid ELF section name in module (section %u type %u)\n",
++					       i, shdr->sh_type);
++					return -ENOEXEC;
++				}
++			}
++			break;
++		}
++	}
++
+ 	return 0;
+ }
+ 
+@@ -3051,11 +3142,6 @@ static int rewrite_section_headers(struct load_info *info, int flags)
+ 
+ 	for (i = 1; i < info->hdr->e_shnum; i++) {
+ 		Elf_Shdr *shdr = &info->sechdrs[i];
+-		if (shdr->sh_type != SHT_NOBITS
+-		    && info->len < shdr->sh_offset + shdr->sh_size) {
+-			pr_err("Module len %lu truncated\n", info->len);
+-			return -ENOEXEC;
+-		}
+ 
+ 		/* Mark all sections sh_addr with their address in the
+ 		   temporary image. */
+@@ -3087,11 +3173,6 @@ static int setup_load_info(struct load_info *info, int flags)
+ {
+ 	unsigned int i;
+ 
+-	/* Set up the convenience variables */
+-	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
+-	info->secstrings = (void *)info->hdr
+-		+ info->sechdrs[info->hdr->e_shstrndx].sh_offset;
+-
+ 	/* Try to find a name early so we can log errors with a module name */
+ 	info->index.info = find_sec(info, ".modinfo");
+ 	if (info->index.info)
+@@ -3819,23 +3900,49 @@ static int load_module(struct load_info *info, const char __user *uargs,
+ 	long err = 0;
+ 	char *after_dashes;
+ 
+-	err = elf_header_check(info);
++	/*
++	 * Do the signature check (if any) first. All that
++	 * the signature check needs is info->len, it does
++	 * not need any of the section info. That can be
++	 * set up later. This will minimize the chances
++	 * of a corrupt module causing problems before
++	 * we even get to the signature check.
++	 *
++	 * The check will also adjust info->len by stripping
++	 * off the sig length at the end of the module, making
++	 * checks against info->len more correct.
++	 */
++	err = module_sig_check(info, flags);
+ 	if (err)
+ 		goto free_copy;
+ 
++	/*
++	 * Do basic sanity checks against the ELF header and
++	 * sections.
++	 */
++	err = elf_validity_check(info);
++	if (err) {
++		pr_err("Module has invalid ELF structures\n");
++		goto free_copy;
++	}
++
++	/*
++	 * Everything checks out, so set up the section info
++	 * in the info structure.
++	 */
+ 	err = setup_load_info(info, flags);
+ 	if (err)
+ 		goto free_copy;
+ 
++	/*
++	 * Now that we know we have the correct module name, check
++	 * if it's blacklisted.
++	 */
+ 	if (blacklisted(info->name)) {
+ 		err = -EPERM;
+ 		goto free_copy;
+ 	}
+ 
+-	err = module_sig_check(info, flags);
+-	if (err)
+-		goto free_copy;
+-
+ 	err = rewrite_section_headers(info, flags);
+ 	if (err)
+ 		goto free_copy;
+diff --git a/kernel/module_signature.c b/kernel/module_signature.c
+index 4224a1086b7d..00132d12487c 100644
+--- a/kernel/module_signature.c
++++ b/kernel/module_signature.c
+@@ -25,7 +25,7 @@ int mod_check_sig(const struct module_signature *ms, size_t file_len,
+ 		return -EBADMSG;
+ 
+ 	if (ms->id_type != PKEY_ID_PKCS7) {
+-		pr_err("%s: Module is not signed with expected PKCS#7 message\n",
++		pr_err("%s: not signed with expected PKCS#7 message\n",
+ 		       name);
+ 		return -ENOPKG;
+ 	}
+diff --git a/kernel/module_signing.c b/kernel/module_signing.c
+index 9d9fc678c91d..8723ae70ea1f 100644
+--- a/kernel/module_signing.c
++++ b/kernel/module_signing.c
+@@ -30,7 +30,7 @@ int mod_verify_sig(const void *mod, struct load_info *info)
+ 
+ 	memcpy(&ms, mod + (modlen - sizeof(ms)), sizeof(ms));
+ 
+-	ret = mod_check_sig(&ms, modlen, info->name);
++	ret = mod_check_sig(&ms, modlen, "module");
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.23.3
 
-Regressions Summary
--------------------
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm    | lab-baylibre  | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm    | lab-broonie   | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm    | lab-cip       | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm    | lab-collabora | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm    | lab-baylibre  | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm    | lab-broonie   | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm    | lab-cip       | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm    | lab-collabora | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_i386           | i386   | lab-baylibre  | gcc-8    | i386_defconfig   =
-  | 1          =
-
-qemu_x86_64         | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig =
-  | 1          =
-
-qemu_x86_64-uefi    | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig =
-  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.263-34-ga05a69b2d166/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.263-34-ga05a69b2d166
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a05a69b2d166851d5a69a507c1d53d4149c5c758 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm    | lab-baylibre  | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606358379c44995264dac6b5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606358379c44995264dac=
-6b6
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm    | lab-broonie   | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606356fae1616388c5dac6b8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606356fae1616388c5dac=
-6b9
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm    | lab-cip       | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60635783ca9ca18170dac6e2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60635783ca9ca18170dac=
-6e3
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm    | lab-collabora | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606360293f3874e6d3dac70f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606360293f3874e6d3dac=
-710
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm    | lab-baylibre  | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606357841ce2bafddbdac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606357841ce2bafddbdac=
-6b2
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm    | lab-broonie   | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606356e769548e8955dac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606356e769548e8955dac=
-6b2
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm    | lab-cip       | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606357224ce5bf3418dac6cd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606357224ce5bf3418dac=
-6ce
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm    | lab-collabora | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60635e86c4a2870bd2dac6bf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60635e86c4a2870bd2dac=
-6c0
-        failing since 136 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_i386           | i386   | lab-baylibre  | gcc-8    | i386_defconfig   =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606356811bf66dcb04dac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606356811bf66dcb04dac=
-6b2
-        new failure (last pass: v4.4.263-33-g05f3f42a7d06) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_x86_64         | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606356cf8becb70f97dac6d8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
-6_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
-6_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606356cf8becb70f97dac=
-6d9
-        new failure (last pass: v4.4.263-33-g750ce41e463bf) =
-
- =
-
-
-
-platform            | arch   | lab           | compiler | defconfig        =
-  | regressions
---------------------+--------+---------------+----------+------------------=
---+------------
-qemu_x86_64-uefi    | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606356a78becb70f97dac6c4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
-6_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.263-3=
-4-ga05a69b2d166/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
-6_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606356a88becb70f97dac=
-6c5
-        new failure (last pass: v4.4.263-33-g750ce41e463bf) =
-
- =20
