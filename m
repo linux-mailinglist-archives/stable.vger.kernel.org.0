@@ -2,108 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3289434E5B1
-	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 12:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71FCF34E5C0
+	for <lists+stable@lfdr.de>; Tue, 30 Mar 2021 12:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231743AbhC3Kqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Mar 2021 06:46:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53548 "EHLO
+        id S231770AbhC3Ks0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Mar 2021 06:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231529AbhC3Kqt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 06:46:49 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A5FC061762
-        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 03:46:48 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id gb6so7563263pjb.0
-        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 03:46:48 -0700 (PDT)
+        with ESMTP id S231857AbhC3KsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Mar 2021 06:48:03 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E95BC061762
+        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 03:48:03 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id cl21-20020a17090af695b02900c61ac0f0e9so1107323pjb.1
+        for <stable@vger.kernel.org>; Tue, 30 Mar 2021 03:48:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=broadcom.com; s=google;
         h=from:to:cc:subject:date:message-id:mime-version;
-        bh=mXVQVZcGs9qABHasjGWHz82U0f9sDniBq4Dopkc/Jjc=;
-        b=LxyBr6iUn4HKYRKlHQ1NZDlNM8mLnQrHEU6u3bySOcUwucUwh/a50KC4g5f7N2tjuk
-         ui+LDltusBw44zesFgKl/JSf6KeQJk+OoipQddRbF7/CQGDbNTKF0RuFtIMZ7ABQlv0f
-         JPIMIeSablSLzA2f6lFqW1T2hAFyrJdtKsx7o=
+        bh=ekhA8tdKqLju1aGSp/kpdFTWf1JQS7q2orLyEXcjhVM=;
+        b=VbRWziAG1IwtHmc8tsncvfWjYxiCFN0TmVGWKrCkEU/wcGRYUdTgSZ6QQa9lrUqMbb
+         Wktt0TPerbh+QV6CpJBn/36hWeEaQQ0vzz60+JX0z7n28XHRkfQjw+tHMUFe0ErW/spt
+         O8oozk1ofF9oj1vXHIpeljukYwP/cvQhU/nGU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version;
-        bh=mXVQVZcGs9qABHasjGWHz82U0f9sDniBq4Dopkc/Jjc=;
-        b=GHO60j3nzbH+6X++7Cbpqkz3CKWcDenJVqE4x+fH8sIQZ1fzVltoRsgTmEU8gJ5s0C
-         pbInrMAX0kaA33wEHv5Rh5BCZRh0Iz7zgVYcMk2m0Pf1sf3KzmhKcND1Vfe54BUCW8ZS
-         9jT+1AspEokGhsOxRQ9t9eVh4A7wl3zwxjZvH+4eBp2eZ1eSneB4kf2MfNNCVl0qn5+8
-         e+rJInINuE3tBA2oDF8WgTdDUlkFnI6okHfqK7GJVYOEpr51zPUvAthTrekKvSl2a6GL
-         Z0drtOt0UFrCsFyoGq+TCPNRa+mnbl9zwPIQloGFWuIrWEnXeC1rX1rkuSvmii+ZaQGu
-         Xc1Q==
-X-Gm-Message-State: AOAM530nPPQeH+JB6l5FFvsjdg1ktE5nhk8XJafnl+RnGENLEi43n5Y5
-        Et+xSWvJ3t5vsfPAVUAmHWPQ+A==
-X-Google-Smtp-Source: ABdhPJzzrwf6DcR51UtuY0kdz8zepbTCCNWt1xTNxpp5q3mOxXL4U8sNaW1jArL8usjurLjyRDTppA==
-X-Received: by 2002:a17:902:7c0d:b029:e6:f006:fd02 with SMTP id x13-20020a1709027c0db02900e6f006fd02mr32003554pll.46.1617101208304;
-        Tue, 30 Mar 2021 03:46:48 -0700 (PDT)
+        bh=ekhA8tdKqLju1aGSp/kpdFTWf1JQS7q2orLyEXcjhVM=;
+        b=DM3Y0B3fqj3wl1u8E0sJglKGNPgs/qFOvx5MtTxtciZULQABb8fuY3J+YusAnpY0Wf
+         EwJ90RAyUGJ0I/G/pH7w4WPcOkVCGP/8WA4+/lcvYPqP7n4dQJsSmwuIMFSqvnAsqdoh
+         EkiG8LjmIBoSFFYkaZc0zBkJ4A5ZxTRp1qnQhwfzWDTGypK7sURoku7pnuTbAZQOK96k
+         3BA0pV2dYuTX47mwAXpd29slDrH+QoRBZpGy7DqI7ngCSiT/IX0ASq6fOVrg8/m7MyPQ
+         A2xiR3dRI/LF68stxCC6Wq8U8lv3I/38iDlY098FRVr2sDAG4IPbhUj1ZQhHmIFsUgzB
+         O/OQ==
+X-Gm-Message-State: AOAM5301W27wK68DFR+RmYSshJZ64fhz356wz8wEffMAFISoyExMk9aD
+        zh7ERoFhAR7lbQ72Zmom6xfaew==
+X-Google-Smtp-Source: ABdhPJxecfUoDK8ZCVyMZzfOMwxP/hKPXONENST2UZbgnx7+M9IqSAlH9jk6rkWuhVEcu3bftAibTw==
+X-Received: by 2002:a17:90a:e516:: with SMTP id t22mr3668624pjy.39.1617101282803;
+        Tue, 30 Mar 2021 03:48:02 -0700 (PDT)
 Received: from dhcp-10-123-20-36.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id g10sm18913963pgh.36.2021.03.30.03.46.44
+        by smtp.gmail.com with ESMTPSA id i13sm19324912pgi.3.2021.03.30.03.47.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Mar 2021 03:46:47 -0700 (PDT)
+        Tue, 30 Mar 2021 03:48:02 -0700 (PDT)
 From:   Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 To:     martin.petersen@oracle.com
 Cc:     linux-scsi@vger.kernel.org, sathya.prakash@broadcom.com,
         suganath-prabu.subramani@broadcom.com,
         Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
         stable@vger.kernel.org
-Subject: [PATCH] mpt3sas: only one vSES is handy even IOC has multi vSES
-Date:   Tue, 30 Mar 2021 16:20:04 +0530
-Message-Id: <20210330105004.20413-1-sreekanth.reddy@broadcom.com>
+Subject: [PATCH] mpt3sas: Block PCI cfg access from userspace during reset
+Date:   Tue, 30 Mar 2021 16:21:37 +0530
+Message-Id: <20210330105137.20728-1-sreekanth.reddy@broadcom.com>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-        boundary="0000000000001c6af905bebeb7f5"
+        boundary="0000000000008cb78b05bebebba8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---0000000000001c6af905bebeb7f5
+--0000000000008cb78b05bebebba8
 Content-Transfer-Encoding: 8bit
 
-Whenever the driver is adding the vSES to virtual-phys list then
-the driver is reinitializing this list every time. Hence those
-vSES devices which were added earlier to this same list are lost.
-So, Even though multiple vSES devices are configured in IOC;
-but while scanning the vSES devices driver finds only one vSES device
-in the list and hence adds only that device to SML.
-So, don't reinitialize this list every time a new vSES device is
-added to it.
+While diag reset is in progress, there is short duration where all
+access to controller's PCI config space from the host needs to be
+blocked. This is due to a hardware limitation of IOC controllers.
 
-Cc: stable@vger.kernel.org #v5.11.10+
+With this patch, driver will block all access to controller's
+config space from userland applications by calling
+pci_cfg_access_lock() while diag reset is in progress and
+unlocking after controller comes back to ready state.
+
+Cc: stable@vger.kernel.org #v5.4.108+
 Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index 6aa6de729187..ae1973878cc7 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -6483,6 +6483,9 @@ _scsih_alloc_vphy(struct MPT3SAS_ADAPTER *ioc, u8 port_id, u8 phy_num)
- 		if (!vphy)
- 			return NULL;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index ac0eef975f17..b6beacfd0f62 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -7252,6 +7252,8 @@ _base_diag_reset(struct MPT3SAS_ADAPTER *ioc)
  
-+		if (!port->vphys_mask)
-+			INIT_LIST_HEAD(&port->vphys_list);
+ 	ioc_info(ioc, "sending diag reset !!\n");
+ 
++	pci_cfg_access_lock(ioc->pdev);
 +
- 		/*
- 		 * Enable bit corresponding to HBA phy number on its
- 		 * parent hba_port object's vphys_mask field.
-@@ -6490,7 +6493,6 @@ _scsih_alloc_vphy(struct MPT3SAS_ADAPTER *ioc, u8 port_id, u8 phy_num)
- 		port->vphys_mask |= (1 << phy_num);
- 		vphy->phy_mask |= (1 << phy_num);
+ 	drsprintk(ioc, ioc_info(ioc, "clear interrupts\n"));
  
--		INIT_LIST_HEAD(&port->vphys_list);
- 		list_add_tail(&vphy->list, &port->vphys_list);
+ 	count = 0;
+@@ -7342,10 +7344,12 @@ _base_diag_reset(struct MPT3SAS_ADAPTER *ioc)
+ 		goto out;
+ 	}
  
- 		ioc_info(ioc,
++	pci_cfg_access_unlock(ioc->pdev);
+ 	ioc_info(ioc, "diag reset: SUCCESS\n");
+ 	return 0;
+ 
+  out:
++	pci_cfg_access_unlock(ioc->pdev);
+ 	ioc_err(ioc, "diag reset: FAILED\n");
+ 	return -EFAULT;
+ }
 -- 
 2.27.0
 
 
---0000000000001c6af905bebeb7f5
+--0000000000008cb78b05bebebba8
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -174,13 +178,13 @@ X1hfOcCDBgT7eSvf9YRLaV935mB9/V+KYX8lT4E0lB4wQ0OLV8qUS9UuNoG2lCJ5UQTMrBgeUFFY
 eKKhn+R91COmRlKGlaCdTtzKG5atS6dPnGEYUHjcpUvzejmJ5ghBk6P01HqSACsszDOzmBvdiOs+
 Ux0xggJtMIICaQIBATBrMFsxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNh
 MTEwLwYDVQQDEyhHbG9iYWxTaWduIEdDQyBSMyBQZXJzb25hbFNpZ24gMiBDQSAyMDIwAgxyeqr1
-0keLkvPdYw4wDQYJYIZIAWUDBAIBBQCggdQwLwYJKoZIhvcNAQkEMSIEIPIpYjoC+zQrdPoWyeO/
-fwu6+5S4BeCxODNdLcNs/dhUMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkF
-MQ8XDTIxMDMzMDEwNDY0OFowaQYJKoZIhvcNAQkPMVwwWjALBglghkgBZQMEASowCwYJYIZIAWUD
+0keLkvPdYw4wDQYJYIZIAWUDBAIBBQCggdQwLwYJKoZIhvcNAQkEMSIEIH8gDOgriQX7a5VQhV5Y
+k56XlNp1nabMmYbOQjATQiHkMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkF
+MQ8XDTIxMDMzMDEwNDgwM1owaQYJKoZIhvcNAQkPMVwwWjALBglghkgBZQMEASowCwYJYIZIAWUD
 BAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQowCwYJKoZIhvcNAQEHMAsG
-CWCGSAFlAwQCATANBgkqhkiG9w0BAQEFAASCAQCuJMnNUl6IaLjN4SUXNY+xAyhcUDtZMoqq0Igd
-ekGNdhreOd1SvzSos/wK8F0/EaFrcW6qi6LcNe2eFic1TSwGhiqUAZ0t58CE/niKYNYeIOERIi2O
-f5U2KgP0cxauNp45nHmGSGfv4bKFGoezqaSDywqEk1aalwon9FSV/qpXVmJwszsVksfPEVwPC7VO
-x+xBWV6Ctd9WIFTNo3YubHTy8F8PgwmFOj9uZY2r9MrIVChyoNq0VJ6Es/ZrslcSfz6ta6WT35Hn
-ahubADYfHm1X7N/nOlCkuz+o7n6qGXTd+2Z6ETyOmtgf5XMnFyg+cQbx1f3BJmDAq/04ySRNRAnE
---0000000000001c6af905bebeb7f5--
+CWCGSAFlAwQCATANBgkqhkiG9w0BAQEFAASCAQCGL4yUhhIqkD56SW3gL9/a5UFn3iqGcEt9NEYG
+Z94b4aJRz1NCZEsGgZe7+pNsyoMDq2VBZHBDxuCy4zeZt8wUWLakaMbQ5fDJsoayAwvyovc1X7eW
+j77CQAUZdbhsF1KvmihSvI0dPmbzJE/AhAnVh70bSnHqLcjwhPwfRCuSehC9hUA/F8M/AOWQ65Pa
+dX3LmFj83i53iyHjSTw94nYtb5xJCbW6B3CP7rqOwHvlVjc0LsfKkgcL2aL05ii8fg1DHZ5qXLDe
+HTgXkAYtgjGLHyVj6YKHGancFoX/lo5YW+z1TQNYrrr9Th9KzX4skC0HKomlXhgScWO/SZZ2+L0s
+--0000000000008cb78b05bebebba8--
