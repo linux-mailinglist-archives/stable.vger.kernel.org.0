@@ -2,121 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1DA350138
-	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 15:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C783501D2
+	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 16:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235750AbhCaNbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Mar 2021 09:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33154 "EHLO
+        id S235864AbhCaODL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Mar 2021 10:03:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235776AbhCaNbF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 09:31:05 -0400
-Received: from mail-wm1-x34a.google.com (mail-wm1-x34a.google.com [IPv6:2a00:1450:4864:20::34a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A91EEC06174A
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 06:31:04 -0700 (PDT)
-Received: by mail-wm1-x34a.google.com with SMTP id c7so560366wml.8
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 06:31:04 -0700 (PDT)
+        with ESMTP id S235771AbhCaOCt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 10:02:49 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3456AC061574
+        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 07:02:49 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id gb6so9580003pjb.0
+        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 07:02:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=G0CRqLqXvRiG1/XBSQU7fXbBsXpuUCmZ+DzzZxxUzIo=;
-        b=rpChXq0EFgKIpVkS59ynQK6JSC0ep27UrPlpHOIVXXkfEXuY1WiqSTcyQmMkdr6XPW
-         53JPsCxnplpk4AqN/UvbynyFxEGzP9Rkq1sDPNgNceVhS5YpfVel6aA/w4KaFNV4vBL+
-         QAFVKTMZV/lVWqCLIk5bsq1MIBrRkA/Ooyp+rx78E8X8PzrXals9D+IfBPlLMlBal7B2
-         j9drq3kA22qdFUjiiv/1chYzZQIwhn77vvgUXToIwPnCIbU22Ww6RXQnMF7obLxEdoX1
-         9ex5kaUnqXGhNbhsmM+ethxGc/m0mPttOb29qF0OS9eSSj0QbOP/jOa/4Jluy5hhGv27
-         6S2w==
+        d=gmail.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=BBqQTDzGLPckErr5u2EE8zpjNyIbvjrv5eRhf0bAVTw=;
+        b=R0ZT/acDdgaUL+8/ArAc+npUaj6gC+JPpEYjVwSJYvHeyhibF2p3N+QjEh+vqUbXs8
+         G1P64Z51JhREdMHmC3DMPPTa/OhzdY5weSva/POh6sXhILQxa7JvVEERnSCYhlt//ni2
+         hKUXPKjPYCx1zCu7P7qSIqETgqv9pYXmAhoA9kZ+yxRD/Tx0lu/6orNEYPeHmwYoM+jI
+         rwVVvH4jSeUKeKZdqKeEWjRjTPuhDa7Zv7uFbaFn7/zXv1DI2s04fYM6Aur7yoUylfSS
+         yNSNfXMlrzcFQkmlmAfhSXi2p06k0VOyHAvoGSQoGAtrZJiZKzRPEh3WLqWHXeObPLEI
+         uPHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=G0CRqLqXvRiG1/XBSQU7fXbBsXpuUCmZ+DzzZxxUzIo=;
-        b=YxBvc9ZgepmnM/8H5RxQr2uzKTo5xNdIU2m68IqqMW+QtROflhTg7T7Nlz4sUK8HYD
-         uDsf9O55ZNubfKhMxCX70mfXLWWVApKCLxmuhsSwz+E8B40sn2B8n0212B2jxn2L0Ot1
-         ece5PX5HZXumi7g+NDkslb/hhltuqAhiEXXpeS9AJFOILBlHw0y0kFaEIizmm5/lVuLv
-         F0wgK70HH9AzsI5UupltZdaWlErUPnD+fjbhRZzBggBYVhohHgrVPRvD/CYLJgjPE2bs
-         h0ks0d9ko3Fo9q1YRNEtOpumXWTX2OFdWT1irt3KyGPbHWPgWHNYnv1sRJyfilvMCUBy
-         n1/w==
-X-Gm-Message-State: AOAM530smFVFE0KsJSGZA4gZbn7N7tCIHeOLrDeDkN4GOC9XUbN5u3yo
-        XBadQtw2SY+BG7nLbcnri/SNpHgUJd6dqg==
-X-Google-Smtp-Source: ABdhPJySMhwc9kqXQ1VmN7daeWnrVfYLeV5Uk5jjjZpqjhpojJFXojBjLNB+z8i/nKEIQhH3v7TuNHaCn5+7lg==
-X-Received: from dbrazdil.c.googlers.com ([fda3:e722:ac3:10:28:9cb1:c0a8:7f9b])
- (user=dbrazdil job=sendgmr) by 2002:adf:fb05:: with SMTP id
- c5mr3869165wrr.302.1617197463183; Wed, 31 Mar 2021 06:31:03 -0700 (PDT)
-Date:   Wed, 31 Mar 2021 13:30:48 +0000
-Message-Id: <20210331133048.63311-1-dbrazdil@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.31.0.291.g576ba9dcdaf-goog
-Subject: [PATCH] KVM: arm64: Support PREL/PLT relocs in EL2 code
-From:   David Brazdil <dbrazdil@google.com>
-To:     kvmarm@lists.cs.columbia.edu
-Cc:     Marc Zyngier <maz@kernel.org>, James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, David Brazdil <dbrazdil@google.com>
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=BBqQTDzGLPckErr5u2EE8zpjNyIbvjrv5eRhf0bAVTw=;
+        b=jbXMd1qSpLgMQSbwldf2ukForoXRbLGKlNRHAsqzhfQN+UQoAIDVY/8F44qYGIstcc
+         ozDqLo3koAcSo1sRYWB9c021gc8B0FdS1t6G9MZskzMwhRikoVF8I9tinxDwgvogY9Xf
+         U1DrAk4nK+a0GQCGCMidwwK387bF6QOIXlzUJXRPaH/EJ6wRM6QthsDa7FYDJpuaRV7A
+         jNRYHini0DCiblZkANiUVMdVh1ZjLmNmx3ukoSa+HfQEEaa85/Af9B0qjk1WgSTXriPf
+         Bge7O+aWzNaJa5yvY6NavuFAsIjfOeXPe0hBD0B+fRjf6/eDhwjsrC0WYYwNZPugZ15o
+         gOJQ==
+X-Gm-Message-State: AOAM531d+1E3V7AVAkb4uNXgwGEmTAR9Al7aA3on4j3cOJZH8ItFpq8K
+        dTaHVTXNE0HP1xe+pDLEXJoMZIyALFZEh3dZJvs=
+X-Google-Smtp-Source: ABdhPJyrwg+vYAE2wqfcEJinKBaPMCiJqLVWdGFO734/cPzrok4F4+Uck0fw0tlEmtrEoySSwXfj/Jg73GhMUlYv+XE=
+X-Received: by 2002:a17:90a:ea96:: with SMTP id h22mr3633032pjz.24.1617199368709;
+ Wed, 31 Mar 2021 07:02:48 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a05:6a10:3c4e:0:0:0:0 with HTTP; Wed, 31 Mar 2021 07:02:47
+ -0700 (PDT)
+In-Reply-To: <CAGW3yD22p2Md+r4ePkMURP73b8dFvNbH2n82Z_0mm0c+hZFjvA@mail.gmail.com>
+References: <CAGW3yD22p2Md+r4ePkMURP73b8dFvNbH2n82Z_0mm0c+hZFjvA@mail.gmail.com>
+From:   willson mutanda <hgyftr1234@gmail.com>
+Date:   Wed, 31 Mar 2021 07:02:47 -0700
+Message-ID: <CAGW3yD2nuP+6c0FWZZ+C8RZgwD9mosRL-0Tab_BOVaXQpW0GKA@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-gen-hyprel tool parses object files of the EL2 portion of KVM
-and generates runtime relocation data. While only filtering for
-R_AARCH64_ABS64 relocations in the input object files, it has an
-allow-list of relocation types that are used for relative
-addressing. Other, unexpected, relocation types are rejected and
-cause the build to fail.
+Hello Dear  Friend
 
-This allow-list did not include the position-relative relocation
-types R_AARCH64_PREL64/32/16 and the recently introduced _PLT32.
-While not seen used by toolchains in the wild, add them to the
-allow-list for completeness.
+I am sorry for the inconveniences; my name is Willson J. Mutanda, from
+pretoria, a Personal assistance to (Mr. Andrew ) as I have earlier
+explained to you.  Mr. Andrew, is Gold and Diamond mining contractor
+and a business man here in South Africa who passed away a few years
+ago. I am writing to you due to the urgency of the same matter, all
+effort to locate his relatives after his sudden death failed.
 
-Fixes: 8c49b5d43d4c ("KVM: arm64: Generate hyp relocation data")
-Cc: <stable@vger.kernel.org>
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: David Brazdil <dbrazdil@google.com>
----
- arch/arm64/kvm/hyp/nvhe/gen-hyprel.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+Since I could not locate any of his relative until now and the
+Investment is about to be moved to the state treasury as unclaimed
+bill, Please, I demand your consent to contact the company as his heir
+as you have the same last name with him; I want you to stand as his
+relative to possess his capital investment valued at (7 Million two
+hundred British Pounds) with the Investment company as recorded in the
+file before it will be confiscated. The fund has been dormant for long
+time waiting for his successor which until now no one has showed up
+and I cannot find his direct relative.
 
-diff --git a/arch/arm64/kvm/hyp/nvhe/gen-hyprel.c b/arch/arm64/kvm/hyp/nvhe/gen-hyprel.c
-index ead02c6a7628..6bc88a756cb7 100644
---- a/arch/arm64/kvm/hyp/nvhe/gen-hyprel.c
-+++ b/arch/arm64/kvm/hyp/nvhe/gen-hyprel.c
-@@ -50,6 +50,18 @@
- #ifndef R_AARCH64_ABS64
- #define R_AARCH64_ABS64			257
- #endif
-+#ifndef R_AARCH64_PREL64
-+#define R_AARCH64_PREL64		260
-+#endif
-+#ifndef R_AARCH64_PREL32
-+#define R_AARCH64_PREL32		261
-+#endif
-+#ifndef R_AARCH64_PREL16
-+#define R_AARCH64_PREL16		262
-+#endif
-+#ifndef R_AARCH64_PLT32
-+#define R_AARCH64_PLT32			314
-+#endif
- #ifndef R_AARCH64_LD_PREL_LO19
- #define R_AARCH64_LD_PREL_LO19		273
- #endif
-@@ -371,6 +383,12 @@ static void emit_rela_section(Elf64_Shdr *sh_rela)
- 		case R_AARCH64_ABS64:
- 			emit_rela_abs64(rela, sh_orig_name);
- 			break;
-+		/* Allow position-relative data relocations. */
-+		case R_AARCH64_PREL64:
-+		case R_AARCH64_PREL32:
-+		case R_AARCH64_PREL16:
-+		case R_AARCH64_PLT32:
-+			break;
- 		/* Allow relocations to generate PC-relative addressing. */
- 		case R_AARCH64_LD_PREL_LO19:
- 		case R_AARCH64_ADR_PREL_LO21:
--- 
-2.31.0.291.g576ba9dcdaf-goog
+I got your contact on the internet and decided to contact you as you
+have the same name as my master. And I hope you will not expose me
+even if you don=E2=80=99t want to help. This deal should be a secret betwee=
+n
+me and you even after archiving this aim.
 
+ I can guarantee that this case will be executed under a legitimate
+arrangement that will protect you and me from any breach of law if we
+can put heads together to discuss on what to do about it.  All I
+require from you is your honest cooperation to enable us to see this
+transaction through; I hope to hear from you immediately after you
+read this message for more details.
+
+Kindly, contact my private email below for security reasons if you are
+willing to contact the institution regarding this urgent matter. I
+learnt your language is not English; please respond to me with English
+if you can write with English
+
+Thanks in advance and God bless you,
+
+Willson J. Mutanda
+
+Email:  mutanda.j.willson@gmail.com
