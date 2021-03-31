@@ -2,443 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D06C3509ED
-	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 00:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E7E350AE3
+	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 01:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232585AbhCaWE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Mar 2021 18:04:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59381 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232492AbhCaWEf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 18:04:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617228274;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=OKVR7Dk4AlUXtb4roQChCCK+ECBbywQz431R2h1XWgU=;
-        b=FWUEG2Av7RAkH47xdT2qS5zAZNkC5ey838NiNtud89umZBuQFdhGE1e//ophX3X1wg+wCV
-        LA0wNLgBYpKnPH+Xkz73y3ciPsGvSL5y00+HxHpS7m2x0nsEk+UV8zOIxN5zUQ15I7snsY
-        NqATrXFFFIeIinisG25l8xnQ9YR0gGg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-25-_LT1Qt-TNuax_rU7PX-PQQ-1; Wed, 31 Mar 2021 18:04:31 -0400
-X-MC-Unique: _LT1Qt-TNuax_rU7PX-PQQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AA29B107B792
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 22:04:30 +0000 (UTC)
-Received: from [172.23.1.235] (unknown [10.0.115.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 19D6F614F5;
-        Wed, 31 Mar 2021 22:04:26 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     skt-results-master@redhat.com,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.11.11 (stable-queue)
-Date:   Wed, 31 Mar 2021 22:04:26 -0000
-CC:     Jeff Bastian <jbastian@redhat.com>, Xiong Zhou <xzhou@redhat.com>
-Message-ID: <cki.8FC877AADB.ZDY7HV0W9Z@redhat.com>
-X-Gitlab-Pipeline-ID: 627997
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/627997
-X-DataWarehouse-Revision-IID: 11609
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+        id S229497AbhCaXi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Mar 2021 19:38:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36032 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229486AbhCaXiP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 31 Mar 2021 19:38:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0410260C3E;
+        Wed, 31 Mar 2021 23:38:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1617233895;
+        bh=MNKBZ/IkS01MKFSEFVSJIKjB4Jago1D5ZpJm4NWgXaU=;
+        h=Date:From:To:Subject:From;
+        b=APHpXDSCqrDVDWsDns8y3bVDadRHrGdyu+wZMSehflD3KJt6qAoYo1/nVdWkO1KqW
+         0kqK6nCmgsDtxwX13+f35pJ9g4+1Xtbqn/p/5jSrzYa4BWIRktQYe5XCzQYrvHksN7
+         47oeOZMve3d8ABuk0B5Kxh31q+K+IW4o1uL6rsu4=
+Date:   Wed, 31 Mar 2021 16:38:14 -0700
+From:   akpm@linux-foundation.org
+To:     gechangwei@live.cn, ghe@suse.com, jiangqi903@gmail.com,
+        jlbec@evilplan.org, junxiao.bi@oracle.com, mark@fasheh.com,
+        mm-commits@vger.kernel.org, piaojun@huawei.com,
+        stable@vger.kernel.org, wen.gang.wang@oracle.com
+Subject:  +
+ ocfs2-fix-deadlock-between-setattr-and-dio_end_io_write.patch added to -mm
+ tree
+Message-ID: <20210331233814.VDNpynvhr%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
+The patch titled
+     Subject: ocfs2: fix deadlock between setattr and dio_end_io_write
+has been added to the -mm tree.  Its filename is
+     ocfs2-fix-deadlock-between-setattr-and-dio_end_io_write.patch
 
-We ran automated tests on a recent commit from this kernel tree:
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/ocfs2-fix-deadlock-between-setattr-and-dio_end_io_write.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/ocfs2-fix-deadlock-between-setattr-and-dio_end_io_write.patch
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 9572f074c972 - io_uring: call req_set_fail_links() on sho=
-rt send[msg]()/recv[msg]() with MSG_WAITALL
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-The results of these automated tests are provided below.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-All kernel binaries, config files, and logs are available for download here:
+------------------------------------------------------
+From: Wengang Wang <wen.gang.wang@oracle.com>
+Subject: ocfs2: fix deadlock between setattr and dio_end_io_write
 
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse-public/2021/03/31/627997
+The following deadlock is detected:
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+truncate -> setattr path is waiting for pending direct IO to be done (
+inode->i_dio_count become zero) with inode->i_rwsem held (down_write).
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+PID: 14827  TASK: ffff881686a9af80  CPU: 20  COMMAND: "ora_p005_hrltd9"
+#0 [ffffc9000bcf3c08] __schedule at ffffffff818667cc
+#1 [ffffc9000bcf3ca0] schedule at ffffffff81866de6
+#2 [ffffc9000bcf3cb8] inode_dio_wait at ffffffff812a2d04
+#3 [ffffc9000bcf3d28] ocfs2_setattr at ffffffffc05f322e [ocfs2]
+#4 [ffffc9000bcf3e18] notify_change at ffffffff812a5a09
+#5 [ffffc9000bcf3e60] do_truncate at ffffffff812808f5
+#6 [ffffc9000bcf3ed8] do_sys_ftruncate.constprop.18 at ffffffff81280cf2
+#7 [ffffc9000bcf3f18] sys_ftruncate at ffffffff81280d8e
+#8 [ffffc9000bcf3f28] do_syscall_64 at ffffffff81003949
+#9 [ffffc9000bcf3f50] entry_SYSCALL_64_after_hwframe at ffffffff81a001ad
 
-Compile testing
----------------
+dio completion path is going to complete one direct IO (decrement
+inode->i_dio_count), but before that it hang at locking inode->i_rwsem.
 
-We compiled the kernel for 4 architectures:
+ #0 [ffffc90009b47b40] __schedule+700 at ffffffff818667cc
+ #1 [ffffc90009b47bd8] schedule+54 at ffffffff81866de6
+ #2 [ffffc90009b47bf0] rwsem_down_write_failed+536 at ffffffff8186aa28
+ #3 [ffffc90009b47c88] call_rwsem_down_write_failed+23 at ffffffff8185a1b7
+ #4 [ffffc90009b47cd0] down_write+45 at ffffffff81869c9d
+ #5 [ffffc90009b47ce8] ocfs2_dio_end_io_write+180 at ffffffffc05d5444 [ocfs2]
+ #6 [ffffc90009b47dd8] ocfs2_dio_end_io+85 at ffffffffc05d5a85 [ocfs2]
+ #7 [ffffc90009b47e18] dio_complete+140 at ffffffff812c873c
+ #8 [ffffc90009b47e50] dio_aio_complete_work+25 at ffffffff812c89f9
+ #9 [ffffc90009b47e60] process_one_work+361 at ffffffff810b1889
+#10 [ffffc90009b47ea8] worker_thread+77 at ffffffff810b233d
+#11 [ffffc90009b47f08] kthread+261 at ffffffff810b7fd5
+#12 [ffffc90009b47f50] ret_from_fork+62 at ffffffff81a0035e
 
-    aarch64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+Thus above forms ABBA deadlock. The same deadlock was mentioned in
+upstream commit 28f5a8a7c033cbf3e32277f4cc9c6afd74f05300. well, it seems
+that that commit just removed cluster lock (the victim of above dead
+lock) from the ABBA deadlock party.
 
-    ppc64le:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+End-user visible effects:
+Process hang in truncate -> ocfs2_setattr path and other processes hang at
+ocfs2_dio_end_io_write path.
 
-    s390x:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+This is to fix the deadlock its self. It removes inode_lock() call from dio
+completion path to remove the deadlock and add ip_alloc_sem lock in setattr
+path to synchronize the inode modifications.
 
-    x86_64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+Link: https://lkml.kernel.org/r/20210331203654.3911-1-wen.gang.wang@oracle.com
+Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Joseph Qi <jiangqi903@gmail.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ fs/ocfs2/aops.c |   11 +----------
+ fs/ocfs2/file.c |   11 ++++++++++-
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
+--- a/fs/ocfs2/aops.c~ocfs2-fix-deadlock-between-setattr-and-dio_end_io_write
++++ a/fs/ocfs2/aops.c
+@@ -2295,7 +2295,7 @@ static int ocfs2_dio_end_io_write(struct
+ 	struct ocfs2_alloc_context *meta_ac = NULL;
+ 	handle_t *handle = NULL;
+ 	loff_t end = offset + bytes;
+-	int ret = 0, credits = 0, locked = 0;
++	int ret = 0, credits = 0;
+ 
+ 	ocfs2_init_dealloc_ctxt(&dealloc);
+ 
+@@ -2306,13 +2306,6 @@ static int ocfs2_dio_end_io_write(struct
+ 	    !dwc->dw_orphaned)
+ 		goto out;
+ 
+-	/* ocfs2_file_write_iter will get i_mutex, so we need not lock if we
+-	 * are in that context. */
+-	if (dwc->dw_writer_pid != task_pid_nr(current)) {
+-		inode_lock(inode);
+-		locked = 1;
+-	}
+-
+ 	ret = ocfs2_inode_lock(inode, &di_bh, 1);
+ 	if (ret < 0) {
+ 		mlog_errno(ret);
+@@ -2393,8 +2386,6 @@ out:
+ 	if (meta_ac)
+ 		ocfs2_free_alloc_context(meta_ac);
+ 	ocfs2_run_deallocs(osb, &dealloc);
+-	if (locked)
+-		inode_unlock(inode);
+ 	ocfs2_dio_free_write_ctx(inode, dwc);
+ 
+ 	return ret;
+--- a/fs/ocfs2/file.c~ocfs2-fix-deadlock-between-setattr-and-dio_end_io_write
++++ a/fs/ocfs2/file.c
+@@ -1124,7 +1124,7 @@ int ocfs2_setattr(struct user_namespace
+ 	handle_t *handle = NULL;
+ 	struct dquot *transfer_to[MAXQUOTAS] = { };
+ 	int qtype;
+-	int had_lock;
++	int had_lock, had_alloc_lock = 0;
+ 	struct ocfs2_lock_holder oh;
+ 
+ 	trace_ocfs2_setattr(inode, dentry,
+@@ -1245,6 +1245,9 @@ int ocfs2_setattr(struct user_namespace
+ 				goto bail_unlock;
+ 			}
+ 		}
++		down_write(&OCFS2_I(inode)->ip_alloc_sem);
++		had_alloc_lock = 1;
++
+ 		handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS +
+ 					   2 * ocfs2_quota_trans_credits(sb));
+ 		if (IS_ERR(handle)) {
+@@ -1256,6 +1259,9 @@ int ocfs2_setattr(struct user_namespace
+ 		if (status < 0)
+ 			goto bail_commit;
+ 	} else {
++		down_write(&OCFS2_I(inode)->ip_alloc_sem);
++		had_alloc_lock = 1;
++
+ 		handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS);
+ 		if (IS_ERR(handle)) {
+ 			status = PTR_ERR(handle);
+@@ -1274,6 +1280,9 @@ int ocfs2_setattr(struct user_namespace
+ bail_commit:
+ 	ocfs2_commit_trans(osb, handle);
+ bail_unlock:
++	if (had_alloc_lock)
++		up_write(&OCFS2_I(inode)->ip_alloc_sem);
++
+ 	if (status && inode_locked) {
+ 		ocfs2_inode_unlock_tracker(inode, 1, &oh, had_lock);
+ 		inode_locked = 0;
+_
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+Patches currently in -mm which might be from wen.gang.wang@oracle.com are
 
-  aarch64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
-o test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
-er test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: lvm device-mapper te=
-st
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 LTP
-       =E2=9C=85 CIFS Connectathon
-       =E2=9C=85 POSIX pjd-fstest suites
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm - jcstress tests
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking cki netfilter test
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
-       =F0=9F=9A=A7 =E2=9D=8C stress: stress-ng
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 LTP
-       =E2=9C=85 CIFS Connectathon
-       =E2=9C=85 POSIX pjd-fstest suites
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm - jcstress tests
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking cki netfilter test
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 LTP
-       =E2=9C=85 CIFS Connectathon
-       =E2=9C=85 POSIX pjd-fstest suites
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm - jcstress tests
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking cki netfilter test
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 LTP
-       =E2=9C=85 CIFS Connectathon
-       =E2=9C=85 POSIX pjd-fstest suites
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm - jcstress tests
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking cki netfilter test
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 xfstests - nfsv4.2
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9D=8C xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
-       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+ocfs2-fix-deadlock-between-setattr-and-dio_end_io_write.patch
 
