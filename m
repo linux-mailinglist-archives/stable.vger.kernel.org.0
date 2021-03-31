@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD12D350631
+	by mail.lfdr.de (Postfix) with ESMTP id 817D4350630
 	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 20:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234820AbhCaSVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Mar 2021 14:21:46 -0400
-Received: from a27-90.smtp-out.us-west-2.amazonses.com ([54.240.27.90]:36755
-        "EHLO a27-90.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234701AbhCaSVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:21:39 -0400
+        id S234701AbhCaSVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Mar 2021 14:21:47 -0400
+Received: from a27-222.smtp-out.us-west-2.amazonses.com ([54.240.27.222]:46081
+        "EHLO a27-222.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234707AbhCaSVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:21:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=zzmz6pik4loqlrvo6grmnyszsx3fszus; d=nh6z.net; t=1617214898;
+        s=zzmz6pik4loqlrvo6grmnyszsx3fszus; d=nh6z.net; t=1617214905;
         h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:In-Reply-To:References:Message-Id;
-        bh=SET2MMom8yUlyhPewodmsitZ5ujJwagHgJ3dqXYrK/Q=;
-        b=Lsg4WPK3BZXJCQJf+DgEoHL3fGFcyHVkfk/+Cf2vTMzQsX8BuqiI/c98cvrRM1bk
-        YmA9ziqKEX8etJixAupCS1OVbin58N1q6vlz3S5Hjzb9bVWxFttyug94ByMMwamdnag
-        3KiIP3MWT2aYV+McusctFC7McgbkOaO9pWHRYK8U=
+        bh=Wvrl+PGUFFhmFetmW+Bc4xwTyMmhO79JmMYv9SYxDKo=;
+        b=KaWY2pytdH1cZ+/ddUPbcDrp4tCX5+PNS+vxK0sh8tpT/9ItOAJEQ1ASf2UKVngb
+        IbF0BjEN86LYuNtD/PcwL26oCHGBEbwd7AHTWK50WKzoRqc8k1nSBMYzFLoXU5NiN0O
+        w3LCLaONr464/zth+8yA16IPacP8UeEkZgbFR0Eo=
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=7v7vs6w47njt4pimodk5mmttbegzsi6n; d=amazonses.com; t=1617214898;
+        s=7v7vs6w47njt4pimodk5mmttbegzsi6n; d=amazonses.com; t=1617214905;
         h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:In-Reply-To:References:Message-Id:Feedback-ID;
-        bh=SET2MMom8yUlyhPewodmsitZ5ujJwagHgJ3dqXYrK/Q=;
-        b=LXE7qu57foLttk3bI+2OUCRrjDkGVW/qaYGKud304quHKt1ya5DYltGwLca/2mhy
-        /o/QMA8waOVI/ykXgOhgXoEzhZbdfVs1vx0w/UD6jbnHD1XMetLtzxd4u5CFAENgj4m
-        bElqZcpYKt6DXQOwau+3RjgRFNhlLouvGCnIUIbU=
-Subject: [PATCH v2 2/2] ASoC: tlv320aic32x4: Register clocks before
- registering component
+        bh=Wvrl+PGUFFhmFetmW+Bc4xwTyMmhO79JmMYv9SYxDKo=;
+        b=dw9PAgmFNGeFKIEou25DTGwftO+ropuNBQAlNY9XaYlYxnqAJPqEK0RAmmtiGHp3
+        jw24+my18L2wi7A3xCWNohYOXEfbaf1jIe3o+yNnuVDLxow2fvY2eaUnSFearxG5cXg
+        Hq6148QozvI6NM1c6xfASujgxFTeGleD8nlhqgQU=
+Subject: [PATCH v2 1/2] ASoC: tlv320aic32x4: Increase maximum register in
+ regmap
 From:   =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>
 To:     =?UTF-8?Q?alsa-devel=40alsa-project=2Eorg?= 
         <alsa-devel@alsa-project.org>,
@@ -37,46 +37,42 @@ To:     =?UTF-8?Q?alsa-devel=40alsa-project=2Eorg?=
 Cc:     =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>,
         =?UTF-8?Q?team=40nwdigitalradio=2Ecom?= <team@nwdigitalradio.com>,
         =?UTF-8?Q?stable=40vger=2Ekernel=2Eorg?= <stable@vger.kernel.org>
-Date:   Wed, 31 Mar 2021 18:21:38 +0000
+Date:   Wed, 31 Mar 2021 18:21:45 +0000
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 In-Reply-To: <20210331182125.413693-1-nh6z@nh6z.net>
 References: <20210331182125.413693-1-nh6z@nh6z.net> 
- <20210331182125.413693-3-nh6z@nh6z.net>
+ <20210331182125.413693-2-nh6z@nh6z.net>
 X-Mailer: Amazon WorkMail
-Thread-Index: AQHXJlqutU2ZzEf5Tk+l1YBnPdSJ8wAAAHbh
-Thread-Topic: [PATCH v2 2/2] ASoC: tlv320aic32x4: Register clocks before
- registering component
+Thread-Index: AQHXJlqutU2ZzEf5Tk+l1YBnPdSJ8wAAAFVe
+Thread-Topic: [PATCH v2 1/2] ASoC: tlv320aic32x4: Increase maximum register
+ in regmap
 X-Original-Mailer: git-send-email 2.27.0
-X-Wm-Sent-Timestamp: 1617214897
-Message-ID: <0101017889850206-dcac4cce-8cc8-4a21-80e9-4e4bef44b981-000000@us-west-2.amazonses.com>
-X-SES-Outgoing: 2021.03.31-54.240.27.90
+X-Wm-Sent-Timestamp: 1617214904
+Message-ID: <0101017889851cab-ce60cfdb-d88c-43d8-bbd2-7fbf34a0c912-000000@us-west-2.amazonses.com>
+X-SES-Outgoing: 2021.03.31-54.240.27.222
 Feedback-ID: 1.us-west-2.An468LAV0jCjQDrDLvlZjeAthld7qrhZr+vow8irkvU=:AmazonSES
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Clock registration must be performed before the component is=0D=0Aregiste=
-red.  aic32x4_component_probe attempts to get all the=0D=0Aclocks right o=
-ff the bat.  If the component is registered before=0D=0Athe clocks there =
-is a race condition where the clocks may not=0D=0Abe registered by the ti=
-me aic32x4_componet_probe actually runs.=0D=0A=0D=0AFixes: d1c859d314d8 (=
-"ASoC: codec: tlv3204: Increased maximum supported channels")=0D=0ACc: st=
-able@vger.kernel.org=0D=0ASigned-off-by: Annaliese McDermond <nh6z@nh6z.n=
-et>=0D=0A---=0D=0A sound/soc/codecs/tlv320aic32x4.c | 8 ++++----=0D=0A 1 =
-file changed, 4 insertions(+), 4 deletions(-)=0D=0A=0D=0Adiff --git a/sou=
-nd/soc/codecs/tlv320aic32x4.c b/sound/soc/codecs/tlv320aic32x4.c=0D=0Aind=
-ex 1ac3b3b12dc6..b689f26fc4be 100644=0D=0A--- a/sound/soc/codecs/tlv320ai=
-c32x4.c=0D=0A+++ b/sound/soc/codecs/tlv320aic32x4.c=0D=0A@@ -1243,6 +1243=
-,10 @@ int aic32x4_probe(struct device *dev, struct regmap *regmap)=0D=0A=
- =09if (ret)=0D=0A =09=09goto err_disable_regulators;=0D=0A=20=0D=0A+=09r=
-et =3D aic32x4_register_clocks(dev, aic32x4->mclk_name);=0D=0A+=09if (ret=
-)=0D=0A+=09=09goto err_disable_regulators;=0D=0A+=0D=0A =09ret =3D devm_s=
-nd_soc_register_component(dev,=0D=0A =09=09=09&soc_component_dev_aic32x4,=
- &aic32x4_dai, 1);=0D=0A =09if (ret) {=0D=0A@@ -1250,10 +1254,6 @@ int ai=
-c32x4_probe(struct device *dev, struct regmap *regmap)=0D=0A =09=09goto e=
-rr_disable_regulators;=0D=0A =09}=0D=0A=20=0D=0A-=09ret =3D aic32x4_regis=
-ter_clocks(dev, aic32x4->mclk_name);=0D=0A-=09if (ret)=0D=0A-=09=09goto e=
-rr_disable_regulators;=0D=0A-=0D=0A =09return 0;=0D=0A=20=0D=0A err_disab=
-le_regulators:=0D=0A--=20=0D=0A2.27.0=0D=0A=0D=0A
+AIC32X4_REFPOWERUP was added as a register, but the maximum register valu=
+e=0D=0Ain the regmap and regmap range was not correspondingly increased. =
+ This=0D=0Acaused an error when this register was attempted to be written=
+=2E=0D=0A=0D=0AFixes: ec96690de82c ("ASoC: tlv320aic32x4: Enable fast cha=
+rge")=0D=0ACc: stable@vger.kernel.org=0D=0ASigned-off-by: Annaliese McDer=
+mond <nh6z@nh6z.net>=0D=0A---=0D=0A sound/soc/codecs/tlv320aic32x4.c | 4 =
+++--=0D=0A 1 file changed, 2 insertions(+), 2 deletions(-)=0D=0A=0D=0Adif=
+f --git a/sound/soc/codecs/tlv320aic32x4.c b/sound/soc/codecs/tlv320aic32=
+x4.c=0D=0Aindex f04f88c8d425..1ac3b3b12dc6 100644=0D=0A--- a/sound/soc/co=
+decs/tlv320aic32x4.c=0D=0A+++ b/sound/soc/codecs/tlv320aic32x4.c=0D=0A@@ =
+-577,12 +577,12 @@ static const struct regmap_range_cfg aic32x4_regmap_pa=
+ges[] =3D {=0D=0A =09=09.window_start =3D 0,=0D=0A =09=09.window_len =3D =
+128,=0D=0A =09=09.range_min =3D 0,=0D=0A-=09=09.range_max =3D AIC32X4_RMI=
+CPGAVOL,=0D=0A+=09=09.range_max =3D AIC32X4_REFPOWERUP,=0D=0A =09},=0D=0A=
+ };=0D=0A=20=0D=0A const struct regmap_config aic32x4_regmap_config =3D {=
+=0D=0A-=09.max_register =3D AIC32X4_RMICPGAVOL,=0D=0A+=09.max_register =3D=
+ AIC32X4_REFPOWERUP,=0D=0A =09.ranges =3D aic32x4_regmap_pages,=0D=0A =09=
+=2Enum_ranges =3D ARRAY_SIZE(aic32x4_regmap_pages),=0D=0A };=0D=0A--=20=0D=
+=0A2.27.0=0D=0A=0D=0A
