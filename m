@@ -2,113 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A9535063A
-	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 20:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3645350680
+	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 20:38:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234913AbhCaSWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Mar 2021 14:22:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39730 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234981AbhCaSW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:22:28 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA516C061574
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 11:22:28 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id h8so8340936plt.7
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 11:22:28 -0700 (PDT)
+        id S234511AbhCaSh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Mar 2021 14:37:56 -0400
+Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:16251 "EHLO
+        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234922AbhCaShn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:37:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6fG3M9tA0KoHwDLLm38rn/CCdGLZ4zzjS0UaZN9gjYs=;
-        b=CXzu91MfNaKV/RkPW5JWqeToS32DZALRnPfsqYUQqEEb7vDFKohysIrfFw22LpT53X
-         LE/rBeI1jpRLL/VCekdNewN0AnCCgMYwu+RL9q9mBHDn33dKqp/ft2SU0LCvm3ZaMIkR
-         U4jUPJK3yQPbnS+bNpwCCfju0YI0qFub5SpEM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6fG3M9tA0KoHwDLLm38rn/CCdGLZ4zzjS0UaZN9gjYs=;
-        b=TwXRDGo81GghlvwLqQuZWRGYBqWJUqrPiMBwDZDl4xJp2MsM7sdkxJqFp4OjgS/jI7
-         j+YKyiqMGaMBRVukWBZlWrzxwxdIOHu0gXN7lz5RukzzjJ9SKHsXEum2FdVsijuTKXy1
-         UpyT5NXP5JOs+9aC3m3KMUGEWZZ78dONeeR4aXf04SgNytgn+ebwJADfSMLLkMaIvf+M
-         Y8hIGlYLjwXtwG42LGKu7TMpSlHmP7TSxoHpvMs2gZraSXZR6L7sn99f2juwEMBluSFY
-         rYl3WVbbR4U+XphDmgvuApazBO85w2zoqHebArxNXX7ST2m1CbOg6TrVRhy2Lc9LVz9R
-         FpxA==
-X-Gm-Message-State: AOAM533AmBBUb2W4ur2rK0FVq1cR6o3u7EPCimkYOkfaNtAycS3vkPs3
-        cgIbATR0IA4gIMFr2/Z41Fd/kQ==
-X-Google-Smtp-Source: ABdhPJyQ6IwDLoJEcFdxS/PdQYeV96UpU/r9hnWhj9bMCMezNLMSmLBtAcCfVnQX2pOMV9NOSJtdyg==
-X-Received: by 2002:a17:902:6541:b029:e6:27a4:80fb with SMTP id d1-20020a1709026541b02900e627a480fbmr4272304pln.15.1617214948164;
-        Wed, 31 Mar 2021 11:22:28 -0700 (PDT)
-Received: from localhost ([2620:15c:202:201:9840:2987:57cd:7dfe])
-        by smtp.gmail.com with UTF8SMTPSA id j21sm2634142pfc.114.2021.03.31.11.22.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 Mar 2021 11:22:27 -0700 (PDT)
-From:   Gwendal Grignou <gwendal@chromium.org>
-To:     jic23@kernel.org, lars@metafoo.de, swboyd@chromium.org,
-        campello@chromium.org, andy.shevchenko@gmail.com
-Cc:     linux-iio@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] iio: sx9310: Fix write_.._debounce()
-Date:   Wed, 31 Mar 2021 11:22:22 -0700
-Message-Id: <20210331182222.219533-1-gwendal@chromium.org>
-X-Mailer: git-send-email 2.31.0.291.g576ba9dcdaf-goog
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1617215864; x=1648751864;
+  h=to:cc:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding:subject;
+  bh=pJx5l5IUyVFTnL4MY0QFELAQ9SMIATEuO+GrHBpRKa0=;
+  b=KdjPJ6+jk+WALK4NuVAFOr08bU+5yXzJJCgxJtb/zB+0Vkx4FHwpPLRc
+   FDrULWzQo55dsDYwaItG4ntE9SQu/j581F4hlQfdFGB1qGQ9mp9z5+aMr
+   RdmDo9LsIaGtoQqT5exEf3FoWf6ELF0fNqOQnQQ9r091WDms9C4d4U8zv
+   0=;
+X-IronPort-AV: E=Sophos;i="5.81,293,1610409600"; 
+   d="scan'208";a="102494824"
+Subject: Re: [PATCH 1/2] bpf: fix userspace access for bpf_probe_read{, str}()
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-c7c08562.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-6002.iad6.amazon.com with ESMTP; 31 Mar 2021 18:37:37 +0000
+Received: from EX13D01EUA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-1e-c7c08562.us-east-1.amazon.com (Postfix) with ESMTPS id 864E5240AA4;
+        Wed, 31 Mar 2021 18:37:36 +0000 (UTC)
+Received: from 8c859063385e.ant.amazon.com (10.43.162.207) by
+ EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 31 Mar 2021 18:37:33 +0000
+To:     Sasha Levin <sashal@kernel.org>
+CC:     <stable@vger.kernel.org>
+References: <56be4b97-8283-cf09-4dac-46d602cae97c@amazon.com>
+ <358062d4-fdf8-f3da-fd8e-c55cf1a089ec@amazon.com> <YGNeIhMNjQ0RGUGr@sashalap>
+From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
+Message-ID: <b0a5f24a-4e25-53f2-f5fb-e09ac89dc869@amazon.com>
+Date:   Wed, 31 Mar 2021 21:37:28 +0300
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
+ Gecko/20100101 Thunderbird/78.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YGNeIhMNjQ0RGUGr@sashalap>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Originating-IP: [10.43.162.207]
+X-ClientProxiedBy: EX13D07UWA001.ant.amazon.com (10.43.160.145) To
+ EX13D01EUA001.ant.amazon.com (10.43.165.121)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Check input to be sure it matches Semtech sx9310 specification and
-can fit into debounce register.
-Compare argument writen to thresh_.._period with read from same
-sysfs attribute:
 
-Before:                   Afer:
-write   |  read           write   |  read
--1      |     8           -1 fails: -EINVAL
-0       |     8           0       |     0
-1       |     0           1       |     0
-2..15   |  2^log2(N)      2..15   |  2^log2(N)
-16      |     0           >= 16 fails: -EINVAL
+On 30/03/2021 20:21, Sasha Levin wrote:
+> commit 8d92db5c04d10381f4db70ed99b1b576f5db18a7 upstream.
+>>
+>> This is an adaptation of parts from above commit to kernel 5.4.
+>
+> This is very different from the upstream commit, let's not annotate it
+> as that commit.
+>
+No problem.
+>>
+>> To generally fix the issue, upstream includes new BPF helpers:
+>> bpf_probe_read_{user,kernel}_str(). For details on them, see
+>> commit 6ae08ae3dea2 ("bpf: Add probe_read_{user, kernel} and probe_read_{user, kernel}_str helpers")
+>
+> What stops us from taking that API back to 5.4? I took a look at the
+> dependencies and they don't look too scary.
+>
+> Can we try that route instead? We really don't want to diverge from
+> upstream that much.
+>
+probe_read_{user,kernel}* functions themselves seem simple enough.
+Importing them in a forward-compliant way to 5.4 would require either
+adding an unused entry in bpf.h's __BPF_FUNC_MAPPER or also pulling
+skb_output bpf helper functions into 5.4. To me, it seems like too
+much of a UAPI change to go into a stable release.
 
-Fixes: 1b6872015f0b ("iio: sx9310: Support setting debounce values")
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Cc: stable@vger.kernel.org
----
- drivers/iio/proximity/sx9310.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+Another option would be to import more code to make it somewhat closer
+to upstream implementation without changing UAPI. As in v5.8, I could
+internally map these helpers to probe_read_compat* functions, which
+will in turn call probe_read_{user,kernel}*_common functions.
+Func names might seem weird out of context, but it will be closer.
+Implementation will still defer, e.g. to avoid warnings on platforms
+without ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
 
-diff --git a/drivers/iio/proximity/sx9310.c b/drivers/iio/proximity/sx9310.c
-index 578d8841c5398..e5a756f4afa2b 100644
---- a/drivers/iio/proximity/sx9310.c
-+++ b/drivers/iio/proximity/sx9310.c
-@@ -764,7 +764,11 @@ static int sx9310_write_far_debounce(struct sx9310_data *data, int val)
- 	int ret;
- 	unsigned int regval;
- 
--	val = ilog2(val);
-+	if (val > 0)
-+		val = ilog2(val);
-+	if (!FIELD_FIT(SX9310_REG_PROX_CTRL10_FAR_DEBOUNCE_MASK, val))
-+		return -EINVAL;
-+
- 	regval = FIELD_PREP(SX9310_REG_PROX_CTRL10_FAR_DEBOUNCE_MASK, val);
- 
- 	mutex_lock(&data->mutex);
-@@ -781,7 +785,11 @@ static int sx9310_write_close_debounce(struct sx9310_data *data, int val)
- 	int ret;
- 	unsigned int regval;
- 
--	val = ilog2(val);
-+	if (val > 0)
-+		val = ilog2(val);
-+	if (!FIELD_FIT(SX9310_REG_PROX_CTRL10_CLOSE_DEBOUNCE_MASK, val))
-+		return -EINVAL;
-+
- 	regval = FIELD_PREP(SX9310_REG_PROX_CTRL10_CLOSE_DEBOUNCE_MASK, val);
- 
- 	mutex_lock(&data->mutex);
--- 
-2.31.0.291.g576ba9dcdaf-goog
+Does that sound like a reasonable solution?
 
+--
+Thanks,
+Tsahi
