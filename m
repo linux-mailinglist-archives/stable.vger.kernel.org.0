@@ -2,105 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05CFC35061C
-	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 20:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD12D350631
+	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 20:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233900AbhCaSPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Mar 2021 14:15:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234526AbhCaSPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:15:20 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1035C061574
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 11:15:17 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id e18so20594052wrt.6
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 11:15:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=eA66IfwNLCvflZyaO4GLWcFCdnWN4ORiomGXqXfK2fI=;
-        b=f1Ar6CrHVwvmPAM3/9xMSRkKbN4usB8LfM583KmVSNJXs0r9cwmW9stwOKoZwMrxBC
-         8M90NIfDKnoSwcSiBxVfvwLjuz4IWvYeL1vFxRhKMDhJy6I/CtyXQDHWLF33EeEata6X
-         Vi3odTlTawbhhkRC9Uy49cUyQLQlneOe1+Gor6WnNMINgZ3UD+UJIp/iYVsdaGRunxCw
-         8/5ewEzObkstEaa9ST1but+pEE6GrBuM+tCgEoaMtfPcVJ/swYbM7F45HJ43j2bArRWg
-         1OjhHJJFXK4zMoAnUEpJPxvr1NkIVWETfE9pNj6lDRs36zWNuAsqSW7gDAoMo5YZCzYf
-         2ZZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=eA66IfwNLCvflZyaO4GLWcFCdnWN4ORiomGXqXfK2fI=;
-        b=eRSja4K5COKMwAEXeoOLrUqyPtDNP5SkIdyfwL5fJSH6ik+hPAdFJUdITIg/Dz6IyC
-         e792C4BRlb0G3vmJwBR5jwgDLPvhw/uFBSh8q5B3KKh6x26gWO1KNwEJn3gUTEkDmVDz
-         4PpcYjDJ5WQLW2V3px7fOCbu4WmBtkazyuhvaQ9C5GpH2dDpLebnfm08bnu1f7lLY+Di
-         I/MDfq87xcK/We8vTnEh3CmZxrNpvCUujMorDQ8StyHhtbG2m9mTmlus1QBwGjBSDkT9
-         Zkmd7rGFsUB+vMebmCINx0UruW9zcEdUn30nOeLNeFzICzPEnMytxq+Yi5q05F90pn8F
-         FIgw==
-X-Gm-Message-State: AOAM532fVKlwIIFaSsKoVODZBE+lx3zIVNcgdvEG1TjAUfbZ17pycOrp
-        uBKmiebWSoSZb4Ypz+I2bAfTUQ==
-X-Google-Smtp-Source: ABdhPJyyWfx/c+aqE54lTrl3dhisDbSZEmIFGt41YeVVb1gbg4eQ0gsUx3VoNGnZ5VsumWW6ywd2EQ==
-X-Received: by 2002:adf:ba94:: with SMTP id p20mr5188220wrg.300.1617214516602;
-        Wed, 31 Mar 2021 11:15:16 -0700 (PDT)
-Received: from ?IPv6:2a02:8084:e84:2480:228:f8ff:fe6f:83a8? ([2a02:8084:e84:2480:228:f8ff:fe6f:83a8])
-        by smtp.gmail.com with ESMTPSA id i4sm4661186wmq.12.2021.03.31.11.15.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 Mar 2021 11:15:16 -0700 (PDT)
-Subject: Re: [PATCH] powerpc/vdso: Separate vvar vma from vdso
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org
-Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-References: <20210326191720.138155-1-dima@arista.com>
- <47623d02-eb29-0fcb-0cfd-a9c11c9fab02@csgroup.eu>
-From:   Dmitry Safonov <dima@arista.com>
-Message-ID: <8cd82b69-c8cc-8591-1f92-5c9400e00579@arista.com>
-Date:   Wed, 31 Mar 2021 19:15:14 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
-MIME-Version: 1.0
-In-Reply-To: <47623d02-eb29-0fcb-0cfd-a9c11c9fab02@csgroup.eu>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S234820AbhCaSVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Mar 2021 14:21:46 -0400
+Received: from a27-90.smtp-out.us-west-2.amazonses.com ([54.240.27.90]:36755
+        "EHLO a27-90.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234701AbhCaSVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:21:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=zzmz6pik4loqlrvo6grmnyszsx3fszus; d=nh6z.net; t=1617214898;
+        h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:In-Reply-To:References:Message-Id;
+        bh=SET2MMom8yUlyhPewodmsitZ5ujJwagHgJ3dqXYrK/Q=;
+        b=Lsg4WPK3BZXJCQJf+DgEoHL3fGFcyHVkfk/+Cf2vTMzQsX8BuqiI/c98cvrRM1bk
+        YmA9ziqKEX8etJixAupCS1OVbin58N1q6vlz3S5Hjzb9bVWxFttyug94ByMMwamdnag
+        3KiIP3MWT2aYV+McusctFC7McgbkOaO9pWHRYK8U=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=7v7vs6w47njt4pimodk5mmttbegzsi6n; d=amazonses.com; t=1617214898;
+        h=Subject:From:To:Cc:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:In-Reply-To:References:Message-Id:Feedback-ID;
+        bh=SET2MMom8yUlyhPewodmsitZ5ujJwagHgJ3dqXYrK/Q=;
+        b=LXE7qu57foLttk3bI+2OUCRrjDkGVW/qaYGKud304quHKt1ya5DYltGwLca/2mhy
+        /o/QMA8waOVI/ykXgOhgXoEzhZbdfVs1vx0w/UD6jbnHD1XMetLtzxd4u5CFAENgj4m
+        bElqZcpYKt6DXQOwau+3RjgRFNhlLouvGCnIUIbU=
+Subject: [PATCH v2 2/2] ASoC: tlv320aic32x4: Register clocks before
+ registering component
+From:   =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>
+To:     =?UTF-8?Q?alsa-devel=40alsa-project=2Eorg?= 
+        <alsa-devel@alsa-project.org>,
+        =?UTF-8?Q?broonie=40kernel=2Eorg?= <broonie@kernel.org>,
+        =?UTF-8?Q?lgirdwood=40gmail=2Ecom?= <lgirdwood@gmail.com>,
+        =?UTF-8?Q?perex=40perex=2Ecz?= <perex@perex.cz>,
+        =?UTF-8?Q?tiwai=40suse=2E?= =?UTF-8?Q?com?= <tiwai@suse.com>
+Cc:     =?UTF-8?Q?Annaliese_McDermond?= <nh6z@nh6z.net>,
+        =?UTF-8?Q?team=40nwdigitalradio=2Ecom?= <team@nwdigitalradio.com>,
+        =?UTF-8?Q?stable=40vger=2Ekernel=2Eorg?= <stable@vger.kernel.org>
+Date:   Wed, 31 Mar 2021 18:21:38 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210331182125.413693-1-nh6z@nh6z.net>
+References: <20210331182125.413693-1-nh6z@nh6z.net> 
+ <20210331182125.413693-3-nh6z@nh6z.net>
+X-Mailer: Amazon WorkMail
+Thread-Index: AQHXJlqutU2ZzEf5Tk+l1YBnPdSJ8wAAAHbh
+Thread-Topic: [PATCH v2 2/2] ASoC: tlv320aic32x4: Register clocks before
+ registering component
+X-Original-Mailer: git-send-email 2.27.0
+X-Wm-Sent-Timestamp: 1617214897
+Message-ID: <0101017889850206-dcac4cce-8cc8-4a21-80e9-4e4bef44b981-000000@us-west-2.amazonses.com>
+X-SES-Outgoing: 2021.03.31-54.240.27.90
+Feedback-ID: 1.us-west-2.An468LAV0jCjQDrDLvlZjeAthld7qrhZr+vow8irkvU=:AmazonSES
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/30/21 11:17 AM, Christophe Leroy wrote:
-> 
-> 
-> Le 26/03/2021 à 20:17, Dmitry Safonov a écrit :
-[..]
->> --- a/arch/powerpc/kernel/vdso.c
->> +++ b/arch/powerpc/kernel/vdso.c
->> @@ -55,10 +55,10 @@ static int vdso_mremap(const struct
->> vm_special_mapping *sm, struct vm_area_struc
->>   {
->>       unsigned long new_size = new_vma->vm_end - new_vma->vm_start;
->>   -    if (new_size != text_size + PAGE_SIZE)
->> +    if (new_size != text_size)
->>           return -EINVAL;
-> 
-> In ARM64 you have removed the above test in commit 871402e05b24cb56
-> ("mm: forbid splitting special mappings"). Do we need to keep it here ?
-> 
->>   -    current->mm->context.vdso = (void __user *)new_vma->vm_start +
->> PAGE_SIZE;
->> +    current->mm->context.vdso = (void __user *)new_vma->vm_start;
->>         return 0;
->>   }
-> 
-
-Yes, right you are, this can be dropped.
-
-Thanks,
-          Dmitry
+Clock registration must be performed before the component is=0D=0Aregiste=
+red.  aic32x4_component_probe attempts to get all the=0D=0Aclocks right o=
+ff the bat.  If the component is registered before=0D=0Athe clocks there =
+is a race condition where the clocks may not=0D=0Abe registered by the ti=
+me aic32x4_componet_probe actually runs.=0D=0A=0D=0AFixes: d1c859d314d8 (=
+"ASoC: codec: tlv3204: Increased maximum supported channels")=0D=0ACc: st=
+able@vger.kernel.org=0D=0ASigned-off-by: Annaliese McDermond <nh6z@nh6z.n=
+et>=0D=0A---=0D=0A sound/soc/codecs/tlv320aic32x4.c | 8 ++++----=0D=0A 1 =
+file changed, 4 insertions(+), 4 deletions(-)=0D=0A=0D=0Adiff --git a/sou=
+nd/soc/codecs/tlv320aic32x4.c b/sound/soc/codecs/tlv320aic32x4.c=0D=0Aind=
+ex 1ac3b3b12dc6..b689f26fc4be 100644=0D=0A--- a/sound/soc/codecs/tlv320ai=
+c32x4.c=0D=0A+++ b/sound/soc/codecs/tlv320aic32x4.c=0D=0A@@ -1243,6 +1243=
+,10 @@ int aic32x4_probe(struct device *dev, struct regmap *regmap)=0D=0A=
+ =09if (ret)=0D=0A =09=09goto err_disable_regulators;=0D=0A=20=0D=0A+=09r=
+et =3D aic32x4_register_clocks(dev, aic32x4->mclk_name);=0D=0A+=09if (ret=
+)=0D=0A+=09=09goto err_disable_regulators;=0D=0A+=0D=0A =09ret =3D devm_s=
+nd_soc_register_component(dev,=0D=0A =09=09=09&soc_component_dev_aic32x4,=
+ &aic32x4_dai, 1);=0D=0A =09if (ret) {=0D=0A@@ -1250,10 +1254,6 @@ int ai=
+c32x4_probe(struct device *dev, struct regmap *regmap)=0D=0A =09=09goto e=
+rr_disable_regulators;=0D=0A =09}=0D=0A=20=0D=0A-=09ret =3D aic32x4_regis=
+ter_clocks(dev, aic32x4->mclk_name);=0D=0A-=09if (ret)=0D=0A-=09=09goto e=
+rr_disable_regulators;=0D=0A-=0D=0A =09return 0;=0D=0A=20=0D=0A err_disab=
+le_regulators:=0D=0A--=20=0D=0A2.27.0=0D=0A=0D=0A
