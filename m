@@ -2,121 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D2434FA48
-	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 09:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E776334FA9A
+	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 09:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233881AbhCaHbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Mar 2021 03:31:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39770 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234158AbhCaHb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 03:31:27 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C2DC061574
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 00:31:27 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id h8so7453340plt.7
-        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 00:31:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QeT1z44W33/lYy10EM9xmoT0V258b/MVXPoJy8OvvTg=;
-        b=lSy8eWgQpmRrkM1pOFGG7UuKdqgKxM5fVTfhNyRyN4HXQyWXy/QRK0tirD2dPdMZFj
-         8siY3OYuQc1QOVh5pQolhaweBEgRHq0Sm3o+vurWvGVfxzVfiXopqS+apKXrHIGS3DTV
-         VNHS61B9xarsr8YHHGRl8mBXU7omOWpSUMO16POAfbCb+2kXZV7TdZ+EaTcIyAfsjqSe
-         +75C3UFxL/Xzkh10JMRxUTRuWAd7rAFKHTfufmZa2M2xp+VxN7PVzTgA1L2cVcYK/5CI
-         qvk0cZTpDzirQ31kYuojvudqSMsgB9EzBbq7uKisjMo5tJNYOdwfCcGTkdGQFgNSmt1x
-         ZgLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QeT1z44W33/lYy10EM9xmoT0V258b/MVXPoJy8OvvTg=;
-        b=PZhpughdCobS7Q08Abr5/hMfUj7BCjJLpVfQ2gAu7PwgWQfLCnqAzTVv+hrcSFXhGl
-         qNscJ9KFDbogIzrXW6qOSmhc8PwVydagIJ7s+Vp+hG4/iH5J8F4s6kpfkdSfJqmQ+xe/
-         CeGxtiyIFOcP6yZuNyggqjAE1J+98+W5y9gd/fBD1+Bmje2QAipObvT+nAwoKNDXO3Fx
-         Zy0WnaXRv7k+f1+d+ktN+wIUjGAvqGcq5voGGdn1bYNyA+NYGzSrYDJsU0jwBOfFdghc
-         FxZXxpykm2Co9C5DvbptCV0YIdNoRWQ7tELG5DP901Qchbb7ZmwRH6FP5LiF2Hu5F/Ho
-         3wIg==
-X-Gm-Message-State: AOAM5339XMSkdyyGjNiiF78URiYKw2+rruAzoMK4ig+Ar+BPGjWFa39T
-        7X+cg4DfQPnpVns5PYZymS1M+UK+qg4cfA==
-X-Google-Smtp-Source: ABdhPJyzpTgLpm6it4q23D/bS2EHqQd+zz8+Yw933XJkrv3hK5+qWrkHRZ1/sutaG7ZeyDvUv3iNaw==
-X-Received: by 2002:a17:90a:e454:: with SMTP id jp20mr2286118pjb.129.1617175886799;
-        Wed, 31 Mar 2021 00:31:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x2sm1089198pfx.41.2021.03.31.00.31.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Mar 2021 00:31:26 -0700 (PDT)
-Message-ID: <6064254e.1c69fb81.35b28.3030@mx.google.com>
-Date:   Wed, 31 Mar 2021 00:31:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S234217AbhCaHnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Mar 2021 03:43:03 -0400
+Received: from a.mx.secunet.com ([62.96.220.36]:45750 "EHLO a.mx.secunet.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234282AbhCaHmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 31 Mar 2021 03:42:36 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by a.mx.secunet.com (Postfix) with ESMTP id DD27B20571;
+        Wed, 31 Mar 2021 09:42:34 +0200 (CEST)
+X-Virus-Scanned: by secunet
+Received: from a.mx.secunet.com ([127.0.0.1])
+        by localhost (a.mx.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id AejTVs5M9keI; Wed, 31 Mar 2021 09:42:31 +0200 (CEST)
+Received: from cas-essen-02.secunet.de (unknown [10.53.40.202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by a.mx.secunet.com (Postfix) with ESMTPS id 4728320561;
+        Wed, 31 Mar 2021 09:42:31 +0200 (CEST)
+Received: from mbx-essen-01.secunet.de (10.53.40.197) by
+ cas-essen-02.secunet.de (10.53.40.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Wed, 31 Mar 2021 09:42:31 +0200
+Received: from gauss2.secunet.de (10.182.7.193) by mbx-essen-01.secunet.de
+ (10.53.40.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Wed, 31 Mar
+ 2021 09:42:30 +0200
+Received: by gauss2.secunet.de (Postfix, from userid 1000)
+        id 9861E31804DE; Wed, 31 Mar 2021 09:42:30 +0200 (CEST)
+Date:   Wed, 31 Mar 2021 09:42:30 +0200
+From:   Steffen Klassert <steffen.klassert@secunet.com>
+To:     Dmitry Safonov <dima@arista.com>
+CC:     <linux-kernel@vger.kernel.org>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        <syzbot+834ffd1afc7212eb8147@syzkaller.appspotmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Jakub Kicinski <kuba@kernel.org>, <netdev@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH] xfrm/compat: Cleanup WARN()s that can be user-triggered
+Message-ID: <20210331074230.GE62598@gauss3.secunet.de>
+References: <20210329232506.232142-1-dima@arista.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.109-29-g0914ff5af18e7
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 153 runs,
- 1 regressions (v5.4.109-29-g0914ff5af18e7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20210329232506.232142-1-dima@arista.com>
+X-ClientProxiedBy: cas-essen-02.secunet.de (10.53.40.202) To
+ mbx-essen-01.secunet.de (10.53.40.197)
+X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 153 runs, 1 regressions (v5.4.109-29-g0914ff5=
-af18e7)
+On Tue, Mar 30, 2021 at 12:25:06AM +0100, Dmitry Safonov wrote:
+> Replace WARN_ONCE() that can be triggered from userspace with
+> pr_warn_once(). Those still give user a hint what's the issue.
+> 
+> I've left WARN()s that are not possible to trigger with current
+> code-base and that would mean that the code has issues:
+> - relying on current compat_msg_min[type] <= xfrm_msg_min[type]
+> - expected 4-byte padding size difference between
+>   compat_msg_min[type] and xfrm_msg_min[type]
+> - compat_policy[type].len <= xfrma_policy[type].len
+> (for every type)
+> 
+> Reported-by: syzbot+834ffd1afc7212eb8147@syzkaller.appspotmail.com
+> Fixes: 5f3eea6b7e8f ("xfrm/compat: Attach xfrm dumps to 64=>32 bit translator")
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Eric Dumazet <eric.dumazet@gmail.com>
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Steffen Klassert <steffen.klassert@secunet.com>
+> Cc: netdev@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dmitry Safonov <dima@arista.com>
 
-Regressions Summary
--------------------
-
-platform     | arch  | lab             | compiler | defconfig | regressions
--------------+-------+-----------------+----------+-----------+------------
-qcom-qdf2400 | arm64 | lab-linaro-lkft | gcc-8    | defconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.109-29-g0914ff5af18e7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.109-29-g0914ff5af18e7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0914ff5af18e722d6c63f322e899881bec1b2bc4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform     | arch  | lab             | compiler | defconfig | regressions
--------------+-------+-----------------+----------+-----------+------------
-qcom-qdf2400 | arm64 | lab-linaro-lkft | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6063f1de21f2438393dac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.109-2=
-9-g0914ff5af18e7/arm64/defconfig/gcc-8/lab-linaro-lkft/baseline-qcom-qdf240=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.109-2=
-9-g0914ff5af18e7/arm64/defconfig/gcc-8/lab-linaro-lkft/baseline-qcom-qdf240=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6063f1de21f2438393dac=
-6b2
-        new failure (last pass: v5.4.108-112-gfa41218230fa3) =
-
- =20
+Applied, thanks Dmitry!
