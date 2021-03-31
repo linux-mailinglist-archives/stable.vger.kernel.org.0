@@ -2,94 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3645350680
-	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 20:38:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F4A83506EA
+	for <lists+stable@lfdr.de>; Wed, 31 Mar 2021 20:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234511AbhCaSh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Mar 2021 14:37:56 -0400
-Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:16251 "EHLO
-        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234922AbhCaShn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:37:43 -0400
+        id S235855AbhCaSyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Mar 2021 14:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235626AbhCaSxu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Mar 2021 14:53:50 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F7DC06174A
+        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 11:53:49 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id k8so20691271wrc.3
+        for <stable@vger.kernel.org>; Wed, 31 Mar 2021 11:53:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1617215864; x=1648751864;
-  h=to:cc:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding:subject;
-  bh=pJx5l5IUyVFTnL4MY0QFELAQ9SMIATEuO+GrHBpRKa0=;
-  b=KdjPJ6+jk+WALK4NuVAFOr08bU+5yXzJJCgxJtb/zB+0Vkx4FHwpPLRc
-   FDrULWzQo55dsDYwaItG4ntE9SQu/j581F4hlQfdFGB1qGQ9mp9z5+aMr
-   RdmDo9LsIaGtoQqT5exEf3FoWf6ELF0fNqOQnQQ9r091WDms9C4d4U8zv
-   0=;
-X-IronPort-AV: E=Sophos;i="5.81,293,1610409600"; 
-   d="scan'208";a="102494824"
-Subject: Re: [PATCH 1/2] bpf: fix userspace access for bpf_probe_read{, str}()
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-c7c08562.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-6002.iad6.amazon.com with ESMTP; 31 Mar 2021 18:37:37 +0000
-Received: from EX13D01EUA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1e-c7c08562.us-east-1.amazon.com (Postfix) with ESMTPS id 864E5240AA4;
-        Wed, 31 Mar 2021 18:37:36 +0000 (UTC)
-Received: from 8c859063385e.ant.amazon.com (10.43.162.207) by
- EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 31 Mar 2021 18:37:33 +0000
-To:     Sasha Levin <sashal@kernel.org>
-CC:     <stable@vger.kernel.org>
-References: <56be4b97-8283-cf09-4dac-46d602cae97c@amazon.com>
- <358062d4-fdf8-f3da-fd8e-c55cf1a089ec@amazon.com> <YGNeIhMNjQ0RGUGr@sashalap>
-From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
-Message-ID: <b0a5f24a-4e25-53f2-f5fb-e09ac89dc869@amazon.com>
-Date:   Wed, 31 Mar 2021 21:37:28 +0300
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.0
+        d=arista.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3u7Et0H7oZ1l5+ZT9yV0GYS4scsUtLZ5FCnJUgJcrYc=;
+        b=Mgm0NPTvspRnm2H/4m2momQHT290auYuLqDANl89pFpeXPjht2MQjc/9oGe/0kRF3r
+         FFfSpw6pLg7HQUNMO+FUmKd7OlPJbzAdBkLOxYHVvGKD4bpvCSd93fmeWrM5UsixRe5Q
+         FhpXRqxw19IrLrm3HlvXkMF5B74Oyn6XmtPUM9MzKL8IkLh5lxoQd6S+8Jsvv+MX2ZBy
+         OHFJcVWq89q46mVCPuTkBi5800JUenUswWCTssAgpxdylHdEaVznXTpUGm4QbKkQl/jq
+         R99EYo+OIkW5UzTANDPKCSwh+FWDFaGVPT0OyYd37kX3i5AUAfX/I2OZYTiZI/NH+yKL
+         J2QQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3u7Et0H7oZ1l5+ZT9yV0GYS4scsUtLZ5FCnJUgJcrYc=;
+        b=Ob+TIy6Nv2LrDUbf39F0UIOMj+fACm2KIJWpnCJ1JDVnjUBH6HlLIRvIze09/8aXNb
+         zZWQJDN9FiWgPTFFd+NP6WHSIG0Qnnw4gKXejnLQevoA7h99QZPu5Q6yRF7Ryv51XvO/
+         7OkzfAQ073c3kzrXnQGUaA55G47RzFGdEFMnc9YbrUErXrObHTZ4Q1VHjAbmhfRnQkF2
+         l4liGmbAdley9tg/4Fk5jZvyNGMB9Wt9Q1ZSzOHTCNSgqQU0r8aKT/k6GkySJQ7rNIU9
+         EV+s5jvni5MH1g0eM6Y82oLppNqpS47w6rG7Mp5otzLrxcOG+ABY8YBHo7iFCRIpqr4d
+         2PiQ==
+X-Gm-Message-State: AOAM531snYBXTxEtW5/biOXekXYDv5+c2gG/3YPatpAybKwoVwF4Hr9K
+        LB84gwU0dc/FCONEc9gasl9Sxg==
+X-Google-Smtp-Source: ABdhPJyPqgg2NxjIPCh/BtXZYrR1Sey+m3sh2KHpQm1VyfXtUb7l7xh32RumbSLj4ZvX3qCECfmddw==
+X-Received: by 2002:adf:e34f:: with SMTP id n15mr5278586wrj.224.1617216828332;
+        Wed, 31 Mar 2021 11:53:48 -0700 (PDT)
+Received: from ?IPv6:2a02:8084:e84:2480:228:f8ff:fe6f:83a8? ([2a02:8084:e84:2480:228:f8ff:fe6f:83a8])
+        by smtp.gmail.com with ESMTPSA id u20sm6368269wru.6.2021.03.31.11.53.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 31 Mar 2021 11:53:48 -0700 (PDT)
+Subject: Re: [PATCH] powerpc/vdso: Separate vvar vma from vdso
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org
+Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+References: <20210326191720.138155-1-dima@arista.com>
+ <09e8d68d-54fe-e327-b44f-8f68543edba1@csgroup.eu>
+ <8735wby77v.fsf@mpe.ellerman.id.au>
+From:   Dmitry Safonov <dima@arista.com>
+Message-ID: <361ec8ba-8335-157a-53e8-38a656626519@arista.com>
+Date:   Wed, 31 Mar 2021 19:53:46 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <YGNeIhMNjQ0RGUGr@sashalap>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <8735wby77v.fsf@mpe.ellerman.id.au>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-X-Originating-IP: [10.43.162.207]
-X-ClientProxiedBy: EX13D07UWA001.ant.amazon.com (10.43.160.145) To
- EX13D01EUA001.ant.amazon.com (10.43.165.121)
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 30/03/2021 20:21, Sasha Levin wrote:
-> commit 8d92db5c04d10381f4db70ed99b1b576f5db18a7 upstream.
+On 3/31/21 10:59 AM, Michael Ellerman wrote:
+> Christophe Leroy <christophe.leroy@csgroup.eu> writes:
+[..]
 >>
->> This is an adaptation of parts from above commit to kernel 5.4.
->
-> This is very different from the upstream commit, let's not annotate it
-> as that commit.
->
-No problem.
+>>> @@ -133,7 +135,13 @@ static int __arch_setup_additional_pages(struct linux_binprm *bprm, int uses_int
+>>>   	 * install_special_mapping or the perf counter mmap tracking code
+>>>   	 * will fail to recognise it as a vDSO.
+>>>   	 */
+>>> -	mm->context.vdso = (void __user *)vdso_base + PAGE_SIZE;
+>>> +	mm->context.vdso = (void __user *)vdso_base + vvar_size;
+>>> +
+>>> +	vma = _install_special_mapping(mm, vdso_base, vvar_size,
+>>> +				       VM_READ | VM_MAYREAD | VM_IO |
+>>> +				       VM_DONTDUMP | VM_PFNMAP, &vvar_spec);
+>>> +	if (IS_ERR(vma))
+>>> +		return PTR_ERR(vma);
+>>>   
+>>>   	/*
+>>>   	 * our vma flags don't have VM_WRITE so by default, the process isn't
 >>
->> To generally fix the issue, upstream includes new BPF helpers:
->> bpf_probe_read_{user,kernel}_str(). For details on them, see
->> commit 6ae08ae3dea2 ("bpf: Add probe_read_{user, kernel} and probe_read_{user, kernel}_str helpers")
->
-> What stops us from taking that API back to 5.4? I took a look at the
-> dependencies and they don't look too scary.
->
-> Can we try that route instead? We really don't want to diverge from
-> upstream that much.
->
-probe_read_{user,kernel}* functions themselves seem simple enough.
-Importing them in a forward-compliant way to 5.4 would require either
-adding an unused entry in bpf.h's __BPF_FUNC_MAPPER or also pulling
-skb_output bpf helper functions into 5.4. To me, it seems like too
-much of a UAPI change to go into a stable release.
+>>
+>> IIUC, VM_PFNMAP is for when we have a vvar_fault handler.
+>> Allthough we will soon have one for handle TIME_NS, at the moment
+>> powerpc doesn't have that handler.
+>> Isn't it dangerous to set VM_PFNMAP then ?
 
-Another option would be to import more code to make it somewhat closer
-to upstream implementation without changing UAPI. As in v5.8, I could
-internally map these helpers to probe_read_compat* functions, which
-will in turn call probe_read_{user,kernel}*_common functions.
-Func names might seem weird out of context, but it will be closer.
-Implementation will still defer, e.g. to avoid warnings on platforms
-without ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
+I believe, it's fine, special_mapping_fault() does:
+:		if (sm->fault)
+:			return sm->fault(sm, vmf->vma, vmf);
 
-Does that sound like a reasonable solution?
+> Some of the other flags seem odd too.
+> eg. VM_IO ? VM_DONTDUMP ?
 
---
+Yeah, so:
+VM_PFNMAP | VM_IO is a protection from remote access on pages. So one
+can't access such page with ptrace(), /proc/$pid/mem or
+process_vm_write(). Otherwise, it would create COW mapping and the
+tracee will stop working with stale vvar.
+
+VM_DONTDUMP restricts the area from coredumping and gdb will also avoid
+accessing those[1][2].
+
+I agree that VM_PFNMAP was probably excessive in this patch alone and
+rather synchronized code with other architectures, but it makes more
+sense now in the new patches set by Christophe:
+https://lore.kernel.org/linux-arch/cover.1617209141.git.christophe.leroy@csgroup.eu/
+
+
+[1] https://lore.kernel.org/lkml/550731AF.6080904@redhat.com/T/
+[2] https://sourceware.org/legacy-ml/gdb-patches/2015-03/msg00383.html
+
 Thanks,
-Tsahi
+          Dmitry
