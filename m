@@ -2,125 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0518F352011
-	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 21:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9AB352016
+	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 21:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235094AbhDAToJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Apr 2021 15:44:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56882 "EHLO
+        id S233786AbhDATr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Apr 2021 15:47:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235128AbhDAToI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 15:44:08 -0400
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F72C0613E6
-        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 12:44:04 -0700 (PDT)
-Received: by mail-yb1-xb30.google.com with SMTP id z1so2947209ybf.6
-        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 12:44:04 -0700 (PDT)
+        with ESMTP id S235189AbhDATrZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 15:47:25 -0400
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8783C061788
+        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 12:47:25 -0700 (PDT)
+Received: by mail-yb1-xb35.google.com with SMTP id j198so2927356ybj.11
+        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 12:47:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=iF4IO7QJLHB6aKo372bx64673+ThKmhycS/rht00sIM=;
-        b=UqSXdWUdJ61mv2MAEfoJjth4rwv55Z8tDgpBepcP4WQNxezaT9RozpomUKDEgzu0kZ
-         LKLYtEB76D1E7DNJXIw7AD8sDQ2qQq11WaGkX2KBicR1GyTZt6KN/a4wNIn/3MBs9rSD
-         LOoxNUUwlXB2N/figtDa/594dUIrwewp4hTlnXq2bNTeurh0eWGmjjJCRh5Dd13uwS/E
-         5oFKphZ5dip6g4QIUmPZBu9CPVJjtlesQX+at+Ezrlo5gRyZ6G3vetCXh9MTWCXWD+kK
-         wRJ4eEvLRBc7H5+lzOm+GRxUjcr4+nsNoN8Gpreh9hQ1FGV5+iYNUvra4TjlvuW7b8dn
-         8DPQ==
+        bh=apM991fcSzCvxwtBXbERhXcPo06u2NcSXVhXFrtKV00=;
+        b=TJ6yRcs7/F+2BvmvNKprIwFoMgYMbWh480ndLABBp0juXVh2ZGBUuvuz1buktyB14w
+         7xq89lWufQjLlBuXpCHyqUGBObvQQzPVEYMOlCYzSbyciFwTo68cjXK6zV6g8VyMSsPA
+         PFhlsU9toLUL7vPMG9GtOe2iJpR7dFGkxOEQtH4ppukpLl+d8bcFOV71LOQzVf69KHCb
+         PZZ5ueSMNHPrvgcEfVfSff1dRpbMXnBriAiJDO02/3NMRRmTBs4rr7WgQJw82o7WX8q2
+         e6e4ie7dVH+3dYBbfmQqMQnFY433jTjVp/LHXLPzINeg3jvPjoV34mui1dgOJgg2ECj+
+         4kKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=iF4IO7QJLHB6aKo372bx64673+ThKmhycS/rht00sIM=;
-        b=VvvI/0LQ1c2Qp4ixIGFz4VyeuXssT/b3P+bhRByozUpH2nB/MV7Lp6TElyvc/uwe9l
-         3W0g2/jPtAoG6pRfIc4BwADp1u9NALFQsp/zb/1bz9k+ArvgIezKy0xqIeg/3wcrNHxB
-         n0PE5Xxx8iO4N6pGujaMOWeLjB5dTJsmtLx9EmtpMSojZanXot06YvLAO0C77j0mY90P
-         Ih09ujatfjNG9YHsLSlN3wG4bvNDSnFy/2e94eHHwY5B37+0R39usBTY2FTxezTA8ZII
-         oGmxDctOTN/YaoHMOvH72JKaOrRzF6CjiXO/cE5Cupc7p/kG305/GbvN1Gvh12ePbyqd
-         3FKA==
-X-Gm-Message-State: AOAM532U6yiW4KeYi0jObuDTyCDO2qqkBRp7nMoiXsVd1+ROnprXequ1
-        wl7w0zAxI9USdKnRabPD+DJpMUiuNgkjtbJzWvpT2g==
-X-Google-Smtp-Source: ABdhPJxrv6pcBArSMr7HCn/xpEaCzYR1DW1hvA3LHx+g2zLnj8kZ3SEH5Uj7nc17H/9/IzV0nAhRoIJbCmibJufgJo4=
-X-Received: by 2002:a25:38c1:: with SMTP id f184mr14718948yba.84.1617306242737;
- Thu, 01 Apr 2021 12:44:02 -0700 (PDT)
+        bh=apM991fcSzCvxwtBXbERhXcPo06u2NcSXVhXFrtKV00=;
+        b=RfhqEpaoltPqlJySeMJDuh2PB4c3X7klzjA3eACop7NemxHy/HbHOB8V6IhedIADcd
+         CTsnh+/o5f06NszhwrI3RhdDqMjX8gPErFcm0Wzoykw6GtTqbNJr9ViFQIDElzQVtCFZ
+         UFisIyNZ3Yt8f57up1RLrwP76TCMeFDjgJySfEd/9t92mkSOHqfmvdAmUMqi/tiaNgh7
+         6bXvxdHwszN3Um+hI0OMCQZdj6wbWD/YzPH4yhddZo6beBZ+Yhrto7fAaHPV+hUyP0cX
+         qgxEUXRGW7HZ4L6Tvvp0cvhT2+M+Opt886rgi6ShzbFFRKk5yBqCsNoCcgBblBr4uaXC
+         GZoA==
+X-Gm-Message-State: AOAM530qKPeQDJvBXeQ/EC2pZJErPLmiyH8yfJRTUGD+6o3RmffAe5Dk
+        oEm3pUe0gXU4HwD5P10u8L8vYTsOYQYhpGhfLWm/wUL2kOk=
+X-Google-Smtp-Source: ABdhPJyq6aKnmG2A7Si4ZLOB+gj583IhyHClIDbpZy/gCj/QYdL7b4iuDo+gvH4J2QHnLDJF4hzy7NNomu+zV265/hw=
+X-Received: by 2002:a25:c801:: with SMTP id y1mr14487864ybf.250.1617306444108;
+ Thu, 01 Apr 2021 12:47:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210401181741.168763-1-surenb@google.com> <CAHk-=wg8MDMLi8x+u-dee-ai0KiAavm6+JceV00gRXQRFG=Cgw@mail.gmail.com>
-In-Reply-To: <CAHk-=wg8MDMLi8x+u-dee-ai0KiAavm6+JceV00gRXQRFG=Cgw@mail.gmail.com>
+References: <20210401181741.168763-1-surenb@google.com> <20210401181741.168763-2-surenb@google.com>
+ <YGYhJxFpfCx9VqZS@kroah.com>
+In-Reply-To: <YGYhJxFpfCx9VqZS@kroah.com>
 From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Thu, 1 Apr 2021 12:43:51 -0700
-Message-ID: <CAJuCfpE48zkcM_2GABBpXssjmivKLt+r8+CEeXafqK3VNMMjDw@mail.gmail.com>
-Subject: Re: [PATCH 0/5] 4.14 backports of fixes for "CoW after fork() issue"
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Peter Xu <peterx@redhat.com>, stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jann Horn <jannh@google.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>, Shaohua Li <shli@fb.com>,
-        Nadav Amit <namit@vmware.com>, Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Android Kernel Team <kernel-team@android.com>
+Date:   Thu, 1 Apr 2021 12:47:13 -0700
+Message-ID: <CAJuCfpG18PvjmcMma_rKSBRfUHui3TJ73w8f+fDmzv3Vi__HMA@mail.gmail.com>
+Subject: Re: [PATCH 1/5] mm: reuse only-pte-mapped KSM page in do_wp_page()
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, Jann Horn <jannh@google.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Shaohua Li <shli@fb.com>, Nadav Amit <namit@vmware.com>,
+        linux-mm <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Hugh Dickins <hughd@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Christian Koenig <christian.koenig@amd.com>,
+        Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>,
+        Rik van Riel <riel@surriel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 1, 2021 at 11:59 AM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
+On Thu, Apr 1, 2021 at 12:38 PM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
-> On Thu, Apr 1, 2021 at 11:17 AM Suren Baghdasaryan <surenb@google.com> wrote:
+> On Thu, Apr 01, 2021 at 11:17:37AM -0700, Suren Baghdasaryan wrote:
+> > From: Kirill Tkhai <ktkhai@virtuozzo.com>
 > >
-> > We received a report that the copy-on-write issue repored by Jann Horn in
-> > https://bugs.chromium.org/p/project-zero/issues/detail?id=2045 is still
-> > reproducible on 4.14 and 4.19 kernels (the first issue with the reproducer
-> > coded in vmsplice.c).
->
-> Gaah.
->
-> > I confirmed this and also that the issue was not
-> > reproducible with 5.10 kernel. I tracked the fix to the following patch
-> > introduced in 5.9 which changes the do_wp_page() logic:
+> > Add an optimization for KSM pages almost in the same way that we have
+> > for ordinary anonymous pages.  If there is a write fault in a page,
+> > which is mapped to an only pte, and it is not related to swap cache; the
+> > page may be reused without copying its content.
 > >
-> > 09854ba94c6a 'mm: do_wp_page() simplification'
->
-> The problem here is that there's a _lot_ more patches than the few you
-> found that fixed various other cases (THP etc).
->
-> > I backported this patch (#2 in the series) along with 2 prerequisite patches
-> > (#1 and #4) that keep the backports clean and two followup fixes to the main
-> > patch (#3 and #5). I had to skip the following fix:
+> > [ Note that we do not consider PageSwapCache() pages at least for now,
+> >   since we don't want to complicate __get_ksm_page(), which has nice
+> >   optimization based on this (for the migration case). Currenly it is
+> >   spinning on PageSwapCache() pages, waiting for when they have
+> >   unfreezed counters (i.e., for the migration finish). But we don't want
+> >   to make it also spinning on swap cache pages, which we try to reuse,
+> >   since there is not a very high probability to reuse them. So, for now
+> >   we do not consider PageSwapCache() pages at all. ]
 > >
-> > feb889fb40fa 'mm: don't put pinned pages into the swap cache'
+> > So in reuse_ksm_page() we check for 1) PageSwapCache() and 2)
+> > page_stable_node(), to skip a page, which KSM is currently trying to
+> > link to stable tree.  Then we do page_ref_freeze() to prohibit KSM to
+> > merge one more page into the page, we are reusing.  After that, nobody
+> > can refer to the reusing page: KSM skips !PageSwapCache() pages with
+> > zero refcount; and the protection against of all other participants is
+> > the same as for reused ordinary anon pages pte lock, page lock and
+> > mmap_sem.
 > >
-> > because it uses page_maybe_dma_pinned() which does not exists in earlier
-> > kernels. Because pin_user_pages() does not exist there as well, I *think*
-> > we can safely skip this fix on older kernels, but I would appreciate if
-> > someone could confirm that claim.
+> > [akpm@linux-foundation.org: replace BUG_ON()s with WARN_ON()s]
+> > Link: http://lkml.kernel.org/r/154471491016.31352.1168978849911555609.stgit@localhost.localdomain
+> > Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+> > Reviewed-by: Yang Shi <yang.shi@linux.alibaba.com>
+> > Cc: "Kirill A. Shutemov" <kirill@shutemov.name>
+> > Cc: Hugh Dickins <hughd@google.com>
+> > Cc: Andrea Arcangeli <aarcange@redhat.com>
+> > Cc: Christian Koenig <christian.koenig@amd.com>
+> > Cc: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+> > Cc: Rik van Riel <riel@surriel.com>
+> > Cc: Huang Ying <ying.huang@intel.com>
+> > Cc: Minchan Kim <minchan@kernel.org>
+> > Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > ---
+> >  include/linux/ksm.h |  7 +++++++
+> >  mm/ksm.c            | 30 ++++++++++++++++++++++++++++--
+> >  mm/memory.c         | 16 ++++++++++++++--
+> >  3 files changed, 49 insertions(+), 4 deletions(-)
 >
-> Hmm. I think this means that swap activity can now break the
-> connection to a GUP page (the whole pre-pinning model), but it
-> probably isn't a new problem for 4.9/4.19.
+> You forgot to put the git commit id of the upstream commit in here
+> somewhere so we can properly reference it and track it.
 >
-> I suspect the test there should be something like
->
->         /* Single mapper, more references than us and the map? */
->         if (page_mapcount(page) == 1 && page_count(page) > 2)
->                 goto keep_locked;
->
-> in the pre-pinning days.
->
-> But I really think that there are a number of other commits you're
-> missing too, because we had a whole series for THP fixes for the same
-> exact issue.
->
-> Added Peter Xu to the cc, because he probably tracked those issues
-> better than I did.
->
-> So NAK on this for now, I think this limited patch-set likely
-> introduces more problems than it fixes.
+> When/if you resend this, please add it to all of the commits.
 
-Thanks for confirming my worries. I'll be happy to add additional
-backports if Peter can point me to them.
-Thanks,
-Suren.
+Will do. Thanks!
 
 >
->         Linus
+> thanks,
+>
+> greg k-h
