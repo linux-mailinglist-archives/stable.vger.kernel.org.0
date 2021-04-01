@@ -2,111 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A54E63519BC
-	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 20:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3195351AEE
+	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 20:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236939AbhDAR4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Apr 2021 13:56:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54738 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235366AbhDARxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Apr 2021 13:53:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C3F161354;
-        Thu,  1 Apr 2021 14:14:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617286453;
-        bh=xuTCkOPvf9aiKJguttK3hihOeX+O3bzSR6YnnMU9Itg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XU+GGkElgULOox0k5B8IMHv1KsALo4FbRTP0Y4ehjFyam8qEHbiXvTzcalDQq8f0D
-         QArRoE1+xfP/PbS5ElkJ4PB+1+iCV984/b6tuwq4uyrAE1gH/nyeSKQYl3RpBZU3Jd
-         87jkabWYmj5vqQW7d2KqdiEmC+T64vF7s6rtoJEE=
-Date:   Thu, 1 Apr 2021 16:14:11 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Martin Kepplinger <martin.kepplinger@puri.sm>
-Cc:     balbi@kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-usb@vger.kernel.org,
-        wcheng@codeaurora.org
-Subject: Re: [PATCH v2] Revert "usb: dwc3: gadget: Prevent EP queuing while
- stopping transfers"
-Message-ID: <YGXVMzwXXXFKfbuI@kroah.com>
-References: <YGXE0gQoj8HOzpuw@kroah.com>
- <20210401131108.2149766-1-martin.kepplinger@puri.sm>
+        id S237443AbhDASDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Apr 2021 14:03:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34202 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237524AbhDASAR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 14:00:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1617300016;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DZ5o8xyhoYGjZMwbZbuoSG15PY6aGXxwCTwzusxwEpc=;
+        b=QGxIDx0wO+uOYhYaGHD1ebbtraUSs30PE3EzB+JeubT4+AxrqqiTzBvRuBhsLupMlbuxHm
+        oUHVJhZX71h+dKDyno7Ot2/FI+EYbdXRixh6mU4QbocMk9HvWIkwBTadJy77WL19bUPjea
+        2fu4PIQRC1j/uyXpmQKZM42PGxIU5Zw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-61-YVQssqzYNSmnqpfwZ9mZUA-1; Thu, 01 Apr 2021 11:58:19 -0400
+X-MC-Unique: YVQssqzYNSmnqpfwZ9mZUA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5909C1966324;
+        Thu,  1 Apr 2021 15:58:15 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-113-97.rdu2.redhat.com [10.10.113.97])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4687B5DDAD;
+        Thu,  1 Apr 2021 15:58:14 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id D9BD222054F; Thu,  1 Apr 2021 11:58:13 -0400 (EDT)
+Date:   Thu, 1 Apr 2021 11:58:13 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        Amir Goldstein <amir73il@gmail.com>, stable@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@linux.microsoft.com>
+Subject: Re: [PATCH v1] ovl: Fix leaked dentry
+Message-ID: <20210401155813.GA801967@redhat.com>
+References: <20210329164907.2133175-1-mic@digikod.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20210401131108.2149766-1-martin.kepplinger@puri.sm>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210329164907.2133175-1-mic@digikod.net>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 01, 2021 at 03:11:08PM +0200, Martin Kepplinger wrote:
-> commit 9de499997c ("usb: dwc3: gadget: Prevent EP queuing while stopping
-> transfers") results in the below error every time I connect the type-c
-> connector to the dwc3, configured with serial and ethernet gadgets.
-> I also apply the following to dwc3 on this port:
+On Mon, Mar 29, 2021 at 06:49:07PM +0200, Mickaël Salaün wrote:
+> From: Mickaël Salaün <mic@linux.microsoft.com>
 > 
-> dr_mode = "otg";                                                        
-> snps,dis_u3_susphy_quirk;                                               
-> hnp-disable;                                                            
-> srp-disable;                                                            
-> adp-disable;                                                            
+> Since commit 6815f479ca90 ("ovl: use only uppermetacopy state in
+> ovl_lookup()"), overlayfs doesn't put temporary dentry when there is a
+> metacopy error, which leads to dentry leaks when shutting down the
+> related superblock:
+> 
 
-Why all the trailing whitespace?
+Hi,
 
-> usb-role-switch;
-> 
-> [   51.148220] ------------[ cut here ]------------
-> [   51.148241] dwc3 38100000.usb: No resource for ep2in
-> [   51.148376] WARNING: CPU: 0 PID: 299 at drivers/usb/dwc3/gadget.c:360 dwc3_send_gadget_ep_cmd+0x570/0x740 [dwc3]
-> [   51.148837] CPU: 0 PID: 299 Comm: irq/64-dwc3 Not tainted 5.11.11-librem5-00334-ge4c4ff3624e9 #218
-> [   51.148848] Hardware name: Purism Librem 5r4 (DT)
-> [   51.148854] pstate: 60000085 (nZCv daIf -PAN -UAO -TCO BTYPE=--)
-> [   51.148863] pc : dwc3_send_gadget_ep_cmd+0x570/0x740 [dwc3]
-> [   51.148894] lr : dwc3_send_gadget_ep_cmd+0x570/0x740 [dwc3]
-> [   51.148924] sp : ffff800011cb3ac0
-> [   51.148929] x29: ffff800011cb3ac0 x28: ffff0000032a7b00 
-> [   51.148942] x27: ffff00000327da00 x26: 0000000000000000 
-> [   51.148954] x25: 00000000ffffffea x24: 0000000000000006 
-> [   51.148967] x23: ffff0000bee1c080 x22: ffff800011cb3b7c 
-> [   51.148979] x21: 0000000000000406 x20: ffff0000bf170000 
-> [   51.148992] x19: 0000000000000001 x18: 0000000000000000 
-> [   51.149004] x17: 0000000000000000 x16: 0000000000000000 
-> [   51.149016] x15: 0000000000000000 x14: ffff8000114512c0 
-> [   51.149028] x13: 0000000000001698 x12: 0000000000000040 
-> [   51.149040] x11: ffff80001151a6f8 x10: 00000000ffffe000 
-> [   51.149052] x9 : ffff8000100b2b7c x8 : ffff80001146a6f8 
-> [   51.149065] x7 : ffff80001151a6f8 x6 : 0000000000000000 
-> [   51.149077] x5 : ffff0000bf939948 x4 : 0000000000000000 
-> [   51.149089] x3 : 0000000000000027 x2 : 0000000000000000 
-> [   51.149101] x1 : 0000000000000000 x0 : ffff0000049ae040 
-> [   51.149114] Call trace:
-> [   51.149120]  dwc3_send_gadget_ep_cmd+0x570/0x740 [dwc3]
-> [   51.149150]  __dwc3_gadget_ep_enable+0x288/0x4fc [dwc3]
-> [   51.149179]  dwc3_gadget_ep_enable+0x6c/0x15c [dwc3]
-> [   51.149209]  usb_ep_enable+0x48/0x110 [udc_core]
-> [   51.149251]  rndis_set_alt+0x138/0x1c0 [usb_f_rndis]
-> [   51.149276]  composite_setup+0x674/0x194c [libcomposite]
-> [   51.149314]  dwc3_ep0_interrupt+0x9c4/0xb9c [dwc3]
-> [   51.149344]  dwc3_thread_interrupt+0x8bc/0xe74 [dwc3]
-> [   51.149374]  irq_thread_fn+0x38/0xb0
-> [   51.149388]  irq_thread+0x170/0x294
-> [   51.149397]  kthread+0x164/0x16c
-> [   51.149407]  ret_from_fork+0x10/0x34
-> [   51.149419] ---[ end trace 62c6cc2ebfb18047 ]---
-> 
-> Linus' tree isn't affected. Revert the change.
+Thanks for finding and fixing this bug. Patch looks correct to me. We
+need to drop that reference to this.
 
-What does this mean?
+I am not able to trigger this warning on umount of overlayfs. I copied
+up a file with metacopy enabled and then remounted overlay again with
+metacopy disabled. That does hit this code and I see the warning.
 
+refusing to follow metacopy origin for (/foo.txt)
+
+This should have lead to leak of dentry pointed by "this".
+
+But after that I unmounted, overlay and that succeeds. Is there any
+additional step to be done to trigger this VFS warning.
+
+Vivek
+
+>   overlayfs: refusing to follow metacopy origin for (/file0)
+>   ...
+>   BUG: Dentry (____ptrval____){i=3f33,n=file3}  still in use (1) [unmount of overlay overlay]
+>   ...
+>   WARNING: CPU: 1 PID: 432 at umount_check.cold+0x107/0x14d
+>   CPU: 1 PID: 432 Comm: unmount-overlay Not tainted 5.12.0-rc5 #1
+>   ...
+>   RIP: 0010:umount_check.cold+0x107/0x14d
+>   ...
+>   Call Trace:
+>    d_walk+0x28c/0x950
+>    ? dentry_lru_isolate+0x2b0/0x2b0
+>    ? __kasan_slab_free+0x12/0x20
+>    do_one_tree+0x33/0x60
+>    shrink_dcache_for_umount+0x78/0x1d0
+>    generic_shutdown_super+0x70/0x440
+>    kill_anon_super+0x3e/0x70
+>    deactivate_locked_super+0xc4/0x160
+>    deactivate_super+0xfa/0x140
+>    cleanup_mnt+0x22e/0x370
+>    __cleanup_mnt+0x1a/0x30
+>    task_work_run+0x139/0x210
+>    do_exit+0xb0c/0x2820
+>    ? __kasan_check_read+0x1d/0x30
+>    ? find_held_lock+0x35/0x160
+>    ? lock_release+0x1b6/0x660
+>    ? mm_update_next_owner+0xa20/0xa20
+>    ? reacquire_held_locks+0x3f0/0x3f0
+>    ? __sanitizer_cov_trace_const_cmp4+0x22/0x30
+>    do_group_exit+0x135/0x380
+>    __do_sys_exit_group.isra.0+0x20/0x20
+>    __x64_sys_exit_group+0x3c/0x50
+>    do_syscall_64+0x45/0x70
+>    entry_SYSCALL_64_after_hwframe+0x44/0xae
+>   ...
+>   VFS: Busy inodes after unmount of overlay. Self-destruct in 5 seconds.  Have a nice day...
 > 
-> Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
+> This fix has been tested with a syzkaller reproducer.
 > 
+> Cc: Amir Goldstein <amir73il@gmail.com>
+> Cc: Miklos Szeredi <miklos@szeredi.hu>
+> Cc: Vivek Goyal <vgoyal@redhat.com>
+> Cc: <stable@vger.kernel.org> # v5.7+
+> Reported-by: syzbot <syzkaller@googlegroups.com>
+> Fixes: 6815f479ca90 ("ovl: use only uppermetacopy state in ovl_lookup()")
+> Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
+> Link: https://lore.kernel.org/r/20210329164907.2133175-1-mic@digikod.net
 > ---
+>  fs/overlayfs/namei.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/fs/overlayfs/namei.c b/fs/overlayfs/namei.c
+> index 3fe05fb5d145..424c594afd79 100644
+> --- a/fs/overlayfs/namei.c
+> +++ b/fs/overlayfs/namei.c
+> @@ -921,6 +921,7 @@ struct dentry *ovl_lookup(struct inode *dir, struct dentry *dentry,
+>  		if ((uppermetacopy || d.metacopy) && !ofs->config.metacopy) {
+>  			err = -EPERM;
+>  			pr_warn_ratelimited("refusing to follow metacopy origin for (%pd2)\n", dentry);
+> +			dput(this);
+>  			goto out_put;
+>  		}
+>  
+> 
+> base-commit: a5e13c6df0e41702d2b2c77c8ad41677ebb065b3
+> -- 
+> 2.30.2
+> 
 
-What changed from v1?  Always put that below the --- line.
-
-And as this is a revert, is a "Fixes:" line also relevant?
-
-thanks,
-
-greg k-h
