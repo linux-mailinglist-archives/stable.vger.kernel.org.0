@@ -2,62 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 112FA351F89
-	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 21:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25040351F8C
+	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 21:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234872AbhDATVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Apr 2021 15:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
+        id S234914AbhDATVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Apr 2021 15:21:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234376AbhDATVL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 15:21:11 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE3CC048F2D
-        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 11:17:52 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id w7so6623489ybq.4
-        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 11:17:52 -0700 (PDT)
+        with ESMTP id S234638AbhDATVM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 15:21:12 -0400
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D54C048F2F
+        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 11:17:54 -0700 (PDT)
+Received: by mail-qk1-x749.google.com with SMTP id v136so4303662qkb.9
+        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 11:17:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=SQmWyihLynq1vxlXIZnnYrhWJiVcwsY6ykKbBmHmp/w=;
-        b=P0s9nmSUOso3M4IwpWpTuWzReIWrwsNczHXACiQLGjUVD59T6zAZhOZTKqVDoOGZPM
-         ELqsOa6/b6oxSB/BpxzS6H8PFYB2iNb3A6Ko5THKzv1XQSjGF0+OV+bAA2hzf1oei2G9
-         waMHYgD1BtXe2ARHAGth7KBqipiyJj+jHcsvAVXmhu4iSPF6R/LnnUdRRxE1RXCxCoZF
-         DYnGQpp1mo3XFHEyCzTOcvoC2c1sCFBkMLDkU/KUfVUDnbg/WpsvqF33X3hoeqqLqxF9
-         6nmCH+s3SYWbdx87hp8/JLThMxWLAoLpf29erRSjdcs/BTJ4EPhMOa4y7k/+x2mi9m4I
-         YwXQ==
+        bh=xxiAXSo3VjIRKYILlCaYgYwnfwMxsag7xg8F7C8V4gk=;
+        b=WHCnyfgYE72BsxoC3+we8HzNs4Cc2W1zdmE2FBIe8p+ZzPpPzsPi4TtDXqwNyNCWiP
+         +Gg6WechHI5zDExRJ9YvYIIXygcLqALrlFi3u3gY01HPKlZgpBcGUJUK1CmSam6/Gtpb
+         z1zC77H9PxKT39XC6llEq3qNKJTrdeTO/C1UAuUipIPijkof5was8wfysttuQOB6Ul9K
+         p5zoGxqTEtpRm/rRTG8FoFoUO60ZHTf9Ho6P8g4rHxBaF9VnMrRhVQ0REouKLdZYLUO7
+         9MQ5wPt6Sejmp+5AnwsHVoj0KjgBeostzPsWDXVe2OmFvRkatC4LvBzmvvzybLQTKqvP
+         yE5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=SQmWyihLynq1vxlXIZnnYrhWJiVcwsY6ykKbBmHmp/w=;
-        b=VVc04NJ/q/qr55DR3orxw+Xu/0Bfu6/TjQwAfHvq9ai/XQN3349l09FeLd6e5xR1Up
-         z7MtoTqmnyeYRSfSLrJhQXAsBFyMhPFLwdP35HKtiDkmQhutF187sg5r7wBMZs1Ehx0m
-         fWvUBbOQyHC9nQdFKbsQ8MLYM/7DTzdvuIOw1bm3BGtq6fXnBMoksaHdH6nSOnhL5jVf
-         UhqO3AEK6ISyJ9UukA1GOH+zSrLjfaDtpKQyTPoQpB0BbHGF10DAdJQIiM5G+e+kKzQB
-         2GK1YAtMhzzoE3uKm9CIXKStcyqAf03ERwDYdrkRB7rbq5s1HCaAgsrRZku8hs9bv6lU
-         /ndQ==
-X-Gm-Message-State: AOAM530duRznJ5RFga48ATruLSTpXqFXDGiLTXY+OPFSR9WvMBU1ZliJ
-        6L2DAoZ96SUt1RFlZjaEZIqVKNwW4Q5eYOvHTH9oTZnfnRi1Fh24Z36ALxpyCpiSp4BZ/jZhuSs
-        Oeq8Q8MyXIPiA4Cy77IRbGFQJSlZw9Lzz5EH2rROnsQY6m9qCkUm1q/B92CsvjA==
-X-Google-Smtp-Source: ABdhPJw36/jc6xurXz6R7Fq8v13fytweZrUVCqZMZTqkwel5NP1HU4iFmgcBmdujTpkEUebtBKXFFUZhRpM=
+        bh=xxiAXSo3VjIRKYILlCaYgYwnfwMxsag7xg8F7C8V4gk=;
+        b=KkUlURlEZ4O9q1HlsT+/9/FuvAblfAKRaiTv6la9t3tKU0W1TPzT5rC/binLCwqAXa
+         JGALJS4GTk9WYajbK9bo/uCeEVfyF8euduK0XLFfC7Ibz2TU1PBUfFANAYy+YbaOGZm9
+         aXqg+/nWIP8H580RNRqPWo3ZG7wVU5VmYOIT5W6YVTPtK+SXNhnO6kuQayJXYoELJrhC
+         tXeZc4bHHxQD/qp+Jq/x4J1rMP8HORncafO8HnrWmw8vl4omGlFKttgiHn+aWvJVxFKe
+         LEgjP0ikhV/8TPdK90HPuKDQB2sir8lqzAP+99j70WsquPzG4TXnpqlHhbDv/VvywYGH
+         wmiQ==
+X-Gm-Message-State: AOAM531Z1jxOmBquca5UZA3/G9LxMStZ9PkG9zSz9SeOdoJNqE6kkjiW
+        BnJmsfWJA8kXhyo+ZCheglPVoXPFNKFpE4b5l2GjLIgBZQLJCBErsNtA7G8GjXEAdzCKrnkV9Ra
+        DcMbPecfJ7X6Nm5+7YmpBsXztXN6Q3TayeiqLGc3t8J9Jbv2a5xX3kY80SAgqsA==
+X-Google-Smtp-Source: ABdhPJzWpshHJYnTRPhKzhXMsIiS2RDdrBVS8l2L80P/crekRlC8oE3WyRSgXrn5+ygoLXbaAAC9XSW3rIs=
 X-Received: from surenb1.mtv.corp.google.com ([2620:15c:211:200:899:1066:21fc:b3c5])
- (user=surenb job=sendgmr) by 2002:a25:6f44:: with SMTP id k65mr12694020ybc.218.1617301071663;
- Thu, 01 Apr 2021 11:17:51 -0700 (PDT)
-Date:   Thu,  1 Apr 2021 11:17:38 -0700
+ (user=surenb job=sendgmr) by 2002:a05:6214:9c9:: with SMTP id
+ dp9mr9503117qvb.34.1617301073524; Thu, 01 Apr 2021 11:17:53 -0700 (PDT)
+Date:   Thu,  1 Apr 2021 11:17:39 -0700
 In-Reply-To: <20210401181741.168763-1-surenb@google.com>
-Message-Id: <20210401181741.168763-3-surenb@google.com>
+Message-Id: <20210401181741.168763-4-surenb@google.com>
 Mime-Version: 1.0
 References: <20210401181741.168763-1-surenb@google.com>
 X-Mailer: git-send-email 2.31.0.291.g576ba9dcdaf-goog
-Subject: [PATCH 2/5] mm: do_wp_page() simplification
+Subject: [PATCH 3/5] mm: fix misplaced unlock_page in do_wp_page()
 From:   Suren Baghdasaryan <surenb@google.com>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, jannh@google.com, ktkhai@virtuozzo.com,
         torvalds@linux-foundation.org, shli@fb.com, namit@vmware.com,
         linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com, Peter Xu <peterx@redhat.com>
+        kernel-team@android.com, Qian Cai <cai@redhat.com>,
+        Alex Shi <alex.shi@linux.alibaba.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -65,93 +67,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-How about we just make sure we're the only possible valid user fo the
-page before we bother to reuse it?
+Commit 09854ba94c6a ("mm: do_wp_page() simplification") reorganized all
+the code around the page re-use vs copy, but in the process also moved
+the final unlock_page() around to after the wp_page_reuse() call.
 
-Simplify, simplify, simplify.
+That normally doesn't matter - but it means that the unlock_page() is
+now done after releasing the page table lock.  Again, not a big deal,
+you'd think.
 
-And get rid of the nasty serialization on the page lock at the same time.
+But it turns out that it's very wrong indeed, because once we've
+released the page table lock, we've basically lost our only reference to
+the page - the page tables - and it could now be free'd at any time.  We
+do hold the mmap_sem, so no actual unmap() can happen, but madvise can
+come in and a MADV_DONTNEED will zap the page range - and free the page.
 
-[peterx: add subject prefix]
+So now the page may be free'd just as we're unlocking it, which in turn
+will usually trigger a "Bad page state" error in the freeing path.  To
+make matters more confusing, by the time the debug code prints out the
+page state, the unlock has typically completed and everything looks fine
+again.
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Peter Xu <peterx@redhat.com>
+This all doesn't happen in any normal situations, but it does trigger
+with the dirtyc0w_child LTP test.  And it seems to trigger much more
+easily (but not expclusively) on s390 than elsewhere, probably because
+s390 doesn't do the "batch pages up for freeing after the TLB flush"
+that gives the unlock_page() more time to complete and makes the race
+harder to hit.
+
+Fixes: 09854ba94c6a ("mm: do_wp_page() simplification")
+Link: https://lore.kernel.org/lkml/a46e9bbef2ed4e17778f5615e818526ef848d791.camel@redhat.com/
+Link: https://lore.kernel.org/linux-mm/c41149a8-211e-390b-af1d-d5eee690fecb@linux.alibaba.com/
+Reported-by: Qian Cai <cai@redhat.com>
+Reported-by: Alex Shi <alex.shi@linux.alibaba.com>
+Bisected-and-analyzed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Tested-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
- mm/memory.c | 58 ++++++++++++++++-------------------------------------
- 1 file changed, 17 insertions(+), 41 deletions(-)
+ mm/memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/mm/memory.c b/mm/memory.c
-index 6920bfb3f89c..e84648d81d6d 100644
+index e84648d81d6d..14470ceaf3f2 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -2832,49 +2832,25 @@ static int do_wp_page(struct vm_fault *vmf)
- 	 * not dirty accountable.
- 	 */
- 	if (PageAnon(vmf->page)) {
--		int total_map_swapcount;
--		if (PageKsm(vmf->page) && (PageSwapCache(vmf->page) ||
--					   page_count(vmf->page) != 1))
-+		struct page *page = vmf->page;
-+
-+		/* PageKsm() doesn't necessarily raise the page refcount */
-+		if (PageKsm(page) || page_count(page) != 1)
-+			goto copy;
-+		if (!trylock_page(page))
-+			goto copy;
-+		if (PageKsm(page) || page_mapcount(page) != 1 || page_count(page) != 1) {
-+			unlock_page(page);
- 			goto copy;
--		if (!trylock_page(vmf->page)) {
--			get_page(vmf->page);
--			pte_unmap_unlock(vmf->pte, vmf->ptl);
--			lock_page(vmf->page);
--			vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
--					vmf->address, &vmf->ptl);
--			if (!pte_same(*vmf->pte, vmf->orig_pte)) {
--				unlock_page(vmf->page);
--				pte_unmap_unlock(vmf->pte, vmf->ptl);
--				put_page(vmf->page);
--				return 0;
--			}
--			put_page(vmf->page);
--		}
--		if (PageKsm(vmf->page)) {
--			bool reused = reuse_ksm_page(vmf->page, vmf->vma,
--						     vmf->address);
--			unlock_page(vmf->page);
--			if (!reused)
--				goto copy;
--			wp_page_reuse(vmf);
--			return VM_FAULT_WRITE;
--		}
--		if (reuse_swap_page(vmf->page, &total_map_swapcount)) {
--			if (total_map_swapcount == 1) {
--				/*
--				 * The page is all ours. Move it to
--				 * our anon_vma so the rmap code will
--				 * not search our parent or siblings.
--				 * Protected against the rmap code by
--				 * the page lock.
--				 */
--				page_move_anon_rmap(vmf->page, vma);
--			}
--			unlock_page(vmf->page);
--			wp_page_reuse(vmf);
--			return VM_FAULT_WRITE;
- 		}
--		unlock_page(vmf->page);
-+		/*
-+		 * Ok, we've got the only map reference, and the only
-+		 * page count reference, and the page is locked,
-+		 * it's dark out, and we're wearing sunglasses. Hit it.
-+		 */
+@@ -2848,8 +2848,8 @@ static int do_wp_page(struct vm_fault *vmf)
+ 		 * page count reference, and the page is locked,
+ 		 * it's dark out, and we're wearing sunglasses. Hit it.
+ 		 */
+-		wp_page_reuse(vmf);
+ 		unlock_page(page);
 +		wp_page_reuse(vmf);
-+		unlock_page(page);
-+		return VM_FAULT_WRITE;
+ 		return VM_FAULT_WRITE;
  	} else if (unlikely((vma->vm_flags & (VM_WRITE|VM_SHARED)) ==
  					(VM_WRITE|VM_SHARED))) {
- 		return wp_page_shared(vmf);
 -- 
 2.31.0.291.g576ba9dcdaf-goog
 
