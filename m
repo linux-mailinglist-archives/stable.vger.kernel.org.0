@@ -2,108 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 059BD351F96
-	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 21:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093D1351F9A
+	for <lists+stable@lfdr.de>; Thu,  1 Apr 2021 21:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234740AbhDATWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Apr 2021 15:22:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51388 "EHLO
+        id S235000AbhDATWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Apr 2021 15:22:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234880AbhDATWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 15:22:43 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F1E3C049FC4
-        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 11:21:29 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id i6so6629844ybk.2
-        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 11:21:29 -0700 (PDT)
+        with ESMTP id S234477AbhDATWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 15:22:45 -0400
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AEFFC049FC6
+        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 11:21:31 -0700 (PDT)
+Received: by mail-qt1-x849.google.com with SMTP id l11so3608468qtk.2
+        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 11:21:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=0N8IRlpZCc+JNO1agCNZJgiEjdZ4z9xnpYX3T0RKHMk=;
-        b=YfeCHfRpjn1rmG46iTjwDs/beGhMipksc95TDdIIBPJepeoN1aplkQ4EzMFPolE8ew
-         1DNQtu4k7v9q3M7M29NGBMohnTti+WI8IFy7pLVZ+S+IkYeQRyEGmKZCz+JX3T96OkW+
-         5spDS9mQ/aflNXqJnLy7K1ADLGI99x/qpx9NPZiWb+ihy11q0JTv4i3DEno7cc9h78xe
-         BYHhr0U8MlMwqlwhUygs85XyX5/wgW7yb5cOveBE1No4g/h95mSNL3g0k/AZeyw3Necj
-         45bCLIuHb4RzcRt8agHFJscasMLNGnSjou46AqdxaG7kN6qlJESGMgp5rpFVS4pYXoiw
-         De3Q==
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=5HT0qAWVFEwmOUtF6La54IUlPIkCZq6cCaZb+QDq3o0=;
+        b=FCS4HYb6J3nfpKWojigWdeLm322x4N3yal1ui3yFWmzroHvdmhbKuSF3DpbqsIBKqU
+         3C1CdQ+JY3kcg+YFAsmQ5yLfUbgENDF0IPDrSY+6PjWU94p8tWRFMKPwcAiU0sniPxDq
+         1TF2+8+Ip8kSSHIhLIvSRZcY7gCVna0ZgXGr5eYamiInLGVJQh+k680kXCav7A/idNVP
+         8SfPeqsoxzgrtq++O0zdmEqmBXYA68o6+WEbD7dN4ckj4+wBapc6cclze2NFWqKPe5am
+         FpGwFjYcZzq2q5aJNUuKnYZmVnteJrzOrphPlZE2ju6i7MwUENmkr/13kR4/M7hOfJdu
+         j0WQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=0N8IRlpZCc+JNO1agCNZJgiEjdZ4z9xnpYX3T0RKHMk=;
-        b=VPLCcSLCq1uxh4Cnt2GPTBVQDEaJxuOjj78OME91UhUHPrLzckuNax+GaL2hhV000D
-         sSluaofe5AMk2mgedPbTx9Tid61D31EKQO7X2lm3M4LE4+wdsGnBNASVSG/uSoHnNqqO
-         En3m/vecyBh91le06akiF7Tk0wiVO4udgBiQy8/zZ1tIytjvRKuAHvPhq+zG/cR6/8F+
-         u1X7JmlmMzOKUnkRLjvCJFJrE1sm9m11cqk18SM5C+Xd6jgO1fI+GKG+BNXbVDSrugED
-         88PJ3EDUzwIoD7+FcNrvPLNx5HZWkoW89aJoXPrQJ7JqpIHXRnUv0PQldFcL6hrB+O7E
-         PmrA==
-X-Gm-Message-State: AOAM532tnU+NYSYJ1Th9XBQtoVbF96zqUTCIM4Ai0wrXeUj6igwnchj4
-        9CIoY8yGAEMmZqBluindnk1y795DA/qRz3xz0AsZNjR8qol3/+5jRuq9rncCfMWHwj0MVmfoU3F
-        zFLxUZpbJbK3tfa53i6TcvY4rvYq5C7P2suNCWrTbvVG8siY99EkUlWkejhbvMA==
-X-Google-Smtp-Source: ABdhPJxdI1+Qsiv6XFFGBskyXGeHiol6mFQlsLm791vMD3iBmxlffuLSrgkVhkZ2zzyfn+F50mjVCev/R0s=
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=5HT0qAWVFEwmOUtF6La54IUlPIkCZq6cCaZb+QDq3o0=;
+        b=a5Bm/zUm8SRpnY2B/AqlovxTStIagqKMpbuTt240k12A1BpbYG5yelh33aXnd3E1f3
+         GhPQwlJK5ZNix89R1+rEufAyz/RuLfykb5zEriToGlUA9AQkECLM98U8iyHGUE9lOyL7
+         J8b4hW5ngpeYfQkT41XET3LJpwFkJWyeH5w6U1iInYqIWhYOnz3diOq0Wm7WbCFu6W6d
+         NHO5RQwkhqjWN4JARLzuytVbwTJSbJOchaY8BKRwabel8rO4bC1Z3AH7jo9F9zsmitaR
+         A+7NoXv/5BwDYlCkU/4yLQGkr4G90Q7idIJzSHOogPGNG8KAXd3+v4iSM6AYyt7K0ny0
+         FnZw==
+X-Gm-Message-State: AOAM533WmRDymooMUvA0Ta5hueWWNQTfxGTftF6TWGMw0nZXJ1LK10eb
+        UAMIZ5OyFYzj48feAWjbjtzGJFOyvGNm2Tg7EbYpv2jmsvOOf5N/8POps0BxOg69m8+Yhx/0rqi
+        56ra9cuXd8yVxyKpRwbpLhCxtppGW+es4W7WLLbPtR02pRaJvq7fw8seq29Jufg==
+X-Google-Smtp-Source: ABdhPJx3CSbez+mHmIMP16uoTLOqGzUQCpgEy4t7meclV6GV32vzVuEQJjrjKkgnWp0r1JVEINQ+id1CxYw=
 X-Received: from surenb1.mtv.corp.google.com ([2620:15c:211:200:899:1066:21fc:b3c5])
- (user=surenb job=sendgmr) by 2002:a25:ce05:: with SMTP id x5mr13383665ybe.146.1617301288517;
- Thu, 01 Apr 2021 11:21:28 -0700 (PDT)
-Date:   Thu,  1 Apr 2021 11:21:20 -0700
-Message-Id: <20210401182125.171484-1-surenb@google.com>
+ (user=surenb job=sendgmr) by 2002:ad4:58cf:: with SMTP id dh15mr9296862qvb.26.1617301290422;
+ Thu, 01 Apr 2021 11:21:30 -0700 (PDT)
+Date:   Thu,  1 Apr 2021 11:21:21 -0700
+In-Reply-To: <20210401182125.171484-1-surenb@google.com>
+Message-Id: <20210401182125.171484-2-surenb@google.com>
 Mime-Version: 1.0
+References: <20210401182125.171484-1-surenb@google.com>
 X-Mailer: git-send-email 2.31.0.291.g576ba9dcdaf-goog
-Subject: [PATCH 0/5] 4.19 backports of fixes for "CoW after fork() issue"
+Subject: [PATCH 1/5] mm: reuse only-pte-mapped KSM page in do_wp_page()
 From:   Suren Baghdasaryan <surenb@google.com>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, jannh@google.com, ktkhai@virtuozzo.com,
         torvalds@linux-foundation.org, shli@fb.com, namit@vmware.com,
         linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com, surenb@google.com
+        kernel-team@android.com, surenb@google.com,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Hugh Dickins <hughd@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Christian Koenig <christian.koenig@amd.com>,
+        Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>,
+        Rik van Riel <riel@surriel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We received a report that the copy-on-write issue repored by Jann Horn in
-https://bugs.chromium.org/p/project-zero/issues/detail?id=2045 is still
-reproducible on 4.14 and 4.19 kernels (the first issue with the reproducer
-coded in vmsplice.c). I confirmed this and also that the issue was not
-reproducible with 5.10 kernel. I tracked the fix to the following patch
-introduced in 5.9 which changes the do_wp_page() logic:
+From: Kirill Tkhai <ktkhai@virtuozzo.com>
 
-09854ba94c6a 'mm: do_wp_page() simplification'
+Add an optimization for KSM pages almost in the same way that we have
+for ordinary anonymous pages.  If there is a write fault in a page,
+which is mapped to an only pte, and it is not related to swap cache; the
+page may be reused without copying its content.
 
-I backported this patch (#2 in the series) along with 2 prerequisite patches
-(#1 and #4) that keep the backports clean and two followup fixes to the main
-patch (#3 and #5). I had to skip the following fix:
+[ Note that we do not consider PageSwapCache() pages at least for now,
+  since we don't want to complicate __get_ksm_page(), which has nice
+  optimization based on this (for the migration case). Currenly it is
+  spinning on PageSwapCache() pages, waiting for when they have
+  unfreezed counters (i.e., for the migration finish). But we don't want
+  to make it also spinning on swap cache pages, which we try to reuse,
+  since there is not a very high probability to reuse them. So, for now
+  we do not consider PageSwapCache() pages at all. ]
 
-feb889fb40fa 'mm: don't put pinned pages into the swap cache'
+So in reuse_ksm_page() we check for 1) PageSwapCache() and 2)
+page_stable_node(), to skip a page, which KSM is currently trying to
+link to stable tree.  Then we do page_ref_freeze() to prohibit KSM to
+merge one more page into the page, we are reusing.  After that, nobody
+can refer to the reusing page: KSM skips !PageSwapCache() pages with
+zero refcount; and the protection against of all other participants is
+the same as for reused ordinary anon pages pte lock, page lock and
+mmap_sem.
 
-because it uses page_maybe_dma_pinned() which does not exists in earlier
-kernels. Because pin_user_pages() does not exist there as well, I *think*
-we can safely skip this fix on older kernels, but I would appreciate if
-someone could confirm that claim.
+[akpm@linux-foundation.org: replace BUG_ON()s with WARN_ON()s]
+Link: http://lkml.kernel.org/r/154471491016.31352.1168978849911555609.stgit@localhost.localdomain
+Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Reviewed-by: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Christian Koenig <christian.koenig@amd.com>
+Cc: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ include/linux/ksm.h |  7 +++++++
+ mm/ksm.c            | 30 ++++++++++++++++++++++++++++--
+ mm/memory.c         | 16 ++++++++++++++--
+ 3 files changed, 49 insertions(+), 4 deletions(-)
 
-The patchset cleanly applies over: stable linux-4.19.y, tag: v4.19.184
-
-Note: 4.14 and 4.19 backports are very similar, so while I backported
-only to these two versions I think backports for other versions can be
-done easily.
-
-Kirill Tkhai (1):
-  mm: reuse only-pte-mapped KSM page in do_wp_page()
-
-Linus Torvalds (2):
-  mm: do_wp_page() simplification
-  mm: fix misplaced unlock_page in do_wp_page()
-
-Nadav Amit (1):
-  mm/userfaultfd: fix memory corruption due to writeprotect
-
-Shaohua Li (1):
-  userfaultfd: wp: add helper for writeprotect check
-
- include/linux/ksm.h           |  7 ++++
- include/linux/userfaultfd_k.h | 10 ++++++
- mm/ksm.c                      | 30 ++++++++++++++++--
- mm/memory.c                   | 60 ++++++++++++++++-------------------
- 4 files changed, 73 insertions(+), 34 deletions(-)
-
+diff --git a/include/linux/ksm.h b/include/linux/ksm.h
+index 161e8164abcf..e48b1e453ff5 100644
+--- a/include/linux/ksm.h
++++ b/include/linux/ksm.h
+@@ -53,6 +53,8 @@ struct page *ksm_might_need_to_copy(struct page *page,
+ 
+ void rmap_walk_ksm(struct page *page, struct rmap_walk_control *rwc);
+ void ksm_migrate_page(struct page *newpage, struct page *oldpage);
++bool reuse_ksm_page(struct page *page,
++			struct vm_area_struct *vma, unsigned long address);
+ 
+ #else  /* !CONFIG_KSM */
+ 
+@@ -86,6 +88,11 @@ static inline void rmap_walk_ksm(struct page *page,
+ static inline void ksm_migrate_page(struct page *newpage, struct page *oldpage)
+ {
+ }
++static inline bool reuse_ksm_page(struct page *page,
++			struct vm_area_struct *vma, unsigned long address)
++{
++	return false;
++}
+ #endif /* CONFIG_MMU */
+ #endif /* !CONFIG_KSM */
+ 
+diff --git a/mm/ksm.c b/mm/ksm.c
+index d021bcf94c41..c4e95ca65d62 100644
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -705,8 +705,9 @@ static struct page *get_ksm_page(struct stable_node *stable_node, bool lock_it)
+ 	 * case this node is no longer referenced, and should be freed;
+ 	 * however, it might mean that the page is under page_ref_freeze().
+ 	 * The __remove_mapping() case is easy, again the node is now stale;
+-	 * but if page is swapcache in migrate_page_move_mapping(), it might
+-	 * still be our page, in which case it's essential to keep the node.
++	 * the same is in reuse_ksm_page() case; but if page is swapcache
++	 * in migrate_page_move_mapping(), it might still be our page,
++	 * in which case it's essential to keep the node.
+ 	 */
+ 	while (!get_page_unless_zero(page)) {
+ 		/*
+@@ -2648,6 +2649,31 @@ void rmap_walk_ksm(struct page *page, struct rmap_walk_control *rwc)
+ 		goto again;
+ }
+ 
++bool reuse_ksm_page(struct page *page,
++		    struct vm_area_struct *vma,
++		    unsigned long address)
++{
++#ifdef CONFIG_DEBUG_VM
++	if (WARN_ON(is_zero_pfn(page_to_pfn(page))) ||
++			WARN_ON(!page_mapped(page)) ||
++			WARN_ON(!PageLocked(page))) {
++		dump_page(page, "reuse_ksm_page");
++		return false;
++	}
++#endif
++
++	if (PageSwapCache(page) || !page_stable_node(page))
++		return false;
++	/* Prohibit parallel get_ksm_page() */
++	if (!page_ref_freeze(page, 1))
++		return false;
++
++	page_move_anon_rmap(page, vma);
++	page->index = linear_page_index(vma, address);
++	page_ref_unfreeze(page, 1);
++
++	return true;
++}
+ #ifdef CONFIG_MIGRATION
+ void ksm_migrate_page(struct page *newpage, struct page *oldpage)
+ {
+diff --git a/mm/memory.c b/mm/memory.c
+index c1a05c2484b0..3874acce1472 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -2846,8 +2846,11 @@ static vm_fault_t do_wp_page(struct vm_fault *vmf)
+ 	 * Take out anonymous pages first, anonymous shared vmas are
+ 	 * not dirty accountable.
+ 	 */
+-	if (PageAnon(vmf->page) && !PageKsm(vmf->page)) {
++	if (PageAnon(vmf->page)) {
+ 		int total_map_swapcount;
++		if (PageKsm(vmf->page) && (PageSwapCache(vmf->page) ||
++					   page_count(vmf->page) != 1))
++			goto copy;
+ 		if (!trylock_page(vmf->page)) {
+ 			get_page(vmf->page);
+ 			pte_unmap_unlock(vmf->pte, vmf->ptl);
+@@ -2862,6 +2865,15 @@ static vm_fault_t do_wp_page(struct vm_fault *vmf)
+ 			}
+ 			put_page(vmf->page);
+ 		}
++		if (PageKsm(vmf->page)) {
++			bool reused = reuse_ksm_page(vmf->page, vmf->vma,
++						     vmf->address);
++			unlock_page(vmf->page);
++			if (!reused)
++				goto copy;
++			wp_page_reuse(vmf);
++			return VM_FAULT_WRITE;
++		}
+ 		if (reuse_swap_page(vmf->page, &total_map_swapcount)) {
+ 			if (total_map_swapcount == 1) {
+ 				/*
+@@ -2882,7 +2894,7 @@ static vm_fault_t do_wp_page(struct vm_fault *vmf)
+ 					(VM_WRITE|VM_SHARED))) {
+ 		return wp_page_shared(vmf);
+ 	}
+-
++copy:
+ 	/*
+ 	 * Ok, we need to copy. Oh, well..
+ 	 */
 -- 
 2.31.0.291.g576ba9dcdaf-goog
 
