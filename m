@@ -2,102 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E8553525EC
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 06:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942F7352652
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 06:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229466AbhDBEEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 00:04:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52226 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbhDBEEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 00:04:08 -0400
-Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12435C061788
-        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 21:04:08 -0700 (PDT)
-Received: by mail-qt1-x849.google.com with SMTP id w8so4372086qtk.3
-        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 21:04:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=6Te16lToFbpWkwiPKfVrY5ITMJx7QI7j6Z0kH9+UvdY=;
-        b=VJJs3kLA2FlLSADc8XRAGONxvacGnDhVHTGIsCSsZvq+lFnsh0h1YxFRHg7sLZpJnQ
-         Ss8dkCxn/ICzfMQV7xqaWw1yXewN/yHLWF4WfG3PsKBOeaEZP1vhm3X4jxiDMd5Gnbfu
-         C8FAYoC2Z3tJe/uUeaUS6tyOplPuZ81/sz5VB8OFIqDV4YULL3WYOsYqJKyVN4ABWSzm
-         cjqWLgH42q/D/Q3qUf02YrtQT7eAxFY0XKHEHzCvQCI8kMAqQ6ntTIrCyKHw/bK8wqkA
-         uYfV8XScDKCkg2d9+fhB52MeSyztMflzZMeZFkfai+sXLrhs4SFHMCDvYrw8fxvTvDcP
-         OJxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=6Te16lToFbpWkwiPKfVrY5ITMJx7QI7j6Z0kH9+UvdY=;
-        b=Wi30cvsBPO/0H6EI9WR69au9i0ubkTyKrON2gXnqyZUSDzNnZtjPZHiy6Wv58G3Ai+
-         540uRGiBLiwpQ6sxbZbTvQ5rVuHNA96FR/9grYN4BM5brEYz5Ep/ol0h6wvIZ13fZ2x6
-         tDivN9J3dDMgvwTugSgi3h4l9fGSxsGitvkHh2p0p6ELye0QTqpqlGcMgEUSdbrxhEhD
-         1eBUu/2wKKOCjl4KROch5Hw5EiPxw5n03jJsVz72crNVEUw47fi6u0ok1dUOT4M1GEOm
-         NKDG1KUNryyuQotx39nyvep/q2YrVleram1L7w/AIuc/1eockbZm6KODecTywZEk34w4
-         DXLQ==
-X-Gm-Message-State: AOAM532tBksFk6ASPcrmrHWmQhG81ru6lh8xXLeWNR3tWapRRmuhcjsz
-        GR4hGOWH8aptF1ztCD+ODkZRMWIP+3G5jSE=
-X-Google-Smtp-Source: ABdhPJxLFoe6kJde5jCBRiwBqL/qJgiFTdutSqAkbgR0bQOdjMjbOR+JAZFtd33e/MskS1xjxhLDXElqVU8k4Ow=
-X-Received: from saravanak.san.corp.google.com ([2620:15c:2d:3:4867:55c5:8fbb:da39])
- (user=saravanak job=sendgmr) by 2002:a0c:ef09:: with SMTP id
- t9mr542992qvr.21.1617336247156; Thu, 01 Apr 2021 21:04:07 -0700 (PDT)
-Date:   Thu,  1 Apr 2021 21:03:40 -0700
-In-Reply-To: <20210402040342.2944858-1-saravanak@google.com>
-Message-Id: <20210402040342.2944858-2-saravanak@google.com>
-Mime-Version: 1.0
-References: <20210402040342.2944858-1-saravanak@google.com>
-X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
-Subject: [PATCH v1 1/2] driver core: Fix locking bug in deferred_probe_timeout_work_func()
-From:   Saravana Kannan <saravanak@google.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Rob Herring <robh@kernel.org>
-Cc:     Saravana Kannan <saravanak@google.com>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S229553AbhDBEx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Apr 2021 00:53:28 -0400
+Received: from mga14.intel.com ([192.55.52.115]:50358 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229518AbhDBEx1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Apr 2021 00:53:27 -0400
+IronPort-SDR: sBNyMtZEIrSFXv1l4R0jg55WB3X45Awh/TdbGQzycMAjKq/K7Mg77UMtuJa5ZuZQSVLPKoI3xK
+ 51MFS44QE07g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9941"; a="191869860"
+X-IronPort-AV: E=Sophos;i="5.81,298,1610438400"; 
+   d="scan'208";a="191869860"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2021 21:53:26 -0700
+IronPort-SDR: wrvsYJM85qho+rwKDNnxzVYqmYVmd532nChyBcTpoLpAENCHNdIRC5iMpxu6hAlLcPjZYmiSvU
+ D1OFOT0HBDGw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,298,1610438400"; 
+   d="scan'208";a="439476626"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.128]) ([10.239.159.128])
+  by fmsmga004.fm.intel.com with ESMTP; 01 Apr 2021 21:53:24 -0700
+Cc:     baolu.lu@linux.intel.com, David Woodhouse <dwmw2@infradead.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Gonglei <arei.gonglei@huawei.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] iommu/vt-d: Force to flush iotlb before creating
+ superpage
+To:     "Longpeng(Mike)" <longpeng2@huawei.com>,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+References: <20210401071834.1639-1-longpeng2@huawei.com>
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <9c368419-6e45-6b27-0f34-26b581589fa7@linux.intel.com>
+Date:   Fri, 2 Apr 2021 12:44:02 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
+MIME-Version: 1.0
+In-Reply-To: <20210401071834.1639-1-longpeng2@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-list_for_each_entry_safe() is only useful if we are deleting nodes in a
-linked list within the loop. It doesn't protect against other threads
-adding/deleting nodes to the list in parallel. We need to grab
-deferred_probe_mutex when traversing the deferred_probe_pending_list.
+Hi Longpeng,
 
-Cc: stable@vger.kernel.org
-Fixes: 25b4e70dcce9 ("driver core: allow stopping deferred probe after init")
-Signed-off-by: Saravana Kannan <saravanak@google.com>
----
- drivers/base/dd.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+On 4/1/21 3:18 PM, Longpeng(Mike) wrote:
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index ee09323..cbcb434 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -2342,9 +2342,20 @@ static inline int hardware_largepage_caps(struct dmar_domain *domain,
+>   				 * removed to make room for superpage(s).
+>   				 * We're adding new large pages, so make sure
+>   				 * we don't remove their parent tables.
+> +				 *
+> +				 * We also need to flush the iotlb before creating
+> +				 * superpage to ensure it does not perserves any
+> +				 * obsolete info.
+>   				 */
+> -				dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
+> -						       largepage_lvl + 1);
+> +				if (dma_pte_present(pte)) {
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 20b69b5e0e91..28ad8afd87bc 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -291,14 +291,16 @@ int driver_deferred_probe_check_state(struct device *dev)
- 
- static void deferred_probe_timeout_work_func(struct work_struct *work)
- {
--	struct device_private *private, *p;
-+	struct device_private *p;
- 
- 	driver_deferred_probe_timeout = 0;
- 	driver_deferred_probe_trigger();
- 	flush_work(&deferred_probe_work);
- 
--	list_for_each_entry_safe(private, p, &deferred_probe_pending_list, deferred_probe)
--		dev_info(private->device, "deferred probe pending\n");
-+	mutex_lock(&deferred_probe_mutex);
-+	list_for_each_entry(p, &deferred_probe_pending_list, deferred_probe)
-+		dev_info(p->device, "deferred probe pending\n");
-+	mutex_unlock(&deferred_probe_mutex);
- 	wake_up_all(&probe_timeout_waitqueue);
- }
- static DECLARE_DELAYED_WORK(deferred_probe_timeout_work, deferred_probe_timeout_work_func);
--- 
-2.31.0.208.g409f899ff0-goog
+The dma_pte_free_pagetable() clears a batch of PTEs. So checking current
+PTE is insufficient. How about removing this check and always performing
+cache invalidation?
 
+> +					int i;
+> +
+> +					dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
+> +							       largepage_lvl + 1);
+> +					for_each_domain_iommu(i, domain)
+> +						iommu_flush_iotlb_psi(g_iommus[i], domain,
+> +								      iov_pfn, nr_pages, 0, 0);
+> +				
+
+Best regards,
+baolu
