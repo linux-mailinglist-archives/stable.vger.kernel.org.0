@@ -2,59 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB54F352735
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 10:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EBB735275D
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 10:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234139AbhDBII3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 04:08:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48158 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233901AbhDBII2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 04:08:28 -0400
-Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16733C0613E6
-        for <stable@vger.kernel.org>; Fri,  2 Apr 2021 01:08:28 -0700 (PDT)
-Received: by mail-oo1-xc2b.google.com with SMTP id h3-20020a4ae8c30000b02901b68b39e2d3so1129700ooe.9
-        for <stable@vger.kernel.org>; Fri, 02 Apr 2021 01:08:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=V08KH7c7Zm4ftwGYWSjVqELi77KWFRR2G0NwTulFNiA=;
-        b=lJ/pX67NGChwhr0Vs+tO/7LyyfVbRmAOvhoWQxq9Ogy5HDyHLu1lx4/yddceCwDhp+
-         GMX8FOcSaq9tMS99bH/ofCi3wJjm3AWB1kgVHKA3M9a6eucFIe6wX5JmN6h097a/476C
-         9fkatMwI5Xt7QJ3rG0pDS6KAAbuaeYkR4ahASZoJCuD6kt1EmLngO3z3L9QpFcjwjxaO
-         1YPCi58TqM7GMy9+x5yVyZcFygEUdcRr/GstU0s5CB2YXvyfwDYRpgepS/5AnfE1VsqI
-         HYYdzw3h0Ia17nzgV4rKe6GR+JXWQhewhlSoO5MueROpSXb831WFBVNkQPwDpxkLJWyw
-         vo8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=V08KH7c7Zm4ftwGYWSjVqELi77KWFRR2G0NwTulFNiA=;
-        b=NFvxfpp70gSAyo04+jL/734BWzoZGKLvxXVa45u8frQwOxJTrwWDEqVMCZq4PsyyBe
-         4TkUILklbhn/W1jeWEa/QLArC1efzWz0iIGT0iznbxagZUtjuoFBxnbFjOVVuuWjimtc
-         gS4ikd1v1GLWPo2N1O6p29H63kmMbVagk2ln7ZxDpwURD2+D/tZOwrH50gh0ZRTxBxQj
-         KpWkwPa07+yyUiO9Gy+GVRftgkspFve85UOy5C+5FhkbhE5uS0l5L5INvAnsIWIPtj8Y
-         O7KfKv7inUx2cppK1KSfhXOBoSUfqUPjoZdUkI50fLVyflkJqWItxZmIugY8t0/et1Cx
-         XuvQ==
-X-Gm-Message-State: AOAM530XvJtZcZNmcOpvB1T6IaM8GvZYCc0BjmA0Ibhecs0uE/vkeSvo
-        qS28jW+Q61KQp51NGgCeb4hYED/k/cUdsJBSvHGGT7cXvxU=
-X-Google-Smtp-Source: ABdhPJxdiGRAlKCp8WRMg0gPHNWA4QmjXsEjff4B6Cw8fswMUbCIBV5wOEXpxhfhaA8coLMZS5beWHq6DKA4GFCFPgE=
-X-Received: by 2002:a4a:9671:: with SMTP id r46mr10715875ooi.69.1617350907318;
- Fri, 02 Apr 2021 01:08:27 -0700 (PDT)
+        id S234314AbhDBIUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Apr 2021 04:20:42 -0400
+Received: from esa.microchip.iphmx.com ([68.232.153.233]:4607 "EHLO
+        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233718AbhDBIUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 04:20:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1617351641; x=1648887641;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=vRulU25IEAwnweYpFPXTeAAZj5ejlP9sZftk3ipphww=;
+  b=GI7y+tATEVa5t4gmPuA04CxVs4ZZAUcj9DCDfW8ngt2noKSaw/DT9Wyk
+   e94qAr9r70oHW2bGjzs+Xp+yZ7H477pu9M2IuVqq5MOWABg4d6XO48mFz
+   eLnidalFYD1UNMI0ooUqr8h2AKfZxxAlchRoOa95PcsbAga76R3Nuvx3c
+   O8sSnCWV20pRynHtn7CMC6OtpJQKKeDr1uieKc3tjRArgaiJF33DhVXkG
+   5B0Xt26TrsQJNfxEirKOj/fzJms2ZQR0iNfoNin5U7LjAgYSf9e1KwpRk
+   uVsRwCdNYltWhINWj+Q6XjgQYY/HxDoicOcVN8t/rJpvOAFfbQgfsKbYk
+   Q==;
+IronPort-SDR: Q64WanxaLYSwRju4Nu5qmC2uIW5OB7lVRYAwtpPi0djvMmyhnRUFwgvcNxMaPYUJCsSmZhrXr8
+ 0eucLYAekymiWkfd5MIbZ9gT7S5n8DUJnu9gSeBTPUCki9O1DEvETO/E6yH/M27zpO78QOGG37
+ qI4rqkkyhLnkIEmGL7lFEYkngnBMvR9yPKGSNd6PPQ9+HV8s4Fj4mKX8O7CYMMjG9xjfJ1gXVk
+ 61pwtklk96FEoSmO8GcoUzheruQUHqAg8KoY73fg0sM/cpDaPYukpZyArwamyZaPPr/bzbWuNj
+ fM0=
+X-IronPort-AV: E=Sophos;i="5.81,299,1610434800"; 
+   d="scan'208";a="115094219"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 02 Apr 2021 01:20:40 -0700
+Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Fri, 2 Apr 2021 01:20:39 -0700
+Received: from atudor-ThinkPad-T470p.amer.actel.com (10.10.115.15) by
+ chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
+ 15.1.2176.2 via Frontend Transport; Fri, 2 Apr 2021 01:20:36 -0700
+From:   Tudor Ambarus <tudor.ambarus@microchip.com>
+To:     <michael@walle.cc>, <p.yadav@ti.com>, <vigneshr@ti.com>,
+        <masonccyang@mxic.com.tw>, <zhengxunli@mxic.com.tw>,
+        <ycllin@mxic.com.tw>, <juliensu@mxic.com.tw>
+CC:     <miquel.raynal@bootlin.com>, <richard@nod.at>,
+        <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        "Tudor Ambarus" <tudor.ambarus@microchip.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 1/2] Revert "mtd: spi-nor: macronix: Add support for mx25l51245g"
+Date:   Fri, 2 Apr 2021 11:20:30 +0300
+Message-ID: <20210402082031.19055-2-tudor.ambarus@microchip.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210402082031.19055-1-tudor.ambarus@microchip.com>
+References: <20210402082031.19055-1-tudor.ambarus@microchip.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6830:2108:0:0:0:0 with HTTP; Fri, 2 Apr 2021 01:08:26
- -0700 (PDT)
-From:   Amanda Williamson <shaye6067@gmail.com>
-Date:   Fri, 2 Apr 2021 01:08:26 -0700
-Message-ID: <CAJddKGP92guKSXt=04iEzr2Vv9NoJBi8KiuZU63MY914st7krg@mail.gmail.com>
-Subject: good morning
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This reverts commit 04b8edad262eec0d153005973dfbdd83423c0dcb.
+
+mx25l51245g and mx66l51235l have the same flash ID. The flash
+detection returns the first entry in the flash_info array that
+matches the flash ID that was read, thus for the 0xc2201a ID,
+mx25l51245g was always hit, introducing a regression for
+mx66l51235l.
+
+If one wants to differentiate the flash names, a better fix would be
+to differentiate between the two at run-time, depending on SFDP,
+and choose the correct name from a list of flash names, depending on
+the SFDP differentiator.
+
+Fixes: 04b8edad262e ("mtd: spi-nor: macronix: Add support for mx25l51245g")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+---
+ drivers/mtd/spi-nor/macronix.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/mtd/spi-nor/macronix.c b/drivers/mtd/spi-nor/macronix.c
+index 6c2680b4cdad..42c2cf31702e 100644
+--- a/drivers/mtd/spi-nor/macronix.c
++++ b/drivers/mtd/spi-nor/macronix.c
+@@ -72,9 +72,6 @@ static const struct flash_info macronix_parts[] = {
+ 			      SECT_4K | SPI_NOR_DUAL_READ |
+ 			      SPI_NOR_QUAD_READ) },
+ 	{ "mx25l25655e", INFO(0xc22619, 0, 64 * 1024, 512, 0) },
+-	{ "mx25l51245g", INFO(0xc2201a, 0, 64 * 1024, 1024,
+-			      SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+-			      SPI_NOR_4B_OPCODES) },
+ 	{ "mx66l51235l", INFO(0xc2201a, 0, 64 * 1024, 1024,
+ 			      SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+ 			      SPI_NOR_4B_OPCODES) },
 -- 
-Hello
-Can i talk to you please?
-Amanda
+2.25.1
+
