@@ -2,59 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C624F3526E8
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 09:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A2C35270A
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 09:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233718AbhDBHZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 03:25:12 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:15528 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229932AbhDBHZL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 03:25:11 -0400
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FBWhp4sB6zNs0x;
-        Fri,  2 Apr 2021 15:22:18 +0800 (CST)
-Received: from [10.174.177.143] (10.174.177.143) by
- DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
- 14.3.498.0; Fri, 2 Apr 2021 15:24:48 +0800
-Subject: Re: [QUESTION] WARNNING after 3d8e2128f26a ("sysfs: Add sysfs_emit
- and sysfs_emit_at to format sysfs output")
-To:     <stable@vger.kernel.org>, <vbabka@suse.cz>,
-        <gregkh@linuxfoundation.org>, <linux-mm@kvack.org>,
-        <open-iscsi@googlegroups.com>, <cleech@redhat.com>
-CC:     "zhangyi (F)" <yi.zhang@huawei.com>,
+        id S234355AbhDBHpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Apr 2021 03:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60994 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234347AbhDBHpQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Apr 2021 03:45:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB30B6100C;
+        Fri,  2 Apr 2021 07:45:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1617349515;
+        bh=CHUVzzwOvWHtGtMyC4Dc1Tl18xOORfSsXep5lgLLe2U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kuXPhZGbzsmIlQQ+0YxQDc3oNZiQ5/9V4vc/3qBG9wuRZI6Wg2o9jjUoSqllaZ6tV
+         Y4etNp9PQE5YCP8KxUeDvdXS3Zrozv+RFtarS1sduVbnDjQqtgjazqLtC0fuHgtgmL
+         a8d+1WxuomHRupfDfGz0WgYcJ2u86W0BAYLNhLrU=
+Date:   Fri, 2 Apr 2021 09:45:12 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     yangerkun <yangerkun@huawei.com>
+Cc:     stable@vger.kernel.org, vbabka@suse.cz, linux-mm@kvack.org,
+        open-iscsi@googlegroups.com, cleech@redhat.com,
+        "zhangyi (F)" <yi.zhang@huawei.com>,
         Kefeng Wang <wangkefeng.wang@huawei.com>,
-        <liuyongqiang13@huawei.com>,
+        liuyongqiang13@huawei.com,
         "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>,
         Yang Yingliang <yangyingliang@huawei.com>,
-        <chenzhou10@huawei.com>
+        chenzhou10@huawei.com
+Subject: Re: [QUESTION] WARNNING after 3d8e2128f26a ("sysfs: Add sysfs_emit
+ and sysfs_emit_at to format sysfs output")
+Message-ID: <YGbLiIL8ewIX1Hrt@kroah.com>
 References: <5837f5d9-2235-3ac2-f3f2-712e6cf4da5c@huawei.com>
-From:   yangerkun <yangerkun@huawei.com>
-Message-ID: <3a321bdb-66d0-978f-cbb2-f40cbe4beb86@huawei.com>
-Date:   Fri, 2 Apr 2021 15:24:48 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <5837f5d9-2235-3ac2-f3f2-712e6cf4da5c@huawei.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.143]
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Emm...
-
-Actually, the problem exist for stable branch like 4.19 after fix for 
-CVE-2021-27365 which include the follow two patch:
-2efc459d06f1 ("sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs 
-output")
-ec98ea7070e9 ("scsi: iscsi: Ensure sysfs attributes are limited to 
-PAGE_SIZE")
-
-
-在 2021/4/2 15:16, yangerkun 写道:
+On Fri, Apr 02, 2021 at 03:16:21PM +0800, yangerkun wrote:
 > sysfs_emit(3d8e2128f26a ("sysfs: Add sysfs_emit and sysfs_emit_at to
 > format sysfs output")) has a hidden constraint that the buf should be
 > alignment with PAGE_SIZE. It's OK since 59bb47985c1d ("mm, sl[aou]b:
@@ -77,92 +66,19 @@ PAGE_SIZE")
 > warning in sysfs_emit since the only user for it is iscsi, and seq_read
 > + sysfs_kf_seq_show can ensure that the buf in sysfs_emit must be aware
 > of PAGE_SIZE. Or does there some other advise for this problem?
-> 
-> 
-> # without 59bb47985c1d + 1G ram
-> [root@localhost ~]# free
->                total        used        free      shared  buff/cache
-> available
-> Mem:         947336      169960      389732         896      387644
-> 624216
-> Swap:             0           0           0
-> 
-> # merge with 59bb47985c1d + 1G ram
-> [root@localhost ~]# free
->                total        used        free      shared  buff/cache
-> available
-> Mem:         947340      175176      374396         896      397768
-> 618964
-> Swap:             0           0           0
-> [root@localhost ~]#
-> 
-> 
-> [   37.683332] ------------[ cut here ]------------
-> [   37.692747] invalid sysfs_emit: buf:00000000f75441ab
-> [   37.693914] WARNING: CPU: 1 PID: 576 at fs/sysfs/file.c:577 
-> sysfs_emit+0xb9/0xe0
-> [   37.694861] Modules linked in:
-> [   37.695264] CPU: 1 PID: 576 Comm: cat Not tainted 
-> 4.19.183-00023-gdf225d326e8c #7
-> [   37.696210] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), 
-> BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 
-> 04/01/2014
-> [   37.697866] RIP: 0010:sysfs_emit+0xb9/0xe0
-> [   37.698387] Code: 47 c9 c3 48 83 05 76 33 b3 04 01 48 89 fe 48 c7 c7 
-> 64 08 bb 8a 48 83 05 7c 33 b3 04 01 e8 13 7f be 00 48 83 05 77 33 b3 04 
-> 01 <0f> 0b 48 83 05 75 33 b3 04 01 48 83 05 73
-> [   37.700713] RSP: 0018:ffffc90000af7cf8 EFLAGS: 00010202
-> [   37.701370] RAX: 0000000000000000 RBX: ffff88803e0e4c00 RCX: 
-> 0000000000000006
-> [   37.702261] RDX: 0000000000000007 RSI: 0000000000000006 RDI: 
-> ffff888039455bf0
-> [   37.703171] RBP: ffffc90000af7d48 R08: 00000000000002f8 R09: 
-> 0000000000000005
-> [   37.704079] R10: 00000000000002f7 R11: ffffffff8bd9534d R12: 
-> ffff88801a013740
-> [   37.705001] R13: ffff88803db37a08 R14: ffff88803db37a30 R15: 
-> ffff88803db37a48
-> [   37.705918] FS:  00007fcb96411580(0000) GS:ffff888039440000(0000) 
-> knlGS:0000000000000000
-> [   37.706956] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [   37.707692] CR2: 00007fcb88cf0000 CR3: 000000001a501000 CR4: 
-> 00000000000006e0
-> [   37.708607] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 
-> 0000000000000000
-> [   37.709520] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 
-> 0000000000000400
-> [   37.710427] Call Trace:
-> [   37.710784]  show_transport_handle+0x3e/0x60
-> [   37.711338]  dev_attr_show+0x22/0x60
-> [   37.711808]  sysfs_kf_seq_show+0xc6/0x190
-> [   37.712332]  kernfs_seq_show+0x25/0x30
-> [   37.712862]  seq_read+0xe1/0x540
-> [   37.713292]  ? __handle_mm_fault+0xba3/0x1c70
-> [   37.713866]  kernfs_fop_read+0x36/0x230
-> [   37.714371]  __vfs_read+0x3c/0x230
-> [   37.714819]  ? handle_mm_fault+0x1d1/0x340
-> [   37.715345]  vfs_read+0xb5/0x1b0
-> [   37.715774]  ksys_read+0x67/0x130
-> [   37.716218]  __x64_sys_read+0x1e/0x30
-> [   37.716701]  do_syscall_64+0x95/0x3d0
-> [   37.717175]  ? do_async_page_fault+0x2e/0x190
-> [   37.717747]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> [   37.718406] RIP: 0033:0x7fcb963363f2
-> [   37.718881] Code: c0 e9 b2 fe ff ff 50 48 8d 3d 8a 41 0a 00 e8 75 f0 
-> 01 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 
-> 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 04
-> [   37.721290] RSP: 002b:00007ffea78dff18 EFLAGS: 00000246 ORIG_RAX: 
-> 0000000000000000
-> [   37.722264] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 
-> 00007fcb963363f2
-> [   37.723169] RDX: 0000000000020000 RSI: 00007fcb88cf1000 RDI: 
-> 0000000000000003
-> [   37.724100] RBP: 00007fcb88cf1000 R08: 00007fcb88cf0010 R09: 
-> 0000000000000000
-> [   37.725039] R10: 0000000000000022 R11: 0000000000000246 R12: 
-> 0000000000020f00
-> [   37.725945] R13: 0000000000000003 R14: 0000000000020000 R15: 
-> 0000000000020000
-> [   37.726857] ---[ end trace fbd5b85cd7d85530 ]---
-> 
-> .
+
+More users of this function will be backported over time as we all know,
+so just removing the functions is not good.
+
+Why is the buffer alignment considered a "waste" here?  If that change
+is in Linus's tree and newer kernels (it showed up in 5.4 which was
+released quite a while ago), where are the people complaining about it
+there?
+
+I think backporting 59bb47985c1d ("mm, sl[aou]b: guarantee natural
+alignment for kmalloc(power-of-two)") seems like the correct thing to do
+here to bring things into alignment (pun intended) with newer kernels.
+
+thanks,
+
+greg k-h
