@@ -2,67 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7687352BE9
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 18:09:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED577352D83
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 18:10:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235667AbhDBOmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 10:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48812 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235724AbhDBOmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 10:42:52 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A140AC0613E6
-        for <stable@vger.kernel.org>; Fri,  2 Apr 2021 07:42:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=Bw7ISwmFV0i1SzllnQ2AVohh/lybr5ParuExcTXKJKg=; b=LAQSsv5uOnx0JrA0LDyFhl9r+2
-        5l2kW1mnPfTNrIY4ns6ovHqeN6VeP2uFLLgkTCXr3I41UD5qywqrdoMfLZ47Rg8Arl0o+ADTXKhRN
-        AznFUAAgCp4RoJ3qyGytoRiDcpBwOM093dTv/gz2NoocS+BFielEdSJnpP9NMF4NYP/I8vyvcFcKy
-        pN3/tYJgbUbiQRqDFLtsbnoB8SWTbjgtkT1uRrtIOM2dmy+Wqvv5d/ObsRsI28NQiIalmGXkVTW0A
-        t+AX7MpwM3pAIDWv/ScOqj4twGYgbx4v90qeyRissqF1s10M6ZESK+0WUyAUXG+RnwUXz6BVYaXBX
-        EQtk5nwg==;
-Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lSKzA-007kKL-30; Fri, 02 Apr 2021 14:42:21 +0000
-Date:   Fri, 2 Apr 2021 15:41:20 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     yangerkun <yangerkun@huawei.com>, stable@vger.kernel.org,
-        vbabka@suse.cz, linux-mm@kvack.org, open-iscsi@googlegroups.com,
-        cleech@redhat.com, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        liuyongqiang13@huawei.com,
-        "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        chenzhou10@huawei.com
-Subject: Re: [QUESTION] WARNNING after 3d8e2128f26a ("sysfs: Add sysfs_emit
- and sysfs_emit_at to format sysfs output")
-Message-ID: <20210402144120.GO351017@casper.infradead.org>
-References: <5837f5d9-2235-3ac2-f3f2-712e6cf4da5c@huawei.com>
- <YGbLiIL8ewIX1Hrt@kroah.com>
+        id S235623AbhDBPak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Apr 2021 11:30:40 -0400
+Received: from out28-172.mail.aliyun.com ([115.124.28.172]:56979 "EHLO
+        out28-172.mail.aliyun.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235248AbhDBPak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 11:30:40 -0400
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.1216449|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_news_journal|0.00690669-0.000830163-0.992263;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047209;MF=zhouyanjie@wanyeetech.com;NM=1;PH=DS;RN=9;RT=9;SR=0;TI=SMTPD_---.JuCJUHM_1617377433;
+Received: from 192.168.88.133(mailfrom:zhouyanjie@wanyeetech.com fp:SMTPD_---.JuCJUHM_1617377433)
+          by smtp.aliyun-inc.com(10.147.40.26);
+          Fri, 02 Apr 2021 23:30:33 +0800
+Subject: Re: [PATCH] I2C: JZ4780: Fix bug for Ingenic X1000.
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     paul@crapouillou.net, stable@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dongsheng.qiu@ingenic.com,
+        aric.pzqi@ingenic.com, sernia.zhou@foxmail.com
+References: <1616084743-112402-1-git-send-email-zhouyanjie@wanyeetech.com>
+ <1616084743-112402-2-git-send-email-zhouyanjie@wanyeetech.com>
+ <20210318170623.GA1961@ninjato>
+ <644d19d8-9444-4dde-a891-c9dfd523389e@wanyeetech.com>
+ <20210331071835.GB1025@ninjato>
+From:   Zhou Yanjie <zhouyanjie@wanyeetech.com>
+Message-ID: <b93bf84f-73fd-f0f9-c25b-d7063be76987@wanyeetech.com>
+Date:   Fri, 2 Apr 2021 23:30:32 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YGbLiIL8ewIX1Hrt@kroah.com>
+In-Reply-To: <20210331071835.GB1025@ninjato>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 02, 2021 at 09:45:12AM +0200, Greg KH wrote:
-> Why is the buffer alignment considered a "waste" here?  If that change
-> is in Linus's tree and newer kernels (it showed up in 5.4 which was
-> released quite a while ago), where are the people complaining about it
-> there?
-> 
-> I think backporting 59bb47985c1d ("mm, sl[aou]b: guarantee natural
-> alignment for kmalloc(power-of-two)") seems like the correct thing to do
-> here to bring things into alignment (pun intended) with newer kernels.
+Hi Wolfram,
 
-It's only a waste for slabs which need things like redzones (eg we could
-get 7 512-byte allocations out of a 4kB page with a 64 byte redzone
-and no alignment ; with alignment we can only get four).  Since slub
-can enable/disable redzones on a per-slab basis, and redzones aren't
-terribly interesting now that we have kasan/kfence, nobody really cares.
+On 2021/3/31 下午3:18, Wolfram Sang wrote:
+> Hi,
+>
+>>> Any write operation? I wonder then why nobody noticed before?
+>>
+>> The standard I2C communication should look like this:
+>>
+>> Read:
+>>
+>> device_addr + w, reg_addr, device_addr + r, data;
+>>
+>> Write:
+>>
+>> device_addr + w, reg_addr, data;
+>>
+>>
+>> But without this patch, it looks like this:
+>>
+>> Read:
+>>
+>> device_addr + w, reg_addr, device_addr + r, data;
+>>
+>> Write:
+>>
+>> device_addr + w, reg_addr, device_addr + w, data;
+>>
+>> This is clearly not correct.
+> Thanks for the additional information! I understand now. I added a bit
+> of this to the commit message of v2 to explain the situation.
+>
+
+Thanks!
+
+
+Best regards!
 
