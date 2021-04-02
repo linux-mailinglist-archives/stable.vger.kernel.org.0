@@ -2,83 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A2C35270A
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 09:45:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB54F352735
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 10:08:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234355AbhDBHpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 03:45:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60994 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234347AbhDBHpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Apr 2021 03:45:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB30B6100C;
-        Fri,  2 Apr 2021 07:45:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617349515;
-        bh=CHUVzzwOvWHtGtMyC4Dc1Tl18xOORfSsXep5lgLLe2U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kuXPhZGbzsmIlQQ+0YxQDc3oNZiQ5/9V4vc/3qBG9wuRZI6Wg2o9jjUoSqllaZ6tV
-         Y4etNp9PQE5YCP8KxUeDvdXS3Zrozv+RFtarS1sduVbnDjQqtgjazqLtC0fuHgtgmL
-         a8d+1WxuomHRupfDfGz0WgYcJ2u86W0BAYLNhLrU=
-Date:   Fri, 2 Apr 2021 09:45:12 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     yangerkun <yangerkun@huawei.com>
-Cc:     stable@vger.kernel.org, vbabka@suse.cz, linux-mm@kvack.org,
-        open-iscsi@googlegroups.com, cleech@redhat.com,
-        "zhangyi (F)" <yi.zhang@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        liuyongqiang13@huawei.com,
-        "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        chenzhou10@huawei.com
-Subject: Re: [QUESTION] WARNNING after 3d8e2128f26a ("sysfs: Add sysfs_emit
- and sysfs_emit_at to format sysfs output")
-Message-ID: <YGbLiIL8ewIX1Hrt@kroah.com>
-References: <5837f5d9-2235-3ac2-f3f2-712e6cf4da5c@huawei.com>
+        id S234139AbhDBII3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Apr 2021 04:08:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233901AbhDBII2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 04:08:28 -0400
+Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16733C0613E6
+        for <stable@vger.kernel.org>; Fri,  2 Apr 2021 01:08:28 -0700 (PDT)
+Received: by mail-oo1-xc2b.google.com with SMTP id h3-20020a4ae8c30000b02901b68b39e2d3so1129700ooe.9
+        for <stable@vger.kernel.org>; Fri, 02 Apr 2021 01:08:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=V08KH7c7Zm4ftwGYWSjVqELi77KWFRR2G0NwTulFNiA=;
+        b=lJ/pX67NGChwhr0Vs+tO/7LyyfVbRmAOvhoWQxq9Ogy5HDyHLu1lx4/yddceCwDhp+
+         GMX8FOcSaq9tMS99bH/ofCi3wJjm3AWB1kgVHKA3M9a6eucFIe6wX5JmN6h097a/476C
+         9fkatMwI5Xt7QJ3rG0pDS6KAAbuaeYkR4ahASZoJCuD6kt1EmLngO3z3L9QpFcjwjxaO
+         1YPCi58TqM7GMy9+x5yVyZcFygEUdcRr/GstU0s5CB2YXvyfwDYRpgepS/5AnfE1VsqI
+         HYYdzw3h0Ia17nzgV4rKe6GR+JXWQhewhlSoO5MueROpSXb831WFBVNkQPwDpxkLJWyw
+         vo8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=V08KH7c7Zm4ftwGYWSjVqELi77KWFRR2G0NwTulFNiA=;
+        b=NFvxfpp70gSAyo04+jL/734BWzoZGKLvxXVa45u8frQwOxJTrwWDEqVMCZq4PsyyBe
+         4TkUILklbhn/W1jeWEa/QLArC1efzWz0iIGT0iznbxagZUtjuoFBxnbFjOVVuuWjimtc
+         gS4ikd1v1GLWPo2N1O6p29H63kmMbVagk2ln7ZxDpwURD2+D/tZOwrH50gh0ZRTxBxQj
+         KpWkwPa07+yyUiO9Gy+GVRftgkspFve85UOy5C+5FhkbhE5uS0l5L5INvAnsIWIPtj8Y
+         O7KfKv7inUx2cppK1KSfhXOBoSUfqUPjoZdUkI50fLVyflkJqWItxZmIugY8t0/et1Cx
+         XuvQ==
+X-Gm-Message-State: AOAM530XvJtZcZNmcOpvB1T6IaM8GvZYCc0BjmA0Ibhecs0uE/vkeSvo
+        qS28jW+Q61KQp51NGgCeb4hYED/k/cUdsJBSvHGGT7cXvxU=
+X-Google-Smtp-Source: ABdhPJxdiGRAlKCp8WRMg0gPHNWA4QmjXsEjff4B6Cw8fswMUbCIBV5wOEXpxhfhaA8coLMZS5beWHq6DKA4GFCFPgE=
+X-Received: by 2002:a4a:9671:: with SMTP id r46mr10715875ooi.69.1617350907318;
+ Fri, 02 Apr 2021 01:08:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5837f5d9-2235-3ac2-f3f2-712e6cf4da5c@huawei.com>
+Received: by 2002:a05:6830:2108:0:0:0:0 with HTTP; Fri, 2 Apr 2021 01:08:26
+ -0700 (PDT)
+From:   Amanda Williamson <shaye6067@gmail.com>
+Date:   Fri, 2 Apr 2021 01:08:26 -0700
+Message-ID: <CAJddKGP92guKSXt=04iEzr2Vv9NoJBi8KiuZU63MY914st7krg@mail.gmail.com>
+Subject: good morning
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 02, 2021 at 03:16:21PM +0800, yangerkun wrote:
-> sysfs_emit(3d8e2128f26a ("sysfs: Add sysfs_emit and sysfs_emit_at to
-> format sysfs output")) has a hidden constraint that the buf should be
-> alignment with PAGE_SIZE. It's OK since 59bb47985c1d ("mm, sl[aou]b:
-> guarantee natural alignment for kmalloc(power-of-two)") help us to solve
-> scenes like CONFIG_SLUB_DEBUG or CONFIG_SLOB which will break this.
-> 
-> 
-> But since lots of stable branch(we reproduce it with 4.19 stable) merge
-> 3d8e2128f26a ("sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs
-> output") without 59bb47985c1d ("mm, sl[aou]b: guarantee natural
-> alignment for kmalloc(power-of-two)"), we will get the follow warning
-> with command 'cat /sys/class/iscsi_transport/tcp/handle' once we enable
-> CONFIG_SLUB_DEBUG and start kernel with slub_debug=UFPZ!
-> 
-> 
-> Obviously, we can backport 59bb47985c1d ("mm, sl[aou]b: guarantee
-> natural alignment for kmalloc(power-of-two)") to fix it. But this will
-> waste some memory to ensure natural alignment which seems unbearable for
-> embedded device. So for stable branch like 4.19, can we just remove the
-> warning in sysfs_emit since the only user for it is iscsi, and seq_read
-> + sysfs_kf_seq_show can ensure that the buf in sysfs_emit must be aware
-> of PAGE_SIZE. Or does there some other advise for this problem?
-
-More users of this function will be backported over time as we all know,
-so just removing the functions is not good.
-
-Why is the buffer alignment considered a "waste" here?  If that change
-is in Linus's tree and newer kernels (it showed up in 5.4 which was
-released quite a while ago), where are the people complaining about it
-there?
-
-I think backporting 59bb47985c1d ("mm, sl[aou]b: guarantee natural
-alignment for kmalloc(power-of-two)") seems like the correct thing to do
-here to bring things into alignment (pun intended) with newer kernels.
-
-thanks,
-
-greg k-h
+-- 
+Hello
+Can i talk to you please?
+Amanda
