@@ -2,130 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DB1B35301E
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 22:08:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6576A35305D
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 22:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231406AbhDBUIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 16:08:46 -0400
-Received: from mail-pj1-f43.google.com ([209.85.216.43]:39920 "EHLO
-        mail-pj1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbhDBUIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 16:08:46 -0400
-Received: by mail-pj1-f43.google.com with SMTP id ot17-20020a17090b3b51b0290109c9ac3c34so5035229pjb.4
-        for <stable@vger.kernel.org>; Fri, 02 Apr 2021 13:08:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3dwpWREjo4Fa//x6Xdonleo7aiSQbfEpLvexm/DxwVg=;
-        b=Rmum2SL7YKSDU/o9rDg6iz1qgb4G0BlFfel4iLu5vpGyObZr+6K+uUQ2AzGH9Wfp5z
-         +pbENpEZoyFM347tNrxDITAOJLVxDwJ6wZQMu0YBUTDWnxrBPDwHZLXWFANphs9NPkxm
-         zm6/rif7LanrYqq08bLod9tqz1Twy91c+xEpH68RYAMop8CEgZUba7RTVVCxhr5Kfjuv
-         jyYuahMUxLjTJSxhvCF/f0KlFMnUMdqYQ9pEWQbsovTXn/3+mQoQJPkTXbocZuqGEwo0
-         7z/9+wfFe21+VXZCHUxpYKZ0gQVHjHVNwkEmulWTHdmMVwNbaBhAFCnKOpppOJIJVV7b
-         r1Lw==
-X-Gm-Message-State: AOAM5313sKcQYYKynUeFCVUhYnGsdkX7FWSPKzfwgDcKhiqPkHb5uy63
-        ViAFbJEkTX3IRFMn9pv29SnjoEuqi9s=
-X-Google-Smtp-Source: ABdhPJx0rt4hE3P6WhMiDsGjg3hsS0NHcCJ545zVm8R9Y0kTVwN3dLQtLRuG8r0EEASq05pVRpg75w==
-X-Received: by 2002:a17:902:ea0d:b029:e6:f01d:9db5 with SMTP id s13-20020a170902ea0db02900e6f01d9db5mr14031764plg.60.1617394123970;
-        Fri, 02 Apr 2021 13:08:43 -0700 (PDT)
-Received: from sagi-Latitude-7490.hsd1.ca.comcast.net ([2601:647:4802:9070:de32:cc5:ecd7:105c])
-        by smtp.gmail.com with ESMTPSA id n6sm5635854pfq.214.2021.04.02.13.08.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Apr 2021 13:08:43 -0700 (PDT)
-From:   Sagi Grimberg <sagi@grimberg.me>
-To:     <stable@vger.kernel.org>
-Cc:     Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH stable/5.4..5.8] nvme-mpath: replace direct_make_request with generic_make_request
-Date:   Fri,  2 Apr 2021 13:08:41 -0700
-Message-Id: <20210402200841.347696-1-sagi@grimberg.me>
-X-Mailer: git-send-email 2.27.0
+        id S229722AbhDBUlu convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 2 Apr 2021 16:41:50 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:37289 "EHLO
+        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234856AbhDBUls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 16:41:48 -0400
+X-Greylist: delayed 1454 seconds by postgrey-1.27 at vger.kernel.org; Fri, 02 Apr 2021 16:41:48 EDT
+Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 28287C067E
+        for <stable@vger.kernel.org>; Fri,  2 Apr 2021 20:16:23 +0000 (UTC)
+X-Originating-IP: 91.175.115.186
+Received: from localhost (91-175-115-186.subs.proxad.net [91.175.115.186])
+        (Authenticated sender: gregory.clement@bootlin.com)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 23715C0002;
+        Fri,  2 Apr 2021 20:15:57 +0000 (UTC)
+From:   Gregory CLEMENT <gregory.clement@bootlin.com>
+To:     Marek =?utf-8?Q?Beh=C3=BAn?= <kabel@kernel.org>
+Cc:     Marek =?utf-8?Q?Beh=C3=BAn?= <kabel@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH mvebu-dt] ARM: dts: turris-omnia: configure LED[2]/INTn
+ pin as interrupt pin
+In-Reply-To: <20210220231144.32325-1-kabel@kernel.org>
+References: <20210220231144.32325-1-kabel@kernel.org>
+Date:   Fri, 02 Apr 2021 22:15:57 +0200
+Message-ID: <87eefscuiq.fsf@BL-laptop>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The below patches caused a regression in a multipath setup:
-Fixes: 9f98772ba307 ("nvme-rdma: fix controller reset hang during traffic")
-Fixes: 2875b0aecabe ("nvme-tcp: fix controller reset hang during traffic")
+Hi Marek,
 
-These patches on their own are correct because they fixed a controller reset
-regression.
+> Use the `marvell,reg-init` DT property to configure the LED[2]/INTn pin
+> of the Marvell 88E1514 ethernet PHY on Turris Omnia into interrupt mode.
+>
+> Without this the pin is by default in LED[2] mode, and the Marvell PHY
+> driver configures LED[2] into "On - Link, Blink - Activity" mode.
+>
+> This fixes the issue where the pca9538 GPIO/interrupt controller (which
+> can't mask interrupts in HW) received too many interrupts and after a
+> time started ignoring the interrupt with error message:
+>   IRQ 71: nobody cared
+>
+> There is a work in progress to have the Marvell PHY driver support
+> parsing PHY LED nodes from OF and registering the LEDs as Linux LED
+> class devices. Once this is done the PHY driver can also automatically
+> set the pin into INTn mode if it does not find LED[2] in OF.
+>
+> Until then, though, we fix this via `marvell,reg-init` DT property.
+>
+> Signed-off-by: Marek Behún <kabel@kernel.org>
+> Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+> Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+> Cc: Uwe Kleine-König <uwe@kleine-koenig.org>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Andrew Lunn <andrew@lunn.ch>
+> Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+> Cc: <stable@vger.kernel.org>
 
-When we reset/teardown a controller, we must freeze and quiesce the namespaces
-request queues to make sure that we safely stop inflight I/O submissions.
-Freeze is mandatory because if our hctx map changed between reconnects,
-blk_mq_update_nr_hw_queues will immediately attempt to freeze the queue, and
-if it still has pending submissions (that are still quiesced) it will hang.
-This is what the above patches fixed.
 
-However, by freezing the namespaces request queues, and only unfreezing them
-when we successfully reconnect, inflight submissions that are running
-concurrently can now block grabbing the nshead srcu until either we successfully
-reconnect or ctrl_loss_tmo expired (or the user explicitly disconnected).
+Applied on mvebu/fixes
 
-This caused a deadlock [1] when a different controller (different path on the
-same subsystem) became live (i.e. optimized/non-optimized). This is because
-nvme_mpath_set_live needs to synchronize the nshead srcu before requeueing I/O
-in order to make sure that current_path is visible to future (re)submisions.
-However the srcu lock is taken by a blocked submission on a frozen request
-queue, and we have a deadlock.
+Thanks,
 
-In recent kernels (v5.9+) direct_make_request was replaced by submit_bio_noacct
-which does not have this issue because it bio_list will be active when
-nvme-mpath calls submit_bio_noacct on the bottom device (because it was
-populated when submit_bio was triggered on it.
+Gregory
 
-Hence, we need to fix all the kernels that were before submit_bio_noacct was
-introduced.
+>
+> ---
+>
+> This patch fixes bug introduced with the commit that added Turris
+> Omnia's DTS (26ca8b52d6e1), but will not apply cleanly because there is
+> commit 8ee4a5f4f40d which changed node name and node compatible
+> property and this commit did not go into stable.
+>
+> So either commit 8ee4a5f4f40d has also to go into stable before this, or
+> this patch has to be fixed a little in order to apply to 4.14+.
+>
+> Please let me know how should I handle this.
+>
+> ---
+>  arch/arm/boot/dts/armada-385-turris-omnia.dts | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+> index 646a06420c77..b0f3fd8e1429 100644
+> --- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
+> +++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+> @@ -389,6 +389,7 @@ &mdio {
+>  	phy1: ethernet-phy@1 {
+>  		compatible = "ethernet-phy-ieee802.3-c22";
+>  		reg = <1>;
+> +		marvell,reg-init = <3 18 0 0x4985>;
+>  
+>  		/* irq is connected to &pcawan pin 7 */
+>  	};
+> -- 
+> 2.26.2
+>
 
-[1]:
-Workqueue: nvme-wq nvme_tcp_reconnect_ctrl_work [nvme_tcp]
-Call Trace:
- __schedule+0x293/0x730
- schedule+0x33/0xa0
- schedule_timeout+0x1d3/0x2f0
- wait_for_completion+0xba/0x140
- __synchronize_srcu.part.21+0x91/0xc0
- synchronize_srcu_expedited+0x27/0x30
- synchronize_srcu+0xce/0xe0
- nvme_mpath_set_live+0x64/0x130 [nvme_core]
- nvme_update_ns_ana_state+0x2c/0x30 [nvme_core]
- nvme_update_ana_state+0xcd/0xe0 [nvme_core]
- nvme_parse_ana_log+0xa1/0x180 [nvme_core]
- nvme_read_ana_log+0x76/0x100 [nvme_core]
- nvme_mpath_init+0x122/0x180 [nvme_core]
- nvme_init_identify+0x80e/0xe20 [nvme_core]
- nvme_tcp_setup_ctrl+0x359/0x660 [nvme_tcp]
- nvme_tcp_reconnect_ctrl_work+0x24/0x70 [nvme_tcp]
-
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
----
-Note: This patch does not exist in upstream, it is a pure
-backport fix that was just now found. The reason for that is
-that this specific issue exists on on kernels 5.4-5.8 as it
-was fixed in 5.9, and the patches that caused this was only
-backported to linux-5.4.y (which are correct as mentioned
-in the patch description)
-
- drivers/nvme/host/multipath.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 041a755f936a..0d9d0bebe645 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -339,7 +339,7 @@ static blk_qc_t nvme_ns_head_make_request(struct request_queue *q,
- 		trace_block_bio_remap(bio->bi_disk->queue, bio,
- 				      disk_devt(ns->head->disk),
- 				      bio->bi_iter.bi_sector);
--		ret = direct_make_request(bio);
-+		ret = generic_make_request(bio);
- 	} else if (nvme_available_path(head)) {
- 		dev_warn_ratelimited(dev, "no usable path - requeuing I/O\n");
- 
 -- 
-2.27.0
-
+Gregory Clement, Bootlin
+Embedded Linux and Kernel engineering
+http://bootlin.com
