@@ -2,307 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9274F3525A2
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 05:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 216783525B6
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 05:41:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234362AbhDBDPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Apr 2021 23:15:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41876 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234355AbhDBDPm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 23:15:42 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8CC6C0613E6
-        for <stable@vger.kernel.org>; Thu,  1 Apr 2021 20:15:40 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id l123so1280441pfl.8
-        for <stable@vger.kernel.org>; Thu, 01 Apr 2021 20:15:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=B4sq6ei9p9gjCKuzKmK5KHQVbMIIKor0Cj+0o4liXUQ=;
-        b=1I1dbKHRvgQWb8HnfJKAA3kuAr49zx2z6UGMBYtIOW7prgOeUbxoZTyzYLSlCWptF0
-         gd8TL8v9G2xLafne94Imt4KqY5Bo1j+AZery32nsU1bt1h/1ZxPUR4sFw2++zNY9S1BP
-         qDO0Vkoin3M5GAyTOWTJGGSSBV1fNDU7DZKwE7SgM6joSQZkskV6tAUfJuJEBuJX3iS0
-         myVL5AzX8DpIav9Px6glS9hg+Ju6niunOi1b8aRFyJSZKxOznwZOkwEJVgrPVX49bB/8
-         HMaVpyX068araPyde8DASbEAY7UQrXkga9/Y/n8YzsXTrnjkJ0gLNy8Zb1bE/D7jAObo
-         0GBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=B4sq6ei9p9gjCKuzKmK5KHQVbMIIKor0Cj+0o4liXUQ=;
-        b=Dd2Dw5pqZDeZ39kojkxrd2uRhcpvHCUPycaSo1LqehmGFuG4gz3Sel7xWcyp6aTp/m
-         oAOVS9flpBeuycuua2C5Y0bZ+/sA+sN7NJhPeGjnLPj+Ws2klFFs4f96s2Q9LVWe2nji
-         NbPz6w9kL5ak460E2zBnCEB7Oac+rHiobCx84fTE0zSvRZoc6TeVq3GyCMWPasBdEn3L
-         JjnrhjNT76bhDFVuq/fQukqdlncfaXly2jnE4FVWcLoAuR4Bnko+pX74pisaiKE6r5PY
-         dTN5hhyuLxEDfE4APfue9tZzk/vEt+J8nzjRTwCXRTqVDYVtZRsLVyLArUZWfNwLHz6U
-         c2sQ==
-X-Gm-Message-State: AOAM533gZUGVR1YTbppa6zMC1Hf41/25fMpoAABcHcOAwdaHF+Egv7fT
-        46a1J5YWI9Yg0UKnM7Qk7eRtkjWQgh8HQQ==
-X-Google-Smtp-Source: ABdhPJwsVNqELvPKVCvSJ0lo4/8wFuYgEFzcDgvYM6AJnBJ27ciA6xlaQJNrgWoQjbN3OLx1A3zZAw==
-X-Received: by 2002:a62:1913:0:b029:20f:eadf:28c1 with SMTP id 19-20020a6219130000b029020feadf28c1mr10280645pfz.58.1617333340092;
-        Thu, 01 Apr 2021 20:15:40 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 23sm6846929pgo.53.2021.04.01.20.15.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 20:15:39 -0700 (PDT)
-Message-ID: <60668c5b.1c69fb81.b7661.2450@mx.google.com>
-Date:   Thu, 01 Apr 2021 20:15:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S233841AbhDBDlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Apr 2021 23:41:14 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:15526 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233701AbhDBDlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Apr 2021 23:41:14 -0400
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FBQkb4pJ0zNsD0;
+        Fri,  2 Apr 2021 11:38:31 +0800 (CST)
+Received: from [10.174.151.207] (10.174.151.207) by
+ DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
+ 14.3.498.0; Fri, 2 Apr 2021 11:41:05 +0800
+Subject: Re: [PATCH] iommu/vt-d: Force to flush iotlb before creating
+ superpage
+To:     Lu Baolu <baolu.lu@linux.intel.com>,
+        <iommu@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>
+CC:     David Woodhouse <dwmw2@infradead.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Gonglei <arei.gonglei@huawei.com>, <stable@vger.kernel.org>
+References: <20210401071834.1639-1-longpeng2@huawei.com>
+ <af470760-04c1-0929-7304-0879ca7af542@linux.intel.com>
+From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
+        <longpeng2@huawei.com>
+Message-ID: <b4ddcefa-9492-326f-e717-b6623bc824c1@huawei.com>
+Date:   Fri, 2 Apr 2021 11:41:04 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.228-23-g6a99e6c924bd
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 baseline: 131 runs,
- 6 regressions (v4.14.228-23-g6a99e6c924bd)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <af470760-04c1-0929-7304-0879ca7af542@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.151.207]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 131 runs, 6 regressions (v4.14.228-23-g6a99e=
-6c924bd)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-fsl-ls2088a-rdb      | arm64 | lab-nxp         | gcc-8    | defconfig      =
-     | 1          =
-
-meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.228-23-g6a99e6c924bd/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.228-23-g6a99e6c924bd
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6a99e6c924bd24bf931bb0daeace4a8588f64d2e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-fsl-ls2088a-rdb      | arm64 | lab-nxp         | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606655772d946592b9dac703
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606655772d946592b9dac=
-704
-        failing since 1 day (last pass: v4.14.227-60-g91b0dae99c608, first =
-fail: v4.14.228-18-g18fff9d01d033) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606656042a60f16a1cdac71a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606656042a60f16a1cdac=
-71b
-        failing since 31 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
-t fail: v4.14.222-120-gdc8887cba23e) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606650c1ce28f5cd6fdac6e9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606650c1ce28f5cd6fdac=
-6ea
-        failing since 139 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606650c1ce28f5cd6fdac6e6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606650c1ce28f5cd6fdac=
-6e7
-        failing since 139 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606650b6ce28f5cd6fdac6d8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/606650b6ce28f5cd6fdac=
-6d9
-        failing since 139 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6066508138db98744bdac6bc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.228=
--23-g6a99e6c924bd/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6066508138db98744bdac=
-6bd
-        failing since 139 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
+Hi Baolu,
+
+在 2021/4/2 11:06, Lu Baolu 写道:
+> Hi Longpeng,
+> 
+> On 4/1/21 3:18 PM, Longpeng(Mike) wrote:
+>> The translation caches may preserve obsolete data when the
+>> mapping size is changed, suppose the following sequence which
+>> can reveal the problem with high probability.
+>>
+>> 1.mmap(4GB,MAP_HUGETLB)
+>> 2.
+>>    while (1) {
+>>     (a)    DMA MAP   0,0xa0000
+>>     (b)    DMA UNMAP 0,0xa0000
+>>     (c)    DMA MAP   0,0xc0000000
+>>               * DMA read IOVA 0 may failure here (Not present)
+>>               * if the problem occurs.
+>>     (d)    DMA UNMAP 0,0xc0000000
+>>    }
+>>
+>> The page table(only focus on IOVA 0) after (a) is:
+>>   PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
+>>    PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
+>>     PDE: 0x1a30a72003  entry:0xffff89b39cacb000
+>>      PTE: 0x21d200803  entry:0xffff89b3b0a72000
+>>
+>> The page table after (b) is:
+>>   PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
+>>    PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
+>>     PDE: 0x1a30a72003  entry:0xffff89b39cacb000
+>>      PTE: 0x0          entry:0xffff89b3b0a72000
+>>
+>> The page table after (c) is:
+>>   PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
+>>    PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
+>>     PDE: 0x21d200883   entry:0xffff89b39cacb000 (*)
+>>
+>> Because the PDE entry after (b) is present, it won't be
+>> flushed even if the iommu driver flush cache when unmap,
+>> so the obsolete data may be preserved in cache, which
+>> would cause the wrong translation at end.
+>>
+>> However, we can see the PDE entry is finally switch to
+>> 2M-superpage mapping, but it does not transform
+>> to 0x21d200883 directly:
+>>
+>> 1. PDE: 0x1a30a72003
+>> 2. __domain_mapping
+>>       dma_pte_free_pagetable
+>>         Set the PDE entry to ZERO
+>>       Set the PDE entry to 0x21d200883
+>>
+>> So we must flush the cache after the entry switch to ZERO
+>> to avoid the obsolete info be preserved.
+>>
+>> Cc: David Woodhouse <dwmw2@infradead.org>
+>> Cc: Lu Baolu <baolu.lu@linux.intel.com>
+>> Cc: Nadav Amit <nadav.amit@gmail.com>
+>> Cc: Alex Williamson <alex.williamson@redhat.com>
+>> Cc: Kevin Tian <kevin.tian@intel.com>
+>> Cc: Gonglei (Arei) <arei.gonglei@huawei.com>
+>>
+>> Fixes: 6491d4d02893 ("intel-iommu: Free old page tables before creating
+>> superpage")
+>> Cc: <stable@vger.kernel.org> # v3.0+
+>> Link:
+>> https://lore.kernel.org/linux-iommu/670baaf8-4ff8-4e84-4be3-030b95ab5a5e@huawei.com/
+>>
+>> Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
+>> Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+>> ---
+>>   drivers/iommu/intel/iommu.c | 15 +++++++++++++--
+>>   1 file changed, 13 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+>> index ee09323..cbcb434 100644
+>> --- a/drivers/iommu/intel/iommu.c
+>> +++ b/drivers/iommu/intel/iommu.c
+>> @@ -2342,9 +2342,20 @@ static inline int hardware_largepage_caps(struct
+>> dmar_domain *domain,
+>>                    * removed to make room for superpage(s).
+>>                    * We're adding new large pages, so make sure
+>>                    * we don't remove their parent tables.
+>> +                 *
+>> +                 * We also need to flush the iotlb before creating
+>> +                 * superpage to ensure it does not perserves any
+>> +                 * obsolete info.
+>>                    */
+>> -                dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
+>> -                               largepage_lvl + 1);
+>> +                if (dma_pte_present(pte)) {
+>> +                    int i;
+>> +
+>> +                    dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
+>> +                                   largepage_lvl + 1);
+>> +                    for_each_domain_iommu(i, domain)
+>> +                        iommu_flush_iotlb_psi(g_iommus[i], domain,
+>> +                                      iov_pfn, nr_pages, 0, 0);
+> 
+> Thanks for patch!
+> 
+> How about making the flushed page size accurate? For example,
+> 
+> @@ -2365,8 +2365,8 @@ __domain_mapping(struct dmar_domain *domain, unsigned long
+> iov_pfn,
+>                                         dma_pte_free_pagetable(domain, iov_pfn,
+> end_pfn,
+> 
+> largepage_lvl + 1);
+>                                         for_each_domain_iommu(i, domain)
+> - iommu_flush_iotlb_psi(g_iommus[i], domain,
+> - iov_pfn, nr_pages, 0, 0);
+> + iommu_flush_iotlb_psi(g_iommus[i], domain, iov_pfn,
+> + ALIGN_DOWN(nr_pages, lvl_pages), 0, 0);
+> 
+Yes, make sense.
+
+Maybe another alternative is 'end_pfn - iova_pfn + 1', it's readable because we
+free pagetable with (iova_pfn, end_pfn) above. Which one do you prefer?
+
+> 
+>> +                }
+>>               } else {
+>>                   pteval &= ~(uint64_t)DMA_PTE_LARGE_PAGE;
+>>               }
+>>
+> 
+> Best regards,
+> baolu
+> .
