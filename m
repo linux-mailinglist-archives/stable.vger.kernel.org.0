@@ -2,103 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1E0C352B25
-	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 16:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7687352BE9
+	for <lists+stable@lfdr.de>; Fri,  2 Apr 2021 18:09:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234628AbhDBN5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 09:57:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39796 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229932AbhDBN5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Apr 2021 09:57:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 599D66113E;
-        Fri,  2 Apr 2021 13:57:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617371835;
-        bh=pN+kAKNc0PGbFrgIg4G9Uto5D16n0oQmep1TVDgpVzU=;
-        h=Subject:To:From:Date:From;
-        b=JKrwzluAv9+Oo0UNO6dghlkftF7vuGmFS7Um9bmY5hE+IX80jfhk+OFQRNfUzdAvl
-         GZPZAqXtUH+kKBWtLdYP1r7oHQbMQLEJ01Juf2+XdzJmckcYjJ7YHOtCAoj58I20DT
-         EgNY9BGVBLuz6hsruGG4epnFlpW4o97xZAchEpYU=
-Subject: patch "usb: xhci-mtk: fix broken streams issue on 0.96 xHCI" added to usb-testing
-To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 02 Apr 2021 15:57:01 +0200
-Message-ID: <161737182124922@kroah.com>
+        id S235667AbhDBOmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Apr 2021 10:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48812 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235724AbhDBOmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 10:42:52 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A140AC0613E6
+        for <stable@vger.kernel.org>; Fri,  2 Apr 2021 07:42:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=Bw7ISwmFV0i1SzllnQ2AVohh/lybr5ParuExcTXKJKg=; b=LAQSsv5uOnx0JrA0LDyFhl9r+2
+        5l2kW1mnPfTNrIY4ns6ovHqeN6VeP2uFLLgkTCXr3I41UD5qywqrdoMfLZ47Rg8Arl0o+ADTXKhRN
+        AznFUAAgCp4RoJ3qyGytoRiDcpBwOM093dTv/gz2NoocS+BFielEdSJnpP9NMF4NYP/I8vyvcFcKy
+        pN3/tYJgbUbiQRqDFLtsbnoB8SWTbjgtkT1uRrtIOM2dmy+Wqvv5d/ObsRsI28NQiIalmGXkVTW0A
+        t+AX7MpwM3pAIDWv/ScOqj4twGYgbx4v90qeyRissqF1s10M6ZESK+0WUyAUXG+RnwUXz6BVYaXBX
+        EQtk5nwg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1lSKzA-007kKL-30; Fri, 02 Apr 2021 14:42:21 +0000
+Date:   Fri, 2 Apr 2021 15:41:20 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     yangerkun <yangerkun@huawei.com>, stable@vger.kernel.org,
+        vbabka@suse.cz, linux-mm@kvack.org, open-iscsi@googlegroups.com,
+        cleech@redhat.com, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        liuyongqiang13@huawei.com,
+        "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        chenzhou10@huawei.com
+Subject: Re: [QUESTION] WARNNING after 3d8e2128f26a ("sysfs: Add sysfs_emit
+ and sysfs_emit_at to format sysfs output")
+Message-ID: <20210402144120.GO351017@casper.infradead.org>
+References: <5837f5d9-2235-3ac2-f3f2-712e6cf4da5c@huawei.com>
+ <YGbLiIL8ewIX1Hrt@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YGbLiIL8ewIX1Hrt@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Apr 02, 2021 at 09:45:12AM +0200, Greg KH wrote:
+> Why is the buffer alignment considered a "waste" here?  If that change
+> is in Linus's tree and newer kernels (it showed up in 5.4 which was
+> released quite a while ago), where are the people complaining about it
+> there?
+> 
+> I think backporting 59bb47985c1d ("mm, sl[aou]b: guarantee natural
+> alignment for kmalloc(power-of-two)") seems like the correct thing to do
+> here to bring things into alignment (pun intended) with newer kernels.
 
-This is a note to let you know that I've just added the patch titled
-
-    usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 1f743c8749eacd906dd3ce402b7cd540bb69ad3e Mon Sep 17 00:00:00 2001
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Date: Wed, 31 Mar 2021 17:05:52 +0800
-Subject: usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
-
-The MediaTek 0.96 xHCI controller on some platforms does not
-support bulk stream even HCCPARAMS says supporting, due to MaxPSASize
-is set a default value 1 by mistake, here use XHCI_BROKEN_STREAMS
-quirk to fix it.
-
-Fixes: 94a631d91ad3 ("usb: xhci-mtk: check hcc_params after adding primary hcd")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1617181553-3503-3-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-mtk.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/host/xhci-mtk.c b/drivers/usb/host/xhci-mtk.c
-index c1bc40289833..4e3d53cc24f4 100644
---- a/drivers/usb/host/xhci-mtk.c
-+++ b/drivers/usb/host/xhci-mtk.c
-@@ -411,6 +411,13 @@ static void xhci_mtk_quirks(struct device *dev, struct xhci_hcd *xhci)
- 	xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
- 	if (mtk->lpm_support)
- 		xhci->quirks |= XHCI_LPM_SUPPORT;
-+
-+	/*
-+	 * MTK xHCI 0.96: PSA is 1 by default even if doesn't support stream,
-+	 * and it's 3 when support it.
-+	 */
-+	if (xhci->hci_version < 0x100 && HCC_MAX_PSA(xhci->hcc_params) == 4)
-+		xhci->quirks |= XHCI_BROKEN_STREAMS;
- }
- 
- /* called during probe() after chip reset completes */
-@@ -572,7 +579,8 @@ static int xhci_mtk_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto put_usb3_hcd;
- 
--	if (HCC_MAX_PSA(xhci->hcc_params) >= 4)
-+	if (HCC_MAX_PSA(xhci->hcc_params) >= 4 &&
-+	    !(xhci->quirks & XHCI_BROKEN_STREAMS))
- 		xhci->shared_hcd->can_do_streams = 1;
- 
- 	ret = usb_add_hcd(xhci->shared_hcd, irq, IRQF_SHARED);
--- 
-2.31.1
-
+It's only a waste for slabs which need things like redzones (eg we could
+get 7 512-byte allocations out of a 4kB page with a 64 byte redzone
+and no alignment ; with alignment we can only get four).  Since slub
+can enable/disable redzones on a per-slab basis, and redzones aren't
+terribly interesting now that we have kasan/kfence, nobody really cares.
 
