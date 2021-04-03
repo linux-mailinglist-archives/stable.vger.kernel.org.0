@@ -2,154 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3C13531A8
-	for <lists+stable@lfdr.de>; Sat,  3 Apr 2021 01:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707093531B9
+	for <lists+stable@lfdr.de>; Sat,  3 Apr 2021 02:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234161AbhDBXp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Apr 2021 19:45:57 -0400
-Received: from mga07.intel.com ([134.134.136.100]:39410 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235538AbhDBXp4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Apr 2021 19:45:56 -0400
-IronPort-SDR: OLeWFJ+65p7Q7pqH/DCapBc5ruyQOGFk+ML9HuU2dM8+FlOcfe4N9LTLeiI7MWxrZloEYmg+Mo
- jdvrpt+ajfHg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9942"; a="256531416"
-X-IronPort-AV: E=Sophos;i="5.81,300,1610438400"; 
-   d="scan'208";a="256531416"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2021 16:45:54 -0700
-IronPort-SDR: CpI3kaH/eUqkC3h/O9Aq6Oh1xn7fApXVx2IVoz0/P/r2WpwoyPUAHg/sekp6NbmDMZhhTsi5in
- 3jC/VGt8f84A==
-X-IronPort-AV: E=Sophos;i="5.81,300,1610438400"; 
-   d="scan'208";a="395126078"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2021 16:45:52 -0700
-Date:   Sat, 3 Apr 2021 02:45:49 +0300
-From:   Imre Deak <imre.deak@intel.com>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Santiago Zarate <santiago.zarate@suse.com>,
-        Bodo Graumann <mail@bodograumann.de>,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: Re: [gfx-internal-devel] [PATCH 1/3] drm/i915/ilk-glk: Fix link
- training on links with LTTPRs
-Message-ID: <20210402234549.GD1736175@ideak-desk.fi.intel.com>
-References: <20210401232927.1711811-1-imre.deak@intel.com>
- <20210401232927.1711811-2-imre.deak@intel.com>
+        id S234908AbhDCAE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Apr 2021 20:04:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57718 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234488AbhDCAE4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Apr 2021 20:04:56 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AF96C0613E6
+        for <stable@vger.kernel.org>; Fri,  2 Apr 2021 17:04:50 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id v26so6709553iox.11
+        for <stable@vger.kernel.org>; Fri, 02 Apr 2021 17:04:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=uvaJxOMF68u/mryvJz6oilbFQS2YMDQUaK8sfeTQE6s=;
+        b=D2VsPydsHACDyvGBecOSXaFLbeyIHrLylCKyqhHiDUARWDEbfhiRe0i8LbIilhqxNu
+         aLupC53mvf4L3QM6Qy5Iuad+PMzI/evU1vL47Wg66+GbXe9kfQYWHDS06NQ2iRdAfR6H
+         tiDwQ+ColVSjLyrkiISRdqlU0gcWbyxb/+bd8v4zXrOGrx7+LCvLXrUvnqfEtlXLlXro
+         JOqlfkAyCik4k8tlzmplJynq1erEkfsN0XYH9mk1+X0UYCeqqGrFlYU5Byx/3uCC2EFj
+         VuxhxiYem1i/xSZk9qPn8/Jyc/gMog8GdgjUQm/suaiOZiINyBXXCNudUMq0Ae1QCvg7
+         MTsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=uvaJxOMF68u/mryvJz6oilbFQS2YMDQUaK8sfeTQE6s=;
+        b=BOkzdAg1To1ltZJ//agOy0BmlssBxUVCPKQGhZ09XoEM/5LVTUlx32QgqhgRRrnp9O
+         2ze5rG+tM7Slx1ZL3M9elUSB4BQxJqK3Ue2bTuJUeQwZX3kB+a1Oo59JevBkeRSb5rOE
+         L7/RZmb+KCPSnVCFzyHJxwMTmyIyyA3kqJXKlye5K5Jf8rakF+uq53zlsY90qF+JQE+0
+         J7VjKqj2CUOF7cIsBYBZCDe2B8UluLeB1aOR/c8/BcR1aiOZTsX3aMA2tRRWaZl1aCbu
+         YcjV6nn4JOMUoK/PhBgvRk2z6XGuy2XpkUguBr9cr+gcqpZeSUCtfXB8tdynRRuzncEF
+         kCUQ==
+X-Gm-Message-State: AOAM532H1x3A4ElRlK+gClCdHLocBX5FM5VzOglHsJKjUNgxLLhsPkUc
+        X2loJPoKhj3NTg2EaB6olZawz5a+xF8rLsNf/w==
+X-Google-Smtp-Source: ABdhPJwQhuOXpZw78m6azrjxYIg5OAhDyf3BjOaDM1gkLcmjn7E8OsqxhQ+g2wfAXa0McJAyzNnv1sjYTjCukMECYtE=
+X-Received: by 2002:a05:6638:218f:: with SMTP id s15mr14915044jaj.58.1617408289196;
+ Fri, 02 Apr 2021 17:04:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210401232927.1711811-2-imre.deak@intel.com>
+Reply-To: tofilbaman1@gmail.com
+Sender: shippinglinecompany46@gmail.com
+Received: by 2002:a05:6638:13cc:0:0:0:0 with HTTP; Fri, 2 Apr 2021 17:04:48
+ -0700 (PDT)
+From:   Tofil Bama <tofilbaman@gmail.com>
+Date:   Sat, 3 Apr 2021 01:04:48 +0100
+X-Google-Sender-Auth: PIgERcK-r_LDQFAk-06-tqVlosY
+Message-ID: <CAO8gpBmPdA0DxiLMcCxbm61z1FGfvA3XO-j+_gEmi74fuNz-fw@mail.gmail.com>
+Subject: GREAT OPPORTUNITY.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please ignore this patchset, it's not yet the correct version rebased on
-v5.11 (more precisely I Cc'd stable for this version of the patchset by
-mistake).
+Dear,
 
-I'll resend this patchset properly rebased on v5.11.
+My name is Mr Tofil Bama, I am the Bill and Exchange assistant
+Manager in Bank of Africa Ouagadougou Burkina Faso. In my department
+I discovered an abandoned sum of eighteen million three hundred
+thousand United State of American dollars (18.3MILLION USA DOLLARS)
+in an account that belongs to one of our foreign customer
+(late Mr Shitu Nuri) who died in Ethiopian Airlines Flight 409 that
+crashed into the Mediterranean Sea on 25th January 2010.
 
-Sorry for the noise.
+Since I got information about his death I have been expecting
+his next of kin to come over and claim his money because we
+cannot release it unless somebody applies for it as the next
+of kin or relation to the deceased as indicated in our banking
+guidelines, unfortunately we learnt that all his supposed next of
+kin or relation died alongside with him in the plane crash leaving
+nobody behind for the claim.
 
---Imre
+It is therefore upon this discovery that I decided to make this
+business proposal to you and release the money to you as next of kin
+to the deceased for safety and subsequent disbursement since nobody
+is coming for the fund, it is 10 years now the money is lying pending in
+the account of our deceased and I don't want the money to go into the
+bank treasury as unclaimed bill.
 
-On Fri, Apr 02, 2021 at 02:29:24AM +0300, Imre Deak wrote:
-> The spec requires to use at least 3.2ms for the AUX timeout period if
-> there are LT-tunable PHY Repeaters on the link (2.11.2). An upcoming
-> spec update makes this more specific, by requiring a 3.2ms minimum
-> timeout period for the LTTPR detection reading the 0xF0000-0xF0007
-> range (3.6.5.1).
-> 
-> Accordingly disable LTTPR detection until GLK, where the maximum timeout
-> we can set is only 1.6ms.
-> 
-> Link training in the non-transparent mode is known to fail at least on
-> some SKL systems with a WD19 dock on the link, which exposes an LTTPR
-> (see the References below). While this could have different reasons
-> besides the too short AUX timeout used, not detecting LTTPRs (and so not
-> using the non-transparent LT mode) fixes link training on these systems.
-> 
-> While at it add a code comment about the platform specific maximum
-> timeout values.
-> 
-> v2: Add a comment about the g4x maximum timeout as well. (Ville)
-> 
-> Reported-by: Takashi Iwai <tiwai@suse.de>
-> Reported-and-tested-by: Santiago Zarate <santiago.zarate@suse.com>
-> Reported-and-tested-by: Bodo Graumann <mail@bodograumann.de>
-> References: https://gitlab.freedesktop.org/drm/intel/-/issues/3166
-> Fixes: b30edfd8d0b4 ("drm/i915: Switch to LTTPR non-transparent mode link training")
-> Cc: <stable@vger.kernel.org> # v5.11
-> Cc: Takashi Iwai <tiwai@suse.de>
-> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Signed-off-by: Imre Deak <imre.deak@intel.com>
-> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20210317184901.4029798-2-imre.deak@intel.com
-> (cherry picked from commit 984982f3ef7b240cd24c2feb2762d81d9d8da3c2)
-> ---
->  drivers/gpu/drm/i915/display/intel_dp_aux.c       |  7 +++++++
->  .../gpu/drm/i915/display/intel_dp_link_training.c | 15 ++++++++++++---
->  2 files changed, 19 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux.c b/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> index eaebf123310a..10fe17b7280d 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_aux.c
-> @@ -133,6 +133,7 @@ static u32 g4x_get_aux_send_ctl(struct intel_dp *intel_dp,
->  	else
->  		precharge = 5;
->  
-> +	/* Max timeout value on G4x-BDW: 1.6ms */
->  	if (IS_BROADWELL(dev_priv))
->  		timeout = DP_AUX_CH_CTL_TIME_OUT_600us;
->  	else
-> @@ -159,6 +160,12 @@ static u32 skl_get_aux_send_ctl(struct intel_dp *intel_dp,
->  	enum phy phy = intel_port_to_phy(i915, dig_port->base.port);
->  	u32 ret;
->  
-> +	/*
-> +	 * Max timeout values:
-> +	 * SKL-GLK: 1.6ms
-> +	 * CNL: 3.2ms
-> +	 * ICL+: 4ms
-> +	 */
->  	ret = DP_AUX_CH_CTL_SEND_BUSY |
->  	      DP_AUX_CH_CTL_DONE |
->  	      DP_AUX_CH_CTL_INTERRUPT |
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> index 892d7db7d94f..35cda72492d7 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> @@ -81,6 +81,18 @@ static void intel_dp_read_lttpr_phy_caps(struct intel_dp *intel_dp,
->  
->  static bool intel_dp_read_lttpr_common_caps(struct intel_dp *intel_dp)
->  {
-> +	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
-> +
-> +	if (intel_dp_is_edp(intel_dp))
-> +		return false;
-> +
-> +	/*
-> +	 * Detecting LTTPRs must be avoided on platforms with an AUX timeout
-> +	 * period < 3.2ms. (see DP Standard v2.0, 2.11.2, 3.6.6.1).
-> +	 */
-> +	if (INTEL_GEN(i915) < 10)
-> +		return false;
-> +
->  	if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
->  					  intel_dp->lttpr_common_caps) < 0) {
->  		memset(intel_dp->lttpr_common_caps, 0,
-> @@ -126,9 +138,6 @@ int intel_dp_lttpr_init(struct intel_dp *intel_dp)
->  	bool ret;
->  	int i;
->  
-> -	if (intel_dp_is_edp(intel_dp))
-> -		return 0;
-> -
->  	ret = intel_dp_read_lttpr_common_caps(intel_dp);
->  	if (!ret)
->  		return 0;
+You will be entitled with 40% of the total sum while 60% will be for
+me after which I will visit your Country to invest my own share when
+the fund is successfully transferred into your account, Please I would
+like you to keep this transaction confidential and as a top secret
+between me and you until we successfully achieve this golden
+opportunity.
+
+Yours sincerely,
+Mr Tofil Bama.
