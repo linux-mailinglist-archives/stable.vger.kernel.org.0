@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB63835442B
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08BB5354433
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241886AbhDEQEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:04:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56056 "EHLO mail.kernel.org"
+        id S241915AbhDEQEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:04:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242065AbhDEQEe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:04:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CEC9613CC;
-        Mon,  5 Apr 2021 16:04:27 +0000 (UTC)
+        id S241953AbhDEQEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:04:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D867613CB;
+        Mon,  5 Apr 2021 16:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638667;
-        bh=v3PhA6sR8KfW/SvfLTw00smiNVw2ncQdLuPe1Gr5iQU=;
+        s=k20201202; t=1617638668;
+        bh=FmeEp9DlJn1O6l/gDwyedOEMenAYz7+FkaYusJwSGo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MknvCSXvQQBYsja0h/RBBTi9zohTXm1o2+DXV0hY/GqxfKEqrDoAPJr+ivg3mjj4H
-         2eXoPkeDvLV2jN+lWzinqOv4K9CX6O0qOImp6J9gj113ruG36qa4QFLYXbkyx5lj5J
-         hKrxOJX3Lypxpg0CzOVxK0TKmGVOh+2miW7l9NMSQDwtaqJCZPO9xQZQpi5aynoFcE
-         b8fBL6kc0UMCBOI3q2Ox/y7QJuF8emivSvTZUSndiUm2xvokgziKTvVMtm14kMbyWE
-         mbKlDvYB5X07cVK67f9eMUHIb+2di/5CNJc+IEbf6omaD1Tl+Tb8TG2h4vikt7EVGA
-         st/hmNXhOlMEg==
+        b=KPERcj/ZTr60rXzkvluvhEXJVzd8pYT7+OxCeUS4DoD0FqWN9Q7vFqwhpODdECW+p
+         vxjZhp8bQj1nuMw+k+fEXeR9lFJ81rKW83ajbYhP+Nw+K0JrFdTEw0hRvcHuN+N2Ov
+         MPPmo7iIrGLOAGnqxy3eHHHcdNfYnT0ezN981mhbHwxpgo7qdWul8OLGR5y7WwbyIx
+         Ahh2b/f4w0OfyXF2o7nJwGbvWwCJZrXXPZ/H8g69k0r31mhdDMFo6iZne06jjIJOA9
+         SeqWb7SL/rpINaRRHPbjbJ7Mgk7ZMfhNbaENmay3WX46UT8rN1cO3gnZzO5ihChRPc
+         BxUVlG+x1y4Qg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 19/22] io_uring: don't mark S_ISBLK async work as unbounded
-Date:   Mon,  5 Apr 2021 12:04:02 -0400
-Message-Id: <20210405160406.268132-19-sashal@kernel.org>
+Cc:     Ben Dooks <ben.dooks@codethink.co.uk>,
+        syzbot+e74b94fe601ab9552d69@syzkaller.appspotmail.com,
+        Arnd Bergman <arnd@arndb.de>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.11 20/22] riscv: evaluate put_user() arg before enabling user access
+Date:   Mon,  5 Apr 2021 12:04:03 -0400
+Message-Id: <20210405160406.268132-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210405160406.268132-1-sashal@kernel.org>
 References: <20210405160406.268132-1-sashal@kernel.org>
@@ -41,34 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-[ Upstream commit 4b982bd0f383db9132e892c0c5144117359a6289 ]
+[ Upstream commit 285a76bb2cf51b0c74c634f2aaccdb93e1f2a359 ]
 
-S_ISBLK is marked as unbounded work for async preparation, because it
-doesn't match S_ISREG. That is incorrect, as any read/write to a block
-device is also a bounded operation. Fix it up and ensure that S_ISBLK
-isn't marked unbounded.
+The <asm/uaccess.h> header has a problem with put_user(a, ptr) if
+the 'a' is not a simple variable, such as a function. This can lead
+to the compiler producing code as so:
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+1:	enable_user_access()
+2:	evaluate 'a' into register 'r'
+3:	put 'r' to 'ptr'
+4:	disable_user_acess()
+
+The issue is that 'a' is now being evaluated with the user memory
+protections disabled. So we try and force the evaulation by assigning
+'x' to __val at the start, and hoping the compiler barriers in
+ enable_user_access() do the job of ordering step 2 before step 1.
+
+This has shown up in a bug where 'a' sleeps and thus schedules out
+and loses the SR_SUM flag. This isn't sufficient to fully fix, but
+should reduce the window of opportunity. The first instance of this
+we found is in scheudle_tail() where the code does:
+
+$ less -N kernel/sched/core.c
+
+4263  if (current->set_child_tid)
+4264         put_user(task_pid_vnr(current), current->set_child_tid);
+
+Here, the task_pid_vnr(current) is called within the block that has
+enabled the user memory access. This can be made worse with KASAN
+which makes task_pid_vnr() a rather large call with plenty of
+opportunity to sleep.
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Reported-by: syzbot+e74b94fe601ab9552d69@syzkaller.appspotmail.com
+Suggested-by: Arnd Bergman <arnd@arndb.de>
+
+--
+Changes since v1:
+- fixed formatting and updated the patch description with more info
+
+Changes since v2:
+- fixed commenting on __put_user() (schwab@linux-m68k.org)
+
+Change since v3:
+- fixed RFC in patch title. Should be ready to merge.
+
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/include/asm/uaccess.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5c4378694d54..d9a673976f2d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1546,7 +1546,7 @@ static void io_prep_async_work(struct io_kiocb *req)
- 	if (req->flags & REQ_F_ISREG) {
- 		if (def->hash_reg_file || (ctx->flags & IORING_SETUP_IOPOLL))
- 			io_wq_hash_work(&req->work, file_inode(req->file));
--	} else {
-+	} else if (!req->file || !S_ISBLK(file_inode(req->file)->i_mode)) {
- 		if (def->unbound_nonreg_file)
- 			req->work.flags |= IO_WQ_WORK_UNBOUND;
- 	}
+diff --git a/arch/riscv/include/asm/uaccess.h b/arch/riscv/include/asm/uaccess.h
+index 824b2c9da75b..f944062c9d99 100644
+--- a/arch/riscv/include/asm/uaccess.h
++++ b/arch/riscv/include/asm/uaccess.h
+@@ -306,7 +306,9 @@ do {								\
+  * data types like structures or arrays.
+  *
+  * @ptr must have pointer-to-simple-variable type, and @x must be assignable
+- * to the result of dereferencing @ptr.
++ * to the result of dereferencing @ptr. The value of @x is copied to avoid
++ * re-ordering where @x is evaluated inside the block that enables user-space
++ * access (thus bypassing user space protection if @x is a function).
+  *
+  * Caller must check the pointer with access_ok() before calling this
+  * function.
+@@ -316,12 +318,13 @@ do {								\
+ #define __put_user(x, ptr)					\
+ ({								\
+ 	__typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
++	__typeof__(*__gu_ptr) __val = (x);			\
+ 	long __pu_err = 0;					\
+ 								\
+ 	__chk_user_ptr(__gu_ptr);				\
+ 								\
+ 	__enable_user_access();					\
+-	__put_user_nocheck(x, __gu_ptr, __pu_err);		\
++	__put_user_nocheck(__val, __gu_ptr, __pu_err);		\
+ 	__disable_user_access();				\
+ 								\
+ 	__pu_err;						\
 -- 
 2.30.2
 
