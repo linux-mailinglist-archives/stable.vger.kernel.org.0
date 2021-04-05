@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6AEF353D69
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29FA353DBF
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237006AbhDEI7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:59:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
+        id S237420AbhDEJCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234188AbhDEI7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:59:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D13610E8;
-        Mon,  5 Apr 2021 08:59:34 +0000 (UTC)
+        id S237352AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB48E613A4;
+        Mon,  5 Apr 2021 09:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613175;
-        bh=M2E5XEh3GnqziyHsM8riwrpelAwbh49FkbgoKVacE0A=;
+        s=korg; t=1617613300;
+        bh=2Zqk0R2I0xocC5foxilnpakK8Ni9eF3ISSkUmSVZNKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JC+n05u5ERhp9vqp1Bg8CZdANGLX4POBi4T6Zw8xShUV5ngPaCS4Cl9TG7DnHEmR3
-         KHccH8/X4ZVyMLCnoao/hZmWUGjaHdzEpbmMFocdGNieZFoeZVXDjKYqLgrKUjo6gX
-         giyqzWHAWUPpHeiXKRNZumNtVlpuZHNUfB13GRbA=
+        b=NcaOe2Wk3u9Xi/WM/GNVilw6Rlp8peM2kfjTolXbJme4Jemric+ELVegHlS7DT80A
+         1DvrQK3qB50E9vvOkPlfyO/+RGw6b71QiPf/4Spy/3rmvC8j4WpZKUrO+0HzWsxg+k
+         niVu3hQZWmiixVo0Nq1i2sBNYSUnrZsfZx9IePlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.14 47/52] USB: cdc-acm: downgrade message to debug
-Date:   Mon,  5 Apr 2021 10:54:13 +0200
-Message-Id: <20210405085023.514338455@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.19 43/56] usbip: vhci_hcd fix shift out-of-bounds in vhci_hub_control()
+Date:   Mon,  5 Apr 2021 10:54:14 +0200
+Message-Id: <20210405085023.906106998@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit e4c77070ad45fc940af1d7fb1e637c349e848951 upstream.
+commit 1cc5ed25bdade86de2650a82b2730108a76de20c upstream.
 
-This failure is so common that logging an error here amounts
-to spamming log files.
+Fix shift out-of-bounds in vhci_hub_control() SetPortFeature handling.
 
-Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210311130126.15972-2-oneukum@suse.com
+UBSAN: shift-out-of-bounds in drivers/usb/usbip/vhci_hcd.c:605:42
+shift exponent 768 is too large for 32-bit type 'int'
+
+Reported-by: syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210324230654.34798-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/usbip/vhci_hcd.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -676,7 +676,8 @@ static void acm_port_dtr_rts(struct tty_
- 
- 	res = acm_set_control(acm, val);
- 	if (res && (acm->ctrl_caps & USB_CDC_CAP_LINE))
--		dev_err(&acm->control->dev, "failed to set dtr/rts\n");
-+		/* This is broken in too many devices to spam the logs */
-+		dev_dbg(&acm->control->dev, "failed to set dtr/rts\n");
- }
- 
- static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -594,6 +594,8 @@ static int vhci_hub_control(struct usb_h
+ 				pr_err("invalid port number %d\n", wIndex);
+ 				goto error;
+ 			}
++			if (wValue >= 32)
++				goto error;
+ 			if (hcd->speed == HCD_USB3) {
+ 				if ((vhci_hcd->port_status[rhport] &
+ 				     USB_SS_PORT_STAT_POWER) != 0) {
 
 
