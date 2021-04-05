@@ -2,108 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1373435437E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 17:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA95354385
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 17:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238291AbhDEPhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 11:37:53 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:48518 "EHLO
+        id S238086AbhDEPma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 11:42:30 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:49714 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238086AbhDEPhw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 11:37:52 -0400
+        with ESMTP id S237254AbhDEPma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 11:42:30 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 71B081C0B7D; Mon,  5 Apr 2021 17:37:44 +0200 (CEST)
-Date:   Mon, 5 Apr 2021 17:37:43 +0200
+        id 1B2181C0B7D; Mon,  5 Apr 2021 17:42:22 +0200 (CEST)
+Date:   Mon, 5 Apr 2021 17:42:21 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nathan Rossi <nathan.rossi@digi.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 048/126] net: ethernet: aquantia: Handle error
- cleanup of start on open
-Message-ID: <20210405153743.GA305@amd>
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH 5.10 079/126] drm/tegra: sor: Grab runtime PM reference
+ across reset
+Message-ID: <20210405154221.GB305@amd>
 References: <20210405085031.040238881@linuxfoundation.org>
- <20210405085032.625044515@linuxfoundation.org>
+ <20210405085033.686284735@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+        protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
 Content-Disposition: inline
-In-Reply-To: <20210405085032.625044515@linuxfoundation.org>
+In-Reply-To: <20210405085033.686284735@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---+QahgC5+KEYLbs62
+--TRYliJ5NKNqkz5bu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Nathan Rossi <nathan.rossi@digi.com>
->=20
-> [ Upstream commit 8a28af7a3e85ddf358f8c41e401a33002f7a9587 ]
->=20
-> The aq_nic_start function can fail in a variety of cases which leaves
-> the device in broken state.
->=20
-> An example case where the start function fails is the
-> request_threaded_irq which can be interrupted, resulting in a EINTR
-> result. This can be manually triggered by bringing the link up (e.g. ip
-> link set up) and triggering a SIGINT on the initiating process (e.g.
-> Ctrl+C). This would put the device into a half configured state.
-> Subsequently bringing the link up again would cause the napi_enable to
-> BUG.
->=20
-> In order to correctly clean up the failed attempt to start a device call
-> aq_nic_stop.
+> However, these functions alone don't provide any guarantees at the
+> system level. Drivers need to ensure that the only a single consumer has
+> access to the reset at the same time. In order for the SOR to be able to
+> exclusively access its reset, it must therefore ensure that the SOR
+> power domain is not powered off by holding on to a runtime PM reference
+> to that power domain across the reset assert/deassert operation.
 
-No.
+Yeah, but it should not leak the PM reference in the error handling.
 
-> +++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-> @@ -71,8 +71,10 @@ static int aq_ndev_open(struct net_device *ndev)
->  		goto err_exit;
-> =20
->  	err =3D aq_nic_start(aq_nic);
-> -	if (err < 0)
-> +	if (err < 0) {
-> +		aq_nic_stop(aq_nic);
->  		goto err_exit;
-> +	}
-> =20
->  err_exit:
->  	if (err < 0)
-
-First, take a look at the goto. Does not need to be there.
-
-Second check the crazy calling convention. If nic_start() fails, it
-should clean up after itself.
-
-Then, check the code. nic_stop() undoes initialization that was not
-even done in the nic_start().
-
-This introduces more problems than it solves.
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
 
 Best regards,
-							Pavel
+								Pavel
+
+diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
+index 7b88261f57bb..b3b727b2a3c5 100644
+--- a/drivers/gpu/drm/tegra/sor.c
++++ b/drivers/gpu/drm/tegra/sor.c
+@@ -3125,21 +3125,21 @@ static int tegra_sor_init(struct host1x_client *cli=
+ent)
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to acquire SOR reset: %d\n",
+ 				err);
+-			return err;
++			goto maybe_put;
+ 		}
+=20
+ 		err =3D reset_control_assert(sor->rst);
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to assert SOR reset: %d\n",
+ 				err);
+-			return err;
++			goto maybe_put;
+ 		}
+ 	}
+=20
+ 	err =3D clk_prepare_enable(sor->clk);
+ 	if (err < 0) {
+ 		dev_err(sor->dev, "failed to enable clock: %d\n", err);
+-		return err;
++		goto maybe_put;
+ 	}
+=20
+ 	usleep_range(1000, 3000);
+@@ -3150,7 +3150,7 @@ static int tegra_sor_init(struct host1x_client *clien=
+t)
+ 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
+ 				err);
+ 			clk_disable_unprepare(sor->clk);
+-			return err;
++			goto maybe_put;
+ 		}
+=20
+ 		reset_control_release(sor->rst);
+@@ -3171,6 +3171,11 @@ static int tegra_sor_init(struct host1x_client *clie=
+nt)
+ 	}
+=20
+ 	return 0;
++
++ maybe_put:
++	if (sor->rst)
++		pm_runtime_put(sor->dev);
++	return err;
+ }
+=20
+ static int tegra_sor_exit(struct host1x_client *client)
+
+
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---+QahgC5+KEYLbs62
+--TRYliJ5NKNqkz5bu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmBrLscACgkQMOfwapXb+vJaaQCeLCWHqYP6YA09DF4mZXy41bEv
-fCQAn1h+otGje5XyHMhK0COV2koYdQyA
-=+H7e
+iEYEARECAAYFAmBrL90ACgkQMOfwapXb+vIE+wCdHHkpngng4wHW2vwssmWAFT9r
+MlIAn15qzXAkKpR3X1Y2UnYe03EuuWqT
+=9iYm
 -----END PGP SIGNATURE-----
 
---+QahgC5+KEYLbs62--
+--TRYliJ5NKNqkz5bu--
