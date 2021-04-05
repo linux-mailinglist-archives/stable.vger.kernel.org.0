@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3997353F27
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7AF2353D72
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239382AbhDEJKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:10:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55896 "EHLO mail.kernel.org"
+        id S237087AbhDEI7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:59:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238486AbhDEJKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:10:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1CF8613AF;
-        Mon,  5 Apr 2021 09:09:55 +0000 (UTC)
+        id S237049AbhDEI7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:59:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7227460238;
+        Mon,  5 Apr 2021 08:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613796;
-        bh=7sosVSFsnIOZ5vDQXTiruRRzJHhz0n9SsU5X1BpEw6w=;
+        s=korg; t=1617613184;
+        bh=diM6It5E7UCmROdwlQZyjDQqpu4vcXZq88LiZnYlkJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8Mo32boVTUHfom+q+irpAdsiS6YheyaqXb69gmhq7u97rzZ/VbKYxTmDk8lgIMfr
-         8uuO3+gNjtrdmvDh4uWFVreGd2hCHv+5FGD3X/YdOZFswY+2Z7akyAYXUO2sXreSHE
-         qh/v3ThHP1kUzmQwivpRkfWzTr+93NqiQbDEArS4=
+        b=xEb1gchftEzfRV2XdId6FeWP2TY3I/KqFQDwfjWvNfg9EeRedFnmZ7xVmlPGNXAdZ
+         IKDVZ/cG1rSCdAt4Facund9KP+Cmi8zOd+FyOUoszOT1WFkzaEmtVPU/6HC/Bk33Vx
+         2rjsXVBjlJtflbtBitWenOW8cLkExiuXjGg6MC7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/126] KVM: x86/mmu: Fix braces in kvm_recover_nx_lpages
+        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
+Subject: [PATCH 4.14 50/52] staging: rtl8192e: Fix incorrect source in memcpy()
 Date:   Mon,  5 Apr 2021 10:54:16 +0200
-Message-Id: <20210405085034.164188708@linuxfoundation.org>
+Message-Id: <20210405085023.608316474@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
+References: <20210405085021.996963957@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +38,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-[ Upstream commit 8d1a182ea791f0111b0258c8f3eb8d77af0a8386 ]
+commit 72ad25fbbb78930f892b191637359ab5b94b3190 upstream.
 
-No functional change intended.
+The variable "info_element" is of the following type:
 
-Fixes: 29cf0f5007a2 ("kvm: x86/mmu: NX largepage recovery for TDP MMU")
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20210202185734.1680553-10-bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	struct rtllib_info_element *info_element
+
+defined in drivers/staging/rtl8192e/rtllib.h:
+
+	struct rtllib_info_element {
+		u8 id;
+		u8 len;
+		u8 data[];
+	} __packed;
+
+The "len" field defines the size of the "data[]" array. The code is
+supposed to check if "info_element->len" is greater than 4 and later
+equal to 6. If this is satisfied then, the last two bytes (the 4th and
+5th element of u8 "data[]" array) are copied into "network->CcxRmState".
+
+Right now the code uses "memcpy()" with the source as "&info_element[4]"
+which would copy in wrong and unintended information. The struct
+"rtllib_info_element" has a size of 2 bytes for "id" and "len",
+therefore indexing will be done in interval of 2 bytes. So,
+"info_element[4]" would point to data which is beyond the memory
+allocated for this pointer (that is, at x+8, while "info_element" has
+been allocated only from x to x+7 (2 + 6 => 8 bytes)).
+
+This patch rectifies this error by using "&info_element->data[4]" which
+correctly copies the last two bytes of "data[]".
+
+NOTE: The faulty line of code came from the following commit:
+
+commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
+
+The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
+which had the faulty line of code. This file has been deleted (or
+possibly renamed) with the contents copied in to a new file
+`rtl8192e/rtllib_rx.c` along with additional code in the commit
+94a799425eee (tagged in Fixes).
+
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
+Cc: stable@vger.kernel.org
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210323113413.29179-1-atulgopinathan@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8192e/rtllib_rx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index dacbd13d32c6..0f45ad05f895 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5992,10 +5992,10 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
- 				      struct kvm_mmu_page,
- 				      lpage_disallowed_link);
- 		WARN_ON_ONCE(!sp->lpage_disallowed);
--		if (sp->tdp_mmu_page)
-+		if (sp->tdp_mmu_page) {
- 			kvm_tdp_mmu_zap_gfn_range(kvm, sp->gfn,
- 				sp->gfn + KVM_PAGES_PER_HPAGE(sp->role.level));
--		else {
-+		} else {
- 			kvm_mmu_prepare_zap_page(kvm, sp, &invalid_list);
- 			WARN_ON_ONCE(sp->lpage_disallowed);
- 		}
--- 
-2.30.1
-
+--- a/drivers/staging/rtl8192e/rtllib_rx.c
++++ b/drivers/staging/rtl8192e/rtllib_rx.c
+@@ -1979,7 +1979,7 @@ static void rtllib_parse_mife_generic(st
+ 	    info_element->data[2] == 0x96 &&
+ 	    info_element->data[3] == 0x01) {
+ 		if (info_element->len == 6) {
+-			memcpy(network->CcxRmState, &info_element[4], 2);
++			memcpy(network->CcxRmState, &info_element->data[4], 2);
+ 			if (network->CcxRmState[0] != 0)
+ 				network->bCcxRmEnable = true;
+ 			else
 
 
