@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E91353FA1
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4397353FA4
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239501AbhDEJN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:13:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60778 "EHLO mail.kernel.org"
+        id S239470AbhDEJN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239462AbhDEJNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:13:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 452D760FE4;
-        Mon,  5 Apr 2021 09:13:14 +0000 (UTC)
+        id S239481AbhDEJNX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:13:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C46EE61393;
+        Mon,  5 Apr 2021 09:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613994;
-        bh=1MA3L6Hx4sy4Z4z4150iVglsTxvyJnnAPCyxJ8IimMw=;
+        s=korg; t=1617613997;
+        bh=THLPcN4UcnuyAVNLa7ChqMmgZLzB+oqS0BiZYH46z70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/Cvhgv4jg8eWxG51ytbjrJd8vjNj2ZwPcWb3wJKFkvOj6Jj8J7z33XKC2xCQXcFU
-         Qwv9AeYG5bXMY7dP1OY/C9mbtyxhnqmrIrXOKnhMq+ESEfMqhcTD+Ul32xsqfHon0d
-         Nz/eCUkrUt3XiK/w0tNgNg1xs497AMpLpMIQMbQo=
+        b=ckl7a5qgrx8rkKfxR4w0SePvrlaxT01/PwFIWaYa560ROI5nxTcgI+E6Eg+qqVxCf
+         Kw19HUA8oyVqW6lwJdpOX0HvLLU3ZKzGUjb0F+Mj009rrQgs0TfL+b5gwrqZaDLicp
+         1MNaSWgsWu4707mieTksmMEzGDzFj90DDmdUK/3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 045/152] flow_dissector: fix TTL and TOS dissection on IPv4 fragments
-Date:   Mon,  5 Apr 2021 10:53:14 +0200
-Message-Id: <20210405085035.740069700@linuxfoundation.org>
+Subject: [PATCH 5.11 046/152] mptcp: fix DATA_FIN processing for orphaned sockets
+Date:   Mon,  5 Apr 2021 10:53:15 +0200
+Message-Id: <20210405085035.774611362@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
 References: <20210405085034.233917714@linuxfoundation.org>
@@ -41,112 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit d2126838050ccd1dadf310ffb78b2204f3b032b9 ]
+[ Upstream commit 341c65242fe18aac8900e4291d472df9f7ba7bc7 ]
 
-the following command:
+Currently we move orphaned msk sockets directly from FIN_WAIT2
+state to CLOSE, with the rationale that incoming additional
+data could be just dropped by the TCP stack/TW sockets.
 
- # tc filter add dev $h2 ingress protocol ip pref 1 handle 101 flower \
-   $tcflags dst_ip 192.0.2.2 ip_ttl 63 action drop
+Anyhow we miss sending MPTCP-level ack on incoming DATA_FIN,
+and that may hang the peers.
 
-doesn't drop all IPv4 packets that match the configured TTL / destination
-address. In particular, if "fragment offset" or "more fragments" have non
-zero value in the IPv4 header, setting of FLOW_DISSECTOR_KEY_IP is simply
-ignored. Fix this dissecting IPv4 TTL and TOS before fragment info; while
-at it, add a selftest for tc flower's match on 'ip_ttl' that verifies the
-correct behavior.
-
-Fixes: 518d8a2e9bad ("net/flow_dissector: add support for dissection of misc ip header fields")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e16163b6e2b7 ("mptcp: refactor shutdown and close")
+Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/flow_dissector.c                     |  6 +--
- .../selftests/net/forwarding/tc_flower.sh     | 38 ++++++++++++++++++-
- 2 files changed, 40 insertions(+), 4 deletions(-)
+ net/mptcp/protocol.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index 7a06d4301617..180be5102efc 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -1050,6 +1050,9 @@ proto_again:
- 			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
- 		}
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 67483e561b37..88f2d900a347 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2292,13 +2292,12 @@ static void mptcp_worker(struct work_struct *work)
+ 	__mptcp_check_send_data_fin(sk);
+ 	mptcp_check_data_fin(sk);
  
-+		__skb_flow_dissect_ipv4(skb, flow_dissector,
-+					target_container, data, iph);
-+
- 		if (ip_is_fragment(iph)) {
- 			key_control->flags |= FLOW_DIS_IS_FRAGMENT;
- 
-@@ -1066,9 +1069,6 @@ proto_again:
- 			}
- 		}
- 
--		__skb_flow_dissect_ipv4(skb, flow_dissector,
--					target_container, data, iph);
--
- 		break;
- 	}
- 	case htons(ETH_P_IPV6): {
-diff --git a/tools/testing/selftests/net/forwarding/tc_flower.sh b/tools/testing/selftests/net/forwarding/tc_flower.sh
-index 058c746ee300..b11d8e6b5bc1 100755
---- a/tools/testing/selftests/net/forwarding/tc_flower.sh
-+++ b/tools/testing/selftests/net/forwarding/tc_flower.sh
-@@ -3,7 +3,7 @@
- 
- ALL_TESTS="match_dst_mac_test match_src_mac_test match_dst_ip_test \
- 	match_src_ip_test match_ip_flags_test match_pcp_test match_vlan_test \
--	match_ip_tos_test match_indev_test"
-+	match_ip_tos_test match_indev_test match_ip_ttl_test"
- NUM_NETIFS=2
- source tc_common.sh
- source lib.sh
-@@ -310,6 +310,42 @@ match_ip_tos_test()
- 	log_test "ip_tos match ($tcflags)"
- }
- 
-+match_ip_ttl_test()
-+{
-+	RET=0
-+
-+	tc filter add dev $h2 ingress protocol ip pref 1 handle 101 flower \
-+		$tcflags dst_ip 192.0.2.2 ip_ttl 63 action drop
-+	tc filter add dev $h2 ingress protocol ip pref 2 handle 102 flower \
-+		$tcflags dst_ip 192.0.2.2 action drop
-+
-+	$MZ $h1 -c 1 -p 64 -a $h1mac -b $h2mac -A 192.0.2.1 -B 192.0.2.2 \
-+		-t ip "ttl=63" -q
-+
-+	$MZ $h1 -c 1 -p 64 -a $h1mac -b $h2mac -A 192.0.2.1 -B 192.0.2.2 \
-+		-t ip "ttl=63,mf,frag=256" -q
-+
-+	tc_check_packets "dev $h2 ingress" 102 1
-+	check_fail $? "Matched on the wrong filter (no check on ttl)"
-+
-+	tc_check_packets "dev $h2 ingress" 101 2
-+	check_err $? "Did not match on correct filter (ttl=63)"
-+
-+	$MZ $h1 -c 1 -p 64 -a $h1mac -b $h2mac -A 192.0.2.1 -B 192.0.2.2 \
-+		-t ip "ttl=255" -q
-+
-+	tc_check_packets "dev $h2 ingress" 101 3
-+	check_fail $? "Matched on a wrong filter (ttl=63)"
-+
-+	tc_check_packets "dev $h2 ingress" 102 1
-+	check_err $? "Did not match on correct filter (no check on ttl)"
-+
-+	tc filter del dev $h2 ingress protocol ip pref 2 handle 102 flower
-+	tc filter del dev $h2 ingress protocol ip pref 1 handle 101 flower
-+
-+	log_test "ip_ttl match ($tcflags)"
-+}
-+
- match_indev_test()
- {
- 	RET=0
+-	/* if the msk data is completely acked, or the socket timedout,
+-	 * there is no point in keeping around an orphaned sk
++	/* There is no point in keeping around an orphaned sk timedout or
++	 * closed, but we need the msk around to reply to incoming DATA_FIN,
++	 * even if it is orphaned and in FIN_WAIT2 state
+ 	 */
+ 	if (sock_flag(sk, SOCK_DEAD) &&
+-	    (mptcp_check_close_timeout(sk) ||
+-	    (state != sk->sk_state &&
+-	    ((1 << inet_sk_state_load(sk)) & (TCPF_CLOSE | TCPF_FIN_WAIT2))))) {
++	    (mptcp_check_close_timeout(sk) || sk->sk_state == TCP_CLOSE)) {
+ 		inet_sk_state_store(sk, TCP_CLOSE);
+ 		__mptcp_destroy_sock(sk);
+ 		goto unlock;
 -- 
 2.30.1
 
