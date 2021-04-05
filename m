@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB87835402B
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46053353DB2
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240587AbhDEJQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37158 "EHLO mail.kernel.org"
+        id S237359AbhDEJCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240657AbhDEJQK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:16:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49A0261393;
-        Mon,  5 Apr 2021 09:15:59 +0000 (UTC)
+        id S234303AbhDEJB0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:01:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3ECF6139D;
+        Mon,  5 Apr 2021 09:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614159;
-        bh=LHJhRKtGuhAP0AC7zVLtWa1yo3jUXb3KMXbK0V6mqDc=;
+        s=korg; t=1617613265;
+        bh=5K42GOL0CTGzkR5Zq2OyJCjPN5ux3s+opHFWr23aX4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/OneMvQraOlSP9ze0TQR0duD08Qz9YcH2iq0psT9XmoPMHNXKsrp4LsgU6dKFCe7
-         D818RGp8PTKZsOi76i+phEQ11R6JWB7MBn+Xqs2nbUL4UjvuaSn60iTG5Xat2L6XLt
-         pJDBfrDXHYCLsvGogG/U1DfN/lOCcRWx7B0ltHlk=
+        b=ZGsws+THr7ihZe7StOJ59osIcjntPYQSKM7cG3TzgpSHXXVMSzegUIPApK5JbckXg
+         c07krYPOTDpLWedhmGcEUWFpVv6EdbHdGYmi6YeHtJTE2Lk6bKrUQ7yeE2olx3fBCM
+         EAiZSglFu3igOAQ1QPEdihZq1pFA7ZaWdM1W2En8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.11 069/152] ACPI: processor: Fix CPU0 wakeup in acpi_idle_play_dead()
-Date:   Mon,  5 Apr 2021 10:53:38 +0200
-Message-Id: <20210405085036.517059465@linuxfoundation.org>
+        stable@vger.kernel.org, Benjamin Rood <benjaminjrood@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 08/56] ASoC: sgtl5000: set DAP_AVC_CTRL register to correct default value on probe
+Date:   Mon,  5 Apr 2021 10:53:39 +0200
+Message-Id: <20210405085022.817182545@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,96 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Benjamin Rood <benjaminjrood@gmail.com>
 
-commit 8cdddd182bd7befae6af49c5fd612893f55d6ccb upstream.
+[ Upstream commit f86f58e3594fb0ab1993d833d3b9a2496f3c928c ]
 
-Commit 496121c02127 ("ACPI: processor: idle: Allow probing on platforms
-with one ACPI C-state") broke CPU0 hotplug on certain systems, e.g.
-I'm observing the following on AWS Nitro (e.g r5b.xlarge but other
-instance types are affected as well):
+According to the SGTL5000 datasheet [1], the DAP_AVC_CTRL register has
+the following bit field definitions:
 
- # echo 0 > /sys/devices/system/cpu/cpu0/online
- # echo 1 > /sys/devices/system/cpu/cpu0/online
- <10 seconds delay>
- -bash: echo: write error: Input/output error
+| BITS  | FIELD       | RW | RESET | DEFINITION                        |
+| 15    | RSVD        | RO | 0x0   | Reserved                          |
+| 14    | RSVD        | RW | 0x1   | Reserved                          |
+| 13:12 | MAX_GAIN    | RW | 0x1   | Max Gain of AVC in expander mode  |
+| 11:10 | RSVD        | RO | 0x0   | Reserved                          |
+| 9:8   | LBI_RESP    | RW | 0x1   | Integrator Response               |
+| 7:6   | RSVD        | RO | 0x0   | Reserved                          |
+| 5     | HARD_LMT_EN | RW | 0x0   | Enable hard limiter mode          |
+| 4:1   | RSVD        | RO | 0x0   | Reserved                          |
+| 0     | EN          | RW | 0x0   | Enable/Disable AVC                |
 
-In fact, the above mentioned commit only revealed the problem and did
-not introduce it. On x86, to wakeup CPU an NMI is being used and
-hlt_play_dead()/mwait_play_dead() loops are prepared to handle it:
+The original default value written to the DAP_AVC_CTRL register during
+sgtl5000_i2c_probe() was 0x0510.  This would incorrectly write values to
+bits 4 and 10, which are defined as RESERVED.  It would also not set
+bits 12 and 14 to their correct RESET values of 0x1, and instead set
+them to 0x0.  While the DAP_AVC module is effectively disabled because
+the EN bit is 0, this default value is still writing invalid values to
+registers that are marked as read-only and RESERVED as well as not
+setting bits 12 and 14 to their correct default values as defined by the
+datasheet.
 
-	/*
-	 * If NMI wants to wake up CPU0, start CPU0.
-	 */
-	if (wakeup_cpu0())
-		start_cpu0();
+The correct value that should be written to the DAP_AVC_CTRL register is
+0x5100, which configures the register bits to the default values defined
+by the datasheet, and prevents any writes to bits defined as
+'read-only'.  Generally speaking, it is best practice to NOT attempt to
+write values to registers/bits defined as RESERVED, as it generally
+produces unwanted/undefined behavior, or errors.
 
-cpuidle_play_dead() -> acpi_idle_play_dead() (which is now being called on
-systems where it wasn't called before the above mentioned commit) serves
-the same purpose but it doesn't have a path for CPU0. What happens now on
-wakeup is:
- - NMI is sent to CPU0
- - wakeup_cpu0_nmi() works as expected
- - we get back to while (1) loop in acpi_idle_play_dead()
- - safe_halt() puts CPU0 to sleep again.
+Also, all credit for this patch should go to my colleague Dan MacDonald
+<dmacdonald@curbellmedical.com> for finding this error in the first
+place.
 
-The straightforward/minimal fix is add the special handling for CPU0 on x86
-and that's what the patch is doing.
+[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
 
-Fixes: 496121c02127 ("ACPI: processor: idle: Allow probing on platforms with one ACPI C-state")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Rood <benjaminjrood@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20210219183308.GA2117@ubuntu-dev
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/smp.h    |    1 +
- arch/x86/kernel/smpboot.c     |    2 +-
- drivers/acpi/processor_idle.c |    7 +++++++
- 3 files changed, 9 insertions(+), 1 deletion(-)
+ sound/soc/codecs/sgtl5000.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/smp.h
-+++ b/arch/x86/include/asm/smp.h
-@@ -132,6 +132,7 @@ void native_play_dead(void);
- void play_dead_common(void);
- void wbinvd_on_cpu(int cpu);
- int wbinvd_on_all_cpus(void);
-+bool wakeup_cpu0(void);
- 
- void native_smp_send_reschedule(int cpu);
- void native_send_call_func_ipi(const struct cpumask *mask);
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1659,7 +1659,7 @@ void play_dead_common(void)
- 	local_irq_disable();
- }
- 
--static bool wakeup_cpu0(void)
-+bool wakeup_cpu0(void)
- {
- 	if (smp_processor_id() == 0 && enable_start_cpu0)
- 		return true;
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -29,6 +29,7 @@
-  */
- #ifdef CONFIG_X86
- #include <asm/apic.h>
-+#include <asm/cpu.h>
- #endif
- 
- #define _COMPONENT              ACPI_PROCESSOR_COMPONENT
-@@ -541,6 +542,12 @@ static int acpi_idle_play_dead(struct cp
- 			wait_for_freeze();
- 		} else
- 			return -ENODEV;
-+
-+#if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
-+		/* If NMI wants to wake up CPU0, start CPU0. */
-+		if (wakeup_cpu0())
-+			start_cpu0();
-+#endif
- 	}
- 
- 	/* Never reached */
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 7c0a06b487f7..17255e9683f5 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -71,7 +71,7 @@ static const struct reg_default sgtl5000_reg_defaults[] = {
+ 	{ SGTL5000_DAP_EQ_BASS_BAND4,		0x002f },
+ 	{ SGTL5000_DAP_MAIN_CHAN,		0x8000 },
+ 	{ SGTL5000_DAP_MIX_CHAN,		0x0000 },
+-	{ SGTL5000_DAP_AVC_CTRL,		0x0510 },
++	{ SGTL5000_DAP_AVC_CTRL,		0x5100 },
+ 	{ SGTL5000_DAP_AVC_THRESHOLD,		0x1473 },
+ 	{ SGTL5000_DAP_AVC_ATTACK,		0x0028 },
+ 	{ SGTL5000_DAP_AVC_DECAY,		0x0050 },
+-- 
+2.30.1
+
 
 
