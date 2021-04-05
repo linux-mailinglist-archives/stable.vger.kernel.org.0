@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5663B353DBB
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27C5353E73
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237414AbhDEJCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43938 "EHLO mail.kernel.org"
+        id S237909AbhDEJGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:06:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237347AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68C8C613AB;
-        Mon,  5 Apr 2021 09:01:45 +0000 (UTC)
+        id S238115AbhDEJFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A866B613BE;
+        Mon,  5 Apr 2021 09:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613305;
-        bh=KlE8lWoA7F6dX9H+/W8BC2YHc0HDwdG+vOL1hNm62rs=;
+        s=korg; t=1617613543;
+        bh=xbo72rp0StcXzPxBRlp6xb2F4oZ1gPDBq2qj4NMwwpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgkNwsJNcA1zFH8S5gTu5qo41XLqWEsJHQ+aAHJ+lbzxk/DRpcQqv7GDQVeCkco3Z
-         CzQH2nJIz5DnyLYQJCerZEqTEPojFKOby3GsT4yy4+pj+TAtIUNoljUy3CXzuZYeMl
-         WwW9p8l/Rd+TG71Obn4Np6WwRkKpyTleqYQA9fi0=
+        b=Gpi5r0K7UXe8P6VNuzGHU5z3lotB3zaI/lg0A3dEQh0dhOUktB6xPgQ6tAQJmTpQf
+         6lxF0qSn+Gbn0ZMxs7SR3ICt3mXthv0zYr29ZEo/wxl1C6M0GcHHQQwVSpJSe6uqZ3
+         Xuxq28rzLY/T7oUP1+Qj30auSG/CJT8fmA5rd89Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>
-Subject: [PATCH 4.19 44/56] USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
+        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 51/74] drm/amdgpu: fix offset calculation in amdgpu_vm_bo_clear_mappings()
 Date:   Mon,  5 Apr 2021 10:54:15 +0200
-Message-Id: <20210405085023.934982391@linuxfoundation.org>
+Message-Id: <20210405085026.395311639@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,42 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Palatin <vpalatin@chromium.org>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd upstream.
+commit 5e61b84f9d3ddfba73091f9fbc940caae1c9eb22 upstream.
 
-This LTE modem (M.2 card) has a bug in its power management:
-there is some kind of race condition for U3 wake-up between the host and
-the device. The modem firmware sometimes crashes/locks when both events
-happen at the same time and the modem fully drops off the USB bus (and
-sometimes re-enumerates, sometimes just gets stuck until the next
-reboot).
+Offset calculation wasn't correct as start addresses are in pfn
+not in bytes.
 
-Tested with the modem wired to the XHCI controller on an AMD 3015Ce
-platform. Without the patch, the modem dropped of the USB bus 5 times in
-3 days. With the quirk, it stayed connected for a week while the
-'runtime_suspended_time' counter incremented as excepted.
-
-Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
-Link: https://lore.kernel.org/r/20210319124802.2315195-1-vpalatin@chromium.org
-Cc: stable <stable@vger.kernel.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -498,6 +498,10 @@ static const struct usb_device_id usb_qu
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* Fibocom L850-GL LTE Modem */
-+	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
-+			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
-+
- 	/* INTEL VALUE SSD */
- 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
- 
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -2333,7 +2333,7 @@ int amdgpu_vm_bo_clear_mappings(struct a
+ 			after->start = eaddr + 1;
+ 			after->last = tmp->last;
+ 			after->offset = tmp->offset;
+-			after->offset += after->start - tmp->start;
++			after->offset += (after->start - tmp->start) << PAGE_SHIFT;
+ 			after->flags = tmp->flags;
+ 			after->bo_va = tmp->bo_va;
+ 			list_add(&after->list, &tmp->bo_va->invalids);
 
 
