@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A30353E84
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC005353F72
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238219AbhDEJGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50584 "EHLO mail.kernel.org"
+        id S238565AbhDEJMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238140AbhDEJGJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:06:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C8A661398;
-        Mon,  5 Apr 2021 09:06:02 +0000 (UTC)
+        id S239095AbhDEJME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:12:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28EAA61398;
+        Mon,  5 Apr 2021 09:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613562;
-        bh=BcWyBECpPqwZcqOGPUhAaZ7I1FB3LVm5bU5MrcdkYVs=;
+        s=korg; t=1617613917;
+        bh=nGXWBMLIRC8CPjJKpueUYNycfiQmpgnfPBkiYFsI0TU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+IfUaH00nef3m3JYNfZmBIYq0ZcHo3XVhd/rEmo4Tj5dkaOw21H3KK/6bOWTVj9I
-         EFlggnB7hxMJp+IqrAlvQ1KpVK2xycmhj7SenO2gcsp7+yUAzRHsgmOJaUDVCzH2s4
-         +FEPJby7FY9ctx1L3IzV7sRBjlqP5y7WnrhCiHc4=
+        b=fMbg5fSbbcT63N2hKzB6PFVy3lQCg+fg/cIuGi6o0ynoP6UBY0al8vuISlUmdfLvl
+         IwnNl+5q1DDKy7aPzKmRbun6y74Oyutpsz6ET60iu+7IE+xUJe1aUEypoSKq0ZYQP8
+         7vjEMlyMQqj1fCiY+cq4jLmOj+1cJxDm+Vk/edt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 001/126] arm64: mm: correct the inside linear map range during hotplug check
-Date:   Mon,  5 Apr 2021 10:52:43 +0200
-Message-Id: <20210405085031.094413366@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 015/152] ASoC: cs42l42: Fix channel width support
+Date:   Mon,  5 Apr 2021 10:52:44 +0200
+Message-Id: <20210405085034.725672621@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,71 +41,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit ee7febce051945be28ad86d16a15886f878204de ]
+[ Upstream commit 2bdc4f5c6838f7c3feb4fe68e4edbeea158ec0a2 ]
 
-Memory hotplug may fail on systems with CONFIG_RANDOMIZE_BASE because the
-linear map range is not checked correctly.
+Remove the hard coded 32 bits width and replace with the correct width
+calculated by params_width.
 
-The start physical address that linear map covers can be actually at the
-end of the range because of randomization. Check that and if so reduce it
-to 0.
-
-This can be verified on QEMU with setting kaslr-seed to ~0ul:
-
-memstart_offset_seed = 0xffff
-START: __pa(_PAGE_OFFSET(vabits_actual)) = ffff9000c0000000
-END:   __pa(PAGE_END - 1) =  1000bfffffff
-
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Fixes: 58284a901b42 ("arm64/mm: Validate hotplug range before creating linear mapping")
-Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/20210216150351.129018-2-pasha.tatashin@soleen.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210305173442.195740-3-tanureal@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ sound/soc/codecs/cs42l42.c | 47 ++++++++++++++++++--------------------
+ sound/soc/codecs/cs42l42.h |  1 -
+ 2 files changed, 22 insertions(+), 26 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 6aabf1eced31..afdad7607850 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1447,14 +1447,30 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 
- static bool inside_linear_region(u64 start, u64 size)
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index df0d5fec0287..4f9ad9547929 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -691,24 +691,6 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
+ 					CS42L42_CLK_OASRC_SEL_MASK,
+ 					CS42L42_CLK_OASRC_SEL_12 <<
+ 					CS42L42_CLK_OASRC_SEL_SHIFT);
+-			/* channel 1 on low LRCLK, 32 bit */
+-			snd_soc_component_update_bits(component,
+-					CS42L42_ASP_RX_DAI0_CH1_AP_RES,
+-					CS42L42_ASP_RX_CH_AP_MASK |
+-					CS42L42_ASP_RX_CH_RES_MASK,
+-					(CS42L42_ASP_RX_CH_AP_LOW <<
+-					CS42L42_ASP_RX_CH_AP_SHIFT) |
+-					(CS42L42_ASP_RX_CH_RES_32 <<
+-					CS42L42_ASP_RX_CH_RES_SHIFT));
+-			/* Channel 2 on high LRCLK, 32 bit */
+-			snd_soc_component_update_bits(component,
+-					CS42L42_ASP_RX_DAI0_CH2_AP_RES,
+-					CS42L42_ASP_RX_CH_AP_MASK |
+-					CS42L42_ASP_RX_CH_RES_MASK,
+-					(CS42L42_ASP_RX_CH_AP_HI <<
+-					CS42L42_ASP_RX_CH_AP_SHIFT) |
+-					(CS42L42_ASP_RX_CH_RES_32 <<
+-					CS42L42_ASP_RX_CH_RES_SHIFT));
+ 			if (pll_ratio_table[i].mclk_src_sel == 0) {
+ 				/* Pass the clock straight through */
+ 				snd_soc_component_update_bits(component,
+@@ -824,14 +806,29 @@ static int cs42l42_pcm_hw_params(struct snd_pcm_substream *substream,
  {
-+	u64 start_linear_pa = __pa(_PAGE_OFFSET(vabits_actual));
-+	u64 end_linear_pa = __pa(PAGE_END - 1);
-+
-+	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
-+		/*
-+		 * Check for a wrap, it is possible because of randomized linear
-+		 * mapping the start physical address is actually bigger than
-+		 * the end physical address. In this case set start to zero
-+		 * because [0, end_linear_pa] range must still be able to cover
-+		 * all addressable physical addresses.
-+		 */
-+		if (start_linear_pa > end_linear_pa)
-+			start_linear_pa = 0;
+ 	struct snd_soc_component *component = dai->component;
+ 	struct cs42l42_private *cs42l42 = snd_soc_component_get_drvdata(component);
+-	int retval;
++	unsigned int width = (params_width(params) / 8) - 1;
++	unsigned int val = 0;
+ 
+ 	cs42l42->srate = params_rate(params);
+-	cs42l42->swidth = params_width(params);
+ 
+-	retval = cs42l42_pll_config(component);
++	switch(substream->stream) {
++	case SNDRV_PCM_STREAM_PLAYBACK:
++		val |= width << CS42L42_ASP_RX_CH_RES_SHIFT;
++		/* channel 1 on low LRCLK */
++		snd_soc_component_update_bits(component, CS42L42_ASP_RX_DAI0_CH1_AP_RES,
++							 CS42L42_ASP_RX_CH_AP_MASK |
++							 CS42L42_ASP_RX_CH_RES_MASK, val);
++		/* Channel 2 on high LRCLK */
++		val |= CS42L42_ASP_RX_CH_AP_HI << CS42L42_ASP_RX_CH_AP_SHIFT;
++		snd_soc_component_update_bits(component, CS42L42_ASP_RX_DAI0_CH2_AP_RES,
++							 CS42L42_ASP_RX_CH_AP_MASK |
++							 CS42L42_ASP_RX_CH_RES_MASK, val);
++		break;
++	default:
++		break;
 +	}
-+
-+	WARN_ON(start_linear_pa > end_linear_pa);
-+
- 	/*
- 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
- 	 * accommodating both its ends but excluding PAGE_END. Max physical
- 	 * range which can be mapped inside this linear mapping range, must
- 	 * also be derived from its end points.
- 	 */
--	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
--	       (start + size - 1) <= __pa(PAGE_END - 1);
-+	return start >= start_linear_pa && (start + size - 1) <= end_linear_pa;
+ 
+-	return retval;
++	return cs42l42_pll_config(component);
  }
  
- int arch_add_memory(int nid, u64 start, u64 size,
+ static int cs42l42_set_sysclk(struct snd_soc_dai *dai,
+@@ -896,9 +893,9 @@ static int cs42l42_mute(struct snd_soc_dai *dai, int mute, int direction)
+ 	return 0;
+ }
+ 
+-#define CS42L42_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S18_3LE | \
+-			SNDRV_PCM_FMTBIT_S20_3LE | SNDRV_PCM_FMTBIT_S24_LE | \
+-			SNDRV_PCM_FMTBIT_S32_LE)
++#define CS42L42_FORMATS (SNDRV_PCM_FMTBIT_S16_LE |\
++			 SNDRV_PCM_FMTBIT_S24_LE |\
++			 SNDRV_PCM_FMTBIT_S32_LE )
+ 
+ 
+ static const struct snd_soc_dai_ops cs42l42_ops = {
+diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
+index 1f0d67c95a9a..9b017b76828a 100644
+--- a/sound/soc/codecs/cs42l42.h
++++ b/sound/soc/codecs/cs42l42.h
+@@ -757,7 +757,6 @@ struct  cs42l42_private {
+ 	struct completion pdn_done;
+ 	u32 sclk;
+ 	u32 srate;
+-	u32 swidth;
+ 	u8 plug_state;
+ 	u8 hs_type;
+ 	u8 ts_inv;
 -- 
 2.30.1
 
