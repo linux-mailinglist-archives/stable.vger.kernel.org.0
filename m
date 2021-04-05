@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE5A35400B
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4B0353E1B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240623AbhDEJPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34446 "EHLO mail.kernel.org"
+        id S237681AbhDEJDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240479AbhDEJPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C90261393;
-        Mon,  5 Apr 2021 09:15:05 +0000 (UTC)
+        id S237767AbhDEJDu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:03:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75FF9610E8;
+        Mon,  5 Apr 2021 09:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614105;
-        bh=OlbEFK3BpN3B46KeN0vztaAzXu3uxhzaVe32rMiOsJ8=;
+        s=korg; t=1617613425;
+        bh=yxu2rLt+McGZIGTsBpwbaF7LLcSMCtjstZfCs6BxFOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfIN1cfTVpn9k3nGrn006DhecT8tImrAwD0mcEYIoqLFlFgOrb0dxaVH3rjQDZlSt
-         tRpA/gYKP9ww76GCtUmkPCUGw2PhIBIZFvt9zlybv62hPGagLBq+B4LURnjSWZw55U
-         9kyyXGe1GPvLfb/1ET3zLrPlJICE0KXja9ep0YMY=
+        b=hfsUVKeLMUfyUNtcta5Z3lOZLGRl4870Mk3rxQAxE1G3qTPck5qggU31YEYYOpQaj
+         4+TLcdBnG8Z2qHlw5nksZTK2G5dn+9sBZamT94+q/sqOA0lL2Plm4zLPhDYhGrig8W
+         0a31WOoOFH0bBXyqjbQjMS+cLM9MPjDp0ku5QGWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.11 085/152] s390/vdso: fix tod_steering_delta type
-Date:   Mon,  5 Apr 2021 10:53:54 +0200
-Message-Id: <20210405085037.018841144@linuxfoundation.org>
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 31/74] flow_dissector: fix TTL and TOS dissection on IPv4 fragments
+Date:   Mon,  5 Apr 2021 10:53:55 +0200
+Message-Id: <20210405085025.750786068@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,45 +41,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit b24bacd67ffddd9192c4745500fd6f73dbfe565e upstream.
+[ Upstream commit d2126838050ccd1dadf310ffb78b2204f3b032b9 ]
 
-The s390 specific vdso function __arch_get_hw_counter() is supposed to
-consider tod clock steering.
+the following command:
 
-If a tod clock steering event happens and the tod clock is set to a
-new value __arch_get_hw_counter() will not return the real tod clock
-value but slowly drift it from the old delta until the returned value
-finally matches the real tod clock value again.
+ # tc filter add dev $h2 ingress protocol ip pref 1 handle 101 flower \
+   $tcflags dst_ip 192.0.2.2 ip_ttl 63 action drop
 
-Unfortunately the type of tod_steering_delta unsigned while it is
-supposed to be signed. It depends on if tod_steering_delta is negative
-or positive in which direction the vdso code drifts the clock value.
+doesn't drop all IPv4 packets that match the configured TTL / destination
+address. In particular, if "fragment offset" or "more fragments" have non
+zero value in the IPv4 header, setting of FLOW_DISSECTOR_KEY_IP is simply
+ignored. Fix this dissecting IPv4 TTL and TOS before fragment info; while
+at it, add a selftest for tc flower's match on 'ip_ttl' that verifies the
+correct behavior.
 
-Worst case is now that instead of drifting the clock slowly it will
-jump into the opposite direction by a factor of two.
-
-Fix this by simply making tod_steering_delta signed.
-
-Fixes: 4bff8cb54502 ("s390: convert to GENERIC_VDSO")
-Cc: <stable@vger.kernel.org> # 5.10
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 518d8a2e9bad ("net/flow_dissector: add support for dissection of misc ip header fields")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/vdso/data.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/flow_dissector.c                     |  6 +--
+ .../selftests/net/forwarding/tc_flower.sh     | 38 ++++++++++++++++++-
+ 2 files changed, 40 insertions(+), 4 deletions(-)
 
---- a/arch/s390/include/asm/vdso/data.h
-+++ b/arch/s390/include/asm/vdso/data.h
-@@ -6,7 +6,7 @@
- #include <vdso/datapage.h>
+diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
+index e3bdd859c895..da86c0e1b677 100644
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -1028,6 +1028,9 @@ proto_again:
+ 			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+ 		}
  
- struct arch_vdso_data {
--	__u64 tod_steering_delta;
-+	__s64 tod_steering_delta;
- 	__u64 tod_steering_end;
- };
++		__skb_flow_dissect_ipv4(skb, flow_dissector,
++					target_container, data, iph);
++
+ 		if (ip_is_fragment(iph)) {
+ 			key_control->flags |= FLOW_DIS_IS_FRAGMENT;
  
+@@ -1044,9 +1047,6 @@ proto_again:
+ 			}
+ 		}
+ 
+-		__skb_flow_dissect_ipv4(skb, flow_dissector,
+-					target_container, data, iph);
+-
+ 		break;
+ 	}
+ 	case htons(ETH_P_IPV6): {
+diff --git a/tools/testing/selftests/net/forwarding/tc_flower.sh b/tools/testing/selftests/net/forwarding/tc_flower.sh
+index 058c746ee300..b11d8e6b5bc1 100755
+--- a/tools/testing/selftests/net/forwarding/tc_flower.sh
++++ b/tools/testing/selftests/net/forwarding/tc_flower.sh
+@@ -3,7 +3,7 @@
+ 
+ ALL_TESTS="match_dst_mac_test match_src_mac_test match_dst_ip_test \
+ 	match_src_ip_test match_ip_flags_test match_pcp_test match_vlan_test \
+-	match_ip_tos_test match_indev_test"
++	match_ip_tos_test match_indev_test match_ip_ttl_test"
+ NUM_NETIFS=2
+ source tc_common.sh
+ source lib.sh
+@@ -310,6 +310,42 @@ match_ip_tos_test()
+ 	log_test "ip_tos match ($tcflags)"
+ }
+ 
++match_ip_ttl_test()
++{
++	RET=0
++
++	tc filter add dev $h2 ingress protocol ip pref 1 handle 101 flower \
++		$tcflags dst_ip 192.0.2.2 ip_ttl 63 action drop
++	tc filter add dev $h2 ingress protocol ip pref 2 handle 102 flower \
++		$tcflags dst_ip 192.0.2.2 action drop
++
++	$MZ $h1 -c 1 -p 64 -a $h1mac -b $h2mac -A 192.0.2.1 -B 192.0.2.2 \
++		-t ip "ttl=63" -q
++
++	$MZ $h1 -c 1 -p 64 -a $h1mac -b $h2mac -A 192.0.2.1 -B 192.0.2.2 \
++		-t ip "ttl=63,mf,frag=256" -q
++
++	tc_check_packets "dev $h2 ingress" 102 1
++	check_fail $? "Matched on the wrong filter (no check on ttl)"
++
++	tc_check_packets "dev $h2 ingress" 101 2
++	check_err $? "Did not match on correct filter (ttl=63)"
++
++	$MZ $h1 -c 1 -p 64 -a $h1mac -b $h2mac -A 192.0.2.1 -B 192.0.2.2 \
++		-t ip "ttl=255" -q
++
++	tc_check_packets "dev $h2 ingress" 101 3
++	check_fail $? "Matched on a wrong filter (ttl=63)"
++
++	tc_check_packets "dev $h2 ingress" 102 1
++	check_err $? "Did not match on correct filter (no check on ttl)"
++
++	tc filter del dev $h2 ingress protocol ip pref 2 handle 102 flower
++	tc filter del dev $h2 ingress protocol ip pref 1 handle 101 flower
++
++	log_test "ip_ttl match ($tcflags)"
++}
++
+ match_indev_test()
+ {
+ 	RET=0
+-- 
+2.30.1
+
 
 
