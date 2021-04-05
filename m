@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D13B353EEE
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1DF353D90
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238793AbhDEJJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54480 "EHLO mail.kernel.org"
+        id S237049AbhDEJAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:00:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238589AbhDEJIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:08:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59C4F613AD;
-        Mon,  5 Apr 2021 09:08:35 +0000 (UTC)
+        id S232702AbhDEJAc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:00:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F7E6124C;
+        Mon,  5 Apr 2021 09:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613715;
-        bh=VmbfD/sW3PbcnzlK0CAiDiO0oijK/xUFWNYbsKk/sX4=;
+        s=korg; t=1617613227;
+        bh=dYFPrqF9QeI9Yq5VHdYVsI4HQn3dS2qEKnFI0wciVnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NasALZwwlKdGfNAwjZQlewR+dmi6SiY+ACaxymqiyRYbRVS1YK9sF8e5XjG9K0b1A
-         Dp820iwpurplSMcg6d1LSTxouJzJEgmYMXTSTswj67R9w77GxajVYCw5za5Lj97CCd
-         RcQF0Vij/uzmbhok1EPiCwD1PsjjBefkxItYnt+4=
+        b=KLKFxrOY28kvIJ1RSxPbPbhZCuBZmeL6bauYDwqdqz52Dri+T3vYauz27HajYKnG2
+         6lQ0z4fotQJirMs5rkXVND9I3xKWik3D3tUschhri0+VEAJh1yw+wrFF74qOf7UauA
+         VTqZV5GRwaF70h4cWvVOj+otN2/sOoFk/flBSvbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.10 064/126] xtensa: move coprocessor_flush to the .text section
+        stable@vger.kernel.org,
+        =?UTF-8?q?Kai=20M=C3=A4kisara?= <kai.makisara@kolumbus.fi>,
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 15/56] scsi: st: Fix a use after free in st_open()
 Date:   Mon,  5 Apr 2021 10:53:46 +0200
-Message-Id: <20210405085033.182899262@linuxfoundation.org>
+Message-Id: <20210405085023.033176752@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,106 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit ab5eb336411f18fd449a1fb37d36a55ec422603f upstream.
+[ Upstream commit c8c165dea4c8f5ad67b1240861e4f6c5395fa4ac ]
 
-coprocessor_flush is not a part of fast exception handlers, but it uses
-parts of fast coprocessor handling code that's why it's in the same
-source file. It uses call0 opcode to invoke those parts so there are no
-limitations on their relative location, but the rest of the code calls
-coprocessor_flush with call8 and that doesn't work when vectors are
-placed in a different gigabyte-aligned area than the rest of the kernel.
+In st_open(), if STp->in_use is true, STp will be freed by
+scsi_tape_put(). However, STp is still used by DEBC_printk() after. It is
+better to DEBC_printk() before scsi_tape_put().
 
-Move coprocessor_flush from the .exception.text section to the .text so
-that it's reachable from the rest of the kernel with call8.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210311064636.10522-1-lyl2019@mail.ustc.edu.cn
+Acked-by: Kai Mäkisara <kai.makisara@kolumbus.fi>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/coprocessor.S |   64 ++++++++++++++++++++-------------------
- 1 file changed, 33 insertions(+), 31 deletions(-)
+ drivers/scsi/st.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/xtensa/kernel/coprocessor.S
-+++ b/arch/xtensa/kernel/coprocessor.S
-@@ -100,37 +100,6 @@
- 	LOAD_CP_REGS_TAB(7)
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index 307df2fa39a3..5078db7743cd 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -1265,8 +1265,8 @@ static int st_open(struct inode *inode, struct file *filp)
+ 	spin_lock(&st_use_lock);
+ 	if (STp->in_use) {
+ 		spin_unlock(&st_use_lock);
+-		scsi_tape_put(STp);
+ 		DEBC_printk(STp, "Device already in use.\n");
++		scsi_tape_put(STp);
+ 		return (-EBUSY);
+ 	}
  
- /*
-- * coprocessor_flush(struct thread_info*, index)
-- *                             a2        a3
-- *
-- * Save coprocessor registers for coprocessor 'index'.
-- * The register values are saved to or loaded from the coprocessor area 
-- * inside the task_info structure.
-- *
-- * Note that this function doesn't update the coprocessor_owner information!
-- *
-- */
--
--ENTRY(coprocessor_flush)
--
--	/* reserve 4 bytes on stack to save a0 */
--	abi_entry(4)
--
--	s32i	a0, a1, 0
--	movi	a0, .Lsave_cp_regs_jump_table
--	addx8	a3, a3, a0
--	l32i	a4, a3, 4
--	l32i	a3, a3, 0
--	add	a2, a2, a4
--	beqz	a3, 1f
--	callx0	a3
--1:	l32i	a0, a1, 0
--
--	abi_ret(4)
--
--ENDPROC(coprocessor_flush)
--
--/*
-  * Entry condition:
-  *
-  *   a0:	trashed, original value saved on stack (PT_AREG0)
-@@ -245,6 +214,39 @@ ENTRY(fast_coprocessor)
- 
- ENDPROC(fast_coprocessor)
- 
-+	.text
-+
-+/*
-+ * coprocessor_flush(struct thread_info*, index)
-+ *                             a2        a3
-+ *
-+ * Save coprocessor registers for coprocessor 'index'.
-+ * The register values are saved to or loaded from the coprocessor area
-+ * inside the task_info structure.
-+ *
-+ * Note that this function doesn't update the coprocessor_owner information!
-+ *
-+ */
-+
-+ENTRY(coprocessor_flush)
-+
-+	/* reserve 4 bytes on stack to save a0 */
-+	abi_entry(4)
-+
-+	s32i	a0, a1, 0
-+	movi	a0, .Lsave_cp_regs_jump_table
-+	addx8	a3, a3, a0
-+	l32i	a4, a3, 4
-+	l32i	a3, a3, 0
-+	add	a2, a2, a4
-+	beqz	a3, 1f
-+	callx0	a3
-+1:	l32i	a0, a1, 0
-+
-+	abi_ret(4)
-+
-+ENDPROC(coprocessor_flush)
-+
- 	.data
- 
- ENTRY(coprocessor_owner)
+-- 
+2.30.1
+
 
 
