@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B1C353E8E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7CDC353E8D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238336AbhDEJGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238091AbhDEJGp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Apr 2021 05:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50968 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238663AbhDEJG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:06:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F4B9613AA;
-        Mon,  5 Apr 2021 09:06:15 +0000 (UTC)
+        id S238790AbhDEJG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:06:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36A32613A4;
+        Mon,  5 Apr 2021 09:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613576;
-        bh=QzOHOeJxuTMzMkr+1Bqy/LrnBegZu/BBTzh3ZpebcP4=;
+        s=korg; t=1617613578;
+        bh=ms20fgAjE4ZdsIu+BDxgwfLClmgujadJWc2NWvyUMm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PwYov9XWb+AHzQUuKryY3GMZZ4EfRvE6Qx6R10ujMD6MDPp7wZ902viqtSF/CDR7O
-         WmuEJx0Y94zp+6EoJBLY6O6fVvhoPLXs+Saavlvq81DeBJM0ZY2lksHvcdwxniY7JL
-         2VhHnxMZiMWPxjiaNK+wf6dfLnIyAHKgIh04n9kk=
+        b=V4QVXHvVqF8TZZF1hQYgvs3coA/chKGB1A3t6wXYL9EKVLIJmZRI8nom11VPc/aW+
+         rnXd0eLM/1Sv62V2GQXcs6N467nV5UZY89gs1yJC6z6za5/ia4xZYSvqh4OQTrJjGn
+         6mW/fIEShp70YZEJqEeeMW6fmbHnlQoPPKXSc/u8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        stable@vger.kernel.org,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 014/126] ASoC: soc-core: Prevent warning if no DMI table is present
-Date:   Mon,  5 Apr 2021 10:52:56 +0200
-Message-Id: <20210405085031.502558773@linuxfoundation.org>
+Subject: [PATCH 5.10 015/126] ASoC: cs42l42: Fix Bitclock polarity inversion
+Date:   Mon,  5 Apr 2021 10:52:57 +0200
+Message-Id: <20210405085031.533305888@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
 References: <20210405085031.040238881@linuxfoundation.org>
@@ -40,52 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 7de14d581dbed57c2b3c6afffa2c3fdc6955a3cd ]
+[ Upstream commit e793c965519b8b7f2fea51a48398405e2a501729 ]
 
-Many systems do not use ACPI and hence do not provide a DMI table. On
-non-ACPI systems a warning, such as the following, is printed on boot.
+The driver was setting bit clock polarity opposite to intended polarity.
+Also simplify the code by grouping ADC and DAC clock configurations into
+a single field.
 
- WARNING KERN tegra-audio-graph-card sound: ASoC: no DMI vendor name!
-
-The variable 'dmi_available' is not exported and so currently cannot be
-used by kernel modules without adding an accessor. However, it is
-possible to use the function is_acpi_device_node() to determine if the
-sound card is an ACPI device and hence indicate if we expect a DMI table
-to be present. Therefore, call is_acpi_device_node() to see if we are
-using ACPI and only parse the DMI table if we are booting with ACPI.
-
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20210303115526.419458-1-jonathanh@nvidia.com
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210305173442.195740-2-tanureal@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/codecs/cs42l42.c | 20 ++++++++------------
+ sound/soc/codecs/cs42l42.h | 11 ++++++-----
+ 2 files changed, 14 insertions(+), 17 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 05a085f6dc7c..bf65cba232e6 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -31,6 +31,7 @@
- #include <linux/of.h>
- #include <linux/of_graph.h>
- #include <linux/dmi.h>
-+#include <linux/acpi.h>
- #include <sound/core.h>
- #include <sound/jack.h>
- #include <sound/pcm.h>
-@@ -1581,6 +1582,9 @@ int snd_soc_set_dmi_name(struct snd_soc_card *card, const char *flavour)
- 	if (card->long_name)
- 		return 0; /* long name already set by driver or from DMI */
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index 210fcbedf241..df0d5fec0287 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -797,27 +797,23 @@ static int cs42l42_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
+ 	/* Bitclock/frame inversion */
+ 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
+ 	case SND_SOC_DAIFMT_NB_NF:
++		asp_cfg_val |= CS42L42_ASP_SCPOL_NOR << CS42L42_ASP_SCPOL_SHIFT;
+ 		break;
+ 	case SND_SOC_DAIFMT_NB_IF:
+-		asp_cfg_val |= CS42L42_ASP_POL_INV <<
+-				CS42L42_ASP_LCPOL_IN_SHIFT;
++		asp_cfg_val |= CS42L42_ASP_SCPOL_NOR << CS42L42_ASP_SCPOL_SHIFT;
++		asp_cfg_val |= CS42L42_ASP_LCPOL_INV << CS42L42_ASP_LCPOL_SHIFT;
+ 		break;
+ 	case SND_SOC_DAIFMT_IB_NF:
+-		asp_cfg_val |= CS42L42_ASP_POL_INV <<
+-				CS42L42_ASP_SCPOL_IN_DAC_SHIFT;
+ 		break;
+ 	case SND_SOC_DAIFMT_IB_IF:
+-		asp_cfg_val |= CS42L42_ASP_POL_INV <<
+-				CS42L42_ASP_LCPOL_IN_SHIFT;
+-		asp_cfg_val |= CS42L42_ASP_POL_INV <<
+-				CS42L42_ASP_SCPOL_IN_DAC_SHIFT;
++		asp_cfg_val |= CS42L42_ASP_LCPOL_INV << CS42L42_ASP_LCPOL_SHIFT;
+ 		break;
+ 	}
  
-+	if (!is_acpi_device_node(card->dev->fwnode))
-+		return 0;
-+
- 	/* make up dmi long name as: vendor-product-version-board */
- 	vendor = dmi_get_system_info(DMI_BOARD_VENDOR);
- 	if (!vendor || !is_dmi_valid(vendor)) {
+-	snd_soc_component_update_bits(component, CS42L42_ASP_CLK_CFG,
+-				CS42L42_ASP_MODE_MASK |
+-				CS42L42_ASP_SCPOL_IN_DAC_MASK |
+-				CS42L42_ASP_LCPOL_IN_MASK, asp_cfg_val);
++	snd_soc_component_update_bits(component, CS42L42_ASP_CLK_CFG, CS42L42_ASP_MODE_MASK |
++								      CS42L42_ASP_SCPOL_MASK |
++								      CS42L42_ASP_LCPOL_MASK,
++								      asp_cfg_val);
+ 
+ 	return 0;
+ }
+diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
+index 9e3cc528dcff..1f0d67c95a9a 100644
+--- a/sound/soc/codecs/cs42l42.h
++++ b/sound/soc/codecs/cs42l42.h
+@@ -258,11 +258,12 @@
+ #define CS42L42_ASP_SLAVE_MODE		0x00
+ #define CS42L42_ASP_MODE_SHIFT		4
+ #define CS42L42_ASP_MODE_MASK		(1 << CS42L42_ASP_MODE_SHIFT)
+-#define CS42L42_ASP_SCPOL_IN_DAC_SHIFT	2
+-#define CS42L42_ASP_SCPOL_IN_DAC_MASK	(1 << CS42L42_ASP_SCPOL_IN_DAC_SHIFT)
+-#define CS42L42_ASP_LCPOL_IN_SHIFT	0
+-#define CS42L42_ASP_LCPOL_IN_MASK	(1 << CS42L42_ASP_LCPOL_IN_SHIFT)
+-#define CS42L42_ASP_POL_INV		1
++#define CS42L42_ASP_SCPOL_SHIFT		2
++#define CS42L42_ASP_SCPOL_MASK		(3 << CS42L42_ASP_SCPOL_SHIFT)
++#define CS42L42_ASP_SCPOL_NOR		3
++#define CS42L42_ASP_LCPOL_SHIFT		0
++#define CS42L42_ASP_LCPOL_MASK		(3 << CS42L42_ASP_LCPOL_SHIFT)
++#define CS42L42_ASP_LCPOL_INV		3
+ 
+ #define CS42L42_ASP_FRM_CFG		(CS42L42_PAGE_12 + 0x08)
+ #define CS42L42_ASP_STP_SHIFT		4
 -- 
 2.30.1
 
