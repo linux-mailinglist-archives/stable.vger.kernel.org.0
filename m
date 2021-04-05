@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A256A354020
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A457A353DB0
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239300AbhDEJQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35820 "EHLO mail.kernel.org"
+        id S237298AbhDEJCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240603AbhDEJPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AE5860FE4;
-        Mon,  5 Apr 2021 09:15:37 +0000 (UTC)
+        id S237262AbhDEJB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:01:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67CAE610E8;
+        Mon,  5 Apr 2021 09:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614138;
-        bh=FFmaELydv2AGLZRe35Kl2b4qsf94M1QYABM91tFKrNc=;
+        s=korg; t=1617613276;
+        bh=GDA/V174sJWMf+BaEEszQCXILyZ5LI9jMZfXs7HDUOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPqYkvZ3jUGUVVZKTJPvjNd5ji58G+aEtTT1oB53cIn8XhX8U4jjm4Q+HKuB9Md6L
-         KUTDAwQ6n/H3jcEeK+X2deUdMdjK8wrEWI/+2qhil5jevIwBjaAFj1WQWhRfdJnF5o
-         yAYk/q1cThK8K8DYlC93YO9XmCCbsxkRPzhKCBAo=
+        b=g+YQ881oT8Lr4sAE5JDX/uew/y8AyQxqchUBZvdPqTKM3HMTOMtXLdUB38GiysjVH
+         qefHA9EuA/O1jvpWnNOqBQXtYxTs+kooMM633yXSYIRkP2v1nbFpeESfkJi41ZllGW
+         BX1e9m5DFID9yVanweSUK3/S7x47oDUL7g82oGrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Paul Fertser <fercerpav@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.11 096/152] drm/tegra: dc: Restore coupling of display controllers
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 34/56] tracing: Fix stack trace event size
 Date:   Mon,  5 Apr 2021 10:54:05 +0200
-Message-Id: <20210405085037.366337143@linuxfoundation.org>
+Message-Id: <20210405085023.627967648@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit a31500fe7055451ed9043c8fff938dfa6f70ee37 upstream.
+commit 9deb193af69d3fd6dd8e47f292b67c805a787010 upstream.
 
-Coupling of display controllers used to rely on runtime PM to take the
-companion controller out of reset. Commit fd67e9c6ed5a ("drm/tegra: Do
-not implement runtime PM") accidentally broke this when runtime PM was
-removed.
+Commit cbc3b92ce037 fixed an issue to modify the macros of the stack trace
+event so that user space could parse it properly. Originally the stack
+trace format to user space showed that the called stack was a dynamic
+array. But it is not actually a dynamic array, in the way that other
+dynamic event arrays worked, and this broke user space parsing for it. The
+update was to make the array look to have 8 entries in it. Helper
+functions were added to make it parse it correctly, as the stack was
+dynamic, but was determined by the size of the event stored.
 
-Restore this functionality by reusing the hierarchical host1x client
-suspend/resume infrastructure that's similar to runtime PM and which
-perfectly fits this use-case.
+Although this fixed user space on how it read the event, it changed the
+internal structure used for the stack trace event. It changed the array
+size from [0] to [8] (added 8 entries). This increased the size of the
+stack trace event by 8 words. The size reserved on the ring buffer was the
+size of the stack trace event plus the number of stack entries found in
+the stack trace. That commit caused the amount to be 8 more than what was
+needed because it did not expect the caller field to have any size. This
+produced 8 entries of garbage (and reading random data) from the stack
+trace event:
 
-Fixes: fd67e9c6ed5a ("drm/tegra: Do not implement runtime PM")
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Reported-by: Paul Fertser <fercerpav@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+          <idle>-0       [002] d... 1976396.837549: <stack trace>
+ => trace_event_raw_event_sched_switch
+ => __traceiter_sched_switch
+ => __schedule
+ => schedule_idle
+ => do_idle
+ => cpu_startup_entry
+ => secondary_startup_64_no_verify
+ => 0xc8c5e150ffff93de
+ => 0xffff93de
+ => 0
+ => 0
+ => 0xc8c5e17800000000
+ => 0x1f30affff93de
+ => 0x00000004
+ => 0x200000000
+
+Instead, subtract the size of the caller field from the size of the event
+to make sure that only the amount needed to store the stack trace is
+reserved.
+
+Link: https://lore.kernel.org/lkml/your-ad-here.call-01617191565-ext-9692@work.hours/
+
+Cc: stable@vger.kernel.org
+Fixes: cbc3b92ce037 ("tracing: Set kernel_stack's caller size properly")
+Reported-by: Vasily Gorbik <gor@linux.ibm.com>
+Tested-by: Vasily Gorbik <gor@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/tegra/dc.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ kernel/trace/trace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -2501,22 +2501,18 @@ static int tegra_dc_couple(struct tegra_
- 	 * POWER_CONTROL registers during CRTC enabling.
- 	 */
- 	if (dc->soc->coupled_pm && dc->pipe == 1) {
--		u32 flags = DL_FLAG_PM_RUNTIME | DL_FLAG_AUTOREMOVE_CONSUMER;
--		struct device_link *link;
--		struct device *partner;
-+		struct device *companion;
-+		struct tegra_dc *parent;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2645,7 +2645,8 @@ static void __ftrace_trace_stack(struct
+ 	size *= sizeof(unsigned long);
  
--		partner = driver_find_device(dc->dev->driver, NULL, NULL,
--					     tegra_dc_match_by_pipe);
--		if (!partner)
-+		companion = driver_find_device(dc->dev->driver, NULL, (const void *)0,
-+					       tegra_dc_match_by_pipe);
-+		if (!companion)
- 			return -EPROBE_DEFER;
- 
--		link = device_link_add(dc->dev, partner, flags);
--		if (!link) {
--			dev_err(dc->dev, "failed to link controllers\n");
--			return -EINVAL;
--		}
-+		parent = dev_get_drvdata(companion);
-+		dc->client.parent = &parent->client;
- 
--		dev_dbg(dc->dev, "coupled to %s\n", dev_name(partner));
-+		dev_dbg(dc->dev, "coupled to %s\n", dev_name(companion));
- 	}
- 
- 	return 0;
+ 	event = __trace_buffer_lock_reserve(buffer, TRACE_STACK,
+-					    sizeof(*entry) + size, flags, pc);
++				    (sizeof(*entry) - sizeof(entry->caller)) + size,
++				    flags, pc);
+ 	if (!event)
+ 		goto out;
+ 	entry = ring_buffer_event_data(event);
 
 
