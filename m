@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB3E353F0A
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 712AA353E0F
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238192AbhDEJKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
+        id S237693AbhDEJDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:03:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238656AbhDEJI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:08:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B84B613AE;
-        Mon,  5 Apr 2021 09:08:49 +0000 (UTC)
+        id S237715AbhDEJDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:03:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2782E610E8;
+        Mon,  5 Apr 2021 09:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613729;
-        bh=g1GEh3DaFz9pq3eT97ZJ15eZY32UTZJ1ZlJMbDMdH4g=;
+        s=korg; t=1617613411;
+        bh=NbXGtagGC6nta9wmmqR4lJoh5XClR+lCZLLHV+MV860=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H986GH2I+hhU3QyGjWXuVY8lK7xmhJ7F6AP38Bwrt9IuJVf2lfRJQsuyL8HVsgsPf
-         TuHTcHMzUjW5oQEikCjUMJzYedu8QM4xMV5q0sGyBPrdbn1eg7LFIapTrdy430QEKG
-         7F/iqA67/Pdm3Wg4/mv2+FcTjv/NM0GiYr7Os/ms=
+        b=m0OgbeR+adT1dLEUPvTpy8odH+26InhqyN9nLzCdGb7ChBW1zJ6qOVcsPjQlEroND
+         h1YmbYuG07WDhoFnDn2h/lVJ/MmvX5VP7jUFGYtJUUYzaVIZ2lBDjOl54le2Mo16OY
+         YBVXAP/vKJDMud5/rJkQybuGDhqQoJJFMmh0Brro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 069/126] tracing: Fix stack trace event size
+        stable@vger.kernel.org,
+        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 27/74] thermal/core: Add NULL pointer check before using cooling device stats
 Date:   Mon,  5 Apr 2021 10:53:51 +0200
-Message-Id: <20210405085033.333923549@linuxfoundation.org>
+Message-Id: <20210405085025.610680211@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,74 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
 
-commit 9deb193af69d3fd6dd8e47f292b67c805a787010 upstream.
+[ Upstream commit 2046a24ae121cd107929655a6aaf3b8c5beea01f ]
 
-Commit cbc3b92ce037 fixed an issue to modify the macros of the stack trace
-event so that user space could parse it properly. Originally the stack
-trace format to user space showed that the called stack was a dynamic
-array. But it is not actually a dynamic array, in the way that other
-dynamic event arrays worked, and this broke user space parsing for it. The
-update was to make the array look to have 8 entries in it. Helper
-functions were added to make it parse it correctly, as the stack was
-dynamic, but was determined by the size of the event stored.
+There is a possible chance that some cooling device stats buffer
+allocation fails due to very high cooling device max state value.
+Later cooling device update sysfs can try to access stats data
+for the same cooling device. It will lead to NULL pointer
+dereference issue.
 
-Although this fixed user space on how it read the event, it changed the
-internal structure used for the stack trace event. It changed the array
-size from [0] to [8] (added 8 entries). This increased the size of the
-stack trace event by 8 words. The size reserved on the ring buffer was the
-size of the stack trace event plus the number of stack entries found in
-the stack trace. That commit caused the amount to be 8 more than what was
-needed because it did not expect the caller field to have any size. This
-produced 8 entries of garbage (and reading random data) from the stack
-trace event:
+Add a NULL pointer check before accessing thermal cooling device
+stats data. It fixes the following bug
 
-          <idle>-0       [002] d... 1976396.837549: <stack trace>
- => trace_event_raw_event_sched_switch
- => __traceiter_sched_switch
- => __schedule
- => schedule_idle
- => do_idle
- => cpu_startup_entry
- => secondary_startup_64_no_verify
- => 0xc8c5e150ffff93de
- => 0xffff93de
- => 0
- => 0
- => 0xc8c5e17800000000
- => 0x1f30affff93de
- => 0x00000004
- => 0x200000000
+[ 26.812833] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
+[ 27.122960] Call trace:
+[ 27.122963] do_raw_spin_lock+0x18/0xe8
+[ 27.122966] _raw_spin_lock+0x24/0x30
+[ 27.128157] thermal_cooling_device_stats_update+0x24/0x98
+[ 27.128162] cur_state_store+0x88/0xb8
+[ 27.128166] dev_attr_store+0x40/0x58
+[ 27.128169] sysfs_kf_write+0x50/0x68
+[ 27.133358] kernfs_fop_write+0x12c/0x1c8
+[ 27.133362] __vfs_write+0x54/0x160
+[ 27.152297] vfs_write+0xcc/0x188
+[ 27.157132] ksys_write+0x78/0x108
+[ 27.162050] ksys_write+0xf8/0x108
+[ 27.166968] __arm_smccc_hvc+0x158/0x4b0
+[ 27.166973] __arm_smccc_hvc+0x9c/0x4b0
+[ 27.186005] el0_svc+0x8/0xc
 
-Instead, subtract the size of the caller field from the size of the event
-to make sure that only the amount needed to store the stack trace is
-reserved.
-
-Link: https://lore.kernel.org/lkml/your-ad-here.call-01617191565-ext-9692@work.hours/
-
-Cc: stable@vger.kernel.org
-Fixes: cbc3b92ce037 ("tracing: Set kernel_stack's caller size properly")
-Reported-by: Vasily Gorbik <gor@linux.ibm.com>
-Tested-by: Vasily Gorbik <gor@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/1607367181-24589-1-git-send-email-manafm@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/thermal/thermal_sysfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2984,7 +2984,8 @@ static void __ftrace_trace_stack(struct
+diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
+index aa99edb4dff7..4dce4a8f71ed 100644
+--- a/drivers/thermal/thermal_sysfs.c
++++ b/drivers/thermal/thermal_sysfs.c
+@@ -770,6 +770,9 @@ void thermal_cooling_device_stats_update(struct thermal_cooling_device *cdev,
+ {
+ 	struct cooling_dev_stats *stats = cdev->stats;
  
- 	size = nr_entries * sizeof(unsigned long);
- 	event = __trace_buffer_lock_reserve(buffer, TRACE_STACK,
--					    sizeof(*entry) + size, flags, pc);
-+				    (sizeof(*entry) - sizeof(entry->caller)) + size,
-+				    flags, pc);
- 	if (!event)
- 		goto out;
- 	entry = ring_buffer_event_data(event);
++	if (!stats)
++		return;
++
+ 	spin_lock(&stats->lock);
+ 
+ 	if (stats->state == new_state)
+-- 
+2.30.1
+
 
 
