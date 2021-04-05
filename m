@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A457A353DB0
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57CBC353DB5
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237298AbhDEJCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S237378AbhDEJCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237262AbhDEJB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:01:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67CAE610E8;
-        Mon,  5 Apr 2021 09:01:15 +0000 (UTC)
+        id S237316AbhDEJB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:01:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E71E613A1;
+        Mon,  5 Apr 2021 09:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613276;
-        bh=GDA/V174sJWMf+BaEEszQCXILyZ5LI9jMZfXs7HDUOk=;
+        s=korg; t=1617613278;
+        bh=fk0CpbvYKGTCgyObhHOqABeY4+98Y/Acm4saB4fiq7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g+YQ881oT8Lr4sAE5JDX/uew/y8AyQxqchUBZvdPqTKM3HMTOMtXLdUB38GiysjVH
-         qefHA9EuA/O1jvpWnNOqBQXtYxTs+kooMM633yXSYIRkP2v1nbFpeESfkJi41ZllGW
-         BX1e9m5DFID9yVanweSUK3/S7x47oDUL7g82oGrI=
+        b=ibeNKkZyKc9/7BDARRq7aXPnkUc9ZZXlb7SerUKbfH9mh0rCSiKKoWC1/PRNFPNjp
+         v/DeC3JEn27bR0X6tBCcrVEJzb27iJP69EHO6tU9XRVxvFXIVaw3y/SbppDraXbfDl
+         1n3rUoLqgu+OX4tLFdoWCaeGkvAzryXPoPAeqHOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 34/56] tracing: Fix stack trace event size
-Date:   Mon,  5 Apr 2021 10:54:05 +0200
-Message-Id: <20210405085023.627967648@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 35/56] mm: fix race by making init_zero_pfn() early_initcall
+Date:   Mon,  5 Apr 2021 10:54:06 +0200
+Message-Id: <20210405085023.658580585@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
 References: <20210405085022.562176619@linuxfoundation.org>
@@ -39,74 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
 
-commit 9deb193af69d3fd6dd8e47f292b67c805a787010 upstream.
+commit e720e7d0e983bf05de80b231bccc39f1487f0f16 upstream.
 
-Commit cbc3b92ce037 fixed an issue to modify the macros of the stack trace
-event so that user space could parse it properly. Originally the stack
-trace format to user space showed that the called stack was a dynamic
-array. But it is not actually a dynamic array, in the way that other
-dynamic event arrays worked, and this broke user space parsing for it. The
-update was to make the array look to have 8 entries in it. Helper
-functions were added to make it parse it correctly, as the stack was
-dynamic, but was determined by the size of the event stored.
+There are code paths that rely on zero_pfn to be fully initialized
+before core_initcall.  For example, wq_sysfs_init() is a core_initcall
+function that eventually results in a call to kernel_execve, which
+causes a page fault with a subsequent mmput.  If zero_pfn is not
+initialized by then it may not get cleaned up properly and result in an
+error:
 
-Although this fixed user space on how it read the event, it changed the
-internal structure used for the stack trace event. It changed the array
-size from [0] to [8] (added 8 entries). This increased the size of the
-stack trace event by 8 words. The size reserved on the ring buffer was the
-size of the stack trace event plus the number of stack entries found in
-the stack trace. That commit caused the amount to be 8 more than what was
-needed because it did not expect the caller field to have any size. This
-produced 8 entries of garbage (and reading random data) from the stack
-trace event:
+  BUG: Bad rss-counter state mm:(ptrval) type:MM_ANONPAGES val:1
 
-          <idle>-0       [002] d... 1976396.837549: <stack trace>
- => trace_event_raw_event_sched_switch
- => __traceiter_sched_switch
- => __schedule
- => schedule_idle
- => do_idle
- => cpu_startup_entry
- => secondary_startup_64_no_verify
- => 0xc8c5e150ffff93de
- => 0xffff93de
- => 0
- => 0
- => 0xc8c5e17800000000
- => 0x1f30affff93de
- => 0x00000004
- => 0x200000000
+Here is an analysis of the race as seen on a MIPS device. On this
+particular MT7621 device (Ubiquiti ER-X), zero_pfn is PFN 0 until
+initialized, at which point it becomes PFN 5120:
 
-Instead, subtract the size of the caller field from the size of the event
-to make sure that only the amount needed to store the stack trace is
-reserved.
+  1. wq_sysfs_init calls into kobject_uevent_env at core_initcall:
+       kobject_uevent_env+0x7e4/0x7ec
+       kset_register+0x68/0x88
+       bus_register+0xdc/0x34c
+       subsys_virtual_register+0x34/0x78
+       wq_sysfs_init+0x1c/0x4c
+       do_one_initcall+0x50/0x1a8
+       kernel_init_freeable+0x230/0x2c8
+       kernel_init+0x10/0x100
+       ret_from_kernel_thread+0x14/0x1c
 
-Link: https://lore.kernel.org/lkml/your-ad-here.call-01617191565-ext-9692@work.hours/
+  2. kobject_uevent_env() calls call_usermodehelper_exec() which executes
+     kernel_execve asynchronously.
 
+  3. Memory allocations in kernel_execve cause a page fault, bumping the
+     MM reference counter:
+       add_mm_counter_fast+0xb4/0xc0
+       handle_mm_fault+0x6e4/0xea0
+       __get_user_pages.part.78+0x190/0x37c
+       __get_user_pages_remote+0x128/0x360
+       get_arg_page+0x34/0xa0
+       copy_string_kernel+0x194/0x2a4
+       kernel_execve+0x11c/0x298
+       call_usermodehelper_exec_async+0x114/0x194
+
+  4. In case zero_pfn has not been initialized yet, zap_pte_range does
+     not decrement the MM_ANONPAGES RSS counter and the BUG message is
+     triggered shortly afterwards when __mmdrop checks the ref counters:
+       __mmdrop+0x98/0x1d0
+       free_bprm+0x44/0x118
+       kernel_execve+0x160/0x1d8
+       call_usermodehelper_exec_async+0x114/0x194
+       ret_from_kernel_thread+0x14/0x1c
+
+To avoid races such as described above, initialize init_zero_pfn at
+early_initcall level.  Depending on the architecture, ZERO_PAGE is
+either constant or gets initialized even earlier, at paging_init, so
+there is no issue with initializing zero_pfn earlier.
+
+Link: https://lkml.kernel.org/r/CALCv0x2YqOXEAy2Q=hafjhHCtTHVodChv1qpM=niAXOpqEbt7w@mail.gmail.com
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: stable@vger.kernel.org
-Fixes: cbc3b92ce037 ("tracing: Set kernel_stack's caller size properly")
-Reported-by: Vasily Gorbik <gor@linux.ibm.com>
-Tested-by: Vasily Gorbik <gor@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Tested-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2645,7 +2645,8 @@ static void __ftrace_trace_stack(struct
- 	size *= sizeof(unsigned long);
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -148,7 +148,7 @@ static int __init init_zero_pfn(void)
+ 	zero_pfn = page_to_pfn(ZERO_PAGE(0));
+ 	return 0;
+ }
+-core_initcall(init_zero_pfn);
++early_initcall(init_zero_pfn);
  
- 	event = __trace_buffer_lock_reserve(buffer, TRACE_STACK,
--					    sizeof(*entry) + size, flags, pc);
-+				    (sizeof(*entry) - sizeof(entry->caller)) + size,
-+				    flags, pc);
- 	if (!event)
- 		goto out;
- 	entry = ring_buffer_event_data(event);
+ 
+ #if defined(SPLIT_RSS_COUNTING)
 
 
