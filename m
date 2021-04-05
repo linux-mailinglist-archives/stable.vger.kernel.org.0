@@ -2,236 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2DB3545F5
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 19:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABD3354602
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 19:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237578AbhDERVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 13:21:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50044 "EHLO
+        id S237893AbhDER1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 13:27:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237464AbhDERVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 13:21:39 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD495C061756
-        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 10:21:32 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id r12so17813885ejr.5
-        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 10:21:32 -0700 (PDT)
+        with ESMTP id S237859AbhDER1t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 13:27:49 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5C0C061756;
+        Mon,  5 Apr 2021 10:27:42 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id a6so2673622pls.1;
+        Mon, 05 Apr 2021 10:27:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=IXQ9NqG6Tt5Pe4reuledmIffXjGOsE+SSrfZAgUcvhI=;
-        b=oq/mJBO1nhi5C64fkN2PucUadzU31M31IP127ATnyAkvDQaVQUkeF64LfzpK+xilOg
-         A9kJkSWHFkm4MiWP09BEWchQCo/YPu/XhTOU2EtaAZyqFBUGyxmuTaK/jBv1xAxIOETh
-         UFU6yO5y+jPV7Sl9Ni3mEFauho6AbVgJCkSk0Z+9SM7CSuI1RQEP9Sa5geru5V73rRcp
-         4qlMACmB2ATNaD5wnBTIdxhK3JHoGuZnz9KPTXDRPKvMIItXMPXBW+WJ+v15FxUEPWRK
-         w8LjV1SrVPWhIyyrKHtk7NfIW7vWzLEAcCvqUEtTFXFw/9rZ1hhebN1Ro6JNjzOGzop1
-         hk2g==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=EKqbrpSsdQ49mzcIvIerUxoIE8Uaf168h8g6RRMdblU=;
+        b=RiSaflatPnBSuEw5lH1MaNrkVDyj8koRQzEf7s2TcpPWviHiGP4oqZT5GraRO6B2gi
+         W31Oy59hpwjgcLjzg+zr0nfLoezBTUPNv9m2H4gverzUg4Ld+JF4khV4feYtDtdluJ4F
+         dj1pnn/G0yDeggomSj6BJzana+N5X7a/m87OAgj/TsrMxRve6zEiw0k6Gqa7RGa9zZGc
+         mTQ0x+y6xikE1wQdSQvH8CKq/A9p71LKn4LOgiOFfGyRUxcm3KwbTPdglhQ+36yGAvPW
+         q7q526pk4rsoxoBiup4vTLbKyWUcg5MlK2CeHwpiQGYn2S8ZGM5oo+OmIvOOYzXyqxKy
+         tdZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=IXQ9NqG6Tt5Pe4reuledmIffXjGOsE+SSrfZAgUcvhI=;
-        b=to5oNefnhF1zFaVipQMCoiuvql3EWnLmx+8M2rVfL3yJiew5F9zxIH4MrQJQNk3etX
-         y7RObZzx2nfhfjsgLDw3veIb9Htsg0X/TMADkvGTADM2beCGKC/69ARi+WyFY2b6NO7S
-         q7lPDVDdSZzpR01XhwGcoUb3BMBqAs0Yypr3gg4kHDHs+Aryxdf+IZ/pEa8tJwWkdwHt
-         /ecyz33wG6yIBUW8O1YjlOIjSvzpe4wkvvBLAvovOVLB1ySoj/Rn+ajWL5+uatQ82WVH
-         IMOCWof7n18pDpcpkZ5jsqvJauCJZrvALPtPrfw/8HblQavXfpT9ti/hGe93H+qOP9A0
-         m3UA==
-X-Gm-Message-State: AOAM530RIRp85vJe10+a9nMHUpH0tYSapB1TBAnXdxEFtQtgI5B05Oq0
-        apeHRCYowgjYkOc+ZWwAIJsdU/vVB8tnuZtxeGnRVg==
-X-Google-Smtp-Source: ABdhPJxT1NshyPaLb1M0x2V+YQ5+Iwj1JWUSVu3xdjMRcCAxowMJQg1grpPQdSrkG2ShtH/V7qeB6FRjpLc3lv32QSU=
-X-Received: by 2002:a17:906:a052:: with SMTP id bg18mr29584552ejb.18.1617643291296;
- Mon, 05 Apr 2021 10:21:31 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=EKqbrpSsdQ49mzcIvIerUxoIE8Uaf168h8g6RRMdblU=;
+        b=Yz5HqCrUvXf4NFhZq2RWCztJ+bHm8fg/YhH42OmZugwbnm0sW2EJoBSqvFQaFE6sJj
+         /gjJbBEWXR7t+HWi78UFSt3JqW+AzLjL3kCZ77DrsmaMEu5yLIJFymASBm/I51FEZ2gU
+         A+cqN7XbgmUhOOsBOKsoUIkpNFcyR7PjbAcdO5het2OGtMVNEDqfKrsNu7f1Pw1v+RP2
+         IhctKPmjDDMKGuLIodWjIy9HgwNgUra6DXDrFhw4KyZ4Fdbj4rqW+EMB9JpO+/MKrLiy
+         IkNG65m3qkEWR4XWgoUZ7Qo73Af072Sl4+SNiiD1OzBPp9Fuc/o6rWpwnNsVSr5FeuY/
+         a1Fg==
+X-Gm-Message-State: AOAM533NlavM5zuEpyZ9Ya/ZHVdEqh8PX0/aOmQHqJiUr1IYkg8atblh
+        JuFgsx8LC78hcx49pjj1U9HM1SPpSfQ=
+X-Google-Smtp-Source: ABdhPJxaacG79rTu3h/br4K9ZuGLMcRB4CSKzA7XmMjiew7VjEVmWCoFz5xQXrMNc05PoL7GqAuDUw==
+X-Received: by 2002:a17:90a:bc45:: with SMTP id t5mr213372pjv.26.1617643661419;
+        Mon, 05 Apr 2021 10:27:41 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id n14sm87241pjk.6.2021.04.05.10.27.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Apr 2021 10:27:40 -0700 (PDT)
+Subject: Re: [PATCH 4.9 00/35] 4.9.265-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210405085018.871387942@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <035dbb88-494f-d6a5-3da3-199968d455ea@gmail.com>
+Date:   Mon, 5 Apr 2021 10:27:38 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.9.0
 MIME-Version: 1.0
-References: <20210405085034.233917714@linuxfoundation.org>
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 5 Apr 2021 22:51:19 +0530
-Message-ID: <CA+G9fYtt0XFfqut+ZQCsvN8UPS_9J8ATLPtVq=da6FkJo_zLPA@mail.gmail.com>
-Subject: Re: [PATCH 5.11 000/152] 5.11.12-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 5 Apr 2021 at 14:43, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.11.12 release.
-> There are 152 patches in this series, all will be posted as a response
+
+
+On 4/5/2021 1:53 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.265 release.
+> There are 35 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Wed, 07 Apr 2021 08:50:09 +0000.
 > Anything received after that time might be too late.
->
+> 
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.11.12-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.265-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.11.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
 > and the diffstat can be found below.
->
+> 
 > thanks,
->
+> 
 > greg k-h
 
+On ARCH_BRCMSTB, using 32-bit and 64-bit kernels:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 5.11.12-rc1
-* git: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git',
-'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
-* git branch: linux-5.11.y
-* git commit: 74f1df3016246d321c3f58de40c0d64f5d5861a1
-* git describe: v5.11.11-153-g74f1df301624
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.11.y/build/v5.11=
-.11-153-g74f1df301624
-
-## No regressions (compared to v5.11.11-105-g79c43dab0491)
-
-## No fixes (compared to v5.11.11-105-g79c43dab0491)
-
-## Test result summary
- total: 76190, pass: 64219, fail: 1734, skip: 9997, xfail: 240,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 192 total, 192 passed, 0 failed
-* arm64: 26 total, 26 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 25 total, 25 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 42 total, 38 passed, 4 failed
-* s390: 27 total, 24 passed, 3 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 0 passed, 1 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 35 total, 34 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
