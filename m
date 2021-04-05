@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C307A353EBD
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9428E353F7E
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238403AbhDEJHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:07:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52798 "EHLO mail.kernel.org"
+        id S239243AbhDEJMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:12:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238326AbhDEJHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:07:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6172613B8;
-        Mon,  5 Apr 2021 09:07:24 +0000 (UTC)
+        id S239161AbhDEJMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:12:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C84661398;
+        Mon,  5 Apr 2021 09:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613645;
-        bh=C2JhNr3EpRjgctxfTTCNtDfVHZHunRTxMC5fatgR2VQ=;
+        s=korg; t=1617613937;
+        bh=1LGFYN4CYv4Ej0ILyBEqVgC+nXewIRtPJtIZGbid2jA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STuBsSYWqW5CpdEIuUZnkcmEYWTuP7J9mRdZJliZGVLiTAQ3W/f0rNXQiBv0m1qV5
-         zllGdJnaRjU/wl3C4jCkdse+NUnSskb3B3CTNEELTYlrJsanvUwNxxfGbcXllpd+1D
-         9SNmb23mZfivuwpGsHbrmaPUJxeJcXxsVKSM3rPA=
+        b=UxRZcNbhgPGilQvPxjxNFBPNI7Yb6U6RnZxTiwvfUol2E+8fJdZfYj2Jy8PgcL8Wk
+         XFNRVn6yrN7Rps2B5VKQqcv/nlObxkcdLIznHeRfXJKyrDYY+5etsTn2E48G8/ooCu
+         emB0IJmg/XrrcO6Yq/fnzypx7mMQT48R/91QXVxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Yu <jack.yu@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/126] ASoC: rt1015: fix i2c communication error
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 022/152] io_uring: fix ->flags races by linked timeouts
 Date:   Mon,  5 Apr 2021 10:52:51 +0200
-Message-Id: <20210405085031.348026595@linuxfoundation.org>
+Message-Id: <20210405085034.966628404@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Yu <jack.yu@realtek.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 9e0bdaa9fcb8c64efc1487a7fba07722e7bc515e ]
+[ Upstream commit efe814a471e0e58f28f1efaf430c8784a4f36626 ]
 
-Remove 0x100 cache re-sync to solve i2c communication error.
+It's racy to modify req->flags from a not owning context, e.g. linked
+timeout calling req_set_fail_links() for the master request might race
+with that request setting/clearing flags while being executed
+concurrently. Just remove req_set_fail_links(prev) from
+io_link_timeout_fn(), io_async_find_and_cancel() and functions down the
+line take care of setting the fail bit.
 
-Signed-off-by: Jack Yu <jack.yu@realtek.com>
-Link: https://lore.kernel.org/r/20210222090057.29532-1-jack.yu@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt1015.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/io_uring.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt1015.c b/sound/soc/codecs/rt1015.c
-index 3db07293c70b..2627910060dc 100644
---- a/sound/soc/codecs/rt1015.c
-+++ b/sound/soc/codecs/rt1015.c
-@@ -209,6 +209,7 @@ static bool rt1015_volatile_register(struct device *dev, unsigned int reg)
- 	case RT1015_VENDOR_ID:
- 	case RT1015_DEVICE_ID:
- 	case RT1015_PRO_ALT:
-+	case RT1015_MAN_I2C:
- 	case RT1015_DAC3:
- 	case RT1015_VBAT_TEST_OUT1:
- 	case RT1015_VBAT_TEST_OUT2:
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 5c4378694d54..381f82ebd282 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6496,7 +6496,6 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 
+ 	if (prev) {
+-		req_set_fail_links(prev);
+ 		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
+ 		io_put_req_deferred(prev, 1);
+ 	} else {
 -- 
 2.30.1
 
