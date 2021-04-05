@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 366D6353F68
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8297B35406D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239070AbhDEJL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:11:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58412 "EHLO mail.kernel.org"
+        id S239677AbhDEJRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238892AbhDEJLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:11:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE130613A7;
-        Mon,  5 Apr 2021 09:11:14 +0000 (UTC)
+        id S239611AbhDEJRo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:17:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36253613A8;
+        Mon,  5 Apr 2021 09:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613875;
-        bh=UKghFny69coTffHjMIZPzcbMA/FSap3044jk8omocHM=;
+        s=korg; t=1617614252;
+        bh=hCTRocdIbMLaio50PGECtYl0IUES5PGHDT1zYe06K7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QH27VaWGDSskJ0Jo819ye5uG+nz/ykHSxy4mS4U0MPXQWnbu+MQE2yJaWaB8buAp+
-         X7cyIQUBZrzrFwL69fzTw+9/69xc9TuQARO3vBFBy6VBoGWJ1MLW+DrYHo63WHDmY4
-         X2A8WDGmqR0c8IsTw6V0p7u6kRI2LGc8Mbm6hrlc=
+        b=XhA4NiKcgDisv6wbCw7hXz27SCrFRpZqwV7KCdKg97m+T9JPcABJiJoqdFVJBijOq
+         bsHv2HkCJICfjSg4gvR2AMi0iVg9Or0zdAh6G2FFleos2avX3J1LgvIhBKHMnsD9hL
+         HGYzQRNkYQ2vFZt7kqB5+MfxL9hFTUNQyxVWFWUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 125/126] Revert "kernel: freezer should treat PF_IO_WORKER like PF_KTHREAD for freezing"
-Date:   Mon,  5 Apr 2021 10:54:47 +0200
-Message-Id: <20210405085035.165900931@linuxfoundation.org>
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>
+Subject: [PATCH 5.11 139/152] usb: gadget: udc: amd5536udc_pci fix null-ptr-dereference
+Date:   Mon,  5 Apr 2021 10:54:48 +0200
+Message-Id: <20210405085038.741838150@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,33 +38,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit d3dc04cd81e0eaf50b2d09ab051a13300e587439 upstream.
+commit 72035f4954f0bca2d8c47cf31b3629c42116f5b7 upstream.
 
-This reverts commit 15b2219facadec583c24523eed40fa45865f859f.
+init_dma_pools() calls dma_pool_create(...dev->dev) to create dma pool.
+however, dev->dev is actually set after calling init_dma_pools(), which
+effectively makes dma_pool_create(..NULL) and cause crash.
+To fix this issue, init dma only after dev->dev is set.
 
-Before IO threads accepted signals, the freezer using take signals to wake
-up an IO thread would cause them to loop without any way to clear the
-pending signal. That is no longer the case, so stop special casing
-PF_IO_WORKER in the freezer.
+[    1.317993] RIP: 0010:dma_pool_create+0x83/0x290
+[    1.323257] Call Trace:
+[    1.323390]  ? pci_write_config_word+0x27/0x30
+[    1.323626]  init_dma_pools+0x41/0x1a0 [snps_udc_core]
+[    1.323899]  udc_pci_probe+0x202/0x2b1 [amd5536udc_pci]
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 7c51247a1f62 (usb: gadget: udc: Provide correct arguments for 'dma_pool_create')
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210317230400.357756-1-ztong0001@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/freezer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/amd5536udc_pci.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/kernel/freezer.c
-+++ b/kernel/freezer.c
-@@ -134,7 +134,7 @@ bool freeze_task(struct task_struct *p)
- 		return false;
+--- a/drivers/usb/gadget/udc/amd5536udc_pci.c
++++ b/drivers/usb/gadget/udc/amd5536udc_pci.c
+@@ -153,6 +153,11 @@ static int udc_pci_probe(
+ 	pci_set_master(pdev);
+ 	pci_try_set_mwi(pdev);
+ 
++	dev->phys_addr = resource;
++	dev->irq = pdev->irq;
++	dev->pdev = pdev;
++	dev->dev = &pdev->dev;
++
+ 	/* init dma pools */
+ 	if (use_dma) {
+ 		retval = init_dma_pools(dev);
+@@ -160,11 +165,6 @@ static int udc_pci_probe(
+ 			goto err_dma;
  	}
  
--	if (!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))
-+	if (!(p->flags & PF_KTHREAD))
- 		fake_signal_wake_up(p);
- 	else
- 		wake_up_state(p, TASK_INTERRUPTIBLE);
+-	dev->phys_addr = resource;
+-	dev->irq = pdev->irq;
+-	dev->pdev = pdev;
+-	dev->dev = &pdev->dev;
+-
+ 	/* general probing */
+ 	if (udc_probe(dev)) {
+ 		retval = -ENODEV;
 
 
