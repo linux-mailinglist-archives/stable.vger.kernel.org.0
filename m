@@ -2,72 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A6C3544FA
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D2E53545B0
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242753AbhDEQOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:14:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34356 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242504AbhDEQOY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:14:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74E536138D;
-        Mon,  5 Apr 2021 16:14:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617639256;
-        bh=R3lfmNNYOFQ9z+6tp5Fqp8Kg7x5zx5E0lY4nIbRVVkM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=v1kc2izNMdJlraXF5YFMf+DfwB188ybQCESOos2KIy070stvD5pu92TWHd5dCiB55
-         Nn+crPq3biMnZ7WEFBwCjnc3uc3J4DddeLEWmDBZne+7z61I29/1+Je6eXLPzY464y
-         SwtmWhuLJCCLJI7LhMats+66y096t1uhuMAf9vp0=
-Date:   Mon, 5 Apr 2021 18:14:14 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jianmin Wang <jianmin@iscas.ac.cn>
-Cc:     stable@vger.kernel.org, omosnace@redhat.com, davem@davemloft.net,
-        dzickus@redhat.com, herbert@gondor.apana.org.au,
-        linux-crypto@vger.kernel.org, netdev@vger.kernel.org,
-        smueller@chronox.de, steffen.klassert@secunet.com
-Subject: Re: [PATCH] backports: crypto user - make NETLINK_CRYPTO work inside
- netns
-Message-ID: <YGs3Voq0codXCHbA@kroah.com>
-References: <20190709111124.31127-1-omosnace@redhat.com>
- <20210405135515.50873-1-jianmin@iscas.ac.cn>
+        id S232199AbhDEQvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232147AbhDEQvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 12:51:45 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21AEC061788;
+        Mon,  5 Apr 2021 09:51:38 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id z12so1888699plb.9;
+        Mon, 05 Apr 2021 09:51:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=tWte+lU9r7NWCW+LuM/DBgUmvZUSMCM0Pl7d1JQmdLk=;
+        b=amIPdh7k6l1X9V3i6cu24JlDoOli6aqW9VIicOAnSdx2VPrhM+aHtuieqy6NqwK/c0
+         L4S3pSa/XbBwk6Qf5T2J14LsVZaYtnTM4M3Lkofyld1N84RBDZAm14h4eETnkOg2GCSB
+         u2J7lBGK2QPuJf2nov63sUrhiJ7GTPNTOsuAgVHVpVy8nn0hYJ+9Zai8ssf0CLQW766C
+         xtCIZgNSgPCgdnBgZv+aFxiWP0IRW+Kw0D157G9iv3/PG+UCqX5szahfuK3FZCD4pRxx
+         tfYw6smiVVO8ducwVQUGwxmRJh7qx0TsfP4qiD7tFywBP2t1rVVW/1DwXBS55dArolDG
+         tDbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=tWte+lU9r7NWCW+LuM/DBgUmvZUSMCM0Pl7d1JQmdLk=;
+        b=uRKa8FikcCxU8s1LKUOisSUkhxWmyVx5x1u7OhbA5ME7+eCDXNF99M2DhUDCTT1Rxg
+         0qfDAKlnhXdUfITna03W+aSdrijcj+2itKhVSvvuYfojv8S96Eh3ayYQwForUT/chcEd
+         jz6LyA/tqT4mtC496eB1vKDZhyLk7vZCVbPstJxAG+fBS2sjBv+D9PPONlErd6V2+P9w
+         YBif7u9cTunMFcvy5GwvBD5R/R4KpzDkebMpdlphiN+NQm60e8mmdGrn60Y/Nx5OuMzA
+         fN9MUdIydfls2zHi//huYjV65Todf6KchWFayLSUDO+nC0zwYBY0+RLAC2+1XQ9WW/F3
+         xpcQ==
+X-Gm-Message-State: AOAM531UG2qshsZFqx+cowNJ+yea7KgfmDxhOsVm+ANZxBe/ZWqMmOeh
+        C3ppTdHT16YBlAcUXjUWhN8hMrbHXIg=
+X-Google-Smtp-Source: ABdhPJxZBRunHZpKckMHnbxmTMB5jt+Wpw97CfemfkrGpKuaSwr6fT+W6I7YTvvGKH8se5tMlOnw4A==
+X-Received: by 2002:a17:902:8604:b029:e6:60ad:6921 with SMTP id f4-20020a1709028604b02900e660ad6921mr24840859plo.15.1617641498070;
+        Mon, 05 Apr 2021 09:51:38 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id o23sm9850247pgm.74.2021.04.05.09.51.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Apr 2021 09:51:37 -0700 (PDT)
+Subject: Re: [PATCH 5.4 00/74] 5.4.110-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210405085024.703004126@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <d74b1c2b-694d-38dc-534d-28f0ca2c45b6@gmail.com>
+Date:   Mon, 5 Apr 2021 09:51:35 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210405135515.50873-1-jianmin@iscas.ac.cn>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 05, 2021 at 01:55:15PM +0000, Jianmin Wang wrote:
-> There is same problem found in linux 4.19.y as upstream commit. The 
-> changes of crypto_user_* and cryptouser.h files from upstream patch are merged into 
-> crypto/crypto_user.c for backporting.
-> 
-> Upstream commit:
->     commit 91b05a7e7d8033a90a64f5fc0e3808db423e420a
->     Author: Ondrej Mosnacek <omosnace@redhat.com>
->     Date:   Tue,  9 Jul 2019 13:11:24 +0200
-> 
->     Currently, NETLINK_CRYPTO works only in the init network namespace. It
->     doesn't make much sense to cut it out of the other network namespaces,
->     so do the minor plumbing work necessary to make it work in any network
->     namespace. Code inspired by net/core/sock_diag.c.
-> 
->     Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->     Signed-off-by: default avatarHerbert Xu <herbert@gondor.apana.org.au>
-> 
-> Signed-off-by: Jianmin Wang <jianmin@iscas.ac.cn>
-> ---
->  crypto/crypto_user.c        | 37 +++++++++++++++++++++++++------------
->  include/net/net_namespace.h |  3 +++
->  2 files changed, 28 insertions(+), 12 deletions(-)
 
-How does this change fit with the stable kernel rules?  It looks to be a
-new feature, if you need this, why not just use a newer kernel version?
-What is preventing you from doing that?
 
-thanks,
+On 4/5/2021 1:53 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.110 release.
+> There are 74 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 07 Apr 2021 08:50:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.110-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-greg k-h
+On ARCH_BRCMSTB, using 32-bit and 64-bit kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
