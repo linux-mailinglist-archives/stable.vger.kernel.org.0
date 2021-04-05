@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CEEE35449E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8F2D3544A8
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238775AbhDEQFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:05:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58698 "EHLO mail.kernel.org"
+        id S242015AbhDEQFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:05:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239002AbhDEQFj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:05:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B286613D7;
-        Mon,  5 Apr 2021 16:05:31 +0000 (UTC)
+        id S239140AbhDEQFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:05:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC01613E1;
+        Mon,  5 Apr 2021 16:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638732;
-        bh=7NQb2H9HHWlqOaMH1NB7O7GBOnsqkOBNsBL/8r6jR/k=;
+        s=k20201202; t=1617638733;
+        bh=KYAN3BxRm/d45qQPO+VJEPD+cFCDPf1hNxi5Ys+0qpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8MlcSwJPCGngCj6bI+Z0/+OFKKVGr7x79EuBA69caXfxxRmzNpv1KLBvj4Sg0lXy
-         3wMmrd7Jtjnx3Xo6ILcL7Zu+85KmayLJ1ge+Ff287Q1QfGSoL5XV57XfSNj0pc/uNh
-         j6sn7yDon1sdv9Pa/80c8800vEvTtT6khdr7+mF87UIXzSFSi3xPNJZkYKk2+Ks+tf
-         hLa6ex+MHwWqGF/HGmwsdGdcIQmRAWMYswY07XunAgt3rF7/RfaiotUgvqItGRlWEb
-         Ns0LAmC00GNH4gdRbFXWXPzJYPiwBVP8ZSzYmULTHCt46mfG+d3/FXNYSMGJnsYGrf
-         uTtULJiH0xfzA==
+        b=h92QLovv6yxv98kykkoj2uXOxV3D4/DMS5Xblt2+8i94wS+e5AehFAOCNRUF7P/Qq
+         9KqZaxmO8+og+FbH6lGedQhZDggxIuL0QJr+oqfUdBFt9IwkOIzEOTLqXpYjyRe7oc
+         FLsnx22Y0/oo4GH4VNZuzZN3X4XVsIGlKX0//UOWTvhTwuoEuEePp7i4dHMhIdSZGw
+         8SwPyQL4Qr+QM5eLPZUyeBN0uju2a6qrObOgYXlFJX44SZN/obdyCofPrXbBopdPj/
+         OBqvVtIVizbTtUD5DrEdP11JvqzGQDiNSAXLMdtfs0Rl0MASbEG1uEXciJtO8PcbYg
+         JqTCIlnMqc88A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 4/5] gfs2: report "already frozen/thawed" errors
-Date:   Mon,  5 Apr 2021 12:05:25 -0400
-Message-Id: <20210405160526.269140-4-sashal@kernel.org>
+Cc:     Yufen Yu <yuyufen@huawei.com>, Keith Busch <kbusch@kernel.org>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 5/5] block: only update parent bi_status when bio fail
+Date:   Mon,  5 Apr 2021 12:05:26 -0400
+Message-Id: <20210405160526.269140-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210405160526.269140-1-sashal@kernel.org>
 References: <20210405160526.269140-1-sashal@kernel.org>
@@ -42,59 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit ff132c5f93c06bd4432bbab5c369e468653bdec4 ]
+[ Upstream commit 3edf5346e4f2ce2fa0c94651a90a8dda169565ee ]
 
-Before this patch, gfs2's freeze function failed to report an error
-when the target file system was already frozen as it should (and as
-generic vfs function freeze_super does. Similarly, gfs2's thaw function
-failed to report an error when trying to thaw a file system that is not
-frozen, as vfs function thaw_super does. The errors were checked, but
-it always returned a 0 return code.
+For multiple split bios, if one of the bio is fail, the whole
+should return error to application. But we found there is a race
+between bio_integrity_verify_fn and bio complete, which return
+io success to application after one of the bio fail. The race as
+following:
 
-This patch adds the missing error return codes to gfs2 freeze and thaw.
+split bio(READ)          kworker
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+nvme_complete_rq
+blk_update_request //split error=0
+  bio_endio
+    bio_integrity_endio
+      queue_work(kintegrityd_wq, &bip->bip_work);
+
+                         bio_integrity_verify_fn
+                         bio_endio //split bio
+                          __bio_chain_endio
+                             if (!parent->bi_status)
+
+                               <interrupt entry>
+                               nvme_irq
+                                 blk_update_request //parent error=7
+                                 req_bio_endio
+                                    bio->bi_status = 7 //parent bio
+                               <interrupt exit>
+
+                               parent->bi_status = 0
+                        parent->bi_end_io() // return bi_status=0
+
+The bio has been split as two: split and parent. When split
+bio completed, it depends on kworker to do endio, while
+bio_integrity_verify_fn have been interrupted by parent bio
+complete irq handler. Then, parent bio->bi_status which have
+been set in irq handler will overwrite by kworker.
+
+In fact, even without the above race, we also need to conside
+the concurrency beteen mulitple split bio complete and update
+the same parent bi_status. Normally, multiple split bios will
+be issued to the same hctx and complete from the same irq
+vector. But if we have updated queue map between multiple split
+bios, these bios may complete on different hw queue and different
+irq vector. Then the concurrency update parent bi_status may
+cause the final status error.
+
+Suggested-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210331115359.1125679-1-yuyufen@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/super.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ block/bio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index bcf95ec1bc31..56bfed0a5873 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -989,11 +989,13 @@ void gfs2_freeze_func(struct work_struct *work)
- static int gfs2_freeze(struct super_block *sb)
+diff --git a/block/bio.c b/block/bio.c
+index 1384f9790882..30df1b45dde8 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -312,7 +312,7 @@ static struct bio *__bio_chain_endio(struct bio *bio)
  {
- 	struct gfs2_sbd *sdp = sb->s_fs_info;
--	int error = 0;
-+	int error;
+ 	struct bio *parent = bio->bi_private;
  
- 	mutex_lock(&sdp->sd_freeze_mutex);
--	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN)
-+	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN) {
-+		error = -EBUSY;
- 		goto out;
-+	}
- 
- 	if (test_bit(SDF_SHUTDOWN, &sdp->sd_flags)) {
- 		error = -EINVAL;
-@@ -1035,10 +1037,10 @@ static int gfs2_unfreeze(struct super_block *sb)
- 	struct gfs2_sbd *sdp = sb->s_fs_info;
- 
- 	mutex_lock(&sdp->sd_freeze_mutex);
--        if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
-+	if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
- 	    !gfs2_holder_initialized(&sdp->sd_freeze_gh)) {
- 		mutex_unlock(&sdp->sd_freeze_mutex);
--                return 0;
-+		return -EINVAL;
- 	}
- 
- 	gfs2_glock_dq_uninit(&sdp->sd_freeze_gh);
+-	if (!parent->bi_status)
++	if (bio->bi_status && !parent->bi_status)
+ 		parent->bi_status = bio->bi_status;
+ 	bio_put(bio);
+ 	return parent;
 -- 
 2.30.2
 
