@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64727353E75
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E81E353D73
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237912AbhDEJGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:06:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50282 "EHLO mail.kernel.org"
+        id S237089AbhDEI7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:59:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238706AbhDEJFy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A09A613A0;
-        Mon,  5 Apr 2021 09:05:48 +0000 (UTC)
+        id S237078AbhDEI7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:59:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE53761394;
+        Mon,  5 Apr 2021 08:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613548;
-        bh=uW6oDUm5OGgrAlcJAqE/N3uUNnNkdl5IGSMnsyGW+o0=;
+        s=korg; t=1617613186;
+        bh=wX/fpNQiUvj6q9tk+n+PbQKIH9s4Vpeagy7RLrNXehU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HY32JicAiO6btfoSjo1TCxagLU7/EOj8RSuC8RYlenDj9YBPeEZ+Pai3wRxj/YucX
-         xcqqacRqKwq/hdpF3oMJk58Mo7WFTKK1FpalzyTC0lMQfnC7oLjrlVn23o/+I1qjsY
-         XCD936WmcdFLZ+yjIcNXZ7Px34U1u0YHijgAacmI=
+        b=tGoeYSwTQFjoJQt1ObX4NJ0cnhfBlwhPytpFRj2czpM91vLVaQaja+QyazuCsp7LW
+         qIjPGL1NwmFgRn+HL80sk9Xl929nJnTYqUyMHBkN7pSvCXQnLtCf/GhbBVMgVfWbsK
+         r9Kf63aUsyNoxsUufKwIPuhhoG0QaOrTGDZPTX7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        syzbot <syzbot+690cb1e51970435f9775@syzkaller.appspotmail.com>
-Subject: [PATCH 5.4 53/74] reiserfs: update reiserfs_xattrs_initialized() condition
+        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
+Subject: [PATCH 4.14 51/52] staging: rtl8192e: Change state information from u16 to u8
 Date:   Mon,  5 Apr 2021 10:54:17 +0200
-Message-Id: <20210405085026.462964923@linuxfoundation.org>
+Message-Id: <20210405085023.646633642@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
+References: <20210405085021.996963957@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +38,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit 5e46d1b78a03d52306f21f77a4e4a144b6d31486 upstream.
+commit e78836ae76d20f38eed8c8c67f21db97529949da upstream.
 
-syzbot is reporting NULL pointer dereference at reiserfs_security_init()
-[1], for commit ab17c4f02156c4f7 ("reiserfs: fixup xattr_root caching")
-is assuming that REISERFS_SB(s)->xattr_root != NULL in
-reiserfs_xattr_jcreate_nblocks() despite that commit made
-REISERFS_SB(sb)->priv_root != NULL && REISERFS_SB(s)->xattr_root == NULL
-case possible.
+The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
+bytes in total while the operations performed on this array through-out
+the code base are only 2 bytes.
 
-I guess that commit 6cb4aff0a77cc0e6 ("reiserfs: fix oops while creating
-privroot with selinux enabled") wanted to check xattr_root != NULL
-before reiserfs_xattr_jcreate_nblocks(), for the changelog is talking
-about the xattr root.
+The "CcxRmState" field is fed only 2 bytes of data using memcpy():
 
-  The issue is that while creating the privroot during mount
-  reiserfs_security_init calls reiserfs_xattr_jcreate_nblocks which
-  dereferences the xattr root. The xattr root doesn't exist, so we get
-  an oops.
+(In rtllib_rx.c:1972)
+	memcpy(network->CcxRmState, &info_element->data[4], 2)
 
-Therefore, update reiserfs_xattrs_initialized() to check both the
-privroot and the xattr root.
+With "info_element->data[]" being a u8 array, if 2 bytes are written
+into "CcxRmState" (whose one element is u16 size), then the 2 u8
+elements from "data[]" gets squashed and written into the first element
+("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
+fed with any data.
 
-Link: https://syzkaller.appspot.com/bug?id=8abaedbdeb32c861dc5340544284167dd0e46cde # [1]
-Reported-and-tested-by: syzbot <syzbot+690cb1e51970435f9775@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 6cb4aff0a77c ("reiserfs: fix oops while creating privroot with selinux enabled")
-Acked-by: Jeff Mahoney <jeffm@suse.com>
-Acked-by: Jan Kara <jack@suse.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Same in file rtllib_rx.c:2522:
+	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
+
+The above line duplicates "src" data to "dst" but only writes 2 bytes
+(and not 4, which is the actual size). Again, only 1st element gets the
+value while the 2nd element remains uninitialized.
+
+This later makes operations done with CcxRmState unpredictable in the
+following lines as the 1st element is having a squashed number while the
+2nd element is having an uninitialized random number.
+
+rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
+rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
+
+network->MBssidMask is also of type u8 and not u16.
+
+Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
+data written into this array and read from it make sense and are not
+random values.
+
+NOTE: The wrong initialization of "CcxRmState" can be seen in the
+following commit:
+
+commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
+
+The above commit created a file `rtl8192e/ieee80211.h` which used to
+have the faulty line. The file has been deleted (or possibly renamed)
+with the contents copied in to a new file `rtl8192e/rtllib.h` along with
+additional code in the commit 94a799425eee (tagged in Fixes).
+
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
+Cc: stable@vger.kernel.org
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210323113413.29179-2-atulgopinathan@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/xattr.h |    2 +-
+ drivers/staging/rtl8192e/rtllib.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/reiserfs/xattr.h
-+++ b/fs/reiserfs/xattr.h
-@@ -43,7 +43,7 @@ void reiserfs_security_free(struct reise
- 
- static inline int reiserfs_xattrs_initialized(struct super_block *sb)
- {
--	return REISERFS_SB(sb)->priv_root != NULL;
-+	return REISERFS_SB(sb)->priv_root && REISERFS_SB(sb)->xattr_root;
- }
- 
- #define xattr_size(size) ((size) + sizeof(struct reiserfs_xattr_header))
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -1110,7 +1110,7 @@ struct rtllib_network {
+ 	bool	bWithAironetIE;
+ 	bool	bCkipSupported;
+ 	bool	bCcxRmEnable;
+-	u16	CcxRmState[2];
++	u8	CcxRmState[2];
+ 	bool	bMBssidValid;
+ 	u8	MBssidMask;
+ 	u8	MBssid[ETH_ALEN];
 
 
