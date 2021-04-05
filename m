@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0EE353FFE
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81CFD353E9D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239441AbhDEJPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34106 "EHLO mail.kernel.org"
+        id S238079AbhDEJHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239948AbhDEJOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:14:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92B8361393;
-        Mon,  5 Apr 2021 09:14:23 +0000 (UTC)
+        id S237981AbhDEJGo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:06:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B11B613A7;
+        Mon,  5 Apr 2021 09:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614064;
-        bh=3BvR0ffp7+3mRB0vqYFJ4S/UdIIp26m/T6ItaId+zvc=;
+        s=korg; t=1617613599;
+        bh=dnwRBHEZkgWC5nEUpVNrrxdByp4adnNF+/ucinqL51Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8CIEhuuLXK3JAOXQb0aW6qwWeYG33jfzEB6p+Xv/nBw1eASbYzrQwgEt8RXjlRwO
-         ltq2RrE7t5u7IBTjFGiiuK+XoxT7jlKM4R/8UwVl1a1xxQxX62ZQdlgLibuwIrEZgI
-         T+rNe3nmqNb334yK4ukED8EnqPdUXjodbS95r8XI=
+        b=SXFXux4OughJx8YByu8t/EGroQpDsOOtGmcGt5DQOkNC5yWJ6L6KwrWWS7KF3a/qR
+         P1qxFQKNlPtd6uddh53e6ycia7xxFemaneuKyxwo3+1+ztTkBPpWCbMIQno6IhzQ/v
+         R1jzRTO7zd4nmeh54i/yk8mnLx0Unjwo6CsQQ3Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 035/152] Revert "PM: ACPI: reboot: Use S5 for reboot"
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 022/126] io_uring: fix ->flags races by linked timeouts
 Date:   Mon,  5 Apr 2021 10:53:04 +0200
-Message-Id: <20210405085035.400511931@linuxfoundation.org>
+Message-Id: <20210405085031.764486619@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 9d3fcb28f9b9750b474811a2964ce022df56336e ]
+[ Upstream commit efe814a471e0e58f28f1efaf430c8784a4f36626 ]
 
-This reverts commit d60cd06331a3566d3305b3c7b566e79edf4e2095.
+It's racy to modify req->flags from a not owning context, e.g. linked
+timeout calling req_set_fail_links() for the master request might race
+with that request setting/clearing flags while being executed
+concurrently. Just remove req_set_fail_links(prev) from
+io_link_timeout_fn(), io_async_find_and_cancel() and functions down the
+line take care of setting the fail bit.
 
-This patch causes a panic when rebooting my Dell Poweredge r440.  I do
-not have the full panic log as it's lost at that stage of the reboot and
-I do not have a serial console.  Reverting this patch makes my system
-able to reboot again.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/reboot.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/io_uring.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index eb1b15850761..a6ad5eb2fa73 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -244,8 +244,6 @@ void migrate_to_reboot_cpu(void)
- void kernel_restart(char *cmd)
- {
- 	kernel_restart_prepare(cmd);
--	if (pm_power_off_prepare)
--		pm_power_off_prepare();
- 	migrate_to_reboot_cpu();
- 	syscore_shutdown();
- 	if (!cmd)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index dde290eb7dd0..4e53445db73f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6242,7 +6242,6 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 
+ 	if (prev) {
+-		req_set_fail_links(prev);
+ 		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
+ 		io_put_req_deferred(prev, 1);
+ 	} else {
 -- 
 2.30.1
 
