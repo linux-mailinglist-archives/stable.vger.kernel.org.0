@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96320353EC8
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4061D353DEC
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232714AbhDEJIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:08:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53186 "EHLO mail.kernel.org"
+        id S237528AbhDEJDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237386AbhDEJHr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:07:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88BAD613A4;
-        Mon,  5 Apr 2021 09:07:40 +0000 (UTC)
+        id S237543AbhDEJDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:03:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6A461398;
+        Mon,  5 Apr 2021 09:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613661;
-        bh=l91+oOfn9miaMHMEuYNcd+ONhbwh/a503oVQiotvaCM=;
+        s=korg; t=1617613374;
+        bh=QIkw+eqK7O6QEVTQBLHRL1R2Er/077M5E3/fAeKm96A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLWXFunkfgJLk/duqouOv6+nYhnl4+EwcqGTEXHFPq3+kGmSstdPrZfd15t1EEMlh
-         CmAm5mAqRNq6Adxr9DbMSNZ2vJnWF/0Et923L6M5gKQ0Mkl0gK/d+KT8VV6SlGyaw0
-         kq4QAAMzKVEtypOICewZS0hucs6s5uYoXf4ZJn3s=
+        b=eljUyyWbvreA096TrLxEM6fas9ArDbjrEAnO8ZF0TsC/PBpDTLLx6BXI0TO2IaPXj
+         lb1BkByjXKmcr13ha5kJYJ+OyY5xyL+aDd2qZrE0IdyUs7+YTPex0Nv6fte60ViI0V
+         BwlGJV7He9p4sKf9EAwE1oXlVZsN2rcdJQiEl4OY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/126] iwlwifi: pcie: dont disable interrupts for reg_lock
-Date:   Mon,  5 Apr 2021 10:53:28 +0200
-Message-Id: <20210405085032.567164693@linuxfoundation.org>
+        stable@vger.kernel.org, Frank van der Linden <fllinden@amazon.com>,
+        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 05/74] module: harden ELF info handling
+Date:   Mon,  5 Apr 2021 10:53:29 +0200
+Message-Id: <20210405085024.881993743@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,173 +39,293 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Frank van der Linden <fllinden@amazon.com>
 
-[ Upstream commit 874020f8adce535cd318af1768ffe744251b6593 ]
+[ Upstream commit ec2a29593c83ed71a7f16e3243941ebfcf75fdf6 ]
 
-The only thing we do touching the device in hard interrupt context
-is, at most, writing an interrupt ACK register, which isn't racing
-in with anything protected by the reg_lock.
+5fdc7db644 ("module: setup load info before module_sig_check()")
+moved the ELF setup, so that it was done before the signature
+check. This made the module name available to signature error
+messages.
 
-Thus, avoid disabling interrupts here for potentially long periods
-of time, particularly long periods have been observed with dumping
-of firmware memory (leading to lockup warnings on some devices.)
+However, the checks for ELF correctness in setup_load_info
+are not sufficient to prevent bad memory references due to
+corrupted offset fields, indices, etc.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210210135352.da916ab91298.I064c3e7823b616647293ed97da98edefb9ce9435@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+So, there's a regression in behavior here: a corrupt and unsigned
+(or badly signed) module, which might previously have been rejected
+immediately, can now cause an oops/crash.
+
+Harden ELF handling for module loading by doing the following:
+
+- Move the signature check back up so that it comes before ELF
+  initialization. It's best to do the signature check to see
+  if we can trust the module, before using the ELF structures
+  inside it. This also makes checks against info->len
+  more accurate again, as this field will be reduced by the
+  length of the signature in mod_check_sig().
+
+  The module name is now once again not available for error
+  messages during the signature check, but that seems like
+  a fair tradeoff.
+
+- Check if sections have offset / size fields that at least don't
+  exceed the length of the module.
+
+- Check if sections have section name offsets that don't fall
+  outside the section name table.
+
+- Add a few other sanity checks against invalid section indices,
+  etc.
+
+This is not an exhaustive consistency check, but the idea is to
+at least get through the signature and blacklist checks without
+crashing because of corrupted ELF info, and to error out gracefully
+for most issues that would have caused problems later on.
+
+Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/pcie/trans.c   | 11 +++++-----
- .../net/wireless/intel/iwlwifi/pcie/tx-gen2.c |  5 ++---
- drivers/net/wireless/intel/iwlwifi/pcie/tx.c  | 22 ++++++++-----------
- 3 files changed, 16 insertions(+), 22 deletions(-)
+ kernel/module.c           | 143 +++++++++++++++++++++++++++++++++-----
+ kernel/module_signature.c |   2 +-
+ kernel/module_signing.c   |   2 +-
+ 3 files changed, 127 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index 1a222469b5b4..bb990be7c870 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -2026,7 +2026,7 @@ static bool iwl_trans_pcie_grab_nic_access(struct iwl_trans *trans,
- 	int ret;
- 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
- 
--	spin_lock_irqsave(&trans_pcie->reg_lock, *flags);
-+	spin_lock_bh(&trans_pcie->reg_lock);
- 
- 	if (trans_pcie->cmd_hold_nic_awake)
- 		goto out;
-@@ -2111,7 +2111,7 @@ static bool iwl_trans_pcie_grab_nic_access(struct iwl_trans *trans,
- 		}
- 
- err:
--		spin_unlock_irqrestore(&trans_pcie->reg_lock, *flags);
-+		spin_unlock_bh(&trans_pcie->reg_lock);
- 		return false;
+diff --git a/kernel/module.c b/kernel/module.c
+index 8d1def62a415..c60559b5bf10 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2926,7 +2926,7 @@ static int module_sig_check(struct load_info *info, int flags)
  	}
  
-@@ -2149,7 +2149,7 @@ static void iwl_trans_pcie_release_nic_access(struct iwl_trans *trans,
- 	 * scheduled on different CPUs (after we drop reg_lock).
- 	 */
- out:
--	spin_unlock_irqrestore(&trans_pcie->reg_lock, *flags);
-+	spin_unlock_bh(&trans_pcie->reg_lock);
+ 	if (is_module_sig_enforced()) {
+-		pr_notice("%s: loading of %s is rejected\n", info->name, reason);
++		pr_notice("Loading of %s is rejected\n", reason);
+ 		return -EKEYREJECTED;
+ 	}
+ 
+@@ -2939,9 +2939,33 @@ static int module_sig_check(struct load_info *info, int flags)
+ }
+ #endif /* !CONFIG_MODULE_SIG */
+ 
+-/* Sanity checks against invalid binaries, wrong arch, weird elf version. */
+-static int elf_header_check(struct load_info *info)
++static int validate_section_offset(struct load_info *info, Elf_Shdr *shdr)
+ {
++	unsigned long secend;
++
++	/*
++	 * Check for both overflow and offset/size being
++	 * too large.
++	 */
++	secend = shdr->sh_offset + shdr->sh_size;
++	if (secend < shdr->sh_offset || secend > info->len)
++		return -ENOEXEC;
++
++	return 0;
++}
++
++/*
++ * Sanity checks against invalid binaries, wrong arch, weird elf version.
++ *
++ * Also do basic validity checks against section offsets and sizes, the
++ * section name string table, and the indices used for it (sh_name).
++ */
++static int elf_validity_check(struct load_info *info)
++{
++	unsigned int i;
++	Elf_Shdr *shdr, *strhdr;
++	int err;
++
+ 	if (info->len < sizeof(*(info->hdr)))
+ 		return -ENOEXEC;
+ 
+@@ -2951,11 +2975,78 @@ static int elf_header_check(struct load_info *info)
+ 	    || info->hdr->e_shentsize != sizeof(Elf_Shdr))
+ 		return -ENOEXEC;
+ 
++	/*
++	 * e_shnum is 16 bits, and sizeof(Elf_Shdr) is
++	 * known and small. So e_shnum * sizeof(Elf_Shdr)
++	 * will not overflow unsigned long on any platform.
++	 */
+ 	if (info->hdr->e_shoff >= info->len
+ 	    || (info->hdr->e_shnum * sizeof(Elf_Shdr) >
+ 		info->len - info->hdr->e_shoff))
+ 		return -ENOEXEC;
+ 
++	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
++
++	/*
++	 * Verify if the section name table index is valid.
++	 */
++	if (info->hdr->e_shstrndx == SHN_UNDEF
++	    || info->hdr->e_shstrndx >= info->hdr->e_shnum)
++		return -ENOEXEC;
++
++	strhdr = &info->sechdrs[info->hdr->e_shstrndx];
++	err = validate_section_offset(info, strhdr);
++	if (err < 0)
++		return err;
++
++	/*
++	 * The section name table must be NUL-terminated, as required
++	 * by the spec. This makes strcmp and pr_* calls that access
++	 * strings in the section safe.
++	 */
++	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
++	if (info->secstrings[strhdr->sh_size - 1] != '\0')
++		return -ENOEXEC;
++
++	/*
++	 * The code assumes that section 0 has a length of zero and
++	 * an addr of zero, so check for it.
++	 */
++	if (info->sechdrs[0].sh_type != SHT_NULL
++	    || info->sechdrs[0].sh_size != 0
++	    || info->sechdrs[0].sh_addr != 0)
++		return -ENOEXEC;
++
++	for (i = 1; i < info->hdr->e_shnum; i++) {
++		shdr = &info->sechdrs[i];
++		switch (shdr->sh_type) {
++		case SHT_NULL:
++		case SHT_NOBITS:
++			continue;
++		case SHT_SYMTAB:
++			if (shdr->sh_link == SHN_UNDEF
++			    || shdr->sh_link >= info->hdr->e_shnum)
++				return -ENOEXEC;
++			fallthrough;
++		default:
++			err = validate_section_offset(info, shdr);
++			if (err < 0) {
++				pr_err("Invalid ELF section in module (section %u type %u)\n",
++					i, shdr->sh_type);
++				return err;
++			}
++
++			if (shdr->sh_flags & SHF_ALLOC) {
++				if (shdr->sh_name >= strhdr->sh_size) {
++					pr_err("Invalid ELF section name in module (section %u type %u)\n",
++					       i, shdr->sh_type);
++					return -ENOEXEC;
++				}
++			}
++			break;
++		}
++	}
++
+ 	return 0;
  }
  
- static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
-@@ -2403,11 +2403,10 @@ static void iwl_trans_pcie_set_bits_mask(struct iwl_trans *trans, u32 reg,
- 					 u32 mask, u32 value)
+@@ -3052,11 +3143,6 @@ static int rewrite_section_headers(struct load_info *info, int flags)
+ 
+ 	for (i = 1; i < info->hdr->e_shnum; i++) {
+ 		Elf_Shdr *shdr = &info->sechdrs[i];
+-		if (shdr->sh_type != SHT_NOBITS
+-		    && info->len < shdr->sh_offset + shdr->sh_size) {
+-			pr_err("Module len %lu truncated\n", info->len);
+-			return -ENOEXEC;
+-		}
+ 
+ 		/* Mark all sections sh_addr with their address in the
+ 		   temporary image. */
+@@ -3088,11 +3174,6 @@ static int setup_load_info(struct load_info *info, int flags)
  {
- 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
--	unsigned long flags;
+ 	unsigned int i;
  
--	spin_lock_irqsave(&trans_pcie->reg_lock, flags);
-+	spin_lock_bh(&trans_pcie->reg_lock);
- 	__iwl_trans_pcie_set_bits_mask(trans, reg, mask, value);
--	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
-+	spin_unlock_bh(&trans_pcie->reg_lock);
- }
- 
- static const char *get_csr_string(int cmd)
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-index baa83a0b8593..8c7138247869 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-@@ -78,7 +78,6 @@ static int iwl_pcie_gen2_enqueue_hcmd(struct iwl_trans *trans,
- 	struct iwl_txq *txq = trans->txqs.txq[trans->txqs.cmd.q_id];
- 	struct iwl_device_cmd *out_cmd;
- 	struct iwl_cmd_meta *out_meta;
--	unsigned long flags;
- 	void *dup_buf = NULL;
- 	dma_addr_t phys_addr;
- 	int i, cmd_pos, idx;
-@@ -291,11 +290,11 @@ static int iwl_pcie_gen2_enqueue_hcmd(struct iwl_trans *trans,
- 	if (txq->read_ptr == txq->write_ptr && txq->wd_timeout)
- 		mod_timer(&txq->stuck_timer, jiffies + txq->wd_timeout);
- 
--	spin_lock_irqsave(&trans_pcie->reg_lock, flags);
-+	spin_lock(&trans_pcie->reg_lock);
- 	/* Increment and update queue's write index */
- 	txq->write_ptr = iwl_txq_inc_wrap(trans, txq->write_ptr);
- 	iwl_txq_inc_wr_ptr(trans, txq);
--	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
-+	spin_unlock(&trans_pcie->reg_lock);
- 
- out:
- 	spin_unlock_bh(&txq->lock);
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-index ed54d04e4396..50133c09a780 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-@@ -321,12 +321,10 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
- 		txq->read_ptr = iwl_txq_inc_wrap(trans, txq->read_ptr);
- 
- 		if (txq->read_ptr == txq->write_ptr) {
--			unsigned long flags;
+-	/* Set up the convenience variables */
+-	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
+-	info->secstrings = (void *)info->hdr
+-		+ info->sechdrs[info->hdr->e_shstrndx].sh_offset;
 -
--			spin_lock_irqsave(&trans_pcie->reg_lock, flags);
-+			spin_lock(&trans_pcie->reg_lock);
- 			if (txq_id == trans->txqs.cmd.q_id)
- 				iwl_pcie_clear_cmd_in_flight(trans);
--			spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
-+			spin_unlock(&trans_pcie->reg_lock);
- 		}
+ 	/* Try to find a name early so we can log errors with a module name */
+ 	info->index.info = find_sec(info, ".modinfo");
+ 	if (info->index.info)
+@@ -3820,23 +3901,49 @@ static int load_module(struct load_info *info, const char __user *uargs,
+ 	long err = 0;
+ 	char *after_dashes;
+ 
+-	err = elf_header_check(info);
++	/*
++	 * Do the signature check (if any) first. All that
++	 * the signature check needs is info->len, it does
++	 * not need any of the section info. That can be
++	 * set up later. This will minimize the chances
++	 * of a corrupt module causing problems before
++	 * we even get to the signature check.
++	 *
++	 * The check will also adjust info->len by stripping
++	 * off the sig length at the end of the module, making
++	 * checks against info->len more correct.
++	 */
++	err = module_sig_check(info, flags);
+ 	if (err)
+ 		goto free_copy;
+ 
++	/*
++	 * Do basic sanity checks against the ELF header and
++	 * sections.
++	 */
++	err = elf_validity_check(info);
++	if (err) {
++		pr_err("Module has invalid ELF structures\n");
++		goto free_copy;
++	}
++
++	/*
++	 * Everything checks out, so set up the section info
++	 * in the info structure.
++	 */
+ 	err = setup_load_info(info, flags);
+ 	if (err)
+ 		goto free_copy;
+ 
++	/*
++	 * Now that we know we have the correct module name, check
++	 * if it's blacklisted.
++	 */
+ 	if (blacklisted(info->name)) {
+ 		err = -EPERM;
+ 		goto free_copy;
  	}
  
-@@ -931,7 +929,6 @@ static void iwl_pcie_cmdq_reclaim(struct iwl_trans *trans, int txq_id, int idx)
- {
- 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
- 	struct iwl_txq *txq = trans->txqs.txq[txq_id];
--	unsigned long flags;
- 	int nfreed = 0;
- 	u16 r;
- 
-@@ -962,9 +959,10 @@ static void iwl_pcie_cmdq_reclaim(struct iwl_trans *trans, int txq_id, int idx)
- 	}
- 
- 	if (txq->read_ptr == txq->write_ptr) {
--		spin_lock_irqsave(&trans_pcie->reg_lock, flags);
-+		/* BHs are also disabled due to txq->lock */
-+		spin_lock(&trans_pcie->reg_lock);
- 		iwl_pcie_clear_cmd_in_flight(trans);
--		spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
-+		spin_unlock(&trans_pcie->reg_lock);
- 	}
- 
- 	iwl_pcie_txq_progress(txq);
-@@ -1173,7 +1171,6 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
- 	struct iwl_txq *txq = trans->txqs.txq[trans->txqs.cmd.q_id];
- 	struct iwl_device_cmd *out_cmd;
- 	struct iwl_cmd_meta *out_meta;
--	unsigned long flags;
- 	void *dup_buf = NULL;
- 	dma_addr_t phys_addr;
- 	int idx;
-@@ -1416,20 +1413,19 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
- 	if (txq->read_ptr == txq->write_ptr && txq->wd_timeout)
- 		mod_timer(&txq->stuck_timer, jiffies + txq->wd_timeout);
- 
--	spin_lock_irqsave(&trans_pcie->reg_lock, flags);
-+	spin_lock(&trans_pcie->reg_lock);
- 	ret = iwl_pcie_set_cmd_in_flight(trans, cmd);
- 	if (ret < 0) {
- 		idx = ret;
--		spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
--		goto out;
-+		goto unlock_reg;
- 	}
- 
- 	/* Increment and update queue's write index */
- 	txq->write_ptr = iwl_txq_inc_wrap(trans, txq->write_ptr);
- 	iwl_pcie_txq_inc_wr_ptr(trans, txq);
- 
--	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
+-	err = module_sig_check(info, flags);
+-	if (err)
+-		goto free_copy;
 -
-+ unlock_reg:
-+	spin_unlock(&trans_pcie->reg_lock);
-  out:
- 	spin_unlock_bh(&txq->lock);
-  free_dup_buf:
+ 	err = rewrite_section_headers(info, flags);
+ 	if (err)
+ 		goto free_copy;
+diff --git a/kernel/module_signature.c b/kernel/module_signature.c
+index 4224a1086b7d..00132d12487c 100644
+--- a/kernel/module_signature.c
++++ b/kernel/module_signature.c
+@@ -25,7 +25,7 @@ int mod_check_sig(const struct module_signature *ms, size_t file_len,
+ 		return -EBADMSG;
+ 
+ 	if (ms->id_type != PKEY_ID_PKCS7) {
+-		pr_err("%s: Module is not signed with expected PKCS#7 message\n",
++		pr_err("%s: not signed with expected PKCS#7 message\n",
+ 		       name);
+ 		return -ENOPKG;
+ 	}
+diff --git a/kernel/module_signing.c b/kernel/module_signing.c
+index 9d9fc678c91d..8723ae70ea1f 100644
+--- a/kernel/module_signing.c
++++ b/kernel/module_signing.c
+@@ -30,7 +30,7 @@ int mod_verify_sig(const void *mod, struct load_info *info)
+ 
+ 	memcpy(&ms, mod + (modlen - sizeof(ms)), sizeof(ms));
+ 
+-	ret = mod_check_sig(&ms, modlen, info->name);
++	ret = mod_check_sig(&ms, modlen, "module");
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.30.1
 
