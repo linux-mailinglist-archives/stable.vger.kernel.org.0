@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C72D2353DDF
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BD6353E40
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237485AbhDEJCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44926 "EHLO mail.kernel.org"
+        id S238652AbhDEJFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237483AbhDEJCi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CDE161394;
-        Mon,  5 Apr 2021 09:02:28 +0000 (UTC)
+        id S237846AbhDEJEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:04:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC8AC61002;
+        Mon,  5 Apr 2021 09:04:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613349;
-        bh=9IHNxmbhvUvLJajzElxBGK+tfIaWReFhDVc9+mIvRZ8=;
+        s=korg; t=1617613441;
+        bh=o9npj2PEJPAd7ycnaeJTW8IY36iNPzqDRgZ+awEobjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hKPPT79EZTZ0a8emgwOPM3fBOsNTLg3EKc221PpNHFfGD1nY9837M+hRwy+1ipJOI
-         QR4kWTu2MHUHDRKxcOBPiJ5R13fYoCj5mQk12jJT2xmuv+dzIbHUoO4PuK851jnoYA
-         CeSRTRrb3xzXY1zaCv78V83ks3TaGClgKPtBtuyU=
+        b=aNfBwv2Wsf2dUxvgM+7cBIuQsC081r14WeE7OA0I+h/6Ign9QeFjdQITlfbxk6MYP
+         RZm5UioVukiq5m0M9kniSdKpgPqq+xP/NcZvFhK4N/h2IHJKwayBiz+nkDcUUxLTjF
+         v90b6Gx7KYK2K/KnciZ0h8iA98hyq6KMPOYEomXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 30/56] ALSA: hda/realtek: fix a determine_headset_type issue for a Dell AIO
+        stable@vger.kernel.org, Nathan Rossi <nathan.rossi@digi.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 37/74] net: ethernet: aquantia: Handle error cleanup of start on open
 Date:   Mon,  5 Apr 2021 10:54:01 +0200
-Message-Id: <20210405085023.497190959@linuxfoundation.org>
+Message-Id: <20210405085025.945300337@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Nathan Rossi <nathan.rossi@digi.com>
 
-commit febf22565549ea7111e7d45e8f2d64373cc66b11 upstream.
+[ Upstream commit 8a28af7a3e85ddf358f8c41e401a33002f7a9587 ]
 
-We found a recording issue on a Dell AIO, users plug a headset-mic and
-select headset-mic from UI, but can't record any sound from
-headset-mic. The root cause is the determine_headset_type() returns a
-wrong type, e.g. users plug a ctia type headset, but that function
-returns omtp type.
+The aq_nic_start function can fail in a variety of cases which leaves
+the device in broken state.
 
-On this machine, the internal mic is not connected to the codec, the
-"Input Source" is headset mic by default. And when users plug a
-headset, the determine_headset_type() will be called immediately, the
-codec on this AIO is alc274, the delay time for this codec in the
-determine_headset_type() is only 80ms, the delay is too short to
-correctly determine the headset type, the fail rate is nearly 99% when
-users plug the headset with the normal speed.
+An example case where the start function fails is the
+request_threaded_irq which can be interrupted, resulting in a EINTR
+result. This can be manually triggered by bringing the link up (e.g. ip
+link set up) and triggering a SIGINT on the initiating process (e.g.
+Ctrl+C). This would put the device into a half configured state.
+Subsequently bringing the link up again would cause the napi_enable to
+BUG.
 
-Other codecs set several hundred ms delay time, so here I change the
-delay time to 850ms for alc2x4 series, after this change, the fail
-rate is zero unless users plug the headset slowly on purpose.
+In order to correctly clean up the failed attempt to start a device call
+aq_nic_stop.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210320091542.6748-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nathan Rossi <nathan.rossi@digi.com>
+Reviewed-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4870,7 +4870,7 @@ static void alc_determine_headset_type(s
- 	case 0x10ec0274:
- 	case 0x10ec0294:
- 		alc_process_coef_fw(codec, coef0274);
--		msleep(80);
-+		msleep(850);
- 		val = alc_read_coef_idx(codec, 0x46);
- 		is_ctia = (val & 0x00f0) == 0x00f0;
- 		break;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_main.c b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
+index bb65dd39f847..72c7404ae6c5 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_main.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
+@@ -66,8 +66,10 @@ static int aq_ndev_open(struct net_device *ndev)
+ 		goto err_exit;
+ 
+ 	err = aq_nic_start(aq_nic);
+-	if (err < 0)
++	if (err < 0) {
++		aq_nic_stop(aq_nic);
+ 		goto err_exit;
++	}
+ 
+ err_exit:
+ 	if (err < 0)
+-- 
+2.30.1
+
 
 
