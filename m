@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF3B353EDB
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53804353E42
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238394AbhDEJIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:08:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53726 "EHLO mail.kernel.org"
+        id S237590AbhDEJFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238554AbhDEJIN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:08:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B01F661399;
-        Mon,  5 Apr 2021 09:08:04 +0000 (UTC)
+        id S237907AbhDEJEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:04:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FD6C61002;
+        Mon,  5 Apr 2021 09:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613685;
-        bh=S0Vfaw5rbZr012OmTUTy7ewL1yKR2z1XwDNrD6hVT/Q=;
+        s=korg; t=1617613446;
+        bh=Q+0jumXmzvPvzzhe9LlNKcZvOJQf/E7TzqeOEAOGAWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPKDKqolsG0mgFYwWNYRqG+sVNHli3tv4xC4/P3478v4nSgdxW5h2DpZrMn28ZVSM
-         7mNtjaMZvmyYOLf+Za6GvjBLlLYg798GDzNXaYQW7DMpLB5W7XtrXx0lH19GwlrxLW
-         cddiL78AACVYRqtNedSOlVN7xmG1RVaaBQoN78Uo=
+        b=JmklDYgiHw0nJ3oglQD8P2ZfghXpVK5cRRJJZO/naeupBDpNyUYtjQhlw1UMJQFhJ
+         COWibJoe3JnNNmbqyG5djlfthVKZFf4zkbKNFy6Mpj4x/CIwnewj81Fy8qGG+DtbY8
+         Y8eYIVcAYzqVM3pdEggkYNzrpHPnCm7wdTg2LAZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.10 054/126] bpf: Remove MTU check in __bpf_skb_max_len
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 12/74] ASoC: rt5651: Fix dac- and adc- vol-tlv values being off by a factor of 10
 Date:   Mon,  5 Apr 2021 10:53:36 +0200
-Message-Id: <20210405085032.816572861@linuxfoundation.org>
+Message-Id: <20210405085025.126836383@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 6306c1189e77a513bf02720450bb43bd4ba5d8ae upstream.
+[ Upstream commit eee51df776bd6cac10a76b2779a9fdee3f622b2b ]
 
-Multiple BPF-helpers that can manipulate/increase the size of the SKB uses
-__bpf_skb_max_len() as the max-length. This function limit size against
-the current net_device MTU (skb->dev->mtu).
+The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
+not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
+apps which translate the dB scale to a linear scale. With the logarithmic
+dB scale being of by a factor of 10 we loose all precision in the lower
+area of the range when apps translate things to a linear scale.
 
-When a BPF-prog grow the packet size, then it should not be limited to the
-MTU. The MTU is a transmit limitation, and software receiving this packet
-should be allowed to increase the size. Further more, current MTU check in
-__bpf_skb_max_len uses the MTU from ingress/current net_device, which in
-case of redirects uses the wrong net_device.
+E.g. the 0 dB default, which corresponds with a value of 47 of the
+0 - 127 range for the control, would be shown as 0/100 in alsa-mixer.
 
-This patch keeps a sanity max limit of SKB_MAX_ALLOC (16KiB). The real limit
-is elsewhere in the system. Jesper's testing[1] showed it was not possible
-to exceed 8KiB when expanding the SKB size via BPF-helper. The limiting
-factor is the define KMALLOC_MAX_CACHE_SIZE which is 8192 for
-SLUB-allocator (CONFIG_SLUB) in-case PAGE_SIZE is 4096. This define is
-in-effect due to this being called from softirq context see code
-__gfp_pfmemalloc_flags() and __do_kmalloc_node(). Jakub's testing showed
-that frames above 16KiB can cause NICs to reset (but not crash). Keep this
-sanity limit at this level as memory layer can differ based on kernel
-config.
+Since the centi-dB values used in the TLV struct cannot represent the
+0.375 dB step size used by these controls, change the TLV definition
+for them to specify a min and max value instead of min + stepsize.
 
-[1] https://github.com/xdp-project/bpf-examples/tree/master/MTU-tests
+Note this mirrors commit 3f31f7d9b540 ("ASoC: rt5670: Fix dac- and adc-
+vol-tlv values being off by a factor of 10") which made the exact same
+change to the rt5670 codec driver.
 
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/161287788936.790810.2937823995775097177.stgit@firesoul
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210226143817.84287-3-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ sound/soc/codecs/rt5651.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -3552,11 +3552,7 @@ static int bpf_skb_net_shrink(struct sk_
- 	return 0;
+diff --git a/sound/soc/codecs/rt5651.c b/sound/soc/codecs/rt5651.c
+index c506c9305043..829cf552fe3e 100644
+--- a/sound/soc/codecs/rt5651.c
++++ b/sound/soc/codecs/rt5651.c
+@@ -285,9 +285,9 @@ static bool rt5651_readable_register(struct device *dev, unsigned int reg)
  }
  
--static u32 __bpf_skb_max_len(const struct sk_buff *skb)
--{
--	return skb->dev ? skb->dev->mtu + skb->dev->hard_header_len :
--			  SKB_MAX_ALLOC;
--}
-+#define BPF_SKB_MAX_LEN SKB_MAX_ALLOC
+ static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
+-static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -65625, 375, 0);
++static const DECLARE_TLV_DB_MINMAX(dac_vol_tlv, -6562, 0);
+ static const DECLARE_TLV_DB_SCALE(in_vol_tlv, -3450, 150, 0);
+-static const DECLARE_TLV_DB_SCALE(adc_vol_tlv, -17625, 375, 0);
++static const DECLARE_TLV_DB_MINMAX(adc_vol_tlv, -1762, 3000);
+ static const DECLARE_TLV_DB_SCALE(adc_bst_tlv, 0, 1200, 0);
  
- BPF_CALL_4(sk_skb_adjust_room, struct sk_buff *, skb, s32, len_diff,
- 	   u32, mode, u64, flags)
-@@ -3605,7 +3601,7 @@ BPF_CALL_4(bpf_skb_adjust_room, struct s
- {
- 	u32 len_cur, len_diff_abs = abs(len_diff);
- 	u32 len_min = bpf_skb_net_base_len(skb);
--	u32 len_max = __bpf_skb_max_len(skb);
-+	u32 len_max = BPF_SKB_MAX_LEN;
- 	__be16 proto = skb->protocol;
- 	bool shrink = len_diff < 0;
- 	u32 off;
-@@ -3688,7 +3684,7 @@ static int bpf_skb_trim_rcsum(struct sk_
- static inline int __bpf_skb_change_tail(struct sk_buff *skb, u32 new_len,
- 					u64 flags)
- {
--	u32 max_len = __bpf_skb_max_len(skb);
-+	u32 max_len = BPF_SKB_MAX_LEN;
- 	u32 min_len = __bpf_skb_min_len(skb);
- 	int ret;
- 
-@@ -3764,7 +3760,7 @@ static const struct bpf_func_proto sk_sk
- static inline int __bpf_skb_change_head(struct sk_buff *skb, u32 head_room,
- 					u64 flags)
- {
--	u32 max_len = __bpf_skb_max_len(skb);
-+	u32 max_len = BPF_SKB_MAX_LEN;
- 	u32 new_len = skb->len + head_room;
- 	int ret;
- 
+ /* {0, +20, +24, +30, +35, +40, +44, +50, +52} dB */
+-- 
+2.30.1
+
 
 
