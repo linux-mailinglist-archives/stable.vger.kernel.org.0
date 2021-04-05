@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1079353D31
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 361EB353D40
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234016AbhDEI67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:58:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39194 "EHLO mail.kernel.org"
+        id S236731AbhDEI7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:59:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234181AbhDEI6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14DE76124C;
-        Mon,  5 Apr 2021 08:58:44 +0000 (UTC)
+        id S233720AbhDEI6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:58:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65AE76138A;
+        Mon,  5 Apr 2021 08:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613125;
-        bh=aPJpltkchcPXs6j6U+MrNzWz5fJDbc2V1GJWV2LC06k=;
+        s=korg; t=1617613127;
+        bh=OpEccYSIEvDifJWbaGyRKbJQ280uBLcrokr4+CzDmsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+6JrJgYkrLMEy76Y69J7Kz0Hw2S4jdPJGRRf4pHFecT4XeJc8Vr2qsG2yyveJgaa
-         IsqVmFTDErObAKoZviy1YcTX05I/dl0QNAHFLOg1vCmWdNc5x+z6JCveiYU9r/MKmn
-         RIaCUQc2baMTIlqU/YXRUDuGMPhyaJya/xbnvo8U=
+        b=DPEmS5/F2KQe4wK2yhWtm27r4OHbXhUVm0y0t/o7ZGUC/p+F+gsa+b2wcPcxaVXw3
+         0V0kFQd1o3TuFkt9BMWRPlDOAnT6m7ToL/sEIf3jDr3a+i8Jm4geeeGOjApwBXVv7X
+         8W93dAo8VkBYYF4ywTa0t8GIR7d3mgL3ad1uPbWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/52] ASoC: rt5640: Fix dac- and adc- vol-tlv values being off by a factor of 10
-Date:   Mon,  5 Apr 2021 10:53:31 +0200
-Message-Id: <20210405085022.174420519@linuxfoundation.org>
+Subject: [PATCH 4.14 06/52] ASoC: rt5651: Fix dac- and adc- vol-tlv values being off by a factor of 10
+Date:   Mon,  5 Apr 2021 10:53:32 +0200
+Message-Id: <20210405085022.207133755@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
 References: <20210405085021.996963957@linuxfoundation.org>
@@ -42,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit cfa26ed1f9f885c2fd8f53ca492989d1e16d0199 ]
+[ Upstream commit eee51df776bd6cac10a76b2779a9fdee3f622b2b ]
 
 The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
 not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
@@ -62,18 +62,18 @@ vol-tlv values being off by a factor of 10") which made the exact same
 change to the rt5670 codec driver.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210226143817.84287-2-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20210226143817.84287-3-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5640.c | 4 ++--
+ sound/soc/codecs/rt5651.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5640.c b/sound/soc/codecs/rt5640.c
-index 438fe52a12df..5af5dfc0fd46 100644
---- a/sound/soc/codecs/rt5640.c
-+++ b/sound/soc/codecs/rt5640.c
-@@ -341,9 +341,9 @@ static bool rt5640_readable_register(struct device *dev, unsigned int reg)
+diff --git a/sound/soc/codecs/rt5651.c b/sound/soc/codecs/rt5651.c
+index 57c2add323c4..38510fd06458 100644
+--- a/sound/soc/codecs/rt5651.c
++++ b/sound/soc/codecs/rt5651.c
+@@ -287,9 +287,9 @@ static bool rt5651_readable_register(struct device *dev, unsigned int reg)
  }
  
  static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
