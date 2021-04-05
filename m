@@ -2,88 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1B23547F4
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 23:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A9F33547F5
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 23:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241210AbhDEVCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 17:02:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41582 "EHLO
+        id S239844AbhDEVDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 17:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237300AbhDEVCw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 17:02:52 -0400
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99689C061756
-        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 14:02:44 -0700 (PDT)
-Received: by mail-pl1-x649.google.com with SMTP id q4so3001384plr.11
-        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 14:02:44 -0700 (PDT)
+        with ESMTP id S235325AbhDEVDD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 17:03:03 -0400
+Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73757C061788
+        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 14:02:56 -0700 (PDT)
+Received: by mail-pf1-x44a.google.com with SMTP id 7so9712571pfn.4
+        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 14:02:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=uEn/zQniiDhohv66WDjksnSG5JiSVhPmvWt79UkOhJQ=;
-        b=qrNZSv1aZ2r6E2AUG+lqKBeRcGMBYWk8fG5P58Dejp85KMXfk6Fa5xFOS4srZF21PQ
-         rTd+FI2r9p3l9VTvOswSuug51MJ2D6oxxW9nftMIuhK+qsr4fNRD0e7sF6mBLrtpaQVB
-         cakvWqwH/kEMrofi/MiIEmJqK2lNkTQRs/WWmcAVXiBXNR3MMvFrDuGMqQVcaWiz/tjH
-         whH8tpp3whZm0ezpetzP4grM2V6IkEr2h1DTjZM4Qw+UziEOH70VPUrS5bP6c2jYDlDF
-         eItuDYGZnWR4tmzi6V2bHoIdVvZJFcg3TSgnT3ZzHvAPNowPyDxuarYsQ8fIgkIcFHID
-         XEtg==
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=So0y7ATR8dilmlW63jQBY7ay+ZwzZlkrRYrCdkKLLbU=;
+        b=X8/vBvJnQMoDX/ifymsVwoTeaE4Ii6TeIAFVqohOdcnMQaor8/enlFx/LVAQxAtkHG
+         P+72m/kEheBHoq9wgZOiveIF9/bT/CdK1yWbXBwmGc/LJlDvt2kezPiDH1emkG1tcqiO
+         49eFmO2sYdeCscZBIYfOjFxk6aV8qvRytoppmKNSX7CFyEc1xil8SWjAgyT05AlCSf9g
+         BP2NoxXlbYRFxpDIl0JwUSADccjtk6uOgxlvkszQhM9cxlf8zBkznOi+GX2iMFMG11oa
+         +/HtOriVUm0W7HEQUt3sEO8mx+LDORClbBvnphlKOJRvYzoTEpMxbxHqUU6mfAfPh6o7
+         kQGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=uEn/zQniiDhohv66WDjksnSG5JiSVhPmvWt79UkOhJQ=;
-        b=mfXe3z319PBu/1Mc61599vvoOof8JUaYPGyCcH00PFVzANvFTw0wntqTdbir0Zb1a1
-         DBO75oZa4LWmXVHXBbZX5InWTEesGtcvNrhLOpwVklgq7TmJ/1cTK/JHDObTXQjdqp6G
-         0vUZ3QRovtkXEkE5i4LI9vqrWwGIk7FtIoXY76nauvpur5rZ0Sq5uKCmJmZlmv3rgs1w
-         1O9cVptuqJC8DOQeM1dFrUuYwy+9QpYIwEJm29qQFX6k/IIU4dZL1537vUn+B0JWcX65
-         w2owSTYWfTp+X+lS/dv2R7z0rZxtwfLsnMburh2iNW/XOyoHWJKGJukba+3tGOP8SCpv
-         Lm4A==
-X-Gm-Message-State: AOAM533zBiW462BM4Fyz29V/Sq5vhyW2KaWehXZD/e5b66meGQFOouk4
-        vPip/gnafgbbdpzPdSkDs4dRKgUt9+FiUdZWbiejG39e2U6Pwa1xGFL8q6mhIwJK0zBOIZbOqQz
-        ZTjyRQDAxVQcUcS9luw0U/c/3zjtxUKdM4IiKBOF28xaIXa7aq3dbqDPSP18=
-X-Google-Smtp-Source: ABdhPJz5QLSh149pYQfQMwAMkgdRS1y+nMCVvjWLgmPWJ6Mx3u61iMS787wAS18Dm11OgiN7IRqQeFmDbw==
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=So0y7ATR8dilmlW63jQBY7ay+ZwzZlkrRYrCdkKLLbU=;
+        b=B7R1tZNJAQA1W51PSR9qH6Ly/CARaVxm+5MNAfI+GynA5vZB2ueV6V5u+kZj6K1roZ
+         QFD/EFJS1ne5sQoIqOqB/1kqHP0WXqGEYzTzpHKuyd0viOhGIrOiILDEW8ZpZxGFl/6Z
+         lWBrPCB4K3qR2eN7m/jUCsY82rwpqmo2H6T/nz69rp157N9CIIACxSQilr7cCZe8h+wq
+         4tXRIfmTXcyYrboXxZEVD/O1HL0rUBDzXnmn8/3RvESjqX2EEFUxm90OBn4QBhUMubFT
+         l8tWk2DAEr+cleXXEmW+IEx2HiDAXHBTgkUbT2Ph5VL7zZHzFqv4EBHQ5eLn8GL+ev6d
+         L+FQ==
+X-Gm-Message-State: AOAM531DGVRtb8EVln3hASGij1+TkNQEYtnUFmOhCPYWAg/mQkJINebV
+        FtHpPmNndJYim6eMBdanTqvvVw5ubx8Jhqp9com3+mGtXhHGsYwAqKCPkGzWvIkDs5JV0ttOn5F
+        BM1Kv55YYDk4ilhr9pkhFafflXMzJLmP/iLKlUz2UWavoF+vlNRJbE1SgBnk=
+X-Google-Smtp-Source: ABdhPJw2DloO8Hr1zFVBSe0cv6N9mz20hDNSskphrsT00OEoVmG/Sw/SELpAT87Q6rYAkAc95XDEVc7WvA==
 X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a17:902:6ac3:b029:e6:c6a3:a697 with SMTP id
- i3-20020a1709026ac3b02900e6c6a3a697mr26353340plt.2.1617656564034; Mon, 05 Apr
- 2021 14:02:44 -0700 (PDT)
-Date:   Mon,  5 Apr 2021 21:02:22 +0000
-Message-Id: <20210405210230.1707074-1-jxgao@google.com>
+ (user=jxgao job=sendgmr) by 2002:a17:90a:9281:: with SMTP id
+ n1mr990606pjo.146.1617656575946; Mon, 05 Apr 2021 14:02:55 -0700 (PDT)
+Date:   Mon,  5 Apr 2021 21:02:23 +0000
+In-Reply-To: <20210405210230.1707074-1-jxgao@google.com>
+Message-Id: <20210405210230.1707074-2-jxgao@google.com>
 Mime-Version: 1.0
+References: <20210405210230.1707074-1-jxgao@google.com>
 X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
-Subject: [PATCH v5.10 0/8] preserve DMA offsets when using swiotlb
+Subject: [PATCH v5.10 1/8] driver core: add a min_align_mask field to struct  device_dma_parameters
 From:   Jianxiong Gao <jxgao@google.com>
 To:     stable@vger.kernel.org
-Cc:     Jianxiong Gao <jxgao@google.com>
+Cc:     Jianxiong Gao <jxgao@google.com>, Christoph Hellwig <hch@lst.de>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi all,
+'commit 36950f2da1ea ("driver core: add a min_align_mask field to struct device_dma_parameters")'
 
-This series of backports fixes the SWIOTLB library to maintain the
-page offset when mapping a DMA address. The bug that motivated this
-patch series manifested when running a 5.4 kernel as a SEV guest with
-an NVMe device. However, any device that infers information from the
-page offset and is accessed through the SWIOTLB will benefit from this
-bug fix.
+Some devices rely on the address offset in a page to function
+correctly (NVMe driver as an example). These devices may use
+a different page size than the Linux kernel. The address offset
+has to be preserved upon mapping, and in order to do so, we
+need to record the page_offset_mask first.
 
-Jianxiong Gao (8):
-  driver core: add a min_align_mask field to struct 
-    device_dma_parameters
-  swiotlb: factor out an io_tlb_offset helper
-  swiotlb: factor out a nr_slots helper
-  swiotlb: clean up swiotlb_tbl_unmap_single
-  swiotlb: refactor swiotlb_tbl_map_single
-  swiotlb: don't modify orig_addr in  swiotlb_tbl_sync_single
-  swiotlb: respect min_align_mask
-  nvme-pci: set min_align_mask
+Signed-off-by: Jianxiong Gao <jxgao@google.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/linux/device.h      |  1 +
+ include/linux/dma-mapping.h | 16 ++++++++++++++++
+ 2 files changed, 17 insertions(+)
 
- drivers/nvme/host/pci.c     |   1 +
- include/linux/device.h      |   1 +
- include/linux/dma-mapping.h |  16 +++
- include/linux/swiotlb.h     |   1 +
- kernel/dma/swiotlb.c        | 256 ++++++++++++++++++++----------------
- 5 files changed, 160 insertions(+), 115 deletions(-)
-
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 5ed101be7b2e..cfa8ead48f1e 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -291,6 +291,7 @@ struct device_dma_parameters {
+ 	 * sg limitations.
+ 	 */
+ 	unsigned int max_segment_size;
++	unsigned int min_align_mask;
+ 	unsigned long segment_boundary_mask;
+ };
+ 
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 956151052d45..a7d70cdee25e 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -500,6 +500,22 @@ static inline int dma_set_seg_boundary(struct device *dev, unsigned long mask)
+ 	return -EIO;
+ }
+ 
++static inline unsigned int dma_get_min_align_mask(struct device *dev)
++{
++	if (dev->dma_parms)
++		return dev->dma_parms->min_align_mask;
++	return 0;
++}
++
++static inline int dma_set_min_align_mask(struct device *dev,
++		unsigned int min_align_mask)
++{
++	if (WARN_ON_ONCE(!dev->dma_parms))
++		return -EIO;
++	dev->dma_parms->min_align_mask = min_align_mask;
++	return 0;
++}
++
+ static inline int dma_get_cache_alignment(void)
+ {
+ #ifdef ARCH_DMA_MINALIGN
 -- 
 2.27.0
 
