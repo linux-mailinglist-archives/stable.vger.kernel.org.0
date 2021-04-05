@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 879F8353FF9
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB53C353D9B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239137AbhDEJPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33988 "EHLO mail.kernel.org"
+        id S233550AbhDEJAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239790AbhDEJOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:14:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CFD3611C1;
-        Mon,  5 Apr 2021 09:14:10 +0000 (UTC)
+        id S237219AbhDEJAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:00:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBB4B6124C;
+        Mon,  5 Apr 2021 09:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614050;
-        bh=f5X60IfhNuIilOQ7s+6siO+BL2LEjV2i80PBB29Ydz8=;
+        s=korg; t=1617613239;
+        bh=JG3rcj9yUPFQbNTf21qj+7dxIRrq32Sbt//oZalSZsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiPDc3ZJlGuUT+XfxvxsYC2ixpobbzN/TVRadfAm27yCqBB7L6d1BWlzC+oindGQ5
-         dFVTCfO6ZxtvgWf3XkzmmpdtZ9I5Uc34TqSqGe8YlSafKGDpWQWqQ8hpyMUr7IxJtY
-         de9OOw5+4Iii+Y/PBmXd/SxGShqBNj07BGCJjbKA=
+        b=jessx7rZZcT3j0aMfWvgc3Ic8HQmcpyAeH4dm6FT0++1TAt5/ZX0zsnYq9C//K7MI
+         GJzgjoK42Gs0wsJ1+nNbEmL6FS/2Y7/ZebX6m1+Q4bS238iBHxKfOJuOC8I+ksxBYU
+         bAnz0H3D6rA2XeJTFFCEW29IjxNnuc+b9xmekRzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alexander Ovechkin <ovov@yandex-team.ru>,
+        Oleg Senin <olegsenin@yandex-team.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 064/152] net: ipa: fix register write command validation
+Subject: [PATCH 4.19 02/56] tcp: relookup sock for RST+ACK packets handled by obsolete req sock
 Date:   Mon,  5 Apr 2021 10:53:33 +0200
-Message-Id: <20210405085036.354000736@linuxfoundation.org>
+Message-Id: <20210405085022.638938821@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,100 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Alexander Ovechkin <ovov@yandex-team.ru>
 
-[ Upstream commit 2d65ed76924bc772d3974b0894d870b1aa63b34a ]
+commit 7233da86697efef41288f8b713c10c2499cffe85 upstream.
 
-In ipa_cmd_register_write_valid() we verify that values we will
-supply to a REGISTER_WRITE IPA immediate command will fit in
-the fields that need to hold them.  This patch fixes some issues
-in that function and ipa_cmd_register_write_offset_valid().
+Currently tcp_check_req can be called with obsolete req socket for which big
+socket have been already created (because of CPU race or early demux
+assigning req socket to multiple packets in gro batch).
 
-The dev_err() call in ipa_cmd_register_write_offset_valid() has
-some printf format errors:
-  - The name of the register (corresponding to the string format
-    specifier) was not supplied.
-  - The IPA base offset and offset need to be supplied separately to
-    match the other format specifiers.
-Also make the ~0 constant used there to compute the maximum
-supported offset value explicitly unsigned.
+Commit e0f9759f530bf789e984 ("tcp: try to keep packet if SYN_RCV race
+is lost") added retry in case when tcp_check_req is called for PSH|ACK packet.
+But if client sends RST+ACK immediatly after connection being
+established (it is performing healthcheck, for example) retry does not
+occur. In that case tcp_check_req tries to close req socket,
+leaving big socket active.
 
-There are two other issues in ipa_cmd_register_write_valid():
-  - There's no need to check the hash flush register for platforms
-    (like IPA v4.2) that do not support hashed tables
-  - The highest possible endpoint number, whose status register
-    offset is computed, is COUNT - 1, not COUNT.
-
-Fix these problems, and add some additional commentary.
-
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e0f9759f530b ("tcp: try to keep packet if SYN_RCV race is lost")
+Signed-off-by: Alexander Ovechkin <ovov@yandex-team.ru>
+Reported-by: Oleg Senin <olegsenin@yandex-team.ru>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_cmd.c | 32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ include/net/inet_connection_sock.h | 2 +-
+ net/ipv4/inet_connection_sock.c    | 7 +++++--
+ net/ipv4/tcp_minisocks.c           | 7 +++++--
+ 3 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ipa/ipa_cmd.c b/drivers/net/ipa/ipa_cmd.c
-index 002e51448510..eb65a11e33ea 100644
---- a/drivers/net/ipa/ipa_cmd.c
-+++ b/drivers/net/ipa/ipa_cmd.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
+diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
+index fc9d6e37552d..da8a582ab032 100644
+--- a/include/net/inet_connection_sock.h
++++ b/include/net/inet_connection_sock.h
+@@ -288,7 +288,7 @@ static inline int inet_csk_reqsk_queue_is_full(const struct sock *sk)
+ 	return inet_csk_reqsk_queue_len(sk) >= sk->sk_max_ack_backlog;
+ }
  
- /* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
-- * Copyright (C) 2019-2020 Linaro Ltd.
-+ * Copyright (C) 2019-2021 Linaro Ltd.
-  */
+-void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
++bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
+ void inet_csk_reqsk_queue_drop_and_put(struct sock *sk, struct request_sock *req);
  
- #include <linux/types.h>
-@@ -244,11 +244,15 @@ static bool ipa_cmd_register_write_offset_valid(struct ipa *ipa,
- 	if (ipa->version != IPA_VERSION_3_5_1)
- 		bit_count += hweight32(REGISTER_WRITE_FLAGS_OFFSET_HIGH_FMASK);
- 	BUILD_BUG_ON(bit_count > 32);
--	offset_max = ~0 >> (32 - bit_count);
-+	offset_max = ~0U >> (32 - bit_count);
+ void inet_csk_destroy_sock(struct sock *sk);
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index 534e2598981d..439a55d1aa99 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -698,12 +698,15 @@ static bool reqsk_queue_unlink(struct request_sock_queue *queue,
+ 	return found;
+ }
  
-+	/* Make sure the offset can be represented by the field(s)
-+	 * that holds it.  Also make sure the offset is not outside
-+	 * the overall IPA memory range.
-+	 */
- 	if (offset > offset_max || ipa->mem_offset > offset_max - offset) {
- 		dev_err(dev, "%s offset too large 0x%04x + 0x%04x > 0x%04x)\n",
--				ipa->mem_offset + offset, offset_max);
-+			name, ipa->mem_offset, offset, offset_max);
- 		return false;
+-void inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
++bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
+ {
+-	if (reqsk_queue_unlink(&inet_csk(sk)->icsk_accept_queue, req)) {
++	bool unlinked = reqsk_queue_unlink(&inet_csk(sk)->icsk_accept_queue, req);
++
++	if (unlinked) {
+ 		reqsk_queue_removed(&inet_csk(sk)->icsk_accept_queue, req);
+ 		reqsk_put(req);
  	}
++	return unlinked;
+ }
+ EXPORT_SYMBOL(inet_csk_reqsk_queue_drop);
  
-@@ -261,12 +265,24 @@ static bool ipa_cmd_register_write_valid(struct ipa *ipa)
- 	const char *name;
- 	u32 offset;
- 
--	offset = ipa_reg_filt_rout_hash_flush_offset(ipa->version);
--	name = "filter/route hash flush";
--	if (!ipa_cmd_register_write_offset_valid(ipa, name, offset))
--		return false;
-+	/* If hashed tables are supported, ensure the hash flush register
-+	 * offset will fit in a register write IPA immediate command.
-+	 */
-+	if (ipa->version != IPA_VERSION_4_2) {
-+		offset = ipa_reg_filt_rout_hash_flush_offset(ipa->version);
-+		name = "filter/route hash flush";
-+		if (!ipa_cmd_register_write_offset_valid(ipa, name, offset))
-+			return false;
-+	}
- 
--	offset = IPA_REG_ENDP_STATUS_N_OFFSET(IPA_ENDPOINT_COUNT);
-+	/* Each endpoint can have a status endpoint associated with it,
-+	 * and this is recorded in an endpoint register.  If the modem
-+	 * crashes, we reset the status endpoint for all modem endpoints
-+	 * using a register write IPA immediate command.  Make sure the
-+	 * worst case (highest endpoint number) offset of that endpoint
-+	 * fits in the register write command field(s) that must hold it.
-+	 */
-+	offset = IPA_REG_ENDP_STATUS_N_OFFSET(IPA_ENDPOINT_COUNT - 1);
- 	name = "maximal endpoint status";
- 	if (!ipa_cmd_register_write_offset_valid(ipa, name, offset))
- 		return false;
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index 9436fb9b6a3d..a20b393b4501 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -815,8 +815,11 @@ embryonic_reset:
+ 		tcp_reset(sk);
+ 	}
+ 	if (!fastopen) {
+-		inet_csk_reqsk_queue_drop(sk, req);
+-		__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
++		bool unlinked = inet_csk_reqsk_queue_drop(sk, req);
++
++		if (unlinked)
++			__NET_INC_STATS(sock_net(sk), LINUX_MIB_EMBRYONICRSTS);
++		*req_stolen = !unlinked;
+ 	}
+ 	return NULL;
+ }
 -- 
 2.30.1
 
