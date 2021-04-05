@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1492F353F3E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7DE6354044
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239412AbhDEJKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:10:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57124 "EHLO mail.kernel.org"
+        id S239789AbhDEJQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:16:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239417AbhDEJKn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:10:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB7EE61393;
-        Mon,  5 Apr 2021 09:10:35 +0000 (UTC)
+        id S239939AbhDEJQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:16:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 054DF60FE4;
+        Mon,  5 Apr 2021 09:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613836;
-        bh=M9+FyKDDxWybLpveXohnyQnitMwfkNk55tDlTEZ3Uec=;
+        s=korg; t=1617614199;
+        bh=Aq/iOP35TU7qVV07rAM5PkHvhY58SEyEeMHiACCpSz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FU/FMEVmAMZ0Z1DjBKhRmWdxU5W6fru7dxeiXBkFi/9a7SvrXcQasahUlEHyh66Ng
-         h+BASmAmnDF17UArmn8WqrBV+KN4Keg/EkpvjCUYSljKUYDJUZPSY9hAovSrg1JYMS
-         WGQaI8ZsIymCLS5UrmUEb+3MiKPT6wWJ05Y/GfPE=
+        b=t33QzqG3VkRf5L3/Nl7+E38vWBP0VnsON57EIluQn2BY8c++GFV0AkFPiJ6Amp9xv
+         b92p67yU+HOEFW1xS4z4T+b/Hz1FcxnuG+0zbMjo2OfWTlYBYb4JSTf+Y06TwqER+x
+         eMi9ZJzwmzKakOR1+IofC9Vp9koTP0qB17AHsyiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.10 108/126] usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 121/152] extcon: Add stubs for extcon_register_notifier_all() functions
 Date:   Mon,  5 Apr 2021 10:54:30 +0200
-Message-Id: <20210405085034.617142252@linuxfoundation.org>
+Message-Id: <20210405085038.171056429@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,49 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 6f978a30c9bb12dab1302d0f06951ee290f5e600 upstream.
+[ Upstream commit c9570d4a5efd04479b3cd09c39b571eb031d94f4 ]
 
-The MediaTek 0.96 xHCI controller on some platforms does not
-support bulk stream even HCCPARAMS says supporting, due to MaxPSASize
-is set a default value 1 by mistake, here use XHCI_BROKEN_STREAMS
-quirk to fix it.
+Add stubs for extcon_register_notifier_all() function for !CONFIG_EXTCON
+case.  This is useful for compile testing and for drivers which use
+EXTCON but do not require it (therefore do not depend on CONFIG_EXTCON).
 
-Fixes: 94a631d91ad3 ("usb: xhci-mtk: check hcc_params after adding primary hcd")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1616482975-17841-4-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 815429b39d94 ("extcon: Add new extcon_register_notifier_all() to monitor all external connectors")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mtk.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ include/linux/extcon.h | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- a/drivers/usb/host/xhci-mtk.c
-+++ b/drivers/usb/host/xhci-mtk.c
-@@ -397,6 +397,13 @@ static void xhci_mtk_quirks(struct devic
- 	xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
- 	if (mtk->lpm_support)
- 		xhci->quirks |= XHCI_LPM_SUPPORT;
+diff --git a/include/linux/extcon.h b/include/linux/extcon.h
+index fd183fb9c20f..0c19010da77f 100644
+--- a/include/linux/extcon.h
++++ b/include/linux/extcon.h
+@@ -271,6 +271,29 @@ static inline  void devm_extcon_unregister_notifier(struct device *dev,
+ 				struct extcon_dev *edev, unsigned int id,
+ 				struct notifier_block *nb) { }
+ 
++static inline int extcon_register_notifier_all(struct extcon_dev *edev,
++					       struct notifier_block *nb)
++{
++	return 0;
++}
 +
-+	/*
-+	 * MTK xHCI 0.96: PSA is 1 by default even if doesn't support stream,
-+	 * and it's 3 when support it.
-+	 */
-+	if (xhci->hci_version < 0x100 && HCC_MAX_PSA(xhci->hcc_params) == 4)
-+		xhci->quirks |= XHCI_BROKEN_STREAMS;
- }
- 
- /* called during probe() after chip reset completes */
-@@ -548,7 +555,8 @@ static int xhci_mtk_probe(struct platfor
- 	if (ret)
- 		goto put_usb3_hcd;
- 
--	if (HCC_MAX_PSA(xhci->hcc_params) >= 4)
-+	if (HCC_MAX_PSA(xhci->hcc_params) >= 4 &&
-+	    !(xhci->quirks & XHCI_BROKEN_STREAMS))
- 		xhci->shared_hcd->can_do_streams = 1;
- 
- 	ret = usb_add_hcd(xhci->shared_hcd, irq, IRQF_SHARED);
++static inline int extcon_unregister_notifier_all(struct extcon_dev *edev,
++						 struct notifier_block *nb)
++{
++	return 0;
++}
++
++static inline int devm_extcon_register_notifier_all(struct device *dev,
++						    struct extcon_dev *edev,
++						    struct notifier_block *nb)
++{
++	return 0;
++}
++
++static inline void devm_extcon_unregister_notifier_all(struct device *dev,
++						       struct extcon_dev *edev,
++						       struct notifier_block *nb) { }
++
+ static inline struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name)
+ {
+ 	return ERR_PTR(-ENODEV);
+-- 
+2.30.2
+
 
 
