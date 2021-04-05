@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D47E353E69
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF22B353F5F
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238263AbhDEJFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49776 "EHLO mail.kernel.org"
+        id S239004AbhDEJLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:11:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238679AbhDEJFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B002613A4;
-        Mon,  5 Apr 2021 09:05:31 +0000 (UTC)
+        id S238478AbhDEJLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:11:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D31E613B7;
+        Mon,  5 Apr 2021 09:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613532;
-        bh=1FlLlzjcLm0GeT7D8m4KQAXu/GrkAdfaWvVzN3j0/p4=;
+        s=korg; t=1617613882;
+        bh=hCTRocdIbMLaio50PGECtYl0IUES5PGHDT1zYe06K7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pkj99TnXwM77ey9l3CkvUr31ZC+lC8LUZFtDDljVO8KZDa3ALUS87QtYe61WFF7U6
-         tYVJTDJgwHPpSmY8key68CAT7IAAfVUpAPqr9UYaaKOhmH3jOVge1sj/Q+BZNWrg37
-         uut1YnpVHn6uwwxpVg1qxAKIFsQ5ljAoQ3vfcmXo=
+        b=buXpVyhDwmJ0bSGecxJXni/90BudfR48DOtu9+gm8pzudBDeTAJVfGXzcMGqGTTuo
+         jUc4CimMLaW7Ij2dTRps3ldEhTxhwxg5F50RnBGsxxwwALZWbOzr6LGXE92ETWlahs
+         EWvx/5eoVTbzOZD5EsiWI9tYpa7ZkONQmfvgHHi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
-Subject: [PATCH 5.4 72/74] staging: rtl8192e: Fix incorrect source in memcpy()
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>
+Subject: [PATCH 5.10 114/126] usb: gadget: udc: amd5536udc_pci fix null-ptr-dereference
 Date:   Mon,  5 Apr 2021 10:54:36 +0200
-Message-Id: <20210405085027.087688941@linuxfoundation.org>
+Message-Id: <20210405085034.811329445@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,67 +38,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit 72ad25fbbb78930f892b191637359ab5b94b3190 upstream.
+commit 72035f4954f0bca2d8c47cf31b3629c42116f5b7 upstream.
 
-The variable "info_element" is of the following type:
+init_dma_pools() calls dma_pool_create(...dev->dev) to create dma pool.
+however, dev->dev is actually set after calling init_dma_pools(), which
+effectively makes dma_pool_create(..NULL) and cause crash.
+To fix this issue, init dma only after dev->dev is set.
 
-	struct rtllib_info_element *info_element
+[    1.317993] RIP: 0010:dma_pool_create+0x83/0x290
+[    1.323257] Call Trace:
+[    1.323390]  ? pci_write_config_word+0x27/0x30
+[    1.323626]  init_dma_pools+0x41/0x1a0 [snps_udc_core]
+[    1.323899]  udc_pci_probe+0x202/0x2b1 [amd5536udc_pci]
 
-defined in drivers/staging/rtl8192e/rtllib.h:
-
-	struct rtllib_info_element {
-		u8 id;
-		u8 len;
-		u8 data[];
-	} __packed;
-
-The "len" field defines the size of the "data[]" array. The code is
-supposed to check if "info_element->len" is greater than 4 and later
-equal to 6. If this is satisfied then, the last two bytes (the 4th and
-5th element of u8 "data[]" array) are copied into "network->CcxRmState".
-
-Right now the code uses "memcpy()" with the source as "&info_element[4]"
-which would copy in wrong and unintended information. The struct
-"rtllib_info_element" has a size of 2 bytes for "id" and "len",
-therefore indexing will be done in interval of 2 bytes. So,
-"info_element[4]" would point to data which is beyond the memory
-allocated for this pointer (that is, at x+8, while "info_element" has
-been allocated only from x to x+7 (2 + 6 => 8 bytes)).
-
-This patch rectifies this error by using "&info_element->data[4]" which
-correctly copies the last two bytes of "data[]".
-
-NOTE: The faulty line of code came from the following commit:
-
-commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
-
-The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
-which had the faulty line of code. This file has been deleted (or
-possibly renamed) with the contents copied in to a new file
-`rtl8192e/rtllib_rx.c` along with additional code in the commit
-94a799425eee (tagged in Fixes).
-
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210323113413.29179-1-atulgopinathan@gmail.com
+Fixes: 7c51247a1f62 (usb: gadget: udc: Provide correct arguments for 'dma_pool_create')
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210317230400.357756-1-ztong0001@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/amd5536udc_pci.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1968,7 +1968,7 @@ static void rtllib_parse_mife_generic(st
- 	    info_element->data[2] == 0x96 &&
- 	    info_element->data[3] == 0x01) {
- 		if (info_element->len == 6) {
--			memcpy(network->CcxRmState, &info_element[4], 2);
-+			memcpy(network->CcxRmState, &info_element->data[4], 2);
- 			if (network->CcxRmState[0] != 0)
- 				network->bCcxRmEnable = true;
- 			else
+--- a/drivers/usb/gadget/udc/amd5536udc_pci.c
++++ b/drivers/usb/gadget/udc/amd5536udc_pci.c
+@@ -153,6 +153,11 @@ static int udc_pci_probe(
+ 	pci_set_master(pdev);
+ 	pci_try_set_mwi(pdev);
+ 
++	dev->phys_addr = resource;
++	dev->irq = pdev->irq;
++	dev->pdev = pdev;
++	dev->dev = &pdev->dev;
++
+ 	/* init dma pools */
+ 	if (use_dma) {
+ 		retval = init_dma_pools(dev);
+@@ -160,11 +165,6 @@ static int udc_pci_probe(
+ 			goto err_dma;
+ 	}
+ 
+-	dev->phys_addr = resource;
+-	dev->irq = pdev->irq;
+-	dev->pdev = pdev;
+-	dev->dev = &pdev->dev;
+-
+ 	/* general probing */
+ 	if (udc_probe(dev)) {
+ 		retval = -ENODEV;
 
 
