@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9CB2353EDD
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B95C35402A
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238507AbhDEJIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:08:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53872 "EHLO mail.kernel.org"
+        id S240686AbhDEJQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238475AbhDEJIT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:08:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C551613AE;
-        Mon,  5 Apr 2021 09:08:12 +0000 (UTC)
+        id S240659AbhDEJQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:16:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9F2761394;
+        Mon,  5 Apr 2021 09:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613693;
-        bh=bS9v8Sn+M9PdSho+hk1fWodUee1upM8TnfkiJCOAKg8=;
+        s=korg; t=1617614162;
+        bh=tjAx589bEBE8kYkGljzJjJZgmpAQkko+RWmcPds6/R8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6NZtLtWqjBwD1vnt8wif2jiykt/r+eE8rxCDKByvyG2L0aTsRAm4pJPbRX9nixNv
-         qeNc/Ti2Nffp1yHivBH0JbrIVM21tU1MJZZJzoqXzQ/nIUtl4OyJz0+LMlBFfoGQcu
-         C74jN0/sb6SZC1s4HIjRAh5Ss6Brfa02S+AVUvFQ=
+        b=B5zEVdHYzGnfw0i6kXya0n9lKMLfddw9rB3jdiBUs+PUbHqoxhchNjE4iCxpTK37V
+         /6nHNEYdwJXaOUy2LBL0zyVMzlRZydoA2TNXwlQVbrkq5TUYLI+9kB1dZBtzd7Awym
+         RTgCV5RiCfc4U7vFVdl0WASeBftxMjx8hksMQuFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ikjoon Jang <ikjn@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 057/126] ALSA: usb-audio: Apply sample rate quirk to Logitech Connect
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.11 070/152] ACPI: scan: Fix _STA getting called on devices with unmet dependencies
 Date:   Mon,  5 Apr 2021 10:53:39 +0200
-Message-Id: <20210405085032.937078852@linuxfoundation.org>
+Message-Id: <20210405085036.546779290@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ikjoon Jang <ikjn@chromium.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 625bd5a616ceda4840cd28f82e957c8ced394b6a upstream.
+commit 3e759425cc3cf9a43392309819d34c65a3644c59 upstream.
 
-Logitech ConferenceCam Connect is a compound USB device with UVC and
-UAC. Not 100% reproducible but sometimes it keeps responding STALL to
-every control transfer once it receives get_freq request.
+Commit 71da201f38df ("ACPI: scan: Defer enumeration of devices with
+_DEP lists") dropped the following 2 lines from acpi_init_device_object():
 
-This patch adds 046d:0x084c to a snd_usb_get_sample_rate_quirk list.
+	/* Assume there are unmet deps until acpi_device_dep_initialize() runs */
+	device->dep_unmet = 1;
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203419
-Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210324105153.2322881-1-ikjn@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Leaving the initial value of dep_unmet at the 0 from the kzalloc(). This
+causes the acpi_bus_get_status() call in acpi_add_single_object() to
+actually call _STA, even though there maybe unmet deps, leading to errors
+like these:
+
+[    0.123579] ACPI Error: No handler for Region [ECRM] (00000000ba9edc4c)
+               [GenericSerialBus] (20170831/evregion-166)
+[    0.123601] ACPI Error: Region GenericSerialBus (ID=9) has no handler
+               (20170831/exfldio-299)
+[    0.123618] ACPI Error: Method parse/execution failed
+               \_SB.I2C1.BAT1._STA, AE_NOT_EXIST (20170831/psparse-550)
+
+Fix this by re-adding the dep_unmet = 1 initialization to
+acpi_init_device_object() and modifying acpi_bus_check_add() to make sure
+that dep_unmet always gets setup there, overriding the initial 1 value.
+
+This re-fixes the issue initially fixed by
+commit 63347db0affa ("ACPI / scan: Use acpi_bus_get_status() to initialize
+ACPI_TYPE_DEVICE devs"), which introduced the removed
+"device->dep_unmet = 1;" statement.
+
+This issue was noticed; and the fix tested on a Dell Venue 10 Pro 5055.
+
+Fixes: 71da201f38df ("ACPI: scan: Defer enumeration of devices with _DEP lists")
+Suggested-by: Rafael J. Wysocki <rafael@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: 5.11+ <stable@vger.kernel.org> # 5.11+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/scan.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1521,6 +1521,7 @@ bool snd_usb_get_sample_rate_quirk(struc
- 	case USB_ID(0x21b4, 0x0081): /* AudioQuest DragonFly */
- 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
- 	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
-+	case USB_ID(0x046d, 0x084c): /* Logitech ConferenceCam Connect */
- 		return true;
- 	}
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1669,6 +1669,8 @@ void acpi_init_device_object(struct acpi
+ 	device_initialize(&device->dev);
+ 	dev_set_uevent_suppress(&device->dev, true);
+ 	acpi_init_coherency(device);
++	/* Assume there are unmet deps to start with. */
++	device->dep_unmet = 1;
+ }
  
+ void acpi_device_add_finalize(struct acpi_device *device)
+@@ -1934,6 +1936,8 @@ static void acpi_scan_dep_init(struct ac
+ {
+ 	struct acpi_dep_data *dep;
+ 
++	adev->dep_unmet = 0;
++
+ 	mutex_lock(&acpi_dep_list_lock);
+ 
+ 	list_for_each_entry(dep, &acpi_dep_list, node) {
+@@ -1981,7 +1985,13 @@ static acpi_status acpi_bus_check_add(ac
+ 		return AE_CTRL_DEPTH;
+ 
+ 	acpi_scan_init_hotplug(device);
+-	if (!check_dep)
++	/*
++	 * If check_dep is true at this point, the device has no dependencies,
++	 * or the creation of the device object would have been postponed above.
++	 */
++	if (check_dep)
++		device->dep_unmet = 0;
++	else
+ 		acpi_scan_dep_init(device);
+ 
+ out:
 
 
