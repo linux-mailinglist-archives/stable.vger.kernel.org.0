@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEB7354800
+	by mail.lfdr.de (Postfix) with ESMTP id 9484A354801
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 23:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241212AbhDEVD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 17:03:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41710 "EHLO
+        id S241260AbhDEVD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 17:03:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241253AbhDEVDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 17:03:21 -0400
-Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F6DC061756
-        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 14:03:13 -0700 (PDT)
-Received: by mail-qk1-x74a.google.com with SMTP id b127so11297596qkf.19
-        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 14:03:13 -0700 (PDT)
+        with ESMTP id S237049AbhDEVDX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 17:03:23 -0400
+Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF01C06178C
+        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 14:03:16 -0700 (PDT)
+Received: by mail-pf1-x44a.google.com with SMTP id e8so47570pfd.1
+        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 14:03:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=JNx5Rnbw4kie6bp007z69E1v0eUbWtT0qFG7mbbWkbg=;
-        b=EB2lhfxNEs4Z/DKPahsghGaJFpUbQmaa8Lp0tQ4rU899FL78ksX72PRf91q7+FzMbI
-         zxOCpTNSvmPPnuVp3MzFYQ/wIVIOSDIKEMCNEPaR8Sgy4xCOIpnMv3RTrZzTAjGXSTsX
-         GSlVVwpnYAxZc2cLKLOE1SvtHaJ17gT7p2InUADAf5dIyyvQ0zc5S1KnahpkDVsJYEwM
-         YkN4yu8UDzA5/mZdCvX/FNMsZNu3c45mQmhp3IyZRDXJhHJ6AjtDvhI0YfmZPan5cOXy
-         AXXYBaYuYYRPyM/6w1TilQpxJzhyMxkspZZi/MxyKYnzpEf4x8UZHcqu4uOYBTUB09Ch
-         hGtg==
+        bh=DwT0KnEuUIJq24rdQeE8mKCkjKjD8jpbcE4NrdQ1jDk=;
+        b=Fr8qThzIql+f5dVI1DPyzBCYZ7bW8to0OlpnA1PtfpUJElz6tg0FmtJko4VvDpjshN
+         jTVOPsJ1eqJSiYM3A5BjmhzetT+XommnohAHrgUaDDlx/skjdLtTpFxQMGyQQmk8XcBU
+         wjKZ2cpR+ZcDuzMn0pk60CXBrijqdI3zI15EL6t+I/KIlXWeu7SArD7sOiQzPWp+IcdF
+         MSxE/YMjq+xIpiXVZLzVeixM6Ze91xE+sFVfC8R0XdsfQ54okPE26EuXBX8xnoxdt4wZ
+         tOLoBtZ9cIfACWsGQ3WRYqlFQatove9of2R2uickyQcqRcYseD/z37AUasQ1z8xYoMQg
+         c8jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=JNx5Rnbw4kie6bp007z69E1v0eUbWtT0qFG7mbbWkbg=;
-        b=LvigumnWQGSNht5nfKgcJJj+5eqFcsmB8LqBiWlfDewMDGu74uCBoTTDWEefnOMsss
-         GYYflaWe/Q97IxPD+iyzicQQkD8342FXUgkxwY3zHljesDZNOVZIApfSafSAsuxTJmoH
-         2NAN45gm+cjS4nhBVlVOgdpWejwU6wlMy4AzvdkrL3bArYzwmuEu3Igxka2vqm7OUeGs
-         Ai7Xgo+vpce0v6RLfUx2JCyh18w++ZjyoIrK4009j6Z+sWmAds2OYsDtQnSRpVUOQzCc
-         c8Pnd1cG6BQGWk1gC/JsB7p/sc6c732z1XNCjmXvt5LP/RH0f9jYvtJxkDqRfXSmHczh
-         9zmw==
-X-Gm-Message-State: AOAM530oJGt+1PkWlDMxe1PfE/1/IUBVduLs4VC9I1fzY7E/cl5UFEyT
-        K5nDV13dwJhWX6DC4b45Y6OZUFhNYgGyzstXuHDPXrzu1OlRZSXCimxqiIsqut+4x7APXcnjWOc
-        548Teci0cP6EJrlcJbGTbVJEj36HXwhZ9SHJWiaoNpluHNY4Iy2Fo9qYjL3c=
-X-Google-Smtp-Source: ABdhPJy7x1RkwtEY338PSaWtDjMS0bwwzfAduUHppgcxJ4//mezTYDpyIu67VPGO4Cb3E3xMwYc0U8yKnA==
+        bh=DwT0KnEuUIJq24rdQeE8mKCkjKjD8jpbcE4NrdQ1jDk=;
+        b=Be8awOpL52aDOtj3TXCgV13NwqLkYlJV0BCb0HR1HUFnIq+cM7iOiCjHVqrU0wBmwD
+         ekv9rWBM7wSMZJFVawoDwBZD3eH8FrdfDi9WVaL7GkGb9+noTI3nknykCmexIbN1SgxE
+         UX3zXHhcNFoyWzdHncRRKfB02n1kV60xnF7zbhNEVwXWBE5pyVN/RsOXiO8QFduQ/UAy
+         VdewI6ma6nxqWKRrCFIs0lMJK5GOxNIEDRrMW0JhLQaMa6h5x4/+Eg2sPPdKQEmdDM6L
+         C5UiaGMVlcHaQfE0TU2NSsnCQRlImgsuUj/f1EVmMj0U++JM8q/WYmHhlMSjrZpeV5nD
+         B6wQ==
+X-Gm-Message-State: AOAM530HVggLcRbxw91yJa4eaTOcCxy2ilDyBI0/VI9/IQWDhkPhK2L1
+        +E7CkltFgPl6YWDoc5ewiTp5nbf0wcpqhqDMg1p7qEnBv/JNFjU2oB81hhtRaEAhrL+ejQc5zO6
+        H5S6yKpGcIxV2HHKo8OOVhGontjEi2rwmAACP3hVU7aGdnHq8OjVHSlG3EjM=
+X-Google-Smtp-Source: ABdhPJwzGYBi3h+DeSc4okTkcRpTXY5f48FNdVL17pSatP67jZ3c3Nb72MJoDDhpwrHUxcCQSvhLqf42OA==
 X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a05:6214:2607:: with SMTP id
- gu7mr25234522qvb.18.1617656592302; Mon, 05 Apr 2021 14:03:12 -0700 (PDT)
-Date:   Mon,  5 Apr 2021 21:02:29 +0000
+ (user=jxgao job=sendgmr) by 2002:a17:902:dacd:b029:e5:cf71:3901 with SMTP id
+ q13-20020a170902dacdb02900e5cf713901mr25018627plx.23.1617656596405; Mon, 05
+ Apr 2021 14:03:16 -0700 (PDT)
+Date:   Mon,  5 Apr 2021 21:02:30 +0000
 In-Reply-To: <20210405210230.1707074-1-jxgao@google.com>
-Message-Id: <20210405210230.1707074-8-jxgao@google.com>
+Message-Id: <20210405210230.1707074-9-jxgao@google.com>
 Mime-Version: 1.0
 References: <20210405210230.1707074-1-jxgao@google.com>
 X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
-Subject: [PATCH v5.10 7/8] swiotlb: respect min_align_mask
+Subject: [PATCH v5.10 8/8] nvme-pci: set min_align_mask
 From:   Jianxiong Gao <jxgao@google.com>
 To:     stable@vger.kernel.org
 Cc:     Jianxiong Gao <jxgao@google.com>, Christoph Hellwig <hch@lst.de>,
@@ -63,136 +64,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-'commit 1f221a0d0dbf ("swiotlb: respect min_align_mask")'
+'commit 3d2d861eb03e ("nvme-pci: set min_align_mask")'
 
-Respect the min_align_mask in struct device_dma_parameters in swiotlb.
+The PRP addressing scheme requires all PRP entries except for the
+first one to have a zero offset into the NVMe controller pages (which
+can be different from the Linux PAGE_SIZE).  Use the min_align_mask
+device parameter to ensure that swiotlb does not change the address
+of the buffer modulo the device page size to ensure that the PRPs
+won't be malformed.
 
-There are two parts to it:
- 1) for the lower bits of the alignment inside the io tlb slot, just
-    extent the size of the allocation and leave the start of the slot
-     empty
- 2) for the high bits ensure we find a slot that matches the high bits
-    of the alignment to avoid wasting too much memory
-
-Based on an earlier patch from Jianxiong Gao <jxgao@google.com>.
-
+Signed-off-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Jianxiong Gao <jxgao@google.com>
 Tested-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Jianxiong Gao <jxgao@google.com>
 ---
- kernel/dma/swiotlb.c | 41 +++++++++++++++++++++++++++++++----------
- 1 file changed, 31 insertions(+), 10 deletions(-)
+---
+ drivers/nvme/host/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index d1349971f099..ba6e9269a1cc 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -453,6 +453,15 @@ static void swiotlb_bounce(phys_addr_t orig_addr, phys_addr_t tlb_addr,
- }
- 
- #define slot_addr(start, idx)  ((start) + ((idx) << IO_TLB_SHIFT))
-+
-+/*
-+ * Return the offset into a iotlb slot required to keep the device happy.
-+ */
-+static unsigned int swiotlb_align_offset(struct device *dev, u64 addr)
-+{
-+	return addr & dma_get_min_align_mask(dev) & (IO_TLB_SIZE - 1);
-+}
-+
- /*
-  * Carefully handle integer overflow which can occur when boundary_mask == ~0UL.
-  */
-@@ -474,23 +483,27 @@ static unsigned int wrap_index(unsigned int index)
-  * Find a suitable number of IO TLB entries size that will fit this request and
-  * allocate a buffer from that IO TLB pool.
-  */
--static int find_slots(struct device *dev, size_t alloc_size)
-+static int find_slots(struct device *dev, phys_addr_t orig_addr, size_t alloc_size)
- {
- 	unsigned long boundary_mask = dma_get_seg_boundary(dev);
- 	dma_addr_t tbl_dma_addr = 
- 		phys_to_dma_unencrypted(dev, io_tlb_start) & boundary_mask;
- 	unsigned long max_slots = get_max_slots(boundary_mask);
--	unsigned int nslots = nr_slots(alloc_size), stride = 1;
-+	unsigned int iotlb_align_mask =
-+		dma_get_min_align_mask(dev) & ~(IO_TLB_SIZE - 1);
-+	unsigned int nslots = nr_slots(alloc_size), stride;
- 	unsigned int index, wrap, count = 0, i;
- 	unsigned long flags;
- 	BUG_ON(!nslots);
- 
- 	/*
--	 * For mappings greater than or equal to a page, we limit the stride
--	 * (and hence alignment) to a page size.
-+	 * For mappings with an alignment requirement don't bother looping to
-+	 * unaligned slots once we found an aligned one.  For allocations of
-+	 * PAGE_SIZE or larger only look for page aligned allocations.
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 3be352403839..dddccfe82abc 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2590,6 +2590,7 @@ static void nvme_reset_work(struct work_struct *work)
+ 	 * Don't limit the IOMMU merged segment size.
  	 */
-+	stride = (iotlb_align_mask >> IO_TLB_SHIFT) + 1;
- 	if (alloc_size >= PAGE_SIZE)
--		stride <<= (PAGE_SHIFT - IO_TLB_SHIFT);
-+		stride = max(stride, stride << (PAGE_SHIFT - IO_TLB_SHIFT));
+ 	dma_set_max_seg_size(dev->dev, 0xffffffff);
++	dma_set_min_align_mask(dev->dev, NVME_CTRL_PAGE_SIZE - 1);
  
- 	spin_lock_irqsave(&io_tlb_lock, flags);
- 	if (unlikely(nslots > io_tlb_nslabs - io_tlb_used))
-@@ -498,6 +511,12 @@ static int find_slots(struct device *dev, size_t alloc_size)
+ 	mutex_unlock(&dev->shutdown_lock);
  
- 	index = wrap = wrap_index(ALIGN(io_tlb_index, stride));
- 	do {
-+		if ((slot_addr(tbl_dma_addr, index) & iotlb_align_mask) !=
-+		    (orig_addr & iotlb_align_mask)) {
-+			index = wrap_index(index + 1);
-+			continue;
-+		}
-+
- 		/*
- 		 * If we find a slot that indicates we have 'nslots' number of
- 		 * contiguous buffers, we allocate the buffers from that slot
-@@ -540,6 +559,7 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
- 		size_t mapping_size, size_t alloc_size,
- 		enum dma_data_direction dir, unsigned long attrs)
- {
-+	unsigned int offset = swiotlb_align_offset(dev, orig_addr);
- 	unsigned int index, i;
- 	phys_addr_t tlb_addr;
- 
-@@ -555,7 +575,7 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
- 		return (phys_addr_t)DMA_MAPPING_ERROR;
- 	}
- 
--	index = find_slots(dev, alloc_size);
-+	index = find_slots(dev, orig_addr, alloc_size + offset);
- 	if (index == -1) {
- 		if (!(attrs & DMA_ATTR_NO_WARN))
- 			dev_warn_ratelimited(dev,
-@@ -568,10 +588,10 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
- 	 * This is needed when we sync the memory.  Then we sync the buffer if
- 	 * needed.
- 	 */
--	for (i = 0; i < nr_slots(alloc_size); i++)
-+	for (i = 0; i < nr_slots(alloc_size + offset); i++)
- 		io_tlb_orig_addr[index + i] = slot_addr(orig_addr, i);
- 
--	tlb_addr = slot_addr(io_tlb_start, index);
-+	tlb_addr = slot_addr(io_tlb_start, index) + offset;
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
- 	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
- 		swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
-@@ -586,8 +606,9 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
- 			      enum dma_data_direction dir, unsigned long attrs)
- {
- 	unsigned long flags;
--	int i, count, nslots = nr_slots(alloc_size);
--	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
-+	unsigned int offset = swiotlb_align_offset(hwdev, tlb_addr);
-+	int i, count, nslots = nr_slots(alloc_size + offset);
-+	int index = (tlb_addr - offset - io_tlb_start) >> IO_TLB_SHIFT;
- 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
- 
- 	/*
 -- 
 2.27.0
 
