@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C082353F78
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D1A353EB4
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239116AbhDEJMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:12:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59456 "EHLO mail.kernel.org"
+        id S238339AbhDEJHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239119AbhDEJMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:12:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 319786139D;
-        Mon,  5 Apr 2021 09:12:07 +0000 (UTC)
+        id S238350AbhDEJHW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:07:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9016261398;
+        Mon,  5 Apr 2021 09:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613927;
-        bh=Ta9/dulXJhPlZ6QYG6Wv2Z+vAWq7VYe95iYaANvGlLA=;
+        s=korg; t=1617613637;
+        bh=xuUmS80t1X4JLO/dQPmcfEov7ygVrHQ0Zbrwlc7eCRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfCFHWJMGh+PKboci6PxPYT0srswgw0cmz7ze1mSQ4PX97G+WD75hnfA8p2uodqI6
-         T5KEl+ZsXzCcLu8d5bhCd0YbvcwUjCJCBzROfsmBZYE/qvcsW3Wg1WFpZiydq34dyC
-         UIdcsmlJJARIEC5O53Ig1PSxYme8SdjpyUxWPTDY=
+        b=WFwW/onAIFnoYTAxtQcJeS8ZgDuK9gv03dE1+IeoVfc46rQNAKonDZgHvn5/CaWcg
+         d5xLFjEEjr/1RW6Xd172bEdDTjK4YQiKe8S9/SfiafuiSutvpIszmnNGbpuAxuTDa3
+         nCwCX6H8MfQ3FLRgQzyg+q5h2W4Bv3En0hn0Wqwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxin Yu <jiaxin.yu@mediatek.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 019/152] ASoC: mediatek: mt8192: fix tdm out data is valid on rising edge
+Subject: [PATCH 5.10 006/126] fs: nfsd: fix kconfig dependency warning for NFSD_V4
 Date:   Mon,  5 Apr 2021 10:52:48 +0200
-Message-Id: <20210405085034.863501797@linuxfoundation.org>
+Message-Id: <20210405085031.248050241@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxin Yu <jiaxin.yu@mediatek.com>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit 8d06b9633a66f41fed520f6eebd163189518ba79 ]
+[ Upstream commit 7005227369079963d25fb2d5d736d0feb2c44cf6 ]
 
-This patch correct tdm out bck inverse register to AUDIO_TOP_CON3[3].
+When NFSD_V4 is enabled and CRYPTO is disabled,
+Kbuild gives the following warning:
 
-Signed-off-by: Jiaxin Yu <jiaxin.yu@mediatek.com>
-Link: https://lore.kernel.org/r/1615516005-781-1-git-send-email-jiaxin.yu@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+WARNING: unmet direct dependencies detected for CRYPTO_SHA256
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - NFSD_V4 [=y] && NETWORK_FILESYSTEMS [=y] && NFSD [=y] && PROC_FS [=y]
+
+WARNING: unmet direct dependencies detected for CRYPTO_MD5
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - NFSD_V4 [=y] && NETWORK_FILESYSTEMS [=y] && NFSD [=y] && PROC_FS [=y]
+
+This is because NFSD_V4 selects CRYPTO_MD5 and CRYPTO_SHA256,
+without depending on or selecting CRYPTO, despite those config options
+being subordinate to CRYPTO.
+
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8192/mt8192-dai-tdm.c | 4 +++-
- sound/soc/mediatek/mt8192/mt8192-reg.h     | 8 +++++---
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ fs/nfsd/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/mediatek/mt8192/mt8192-dai-tdm.c b/sound/soc/mediatek/mt8192/mt8192-dai-tdm.c
-index 8383536b7ae0..504293de2c0d 100644
---- a/sound/soc/mediatek/mt8192/mt8192-dai-tdm.c
-+++ b/sound/soc/mediatek/mt8192/mt8192-dai-tdm.c
-@@ -555,7 +555,9 @@ static int mtk_dai_tdm_hw_params(struct snd_pcm_substream *substream,
- 
- 	/* set tdm */
- 	if (tdm_priv->bck_invert)
--		tdm_con |= 1 << BCK_INVERSE_SFT;
-+		regmap_update_bits(afe->regmap, AUDIO_TOP_CON3,
-+				   BCK_INVERSE_MASK_SFT,
-+				   0x1 << BCK_INVERSE_SFT);
- 
- 	if (tdm_priv->lck_invert)
- 		tdm_con |= 1 << LRCK_INVERSE_SFT;
-diff --git a/sound/soc/mediatek/mt8192/mt8192-reg.h b/sound/soc/mediatek/mt8192/mt8192-reg.h
-index 562f25c79c34..b9fb80d4afec 100644
---- a/sound/soc/mediatek/mt8192/mt8192-reg.h
-+++ b/sound/soc/mediatek/mt8192/mt8192-reg.h
-@@ -21,6 +21,11 @@ enum {
- /*****************************************************************************
-  *                  R E G I S T E R       D E F I N I T I O N
-  *****************************************************************************/
-+/* AUDIO_TOP_CON3 */
-+#define BCK_INVERSE_SFT                              3
-+#define BCK_INVERSE_MASK                             0x1
-+#define BCK_INVERSE_MASK_SFT                         (0x1 << 3)
-+
- /* AFE_DAC_CON0 */
- #define VUL12_ON_SFT                                   31
- #define VUL12_ON_MASK                                  0x1
-@@ -2079,9 +2084,6 @@ enum {
- #define TDM_EN_SFT                                     0
- #define TDM_EN_MASK                                    0x1
- #define TDM_EN_MASK_SFT                                (0x1 << 0)
--#define BCK_INVERSE_SFT                                1
--#define BCK_INVERSE_MASK                               0x1
--#define BCK_INVERSE_MASK_SFT                           (0x1 << 1)
- #define LRCK_INVERSE_SFT                               2
- #define LRCK_INVERSE_MASK                              0x1
- #define LRCK_INVERSE_MASK_SFT                          (0x1 << 2)
+diff --git a/fs/nfsd/Kconfig b/fs/nfsd/Kconfig
+index dbbc583d6273..248f1459c039 100644
+--- a/fs/nfsd/Kconfig
++++ b/fs/nfsd/Kconfig
+@@ -73,6 +73,7 @@ config NFSD_V4
+ 	select NFSD_V3
+ 	select FS_POSIX_ACL
+ 	select SUNRPC_GSS
++	select CRYPTO
+ 	select CRYPTO_MD5
+ 	select CRYPTO_SHA256
+ 	select GRACE_PERIOD
 -- 
 2.30.1
 
