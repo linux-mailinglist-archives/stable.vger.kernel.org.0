@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC241353DBD
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D862D353F1F
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237417AbhDEJCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43410 "EHLO mail.kernel.org"
+        id S238825AbhDEJKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237353AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC7EA613A7;
-        Mon,  5 Apr 2021 09:01:31 +0000 (UTC)
+        id S239286AbhDEJJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:09:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8492C61393;
+        Mon,  5 Apr 2021 09:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613292;
-        bh=0CAvNLxa7T4c+czQjRhfvYUZISeiK0mp0cw4a5h8vmw=;
+        s=korg; t=1617613780;
+        bh=e82XqluKRQYBxV/oPOYWpnnB6Sz7lv/TllE0kEpKSSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o25CTbfomuFMDyoZ8p65uXZX24KBCDZpZtX/bBGkKPRMVhzhpzC25LRZpdwAtzseF
-         se7Kf4bkGgADLGTAuMeoLBl/NR0lOdrhfMBVp58Ab2nhRkxeNO8KtQwJB+TipAM41v
-         O6K2kxGmv/J+ByljMp7ZoONeznnkY5d2fdDTr/u4=
+        b=LMEUqRTKeTtmNnGFHmYHfth90qGR6Qf8rvmx9ifpDJEvHb4E0zzzC9XYaUg/e22Ty
+         LAQU9j+D10DsnrjRc0vqOK+kXbwjdAtz9paUUf6AAM3t03yjKRr7fOWl9dVTKNJHCj
+         yXv/k78MnB7jmaYSz/J3YDWOIdpgF6THS6D5ooz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ben Gardon <bgardon@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/56] extcon: Add stubs for extcon_register_notifier_all() functions
+Subject: [PATCH 5.10 089/126] KVM: x86/mmu: Factor out handling of removed page tables
 Date:   Mon,  5 Apr 2021 10:54:11 +0200
-Message-Id: <20210405085023.810618504@linuxfoundation.org>
+Message-Id: <20210405085034.014120821@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +41,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Ben Gardon <bgardon@google.com>
 
-[ Upstream commit c9570d4a5efd04479b3cd09c39b571eb031d94f4 ]
+[ Upstream commit a066e61f13cf4b17d043ad8bea0cdde2b1e5ee49 ]
 
-Add stubs for extcon_register_notifier_all() function for !CONFIG_EXTCON
-case.  This is useful for compile testing and for drivers which use
-EXTCON but do not require it (therefore do not depend on CONFIG_EXTCON).
+Factor out the code to handle a disconnected subtree of the TDP paging
+structure from the code to handle the change to an individual SPTE.
+Future commits will build on this to allow asynchronous page freeing.
 
-Fixes: 815429b39d94 ("extcon: Add new extcon_register_notifier_all() to monitor all external connectors")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+No functional change intended.
+
+Reviewed-by: Peter Feiner <pfeiner@google.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Ben Gardon <bgardon@google.com>
+
+Message-Id: <20210202185734.1680553-6-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/extcon.h | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ arch/x86/kvm/mmu/tdp_mmu.c | 71 ++++++++++++++++++++++----------------
+ 1 file changed, 42 insertions(+), 29 deletions(-)
 
-diff --git a/include/linux/extcon.h b/include/linux/extcon.h
-index 7f033b1ea568..fdef4c784d03 100644
---- a/include/linux/extcon.h
-+++ b/include/linux/extcon.h
-@@ -279,6 +279,29 @@ static inline  void devm_extcon_unregister_notifier(struct device *dev,
- 				struct extcon_dev *edev, unsigned int id,
- 				struct notifier_block *nb) { }
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index ad9f8f187045..f52a22bc0fe8 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -234,6 +234,45 @@ static void handle_changed_spte_dirty_log(struct kvm *kvm, int as_id, gfn_t gfn,
+ 	}
+ }
  
-+static inline int extcon_register_notifier_all(struct extcon_dev *edev,
-+					       struct notifier_block *nb)
++/**
++ * handle_removed_tdp_mmu_page - handle a pt removed from the TDP structure
++ *
++ * @kvm: kvm instance
++ * @pt: the page removed from the paging structure
++ *
++ * Given a page table that has been removed from the TDP paging structure,
++ * iterates through the page table to clear SPTEs and free child page tables.
++ */
++static void handle_removed_tdp_mmu_page(struct kvm *kvm, u64 *pt)
 +{
-+	return 0;
++	struct kvm_mmu_page *sp = sptep_to_sp(pt);
++	int level = sp->role.level;
++	gfn_t gfn = sp->gfn;
++	u64 old_child_spte;
++	int i;
++
++	trace_kvm_mmu_prepare_zap_page(sp);
++
++	list_del(&sp->link);
++
++	if (sp->lpage_disallowed)
++		unaccount_huge_nx_page(kvm, sp);
++
++	for (i = 0; i < PT64_ENT_PER_PAGE; i++) {
++		old_child_spte = READ_ONCE(*(pt + i));
++		WRITE_ONCE(*(pt + i), 0);
++		handle_changed_spte(kvm, kvm_mmu_page_as_id(sp),
++			gfn + (i * KVM_PAGES_PER_HPAGE(level - 1)),
++			old_child_spte, 0, level - 1);
++	}
++
++	kvm_flush_remote_tlbs_with_address(kvm, gfn,
++					   KVM_PAGES_PER_HPAGE(level));
++
++	free_page((unsigned long)pt);
++	kmem_cache_free(mmu_page_header_cache, sp);
 +}
 +
-+static inline int extcon_unregister_notifier_all(struct extcon_dev *edev,
-+						 struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+
-+static inline int devm_extcon_register_notifier_all(struct device *dev,
-+						    struct extcon_dev *edev,
-+						    struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+
-+static inline void devm_extcon_unregister_notifier_all(struct device *dev,
-+						       struct extcon_dev *edev,
-+						       struct notifier_block *nb) { }
-+
- static inline struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name)
- {
- 	return ERR_PTR(-ENODEV);
+ /**
+  * handle_changed_spte - handle bookkeeping associated with an SPTE change
+  * @kvm: kvm instance
+@@ -254,10 +293,6 @@ static void __handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
+ 	bool was_leaf = was_present && is_last_spte(old_spte, level);
+ 	bool is_leaf = is_present && is_last_spte(new_spte, level);
+ 	bool pfn_changed = spte_to_pfn(old_spte) != spte_to_pfn(new_spte);
+-	u64 *pt;
+-	struct kvm_mmu_page *sp;
+-	u64 old_child_spte;
+-	int i;
+ 
+ 	WARN_ON(level > PT64_ROOT_MAX_LEVEL);
+ 	WARN_ON(level < PG_LEVEL_4K);
+@@ -319,31 +354,9 @@ static void __handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
+ 	 * Recursively handle child PTs if the change removed a subtree from
+ 	 * the paging structure.
+ 	 */
+-	if (was_present && !was_leaf && (pfn_changed || !is_present)) {
+-		pt = spte_to_child_pt(old_spte, level);
+-		sp = sptep_to_sp(pt);
+-
+-		trace_kvm_mmu_prepare_zap_page(sp);
+-
+-		list_del(&sp->link);
+-
+-		if (sp->lpage_disallowed)
+-			unaccount_huge_nx_page(kvm, sp);
+-
+-		for (i = 0; i < PT64_ENT_PER_PAGE; i++) {
+-			old_child_spte = READ_ONCE(*(pt + i));
+-			WRITE_ONCE(*(pt + i), 0);
+-			handle_changed_spte(kvm, as_id,
+-				gfn + (i * KVM_PAGES_PER_HPAGE(level - 1)),
+-				old_child_spte, 0, level - 1);
+-		}
+-
+-		kvm_flush_remote_tlbs_with_address(kvm, gfn,
+-						   KVM_PAGES_PER_HPAGE(level));
+-
+-		free_page((unsigned long)pt);
+-		kmem_cache_free(mmu_page_header_cache, sp);
+-	}
++	if (was_present && !was_leaf && (pfn_changed || !is_present))
++		handle_removed_tdp_mmu_page(kvm,
++				spte_to_child_pt(old_spte, level));
+ }
+ 
+ static void handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
 -- 
-2.30.2
+2.30.1
 
 
 
