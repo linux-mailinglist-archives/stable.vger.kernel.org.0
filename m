@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AF9C353F52
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB202353DE5
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238926AbhDEJLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:11:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57994 "EHLO mail.kernel.org"
+        id S237230AbhDEJCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238450AbhDEJLC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:11:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB23A61399;
-        Mon,  5 Apr 2021 09:10:55 +0000 (UTC)
+        id S232798AbhDEJCn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5537C6138A;
+        Mon,  5 Apr 2021 09:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613856;
-        bh=7AuWsnj/tw+RkTigsDxavoaeOgH0YxJSvw9BwjsED4A=;
+        s=korg; t=1617613357;
+        bh=3RvgI5LOgaJ9pCg3C902TlaJFBu1nTkNrqR8S50ZJ9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nI61CDJvwwj75TFGvoijDDXR3pxu3VvzbG9/ErgVmJMBNtkJ2z6U0qG2eodm0M9ti
-         dDaesvN88gQPbh1mMxlUyw3EpAUyXZsOgU18J2oFewprUMnUoJGWkjHkbAdjJnyQig
-         tviw3c5xZYJ9gNwe8/wVjlklfG3Ju0n/op6Kpo5E=
+        b=as2Xs0xG/q+v+ZmRUtoUFKaQzvHMdQ+//D3OPaawJBV1NdpLcwEJddzEO+ccWSPYy
+         qW+a9asVREzAnb8u+rEnVKv2Ar5UXV9evbnWkRyOmWwlER5LbvJOuHUBCHPXYXxQ1R
+         XhS+X4yhi+RB8GzrKTonEwzuRh/Rh32+AhPpbVt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianqun Xu <jay.xu@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Wang Panzhenzhuan <randy.wang@rock-chips.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.10 081/126] pinctrl: rockchip: fix restore error in resume
-Date:   Mon,  5 Apr 2021 10:54:03 +0200
-Message-Id: <20210405085033.750280873@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.19 33/56] PM: runtime: Fix ordering in pm_runtime_get_suppliers()
+Date:   Mon,  5 Apr 2021 10:54:04 +0200
+Message-Id: <20210405085023.595776147@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Panzhenzhuan <randy.wang@rock-chips.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit c971af25cda94afe71617790826a86253e88eab0 upstream.
+commit c0c33442f7203704aef345647e14c2fb86071001 upstream.
 
-The restore in resume should match to suspend which only set for RK3288
-SoCs pinctrl.
+rpm_active indicates how many times the supplier usage_count has been
+incremented. Consequently it must be updated after pm_runtime_get_sync() of
+the supplier, not before.
 
-Fixes: 8dca933127024 ("pinctrl: rockchip: save and restore gpio6_c6 pinmux in suspend/resume")
-Reviewed-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Wang Panzhenzhuan <randy.wang@rock-chips.com>
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210223100725.269240-1-jay.xu@rock-chips.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 4c06c4e6cf63 ("driver core: Fix possible supplier PM-usage counter imbalance")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/base/power/runtime.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -3727,12 +3727,15 @@ static int __maybe_unused rockchip_pinct
- static int __maybe_unused rockchip_pinctrl_resume(struct device *dev)
- {
- 	struct rockchip_pinctrl *info = dev_get_drvdata(dev);
--	int ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
--			       rk3288_grf_gpio6c_iomux |
--			       GPIO6C6_SEL_WRITE_ENABLE);
-+	int ret;
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -1572,8 +1572,8 @@ void pm_runtime_get_suppliers(struct dev
+ 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node)
+ 		if (link->flags & DL_FLAG_PM_RUNTIME) {
+ 			link->supplier_preactivated = true;
+-			refcount_inc(&link->rpm_active);
+ 			pm_runtime_get_sync(link->supplier);
++			refcount_inc(&link->rpm_active);
+ 		}
  
--	if (ret)
--		return ret;
-+	if (info->ctrl->type == RK3288) {
-+		ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
-+				   rk3288_grf_gpio6c_iomux |
-+				   GPIO6C6_SEL_WRITE_ENABLE);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	return pinctrl_force_default(info->pctl_dev);
- }
+ 	device_links_read_unlock(idx);
 
 
