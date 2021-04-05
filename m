@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61950353D1F
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F51E353CC4
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233886AbhDEI6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:58:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38794 "EHLO mail.kernel.org"
+        id S232470AbhDEI4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:56:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233609AbhDEI6a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F40F6610E8;
-        Mon,  5 Apr 2021 08:58:23 +0000 (UTC)
+        id S231991AbhDEI4k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:56:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63B0961393;
+        Mon,  5 Apr 2021 08:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613104;
-        bh=qiE3yZjvyD3V5Y0zET/MNOpr2H+hzMsRcDF6CDasm5w=;
+        s=korg; t=1617612994;
+        bh=ZXXW/k7cTS+S5VFAlsQf8Nid+9xzg5C/OEezLtOHqNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zsScZ8eU3PKv+sbi+7kbDWfjFk+SehmS4xRd4jEPyakVRSemjakyQnTEQPeVOJQPU
-         P8orK58rMp+IJAD2toTMGIZJGqSHJ5DCaHwUG3gWCOnocOmNU9OBwaupqBfj7uz8VK
-         ec+2Vma1FW0pbwTaQvi7xs7r/k06Ap4qOsCVL538=
+        b=1PwCejnVRZ/eiDn1vxOWfw3Kc2VQoV7J3tIUEVFO0QL8oodlaFtI2nVWa8yYXT/1a
+         TzVD77xWoVUcOVEieVSsZQDjmyLkuFyI4ig0gy9F7UJFHLyssTend/DcVa4pLWVtRp
+         212xkyXZqQxbiV9XOdkfC1Q3FTPHWCEtWqe/CWaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Rossi <nathan.rossi@digi.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
+        Tong Zhang <ztong0001@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/52] net: ethernet: aquantia: Handle error cleanup of start on open
-Date:   Mon,  5 Apr 2021 10:53:46 +0200
-Message-Id: <20210405085022.656266065@linuxfoundation.org>
+Subject: [PATCH 4.9 12/35] staging: comedi: cb_pcidas: fix request_irq() warn
+Date:   Mon,  5 Apr 2021 10:53:47 +0200
+Message-Id: <20210405085019.262055335@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+References: <20210405085018.871387942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Rossi <nathan.rossi@digi.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 8a28af7a3e85ddf358f8c41e401a33002f7a9587 ]
+[ Upstream commit 2e5848a3d86f03024ae096478bdb892ab3d79131 ]
 
-The aq_nic_start function can fail in a variety of cases which leaves
-the device in broken state.
+request_irq() wont accept a name which contains slash so we need to
+repalce it with something else -- otherwise it will trigger a warning
+and the entry in /proc/irq/ will not be created
+since the .name might be used by userspace and we don't want to break
+userspace, so we are changing the parameters passed to request_irq()
 
-An example case where the start function fails is the
-request_threaded_irq which can be interrupted, resulting in a EINTR
-result. This can be manually triggered by bringing the link up (e.g. ip
-link set up) and triggering a SIGINT on the initiating process (e.g.
-Ctrl+C). This would put the device into a half configured state.
-Subsequently bringing the link up again would cause the napi_enable to
-BUG.
+[    1.630764] name 'pci-das1602/16'
+[    1.630950] WARNING: CPU: 0 PID: 181 at fs/proc/generic.c:180 __xlate_proc_name+0x93/0xb0
+[    1.634009] RIP: 0010:__xlate_proc_name+0x93/0xb0
+[    1.639441] Call Trace:
+[    1.639976]  proc_mkdir+0x18/0x20
+[    1.641946]  request_threaded_irq+0xfe/0x160
+[    1.642186]  cb_pcidas_auto_attach+0xf4/0x610 [cb_pcidas]
 
-In order to correctly clean up the failed attempt to start a device call
-aq_nic_stop.
-
-Signed-off-by: Nathan Rossi <nathan.rossi@digi.com>
-Reviewed-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Suggested-by: Ian Abbott <abbotti@mev.co.uk>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210315195914.4801-1-ztong0001@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/cb_pcidas.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_main.c b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-index 5d6c40d86775..2fb532053d6d 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-@@ -60,8 +60,10 @@ static int aq_ndev_open(struct net_device *ndev)
- 	if (err < 0)
- 		goto err_exit;
- 	err = aq_nic_start(aq_nic);
--	if (err < 0)
-+	if (err < 0) {
-+		aq_nic_stop(aq_nic);
- 		goto err_exit;
-+	}
+diff --git a/drivers/staging/comedi/drivers/cb_pcidas.c b/drivers/staging/comedi/drivers/cb_pcidas.c
+index 3ea15bb0e56e..15b9cc8531f0 100644
+--- a/drivers/staging/comedi/drivers/cb_pcidas.c
++++ b/drivers/staging/comedi/drivers/cb_pcidas.c
+@@ -1290,7 +1290,7 @@ static int cb_pcidas_auto_attach(struct comedi_device *dev,
+ 	     devpriv->amcc + AMCC_OP_REG_INTCSR);
  
- err_exit:
- 	if (err < 0)
+ 	ret = request_irq(pcidev->irq, cb_pcidas_interrupt, IRQF_SHARED,
+-			  dev->board_name, dev);
++			  "cb_pcidas", dev);
+ 	if (ret) {
+ 		dev_dbg(dev->class_dev, "unable to allocate irq %d\n",
+ 			pcidev->irq);
 -- 
 2.30.1
 
