@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6552354040
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF31353F38
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240205AbhDEJQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38264 "EHLO mail.kernel.org"
+        id S239415AbhDEJKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240752AbhDEJQk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:16:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B796360FE4;
-        Mon,  5 Apr 2021 09:16:33 +0000 (UTC)
+        id S239393AbhDEJKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:10:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A21A613A7;
+        Mon,  5 Apr 2021 09:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614194;
-        bh=XPXpDubwawn6xiF67HudBMtAjv4D8alQ1E2lp9Xjekk=;
+        s=korg; t=1617613831;
+        bh=KlE8lWoA7F6dX9H+/W8BC2YHc0HDwdG+vOL1hNm62rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnXXBAxtCo5o2DaLB/5s6tqR2ln52XlGmN27FWlZvgV4GZuUd0a4oXv5Er/btw3Lg
-         smHxH0I3cVT/e7+GkIb/cc8KdRHrW7XnpxSDC2DYcUNMMo+EJlkBCeuZIFqTOGwB8q
-         gxTpFx6CZ1XAb+bSEXPLWueNDRgiiieleZj6tbeA=
+        b=c5OOse+56GZiuOSb+ApfUezHReL7JX2FbdARz0KHpuoBA1M6HFL4F40KzdtZb1ZRb
+         vUhBHPYno/HP+u1Uy6TiHpIQZJQ3gAwifd6+fIYTDCobl9f29KJezvvkahIOotS1p5
+         u/Gj1jfjpzjhtzsq7LjPoQcVV3W86chF+t2r3qGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 119/152] KVM: x86: compile out TDP MMU on 32-bit systems
+        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>
+Subject: [PATCH 5.10 106/126] USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
 Date:   Mon,  5 Apr 2021 10:54:28 +0200
-Message-Id: <20210405085038.103775121@linuxfoundation.org>
+Message-Id: <20210405085034.557143420@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,351 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Vincent Palatin <vpalatin@chromium.org>
 
-[ Upstream commit 897218ff7cf19290ec2d69652ce673d8ed6fedeb ]
+commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd upstream.
 
-The TDP MMU assumes that it can do atomic accesses to 64-bit PTEs.
-Rather than just disabling it, compile it out completely so that it
-is possible to use for example 64-bit xchg.
+This LTE modem (M.2 card) has a bug in its power management:
+there is some kind of race condition for U3 wake-up between the host and
+the device. The modem firmware sometimes crashes/locks when both events
+happen at the same time and the modem fully drops off the USB bus (and
+sometimes re-enumerates, sometimes just gets stuck until the next
+reboot).
 
-To limit the number of stubs, wrap all accesses to tdp_mmu_enabled
-or tdp_mmu_page with a function.  Calls to all other functions in
-tdp_mmu.c are eliminated and do not even reach the linker.
+Tested with the modem wired to the XHCI controller on an AMD 3015Ce
+platform. Without the patch, the modem dropped of the USB bus 5 times in
+3 days. With the quirk, it stayed connected for a week while the
+'runtime_suspended_time' counter incremented as excepted.
 
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Tested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+Link: https://lore.kernel.org/r/20210319124802.2315195-1-vpalatin@chromium.org
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm_host.h |  2 ++
- arch/x86/kvm/Makefile           |  3 ++-
- arch/x86/kvm/mmu/mmu.c          | 36 ++++++++++++++++-----------------
- arch/x86/kvm/mmu/mmu_internal.h |  2 ++
- arch/x86/kvm/mmu/tdp_mmu.c      | 29 +-------------------------
- arch/x86/kvm/mmu/tdp_mmu.h      | 32 +++++++++++++++++++++++++----
- 6 files changed, 53 insertions(+), 51 deletions(-)
+ drivers/usb/core/quirks.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 42fca28d6189..0cbb13b83a16 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1005,6 +1005,7 @@ struct kvm_arch {
- 	struct kvm_pmu_event_filter *pmu_event_filter;
- 	struct task_struct *nx_lpage_recovery_thread;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -498,6 +498,10 @@ static const struct usb_device_id usb_qu
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
-+#ifdef CONFIG_X86_64
- 	/*
- 	 * Whether the TDP MMU is enabled for this VM. This contains a
- 	 * snapshot of the TDP MMU module parameter from when the VM was
-@@ -1043,6 +1044,7 @@ struct kvm_arch {
- 	 * the thread holds the MMU lock in write mode.
- 	 */
- 	spinlock_t tdp_mmu_pages_lock;
-+#endif /* CONFIG_X86_64 */
- };
- 
- struct kvm_vm_stat {
-diff --git a/arch/x86/kvm/Makefile b/arch/x86/kvm/Makefile
-index 4bd14ab01323..53c54cdcc923 100644
---- a/arch/x86/kvm/Makefile
-+++ b/arch/x86/kvm/Makefile
-@@ -17,7 +17,8 @@ kvm-$(CONFIG_KVM_ASYNC_PF)	+= $(KVM)/async_pf.o
- kvm-y			+= x86.o emulate.o i8259.o irq.o lapic.o \
- 			   i8254.o ioapic.o irq_comm.o cpuid.o pmu.o mtrr.o \
- 			   hyperv.o debugfs.o mmu/mmu.o mmu/page_track.o \
--			   mmu/spte.o mmu/tdp_iter.o mmu/tdp_mmu.o
-+			   mmu/spte.o
-+kvm-$(CONFIG_X86_64) += mmu/tdp_iter.o mmu/tdp_mmu.o
- 
- kvm-intel-y		+= vmx/vmx.o vmx/vmenter.o vmx/pmu_intel.o vmx/vmcs12.o \
- 			   vmx/evmcs.o vmx/nested.o vmx/posted_intr.o
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 5771102a840c..d9901836d7aa 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1225,7 +1225,7 @@ static void kvm_mmu_write_protect_pt_masked(struct kvm *kvm,
- {
- 	struct kvm_rmap_head *rmap_head;
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		kvm_tdp_mmu_clear_dirty_pt_masked(kvm, slot,
- 				slot->base_gfn + gfn_offset, mask, true);
- 	while (mask) {
-@@ -1254,7 +1254,7 @@ void kvm_mmu_clear_dirty_pt_masked(struct kvm *kvm,
- {
- 	struct kvm_rmap_head *rmap_head;
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		kvm_tdp_mmu_clear_dirty_pt_masked(kvm, slot,
- 				slot->base_gfn + gfn_offset, mask, false);
- 	while (mask) {
-@@ -1309,7 +1309,7 @@ bool kvm_mmu_slot_gfn_write_protect(struct kvm *kvm,
- 		write_protected |= __rmap_write_protect(kvm, rmap_head, true);
- 	}
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		write_protected |=
- 			kvm_tdp_mmu_write_protect_gfn(kvm, slot, gfn);
- 
-@@ -1521,7 +1521,7 @@ int kvm_unmap_hva_range(struct kvm *kvm, unsigned long start, unsigned long end,
- 
- 	r = kvm_handle_hva_range(kvm, start, end, 0, kvm_unmap_rmapp);
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		r |= kvm_tdp_mmu_zap_hva_range(kvm, start, end);
- 
- 	return r;
-@@ -1533,7 +1533,7 @@ int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte)
- 
- 	r = kvm_handle_hva(kvm, hva, (unsigned long)&pte, kvm_set_pte_rmapp);
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		r |= kvm_tdp_mmu_set_spte_hva(kvm, hva, &pte);
- 
- 	return r;
-@@ -1588,7 +1588,7 @@ int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end)
- 	int young = false;
- 
- 	young = kvm_handle_hva_range(kvm, start, end, 0, kvm_age_rmapp);
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		young |= kvm_tdp_mmu_age_hva_range(kvm, start, end);
- 
- 	return young;
-@@ -1599,7 +1599,7 @@ int kvm_test_age_hva(struct kvm *kvm, unsigned long hva)
- 	int young = false;
- 
- 	young = kvm_handle_hva(kvm, hva, 0, kvm_test_age_rmapp);
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		young |= kvm_tdp_mmu_test_age_hva(kvm, hva);
- 
- 	return young;
-@@ -3161,7 +3161,7 @@ static void mmu_free_root_page(struct kvm *kvm, hpa_t *root_hpa,
- 	sp = to_shadow_page(*root_hpa & PT64_BASE_ADDR_MASK);
- 
- 	if (kvm_mmu_put_root(kvm, sp)) {
--		if (sp->tdp_mmu_page)
-+		if (is_tdp_mmu_page(sp))
- 			kvm_tdp_mmu_free_root(kvm, sp);
- 		else if (sp->role.invalid)
- 			kvm_mmu_prepare_zap_page(kvm, sp, invalid_list);
-@@ -3255,7 +3255,7 @@ static int mmu_alloc_direct_roots(struct kvm_vcpu *vcpu)
- 	hpa_t root;
- 	unsigned i;
- 
--	if (vcpu->kvm->arch.tdp_mmu_enabled) {
-+	if (is_tdp_mmu_enabled(vcpu->kvm)) {
- 		root = kvm_tdp_mmu_get_vcpu_root_hpa(vcpu);
- 
- 		if (!VALID_PAGE(root))
-@@ -5447,7 +5447,7 @@ static void kvm_mmu_zap_all_fast(struct kvm *kvm)
- 
- 	kvm_zap_obsolete_pages(kvm);
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		kvm_tdp_mmu_zap_all(kvm);
- 
- 	spin_unlock(&kvm->mmu_lock);
-@@ -5510,7 +5510,7 @@ void kvm_zap_gfn_range(struct kvm *kvm, gfn_t gfn_start, gfn_t gfn_end)
- 		}
- 	}
- 
--	if (kvm->arch.tdp_mmu_enabled) {
-+	if (is_tdp_mmu_enabled(kvm)) {
- 		flush = kvm_tdp_mmu_zap_gfn_range(kvm, gfn_start, gfn_end);
- 		if (flush)
- 			kvm_flush_remote_tlbs(kvm);
-@@ -5534,7 +5534,7 @@ void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
- 	spin_lock(&kvm->mmu_lock);
- 	flush = slot_handle_level(kvm, memslot, slot_rmap_write_protect,
- 				start_level, KVM_MAX_HUGEPAGE_LEVEL, false);
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		flush |= kvm_tdp_mmu_wrprot_slot(kvm, memslot, PG_LEVEL_4K);
- 	spin_unlock(&kvm->mmu_lock);
- 
-@@ -5600,7 +5600,7 @@ void kvm_mmu_zap_collapsible_sptes(struct kvm *kvm,
- 	slot_handle_leaf(kvm, (struct kvm_memory_slot *)memslot,
- 			 kvm_mmu_zap_collapsible_spte, true);
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		kvm_tdp_mmu_zap_collapsible_sptes(kvm, memslot);
- 	spin_unlock(&kvm->mmu_lock);
- }
-@@ -5627,7 +5627,7 @@ void kvm_mmu_slot_leaf_clear_dirty(struct kvm *kvm,
- 
- 	spin_lock(&kvm->mmu_lock);
- 	flush = slot_handle_leaf(kvm, memslot, __rmap_clear_dirty, false);
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		flush |= kvm_tdp_mmu_clear_dirty_slot(kvm, memslot);
- 	spin_unlock(&kvm->mmu_lock);
- 
-@@ -5650,7 +5650,7 @@ void kvm_mmu_slot_largepage_remove_write_access(struct kvm *kvm,
- 	spin_lock(&kvm->mmu_lock);
- 	flush = slot_handle_large_level(kvm, memslot, slot_rmap_write_protect,
- 					false);
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		flush |= kvm_tdp_mmu_wrprot_slot(kvm, memslot, PG_LEVEL_2M);
- 	spin_unlock(&kvm->mmu_lock);
- 
-@@ -5666,7 +5666,7 @@ void kvm_mmu_slot_set_dirty(struct kvm *kvm,
- 
- 	spin_lock(&kvm->mmu_lock);
- 	flush = slot_handle_all_level(kvm, memslot, __rmap_set_dirty, false);
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		flush |= kvm_tdp_mmu_slot_set_dirty(kvm, memslot);
- 	spin_unlock(&kvm->mmu_lock);
- 
-@@ -5694,7 +5694,7 @@ void kvm_mmu_zap_all(struct kvm *kvm)
- 
- 	kvm_mmu_commit_zap_page(kvm, &invalid_list);
- 
--	if (kvm->arch.tdp_mmu_enabled)
-+	if (is_tdp_mmu_enabled(kvm))
- 		kvm_tdp_mmu_zap_all(kvm);
- 
- 	spin_unlock(&kvm->mmu_lock);
-@@ -6005,7 +6005,7 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
- 				      struct kvm_mmu_page,
- 				      lpage_disallowed_link);
- 		WARN_ON_ONCE(!sp->lpage_disallowed);
--		if (sp->tdp_mmu_page) {
-+		if (is_tdp_mmu_page(sp)) {
- 			kvm_tdp_mmu_zap_gfn_range(kvm, sp->gfn,
- 				sp->gfn + KVM_PAGES_PER_HPAGE(sp->role.level));
- 		} else {
-diff --git a/arch/x86/kvm/mmu/mmu_internal.h b/arch/x86/kvm/mmu/mmu_internal.h
-index 9e600dc30f08..cbac13a2bd45 100644
---- a/arch/x86/kvm/mmu/mmu_internal.h
-+++ b/arch/x86/kvm/mmu/mmu_internal.h
-@@ -56,10 +56,12 @@ struct kvm_mmu_page {
- 	/* Number of writes since the last time traversal visited this page.  */
- 	atomic_t write_flooding_count;
- 
-+#ifdef CONFIG_X86_64
- 	bool tdp_mmu_page;
- 
- 	/* Used for freeing the page asyncronously if it is a TDP MMU page. */
- 	struct rcu_head rcu_head;
-+#endif
- };
- 
- extern struct kmem_cache *mmu_page_header_cache;
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index bb6faa9193b4..e2157d0a5712 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -10,24 +10,13 @@
- #include <asm/cmpxchg.h>
- #include <trace/events/kvm.h>
- 
--#ifdef CONFIG_X86_64
- static bool __read_mostly tdp_mmu_enabled = false;
- module_param_named(tdp_mmu, tdp_mmu_enabled, bool, 0644);
--#endif
--
--static bool is_tdp_mmu_enabled(void)
--{
--#ifdef CONFIG_X86_64
--	return tdp_enabled && READ_ONCE(tdp_mmu_enabled);
--#else
--	return false;
--#endif /* CONFIG_X86_64 */
--}
- 
- /* Initializes the TDP MMU for the VM, if enabled. */
- void kvm_mmu_init_tdp_mmu(struct kvm *kvm)
- {
--	if (!is_tdp_mmu_enabled())
-+	if (!tdp_enabled || !READ_ONCE(tdp_mmu_enabled))
- 		return;
- 
- 	/* This should not be changed for the lifetime of the VM. */
-@@ -96,22 +85,6 @@ static inline struct kvm_mmu_page *tdp_mmu_next_root(struct kvm *kvm,
- #define for_each_tdp_mmu_root(_kvm, _root)				\
- 	list_for_each_entry(_root, &_kvm->arch.tdp_mmu_roots, link)
- 
--bool is_tdp_mmu_root(struct kvm *kvm, hpa_t hpa)
--{
--	struct kvm_mmu_page *sp;
--
--	if (!kvm->arch.tdp_mmu_enabled)
--		return false;
--	if (WARN_ON(!VALID_PAGE(hpa)))
--		return false;
--
--	sp = to_shadow_page(hpa);
--	if (WARN_ON(!sp))
--		return false;
--
--	return sp->tdp_mmu_page && sp->root_count;
--}
--
- static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 			  gfn_t start, gfn_t end, bool can_yield, bool flush);
- 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.h b/arch/x86/kvm/mmu/tdp_mmu.h
-index cbbdbadd1526..b4b65e3699b3 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.h
-+++ b/arch/x86/kvm/mmu/tdp_mmu.h
-@@ -5,10 +5,6 @@
- 
- #include <linux/kvm_host.h>
- 
--void kvm_mmu_init_tdp_mmu(struct kvm *kvm);
--void kvm_mmu_uninit_tdp_mmu(struct kvm *kvm);
--
--bool is_tdp_mmu_root(struct kvm *kvm, hpa_t root);
- hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(struct kvm_vcpu *vcpu);
- void kvm_tdp_mmu_free_root(struct kvm *kvm, struct kvm_mmu_page *root);
- 
-@@ -47,4 +43,32 @@ bool kvm_tdp_mmu_write_protect_gfn(struct kvm *kvm,
- int kvm_tdp_mmu_get_walk(struct kvm_vcpu *vcpu, u64 addr, u64 *sptes,
- 			 int *root_level);
- 
-+#ifdef CONFIG_X86_64
-+void kvm_mmu_init_tdp_mmu(struct kvm *kvm);
-+void kvm_mmu_uninit_tdp_mmu(struct kvm *kvm);
-+static inline bool is_tdp_mmu_enabled(struct kvm *kvm) { return kvm->arch.tdp_mmu_enabled; }
-+static inline bool is_tdp_mmu_page(struct kvm_mmu_page *sp) { return sp->tdp_mmu_page; }
-+#else
-+static inline void kvm_mmu_init_tdp_mmu(struct kvm *kvm) {}
-+static inline void kvm_mmu_uninit_tdp_mmu(struct kvm *kvm) {}
-+static inline bool is_tdp_mmu_enabled(struct kvm *kvm) { return false; }
-+static inline bool is_tdp_mmu_page(struct kvm_mmu_page *sp) { return false; }
-+#endif
++	/* Fibocom L850-GL LTE Modem */
++	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
++			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
 +
-+static inline bool is_tdp_mmu_root(struct kvm *kvm, hpa_t hpa)
-+{
-+	struct kvm_mmu_page *sp;
-+
-+	if (!is_tdp_mmu_enabled(kvm))
-+		return false;
-+	if (WARN_ON(!VALID_PAGE(hpa)))
-+		return false;
-+
-+	sp = to_shadow_page(hpa);
-+	if (WARN_ON(!sp))
-+		return false;
-+
-+	return is_tdp_mmu_page(sp) && sp->root_count;
-+}
-+
- #endif /* __KVM_X86_MMU_TDP_MMU_H */
--- 
-2.30.1
-
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
 
 
