@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 011BB354006
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3686A353E06
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240605AbhDEJPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34270 "EHLO mail.kernel.org"
+        id S237680AbhDEJDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:03:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240199AbhDEJOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:14:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3E3760FE4;
-        Mon,  5 Apr 2021 09:14:45 +0000 (UTC)
+        id S237675AbhDEJDa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:03:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3578861002;
+        Mon,  5 Apr 2021 09:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614086;
-        bh=bLCPzUJasUZIGZ/f79RDoHGS2eIMg2+ukTiUtJC/zMY=;
+        s=korg; t=1617613403;
+        bh=TtjDfljzF3YuQqvLSCfdBTg8d35CJEcQSOiW7F+Pg9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laUxCYqlQj+AaNN2JqTY34dyY9GXhoZIv5ob/ep9n0t4nHIbH5+ZJNfMWl8omNVQo
-         0ScR9IZ6Lek9LjbbRvE5LVPd+GRfxa5jepQgsq4rDynPp/OniuzNeCgcGsz4o7ef3W
-         KB1M9eRrKfV/A2xmHpVO76Hcv7uNR336VPYsIuw8=
+        b=j8mYyPaXhRckA6pZUqsN9UhrSO0KRsB/qqGWn/HpqiDgDWnomZbj0T9f9BI04CX0T
+         SAA5C23m6nK7JCF6CxaShiDhQtBA2ZnwkjjczLVwiG2m2n2hJ1nTvM5/nOwaEUtWWr
+         icJXcX9JX95nnvDTDJdGfUr2YxZqEUHrYkRczb0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Wilhelm <fwilhelm@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.11 079/152] KVM: SVM: load control fields from VMCB12 before checking them
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 24/74] staging: comedi: cb_pcidas: fix request_irq() warn
 Date:   Mon,  5 Apr 2021 10:53:48 +0200
-Message-Id: <20210405085036.827533637@linuxfoundation.org>
+Message-Id: <20210405085025.507701683@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit a58d9166a756a0f4a6618e4f593232593d6df134 upstream.
+[ Upstream commit 2e5848a3d86f03024ae096478bdb892ab3d79131 ]
 
-Avoid races between check and use of the nested VMCB controls.  This
-for example ensures that the VMRUN intercept is always reflected to the
-nested hypervisor, instead of being processed by the host.  Without this
-patch, it is possible to end up with svm->nested.hsave pointing to
-the MSR permission bitmap for nested guests.
+request_irq() wont accept a name which contains slash so we need to
+repalce it with something else -- otherwise it will trigger a warning
+and the entry in /proc/irq/ will not be created
+since the .name might be used by userspace and we don't want to break
+userspace, so we are changing the parameters passed to request_irq()
 
-This bug is CVE-2021-29657.
+[    1.630764] name 'pci-das1602/16'
+[    1.630950] WARNING: CPU: 0 PID: 181 at fs/proc/generic.c:180 __xlate_proc_name+0x93/0xb0
+[    1.634009] RIP: 0010:__xlate_proc_name+0x93/0xb0
+[    1.639441] Call Trace:
+[    1.639976]  proc_mkdir+0x18/0x20
+[    1.641946]  request_threaded_irq+0xfe/0x160
+[    1.642186]  cb_pcidas_auto_attach+0xf4/0x610 [cb_pcidas]
 
-Reported-by: Felix Wilhelm <fwilhelm@google.com>
-Cc: stable@vger.kernel.org
-Fixes: 2fcf4876ada ("KVM: nSVM: implement on demand allocation of the nested state")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Suggested-by: Ian Abbott <abbotti@mev.co.uk>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210315195914.4801-1-ztong0001@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/nested.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/staging/comedi/drivers/cb_pcidas.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -246,7 +246,7 @@ static bool nested_vmcb_check_controls(s
- 	return true;
- }
+diff --git a/drivers/staging/comedi/drivers/cb_pcidas.c b/drivers/staging/comedi/drivers/cb_pcidas.c
+index 1893c70de0b9..10f097a7d847 100644
+--- a/drivers/staging/comedi/drivers/cb_pcidas.c
++++ b/drivers/staging/comedi/drivers/cb_pcidas.c
+@@ -1281,7 +1281,7 @@ static int cb_pcidas_auto_attach(struct comedi_device *dev,
+ 	     devpriv->amcc + AMCC_OP_REG_INTCSR);
  
--static bool nested_vmcb_checks(struct vcpu_svm *svm, struct vmcb *vmcb12)
-+static bool nested_vmcb_check_save(struct vcpu_svm *svm, struct vmcb *vmcb12)
- {
- 	struct kvm_vcpu *vcpu = &svm->vcpu;
- 	bool vmcb12_lma;
-@@ -271,7 +271,7 @@ static bool nested_vmcb_checks(struct vc
- 	if (!kvm_is_valid_cr4(&svm->vcpu, vmcb12->save.cr4))
- 		return false;
- 
--	return nested_vmcb_check_controls(&vmcb12->control);
-+	return true;
- }
- 
- static void load_nested_vmcb_control(struct vcpu_svm *svm,
-@@ -454,7 +454,6 @@ int enter_svm_guest_mode(struct vcpu_svm
- 	int ret;
- 
- 	svm->nested.vmcb12_gpa = vmcb12_gpa;
--	load_nested_vmcb_control(svm, &vmcb12->control);
- 	nested_prepare_vmcb_save(svm, vmcb12);
- 	nested_prepare_vmcb_control(svm);
- 
-@@ -501,7 +500,10 @@ int nested_svm_vmrun(struct vcpu_svm *sv
- 	if (WARN_ON_ONCE(!svm->nested.initialized))
- 		return -EINVAL;
- 
--	if (!nested_vmcb_checks(svm, vmcb12)) {
-+	load_nested_vmcb_control(svm, &vmcb12->control);
-+
-+	if (!nested_vmcb_check_save(svm, vmcb12) ||
-+	    !nested_vmcb_check_controls(&svm->nested.ctl)) {
- 		vmcb12->control.exit_code    = SVM_EXIT_ERR;
- 		vmcb12->control.exit_code_hi = 0;
- 		vmcb12->control.exit_info_1  = 0;
+ 	ret = request_irq(pcidev->irq, cb_pcidas_interrupt, IRQF_SHARED,
+-			  dev->board_name, dev);
++			  "cb_pcidas", dev);
+ 	if (ret) {
+ 		dev_dbg(dev->class_dev, "unable to allocate irq %d\n",
+ 			pcidev->irq);
+-- 
+2.30.1
+
 
 
