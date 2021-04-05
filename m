@@ -2,112 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F277F354784
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 22:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E219354791
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 22:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237045AbhDEUTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 16:19:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60436 "EHLO
+        id S240872AbhDEU3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 16:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235052AbhDEUTp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 16:19:45 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE8FC06178C
-        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 13:19:33 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id 82so3138054yby.7
-        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 13:19:33 -0700 (PDT)
+        with ESMTP id S236450AbhDEU3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 16:29:11 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51739C06178C
+        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 13:29:02 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id j6-20020a17090adc86b02900cbfe6f2c96so6456281pjv.1
+        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 13:29:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zNHHnGDUPv1W2tiXmyfqQp1aOeyCQQoH/Xe+VtubBAs=;
-        b=oSLTOu0u41YhlObLoq5obB4ekFQ3Z3fcQb0Ot7gmmQZHayIGAuJvBtuC7aFngzqOQW
-         5spxlVGGNmWNP3wfJtzbTS87zoDGbT2tsr4sfBGtT/vnxKFZ0hwLUVNBKqDhucMZiiDh
-         pxekwzSD6pP9C/5s7ZPGhp784NHolaZpX+esyumnSMjYOoRcCjeR+s/6FR1Nr6giaJKa
-         sb//uK/pYISZhU8leyfwj6QrnHN/RVAaZMeu8Mx5MoComp2FFypkym3stu/txLtm/JR9
-         Op0f5GihUL94iWUxm1XRsiVz+XZF0Bez8eRX3rn9r7r6iE2s/LfwfcosZOTHJqIG3aWc
-         zgPw==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ONE9SgRu2tAB0bKzuvFoPjlBosnX6JZfWs8NKXHvA4Q=;
+        b=FfymRgM824j1zYBR0q6aKkMArv3x6ubHtrtPSsl9WewyXQ0FoXuCeszFRgOa6u/QEq
+         7r8mLzV8QfCds35XqsmCS9JmsEIrmRLqDQ8kvBmxFIYJ09h8ud1aiYtiIhwgDQRwFWyb
+         guEXtqoWZNOrBMa49L6RkNZJKz1UAeHzTfQuQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zNHHnGDUPv1W2tiXmyfqQp1aOeyCQQoH/Xe+VtubBAs=;
-        b=un5ZUFBffOliCUPCejq3E4GAazsHTSjQzEdDBp/AP2mm8RfRaA881v3GjMLVcrVNn8
-         +49YNN8y91R8ZjwtnR5JXj6tt/MfXFuLSvEfZm0uF/AZdTJtsCaGilv/UD1QyQQmPkGI
-         NTD7F1TDO8hUJsweomQVnUQ6QVTMelc8PICHxjwXGcYP8y+QkD0IYB69lC3KKovbTgRr
-         hWPROtkFTyb9YtV6FXxaMisC0sCKo2rLk1z4RDqYIl9ViBDpcVMb8pzdlY7Lvnv/o6Qz
-         9Tf7S8moKsnasLVoCUCFK/1iaQ6lZqM7URfZQkiWPA7zyd3Fe6I83+nnuvWznN6V6dGX
-         zJeA==
-X-Gm-Message-State: AOAM530nUoN//D/WLs2C4LnCFNjCCesCF1gwyRMRoamNlRt0VsiLY2DY
-        6k64J39TMl7cC+XyWFkFbKs1IfTUTLT+f2cUwMfmXQ==
-X-Google-Smtp-Source: ABdhPJw/6g7Wi6AMuJUE0lijYmJfVHDAMCULfy+zD9/bWyL7Cmgklq7B2AJrK3HthQieUtp+G6LUaBY+uieDcih0wuU=
-X-Received: by 2002:a25:58d5:: with SMTP id m204mr37228676ybb.32.1617653972190;
- Mon, 05 Apr 2021 13:19:32 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ONE9SgRu2tAB0bKzuvFoPjlBosnX6JZfWs8NKXHvA4Q=;
+        b=rfj/EOy2oWM4NKyngUsA6stDeZ1opWqlOW53JIfei6g04D/9Y5qJN0R2cVTpHSs6Qq
+         Fz4i1pAMG727NUqBU4ebiQ3xRE7ms1v9XWjIx2bk5KkOXYT5NZwbbk9LPVgBx49BBL+2
+         0qsRj+XX6IW5/E01hvM7/k3XTnFUtI6T+9WuhXOiAtdKLZjpCsCxDfV0yoXsXVyQw+zm
+         6Hp20LzHsIhAYEZfpD7FtB4wpZWPGTksCOfK3FArfyGVwyGDPXp8LlAs70/ZSSdA7+fB
+         AmA/N/nO8YzB3R40O9Kt7F0I1aSWt4fEa+WqrXabPg4QpH5s5ZW6rmDkq6Cj2xJSNKEK
+         Npsw==
+X-Gm-Message-State: AOAM530XFszhcfE0xr3iaeHhROTtJ8MsLocLkVPwHF1wx7vfumO0sMq+
+        K27I1g6IG2+L7zy6n6H9P6GfZQ==
+X-Google-Smtp-Source: ABdhPJyGGY8DkT+f5kXmdRJ7zwVBTbVaoWRky8rP+wx7GbePeebTDoSqQ6aIjbnQlLUSfxp54eSLPQ==
+X-Received: by 2002:a17:902:e54c:b029:e5:e7cf:d746 with SMTP id n12-20020a170902e54cb02900e5e7cfd746mr25759673plf.56.1617654541797;
+        Mon, 05 Apr 2021 13:29:01 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:2926:73d2:2f29:3222])
+        by smtp.gmail.com with UTF8SMTPSA id w15sm16035054pfn.84.2021.04.05.13.29.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Apr 2021 13:29:01 -0700 (PDT)
+From:   Gwendal Grignou <gwendal@chromium.org>
+X-Google-Original-From: Gwendal Grignou <gwendal@google.com>
+To:     bleung@chromium.org, enric.balletbo@collabora.com,
+        groeck@chromium.org
+Cc:     linux-kernel@vger.kernel.org, Gwendal Grignou <gwendal@google.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/2] platform/chrome: Use dev_groups to set device sysfs attributes
+Date:   Mon,  5 Apr 2021 13:28:56 -0700
+Message-Id: <20210405202857.1265308-2-gwendal@google.com>
+X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
+In-Reply-To: <20210405202857.1265308-1-gwendal@google.com>
+References: <20210405202857.1265308-1-gwendal@google.com>
 MIME-Version: 1.0
-References: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
- <CAGETcx9ifDoWeBN1KR4zKfs-q73iGo9C-joz4UqayeE3euDQWg@mail.gmail.com> <CALCv0x3-A3PruJJ6wmzBZ5544Zj8_R7wFXkOm6H-a5tG406wYQ@mail.gmail.com>
-In-Reply-To: <CALCv0x3-A3PruJJ6wmzBZ5544Zj8_R7wFXkOm6H-a5tG406wYQ@mail.gmail.com>
-From:   Saravana Kannan <saravanak@google.com>
-Date:   Mon, 5 Apr 2021 13:18:56 -0700
-Message-ID: <CAGETcx8tgKoWAoqSgEQS8DRyMqzd7fGDfsWwsBEywVAPXRo1_A@mail.gmail.com>
-Subject: Re: [PATCH] of: property: do not create device links from *nr-gpios
-To:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 5, 2021 at 1:10 PM Ilya Lipnitskiy
-<ilya.lipnitskiy@gmail.com> wrote:
->
-> Hi Saravana,
->
-> On Mon, Apr 5, 2021 at 1:01 PM Saravana Kannan <saravanak@google.com> wrote:
-> >
-> > On Sun, Apr 4, 2021 at 8:14 PM Ilya Lipnitskiy
-> > <ilya.lipnitskiy@gmail.com> wrote:
-> > >
-> > > [<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
-> > > the number of GPIOs present on a system, not define a GPIO. nr-gpios is
-> > > not configured by #gpio-cells and can't be parsed along with other
-> > > "*-gpios" properties.
-> > >
-> > > scripts/dtc/checks.c also has a special case for nr-gpio{s}. However,
-> > > nr-gpio is not really special, so we only need to fix nr-gpios suffix
-> > > here.
-> >
-> > The only example of this that I see is "snps,nr-gpios".
-> arch/arm64/boot/dts/apm/apm-shadowcat.dtsi uses "apm,nr-gpios", with
-> parsing code in drivers/gpio/gpio-xgene-sb.c. There is also code in
-> drivers/gpio/gpio-adnp.c and drivers/gpio/gpio-mockup.c using
-> "nr-gpios" without any vendor prefix.
+Instead of manually call sysfs_create_group()/sysfs_remove_group(), set
+.dev_groups driver data structure, and let the bus base code create
+sysfs attributes.
 
-Ah ok. I just grepped the DT files. I'm not sure what Rob's position
-is on supporting DT files not in upstream. Thanks for the
-clarification.
+Fixes: 6fd7f2bbd442 ("mfd / platform: cros_ec: Move device sysfs attributes to its own driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gwendal Grignou <gwendal@google.com>
+---
+ New in v2.
 
-> I personally don't think causing regressions is good for any reason,
+ drivers/platform/chrome/cros_ec_sysfs.c | 28 +++++--------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
-I agree, but this is not a functional regression. Just a warning
-that's spit out. I don't have a strong opinion on the stack dump vs
-not, but I think we should at least reject future additions like this
-and limit the exceptions to exactly what's allowed today. nr-gpios
-(without any vendor prefix) is especially annoying to me.
+diff --git a/drivers/platform/chrome/cros_ec_sysfs.c b/drivers/platform/chrome/cros_ec_sysfs.c
+index f07eabcf9494c..114b9dbe981e7 100644
+--- a/drivers/platform/chrome/cros_ec_sysfs.c
++++ b/drivers/platform/chrome/cros_ec_sysfs.c
+@@ -335,34 +335,16 @@ static const struct attribute_group cros_ec_attr_group = {
+ 	.is_visible = cros_ec_ctrl_visible,
+ };
+ 
+-static int cros_ec_sysfs_probe(struct platform_device *pd)
+-{
+-	struct cros_ec_dev *ec_dev = dev_get_drvdata(pd->dev.parent);
+-	struct device *dev = &pd->dev;
+-	int ret;
+-
+-	ret = sysfs_create_group(&ec_dev->class_dev.kobj, &cros_ec_attr_group);
+-	if (ret < 0)
+-		dev_err(dev, "failed to create attributes. err=%d\n", ret);
+-
+-	return ret;
+-}
+-
+-static int cros_ec_sysfs_remove(struct platform_device *pd)
+-{
+-	struct cros_ec_dev *ec_dev = dev_get_drvdata(pd->dev.parent);
+-
+-	sysfs_remove_group(&ec_dev->class_dev.kobj, &cros_ec_attr_group);
+-
+-	return 0;
+-}
++static const struct attribute_group *cros_ec_attr_groups[] = {
++	&cros_ec_attr_group,
++	NULL,
++};
+ 
+ static struct platform_driver cros_ec_sysfs_driver = {
+ 	.driver = {
+ 		.name = DRV_NAME,
++		.dev_groups = cros_ec_attr_groups,
+ 	},
+-	.probe = cros_ec_sysfs_probe,
+-	.remove = cros_ec_sysfs_remove,
+ };
+ 
+ module_platform_driver(cros_ec_sysfs_driver);
+-- 
+2.31.0.208.g409f899ff0-goog
 
-Looks like even the DT spec has an exception only for vendor,nr and not just nr.
-https://github.com/devicetree-org/dt-schema/blob/master/schemas/gpio/gpio-consumer.yaml#L20
-
--Saravana
-
-> so I think we need to fix this in stable releases. The patch can be
-> reverted when nr-gpios is no longer special. The logic here should
-> also be aligned with scripts/dtc/checks.c, I actually submitted a
-> patch to warn about "nr-gpios" only and not "nr-gpio" in dtc as well:
-> https://www.spinics.net/lists/devicetree-compiler/msg03619.html
->
-> Ilya
