@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B799353D79
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E07B435400E
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237114AbhDEJAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:00:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41224 "EHLO mail.kernel.org"
+        id S240634AbhDEJPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236891AbhDEJAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:00:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E86E460238;
-        Mon,  5 Apr 2021 08:59:53 +0000 (UTC)
+        id S240549AbhDEJPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D6861393;
+        Mon,  5 Apr 2021 09:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613194;
-        bh=LHdZhhen3vKYu4pE0APWOszXTbH6gJF9/gz9z/fbL84=;
+        s=korg; t=1617614111;
+        bh=c489M/+1dRocyyjFIWmCDQRJV1jzQJ61lEA3Li+T3r8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzAW4gg7o0DF+Jypk4fptRH62uf3C58ViSIfwdhLf6B3c+Cb8rRYsDLmWWhbpywvB
-         uZJffgYG0WlHRySI2a81cJlgYXvVo9l3P09JT0cojN9BsLaw3F23v/ApXi8aJJUE8q
-         SMYcOQqa+2gsX74X4mrmpiSv96m3UCGF9PX7qoRA=
+        b=0BUZisL2T0ik4PBPUEzXwNRSMcND46Om2/CpHXZw3NKSQl2yYFM2p8dnjz0kSxT4X
+         Fc9FfJraHBNnyOTgmLg39cXFceW0L6HgYGNR3r34sGLkvCqUaFJrKkc7KGPflrwa50
+         CzAvgJ+eVzaLyOx2pSt4wwdHHLNo1RU94tcFcMXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Xi Ruoyao <xry111@mengyan1223.wang>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.14 30/52] drm/amdgpu: check alignment on CPU page for bo map
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 087/152] mm: fix race by making init_zero_pfn() early_initcall
 Date:   Mon,  5 Apr 2021 10:53:56 +0200
-Message-Id: <20210405085022.967531890@linuxfoundation.org>
+Message-Id: <20210405085037.083212607@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xℹ Ruoyao <xry111@mengyan1223.wang>
+From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
 
-commit e3512fb67093fabdf27af303066627b921ee9bd8 upstream.
+commit e720e7d0e983bf05de80b231bccc39f1487f0f16 upstream.
 
-The page table of AMDGPU requires an alignment to CPU page so we should
-check ioctl parameters for it.  Return -EINVAL if some parameter is
-unaligned to CPU page, instead of corrupt the page table sliently.
+There are code paths that rely on zero_pfn to be fully initialized
+before core_initcall.  For example, wq_sysfs_init() is a core_initcall
+function that eventually results in a call to kernel_execve, which
+causes a page fault with a subsequent mmput.  If zero_pfn is not
+initialized by then it may not get cleaned up properly and result in an
+error:
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  BUG: Bad rss-counter state mm:(ptrval) type:MM_ANONPAGES val:1
+
+Here is an analysis of the race as seen on a MIPS device. On this
+particular MT7621 device (Ubiquiti ER-X), zero_pfn is PFN 0 until
+initialized, at which point it becomes PFN 5120:
+
+  1. wq_sysfs_init calls into kobject_uevent_env at core_initcall:
+       kobject_uevent_env+0x7e4/0x7ec
+       kset_register+0x68/0x88
+       bus_register+0xdc/0x34c
+       subsys_virtual_register+0x34/0x78
+       wq_sysfs_init+0x1c/0x4c
+       do_one_initcall+0x50/0x1a8
+       kernel_init_freeable+0x230/0x2c8
+       kernel_init+0x10/0x100
+       ret_from_kernel_thread+0x14/0x1c
+
+  2. kobject_uevent_env() calls call_usermodehelper_exec() which executes
+     kernel_execve asynchronously.
+
+  3. Memory allocations in kernel_execve cause a page fault, bumping the
+     MM reference counter:
+       add_mm_counter_fast+0xb4/0xc0
+       handle_mm_fault+0x6e4/0xea0
+       __get_user_pages.part.78+0x190/0x37c
+       __get_user_pages_remote+0x128/0x360
+       get_arg_page+0x34/0xa0
+       copy_string_kernel+0x194/0x2a4
+       kernel_execve+0x11c/0x298
+       call_usermodehelper_exec_async+0x114/0x194
+
+  4. In case zero_pfn has not been initialized yet, zap_pte_range does
+     not decrement the MM_ANONPAGES RSS counter and the BUG message is
+     triggered shortly afterwards when __mmdrop checks the ref counters:
+       __mmdrop+0x98/0x1d0
+       free_bprm+0x44/0x118
+       kernel_execve+0x160/0x1d8
+       call_usermodehelper_exec_async+0x114/0x194
+       ret_from_kernel_thread+0x14/0x1c
+
+To avoid races such as described above, initialize init_zero_pfn at
+early_initcall level.  Depending on the architecture, ZERO_PAGE is
+either constant or gets initialized even earlier, at paging_init, so
+there is no issue with initializing zero_pfn earlier.
+
+Link: https://lkml.kernel.org/r/CALCv0x2YqOXEAy2Q=hafjhHCtTHVodChv1qpM=niAXOpqEbt7w@mail.gmail.com
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: stable@vger.kernel.org
+Tested-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -2074,8 +2074,8 @@ int amdgpu_vm_bo_map(struct amdgpu_devic
- 	uint64_t eaddr;
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -154,7 +154,7 @@ static int __init init_zero_pfn(void)
+ 	zero_pfn = page_to_pfn(ZERO_PAGE(0));
+ 	return 0;
+ }
+-core_initcall(init_zero_pfn);
++early_initcall(init_zero_pfn);
  
- 	/* validate the parameters */
--	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
--	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
-+	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
-+	    size == 0 || size & ~PAGE_MASK)
- 		return -EINVAL;
- 
- 	/* make sure object fit at this offset */
-@@ -2142,8 +2142,8 @@ int amdgpu_vm_bo_replace_map(struct amdg
- 	int r;
- 
- 	/* validate the parameters */
--	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
--	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
-+	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
-+	    size == 0 || size & ~PAGE_MASK)
- 		return -EINVAL;
- 
- 	/* make sure object fit at this offset */
+ void mm_trace_rss_stat(struct mm_struct *mm, int member, long count)
+ {
 
 
