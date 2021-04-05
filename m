@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 499B0353E03
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72A0B353D92
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237666AbhDEJD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46470 "EHLO mail.kernel.org"
+        id S237214AbhDEJAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:00:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237661AbhDEJD0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:03:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A3486138A;
-        Mon,  5 Apr 2021 09:03:20 +0000 (UTC)
+        id S237216AbhDEJAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:00:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DD18610E8;
+        Mon,  5 Apr 2021 09:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613401;
-        bh=q/qmcPMCJsL44JMnNHKA3zvjlGA4zMMtaI9g0Jmagwc=;
+        s=korg; t=1617613229;
+        bh=pnfCsupmMJNb5vkc/ZHZ2HyPnucjnq9sB1ClNUDF2+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlPxvGoFcGdWzoEPrC5B0QAOF19CGRr2bU9M6F/f6vIkyjPuO4HwzXUZ3NAPSNsS1
-         vkb9i9p6eQyUNw+4McDjOGPsZQKNAc5nhwqCRiDW5N3gBDfBW2ww7+moQ2AqGOZ0X8
-         IpCXfL70xvGBhjnlwqbefFE4KaAwgtthk39qBbdY=
+        b=e8qeq59h00sNC+hD9qa3fIs4CVdIPW+sO7D5LiGhCKs3qmdgvkVm7MK5rtWzlzXbC
+         y9rhgFXuZl/ZAbCkRAWo29FpA1Ye9yZWNO2XtQcPiOcFV9EC6OO8tUDTmcUI7okM9/
+         151UJFlHP7/+mD4gR4QcOm29ZbxQfTNS0Fk5dCTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexey Dobriyan <adobriyan@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/74] scsi: qla2xxx: Fix broken #endif placement
+Subject: [PATCH 4.19 16/56] scsi: qla2xxx: Fix broken #endif placement
 Date:   Mon,  5 Apr 2021 10:53:47 +0200
-Message-Id: <20210405085025.469822803@linuxfoundation.org>
+Message-Id: <20210405085023.066190777@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,10 +59,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/scsi/qla2xxx/qla_target.h b/drivers/scsi/qla2xxx/qla_target.h
-index d006f0a97b8c..2236751a3a56 100644
+index 199d3ba1916d..67a74720c02c 100644
 --- a/drivers/scsi/qla2xxx/qla_target.h
 +++ b/drivers/scsi/qla2xxx/qla_target.h
-@@ -116,7 +116,6 @@
+@@ -124,7 +124,6 @@
  	(min(1270, ((ql) > 0) ? (QLA_TGT_DATASEGS_PER_CMD_24XX + \
  		QLA_TGT_DATASEGS_PER_CONT_24XX*((ql) - 1)) : 0))
  #endif
@@ -70,7 +70,7 @@ index d006f0a97b8c..2236751a3a56 100644
  
  #define GET_TARGET_ID(ha, iocb) ((HAS_EXTENDED_IDS(ha))			\
  			 ? le16_to_cpu((iocb)->u.isp2x.target.extended)	\
-@@ -244,6 +243,7 @@ struct ctio_to_2xxx {
+@@ -257,6 +256,7 @@ struct ctio_to_2xxx {
  #ifndef CTIO_RET_TYPE
  #define CTIO_RET_TYPE	0x17		/* CTIO return entry */
  #define ATIO_TYPE7 0x06 /* Accept target I/O entry for 24xx */
