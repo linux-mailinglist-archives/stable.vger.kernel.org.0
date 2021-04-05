@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE93D354454
+	by mail.lfdr.de (Postfix) with ESMTP id 06D90354452
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238848AbhDEQE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:04:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56926 "EHLO mail.kernel.org"
+        id S242058AbhDEQE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:04:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242140AbhDEQEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:04:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DA8D613C5;
-        Mon,  5 Apr 2021 16:04:48 +0000 (UTC)
+        id S242147AbhDEQE4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:04:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2F8F613C8;
+        Mon,  5 Apr 2021 16:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638689;
-        bh=xk8PhMNYQFUaQzUqsMpY4fkUNahe/71Ppk9khC8YHPk=;
+        s=k20201202; t=1617638690;
+        bh=S90Qc4S09UsEM8as6c0miYWhG2tCiQPkyucwsFYFP1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AP81YoFL/3N2h8n4IOnEdnp4uykQSyX+iQsTbMI0YoKWOw//Fa5/+GEChve6f5otP
-         Fc2Xr+E2aQYthXq2/rGa27JCfCk+ZDlkRIn63QTRMKdHgLBqOysrnsvCKwtRIbgtEd
-         erzZpgdu1VZAjQAqwDv/fjCqShV3HPYddpdVgsbGkx83QfXPfZwfHY+nx6BCGPkerq
-         Qko0liUlEH67lONfYzVFPuncAhcRBuUz8liuUctlzA5bHeblRqQTd9NF6vVJ4np2Mn
-         T3DxIEMMJVotAexZu/o5ji/Lj/Q3wbjMbENxf0k9A/KP3G699Z+wbxd6z3kVklVau+
-         0UjWjaQ2yklEQ==
+        b=NeALLyP4RRammmq88QqlmUNUHdeUcUmzlW3xkfkRjZhi6aOrz8+Se9a+1zRUZdUno
+         LMnoLrQFyPO0H22PeO8bAelY44RePjK1cJwTTIfGkXoSXXH+3sOF35cUtMcptjqFp2
+         18F1OzcwSkR5U5NvcqLXZVACKy4vNqPKX0A3wx3bQ0Tv/iKG21WVNAJB7mDJlNSoyK
+         XjnKy3n3aOG/Xw1J/6EqF966v0xpw1JifmkAMRETqOCO5JaC1fufWP0mYULMXRVeeP
+         9yCLEgg1uSy6V8l0QvrAEquEl19E/t5m6rOQgwG4gO805kjlsVABLOC5SFq3pQdLnH
+         b+lIk75pEE93Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, Keith Busch <kbusch@kernel.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 14/22] block: only update parent bi_status when bio fail
-Date:   Mon,  5 Apr 2021 12:04:23 -0400
-Message-Id: <20210405160432.268374-14-sashal@kernel.org>
+Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Chris von Recklinghausen <crecklin@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 15/22] radix tree test suite: Register the main thread with the RCU library
+Date:   Mon,  5 Apr 2021 12:04:24 -0400
+Message-Id: <20210405160432.268374-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210405160432.268374-1-sashal@kernel.org>
 References: <20210405160432.268374-1-sashal@kernel.org>
@@ -42,77 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-[ Upstream commit 3edf5346e4f2ce2fa0c94651a90a8dda169565ee ]
+[ Upstream commit 1bb4bd266cf39fd2fa711f2d265c558b92df1119 ]
 
-For multiple split bios, if one of the bio is fail, the whole
-should return error to application. But we found there is a race
-between bio_integrity_verify_fn and bio complete, which return
-io success to application after one of the bio fail. The race as
-following:
+Several test runners register individual worker threads with the
+RCU library, but neglect to register the main thread, which can lead
+to objects being freed while the main thread is in what appears to be
+an RCU critical section.
 
-split bio(READ)          kworker
-
-nvme_complete_rq
-blk_update_request //split error=0
-  bio_endio
-    bio_integrity_endio
-      queue_work(kintegrityd_wq, &bip->bip_work);
-
-                         bio_integrity_verify_fn
-                         bio_endio //split bio
-                          __bio_chain_endio
-                             if (!parent->bi_status)
-
-                               <interrupt entry>
-                               nvme_irq
-                                 blk_update_request //parent error=7
-                                 req_bio_endio
-                                    bio->bi_status = 7 //parent bio
-                               <interrupt exit>
-
-                               parent->bi_status = 0
-                        parent->bi_end_io() // return bi_status=0
-
-The bio has been split as two: split and parent. When split
-bio completed, it depends on kworker to do endio, while
-bio_integrity_verify_fn have been interrupted by parent bio
-complete irq handler. Then, parent bio->bi_status which have
-been set in irq handler will overwrite by kworker.
-
-In fact, even without the above race, we also need to conside
-the concurrency beteen mulitple split bio complete and update
-the same parent bi_status. Normally, multiple split bios will
-be issued to the same hctx and complete from the same irq
-vector. But if we have updated queue map between multiple split
-bios, these bios may complete on different hw queue and different
-irq vector. Then the concurrency update parent bi_status may
-cause the final status error.
-
-Suggested-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210331115359.1125679-1-yuyufen@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Chris von Recklinghausen <crecklin@redhat.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/radix-tree/idr-test.c   | 2 ++
+ tools/testing/radix-tree/multiorder.c | 2 ++
+ tools/testing/radix-tree/xarray.c     | 2 ++
+ 3 files changed, 6 insertions(+)
 
-diff --git a/block/bio.c b/block/bio.c
-index fa01bef35bb1..9c931df2d986 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -313,7 +313,7 @@ static struct bio *__bio_chain_endio(struct bio *bio)
- {
- 	struct bio *parent = bio->bi_private;
+diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
+index 3b796dd5e577..44ceff95a9b3 100644
+--- a/tools/testing/radix-tree/idr-test.c
++++ b/tools/testing/radix-tree/idr-test.c
+@@ -577,6 +577,7 @@ void ida_tests(void)
  
--	if (!parent->bi_status)
-+	if (bio->bi_status && !parent->bi_status)
- 		parent->bi_status = bio->bi_status;
- 	bio_put(bio);
- 	return parent;
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	idr_checks();
+ 	ida_tests();
+@@ -584,5 +585,6 @@ int __weak main(void)
+ 	rcu_barrier();
+ 	if (nr_allocated)
+ 		printf("nr_allocated = %d\n", nr_allocated);
++	rcu_unregister_thread();
+ 	return 0;
+ }
+diff --git a/tools/testing/radix-tree/multiorder.c b/tools/testing/radix-tree/multiorder.c
+index 9eae0fb5a67d..e00520cc6349 100644
+--- a/tools/testing/radix-tree/multiorder.c
++++ b/tools/testing/radix-tree/multiorder.c
+@@ -224,7 +224,9 @@ void multiorder_checks(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	multiorder_checks();
++	rcu_unregister_thread();
+ 	return 0;
+ }
+diff --git a/tools/testing/radix-tree/xarray.c b/tools/testing/radix-tree/xarray.c
+index e61e43efe463..f20e12cbbfd4 100644
+--- a/tools/testing/radix-tree/xarray.c
++++ b/tools/testing/radix-tree/xarray.c
+@@ -25,11 +25,13 @@ void xarray_tests(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	xarray_tests();
+ 	radix_tree_cpu_dead(1);
+ 	rcu_barrier();
+ 	if (nr_allocated)
+ 		printf("nr_allocated = %d\n", nr_allocated);
++	rcu_unregister_thread();
+ 	return 0;
+ }
 -- 
 2.30.2
 
