@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594E5353E87
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C81353F83
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238052AbhDEJGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:06:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50706 "EHLO mail.kernel.org"
+        id S239281AbhDEJMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:12:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238204AbhDEJGO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:06:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4238E613A7;
-        Mon,  5 Apr 2021 09:06:07 +0000 (UTC)
+        id S239260AbhDEJMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:12:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2EEC61398;
+        Mon,  5 Apr 2021 09:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613567;
-        bh=3F0Zf1sBrXgtrBaMTcuVrmud3xpRfN7FsXDEqWOY014=;
+        s=korg; t=1617613943;
+        bh=MsYtOeDemGbcokM8hsiKx5R02YdUNOKpwe4MvVUZzP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AD6MrfOWZq23LojkFwZhbs+NZeMW8PMk3zo+fS+nIy69F5YnzDh1a0XjPZd74J8Wz
-         Y20zi830WwdecCuPeAN0ai8bmGGQqiFzc8QjDovJpTXSSOYcXvyO++SqNdGzX3cGwa
-         wQ76ot6M7AkDxr1VSSowFRn8srmsmJjJxO4jr4Wo=
+        b=uBjAoGjbm5VqldZhatP0jMWD4TDREouuvlY0H7G3pULNJlTjkdASHB210G7bI7iTx
+         qP0AgMtcEOckgGYcudrYyPXnApcZK374SvHYMrGwtJzYFOrCSqgF8hhDUAks8vh2yl
+         qRGzpDXc2zV6ZeutAWduc1AV6fIKe2yu/gzl6E6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Kai=20M=C3=A4kisara?= <kai.makisara@kolumbus.fi>,
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 011/126] ASoC: rt5651: Fix dac- and adc- vol-tlv values being off by a factor of 10
+Subject: [PATCH 5.11 024/152] scsi: st: Fix a use after free in st_open()
 Date:   Mon,  5 Apr 2021 10:52:53 +0200
-Message-Id: <20210405085031.411339220@linuxfoundation.org>
+Message-Id: <20210405085035.032350186@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit eee51df776bd6cac10a76b2779a9fdee3f622b2b ]
+[ Upstream commit c8c165dea4c8f5ad67b1240861e4f6c5395fa4ac ]
 
-The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
-not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
-apps which translate the dB scale to a linear scale. With the logarithmic
-dB scale being of by a factor of 10 we loose all precision in the lower
-area of the range when apps translate things to a linear scale.
+In st_open(), if STp->in_use is true, STp will be freed by
+scsi_tape_put(). However, STp is still used by DEBC_printk() after. It is
+better to DEBC_printk() before scsi_tape_put().
 
-E.g. the 0 dB default, which corresponds with a value of 47 of the
-0 - 127 range for the control, would be shown as 0/100 in alsa-mixer.
-
-Since the centi-dB values used in the TLV struct cannot represent the
-0.375 dB step size used by these controls, change the TLV definition
-for them to specify a min and max value instead of min + stepsize.
-
-Note this mirrors commit 3f31f7d9b540 ("ASoC: rt5670: Fix dac- and adc-
-vol-tlv values being off by a factor of 10") which made the exact same
-change to the rt5670 codec driver.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210226143817.84287-3-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210311064636.10522-1-lyl2019@mail.ustc.edu.cn
+Acked-by: Kai Mäkisara <kai.makisara@kolumbus.fi>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5651.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/st.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5651.c b/sound/soc/codecs/rt5651.c
-index d198e191fb0c..e59fdc81dbd4 100644
---- a/sound/soc/codecs/rt5651.c
-+++ b/sound/soc/codecs/rt5651.c
-@@ -285,9 +285,9 @@ static bool rt5651_readable_register(struct device *dev, unsigned int reg)
- }
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index 43f7624508a9..8b10fa4e381a 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -1269,8 +1269,8 @@ static int st_open(struct inode *inode, struct file *filp)
+ 	spin_lock(&st_use_lock);
+ 	if (STp->in_use) {
+ 		spin_unlock(&st_use_lock);
+-		scsi_tape_put(STp);
+ 		DEBC_printk(STp, "Device already in use.\n");
++		scsi_tape_put(STp);
+ 		return (-EBUSY);
+ 	}
  
- static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
--static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -65625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(dac_vol_tlv, -6562, 0);
- static const DECLARE_TLV_DB_SCALE(in_vol_tlv, -3450, 150, 0);
--static const DECLARE_TLV_DB_SCALE(adc_vol_tlv, -17625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(adc_vol_tlv, -1762, 3000);
- static const DECLARE_TLV_DB_SCALE(adc_bst_tlv, 0, 1200, 0);
- 
- /* {0, +20, +24, +30, +35, +40, +44, +50, +52} dB */
 -- 
 2.30.1
 
