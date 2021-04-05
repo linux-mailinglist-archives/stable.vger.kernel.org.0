@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44AAB354053
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A869B353E6A
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240821AbhDEJRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:17:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
+        id S237480AbhDEJFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240806AbhDEJRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:17:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF77E611C1;
-        Mon,  5 Apr 2021 09:17:00 +0000 (UTC)
+        id S238078AbhDEJFl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95776613A5;
+        Mon,  5 Apr 2021 09:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614221;
-        bh=hnCyp1pY3A5BEjmo/pO28QU4NIJS5GIogwo0akaMA6Y=;
+        s=korg; t=1617613535;
+        bh=6jV/f9eFRf6AafyyWRwu6QXjI+04Oryi/+TjtsHveLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4r45/O582q1uuB/Q2Zqo+etR9+ngjVcbzbi+8t3rxfxiHaJIG9TkJ+FZx+5zczOq
-         WnJYBJCaoDBCyLTGyS2AgxlgVNDTBEYKbFNFebmqNmbLF+VCqBZfEdvRRqMxup+m8p
-         zBc4Mn9rkHFiD7cDF0piNSNA8EGCEYCwYrKQH98M=
+        b=GBfTuQIZeyTfDNN/9L+5RUhvVE62eK9NsUCflgP46vd4C6roz3ibFsY4fNOl3VQMF
+         gLaEd/0e6qQiEInBqmNhUY3/HrQNL3DctOIs89mQM5z1Dq+mxlv9Pvr7QW7tJDMNlx
+         96hrgINUUmy71Si58+pHp8Bfr4EyIAJs9410haNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 128/152] powerpc/mm/book3s64: Use the correct storage key value when calling H_PROTECT
+        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
+Subject: [PATCH 5.4 73/74] staging: rtl8192e: Change state information from u16 to u8
 Date:   Mon,  5 Apr 2021 10:54:37 +0200
-Message-Id: <20210405085038.386202343@linuxfoundation.org>
+Message-Id: <20210405085027.124276814@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,102 +38,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-[ Upstream commit 53f1d31708f6240e4615b0927df31f182e389e2f ]
+commit e78836ae76d20f38eed8c8c67f21db97529949da upstream.
 
-H_PROTECT expects the flag value to include flags:
-  AVPN, pp0, pp1, pp2, key0-key4, Noexec, CMO Option flags
+The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
+bytes in total while the operations performed on this array through-out
+the code base are only 2 bytes.
 
-This patch updates hpte_updatepp() to fetch the storage key value from
-the linux page table and use the same in H_PROTECT hcall.
+The "CcxRmState" field is fed only 2 bytes of data using memcpy():
 
-native_hpte_updatepp() is not updated because the kernel doesn't clear
-the existing storage key value there. The kernel also doesn't use
-hpte_updatepp() callback for updating storage keys.
+(In rtllib_rx.c:1972)
+	memcpy(network->CcxRmState, &info_element->data[4], 2)
 
-This fixes the below kernel crash observed with KUAP enabled.
+With "info_element->data[]" being a u8 array, if 2 bytes are written
+into "CcxRmState" (whose one element is u16 size), then the 2 u8
+elements from "data[]" gets squashed and written into the first element
+("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
+fed with any data.
 
-  BUG: Unable to handle kernel data access on write at 0xc009fffffc440000
-  Faulting instruction address: 0xc0000000000b7030
-  Key fault AMR: 0xfcffffffffffffff IAMR: 0xc0000077bc498100
-  Found HPTE: v = 0x40070adbb6fffc05 r = 0x1ffffffffff1194
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  ...
-  CFAR: c000000000010100 DAR: c009fffffc440000 DSISR: 02200000 IRQMASK: 0
-  ...
-  NIP memset+0x68/0x104
-  LR  pcpu_alloc+0x54c/0xb50
-  Call Trace:
-    pcpu_alloc+0x55c/0xb50 (unreliable)
-    blk_stat_alloc_callback+0x94/0x150
-    blk_mq_init_allocated_queue+0x64/0x560
-    blk_mq_init_queue+0x54/0xb0
-    scsi_mq_alloc_queue+0x30/0xa0
-    scsi_alloc_sdev+0x1cc/0x300
-    scsi_probe_and_add_lun+0xb50/0x1020
-    __scsi_scan_target+0x17c/0x790
-    scsi_scan_channel+0x90/0xe0
-    scsi_scan_host_selected+0x148/0x1f0
-    do_scan_async+0x2c/0x2a0
-    async_run_entry_fn+0x78/0x220
-    process_one_work+0x264/0x540
-    worker_thread+0xa8/0x600
-    kthread+0x190/0x1a0
-    ret_from_kernel_thread+0x5c/0x6c
+Same in file rtllib_rx.c:2522:
+	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
 
-With KUAP enabled the kernel uses storage key 3 for all its
-translations. But as shown by the debug print, in this specific case we
-have the hash page table entry created with key value 0.
+The above line duplicates "src" data to "dst" but only writes 2 bytes
+(and not 4, which is the actual size). Again, only 1st element gets the
+value while the 2nd element remains uninitialized.
 
-  Found HPTE: v = 0x40070adbb6fffc05 r = 0x1ffffffffff1194
+This later makes operations done with CcxRmState unpredictable in the
+following lines as the 1st element is having a squashed number while the
+2nd element is having an uninitialized random number.
 
-and DSISR indicates a key fault.
+rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
+rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
 
-This can happen due to parallel fault on the same EA by different CPUs:
+network->MBssidMask is also of type u8 and not u16.
 
-  CPU 0					CPU 1
-  fault on X
+Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
+data written into this array and read from it make sense and are not
+random values.
 
-  H_PAGE_BUSY set
-  					fault on X
+NOTE: The wrong initialization of "CcxRmState" can be seen in the
+following commit:
 
-  finish fault handling and
-  clear H_PAGE_BUSY
-  					check for H_PAGE_BUSY
-  					continue with fault handling.
+commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
 
-This implies CPU1 will end up calling hpte_updatepp for address X and
-the kernel updated the hash pte entry with key 0
+The above commit created a file `rtl8192e/ieee80211.h` which used to
+have the faulty line. The file has been deleted (or possibly renamed)
+with the contents copied in to a new file `rtl8192e/rtllib.h` along with
+additional code in the commit 94a799425eee (tagged in Fixes).
 
-Fixes: d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3 for kernel mapping with hash translation")
-Reported-by: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Debugged-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210326070755.304625-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
+Cc: stable@vger.kernel.org
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210323113413.29179-2-atulgopinathan@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/lpar.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8192e/rtllib.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
-index 764170fdb0f7..3805519a6469 100644
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -887,7 +887,8 @@ static long pSeries_lpar_hpte_updatepp(unsigned long slot,
- 
- 	want_v = hpte_encode_avpn(vpn, psize, ssize);
- 
--	flags = (newpp & 7) | H_AVPN;
-+	flags = (newpp & (HPTE_R_PP | HPTE_R_N | HPTE_R_KEY_LO)) | H_AVPN;
-+	flags |= (newpp & HPTE_R_KEY_HI) >> 48;
- 	if (mmu_has_feature(MMU_FTR_KERNEL_RO))
- 		/* Move pp0 into bit 8 (IBM 55) */
- 		flags |= (newpp & HPTE_R_PP0) >> 55;
--- 
-2.30.2
-
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -1105,7 +1105,7 @@ struct rtllib_network {
+ 	bool	bWithAironetIE;
+ 	bool	bCkipSupported;
+ 	bool	bCcxRmEnable;
+-	u16	CcxRmState[2];
++	u8	CcxRmState[2];
+ 	bool	bMBssidValid;
+ 	u8	MBssidMask;
+ 	u8	MBssid[ETH_ALEN];
 
 
