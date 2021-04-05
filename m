@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D1A353EB4
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 766E6353EB7
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238339AbhDEJHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:07:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52566 "EHLO mail.kernel.org"
+        id S238416AbhDEJHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238350AbhDEJHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:07:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9016261398;
-        Mon,  5 Apr 2021 09:07:16 +0000 (UTC)
+        id S238374AbhDEJHZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:07:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 570B261393;
+        Mon,  5 Apr 2021 09:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613637;
-        bh=xuUmS80t1X4JLO/dQPmcfEov7ygVrHQ0Zbrwlc7eCRo=;
+        s=korg; t=1617613639;
+        bh=sI1nqhAPYcz2DuwhpaJVTqAYzJeVkMWrIZ9wJrE/3MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFwW/onAIFnoYTAxtQcJeS8ZgDuK9gv03dE1+IeoVfc46rQNAKonDZgHvn5/CaWcg
-         d5xLFjEEjr/1RW6Xd172bEdDTjK4YQiKe8S9/SfiafuiSutvpIszmnNGbpuAxuTDa3
-         nCwCX6H8MfQ3FLRgQzyg+q5h2W4Bv3En0hn0Wqwo=
+        b=mkkzuZhrNfHTh2jm0MFjG4U4hpbSmeU97zckhGWGWijtS8iY32gPsP75RhM94uExu
+         5k+ZDC57asP02cDDFcKfA6lPnVSg0zXDjTjt/lxvH8aGaF8Wj1+vPOGQ/uTET9zP4V
+         i+QMwLXvOua4xjqW9lbH88usduXqjVbYfalzEtKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/126] fs: nfsd: fix kconfig dependency warning for NFSD_V4
-Date:   Mon,  5 Apr 2021 10:52:48 +0200
-Message-Id: <20210405085031.248050241@linuxfoundation.org>
+Subject: [PATCH 5.10 007/126] rpc: fix NULL dereference on kmalloc failure
+Date:   Mon,  5 Apr 2021 10:52:49 +0200
+Message-Id: <20210405085031.280032394@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
 References: <20210405085031.040238881@linuxfoundation.org>
@@ -40,46 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Braha <julianbraha@gmail.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 7005227369079963d25fb2d5d736d0feb2c44cf6 ]
+[ Upstream commit 0ddc942394013f08992fc379ca04cffacbbe3dae ]
 
-When NFSD_V4 is enabled and CRYPTO is disabled,
-Kbuild gives the following warning:
+I think this is unlikely but possible:
 
-WARNING: unmet direct dependencies detected for CRYPTO_SHA256
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - NFSD_V4 [=y] && NETWORK_FILESYSTEMS [=y] && NFSD [=y] && PROC_FS [=y]
+svc_authenticate sets rq_authop and calls svcauth_gss_accept.  The
+kmalloc(sizeof(*svcdata), GFP_KERNEL) fails, leaving rq_auth_data NULL,
+and returning SVC_DENIED.
 
-WARNING: unmet direct dependencies detected for CRYPTO_MD5
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - NFSD_V4 [=y] && NETWORK_FILESYSTEMS [=y] && NFSD [=y] && PROC_FS [=y]
+This causes svc_process_common to go to err_bad_auth, and eventually
+call svc_authorise.  That calls ->release == svcauth_gss_release, which
+tries to dereference rq_auth_data.
 
-This is because NFSD_V4 selects CRYPTO_MD5 and CRYPTO_SHA256,
-without depending on or selecting CRYPTO, despite those config options
-being subordinate to CRYPTO.
-
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Link: https://lore.kernel.org/linux-nfs/3F1B347F-B809-478F-A1E9-0BE98E22B0F0@oracle.com/T/#t
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/auth_gss/svcauth_gss.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfsd/Kconfig b/fs/nfsd/Kconfig
-index dbbc583d6273..248f1459c039 100644
---- a/fs/nfsd/Kconfig
-+++ b/fs/nfsd/Kconfig
-@@ -73,6 +73,7 @@ config NFSD_V4
- 	select NFSD_V3
- 	select FS_POSIX_ACL
- 	select SUNRPC_GSS
-+	select CRYPTO
- 	select CRYPTO_MD5
- 	select CRYPTO_SHA256
- 	select GRACE_PERIOD
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index bd4678db9d76..6dff64374bfe 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1825,11 +1825,14 @@ static int
+ svcauth_gss_release(struct svc_rqst *rqstp)
+ {
+ 	struct gss_svc_data *gsd = (struct gss_svc_data *)rqstp->rq_auth_data;
+-	struct rpc_gss_wire_cred *gc = &gsd->clcred;
++	struct rpc_gss_wire_cred *gc;
+ 	struct xdr_buf *resbuf = &rqstp->rq_res;
+ 	int stat = -EINVAL;
+ 	struct sunrpc_net *sn = net_generic(SVC_NET(rqstp), sunrpc_net_id);
+ 
++	if (!gsd)
++		goto out;
++	gc = &gsd->clcred;
+ 	if (gc->gc_proc != RPC_GSS_PROC_DATA)
+ 		goto out;
+ 	/* Release can be called twice, but we only wrap once. */
+@@ -1870,10 +1873,10 @@ out_err:
+ 	if (rqstp->rq_cred.cr_group_info)
+ 		put_group_info(rqstp->rq_cred.cr_group_info);
+ 	rqstp->rq_cred.cr_group_info = NULL;
+-	if (gsd->rsci)
++	if (gsd && gsd->rsci) {
+ 		cache_put(&gsd->rsci->h, sn->rsc_cache);
+-	gsd->rsci = NULL;
+-
++		gsd->rsci = NULL;
++	}
+ 	return stat;
+ }
+ 
 -- 
 2.30.1
 
