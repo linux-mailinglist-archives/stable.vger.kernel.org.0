@@ -2,107 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 260C4353AEB
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 03:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA60353AEE
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 03:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231694AbhDEBlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Apr 2021 21:41:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
+        id S231555AbhDEBu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Apr 2021 21:50:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231688AbhDEBlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Apr 2021 21:41:05 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 236FEC061756
-        for <stable@vger.kernel.org>; Sun,  4 Apr 2021 18:41:00 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id u5-20020a7bcb050000b029010e9316b9d5so4986765wmj.2
-        for <stable@vger.kernel.org>; Sun, 04 Apr 2021 18:41:00 -0700 (PDT)
+        with ESMTP id S230052AbhDEBuy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Apr 2021 21:50:54 -0400
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D856C061756
+        for <stable@vger.kernel.org>; Sun,  4 Apr 2021 18:50:46 -0700 (PDT)
+Received: by mail-vs1-xe36.google.com with SMTP id i126so5383136vsi.3
+        for <stable@vger.kernel.org>; Sun, 04 Apr 2021 18:50:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=in2R/BDzVJYoFiPJC28ODsaKmgI6LWLkCqlem8tTa68=;
-        b=MU82mEW+mVsVklRT6afqclf/BLKRKOLstIJLSPckNmJV9qn7zHIkw/jWL057+is5FT
-         zf/utVsDjE88RmlOKT95OoPMfITdI8oIvbfndAb0VhQJNrlV0v5GBie5fVdCED9dcDZD
-         Ixha80LrgoJaHZUUfOuGKM7betHvH+xNJ/PhY=
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=KJG7WNxE0ZDZ2kLare0dUM9Uc4E5hzNdGP6msOqzlpk=;
+        b=JC2yHA5bfZv19fTSpr+yI6q6UOH8aaZhvrD427Hio48a71RcchQ1rCbIRudKlokDb4
+         3Q10IL+jsZSWpISycmc7VaN2pyNFqY6nB4kMgB9SUQLXSyFbNy7ofDKBrw9pUE4dkLit
+         GtwZfRANkiN3kZ8GRMX6+LgjqKqc3mYOGOvyIB3x5cO1EP2/zra6STLuYuVr4ka9DIqH
+         i5ve2ulzOl+5WbrNRthLJ5rEU6tdLErSOl06lR4hMg9MSOUN1NaWfzfllpExwGmb/qpm
+         /+0aZCgKcKuY+r/N2KAR8VPK8SyA/Y3Q71Qwo85DYfWsHBdDSymhh4oA4lSmIlXpSQwR
+         WQew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=in2R/BDzVJYoFiPJC28ODsaKmgI6LWLkCqlem8tTa68=;
-        b=m5WGSOgNjgA7OInhUsONEXhGboDYk4N/Gbau7xUFfYhLYtm6GTHh5itZsvDWTbS317
-         E7JqXa0u76w50weYyoHp1rWsexwX5Pf9xU1wTgETIkuTPGqoBYdM9xEn9zJD/rCtZg4p
-         1W6ySGg9Oss686SGnNAd2pX5BXJCvS+tPVfDma+jGVXJ25EMdd14T7X3nR/UNbMAHI3g
-         DIJYkS+2pphjx/V27vO9JaZdUOmGtTGq+sugssEgjkSjMH3mkcYCQRwNxMAhyIoI1nFj
-         +CwgUKUM3u8EA4mvLbuTGRwmIgCo7OYbK8nu9ZA08YkjOGA12Hko+mtKoSINNtu/k3DL
-         sjGg==
-X-Gm-Message-State: AOAM533nMrRKvq72HZbeHGpEam6VP9i9ZDbfnCrSixMfnqZqXYAXH7TG
-        ++A4rRmSvb929SpZUEPFGFJuQExMijmDjmsj4prOtDhghlU=
-X-Google-Smtp-Source: ABdhPJwb0zN60Kg4HLH8P56HvIack9KllU+Q5O1fJ6nHKpE3yevso4WcdI4aVD+pl5zqV4uWZfCSmA/jSuZkn43x00c=
-X-Received: by 2002:a05:600c:19cf:: with SMTP id u15mr22959885wmq.7.1617586858626;
- Sun, 04 Apr 2021 18:40:58 -0700 (PDT)
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=KJG7WNxE0ZDZ2kLare0dUM9Uc4E5hzNdGP6msOqzlpk=;
+        b=TK1brO0N+Q+xtLpzWtPOjff47dv90DWXGhQqWyI2xGOQy1YikevlfU4YR8bWmX/xy8
+         O/VugEj6A3wIQy5Bq3zyU9Dunr3Ske+xTGZhHpYjjDTVt5IGZUZgu4WUUZyJl/XNTXCL
+         Rbl5SSz/p3KuuADpRPfY1TnqCdyfJtbzNpTEo9g5KgjWPqLF/NOOHP/7zSJiyqy3rjFS
+         6c7nQR1dhJxbGJY2DpCj0KnI6XbBZCA8Pj4uwejnG8ZVu1OomLd1z6khedj1CCNTYHSf
+         QHjqmDeGfTE8Wbfh97HVooaVWmvXcZxKL30lQgg/PENidJnkjkh+fu8VwYNBdU+1bQ5U
+         559Q==
+X-Gm-Message-State: AOAM530wXDLF+C9EjLPUsDB5VXz8/peQym4O+Il9vJQQkd9HPYJC26zX
+        tq980J1wk3n59pzXfjknDPMuWncRCyJWDklBYH8=
+X-Google-Smtp-Source: ABdhPJzJ+DoFG6RP/3cCmnHf571PZCW9QSItDB1om9cwme+juWTnVgCSZ+c1n8C+QDGot/J9L4CVPMaDKylSFZB+mUA=
+X-Received: by 2002:a67:6182:: with SMTP id v124mr2658209vsb.4.1617587445585;
+ Sun, 04 Apr 2021 18:50:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAAjnzA=2AwmEfPVKb9qo2LyzhZnF5orb3DGubTy2dc0hbQBXVQ@mail.gmail.com>
- <YGOCvMzJmgAhUYJb@kroah.com>
-In-Reply-To: <YGOCvMzJmgAhUYJb@kroah.com>
-From:   Patrick Mccormick <pmccormick@digitalocean.com>
-Date:   Sun, 4 Apr 2021 18:40:46 -0700
-Message-ID: <CAAjnzA=i8x6qCAyx+Eiz_xdxSgLuAzP5tUu-OzF_FAQFqGHrEA@mail.gmail.com>
-Subject: Re: stable/linux-5.10.y - 5.10.27
-To:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
+Sender: marinadanielsbagni@gmail.com
+Received: by 2002:ab0:2756:0:0:0:0:0 with HTTP; Sun, 4 Apr 2021 18:50:45 -0700 (PDT)
+From:   "Dee Parsons's" <deeparsons137@gmail.com>
+Date:   Sun, 4 Apr 2021 17:50:45 -0800
+X-Google-Sender-Auth: m4JgCG4IBOQd9Staag1l10z5fDQ
+Message-ID: <CAJp=+g22+3kGP5odcJFk48G7Th=4WWN8rwNsy8TuqsvEOz9Vow@mail.gmail.com>
+Subject: HELLO,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sorry for this late reply I just saw this.
+Dear Friend,
+Please permit me to share with you, my desire to go into this Godly
+business partnership with you as=C2=A0I believe that You and I can
+cooperate together in this humanitarian social project only for the
+glory and honor of God.  I am Mrs. Dee Parson's,=C2=A0a dying widow
+hospitalized undergoing treatment for brain tumor disease. Because of
+this reason i decided to seek for your sincerity and ability to carry
+out this transaction and fulfill my final wish in implementing the
+charitable social project in your country as it requires absolute
+trust and devotion without any failure, which i believe that you are a
+reliable person and you will not expose or betray this trust and
+confident that I'm about to entrust on you. My late husband made a
+substantial deposit with the bank with my name as the beneficiary
+which I decided to hand over and entrust the sum of ($ 12,500,000.00,
+Dollars) in the account to you to invest into the humanitarian social
+project. Based on my present health status as I'm permanently
+indisposed to handle finances or any financial related project,
+following my diagnoses. Having known my present health condition, I
+decided to seek for your assistance in reclaiming the fund for the
+support and mutual benefit of the less privileged as I don't have any
+relation, and I have been touched by God to donate from what I have to
+the needy because it will be a great loss in spending the fund on my
+health treatment hence my doctor has confirmed to me that i will not
+survive this illness.
 
-It is our internal testing tool we are just bringing online, so the
-output is completely ugly right now.
+This is the reason I contacted you for your support and help to stand
+as my rightful beneficiary and claim the money for humanitarian
+purposes for the mutual benefits of the less privileged ones. Because
+If the money remains unclaimed with the bank after my death, those
+greedy bank executives will place the money as an unclaimed Fund and
+share it for their selfish and worthless ventures. It will be my
+pleasure to compensate you with part of the money as my Investment
+Manager/Partner for your effort in handling the transaction, while the
+remaining amount of the money will be invested into the charity
+project there in your country.
 
-All tests pass (kpatch/livepatch, linux-test-project, and some others).
+If you are willing to accept my offer and do exactly as I have stated
+above. You should immediately get back to me for further details of
+the transaction.
 
-This output will be getting better with each iteration.
-
-Patrick
-
-On Tue, Mar 30, 2021 at 12:57 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Mar 30, 2021 at 12:14:01PM -0700, Patrick Mccormick wrote:
-> > JOB ID     : 29cbaf7acada1e4b67b23f0841955606b597319a
-> >
-> > JOB LOG    : /home/ci-hypervisor/avocado/job-results/job-2021-03-30T18.59-29cbaf7/job.log
-> >
-> >  (1/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_nptl:
-> >  PASS (6.21 s)
-> >
-> >  (2/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_math:
-> >  PASS (2.01 s)
-> >
-> >  (3/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_hugetlb:
-> >  PASS (0.08 s)
-> >
-> >  (4/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_ipc:
-> >  PASS (20.08 s)
-> >
-> >  (5/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_uevent:
-> >  PASS (0.06 s)
-> >
-> >  (6/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_containers:
-> >  PASS (36.90 s)
-> >
-> >  (7/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_filecaps:
-> >  PASS (0.11 s)
-> >
-> >  (8/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/ltp.py:LTP.test_hyperthreading:
-> >  PASS (71.20 s)
-> >
-> >  (9/9) /home/ci-hypervisor/.local/lib/python3.6/site-packages/fathom/tests/kpatch.sh:
-> >  PASS (13.63 s)
-> >
-> > RESULTS    : PASS 9 | ERROR 0 | FAIL 0 | SKIP 0 | WARN 0 | INTERRUPT 0
-> > | CANCEL 0
->
-> Any hints as to what all of this means?
->
-> thanks,
->
-> greg k-h
+Best regards and God bless you.
