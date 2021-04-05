@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34C48353E66
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3F2353F66
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237937AbhDEJFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49586 "EHLO mail.kernel.org"
+        id S238988AbhDEJL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:11:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238658AbhDEJFe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D055613A0;
-        Mon,  5 Apr 2021 09:05:26 +0000 (UTC)
+        id S239022AbhDEJLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:11:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1E8A613BD;
+        Mon,  5 Apr 2021 09:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613526;
-        bh=olnoqY4RSvvcll1Lt7jxoHHmhvFq5T45mZKtg4kwdwc=;
+        s=korg; t=1617613880;
+        bh=WL1ZxEQxzl/JQBs3FER3IAxgsvUr28RtXr896Fwniew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifgDqvsJIrNwXE8EDbKGaz+1bjMxKK5SlqpIorpkw8OViFHFzqwTFD7SOVmBFZl7Q
-         AOOdfhxujha4Tc9EIIaiuNuj8hIADVIZl8F7AXcqYMGL04LN29M2p8tbK8DHVbq1ua
-         oJZ1VqXqVZRb8HTSYiutoOc7Tt7xAv/B0i0ozIrA=
+        b=2oHLVlGw0css2ztE6VB9K5Z6Leoi7f2lEvV8naxhDVDwPokpCloVbACMG80dJjfBa
+         SwnFXB9gtjCdYfoadmASuY78+EO6wq2mssmemhGvDhwHXBoVSxLWPQTD5wl6mFVP0u
+         iIV1BQXNtQlXqwyFdjc4+WIzm4bvUavqbm2pXiYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Subject: [PATCH 5.4 70/74] usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
-Date:   Mon,  5 Apr 2021 10:54:34 +0200
-Message-Id: <20210405085027.016824786@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 113/126] USB: cdc-acm: fix use-after-free after probe failure
+Date:   Mon,  5 Apr 2021 10:54:35 +0200
+Message-Id: <20210405085034.775817263@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 5e3bbae8ee3d677a0aa2919dc62b5c60ea01ba61 upstream.
+commit 4e49bf376c0451ad2eae2592e093659cde12be9a upstream.
 
-Increased the waiting timeout for HPRT0.PrtSusp register field
-to be set, because on HiKey 960 board HPRT0.PrtSusp wasn't
-generated with the existing timeout.
+If tty-device registration fails the driver would fail to release the
+data interface. When the device is later disconnected, the disconnect
+callback would still be called for the data interface and would go about
+releasing already freed resources.
 
-Cc: <stable@vger.kernel.org> # 4.18
-Fixes: 22bb5cfdf13a ("usb: dwc2: Fix host exit from hibernation flow.")
-Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/20210326102447.8F7FEA005D@mailhost.synopsys.com
+Fixes: c93d81955005 ("usb: cdc-acm: fix error handling in acm_probe()")
+Cc: stable@vger.kernel.org      # 3.9
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210322155318.9837-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/hcd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -5398,7 +5398,7 @@ int dwc2_host_enter_hibernation(struct d
- 	dwc2_writel(hsotg, hprt0, HPRT0);
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1516,6 +1516,11 @@ skip_countries:
  
- 	/* Wait for the HPRT0.PrtSusp register field to be set */
--	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 3000))
-+	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 5000))
- 		dev_warn(hsotg->dev, "Suspend wasn't generated\n");
- 
- 	/*
+ 	return 0;
+ alloc_fail6:
++	if (!acm->combined_interfaces) {
++		/* Clear driver data so that disconnect() returns early. */
++		usb_set_intfdata(data_interface, NULL);
++		usb_driver_release_interface(&acm_driver, data_interface);
++	}
+ 	if (acm->country_codes) {
+ 		device_remove_file(&acm->control->dev,
+ 				&dev_attr_wCountryCodes);
 
 
