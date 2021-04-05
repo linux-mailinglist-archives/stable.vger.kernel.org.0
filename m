@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6211F353F34
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C41735400F
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239403AbhDEJKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56920 "EHLO mail.kernel.org"
+        id S240641AbhDEJPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238968AbhDEJKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:10:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04A62613A6;
-        Mon,  5 Apr 2021 09:10:16 +0000 (UTC)
+        id S240568AbhDEJPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:15:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8668B61398;
+        Mon,  5 Apr 2021 09:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613817;
-        bh=rJlMRvhjDo1dGqC4WbejyL8swy0CCcTAqluvI6szj10=;
+        s=korg; t=1617614114;
+        bh=66WVbx2Csa6fUN4Oy7yoaGe6Ecc2ydG5s5vhxDsQW9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erA8KAL0/7vVyhdfBcN5IDGe13miPkdkB3NcKG4DHwzBq7ZCdpMcuPL5rfpyiv2dU
-         UJfybw2KRUUd6hKL3WOgOfuBx04Wz9NLPbi0U6QrD8eJRsb9cVAI+QYHFlSCNKb14m
-         4Xfavt60q5eVKSSdRd4kSPHbZe8TXP3L7aqqzfe8=
+        b=PpYDQnY0t8jrGtM0hxhUnj5FxPS8j3lIqCSkT3IcxuFZejvCc9kktYe90ZmqOI9Zk
+         6/cdtxzmTc0lAabtuYmpImBNP+2EcBn7UtSSpBaRUQ6cdGzu9nx/1S2Modn05Lcmn0
+         kwYG5FxFUIGRqqQe6D/Yg5pMvUT+q1goRsBE0rdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Xi Ruoyao <xry111@mengyan1223.wang>,
+        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 075/126] drm/amdgpu: check alignment on CPU page for bo map
+Subject: [PATCH 5.11 088/152] drm/amdkfd: dqm fence memory corruption
 Date:   Mon,  5 Apr 2021 10:53:57 +0200
-Message-Id: <20210405085033.541885438@linuxfoundation.org>
+Message-Id: <20210405085037.113739625@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xℹ Ruoyao <xry111@mengyan1223.wang>
+From: Qu Huang <jinsdb@126.com>
 
-commit e3512fb67093fabdf27af303066627b921ee9bd8 upstream.
+commit e92049ae4548ba09e53eaa9c8f6964b07ea274c9 upstream.
 
-The page table of AMDGPU requires an alignment to CPU page so we should
-check ioctl parameters for it.  Return -EINVAL if some parameter is
-unaligned to CPU page, instead of corrupt the page table sliently.
+Amdgpu driver uses 4-byte data type as DQM fence memory,
+and transmits GPU address of fence memory to microcode
+through query status PM4 message. However, query status
+PM4 message definition and microcode processing are all
+processed according to 8 bytes. Fence memory only allocates
+4 bytes of memory, but microcode does write 8 bytes of memory,
+so there is a memory corruption.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
+Changes since v1:
+  * Change dqm->fence_addr as a u64 pointer to fix this issue,
+also fix up query_status and amdkfd_fence_wait_timeout function
+uses 64 bit fence value to make them consistent.
+
+Signed-off-by: Qu Huang <jinsdb@126.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_dbgdev.c               |    2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c |    6 +++---
+ drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.h |    2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_packet_manager.c       |    2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_packet_manager_v9.c    |    2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_packet_manager_vi.c    |    2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_priv.h                 |    8 ++++----
+ 7 files changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -2223,8 +2223,8 @@ int amdgpu_vm_bo_map(struct amdgpu_devic
- 	uint64_t eaddr;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_dbgdev.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_dbgdev.c
+@@ -155,7 +155,7 @@ static int dbgdev_diq_submit_ib(struct k
  
- 	/* validate the parameters */
--	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
--	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
-+	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
-+	    size == 0 || size & ~PAGE_MASK)
- 		return -EINVAL;
+ 	/* Wait till CP writes sync code: */
+ 	status = amdkfd_fence_wait_timeout(
+-			(unsigned int *) rm_state,
++			rm_state,
+ 			QUEUESTATE__ACTIVE, 1500);
  
- 	/* make sure object fit at this offset */
-@@ -2289,8 +2289,8 @@ int amdgpu_vm_bo_replace_map(struct amdg
- 	int r;
+ 	kfd_gtt_sa_free(dbgdev->dev, mem_obj);
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -1167,7 +1167,7 @@ static int start_cpsch(struct device_que
+ 	if (retval)
+ 		goto fail_allocate_vidmem;
  
- 	/* validate the parameters */
--	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
--	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
-+	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
-+	    size == 0 || size & ~PAGE_MASK)
- 		return -EINVAL;
+-	dqm->fence_addr = dqm->fence_mem->cpu_ptr;
++	dqm->fence_addr = (uint64_t *)dqm->fence_mem->cpu_ptr;
+ 	dqm->fence_gpu_addr = dqm->fence_mem->gpu_addr;
  
- 	/* make sure object fit at this offset */
+ 	init_interrupts(dqm);
+@@ -1340,8 +1340,8 @@ out:
+ 	return retval;
+ }
+ 
+-int amdkfd_fence_wait_timeout(unsigned int *fence_addr,
+-				unsigned int fence_value,
++int amdkfd_fence_wait_timeout(uint64_t *fence_addr,
++				uint64_t fence_value,
+ 				unsigned int timeout_ms)
+ {
+ 	unsigned long end_jiffies = msecs_to_jiffies(timeout_ms) + jiffies;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.h
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.h
+@@ -192,7 +192,7 @@ struct device_queue_manager {
+ 	uint16_t		vmid_pasid[VMID_NUM];
+ 	uint64_t		pipelines_addr;
+ 	uint64_t		fence_gpu_addr;
+-	unsigned int		*fence_addr;
++	uint64_t		*fence_addr;
+ 	struct kfd_mem_obj	*fence_mem;
+ 	bool			active_runlist;
+ 	int			sched_policy;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_packet_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_packet_manager.c
+@@ -347,7 +347,7 @@ fail_create_runlist_ib:
+ }
+ 
+ int pm_send_query_status(struct packet_manager *pm, uint64_t fence_address,
+-			uint32_t fence_value)
++			uint64_t fence_value)
+ {
+ 	uint32_t *buffer, size;
+ 	int retval = 0;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_packet_manager_v9.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_packet_manager_v9.c
+@@ -283,7 +283,7 @@ static int pm_unmap_queues_v9(struct pac
+ }
+ 
+ static int pm_query_status_v9(struct packet_manager *pm, uint32_t *buffer,
+-			uint64_t fence_address,	uint32_t fence_value)
++			uint64_t fence_address,	uint64_t fence_value)
+ {
+ 	struct pm4_mes_query_status *packet;
+ 
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_packet_manager_vi.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_packet_manager_vi.c
+@@ -263,7 +263,7 @@ static int pm_unmap_queues_vi(struct pac
+ }
+ 
+ static int pm_query_status_vi(struct packet_manager *pm, uint32_t *buffer,
+-			uint64_t fence_address,	uint32_t fence_value)
++			uint64_t fence_address,	uint64_t fence_value)
+ {
+ 	struct pm4_mes_query_status *packet;
+ 
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
+@@ -1003,8 +1003,8 @@ int pqm_get_wave_state(struct process_qu
+ 		       u32 *ctl_stack_used_size,
+ 		       u32 *save_area_used_size);
+ 
+-int amdkfd_fence_wait_timeout(unsigned int *fence_addr,
+-			      unsigned int fence_value,
++int amdkfd_fence_wait_timeout(uint64_t *fence_addr,
++			      uint64_t fence_value,
+ 			      unsigned int timeout_ms);
+ 
+ /* Packet Manager */
+@@ -1040,7 +1040,7 @@ struct packet_manager_funcs {
+ 			uint32_t filter_param, bool reset,
+ 			unsigned int sdma_engine);
+ 	int (*query_status)(struct packet_manager *pm, uint32_t *buffer,
+-			uint64_t fence_address,	uint32_t fence_value);
++			uint64_t fence_address,	uint64_t fence_value);
+ 	int (*release_mem)(uint64_t gpu_addr, uint32_t *buffer);
+ 
+ 	/* Packet sizes */
+@@ -1062,7 +1062,7 @@ int pm_send_set_resources(struct packet_
+ 				struct scheduling_resources *res);
+ int pm_send_runlist(struct packet_manager *pm, struct list_head *dqm_queues);
+ int pm_send_query_status(struct packet_manager *pm, uint64_t fence_address,
+-				uint32_t fence_value);
++				uint64_t fence_value);
+ 
+ int pm_send_unmap_queue(struct packet_manager *pm, enum kfd_queue_type type,
+ 			enum kfd_unmap_queues_filter mode,
 
 
