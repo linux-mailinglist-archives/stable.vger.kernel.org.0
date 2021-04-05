@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16089353E59
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D181F353F3B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238665AbhDEJFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
+        id S238976AbhDEJKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238620AbhDEJFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD2E361394;
-        Mon,  5 Apr 2021 09:05:07 +0000 (UTC)
+        id S239401AbhDEJKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:10:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4238B61002;
+        Mon,  5 Apr 2021 09:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613508;
-        bh=+FO1BZS3CrWpopcpgXL0cMFUmBp1NcyYyfIHiWj+oLU=;
+        s=korg; t=1617613833;
+        bh=yQ+twztYdwMdlRtYYpF/SQFOGJckwi/vS+KiKIrgkNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D4HFG/5lmSZCaK3uT8/neFD+9VpmTtk9Vcq6rG7tpCQvdpvJxT1fhv0v2UtG0wXsS
-         363e1pDUX1lDM9SypYlVNTN6swy3h/aDkUUhS89XhvKLwIV3KJ/wxmlgUgRE6cO0rm
-         u+HN8wLzGwuw3fj4qSlbVeu5CLG1r40KKIsi6CI4=
+        b=Qqr+Zqgk4sWM7GtSlctzdKYeh2hg/50pmOqlhv5yHG1FFr1O9kemn9P6E16MOszYn
+         fKjijkBEwGN+3BWL+JIbnt6Z6KOBwOPqfwd4L9bRvbVN2aLzMjMXzB6yrdZ9EwahPv
+         pf+k7yA4ZwjE7l/QvhfP2f2X8wSiRVl1UMfOngto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.4 64/74] cdc-acm: fix BREAK rx code path adding necessary calls
-Date:   Mon,  5 Apr 2021 10:54:28 +0200
-Message-Id: <20210405085026.813676024@linuxfoundation.org>
+        stable@vger.kernel.org, Bhushan Shah <bshah@kde.org>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.10 107/126] usb: musb: Fix suspend with devices connected for a64
+Date:   Mon,  5 Apr 2021 10:54:29 +0200
+Message-Id: <20210405085034.586272810@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,35 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 08dff274edda54310d6f1cf27b62fddf0f8d146e upstream.
+commit 92af4fc6ec331228aca322ca37c8aea7b150a151 upstream.
 
-Counting break events is nice but we should actually report them to
-the tty layer.
+Pinephone running on Allwinner A64 fails to suspend with USB devices
+connected as reported by Bhushan Shah <bshah@kde.org>. Reverting
+commit 5fbf7a253470 ("usb: musb: fix idling for suspend after
+disconnect interrupt") fixes the issue.
 
-Fixes: 5a6a62bdb9257 ("cdc-acm: add TIOCMIWAIT")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20210311133714.31881-1-oneukum@suse.com
+Let's add suspend checks also for suspend after disconnect interrupt
+quirk handling like we already do elsewhere.
+
+Fixes: 5fbf7a253470 ("usb: musb: fix idling for suspend after disconnect interrupt")
+Reported-by: Bhushan Shah <bshah@kde.org>
+Tested-by: Bhushan Shah <bshah@kde.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210324071142.42264-1-tony@atomide.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/musb/musb_core.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -312,8 +312,10 @@ static void acm_process_notification(str
- 			acm->iocount.dsr++;
- 		if (difference & ACM_CTRL_DCD)
- 			acm->iocount.dcd++;
--		if (newctrl & ACM_CTRL_BRK)
-+		if (newctrl & ACM_CTRL_BRK) {
- 			acm->iocount.brk++;
-+			tty_insert_flip_char(&acm->port, 0, TTY_BREAK);
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2004,10 +2004,14 @@ static void musb_pm_runtime_check_sessio
+ 		MUSB_DEVCTL_HR;
+ 	switch (devctl & ~s) {
+ 	case MUSB_QUIRK_B_DISCONNECT_99:
+-		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
+-		schedule_delayed_work(&musb->irq_work,
+-				      msecs_to_jiffies(1000));
+-		break;
++		if (musb->quirk_retries && !musb->flush_irq_work) {
++			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
++			schedule_delayed_work(&musb->irq_work,
++					      msecs_to_jiffies(1000));
++			musb->quirk_retries--;
++			break;
 +		}
- 		if (newctrl & ACM_CTRL_RI)
- 			acm->iocount.rng++;
- 		if (newctrl & ACM_CTRL_FRAMING)
++		fallthrough;
+ 	case MUSB_QUIRK_B_INVALID_VBUS_91:
+ 		if (musb->quirk_retries && !musb->flush_irq_work) {
+ 			musb_dbg(musb,
 
 
