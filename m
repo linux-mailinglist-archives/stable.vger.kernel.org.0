@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF5B3353E13
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D412354001
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237348AbhDEJDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:03:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46916 "EHLO mail.kernel.org"
+        id S240046AbhDEJPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237726AbhDEJDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:03:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41ADF61002;
-        Mon,  5 Apr 2021 09:03:36 +0000 (UTC)
+        id S240041AbhDEJOi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:14:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3162E611C1;
+        Mon,  5 Apr 2021 09:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613416;
-        bh=RSeMbxYPaVdFocIANy3gRLltk1Yz7P//s7KNHjJ4nEM=;
+        s=korg; t=1617614072;
+        bh=TD1qn8A9SAQAYFs0KAmrAlFcWP6H7Ksmmyv7DDDhaho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H2S5uzDOHLSWJbkI7vT6nOgAWucjuMYKfXknmUJU4p6YX2oZKVFS2gdRotjyh08x1
-         MZgm71HPYx27STiLnKGYXA1Z+TAjBr7LSgXMouG6Z+O1niIKerFfYOp5oM6aHy4i/Q
-         IOXradfcbPAahcF+5WnWmbJOcFiGqBuyPMiXnsPc=
+        b=LFkkPEb9izyq/z8FAaHetZv4mHrnAr4VO8v9z6evShlP3n0rBJdG9SQOOJpFMvjEh
+         s2lK9+cqq7PiMPOqPOIfgNrgTQD2Zj/DbiCDBVT5eKZlp7etSikFAbLbn/w5HPDlJ1
+         MZzjBgqi1EdiEsUsLchrS3P69pXTr50u+vqpRNPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/74] ASoC: rt5640: Fix dac- and adc- vol-tlv values being off by a factor of 10
+Subject: [PATCH 5.11 066/152] net: 9p: advance iov on empty read
 Date:   Mon,  5 Apr 2021 10:53:35 +0200
-Message-Id: <20210405085025.097725123@linuxfoundation.org>
+Message-Id: <20210405085036.416194499@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit cfa26ed1f9f885c2fd8f53ca492989d1e16d0199 ]
+[ Upstream commit d65614a01d24704b016635abf5cc028a54e45a62 ]
 
-The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
-not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
-apps which translate the dB scale to a linear scale. With the logarithmic
-dB scale being of by a factor of 10 we loose all precision in the lower
-area of the range when apps translate things to a linear scale.
+I met below warning when cating a small size(about 80bytes) txt file
+on 9pfs(msize=2097152 is passed to 9p mount option), the reason is we
+miss iov_iter_advance() if the read count is 0 for zerocopy case, so
+we didn't truncate the pipe, then iov_iter_pipe() thinks the pipe is
+full. Fix it by removing the exception for 0 to ensure to call
+iov_iter_advance() even on empty read for zerocopy case.
 
-E.g. the 0 dB default, which corresponds with a value of 47 of the
-0 - 127 range for the control, would be shown as 0/100 in alsa-mixer.
+[    8.279568] WARNING: CPU: 0 PID: 39 at lib/iov_iter.c:1203 iov_iter_pipe+0x31/0x40
+[    8.280028] Modules linked in:
+[    8.280561] CPU: 0 PID: 39 Comm: cat Not tainted 5.11.0+ #6
+[    8.281260] RIP: 0010:iov_iter_pipe+0x31/0x40
+[    8.281974] Code: 2b 42 54 39 42 5c 76 22 c7 07 20 00 00 00 48 89 57 18 8b 42 50 48 c7 47 08 b
+[    8.283169] RSP: 0018:ffff888000cbbd80 EFLAGS: 00000246
+[    8.283512] RAX: 0000000000000010 RBX: ffff888000117d00 RCX: 0000000000000000
+[    8.283876] RDX: ffff88800031d600 RSI: 0000000000000000 RDI: ffff888000cbbd90
+[    8.284244] RBP: ffff888000cbbe38 R08: 0000000000000000 R09: ffff8880008d2058
+[    8.284605] R10: 0000000000000002 R11: ffff888000375510 R12: 0000000000000050
+[    8.284964] R13: ffff888000cbbe80 R14: 0000000000000050 R15: ffff88800031d600
+[    8.285439] FS:  00007f24fd8af600(0000) GS:ffff88803ec00000(0000) knlGS:0000000000000000
+[    8.285844] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    8.286150] CR2: 00007f24fd7d7b90 CR3: 0000000000c97000 CR4: 00000000000406b0
+[    8.286710] Call Trace:
+[    8.288279]  generic_file_splice_read+0x31/0x1a0
+[    8.289273]  ? do_splice_to+0x2f/0x90
+[    8.289511]  splice_direct_to_actor+0xcc/0x220
+[    8.289788]  ? pipe_to_sendpage+0xa0/0xa0
+[    8.290052]  do_splice_direct+0x8b/0xd0
+[    8.290314]  do_sendfile+0x1ad/0x470
+[    8.290576]  do_syscall_64+0x2d/0x40
+[    8.290818]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    8.291409] RIP: 0033:0x7f24fd7dca0a
+[    8.292511] Code: c3 0f 1f 80 00 00 00 00 4c 89 d2 4c 89 c6 e9 bd fd ff ff 0f 1f 44 00 00 31 8
+[    8.293360] RSP: 002b:00007ffc20932818 EFLAGS: 00000206 ORIG_RAX: 0000000000000028
+[    8.293800] RAX: ffffffffffffffda RBX: 0000000001000000 RCX: 00007f24fd7dca0a
+[    8.294153] RDX: 0000000000000000 RSI: 0000000000000003 RDI: 0000000000000001
+[    8.294504] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+[    8.294867] R10: 0000000001000000 R11: 0000000000000206 R12: 0000000000000003
+[    8.295217] R13: 0000000000000001 R14: 0000000000000001 R15: 0000000000000000
+[    8.295782] ---[ end trace 63317af81b3ca24b ]---
 
-Since the centi-dB values used in the TLV struct cannot represent the
-0.375 dB step size used by these controls, change the TLV definition
-for them to specify a min and max value instead of min + stepsize.
-
-Note this mirrors commit 3f31f7d9b540 ("ASoC: rt5670: Fix dac- and adc-
-vol-tlv values being off by a factor of 10") which made the exact same
-change to the rt5670 codec driver.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210226143817.84287-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5640.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/9p/client.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5640.c b/sound/soc/codecs/rt5640.c
-index 747ca248bf10..3bc63fbcb188 100644
---- a/sound/soc/codecs/rt5640.c
-+++ b/sound/soc/codecs/rt5640.c
-@@ -339,9 +339,9 @@ static bool rt5640_readable_register(struct device *dev, unsigned int reg)
- }
+diff --git a/net/9p/client.c b/net/9p/client.c
+index 4f62f299da0c..0a9019da18f3 100644
+--- a/net/9p/client.c
++++ b/net/9p/client.c
+@@ -1623,10 +1623,6 @@ p9_client_read_once(struct p9_fid *fid, u64 offset, struct iov_iter *to,
+ 	}
  
- static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
--static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -65625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(dac_vol_tlv, -6562, 0);
- static const DECLARE_TLV_DB_SCALE(in_vol_tlv, -3450, 150, 0);
--static const DECLARE_TLV_DB_SCALE(adc_vol_tlv, -17625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(adc_vol_tlv, -1762, 3000);
- static const DECLARE_TLV_DB_SCALE(adc_bst_tlv, 0, 1200, 0);
+ 	p9_debug(P9_DEBUG_9P, "<<< RREAD count %d\n", count);
+-	if (!count) {
+-		p9_tag_remove(clnt, req);
+-		return 0;
+-	}
  
- /* {0, +20, +24, +30, +35, +40, +44, +50, +52} dB */
+ 	if (non_zc) {
+ 		int n = copy_to_iter(dataptr, count, to);
 -- 
 2.30.1
 
