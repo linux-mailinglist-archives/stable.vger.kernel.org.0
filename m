@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36737353E82
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40FF5353DC4
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238027AbhDEJGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50430 "EHLO mail.kernel.org"
+        id S237403AbhDEJCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238720AbhDEJGE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:06:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF797613A3;
-        Mon,  5 Apr 2021 09:05:56 +0000 (UTC)
+        id S237300AbhDEJCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BF92613B1;
+        Mon,  5 Apr 2021 09:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613557;
-        bh=wn/9FINT1L9GJVH4RmwjtlSZL1DRmq/bpG9Dx7yKUVc=;
+        s=korg; t=1617613319;
+        bh=42jBne+2QPO7Yxvc/lFKY9kETsNmt21meOdqX4+mBQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3E+ljqHHsUocmtsHls9ywXSAHAjxw1MmZNp5cTEVUT/kGhdo64tdC8oEgYelIsE/
-         iKZg6PkBsUWu/5EU/Z7UFo9jU/Y/Yoxs0QE3+WVpmioYjFZ36rzVgVHVtFNw9j25ZB
-         CudP0p3hm3umfFIDwc85k375sS0/Ii2nZ/bFzAY4=
+        b=Ypm/lkAwiMkkxhZxMomeqWuF8RfJJMcQHkIFV11YLBb8JfOiGGJn8BCFWqMAxZ6bs
+         DFeFcYDW7UYjzwA+t2MDbEJxxaiMe7BvbWaT9k8jePDKOGIaVeEuEI3r1VtAnUKgLI
+         ZjnliODBftMDiIuAH1fj5kdk7YLwO0AD0aQoDTqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianqun Xu <jay.xu@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Wang Panzhenzhuan <randy.wang@rock-chips.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 56/74] pinctrl: rockchip: fix restore error in resume
+        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 49/56] USB: cdc-acm: downgrade message to debug
 Date:   Mon,  5 Apr 2021 10:54:20 +0200
-Message-Id: <20210405085026.551514381@linuxfoundation.org>
+Message-Id: <20210405085024.089298940@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Panzhenzhuan <randy.wang@rock-chips.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit c971af25cda94afe71617790826a86253e88eab0 upstream.
+commit e4c77070ad45fc940af1d7fb1e637c349e848951 upstream.
 
-The restore in resume should match to suspend which only set for RK3288
-SoCs pinctrl.
+This failure is so common that logging an error here amounts
+to spamming log files.
 
-Fixes: 8dca933127024 ("pinctrl: rockchip: save and restore gpio6_c6 pinmux in suspend/resume")
-Reviewed-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Wang Panzhenzhuan <randy.wang@rock-chips.com>
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210223100725.269240-1-jay.xu@rock-chips.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210311130126.15972-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/usb/class/cdc-acm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -3386,12 +3386,15 @@ static int __maybe_unused rockchip_pinct
- static int __maybe_unused rockchip_pinctrl_resume(struct device *dev)
- {
- 	struct rockchip_pinctrl *info = dev_get_drvdata(dev);
--	int ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
--			       rk3288_grf_gpio6c_iomux |
--			       GPIO6C6_SEL_WRITE_ENABLE);
-+	int ret;
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -664,7 +664,8 @@ static void acm_port_dtr_rts(struct tty_
  
--	if (ret)
--		return ret;
-+	if (info->ctrl->type == RK3288) {
-+		ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
-+				   rk3288_grf_gpio6c_iomux |
-+				   GPIO6C6_SEL_WRITE_ENABLE);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	return pinctrl_force_default(info->pctl_dev);
+ 	res = acm_set_control(acm, val);
+ 	if (res && (acm->ctrl_caps & USB_CDC_CAP_LINE))
+-		dev_err(&acm->control->dev, "failed to set dtr/rts\n");
++		/* This is broken in too many devices to spam the logs */
++		dev_dbg(&acm->control->dev, "failed to set dtr/rts\n");
  }
+ 
+ static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
 
 
