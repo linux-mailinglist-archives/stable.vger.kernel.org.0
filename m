@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 938F3354046
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF68353E65
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240353AbhDEJQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38468 "EHLO mail.kernel.org"
+        id S237758AbhDEJFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239960AbhDEJQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:16:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94C3860FE4;
-        Mon,  5 Apr 2021 09:16:44 +0000 (UTC)
+        id S238090AbhDEJF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F7B6613DF;
+        Mon,  5 Apr 2021 09:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614205;
-        bh=WOFnRVbIdQDdvsjuUNmXBLwRkqJufNr/tLKtBWOjZL8=;
+        s=korg; t=1617613521;
+        bh=v0Ja0ZvEkUy5AYJAdZBMuWojsVujjOL0pkLYnvGL3Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHWPBnf8X9sC06ysJHRLOU8csJ0p03m6gKfWKCPQZdE6vOLAia+NInV925okizU/L
-         8QPiPPmfCLPsykBKEqU+3L59VhkjVgabmLNjyZeluxEJsG8MUSGG0377Lk6ZRXW4xC
-         wDr/hlH8EjMW+51ng0PLNbkyGJ5a1NVT9uQ/sAhI=
+        b=viRss3KgVGNSzCtRtSXNCcK86nOR45Z3oephxq2jZSm3HeoWAjyqNWosi4qC22Hmx
+         SbOCcP+lwiu7LYczS7dAaoeiVW217AZdvlgWrItl1lmK4DHSVLoCJkWbpjlqFJyjqI
+         YL/EuRq1QWw6U/Oj76nI1FlPyzl8C3UrrRYSf5ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Gong <richard.gong@intel.com>,
-        Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 123/152] firmware: stratix10-svc: reset COMMAND_RECONFIG_FLAG_PARTIAL to 0
+        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 68/74] USB: cdc-acm: fix use-after-free after probe failure
 Date:   Mon,  5 Apr 2021 10:54:32 +0200
-Message-Id: <20210405085038.229235788@linuxfoundation.org>
+Message-Id: <20210405085026.955480905@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Gong <richard.gong@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 2e8496f31d0be8f43849b2980b069f3a9805d047 ]
+commit 4e49bf376c0451ad2eae2592e093659cde12be9a upstream.
 
-Clean up COMMAND_RECONFIG_FLAG_PARTIAL flag by resetting it to 0, which
-aligns with the firmware settings.
+If tty-device registration fails the driver would fail to release the
+data interface. When the device is later disconnected, the disconnect
+callback would still be called for the data interface and would go about
+releasing already freed resources.
 
-Fixes: 36847f9e3e56 ("firmware: stratix10-svc: correct reconfig flag and timeout values")
-Signed-off-by: Richard Gong <richard.gong@intel.com>
-Reviewed-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c93d81955005 ("usb: cdc-acm: fix error handling in acm_probe()")
+Cc: stable@vger.kernel.org      # 3.9
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210322155318.9837-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/firmware/intel/stratix10-svc-client.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/include/linux/firmware/intel/stratix10-svc-client.h b/include/linux/firmware/intel/stratix10-svc-client.h
-index a93d85932eb9..f843c6a10cf3 100644
---- a/include/linux/firmware/intel/stratix10-svc-client.h
-+++ b/include/linux/firmware/intel/stratix10-svc-client.h
-@@ -56,7 +56,7 @@
-  * COMMAND_RECONFIG_FLAG_PARTIAL:
-  * Set to FPGA configuration type (full or partial).
-  */
--#define COMMAND_RECONFIG_FLAG_PARTIAL	1
-+#define COMMAND_RECONFIG_FLAG_PARTIAL	0
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1529,6 +1529,11 @@ skip_countries:
  
- /**
-  * Timeout settings for service clients:
--- 
-2.30.2
-
+ 	return 0;
+ alloc_fail6:
++	if (!acm->combined_interfaces) {
++		/* Clear driver data so that disconnect() returns early. */
++		usb_set_intfdata(data_interface, NULL);
++		usb_driver_release_interface(&acm_driver, data_interface);
++	}
+ 	if (acm->country_codes) {
+ 		device_remove_file(&acm->control->dev,
+ 				&dev_attr_wCountryCodes);
 
 
