@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3CE4353E6B
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1AEB353F62
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238684AbhDEJFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49510 "EHLO mail.kernel.org"
+        id S238888AbhDEJL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238312AbhDEJFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61B7A613A3;
-        Mon,  5 Apr 2021 09:05:24 +0000 (UTC)
+        id S239039AbhDEJLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:11:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19DD1613AD;
+        Mon,  5 Apr 2021 09:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613524;
-        bh=X1xc9gdX2vPMnUuIVxv1xipMtvOftPSA7kCR5++fVQ8=;
+        s=korg; t=1617613900;
+        bh=HpnAhgzZCOA6IMX6Z22MbDgI/Ts+cQ2D3fEGu+/PpGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLyy8Hip/iroClAZqXN4uJGrXKoPjNXw9v7bSeP4EzxC9K26WgqihpigES0cZeWtS
-         uBSzbDbjsn1NSUlcnm9ASK8lXNWtxzHbZnSczCcDmS0znDF8/7otGIL1i92DNKtBBs
-         OvjMoJRrjAJhrGqMC9maHg+pEUQdWXYT75c6yVd4=
+        b=QtGWX/dSSmkASMENFWXi1hzIbdoGRT1QJxeMXGwsKlIIacKEae0vIoj0/DW2RzqTe
+         j5DxWB9jjfJy2Nkd0VL+DrGYmxcqhBQ7cvAyWoD8+JD0RfyfSWvQ/gFO0YmCRljSDF
+         Cf+/8AS+ax60GVwmFIch7Q7LwBZ7nH0rawNewVUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>
-Subject: [PATCH 5.4 69/74] usb: gadget: udc: amd5536udc_pci fix null-ptr-dereference
+        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.10 111/126] USB: cdc-acm: downgrade message to debug
 Date:   Mon,  5 Apr 2021 10:54:33 +0200
-Message-Id: <20210405085026.987017092@linuxfoundation.org>
+Message-Id: <20210405085034.707203237@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 72035f4954f0bca2d8c47cf31b3629c42116f5b7 upstream.
+commit e4c77070ad45fc940af1d7fb1e637c349e848951 upstream.
 
-init_dma_pools() calls dma_pool_create(...dev->dev) to create dma pool.
-however, dev->dev is actually set after calling init_dma_pools(), which
-effectively makes dma_pool_create(..NULL) and cause crash.
-To fix this issue, init dma only after dev->dev is set.
+This failure is so common that logging an error here amounts
+to spamming log files.
 
-[    1.317993] RIP: 0010:dma_pool_create+0x83/0x290
-[    1.323257] Call Trace:
-[    1.323390]  ? pci_write_config_word+0x27/0x30
-[    1.323626]  init_dma_pools+0x41/0x1a0 [snps_udc_core]
-[    1.323899]  udc_pci_probe+0x202/0x2b1 [amd5536udc_pci]
-
-Fixes: 7c51247a1f62 (usb: gadget: udc: Provide correct arguments for 'dma_pool_create')
+Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210317230400.357756-1-ztong0001@gmail.com
+Link: https://lore.kernel.org/r/20210311130126.15972-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/amd5536udc_pci.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/class/cdc-acm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/udc/amd5536udc_pci.c
-+++ b/drivers/usb/gadget/udc/amd5536udc_pci.c
-@@ -154,6 +154,11 @@ static int udc_pci_probe(
- 	pci_set_master(pdev);
- 	pci_try_set_mwi(pdev);
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -659,7 +659,8 @@ static void acm_port_dtr_rts(struct tty_
  
-+	dev->phys_addr = resource;
-+	dev->irq = pdev->irq;
-+	dev->pdev = pdev;
-+	dev->dev = &pdev->dev;
-+
- 	/* init dma pools */
- 	if (use_dma) {
- 		retval = init_dma_pools(dev);
-@@ -161,11 +166,6 @@ static int udc_pci_probe(
- 			goto err_dma;
- 	}
+ 	res = acm_set_control(acm, val);
+ 	if (res && (acm->ctrl_caps & USB_CDC_CAP_LINE))
+-		dev_err(&acm->control->dev, "failed to set dtr/rts\n");
++		/* This is broken in too many devices to spam the logs */
++		dev_dbg(&acm->control->dev, "failed to set dtr/rts\n");
+ }
  
--	dev->phys_addr = resource;
--	dev->irq = pdev->irq;
--	dev->pdev = pdev;
--	dev->dev = &pdev->dev;
--
- 	/* general probing */
- 	if (udc_probe(dev)) {
- 		retval = -ENODEV;
+ static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
 
 
