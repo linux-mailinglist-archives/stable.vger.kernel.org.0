@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF22B353F5F
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A250F354051
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239004AbhDEJLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58690 "EHLO mail.kernel.org"
+        id S240803AbhDEJRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:17:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238478AbhDEJLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:11:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D31E613B7;
-        Mon,  5 Apr 2021 09:11:22 +0000 (UTC)
+        id S240801AbhDEJRE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:17:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0519160FE4;
+        Mon,  5 Apr 2021 09:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613882;
-        bh=hCTRocdIbMLaio50PGECtYl0IUES5PGHDT1zYe06K7U=;
+        s=korg; t=1617614218;
+        bh=b1u0xQ3xOw06czjnFgcm5d/aVKgUd2RJ+TU+aMfNJKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=buXpVyhDwmJ0bSGecxJXni/90BudfR48DOtu9+gm8pzudBDeTAJVfGXzcMGqGTTuo
-         jUc4CimMLaW7Ij2dTRps3ldEhTxhwxg5F50RnBGsxxwwALZWbOzr6LGXE92ETWlahs
-         EWvx/5eoVTbzOZD5EsiWI9tYpa7ZkONQmfvgHHi8=
+        b=w5lHioECdWskRxJWYHs0Yy+8oTspMZuROdEnRs9Bg6PtydHJnFXpvaVJKZSdqSw4U
+         nae/VDya4rNkehpDqQfYmSXwqnjtE9Jm4RMmgo0TAMsQ7cvs/QS3RhCD82UCTYJKdc
+         K1KdkfZI2wu+70giVFmYxj6FcDFmiN6zurtOTyzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>
-Subject: [PATCH 5.10 114/126] usb: gadget: udc: amd5536udc_pci fix null-ptr-dereference
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 127/152] video: hyperv_fb: Fix a double free in hvfb_probe
 Date:   Mon,  5 Apr 2021 10:54:36 +0200
-Message-Id: <20210405085034.811329445@linuxfoundation.org>
+Message-Id: <20210405085038.354961062@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 72035f4954f0bca2d8c47cf31b3629c42116f5b7 upstream.
+[ Upstream commit 37df9f3fedb6aeaff5564145e8162aab912c9284 ]
 
-init_dma_pools() calls dma_pool_create(...dev->dev) to create dma pool.
-however, dev->dev is actually set after calling init_dma_pools(), which
-effectively makes dma_pool_create(..NULL) and cause crash.
-To fix this issue, init dma only after dev->dev is set.
+Function hvfb_probe() calls hvfb_getmem(), expecting upon return that
+info->apertures is either NULL or points to memory that should be freed
+by framebuffer_release().  But hvfb_getmem() is freeing the memory and
+leaving the pointer non-NULL, resulting in a double free if an error
+occurs or later if hvfb_remove() is called.
 
-[    1.317993] RIP: 0010:dma_pool_create+0x83/0x290
-[    1.323257] Call Trace:
-[    1.323390]  ? pci_write_config_word+0x27/0x30
-[    1.323626]  init_dma_pools+0x41/0x1a0 [snps_udc_core]
-[    1.323899]  udc_pci_probe+0x202/0x2b1 [amd5536udc_pci]
+Fix this by removing all kfree(info->apertures) calls in hvfb_getmem().
+This will allow framebuffer_release() to free the memory, which follows
+the pattern of other fbdev drivers.
 
-Fixes: 7c51247a1f62 (usb: gadget: udc: Provide correct arguments for 'dma_pool_create')
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210317230400.357756-1-ztong0001@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3a6fb6c4255c ("video: hyperv: hyperv_fb: Use physical memory for fb on HyperV Gen 1 VMs.")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20210324103724.4189-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/amd5536udc_pci.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/hyperv_fb.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/usb/gadget/udc/amd5536udc_pci.c
-+++ b/drivers/usb/gadget/udc/amd5536udc_pci.c
-@@ -153,6 +153,11 @@ static int udc_pci_probe(
- 	pci_set_master(pdev);
- 	pci_try_set_mwi(pdev);
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index c8b0ae676809..4dc9077dd2ac 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -1031,7 +1031,6 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 			PCI_DEVICE_ID_HYPERV_VIDEO, NULL);
+ 		if (!pdev) {
+ 			pr_err("Unable to find PCI Hyper-V video\n");
+-			kfree(info->apertures);
+ 			return -ENODEV;
+ 		}
  
-+	dev->phys_addr = resource;
-+	dev->irq = pdev->irq;
-+	dev->pdev = pdev;
-+	dev->dev = &pdev->dev;
-+
- 	/* init dma pools */
- 	if (use_dma) {
- 		retval = init_dma_pools(dev);
-@@ -160,11 +165,6 @@ static int udc_pci_probe(
- 			goto err_dma;
+@@ -1129,7 +1128,6 @@ getmem_done:
+ 	} else {
+ 		pci_dev_put(pdev);
  	}
+-	kfree(info->apertures);
  
--	dev->phys_addr = resource;
--	dev->irq = pdev->irq;
--	dev->pdev = pdev;
--	dev->dev = &pdev->dev;
--
- 	/* general probing */
- 	if (udc_probe(dev)) {
- 		retval = -ENODEV;
+ 	return 0;
+ 
+@@ -1141,7 +1139,6 @@ err2:
+ err1:
+ 	if (!gen2vm)
+ 		pci_dev_put(pdev);
+-	kfree(info->apertures);
+ 
+ 	return -ENOMEM;
+ }
+-- 
+2.30.2
+
 
 
