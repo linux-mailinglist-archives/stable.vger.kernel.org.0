@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CA0353E56
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 865CB353F3A
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238506AbhDEJFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48302 "EHLO mail.kernel.org"
+        id S239397AbhDEJKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238514AbhDEJFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DA5F61393;
-        Mon,  5 Apr 2021 09:04:56 +0000 (UTC)
+        id S239392AbhDEJKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:10:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54682613A0;
+        Mon,  5 Apr 2021 09:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613497;
-        bh=g3lj++hUE7TsdyXlSYqnGaIU8AoHYFX+P2g8T9TZxHc=;
+        s=korg; t=1617613822;
+        bh=b1u0xQ3xOw06czjnFgcm5d/aVKgUd2RJ+TU+aMfNJKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQ7HDFfpfohYiUNiVBbTEHqADwFtOuEi+WM6pWBSgmx1NvQO5qZxdpwVz8+LbkwaJ
-         TCVA+IMqGvUxYTK8xFjecPitlvg48cCDMe5sekfZhQBE1OIhjCJ9RKhY8ow/eq5xWJ
-         A2c49JCzoPGFdweVpJPl7wfpnNlH7KCBa/ueq/RI=
+        b=wuCRTxtQdZ/yRTBjKHM+It+X2sftWg7+xw0o30v9ZhcVi5n1zZemIePdgChQHPC/8
+         qLZF2NkUazkvfqxcGpIoUJ/4VyVUXPwQHsOzh+w7kVRrnJK5xd0RYRdvdHwCDZ+Kdd
+         OGNR41P/2YMiprFtOCxM0ezmizOJwZiOZ1D/nAhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.4 60/74] usbip: vhci_hcd fix shift out-of-bounds in vhci_hub_control()
-Date:   Mon,  5 Apr 2021 10:54:24 +0200
-Message-Id: <20210405085026.671637676@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 103/126] video: hyperv_fb: Fix a double free in hvfb_probe
+Date:   Mon,  5 Apr 2021 10:54:25 +0200
+Message-Id: <20210405085034.449202446@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 1cc5ed25bdade86de2650a82b2730108a76de20c upstream.
+[ Upstream commit 37df9f3fedb6aeaff5564145e8162aab912c9284 ]
 
-Fix shift out-of-bounds in vhci_hub_control() SetPortFeature handling.
+Function hvfb_probe() calls hvfb_getmem(), expecting upon return that
+info->apertures is either NULL or points to memory that should be freed
+by framebuffer_release().  But hvfb_getmem() is freeing the memory and
+leaving the pointer non-NULL, resulting in a double free if an error
+occurs or later if hvfb_remove() is called.
 
-UBSAN: shift-out-of-bounds in drivers/usb/usbip/vhci_hcd.c:605:42
-shift exponent 768 is too large for 32-bit type 'int'
+Fix this by removing all kfree(info->apertures) calls in hvfb_getmem().
+This will allow framebuffer_release() to free the memory, which follows
+the pattern of other fbdev drivers.
 
-Reported-by: syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20210324230654.34798-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3a6fb6c4255c ("video: hyperv: hyperv_fb: Use physical memory for fb on HyperV Gen 1 VMs.")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20210324103724.4189-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vhci_hcd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/hyperv_fb.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -595,6 +595,8 @@ static int vhci_hub_control(struct usb_h
- 				pr_err("invalid port number %d\n", wIndex);
- 				goto error;
- 			}
-+			if (wValue >= 32)
-+				goto error;
- 			if (hcd->speed == HCD_USB3) {
- 				if ((vhci_hcd->port_status[rhport] &
- 				     USB_SS_PORT_STAT_POWER) != 0) {
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index c8b0ae676809..4dc9077dd2ac 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -1031,7 +1031,6 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 			PCI_DEVICE_ID_HYPERV_VIDEO, NULL);
+ 		if (!pdev) {
+ 			pr_err("Unable to find PCI Hyper-V video\n");
+-			kfree(info->apertures);
+ 			return -ENODEV;
+ 		}
+ 
+@@ -1129,7 +1128,6 @@ getmem_done:
+ 	} else {
+ 		pci_dev_put(pdev);
+ 	}
+-	kfree(info->apertures);
+ 
+ 	return 0;
+ 
+@@ -1141,7 +1139,6 @@ err2:
+ err1:
+ 	if (!gen2vm)
+ 		pci_dev_put(pdev);
+-	kfree(info->apertures);
+ 
+ 	return -ENOMEM;
+ }
+-- 
+2.30.2
+
 
 
