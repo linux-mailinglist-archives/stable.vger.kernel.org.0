@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C571353CC7
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B50353D27
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232552AbhDEI4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:56:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35338 "EHLO mail.kernel.org"
+        id S234074AbhDEI6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232358AbhDEI4o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:56:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F25361393;
-        Mon,  5 Apr 2021 08:56:38 +0000 (UTC)
+        id S233931AbhDEI6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:58:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F27B46138A;
+        Mon,  5 Apr 2021 08:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612998;
-        bh=KtAlmxm0d2x+FTD1zIZ2lF4EP03RgeQ6Ba0gB1xS0Hc=;
+        s=korg; t=1617613112;
+        bh=QiaiAs744ez0x18EpVv1BoU0+UnvRb25+r5wfybrtKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjLt0DKQt55C5UWPccFbB0ug54rzx+FnJ2ffLsFc6D7nNBDVM/c3pILUDlgKzJ/jd
-         AfuanuXq8Q2+WCjbxp6GeVS+mACaRzhhqrXP0Ry4OyluoDiHN3Ex5uFeI046GidacT
-         6R3Qd/YlMXlvcdJGREZnOPcXVKtlst2h4nhTIS6I=
+        b=X8i6RY0vBdMOQ383uoff0tZwOwgCllb5stLzC7Pkdn6dR2D2e+wgESJSA6ZJnRgp0
+         qoTdgs8Q84p+jKOnKwxU2vYNVliMeZlXeZd90GOQJoQf7IddSWwFqkWaJZyLUInJ4r
+         xwAHWQanzchHFgvczlLxXvPBux/ghI4orlWvWSzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Michael Walle <michael@walle.cc>,
-        Sameer Pujar <spujar@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/35] ASoC: rt5659: Update MCLK rate in set_sysclk()
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 4.14 23/52] bpf: Remove MTU check in __bpf_skb_max_len
 Date:   Mon,  5 Apr 2021 10:53:49 +0200
-Message-Id: <20210405085019.328469831@linuxfoundation.org>
+Message-Id: <20210405085022.749537871@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
-References: <20210405085018.871387942@linuxfoundation.org>
+In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
+References: <20210405085021.996963957@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit dbf54a9534350d6aebbb34f5c1c606b81a4f35dd ]
+commit 6306c1189e77a513bf02720450bb43bd4ba5d8ae upstream.
 
-Simple-card/audio-graph-card drivers do not handle MCLK clock when it
-is specified in the codec device node. The expectation here is that,
-the codec should actually own up the MCLK clock and do necessary setup
-in the driver.
+Multiple BPF-helpers that can manipulate/increase the size of the SKB uses
+__bpf_skb_max_len() as the max-length. This function limit size against
+the current net_device MTU (skb->dev->mtu).
 
-Suggested-by: Mark Brown <broonie@kernel.org>
-Suggested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Link: https://lore.kernel.org/r/1615829492-8972-3-git-send-email-spujar@nvidia.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When a BPF-prog grow the packet size, then it should not be limited to the
+MTU. The MTU is a transmit limitation, and software receiving this packet
+should be allowed to increase the size. Further more, current MTU check in
+__bpf_skb_max_len uses the MTU from ingress/current net_device, which in
+case of redirects uses the wrong net_device.
+
+This patch keeps a sanity max limit of SKB_MAX_ALLOC (16KiB). The real limit
+is elsewhere in the system. Jesper's testing[1] showed it was not possible
+to exceed 8KiB when expanding the SKB size via BPF-helper. The limiting
+factor is the define KMALLOC_MAX_CACHE_SIZE which is 8192 for
+SLUB-allocator (CONFIG_SLUB) in-case PAGE_SIZE is 4096. This define is
+in-effect due to this being called from softirq context see code
+__gfp_pfmemalloc_flags() and __do_kmalloc_node(). Jakub's testing showed
+that frames above 16KiB can cause NICs to reset (but not crash). Keep this
+sanity limit at this level as memory layer can differ based on kernel
+config.
+
+[1] https://github.com/xdp-project/bpf-examples/tree/master/MTU-tests
+
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/161287788936.790810.2937823995775097177.stgit@firesoul
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt5659.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/core/filter.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5659.c b/sound/soc/codecs/rt5659.c
-index 635818fcda00..21a007c26407 100644
---- a/sound/soc/codecs/rt5659.c
-+++ b/sound/soc/codecs/rt5659.c
-@@ -3389,12 +3389,17 @@ static int rt5659_set_dai_sysclk(struct snd_soc_dai *dai,
- 	struct snd_soc_codec *codec = dai->codec;
- 	struct rt5659_priv *rt5659 = snd_soc_codec_get_drvdata(codec);
- 	unsigned int reg_val = 0;
-+	int ret;
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2279,17 +2279,14 @@ static int bpf_skb_net_shrink(struct sk_
+ 	return 0;
+ }
  
- 	if (freq == rt5659->sysclk && clk_id == rt5659->sysclk_src)
- 		return 0;
+-static u32 __bpf_skb_max_len(const struct sk_buff *skb)
+-{
+-	return skb->dev->mtu + skb->dev->hard_header_len;
+-}
++#define BPF_SKB_MAX_LEN SKB_MAX_ALLOC
  
- 	switch (clk_id) {
- 	case RT5659_SCLK_S_MCLK:
-+		ret = clk_set_rate(rt5659->mclk, freq);
-+		if (ret)
-+			return ret;
-+
- 		reg_val |= RT5659_SCLK_SRC_MCLK;
- 		break;
- 	case RT5659_SCLK_S_PLL1:
--- 
-2.30.1
-
+ static int bpf_skb_adjust_net(struct sk_buff *skb, s32 len_diff)
+ {
+ 	bool trans_same = skb->transport_header == skb->network_header;
+ 	u32 len_cur, len_diff_abs = abs(len_diff);
+ 	u32 len_min = bpf_skb_net_base_len(skb);
+-	u32 len_max = __bpf_skb_max_len(skb);
++	u32 len_max = BPF_SKB_MAX_LEN;
+ 	__be16 proto = skb->protocol;
+ 	bool shrink = len_diff < 0;
+ 	int ret;
+@@ -2368,7 +2365,7 @@ static int bpf_skb_trim_rcsum(struct sk_
+ BPF_CALL_3(bpf_skb_change_tail, struct sk_buff *, skb, u32, new_len,
+ 	   u64, flags)
+ {
+-	u32 max_len = __bpf_skb_max_len(skb);
++	u32 max_len = BPF_SKB_MAX_LEN;
+ 	u32 min_len = __bpf_skb_min_len(skb);
+ 	int ret;
+ 
+@@ -2419,7 +2416,7 @@ static const struct bpf_func_proto bpf_s
+ BPF_CALL_3(bpf_skb_change_head, struct sk_buff *, skb, u32, head_room,
+ 	   u64, flags)
+ {
+-	u32 max_len = __bpf_skb_max_len(skb);
++	u32 max_len = BPF_SKB_MAX_LEN;
+ 	u32 new_len = skb->len + head_room;
+ 	int ret;
+ 
 
 
