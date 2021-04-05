@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E24D5353D9E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 399E0353E11
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236586AbhDEJAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42772 "EHLO mail.kernel.org"
+        id S237723AbhDEJDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:03:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232860AbhDEJAt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:00:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6399B6124C;
-        Mon,  5 Apr 2021 09:00:43 +0000 (UTC)
+        id S237704AbhDEJDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:03:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B25F161002;
+        Mon,  5 Apr 2021 09:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613243;
-        bh=2q1iU9XeChlMWGNPT1kMFQPoe8xvbCDxHdcqTqfRRI8=;
+        s=korg; t=1617613414;
+        bh=HHnRog4yHabJNgptdFAfdzRCtCZnvIkj5q0fZFQTM4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOQc9PT13EEjvcRnYfTgT3je5Mld8V8VLwyjmCEPhAElhz+wWkCjjlvl1rpN7iyXJ
-         1mS3WA0gU5hZzAbqdAhYmE/IKtWdd8xX6BoSPkfU5tgGnHn3TWyVKIYpxWoes7O2vf
-         CM+oiCTn2a3Ke+5tI3DP5uIDXTeQcHbbF+avMivI=
+        b=kFts6NjzzViy4uwN+H2O+RDPpfpdQn2/hJVVhTnN+tsb0Zowd6g8Sn9rvj9rFgrAD
+         TFa85yuEBwLLwXlKNbN2ugEo7llBfkhHHjgFzb10UDq2Dlbxq+dwpw7de+NgRIfIPO
+         1X72rSKNSglJWWQ39PqZ+V5ChpyUoqsxoqwBPobg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ingo Molnar <mingo@kernel.org>,
         Davidlohr Bueso <dbueso@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/56] locking/ww_mutex: Simplify use_ww_ctx & ww_ctx handling
+Subject: [PATCH 5.4 28/74] locking/ww_mutex: Simplify use_ww_ctx & ww_ctx handling
 Date:   Mon,  5 Apr 2021 10:53:52 +0200
-Message-Id: <20210405085023.216103525@linuxfoundation.org>
+Message-Id: <20210405085025.650890302@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,10 +64,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+), 11 deletions(-)
 
 diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
-index 3f8a35104285..b3da782cdfbd 100644
+index 468a9b8422e3..07a9f9f46e03 100644
 --- a/kernel/locking/mutex.c
 +++ b/kernel/locking/mutex.c
-@@ -609,7 +609,7 @@ static inline int mutex_can_spin_on_owner(struct mutex *lock)
+@@ -636,7 +636,7 @@ static inline int mutex_can_spin_on_owner(struct mutex *lock)
   */
  static __always_inline bool
  mutex_optimistic_spin(struct mutex *lock, struct ww_acquire_ctx *ww_ctx,
@@ -76,7 +76,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  {
  	if (!waiter) {
  		/*
-@@ -685,7 +685,7 @@ fail:
+@@ -712,7 +712,7 @@ fail:
  #else
  static __always_inline bool
  mutex_optimistic_spin(struct mutex *lock, struct ww_acquire_ctx *ww_ctx,
@@ -85,7 +85,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  {
  	return false;
  }
-@@ -905,10 +905,13 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+@@ -932,6 +932,9 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  	struct ww_mutex *ww;
  	int ret;
  
@@ -94,13 +94,17 @@ index 3f8a35104285..b3da782cdfbd 100644
 +
  	might_sleep();
  
+ #ifdef CONFIG_DEBUG_MUTEXES
+@@ -939,7 +942,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ #endif
+ 
  	ww = container_of(lock, struct ww_mutex, base);
 -	if (use_ww_ctx && ww_ctx) {
 +	if (ww_ctx) {
  		if (unlikely(ww_ctx == READ_ONCE(ww->ctx)))
  			return -EALREADY;
  
-@@ -925,10 +928,10 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+@@ -956,10 +959,10 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  	mutex_acquire_nest(&lock->dep_map, subclass, 0, nest_lock, ip);
  
  	if (__mutex_trylock(lock) ||
@@ -113,7 +117,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  			ww_mutex_set_context_fastpath(ww, ww_ctx);
  		preempt_enable();
  		return 0;
-@@ -939,7 +942,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+@@ -970,7 +973,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  	 * After waiting to acquire the wait_lock, try again.
  	 */
  	if (__mutex_trylock(lock)) {
@@ -122,7 +126,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  			__ww_mutex_check_waiters(lock, ww_ctx);
  
  		goto skip_wait;
-@@ -992,7 +995,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+@@ -1023,7 +1026,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  			goto err;
  		}
  
@@ -131,7 +135,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  			ret = __ww_mutex_check_kill(lock, &waiter, ww_ctx);
  			if (ret)
  				goto err;
-@@ -1005,7 +1008,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+@@ -1036,7 +1039,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  		 * ww_mutex needs to always recheck its position since its waiter
  		 * list is not FIFO ordered.
  		 */
@@ -140,7 +144,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  			first = __mutex_waiter_is_first(lock, &waiter);
  			if (first)
  				__mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
-@@ -1018,7 +1021,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+@@ -1049,7 +1052,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  		 * or we must see its unlock and acquire.
  		 */
  		if (__mutex_trylock(lock) ||
@@ -149,7 +153,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  			break;
  
  		spin_lock(&lock->wait_lock);
-@@ -1027,7 +1030,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+@@ -1058,7 +1061,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  acquired:
  	__set_current_state(TASK_RUNNING);
  
@@ -158,7 +162,7 @@ index 3f8a35104285..b3da782cdfbd 100644
  		/*
  		 * Wound-Wait; we stole the lock (!first_waiter), check the
  		 * waiters as anyone might want to wound us.
-@@ -1047,7 +1050,7 @@ skip_wait:
+@@ -1078,7 +1081,7 @@ skip_wait:
  	/* got the lock - cleanup and rejoice! */
  	lock_acquired(&lock->dep_map, ip);
  
