@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A8BE354037
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2A6353DCF
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240721AbhDEJQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37876 "EHLO mail.kernel.org"
+        id S237445AbhDEJCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240716AbhDEJQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:16:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ABC661399;
-        Mon,  5 Apr 2021 09:16:22 +0000 (UTC)
+        id S237310AbhDEJCQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C51CB60238;
+        Mon,  5 Apr 2021 09:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614183;
-        bh=oUC+zcb9FOiFCXZRwrNlt3iLVBoaHrbF4wk3Q7La2jo=;
+        s=korg; t=1617613330;
+        bh=JMQqpmH2GVDMDBiZT10RiNv1wdhPPSz452g7VOmohJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDQZ8RgoTfMcZQ0iQB+Pht9omxZIIs4sMJaktAXpoP4e0fw77EHyiLXoV7I8KxR61
-         idDFngopqBrlXV3NH5G+jm3cLD4A1/I8TVNKqnIfQVWlS5tFMA9knVPeR0Qz7YfMM4
-         P61gneKpIDyXkBFXev/G0J5IFcAo3PJYO9NYN4tM=
+        b=OnIfCO0suUanBozDtezPnzW6nKj8X9PPSPNI2X7XlvB9hURU1cVB8/vz5UAvITR9C
+         iAfDgedqkg8JSp7tfyiR8/yJ0Oot3SKitsJYjdXfcEJGIGA2eJ9yvT4ztkWv9/XKv6
+         8PdDc4FWv2rOOM78PWMLROEd1H97NmiTCHRLBuY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Gardon <bgardon@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 115/152] KVM: x86/mmu: Dont redundantly clear TDP MMU pt memory
+        stable@vger.kernel.org,
+        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH 4.19 53/56] usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
 Date:   Mon,  5 Apr 2021 10:54:24 +0200
-Message-Id: <20210405085037.971371017@linuxfoundation.org>
+Message-Id: <20210405085024.221811393@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
 
-[ Upstream commit 734e45b329d626d2c14e2bcf8be3d069a33c3316 ]
+commit 5e3bbae8ee3d677a0aa2919dc62b5c60ea01ba61 upstream.
 
-The KVM MMU caches already guarantee that shadow page table memory will
-be zeroed, so there is no reason to re-zero the page in the TDP MMU page
-fault handler.
+Increased the waiting timeout for HPRT0.PrtSusp register field
+to be set, because on HiKey 960 board HPRT0.PrtSusp wasn't
+generated with the existing timeout.
 
-No functional change intended.
-
-Reviewed-by: Peter Feiner <pfeiner@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20210202185734.1680553-5-bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 4.18
+Fixes: 22bb5cfdf13a ("usb: dwc2: Fix host exit from hibernation flow.")
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210326102447.8F7FEA005D@mailhost.synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/dwc2/hcd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index 6bd86bb4c089..4a2b8844f00f 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -708,7 +708,6 @@ int kvm_tdp_mmu_map(struct kvm_vcpu *vcpu, gpa_t gpa, u32 error_code,
- 			sp = alloc_tdp_mmu_page(vcpu, iter.gfn, iter.level);
- 			list_add(&sp->link, &vcpu->kvm->arch.tdp_mmu_pages);
- 			child_pt = sp->spt;
--			clear_page(child_pt);
- 			new_spte = make_nonleaf_spte(child_pt,
- 						     !shadow_accessed_mask);
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -5560,7 +5560,7 @@ int dwc2_host_enter_hibernation(struct d
+ 	dwc2_writel(hsotg, hprt0, HPRT0);
  
--- 
-2.30.1
-
+ 	/* Wait for the HPRT0.PrtSusp register field to be set */
+-	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 3000))
++	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 5000))
+ 		dev_warn(hsotg->dev, "Suspend wasn't generated\n");
+ 
+ 	/*
 
 
