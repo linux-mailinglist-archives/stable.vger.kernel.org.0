@@ -2,138 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E0C6353C50
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:18:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82F8F353C68
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229852AbhDEIRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:17:38 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:40327 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229660AbhDEIRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 04:17:38 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 4B3C21940A3A;
-        Mon,  5 Apr 2021 04:17:32 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 05 Apr 2021 04:17:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nsGihG
-        CpTyl7frUXMUgIGScDfoNJTL8ZZasoEuiPEeQ=; b=gPr/Ah07LMiSTh5ZcYjldf
-        Z0l8zigUjC7LhjasA5iQo8vF06u6JCyQmwt5QhTch8s+xoQ/lD1IjpYBS6n6u5z5
-        +RYDb9BNoonl7pxd6dmu1yKyMR9qSe/2uJ3DpwgiQ20ANxYfljOGmtduaFktt/eW
-        fwGOgNaXkirTFjqyXoRKIdgWur/mv+LIN55Ac4cIu4WsqQQn7E2gWt2xd1sLer7C
-        Ez5tBuQBOoJE1IQ0Er4NyJu/BxRGORnpbYh0EtPDI9f63pbFmQVfLrt7turcnM3m
-        ryLU021kP7//AZ4wEMSzFzCLurFEZavB1bcR5/Acme2vU8QEIeeGl+x8nJl5l7Sw
-        ==
-X-ME-Sender: <xms:m8dqYCiI_Zagy0hzhG7Np5C9n_VxFEhcYg0Re9YOPnifcwj4Aw9kwg>
-    <xme:m8dqYDAFHY9I_OkzIeieAwtGGFwnb-gjLbiIRzLQD-7mlaxtvVH78p5ttfKZxMblt
-    U-KlzPgcuOr0w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudejvddgtddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:m8dqYKGtpGHN8MpjvIdddVfWjB7UYkvbsBCTiBC_zJDnkEinTFAFUQ>
-    <xmx:m8dqYLT_a3qFOHZ7qVVjidsNPxIPRgafUVvBX6tVQGAUeniMbP5XIA>
-    <xmx:m8dqYPxb6zUxUbSKL-78WK7Vtr0SEvXanF97yai8jIdc1kfBLmGHgQ>
-    <xmx:nMdqYNZ9ox3AWAI44I40EHhHxZJvb07VARwui6AgGf1w5OKdNp8M5A>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7EED91080057;
-        Mon,  5 Apr 2021 04:17:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mei: allow map and unmap of client dma buffer only for" failed to apply to 5.11-stable tree
-To:     tomas.winkler@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Apr 2021 10:17:29 +0200
-Message-ID: <1617610649156196@kroah.com>
+        id S232494AbhDEIcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:32:46 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:32778 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232240AbhDEIcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 04:32:46 -0400
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 1358WBPV088117;
+        Mon, 5 Apr 2021 03:32:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1617611532;
+        bh=aIM1P+J+7+MCBa4886JZPt41jVqnVkokltalE8AxDjU=;
+        h=Date:From:To:CC:Subject:References:In-Reply-To;
+        b=tYybcERF6fnMaN1oa6vbJI7bdeI6hV/+Lg2fdz8Jw+2pSJ2lChkhQueB+bXY/XuXa
+         xNCN5XkAMtsTE0RganrvTwxvW4j9ecoJ5WHBpJ5/r/oY/0SesHNOGmZNs/hB176EDn
+         ZLU41RsHvTIHHTyg3H49QMYiZ6IBWaOhxPZJvVk8=
+Received: from DLEE111.ent.ti.com (dlee111.ent.ti.com [157.170.170.22])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 1358WBLS056298
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 5 Apr 2021 03:32:11 -0500
+Received: from DLEE101.ent.ti.com (157.170.170.31) by DLEE111.ent.ti.com
+ (157.170.170.22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2; Mon, 5 Apr
+ 2021 03:32:11 -0500
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE101.ent.ti.com
+ (157.170.170.31) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2176.2 via
+ Frontend Transport; Mon, 5 Apr 2021 03:32:11 -0500
+Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 1358WAoB003080;
+        Mon, 5 Apr 2021 03:32:11 -0500
+Date:   Mon, 5 Apr 2021 14:02:10 +0530
+From:   Pratyush Yadav <p.yadav@ti.com>
+To:     Tudor Ambarus <tudor.ambarus@microchip.com>
+CC:     <michael@walle.cc>, <vigneshr@ti.com>, <masonccyang@mxic.com.tw>,
+        <zhengxunli@mxic.com.tw>, <ycllin@mxic.com.tw>,
+        <juliensu@mxic.com.tw>, <miquel.raynal@bootlin.com>,
+        <richard@nod.at>, <linux-mtd@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/2] Revert "mtd: spi-nor: macronix: Add support for
+ mx25l51245g"
+Message-ID: <20210405083208.qhdvpokoyr36awzf@ti.com>
+References: <20210402082031.19055-1-tudor.ambarus@microchip.com>
+ <20210402082031.19055-2-tudor.ambarus@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20210402082031.19055-2-tudor.ambarus@microchip.com>
+User-Agent: NeoMutt/20171215
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 02/04/21 11:20AM, Tudor Ambarus wrote:
+> This reverts commit 04b8edad262eec0d153005973dfbdd83423c0dcb.
+> 
+> mx25l51245g and mx66l51235l have the same flash ID. The flash
+> detection returns the first entry in the flash_info array that
+> matches the flash ID that was read, thus for the 0xc2201a ID,
+> mx25l51245g was always hit, introducing a regression for
+> mx66l51235l.
+> 
+> If one wants to differentiate the flash names, a better fix would be
+> to differentiate between the two at run-time, depending on SFDP,
+> and choose the correct name from a list of flash names, depending on
+> the SFDP differentiator.
+> 
+> Fixes: 04b8edad262e ("mtd: spi-nor: macronix: Add support for mx25l51245g")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-The patch below does not apply to the 5.11-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Acked-by: Pratyush Yadav <p.yadav@ti.com>
 
-thanks,
+> ---
+>  drivers/mtd/spi-nor/macronix.c | 3 ---
+>  1 file changed, 3 deletions(-)
+> 
+> diff --git a/drivers/mtd/spi-nor/macronix.c b/drivers/mtd/spi-nor/macronix.c
+> index 6c2680b4cdad..42c2cf31702e 100644
+> --- a/drivers/mtd/spi-nor/macronix.c
+> +++ b/drivers/mtd/spi-nor/macronix.c
+> @@ -72,9 +72,6 @@ static const struct flash_info macronix_parts[] = {
+>  			      SECT_4K | SPI_NOR_DUAL_READ |
+>  			      SPI_NOR_QUAD_READ) },
+>  	{ "mx25l25655e", INFO(0xc22619, 0, 64 * 1024, 512, 0) },
+> -	{ "mx25l51245g", INFO(0xc2201a, 0, 64 * 1024, 1024,
+> -			      SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+> -			      SPI_NOR_4B_OPCODES) },
+>  	{ "mx66l51235l", INFO(0xc2201a, 0, 64 * 1024, 1024,
+>  			      SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+>  			      SPI_NOR_4B_OPCODES) },
+> -- 
+> 2.25.1
+> 
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ce068bc7da473e39b64d130101e178406023df0c Mon Sep 17 00:00:00 2001
-From: Tomas Winkler <tomas.winkler@intel.com>
-Date: Thu, 18 Mar 2021 07:59:59 +0200
-Subject: [PATCH] mei: allow map and unmap of client dma buffer only for
- disconnected client
-
-Allow map and unmap of the client dma buffer only when the client is not
-connected. The functions return -EPROTO if the client is already connected.
-This is to fix the race when traffic may start or stop when buffer
-is not available.
-
-Cc: <stable@vger.kernel.org> #v5.11+
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210318055959.305627-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/misc/mei/client.c b/drivers/misc/mei/client.c
-index 4378a9b25848..2cc370adb238 100644
---- a/drivers/misc/mei/client.c
-+++ b/drivers/misc/mei/client.c
-@@ -2286,8 +2286,8 @@ int mei_cl_dma_alloc_and_map(struct mei_cl *cl, const struct file *fp,
- 	if (buffer_id == 0)
- 		return -EINVAL;
- 
--	if (!mei_cl_is_connected(cl))
--		return -ENODEV;
-+	if (mei_cl_is_connected(cl))
-+		return -EPROTO;
- 
- 	if (cl->dma_mapped)
- 		return -EPROTO;
-@@ -2327,9 +2327,7 @@ int mei_cl_dma_alloc_and_map(struct mei_cl *cl, const struct file *fp,
- 
- 	mutex_unlock(&dev->device_lock);
- 	wait_event_timeout(cl->wait,
--			   cl->dma_mapped ||
--			   cl->status ||
--			   !mei_cl_is_connected(cl),
-+			   cl->dma_mapped || cl->status,
- 			   mei_secs_to_jiffies(MEI_CL_CONNECT_TIMEOUT));
- 	mutex_lock(&dev->device_lock);
- 
-@@ -2376,8 +2374,9 @@ int mei_cl_dma_unmap(struct mei_cl *cl, const struct file *fp)
- 		return -EOPNOTSUPP;
- 	}
- 
--	if (!mei_cl_is_connected(cl))
--		return -ENODEV;
-+	/* do not allow unmap for connected client */
-+	if (mei_cl_is_connected(cl))
-+		return -EPROTO;
- 
- 	if (!cl->dma_mapped)
- 		return -EPROTO;
-@@ -2405,9 +2404,7 @@ int mei_cl_dma_unmap(struct mei_cl *cl, const struct file *fp)
- 
- 	mutex_unlock(&dev->device_lock);
- 	wait_event_timeout(cl->wait,
--			   !cl->dma_mapped ||
--			   cl->status ||
--			   !mei_cl_is_connected(cl),
-+			   !cl->dma_mapped || cl->status,
- 			   mei_secs_to_jiffies(MEI_CL_CONNECT_TIMEOUT));
- 	mutex_lock(&dev->device_lock);
- 
-
+-- 
+Regards,
+Pratyush Yadav
+Texas Instruments Inc.
