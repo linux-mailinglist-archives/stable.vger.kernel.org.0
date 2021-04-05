@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9FE2353C9D
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D14C4353CCE
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232693AbhDEIzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
+        id S232943AbhDEI4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230305AbhDEIzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:55:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F382610E8;
-        Mon,  5 Apr 2021 08:55:38 +0000 (UTC)
+        id S232940AbhDEI4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:56:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDC1661398;
+        Mon,  5 Apr 2021 08:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612938;
-        bh=toDelkCeehIsiu9+4CIoi71DCSJiLsuEeeABYP6w4ww=;
+        s=korg; t=1617613006;
+        bh=vjvaWV/mn/2ryEEBpLd0Abhz/Deml+yGFvw5SXEUfT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLo0QQk/jNGZQs1yIBFOZhRZEWXqFR6Dn7Vam+OPaxV0vLl+4SjMWVnW6E22EYvCn
-         vyxxQEZ/SIF99UhWi35dkOZlf9jB0gavT4XCDFRAXg6WTdK18sJ5G8Y+PLZI+3i3Lj
-         NSxlnxNpjgW9ivuS0TVkXuF8DPt/e76Hvya2IM1A=
+        b=u2sVMYForeATeuanVeLt/baZ2iEkFDYDJnPHr64F++zw0M5EXHVG7CBCMOuQMwAJ3
+         OKpf24K4OxpYLmUigpTwrAj/dbB6vV0FCavcz45yL4iIVx7le2ad7n+KUR+CMcqehr
+         1IN12J+DxwTHJaUWkR0KIqLc5abg20yh5SLjwBck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
-        <zhouyanjie@wanyeetech.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 18/28] mm: fix race by making init_zero_pfn() early_initcall
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 17/35] net: wan/lmc: unregister device when no matching device is found
 Date:   Mon,  5 Apr 2021 10:53:52 +0200
-Message-Id: <20210405085017.595525472@linuxfoundation.org>
+Message-Id: <20210405085019.426012258@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
-References: <20210405085017.012074144@linuxfoundation.org>
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+References: <20210405085018.871387942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit e720e7d0e983bf05de80b231bccc39f1487f0f16 upstream.
+[ Upstream commit 62e69bc419772638369eff8ff81340bde8aceb61 ]
 
-There are code paths that rely on zero_pfn to be fully initialized
-before core_initcall.  For example, wq_sysfs_init() is a core_initcall
-function that eventually results in a call to kernel_execve, which
-causes a page fault with a subsequent mmput.  If zero_pfn is not
-initialized by then it may not get cleaned up properly and result in an
-error:
+lmc set sc->lmc_media pointer when there is a matching device.
+However, when no matching device is found, this pointer is NULL
+and the following dereference will result in a null-ptr-deref.
 
-  BUG: Bad rss-counter state mm:(ptrval) type:MM_ANONPAGES val:1
+To fix this issue, unregister the hdlc device and return an error.
 
-Here is an analysis of the race as seen on a MIPS device. On this
-particular MT7621 device (Ubiquiti ER-X), zero_pfn is PFN 0 until
-initialized, at which point it becomes PFN 5120:
+[    4.569359] BUG: KASAN: null-ptr-deref in lmc_init_one.cold+0x2b6/0x55d [lmc]
+[    4.569748] Read of size 8 at addr 0000000000000008 by task modprobe/95
+[    4.570102]
+[    4.570187] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc7 #94
+[    4.570527] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-preb4
+[    4.571125] Call Trace:
+[    4.571261]  dump_stack+0x7d/0xa3
+[    4.571445]  kasan_report.cold+0x10c/0x10e
+[    4.571667]  ? lmc_init_one.cold+0x2b6/0x55d [lmc]
+[    4.571932]  lmc_init_one.cold+0x2b6/0x55d [lmc]
+[    4.572186]  ? lmc_mii_readreg+0xa0/0xa0 [lmc]
+[    4.572432]  local_pci_probe+0x6f/0xb0
+[    4.572639]  pci_device_probe+0x171/0x240
+[    4.572857]  ? pci_device_remove+0xe0/0xe0
+[    4.573080]  ? kernfs_create_link+0xb6/0x110
+[    4.573315]  ? sysfs_do_create_link_sd.isra.0+0x76/0xe0
+[    4.573598]  really_probe+0x161/0x420
+[    4.573799]  driver_probe_device+0x6d/0xd0
+[    4.574022]  device_driver_attach+0x82/0x90
+[    4.574249]  ? device_driver_attach+0x90/0x90
+[    4.574485]  __driver_attach+0x60/0x100
+[    4.574694]  ? device_driver_attach+0x90/0x90
+[    4.574931]  bus_for_each_dev+0xe1/0x140
+[    4.575146]  ? subsys_dev_iter_exit+0x10/0x10
+[    4.575387]  ? klist_node_init+0x61/0x80
+[    4.575602]  bus_add_driver+0x254/0x2a0
+[    4.575812]  driver_register+0xd3/0x150
+[    4.576021]  ? 0xffffffffc0018000
+[    4.576202]  do_one_initcall+0x84/0x250
+[    4.576411]  ? trace_event_raw_event_initcall_finish+0x150/0x150
+[    4.576733]  ? unpoison_range+0xf/0x30
+[    4.576938]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.577219]  ? unpoison_range+0xf/0x30
+[    4.577423]  ? unpoison_range+0xf/0x30
+[    4.577628]  do_init_module+0xf8/0x350
+[    4.577833]  load_module+0x3fe6/0x4340
+[    4.578038]  ? vm_unmap_ram+0x1d0/0x1d0
+[    4.578247]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    4.578526]  ? module_frob_arch_sections+0x20/0x20
+[    4.578787]  ? __do_sys_finit_module+0x108/0x170
+[    4.579037]  __do_sys_finit_module+0x108/0x170
+[    4.579278]  ? __ia32_sys_init_module+0x40/0x40
+[    4.579523]  ? file_open_root+0x200/0x200
+[    4.579742]  ? do_sys_open+0x85/0xe0
+[    4.579938]  ? filp_open+0x50/0x50
+[    4.580125]  ? exit_to_user_mode_prepare+0xfc/0x130
+[    4.580390]  do_syscall_64+0x33/0x40
+[    4.580586]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    4.580859] RIP: 0033:0x7f1a724c3cf7
+[    4.581054] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d6 48 891
+[    4.582043] RSP: 002b:00007fff44941c68 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    4.582447] RAX: ffffffffffffffda RBX: 00000000012ada70 RCX: 00007f1a724c3cf7
+[    4.582827] RDX: 0000000000000000 RSI: 00000000012ac9e0 RDI: 0000000000000003
+[    4.583207] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
+[    4.583587] R10: 00007f1a72527300 R11: 0000000000000246 R12: 00000000012ac9e0
+[    4.583968] R13: 0000000000000000 R14: 00000000012acc90 R15: 0000000000000001
+[    4.584349] ==================================================================
 
-  1. wq_sysfs_init calls into kobject_uevent_env at core_initcall:
-       kobject_uevent_env+0x7e4/0x7ec
-       kset_register+0x68/0x88
-       bus_register+0xdc/0x34c
-       subsys_virtual_register+0x34/0x78
-       wq_sysfs_init+0x1c/0x4c
-       do_one_initcall+0x50/0x1a8
-       kernel_init_freeable+0x230/0x2c8
-       kernel_init+0x10/0x100
-       ret_from_kernel_thread+0x14/0x1c
-
-  2. kobject_uevent_env() calls call_usermodehelper_exec() which executes
-     kernel_execve asynchronously.
-
-  3. Memory allocations in kernel_execve cause a page fault, bumping the
-     MM reference counter:
-       add_mm_counter_fast+0xb4/0xc0
-       handle_mm_fault+0x6e4/0xea0
-       __get_user_pages.part.78+0x190/0x37c
-       __get_user_pages_remote+0x128/0x360
-       get_arg_page+0x34/0xa0
-       copy_string_kernel+0x194/0x2a4
-       kernel_execve+0x11c/0x298
-       call_usermodehelper_exec_async+0x114/0x194
-
-  4. In case zero_pfn has not been initialized yet, zap_pte_range does
-     not decrement the MM_ANONPAGES RSS counter and the BUG message is
-     triggered shortly afterwards when __mmdrop checks the ref counters:
-       __mmdrop+0x98/0x1d0
-       free_bprm+0x44/0x118
-       kernel_execve+0x160/0x1d8
-       call_usermodehelper_exec_async+0x114/0x194
-       ret_from_kernel_thread+0x14/0x1c
-
-To avoid races such as described above, initialize init_zero_pfn at
-early_initcall level.  Depending on the architecture, ZERO_PAGE is
-either constant or gets initialized even earlier, at paging_init, so
-there is no issue with initializing zero_pfn earlier.
-
-Link: https://lkml.kernel.org/r/CALCv0x2YqOXEAy2Q=hafjhHCtTHVodChv1qpM=niAXOpqEbt7w@mail.gmail.com
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: stable@vger.kernel.org
-Tested-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wan/lmc/lmc_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -129,7 +129,7 @@ static int __init init_zero_pfn(void)
- 	zero_pfn = page_to_pfn(ZERO_PAGE(0));
- 	return 0;
- }
--core_initcall(init_zero_pfn);
-+early_initcall(init_zero_pfn);
+diff --git a/drivers/net/wan/lmc/lmc_main.c b/drivers/net/wan/lmc/lmc_main.c
+index 04b60ed59ea0..4253ccb79975 100644
+--- a/drivers/net/wan/lmc/lmc_main.c
++++ b/drivers/net/wan/lmc/lmc_main.c
+@@ -923,6 +923,8 @@ static int lmc_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+         break;
+     default:
+ 	printk(KERN_WARNING "%s: LMC UNKNOWN CARD!\n", dev->name);
++	unregister_hdlc_device(dev);
++	return -EIO;
+         break;
+     }
  
- 
- #if defined(SPLIT_RSS_COUNTING)
+-- 
+2.30.1
+
 
 
