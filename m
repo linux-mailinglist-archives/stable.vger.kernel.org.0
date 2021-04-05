@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3314C353DCE
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B749F353DCD
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237443AbhDEJCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237438AbhDEJCY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Apr 2021 05:02:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43802 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236753AbhDEJCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237332AbhDEJCC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Apr 2021 05:02:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9704D61394;
-        Mon,  5 Apr 2021 09:01:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 443A9613B9;
+        Mon,  5 Apr 2021 09:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613284;
-        bh=3YldFbS0jeDrOqBvwJCNGPj6AF3aTcml6rBFENGn7ao=;
+        s=korg; t=1617613286;
+        bh=uW6oDUm5OGgrAlcJAqE/N3uUNnNkdl5IGSMnsyGW+o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhlGwFNT66t7ZRbgxuj99oz1nKuGZQViSmwtF2/2XIR9NYHNo0dkyFauocxyMZazd
-         V2/8D5sSkcKCHEdZ1Dki8EfcjAIGRi+huxSuvGvVOtWiAFglgKJjQYP1pd/sq9KSk8
-         kLNsbzXukvsCFi0YJN6UvW/SBRNamas1K3GzE6PQ=
+        b=WkGKNxFQAJwAoE+kSmFkkUC0PA1X4qmYa8RaMDdFI49RH0wELX4pkA7EHDob1hwK/
+         guFzED5tSRs9aYnwG+bObgcGiOb38l2UWIbwMtNu5QJTDX3N5zv/Olcqeblnuagd9e
+         sa8c0mQNnaxxLtCqwY6WiIbq3iSBsrYS9v0luwlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Xi Ruoyao <xry111@mengyan1223.wang>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 37/56] drm/amdgpu: check alignment on CPU page for bo map
-Date:   Mon,  5 Apr 2021 10:54:08 +0200
-Message-Id: <20210405085023.716805033@linuxfoundation.org>
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        syzbot <syzbot+690cb1e51970435f9775@syzkaller.appspotmail.com>
+Subject: [PATCH 4.19 38/56] reiserfs: update reiserfs_xattrs_initialized() condition
+Date:   Mon,  5 Apr 2021 10:54:09 +0200
+Message-Id: <20210405085023.748250633@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
 References: <20210405085022.562176619@linuxfoundation.org>
@@ -41,46 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xℹ Ruoyao <xry111@mengyan1223.wang>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-commit e3512fb67093fabdf27af303066627b921ee9bd8 upstream.
+commit 5e46d1b78a03d52306f21f77a4e4a144b6d31486 upstream.
 
-The page table of AMDGPU requires an alignment to CPU page so we should
-check ioctl parameters for it.  Return -EINVAL if some parameter is
-unaligned to CPU page, instead of corrupt the page table sliently.
+syzbot is reporting NULL pointer dereference at reiserfs_security_init()
+[1], for commit ab17c4f02156c4f7 ("reiserfs: fixup xattr_root caching")
+is assuming that REISERFS_SB(s)->xattr_root != NULL in
+reiserfs_xattr_jcreate_nblocks() despite that commit made
+REISERFS_SB(sb)->priv_root != NULL && REISERFS_SB(s)->xattr_root == NULL
+case possible.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+I guess that commit 6cb4aff0a77cc0e6 ("reiserfs: fix oops while creating
+privroot with selinux enabled") wanted to check xattr_root != NULL
+before reiserfs_xattr_jcreate_nblocks(), for the changelog is talking
+about the xattr root.
+
+  The issue is that while creating the privroot during mount
+  reiserfs_security_init calls reiserfs_xattr_jcreate_nblocks which
+  dereferences the xattr root. The xattr root doesn't exist, so we get
+  an oops.
+
+Therefore, update reiserfs_xattrs_initialized() to check both the
+privroot and the xattr root.
+
+Link: https://syzkaller.appspot.com/bug?id=8abaedbdeb32c861dc5340544284167dd0e46cde # [1]
+Reported-and-tested-by: syzbot <syzbot+690cb1e51970435f9775@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 6cb4aff0a77c ("reiserfs: fix oops while creating privroot with selinux enabled")
+Acked-by: Jeff Mahoney <jeffm@suse.com>
+Acked-by: Jan Kara <jack@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/reiserfs/xattr.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -2076,8 +2076,8 @@ int amdgpu_vm_bo_map(struct amdgpu_devic
- 	uint64_t eaddr;
+--- a/fs/reiserfs/xattr.h
++++ b/fs/reiserfs/xattr.h
+@@ -43,7 +43,7 @@ void reiserfs_security_free(struct reise
  
- 	/* validate the parameters */
--	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
--	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
-+	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
-+	    size == 0 || size & ~PAGE_MASK)
- 		return -EINVAL;
+ static inline int reiserfs_xattrs_initialized(struct super_block *sb)
+ {
+-	return REISERFS_SB(sb)->priv_root != NULL;
++	return REISERFS_SB(sb)->priv_root && REISERFS_SB(sb)->xattr_root;
+ }
  
- 	/* make sure object fit at this offset */
-@@ -2141,8 +2141,8 @@ int amdgpu_vm_bo_replace_map(struct amdg
- 	int r;
- 
- 	/* validate the parameters */
--	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
--	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
-+	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
-+	    size == 0 || size & ~PAGE_MASK)
- 		return -EINVAL;
- 
- 	/* make sure object fit at this offset */
+ #define xattr_size(size) ((size) + sizeof(struct reiserfs_xattr_header))
 
 
