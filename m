@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B6F353D1C
+	by mail.lfdr.de (Postfix) with ESMTP id 99BAB353D1D
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233819AbhDEI63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:58:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38498 "EHLO mail.kernel.org"
+        id S233833AbhDEI6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:58:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233652AbhDEI6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA61E6124C;
-        Mon,  5 Apr 2021 08:58:15 +0000 (UTC)
+        id S233708AbhDEI6Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:58:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6763860238;
+        Mon,  5 Apr 2021 08:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613096;
-        bh=z21IlU+lKkau8KPURE4Y9aQ6vmLZzK1z65yZcOGlGd4=;
+        s=korg; t=1617613099;
+        bh=NnzeJ9bU7O/kw0wTFeurbQExxkYSrIb4RLKP73ul0Yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8jOC3bz1Kxz1VfpuEouo4ckHifYVHFCgbdGWDVrkx81+gPw8qpiEKCh1hdXLWGmg
-         bGRticF4u5GRZT6G+gLaeziqgrBxqUbigi//2aXC27e3PWuuciHNNw/37rU6SZhXQE
-         N9C+/QK9/EbEWhD3HtJu/RMWxLL5uQetVvTqWJ/g=
+        b=UzLJ37XHSbnlUYSPuvNT9LVRrHPWoHi/4c/KPUoge8y8myCuDFHhHfAXcX8Ihj/7J
+         kXAHnQElS+JMOO/uRvPcsxOwHg5sRif2PreJ6ol1R/Gi6j6A7SBh8FOEeO8GrCFFdZ
+         2HEk1v9ncYC3AO5/4HOeISGtEs3Os4JJxVgMxIts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/52] ext4: do not iput inode under running transaction in ext4_rename()
-Date:   Mon,  5 Apr 2021 10:53:44 +0200
-Message-Id: <20210405085022.596069634@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Pesce <luca.pesce@vimar.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 19/52] brcmfmac: clear EAP/association status bits on linkdown events
+Date:   Mon,  5 Apr 2021 10:53:45 +0200
+Message-Id: <20210405085022.626799000@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
 References: <20210405085021.996963957@linuxfoundation.org>
@@ -39,89 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Luca Pesce <luca.pesce@vimar.com>
 
-[ Upstream commit 5dccdc5a1916d4266edd251f20bbbb113a5c495f ]
+[ Upstream commit e862a3e4088070de352fdafe9bd9e3ae0a95a33c ]
 
-In ext4_rename(), when RENAME_WHITEOUT failed to add new entry into
-directory, it ends up dropping new created whiteout inode under the
-running transaction. After commit <9b88f9fb0d2> ("ext4: Do not iput inode
-under running transaction"), we follow the assumptions that evict() does
-not get called from a transaction context but in ext4_rename() it breaks
-this suggestion. Although it's not a real problem, better to obey it, so
-this patch add inode to orphan list and stop transaction before final
-iput().
+This ensure that previous association attempts do not leave stale statuses
+on subsequent attempts.
 
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Link: https://lore.kernel.org/r/20210303131703.330415-2-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This fixes the WARN_ON(!cr->bss)) from __cfg80211_connect_result() when
+connecting to an AP after a previous connection failure (e.g. where EAP fails
+due to incorrect psk but association succeeded). In some scenarios, indeed,
+brcmf_is_linkup() was reporting a link up event too early due to stale
+BRCMF_VIF_STATUS_ASSOC_SUCCESS bit, thus reporting to cfg80211 a connection
+result with a zeroed bssid (vif->profile.bssid is still empty), causing the
+WARN_ON due to the call to cfg80211_get_bss() with the empty bssid.
+
+Signed-off-by: Luca Pesce <luca.pesce@vimar.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1608807119-21785-1-git-send-email-luca.pesce@vimar.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ .../net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c    | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 647d4a8d6b68..b4ec5a41797b 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3635,7 +3635,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	 */
- 	retval = -ENOENT;
- 	if (!old.bh || le32_to_cpu(old.de->inode) != old.inode->i_ino)
--		goto end_rename;
-+		goto release_bh;
- 
- 	if ((old.dir != new.dir) &&
- 	    ext4_encrypted_inode(new.dir) &&
-@@ -3649,7 +3649,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	if (IS_ERR(new.bh)) {
- 		retval = PTR_ERR(new.bh);
- 		new.bh = NULL;
--		goto end_rename;
-+		goto release_bh;
- 	}
- 	if (new.bh) {
- 		if (!new.inode) {
-@@ -3666,15 +3666,13 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		handle = ext4_journal_start(old.dir, EXT4_HT_DIR, credits);
- 		if (IS_ERR(handle)) {
- 			retval = PTR_ERR(handle);
--			handle = NULL;
--			goto end_rename;
-+			goto release_bh;
- 		}
- 	} else {
- 		whiteout = ext4_whiteout_for_rename(&old, credits, &handle);
- 		if (IS_ERR(whiteout)) {
- 			retval = PTR_ERR(whiteout);
--			whiteout = NULL;
--			goto end_rename;
-+			goto release_bh;
- 		}
- 	}
- 
-@@ -3782,16 +3780,18 @@ end_rename:
- 			ext4_resetent(handle, &old,
- 				      old.inode->i_ino, old_file_type);
- 			drop_nlink(whiteout);
-+			ext4_orphan_add(handle, whiteout);
- 		}
- 		unlock_new_inode(whiteout);
-+		ext4_journal_stop(handle);
- 		iput(whiteout);
--
-+	} else {
-+		ext4_journal_stop(handle);
- 	}
-+release_bh:
- 	brelse(old.dir_bh);
- 	brelse(old.bh);
- 	brelse(new.bh);
--	if (handle)
--		ext4_journal_stop(handle);
- 	return retval;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 04fa66ed99a0..b5fceba10806 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -5381,7 +5381,8 @@ static bool brcmf_is_linkup(struct brcmf_cfg80211_vif *vif,
+ 	return false;
  }
  
+-static bool brcmf_is_linkdown(const struct brcmf_event_msg *e)
++static bool brcmf_is_linkdown(struct brcmf_cfg80211_vif *vif,
++			    const struct brcmf_event_msg *e)
+ {
+ 	u32 event = e->event_code;
+ 	u16 flags = e->flags;
+@@ -5390,6 +5391,8 @@ static bool brcmf_is_linkdown(const struct brcmf_event_msg *e)
+ 	    (event == BRCMF_E_DISASSOC_IND) ||
+ 	    ((event == BRCMF_E_LINK) && (!(flags & BRCMF_EVENT_MSG_LINK)))) {
+ 		brcmf_dbg(CONN, "Processing link down\n");
++		clear_bit(BRCMF_VIF_STATUS_EAP_SUCCESS, &vif->sme_state);
++		clear_bit(BRCMF_VIF_STATUS_ASSOC_SUCCESS, &vif->sme_state);
+ 		return true;
+ 	}
+ 	return false;
+@@ -5674,7 +5677,7 @@ brcmf_notify_connect_status(struct brcmf_if *ifp,
+ 		} else
+ 			brcmf_bss_connect_done(cfg, ndev, e, true);
+ 		brcmf_net_setcarrier(ifp, true);
+-	} else if (brcmf_is_linkdown(e)) {
++	} else if (brcmf_is_linkdown(ifp->vif, e)) {
+ 		brcmf_dbg(CONN, "Linkdown\n");
+ 		if (!brcmf_is_ibssmode(ifp->vif)) {
+ 			brcmf_bss_connect_done(cfg, ndev, e, false);
 -- 
 2.30.1
 
