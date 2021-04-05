@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6DB354421
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5527A35441D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242076AbhDEQEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:04:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55678 "EHLO mail.kernel.org"
+        id S242068AbhDEQEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:04:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242023AbhDEQEZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:04:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9201F613BD;
-        Mon,  5 Apr 2021 16:04:18 +0000 (UTC)
+        id S242039AbhDEQE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:04:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA744613C9;
+        Mon,  5 Apr 2021 16:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638659;
-        bh=KiRO2M5P4mOboiQ2OeqLUThTGmklM83OiWk9WfyDFAU=;
+        s=k20201202; t=1617638660;
+        bh=4450W13Tr8QRm7FhbCkn1rKN4GOntNb7VhsL2/1iCnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZ+ht9qn8xB3ug4Q/ojXX6R+1jex9y9roljd9Bh6wk6qhZskqzWMc08wZQOuRXLlW
-         tkjXV3VFAZ649I+UBcAPgsZld7jGAv0E+d2B6D2kbxK68GbL9o09om+aVTSN/YTXAM
-         Epjw6KOe7PVDqvkRjRxIpzKS6xehBATv63k8ucFs5Ld6OMTRHNNpEmUMcss6rRPy3O
-         4OIKBAhvHFcQK3Fluxlo3fHKddY4RbvKCxbI8q5oSBWa/zVMoE2JKO4lGE+xtlqhBi
-         L1gHTQIRolgNEHvcFqAeS+lk5oqQQrDwncFc7K3OgtTRRqIG/QY3voyWWdtr9OULig
-         DfbfE/RwSNkCQ==
+        b=YSk6VM7vQIxVm9qVklSKDY60wYj/akqCigI8w12qZOFhERkuVfKJJYNbZoaUJeOF0
+         iNQYkBfS3+GHgf85c+u/VfIpeDUTIs9Wc9yYISo+Ilwf6+OP8/ZgGPbZZp1qBCsd7k
+         nWaqdkbMK9bcumeMP0PSgJ0XY2fiFkSqH7Ee+gBgp8nnwU2fcEv+4Rp3ALX1NaNxGl
+         8RxCrrkMhTVrdbzs0+GENMF5pZqnk3IhSIDWOBg9W9HeXbYDcy5gBkjwtImeXEc90B
+         Jphxs/aqqUE9td1P+TamVXwPF2WQD9Wj1FGqXLCP8/Y04Pb/DsP6XmD8XBW/7t3FZA
+         2/aWRT+imuThg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikko Perttunen <mperttunen@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 11/22] gpu: host1x: Use different lock classes for each client
-Date:   Mon,  5 Apr 2021 12:03:54 -0400
-Message-Id: <20210405160406.268132-11-sashal@kernel.org>
+Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Zi Yan <ziy@nvidia.com>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 12/22] XArray: Fix splitting to non-zero orders
+Date:   Mon,  5 Apr 2021 12:03:55 -0400
+Message-Id: <20210405160406.268132-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210405160406.268132-1-sashal@kernel.org>
 References: <20210405160406.268132-1-sashal@kernel.org>
@@ -43,82 +42,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Perttunen <mperttunen@nvidia.com>
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-[ Upstream commit a24f98176d1efae2c37d3438c57a624d530d9c33 ]
+[ Upstream commit 3012110d71f41410932924e1d188f9eb57f1f824 ]
 
-To avoid false lockdep warnings, give each client lock a different
-lock class, passed from the initialization site by macro.
+Splitting an order-4 entry into order-2 entries would leave the array
+containing pointers to 000040008000c000 instead of 000044448888cccc.
+This is a one-character fix, but enhance the test suite to check this
+case.
 
-Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Reported-by: Zi Yan <ziy@nvidia.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/bus.c | 10 ++++++----
- include/linux/host1x.h   |  9 ++++++++-
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ lib/test_xarray.c | 26 ++++++++++++++------------
+ lib/xarray.c      |  4 ++--
+ 2 files changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
-index 347fb962b6c9..68a766ff0e9d 100644
---- a/drivers/gpu/host1x/bus.c
-+++ b/drivers/gpu/host1x/bus.c
-@@ -705,8 +705,9 @@ void host1x_driver_unregister(struct host1x_driver *driver)
- EXPORT_SYMBOL(host1x_driver_unregister);
+diff --git a/lib/test_xarray.c b/lib/test_xarray.c
+index 8294f43f4981..8b1c318189ce 100644
+--- a/lib/test_xarray.c
++++ b/lib/test_xarray.c
+@@ -1530,24 +1530,24 @@ static noinline void check_store_range(struct xarray *xa)
  
- /**
-- * host1x_client_register() - register a host1x client
-+ * __host1x_client_register() - register a host1x client
-  * @client: host1x client
-+ * @key: lock class key for the client-specific mutex
-  *
-  * Registers a host1x client with each host1x controller instance. Note that
-  * each client will only match their parent host1x controller and will only be
-@@ -715,13 +716,14 @@ EXPORT_SYMBOL(host1x_driver_unregister);
-  * device and call host1x_device_init(), which will in turn call each client's
-  * &host1x_client_ops.init implementation.
-  */
--int host1x_client_register(struct host1x_client *client)
-+int __host1x_client_register(struct host1x_client *client,
-+			     struct lock_class_key *key)
+ #ifdef CONFIG_XARRAY_MULTI
+ static void check_split_1(struct xarray *xa, unsigned long index,
+-							unsigned int order)
++				unsigned int order, unsigned int new_order)
  {
- 	struct host1x *host1x;
- 	int err;
+-	XA_STATE(xas, xa, index);
+-	void *entry;
+-	unsigned int i = 0;
++	XA_STATE_ORDER(xas, xa, index, new_order);
++	unsigned int i;
  
- 	INIT_LIST_HEAD(&client->list);
--	mutex_init(&client->lock);
-+	__mutex_init(&client->lock, "host1x client lock", key);
- 	client->usecount = 0;
+ 	xa_store_order(xa, index, order, xa, GFP_KERNEL);
  
- 	mutex_lock(&devices_lock);
-@@ -742,7 +744,7 @@ int host1x_client_register(struct host1x_client *client)
+ 	xas_split_alloc(&xas, xa, order, GFP_KERNEL);
+ 	xas_lock(&xas);
+ 	xas_split(&xas, xa, order);
++	for (i = 0; i < (1 << order); i += (1 << new_order))
++		__xa_store(xa, index + i, xa_mk_index(index + i), 0);
+ 	xas_unlock(&xas);
  
- 	return 0;
+-	xa_for_each(xa, index, entry) {
+-		XA_BUG_ON(xa, entry != xa);
+-		i++;
++	for (i = 0; i < (1 << order); i++) {
++		unsigned int val = index + (i & ~((1 << new_order) - 1));
++		XA_BUG_ON(xa, xa_load(xa, index + i) != xa_mk_index(val));
+ 	}
+-	XA_BUG_ON(xa, i != 1 << order);
+ 
+ 	xa_set_mark(xa, index, XA_MARK_0);
+ 	XA_BUG_ON(xa, !xa_get_mark(xa, index, XA_MARK_0));
+@@ -1557,14 +1557,16 @@ static void check_split_1(struct xarray *xa, unsigned long index,
+ 
+ static noinline void check_split(struct xarray *xa)
+ {
+-	unsigned int order;
++	unsigned int order, new_order;
+ 
+ 	XA_BUG_ON(xa, !xa_empty(xa));
+ 
+ 	for (order = 1; order < 2 * XA_CHUNK_SHIFT; order++) {
+-		check_split_1(xa, 0, order);
+-		check_split_1(xa, 1UL << order, order);
+-		check_split_1(xa, 3UL << order, order);
++		for (new_order = 0; new_order < order; new_order++) {
++			check_split_1(xa, 0, order, new_order);
++			check_split_1(xa, 1UL << order, order, new_order);
++			check_split_1(xa, 3UL << order, order, new_order);
++		}
+ 	}
  }
--EXPORT_SYMBOL(host1x_client_register);
-+EXPORT_SYMBOL(__host1x_client_register);
+ #else
+diff --git a/lib/xarray.c b/lib/xarray.c
+index 5fa51614802a..ed775dee1074 100644
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -1011,7 +1011,7 @@ void xas_split_alloc(struct xa_state *xas, void *entry, unsigned int order,
  
- /**
-  * host1x_client_unregister() - unregister a host1x client
-diff --git a/include/linux/host1x.h b/include/linux/host1x.h
-index ce59a6a6a008..9eb77c87a83b 100644
---- a/include/linux/host1x.h
-+++ b/include/linux/host1x.h
-@@ -320,7 +320,14 @@ static inline struct host1x_device *to_host1x_device(struct device *dev)
- int host1x_device_init(struct host1x_device *device);
- int host1x_device_exit(struct host1x_device *device);
+ 	do {
+ 		unsigned int i;
+-		void *sibling;
++		void *sibling = NULL;
+ 		struct xa_node *node;
  
--int host1x_client_register(struct host1x_client *client);
-+int __host1x_client_register(struct host1x_client *client,
-+			     struct lock_class_key *key);
-+#define host1x_client_register(class) \
-+	({ \
-+		static struct lock_class_key __key; \
-+		__host1x_client_register(class, &__key); \
-+	})
-+
- int host1x_client_unregister(struct host1x_client *client);
- 
- int host1x_client_suspend(struct host1x_client *client);
+ 		node = kmem_cache_alloc(radix_tree_node_cachep, gfp);
+@@ -1021,7 +1021,7 @@ void xas_split_alloc(struct xa_state *xas, void *entry, unsigned int order,
+ 		for (i = 0; i < XA_CHUNK_SIZE; i++) {
+ 			if ((i & mask) == 0) {
+ 				RCU_INIT_POINTER(node->slots[i], entry);
+-				sibling = xa_mk_sibling(0);
++				sibling = xa_mk_sibling(i);
+ 			} else {
+ 				RCU_INIT_POINTER(node->slots[i], sibling);
+ 			}
 -- 
 2.30.2
 
