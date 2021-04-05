@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E24B353F5C
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA80354057
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238972AbhDEJLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:11:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58708 "EHLO mail.kernel.org"
+        id S240812AbhDEJRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:17:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238546AbhDEJLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:11:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D33A61393;
-        Mon,  5 Apr 2021 09:11:32 +0000 (UTC)
+        id S239638AbhDEJRP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:17:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58B70611C1;
+        Mon,  5 Apr 2021 09:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613893;
-        bh=JurLy8cBkPqWxyUaJ/ITh8W4P04f2WYbLfYuj6QDTHE=;
+        s=korg; t=1617614228;
+        bh=KlE8lWoA7F6dX9H+/W8BC2YHc0HDwdG+vOL1hNm62rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=naHhgLKpie3YL4l3Bvq4ZfOqrEkdw43de4f60Pd8ybdiESOWr3qWXEpYExphqOj9J
-         YNesQE7jciJsl8fEya6VgBVj7Xs2WSfA8MJ2G9UwJl/PcozXV2bevi9fObN9dyTpvA
-         /GSbZvkkAWFLTZbj5Uk6ckqSysf0fu47ktkB5b/M=
+        b=KRoGrMbjdJs1nHQwAbB9nrrEotInQ9EScfuJEzvP9C3QWWu/OiuOfbhClmTceLbe9
+         TE7Ysb71QDYESHDCo2u2D6SfP9Isv4kVJIUrj10zOoss/ZWSL2DOTiQUZFLHEa+Uj0
+         oSMp1jTDXaUsuJSFONizmTfHVqToMJN1Z9vS7Q/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH 5.10 118/126] usb: dwc3: gadget: Clear DEP flags after stop transfers in ep disable
+        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>
+Subject: [PATCH 5.11 131/152] USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
 Date:   Mon,  5 Apr 2021 10:54:40 +0200
-Message-Id: <20210405085034.943960818@linuxfoundation.org>
+Message-Id: <20210405085038.485888842@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Vincent Palatin <vpalatin@chromium.org>
 
-commit 5aef629704ad4d983ecf5c8a25840f16e45b6d59 upstream.
+commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd upstream.
 
-Ensure that dep->flags are cleared until after stop active transfers
-is completed.  Otherwise, the ENDXFER command will not be executed
-during ep disable.
+This LTE modem (M.2 card) has a bug in its power management:
+there is some kind of race condition for U3 wake-up between the host and
+the device. The modem firmware sometimes crashes/locks when both events
+happen at the same time and the modem fully drops off the USB bus (and
+sometimes re-enumerates, sometimes just gets stuck until the next
+reboot).
 
-Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
+Tested with the modem wired to the XHCI controller on an AMD 3015Ce
+platform. Without the patch, the modem dropped of the USB bus 5 times in
+3 days. With the quirk, it stayed connected for a week while the
+'runtime_suspended_time' counter incremented as excepted.
+
+Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+Link: https://lore.kernel.org/r/20210319124802.2315195-1-vpalatin@chromium.org
 Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1616610664-16495-1-git-send-email-wcheng@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/core/quirks.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -791,10 +791,6 @@ static int __dwc3_gadget_ep_disable(stru
- 	reg &= ~DWC3_DALEPENA_EP(dep->number);
- 	dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -498,6 +498,10 @@ static const struct usb_device_id usb_qu
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
--	dep->stream_capable = false;
--	dep->type = 0;
--	dep->flags = 0;
--
- 	/* Clear out the ep descriptors for non-ep0 */
- 	if (dep->number > 1) {
- 		dep->endpoint.comp_desc = NULL;
-@@ -803,6 +799,10 @@ static int __dwc3_gadget_ep_disable(stru
- 
- 	dwc3_remove_requests(dwc, dep);
- 
-+	dep->stream_capable = false;
-+	dep->type = 0;
-+	dep->flags = 0;
++	/* Fibocom L850-GL LTE Modem */
++	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
++			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
 +
- 	return 0;
- }
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
  
 
 
