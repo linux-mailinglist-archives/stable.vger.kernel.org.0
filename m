@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22779353E63
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6AEF353D69
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238700AbhDEJFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48612 "EHLO mail.kernel.org"
+        id S237006AbhDEI7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237836AbhDEJFX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FF38613A9;
-        Mon,  5 Apr 2021 09:05:15 +0000 (UTC)
+        id S234188AbhDEI7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D13610E8;
+        Mon,  5 Apr 2021 08:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613516;
-        bh=ogBNOLnzdqZhhc74vgJX+cTFHvEdTeKq9V92f9LWiSo=;
+        s=korg; t=1617613175;
+        bh=M2E5XEh3GnqziyHsM8riwrpelAwbh49FkbgoKVacE0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gnvGsvwahJ9UQNc4pp9Pwj6v8KJdPkbxNZK7RAkZRSzDu4yS9kuAWqZxPQ4x0A1l8
-         Zb8jrrk+aMgduWksSNF0e6ouOw/wTf03u+bNIpHUkWK+anPXMsxRHPO4NpgK+V7pL5
-         dRoOvbtQXTKP+a8tj36YWTpITKAQnHqGeTbID3U4=
+        b=JC+n05u5ERhp9vqp1Bg8CZdANGLX4POBi4T6Zw8xShUV5ngPaCS4Cl9TG7DnHEmR3
+         KHccH8/X4ZVyMLCnoao/hZmWUGjaHdzEpbmMFocdGNieZFoeZVXDjKYqLgrKUjo6gX
+         giyqzWHAWUPpHeiXKRNZumNtVlpuZHNUfB13GRbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 49/74] tracing: Fix stack trace event size
+        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.14 47/52] USB: cdc-acm: downgrade message to debug
 Date:   Mon,  5 Apr 2021 10:54:13 +0200
-Message-Id: <20210405085026.331685598@linuxfoundation.org>
+Message-Id: <20210405085023.514338455@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
+References: <20210405085021.996963957@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,74 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 9deb193af69d3fd6dd8e47f292b67c805a787010 upstream.
+commit e4c77070ad45fc940af1d7fb1e637c349e848951 upstream.
 
-Commit cbc3b92ce037 fixed an issue to modify the macros of the stack trace
-event so that user space could parse it properly. Originally the stack
-trace format to user space showed that the called stack was a dynamic
-array. But it is not actually a dynamic array, in the way that other
-dynamic event arrays worked, and this broke user space parsing for it. The
-update was to make the array look to have 8 entries in it. Helper
-functions were added to make it parse it correctly, as the stack was
-dynamic, but was determined by the size of the event stored.
+This failure is so common that logging an error here amounts
+to spamming log files.
 
-Although this fixed user space on how it read the event, it changed the
-internal structure used for the stack trace event. It changed the array
-size from [0] to [8] (added 8 entries). This increased the size of the
-stack trace event by 8 words. The size reserved on the ring buffer was the
-size of the stack trace event plus the number of stack entries found in
-the stack trace. That commit caused the amount to be 8 more than what was
-needed because it did not expect the caller field to have any size. This
-produced 8 entries of garbage (and reading random data) from the stack
-trace event:
-
-          <idle>-0       [002] d... 1976396.837549: <stack trace>
- => trace_event_raw_event_sched_switch
- => __traceiter_sched_switch
- => __schedule
- => schedule_idle
- => do_idle
- => cpu_startup_entry
- => secondary_startup_64_no_verify
- => 0xc8c5e150ffff93de
- => 0xffff93de
- => 0
- => 0
- => 0xc8c5e17800000000
- => 0x1f30affff93de
- => 0x00000004
- => 0x200000000
-
-Instead, subtract the size of the caller field from the size of the event
-to make sure that only the amount needed to store the stack trace is
-reserved.
-
-Link: https://lore.kernel.org/lkml/your-ad-here.call-01617191565-ext-9692@work.hours/
-
-Cc: stable@vger.kernel.org
-Fixes: cbc3b92ce037 ("tracing: Set kernel_stack's caller size properly")
-Reported-by: Vasily Gorbik <gor@linux.ibm.com>
-Tested-by: Vasily Gorbik <gor@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210311130126.15972-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    3 ++-
+ drivers/usb/class/cdc-acm.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2857,7 +2857,8 @@ static void __ftrace_trace_stack(struct
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -676,7 +676,8 @@ static void acm_port_dtr_rts(struct tty_
  
- 	size = nr_entries * sizeof(unsigned long);
- 	event = __trace_buffer_lock_reserve(buffer, TRACE_STACK,
--					    sizeof(*entry) + size, flags, pc);
-+				    (sizeof(*entry) - sizeof(entry->caller)) + size,
-+				    flags, pc);
- 	if (!event)
- 		goto out;
- 	entry = ring_buffer_event_data(event);
+ 	res = acm_set_control(acm, val);
+ 	if (res && (acm->ctrl_caps & USB_CDC_CAP_LINE))
+-		dev_err(&acm->control->dev, "failed to set dtr/rts\n");
++		/* This is broken in too many devices to spam the logs */
++		dev_dbg(&acm->control->dev, "failed to set dtr/rts\n");
+ }
+ 
+ static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
 
 
