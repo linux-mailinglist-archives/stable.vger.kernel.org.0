@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E81E353D73
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F43353DC7
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237089AbhDEI7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:59:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40994 "EHLO mail.kernel.org"
+        id S237336AbhDEJCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237078AbhDEI7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:59:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE53761394;
-        Mon,  5 Apr 2021 08:59:45 +0000 (UTC)
+        id S237350AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09FA2613B0;
+        Mon,  5 Apr 2021 09:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613186;
-        bh=wX/fpNQiUvj6q9tk+n+PbQKIH9s4Vpeagy7RLrNXehU=;
+        s=korg; t=1617613311;
+        bh=/LxPOv87S/8t9bOxBcPfB/7Zy6vE/voIU97EchOUKZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGoeYSwTQFjoJQt1ObX4NJ0cnhfBlwhPytpFRj2czpM91vLVaQaja+QyazuCsp7LW
-         qIjPGL1NwmFgRn+HL80sk9Xl929nJnTYqUyMHBkN7pSvCXQnLtCf/GhbBVMgVfWbsK
-         r9Kf63aUsyNoxsUufKwIPuhhoG0QaOrTGDZPTX7I=
+        b=kJeqNeq15ozaKfb7DaOXZsKp+QH2VfHwpp7Xe1hqrP3RUlOsQl/3Z6EDFlL+/rDAj
+         6ZVPYOYsE23AxX7XJ0CFg2naGTqk4OnlIJQmWNezcuxfWCoMsLrEgKYeSHrpKW9kOO
+         SlBMd5K4aC/7bgjwN8jVfLGD7DICj2lmmj7JsBLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
-Subject: [PATCH 4.14 51/52] staging: rtl8192e: Change state information from u16 to u8
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 4.19 46/56] usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
 Date:   Mon,  5 Apr 2021 10:54:17 +0200
-Message-Id: <20210405085023.646633642@linuxfoundation.org>
+Message-Id: <20210405085023.997389542@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,74 +38,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit e78836ae76d20f38eed8c8c67f21db97529949da upstream.
+commit 6f978a30c9bb12dab1302d0f06951ee290f5e600 upstream.
 
-The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
-bytes in total while the operations performed on this array through-out
-the code base are only 2 bytes.
+The MediaTek 0.96 xHCI controller on some platforms does not
+support bulk stream even HCCPARAMS says supporting, due to MaxPSASize
+is set a default value 1 by mistake, here use XHCI_BROKEN_STREAMS
+quirk to fix it.
 
-The "CcxRmState" field is fed only 2 bytes of data using memcpy():
-
-(In rtllib_rx.c:1972)
-	memcpy(network->CcxRmState, &info_element->data[4], 2)
-
-With "info_element->data[]" being a u8 array, if 2 bytes are written
-into "CcxRmState" (whose one element is u16 size), then the 2 u8
-elements from "data[]" gets squashed and written into the first element
-("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
-fed with any data.
-
-Same in file rtllib_rx.c:2522:
-	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
-
-The above line duplicates "src" data to "dst" but only writes 2 bytes
-(and not 4, which is the actual size). Again, only 1st element gets the
-value while the 2nd element remains uninitialized.
-
-This later makes operations done with CcxRmState unpredictable in the
-following lines as the 1st element is having a squashed number while the
-2nd element is having an uninitialized random number.
-
-rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
-rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
-
-network->MBssidMask is also of type u8 and not u16.
-
-Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
-data written into this array and read from it make sense and are not
-random values.
-
-NOTE: The wrong initialization of "CcxRmState" can be seen in the
-following commit:
-
-commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
-
-The above commit created a file `rtl8192e/ieee80211.h` which used to
-have the faulty line. The file has been deleted (or possibly renamed)
-with the contents copied in to a new file `rtl8192e/rtllib.h` along with
-additional code in the commit 94a799425eee (tagged in Fixes).
-
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210323113413.29179-2-atulgopinathan@gmail.com
+Fixes: 94a631d91ad3 ("usb: xhci-mtk: check hcc_params after adding primary hcd")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1616482975-17841-4-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtllib.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-mtk.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8192e/rtllib.h
-+++ b/drivers/staging/rtl8192e/rtllib.h
-@@ -1110,7 +1110,7 @@ struct rtllib_network {
- 	bool	bWithAironetIE;
- 	bool	bCkipSupported;
- 	bool	bCcxRmEnable;
--	u16	CcxRmState[2];
-+	u8	CcxRmState[2];
- 	bool	bMBssidValid;
- 	u8	MBssidMask;
- 	u8	MBssid[ETH_ALEN];
+--- a/drivers/usb/host/xhci-mtk.c
++++ b/drivers/usb/host/xhci-mtk.c
+@@ -395,6 +395,13 @@ static void xhci_mtk_quirks(struct devic
+ 	xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
+ 	if (mtk->lpm_support)
+ 		xhci->quirks |= XHCI_LPM_SUPPORT;
++
++	/*
++	 * MTK xHCI 0.96: PSA is 1 by default even if doesn't support stream,
++	 * and it's 3 when support it.
++	 */
++	if (xhci->hci_version < 0x100 && HCC_MAX_PSA(xhci->hcc_params) == 4)
++		xhci->quirks |= XHCI_BROKEN_STREAMS;
+ }
+ 
+ /* called during probe() after chip reset completes */
+@@ -551,7 +558,8 @@ static int xhci_mtk_probe(struct platfor
+ 	if (ret)
+ 		goto put_usb3_hcd;
+ 
+-	if (HCC_MAX_PSA(xhci->hcc_params) >= 4)
++	if (HCC_MAX_PSA(xhci->hcc_params) >= 4 &&
++	    !(xhci->quirks & XHCI_BROKEN_STREAMS))
+ 		xhci->shared_hcd->can_do_streams = 1;
+ 
+ 	ret = usb_add_hcd(xhci->shared_hcd, irq, IRQF_SHARED);
 
 
