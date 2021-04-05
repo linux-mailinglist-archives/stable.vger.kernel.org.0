@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F2C354033
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE5B5353E70
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240711AbhDEJQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37696 "EHLO mail.kernel.org"
+        id S237874AbhDEJF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240699AbhDEJQY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:16:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BE5760FE4;
-        Mon,  5 Apr 2021 09:16:17 +0000 (UTC)
+        id S238623AbhDEJFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 121C36139D;
+        Mon,  5 Apr 2021 09:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614178;
-        bh=T60iLj0ENqxBxCnlQaz36mCq+YzMPA6UaSto3kUzanc=;
+        s=korg; t=1617613540;
+        bh=9qAf7K/5DVWtqQ8k6/Iy+2yr/nQTOY8mnXhENc27kpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuKVNWnAYl6Fk6ruYCFdiPE8gDS3AWa09LTKIMn9zmq/ZgYevA3s9e5ST0AFpcwYX
-         BohGjB4kQ06mIJ95uLcX+DCiUqFN5T7NcMF4aM43kEHYboV4udOw2MTklj79IwFmgA
-         FqLv2yfFVa+kY6RSh3rry5kR6f87kTRbHcJLzpc8=
+        b=EbCWf3dQh6VpmYODA/xsOiB6FOs9tOs2Z/FT3JJFftZIY3zBbICCm+c1P4vO8dSWj
+         iONQ+W3U7B1CLqH9/zpcANTXm+CQa6z5dmBEGs2CK7/DOkLznxNf8IinJ4iDZy06LC
+         Rgmv6/0gBx/8uG5SooU8h7fqvaXMOIMzdxppm24U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Gardon <bgardon@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 105/152] KVM: x86/mmu: change TDP MMU yield function returns to match cond_resched
+        stable@vger.kernel.org,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 50/74] mm: fix race by making init_zero_pfn() early_initcall
 Date:   Mon,  5 Apr 2021 10:54:14 +0200
-Message-Id: <20210405085037.645838880@linuxfoundation.org>
+Message-Id: <20210405085026.363948999@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,112 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
 
-[ Upstream commit e28a436ca4f65384cceaf3f4da0e00aa74244e6a ]
+commit e720e7d0e983bf05de80b231bccc39f1487f0f16 upstream.
 
-Currently the TDP MMU yield / cond_resched functions either return
-nothing or return true if the TLBs were not flushed. These are confusing
-semantics, especially when making control flow decisions in calling
-functions.
+There are code paths that rely on zero_pfn to be fully initialized
+before core_initcall.  For example, wq_sysfs_init() is a core_initcall
+function that eventually results in a call to kernel_execve, which
+causes a page fault with a subsequent mmput.  If zero_pfn is not
+initialized by then it may not get cleaned up properly and result in an
+error:
 
-To clean things up, change both functions to have the same
-return value semantics as cond_resched: true if the thread yielded,
-false if it did not. If the function yielded in the _flush_ version,
-then the TLBs will have been flushed.
+  BUG: Bad rss-counter state mm:(ptrval) type:MM_ANONPAGES val:1
 
-Reviewed-by: Peter Feiner <pfeiner@google.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20210202185734.1680553-2-bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Here is an analysis of the race as seen on a MIPS device. On this
+particular MT7621 device (Ubiquiti ER-X), zero_pfn is PFN 0 until
+initialized, at which point it becomes PFN 5120:
+
+  1. wq_sysfs_init calls into kobject_uevent_env at core_initcall:
+       kobject_uevent_env+0x7e4/0x7ec
+       kset_register+0x68/0x88
+       bus_register+0xdc/0x34c
+       subsys_virtual_register+0x34/0x78
+       wq_sysfs_init+0x1c/0x4c
+       do_one_initcall+0x50/0x1a8
+       kernel_init_freeable+0x230/0x2c8
+       kernel_init+0x10/0x100
+       ret_from_kernel_thread+0x14/0x1c
+
+  2. kobject_uevent_env() calls call_usermodehelper_exec() which executes
+     kernel_execve asynchronously.
+
+  3. Memory allocations in kernel_execve cause a page fault, bumping the
+     MM reference counter:
+       add_mm_counter_fast+0xb4/0xc0
+       handle_mm_fault+0x6e4/0xea0
+       __get_user_pages.part.78+0x190/0x37c
+       __get_user_pages_remote+0x128/0x360
+       get_arg_page+0x34/0xa0
+       copy_string_kernel+0x194/0x2a4
+       kernel_execve+0x11c/0x298
+       call_usermodehelper_exec_async+0x114/0x194
+
+  4. In case zero_pfn has not been initialized yet, zap_pte_range does
+     not decrement the MM_ANONPAGES RSS counter and the BUG message is
+     triggered shortly afterwards when __mmdrop checks the ref counters:
+       __mmdrop+0x98/0x1d0
+       free_bprm+0x44/0x118
+       kernel_execve+0x160/0x1d8
+       call_usermodehelper_exec_async+0x114/0x194
+       ret_from_kernel_thread+0x14/0x1c
+
+To avoid races such as described above, initialize init_zero_pfn at
+early_initcall level.  Depending on the architecture, ZERO_PAGE is
+either constant or gets initialized even earlier, at paging_init, so
+there is no issue with initializing zero_pfn earlier.
+
+Link: https://lkml.kernel.org/r/CALCv0x2YqOXEAy2Q=hafjhHCtTHVodChv1qpM=niAXOpqEbt7w@mail.gmail.com
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: stable@vger.kernel.org
+Tested-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 39 ++++++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 10 deletions(-)
+ mm/memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index 17976998bffb..abdd89771b9b 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -413,8 +413,15 @@ static inline void tdp_mmu_set_spte_no_dirty_log(struct kvm *kvm,
- 			 _mmu->shadow_root_level, _start, _end)
- 
- /*
-- * Flush the TLB if the process should drop kvm->mmu_lock.
-- * Return whether the caller still needs to flush the tlb.
-+ * Flush the TLB and yield if the MMU lock is contended or this thread needs to
-+ * return control to the scheduler.
-+ *
-+ * If this function yields, it will also reset the tdp_iter's walk over the
-+ * paging structure and the calling function should allow the iterator to
-+ * continue its traversal from the paging structure root.
-+ *
-+ * Return true if this function yielded, the TLBs were flushed, and the
-+ * iterator's traversal was reset. Return false if a yield was not needed.
-  */
- static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
- {
-@@ -422,18 +429,32 @@ static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *it
- 		kvm_flush_remote_tlbs(kvm);
- 		cond_resched_lock(&kvm->mmu_lock);
- 		tdp_iter_refresh_walk(iter);
--		return false;
--	} else {
- 		return true;
- 	}
-+
-+	return false;
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -150,7 +150,7 @@ static int __init init_zero_pfn(void)
+ 	zero_pfn = page_to_pfn(ZERO_PAGE(0));
+ 	return 0;
  }
+-core_initcall(init_zero_pfn);
++early_initcall(init_zero_pfn);
  
--static void tdp_mmu_iter_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
-+/*
-+ * Yield if the MMU lock is contended or this thread needs to return control
-+ * to the scheduler.
-+ *
-+ * If this function yields, it will also reset the tdp_iter's walk over the
-+ * paging structure and the calling function should allow the iterator to
-+ * continue its traversal from the paging structure root.
-+ *
-+ * Return true if this function yielded and the iterator's traversal was reset.
-+ * Return false if a yield was not needed.
-+ */
-+static bool tdp_mmu_iter_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
- {
- 	if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
- 		cond_resched_lock(&kvm->mmu_lock);
- 		tdp_iter_refresh_walk(iter);
-+		return true;
- 	}
-+
-+	return false;
- }
  
- /*
-@@ -469,10 +490,8 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 
- 		tdp_mmu_set_spte(kvm, &iter, 0);
- 
--		if (can_yield)
--			flush_needed = tdp_mmu_iter_flush_cond_resched(kvm, &iter);
--		else
--			flush_needed = true;
-+		flush_needed = !can_yield ||
-+			       !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
- 	}
- 	return flush_needed;
- }
-@@ -1073,7 +1092,7 @@ static void zap_collapsible_spte_range(struct kvm *kvm,
- 
- 		tdp_mmu_set_spte(kvm, &iter, 0);
- 
--		spte_set = tdp_mmu_iter_flush_cond_resched(kvm, &iter);
-+		spte_set = !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
- 	}
- 
- 	if (spte_set)
--- 
-2.30.1
-
+ #if defined(SPLIT_RSS_COUNTING)
 
 
