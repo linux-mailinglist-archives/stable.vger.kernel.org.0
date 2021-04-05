@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2ED353D2B
+	by mail.lfdr.de (Postfix) with ESMTP id C8EB1353D2C
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232735AbhDEI6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234198AbhDEI6v (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Apr 2021 04:58:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233775AbhDEI6l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2FBC6124C;
-        Mon,  5 Apr 2021 08:58:34 +0000 (UTC)
+        id S234078AbhDEI6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:58:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3636B60238;
+        Mon,  5 Apr 2021 08:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613115;
-        bh=HRuoW2dVtv27GDDlzddUzMep4juDYy2j12HKLEGAdN4=;
+        s=korg; t=1617613117;
+        bh=j1Zvfo4ongG7VWn/pMf2+vdCGaW3HBYAmJg1qQ0B8pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d63wE+XotPN4qI5DZGlAd2OnQidn59XBGUHaA2fDhb09ecIyCCzy4phrGMMGxh6wa
-         w8Z5vwWTtT5ri03wWT5yLxjUD5NeFV3Idy37Rvtf3xkrZpxzCrvdpQ3R2UXfgdVhJ/
-         x7iRdn5szgcaZ1d814urKab3QC5wAg0lW+uvniFA=
+        b=v5d9N1sTZunkQp3cE0T6Ii3G+4YtbPMC5tNWpSU6Lzo6s2cvRh5NEURpRiI3nadBf
+         GqGpKbNA/ILWJBMTSdqwGFsCkRo7J6DyE33njTnAf9eVchZKsYXxQwzofmkTsYEgyJ
+         2m95rp5e8gAfrOYL/JngLGnn/sC5a/Y3qyIKPbfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ikjoon Jang <ikjn@chromium.org>,
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 24/52] ALSA: usb-audio: Apply sample rate quirk to Logitech Connect
-Date:   Mon,  5 Apr 2021 10:53:50 +0200
-Message-Id: <20210405085022.782150210@linuxfoundation.org>
+Subject: [PATCH 4.14 25/52] ALSA: hda/realtek: fix a determine_headset_type issue for a Dell AIO
+Date:   Mon,  5 Apr 2021 10:53:51 +0200
+Message-Id: <20210405085022.813643027@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
 References: <20210405085021.996963957@linuxfoundation.org>
@@ -39,35 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ikjoon Jang <ikjn@chromium.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 625bd5a616ceda4840cd28f82e957c8ced394b6a upstream.
+commit febf22565549ea7111e7d45e8f2d64373cc66b11 upstream.
 
-Logitech ConferenceCam Connect is a compound USB device with UVC and
-UAC. Not 100% reproducible but sometimes it keeps responding STALL to
-every control transfer once it receives get_freq request.
+We found a recording issue on a Dell AIO, users plug a headset-mic and
+select headset-mic from UI, but can't record any sound from
+headset-mic. The root cause is the determine_headset_type() returns a
+wrong type, e.g. users plug a ctia type headset, but that function
+returns omtp type.
 
-This patch adds 046d:0x084c to a snd_usb_get_sample_rate_quirk list.
+On this machine, the internal mic is not connected to the codec, the
+"Input Source" is headset mic by default. And when users plug a
+headset, the determine_headset_type() will be called immediately, the
+codec on this AIO is alc274, the delay time for this codec in the
+determine_headset_type() is only 80ms, the delay is too short to
+correctly determine the headset type, the fail rate is nearly 99% when
+users plug the headset with the normal speed.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203419
-Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
+Other codecs set several hundred ms delay time, so here I change the
+delay time to 850ms for alc2x4 series, after this change, the fail
+rate is zero unless users plug the headset slowly on purpose.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210324105153.2322881-1-ikjn@chromium.org
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210320091542.6748-1-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1156,6 +1156,7 @@ bool snd_usb_get_sample_rate_quirk(struc
- 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
- 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
- 	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
-+	case USB_ID(0x046d, 0x084c): /* Logitech ConferenceCam Connect */
- 		return true;
- 	}
- 	return false;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4642,7 +4642,7 @@ static void alc_determine_headset_type(s
+ 	case 0x10ec0274:
+ 	case 0x10ec0294:
+ 		alc_process_coef_fw(codec, coef0274);
+-		msleep(80);
++		msleep(850);
+ 		val = alc_read_coef_idx(codec, 0x46);
+ 		is_ctia = (val & 0x00f0) == 0x00f0;
+ 		break;
 
 
