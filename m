@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6986353E62
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1492F353F3E
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238695AbhDEJFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48440 "EHLO mail.kernel.org"
+        id S239412AbhDEJKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237515AbhDEJFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB5F61393;
-        Mon,  5 Apr 2021 09:05:13 +0000 (UTC)
+        id S239417AbhDEJKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:10:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB7EE61393;
+        Mon,  5 Apr 2021 09:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613513;
-        bh=POI0oBaozY6U+hV989EtAESiFgx3Mca49k+f7ZRMob4=;
+        s=korg; t=1617613836;
+        bh=M9+FyKDDxWybLpveXohnyQnitMwfkNk55tDlTEZ3Uec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JS8PRx3Sn6PYXtkmKnkcdL8rKBuUJI6NmisCbfdyXrqxyLW1z3xGeW787AHCboiTN
-         /CyiTu/naVMuH9vALX5jevl5jlik3wj/cTn6dq/qj1ZAfZ0OuBxZSXZkEnlMoy6K2e
-         mHqS8xIjIZavCKOyoevXbEW39gjO7HBkHsYG8tec=
+        b=FU/FMEVmAMZ0Z1DjBKhRmWdxU5W6fru7dxeiXBkFi/9a7SvrXcQasahUlEHyh66Ng
+         h+BASmAmnDF17UArmn8WqrBV+KN4Keg/EkpvjCUYSljKUYDJUZPSY9hAovSrg1JYMS
+         WGQaI8ZsIymCLS5UrmUEb+3MiKPT6wWJ05Y/GfPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.4 66/74] USB: cdc-acm: downgrade message to debug
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.10 108/126] usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
 Date:   Mon,  5 Apr 2021 10:54:30 +0200
-Message-Id: <20210405085026.882881754@linuxfoundation.org>
+Message-Id: <20210405085034.617142252@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +38,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit e4c77070ad45fc940af1d7fb1e637c349e848951 upstream.
+commit 6f978a30c9bb12dab1302d0f06951ee290f5e600 upstream.
 
-This failure is so common that logging an error here amounts
-to spamming log files.
+The MediaTek 0.96 xHCI controller on some platforms does not
+support bulk stream even HCCPARAMS says supporting, due to MaxPSASize
+is set a default value 1 by mistake, here use XHCI_BROKEN_STREAMS
+quirk to fix it.
 
-Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: 94a631d91ad3 ("usb: xhci-mtk: check hcc_params after adding primary hcd")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210311130126.15972-2-oneukum@suse.com
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1616482975-17841-4-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-mtk.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -658,7 +658,8 @@ static void acm_port_dtr_rts(struct tty_
- 
- 	res = acm_set_control(acm, val);
- 	if (res && (acm->ctrl_caps & USB_CDC_CAP_LINE))
--		dev_err(&acm->control->dev, "failed to set dtr/rts\n");
-+		/* This is broken in too many devices to spam the logs */
-+		dev_dbg(&acm->control->dev, "failed to set dtr/rts\n");
+--- a/drivers/usb/host/xhci-mtk.c
++++ b/drivers/usb/host/xhci-mtk.c
+@@ -397,6 +397,13 @@ static void xhci_mtk_quirks(struct devic
+ 	xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
+ 	if (mtk->lpm_support)
+ 		xhci->quirks |= XHCI_LPM_SUPPORT;
++
++	/*
++	 * MTK xHCI 0.96: PSA is 1 by default even if doesn't support stream,
++	 * and it's 3 when support it.
++	 */
++	if (xhci->hci_version < 0x100 && HCC_MAX_PSA(xhci->hcc_params) == 4)
++		xhci->quirks |= XHCI_BROKEN_STREAMS;
  }
  
- static int acm_port_activate(struct tty_port *port, struct tty_struct *tty)
+ /* called during probe() after chip reset completes */
+@@ -548,7 +555,8 @@ static int xhci_mtk_probe(struct platfor
+ 	if (ret)
+ 		goto put_usb3_hcd;
+ 
+-	if (HCC_MAX_PSA(xhci->hcc_params) >= 4)
++	if (HCC_MAX_PSA(xhci->hcc_params) >= 4 &&
++	    !(xhci->quirks & XHCI_BROKEN_STREAMS))
+ 		xhci->shared_hcd->can_do_streams = 1;
+ 
+ 	ret = usb_add_hcd(xhci->shared_hcd, irq, IRQF_SHARED);
 
 
