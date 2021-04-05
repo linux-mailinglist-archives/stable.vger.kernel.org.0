@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8044F353F99
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B39353EA5
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239449AbhDEJNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:13:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60342 "EHLO mail.kernel.org"
+        id S238112AbhDEJHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239308AbhDEJNF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:13:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17E9061002;
-        Mon,  5 Apr 2021 09:12:57 +0000 (UTC)
+        id S238025AbhDEJG4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:06:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7141A6139D;
+        Mon,  5 Apr 2021 09:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613978;
-        bh=1GOnMOlLeJLuqLMNX4aSagmBsEVaUzYWZuK/D6aoQTc=;
+        s=korg; t=1617613610;
+        bh=ZIBK+DcXpwRnT1TlbAwNVT8KjBmWwCUFwwQohg62jwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UOE3JM7vpqdVHcNd65xnuvgmOD5+voH02gQNHWX1BTjn0MeYMQ3Jtue0zdHVbGnhT
-         B0K4BThHn7dIoTzbRxPASv+zmoagvESwL8XteO50jD8dwO+Bde8iQsDFSvQV8vofrS
-         Tk5/PCjCm/kUD7Ukw5OWh7qHDU+nf1EUbndtrUk4=
+        b=RtFHRmgmiXtZe9UH6z7TQw1x/LaKX4ZAd9BZESknboG3iKkyiTQmxa6HsdM0wdUL2
+         ERJsuXcQbxCN4UQJZDPygb+xcwt6kjXsa6XjPDMdJOfmneDXneG7Y1WqwbrjoGLgw1
+         EVz1KmUBcCACM4u08F1ECiBdiZJhGmfd7AAgwOCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        Stefan Metzmacher <metze@samba.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 039/152] io_uring: call req_set_fail_links() on short send[msg]()/recv[msg]() with MSG_WAITALL
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 026/126] staging: comedi: cb_pcidas64: fix request_irq() warn
 Date:   Mon,  5 Apr 2021 10:53:08 +0200
-Message-Id: <20210405085035.545987518@linuxfoundation.org>
+Message-Id: <20210405085031.901456042@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,172 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 0031275d119efe16711cd93519b595e6f9b4b330 ]
+[ Upstream commit d2d106fe3badfc3bf0dd3899d1c3f210c7203eab ]
 
-Without that it's not safe to use them in a linked combination with
-others.
+request_irq() wont accept a name which contains slash so we need to
+repalce it with something else -- otherwise it will trigger a warning
+and the entry in /proc/irq/ will not be created
+since the .name might be used by userspace and we don't want to break
+userspace, so we are changing the parameters passed to request_irq()
 
-Now combinations like IORING_OP_SENDMSG followed by IORING_OP_SPLICE
-should be possible.
+[    1.565966] name 'pci-das6402/16'
+[    1.566149] WARNING: CPU: 0 PID: 184 at fs/proc/generic.c:180 __xlate_proc_name+0x93/0xb0
+[    1.568923] RIP: 0010:__xlate_proc_name+0x93/0xb0
+[    1.574200] Call Trace:
+[    1.574722]  proc_mkdir+0x18/0x20
+[    1.576629]  request_threaded_irq+0xfe/0x160
+[    1.576859]  auto_attach+0x60a/0xc40 [cb_pcidas64]
 
-We already handle short reads and writes for the following opcodes:
-
-- IORING_OP_READV
-- IORING_OP_READ_FIXED
-- IORING_OP_READ
-- IORING_OP_WRITEV
-- IORING_OP_WRITE_FIXED
-- IORING_OP_WRITE
-- IORING_OP_SPLICE
-- IORING_OP_TEE
-
-Now we have it for these as well:
-
-- IORING_OP_SENDMSG
-- IORING_OP_SEND
-- IORING_OP_RECVMSG
-- IORING_OP_RECV
-
-For IORING_OP_RECVMSG we also check for the MSG_TRUNC and MSG_CTRUNC
-flags in order to call req_set_fail_links().
-
-There might be applications arround depending on the behavior
-that even short send[msg]()/recv[msg]() retuns continue an
-IOSQE_IO_LINK chain.
-
-It's very unlikely that such applications pass in MSG_WAITALL,
-which is only defined in 'man 2 recvmsg', but not in 'man 2 sendmsg'.
-
-It's expected that the low level sock_sendmsg() call just ignores
-MSG_WAITALL, as MSG_ZEROCOPY is also ignored without explicitly set
-SO_ZEROCOPY.
-
-We also expect the caller to know about the implicit truncation to
-MAX_RW_COUNT, which we don't detect.
-
-cc: netdev@vger.kernel.org
-Link: https://lore.kernel.org/r/c4e1a4cc0d905314f4d5dc567e65a7b09621aab3.1615908477.git.metze@samba.org
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Suggested-by: Ian Abbott <abbotti@mev.co.uk>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210315195814.4692-1-ztong0001@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ drivers/staging/comedi/drivers/cb_pcidas64.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 26b4af9831da..2b0b9c3dda33 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4628,6 +4628,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	struct io_async_msghdr iomsg, *kmsg;
- 	struct socket *sock;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret;
+diff --git a/drivers/staging/comedi/drivers/cb_pcidas64.c b/drivers/staging/comedi/drivers/cb_pcidas64.c
+index fa987bb0e7cd..6d3ba399a7f0 100644
+--- a/drivers/staging/comedi/drivers/cb_pcidas64.c
++++ b/drivers/staging/comedi/drivers/cb_pcidas64.c
+@@ -4035,7 +4035,7 @@ static int auto_attach(struct comedi_device *dev,
+ 	init_stc_registers(dev);
  
- 	sock = sock_from_file(req->file);
-@@ -4654,6 +4655,9 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
-+
- 	ret = __sys_sendmsg_sock(sock, &kmsg->msg, flags);
- 	if (force_nonblock && ret == -EAGAIN)
- 		return io_setup_async_msg(req, kmsg);
-@@ -4663,7 +4667,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	if (kmsg->iov != kmsg->fast_iov)
- 		kfree(kmsg->iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	if (ret < 0)
-+	if (ret < min_ret)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, 0, cs);
- 	return 0;
-@@ -4677,6 +4681,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	struct iovec iov;
- 	struct socket *sock;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret;
- 
- 	sock = sock_from_file(req->file);
-@@ -4698,6 +4703,9 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&msg.msg_iter);
-+
- 	msg.msg_flags = flags;
- 	ret = sock_sendmsg(sock, &msg);
- 	if (force_nonblock && ret == -EAGAIN)
-@@ -4705,7 +4713,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	if (ret == -ERESTARTSYS)
- 		ret = -EINTR;
- 
--	if (ret < 0)
-+	if (ret < min_ret)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, 0, cs);
- 	return 0;
-@@ -4857,6 +4865,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	struct socket *sock;
- 	struct io_buffer *kbuf;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret, cflags = 0;
- 
- 	sock = sock_from_file(req->file);
-@@ -4892,6 +4901,9 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
-+
- 	ret = __sys_recvmsg_sock(sock, &kmsg->msg, req->sr_msg.umsg,
- 					kmsg->uaddr, flags);
- 	if (force_nonblock && ret == -EAGAIN)
-@@ -4904,7 +4916,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	if (kmsg->iov != kmsg->fast_iov)
- 		kfree(kmsg->iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	if (ret < 0)
-+	if (ret < min_ret || ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
- 	return 0;
-@@ -4920,6 +4932,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	struct socket *sock;
- 	struct iovec iov;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret, cflags = 0;
- 
- 	sock = sock_from_file(req->file);
-@@ -4950,6 +4963,9 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&msg.msg_iter);
-+
- 	ret = sock_recvmsg(sock, &msg, flags);
- 	if (force_nonblock && ret == -EAGAIN)
- 		return -EAGAIN;
-@@ -4958,7 +4974,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- out_free:
- 	if (req->flags & REQ_F_BUFFER_SELECTED)
- 		cflags = io_put_recv_kbuf(req);
--	if (ret < 0)
-+	if (ret < min_ret || ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
- 	return 0;
+ 	retval = request_irq(pcidev->irq, handle_interrupt, IRQF_SHARED,
+-			     dev->board_name, dev);
++			     "cb_pcidas64", dev);
+ 	if (retval) {
+ 		dev_dbg(dev->class_dev, "unable to allocate irq %u\n",
+ 			pcidev->irq);
 -- 
 2.30.1
 
