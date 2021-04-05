@@ -2,42 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 335B5353D3B
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 550F4353CB2
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234135AbhDEI7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:59:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39226 "EHLO mail.kernel.org"
+        id S232880AbhDEI4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:56:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236967AbhDEI7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:59:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1B7D60238;
-        Mon,  5 Apr 2021 08:59:02 +0000 (UTC)
+        id S232841AbhDEI4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:56:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6276E61245;
+        Mon,  5 Apr 2021 08:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613143;
-        bh=Apy6q+bMGSS/1hF7QbpWJ65K2jzFk48St325WYiVvfU=;
+        s=korg; t=1617612964;
+        bh=vgIbxfGf4Yc0CYaS0CQPR7umn24F1+8lruYE4uj8dAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LbFx8l8vgRxkBdBbsHmg3sGJDT4lSDB2V6GEMXFDHZB+8nHpmmZ1pn08xRVTDwR8/
-         60s2ifAN9NhoUXkxQrEn29yp4RRdlmR9s3Z8U94UYSwbuLUvxF5IOkiQ9I4mq8Z3Ml
-         EGGtZGMSAaGYZpawsX9QMmBJoUOaMuLQtrF+8Jlc=
+        b=p3fImkGC+ZzO2yesKhlMN5nUQralhYcdXUYyXL2bdpjzHhmOnCn8US/FESt1nKL4p
+         +D8DzW0OVhOdTKbV0V3SqsdIEkaYBvzOZTuljZ4TAIgG1KTNkVr+apJiEOu8t9S6Kf
+         BGDwvw31gd1CDR389VBRnmYqDExUBSmmpjnUFavc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Thelen <gthelen@google.com>,
-        Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/52] mm: writeback: use exact memcg dirty counts
+        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
+Subject: [PATCH 4.4 28/28] staging: rtl8192e: Change state information from u16 to u8
 Date:   Mon,  5 Apr 2021 10:54:02 +0200
-Message-Id: <20210405085023.164430007@linuxfoundation.org>
+Message-Id: <20210405085017.908234703@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
+References: <20210405085017.012074144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,230 +38,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Thelen <gthelen@google.com>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit 0b3d6e6f2dd0a7b697b1aa8c167265908940624b upstream.
+commit e78836ae76d20f38eed8c8c67f21db97529949da upstream.
 
-Since commit a983b5ebee57 ("mm: memcontrol: fix excessive complexity in
-memory.stat reporting") memcg dirty and writeback counters are managed
-as:
+The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
+bytes in total while the operations performed on this array through-out
+the code base are only 2 bytes.
 
- 1) per-memcg per-cpu values in range of [-32..32]
+The "CcxRmState" field is fed only 2 bytes of data using memcpy():
 
- 2) per-memcg atomic counter
+(In rtllib_rx.c:1972)
+	memcpy(network->CcxRmState, &info_element->data[4], 2)
 
-When a per-cpu counter cannot fit in [-32..32] it's flushed to the
-atomic.  Stat readers only check the atomic.  Thus readers such as
-balance_dirty_pages() may see a nontrivial error margin: 32 pages per
-cpu.
+With "info_element->data[]" being a u8 array, if 2 bytes are written
+into "CcxRmState" (whose one element is u16 size), then the 2 u8
+elements from "data[]" gets squashed and written into the first element
+("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
+fed with any data.
 
-Assuming 100 cpus:
-   4k x86 page_size:  13 MiB error per memcg
-  64k ppc page_size: 200 MiB error per memcg
+Same in file rtllib_rx.c:2522:
+	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
 
-Considering that dirty+writeback are used together for some decisions the
-errors double.
+The above line duplicates "src" data to "dst" but only writes 2 bytes
+(and not 4, which is the actual size). Again, only 1st element gets the
+value while the 2nd element remains uninitialized.
 
-This inaccuracy can lead to undeserved oom kills.  One nasty case is
-when all per-cpu counters hold positive values offsetting an atomic
-negative value (i.e.  per_cpu[*]=32, atomic=n_cpu*-32).
-balance_dirty_pages() only consults the atomic and does not consider
-throttling the next n_cpu*32 dirty pages.  If the file_lru is in the
-13..200 MiB range then there's absolutely no dirty throttling, which
-burdens vmscan with only dirty+writeback pages thus resorting to oom
-kill.
+This later makes operations done with CcxRmState unpredictable in the
+following lines as the 1st element is having a squashed number while the
+2nd element is having an uninitialized random number.
 
-It could be argued that tiny containers are not supported, but it's more
-subtle.  It's the amount the space available for file lru that matters.
-If a container has memory.max-200MiB of non reclaimable memory, then it
-will also suffer such oom kills on a 100 cpu machine.
+rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
+rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
 
-The following test reliably ooms without this patch.  This patch avoids
-oom kills.
+network->MBssidMask is also of type u8 and not u16.
 
-  $ cat test
-  mount -t cgroup2 none /dev/cgroup
-  cd /dev/cgroup
-  echo +io +memory > cgroup.subtree_control
-  mkdir test
-  cd test
-  echo 10M > memory.max
-  (echo $BASHPID > cgroup.procs && exec /memcg-writeback-stress /foo)
-  (echo $BASHPID > cgroup.procs && exec dd if=/dev/zero of=/foo bs=2M count=100)
+Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
+data written into this array and read from it make sense and are not
+random values.
 
-  $ cat memcg-writeback-stress.c
-  /*
-   * Dirty pages from all but one cpu.
-   * Clean pages from the non dirtying cpu.
-   * This is to stress per cpu counter imbalance.
-   * On a 100 cpu machine:
-   * - per memcg per cpu dirty count is 32 pages for each of 99 cpus
-   * - per memcg atomic is -99*32 pages
-   * - thus the complete dirty limit: sum of all counters 0
-   * - balance_dirty_pages() only sees atomic count -99*32 pages, which
-   *   it max()s to 0.
-   * - So a workload can dirty -99*32 pages before balance_dirty_pages()
-   *   cares.
-   */
-  #define _GNU_SOURCE
-  #include <err.h>
-  #include <fcntl.h>
-  #include <sched.h>
-  #include <stdlib.h>
-  #include <stdio.h>
-  #include <sys/stat.h>
-  #include <sys/sysinfo.h>
-  #include <sys/types.h>
-  #include <unistd.h>
+NOTE: The wrong initialization of "CcxRmState" can be seen in the
+following commit:
 
-  static char *buf;
-  static int bufSize;
+commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
 
-  static void set_affinity(int cpu)
-  {
-  	cpu_set_t affinity;
+The above commit created a file `rtl8192e/ieee80211.h` which used to
+have the faulty line. The file has been deleted (or possibly renamed)
+with the contents copied in to a new file `rtl8192e/rtllib.h` along with
+additional code in the commit 94a799425eee (tagged in Fixes).
 
-  	CPU_ZERO(&affinity);
-  	CPU_SET(cpu, &affinity);
-  	if (sched_setaffinity(0, sizeof(affinity), &affinity))
-  		err(1, "sched_setaffinity");
-  }
-
-  static void dirty_on(int output_fd, int cpu)
-  {
-  	int i, wrote;
-
-  	set_affinity(cpu);
-  	for (i = 0; i < 32; i++) {
-  		for (wrote = 0; wrote < bufSize; ) {
-  			int ret = write(output_fd, buf+wrote, bufSize-wrote);
-  			if (ret == -1)
-  				err(1, "write");
-  			wrote += ret;
-  		}
-  	}
-  }
-
-  int main(int argc, char **argv)
-  {
-  	int cpu, flush_cpu = 1, output_fd;
-  	const char *output;
-
-  	if (argc != 2)
-  		errx(1, "usage: output_file");
-
-  	output = argv[1];
-  	bufSize = getpagesize();
-  	buf = malloc(getpagesize());
-  	if (buf == NULL)
-  		errx(1, "malloc failed");
-
-  	output_fd = open(output, O_CREAT|O_RDWR);
-  	if (output_fd == -1)
-  		err(1, "open(%s)", output);
-
-  	for (cpu = 0; cpu < get_nprocs(); cpu++) {
-  		if (cpu != flush_cpu)
-  			dirty_on(output_fd, cpu);
-  	}
-
-  	set_affinity(flush_cpu);
-  	if (fsync(output_fd))
-  		err(1, "fsync(%s)", output);
-  	if (close(output_fd))
-  		err(1, "close(%s)", output);
-  	free(buf);
-  }
-
-Make balance_dirty_pages() and wb_over_bg_thresh() work harder to
-collect exact per memcg counters.  This avoids the aforementioned oom
-kills.
-
-This does not affect the overhead of memory.stat, which still reads the
-single atomic counter.
-
-Why not use percpu_counter? memcg already handles cpus going offline, so
-no need for that overhead from percpu_counter.  And the percpu_counter
-spinlocks are more heavyweight than is required.
-
-It probably also makes sense to use exact dirty and writeback counters
-in memcg oom reports.  But that is saved for later.
-
-Link: http://lkml.kernel.org/r/20190329174609.164344-1-gthelen@google.com
-Signed-off-by: Greg Thelen <gthelen@google.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.16+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
+Cc: stable@vger.kernel.org
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210323113413.29179-2-atulgopinathan@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/memcontrol.h |  5 ++++-
- mm/memcontrol.c            | 20 ++++++++++++++++++--
- 2 files changed, 22 insertions(+), 3 deletions(-)
+ drivers/staging/rtl8192e/rtllib.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index b5cd86e320ff..365d5079d1cb 100644
---- a/include/linux/memcontrol.h
-+++ b/include/linux/memcontrol.h
-@@ -507,7 +507,10 @@ struct mem_cgroup *lock_page_memcg(struct page *page);
- void __unlock_page_memcg(struct mem_cgroup *memcg);
- void unlock_page_memcg(struct page *page);
- 
--/* idx can be of type enum memcg_stat_item or node_stat_item */
-+/*
-+ * idx can be of type enum memcg_stat_item or node_stat_item.
-+ * Keep in sync with memcg_exact_page_state().
-+ */
- static inline unsigned long memcg_page_state(struct mem_cgroup *memcg,
- 					     int idx)
- {
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index ef6d996a920a..5e8b8e1b7d90 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -3701,6 +3701,22 @@ struct wb_domain *mem_cgroup_wb_domain(struct bdi_writeback *wb)
- 	return &memcg->cgwb_domain;
- }
- 
-+/*
-+ * idx can be of type enum memcg_stat_item or node_stat_item.
-+ * Keep in sync with memcg_exact_page().
-+ */
-+static unsigned long memcg_exact_page_state(struct mem_cgroup *memcg, int idx)
-+{
-+	long x = atomic_long_read(&memcg->stat[idx]);
-+	int cpu;
-+
-+	for_each_online_cpu(cpu)
-+		x += per_cpu_ptr(memcg->stat_cpu, cpu)->count[idx];
-+	if (x < 0)
-+		x = 0;
-+	return x;
-+}
-+
- /**
-  * mem_cgroup_wb_stats - retrieve writeback related stats from its memcg
-  * @wb: bdi_writeback in question
-@@ -3726,10 +3742,10 @@ void mem_cgroup_wb_stats(struct bdi_writeback *wb, unsigned long *pfilepages,
- 	struct mem_cgroup *memcg = mem_cgroup_from_css(wb->memcg_css);
- 	struct mem_cgroup *parent;
- 
--	*pdirty = memcg_page_state(memcg, NR_FILE_DIRTY);
-+	*pdirty = memcg_exact_page_state(memcg, NR_FILE_DIRTY);
- 
- 	/* this should eventually include NR_UNSTABLE_NFS */
--	*pwriteback = memcg_page_state(memcg, NR_WRITEBACK);
-+	*pwriteback = memcg_exact_page_state(memcg, NR_WRITEBACK);
- 	*pfilepages = mem_cgroup_nr_lru_pages(memcg, (1 << LRU_INACTIVE_FILE) |
- 						     (1 << LRU_ACTIVE_FILE));
- 	*pheadroom = PAGE_COUNTER_MAX;
--- 
-2.30.2
-
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -1160,7 +1160,7 @@ struct rtllib_network {
+ 	bool	bWithAironetIE;
+ 	bool	bCkipSupported;
+ 	bool	bCcxRmEnable;
+-	u16	CcxRmState[2];
++	u8	CcxRmState[2];
+ 	bool	bMBssidValid;
+ 	u8	MBssidMask;
+ 	u8	MBssid[ETH_ALEN];
 
 
