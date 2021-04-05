@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B50F4354028
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03303353E51
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240680AbhDEJQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36962 "EHLO mail.kernel.org"
+        id S238228AbhDEJF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240639AbhDEJQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:16:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD8E611C1;
-        Mon,  5 Apr 2021 09:15:53 +0000 (UTC)
+        id S238400AbhDEJEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:04:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B172613A0;
+        Mon,  5 Apr 2021 09:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614154;
-        bh=jcbj1Q8+JgeJdS6AC5orKeVcK28dN+QUa8VeHnO1x6U=;
+        s=korg; t=1617613486;
+        bh=a8Kb9Xf8LuO6+W+hPON8tDpCxxbUb/pMtetHiKm7N90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPF57pegJ4afwXZ6vzSzEAMwI0+5DWRW639iTMljEyazlFAQBSgDvBtf6wkhG8TKC
-         vJ7Qoing/pDjZKXXSS0F2n5nduboNbZOCoqFMyzVDUpdNujkD84f2rzxAErQnMj9HP
-         mIl/wpsJD//9/3KTlzXXD8u3Er8CFt/j+RJsVf6E=
+        b=vrqY3ImPhDjvCQ63TANPVUVz3FCAZiYsQore7vpUqHrOXzmioIU6mvPpfkiUDnn2p
+         V/ijG3iF0MkLwODmaXwMSBO2WPDq0JLhUyN7s71BN8+lEGkGAl3ai/FocemJciGWHI
+         FnadgVRpKZyvM/7ed9RZk2YWj/FgwzsHwS7kGyQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.11 102/152] pinctrl: qcom: sc7280: Fix SDC1_RCLK configurations
-Date:   Mon,  5 Apr 2021 10:54:11 +0200
-Message-Id: <20210405085037.557270134@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 48/74] PM: runtime: Fix ordering in pm_runtime_get_suppliers()
+Date:   Mon,  5 Apr 2021 10:54:12 +0200
+Message-Id: <20210405085026.299268888@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajendra Nayak <rnayak@codeaurora.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit d0f9f47c07fe52b34e2ff8590cf09e0a9d8d6f99 upstream.
+commit c0c33442f7203704aef345647e14c2fb86071001 upstream.
 
-Fix SDC1_RCLK configurations which are in a different register so fix the
-offset from 0xb3000 to 0xb3004.
+rpm_active indicates how many times the supplier usage_count has been
+incremented. Consequently it must be updated after pm_runtime_get_sync() of
+the supplier, not before.
 
-Fixes: ecb454594c43: ("pinctrl: qcom: Add sc7280 pinctrl driver")
-Reported-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
-Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
-Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/1614662511-26519-2-git-send-email-rnayak@codeaurora.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 4c06c4e6cf63 ("driver core: Fix possible supplier PM-usage counter imbalance")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/qcom/pinctrl-sc7280.c |    2 +-
+ drivers/base/power/runtime.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/qcom/pinctrl-sc7280.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sc7280.c
-@@ -1440,7 +1440,7 @@ static const struct msm_pingroup sc7280_
- 	[173] = PINGROUP(173, qdss, _, _, _, _, _, _, _, _),
- 	[174] = PINGROUP(174, qdss, _, _, _, _, _, _, _, _),
- 	[175] = UFS_RESET(ufs_reset, 0xbe000),
--	[176] = SDC_QDSD_PINGROUP(sdc1_rclk, 0xb3000, 15, 0),
-+	[176] = SDC_QDSD_PINGROUP(sdc1_rclk, 0xb3004, 0, 6),
- 	[177] = SDC_QDSD_PINGROUP(sdc1_clk, 0xb3000, 13, 6),
- 	[178] = SDC_QDSD_PINGROUP(sdc1_cmd, 0xb3000, 11, 3),
- 	[179] = SDC_QDSD_PINGROUP(sdc1_data, 0xb3000, 9, 0),
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -1663,8 +1663,8 @@ void pm_runtime_get_suppliers(struct dev
+ 				device_links_read_lock_held())
+ 		if (link->flags & DL_FLAG_PM_RUNTIME) {
+ 			link->supplier_preactivated = true;
+-			refcount_inc(&link->rpm_active);
+ 			pm_runtime_get_sync(link->supplier);
++			refcount_inc(&link->rpm_active);
+ 		}
+ 
+ 	device_links_read_unlock(idx);
 
 
