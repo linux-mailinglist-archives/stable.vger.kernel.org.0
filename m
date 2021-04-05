@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC19E353D13
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456F1353CF4
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233581AbhDEI6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:58:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
+        id S233007AbhDEI5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232735AbhDEI6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1B5361398;
-        Mon,  5 Apr 2021 08:58:05 +0000 (UTC)
+        id S233248AbhDEI5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:57:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E68CF61245;
+        Mon,  5 Apr 2021 08:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613086;
-        bh=qHPkYdMvabmIoGG4vwR+9G/r11AhwpYrI7npYNPA3VY=;
+        s=korg; t=1617613049;
+        bh=pUgfcfV9R52OTDWeLkB9VsgDR1MbXEY2TAGWmNU8SDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNLFzoeS5nJpUtBMI9VURYd3RTl4KHrTqkQFEMo4XgLaHfoZd42vAGIuhNkDQ6PZB
-         wXInbMcmhQjSFUXg4yUZiNc69VgKJd5X/F5uPOCZ4wxmz+FMkYs8isHqH2AKt3iO5J
-         gT9MNnvzwiTffYA/BcvhkdT3R+dKQxmzZFRsIy6w=
+        b=ZFJPdV8MykKrgFTac+tsjiRtHO5Upp1yZhYLkQyb9kgaE5BhZ7G+cvRfEcfS90A+l
+         bakCzqggA+yjuE8fY5Yw6KWnQrUTNUGjn8U2VRqAnXVjTV6M6CICMyxhUTVj1KACEy
+         whMNja+n9ytuqaGyng7szEQBsJRZomQfDkLE9sxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/52] scsi: qla2xxx: Fix broken #endif placement
+Subject: [PATCH 4.9 05/35] ASoC: rt5640: Fix dac- and adc- vol-tlv values being off by a factor of 10
 Date:   Mon,  5 Apr 2021 10:53:40 +0200
-Message-Id: <20210405085022.463403382@linuxfoundation.org>
+Message-Id: <20210405085019.039575227@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+References: <20210405085018.871387942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5999b9e5b1f8a2f5417b755130919b3ac96f5550 ]
+[ Upstream commit cfa26ed1f9f885c2fd8f53ca492989d1e16d0199 ]
 
-Only half of the file is under include guard because terminating #endif
-is placed too early.
+The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
+not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
+apps which translate the dB scale to a linear scale. With the logarithmic
+dB scale being of by a factor of 10 we loose all precision in the lower
+area of the range when apps translate things to a linear scale.
 
-Link: https://lore.kernel.org/r/YE4snvoW1SuwcXAn@localhost.localdomain
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+E.g. the 0 dB default, which corresponds with a value of 47 of the
+0 - 127 range for the control, would be shown as 0/100 in alsa-mixer.
+
+Since the centi-dB values used in the TLV struct cannot represent the
+0.375 dB step size used by these controls, change the TLV definition
+for them to specify a min and max value instead of min + stepsize.
+
+Note this mirrors commit 3f31f7d9b540 ("ASoC: rt5670: Fix dac- and adc-
+vol-tlv values being off by a factor of 10") which made the exact same
+change to the rt5670 codec driver.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210226143817.84287-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/rt5640.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.h b/drivers/scsi/qla2xxx/qla_target.h
-index 511a31b359c7..f51293540a61 100644
---- a/drivers/scsi/qla2xxx/qla_target.h
-+++ b/drivers/scsi/qla2xxx/qla_target.h
-@@ -124,7 +124,6 @@
- 	(min(1270, ((ql) > 0) ? (QLA_TGT_DATASEGS_PER_CMD_24XX + \
- 		QLA_TGT_DATASEGS_PER_CONT_24XX*((ql) - 1)) : 0))
- #endif
--#endif
+diff --git a/sound/soc/codecs/rt5640.c b/sound/soc/codecs/rt5640.c
+index 3cc1135fc2cd..81fbbcaf8121 100644
+--- a/sound/soc/codecs/rt5640.c
++++ b/sound/soc/codecs/rt5640.c
+@@ -341,9 +341,9 @@ static bool rt5640_readable_register(struct device *dev, unsigned int reg)
+ }
  
- #define GET_TARGET_ID(ha, iocb) ((HAS_EXTENDED_IDS(ha))			\
- 			 ? le16_to_cpu((iocb)->u.isp2x.target.extended)	\
-@@ -257,6 +256,7 @@ struct ctio_to_2xxx {
- #ifndef CTIO_RET_TYPE
- #define CTIO_RET_TYPE	0x17		/* CTIO return entry */
- #define ATIO_TYPE7 0x06 /* Accept target I/O entry for 24xx */
-+#endif
+ static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
+-static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -65625, 375, 0);
++static const DECLARE_TLV_DB_MINMAX(dac_vol_tlv, -6562, 0);
+ static const DECLARE_TLV_DB_SCALE(in_vol_tlv, -3450, 150, 0);
+-static const DECLARE_TLV_DB_SCALE(adc_vol_tlv, -17625, 375, 0);
++static const DECLARE_TLV_DB_MINMAX(adc_vol_tlv, -1762, 3000);
+ static const DECLARE_TLV_DB_SCALE(adc_bst_tlv, 0, 1200, 0);
  
- struct fcp_hdr {
- 	uint8_t  r_ctl;
+ /* {0, +20, +24, +30, +35, +40, +44, +50, +52} dB */
 -- 
 2.30.1
 
