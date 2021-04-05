@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E0E8353E1C
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EACCF353F22
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237775AbhDEJDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:03:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
+        id S238883AbhDEJKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237772AbhDEJDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:03:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 459456138D;
-        Mon,  5 Apr 2021 09:03:47 +0000 (UTC)
+        id S239360AbhDEJJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:09:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A7BE61394;
+        Mon,  5 Apr 2021 09:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613427;
-        bh=vU0jM8+JXpsJm/XiYycEjCCjTURJEmL8Rn8aMTOCA2c=;
+        s=korg; t=1617613788;
+        bh=O7y7bQSwijBxF1NIn+IwmbV/9GVWPmqu5doCXPSPGdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dk2LsQVcubPmnP63VwgEtXYOk5CKxXEpfa/3L9E/9akNqzPguQyytMVkr7af2j/NY
-         1hr1bO3/1xzRHYbH4cvF9NOW9D8tK5hltgfp1fbkwkmbXgN6ay0d7LxvlqmT79liUy
-         vwQQyjyyTVlpLx9XweqNzyytmKo9CCiI+afC214I=
+        b=FuBDdUgLHPYWkdpmT0+HfnIJ759ObtVJqCDRbg1sg38xvEfPp5KLqlohGRTlMjnl/
+         znIi+IeCqLGz2ScepTt8uTTqt+q7QubYHMsUymkmD1guXeVqWxE5GgZ5bph8Z6u9dV
+         hPJHk6N+7XuDglovL61G77imZLzygLirjn3RSZuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/74] can: dev: move driver related infrastructure into separate subdir
+        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 074/126] drm/amdgpu: fix offset calculation in amdgpu_vm_bo_clear_mappings()
 Date:   Mon,  5 Apr 2021 10:53:56 +0200
-Message-Id: <20210405085025.780507431@linuxfoundation.org>
+Message-Id: <20210405085033.506166947@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit 3e77f70e734584e0ad1038e459ed3fd2400f873a ]
+commit 5e61b84f9d3ddfba73091f9fbc940caae1c9eb22 upstream.
 
-This patch moves the CAN driver related infrastructure into a separate subdir.
-It will be split into more files in the coming patches.
+Offset calculation wasn't correct as start addresses are in pfn
+not in bytes.
 
-Reviewed-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Link: https://lore.kernel.org/r/20210111141930.693847-3-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/Makefile               | 7 +------
- drivers/net/can/dev/Makefile           | 7 +++++++
- drivers/net/can/{ => dev}/dev.c        | 0
- drivers/net/can/{ => dev}/rx-offload.c | 0
- 4 files changed, 8 insertions(+), 6 deletions(-)
- create mode 100644 drivers/net/can/dev/Makefile
- rename drivers/net/can/{ => dev}/dev.c (100%)
- rename drivers/net/can/{ => dev}/rx-offload.c (100%)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/Makefile b/drivers/net/can/Makefile
-index 22164300122d..a2b4463d8480 100644
---- a/drivers/net/can/Makefile
-+++ b/drivers/net/can/Makefile
-@@ -7,12 +7,7 @@ obj-$(CONFIG_CAN_VCAN)		+= vcan.o
- obj-$(CONFIG_CAN_VXCAN)		+= vxcan.o
- obj-$(CONFIG_CAN_SLCAN)		+= slcan.o
- 
--obj-$(CONFIG_CAN_DEV)		+= can-dev.o
--can-dev-y			+= dev.o
--can-dev-y			+= rx-offload.o
--
--can-dev-$(CONFIG_CAN_LEDS)	+= led.o
--
-+obj-y				+= dev/
- obj-y				+= rcar/
- obj-y				+= spi/
- obj-y				+= usb/
-diff --git a/drivers/net/can/dev/Makefile b/drivers/net/can/dev/Makefile
-new file mode 100644
-index 000000000000..cba92e6bcf6f
---- /dev/null
-+++ b/drivers/net/can/dev/Makefile
-@@ -0,0 +1,7 @@
-+# SPDX-License-Identifier: GPL-2.0
-+
-+obj-$(CONFIG_CAN_DEV)		+= can-dev.o
-+can-dev-y			+= dev.o
-+can-dev-y			+= rx-offload.o
-+
-+can-dev-$(CONFIG_CAN_LEDS)	+= led.o
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev/dev.c
-similarity index 100%
-rename from drivers/net/can/dev.c
-rename to drivers/net/can/dev/dev.c
-diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/dev/rx-offload.c
-similarity index 100%
-rename from drivers/net/can/rx-offload.c
-rename to drivers/net/can/dev/rx-offload.c
--- 
-2.30.1
-
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -2435,7 +2435,7 @@ int amdgpu_vm_bo_clear_mappings(struct a
+ 			after->start = eaddr + 1;
+ 			after->last = tmp->last;
+ 			after->offset = tmp->offset;
+-			after->offset += after->start - tmp->start;
++			after->offset += (after->start - tmp->start) << PAGE_SHIFT;
+ 			after->flags = tmp->flags;
+ 			after->bo_va = tmp->bo_va;
+ 			list_add(&after->list, &tmp->bo_va->invalids);
 
 
