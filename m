@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F845353DC2
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05251353F30
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237421AbhDEJCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44030 "EHLO mail.kernel.org"
+        id S239395AbhDEJKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237386AbhDEJCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C694610E8;
-        Mon,  5 Apr 2021 09:02:04 +0000 (UTC)
+        id S238845AbhDEJKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:10:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AA8461399;
+        Mon,  5 Apr 2021 09:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613324;
-        bh=FJo5Vmmz25GM4YFtEhcqfro2GD9UAwMARDZjzhRS9lU=;
+        s=korg; t=1617613812;
+        bh=L/ouUvXPcjfupPz+rGsjZl+tj2CS6fb8QU4+/3xAreY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XY8AJEZUjNIzMZJ9nAkKR7Oxm01Z0HFmO6BpVhFwnGvyJkhO7oviOqf+o1+x0r3mV
-         48ALmaRozirVF5M5eDMDQo2FBpls0M0W/CYXwjshYhlYWdTaIQjd920MTLBLDCDVY3
-         Rie3HFbxdfBat5w1lcBXB0OGNknwFDYe2uRMHcp0=
+        b=Uodi+R9mYEUgnpdGJR0InQDdQMLnzxOMFazrxbkYhIGR4dcOhtiP+eO45PKNCDMNd
+         lMDCx5JYXvuw0S+p831xMjTYgahg0IlyRAFPDCFAidzaSOgdi1kHkYziyxkZEzVwz+
+         dcWwzg6Yz+dvArXKyEOxaLu/FSORh7QodwgJkT+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 51/56] USB: cdc-acm: fix use-after-free after probe failure
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 100/126] extcon: Fix error handling in extcon_dev_register
 Date:   Mon,  5 Apr 2021 10:54:22 +0200
-Message-Id: <20210405085024.149337382@linuxfoundation.org>
+Message-Id: <20210405085034.357047941@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 4e49bf376c0451ad2eae2592e093659cde12be9a upstream.
+[ Upstream commit d3bdd1c3140724967ca4136755538fa7c05c2b4e ]
 
-If tty-device registration fails the driver would fail to release the
-data interface. When the device is later disconnected, the disconnect
-callback would still be called for the data interface and would go about
-releasing already freed resources.
+When devm_kcalloc() fails, we should execute device_unregister()
+to unregister edev->dev from system.
 
-Fixes: c93d81955005 ("usb: cdc-acm: fix error handling in acm_probe()")
-Cc: stable@vger.kernel.org      # 3.9
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210322155318.9837-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 046050f6e623e ("extcon: Update the prototype of extcon_register_notifier() with enum extcon")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/extcon/extcon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1561,6 +1561,11 @@ skip_countries:
+diff --git a/drivers/extcon/extcon.c b/drivers/extcon/extcon.c
+index 0a6438cbb3f3..e7a9561a826d 100644
+--- a/drivers/extcon/extcon.c
++++ b/drivers/extcon/extcon.c
+@@ -1241,6 +1241,7 @@ int extcon_dev_register(struct extcon_dev *edev)
+ 				sizeof(*edev->nh), GFP_KERNEL);
+ 	if (!edev->nh) {
+ 		ret = -ENOMEM;
++		device_unregister(&edev->dev);
+ 		goto err_dev;
+ 	}
  
- 	return 0;
- alloc_fail6:
-+	if (!acm->combined_interfaces) {
-+		/* Clear driver data so that disconnect() returns early. */
-+		usb_set_intfdata(data_interface, NULL);
-+		usb_driver_release_interface(&acm_driver, data_interface);
-+	}
- 	if (acm->country_codes) {
- 		device_remove_file(&acm->control->dev,
- 				&dev_attr_wCountryCodes);
+-- 
+2.30.2
+
 
 
