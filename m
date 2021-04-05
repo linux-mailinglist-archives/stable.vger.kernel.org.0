@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B29FA353DBF
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CCE5353F24
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237420AbhDEJCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S238915AbhDEJKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237352AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB48E613A4;
-        Mon,  5 Apr 2021 09:01:39 +0000 (UTC)
+        id S237885AbhDEJJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:09:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2C3D61393;
+        Mon,  5 Apr 2021 09:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613300;
-        bh=2Zqk0R2I0xocC5foxilnpakK8Ni9eF3ISSkUmSVZNKk=;
+        s=korg; t=1617613791;
+        bh=cfMris8vDpaqtpyVFY6ATGCUw6OG4h5XS7YFeNG16YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcaOe2Wk3u9Xi/WM/GNVilw6Rlp8peM2kfjTolXbJme4Jemric+ELVegHlS7DT80A
-         1DvrQK3qB50E9vvOkPlfyO/+RGw6b71QiPf/4Spy/3rmvC8j4WpZKUrO+0HzWsxg+k
-         niVu3hQZWmiixVo0Nq1i2sBNYSUnrZsfZx9IePlQ=
+        b=i0kecx+K8tZZCtJ6Dkb6dIbyEg6B/v4aieGFPI+2HqsYpcK3424O3uySUGRvtbyXZ
+         ULoP+ALkJ4yYWHn0Py6/2GCl/BaLRA1Zsi06525TFpkv5+wiDDajngID0vLkCVr37c
+         3nMQWEoLttSJkqslAum0NsZoOuKuMMsNaEI13jFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.19 43/56] usbip: vhci_hcd fix shift out-of-bounds in vhci_hub_control()
+        stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ben Gardon <bgardon@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 092/126] KVM: x86/mmu: Add comment on __tdp_mmu_set_spte
 Date:   Mon,  5 Apr 2021 10:54:14 +0200
-Message-Id: <20210405085023.906106998@linuxfoundation.org>
+Message-Id: <20210405085034.104001747@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Ben Gardon <bgardon@google.com>
 
-commit 1cc5ed25bdade86de2650a82b2730108a76de20c upstream.
+[ Upstream commit fe43fa2f407b9d513f7bcf18142e14e1bf1508d6 ]
 
-Fix shift out-of-bounds in vhci_hub_control() SetPortFeature handling.
+__tdp_mmu_set_spte is a very important function in the TDP MMU which
+already accepts several arguments and will take more in future commits.
+To offset this complexity, add a comment to the function describing each
+of the arguemnts.
 
-UBSAN: shift-out-of-bounds in drivers/usb/usbip/vhci_hcd.c:605:42
-shift exponent 768 is too large for 32-bit type 'int'
+No functional change intended.
 
-Reported-by: syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20210324230654.34798-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Peter Feiner <pfeiner@google.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20210202185734.1680553-3-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vhci_hcd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kvm/mmu/tdp_mmu.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -594,6 +594,8 @@ static int vhci_hub_control(struct usb_h
- 				pr_err("invalid port number %d\n", wIndex);
- 				goto error;
- 			}
-+			if (wValue >= 32)
-+				goto error;
- 			if (hcd->speed == HCD_USB3) {
- 				if ((vhci_hcd->port_status[rhport] &
- 				     USB_SS_PORT_STAT_POWER) != 0) {
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index 34ef3e1a0f84..f88404033e0c 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -395,6 +395,22 @@ static void handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
+ 				      new_spte, level);
+ }
+ 
++/*
++ * __tdp_mmu_set_spte - Set a TDP MMU SPTE and handle the associated bookkeeping
++ * @kvm: kvm instance
++ * @iter: a tdp_iter instance currently on the SPTE that should be set
++ * @new_spte: The value the SPTE should be set to
++ * @record_acc_track: Notify the MM subsystem of changes to the accessed state
++ *		      of the page. Should be set unless handling an MMU
++ *		      notifier for access tracking. Leaving record_acc_track
++ *		      unset in that case prevents page accesses from being
++ *		      double counted.
++ * @record_dirty_log: Record the page as dirty in the dirty bitmap if
++ *		      appropriate for the change being made. Should be set
++ *		      unless performing certain dirty logging operations.
++ *		      Leaving record_dirty_log unset in that case prevents page
++ *		      writes from being double counted.
++ */
+ static inline void __tdp_mmu_set_spte(struct kvm *kvm, struct tdp_iter *iter,
+ 				      u64 new_spte, bool record_acc_track,
+ 				      bool record_dirty_log)
+-- 
+2.30.1
+
 
 
