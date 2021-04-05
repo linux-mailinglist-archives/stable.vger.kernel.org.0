@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA80354057
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9BA35405A
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240812AbhDEJRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39128 "EHLO mail.kernel.org"
+        id S239658AbhDEJRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:17:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239638AbhDEJRP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:17:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58B70611C1;
-        Mon,  5 Apr 2021 09:17:08 +0000 (UTC)
+        id S240817AbhDEJRR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:17:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37C4A61002;
+        Mon,  5 Apr 2021 09:17:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614228;
-        bh=KlE8lWoA7F6dX9H+/W8BC2YHc0HDwdG+vOL1hNm62rs=;
+        s=korg; t=1617614231;
+        bh=yQ+twztYdwMdlRtYYpF/SQFOGJckwi/vS+KiKIrgkNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRoGrMbjdJs1nHQwAbB9nrrEotInQ9EScfuJEzvP9C3QWWu/OiuOfbhClmTceLbe9
-         TE7Ysb71QDYESHDCo2u2D6SfP9Isv4kVJIUrj10zOoss/ZWSL2DOTiQUZFLHEa+Uj0
-         oSMp1jTDXaUsuJSFONizmTfHVqToMJN1Z9vS7Q/4=
+        b=aijqfucpF8beK+1SpkcqiHmIBwb790w05PAfa4RWLu7US8k8M1r5bZi0pqvc4+yuU
+         ThanAl15ALAHWw+tC687pGKoZZda/DTmZ+fHNwmdeA6ileaoH1f+sV6SRSNbIsppif
+         TUgXDvEDU+mQLJdqo2xraQg7wXvU4OfwgzTmAK9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>
-Subject: [PATCH 5.11 131/152] USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
-Date:   Mon,  5 Apr 2021 10:54:40 +0200
-Message-Id: <20210405085038.485888842@linuxfoundation.org>
+        stable@vger.kernel.org, Bhushan Shah <bshah@kde.org>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.11 132/152] usb: musb: Fix suspend with devices connected for a64
+Date:   Mon,  5 Apr 2021 10:54:41 +0200
+Message-Id: <20210405085038.518677667@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
 References: <20210405085034.233917714@linuxfoundation.org>
@@ -38,42 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Palatin <vpalatin@chromium.org>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd upstream.
+commit 92af4fc6ec331228aca322ca37c8aea7b150a151 upstream.
 
-This LTE modem (M.2 card) has a bug in its power management:
-there is some kind of race condition for U3 wake-up between the host and
-the device. The modem firmware sometimes crashes/locks when both events
-happen at the same time and the modem fully drops off the USB bus (and
-sometimes re-enumerates, sometimes just gets stuck until the next
-reboot).
+Pinephone running on Allwinner A64 fails to suspend with USB devices
+connected as reported by Bhushan Shah <bshah@kde.org>. Reverting
+commit 5fbf7a253470 ("usb: musb: fix idling for suspend after
+disconnect interrupt") fixes the issue.
 
-Tested with the modem wired to the XHCI controller on an AMD 3015Ce
-platform. Without the patch, the modem dropped of the USB bus 5 times in
-3 days. With the quirk, it stayed connected for a week while the
-'runtime_suspended_time' counter incremented as excepted.
+Let's add suspend checks also for suspend after disconnect interrupt
+quirk handling like we already do elsewhere.
 
-Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
-Link: https://lore.kernel.org/r/20210319124802.2315195-1-vpalatin@chromium.org
+Fixes: 5fbf7a253470 ("usb: musb: fix idling for suspend after disconnect interrupt")
+Reported-by: Bhushan Shah <bshah@kde.org>
+Tested-by: Bhushan Shah <bshah@kde.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210324071142.42264-1-tony@atomide.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/musb/musb_core.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -498,6 +498,10 @@ static const struct usb_device_id usb_qu
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* Fibocom L850-GL LTE Modem */
-+	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
-+			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
-+
- 	/* INTEL VALUE SSD */
- 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
- 
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2004,10 +2004,14 @@ static void musb_pm_runtime_check_sessio
+ 		MUSB_DEVCTL_HR;
+ 	switch (devctl & ~s) {
+ 	case MUSB_QUIRK_B_DISCONNECT_99:
+-		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
+-		schedule_delayed_work(&musb->irq_work,
+-				      msecs_to_jiffies(1000));
+-		break;
++		if (musb->quirk_retries && !musb->flush_irq_work) {
++			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
++			schedule_delayed_work(&musb->irq_work,
++					      msecs_to_jiffies(1000));
++			musb->quirk_retries--;
++			break;
++		}
++		fallthrough;
+ 	case MUSB_QUIRK_B_INVALID_VBUS_91:
+ 		if (musb->quirk_retries && !musb->flush_irq_work) {
+ 			musb_dbg(musb,
 
 
