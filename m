@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E29E354087
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C20735408B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240007AbhDEJSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
+        id S240059AbhDEJSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239966AbhDEJSW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:18:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17759613A5;
-        Mon,  5 Apr 2021 09:18:15 +0000 (UTC)
+        id S240264AbhDEJS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:18:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFC9A6128B;
+        Mon,  5 Apr 2021 09:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614296;
-        bh=TLfNtit7mxypnT50eV012j8QyfYlr8lSJ2xARyOlL5A=;
+        s=korg; t=1617614299;
+        bh=yFG7JqOy7Bs5pwNhT4VtoiE6IoQGPZDsaawi+SQa4ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvkokfzvMVbBF9s0TWcpefQLnE2GjspLePd5pPW/zSADdqDeoxk7j7zF7hoQjOtA2
-         E2rmOLSVYCRGpMiGro4dF9a/cbuc18sCCozxVqeZ61Rhm978w4mhQxy3TuK7Sh4b2z
-         eh0zZweukjRpd2eCB0S/zxEhF4YCqn6smz3BgUbM=
+        b=K9JWi76FlRuzx7yGGGAG1W2U4nsPqxZLnhuxu4RoQvwdOE9izxH2U3HZjwDltg0wE
+         mhmLRuvEeNSy2aCr3RRo0O9EWLLY7xEsgEq43RnxDOoKal3twZHedx+XFQhUQOYiot
+         dTVyIzc64uTGg9USSsE2c0RKBSr5vP/uH4iPmyNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
-        syzbot+e74b94fe601ab9552d69@syzkaller.appspotmail.com,
-        Arnd Bergman <arnd@arndb.de>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.11 149/152] riscv: evaluate put_user() arg before enabling user access
-Date:   Mon,  5 Apr 2021 10:54:58 +0200
-Message-Id: <20210405085039.060702525@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e3a3f84f5cecf61f0583@syzkaller.appspotmail.com,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.11 150/152] io_uring: do ctx sqd ejection in a clear context
+Date:   Mon,  5 Apr 2021 10:54:59 +0200
+Message-Id: <20210405085039.090899235@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
 References: <20210405085034.233917714@linuxfoundation.org>
@@ -41,86 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben.dooks@codethink.co.uk>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 285a76bb2cf51b0c74c634f2aaccdb93e1f2a359 upstream.
+commit a185f1db59f13de73aa470559030e90e50b34d93 upstream.
 
-The <asm/uaccess.h> header has a problem with put_user(a, ptr) if
-the 'a' is not a simple variable, such as a function. This can lead
-to the compiler producing code as so:
+WARNING: CPU: 1 PID: 27907 at fs/io_uring.c:7147 io_sq_thread_park+0xb5/0xd0 fs/io_uring.c:7147
+CPU: 1 PID: 27907 Comm: iou-sqp-27905 Not tainted 5.12.0-rc4-syzkaller #0
+RIP: 0010:io_sq_thread_park+0xb5/0xd0 fs/io_uring.c:7147
+Call Trace:
+ io_ring_ctx_wait_and_kill+0x214/0x700 fs/io_uring.c:8619
+ io_uring_release+0x3e/0x50 fs/io_uring.c:8646
+ __fput+0x288/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:140
+ io_run_task_work fs/io_uring.c:2238 [inline]
+ io_run_task_work fs/io_uring.c:2228 [inline]
+ io_uring_try_cancel_requests+0x8ec/0xc60 fs/io_uring.c:8770
+ io_uring_cancel_sqpoll+0x1cf/0x290 fs/io_uring.c:8974
+ io_sqpoll_cancel_cb+0x87/0xb0 fs/io_uring.c:8907
+ io_run_task_work_head+0x58/0xb0 fs/io_uring.c:1961
+ io_sq_thread+0x3e2/0x18d0 fs/io_uring.c:6763
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-1:	enable_user_access()
-2:	evaluate 'a' into register 'r'
-3:	put 'r' to 'ptr'
-4:	disable_user_acess()
+May happen that last ctx ref is killed in io_uring_cancel_sqpoll(), so
+fput callback (i.e. io_uring_release()) is enqueued through task_work,
+and run by same cancellation. As it's deeply nested we can't do parking
+or taking sqd->lock there, because its state is unclear. So avoid
+ctx ejection from sqd list from io_ring_ctx_wait_and_kill() and do it
+in a clear context in io_ring_exit_work().
 
-The issue is that 'a' is now being evaluated with the user memory
-protections disabled. So we try and force the evaulation by assigning
-'x' to __val at the start, and hoping the compiler barriers in
- enable_user_access() do the job of ordering step 2 before step 1.
-
-This has shown up in a bug where 'a' sleeps and thus schedules out
-and loses the SR_SUM flag. This isn't sufficient to fully fix, but
-should reduce the window of opportunity. The first instance of this
-we found is in scheudle_tail() where the code does:
-
-$ less -N kernel/sched/core.c
-
-4263  if (current->set_child_tid)
-4264         put_user(task_pid_vnr(current), current->set_child_tid);
-
-Here, the task_pid_vnr(current) is called within the block that has
-enabled the user memory access. This can be made worse with KASAN
-which makes task_pid_vnr() a rather large call with plenty of
-opportunity to sleep.
-
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Reported-by: syzbot+e74b94fe601ab9552d69@syzkaller.appspotmail.com
-Suggested-by: Arnd Bergman <arnd@arndb.de>
+Fixes: f6d54255f423 ("io_uring: halt SQO submission on ctx exit")
+Reported-by: syzbot+e3a3f84f5cecf61f0583@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/e90df88b8ff2cabb14a7534601d35d62ab4cb8c7.1616496707.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
---
-Changes since v1:
-- fixed formatting and updated the patch description with more info
-
-Changes since v2:
-- fixed commenting on __put_user() (schwab@linux-m68k.org)
-
-Change since v3:
-- fixed RFC in patch title. Should be ready to merge.
-
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 ---
- arch/riscv/include/asm/uaccess.h |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/io_uring.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/riscv/include/asm/uaccess.h
-+++ b/arch/riscv/include/asm/uaccess.h
-@@ -306,7 +306,9 @@ do {								\
-  * data types like structures or arrays.
-  *
-  * @ptr must have pointer-to-simple-variable type, and @x must be assignable
-- * to the result of dereferencing @ptr.
-+ * to the result of dereferencing @ptr. The value of @x is copied to avoid
-+ * re-ordering where @x is evaluated inside the block that enables user-space
-+ * access (thus bypassing user space protection if @x is a function).
-  *
-  * Caller must check the pointer with access_ok() before calling this
-  * function.
-@@ -316,12 +318,13 @@ do {								\
- #define __put_user(x, ptr)					\
- ({								\
- 	__typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
-+	__typeof__(*__gu_ptr) __val = (x);			\
- 	long __pu_err = 0;					\
- 								\
- 	__chk_user_ptr(__gu_ptr);				\
- 								\
- 	__enable_user_access();					\
--	__put_user_nocheck(x, __gu_ptr, __pu_err);		\
-+	__put_user_nocheck(__val, __gu_ptr, __pu_err);		\
- 	__disable_user_access();				\
- 								\
- 	__pu_err;						\
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8738,6 +8738,14 @@ static __poll_t io_uring_poll(struct fil
+ 	if (!io_sqring_full(ctx))
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+ 
++	/* prevent SQPOLL from submitting new requests */
++	if (ctx->sq_data) {
++		io_sq_thread_park(ctx->sq_data);
++		list_del_init(&ctx->sqd_list);
++		io_sqd_update_thread_idle(ctx->sq_data);
++		io_sq_thread_unpark(ctx->sq_data);
++	}
++
+ 	/*
+ 	 * Don't flush cqring overflow list here, just do a simple check.
+ 	 * Otherwise there could possible be ABBA deadlock:
+@@ -8816,14 +8824,6 @@ static void io_ring_ctx_wait_and_kill(st
+ 		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
+ 	mutex_unlock(&ctx->uring_lock);
+ 
+-	/* prevent SQPOLL from submitting new requests */
+-	if (ctx->sq_data) {
+-		io_sq_thread_park(ctx->sq_data);
+-		list_del_init(&ctx->sqd_list);
+-		io_sqd_update_thread_idle(ctx->sq_data);
+-		io_sq_thread_unpark(ctx->sq_data);
+-	}
+-
+ 	io_kill_timeouts(ctx, NULL, NULL);
+ 	io_poll_remove_all(ctx, NULL, NULL);
+ 
 
 
