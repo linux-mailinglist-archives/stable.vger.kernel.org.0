@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3686A353E06
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83EE4353D95
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237680AbhDEJDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:03:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46562 "EHLO mail.kernel.org"
+        id S236524AbhDEJAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237675AbhDEJDa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:03:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3578861002;
-        Mon,  5 Apr 2021 09:03:23 +0000 (UTC)
+        id S234042AbhDEJAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:00:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAF49610E8;
+        Mon,  5 Apr 2021 09:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613403;
-        bh=TtjDfljzF3YuQqvLSCfdBTg8d35CJEcQSOiW7F+Pg9U=;
+        s=korg; t=1617613234;
+        bh=gCjSjWEMVtaZ6tWw1zQgoMyWDSUPQciiygslKQvvAyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8mYyPaXhRckA6pZUqsN9UhrSO0KRsB/qqGWn/HpqiDgDWnomZbj0T9f9BI04CX0T
-         SAA5C23m6nK7JCF6CxaShiDhQtBA2ZnwkjjczLVwiG2m2n2hJ1nTvM5/nOwaEUtWWr
-         icJXcX9JX95nnvDTDJdGfUr2YxZqEUHrYkRczb0E=
+        b=Z0S0EQk9lf2tR/bjLj3Mnma4O7jVkEfJUDHrp/9DjAL0Hmk4wjyDnCRU2oJigxkl/
+         K+MHzW6zU4VQ/89/gKy5qxGGlORjGRQumGaZGiNI6+tvlSgcPn+1bjwHc+QD8Za62G
+         f2a/VS8NM+zxPXT5et8fYPFm38DIXDlCIAIgnZJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
         Tong Zhang <ztong0001@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/74] staging: comedi: cb_pcidas: fix request_irq() warn
-Date:   Mon,  5 Apr 2021 10:53:48 +0200
-Message-Id: <20210405085025.507701683@linuxfoundation.org>
+Subject: [PATCH 4.19 18/56] staging: comedi: cb_pcidas64: fix request_irq() warn
+Date:   Mon,  5 Apr 2021 10:53:49 +0200
+Message-Id: <20210405085023.125224939@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 2e5848a3d86f03024ae096478bdb892ab3d79131 ]
+[ Upstream commit d2d106fe3badfc3bf0dd3899d1c3f210c7203eab ]
 
 request_irq() wont accept a name which contains slash so we need to
 repalce it with something else -- otherwise it will trigger a warning
@@ -50,36 +50,36 @@ and the entry in /proc/irq/ will not be created
 since the .name might be used by userspace and we don't want to break
 userspace, so we are changing the parameters passed to request_irq()
 
-[    1.630764] name 'pci-das1602/16'
-[    1.630950] WARNING: CPU: 0 PID: 181 at fs/proc/generic.c:180 __xlate_proc_name+0x93/0xb0
-[    1.634009] RIP: 0010:__xlate_proc_name+0x93/0xb0
-[    1.639441] Call Trace:
-[    1.639976]  proc_mkdir+0x18/0x20
-[    1.641946]  request_threaded_irq+0xfe/0x160
-[    1.642186]  cb_pcidas_auto_attach+0xf4/0x610 [cb_pcidas]
+[    1.565966] name 'pci-das6402/16'
+[    1.566149] WARNING: CPU: 0 PID: 184 at fs/proc/generic.c:180 __xlate_proc_name+0x93/0xb0
+[    1.568923] RIP: 0010:__xlate_proc_name+0x93/0xb0
+[    1.574200] Call Trace:
+[    1.574722]  proc_mkdir+0x18/0x20
+[    1.576629]  request_threaded_irq+0xfe/0x160
+[    1.576859]  auto_attach+0x60a/0xc40 [cb_pcidas64]
 
 Suggested-by: Ian Abbott <abbotti@mev.co.uk>
 Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
 Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210315195914.4801-1-ztong0001@gmail.com
+Link: https://lore.kernel.org/r/20210315195814.4692-1-ztong0001@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/cb_pcidas.c | 2 +-
+ drivers/staging/comedi/drivers/cb_pcidas64.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/comedi/drivers/cb_pcidas.c b/drivers/staging/comedi/drivers/cb_pcidas.c
-index 1893c70de0b9..10f097a7d847 100644
---- a/drivers/staging/comedi/drivers/cb_pcidas.c
-+++ b/drivers/staging/comedi/drivers/cb_pcidas.c
-@@ -1281,7 +1281,7 @@ static int cb_pcidas_auto_attach(struct comedi_device *dev,
- 	     devpriv->amcc + AMCC_OP_REG_INTCSR);
+diff --git a/drivers/staging/comedi/drivers/cb_pcidas64.c b/drivers/staging/comedi/drivers/cb_pcidas64.c
+index 631a703b345d..91403cc1bbf9 100644
+--- a/drivers/staging/comedi/drivers/cb_pcidas64.c
++++ b/drivers/staging/comedi/drivers/cb_pcidas64.c
+@@ -4021,7 +4021,7 @@ static int auto_attach(struct comedi_device *dev,
+ 	init_stc_registers(dev);
  
- 	ret = request_irq(pcidev->irq, cb_pcidas_interrupt, IRQF_SHARED,
--			  dev->board_name, dev);
-+			  "cb_pcidas", dev);
- 	if (ret) {
- 		dev_dbg(dev->class_dev, "unable to allocate irq %d\n",
+ 	retval = request_irq(pcidev->irq, handle_interrupt, IRQF_SHARED,
+-			     dev->board_name, dev);
++			     "cb_pcidas64", dev);
+ 	if (retval) {
+ 		dev_dbg(dev->class_dev, "unable to allocate irq %u\n",
  			pcidev->irq);
 -- 
 2.30.1
