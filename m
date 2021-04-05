@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A413F353F5E
+	by mail.lfdr.de (Postfix) with ESMTP id 0E24B353F5C
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239052AbhDEJLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58694 "EHLO mail.kernel.org"
+        id S238972AbhDEJLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:11:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239037AbhDEJLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238546AbhDEJLt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Apr 2021 05:11:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2097161398;
-        Mon,  5 Apr 2021 09:11:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D33A61393;
+        Mon,  5 Apr 2021 09:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613890;
-        bh=OGJAUkr8EK1c6DbvydAiJAYmXQmidWmn7825VsxDhGQ=;
+        s=korg; t=1617613893;
+        bh=JurLy8cBkPqWxyUaJ/ITh8W4P04f2WYbLfYuj6QDTHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MoGWGT3iW0qGKX4BNM3MDm5h0gKMHxcH14dBlqVCQUYPbkMGY8cZM8JFdOwUU3A66
-         ZtF58uiH4KtjQ4+6+IvzxDgEeEIL+vrxfQv63hXkHEZvG5iSPzLCl/gwwC8pSTc77W
-         PqVkc9jNoEjleqVQAirU9M9m+6EG3Rl3tg2JSnIw=
+        b=naHhgLKpie3YL4l3Bvq4ZfOqrEkdw43de4f60Pd8ybdiESOWr3qWXEpYExphqOj9J
+         YNesQE7jciJsl8fEya6VgBVj7Xs2WSfA8MJ2G9UwJl/PcozXV2bevi9fObN9dyTpvA
+         /GSbZvkkAWFLTZbj5Uk6ckqSysf0fu47ktkB5b/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>
-Subject: [PATCH 5.10 117/126] usb: dwc3: qcom: skip interconnect init for ACPI probe
-Date:   Mon,  5 Apr 2021 10:54:39 +0200
-Message-Id: <20210405085034.912125152@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Wesley Cheng <wcheng@codeaurora.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 5.10 118/126] usb: dwc3: gadget: Clear DEP flags after stop transfers in ep disable
+Date:   Mon,  5 Apr 2021 10:54:40 +0200
+Message-Id: <20210405085034.943960818@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
 References: <20210405085031.040238881@linuxfoundation.org>
@@ -38,38 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-commit 5e4010e36a58978e42b2ee13739ff9b50209c830 upstream.
+commit 5aef629704ad4d983ecf5c8a25840f16e45b6d59 upstream.
 
-The ACPI probe starts failing since commit bea46b981515 ("usb: dwc3:
-qcom: Add interconnect support in dwc3 driver"), because there is no
-interconnect support for ACPI, and of_icc_get() call in
-dwc3_qcom_interconnect_init() will just return -EINVAL.
+Ensure that dep->flags are cleared until after stop active transfers
+is completed.  Otherwise, the ENDXFER command will not be executed
+during ep disable.
 
-Fix the problem by skipping interconnect init for ACPI probe, and then
-the NULL icc_path_ddr will simply just scheild all ICC calls.
-
-Fixes: bea46b981515 ("usb: dwc3: qcom: Add interconnect support in dwc3 driver")
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210311060318.25418-1-shawn.guo@linaro.org
+Reported-and-tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1616610664-16495-1-git-send-email-wcheng@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/gadget.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -244,6 +244,9 @@ static int dwc3_qcom_interconnect_init(s
- 	struct device *dev = qcom->dev;
- 	int ret;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -791,10 +791,6 @@ static int __dwc3_gadget_ep_disable(stru
+ 	reg &= ~DWC3_DALEPENA_EP(dep->number);
+ 	dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
  
-+	if (has_acpi_companion(dev))
-+		return 0;
+-	dep->stream_capable = false;
+-	dep->type = 0;
+-	dep->flags = 0;
+-
+ 	/* Clear out the ep descriptors for non-ep0 */
+ 	if (dep->number > 1) {
+ 		dep->endpoint.comp_desc = NULL;
+@@ -803,6 +799,10 @@ static int __dwc3_gadget_ep_disable(stru
+ 
+ 	dwc3_remove_requests(dwc, dep);
+ 
++	dep->stream_capable = false;
++	dep->type = 0;
++	dep->flags = 0;
 +
- 	qcom->icc_path_ddr = of_icc_get(dev, "usb-ddr");
- 	if (IS_ERR(qcom->icc_path_ddr)) {
- 		dev_err(dev, "failed to get usb-ddr path: %ld\n",
+ 	return 0;
+ }
+ 
 
 
