@@ -2,247 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 921C03546F5
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 21:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96E78354746
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 22:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235640AbhDETJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 15:09:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39672 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239300AbhDETIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 15:08:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D734D613A0;
-        Mon,  5 Apr 2021 19:08:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617649722;
-        bh=s3HxunNSM7cAumctH+zO3LtJJ5dfoPlbC+KMRjOnrP0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZse0lPdNu9VxUK5OumnS2T6rZbWcfup1kRW1mELAeMsouUBrgvW+EIMg60ZmkG3O
-         /ch1Cui68thmqvWc9TgA6vKmYx92/8YAzW4iXRQGmkCfLzXf0SyT3/vdv32E7ho2L5
-         LLewHHshQlsdj+udJ6FydmF1LXb19I1HBM/pEC2KzQERbM4uNlKa1VsdYrH8yRpVNX
-         gO06CKiuXBuCHPkDyhmKramNtR7lyukQ0Xe0SYyCo7SoEvCP4FZ5vY0KzXd5rYr6tw
-         eTj4iQbMo46x5PpRUtaxEbTgsfNdFXJDGaARNKmMYZ2e05dfyNniDDAmG6fVpuWvBY
-         r6tafQ/p8JItw==
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Russell King <linux@armlinux.org.uk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.9] ARM: 8723/2: always assume the "unified" syntax for assembly code
-Date:   Mon,  5 Apr 2021 12:08:27 -0700
-Message-Id: <20210405190827.502021-1-nathan@kernel.org>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <YGhV2gwpI1XUlkyu@kroah.com>
-References: <YGhV2gwpI1XUlkyu@kroah.com>
+        id S234605AbhDEUB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 16:01:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56390 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233412AbhDEUBZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 16:01:25 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DAA2C06178C
+        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 13:01:18 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id 82so3090234yby.7
+        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 13:01:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=pIFMsp1xtnQm4fljPPOMNWkY8KrPxBHkP5mmYwWGYOg=;
+        b=mAbehSQyEDZIVj209oPai5x0WzcM3FBJI+fXL28yXmj51FYUXWIfYHCDhQNPeK/eBV
+         33oYC4LCRTZylzp6DhIYO40quEbp+B97DRda5Td/KiYCfZA6W0h5BaEZaMwm6i4ONeCw
+         CKWzvz6dXtwRR9nbUg0F1RSYy8T/beXJb99VRaJrqqL1O5ovi8KGf8nPUDevefJuyFMP
+         W3ff45YKrKvpkmEtrFA0Dw4hyi8R+pCP+REF4Rz48wVZs1aSMdK2zW2PlFl9aRS1CMZS
+         MJ90HeVpgtNCVIZKOL9bZx+ynL+MEwYCsN47pHtICQbRdIYUp2rELGgS4+gaz4DwZySZ
+         SFVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=pIFMsp1xtnQm4fljPPOMNWkY8KrPxBHkP5mmYwWGYOg=;
+        b=K7lXkr904F1KdJV26tIY/v3Ji47hWEuZil2WBIfURqE/NY8VBVzLEqkhy7xsL7pp0Y
+         etQub6x7KgF3xCvaY0sskzl7SCwhbaJhQwtYWY9Jdqx0wj7jhEexSDi1g/kLkdo7Mc2v
+         05UQtAywdWIKUCFpEyel+0bzrPNJy5+zmC0LhWBp65E85JPTtf6mx1XYlTZppFvbB2+E
+         NWLeu+yddGJsO2gaffRijAUoEV2zDVtJw7kwoTCPAIzfvBq1dJvf3RDQ9Izk0ed1AXyg
+         3stwPEGIzZ7FzfkwAVRC+XXzM4nbjFlndvF4YlZnKLz+bGGIYHsP2dv38E2cj4DsUDW/
+         HVuA==
+X-Gm-Message-State: AOAM533uNrFp+OqEP787tg6yRTmpJ/F78rAbzHIaPW9qg8el8bjaFOx+
+        0qPFzU7VPssSZfvJUZHakuA6xzk8zdprikPDxOwJpQ==
+X-Google-Smtp-Source: ABdhPJzEz4Bacy1Qyh6foMuxZWgQ4WwrTvcePdu/RGd29dTLOPzSZhs71CTh5wKDRXclrsHmhYPATlDOgex29PQYZD4=
+X-Received: by 2002:a25:c985:: with SMTP id z127mr40988055ybf.20.1617652876933;
+ Mon, 05 Apr 2021 13:01:16 -0700 (PDT)
 MIME-Version: 1.0
-X-Patchwork-Bot: notify
-Content-Transfer-Encoding: 8bit
+References: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
+In-Reply-To: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
+From:   Saravana Kannan <saravanak@google.com>
+Date:   Mon, 5 Apr 2021 13:00:40 -0700
+Message-ID: <CAGETcx9ifDoWeBN1KR4zKfs-q73iGo9C-joz4UqayeE3euDQWg@mail.gmail.com>
+Subject: Re: [PATCH] of: property: do not create device links from *nr-gpios
+To:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Pitre <nicolas.pitre@linaro.org>
+On Sun, Apr 4, 2021 at 8:14 PM Ilya Lipnitskiy
+<ilya.lipnitskiy@gmail.com> wrote:
+>
+> [<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
+> the number of GPIOs present on a system, not define a GPIO. nr-gpios is
+> not configured by #gpio-cells and can't be parsed along with other
+> "*-gpios" properties.
+>
+> scripts/dtc/checks.c also has a special case for nr-gpio{s}. However,
+> nr-gpio is not really special, so we only need to fix nr-gpios suffix
+> here.
 
-commit 75fea300d73ae5b18957949a53ec770daaeb6fc2 upstream.
+The only example of this that I see is "snps,nr-gpios". I personally
+would like to deprecate such overlapping/ambiguous definitions.
 
-The GNU assembler has implemented the "unified syntax" parsing since
-2005. This "unified" syntax is required when the kernel is built in
-Thumb2 mode. However the "unified" syntax is a mixed bag of features,
-including not requiring a `#' prefix with immediate operands. This leads
-to situations where some code builds just fine in Thumb2 mode and fails
-to build in ARM mode if that prefix is missing. This behavior
-discrepancy makes build tests less valuable, forcing both ARM and Thumb2
-builds for proper coverage.
+Maybe fix up the DT? This warning is a nice reminder that the DT needs
+to be updated (if it can be). Outside of that, it's not causing any
+issues that I know of.
 
-Let's "fix" this issue by always using the "unified" syntax for both ARM
-and Thumb2 mode. Given that the documented minimum binutils version that
-properly builds the kernel is version 2.20 released in 2010, we can
-assume that any toolchain capable of building the latest kernel is also
-"unified syntax" capable.
+If they are, then we can pick up a patch similar to this. I'd also
+limit this fix to "snps,nr-gpios" so that future attempts to use
+-gpios for anything other than listing GPIOs triggers a warning.
 
-Whith this, a bunch of macros used to mask some differences between both
-syntaxes can be removed, with the side effect of making LTO easier.
+Rob, thoughts?
 
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Nicolas Pitre <nico@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-[nathan: Resolve small conflict on 4.9 due to a lack of 494609701e06a]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
+Thanks,
+Saravana
 
-Hi all,
-
-This commit is needed to fix the backport of commit 7f9942c61fa6 ("ARM:
-s3c: fix fiq for clang IAS"):
-
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/message/MJWA3VGAUNQYOL7XZBYMS4EI4AYRC3XN/
-
-It is present in 4.14+ and it has been validate via TuxSuite across a
-variety of arch/arm configs with no errors so I feel it should be a
-fairly safe backport.
-
-Cheers,
-Nathan
-
- arch/arm/Kconfig               |  7 +---
- arch/arm/Makefile              |  6 ++-
- arch/arm/include/asm/unified.h | 77 ++--------------------------------
- 3 files changed, 8 insertions(+), 82 deletions(-)
-
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index ae55f5db97f8..9dbaa283f01d 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1546,12 +1546,10 @@ config THUMB2_KERNEL
- 	depends on (CPU_V7 || CPU_V7M) && !CPU_V6 && !CPU_V6K
- 	default y if CPU_THUMBONLY
- 	select AEABI
--	select ARM_ASM_UNIFIED
- 	select ARM_UNWIND
- 	help
- 	  By enabling this option, the kernel will be compiled in
--	  Thumb-2 mode. A compiler/assembler that understand the unified
--	  ARM-Thumb syntax is needed.
-+	  Thumb-2 mode.
- 
- 	  If unsure, say N.
- 
-@@ -1586,9 +1584,6 @@ config THUMB2_AVOID_R_ARM_THM_JUMP11
- 
- 	  Unless you are sure your tools don't have this problem, say Y.
- 
--config ARM_ASM_UNIFIED
--	bool
--
- config ARM_PATCH_IDIV
- 	bool "Runtime patch udiv/sdiv instructions into __aeabi_{u}idiv()"
- 	depends on CPU_32v7 && !XIP_KERNEL
-diff --git a/arch/arm/Makefile b/arch/arm/Makefile
-index e14ddca59d02..975b110e7d87 100644
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -113,9 +113,11 @@ ifeq ($(CONFIG_ARM_UNWIND),y)
- CFLAGS_ABI	+=-funwind-tables
- endif
- 
-+# Accept old syntax despite ".syntax unified"
-+AFLAGS_NOWARN	:=$(call as-option,-Wa$(comma)-mno-warn-deprecated,-Wa$(comma)-W)
-+
- ifeq ($(CONFIG_THUMB2_KERNEL),y)
- AFLAGS_AUTOIT	:=$(call as-option,-Wa$(comma)-mimplicit-it=always,-Wa$(comma)-mauto-it)
--AFLAGS_NOWARN	:=$(call as-option,-Wa$(comma)-mno-warn-deprecated,-Wa$(comma)-W)
- CFLAGS_ISA	:=-mthumb $(AFLAGS_AUTOIT) $(AFLAGS_NOWARN)
- AFLAGS_ISA	:=$(CFLAGS_ISA) -Wa$(comma)-mthumb
- # Work around buggy relocation from gas if requested:
-@@ -123,7 +125,7 @@ ifeq ($(CONFIG_THUMB2_AVOID_R_ARM_THM_JUMP11),y)
- CFLAGS_MODULE	+=-fno-optimize-sibling-calls
- endif
- else
--CFLAGS_ISA	:=$(call cc-option,-marm,)
-+CFLAGS_ISA	:=$(call cc-option,-marm,) $(AFLAGS_NOWARN)
- AFLAGS_ISA	:=$(CFLAGS_ISA)
- endif
- 
-diff --git a/arch/arm/include/asm/unified.h b/arch/arm/include/asm/unified.h
-index a91ae499614c..2c3b952be63e 100644
---- a/arch/arm/include/asm/unified.h
-+++ b/arch/arm/include/asm/unified.h
-@@ -20,8 +20,10 @@
- #ifndef __ASM_UNIFIED_H
- #define __ASM_UNIFIED_H
- 
--#if defined(__ASSEMBLY__) && defined(CONFIG_ARM_ASM_UNIFIED)
-+#if defined(__ASSEMBLY__)
- 	.syntax unified
-+#else
-+__asm__(".syntax unified");
- #endif
- 
- #ifdef CONFIG_CPU_V7M
-@@ -64,77 +66,4 @@
- 
- #endif	/* CONFIG_THUMB2_KERNEL */
- 
--#ifndef CONFIG_ARM_ASM_UNIFIED
--
--/*
-- * If the unified assembly syntax isn't used (in ARM mode), these
-- * macros expand to an empty string
-- */
--#ifdef __ASSEMBLY__
--	.macro	it, cond
--	.endm
--	.macro	itt, cond
--	.endm
--	.macro	ite, cond
--	.endm
--	.macro	ittt, cond
--	.endm
--	.macro	itte, cond
--	.endm
--	.macro	itet, cond
--	.endm
--	.macro	itee, cond
--	.endm
--	.macro	itttt, cond
--	.endm
--	.macro	ittte, cond
--	.endm
--	.macro	ittet, cond
--	.endm
--	.macro	ittee, cond
--	.endm
--	.macro	itett, cond
--	.endm
--	.macro	itete, cond
--	.endm
--	.macro	iteet, cond
--	.endm
--	.macro	iteee, cond
--	.endm
--#else	/* !__ASSEMBLY__ */
--__asm__(
--"	.macro	it, cond\n"
--"	.endm\n"
--"	.macro	itt, cond\n"
--"	.endm\n"
--"	.macro	ite, cond\n"
--"	.endm\n"
--"	.macro	ittt, cond\n"
--"	.endm\n"
--"	.macro	itte, cond\n"
--"	.endm\n"
--"	.macro	itet, cond\n"
--"	.endm\n"
--"	.macro	itee, cond\n"
--"	.endm\n"
--"	.macro	itttt, cond\n"
--"	.endm\n"
--"	.macro	ittte, cond\n"
--"	.endm\n"
--"	.macro	ittet, cond\n"
--"	.endm\n"
--"	.macro	ittee, cond\n"
--"	.endm\n"
--"	.macro	itett, cond\n"
--"	.endm\n"
--"	.macro	itete, cond\n"
--"	.endm\n"
--"	.macro	iteet, cond\n"
--"	.endm\n"
--"	.macro	iteee, cond\n"
--"	.endm\n");
--#endif	/* __ASSEMBLY__ */
--
--#endif	/* CONFIG_ARM_ASM_UNIFIED */
--
- #endif	/* !__ASM_UNIFIED_H */
--- 
-2.31.0
-
+>
+> [0]: nr-gpios is referenced in Documentation/devicetree/bindings/gpio:
+>  - gpio-adnp.txt
+>  - gpio-xgene-sb.txt
+>  - gpio-xlp.txt
+>  - snps,dw-apb-gpio.yaml
+>
+> Fixes errors such as:
+>   OF: /palmbus@300000/gpio@600: could not find phandle
+>
+> Call Trace:
+>   of_phandle_iterator_next+0x8c/0x16c
+>   __of_parse_phandle_with_args+0x38/0xb8
+>   of_parse_phandle_with_args+0x28/0x3c
+>   parse_suffix_prop_cells+0x80/0xac
+>   parse_gpios+0x20/0x2c
+>   of_link_to_suppliers+0x18c/0x288
+>   of_link_to_suppliers+0x1fc/0x288
+>   device_add+0x4e0/0x734
+>   of_platform_device_create_pdata+0xb8/0xfc
+>   of_platform_bus_create+0x170/0x214
+>   of_platform_populate+0x88/0xf4
+>   __dt_register_buses+0xbc/0xf0
+>   plat_of_setup+0x1c/0x34
+>
+> Fixes: 7f00be96f125 ("of: property: Add device link support for interrupt-parent, dmas and -gpio(s)")
+> Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+> Cc: Saravana Kannan <saravanak@google.com>
+> Cc: <stable@vger.kernel.org> # 5.5.x
+> ---
+>  drivers/of/property.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/of/property.c b/drivers/of/property.c
+> index 2bb3158c9e43..24672c295603 100644
+> --- a/drivers/of/property.c
+> +++ b/drivers/of/property.c
+> @@ -1271,7 +1271,16 @@ DEFINE_SIMPLE_PROP(pinctrl8, "pinctrl-8", NULL)
+>  DEFINE_SIMPLE_PROP(remote_endpoint, "remote-endpoint", NULL)
+>  DEFINE_SUFFIX_PROP(regulators, "-supply", NULL)
+>  DEFINE_SUFFIX_PROP(gpio, "-gpio", "#gpio-cells")
+> -DEFINE_SUFFIX_PROP(gpios, "-gpios", "#gpio-cells")
+> +
+> +static struct device_node *parse_gpios(struct device_node *np,
+> +                                      const char *prop_name, int index)
+> +{
+> +       if (!strcmp_suffix(prop_name, "nr-gpios"))
+> +               return NULL;
+> +
+> +       return parse_suffix_prop_cells(np, prop_name, index, "-gpios",
+> +                                      "#gpio-cells");
+> +}
+>
+>  static struct device_node *parse_iommu_maps(struct device_node *np,
+>                                             const char *prop_name, int index)
+> --
+> 2.31.1
+>
