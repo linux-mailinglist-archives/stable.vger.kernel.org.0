@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D946F353F75
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF74353EB3
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238769AbhDEJMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:12:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59378 "EHLO mail.kernel.org"
+        id S238172AbhDEJHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239108AbhDEJMI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:12:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEF4261394;
-        Mon,  5 Apr 2021 09:12:01 +0000 (UTC)
+        id S238313AbhDEJHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:07:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0B4A613A3;
+        Mon,  5 Apr 2021 09:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613922;
-        bh=L3NRVQFzOmKFOR61LZK7HBF3n7Wrvuw1pzKN9hGnFNw=;
+        s=korg; t=1617613634;
+        bh=Y93aup53NrPIhSUs1EPNQUU2Qq3Y3yX9hWLnNgtR5H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jUHa8uncTWt4gWwwdRjpRrHN7tdZi2w5rh0W6hUheNPuDbT8JsHtXe+Rx42LvUlA
-         khADUeDtSbSKmHTMCvPN/49LUDF1aGkQUXkUgLva8sP3vVk/4MKnVPKLOMzpFRcdBU
-         UFbWOAGeG6oWT8ngLoO0EOW4jFZN1Lwz+qECG4hQ=
+        b=ypJ92I0hIE3zdHhJbaJG03hCbacxveSeBEgACvAJtTYe8zr9opAODW4CRaowDWB6D
+         HJ8QBJ/DchaE9V6Eye3fOe6V5KyFaLDl1dBPV8106gfIDtXgL9eNCTmUfIB3f532nb
+         bkAjrsP1QPwgcXvY1W4RiWFfebuMtjfaPWYmaUro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 017/152] ASoC: cs42l42: Always wait at least 3ms after reset
-Date:   Mon,  5 Apr 2021 10:52:46 +0200
-Message-Id: <20210405085034.800186144@linuxfoundation.org>
+        stable@vger.kernel.org, Zhaolong Zhang <zhangzl2013@126.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 005/126] ext4: fix bh ref count on error paths
+Date:   Mon,  5 Apr 2021 10:52:47 +0200
+Message-Id: <20210405085031.219488436@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Zhaolong Zhang <zhangzl2013@126.com>
 
-[ Upstream commit 19325cfea04446bc79b36bffd4978af15f46a00e ]
+[ Upstream commit c915fb80eaa6194fa9bd0a4487705cd5b0dda2f1 ]
 
-This delay is part of the power-up sequence defined in the datasheet.
-A runtime_resume is a power-up so must also include the delay.
+__ext4_journalled_writepage should drop bhs' ref count on error paths
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210305173442.195740-6-tanureal@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Zhaolong Zhang <zhangzl2013@126.com>
+Link: https://lore.kernel.org/r/1614678151-70481-1-git-send-email-zhangzl2013@126.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 3 ++-
- sound/soc/codecs/cs42l42.h | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/inode.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index d5078ce79fad..4d82d24c7828 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -1794,7 +1794,7 @@ static int cs42l42_i2c_probe(struct i2c_client *i2c_client,
- 		dev_dbg(&i2c_client->dev, "Found reset GPIO\n");
- 		gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
- 	}
--	mdelay(3);
-+	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index c2b8ba343bb4..3f11c948feb0 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1937,13 +1937,13 @@ static int __ext4_journalled_writepage(struct page *page,
+ 	if (!ret)
+ 		ret = err;
  
- 	/* Request IRQ */
- 	ret = devm_request_threaded_irq(&i2c_client->dev,
-@@ -1919,6 +1919,7 @@ static int cs42l42_runtime_resume(struct device *dev)
- 	}
- 
- 	gpiod_set_value_cansleep(cs42l42->reset_gpio, 1);
-+	usleep_range(CS42L42_BOOT_TIME_US, CS42L42_BOOT_TIME_US * 2);
- 
- 	regcache_cache_only(cs42l42->regmap, false);
- 	regcache_sync(cs42l42->regmap);
-diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
-index 9b017b76828a..866d7c873e3c 100644
---- a/sound/soc/codecs/cs42l42.h
-+++ b/sound/soc/codecs/cs42l42.h
-@@ -740,6 +740,7 @@
- #define CS42L42_FRAC2_VAL(val)	(((val) & 0xff0000) >> 16)
- 
- #define CS42L42_NUM_SUPPLIES	5
-+#define CS42L42_BOOT_TIME_US	3000
- 
- static const char *const cs42l42_supply_names[CS42L42_NUM_SUPPLIES] = {
- 	"VA",
+-	if (!ext4_has_inline_data(inode))
+-		ext4_walk_page_buffers(NULL, page_bufs, 0, len,
+-				       NULL, bput_one);
+ 	ext4_set_inode_state(inode, EXT4_STATE_JDATA);
+ out:
+ 	unlock_page(page);
+ out_no_pagelock:
++	if (!inline_data && page_bufs)
++		ext4_walk_page_buffers(NULL, page_bufs, 0, len,
++				       NULL, bput_one);
+ 	brelse(inode_bh);
+ 	return ret;
+ }
 -- 
 2.30.1
 
