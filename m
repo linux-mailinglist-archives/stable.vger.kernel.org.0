@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6304735408E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C20135407B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240063AbhDEJSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:18:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
+        id S239840AbhDEJSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:18:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239997AbhDEJSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:18:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18741613AD;
-        Mon,  5 Apr 2021 09:18:26 +0000 (UTC)
+        id S239912AbhDEJSI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:18:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2829D61106;
+        Mon,  5 Apr 2021 09:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614307;
-        bh=JurLy8cBkPqWxyUaJ/ITh8W4P04f2WYbLfYuj6QDTHE=;
+        s=korg; t=1617614282;
+        bh=sM2m7cvJIaaalVKSwtl+CvTwqW9bCqn3BDelvZkv+bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVkcrhUwdst26U9yEFIewRdlF5xDP2g6o3g9jRyjh1eBuhndw4kGm8gBPlQPjoN77
-         qqMytEH8mBdH/7PTXDU4mSU26ZQYUpg58FvrV4nlD3OKJBtK3gpvNFVt/JK44CGout
-         qlnrK9S1JwmJNuBGSkPIiDTAvRX3b/KCvIU871GI=
+        b=pmPnaZLDrAcngAvsghfXFrujI4dNnU3MfcugvuWO1EZcS8Q3BTzqGQTGccg/prDka
+         oBOcr7DYkJMdXe1KZtad/yNDzcvv1wxYXMkfOLW2j8JrLHodH/ZxIi4fLNgBuvEJUt
+         T4FRNDorFWJg1XGuBQReSK+503mp+0L/YHsipv1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH 5.11 143/152] usb: dwc3: gadget: Clear DEP flags after stop transfers in ep disable
-Date:   Mon,  5 Apr 2021 10:54:52 +0200
-Message-Id: <20210405085038.863965517@linuxfoundation.org>
+        stable@vger.kernel.org, Roja Rani Yarubandi <rojay@codeaurora.org>,
+        Akash Asthana <akashast@codeaurora.org>,
+        Matthias Kaehlcke <mka@chromium.org>
+Subject: [PATCH 5.11 144/152] soc: qcom-geni-se: Cleanup the code to remove proxy votes
+Date:   Mon,  5 Apr 2021 10:54:53 +0200
+Message-Id: <20210405085038.894265805@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
 References: <20210405085034.233917714@linuxfoundation.org>
@@ -41,48 +40,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Roja Rani Yarubandi <rojay@codeaurora.org>
 
-commit 5aef629704ad4d983ecf5c8a25840f16e45b6d59 upstream.
+commit 29d96eb261345c8d888e248ae79484e681be2faa upstream.
 
-Ensure that dep->flags are cleared until after stop active transfers
-is completed.  Otherwise, the ENDXFER command will not be executed
-during ep disable.
+This reverts commit 048eb908a1f2 ("soc: qcom-geni-se: Add interconnect
+support to fix earlycon crash")
 
-Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
-Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1616610664-16495-1-git-send-email-wcheng@codeaurora.org
+ICC core and platforms drivers supports sync_state feature, which
+ensures that the default ICC BW votes from the bootloader is not
+removed until all it's consumers are probes.
+
+The proxy votes were needed in case other QUP child drivers
+I2C, SPI probes before UART, they can turn off the QUP-CORE clock
+which is shared resources for all QUP driver, this causes unclocked
+access to HW from earlycon.
+
+Given above support from ICC there is no longer need to maintain
+proxy votes on QUP-CORE ICC node from QUP wrapper driver for early
+console usecase, the default votes won't be removed until real
+console is probed.
+
+Cc: stable@vger.kernel.org
+Fixes: 266cd33b5913 ("interconnect: qcom: Ensure that the floor bandwidth value is enforced")
+Fixes: 7d3b0b0d8184 ("interconnect: qcom: Use icc_sync_state")
+Signed-off-by: Roja Rani Yarubandi <rojay@codeaurora.org>
+Signed-off-by: Akash Asthana <akashast@codeaurora.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Link: https://lore.kernel.org/r/20210324101836.25272-2-rojay@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/soc/qcom/qcom-geni-se.c       |   74 ----------------------------------
+ drivers/tty/serial/qcom_geni_serial.c |    7 ---
+ include/linux/qcom-geni-se.h          |    2 
+ 3 files changed, 83 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -791,10 +791,6 @@ static int __dwc3_gadget_ep_disable(stru
- 	reg &= ~DWC3_DALEPENA_EP(dep->number);
- 	dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
+--- a/drivers/soc/qcom/qcom-geni-se.c
++++ b/drivers/soc/qcom/qcom-geni-se.c
+@@ -3,7 +3,6 @@
  
--	dep->stream_capable = false;
--	dep->type = 0;
--	dep->flags = 0;
+ #include <linux/acpi.h>
+ #include <linux/clk.h>
+-#include <linux/console.h>
+ #include <linux/slab.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/io.h>
+@@ -92,14 +91,11 @@ struct geni_wrapper {
+ 	struct device *dev;
+ 	void __iomem *base;
+ 	struct clk_bulk_data ahb_clks[NUM_AHB_CLKS];
+-	struct geni_icc_path to_core;
+ };
+ 
+ static const char * const icc_path_names[] = {"qup-core", "qup-config",
+ 						"qup-memory"};
+ 
+-static struct geni_wrapper *earlycon_wrapper;
 -
- 	/* Clear out the ep descriptors for non-ep0 */
- 	if (dep->number > 1) {
- 		dep->endpoint.comp_desc = NULL;
-@@ -803,6 +799,10 @@ static int __dwc3_gadget_ep_disable(stru
+ #define QUP_HW_VER_REG			0x4
  
- 	dwc3_remove_requests(dwc, dep);
- 
-+	dep->stream_capable = false;
-+	dep->type = 0;
-+	dep->flags = 0;
-+
- 	return 0;
+ /* Common SE registers */
+@@ -843,44 +839,11 @@ int geni_icc_disable(struct geni_se *se)
  }
+ EXPORT_SYMBOL(geni_icc_disable);
  
+-void geni_remove_earlycon_icc_vote(void)
+-{
+-	struct platform_device *pdev;
+-	struct geni_wrapper *wrapper;
+-	struct device_node *parent;
+-	struct device_node *child;
+-
+-	if (!earlycon_wrapper)
+-		return;
+-
+-	wrapper = earlycon_wrapper;
+-	parent = of_get_next_parent(wrapper->dev->of_node);
+-	for_each_child_of_node(parent, child) {
+-		if (!of_device_is_compatible(child, "qcom,geni-se-qup"))
+-			continue;
+-
+-		pdev = of_find_device_by_node(child);
+-		if (!pdev)
+-			continue;
+-
+-		wrapper = platform_get_drvdata(pdev);
+-		icc_put(wrapper->to_core.path);
+-		wrapper->to_core.path = NULL;
+-
+-	}
+-	of_node_put(parent);
+-
+-	earlycon_wrapper = NULL;
+-}
+-EXPORT_SYMBOL(geni_remove_earlycon_icc_vote);
+-
+ static int geni_se_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct resource *res;
+ 	struct geni_wrapper *wrapper;
+-	struct console __maybe_unused *bcon;
+-	bool __maybe_unused has_earlycon = false;
+ 	int ret;
+ 
+ 	wrapper = devm_kzalloc(dev, sizeof(*wrapper), GFP_KERNEL);
+@@ -903,43 +866,6 @@ static int geni_se_probe(struct platform
+ 		}
+ 	}
+ 
+-#ifdef CONFIG_SERIAL_EARLYCON
+-	for_each_console(bcon) {
+-		if (!strcmp(bcon->name, "qcom_geni")) {
+-			has_earlycon = true;
+-			break;
+-		}
+-	}
+-	if (!has_earlycon)
+-		goto exit;
+-
+-	wrapper->to_core.path = devm_of_icc_get(dev, "qup-core");
+-	if (IS_ERR(wrapper->to_core.path))
+-		return PTR_ERR(wrapper->to_core.path);
+-	/*
+-	 * Put minmal BW request on core clocks on behalf of early console.
+-	 * The vote will be removed earlycon exit function.
+-	 *
+-	 * Note: We are putting vote on each QUP wrapper instead only to which
+-	 * earlycon is connected because QUP core clock of different wrapper
+-	 * share same voltage domain. If core1 is put to 0, then core2 will
+-	 * also run at 0, if not voted. Default ICC vote will be removed ASA
+-	 * we touch any of the core clock.
+-	 * core1 = core2 = max(core1, core2)
+-	 */
+-	ret = icc_set_bw(wrapper->to_core.path, GENI_DEFAULT_BW,
+-				GENI_DEFAULT_BW);
+-	if (ret) {
+-		dev_err(&pdev->dev, "%s: ICC BW voting failed for core: %d\n",
+-			__func__, ret);
+-		return ret;
+-	}
+-
+-	if (of_get_compatible_child(pdev->dev.of_node, "qcom,geni-debug-uart"))
+-		earlycon_wrapper = wrapper;
+-	of_node_put(pdev->dev.of_node);
+-exit:
+-#endif
+ 	dev_set_drvdata(dev, wrapper);
+ 	dev_dbg(dev, "GENI SE Driver probed\n");
+ 	return devm_of_platform_populate(dev);
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -1177,12 +1177,6 @@ static inline void qcom_geni_serial_enab
+ 						      struct console *con) { }
+ #endif
+ 
+-static int qcom_geni_serial_earlycon_exit(struct console *con)
+-{
+-	geni_remove_earlycon_icc_vote();
+-	return 0;
+-}
+-
+ static struct qcom_geni_private_data earlycon_private_data;
+ 
+ static int __init qcom_geni_serial_earlycon_setup(struct earlycon_device *dev,
+@@ -1233,7 +1227,6 @@ static int __init qcom_geni_serial_early
+ 	writel(stop_bit_len, uport->membase + SE_UART_TX_STOP_BIT_LEN);
+ 
+ 	dev->con->write = qcom_geni_serial_earlycon_write;
+-	dev->con->exit = qcom_geni_serial_earlycon_exit;
+ 	dev->con->setup = NULL;
+ 	qcom_geni_serial_enable_early_read(&se, dev->con);
+ 
+--- a/include/linux/qcom-geni-se.h
++++ b/include/linux/qcom-geni-se.h
+@@ -460,7 +460,5 @@ void geni_icc_set_tag(struct geni_se *se
+ int geni_icc_enable(struct geni_se *se);
+ 
+ int geni_icc_disable(struct geni_se *se);
+-
+-void geni_remove_earlycon_icc_vote(void);
+ #endif
+ #endif
 
 
