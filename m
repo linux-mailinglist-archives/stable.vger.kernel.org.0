@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF31353F38
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16089353E59
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239415AbhDEJKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56934 "EHLO mail.kernel.org"
+        id S238665AbhDEJFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239393AbhDEJKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:10:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A21A613A7;
-        Mon,  5 Apr 2021 09:10:30 +0000 (UTC)
+        id S238620AbhDEJFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD2E361394;
+        Mon,  5 Apr 2021 09:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613831;
-        bh=KlE8lWoA7F6dX9H+/W8BC2YHc0HDwdG+vOL1hNm62rs=;
+        s=korg; t=1617613508;
+        bh=+FO1BZS3CrWpopcpgXL0cMFUmBp1NcyYyfIHiWj+oLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c5OOse+56GZiuOSb+ApfUezHReL7JX2FbdARz0KHpuoBA1M6HFL4F40KzdtZb1ZRb
-         vUhBHPYno/HP+u1Uy6TiHpIQZJQ3gAwifd6+fIYTDCobl9f29KJezvvkahIOotS1p5
-         u/Gj1jfjpzjhtzsq7LjPoQcVV3W86chF+t2r3qGA=
+        b=D4HFG/5lmSZCaK3uT8/neFD+9VpmTtk9Vcq6rG7tpCQvdpvJxT1fhv0v2UtG0wXsS
+         363e1pDUX1lDM9SypYlVNTN6swy3h/aDkUUhS89XhvKLwIV3KJ/wxmlgUgRE6cO0rm
+         u+HN8wLzGwuw3fj4qSlbVeu5CLG1r40KKIsi6CI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>
-Subject: [PATCH 5.10 106/126] USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.4 64/74] cdc-acm: fix BREAK rx code path adding necessary calls
 Date:   Mon,  5 Apr 2021 10:54:28 +0200
-Message-Id: <20210405085034.557143420@linuxfoundation.org>
+Message-Id: <20210405085026.813676024@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,42 +38,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Palatin <vpalatin@chromium.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 0bd860493f81eb2a46173f6f5e44cc38331c8dbd upstream.
+commit 08dff274edda54310d6f1cf27b62fddf0f8d146e upstream.
 
-This LTE modem (M.2 card) has a bug in its power management:
-there is some kind of race condition for U3 wake-up between the host and
-the device. The modem firmware sometimes crashes/locks when both events
-happen at the same time and the modem fully drops off the USB bus (and
-sometimes re-enumerates, sometimes just gets stuck until the next
-reboot).
+Counting break events is nice but we should actually report them to
+the tty layer.
 
-Tested with the modem wired to the XHCI controller on an AMD 3015Ce
-platform. Without the patch, the modem dropped of the USB bus 5 times in
-3 days. With the quirk, it stayed connected for a week while the
-'runtime_suspended_time' counter incremented as excepted.
-
-Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
-Link: https://lore.kernel.org/r/20210319124802.2315195-1-vpalatin@chromium.org
+Fixes: 5a6a62bdb9257 ("cdc-acm: add TIOCMIWAIT")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20210311133714.31881-1-oneukum@suse.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/class/cdc-acm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -498,6 +498,10 @@ static const struct usb_device_id usb_qu
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* Fibocom L850-GL LTE Modem */
-+	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
-+			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
-+
- 	/* INTEL VALUE SSD */
- 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
- 
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -312,8 +312,10 @@ static void acm_process_notification(str
+ 			acm->iocount.dsr++;
+ 		if (difference & ACM_CTRL_DCD)
+ 			acm->iocount.dcd++;
+-		if (newctrl & ACM_CTRL_BRK)
++		if (newctrl & ACM_CTRL_BRK) {
+ 			acm->iocount.brk++;
++			tty_insert_flip_char(&acm->port, 0, TTY_BREAK);
++		}
+ 		if (newctrl & ACM_CTRL_RI)
+ 			acm->iocount.rng++;
+ 		if (newctrl & ACM_CTRL_FRAMING)
 
 
