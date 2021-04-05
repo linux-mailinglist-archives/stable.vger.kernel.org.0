@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CAB353DAD
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EE2A353EDC
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237334AbhDEJCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43180 "EHLO mail.kernel.org"
+        id S238213AbhDEJIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:08:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236916AbhDEJBJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:01:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E975461398;
-        Mon,  5 Apr 2021 09:01:01 +0000 (UTC)
+        id S238409AbhDEJIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:08:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C6B6613A1;
+        Mon,  5 Apr 2021 09:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613262;
-        bh=qlNPSD0v2axzEzc7mYlfNmvnClomzy38BEjQdUlMqXY=;
+        s=korg; t=1617613690;
+        bh=1VrBdJ01bGjkMK2OO/JZFdkPjxn7zUwNflApGOU++l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQTAInj09jJvXUojnB1W59XPSw2MsY9Y6ibDWImSssDhKN7xQPXCa+C+LFpcrMEmo
-         xcHM/Z+DVmoUnfR/ImY4Yxm6jrhg5MwFY5hrc1YuiePy9r5HdocXwv54XCGfdG5rK1
-         drvIEj9PqL5bU+z+DbqB7kkv7FBbF+ao9nzFwbDg=
+        b=pAPPL/uqrAt+QXaiphg5CzehV7AoEz6ABrqfr0kzdkluqKcnhbBCA8VCehwARkcnL
+         xRztCsy7z87XcSvi+7vnB/sFBUDVvzutMtuTNiAy5hNH1iDLFihmkUVFFqbQWpEZIE
+         +3PygmvivjZR0AeeUQNQ4r1lwIpEAM0KFFbYWAL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/56] ASoC: rt5651: Fix dac- and adc- vol-tlv values being off by a factor of 10
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 056/126] ACPI: processor: Fix CPU0 wakeup in acpi_idle_play_dead()
 Date:   Mon,  5 Apr 2021 10:53:38 +0200
-Message-Id: <20210405085022.786773028@linuxfoundation.org>
+Message-Id: <20210405085032.897099810@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit eee51df776bd6cac10a76b2779a9fdee3f622b2b ]
+commit 8cdddd182bd7befae6af49c5fd612893f55d6ccb upstream.
 
-The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
-not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
-apps which translate the dB scale to a linear scale. With the logarithmic
-dB scale being of by a factor of 10 we loose all precision in the lower
-area of the range when apps translate things to a linear scale.
+Commit 496121c02127 ("ACPI: processor: idle: Allow probing on platforms
+with one ACPI C-state") broke CPU0 hotplug on certain systems, e.g.
+I'm observing the following on AWS Nitro (e.g r5b.xlarge but other
+instance types are affected as well):
 
-E.g. the 0 dB default, which corresponds with a value of 47 of the
-0 - 127 range for the control, would be shown as 0/100 in alsa-mixer.
+ # echo 0 > /sys/devices/system/cpu/cpu0/online
+ # echo 1 > /sys/devices/system/cpu/cpu0/online
+ <10 seconds delay>
+ -bash: echo: write error: Input/output error
 
-Since the centi-dB values used in the TLV struct cannot represent the
-0.375 dB step size used by these controls, change the TLV definition
-for them to specify a min and max value instead of min + stepsize.
+In fact, the above mentioned commit only revealed the problem and did
+not introduce it. On x86, to wakeup CPU an NMI is being used and
+hlt_play_dead()/mwait_play_dead() loops are prepared to handle it:
 
-Note this mirrors commit 3f31f7d9b540 ("ASoC: rt5670: Fix dac- and adc-
-vol-tlv values being off by a factor of 10") which made the exact same
-change to the rt5670 codec driver.
+	/*
+	 * If NMI wants to wake up CPU0, start CPU0.
+	 */
+	if (wakeup_cpu0())
+		start_cpu0();
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210226143817.84287-3-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+cpuidle_play_dead() -> acpi_idle_play_dead() (which is now being called on
+systems where it wasn't called before the above mentioned commit) serves
+the same purpose but it doesn't have a path for CPU0. What happens now on
+wakeup is:
+ - NMI is sent to CPU0
+ - wakeup_cpu0_nmi() works as expected
+ - we get back to while (1) loop in acpi_idle_play_dead()
+ - safe_halt() puts CPU0 to sleep again.
+
+The straightforward/minimal fix is add the special handling for CPU0 on x86
+and that's what the patch is doing.
+
+Fixes: 496121c02127 ("ACPI: processor: idle: Allow probing on platforms with one ACPI C-state")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt5651.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/smp.h    |    1 +
+ arch/x86/kernel/smpboot.c     |    2 +-
+ drivers/acpi/processor_idle.c |    7 +++++++
+ 3 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5651.c b/sound/soc/codecs/rt5651.c
-index 985852fd9723..318a4c9b380f 100644
---- a/sound/soc/codecs/rt5651.c
-+++ b/sound/soc/codecs/rt5651.c
-@@ -288,9 +288,9 @@ static bool rt5651_readable_register(struct device *dev, unsigned int reg)
+--- a/arch/x86/include/asm/smp.h
++++ b/arch/x86/include/asm/smp.h
+@@ -132,6 +132,7 @@ void native_play_dead(void);
+ void play_dead_common(void);
+ void wbinvd_on_cpu(int cpu);
+ int wbinvd_on_all_cpus(void);
++bool wakeup_cpu0(void);
+ 
+ void native_smp_send_reschedule(int cpu);
+ void native_send_call_func_ipi(const struct cpumask *mask);
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -1655,7 +1655,7 @@ void play_dead_common(void)
+ 	local_irq_disable();
  }
  
- static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
--static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -65625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(dac_vol_tlv, -6562, 0);
- static const DECLARE_TLV_DB_SCALE(in_vol_tlv, -3450, 150, 0);
--static const DECLARE_TLV_DB_SCALE(adc_vol_tlv, -17625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(adc_vol_tlv, -1762, 3000);
- static const DECLARE_TLV_DB_SCALE(adc_bst_tlv, 0, 1200, 0);
+-static bool wakeup_cpu0(void)
++bool wakeup_cpu0(void)
+ {
+ 	if (smp_processor_id() == 0 && enable_start_cpu0)
+ 		return true;
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -29,6 +29,7 @@
+  */
+ #ifdef CONFIG_X86
+ #include <asm/apic.h>
++#include <asm/cpu.h>
+ #endif
  
- /* {0, +20, +24, +30, +35, +40, +44, +50, +52} dB */
--- 
-2.30.1
-
+ #define ACPI_PROCESSOR_CLASS            "processor"
+@@ -542,6 +543,12 @@ static int acpi_idle_play_dead(struct cp
+ 			wait_for_freeze();
+ 		} else
+ 			return -ENODEV;
++
++#if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
++		/* If NMI wants to wake up CPU0, start CPU0. */
++		if (wakeup_cpu0())
++			start_cpu0();
++#endif
+ 	}
+ 
+ 	/* Never reached */
 
 
