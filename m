@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2549353C97
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59953353C99
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232658AbhDEIzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:55:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33612 "EHLO mail.kernel.org"
+        id S232220AbhDEIzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232220AbhDEIzi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:55:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE96D61245;
-        Mon,  5 Apr 2021 08:55:31 +0000 (UTC)
+        id S230305AbhDEIzk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:55:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1231961245;
+        Mon,  5 Apr 2021 08:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612932;
-        bh=dAgDrcgZOCQ7EA2iF1KCNjcCX3padDVlNWsAJ1SG8ac=;
+        s=korg; t=1617612934;
+        bh=FFqXti1lAOLMRaerjWNaFbz7YDI1i+/1fmlLdtLu/l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9QSqzMC8e0kQkv/oMb7D4H5WJSXAvUYUYgO8T+lcya89vp3xPOiJp1x5rOFs/lxF
-         NuMmwDbQe/OPdTERIYceGwjgMARnQPhfKTRPwF7B5QpEp7WNdjnmSsWxxleOtn/R12
-         3/WO2UD4TT++TLSOtSTXC/JsP93Jij6cn1/xtL+o=
+        b=tdeLorDAqroSwH8lXC/NGhbvh6yXp5QqbEXD3lxcBYorE5tq+CaCNFGH0tz5gJC6J
+         939FOoYlvcu48uZtpMM0CCT7+LBKtBaFeHzjqMtMUj6DVU6Oaj9vwAOd2k1650cCJS
+         n7uVjkAylwSGDVGsJDXY6cwqlPbK74DpdSeNfeTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ikjoon Jang <ikjn@chromium.org>,
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 15/28] ALSA: usb-audio: Apply sample rate quirk to Logitech Connect
-Date:   Mon,  5 Apr 2021 10:53:49 +0200
-Message-Id: <20210405085017.499731569@linuxfoundation.org>
+Subject: [PATCH 4.4 16/28] ALSA: hda/realtek: call alc_update_headset_mode() in hp_automute_hook
+Date:   Mon,  5 Apr 2021 10:53:50 +0200
+Message-Id: <20210405085017.529021457@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
 References: <20210405085017.012074144@linuxfoundation.org>
@@ -39,35 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ikjoon Jang <ikjn@chromium.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 625bd5a616ceda4840cd28f82e957c8ced394b6a upstream.
+commit e54f30befa7990b897189b44a56c1138c6bfdbb5 upstream.
 
-Logitech ConferenceCam Connect is a compound USB device with UVC and
-UAC. Not 100% reproducible but sometimes it keeps responding STALL to
-every control transfer once it receives get_freq request.
+We found the alc_update_headset_mode() is not called on some machines
+when unplugging the headset, as a result, the mode of the
+ALC_HEADSET_MODE_UNPLUGGED can't be set, then the current_headset_type
+is not cleared, if users plug a differnt type of headset next time,
+the determine_headset_type() will not be called and the audio jack is
+set to the headset type of previous time.
 
-This patch adds 046d:0x084c to a snd_usb_get_sample_rate_quirk list.
+On the Dell machines which connect the dmic to the PCH, if we open
+the gnome-sound-setting and unplug the headset, this issue will
+happen. Those machines disable the auto-mute by ucm and has no
+internal mic in the input source, so the update_headset_mode() will
+not be called by cap_sync_hook or automute_hook when unplugging, and
+because the gnome-sound-setting is opened, the codec will not enter
+the runtime_suspend state, so the update_headset_mode() will not be
+called by alc_resume when unplugging. In this case the
+hp_automute_hook is called when unplugging, so add
+update_headset_mode() calling to this function.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203419
-Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210324105153.2322881-1-ikjn@chromium.org
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210320091542.6748-2-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    1 +
+ sound/pci/hda/patch_realtek.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1155,6 +1155,7 @@ bool snd_usb_get_sample_rate_quirk(struc
- 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
- 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
- 	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
-+	case USB_ID(0x046d, 0x084c): /* Logitech ConferenceCam Connect */
- 		return true;
- 	}
- 	return false;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4294,6 +4294,7 @@ static void alc_update_headset_jack_cb(s
+ 	struct alc_spec *spec = codec->spec;
+ 	spec->current_headset_type = ALC_HEADSET_TYPE_UNKNOWN;
+ 	snd_hda_gen_hp_automute(codec, jack);
++	alc_update_headset_mode(codec);
+ }
+ 
+ static void alc_probe_headset_mode(struct hda_codec *codec)
 
 
