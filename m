@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B02E353F58
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED3EF353F6C
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239035AbhDEJLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:11:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58174 "EHLO mail.kernel.org"
+        id S239080AbhDEJMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238801AbhDEJLK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:11:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E082D613A4;
-        Mon,  5 Apr 2021 09:11:03 +0000 (UTC)
+        id S238884AbhDEJLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:11:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CA9B613AB;
+        Mon,  5 Apr 2021 09:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613864;
-        bh=6jV/f9eFRf6AafyyWRwu6QXjI+04Oryi/+TjtsHveLU=;
+        s=korg; t=1617613867;
+        bh=haH7sI2EGSZtheaOsNp651WNMOn+77njKdVy78W2CKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqu3bSZQ3l0g1xcy/8YZZNm1ojov4sb2ohoiOLna0R9ZBwQhm3Bv+CJy1MDAAR3f7
-         lAGdcAz5ZLUb3BqTKauv7Ei2H6sx50bU3CLZzBpXGu0qUf7wsQqIGdrUheBc0w+rxV
-         dfXXE8+ZJq9HHI46xoj8ntF3gPJZ3uE68yviasw8=
+        b=zccvegwl7unmAasSmQf0cU2f7UMYFk7tyHvSFUk20QFU+edO796466VPB7kEivAAJ
+         mZZ65tmSC69h8zEt5cgdzBX0LcAjdNXAXC+V97woqjfwC38FfLcKjKlN0IHiVC4yBp
+         JHNhzXwrHwmgkEl8FhSGKwjtQwsRyG51IkJXJiac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
-Subject: [PATCH 5.10 121/126] staging: rtl8192e: Change state information from u16 to u8
-Date:   Mon,  5 Apr 2021 10:54:43 +0200
-Message-Id: <20210405085035.039415982@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>
+Subject: [PATCH 5.10 122/126] driver core: clear deferred probe reason on probe retry
+Date:   Mon,  5 Apr 2021 10:54:44 +0200
+Message-Id: <20210405085035.070556504@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
 References: <20210405085031.040238881@linuxfoundation.org>
@@ -38,74 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit e78836ae76d20f38eed8c8c67f21db97529949da upstream.
+commit f0acf637d60ffcef3ccb6e279f743e587b3c7359 upstream.
 
-The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
-bytes in total while the operations performed on this array through-out
-the code base are only 2 bytes.
+When retrying a deferred probe, any old defer reason string should be
+discarded. Otherwise, if the probe is deferred again at a different spot,
+but without setting a message, the now incorrect probe reason will remain.
 
-The "CcxRmState" field is fed only 2 bytes of data using memcpy():
+This was observed with the i.MX I2C driver, which ultimately failed
+to probe due to lack of the GPIO driver. The probe defer for GPIO
+doesn't record a message, but a previous probe defer to clock_get did.
+This had the effect that /sys/kernel/debug/devices_deferred listed
+a misleading probe deferral reason.
 
-(In rtllib_rx.c:1972)
-	memcpy(network->CcxRmState, &info_element->data[4], 2)
-
-With "info_element->data[]" being a u8 array, if 2 bytes are written
-into "CcxRmState" (whose one element is u16 size), then the 2 u8
-elements from "data[]" gets squashed and written into the first element
-("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
-fed with any data.
-
-Same in file rtllib_rx.c:2522:
-	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
-
-The above line duplicates "src" data to "dst" but only writes 2 bytes
-(and not 4, which is the actual size). Again, only 1st element gets the
-value while the 2nd element remains uninitialized.
-
-This later makes operations done with CcxRmState unpredictable in the
-following lines as the 1st element is having a squashed number while the
-2nd element is having an uninitialized random number.
-
-rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
-rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
-
-network->MBssidMask is also of type u8 and not u16.
-
-Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
-data written into this array and read from it make sense and are not
-random values.
-
-NOTE: The wrong initialization of "CcxRmState" can be seen in the
-following commit:
-
-commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
-
-The above commit created a file `rtl8192e/ieee80211.h` which used to
-have the faulty line. The file has been deleted (or possibly renamed)
-with the contents copied in to a new file `rtl8192e/rtllib.h` along with
-additional code in the commit 94a799425eee (tagged in Fixes).
-
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210323113413.29179-2-atulgopinathan@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Fixes: d090b70ede02 ("driver core: add deferring probe reason to devices_deferred property")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Link: https://lore.kernel.org/r/20210319110459.19966-1-a.fatoum@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtllib.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/dd.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/rtl8192e/rtllib.h
-+++ b/drivers/staging/rtl8192e/rtllib.h
-@@ -1105,7 +1105,7 @@ struct rtllib_network {
- 	bool	bWithAironetIE;
- 	bool	bCkipSupported;
- 	bool	bCcxRmEnable;
--	u16	CcxRmState[2];
-+	u8	CcxRmState[2];
- 	bool	bMBssidValid;
- 	u8	MBssidMask;
- 	u8	MBssid[ETH_ALEN];
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -97,6 +97,9 @@ static void deferred_probe_work_func(str
+ 
+ 		get_device(dev);
+ 
++		kfree(dev->p->deferred_probe_reason);
++		dev->p->deferred_probe_reason = NULL;
++
+ 		/*
+ 		 * Drop the mutex while probing each device; the probe path may
+ 		 * manipulate the deferred list
 
 
