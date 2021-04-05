@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 712AA353E0F
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 740FF353D87
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237693AbhDEJDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46768 "EHLO mail.kernel.org"
+        id S237190AbhDEJA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:00:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237715AbhDEJDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:03:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2782E610E8;
-        Mon,  5 Apr 2021 09:03:31 +0000 (UTC)
+        id S237141AbhDEJAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:00:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E27EA6139C;
+        Mon,  5 Apr 2021 09:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613411;
-        bh=NbXGtagGC6nta9wmmqR4lJoh5XClR+lCZLLHV+MV860=;
+        s=korg; t=1617613209;
+        bh=KkX+a3EJBm9puBdGl63ZwLCFqc7hZbvS6WUcps0hT/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m0OgbeR+adT1dLEUPvTpy8odH+26InhqyN9nLzCdGb7ChBW1zJ6qOVcsPjQlEroND
-         h1YmbYuG07WDhoFnDn2h/lVJ/MmvX5VP7jUFGYtJUUYzaVIZ2lBDjOl54le2Mo16OY
-         YBVXAP/vKJDMud5/rJkQybuGDhqQoJJFMmh0Brro=
+        b=hqbtsUWJIH9nOEpH0TtlHMzSFNz0gABVdOcRDtlmfXKk35wWiiXpeUO7IwXGClVev
+         uvvo3VKSRWdofwdvZUabq52G5Re5ojkDy6cb6jojlOaN6anYkcyXpKzvCZn0rrTGz9
+         VOGLWBEmj3c+1U02cXRt0OnlqArD/AHqaCTzZ2Ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 27/74] thermal/core: Add NULL pointer check before using cooling device stats
-Date:   Mon,  5 Apr 2021 10:53:51 +0200
-Message-Id: <20210405085025.610680211@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 26/52] ALSA: hda/realtek: call alc_update_headset_mode() in hp_automute_hook
+Date:   Mon,  5 Apr 2021 10:53:52 +0200
+Message-Id: <20210405085022.845393774@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
+References: <20210405085021.996963957@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 2046a24ae121cd107929655a6aaf3b8c5beea01f ]
+commit e54f30befa7990b897189b44a56c1138c6bfdbb5 upstream.
 
-There is a possible chance that some cooling device stats buffer
-allocation fails due to very high cooling device max state value.
-Later cooling device update sysfs can try to access stats data
-for the same cooling device. It will lead to NULL pointer
-dereference issue.
+We found the alc_update_headset_mode() is not called on some machines
+when unplugging the headset, as a result, the mode of the
+ALC_HEADSET_MODE_UNPLUGGED can't be set, then the current_headset_type
+is not cleared, if users plug a differnt type of headset next time,
+the determine_headset_type() will not be called and the audio jack is
+set to the headset type of previous time.
 
-Add a NULL pointer check before accessing thermal cooling device
-stats data. It fixes the following bug
+On the Dell machines which connect the dmic to the PCH, if we open
+the gnome-sound-setting and unplug the headset, this issue will
+happen. Those machines disable the auto-mute by ucm and has no
+internal mic in the input source, so the update_headset_mode() will
+not be called by cap_sync_hook or automute_hook when unplugging, and
+because the gnome-sound-setting is opened, the codec will not enter
+the runtime_suspend state, so the update_headset_mode() will not be
+called by alc_resume when unplugging. In this case the
+hp_automute_hook is called when unplugging, so add
+update_headset_mode() calling to this function.
 
-[ 26.812833] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
-[ 27.122960] Call trace:
-[ 27.122963] do_raw_spin_lock+0x18/0xe8
-[ 27.122966] _raw_spin_lock+0x24/0x30
-[ 27.128157] thermal_cooling_device_stats_update+0x24/0x98
-[ 27.128162] cur_state_store+0x88/0xb8
-[ 27.128166] dev_attr_store+0x40/0x58
-[ 27.128169] sysfs_kf_write+0x50/0x68
-[ 27.133358] kernfs_fop_write+0x12c/0x1c8
-[ 27.133362] __vfs_write+0x54/0x160
-[ 27.152297] vfs_write+0xcc/0x188
-[ 27.157132] ksys_write+0x78/0x108
-[ 27.162050] ksys_write+0xf8/0x108
-[ 27.166968] __arm_smccc_hvc+0x158/0x4b0
-[ 27.166973] __arm_smccc_hvc+0x9c/0x4b0
-[ 27.186005] el0_svc+0x8/0xc
-
-Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1607367181-24589-1-git-send-email-manafm@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210320091542.6748-2-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/thermal_sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
-index aa99edb4dff7..4dce4a8f71ed 100644
---- a/drivers/thermal/thermal_sysfs.c
-+++ b/drivers/thermal/thermal_sysfs.c
-@@ -770,6 +770,9 @@ void thermal_cooling_device_stats_update(struct thermal_cooling_device *cdev,
- {
- 	struct cooling_dev_stats *stats = cdev->stats;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4811,6 +4811,7 @@ static void alc_update_headset_jack_cb(s
+ 	struct alc_spec *spec = codec->spec;
+ 	spec->current_headset_type = ALC_HEADSET_TYPE_UNKNOWN;
+ 	snd_hda_gen_hp_automute(codec, jack);
++	alc_update_headset_mode(codec);
+ }
  
-+	if (!stats)
-+		return;
-+
- 	spin_lock(&stats->lock);
- 
- 	if (stats->state == new_state)
--- 
-2.30.1
-
+ static void alc_probe_headset_mode(struct hda_codec *codec)
 
 
