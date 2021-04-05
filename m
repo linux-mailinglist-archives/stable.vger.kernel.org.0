@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C9F353F09
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F41354015
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237981AbhDEJJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53378 "EHLO mail.kernel.org"
+        id S239479AbhDEJP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238706AbhDEJIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:08:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3FF761399;
-        Mon,  5 Apr 2021 09:08:43 +0000 (UTC)
+        id S240276AbhDEJO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:14:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5693561002;
+        Mon,  5 Apr 2021 09:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613724;
+        s=korg; t=1617614091;
         bh=N35o62fbSEOSuqmsqry1AgPULNdNIjR4VW3kwET2dVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwJsHRD/CFondDvz2QmztcD9553/0BFBeZahPrKViikAENPe8tIm48K4QOrnNW1cd
-         tDIE57uMbmedXmD0e0Efwl8pTduVTdd0jzAkNpp6m4olKn+losQzSiDF8bij2moUT7
-         CjphTWAWM9X54XoTwrisjwSNAzH3zxBf+/H/Bq2w=
+        b=Y+9CwQ78O16TlTV7Fg99iNK8cdcuadNG87LX69UITMX/kRz43IucYQHsi1nJZZM/x
+         LS3NWpiK239I3ioAFQWi8wHF+WCByoI328KV3pW/xtSj1ONoJkxoylakGEcHITJ0BY
+         DXTt76ysdOvfL128w14txviN7K6X+IjcBjtV4bbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Asutosh Das <asutoshd@codeaurora.org>,
         Adrian Hunter <adrian.hunter@intel.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 067/126] PM: runtime: Fix race getting/putting suppliers at probe
-Date:   Mon,  5 Apr 2021 10:53:49 +0200
-Message-Id: <20210405085033.273872417@linuxfoundation.org>
+Subject: [PATCH 5.11 081/152] PM: runtime: Fix race getting/putting suppliers at probe
+Date:   Mon,  5 Apr 2021 10:53:50 +0200
+Message-Id: <20210405085036.885059022@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
