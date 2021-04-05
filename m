@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D412354001
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46CEA353ED7
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240046AbhDEJPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34176 "EHLO mail.kernel.org"
+        id S238627AbhDEJIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:08:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240041AbhDEJOi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:14:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3162E611C1;
-        Mon,  5 Apr 2021 09:14:32 +0000 (UTC)
+        id S238543AbhDEJIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:08:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8B9961394;
+        Mon,  5 Apr 2021 09:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614072;
-        bh=TD1qn8A9SAQAYFs0KAmrAlFcWP6H7Ksmmyv7DDDhaho=;
+        s=korg; t=1617613682;
+        bh=nzC4oBSY6+RyaZuZqk2xSIuA6elFtTFCH4IjRIfXr5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFkkPEb9izyq/z8FAaHetZv4mHrnAr4VO8v9z6evShlP3n0rBJdG9SQOOJpFMvjEh
-         s2lK9+cqq7PiMPOqPOIfgNrgTQD2Zj/DbiCDBVT5eKZlp7etSikFAbLbn/w5HPDlJ1
-         MZzjBgqi1EdiEsUsLchrS3P69pXTr50u+vqpRNPk=
+        b=GnTIaUzAls3Ex4rwT7mMdX7kVZNInrLJtY0AJFAuN2L+8cAnqCvsRAHKVbe8qlTkF
+         /dksMD8qi6LDcp0vwnFfZKbmBBlx4wdn+Y7i6l56ec3RO0D9znT+80FB4AmTZihMka
+         0VzNlvlj9gIFpQpjHfmd1S2z3FnqgUrIKVBGTkJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 066/152] net: 9p: advance iov on empty read
+Subject: [PATCH 5.10 053/126] net: 9p: advance iov on empty read
 Date:   Mon,  5 Apr 2021 10:53:35 +0200
-Message-Id: <20210405085036.416194499@linuxfoundation.org>
+Message-Id: <20210405085032.786316361@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -93,10 +93,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 deletions(-)
 
 diff --git a/net/9p/client.c b/net/9p/client.c
-index 4f62f299da0c..0a9019da18f3 100644
+index 09f1ec589b80..eb42bbb72f52 100644
 --- a/net/9p/client.c
 +++ b/net/9p/client.c
-@@ -1623,10 +1623,6 @@ p9_client_read_once(struct p9_fid *fid, u64 offset, struct iov_iter *to,
+@@ -1617,10 +1617,6 @@ p9_client_read_once(struct p9_fid *fid, u64 offset, struct iov_iter *to,
  	}
  
  	p9_debug(P9_DEBUG_9P, "<<< RREAD count %d\n", count);
