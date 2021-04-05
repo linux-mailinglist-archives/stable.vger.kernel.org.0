@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 512F335407A
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8480353DCA
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240826AbhDEJSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40304 "EHLO mail.kernel.org"
+        id S237429AbhDEJCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239885AbhDEJSG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:18:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC61A61399;
-        Mon,  5 Apr 2021 09:17:59 +0000 (UTC)
+        id S234181AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07C3F613A9;
+        Mon,  5 Apr 2021 09:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614280;
-        bh=gt79QrYPFtr8VapyR20UI2g3woguhfoqsTW7aWmv72E=;
+        s=korg; t=1617613297;
+        bh=ToeGCkHKi2vSOjcD0006RoYI7g9oDmEl5Hc9CN4HfC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lc0aI8SbQPhYbGumyCLlQslE9lw6lJpGSNg7LtNrMYDxvHWT/kgbeqsqtFKHprTTf
-         lbTmghs5BdT6sB3UG/CtiU5yvdUM1+eESw/31aD4VUrB46UMlucGIHL5guPz7ezmWN
-         zv9pGQFXpiemnrwBtUTk7734PSqYBFuAcd52n6bI=
+        b=bFYnVyyG0otxfjkUYxwEUujydyHpJKqx9KivtQecD80zn7u8Z1evTeWjKNb3J9RbN
+         82J7QA6OOKDXfwD63fSp3aAcLeM1R0G39g2cG0yOM4ATMSLX3S8dHlxogveUpm+aMQ
+         yklAdYhEClFcY04lUROn8aQIPECuh8mAxrya9IkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.11 104/152] pinctrl: qcom: fix unintentional string concatenation
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Greg Kroah-Hartman <greg@kroah.com>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 42/56] firewire: nosy: Fix a use-after-free bug in nosy_ioctl()
 Date:   Mon,  5 Apr 2021 10:54:13 +0200
-Message-Id: <20210405085037.617290106@linuxfoundation.org>
+Message-Id: <20210405085023.876335246@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 58b5ada8c465b5f1300bc021ebd3d3b8149124b4 upstream.
+[ Upstream commit 829933ef05a951c8ff140e814656d73e74915faf ]
 
-clang is clearly correct to point out a typo in a silly
-array of strings:
+For each device, the nosy driver allocates a pcilynx structure.
+A use-after-free might happen in the following scenario:
 
-drivers/pinctrl/qcom/pinctrl-sdx55.c:426:61: error: suspicious concatenation of string literals in an array initialization; did you mean to separate the elements with a comma? [-Werror,-Wstring-concatenation]
-        "gpio14", "gpio15", "gpio16", "gpio17", "gpio18", "gpio19" "gpio20", "gpio21", "gpio22",
-                                                                   ^
-Add the missing comma that must have accidentally been removed.
+ 1. Open nosy device for the first time and call ioctl with command
+    NOSY_IOC_START, then a new client A will be malloced and added to
+    doubly linked list.
+ 2. Open nosy device for the second time and call ioctl with command
+    NOSY_IOC_START, then a new client B will be malloced and added to
+    doubly linked list.
+ 3. Call ioctl with command NOSY_IOC_START for client A, then client A
+    will be readded to the doubly linked list. Now the doubly linked
+    list is messed up.
+ 4. Close the first nosy device and nosy_release will be called. In
+    nosy_release, client A will be unlinked and freed.
+ 5. Close the second nosy device, and client A will be referenced,
+    resulting in UAF.
 
-Fixes: ac43c44a7a37 ("pinctrl: qcom: Add SDX55 pincontrol driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20210323131728.2702789-1-arnd@kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The root cause of this bug is that the element in the doubly linked list
+is reentered into the list.
+
+Fix this bug by adding a check before inserting a client.  If a client
+is already in the linked list, don't insert it.
+
+The following KASAN report reveals it:
+
+   BUG: KASAN: use-after-free in nosy_release+0x1ea/0x210
+   Write of size 8 at addr ffff888102ad7360 by task poc
+   CPU: 3 PID: 337 Comm: poc Not tainted 5.12.0-rc5+ #6
+   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+   Call Trace:
+     nosy_release+0x1ea/0x210
+     __fput+0x1e2/0x840
+     task_work_run+0xe8/0x180
+     exit_to_user_mode_prepare+0x114/0x120
+     syscall_exit_to_user_mode+0x1d/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+   Allocated by task 337:
+     nosy_open+0x154/0x4d0
+     misc_open+0x2ec/0x410
+     chrdev_open+0x20d/0x5a0
+     do_dentry_open+0x40f/0xe80
+     path_openat+0x1cf9/0x37b0
+     do_filp_open+0x16d/0x390
+     do_sys_openat2+0x11d/0x360
+     __x64_sys_open+0xfd/0x1a0
+     do_syscall_64+0x33/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+   Freed by task 337:
+     kfree+0x8f/0x210
+     nosy_release+0x158/0x210
+     __fput+0x1e2/0x840
+     task_work_run+0xe8/0x180
+     exit_to_user_mode_prepare+0x114/0x120
+     syscall_exit_to_user_mode+0x1d/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+   The buggy address belongs to the object at ffff888102ad7300 which belongs to the cache kmalloc-128 of size 128
+   The buggy address is located 96 bytes inside of 128-byte region [ffff888102ad7300, ffff888102ad7380)
+
+[ Modified to use 'list_empty()' inside proper lock  - Linus ]
+
+Link: https://lore.kernel.org/lkml/1617433116-5930-1-git-send-email-zheyuma97@gmail.com/
+Reported-and-tested-by: 马哲宇 (Zheyu Ma) <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Cc: Greg Kroah-Hartman <greg@kroah.com>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-sdx55.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firewire/nosy.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/qcom/pinctrl-sdx55.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sdx55.c
-@@ -423,7 +423,7 @@ static const char * const gpio_groups[]
+diff --git a/drivers/firewire/nosy.c b/drivers/firewire/nosy.c
+index a128dd1126ae..ac85e03e88e1 100644
+--- a/drivers/firewire/nosy.c
++++ b/drivers/firewire/nosy.c
+@@ -359,6 +359,7 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	struct client *client = file->private_data;
+ 	spinlock_t *client_list_lock = &client->lynx->client_list_lock;
+ 	struct nosy_stats stats;
++	int ret;
  
- static const char * const qdss_stm_groups[] = {
- 	"gpio0", "gpio1", "gpio2", "gpio3", "gpio4", "gpio5", "gpio6", "gpio7", "gpio12", "gpio13",
--	"gpio14", "gpio15", "gpio16", "gpio17", "gpio18", "gpio19" "gpio20", "gpio21", "gpio22",
-+	"gpio14", "gpio15", "gpio16", "gpio17", "gpio18", "gpio19", "gpio20", "gpio21", "gpio22",
- 	"gpio23", "gpio44", "gpio45", "gpio52", "gpio53", "gpio56", "gpio57", "gpio61", "gpio62",
- 	"gpio63", "gpio64", "gpio65", "gpio66",
- };
+ 	switch (cmd) {
+ 	case NOSY_IOC_GET_STATS:
+@@ -373,11 +374,15 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 			return 0;
+ 
+ 	case NOSY_IOC_START:
++		ret = -EBUSY;
+ 		spin_lock_irq(client_list_lock);
+-		list_add_tail(&client->link, &client->lynx->client_list);
++		if (list_empty(&client->link)) {
++			list_add_tail(&client->link, &client->lynx->client_list);
++			ret = 0;
++		}
+ 		spin_unlock_irq(client_list_lock);
+ 
+-		return 0;
++		return ret;
+ 
+ 	case NOSY_IOC_STOP:
+ 		spin_lock_irq(client_list_lock);
+-- 
+2.30.2
+
 
 
