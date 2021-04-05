@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB70B35401E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CAB353DAD
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240654AbhDEJQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35512 "EHLO mail.kernel.org"
+        id S237334AbhDEJCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239704AbhDEJPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33CD360FE4;
-        Mon,  5 Apr 2021 09:15:32 +0000 (UTC)
+        id S236916AbhDEJBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:01:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E975461398;
+        Mon,  5 Apr 2021 09:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614132;
-        bh=7pQ3R3X07CAr+KZI5skbQj3B3dTgDhh7UNlAgUyWiRI=;
+        s=korg; t=1617613262;
+        bh=qlNPSD0v2axzEzc7mYlfNmvnClomzy38BEjQdUlMqXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwFYbEZ2glGvthiIdqDWMC/e8DVMQOs/tNPbCKvfIhLhMumurW62bekUFjVInG2Sr
-         SfhGOaaV4pJBLrOJf+FfeWci/YrS5qYIsr46z0DKOR5h7qiYFo4EoYSLy288wgWjSf
-         iJjHlynC9vsMQP02ukalv8PRCXctNhYojZ45jVZg=
+        b=HQTAInj09jJvXUojnB1W59XPSw2MsY9Y6ibDWImSssDhKN7xQPXCa+C+LFpcrMEmo
+         xcHM/Z+DVmoUnfR/ImY4Yxm6jrhg5MwFY5hrc1YuiePy9r5HdocXwv54XCGfdG5rK1
+         drvIEj9PqL5bU+z+DbqB7kkv7FBbF+ao9nzFwbDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 5.11 068/152] ACPI: tables: x86: Reserve memory occupied by ACPI tables
-Date:   Mon,  5 Apr 2021 10:53:37 +0200
-Message-Id: <20210405085036.484865134@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/56] ASoC: rt5651: Fix dac- and adc- vol-tlv values being off by a factor of 10
+Date:   Mon,  5 Apr 2021 10:53:38 +0200
+Message-Id: <20210405085022.786773028@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,225 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 1a1c130ab7575498eed5bcf7220037ae09cd1f8a upstream.
+[ Upstream commit eee51df776bd6cac10a76b2779a9fdee3f622b2b ]
 
-The following problem has been reported by George Kennedy:
+The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
+not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
+apps which translate the dB scale to a linear scale. With the logarithmic
+dB scale being of by a factor of 10 we loose all precision in the lower
+area of the range when apps translate things to a linear scale.
 
- Since commit 7fef431be9c9 ("mm/page_alloc: place pages to tail
- in __free_pages_core()") the following use after free occurs
- intermittently when ACPI tables are accessed.
+E.g. the 0 dB default, which corresponds with a value of 47 of the
+0 - 127 range for the control, would be shown as 0/100 in alsa-mixer.
 
- BUG: KASAN: use-after-free in ibft_init+0x134/0xc49
- Read of size 4 at addr ffff8880be453004 by task swapper/0/1
- CPU: 3 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc1-7a7fd0d #1
- Call Trace:
-  dump_stack+0xf6/0x158
-  print_address_description.constprop.9+0x41/0x60
-  kasan_report.cold.14+0x7b/0xd4
-  __asan_report_load_n_noabort+0xf/0x20
-  ibft_init+0x134/0xc49
-  do_one_initcall+0xc4/0x3e0
-  kernel_init_freeable+0x5af/0x66b
-  kernel_init+0x16/0x1d0
-  ret_from_fork+0x22/0x30
+Since the centi-dB values used in the TLV struct cannot represent the
+0.375 dB step size used by these controls, change the TLV definition
+for them to specify a min and max value instead of min + stepsize.
 
- ACPI tables mapped via kmap() do not have their mapped pages
- reserved and the pages can be "stolen" by the buddy allocator.
+Note this mirrors commit 3f31f7d9b540 ("ASoC: rt5670: Fix dac- and adc-
+vol-tlv values being off by a factor of 10") which made the exact same
+change to the rt5670 codec driver.
 
-Apparently, on the affected system, the ACPI table in question is
-not located in "reserved" memory, like ACPI NVS or ACPI Data, that
-will not be used by the buddy allocator, so the memory occupied by
-that table has to be explicitly reserved to prevent the buddy
-allocator from using it.
-
-In order to address this problem, rearrange the initialization of the
-ACPI tables on x86 to locate the initial tables earlier and reserve
-the memory occupied by them.
-
-The other architectures using ACPI should not be affected by this
-change.
-
-Link: https://lore.kernel.org/linux-acpi/1614802160-29362-1-git-send-email-george.kennedy@oracle.com/
-Reported-by: George Kennedy <george.kennedy@oracle.com>
-Tested-by: George Kennedy <george.kennedy@oracle.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210226143817.84287-3-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/acpi/boot.c |   25 ++++++++++++-------------
- arch/x86/kernel/setup.c     |    8 +++-----
- drivers/acpi/tables.c       |   42 +++++++++++++++++++++++++++++++++++++++---
- include/linux/acpi.h        |    9 ++++++++-
- 4 files changed, 62 insertions(+), 22 deletions(-)
+ sound/soc/codecs/rt5651.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -1554,10 +1554,18 @@ void __init acpi_boot_table_init(void)
- 	/*
- 	 * Initialize the ACPI boot-time table parser.
- 	 */
--	if (acpi_table_init()) {
-+	if (acpi_locate_initial_tables())
- 		disable_acpi();
--		return;
--	}
-+	else
-+		acpi_reserve_initial_tables();
-+}
-+
-+int __init early_acpi_boot_init(void)
-+{
-+	if (acpi_disabled)
-+		return 1;
-+
-+	acpi_table_init_complete();
- 
- 	acpi_table_parse(ACPI_SIG_BOOT, acpi_parse_sbf);
- 
-@@ -1570,18 +1578,9 @@ void __init acpi_boot_table_init(void)
- 		} else {
- 			printk(KERN_WARNING PREFIX "Disabling ACPI support\n");
- 			disable_acpi();
--			return;
-+			return 1;
- 		}
- 	}
--}
--
--int __init early_acpi_boot_init(void)
--{
--	/*
--	 * If acpi_disabled, bail out
--	 */
--	if (acpi_disabled)
--		return 1;
- 
- 	/*
- 	 * Process the Multiple APIC Description Table (MADT), if present
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -1046,6 +1046,9 @@ void __init setup_arch(char **cmdline_p)
- 
- 	cleanup_highmap();
- 
-+	/* Look for ACPI tables and reserve memory occupied by them. */
-+	acpi_boot_table_init();
-+
- 	memblock_set_current_limit(ISA_END_ADDRESS);
- 	e820__memblock_setup();
- 
-@@ -1137,11 +1140,6 @@ void __init setup_arch(char **cmdline_p)
- 
- 	early_platform_quirks();
- 
--	/*
--	 * Parse the ACPI tables for possible boot-time SMP configuration.
--	 */
--	acpi_boot_table_init();
--
- 	early_acpi_boot_init();
- 
- 	initmem_init();
---- a/drivers/acpi/tables.c
-+++ b/drivers/acpi/tables.c
-@@ -780,7 +780,7 @@ acpi_status acpi_os_table_override(struc
+diff --git a/sound/soc/codecs/rt5651.c b/sound/soc/codecs/rt5651.c
+index 985852fd9723..318a4c9b380f 100644
+--- a/sound/soc/codecs/rt5651.c
++++ b/sound/soc/codecs/rt5651.c
+@@ -288,9 +288,9 @@ static bool rt5651_readable_register(struct device *dev, unsigned int reg)
  }
  
- /*
-- * acpi_table_init()
-+ * acpi_locate_initial_tables()
-  *
-  * find RSDP, find and checksum SDT/XSDT.
-  * checksum all tables, print SDT/XSDT
-@@ -788,7 +788,7 @@ acpi_status acpi_os_table_override(struc
-  * result: sdt_entry[] is initialized
-  */
+ static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
+-static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -65625, 375, 0);
++static const DECLARE_TLV_DB_MINMAX(dac_vol_tlv, -6562, 0);
+ static const DECLARE_TLV_DB_SCALE(in_vol_tlv, -3450, 150, 0);
+-static const DECLARE_TLV_DB_SCALE(adc_vol_tlv, -17625, 375, 0);
++static const DECLARE_TLV_DB_MINMAX(adc_vol_tlv, -1762, 3000);
+ static const DECLARE_TLV_DB_SCALE(adc_bst_tlv, 0, 1200, 0);
  
--int __init acpi_table_init(void)
-+int __init acpi_locate_initial_tables(void)
- {
- 	acpi_status status;
- 
-@@ -803,9 +803,45 @@ int __init acpi_table_init(void)
- 	status = acpi_initialize_tables(initial_tables, ACPI_MAX_TABLES, 0);
- 	if (ACPI_FAILURE(status))
- 		return -EINVAL;
--	acpi_table_initrd_scan();
- 
-+	return 0;
-+}
-+
-+void __init acpi_reserve_initial_tables(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < ACPI_MAX_TABLES; i++) {
-+		struct acpi_table_desc *table_desc = &initial_tables[i];
-+		u64 start = table_desc->address;
-+		u64 size = table_desc->length;
-+
-+		if (!start || !size)
-+			break;
-+
-+		pr_info("Reserving %4s table memory at [mem 0x%llx-0x%llx]\n",
-+			table_desc->signature.ascii, start, start + size - 1);
-+
-+		memblock_reserve(start, size);
-+	}
-+}
-+
-+void __init acpi_table_init_complete(void)
-+{
-+	acpi_table_initrd_scan();
- 	check_multiple_madt();
-+}
-+
-+int __init acpi_table_init(void)
-+{
-+	int ret;
-+
-+	ret = acpi_locate_initial_tables();
-+	if (ret)
-+		return ret;
-+
-+	acpi_table_init_complete();
-+
- 	return 0;
- }
- 
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -222,10 +222,14 @@ void __iomem *__acpi_map_table(unsigned
- void __acpi_unmap_table(void __iomem *map, unsigned long size);
- int early_acpi_boot_init(void);
- int acpi_boot_init (void);
-+void acpi_boot_table_prepare (void);
- void acpi_boot_table_init (void);
- int acpi_mps_check (void);
- int acpi_numa_init (void);
- 
-+int acpi_locate_initial_tables (void);
-+void acpi_reserve_initial_tables (void);
-+void acpi_table_init_complete (void);
- int acpi_table_init (void);
- int acpi_table_parse(char *id, acpi_tbl_table_handler handler);
- int __init acpi_table_parse_entries(char *id, unsigned long table_size,
-@@ -807,9 +811,12 @@ static inline int acpi_boot_init(void)
- 	return 0;
- }
- 
-+static inline void acpi_boot_table_prepare(void)
-+{
-+}
-+
- static inline void acpi_boot_table_init(void)
- {
--	return;
- }
- 
- static inline int acpi_mps_check(void)
+ /* {0, +20, +24, +30, +35, +40, +44, +50, +52} dB */
+-- 
+2.30.1
+
 
 
