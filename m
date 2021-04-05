@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36CD1353E00
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342F5353EEA
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237636AbhDEJD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:03:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
+        id S238733AbhDEJIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237638AbhDEJDW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:03:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E344A6128A;
-        Mon,  5 Apr 2021 09:03:14 +0000 (UTC)
+        id S238658AbhDEJIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:08:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDA5561393;
+        Mon,  5 Apr 2021 09:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613395;
-        bh=khVMeroJE9TqWHtGxQZsHpu5jSfqIAr/VTELrdLP8WQ=;
+        s=korg; t=1617613713;
+        bh=4eEG1cSiehEqlu1PAct8oDkEDjtzotjqI7q4UfC9n8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2T4nuaYNvsAHVe83cV2F8Q4emLQKcE+DkCCfgmwEtSlOh9IU7b2yKYhugJOSaJ+V
-         MmGpJUd1oV6maixJHk7rzyV4fj2XcDfKvDdby2kTlK+czOrCVxmyo3HVYDHn9c+eQm
-         eMseh7LNpN/yuCmxXWIGBbJAFkPw4yjALgZOcPVM=
+        b=ctGDpQ26kqffx+vFfAsw8k2i3/L6vMRPA+dtlGDSaLj4ht5Av8/pTYV1hAqRHhHy4
+         apGwJyliNQnvkGEm9WX+PKDwCAzgu/l6A1OEllse9xIYBkf1YE83AtVdDsJfVOiN4G
+         sPJ86KxjakgKxnptVgdGEapTsHIGoQQfmOQ4bvVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/74] vhost: Fix vhost_vq_reset()
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.10 063/126] xtensa: fix uaccess-related livelock in do_page_fault
 Date:   Mon,  5 Apr 2021 10:53:45 +0200
-Message-Id: <20210405085025.411059749@linuxfoundation.org>
+Message-Id: <20210405085033.151157085@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit beb691e69f4dec7bfe8b81b509848acfd1f0dbf9 ]
+commit 7b9acbb6aad4f54623dcd4bd4b1a60fe0c727b09 upstream.
 
-vhost_reset_is_le() is vhost_init_is_le(), and in the case of
-cross-endian legacy, vhost_init_is_le() depends on vq->user_be.
+If a uaccess (e.g. get_user()) triggers a fault and there's a
+fault signal pending, the handler will return to the uaccess without
+having performed a uaccess fault fixup, and so the CPU will immediately
+execute the uaccess instruction again, whereupon it will livelock
+bouncing between that instruction and the fault handler.
 
-vq->user_be is set by vhost_disable_cross_endian().
+https://lore.kernel.org/lkml/20210121123140.GD48431@C02TD0UTHF1T.local/
 
-But in vhost_vq_reset(), we have:
-
-    vhost_reset_is_le(vq);
-    vhost_disable_cross_endian(vq);
-
-And so user_be is used before being set.
-
-To fix that, reverse the lines order as there is no other dependency
-between them.
-
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Link: https://lore.kernel.org/r/20210312140913.788592-1-lvivier@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vhost.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/xtensa/mm/fault.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 57ab79fbcee9..a279ecacbf60 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -320,8 +320,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->kick = NULL;
- 	vq->call_ctx = NULL;
- 	vq->log_ctx = NULL;
--	vhost_reset_is_le(vq);
- 	vhost_disable_cross_endian(vq);
-+	vhost_reset_is_le(vq);
- 	vq->busyloop_timeout = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
--- 
-2.30.1
-
+--- a/arch/xtensa/mm/fault.c
++++ b/arch/xtensa/mm/fault.c
+@@ -112,8 +112,11 @@ good_area:
+ 	 */
+ 	fault = handle_mm_fault(vma, address, flags, regs);
+ 
+-	if (fault_signal_pending(fault, regs))
++	if (fault_signal_pending(fault, regs)) {
++		if (!user_mode(regs))
++			goto bad_page_fault;
+ 		return;
++	}
+ 
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
 
 
