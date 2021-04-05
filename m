@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B50353D27
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2549353C97
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234074AbhDEI6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39038 "EHLO mail.kernel.org"
+        id S232658AbhDEIzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:55:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233931AbhDEI6i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F27B46138A;
-        Mon,  5 Apr 2021 08:58:31 +0000 (UTC)
+        id S232220AbhDEIzi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:55:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE96D61245;
+        Mon,  5 Apr 2021 08:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613112;
-        bh=QiaiAs744ez0x18EpVv1BoU0+UnvRb25+r5wfybrtKc=;
+        s=korg; t=1617612932;
+        bh=dAgDrcgZOCQ7EA2iF1KCNjcCX3padDVlNWsAJ1SG8ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X8i6RY0vBdMOQ383uoff0tZwOwgCllb5stLzC7Pkdn6dR2D2e+wgESJSA6ZJnRgp0
-         qoTdgs8Q84p+jKOnKwxU2vYNVliMeZlXeZd90GOQJoQf7IddSWwFqkWaJZyLUInJ4r
-         xwAHWQanzchHFgvczlLxXvPBux/ghI4orlWvWSzU=
+        b=c9QSqzMC8e0kQkv/oMb7D4H5WJSXAvUYUYgO8T+lcya89vp3xPOiJp1x5rOFs/lxF
+         NuMmwDbQe/OPdTERIYceGwjgMARnQPhfKTRPwF7B5QpEp7WNdjnmSsWxxleOtn/R12
+         3/WO2UD4TT++TLSOtSTXC/JsP93Jij6cn1/xtL+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 4.14 23/52] bpf: Remove MTU check in __bpf_skb_max_len
+        stable@vger.kernel.org, Ikjoon Jang <ikjn@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 15/28] ALSA: usb-audio: Apply sample rate quirk to Logitech Connect
 Date:   Mon,  5 Apr 2021 10:53:49 +0200
-Message-Id: <20210405085022.749537871@linuxfoundation.org>
+Message-Id: <20210405085017.499731569@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
+References: <20210405085017.012074144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Ikjoon Jang <ikjn@chromium.org>
 
-commit 6306c1189e77a513bf02720450bb43bd4ba5d8ae upstream.
+commit 625bd5a616ceda4840cd28f82e957c8ced394b6a upstream.
 
-Multiple BPF-helpers that can manipulate/increase the size of the SKB uses
-__bpf_skb_max_len() as the max-length. This function limit size against
-the current net_device MTU (skb->dev->mtu).
+Logitech ConferenceCam Connect is a compound USB device with UVC and
+UAC. Not 100% reproducible but sometimes it keeps responding STALL to
+every control transfer once it receives get_freq request.
 
-When a BPF-prog grow the packet size, then it should not be limited to the
-MTU. The MTU is a transmit limitation, and software receiving this packet
-should be allowed to increase the size. Further more, current MTU check in
-__bpf_skb_max_len uses the MTU from ingress/current net_device, which in
-case of redirects uses the wrong net_device.
+This patch adds 046d:0x084c to a snd_usb_get_sample_rate_quirk list.
 
-This patch keeps a sanity max limit of SKB_MAX_ALLOC (16KiB). The real limit
-is elsewhere in the system. Jesper's testing[1] showed it was not possible
-to exceed 8KiB when expanding the SKB size via BPF-helper. The limiting
-factor is the define KMALLOC_MAX_CACHE_SIZE which is 8192 for
-SLUB-allocator (CONFIG_SLUB) in-case PAGE_SIZE is 4096. This define is
-in-effect due to this being called from softirq context see code
-__gfp_pfmemalloc_flags() and __do_kmalloc_node(). Jakub's testing showed
-that frames above 16KiB can cause NICs to reset (but not crash). Keep this
-sanity limit at this level as memory layer can differ based on kernel
-config.
-
-[1] https://github.com/xdp-project/bpf-examples/tree/master/MTU-tests
-
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/161287788936.790810.2937823995775097177.stgit@firesoul
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203419
+Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210324105153.2322881-1-ikjn@chromium.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -2279,17 +2279,14 @@ static int bpf_skb_net_shrink(struct sk_
- 	return 0;
- }
- 
--static u32 __bpf_skb_max_len(const struct sk_buff *skb)
--{
--	return skb->dev->mtu + skb->dev->hard_header_len;
--}
-+#define BPF_SKB_MAX_LEN SKB_MAX_ALLOC
- 
- static int bpf_skb_adjust_net(struct sk_buff *skb, s32 len_diff)
- {
- 	bool trans_same = skb->transport_header == skb->network_header;
- 	u32 len_cur, len_diff_abs = abs(len_diff);
- 	u32 len_min = bpf_skb_net_base_len(skb);
--	u32 len_max = __bpf_skb_max_len(skb);
-+	u32 len_max = BPF_SKB_MAX_LEN;
- 	__be16 proto = skb->protocol;
- 	bool shrink = len_diff < 0;
- 	int ret;
-@@ -2368,7 +2365,7 @@ static int bpf_skb_trim_rcsum(struct sk_
- BPF_CALL_3(bpf_skb_change_tail, struct sk_buff *, skb, u32, new_len,
- 	   u64, flags)
- {
--	u32 max_len = __bpf_skb_max_len(skb);
-+	u32 max_len = BPF_SKB_MAX_LEN;
- 	u32 min_len = __bpf_skb_min_len(skb);
- 	int ret;
- 
-@@ -2419,7 +2416,7 @@ static const struct bpf_func_proto bpf_s
- BPF_CALL_3(bpf_skb_change_head, struct sk_buff *, skb, u32, head_room,
- 	   u64, flags)
- {
--	u32 max_len = __bpf_skb_max_len(skb);
-+	u32 max_len = BPF_SKB_MAX_LEN;
- 	u32 new_len = skb->len + head_room;
- 	int ret;
- 
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1155,6 +1155,7 @@ bool snd_usb_get_sample_rate_quirk(struc
+ 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
+ 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
+ 	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
++	case USB_ID(0x046d, 0x084c): /* Logitech ConferenceCam Connect */
+ 		return true;
+ 	}
+ 	return false;
 
 
