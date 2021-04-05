@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCBFB353F43
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5219353EC0
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239457AbhDEJKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:10:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55188 "EHLO mail.kernel.org"
+        id S238414AbhDEJHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239005AbhDEJJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:09:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CADC61002;
-        Mon,  5 Apr 2021 09:09:14 +0000 (UTC)
+        id S238417AbhDEJHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:07:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E632D613A0;
+        Mon,  5 Apr 2021 09:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613754;
-        bh=Y3S6eeb8eYVNAZ5ChJGQfPD85uV+E1rxwfP7NXbAR4o=;
+        s=korg; t=1617613650;
+        bh=jJEBhcO/vA4oZutc7Isaeq+TqEhLLnKnc+/Jmo7DM34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgM0M3w7k3Sy0uYyr74mZw6jEwipjF8IT1p0Hy8RrWNyVtnu/IhsTqRdYLef0Pe8w
-         TaQoNRwc+14zA8bobJuo9e63xdJi35v6Do+P4aafCZQRX9osQpHZM1SGT7J2Jk4ZSj
-         xIoPviCOKjsR3smEq3jtLmwQNCmMfYJt/peTkO5w=
+        b=gtpLMQLtMZsNs4zA1POa2ezqA+g+Afprbda7ptnidIKlwGUKpUvrPNOz3NXqZP4xS
+         ZPPeuxNEf7NQa8F2OcFa+OO/1LSvkR/eMNQAjc59w8FQF8rpctTIPL+E0wcOCq3d+D
+         /9+wyGJFQXKfh0SxfQfiNXMst7IJ/yOEG1o2ITvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/126] io_uring: imply MSG_NOSIGNAL for send[msg]()/recv[msg]() calls
-Date:   Mon,  5 Apr 2021 10:53:15 +0200
-Message-Id: <20210405085032.138005885@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 034/126] static_call: Align static_call_is_init() patching condition
+Date:   Mon,  5 Apr 2021 10:53:16 +0200
+Message-Id: <20210405085032.168288424@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
 References: <20210405085031.040238881@linuxfoundation.org>
@@ -39,60 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 76cd979f4f38a27df22efb5773a0d567181a9392 ]
+[ Upstream commit 698bacefe993ad2922c9d3b1380591ad489355e9 ]
 
-We never want to generate any SIGPIPE, -EPIPE only is much better.
+The intent is to avoid writing init code after init (because the text
+might have been freed). The code is needlessly different between
+jump_label and static_call and not obviously correct.
 
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Link: https://lore.kernel.org/r/38961085c3ec49fd21550c7788f214d1ff02d2d4.1615908477.git.metze@samba.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The existing code relies on the fact that the module loader clears the
+init layout, such that within_module_init() always fails, while
+jump_label relies on the module state which is more obvious and
+matches the kernel logic.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Sumit Garg <sumit.garg@linaro.org>
+Link: https://lkml.kernel.org/r/20210318113610.636651340@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/static_call.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4e53445db73f..fe2dfdab0acd 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4421,7 +4421,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 		kmsg = &iomsg;
- 	}
+diff --git a/kernel/static_call.c b/kernel/static_call.c
+index 49efbdc5b480..f59089a12231 100644
+--- a/kernel/static_call.c
++++ b/kernel/static_call.c
+@@ -149,6 +149,7 @@ void __static_call_update(struct static_call_key *key, void *tramp, void *func)
+ 	};
  
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
-@@ -4465,7 +4465,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	msg.msg_controllen = 0;
- 	msg.msg_namelen = 0;
+ 	for (site_mod = &first; site_mod; site_mod = site_mod->next) {
++		bool init = system_state < SYSTEM_RUNNING;
+ 		struct module *mod = site_mod->mod;
  
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
-@@ -4659,7 +4659,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 				1, req->sr_msg.len);
- 	}
+ 		if (!site_mod->sites) {
+@@ -168,6 +169,7 @@ void __static_call_update(struct static_call_key *key, void *tramp, void *func)
+ 		if (mod) {
+ 			stop = mod->static_call_sites +
+ 			       mod->num_static_call_sites;
++			init = mod->state == MODULE_STATE_COMING;
+ 		}
+ #endif
  
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
-@@ -4717,7 +4717,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	msg.msg_iocb = NULL;
- 	msg.msg_flags = 0;
+@@ -175,16 +177,8 @@ void __static_call_update(struct static_call_key *key, void *tramp, void *func)
+ 		     site < stop && static_call_key(site) == key; site++) {
+ 			void *site_addr = static_call_addr(site);
  
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
+-			if (static_call_is_init(site)) {
+-				/*
+-				 * Don't write to call sites which were in
+-				 * initmem and have since been freed.
+-				 */
+-				if (!mod && system_state >= SYSTEM_RUNNING)
+-					continue;
+-				if (mod && !within_module_init((unsigned long)site_addr, mod))
+-					continue;
+-			}
++			if (!init && static_call_is_init(site))
++				continue;
+ 
+ 			if (!kernel_text_address((unsigned long)site_addr)) {
+ 				/*
 -- 
 2.30.1
 
