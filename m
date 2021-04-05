@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A87935442E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4B835443C
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242089AbhDEQEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:04:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56056 "EHLO mail.kernel.org"
+        id S242118AbhDEQEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242078AbhDEQEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:04:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 603EB613CD;
-        Mon,  5 Apr 2021 16:04:29 +0000 (UTC)
+        id S241911AbhDEQEh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:04:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A6AF613C7;
+        Mon,  5 Apr 2021 16:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638670;
-        bh=QTHRy0qn11avl2j/plu94sJH14RZCJpjJZGTvzB4E+8=;
+        s=k20201202; t=1617638671;
+        bh=+PEaLV5IHfx7sUbcDHw0UHaPwiiGMFyEoml1mAJSAOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFXSpUgut1XaJfC371dIaXArrWjxCzVmeDQHi77xBuxL6vak7wugpbg9xlNOyDlo+
-         YNyiG8JtCldqTtndZqMStfjXbx3vjaw73LyXmIH2S400MkupwSiI0Xz9u4wFqQtonq
-         7WrVphEeMuOrNl06MFuOJ1UCk3CtE8pKbjPeFRFznfyM16ugjLGLpYfPHuKxMMTW1O
-         W6gpIF32XifQzEZSc3NtrmD96cEsNEUv5PhGAf8F+9YAoMxkyw6JVAITUmb8BlONZZ
-         5XVMjRWvGiYZOpC/tTDzjs+Yx8V733/iEy+KraiPy7+h4/wCqhK6cDjB/iQTBRPQfB
-         B7yEp1b/LMOSQ==
+        b=VXxT7ywC9AU6UtMfyKEiV8w479K0mzgn9cR26MGgeb4qC1cQN9/KKrl1Myx2U0iaf
+         URFpBdCrxlNW3mUmqVjFao5t6MZaHLaIGqv2FWkagjhuENh8IjMGib4DY4pn9b6kgx
+         P/vVc7sZ/Sh9rfSVE+/q6qNxxPvzfiaRAYD5NxLWfMG+QsXOwj/Wu4Jwx9Z+NbErhc
+         rOhkOk1pIBpvO+nwHk/+4EBTQUd9QjD1YwR4VDc6z2T6Jiwr96giOF2esf4tgNzFF/
+         DEA/QtCjDp9PiQ6yaUVe6OR4y0SSWvX3ixXirIX4BYyYu+QT0WXgr8mRZOL4Dz7IQl
+         zJPhlwKE+pLMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zihao Yu <yuzihao@ict.ac.cn>, Anup Patel <anup@brainfault.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.11 21/22] riscv,entry: fix misaligned base for excp_vect_table
-Date:   Mon,  5 Apr 2021 12:04:04 -0400
-Message-Id: <20210405160406.268132-21-sashal@kernel.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 22/22] block: don't ignore REQ_NOWAIT for direct IO
+Date:   Mon,  5 Apr 2021 12:04:05 -0400
+Message-Id: <20210405160406.268132-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210405160406.268132-1-sashal@kernel.org>
 References: <20210405160406.268132-1-sashal@kernel.org>
@@ -43,35 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zihao Yu <yuzihao@ict.ac.cn>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit ac8d0b901f0033b783156ab2dc1a0e73ec42409b ]
+[ Upstream commit f8b78caf21d5bc3fcfc40c18898f9d52ed1451a5 ]
 
-In RV64, the size of each entry in excp_vect_table is 8 bytes. If the
-base of the table is not 8-byte aligned, loading an entry in the table
-will raise a misaligned exception. Although such exception will be
-handled by opensbi/bbl, this still causes performance degradation.
+If IOCB_NOWAIT is set on submission, then that needs to get propagated to
+REQ_NOWAIT on the block side. Otherwise we completely lose this
+information, and any issuer of IOCB_NOWAIT IO will potentially end up
+blocking on eg request allocation on the storage side.
 
-Signed-off-by: Zihao Yu <yuzihao@ict.ac.cn>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/entry.S | 1 +
- 1 file changed, 1 insertion(+)
+ fs/block_dev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-index 744f3209c48d..76274a4a1d8e 100644
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -447,6 +447,7 @@ ENDPROC(__switch_to)
- #endif
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index c33151020bcd..06b422fa67a4 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -276,6 +276,8 @@ __blkdev_direct_IO_simple(struct kiocb *iocb, struct iov_iter *iter,
+ 		bio.bi_opf = dio_bio_write_op(iocb);
+ 		task_io_account_write(ret);
+ 	}
++	if (iocb->ki_flags & IOCB_NOWAIT)
++		bio.bi_opf |= REQ_NOWAIT;
+ 	if (iocb->ki_flags & IOCB_HIPRI)
+ 		bio_set_polled(&bio, iocb);
  
- 	.section ".rodata"
-+	.align LGREG
- 	/* Exception vector table */
- ENTRY(excp_vect_table)
- 	RISCV_PTR do_trap_insn_misaligned
+@@ -429,6 +431,8 @@ __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter, int nr_pages)
+ 			bio->bi_opf = dio_bio_write_op(iocb);
+ 			task_io_account_write(bio->bi_iter.bi_size);
+ 		}
++		if (iocb->ki_flags & IOCB_NOWAIT)
++			bio->bi_opf |= REQ_NOWAIT;
+ 
+ 		dio->size += bio->bi_iter.bi_size;
+ 		pos += bio->bi_iter.bi_size;
 -- 
 2.30.2
 
