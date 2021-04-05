@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A482F35401B
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AAD4353F51
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240620AbhDEJQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34930 "EHLO mail.kernel.org"
+        id S238896AbhDEJLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:11:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239424AbhDEJPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3620861002;
-        Mon,  5 Apr 2021 09:15:24 +0000 (UTC)
+        id S238894AbhDEJK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:10:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42E1B613A0;
+        Mon,  5 Apr 2021 09:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614124;
-        bh=fIM3T8xvP16U0gI9QGzCA8L2mFV4G3KBVAzxTCxtmdw=;
+        s=korg; t=1617613853;
+        bh=YjaNCdwBRVsObd96FbrMkd1ju3QxDkKzfnL3gAaDQ6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUeEiWpMOIFbu6MVx3CAKS9MV6JA6ZV3cZcFNSFMeIPLKAU/Hk3JcZMhnzQgpCD7j
-         SZRKrRcuQxh1gtX5O/uFKJZbvNmKzsZcDMAijbdOwZB4QwPKVF9fDbcbT7ITft1x7A
-         kMk5tML9g9av4Mhpt1qs2TL5A1DqXP2qUcF0bViE=
+        b=Z/uqpxc21z8SfFrr7/0A5m+8wB+GhWEwibgR2HYbQACC+B3YBYErlk8YcPkfhC/H0
+         XiCH6+EDCw4gWej6w5aMW1+cS8U8z2l2WN1TnFcuL0blls5EzRn39NL9k71HypIZWs
+         ZCuvnyu3iu+UKRGgqHtKctSYwxgBOjsJlXHXG37Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Wang <wangr@lemote.com>,
-        Huacai Chen <chenhc@lemote.com>,
-        Xi Ruoyao <xry111@mengyan1223.wang>,
-        =?UTF-8?q?Dan=20Hor=C3=A1k?= <dan@danny.cz>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 092/152] drm/amdgpu: Set a suitable dev_info.gart_page_size
-Date:   Mon,  5 Apr 2021 10:54:01 +0200
-Message-Id: <20210405085037.242060466@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 5.10 080/126] vfio/nvlink: Add missing SPAPR_TCE_IOMMU depends
+Date:   Mon,  5 Apr 2021 10:54:02 +0200
+Message-Id: <20210405085033.721186313@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-commit 566c6e25f957ebdb0b6e8073ee291049118f47fb upstream.
+commit e0146a108ce4d2c22b9510fd12268e3ee72a0161 upstream.
 
-In Mesa, dev_info.gart_page_size is used for alignment and it was
-set to AMDGPU_GPU_PAGE_SIZE(4KB). However, the page table of AMDGPU
-driver requires an alignment on CPU pages.  So, for non-4KB page system,
-gart_page_size should be max_t(u32, PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE).
+Compiling the nvlink stuff relies on the SPAPR_TCE_IOMMU otherwise there
+are compile errors:
 
-Signed-off-by: Rui Wang <wangr@lemote.com>
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Link: https://github.com/loongson-community/linux-stable/commit/caa9c0a1
-[Xi: rebased for drm-next, use max_t for checkpatch,
-     and reworded commit message.]
-Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
-BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1549
-Tested-by: Dan Horák <dan@danny.cz>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+ drivers/vfio/pci/vfio_pci_nvlink2.c:101:10: error: implicit declaration of function 'mm_iommu_put' [-Werror,-Wimplicit-function-declaration]
+                            ret = mm_iommu_put(data->mm, data->mem);
+
+As PPC only defines these functions when the config is set.
+
+Previously this wasn't a problem by chance as SPAPR_TCE_IOMMU was the only
+IOMMU that could have satisfied IOMMU_API on POWERNV.
+
+Fixes: 179209fa1270 ("vfio: IOMMU_API should be selected")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <0-v1-83dba9768fc3+419-vfio_nvlink2_kconfig_jgg@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vfio/pci/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -780,9 +780,9 @@ int amdgpu_info_ioctl(struct drm_device
- 			dev_info->high_va_offset = AMDGPU_GMC_HOLE_END;
- 			dev_info->high_va_max = AMDGPU_GMC_HOLE_END | vm_size;
- 		}
--		dev_info->virtual_address_alignment = max((int)PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
-+		dev_info->virtual_address_alignment = max_t(u32, PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
- 		dev_info->pte_fragment_size = (1 << adev->vm_manager.fragment_size) * AMDGPU_GPU_PAGE_SIZE;
--		dev_info->gart_page_size = AMDGPU_GPU_PAGE_SIZE;
-+		dev_info->gart_page_size = max_t(u32, PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
- 		dev_info->cu_active_number = adev->gfx.cu_info.number;
- 		dev_info->cu_ao_mask = adev->gfx.cu_info.ao_cu_mask;
- 		dev_info->ce_ram_size = adev->gfx.ce_ram_size;
+--- a/drivers/vfio/pci/Kconfig
++++ b/drivers/vfio/pci/Kconfig
+@@ -42,7 +42,7 @@ config VFIO_PCI_IGD
+ 
+ config VFIO_PCI_NVLINK2
+ 	def_bool y
+-	depends on VFIO_PCI && PPC_POWERNV
++	depends on VFIO_PCI && PPC_POWERNV && SPAPR_TCE_IOMMU
+ 	help
+ 	  VFIO PCI support for P9 Witherspoon machine with NVIDIA V100 GPUs
+ 
 
 
