@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC06353D2E
+	by mail.lfdr.de (Postfix) with ESMTP id E6625353D2F
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234102AbhDEI6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:58:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39226 "EHLO mail.kernel.org"
+        id S234324AbhDEI64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:58:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234151AbhDEI6q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD624610E8;
-        Mon,  5 Apr 2021 08:58:39 +0000 (UTC)
+        id S233982AbhDEI6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:58:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51CF4613A0;
+        Mon,  5 Apr 2021 08:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613120;
-        bh=BvltUfrypYLGIAKnkes7WVV7jvx9zsUX0jRkK3j8FLk=;
+        s=korg; t=1617613122;
+        bh=j5w1BochCcavyzR9RlbS2G9mJa0+4VPa7nSmb4P1uw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YfPnb7aEaLyWy3ThSI3ztL+/ghYj7RlNYtS7fLagTpk7EkVm1/c+G1Mcpxl9jMUT5
-         jojFf//R9lFMPi6MOfwd67+iKICW11vIwNGe8D3kI5dgNw3Udogkw1O6BKkgKmYj/R
-         K7LeqnnqNhGzOBtbohlSI8wejA4wbDUAqbPqbCkM=
+        b=MDmzxWERG9l93MKVXU8nug8w0fvlgEFUCUlLDokc5CtqgkuuRMkBp4kuqKUEmwg1k
+         ELpJgrpSINOFlyidwH3USURE5DmL5gHFXotJaFfiPnoN3KI4Mth41b8gMS6PMQd1H/
+         kc1bwil9EqH7BO2tl823c3veGj/oGsl1WvobqKyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhaolong Zhang <zhangzl2013@126.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/52] ext4: fix bh ref count on error paths
-Date:   Mon,  5 Apr 2021 10:53:29 +0200
-Message-Id: <20210405085022.113961210@linuxfoundation.org>
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 04/52] rpc: fix NULL dereference on kmalloc failure
+Date:   Mon,  5 Apr 2021 10:53:30 +0200
+Message-Id: <20210405085022.145439268@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
 References: <20210405085021.996963957@linuxfoundation.org>
@@ -39,41 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhaolong Zhang <zhangzl2013@126.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit c915fb80eaa6194fa9bd0a4487705cd5b0dda2f1 ]
+[ Upstream commit 0ddc942394013f08992fc379ca04cffacbbe3dae ]
 
-__ext4_journalled_writepage should drop bhs' ref count on error paths
+I think this is unlikely but possible:
 
-Signed-off-by: Zhaolong Zhang <zhangzl2013@126.com>
-Link: https://lore.kernel.org/r/1614678151-70481-1-git-send-email-zhangzl2013@126.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+svc_authenticate sets rq_authop and calls svcauth_gss_accept.  The
+kmalloc(sizeof(*svcdata), GFP_KERNEL) fails, leaving rq_auth_data NULL,
+and returning SVC_DENIED.
+
+This causes svc_process_common to go to err_bad_auth, and eventually
+call svc_authorise.  That calls ->release == svcauth_gss_release, which
+tries to dereference rq_auth_data.
+
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Link: https://lore.kernel.org/linux-nfs/3F1B347F-B809-478F-A1E9-0BE98E22B0F0@oracle.com/T/#t
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/sunrpc/auth_gss/svcauth_gss.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index ad6a1282a5cd..9c07c8674b21 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2071,13 +2071,13 @@ static int __ext4_journalled_writepage(struct page *page,
- 	if (!ret)
- 		ret = err;
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index 03043d5221e9..27dfd85830d8 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1713,11 +1713,14 @@ static int
+ svcauth_gss_release(struct svc_rqst *rqstp)
+ {
+ 	struct gss_svc_data *gsd = (struct gss_svc_data *)rqstp->rq_auth_data;
+-	struct rpc_gss_wire_cred *gc = &gsd->clcred;
++	struct rpc_gss_wire_cred *gc;
+ 	struct xdr_buf *resbuf = &rqstp->rq_res;
+ 	int stat = -EINVAL;
+ 	struct sunrpc_net *sn = net_generic(SVC_NET(rqstp), sunrpc_net_id);
  
--	if (!ext4_has_inline_data(inode))
--		ext4_walk_page_buffers(NULL, page_bufs, 0, len,
--				       NULL, bput_one);
- 	ext4_set_inode_state(inode, EXT4_STATE_JDATA);
- out:
- 	unlock_page(page);
- out_no_pagelock:
-+	if (!inline_data && page_bufs)
-+		ext4_walk_page_buffers(NULL, page_bufs, 0, len,
-+				       NULL, bput_one);
- 	brelse(inode_bh);
- 	return ret;
++	if (!gsd)
++		goto out;
++	gc = &gsd->clcred;
+ 	if (gc->gc_proc != RPC_GSS_PROC_DATA)
+ 		goto out;
+ 	/* Release can be called twice, but we only wrap once. */
+@@ -1758,10 +1761,10 @@ out_err:
+ 	if (rqstp->rq_cred.cr_group_info)
+ 		put_group_info(rqstp->rq_cred.cr_group_info);
+ 	rqstp->rq_cred.cr_group_info = NULL;
+-	if (gsd->rsci)
++	if (gsd && gsd->rsci) {
+ 		cache_put(&gsd->rsci->h, sn->rsc_cache);
+-	gsd->rsci = NULL;
+-
++		gsd->rsci = NULL;
++	}
+ 	return stat;
  }
+ 
 -- 
 2.30.1
 
