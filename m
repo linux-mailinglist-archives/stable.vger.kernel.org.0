@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7264B353D9D
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37E4F354009
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234281AbhDEJAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42612 "EHLO mail.kernel.org"
+        id S240615AbhDEJPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233652AbhDEJAs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:00:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E85F60238;
-        Mon,  5 Apr 2021 09:00:40 +0000 (UTC)
+        id S240319AbhDEJPA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:15:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01AFC61002;
+        Mon,  5 Apr 2021 09:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613241;
-        bh=NbXGtagGC6nta9wmmqR4lJoh5XClR+lCZLLHV+MV860=;
+        s=korg; t=1617614094;
+        bh=S1pV+yQzFrlhkXSO06HXrBj8jSwAimplDjRtHW2G/wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2JoFlKlFpRxCPYq+k/oavmPVVBndg79T5ETtScKicD2O2D93NVUaTNrtxI5OgIXu
-         zMDc1S16UItZcgeHZKhsZbhlHI7g8/AURyXVqhCHw1vdIfZHfyRZrjFQGZYKn10mep
-         TeGe5JN2RuHWx6M3WDJuEDF24vuF97DOItCtM3T8=
+        b=Y1J3E9vnPdWAfQ3ilHY8zh/V6VmCwOw6RlWD+Dhb79YwiBNMnIp/WE2UNqJCzAg8+
+         WpV1NuBhJ3moc73O+2hVVLCDZEuq2xo0IWbgeFhXmjatGjHOtQ+A2E6qwJ+XVswHuW
+         MohacN9LFtA5IPnaXOzQE4sdF+4o4ivv0PkXsrzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/56] thermal/core: Add NULL pointer check before using cooling device stats
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.11 082/152] PM: runtime: Fix ordering in pm_runtime_get_suppliers()
 Date:   Mon,  5 Apr 2021 10:53:51 +0200
-Message-Id: <20210405085023.186110294@linuxfoundation.org>
+Message-Id: <20210405085036.917095694@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 2046a24ae121cd107929655a6aaf3b8c5beea01f ]
+commit c0c33442f7203704aef345647e14c2fb86071001 upstream.
 
-There is a possible chance that some cooling device stats buffer
-allocation fails due to very high cooling device max state value.
-Later cooling device update sysfs can try to access stats data
-for the same cooling device. It will lead to NULL pointer
-dereference issue.
+rpm_active indicates how many times the supplier usage_count has been
+incremented. Consequently it must be updated after pm_runtime_get_sync() of
+the supplier, not before.
 
-Add a NULL pointer check before accessing thermal cooling device
-stats data. It fixes the following bug
-
-[ 26.812833] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
-[ 27.122960] Call trace:
-[ 27.122963] do_raw_spin_lock+0x18/0xe8
-[ 27.122966] _raw_spin_lock+0x24/0x30
-[ 27.128157] thermal_cooling_device_stats_update+0x24/0x98
-[ 27.128162] cur_state_store+0x88/0xb8
-[ 27.128166] dev_attr_store+0x40/0x58
-[ 27.128169] sysfs_kf_write+0x50/0x68
-[ 27.133358] kernfs_fop_write+0x12c/0x1c8
-[ 27.133362] __vfs_write+0x54/0x160
-[ 27.152297] vfs_write+0xcc/0x188
-[ 27.157132] ksys_write+0x78/0x108
-[ 27.162050] ksys_write+0xf8/0x108
-[ 27.166968] __arm_smccc_hvc+0x158/0x4b0
-[ 27.166973] __arm_smccc_hvc+0x9c/0x4b0
-[ 27.186005] el0_svc+0x8/0xc
-
-Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1607367181-24589-1-git-send-email-manafm@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4c06c4e6cf63 ("driver core: Fix possible supplier PM-usage counter imbalance")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/thermal_sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/base/power/runtime.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
-index aa99edb4dff7..4dce4a8f71ed 100644
---- a/drivers/thermal/thermal_sysfs.c
-+++ b/drivers/thermal/thermal_sysfs.c
-@@ -770,6 +770,9 @@ void thermal_cooling_device_stats_update(struct thermal_cooling_device *cdev,
- {
- 	struct cooling_dev_stats *stats = cdev->stats;
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -1690,8 +1690,8 @@ void pm_runtime_get_suppliers(struct dev
+ 				device_links_read_lock_held())
+ 		if (link->flags & DL_FLAG_PM_RUNTIME) {
+ 			link->supplier_preactivated = true;
+-			refcount_inc(&link->rpm_active);
+ 			pm_runtime_get_sync(link->supplier);
++			refcount_inc(&link->rpm_active);
+ 		}
  
-+	if (!stats)
-+		return;
-+
- 	spin_lock(&stats->lock);
- 
- 	if (stats->state == new_state)
--- 
-2.30.1
-
+ 	device_links_read_unlock(idx);
 
 
