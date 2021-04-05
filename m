@@ -2,77 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D331D35408F
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E564E354123
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240051AbhDEJSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40968 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240302AbhDEJSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:18:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D0B66139D;
-        Mon,  5 Apr 2021 09:18:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614305;
-        bh=c+9aEKqtqi31QaPif7cyEo1vZEM8PFyRjLMX5ByhUYs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gslraPW1/m88EvUIStv8b0KZ7aIi5B76tX1MlTfCC5IN275Ds0vcsHE1zWM1CBkL
-         aWYJ4pImbEzr7gFhV7pGH3qILRbTSQ5FGbiQew5BgNZPK3ncwddkQb88xZXErvYnvi
-         +yye+sImUbcR/dZzZAeoSQJVcQEdyPVjymHi+Oto=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 152/152] Revert "net: bonding: fix error return code of bond_neigh_init()"
-Date:   Mon,  5 Apr 2021 10:55:01 +0200
-Message-Id: <20210405085039.147625478@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S232747AbhDEKSq convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 5 Apr 2021 06:18:46 -0400
+Received: from smail03.liguriadigitale.it ([81.23.93.204]:56373 "EHLO
+        smail03.liguriadigitale.it" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232124AbhDEKSq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 06:18:46 -0400
+X-Greylist: delayed 631 seconds by postgrey-1.27 at vger.kernel.org; Mon, 05 Apr 2021 06:18:46 EDT
+Received: from smail03.liguriadigitale.it (localhost.localdomain [127.0.0.1])
+        by localhost (Email Security Appliance) with SMTP id 75B2BAAA53_6AE187B;
+        Mon,  5 Apr 2021 10:08:07 +0000 (GMT)
+Received: from owa.asl3.liguria.it (asl3mb02.usl3.it [10.100.192.112])
+        by smail03.liguriadigitale.it (Sophos Email Appliance) with ESMTP id 1C789A97F8_6AE186F;
+        Mon,  5 Apr 2021 10:08:05 +0000 (GMT)
+Received: from Asl3mb02.usl3.it (10.100.192.112) by Asl3mb02.usl3.it
+ (10.100.192.112) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Mon, 5 Apr 2021
+ 12:08:05 +0200
+Received: from Asl3mb02.usl3.it ([fe80::748f:1b42:d83e:d18f]) by
+ Asl3mb02.usl3.it ([fe80::748f:1b42:d83e:d18f%8]) with mapi id 15.01.2242.004;
+ Mon, 5 Apr 2021 12:08:05 +0200
+From:   <Rosa.Lombardo@asl3.liguria.it>
+To:     <NO-REPLY@MICROSOFT.NET>
+Subject: =?iso-8859-1?Q?Om_du_inte_verifierar_ditt_konto_inom_n=E4sta_timme_fr=E5n?=
+ =?iso-8859-1?Q?_och_med_nu_kommer_ditt_konto_att_st=E4ngas_av?=
+Thread-Topic: =?iso-8859-1?Q?Om_du_inte_verifierar_ditt_konto_inom_n=E4sta_timme_fr=E5n?=
+ =?iso-8859-1?Q?_och_med_nu_kommer_ditt_konto_att_st=E4ngas_av?=
+Thread-Index: AQHXKgLp7SSXRj+HaUyDA1Udgh8giA==
+Date:   Mon, 5 Apr 2021 10:08:03 +0000
+Message-ID: <197ad509de3c4133b32bc73eec2ac5ea@asl3.liguria.it>
+Accept-Language: it-IT, en-US
+Content-Language: it-IT
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [212.102.54.109]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-SASI-RCODE: 200
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David S. Miller <davem@davemloft.net>
+MICROSOFT VERIFIKATION BEHÖVS
 
-commit 080bfa1e6d928a5d1f185cc44e5f3c251df06df5 upstream.
+Vi har uppgraderat vårt e-postsystem till Microsoft Outlook Web Access 2021.
+Denna tjänst ger mer utrymme och gör e-post enklare att använda. Klicka på länken
+nedan för att uppdatera ditt konto och ta emot avstängningsinlägg
 
-This reverts commit 2055a99da8a253a357bdfd359b3338ef3375a26c.
+Klicka för att uppdatera ditt konto: Verifiera<https://con610.wixsite.com/owa-auth-logon>
 
-This change rejects legitimate configurations.
+Om du inte anger nödvändiga uppgifter som e-post användarnamn
+och lösenord ditt konto kommer att stängas av, tack.
 
-A slave doesn't need to exist nor implement ndo_slave_setup.
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/bonding/bond_main.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
-
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3917,15 +3917,11 @@ static int bond_neigh_init(struct neighb
- 
- 	rcu_read_lock();
- 	slave = bond_first_slave_rcu(bond);
--	if (!slave) {
--		ret = -EINVAL;
-+	if (!slave)
- 		goto out;
--	}
- 	slave_ops = slave->dev->netdev_ops;
--	if (!slave_ops->ndo_neigh_setup) {
--		ret = -EINVAL;
-+	if (!slave_ops->ndo_neigh_setup)
- 		goto out;
--	}
- 
- 	/* TODO: find another way [1] to implement this.
- 	 * Passing a zeroed structure is fragile,
+supporttjänst (@) 2021 Med ensamrätt
 
 
+
+
+
+
+Le informazioni contenute in questo messaggio di posta elettronica e nei files allegati sono da considerarsi strettamente riservate. Qualora riceveste questo messaggio senza esserne il destinatario, vi preghiamo cortesemente di darcene notizia via e-mail e di procedere alla cancellazione del messaggio stesso eliminandolo dal vostro sistema. Costituisce comportamento contrario ai principi dettati dal Regolamento UE 2016/679 trattenere il messaggio stesso, divulgarlo anche in parte, distribuirlo ad altri soggetti, copiarlo od utilizzarlo per finalità diverse. Portiamo inoltre alla Vostra attenzione che il presente messaggio, così come ogni risposta e/o altro/messaggio inviata all'account mittente saranno considerati di natura lavorativa e - come tali - possono essere conosciuti da altri soggetti appartenenti all'organizzazione cui appartiene il mittente
