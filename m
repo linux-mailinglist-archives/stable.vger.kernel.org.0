@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF448353FA5
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6D3353ED6
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239503AbhDEJNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:13:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32824 "EHLO mail.kernel.org"
+        id S238622AbhDEJIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:08:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239458AbhDEJN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:13:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA50D61399;
-        Mon,  5 Apr 2021 09:13:21 +0000 (UTC)
+        id S238495AbhDEJIF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:08:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47BFB61393;
+        Mon,  5 Apr 2021 09:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614002;
-        bh=Svdgr/AA0UCfIVJfBErFFvZ0jE6s3P7Fj4FC/UT4QBY=;
+        s=korg; t=1617613679;
+        bh=SOSgZON+gYSqk+Yqic/zP3oF9lMNeJTmZSWc25oOm14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBBrGETD6jb/cnsc8lRa9fSJYaF/cTRxUg1YITGblhmL8cp2N3G9bl+4Zw4+JlFlu
-         YW29jnqx2sC0PLvL6n4giG8qEoHeP3ak7db52/Ne7AuDbGkV0QmHDVPJldF+jWYxlR
-         6JOm+1vGmS/h2iOiBib+vZCD4JRjbnLVTP2owA44=
+        b=z2dQ8tzlbZ9HH708VLJRbpy7kTLkzIEciwpcNwf0lyopBQbK6HzIG+S3za8dgYfuj
+         v79iv2Sb3jja60opQJq6XgtQWiwHR38Z433s/pnNxLj5trJm1Q24dN5nkr3Wb0cGsJ
+         eKVPPJkFlEuiwau9MG3TMRB9ibiiClhJ+HGn3hCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 047/152] mptcp: provide subflow aware release function
-Date:   Mon,  5 Apr 2021 10:53:16 +0200
-Message-Id: <20210405085035.805522114@linuxfoundation.org>
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 035/126] ext4: do not iput inode under running transaction in ext4_rename()
+Date:   Mon,  5 Apr 2021 10:53:17 +0200
+Message-Id: <20210405085032.200490345@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,117 +39,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit ad98dd37051e14fa8c785609430d907fcfd518ba ]
+[ Upstream commit 5dccdc5a1916d4266edd251f20bbbb113a5c495f ]
 
-mptcp re-used inet(6)_release, so the subflow sockets are ignored.
-Need to invoke ip(v6)_mc_drop_socket function to ensure mcast join
-resources get free'd.
+In ext4_rename(), when RENAME_WHITEOUT failed to add new entry into
+directory, it ends up dropping new created whiteout inode under the
+running transaction. After commit <9b88f9fb0d2> ("ext4: Do not iput inode
+under running transaction"), we follow the assumptions that evict() does
+not get called from a transaction context but in ext4_rename() it breaks
+this suggestion. Although it's not a real problem, better to obey it, so
+this patch add inode to orphan list and stop transaction before final
+iput().
 
-Fixes: 717e79c867ca5 ("mptcp: Add setsockopt()/getsockopt() socket operations")
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/110
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210303131703.330415-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 55 ++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 53 insertions(+), 2 deletions(-)
+ fs/ext4/namei.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 88f2d900a347..c3299a4568a0 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -11,6 +11,7 @@
- #include <linux/netdevice.h>
- #include <linux/sched/signal.h>
- #include <linux/atomic.h>
-+#include <linux/igmp.h>
- #include <net/sock.h>
- #include <net/inet_common.h>
- #include <net/inet_hashtables.h>
-@@ -19,6 +20,7 @@
- #include <net/tcp_states.h>
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
- #include <net/transp_v6.h>
-+#include <net/addrconf.h>
- #endif
- #include <net/mptcp.h>
- #include <net/xfrm.h>
-@@ -3368,10 +3370,34 @@ static __poll_t mptcp_poll(struct file *file, struct socket *sock,
- 	return mask;
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 6c7eba426a67..ab7baf529917 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3788,14 +3788,14 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	 */
+ 	retval = -ENOENT;
+ 	if (!old.bh || le32_to_cpu(old.de->inode) != old.inode->i_ino)
+-		goto end_rename;
++		goto release_bh;
+ 
+ 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
+ 				 &new.de, &new.inlined);
+ 	if (IS_ERR(new.bh)) {
+ 		retval = PTR_ERR(new.bh);
+ 		new.bh = NULL;
+-		goto end_rename;
++		goto release_bh;
+ 	}
+ 	if (new.bh) {
+ 		if (!new.inode) {
+@@ -3812,15 +3812,13 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		handle = ext4_journal_start(old.dir, EXT4_HT_DIR, credits);
+ 		if (IS_ERR(handle)) {
+ 			retval = PTR_ERR(handle);
+-			handle = NULL;
+-			goto end_rename;
++			goto release_bh;
+ 		}
+ 	} else {
+ 		whiteout = ext4_whiteout_for_rename(&old, credits, &handle);
+ 		if (IS_ERR(whiteout)) {
+ 			retval = PTR_ERR(whiteout);
+-			whiteout = NULL;
+-			goto end_rename;
++			goto release_bh;
+ 		}
+ 	}
+ 
+@@ -3957,16 +3955,18 @@ end_rename:
+ 			ext4_resetent(handle, &old,
+ 				      old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
++			ext4_orphan_add(handle, whiteout);
+ 		}
+ 		unlock_new_inode(whiteout);
++		ext4_journal_stop(handle);
+ 		iput(whiteout);
+-
++	} else {
++		ext4_journal_stop(handle);
+ 	}
++release_bh:
+ 	brelse(old.dir_bh);
+ 	brelse(old.bh);
+ 	brelse(new.bh);
+-	if (handle)
+-		ext4_journal_stop(handle);
+ 	return retval;
  }
  
-+static int mptcp_release(struct socket *sock)
-+{
-+	struct mptcp_subflow_context *subflow;
-+	struct sock *sk = sock->sk;
-+	struct mptcp_sock *msk;
-+
-+	if (!sk)
-+		return 0;
-+
-+	lock_sock(sk);
-+
-+	msk = mptcp_sk(sk);
-+
-+	mptcp_for_each_subflow(msk, subflow) {
-+		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
-+
-+		ip_mc_drop_socket(ssk);
-+	}
-+
-+	release_sock(sk);
-+
-+	return inet_release(sock);
-+}
-+
- static const struct proto_ops mptcp_stream_ops = {
- 	.family		   = PF_INET,
- 	.owner		   = THIS_MODULE,
--	.release	   = inet_release,
-+	.release	   = mptcp_release,
- 	.bind		   = mptcp_bind,
- 	.connect	   = mptcp_stream_connect,
- 	.socketpair	   = sock_no_socketpair,
-@@ -3418,10 +3444,35 @@ void __init mptcp_proto_init(void)
- }
- 
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
-+static int mptcp6_release(struct socket *sock)
-+{
-+	struct mptcp_subflow_context *subflow;
-+	struct mptcp_sock *msk;
-+	struct sock *sk = sock->sk;
-+
-+	if (!sk)
-+		return 0;
-+
-+	lock_sock(sk);
-+
-+	msk = mptcp_sk(sk);
-+
-+	mptcp_for_each_subflow(msk, subflow) {
-+		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
-+
-+		ip_mc_drop_socket(ssk);
-+		ipv6_sock_mc_close(ssk);
-+		ipv6_sock_ac_close(ssk);
-+	}
-+
-+	release_sock(sk);
-+	return inet6_release(sock);
-+}
-+
- static const struct proto_ops mptcp_v6_stream_ops = {
- 	.family		   = PF_INET6,
- 	.owner		   = THIS_MODULE,
--	.release	   = inet6_release,
-+	.release	   = mptcp6_release,
- 	.bind		   = mptcp_bind,
- 	.connect	   = mptcp_stream_connect,
- 	.socketpair	   = sock_no_socketpair,
 -- 
 2.30.1
 
