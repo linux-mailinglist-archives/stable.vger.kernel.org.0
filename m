@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59953353C99
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71663353CCA
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232220AbhDEIzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:55:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33676 "EHLO mail.kernel.org"
+        id S232910AbhDEI4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230305AbhDEIzk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:55:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1231961245;
-        Mon,  5 Apr 2021 08:55:33 +0000 (UTC)
+        id S232916AbhDEI4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:56:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBBE1610E8;
+        Mon,  5 Apr 2021 08:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612934;
-        bh=FFqXti1lAOLMRaerjWNaFbz7YDI1i+/1fmlLdtLu/l8=;
+        s=korg; t=1617613001;
+        bh=Kn02gw/mMPhkRHqsnPrajefGVOdky3rgg/eIWz56FFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdeLorDAqroSwH8lXC/NGhbvh6yXp5QqbEXD3lxcBYorE5tq+CaCNFGH0tz5gJC6J
-         939FOoYlvcu48uZtpMM0CCT7+LBKtBaFeHzjqMtMUj6DVU6Oaj9vwAOd2k1650cCJS
-         n7uVjkAylwSGDVGsJDXY6cwqlPbK74DpdSeNfeTQ=
+        b=xGgGKnLbo1VFsOTT2jRjNwsfTGW1aSDoqpv/v389iRskVX0DB1y8Mai9nq4K1daEZ
+         I8Z/Kxt1LGa/EgV0tBUj8nsWXEpWucPHzbYn50Tv/soKQ7j6dVAjjcvzEJyKQVGGeV
+         THtmyXQaa+oVTzgGKlwkpoVbGRwlJr6N5uEPyqK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 16/28] ALSA: hda/realtek: call alc_update_headset_mode() in hp_automute_hook
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 15/35] ext4: do not iput inode under running transaction in ext4_rename()
 Date:   Mon,  5 Apr 2021 10:53:50 +0200
-Message-Id: <20210405085017.529021457@linuxfoundation.org>
+Message-Id: <20210405085019.359655072@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
-References: <20210405085017.012074144@linuxfoundation.org>
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+References: <20210405085018.871387942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +39,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit e54f30befa7990b897189b44a56c1138c6bfdbb5 upstream.
+[ Upstream commit 5dccdc5a1916d4266edd251f20bbbb113a5c495f ]
 
-We found the alc_update_headset_mode() is not called on some machines
-when unplugging the headset, as a result, the mode of the
-ALC_HEADSET_MODE_UNPLUGGED can't be set, then the current_headset_type
-is not cleared, if users plug a differnt type of headset next time,
-the determine_headset_type() will not be called and the audio jack is
-set to the headset type of previous time.
+In ext4_rename(), when RENAME_WHITEOUT failed to add new entry into
+directory, it ends up dropping new created whiteout inode under the
+running transaction. After commit <9b88f9fb0d2> ("ext4: Do not iput inode
+under running transaction"), we follow the assumptions that evict() does
+not get called from a transaction context but in ext4_rename() it breaks
+this suggestion. Although it's not a real problem, better to obey it, so
+this patch add inode to orphan list and stop transaction before final
+iput().
 
-On the Dell machines which connect the dmic to the PCH, if we open
-the gnome-sound-setting and unplug the headset, this issue will
-happen. Those machines disable the auto-mute by ucm and has no
-internal mic in the input source, so the update_headset_mode() will
-not be called by cap_sync_hook or automute_hook when unplugging, and
-because the gnome-sound-setting is opened, the codec will not enter
-the runtime_suspend state, so the update_headset_mode() will not be
-called by alc_resume when unplugging. In this case the
-hp_automute_hook is called when unplugging, so add
-update_headset_mode() calling to this function.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210320091542.6748-2-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210303131703.330415-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/namei.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4294,6 +4294,7 @@ static void alc_update_headset_jack_cb(s
- 	struct alc_spec *spec = codec->spec;
- 	spec->current_headset_type = ALC_HEADSET_TYPE_UNKNOWN;
- 	snd_hda_gen_hp_automute(codec, jack);
-+	alc_update_headset_mode(codec);
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index e6e3eb8dd4d6..bbda3ea7039f 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3615,7 +3615,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	 */
+ 	retval = -ENOENT;
+ 	if (!old.bh || le32_to_cpu(old.de->inode) != old.inode->i_ino)
+-		goto end_rename;
++		goto release_bh;
+ 
+ 	if ((old.dir != new.dir) &&
+ 	    ext4_encrypted_inode(new.dir) &&
+@@ -3629,7 +3629,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	if (IS_ERR(new.bh)) {
+ 		retval = PTR_ERR(new.bh);
+ 		new.bh = NULL;
+-		goto end_rename;
++		goto release_bh;
+ 	}
+ 	if (new.bh) {
+ 		if (!new.inode) {
+@@ -3646,15 +3646,13 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		handle = ext4_journal_start(old.dir, EXT4_HT_DIR, credits);
+ 		if (IS_ERR(handle)) {
+ 			retval = PTR_ERR(handle);
+-			handle = NULL;
+-			goto end_rename;
++			goto release_bh;
+ 		}
+ 	} else {
+ 		whiteout = ext4_whiteout_for_rename(&old, credits, &handle);
+ 		if (IS_ERR(whiteout)) {
+ 			retval = PTR_ERR(whiteout);
+-			whiteout = NULL;
+-			goto end_rename;
++			goto release_bh;
+ 		}
+ 	}
+ 
+@@ -3762,16 +3760,18 @@ end_rename:
+ 			ext4_resetent(handle, &old,
+ 				      old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
++			ext4_orphan_add(handle, whiteout);
+ 		}
+ 		unlock_new_inode(whiteout);
++		ext4_journal_stop(handle);
+ 		iput(whiteout);
+-
++	} else {
++		ext4_journal_stop(handle);
+ 	}
++release_bh:
+ 	brelse(old.dir_bh);
+ 	brelse(old.bh);
+ 	brelse(new.bh);
+-	if (handle)
+-		ext4_journal_stop(handle);
+ 	return retval;
  }
  
- static void alc_probe_headset_mode(struct hda_codec *codec)
+-- 
+2.30.1
+
 
 
