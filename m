@@ -2,383 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D451353DF5
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C29353FB5
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237593AbhDEJDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45914 "EHLO mail.kernel.org"
+        id S238787AbhDEJNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237590AbhDEJDL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:03:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 117E461057;
-        Mon,  5 Apr 2021 09:03:04 +0000 (UTC)
+        id S239571AbhDEJNt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:13:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1ED861398;
+        Mon,  5 Apr 2021 09:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613384;
-        bh=VOVvmKL0DOIb8tIodGJOgssJxagRJREqVn97UkvuPsE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=H4n1/yBMKehlQzTh2J7/DDQATiPseaDwOyIrmQQ3yrEZ3585Qfs8fFbO/Yk81zEVN
-         iaqvwEL366wDY6/tJYW8guTAyMd0wd/2/p8pt/oUrRG17BpURFDw7kQEg5m9fLNy+V
-         ij4g1RxYqEk5mft0JaVM74xN8P8aCTkx42R+6W2o=
+        s=korg; t=1617614024;
+        bh=SMleM6nJzzA3WMPDL9+Hqmf2DvnayDh6Sa8h2XI5KQU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nnkZQdPn0w82Wgj1nthFb8r8CTck2Xvy0vk2xrLVDWGG7tHbTd42+3oHgT+oeSeWw
+         SjvCqC6vFipPSVu+JFxPN44KPXTNBDfC5gppwTpk4KOlzsqsGT4IKxGztTXByCCTx3
+         SaG5n7JA6T0NiViiws6XIztt/EhH3aqelHWM61XU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.4 00/74] 5.4.110-rc1 review
+        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 055/152] ath11k: add ieee80211_unregister_hw to avoid kernel crash caused by NULL pointer
 Date:   Mon,  5 Apr 2021 10:53:24 +0200
-Message-Id: <20210405085024.703004126@linuxfoundation.org>
+Message-Id: <20210405085036.063945082@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.110-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.110-rc1
-X-KernelTest-Deadline: 2021-04-07T08:50+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.110 release.
-There are 74 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Wen Gong <wgong@codeaurora.org>
+
+[ Upstream commit 0d96968315d7ffbd70d608b29e9bea084210b96d ]
+
+When function return fail to __ath11k_mac_register after success called
+ieee80211_register_hw, then it set wiphy->dev.parent to NULL by
+SET_IEEE80211_DEV(ar->hw, NULL) in end of __ath11k_mac_register, then
+cfg80211_get_drvinfo will be called by below call stack, but the
+wiphy->dev.parent is NULL, so kernel crash.
+
+Call stack to cfg80211_get_drvinfo:
+NetworkManager   826 [001]  6696.731371:    probe:cfg80211_get_drvinfo: (ffffffffc107d8f0)
+        ffffffffc107d8f1 cfg80211_get_drvinfo+0x1 (/lib/modules/5.10.0-rc1-wt-ath+/kernel/net/wireless-back/cfg80211.ko)
+        ffffffff9d8fc529 ethtool_get_drvinfo+0x99 (vmlinux)
+        ffffffff9d90080e dev_ethtool+0x1dbe (vmlinux)
+        ffffffff9d8b88f7 dev_ioctl+0xb7 (vmlinux)
+        ffffffff9d8668de sock_do_ioctl+0xae (vmlinux)
+        ffffffff9d866d60 sock_ioctl+0x350 (vmlinux)
+        ffffffff9d2ca30e __x64_sys_ioctl+0x8e (vmlinux)
+        ffffffff9da0dda3 do_syscall_64+0x33 (vmlinux)
+        ffffffff9dc0008c entry_SYSCALL_64_after_hwframe+0x44 (vmlinux)
+            7feb5f673007 __GI___ioctl+0x7 (/lib/x86_64-linux-gnu/libc-2.23.so)
+                       0 [unknown] ([unknown])
+
+Code of cfg80211_get_drvinfo, the pdev which is wiphy->dev.parent is
+NULL when kernel crash:
+void cfg80211_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
+{
+	struct wireless_dev *wdev = dev->ieee80211_ptr;
+	struct device *pdev = wiphy_dev(wdev->wiphy);
+
+	if (pdev->driver)
+....
+
+kernel crash log:
+[  973.619550] ath11k_pci 0000:05:00.0: failed to perform regd update : -16
+[  973.619555] ath11k_pci 0000:05:00.0: ath11k regd update failed: -16
+[  973.619566] ath11k_pci 0000:05:00.0: failed register the radio with mac80211: -16
+[  973.619618] ath11k_pci 0000:05:00.0: failed to create pdev core: -16
+[  973.636035] BUG: kernel NULL pointer dereference, address: 0000000000000068
+[  973.636046] #PF: supervisor read access in kernel mode
+[  973.636050] #PF: error_code(0x0000) - not-present page
+[  973.636054] PGD 800000012452e067 P4D 800000012452e067 PUD 12452d067 PMD 0
+[  973.636064] Oops: 0000 [#1] SMP PTI
+[  973.636072] CPU: 3 PID: 848 Comm: NetworkManager Kdump: loaded Tainted: G        W  OE     5.10.0-rc1-wt-ath+ #24
+[  973.636076] Hardware name: LENOVO 418065C/418065C, BIOS 83ET63WW (1.33 ) 07/29/2011
+[  973.636161] RIP: 0010:cfg80211_get_drvinfo+0x25/0xd0 [cfg80211]
+[  973.636169] Code: e9 c9 fe ff ff 66 66 66 66 90 55 53 ba 20 00 00 00 48 8b af 08 03 00 00 48 89 f3 48 8d 7e 04 48 8b 45 00 48 8b 80 90 01 00 00 <48> 8b 40 68 48 85 c0 0f 84 8d 00 00 00 48 8b 30 e8 a6 cc 72 c7 48
+[  973.636174] RSP: 0018:ffffaafb4040bbe0 EFLAGS: 00010286
+[  973.636180] RAX: 0000000000000000 RBX: ffffaafb4040bbfc RCX: 0000000000000000
+[  973.636184] RDX: 0000000000000020 RSI: ffffaafb4040bbfc RDI: ffffaafb4040bc00
+[  973.636188] RBP: ffff8a84c9568950 R08: 722d302e30312e35 R09: 74612d74772d3163
+[  973.636192] R10: 3163722d302e3031 R11: 2b6874612d74772d R12: ffffaafb4040bbfc
+[  973.636196] R13: 00007ffe453707c0 R14: ffff8a84c9568000 R15: 0000000000000000
+[  973.636202] FS:  00007fd3d179b940(0000) GS:ffff8a84fa2c0000(0000) knlGS:0000000000000000
+[  973.636206] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  973.636211] CR2: 0000000000000068 CR3: 00000001153b6002 CR4: 00000000000606e0
+[  973.636215] Call Trace:
+[  973.636234]  ethtool_get_drvinfo+0x99/0x1f0
+[  973.636246]  dev_ethtool+0x1dbe/0x2be0
+[  973.636256]  ? mntput_no_expire+0x35/0x220
+[  973.636264]  ? inet_ioctl+0x1ce/0x200
+[  973.636274]  ? tomoyo_path_number_perm+0x68/0x1d0
+[  973.636282]  ? kmem_cache_alloc+0x3cb/0x430
+[  973.636290]  ? dev_ioctl+0xb7/0x570
+[  973.636295]  dev_ioctl+0xb7/0x570
+[  973.636307]  sock_do_ioctl+0xae/0x150
+[  973.636315]  ? sock_ioctl+0x350/0x3c0
+[  973.636319]  sock_ioctl+0x350/0x3c0
+[  973.636332]  ? __x64_sys_ioctl+0x8e/0xd0
+[  973.636339]  ? dlci_ioctl_set+0x30/0x30
+[  973.636346]  __x64_sys_ioctl+0x8e/0xd0
+[  973.636359]  do_syscall_64+0x33/0x80
+[  973.636368]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Sequence of function call when wlan load for success case when function
+__ath11k_mac_register return 0:
+
+kworker/u16:3-e  2922 [001]  6696.729734:   probe:ieee80211_register_hw: (ffffffffc116ae60)
+kworker/u16:3-e  2922 [001]  6696.730210:        probe:ieee80211_if_add: (ffffffffc1185cc0)
+NetworkManager   826 [001]  6696.731345:     probe:ethtool_get_drvinfo: (ffffffff9d8fc490)
+NetworkManager   826 [001]  6696.731371:    probe:cfg80211_get_drvinfo: (ffffffffc107d8f0)
+NetworkManager   826 [001]  6696.731639:     probe:ethtool_get_drvinfo: (ffffffff9d8fc490)
+NetworkManager   826 [001]  6696.731653:    probe:cfg80211_get_drvinfo: (ffffffffc107d8f0)
+NetworkManager   826 [001]  6696.732866:     probe:ethtool_get_drvinfo: (ffffffff9d8fc490)
+NetworkManager   826 [001]  6696.732893:    probe:cfg80211_get_drvinfo: (ffffffffc107d8f0)
+systemd-udevd  3850 [003]  6696.737199:     probe:ethtool_get_drvinfo: (ffffffff9d8fc490)
+systemd-udevd  3850 [003]  6696.737226:    probe:cfg80211_get_drvinfo: (ffffffffc107d8f0)
+NetworkManager   826 [000]  6696.759950:     probe:ethtool_get_drvinfo: (ffffffff9d8fc490)
+NetworkManager   826 [000]  6696.759967:    probe:cfg80211_get_drvinfo: (ffffffffc107d8f0)
+NetworkManager   826 [000]  6696.760057:     probe:ethtool_get_drvinfo: (ffffffff9d8fc490)
+NetworkManager   826 [000]  6696.760062:    probe:cfg80211_get_drvinfo: (ffffffffc107d8f0)
+
+After apply this patch, kernel crash gone, and below is the test case's
+sequence of function call and log when wlan load with fail by function
+ath11k_regd_update, and __ath11k_mac_register return fail:
+
+kworker/u16:5-e   192 [001]   215.174388:   probe:ieee80211_register_hw: (ffffffffc1131e60)
+kworker/u16:5-e   192 [000]   215.174973:        probe:ieee80211_if_add: (ffffffffc114ccc0)
+NetworkManager   846 [001]   215.175857:     probe:ethtool_get_drvinfo: (ffffffff928fc490)
+kworker/u16:5-e   192 [000]   215.175867: probe:ieee80211_unregister_hw: (ffffffffc1131970)
+NetworkManager   846 [001]   215.175880:    probe:cfg80211_get_drvinfo: (ffffffffc107f8f0)
+NetworkManager   846 [001]   215.176105:     probe:ethtool_get_drvinfo: (ffffffff928fc490)
+NetworkManager   846 [001]   215.176118:    probe:cfg80211_get_drvinfo: (ffffffffc107f8f0)
+[  215.175859] ath11k_pci 0000:05:00.0: ath11k regd update failed: -16
+NetworkManager   846 [001]   215.196420:     probe:ethtool_get_drvinfo: (ffffffff928fc490)
+NetworkManager   846 [001]   215.196430:    probe:cfg80211_get_drvinfo: (ffffffffc107f8f0)
+[  215.258598] ath11k_pci 0000:05:00.0: failed register the radio with mac80211: -16
+[  215.258613] ath11k_pci 0000:05:00.0: failed to create pdev core: -16
+
+When ath11k_regd_update or ath11k_debugfs_register return fail, function
+ieee80211_unregister_hw of mac80211 will be called, then it will wait
+untill cfg80211_get_drvinfo finished, the wiphy->dev.parent is not NULL
+at this moment, after that, it set wiphy->dev.parent to NULL by
+SET_IEEE80211_DEV(ar->hw, NULL) in end of __ath11k_mac_register, so
+not happen kernel crash.
+
+Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1608607824-16067-1-git-send-email-wgong@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/wireless/ath/ath11k/mac.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 54bdef33f3f8..55ecf7f43735 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -6361,17 +6361,20 @@ static int __ath11k_mac_register(struct ath11k *ar)
+ 	ret = ath11k_regd_update(ar, true);
+ 	if (ret) {
+ 		ath11k_err(ar->ab, "ath11k regd update failed: %d\n", ret);
+-		goto err_free_if_combs;
++		goto err_unregister_hw;
+ 	}
+ 
+ 	ret = ath11k_debugfs_register(ar);
+ 	if (ret) {
+ 		ath11k_err(ar->ab, "debugfs registration failed: %d\n", ret);
+-		goto err_free_if_combs;
++		goto err_unregister_hw;
+ 	}
+ 
+ 	return 0;
+ 
++err_unregister_hw:
++	ieee80211_unregister_hw(ar->hw);
++
+ err_free_if_combs:
+ 	kfree(ar->hw->wiphy->iface_combinations[0].limits);
+ 	kfree(ar->hw->wiphy->iface_combinations);
+-- 
+2.30.1
 
-Responses should be made by Wed, 07 Apr 2021 08:50:09 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.110-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.110-rc1
-
-Du Cheng <ducheng2@gmail.com>
-    drivers: video: fbcon: fix NULL dereference in fbcon_cursor()
-
-Atul Gopinathan <atulgopinathan@gmail.com>
-    staging: rtl8192e: Change state information from u16 to u8
-
-Atul Gopinathan <atulgopinathan@gmail.com>
-    staging: rtl8192e: Fix incorrect source in memcpy()
-
-Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-    usb: dwc2: Prevent core suspend when port connection flag is 0
-
-Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-    usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
-
-Tong Zhang <ztong0001@gmail.com>
-    usb: gadget: udc: amd5536udc_pci fix null-ptr-dereference
-
-Johan Hovold <johan@kernel.org>
-    USB: cdc-acm: fix use-after-free after probe failure
-
-Johan Hovold <johan@kernel.org>
-    USB: cdc-acm: fix double free on probe failure
-
-Oliver Neukum <oneukum@suse.com>
-    USB: cdc-acm: downgrade message to debug
-
-Oliver Neukum <oneukum@suse.com>
-    USB: cdc-acm: untangle a circular dependency between callback and softint
-
-Oliver Neukum <oneukum@suse.com>
-    cdc-acm: fix BREAK rx code path adding necessary calls
-
-Chunfeng Yun <chunfeng.yun@mediatek.com>
-    usb: xhci-mtk: fix broken streams issue on 0.96 xHCI
-
-Tony Lindgren <tony@atomide.com>
-    usb: musb: Fix suspend with devices connected for a64
-
-Vincent Palatin <vpalatin@chromium.org>
-    USB: quirks: ignore remote wake-up on Fibocom L850-GL LTE modem
-
-Shuah Khan <skhan@linuxfoundation.org>
-    usbip: vhci_hcd fix shift out-of-bounds in vhci_hub_control()
-
-Zheyu Ma <zheyuma97@gmail.com>
-    firewire: nosy: Fix a use-after-free bug in nosy_ioctl()
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    extcon: Fix error handling in extcon_dev_register
-
-Krzysztof Kozlowski <krzk@kernel.org>
-    extcon: Add stubs for extcon_register_notifier_all() functions
-
-Wang Panzhenzhuan <randy.wang@rock-chips.com>
-    pinctrl: rockchip: fix restore error in resume
-
-Jason Gunthorpe <jgg@nvidia.com>
-    vfio/nvlink: Add missing SPAPR_TCE_IOMMU depends
-
-Thierry Reding <treding@nvidia.com>
-    drm/tegra: sor: Grab runtime PM reference across reset
-
-Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-    reiserfs: update reiserfs_xattrs_initialized() condition
-
-Xℹ Ruoyao <xry111@mengyan1223.wang>
-    drm/amdgpu: check alignment on CPU page for bo map
-
-Nirmoy Das <nirmoy.das@amd.com>
-    drm/amdgpu: fix offset calculation in amdgpu_vm_bo_clear_mappings()
-
-Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-    mm: fix race by making init_zero_pfn() early_initcall
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tracing: Fix stack trace event size
-
-Adrian Hunter <adrian.hunter@intel.com>
-    PM: runtime: Fix ordering in pm_runtime_get_suppliers()
-
-Adrian Hunter <adrian.hunter@intel.com>
-    PM: runtime: Fix race getting/putting suppliers at probe
-
-Max Filippov <jcmvbkbc@gmail.com>
-    xtensa: move coprocessor_flush to the .text section
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda/realtek: call alc_update_headset_mode() in hp_automute_hook
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda/realtek: fix a determine_headset_type issue for a Dell AIO
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda: Add missing sanity checks in PM prepare/complete callbacks
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda: Re-add dropped snd_poewr_change_state() calls
-
-Ikjoon Jang <ikjn@chromium.org>
-    ALSA: usb-audio: Apply sample rate quirk to Logitech Connect
-
-Jesper Dangaard Brouer <brouer@redhat.com>
-    bpf: Remove MTU check in __bpf_skb_max_len
-
-Tong Zhang <ztong0001@gmail.com>
-    net: wan/lmc: unregister device when no matching device is found
-
-Doug Brown <doug@schmorgal.com>
-    appletalk: Fix skb allocation size in loopback case
-
-Nathan Rossi <nathan.rossi@digi.com>
-    net: ethernet: aquantia: Handle error cleanup of start on open
-
-Shuah Khan <skhan@linuxfoundation.org>
-    ath10k: hold RCU lock when calling ieee80211_find_sta_by_ifaddr()
-
-Luca Pesce <luca.pesce@vimar.com>
-    brcmfmac: clear EAP/association status bits on linkdown events
-
-Sasha Levin <sashal@kernel.org>
-    can: tcan4x5x: fix max register value
-
-Oleksij Rempel <linux@rempel-privat.de>
-    net: introduce CAN specific pointer in the struct net_device
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: dev: move driver related infrastructure into separate subdir
-
-Davide Caratti <dcaratti@redhat.com>
-    flow_dissector: fix TTL and TOS dissection on IPv4 fragments
-
-Sasha Levin <sashal@kernel.org>
-    net: mvpp2: fix interrupt mask/unmask skip condition
-
-zhangyi (F) <yi.zhang@huawei.com>
-    ext4: do not iput inode under running transaction in ext4_rename()
-
-Waiman Long <longman@redhat.com>
-    locking/ww_mutex: Simplify use_ww_ctx & ww_ctx handling
-
-Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
-    thermal/core: Add NULL pointer check before using cooling device stats
-
-Sameer Pujar <spujar@nvidia.com>
-    ASoC: rt5659: Update MCLK rate in set_sysclk()
-
-Tong Zhang <ztong0001@gmail.com>
-    staging: comedi: cb_pcidas64: fix request_irq() warn
-
-Tong Zhang <ztong0001@gmail.com>
-    staging: comedi: cb_pcidas: fix request_irq() warn
-
-Alexey Dobriyan <adobriyan@gmail.com>
-    scsi: qla2xxx: Fix broken #endif placement
-
-Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-    scsi: st: Fix a use after free in st_open()
-
-Laurent Vivier <lvivier@redhat.com>
-    vhost: Fix vhost_vq_reset()
-
-Christophe Leroy <christophe.leroy@csgroup.eu>
-    powerpc: Force inlining of cpu_has_feature() to avoid build failure
-
-Olga Kornievskaia <kolga@netapp.com>
-    NFSD: fix error handling in NFSv4.0 callbacks
-
-Lucas Tanure <tanureal@opensource.cirrus.com>
-    ASoC: cs42l42: Always wait at least 3ms after reset
-
-Lucas Tanure <tanureal@opensource.cirrus.com>
-    ASoC: cs42l42: Fix mixer volume control
-
-Lucas Tanure <tanureal@opensource.cirrus.com>
-    ASoC: cs42l42: Fix channel width support
-
-Lucas Tanure <tanureal@opensource.cirrus.com>
-    ASoC: cs42l42: Fix Bitclock polarity inversion
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: es8316: Simplify adc_pga_gain_tlv table
-
-Benjamin Rood <benjaminjrood@gmail.com>
-    ASoC: sgtl5000: set DAP_AVC_CTRL register to correct default value on probe
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: rt5651: Fix dac- and adc- vol-tlv values being off by a factor of 10
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: rt5640: Fix dac- and adc- vol-tlv values being off by a factor of 10
-
-Ritesh Harjani <riteshh@linux.ibm.com>
-    iomap: Fix negative assignment to unsigned sis->pages in iomap_swapfile_activate
-
-J. Bruce Fields <bfields@redhat.com>
-    rpc: fix NULL dereference on kmalloc failure
-
-Julian Braha <julianbraha@gmail.com>
-    fs: nfsd: fix kconfig dependency warning for NFSD_V4
-
-Zhaolong Zhang <zhangzl2013@126.com>
-    ext4: fix bh ref count on error paths
-
-Eric Whitney <enwlinux@gmail.com>
-    ext4: shrink race window in ext4_should_retry_alloc()
-
-Frank van der Linden <fllinden@amazon.com>
-    module: harden ELF info handling
-
-Sergey Shtylyov <s.shtylyov@omprussia.ru>
-    module: avoid *goto*s in module_sig_check()
-
-Sergey Shtylyov <s.shtylyov@omprussia.ru>
-    module: merge repetitive strings in module_sig_check()
-
-Jakub Kicinski <kuba@kernel.org>
-    ipv6: weaken the v4mapped source check
-
-David Brazdil <dbrazdil@google.com>
-    selinux: vsock: Set SID for socket returned by accept()
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/powerpc/include/asm/cpu_has_feature.h         |   4 +-
- arch/xtensa/kernel/coprocessor.S                   |  64 ++++----
- drivers/base/power/runtime.c                       |  10 +-
- drivers/extcon/extcon.c                            |   1 +
- drivers/firewire/nosy.c                            |   9 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c             |  10 +-
- drivers/gpu/drm/tegra/sor.c                        |   7 +
- drivers/net/can/Makefile                           |   7 +-
- drivers/net/can/dev/Makefile                       |   7 +
- drivers/net/can/{ => dev}/dev.c                    |   4 +-
- drivers/net/can/{ => dev}/rx-offload.c             |   0
- drivers/net/can/m_can/tcan4x5x.c                   |   2 +-
- drivers/net/can/slcan.c                            |   4 +-
- drivers/net/can/vcan.c                             |   2 +-
- drivers/net/can/vxcan.c                            |   6 +-
- drivers/net/ethernet/aquantia/atlantic/aq_main.c   |   4 +-
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    |   4 +-
- drivers/net/wan/lmc/lmc_main.c                     |   2 +
- drivers/net/wireless/ath/ath10k/wmi-tlv.c          |   7 +-
- .../broadcom/brcm80211/brcmfmac/cfg80211.c         |   7 +-
- drivers/pinctrl/pinctrl-rockchip.c                 |  13 +-
- drivers/scsi/qla2xxx/qla_target.h                  |   2 +-
- drivers/scsi/st.c                                  |   2 +-
- drivers/staging/comedi/drivers/cb_pcidas.c         |   2 +-
- drivers/staging/comedi/drivers/cb_pcidas64.c       |   2 +-
- drivers/staging/rtl8192e/rtllib.h                  |   2 +-
- drivers/staging/rtl8192e/rtllib_rx.c               |   2 +-
- drivers/thermal/thermal_sysfs.c                    |   3 +
- drivers/usb/class/cdc-acm.c                        |  61 +++++---
- drivers/usb/core/quirks.c                          |   4 +
- drivers/usb/dwc2/hcd.c                             |   5 +-
- drivers/usb/gadget/udc/amd5536udc_pci.c            |  10 +-
- drivers/usb/host/xhci-mtk.c                        |  10 +-
- drivers/usb/musb/musb_core.c                       |  12 +-
- drivers/usb/usbip/vhci_hcd.c                       |   2 +
- drivers/vfio/pci/Kconfig                           |   2 +-
- drivers/vhost/vhost.c                              |   2 +-
- drivers/video/fbdev/core/fbcon.c                   |   3 +
- fs/ext4/balloc.c                                   |  38 +++--
- fs/ext4/ext4.h                                     |   1 +
- fs/ext4/inode.c                                    |   6 +-
- fs/ext4/namei.c                                    |  18 +--
- fs/ext4/super.c                                    |   5 +
- fs/ext4/sysfs.c                                    |   7 +
- fs/iomap/swapfile.c                                |  10 ++
- fs/nfsd/Kconfig                                    |   1 +
- fs/nfsd/nfs4callback.c                             |   1 +
- fs/reiserfs/xattr.h                                |   2 +-
- include/linux/can/can-ml.h                         |  12 ++
- include/linux/extcon.h                             |  23 +++
- include/linux/netdevice.h                          |  34 ++++-
- kernel/locking/mutex.c                             |  25 ++--
- kernel/module.c                                    | 166 +++++++++++++++++----
- kernel/module_signature.c                          |   2 +-
- kernel/module_signing.c                            |   2 +-
- kernel/trace/trace.c                               |   3 +-
- mm/memory.c                                        |   2 +-
- net/appletalk/ddp.c                                |  33 ++--
- net/can/af_can.c                                   |  34 +----
- net/can/j1939/main.c                               |  22 +--
- net/can/j1939/socket.c                             |  13 +-
- net/can/proc.c                                     |  19 ++-
- net/core/filter.c                                  |  12 +-
- net/core/flow_dissector.c                          |   6 +-
- net/dccp/ipv6.c                                    |   5 +
- net/ipv6/ip6_input.c                               |  10 --
- net/ipv6/tcp_ipv6.c                                |   5 +
- net/sunrpc/auth_gss/svcauth_gss.c                  |  11 +-
- net/vmw_vsock/af_vsock.c                           |   1 +
- sound/pci/hda/hda_intel.c                          |   8 +
- sound/pci/hda/patch_realtek.c                      |   3 +-
- sound/soc/codecs/cs42l42.c                         |  74 +++++----
- sound/soc/codecs/cs42l42.h                         |  13 +-
- sound/soc/codecs/es8316.c                          |   9 +-
- sound/soc/codecs/rt5640.c                          |   4 +-
- sound/soc/codecs/rt5651.c                          |   4 +-
- sound/soc/codecs/rt5659.c                          |   5 +
- sound/soc/codecs/sgtl5000.c                        |   2 +-
- sound/usb/quirks.c                                 |   1 +
- .../testing/selftests/net/forwarding/tc_flower.sh  |  38 ++++-
- 81 files changed, 660 insertions(+), 334 deletions(-)
 
 
