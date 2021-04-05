@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7139A353D34
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D2B353C8B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233908AbhDEI7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:59:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39656 "EHLO mail.kernel.org"
+        id S229681AbhDEIzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:55:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234141AbhDEI7B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:59:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 349CB6124C;
-        Mon,  5 Apr 2021 08:58:55 +0000 (UTC)
+        id S229660AbhDEIzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:55:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C95A61245;
+        Mon,  5 Apr 2021 08:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613135;
-        bh=23kLld7vC2edAg0gR/TXLd//rfdBEkphcIlKJdwOYNI=;
+        s=korg; t=1617612918;
+        bh=SFWkbn1C21j+O1i2e4Gsdg9bUkOQOYiWu5lFacfQn8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHJ1Tp6iEoCHmcM+Id6cAl2PkCnC5WfTy/CPq2o68PR/tmJE+Cx5OUMLgxojaQMbX
-         SIEhNEqZZQvkWFE8R0BH7cSGqLIVJxYi2rL+lbnZDQLRRQXhixCFqolYKWAmxKLYpa
-         4pevdkrPjllQ5E6RalAyVbnKLIWZ+L2tmPRO+iRk=
+        b=XURPgXHkif9IA5yHKu3icAVMq/k6+pe/tMTiYEzlGtKidC7hzYBMVrlvmfoASlmEt
+         tOB4e/rFpNUceLk8QdZG9DFanrpDvQHIpYb2EtKDiop54n1GqZ67hD16dvUPPdDkoS
+         1hKiTO/8nKm5zJRgh2Z20msH9d9Pp3ad0OsszN2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, David Brazdil <dbrazdil@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/52] ASoC: cs42l42: Fix mixer volume control
+Subject: [PATCH 4.4 01/28] selinux: vsock: Set SID for socket returned by accept()
 Date:   Mon,  5 Apr 2021 10:53:35 +0200
-Message-Id: <20210405085022.306684365@linuxfoundation.org>
+Message-Id: <20210405085017.056957072@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
+References: <20210405085017.012074144@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,42 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: David Brazdil <dbrazdil@google.com>
 
-[ Upstream commit 72d904763ae6a8576e7ad034f9da4f0e3c44bf24 ]
+[ Upstream commit 1f935e8e72ec28dddb2dc0650b3b6626a293d94b ]
 
-The minimum value is 0x3f (-63dB), which also is mute
+For AF_VSOCK, accept() currently returns sockets that are unlabelled.
+Other socket families derive the child's SID from the SID of the parent
+and the SID of the incoming packet. This is typically done as the
+connected socket is placed in the queue that accept() removes from.
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210305173442.195740-4-tanureal@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reuse the existing 'security_sk_clone' hook to copy the SID from the
+parent (server) socket to the child. There is no packet SID in this
+case.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: David Brazdil <dbrazdil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/vmw_vsock/af_vsock.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index a2324a0e72ee..ec322fda3c18 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -405,7 +405,7 @@ static const struct regmap_config cs42l42_regmap = {
- };
- 
- static DECLARE_TLV_DB_SCALE(adc_tlv, -9600, 100, false);
--static DECLARE_TLV_DB_SCALE(mixer_tlv, -6200, 100, false);
-+static DECLARE_TLV_DB_SCALE(mixer_tlv, -6300, 100, true);
- 
- static const char * const cs42l42_hpf_freq_text[] = {
- 	"1.86Hz", "120Hz", "235Hz", "466Hz"
-@@ -462,7 +462,7 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 				CS42L42_DAC_HPF_EN_SHIFT, true, false),
- 	SOC_DOUBLE_R_TLV("Mixer Volume", CS42L42_MIXER_CHA_VOL,
- 			 CS42L42_MIXER_CHB_VOL, CS42L42_MIXER_CH_VOL_SHIFT,
--				0x3e, 1, mixer_tlv)
-+				0x3f, 1, mixer_tlv)
- };
- 
- static int cs42l42_hpdrv_evt(struct snd_soc_dapm_widget *w,
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index cdd91a60b89a..8f5fec0956bd 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -632,6 +632,7 @@ struct sock *__vsock_create(struct net *net,
+ 		vsk->trusted = psk->trusted;
+ 		vsk->owner = get_cred(psk->owner);
+ 		vsk->connect_timeout = psk->connect_timeout;
++		security_sk_clone(parent, sk);
+ 	} else {
+ 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+ 		vsk->owner = get_current_cred();
 -- 
 2.30.1
 
