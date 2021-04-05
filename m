@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFACD353D88
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D13353DF2
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232650AbhDEJA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:00:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41834 "EHLO mail.kernel.org"
+        id S237558AbhDEJDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237174AbhDEJAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B45566139D;
-        Mon,  5 Apr 2021 09:00:11 +0000 (UTC)
+        id S237515AbhDEJDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:03:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CDCB61393;
+        Mon,  5 Apr 2021 09:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613212;
-        bh=pf2xgg6Mo01vFcH2b8jObwWhMfeX+8d/C85sYCfsfLc=;
+        s=korg; t=1617613382;
+        bh=HOOFgjuNG52MhBAbzvySEYqeaHi0a9pEDTm9vIu8bVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBUDIJ6GuM0FuaxjiZyRRbQBe/qSOS2wda+GpLhrRk8MhnDLtz+Nb7eyLntVZS+QJ
-         uJb68TJqKHhl03KgDkPjXAywBHsbs1mg1kIaka33XJ5H/y8HfOH1bvnpRt5ef5UoXz
-         ZiJf/XXZKo6QVT75tlcxAiVOuZdc+4jUbDRCdJXw=
+        b=ImETL+ByvHncUilJ7eN9+gG1A8wMIu4TnEm1t9uG9VeWi0AFOy/6t4X28bnxpWuhe
+         fp4e2h1AJvYQOpUMX95G9i+pou/sooyNur+xZ513bRJk1aOvSbCRQNZYpuXtLBneYe
+         nV43FK4oWkRbaO76Dtz1f4O+Rj8vqFyE7wQMacY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Brazdil <dbrazdil@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/56] selinux: vsock: Set SID for socket returned by accept()
+Subject: [PATCH 5.4 08/74] fs: nfsd: fix kconfig dependency warning for NFSD_V4
 Date:   Mon,  5 Apr 2021 10:53:32 +0200
-Message-Id: <20210405085022.609029139@linuxfoundation.org>
+Message-Id: <20210405085024.996764926@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,39 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Brazdil <dbrazdil@google.com>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit 1f935e8e72ec28dddb2dc0650b3b6626a293d94b ]
+[ Upstream commit 7005227369079963d25fb2d5d736d0feb2c44cf6 ]
 
-For AF_VSOCK, accept() currently returns sockets that are unlabelled.
-Other socket families derive the child's SID from the SID of the parent
-and the SID of the incoming packet. This is typically done as the
-connected socket is placed in the queue that accept() removes from.
+When NFSD_V4 is enabled and CRYPTO is disabled,
+Kbuild gives the following warning:
 
-Reuse the existing 'security_sk_clone' hook to copy the SID from the
-parent (server) socket to the child. There is no packet SID in this
-case.
+WARNING: unmet direct dependencies detected for CRYPTO_SHA256
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - NFSD_V4 [=y] && NETWORK_FILESYSTEMS [=y] && NFSD [=y] && PROC_FS [=y]
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: David Brazdil <dbrazdil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+WARNING: unmet direct dependencies detected for CRYPTO_MD5
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - NFSD_V4 [=y] && NETWORK_FILESYSTEMS [=y] && NFSD [=y] && PROC_FS [=y]
+
+This is because NFSD_V4 selects CRYPTO_MD5 and CRYPTO_SHA256,
+without depending on or selecting CRYPTO, despite those config options
+being subordinate to CRYPTO.
+
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 1 +
+ fs/nfsd/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 4b65db13e1bb..aceafec612a8 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -628,6 +628,7 @@ struct sock *__vsock_create(struct net *net,
- 		vsk->trusted = psk->trusted;
- 		vsk->owner = get_cred(psk->owner);
- 		vsk->connect_timeout = psk->connect_timeout;
-+		security_sk_clone(parent, sk);
- 	} else {
- 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
- 		vsk->owner = get_current_cred();
+diff --git a/fs/nfsd/Kconfig b/fs/nfsd/Kconfig
+index f2f81561ebb6..4d6e71335bce 100644
+--- a/fs/nfsd/Kconfig
++++ b/fs/nfsd/Kconfig
+@@ -73,6 +73,7 @@ config NFSD_V4
+ 	select NFSD_V3
+ 	select FS_POSIX_ACL
+ 	select SUNRPC_GSS
++	select CRYPTO
+ 	select CRYPTO_MD5
+ 	select CRYPTO_SHA256
+ 	select GRACE_PERIOD
 -- 
 2.30.1
 
