@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86F05353E55
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA4FC353DC3
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238482AbhDEJFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48278 "EHLO mail.kernel.org"
+        id S237372AbhDEJCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238501AbhDEJFC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 700826139D;
-        Mon,  5 Apr 2021 09:04:54 +0000 (UTC)
+        id S237387AbhDEJCN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22830613A3;
+        Mon,  5 Apr 2021 09:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613495;
-        bh=n+xJmCDSVXvBQULx+GnFO8Z5eb7mV3X7wFPrmp1fb1M=;
+        s=korg; t=1617613327;
+        bh=X1xc9gdX2vPMnUuIVxv1xipMtvOftPSA7kCR5++fVQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2k+TxyqT4UsFoisVLSRjgFtINA8R3ppZi/jQsBHs4f2C9PHrLzQpMt9IlfRY+ca2Y
-         /3yRqz42xe4vSfdbfsVb9JfH3iQzMHq8O4VDejdqfyyScZKKsTPbeOHRX3dhdHdOHo
-         cukEXWFy0UMYmY6rB2Jj2LgiqbMrc9nicYOOuVJw=
+        b=CTy9lw2DTNtpl/wJn9nJrIpWe5jZeJtxRlonyLVDqnPuXh7QjFd7IXD/qKzaIniGr
+         LHN1HjErqnT3ZuY9Zy1dhmXv5ZXgMOlKJCrF6wizciAOUgKQTieQNjCNDA/UdfTmFe
+         EvacIQVkeM5x5Rqm3hYNMj9bBhqrokJUWEgZM/Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Greg Kroah-Hartman <greg@kroah.com>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 59/74] firewire: nosy: Fix a use-after-free bug in nosy_ioctl()
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>
+Subject: [PATCH 4.19 52/56] usb: gadget: udc: amd5536udc_pci fix null-ptr-dereference
 Date:   Mon,  5 Apr 2021 10:54:23 +0200
-Message-Id: <20210405085026.641053879@linuxfoundation.org>
+Message-Id: <20210405085024.181944690@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,116 +38,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 829933ef05a951c8ff140e814656d73e74915faf ]
+commit 72035f4954f0bca2d8c47cf31b3629c42116f5b7 upstream.
 
-For each device, the nosy driver allocates a pcilynx structure.
-A use-after-free might happen in the following scenario:
+init_dma_pools() calls dma_pool_create(...dev->dev) to create dma pool.
+however, dev->dev is actually set after calling init_dma_pools(), which
+effectively makes dma_pool_create(..NULL) and cause crash.
+To fix this issue, init dma only after dev->dev is set.
 
- 1. Open nosy device for the first time and call ioctl with command
-    NOSY_IOC_START, then a new client A will be malloced and added to
-    doubly linked list.
- 2. Open nosy device for the second time and call ioctl with command
-    NOSY_IOC_START, then a new client B will be malloced and added to
-    doubly linked list.
- 3. Call ioctl with command NOSY_IOC_START for client A, then client A
-    will be readded to the doubly linked list. Now the doubly linked
-    list is messed up.
- 4. Close the first nosy device and nosy_release will be called. In
-    nosy_release, client A will be unlinked and freed.
- 5. Close the second nosy device, and client A will be referenced,
-    resulting in UAF.
+[    1.317993] RIP: 0010:dma_pool_create+0x83/0x290
+[    1.323257] Call Trace:
+[    1.323390]  ? pci_write_config_word+0x27/0x30
+[    1.323626]  init_dma_pools+0x41/0x1a0 [snps_udc_core]
+[    1.323899]  udc_pci_probe+0x202/0x2b1 [amd5536udc_pci]
 
-The root cause of this bug is that the element in the doubly linked list
-is reentered into the list.
-
-Fix this bug by adding a check before inserting a client.  If a client
-is already in the linked list, don't insert it.
-
-The following KASAN report reveals it:
-
-   BUG: KASAN: use-after-free in nosy_release+0x1ea/0x210
-   Write of size 8 at addr ffff888102ad7360 by task poc
-   CPU: 3 PID: 337 Comm: poc Not tainted 5.12.0-rc5+ #6
-   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-   Call Trace:
-     nosy_release+0x1ea/0x210
-     __fput+0x1e2/0x840
-     task_work_run+0xe8/0x180
-     exit_to_user_mode_prepare+0x114/0x120
-     syscall_exit_to_user_mode+0x1d/0x40
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-   Allocated by task 337:
-     nosy_open+0x154/0x4d0
-     misc_open+0x2ec/0x410
-     chrdev_open+0x20d/0x5a0
-     do_dentry_open+0x40f/0xe80
-     path_openat+0x1cf9/0x37b0
-     do_filp_open+0x16d/0x390
-     do_sys_openat2+0x11d/0x360
-     __x64_sys_open+0xfd/0x1a0
-     do_syscall_64+0x33/0x40
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-   Freed by task 337:
-     kfree+0x8f/0x210
-     nosy_release+0x158/0x210
-     __fput+0x1e2/0x840
-     task_work_run+0xe8/0x180
-     exit_to_user_mode_prepare+0x114/0x120
-     syscall_exit_to_user_mode+0x1d/0x40
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-   The buggy address belongs to the object at ffff888102ad7300 which belongs to the cache kmalloc-128 of size 128
-   The buggy address is located 96 bytes inside of 128-byte region [ffff888102ad7300, ffff888102ad7380)
-
-[ Modified to use 'list_empty()' inside proper lock  - Linus ]
-
-Link: https://lore.kernel.org/lkml/1617433116-5930-1-git-send-email-zheyuma97@gmail.com/
-Reported-and-tested-by: 马哲宇 (Zheyu Ma) <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Cc: Greg Kroah-Hartman <greg@kroah.com>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7c51247a1f62 (usb: gadget: udc: Provide correct arguments for 'dma_pool_create')
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210317230400.357756-1-ztong0001@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firewire/nosy.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/amd5536udc_pci.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/firewire/nosy.c b/drivers/firewire/nosy.c
-index 0cc746673677..9ee747a85ee4 100644
---- a/drivers/firewire/nosy.c
-+++ b/drivers/firewire/nosy.c
-@@ -346,6 +346,7 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	struct client *client = file->private_data;
- 	spinlock_t *client_list_lock = &client->lynx->client_list_lock;
- 	struct nosy_stats stats;
-+	int ret;
+--- a/drivers/usb/gadget/udc/amd5536udc_pci.c
++++ b/drivers/usb/gadget/udc/amd5536udc_pci.c
+@@ -154,6 +154,11 @@ static int udc_pci_probe(
+ 	pci_set_master(pdev);
+ 	pci_try_set_mwi(pdev);
  
- 	switch (cmd) {
- 	case NOSY_IOC_GET_STATS:
-@@ -360,11 +361,15 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 			return 0;
++	dev->phys_addr = resource;
++	dev->irq = pdev->irq;
++	dev->pdev = pdev;
++	dev->dev = &pdev->dev;
++
+ 	/* init dma pools */
+ 	if (use_dma) {
+ 		retval = init_dma_pools(dev);
+@@ -161,11 +166,6 @@ static int udc_pci_probe(
+ 			goto err_dma;
+ 	}
  
- 	case NOSY_IOC_START:
-+		ret = -EBUSY;
- 		spin_lock_irq(client_list_lock);
--		list_add_tail(&client->link, &client->lynx->client_list);
-+		if (list_empty(&client->link)) {
-+			list_add_tail(&client->link, &client->lynx->client_list);
-+			ret = 0;
-+		}
- 		spin_unlock_irq(client_list_lock);
- 
--		return 0;
-+		return ret;
- 
- 	case NOSY_IOC_STOP:
- 		spin_lock_irq(client_list_lock);
--- 
-2.30.2
-
+-	dev->phys_addr = resource;
+-	dev->irq = pdev->irq;
+-	dev->pdev = pdev;
+-	dev->dev = &pdev->dev;
+-
+ 	/* general probing */
+ 	if (udc_probe(dev)) {
+ 		retval = -ENODEV;
 
 
