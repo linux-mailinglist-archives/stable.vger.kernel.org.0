@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B3A353CA1
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02AB5353D0C
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232717AbhDEIzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:55:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
+        id S233281AbhDEI6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:58:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232676AbhDEIzt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:55:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC1AF61393;
-        Mon,  5 Apr 2021 08:55:42 +0000 (UTC)
+        id S233511AbhDEI6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:58:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1FBA6138A;
+        Mon,  5 Apr 2021 08:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612943;
-        bh=6wlMH+ROB8eT9ymi2y3xTzNl0yM3jae+g+4bkZ4no2M=;
+        s=korg; t=1617613078;
+        bh=MvspNmx/BQ2U6lxFhhm7YQJAvRh6QOInlWJfeIGGQP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ius8vm//gpWMbtJhTgS/fNhmJ0KMM22BeROMJ3Diw00nif/I2fvFXXewaMPYRyHmi
-         2YoE3V1Uqq1RNR1PV9zdJoT5VxLEJFduELRFj61YOzvs4+vbx0HeHZUmdGF3e5CU0Q
-         /serrG02aeCIaCJMVfNVxd0wisDpFgtpwsUTbNr8=
+        b=iFXBqZe5L8YGPqTFxOTRE87ftZevjkfHwLOliXAEQNQZOCGleAfy+ZFaDMC2KQ3U9
+         Wc4P+XrXGAeBBfDndnB76xcpEJXpDmuaRZPu3FXxEC5WuF32WAp0Z4b5auQQJmd0Ai
+         UFiFeee7u/Z+sXBnv1WthVQQu9RsExdT1ex2qNt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunyi Shao <sunyishao@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/28] ipv6: weaken the v4mapped source check
-Date:   Mon,  5 Apr 2021 10:53:36 +0200
-Message-Id: <20210405085017.088152864@linuxfoundation.org>
+Subject: [PATCH 4.14 11/52] powerpc: Force inlining of cpu_has_feature() to avoid build failure
+Date:   Mon,  5 Apr 2021 10:53:37 +0200
+Message-Id: <20210405085022.369116756@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
-References: <20210405085017.012074144@linuxfoundation.org>
+In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
+References: <20210405085021.996963957@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,100 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit dcc32f4f183ab8479041b23a1525d48233df1d43 ]
+[ Upstream commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a ]
 
-This reverts commit 6af1799aaf3f1bc8defedddfa00df3192445bbf3.
+The code relies on constant folding of cpu_has_feature() based
+on possible and always true values as defined per
+CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
 
-Commit 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped
-source address") introduced an input check against v4mapped addresses.
-Use of such addresses on the wire is indeed questionable and not
-allowed on public Internet. As the commit pointed out
+Build failure is encountered with for instance
+book3e_all_defconfig on kisskb in the AMDGPU driver which uses
+cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
+kernel_enable_vsx() or not.
 
-  https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
+The failure is due to cpu_has_feature() not being inlined with
+that configuration with gcc 4.9.
 
-lists potential issues.
+In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
+mmu_has_feature to fix build failure"), for inlining of
+cpu_has_feature().
 
-Unfortunately there are applications which use v4mapped addresses,
-and breaking them is a clear regression. For example v4mapped
-addresses (or any semi-valid addresses, really) may be used
-for uni-direction event streams or packet export.
-
-Since the issue which sparked the addition of the check was with
-TCP and request_socks in particular push the check down to TCPv6
-and DCCP. This restores the ability to receive UDPv6 packets with
-v4mapped address as the source.
-
-Keep using the IPSTATS_MIB_INHDRERRORS statistic to minimize the
-user-visible changes.
-
-Fixes: 6af1799aaf3f ("ipv6: drop incoming packets having a v4mapped source address")
-Reported-by: Sunyi Shao <sunyishao@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/ipv6.c      |  5 +++++
- net/ipv6/ip6_input.c | 10 ----------
- net/ipv6/tcp_ipv6.c  |  5 +++++
- 3 files changed, 10 insertions(+), 10 deletions(-)
+ arch/powerpc/include/asm/cpu_has_feature.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
-index 736cc95b5201..bb1a7405dc0e 100644
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -313,6 +313,11 @@ static int dccp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- 	if (!ipv6_unicast_destination(skb))
- 		return 0;	/* discard, don't send a reset here */
+diff --git a/arch/powerpc/include/asm/cpu_has_feature.h b/arch/powerpc/include/asm/cpu_has_feature.h
+index 7897d16e0990..727d4b321937 100644
+--- a/arch/powerpc/include/asm/cpu_has_feature.h
++++ b/arch/powerpc/include/asm/cpu_has_feature.h
+@@ -7,7 +7,7 @@
+ #include <linux/bug.h>
+ #include <asm/cputable.h>
  
-+	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
-+		IP6_INC_STATS_BH(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
-+		return 0;
-+	}
-+
- 	if (dccp_bad_service_code(sk, service)) {
- 		dcb->dccpd_reset_code = DCCP_RESET_CODE_BAD_SERVICE_CODE;
- 		goto drop;
-diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
-index c83c0faf5ae9..9075acf081dd 100644
---- a/net/ipv6/ip6_input.c
-+++ b/net/ipv6/ip6_input.c
-@@ -151,16 +151,6 @@ int ipv6_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt
- 	if (ipv6_addr_is_multicast(&hdr->saddr))
- 		goto err;
- 
--	/* While RFC4291 is not explicit about v4mapped addresses
--	 * in IPv6 headers, it seems clear linux dual-stack
--	 * model can not deal properly with these.
--	 * Security models could be fooled by ::ffff:127.0.0.1 for example.
--	 *
--	 * https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
--	 */
--	if (ipv6_addr_v4mapped(&hdr->saddr))
--		goto err;
--
- 	skb->transport_header = skb->network_header + sizeof(*hdr);
- 	IP6CB(skb)->nhoff = offsetof(struct ipv6hdr, nexthdr);
- 
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index b4ffcec732b4..53e15514d90d 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -978,6 +978,11 @@ static int tcp_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- 	if (!ipv6_unicast_destination(skb))
- 		goto drop;
- 
-+	if (ipv6_addr_v4mapped(&ipv6_hdr(skb)->saddr)) {
-+		IP6_INC_STATS_BH(sock_net(sk), NULL, IPSTATS_MIB_INHDRERRORS);
-+		return 0;
-+	}
-+
- 	return tcp_conn_request(&tcp6_request_sock_ops,
- 				&tcp_request_sock_ipv6_ops, sk, skb);
- 
+-static inline bool early_cpu_has_feature(unsigned long feature)
++static __always_inline bool early_cpu_has_feature(unsigned long feature)
+ {
+ 	return !!((CPU_FTRS_ALWAYS & feature) ||
+ 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
+@@ -46,7 +46,7 @@ static __always_inline bool cpu_has_feature(unsigned long feature)
+ 	return static_branch_likely(&cpu_feature_keys[i]);
+ }
+ #else
+-static inline bool cpu_has_feature(unsigned long feature)
++static __always_inline bool cpu_has_feature(unsigned long feature)
+ {
+ 	return early_cpu_has_feature(feature);
+ }
 -- 
 2.30.1
 
