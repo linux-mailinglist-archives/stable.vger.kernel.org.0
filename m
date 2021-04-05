@@ -2,98 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9484A354801
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 23:03:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3173A35483D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 23:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241260AbhDEVD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 17:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41718 "EHLO
+        id S235772AbhDEVmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 17:42:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237049AbhDEVDX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 17:03:23 -0400
-Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF01C06178C
-        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 14:03:16 -0700 (PDT)
-Received: by mail-pf1-x44a.google.com with SMTP id e8so47570pfd.1
-        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 14:03:16 -0700 (PDT)
+        with ESMTP id S229890AbhDEVmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 17:42:05 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA8AAC061756
+        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 14:41:56 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id x15so2870572wrq.3
+        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 14:41:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=DwT0KnEuUIJq24rdQeE8mKCkjKjD8jpbcE4NrdQ1jDk=;
-        b=Fr8qThzIql+f5dVI1DPyzBCYZ7bW8to0OlpnA1PtfpUJElz6tg0FmtJko4VvDpjshN
-         jTVOPsJ1eqJSiYM3A5BjmhzetT+XommnohAHrgUaDDlx/skjdLtTpFxQMGyQQmk8XcBU
-         wjKZ2cpR+ZcDuzMn0pk60CXBrijqdI3zI15EL6t+I/KIlXWeu7SArD7sOiQzPWp+IcdF
-         MSxE/YMjq+xIpiXVZLzVeixM6Ze91xE+sFVfC8R0XdsfQ54okPE26EuXBX8xnoxdt4wZ
-         tOLoBtZ9cIfACWsGQ3WRYqlFQatove9of2R2uickyQcqRcYseD/z37AUasQ1z8xYoMQg
-         c8jg==
+        d=digitalocean.com; s=google;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=c+yEZdHrja9WeXn55U++uoH9P/9JiC78Mtg9Xcteoxo=;
+        b=YohkPe2gR6pgZrmMs50o8x98wQsi02fsZTTBLnpLZgnXHVSeXMKgZqbhFMKJincOdb
+         30YkWaLE6u3EQprnSSfQF1OPPf2bB1Tpyri+mSlGLYUHFi2Ec/YKxACyrKDwwWcN2Mjx
+         +iI1a+qAZHcoTTdwuY1tdIpuS0FBO/66jaSWo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=DwT0KnEuUIJq24rdQeE8mKCkjKjD8jpbcE4NrdQ1jDk=;
-        b=Be8awOpL52aDOtj3TXCgV13NwqLkYlJV0BCb0HR1HUFnIq+cM7iOiCjHVqrU0wBmwD
-         ekv9rWBM7wSMZJFVawoDwBZD3eH8FrdfDi9WVaL7GkGb9+noTI3nknykCmexIbN1SgxE
-         UX3zXHhcNFoyWzdHncRRKfB02n1kV60xnF7zbhNEVwXWBE5pyVN/RsOXiO8QFduQ/UAy
-         VdewI6ma6nxqWKRrCFIs0lMJK5GOxNIEDRrMW0JhLQaMa6h5x4/+Eg2sPPdKQEmdDM6L
-         C5UiaGMVlcHaQfE0TU2NSsnCQRlImgsuUj/f1EVmMj0U++JM8q/WYmHhlMSjrZpeV5nD
-         B6wQ==
-X-Gm-Message-State: AOAM530HVggLcRbxw91yJa4eaTOcCxy2ilDyBI0/VI9/IQWDhkPhK2L1
-        +E7CkltFgPl6YWDoc5ewiTp5nbf0wcpqhqDMg1p7qEnBv/JNFjU2oB81hhtRaEAhrL+ejQc5zO6
-        H5S6yKpGcIxV2HHKo8OOVhGontjEi2rwmAACP3hVU7aGdnHq8OjVHSlG3EjM=
-X-Google-Smtp-Source: ABdhPJwzGYBi3h+DeSc4okTkcRpTXY5f48FNdVL17pSatP67jZ3c3Nb72MJoDDhpwrHUxcCQSvhLqf42OA==
-X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a17:902:dacd:b029:e5:cf71:3901 with SMTP id
- q13-20020a170902dacdb02900e5cf713901mr25018627plx.23.1617656596405; Mon, 05
- Apr 2021 14:03:16 -0700 (PDT)
-Date:   Mon,  5 Apr 2021 21:02:30 +0000
-In-Reply-To: <20210405210230.1707074-1-jxgao@google.com>
-Message-Id: <20210405210230.1707074-9-jxgao@google.com>
-Mime-Version: 1.0
-References: <20210405210230.1707074-1-jxgao@google.com>
-X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
-Subject: [PATCH v5.10 8/8] nvme-pci: set min_align_mask
-From:   Jianxiong Gao <jxgao@google.com>
-To:     stable@vger.kernel.org
-Cc:     Jianxiong Gao <jxgao@google.com>, Christoph Hellwig <hch@lst.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=c+yEZdHrja9WeXn55U++uoH9P/9JiC78Mtg9Xcteoxo=;
+        b=awfG2GdoWPLvF25fbo4+b6P1YtiAr/7hJrX/dOY2UO3T5ZvlptVbiuNdjk+AHCev1m
+         JgSBVXW8iku+6Pj1MrDj3t14ACx7gQGW+Fp7cfOpm9ZNYgfGAsQfdYdAB1Rked77Re4d
+         U+QnFdthAFIYBvEApGBwOQxoJYHwVOSrPIuhe+lHTLqZ5DINFakOa4CTLqEtx4N/9Iyq
+         Whk9EpwIPWhQ4UAGbUrhwQERvDAZLU8KcTZ2V4wigBRNBxEG/iKwZpJfW2jNM72f2oGF
+         7tnYyz4M3zpmG50jKf997G1IVMGvojKcjP3pkVXNKRH9CFexgqLpp5l5HYNBz//9uHW7
+         UFkA==
+X-Gm-Message-State: AOAM530B/NQEvuwiSozeMIlzrmKtMNVqCw6Z86CeX9x+Y5U4Re6O78F9
+        bQ8sa5JdfHAKejXCUayjDzilE1eYMa8+GB6+4eWOOjW50wOQAA==
+X-Google-Smtp-Source: ABdhPJxORhp764ELNl+DklitQoRpF3SoHyrr5ZLz1qmxC0mjSH92hDZr2hJnIslraKNK8bZ5K/WRLpLhHf8pupRWVDQ=
+X-Received: by 2002:adf:d20b:: with SMTP id j11mr30834239wrh.397.1617658915515;
+ Mon, 05 Apr 2021 14:41:55 -0700 (PDT)
+MIME-Version: 1.0
+From:   Patrick Mccormick <pmccormick@digitalocean.com>
+Date:   Mon, 5 Apr 2021 14:41:43 -0700
+Message-ID: <CAAjnzA=HhDQj_jLCcMGggZoAtP397vgbiMV_7POG20uVPYqpNw@mail.gmail.com>
+Subject: DO automated testing - Linux 5.10.28-rc1 - 28 pass, 0 errors
+To:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+commit 948d7f2d279feceb51bcdedb5eb8ce0af60045ce (stable_rc/linux-5.10.y)
+Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Sat Apr 3 13:52:16 2021 +0200
 
-'commit 3d2d861eb03e ("nvme-pci: set min_align_mask")'
+    Linux 5.10.28-rc1
 
-The PRP addressing scheme requires all PRP entries except for the
-first one to have a zero offset into the NVMe controller pages (which
-can be different from the Linux PAGE_SIZE).  Use the min_align_mask
-device parameter to ensure that swiotlb does not change the address
-of the buffer modulo the device page size to ensure that the PRPs
-won't be malformed.
-
-Signed-off-by: Jianxiong Gao <jxgao@google.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Jianxiong Gao <jxgao@google.com>
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
----
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 3be352403839..dddccfe82abc 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2590,6 +2590,7 @@ static void nvme_reset_work(struct work_struct *work)
- 	 * Don't limit the IOMMU merged segment size.
- 	 */
- 	dma_set_max_seg_size(dev->dev, 0xffffffff);
-+	dma_set_min_align_mask(dev->dev, NVME_CTRL_PAGE_SIZE - 1);
- 
- 	mutex_unlock(&dev->shutdown_lock);
- 
--- 
-2.27.0
-
+ (01/28) ltp.py:LTP.test_nptl:  PASS (6.72 s)
+ (02/28) ltp.py:LTP.test_math:  PASS (1.90 s)
+ (03/28) ltp.py:LTP.test_hugetlb:  PASS (0.07 s)
+ (04/28) ltp.py:LTP.test_ipc:  PASS (20.08 s)
+ (05/28) ltp.py:LTP.test_uevent:  PASS (0.05 s)
+ (06/28) ltp.py:LTP.test_containers:  PASS (36.90 s)
+ (07/28) ltp.py:LTP.test_filecaps:  PASS (0.11 s)
+ (08/28) ltp.py:LTP.test_hyperthreading:  PASS (71.17 s)
+ (09/28) kpatch.sh:  PASS (12.62 s)
+ (10/28) perf.py:PerfNonPriv.test_perf_help:  PASS (0.08 s)
+ (11/28) perf.py:PerfNonPriv.test_perf_version:  PASS (0.06 s)
+ (12/28) perf.py:PerfNonPriv.test_perf_list:  PASS (0.40 s)
+ (13/28) perf.py:PerfPriv.test_perf_record:  PASS (4.78 s)
+ (14/28) perf.py:PerfPriv.test_perf_cmd_kallsyms:  PASS (0.26 s)
+ (15/28) perf.py:PerfPriv.test_perf_cmd_annotate:  PASS (8.75 s)
+ (16/28) perf.py:PerfPriv.test_perf_cmd_evlist:  PASS (0.07 s)
+ (17/28) perf.py:PerfPriv.test_perf_cmd_script:  PASS (0.57 s)
+ (18/28) perf.py:PerfPriv.test_perf_stat:  PASS (3.23 s)
+ (19/28) perf.py:PerfPriv.test_perf_bench:  PASS (0.07 s)
+ (20/28) kselftest.py:kselftest.test_sysctl:  PASS (0.03 s)
+ (21/28) kselftest.py:kselftest.test_size:  PASS (0.02 s)
+ (22/28) kselftest.py:kselftest.test_x86:  PASS (0.26 s)
+ (23/28) kselftest.py:kselftest.test_sigaltstack:  PASS (0.02 s)
+ (24/28) kselftest.py:kselftest.test_tmpfs:  PASS (0.02 s)
+ (25/28) kselftest.py:kselftest.test_user:  PASS (0.03 s)
+ (26/28) kselftest.py:kselftest.test_timens:  PASS (0.09 s)
+ (27/28) kselftest.py:kselftest.test_kvm:  PASS (13.57 s)
+ (28/28) kselftest.py:kselftest.test_timers:  PASS (554.55 s)
+RESULTS    : PASS 28 | ERROR 0 | FAIL 0 | SKIP 0 | WARN 0 | INTERRUPT
+0 | CANCEL 0
+JOB TIME   : 737.14 s
