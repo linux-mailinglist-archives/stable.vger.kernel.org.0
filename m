@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A250F354051
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44AAB354053
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240803AbhDEJRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38894 "EHLO mail.kernel.org"
+        id S240821AbhDEJRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:17:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240801AbhDEJRE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:17:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0519160FE4;
-        Mon,  5 Apr 2021 09:16:57 +0000 (UTC)
+        id S240806AbhDEJRH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:17:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF77E611C1;
+        Mon,  5 Apr 2021 09:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614218;
-        bh=b1u0xQ3xOw06czjnFgcm5d/aVKgUd2RJ+TU+aMfNJKY=;
+        s=korg; t=1617614221;
+        bh=hnCyp1pY3A5BEjmo/pO28QU4NIJS5GIogwo0akaMA6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5lHioECdWskRxJWYHs0Yy+8oTspMZuROdEnRs9Bg6PtydHJnFXpvaVJKZSdqSw4U
-         nae/VDya4rNkehpDqQfYmSXwqnjtE9Jm4RMmgo0TAMsQ7cvs/QS3RhCD82UCTYJKdc
-         K1KdkfZI2wu+70giVFmYxj6FcDFmiN6zurtOTyzI=
+        b=S4r45/O582q1uuB/Q2Zqo+etR9+ngjVcbzbi+8t3rxfxiHaJIG9TkJ+FZx+5zczOq
+         WnJYBJCaoDBCyLTGyS2AgxlgVNDTBEYKbFNFebmqNmbLF+VCqBZfEdvRRqMxup+m8p
+         zBc4Mn9rkHFiD7cDF0piNSNA8EGCEYCwYrKQH98M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 127/152] video: hyperv_fb: Fix a double free in hvfb_probe
-Date:   Mon,  5 Apr 2021 10:54:36 +0200
-Message-Id: <20210405085038.354961062@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 128/152] powerpc/mm/book3s64: Use the correct storage key value when calling H_PROTECT
+Date:   Mon,  5 Apr 2021 10:54:37 +0200
+Message-Id: <20210405085038.386202343@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
 References: <20210405085034.233917714@linuxfoundation.org>
@@ -40,58 +42,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 37df9f3fedb6aeaff5564145e8162aab912c9284 ]
+[ Upstream commit 53f1d31708f6240e4615b0927df31f182e389e2f ]
 
-Function hvfb_probe() calls hvfb_getmem(), expecting upon return that
-info->apertures is either NULL or points to memory that should be freed
-by framebuffer_release().  But hvfb_getmem() is freeing the memory and
-leaving the pointer non-NULL, resulting in a double free if an error
-occurs or later if hvfb_remove() is called.
+H_PROTECT expects the flag value to include flags:
+  AVPN, pp0, pp1, pp2, key0-key4, Noexec, CMO Option flags
 
-Fix this by removing all kfree(info->apertures) calls in hvfb_getmem().
-This will allow framebuffer_release() to free the memory, which follows
-the pattern of other fbdev drivers.
+This patch updates hpte_updatepp() to fetch the storage key value from
+the linux page table and use the same in H_PROTECT hcall.
 
-Fixes: 3a6fb6c4255c ("video: hyperv: hyperv_fb: Use physical memory for fb on HyperV Gen 1 VMs.")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20210324103724.4189-1-lyl2019@mail.ustc.edu.cn
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+native_hpte_updatepp() is not updated because the kernel doesn't clear
+the existing storage key value there. The kernel also doesn't use
+hpte_updatepp() callback for updating storage keys.
+
+This fixes the below kernel crash observed with KUAP enabled.
+
+  BUG: Unable to handle kernel data access on write at 0xc009fffffc440000
+  Faulting instruction address: 0xc0000000000b7030
+  Key fault AMR: 0xfcffffffffffffff IAMR: 0xc0000077bc498100
+  Found HPTE: v = 0x40070adbb6fffc05 r = 0x1ffffffffff1194
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  ...
+  CFAR: c000000000010100 DAR: c009fffffc440000 DSISR: 02200000 IRQMASK: 0
+  ...
+  NIP memset+0x68/0x104
+  LR  pcpu_alloc+0x54c/0xb50
+  Call Trace:
+    pcpu_alloc+0x55c/0xb50 (unreliable)
+    blk_stat_alloc_callback+0x94/0x150
+    blk_mq_init_allocated_queue+0x64/0x560
+    blk_mq_init_queue+0x54/0xb0
+    scsi_mq_alloc_queue+0x30/0xa0
+    scsi_alloc_sdev+0x1cc/0x300
+    scsi_probe_and_add_lun+0xb50/0x1020
+    __scsi_scan_target+0x17c/0x790
+    scsi_scan_channel+0x90/0xe0
+    scsi_scan_host_selected+0x148/0x1f0
+    do_scan_async+0x2c/0x2a0
+    async_run_entry_fn+0x78/0x220
+    process_one_work+0x264/0x540
+    worker_thread+0xa8/0x600
+    kthread+0x190/0x1a0
+    ret_from_kernel_thread+0x5c/0x6c
+
+With KUAP enabled the kernel uses storage key 3 for all its
+translations. But as shown by the debug print, in this specific case we
+have the hash page table entry created with key value 0.
+
+  Found HPTE: v = 0x40070adbb6fffc05 r = 0x1ffffffffff1194
+
+and DSISR indicates a key fault.
+
+This can happen due to parallel fault on the same EA by different CPUs:
+
+  CPU 0					CPU 1
+  fault on X
+
+  H_PAGE_BUSY set
+  					fault on X
+
+  finish fault handling and
+  clear H_PAGE_BUSY
+  					check for H_PAGE_BUSY
+  					continue with fault handling.
+
+This implies CPU1 will end up calling hpte_updatepp for address X and
+the kernel updated the hash pte entry with key 0
+
+Fixes: d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3 for kernel mapping with hash translation")
+Reported-by: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Debugged-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210326070755.304625-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/hyperv_fb.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/powerpc/platforms/pseries/lpar.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index c8b0ae676809..4dc9077dd2ac 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -1031,7 +1031,6 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 			PCI_DEVICE_ID_HYPERV_VIDEO, NULL);
- 		if (!pdev) {
- 			pr_err("Unable to find PCI Hyper-V video\n");
--			kfree(info->apertures);
- 			return -ENODEV;
- 		}
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index 764170fdb0f7..3805519a6469 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -887,7 +887,8 @@ static long pSeries_lpar_hpte_updatepp(unsigned long slot,
  
-@@ -1129,7 +1128,6 @@ getmem_done:
- 	} else {
- 		pci_dev_put(pdev);
- 	}
--	kfree(info->apertures);
+ 	want_v = hpte_encode_avpn(vpn, psize, ssize);
  
- 	return 0;
- 
-@@ -1141,7 +1139,6 @@ err2:
- err1:
- 	if (!gen2vm)
- 		pci_dev_put(pdev);
--	kfree(info->apertures);
- 
- 	return -ENOMEM;
- }
+-	flags = (newpp & 7) | H_AVPN;
++	flags = (newpp & (HPTE_R_PP | HPTE_R_N | HPTE_R_KEY_LO)) | H_AVPN;
++	flags |= (newpp & HPTE_R_KEY_HI) >> 48;
+ 	if (mmu_has_feature(MMU_FTR_KERNEL_RO))
+ 		/* Move pp0 into bit 8 (IBM 55) */
+ 		flags |= (newpp & HPTE_R_PP0) >> 55;
 -- 
 2.30.2
 
