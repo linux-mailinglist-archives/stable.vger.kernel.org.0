@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F62B353CCC
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9FE2353C9D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232934AbhDEI4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:56:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35546 "EHLO mail.kernel.org"
+        id S232693AbhDEIzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232513AbhDEI4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:56:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42BA4613A0;
-        Mon,  5 Apr 2021 08:56:43 +0000 (UTC)
+        id S230305AbhDEIzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:55:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F382610E8;
+        Mon,  5 Apr 2021 08:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613003;
-        bh=/P+Vo1W0T6FOcxZ+Dr2e4zbpyOCW0AsFJRXvfd/YCww=;
+        s=korg; t=1617612938;
+        bh=toDelkCeehIsiu9+4CIoi71DCSJiLsuEeeABYP6w4ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIP+QD+UCk4B7useZNnBDvSal7qViPKNMOYcckfPFKfROoImYZOAE3PgbLVQN9dm/
-         4SdHYFX6RvS1IAqEyIvvhVSkMnDbew6mKjbNGCrS5rocG+0XW/L5A76e7/WmAplphx
-         +IR6ohD6/uSMvZj4EpMqP42MpTbFzAKUp9IhP/tg=
+        b=RLo0QQk/jNGZQs1yIBFOZhRZEWXqFR6Dn7Vam+OPaxV0vLl+4SjMWVnW6E22EYvCn
+         vyxxQEZ/SIF99UhWi35dkOZlf9jB0gavT4XCDFRAXg6WTdK18sJ5G8Y+PLZI+3i3Lj
+         NSxlnxNpjgW9ivuS0TVkXuF8DPt/e76Hvya2IM1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Brown <doug@schmorgal.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/35] appletalk: Fix skb allocation size in loopback case
-Date:   Mon,  5 Apr 2021 10:53:51 +0200
-Message-Id: <20210405085019.390095420@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 18/28] mm: fix race by making init_zero_pfn() early_initcall
+Date:   Mon,  5 Apr 2021 10:53:52 +0200
+Message-Id: <20210405085017.595525472@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
-References: <20210405085018.871387942@linuxfoundation.org>
+In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
+References: <20210405085017.012074144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,99 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Brown <doug@schmorgal.com>
+From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
 
-[ Upstream commit 39935dccb21c60f9bbf1bb72d22ab6fd14ae7705 ]
+commit e720e7d0e983bf05de80b231bccc39f1487f0f16 upstream.
 
-If a DDP broadcast packet is sent out to a non-gateway target, it is
-also looped back. There is a potential for the loopback device to have a
-longer hardware header length than the original target route's device,
-which can result in the skb not being created with enough room for the
-loopback device's hardware header. This patch fixes the issue by
-determining that a loopback will be necessary prior to allocating the
-skb, and if so, ensuring the skb has enough room.
+There are code paths that rely on zero_pfn to be fully initialized
+before core_initcall.  For example, wq_sysfs_init() is a core_initcall
+function that eventually results in a call to kernel_execve, which
+causes a page fault with a subsequent mmput.  If zero_pfn is not
+initialized by then it may not get cleaned up properly and result in an
+error:
 
-This was discovered while testing a new driver that creates a LocalTalk
-network interface (LTALK_HLEN = 1). It caused an skb_under_panic.
+  BUG: Bad rss-counter state mm:(ptrval) type:MM_ANONPAGES val:1
 
-Signed-off-by: Doug Brown <doug@schmorgal.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Here is an analysis of the race as seen on a MIPS device. On this
+particular MT7621 device (Ubiquiti ER-X), zero_pfn is PFN 0 until
+initialized, at which point it becomes PFN 5120:
+
+  1. wq_sysfs_init calls into kobject_uevent_env at core_initcall:
+       kobject_uevent_env+0x7e4/0x7ec
+       kset_register+0x68/0x88
+       bus_register+0xdc/0x34c
+       subsys_virtual_register+0x34/0x78
+       wq_sysfs_init+0x1c/0x4c
+       do_one_initcall+0x50/0x1a8
+       kernel_init_freeable+0x230/0x2c8
+       kernel_init+0x10/0x100
+       ret_from_kernel_thread+0x14/0x1c
+
+  2. kobject_uevent_env() calls call_usermodehelper_exec() which executes
+     kernel_execve asynchronously.
+
+  3. Memory allocations in kernel_execve cause a page fault, bumping the
+     MM reference counter:
+       add_mm_counter_fast+0xb4/0xc0
+       handle_mm_fault+0x6e4/0xea0
+       __get_user_pages.part.78+0x190/0x37c
+       __get_user_pages_remote+0x128/0x360
+       get_arg_page+0x34/0xa0
+       copy_string_kernel+0x194/0x2a4
+       kernel_execve+0x11c/0x298
+       call_usermodehelper_exec_async+0x114/0x194
+
+  4. In case zero_pfn has not been initialized yet, zap_pte_range does
+     not decrement the MM_ANONPAGES RSS counter and the BUG message is
+     triggered shortly afterwards when __mmdrop checks the ref counters:
+       __mmdrop+0x98/0x1d0
+       free_bprm+0x44/0x118
+       kernel_execve+0x160/0x1d8
+       call_usermodehelper_exec_async+0x114/0x194
+       ret_from_kernel_thread+0x14/0x1c
+
+To avoid races such as described above, initialize init_zero_pfn at
+early_initcall level.  Depending on the architecture, ZERO_PAGE is
+either constant or gets initialized even earlier, at paging_init, so
+there is no issue with initializing zero_pfn earlier.
+
+Link: https://lkml.kernel.org/r/CALCv0x2YqOXEAy2Q=hafjhHCtTHVodChv1qpM=niAXOpqEbt7w@mail.gmail.com
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: stable@vger.kernel.org
+Tested-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/appletalk/ddp.c | 33 +++++++++++++++++++++------------
- 1 file changed, 21 insertions(+), 12 deletions(-)
+ mm/memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/appletalk/ddp.c b/net/appletalk/ddp.c
-index 93209c009df5..a66de21671ac 100644
---- a/net/appletalk/ddp.c
-+++ b/net/appletalk/ddp.c
-@@ -1575,8 +1575,8 @@ static int atalk_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	struct ddpehdr *ddp;
--	int size;
--	struct atalk_route *rt;
-+	int size, hard_header_len;
-+	struct atalk_route *rt, *rt_lo = NULL;
- 	int err;
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -129,7 +129,7 @@ static int __init init_zero_pfn(void)
+ 	zero_pfn = page_to_pfn(ZERO_PAGE(0));
+ 	return 0;
+ }
+-core_initcall(init_zero_pfn);
++early_initcall(init_zero_pfn);
  
- 	if (flags & ~(MSG_DONTWAIT|MSG_CMSG_COMPAT))
-@@ -1639,7 +1639,22 @@ static int atalk_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 	SOCK_DEBUG(sk, "SK %p: Size needed %d, device %s\n",
- 			sk, size, dev->name);
  
--	size += dev->hard_header_len;
-+	hard_header_len = dev->hard_header_len;
-+	/* Leave room for loopback hardware header if necessary */
-+	if (usat->sat_addr.s_node == ATADDR_BCAST &&
-+	    (dev->flags & IFF_LOOPBACK || !(rt->flags & RTF_GATEWAY))) {
-+		struct atalk_addr at_lo;
-+
-+		at_lo.s_node = 0;
-+		at_lo.s_net  = 0;
-+
-+		rt_lo = atrtr_find(&at_lo);
-+
-+		if (rt_lo && rt_lo->dev->hard_header_len > hard_header_len)
-+			hard_header_len = rt_lo->dev->hard_header_len;
-+	}
-+
-+	size += hard_header_len;
- 	release_sock(sk);
- 	skb = sock_alloc_send_skb(sk, size, (flags & MSG_DONTWAIT), &err);
- 	lock_sock(sk);
-@@ -1647,7 +1662,7 @@ static int atalk_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 		goto out;
- 
- 	skb_reserve(skb, ddp_dl->header_length);
--	skb_reserve(skb, dev->hard_header_len);
-+	skb_reserve(skb, hard_header_len);
- 	skb->dev = dev;
- 
- 	SOCK_DEBUG(sk, "SK %p: Begin build.\n", sk);
-@@ -1698,18 +1713,12 @@ static int atalk_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 		/* loop back */
- 		skb_orphan(skb);
- 		if (ddp->deh_dnode == ATADDR_BCAST) {
--			struct atalk_addr at_lo;
--
--			at_lo.s_node = 0;
--			at_lo.s_net  = 0;
--
--			rt = atrtr_find(&at_lo);
--			if (!rt) {
-+			if (!rt_lo) {
- 				kfree_skb(skb);
- 				err = -ENETUNREACH;
- 				goto out;
- 			}
--			dev = rt->dev;
-+			dev = rt_lo->dev;
- 			skb->dev = dev;
- 		}
- 		ddp_dl->request(ddp_dl, skb, dev->dev_addr);
--- 
-2.30.1
-
+ #if defined(SPLIT_RSS_COUNTING)
 
 
