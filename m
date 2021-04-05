@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9C5353F28
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DEB4353E7E
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238971AbhDEJKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:10:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56048 "EHLO mail.kernel.org"
+        id S238304AbhDEJG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238618AbhDEJKG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:10:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A973761002;
-        Mon,  5 Apr 2021 09:09:58 +0000 (UTC)
+        id S237887AbhDEJF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15A0161394;
+        Mon,  5 Apr 2021 09:05:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613799;
-        bh=0t2KXVbP35lkEVgCylrq/WZ0hcVK2xZtKclQPYZwiUo=;
+        s=korg; t=1617613551;
+        bh=35/dROHV2ANHJel4dRyq7Yb8FcwXvHaen4nqbCzvkjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JdWdIhxkY9/DDrxIYwTuuVK8jDvRkAViUugUEO0HhgNBG4QVDxEB4p8sEkJXjf9Vx
-         PLWCQooTRWhMm7z0njUjj6+y9oVljIgZOZ9dPtGXpbPhDtJgi2EzMa2JIzH192Tu5p
-         dMPWTVxBr9IMmT9/p/LmpU1IyJs+ft5bd6GZKqrw=
+        b=OIa1iXbcC7ylqArAFak56/RqhIvA+IKadVgEioBV3fU8Fz5DVTVg8rrKmazcrS8ew
+         9Rd89g2GlokBLvZX5HTM9zBy9ON7blx055arvcmzy9sHy+CzIKJZwSuunWIIfzIZOy
+         YwAjGddTHlyK7jEMNsLphmdO3CIqJdbDki9ZNigU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 095/126] KVM: x86/mmu: Factor out functions to add/remove TDP MMU pages
-Date:   Mon,  5 Apr 2021 10:54:17 +0200
-Message-Id: <20210405085034.192302116@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.4 54/74] drm/tegra: sor: Grab runtime PM reference across reset
+Date:   Mon,  5 Apr 2021 10:54:18 +0200
+Message-Id: <20210405085026.492199861@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit a9442f594147f95307f691cfba0c31e25dc79b9d ]
+commit ac097aecfef0bb289ca53d2fe0b73fc7e1612a05 upstream.
 
-Move the work of adding and removing TDP MMU pages to/from  "secondary"
-data structures to helper functions. These functions will be built on in
-future commits to enable MMU operations to proceed (mostly) in parallel.
+The SOR resets are exclusively shared with the SOR power domain. This
+means that exclusive access can only be granted temporarily and in order
+for that to work, a rigorous sequence must be observed. To ensure that a
+single consumer gets exclusive access to a reset, each consumer must
+implement a rigorous protocol using the reset_control_acquire() and
+reset_control_release() functions.
 
-No functional change expected.
+However, these functions alone don't provide any guarantees at the
+system level. Drivers need to ensure that the only a single consumer has
+access to the reset at the same time. In order for the SOR to be able to
+exclusively access its reset, it must therefore ensure that the SOR
+power domain is not powered off by holding on to a runtime PM reference
+to that power domain across the reset assert/deassert operation.
 
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20210202185734.1680553-20-bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This used to work fine by accident, but was revealed when recently more
+devices started to rely on the SOR power domain.
+
+Fixes: 11c632e1cfd3 ("drm/tegra: sor: Implement acquire/release for reset")
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 47 +++++++++++++++++++++++++++++++-------
- 1 file changed, 39 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/tegra/sor.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index 136311be5890..14d69c01c710 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -262,6 +262,39 @@ static void handle_changed_spte_dirty_log(struct kvm *kvm, int as_id, gfn_t gfn,
- 	}
- }
- 
-+/**
-+ * tdp_mmu_link_page - Add a new page to the list of pages used by the TDP MMU
-+ *
-+ * @kvm: kvm instance
-+ * @sp: the new page
-+ * @account_nx: This page replaces a NX large page and should be marked for
-+ *		eventual reclaim.
-+ */
-+static void tdp_mmu_link_page(struct kvm *kvm, struct kvm_mmu_page *sp,
-+			      bool account_nx)
-+{
-+	lockdep_assert_held_write(&kvm->mmu_lock);
+--- a/drivers/gpu/drm/tegra/sor.c
++++ b/drivers/gpu/drm/tegra/sor.c
+@@ -2871,6 +2871,12 @@ static int tegra_sor_init(struct host1x_
+ 	 * kernel is possible.
+ 	 */
+ 	if (sor->rst) {
++		err = pm_runtime_resume_and_get(sor->dev);
++		if (err < 0) {
++			dev_err(sor->dev, "failed to get runtime PM: %d\n", err);
++			return err;
++		}
 +
-+	list_add(&sp->link, &kvm->arch.tdp_mmu_pages);
-+	if (account_nx)
-+		account_huge_nx_page(kvm, sp);
-+}
-+
-+/**
-+ * tdp_mmu_unlink_page - Remove page from the list of pages used by the TDP MMU
-+ *
-+ * @kvm: kvm instance
-+ * @sp: the page to be removed
-+ */
-+static void tdp_mmu_unlink_page(struct kvm *kvm, struct kvm_mmu_page *sp)
-+{
-+	lockdep_assert_held_write(&kvm->mmu_lock);
-+
-+	list_del(&sp->link);
-+	if (sp->lpage_disallowed)
-+		unaccount_huge_nx_page(kvm, sp);
-+}
-+
- /**
-  * handle_removed_tdp_mmu_page - handle a pt removed from the TDP structure
-  *
-@@ -281,10 +314,7 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, u64 *pt)
- 
- 	trace_kvm_mmu_prepare_zap_page(sp);
- 
--	list_del(&sp->link);
--
--	if (sp->lpage_disallowed)
--		unaccount_huge_nx_page(kvm, sp);
-+	tdp_mmu_unlink_page(kvm, sp);
- 
- 	for (i = 0; i < PT64_ENT_PER_PAGE; i++) {
- 		old_child_spte = READ_ONCE(*(pt + i));
-@@ -704,15 +734,16 @@ int kvm_tdp_mmu_map(struct kvm_vcpu *vcpu, gpa_t gpa, u32 error_code,
- 
- 		if (!is_shadow_present_pte(iter.old_spte)) {
- 			sp = alloc_tdp_mmu_page(vcpu, iter.gfn, iter.level);
--			list_add(&sp->link, &vcpu->kvm->arch.tdp_mmu_pages);
- 			child_pt = sp->spt;
-+
-+			tdp_mmu_link_page(vcpu->kvm, sp,
-+					  huge_page_disallowed &&
-+					  req_level >= iter.level);
-+
- 			new_spte = make_nonleaf_spte(child_pt,
- 						     !shadow_accessed_mask);
- 
- 			trace_kvm_mmu_get_page(sp, true);
--			if (huge_page_disallowed && req_level >= iter.level)
--				account_huge_nx_page(vcpu->kvm, sp);
--
- 			tdp_mmu_set_spte(vcpu->kvm, &iter, new_spte);
+ 		err = reset_control_acquire(sor->rst);
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to acquire SOR reset: %d\n",
+@@ -2904,6 +2910,7 @@ static int tegra_sor_init(struct host1x_
  		}
+ 
+ 		reset_control_release(sor->rst);
++		pm_runtime_put(sor->dev);
  	}
--- 
-2.30.1
-
+ 
+ 	err = clk_prepare_enable(sor->clk_safe);
 
 
