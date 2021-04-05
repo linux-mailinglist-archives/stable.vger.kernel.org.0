@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 461E6353EE7
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DCCD353FAB
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238711AbhDEJIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53378 "EHLO mail.kernel.org"
+        id S239518AbhDEJNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:13:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238548AbhDEJIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:08:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCA4D6139D;
-        Mon,  5 Apr 2021 09:08:29 +0000 (UTC)
+        id S239524AbhDEJNf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:13:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 353B960FE4;
+        Mon,  5 Apr 2021 09:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613710;
-        bh=Ok61us+P9CB763zO6Z0zn352ZD9TAne1Jz05CsWiz4A=;
+        s=korg; t=1617614009;
+        bh=BsPMej0mbQcaWo1bHU7u5CGNe9wd7fAHNGHDgkC37aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4SDYxC6zNXY+vqJO70zDnM6x3/Y9eyNJJuQe2WKmKDX/DpF8a66hbALQxgXIXo6C
-         zReEdXWyEon6m1CaZ1mTaCijBzqAuSAnWO7ZFEIC2hRv8h1iguk117IqfYkJBZI3fM
-         ri5gQHg68lUDhqK2vhHLRFgVZI3m3LKN+qbJ+xhE=
+        b=jMO9yrLBta6IKI/m5PTHWDU4rJJW6D2ApZ0QuiXDRjCEpGusMysHZZ4dkGKWzUPsA
+         H2vtB50iqqYtQRLeaka4GdwKBWGiYoVEvSMPC5tw5ZooJBZKdaqWk9XrTzhIMfoFUx
+         vZ7LPTRtDlpNpE1fhi31grmwoY5KUrgyIdpqI7ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        Stefan Metzmacher <metze@samba.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/126] io_uring: call req_set_fail_links() on short send[msg]()/recv[msg]() with MSG_WAITALL
-Date:   Mon,  5 Apr 2021 10:53:18 +0200
-Message-Id: <20210405085032.239680865@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 050/152] mptcp: fix race in release_cb
+Date:   Mon,  5 Apr 2021 10:53:19 +0200
+Message-Id: <20210405085035.904567228@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,172 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 0031275d119efe16711cd93519b595e6f9b4b330 ]
+[ Upstream commit c2e6048fa1cf2228063aec299f93ac6eb256b457 ]
 
-Without that it's not safe to use them in a linked combination with
-others.
+If we receive a MPTCP_PUSH_PENDING even from a subflow when
+mptcp_release_cb() is serving the previous one, the latter
+will be delayed up to the next release_sock(msk).
 
-Now combinations like IORING_OP_SENDMSG followed by IORING_OP_SPLICE
-should be possible.
+Address the issue implementing a test/serve loop for such
+event.
 
-We already handle short reads and writes for the following opcodes:
+Additionally rename the push helper to __mptcp_push_pending()
+to be more consistent with the existing code.
 
-- IORING_OP_READV
-- IORING_OP_READ_FIXED
-- IORING_OP_READ
-- IORING_OP_WRITEV
-- IORING_OP_WRITE_FIXED
-- IORING_OP_WRITE
-- IORING_OP_SPLICE
-- IORING_OP_TEE
-
-Now we have it for these as well:
-
-- IORING_OP_SENDMSG
-- IORING_OP_SEND
-- IORING_OP_RECVMSG
-- IORING_OP_RECV
-
-For IORING_OP_RECVMSG we also check for the MSG_TRUNC and MSG_CTRUNC
-flags in order to call req_set_fail_links().
-
-There might be applications arround depending on the behavior
-that even short send[msg]()/recv[msg]() retuns continue an
-IOSQE_IO_LINK chain.
-
-It's very unlikely that such applications pass in MSG_WAITALL,
-which is only defined in 'man 2 recvmsg', but not in 'man 2 sendmsg'.
-
-It's expected that the low level sock_sendmsg() call just ignores
-MSG_WAITALL, as MSG_ZEROCOPY is also ignored without explicitly set
-SO_ZEROCOPY.
-
-We also expect the caller to know about the implicit truncation to
-MAX_RW_COUNT, which we don't detect.
-
-cc: netdev@vger.kernel.org
-Link: https://lore.kernel.org/r/c4e1a4cc0d905314f4d5dc567e65a7b09621aab3.1615908477.git.metze@samba.org
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 6e628cd3a8f7 ("mptcp: use mptcp release_cb for delayed tasks")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ net/mptcp/protocol.c | 33 +++++++++++++++++++++------------
+ 1 file changed, 21 insertions(+), 12 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fe2dfdab0acd..4ccf99cb8cdc 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4401,6 +4401,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	struct io_async_msghdr iomsg, *kmsg;
- 	struct socket *sock;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret;
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index c3299a4568a0..7cbb544c6d02 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1442,7 +1442,7 @@ static void mptcp_push_release(struct sock *sk, struct sock *ssk,
+ 	release_sock(ssk);
+ }
  
- 	sock = sock_from_file(req->file, &ret);
-@@ -4427,6 +4428,9 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
+-static void mptcp_push_pending(struct sock *sk, unsigned int flags)
++static void __mptcp_push_pending(struct sock *sk, unsigned int flags)
+ {
+ 	struct sock *prev_ssk = NULL, *ssk = NULL;
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
+@@ -1681,14 +1681,14 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
  
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
+ wait_for_memory:
+ 		set_bit(MPTCP_NOSPACE, &msk->flags);
+-		mptcp_push_pending(sk, msg->msg_flags);
++		__mptcp_push_pending(sk, msg->msg_flags);
+ 		ret = sk_stream_wait_memory(sk, &timeo);
+ 		if (ret)
+ 			goto out;
+ 	}
+ 
+ 	if (copied)
+-		mptcp_push_pending(sk, msg->msg_flags);
++		__mptcp_push_pending(sk, msg->msg_flags);
+ 
+ out:
+ 	release_sock(sk);
+@@ -2944,13 +2944,14 @@ static void mptcp_release_cb(struct sock *sk)
+ {
+ 	unsigned long flags, nflags;
+ 
+-	/* push_pending may touch wmem_reserved, do it before the later
+-	 * cleanup
+-	 */
+-	if (test_and_clear_bit(MPTCP_CLEAN_UNA, &mptcp_sk(sk)->flags))
+-		__mptcp_clean_una(sk);
+-	if (test_and_clear_bit(MPTCP_PUSH_PENDING, &mptcp_sk(sk)->flags)) {
+-		/* mptcp_push_pending() acquires the subflow socket lock
++	for (;;) {
++		flags = 0;
++		if (test_and_clear_bit(MPTCP_PUSH_PENDING, &mptcp_sk(sk)->flags))
++			flags |= MPTCP_PUSH_PENDING;
++		if (!flags)
++			break;
 +
- 	ret = __sys_sendmsg_sock(sock, &kmsg->msg, flags);
- 	if (force_nonblock && ret == -EAGAIN)
- 		return io_setup_async_msg(req, kmsg);
-@@ -4436,7 +4440,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 	if (kmsg->iov != kmsg->fast_iov)
- 		kfree(kmsg->iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	if (ret < 0)
-+	if (ret < min_ret)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, 0, cs);
- 	return 0;
-@@ -4450,6 +4454,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	struct iovec iov;
- 	struct socket *sock;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret;
++		/* the following actions acquire the subflow socket lock
+ 		 *
+ 		 * 1) can't be invoked in atomic scope
+ 		 * 2) must avoid ABBA deadlock with msk socket spinlock: the RX
+@@ -2959,13 +2960,21 @@ static void mptcp_release_cb(struct sock *sk)
+ 		 */
  
- 	sock = sock_from_file(req->file, &ret);
-@@ -4471,6 +4476,9 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&msg.msg_iter);
+ 		spin_unlock_bh(&sk->sk_lock.slock);
+-		mptcp_push_pending(sk, 0);
++		if (flags & MPTCP_PUSH_PENDING)
++			__mptcp_push_pending(sk, 0);
 +
- 	msg.msg_flags = flags;
- 	ret = sock_sendmsg(sock, &msg);
- 	if (force_nonblock && ret == -EAGAIN)
-@@ -4478,7 +4486,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	if (ret == -ERESTARTSYS)
- 		ret = -EINTR;
- 
--	if (ret < 0)
-+	if (ret < min_ret)
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, 0, cs);
- 	return 0;
-@@ -4630,6 +4638,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	struct socket *sock;
- 	struct io_buffer *kbuf;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret, cflags = 0;
- 
- 	sock = sock_from_file(req->file, &ret);
-@@ -4665,6 +4674,9 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
- 
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&kmsg->msg.msg_iter);
++		cond_resched();
+ 		spin_lock_bh(&sk->sk_lock.slock);
+ 	}
 +
- 	ret = __sys_recvmsg_sock(sock, &kmsg->msg, req->sr_msg.umsg,
- 					kmsg->uaddr, flags);
- 	if (force_nonblock && ret == -EAGAIN)
-@@ -4677,7 +4689,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 	if (kmsg->iov != kmsg->fast_iov)
- 		kfree(kmsg->iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	if (ret < 0)
-+	if (ret < min_ret || ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
- 	return 0;
-@@ -4693,6 +4705,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	struct socket *sock;
- 	struct iovec iov;
- 	unsigned flags;
-+	int min_ret = 0;
- 	int ret, cflags = 0;
++	if (test_and_clear_bit(MPTCP_CLEAN_UNA, &mptcp_sk(sk)->flags))
++		__mptcp_clean_una(sk);
+ 	if (test_and_clear_bit(MPTCP_ERROR_REPORT, &mptcp_sk(sk)->flags))
+ 		__mptcp_error_report(sk);
  
- 	sock = sock_from_file(req->file, &ret);
-@@ -4723,6 +4736,9 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	else if (force_nonblock)
- 		flags |= MSG_DONTWAIT;
+-	/* clear any wmem reservation and errors */
++	/* push_pending may touch wmem_reserved, ensure we do the cleanup
++	 * later
++	 */
+ 	__mptcp_update_wmem(sk);
+ 	__mptcp_update_rmem(sk);
  
-+	if (flags & MSG_WAITALL)
-+		min_ret = iov_iter_count(&msg.msg_iter);
-+
- 	ret = sock_recvmsg(sock, &msg, flags);
- 	if (force_nonblock && ret == -EAGAIN)
- 		return -EAGAIN;
-@@ -4731,7 +4747,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- out_free:
- 	if (req->flags & REQ_F_BUFFER_SELECTED)
- 		cflags = io_put_recv_kbuf(req);
--	if (ret < 0)
-+	if (ret < min_ret || ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))))
- 		req_set_fail_links(req);
- 	__io_req_complete(req, ret, cflags, cs);
- 	return 0;
 -- 
 2.30.1
 
