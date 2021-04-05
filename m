@@ -2,100 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA60353AEE
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 03:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F16B3353B0A
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 05:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231555AbhDEBu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Apr 2021 21:50:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46288 "EHLO
+        id S231728AbhDEDPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Apr 2021 23:15:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbhDEBuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Apr 2021 21:50:54 -0400
-Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D856C061756
-        for <stable@vger.kernel.org>; Sun,  4 Apr 2021 18:50:46 -0700 (PDT)
-Received: by mail-vs1-xe36.google.com with SMTP id i126so5383136vsi.3
-        for <stable@vger.kernel.org>; Sun, 04 Apr 2021 18:50:46 -0700 (PDT)
+        with ESMTP id S230240AbhDEDPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Apr 2021 23:15:00 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06056C061756;
+        Sun,  4 Apr 2021 20:14:50 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id cl21-20020a17090af695b02900c61ac0f0e9so7703869pjb.1;
+        Sun, 04 Apr 2021 20:14:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=KJG7WNxE0ZDZ2kLare0dUM9Uc4E5hzNdGP6msOqzlpk=;
-        b=JC2yHA5bfZv19fTSpr+yI6q6UOH8aaZhvrD427Hio48a71RcchQ1rCbIRudKlokDb4
-         3Q10IL+jsZSWpISycmc7VaN2pyNFqY6nB4kMgB9SUQLXSyFbNy7ofDKBrw9pUE4dkLit
-         GtwZfRANkiN3kZ8GRMX6+LgjqKqc3mYOGOvyIB3x5cO1EP2/zra6STLuYuVr4ka9DIqH
-         i5ve2ulzOl+5WbrNRthLJ5rEU6tdLErSOl06lR4hMg9MSOUN1NaWfzfllpExwGmb/qpm
-         /+0aZCgKcKuY+r/N2KAR8VPK8SyA/Y3Q71Qwo85DYfWsHBdDSymhh4oA4lSmIlXpSQwR
-         WQew==
+        bh=GceNoV8TahQ5tN9ED1/8GY0CKdqmMX+dizORs2wOPsI=;
+        b=oonZHvVjrqKGsVfVWgbSh45r1gbAqGTpubcxSoGv0u2cP96yTsOIQhWkqMLQEOVXQr
+         O+/mCU4+0I8R5v9ZgUEGMVKhG0hbXLB/pzpACTWW48BxWaLq21bxB9R4wwKHEZV0fC7m
+         jKLdmwNFtmtYi/Z00HiWkOnhKFYl9+tmwu0ex+70eij4dIoNhMYoT8nyteiAmYQTcW2y
+         /IgjTnOY78+D1foGeDG925vTBhzK+Q2WgvRI06/IvfP/w/qUokr+iZqO8nunN+gajuQL
+         84JoEv3DrvM8m0mQLAW29kHisyX41fGeToWyWD4Qkn/yXxoLzpjoF8yOAj8p0QRtGiaG
+         +h1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=KJG7WNxE0ZDZ2kLare0dUM9Uc4E5hzNdGP6msOqzlpk=;
-        b=TK1brO0N+Q+xtLpzWtPOjff47dv90DWXGhQqWyI2xGOQy1YikevlfU4YR8bWmX/xy8
-         O/VugEj6A3wIQy5Bq3zyU9Dunr3Ske+xTGZhHpYjjDTVt5IGZUZgu4WUUZyJl/XNTXCL
-         Rbl5SSz/p3KuuADpRPfY1TnqCdyfJtbzNpTEo9g5KgjWPqLF/NOOHP/7zSJiyqy3rjFS
-         6c7nQR1dhJxbGJY2DpCj0KnI6XbBZCA8Pj4uwejnG8ZVu1OomLd1z6khedj1CCNTYHSf
-         QHjqmDeGfTE8Wbfh97HVooaVWmvXcZxKL30lQgg/PENidJnkjkh+fu8VwYNBdU+1bQ5U
-         559Q==
-X-Gm-Message-State: AOAM530wXDLF+C9EjLPUsDB5VXz8/peQym4O+Il9vJQQkd9HPYJC26zX
-        tq980J1wk3n59pzXfjknDPMuWncRCyJWDklBYH8=
-X-Google-Smtp-Source: ABdhPJzJ+DoFG6RP/3cCmnHf571PZCW9QSItDB1om9cwme+juWTnVgCSZ+c1n8C+QDGot/J9L4CVPMaDKylSFZB+mUA=
-X-Received: by 2002:a67:6182:: with SMTP id v124mr2658209vsb.4.1617587445585;
- Sun, 04 Apr 2021 18:50:45 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GceNoV8TahQ5tN9ED1/8GY0CKdqmMX+dizORs2wOPsI=;
+        b=lnYx5UB/7FRLBBUREaRj2Jo98vXERKFKI2RnseBEPajuVKHE5Fu8azKHd7kMXXbe5O
+         jCDtlvQuUSUPyFln/KdJxBNO2hrIa8uKrdB0WvOIZKx4RH0u7XhQhYx+yHmqWQyJ0t8c
+         V5sGohaz+b01o4nRWjcwfGtBu+143uNQ+o0M/sJDxz8aZZf6NqYqZWhMQrpHr5PP0wFJ
+         QDYUU1CSEK7g2RB7sgmO1cwXmKqy7gkzZbGf7PsbLtxrqnNTcuYHtEAJswbQvI37qsXq
+         f9o5BhgeFrD7TW3CAdLlKELBv+dv+qc8m3npcxmYO9y6nlmpy1IgjMiMc6m4KOpX8zzc
+         rIiA==
+X-Gm-Message-State: AOAM530c7fGr6AEnwk0crzAmsGOk87j4FswgaL8owpyyYavgvCbSGBMc
+        Nb1MtgKnvFXY7UbT2nXIsVc=
+X-Google-Smtp-Source: ABdhPJx62jtib582/bFqAeaS2CUsNz1xMeq1v3YYPikqmnk+wjAN1aJARvS2nqB0757Y+1j8r+IfHg==
+X-Received: by 2002:a17:902:7883:b029:e7:32bd:6b97 with SMTP id q3-20020a1709027883b02900e732bd6b97mr22335934pll.0.1617592490431;
+        Sun, 04 Apr 2021 20:14:50 -0700 (PDT)
+Received: from z640-arch.lan ([2602:61:7344:f100::678])
+        by smtp.gmail.com with ESMTPSA id ot17sm13835918pjb.50.2021.04.04.20.14.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Apr 2021 20:14:50 -0700 (PDT)
+From:   Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Saravana Kannan <saravanak@google.com>, stable@vger.kernel.org
+Subject: [PATCH] of: property: do not create device links from *nr-gpios
+Date:   Sun,  4 Apr 2021 20:14:36 -0700
+Message-Id: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Sender: marinadanielsbagni@gmail.com
-Received: by 2002:ab0:2756:0:0:0:0:0 with HTTP; Sun, 4 Apr 2021 18:50:45 -0700 (PDT)
-From:   "Dee Parsons's" <deeparsons137@gmail.com>
-Date:   Sun, 4 Apr 2021 17:50:45 -0800
-X-Google-Sender-Auth: m4JgCG4IBOQd9Staag1l10z5fDQ
-Message-ID: <CAJp=+g22+3kGP5odcJFk48G7Th=4WWN8rwNsy8TuqsvEOz9Vow@mail.gmail.com>
-Subject: HELLO,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
-Please permit me to share with you, my desire to go into this Godly
-business partnership with you as=C2=A0I believe that You and I can
-cooperate together in this humanitarian social project only for the
-glory and honor of God.  I am Mrs. Dee Parson's,=C2=A0a dying widow
-hospitalized undergoing treatment for brain tumor disease. Because of
-this reason i decided to seek for your sincerity and ability to carry
-out this transaction and fulfill my final wish in implementing the
-charitable social project in your country as it requires absolute
-trust and devotion without any failure, which i believe that you are a
-reliable person and you will not expose or betray this trust and
-confident that I'm about to entrust on you. My late husband made a
-substantial deposit with the bank with my name as the beneficiary
-which I decided to hand over and entrust the sum of ($ 12,500,000.00,
-Dollars) in the account to you to invest into the humanitarian social
-project. Based on my present health status as I'm permanently
-indisposed to handle finances or any financial related project,
-following my diagnoses. Having known my present health condition, I
-decided to seek for your assistance in reclaiming the fund for the
-support and mutual benefit of the less privileged as I don't have any
-relation, and I have been touched by God to donate from what I have to
-the needy because it will be a great loss in spending the fund on my
-health treatment hence my doctor has confirmed to me that i will not
-survive this illness.
+[<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
+the number of GPIOs present on a system, not define a GPIO. nr-gpios is
+not configured by #gpio-cells and can't be parsed along with other
+"*-gpios" properties.
 
-This is the reason I contacted you for your support and help to stand
-as my rightful beneficiary and claim the money for humanitarian
-purposes for the mutual benefits of the less privileged ones. Because
-If the money remains unclaimed with the bank after my death, those
-greedy bank executives will place the money as an unclaimed Fund and
-share it for their selfish and worthless ventures. It will be my
-pleasure to compensate you with part of the money as my Investment
-Manager/Partner for your effort in handling the transaction, while the
-remaining amount of the money will be invested into the charity
-project there in your country.
+scripts/dtc/checks.c also has a special case for nr-gpio{s}. However,
+nr-gpio is not really special, so we only need to fix nr-gpios suffix
+here.
 
-If you are willing to accept my offer and do exactly as I have stated
-above. You should immediately get back to me for further details of
-the transaction.
+[0]: nr-gpios is referenced in Documentation/devicetree/bindings/gpio:
+ - gpio-adnp.txt
+ - gpio-xgene-sb.txt
+ - gpio-xlp.txt
+ - snps,dw-apb-gpio.yaml
 
-Best regards and God bless you.
+Fixes errors such as:
+  OF: /palmbus@300000/gpio@600: could not find phandle
+
+Call Trace:
+  of_phandle_iterator_next+0x8c/0x16c
+  __of_parse_phandle_with_args+0x38/0xb8
+  of_parse_phandle_with_args+0x28/0x3c
+  parse_suffix_prop_cells+0x80/0xac
+  parse_gpios+0x20/0x2c
+  of_link_to_suppliers+0x18c/0x288
+  of_link_to_suppliers+0x1fc/0x288
+  device_add+0x4e0/0x734
+  of_platform_device_create_pdata+0xb8/0xfc
+  of_platform_bus_create+0x170/0x214
+  of_platform_populate+0x88/0xf4
+  __dt_register_buses+0xbc/0xf0
+  plat_of_setup+0x1c/0x34
+
+Fixes: 7f00be96f125 ("of: property: Add device link support for interrupt-parent, dmas and -gpio(s)")
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc: Saravana Kannan <saravanak@google.com>
+Cc: <stable@vger.kernel.org> # 5.5.x
+---
+ drivers/of/property.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/of/property.c b/drivers/of/property.c
+index 2bb3158c9e43..24672c295603 100644
+--- a/drivers/of/property.c
++++ b/drivers/of/property.c
+@@ -1271,7 +1271,16 @@ DEFINE_SIMPLE_PROP(pinctrl8, "pinctrl-8", NULL)
+ DEFINE_SIMPLE_PROP(remote_endpoint, "remote-endpoint", NULL)
+ DEFINE_SUFFIX_PROP(regulators, "-supply", NULL)
+ DEFINE_SUFFIX_PROP(gpio, "-gpio", "#gpio-cells")
+-DEFINE_SUFFIX_PROP(gpios, "-gpios", "#gpio-cells")
++
++static struct device_node *parse_gpios(struct device_node *np,
++				       const char *prop_name, int index)
++{
++	if (!strcmp_suffix(prop_name, "nr-gpios"))
++		return NULL;
++
++	return parse_suffix_prop_cells(np, prop_name, index, "-gpios",
++				       "#gpio-cells");
++}
+ 
+ static struct device_node *parse_iommu_maps(struct device_node *np,
+ 					    const char *prop_name, int index)
+-- 
+2.31.1
+
