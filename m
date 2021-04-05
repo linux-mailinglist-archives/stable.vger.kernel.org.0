@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A436E353CB0
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6EA3353CE7
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232870AbhDEI4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34476 "EHLO mail.kernel.org"
+        id S233137AbhDEI5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232804AbhDEI4I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:56:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 363AF61393;
-        Mon,  5 Apr 2021 08:56:02 +0000 (UTC)
+        id S233142AbhDEI5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:57:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B3A6139E;
+        Mon,  5 Apr 2021 08:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612962;
-        bh=3Vd/0SfGcp1tmuFptyl8yZ60cxg2TBfVAz1MeXESvL8=;
+        s=korg; t=1617613030;
+        bh=teHUG3InJy7OYJvmr2kg+wS5qfOI8ycdVjxF0yfQmvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQZC1Xd4IVen60xQ0RWFlMw7lJ2C3d/W9aCzvOsjSZWu25ENhlwtYrzFjh0SVoTQt
-         nr9XbB9oJJs8Uxjds7R1fGhM/1usEnnnPum+5PgaQWgB+UgYTFOa/KmqSVwbGyxvhH
-         Ak7BHCF8ngKVTja4/kAJYWvMaq7kufgmCYf/EAgM=
+        b=B4vtbxkIZUbp0OTsS2pJ1CxLX9w2XXoi/qlFmXjUXaoRKFPGAbGZxAuVsQngzng3h
+         4vcT4USnWSc8ZNpV2V3feuIuyenK90sJkD2PGUicz1VXs/CgeUohAXvFsHyxMbDnwI
+         B6W7C+q9cmrvzpkNL4LzkcPMMf1cVMJrYDu0o04c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
-Subject: [PATCH 4.4 27/28] staging: rtl8192e: Fix incorrect source in memcpy()
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Greg Kroah-Hartman <greg@kroah.com>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 26/35] firewire: nosy: Fix a use-after-free bug in nosy_ioctl()
 Date:   Mon,  5 Apr 2021 10:54:01 +0200
-Message-Id: <20210405085017.877166532@linuxfoundation.org>
+Message-Id: <20210405085019.702434804@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
-References: <20210405085017.012074144@linuxfoundation.org>
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+References: <20210405085018.871387942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,67 +42,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 72ad25fbbb78930f892b191637359ab5b94b3190 upstream.
+[ Upstream commit 829933ef05a951c8ff140e814656d73e74915faf ]
 
-The variable "info_element" is of the following type:
+For each device, the nosy driver allocates a pcilynx structure.
+A use-after-free might happen in the following scenario:
 
-	struct rtllib_info_element *info_element
+ 1. Open nosy device for the first time and call ioctl with command
+    NOSY_IOC_START, then a new client A will be malloced and added to
+    doubly linked list.
+ 2. Open nosy device for the second time and call ioctl with command
+    NOSY_IOC_START, then a new client B will be malloced and added to
+    doubly linked list.
+ 3. Call ioctl with command NOSY_IOC_START for client A, then client A
+    will be readded to the doubly linked list. Now the doubly linked
+    list is messed up.
+ 4. Close the first nosy device and nosy_release will be called. In
+    nosy_release, client A will be unlinked and freed.
+ 5. Close the second nosy device, and client A will be referenced,
+    resulting in UAF.
 
-defined in drivers/staging/rtl8192e/rtllib.h:
+The root cause of this bug is that the element in the doubly linked list
+is reentered into the list.
 
-	struct rtllib_info_element {
-		u8 id;
-		u8 len;
-		u8 data[];
-	} __packed;
+Fix this bug by adding a check before inserting a client.  If a client
+is already in the linked list, don't insert it.
 
-The "len" field defines the size of the "data[]" array. The code is
-supposed to check if "info_element->len" is greater than 4 and later
-equal to 6. If this is satisfied then, the last two bytes (the 4th and
-5th element of u8 "data[]" array) are copied into "network->CcxRmState".
+The following KASAN report reveals it:
 
-Right now the code uses "memcpy()" with the source as "&info_element[4]"
-which would copy in wrong and unintended information. The struct
-"rtllib_info_element" has a size of 2 bytes for "id" and "len",
-therefore indexing will be done in interval of 2 bytes. So,
-"info_element[4]" would point to data which is beyond the memory
-allocated for this pointer (that is, at x+8, while "info_element" has
-been allocated only from x to x+7 (2 + 6 => 8 bytes)).
+   BUG: KASAN: use-after-free in nosy_release+0x1ea/0x210
+   Write of size 8 at addr ffff888102ad7360 by task poc
+   CPU: 3 PID: 337 Comm: poc Not tainted 5.12.0-rc5+ #6
+   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+   Call Trace:
+     nosy_release+0x1ea/0x210
+     __fput+0x1e2/0x840
+     task_work_run+0xe8/0x180
+     exit_to_user_mode_prepare+0x114/0x120
+     syscall_exit_to_user_mode+0x1d/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This patch rectifies this error by using "&info_element->data[4]" which
-correctly copies the last two bytes of "data[]".
+   Allocated by task 337:
+     nosy_open+0x154/0x4d0
+     misc_open+0x2ec/0x410
+     chrdev_open+0x20d/0x5a0
+     do_dentry_open+0x40f/0xe80
+     path_openat+0x1cf9/0x37b0
+     do_filp_open+0x16d/0x390
+     do_sys_openat2+0x11d/0x360
+     __x64_sys_open+0xfd/0x1a0
+     do_syscall_64+0x33/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-NOTE: The faulty line of code came from the following commit:
+   Freed by task 337:
+     kfree+0x8f/0x210
+     nosy_release+0x158/0x210
+     __fput+0x1e2/0x840
+     task_work_run+0xe8/0x180
+     exit_to_user_mode_prepare+0x114/0x120
+     syscall_exit_to_user_mode+0x1d/0x40
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
+   The buggy address belongs to the object at ffff888102ad7300 which belongs to the cache kmalloc-128 of size 128
+   The buggy address is located 96 bytes inside of 128-byte region [ffff888102ad7300, ffff888102ad7380)
 
-The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
-which had the faulty line of code. This file has been deleted (or
-possibly renamed) with the contents copied in to a new file
-`rtl8192e/rtllib_rx.c` along with additional code in the commit
-94a799425eee (tagged in Fixes).
+[ Modified to use 'list_empty()' inside proper lock  - Linus ]
 
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210323113413.29179-1-atulgopinathan@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/lkml/1617433116-5930-1-git-send-email-zheyuma97@gmail.com/
+Reported-and-tested-by: 马哲宇 (Zheyu Ma) <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Cc: Greg Kroah-Hartman <greg@kroah.com>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firewire/nosy.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1988,7 +1988,7 @@ static void rtllib_parse_mife_generic(st
- 	    info_element->data[2] == 0x96 &&
- 	    info_element->data[3] == 0x01) {
- 		if (info_element->len == 6) {
--			memcpy(network->CcxRmState, &info_element[4], 2);
-+			memcpy(network->CcxRmState, &info_element->data[4], 2);
- 			if (network->CcxRmState[0] != 0)
- 				network->bCcxRmEnable = true;
- 			else
+diff --git a/drivers/firewire/nosy.c b/drivers/firewire/nosy.c
+index 180f0a96528c..646dca0a8d73 100644
+--- a/drivers/firewire/nosy.c
++++ b/drivers/firewire/nosy.c
+@@ -359,6 +359,7 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	struct client *client = file->private_data;
+ 	spinlock_t *client_list_lock = &client->lynx->client_list_lock;
+ 	struct nosy_stats stats;
++	int ret;
+ 
+ 	switch (cmd) {
+ 	case NOSY_IOC_GET_STATS:
+@@ -373,11 +374,15 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 			return 0;
+ 
+ 	case NOSY_IOC_START:
++		ret = -EBUSY;
+ 		spin_lock_irq(client_list_lock);
+-		list_add_tail(&client->link, &client->lynx->client_list);
++		if (list_empty(&client->link)) {
++			list_add_tail(&client->link, &client->lynx->client_list);
++			ret = 0;
++		}
+ 		spin_unlock_irq(client_list_lock);
+ 
+-		return 0;
++		return ret;
+ 
+ 	case NOSY_IOC_STOP:
+ 		spin_lock_irq(client_list_lock);
+-- 
+2.30.2
+
 
 
