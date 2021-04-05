@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A34F6354025
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2FF353F1D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239310AbhDEJQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36522 "EHLO mail.kernel.org"
+        id S238110AbhDEJKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239119AbhDEJPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E7A161427;
-        Mon,  5 Apr 2021 09:15:48 +0000 (UTC)
+        id S239236AbhDEJJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:09:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02C0561398;
+        Mon,  5 Apr 2021 09:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614148;
-        bh=7AuWsnj/tw+RkTigsDxavoaeOgH0YxJSvw9BwjsED4A=;
+        s=korg; t=1617613774;
+        bh=aDOT4DkhX4cM/LM+ZYyGObU2dDtzu0yIuWO3HQ25LNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAmN5s1Hh8Af0XJCuyYhEKtz8qUKDhNF7JN7oo6CUZ/fiN8DdVsUOLXRmTY2W17pe
-         jLaXvjgK5AZqxBj/fbX111jM/Q0a5lnW3a0zoSPW8+v/YW6CiVy3DdLXELzn0Etl6H
-         syrSKsMjudLktW9KTVh0TEJjSZgCo0gDIvMDZp30=
+        b=vqD3QfEBpGdncZRMajbP44tODszPiumHMftxvOtxmYvJzio1imvbth4nNw5ZD0Ni7
+         AbhM8tgAJZYB9ri19Uy0WCZBh9TCI196AoxDWEr0t0uFKevq9cCv9Hz0DOWnZ+9EcN
+         ewcUhu7csGsiuF3cGzi438UD6LWadztd5bRlQ0VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianqun Xu <jay.xu@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Wang Panzhenzhuan <randy.wang@rock-chips.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.11 100/152] pinctrl: rockchip: fix restore error in resume
+        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 087/126] kvm: x86/mmu: Add existing trace points to TDP MMU
 Date:   Mon,  5 Apr 2021 10:54:09 +0200
-Message-Id: <20210405085037.493828572@linuxfoundation.org>
+Message-Id: <20210405085033.945369436@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Panzhenzhuan <randy.wang@rock-chips.com>
+From: Ben Gardon <bgardon@google.com>
 
-commit c971af25cda94afe71617790826a86253e88eab0 upstream.
+[ Upstream commit 33dd3574f5fef57c2c6caccf98925d63aa2a8d09 ]
 
-The restore in resume should match to suspend which only set for RK3288
-SoCs pinctrl.
+The TDP MMU was initially implemented without some of the usual
+tracepoints found in mmu.c. Correct this discrepancy by adding the
+missing trace points to the TDP MMU.
 
-Fixes: 8dca933127024 ("pinctrl: rockchip: save and restore gpio6_c6 pinmux in suspend/resume")
-Reviewed-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Wang Panzhenzhuan <randy.wang@rock-chips.com>
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210223100725.269240-1-jay.xu@rock-chips.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested: ran the demand paging selftest on an Intel Skylake machine with
+	all the trace points used by the TDP MMU enabled and observed
+	them firing with expected values.
+
+This patch can be viewed in Gerrit at:
+https://linux-review.googlesource.com/c/virt/kvm/kvm/+/3812
+
+Signed-off-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20201027175944.1183301-1-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -3727,12 +3727,15 @@ static int __maybe_unused rockchip_pinct
- static int __maybe_unused rockchip_pinctrl_resume(struct device *dev)
- {
- 	struct rockchip_pinctrl *info = dev_get_drvdata(dev);
--	int ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
--			       rk3288_grf_gpio6c_iomux |
--			       GPIO6C6_SEL_WRITE_ENABLE);
-+	int ret;
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index 0d17457f1c84..61be95c6db20 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -7,6 +7,8 @@
+ #include "tdp_mmu.h"
+ #include "spte.h"
  
--	if (ret)
--		return ret;
-+	if (info->ctrl->type == RK3288) {
-+		ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
-+				   rk3288_grf_gpio6c_iomux |
-+				   GPIO6C6_SEL_WRITE_ENABLE);
-+		if (ret)
-+			return ret;
++#include <trace/events/kvm.h>
++
+ #ifdef CONFIG_X86_64
+ static bool __read_mostly tdp_mmu_enabled = false;
+ module_param_named(tdp_mmu, tdp_mmu_enabled, bool, 0644);
+@@ -149,6 +151,8 @@ static struct kvm_mmu_page *alloc_tdp_mmu_page(struct kvm_vcpu *vcpu, gfn_t gfn,
+ 	sp->gfn = gfn;
+ 	sp->tdp_mmu_page = true;
+ 
++	trace_kvm_mmu_get_page(sp, true);
++
+ 	return sp;
+ }
+ 
+@@ -319,6 +323,8 @@ static void __handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
+ 		pt = spte_to_child_pt(old_spte, level);
+ 		sp = sptep_to_sp(pt);
+ 
++		trace_kvm_mmu_prepare_zap_page(sp);
++
+ 		list_del(&sp->link);
+ 
+ 		if (sp->lpage_disallowed)
+@@ -530,11 +536,13 @@ static int tdp_mmu_map_handle_target_level(struct kvm_vcpu *vcpu, int write,
+ 	if (unlikely(is_noslot_pfn(pfn))) {
+ 		new_spte = make_mmio_spte(vcpu, iter->gfn, ACC_ALL);
+ 		trace_mark_mmio_spte(iter->sptep, iter->gfn, new_spte);
+-	} else
++	} else {
+ 		make_spte_ret = make_spte(vcpu, ACC_ALL, iter->level, iter->gfn,
+ 					 pfn, iter->old_spte, prefault, true,
+ 					 map_writable, !shadow_accessed_mask,
+ 					 &new_spte);
++		trace_kvm_mmu_set_spte(iter->level, iter->gfn, iter->sptep);
 +	}
  
- 	return pinctrl_force_default(info->pctl_dev);
- }
+ 	if (new_spte == iter->old_spte)
+ 		ret = RET_PF_SPURIOUS;
+@@ -740,6 +748,8 @@ static int age_gfn_range(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 
+ 		tdp_mmu_set_spte_no_acc_track(kvm, &iter, new_spte);
+ 		young = 1;
++
++		trace_kvm_age_page(iter.gfn, iter.level, slot, young);
+ 	}
+ 
+ 	return young;
+-- 
+2.30.1
+
 
 
