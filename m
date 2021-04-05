@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8480353DCA
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22779353E63
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237429AbhDEJCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43412 "EHLO mail.kernel.org"
+        id S238700AbhDEJFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234181AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07C3F613A9;
-        Mon,  5 Apr 2021 09:01:36 +0000 (UTC)
+        id S237836AbhDEJFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FF38613A9;
+        Mon,  5 Apr 2021 09:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613297;
-        bh=ToeGCkHKi2vSOjcD0006RoYI7g9oDmEl5Hc9CN4HfC8=;
+        s=korg; t=1617613516;
+        bh=ogBNOLnzdqZhhc74vgJX+cTFHvEdTeKq9V92f9LWiSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFYnVyyG0otxfjkUYxwEUujydyHpJKqx9KivtQecD80zn7u8Z1evTeWjKNb3J9RbN
-         82J7QA6OOKDXfwD63fSp3aAcLeM1R0G39g2cG0yOM4ATMSLX3S8dHlxogveUpm+aMQ
-         yklAdYhEClFcY04lUROn8aQIPECuh8mAxrya9IkA=
+        b=gnvGsvwahJ9UQNc4pp9Pwj6v8KJdPkbxNZK7RAkZRSzDu4yS9kuAWqZxPQ4x0A1l8
+         Zb8jrrk+aMgduWksSNF0e6ouOw/wTf03u+bNIpHUkWK+anPXMsxRHPO4NpgK+V7pL5
+         dRoOvbtQXTKP+a8tj36YWTpITKAQnHqGeTbID3U4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Greg Kroah-Hartman <greg@kroah.com>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/56] firewire: nosy: Fix a use-after-free bug in nosy_ioctl()
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 49/74] tracing: Fix stack trace event size
 Date:   Mon,  5 Apr 2021 10:54:13 +0200
-Message-Id: <20210405085023.876335246@linuxfoundation.org>
+Message-Id: <20210405085026.331685598@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,116 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 829933ef05a951c8ff140e814656d73e74915faf ]
+commit 9deb193af69d3fd6dd8e47f292b67c805a787010 upstream.
 
-For each device, the nosy driver allocates a pcilynx structure.
-A use-after-free might happen in the following scenario:
+Commit cbc3b92ce037 fixed an issue to modify the macros of the stack trace
+event so that user space could parse it properly. Originally the stack
+trace format to user space showed that the called stack was a dynamic
+array. But it is not actually a dynamic array, in the way that other
+dynamic event arrays worked, and this broke user space parsing for it. The
+update was to make the array look to have 8 entries in it. Helper
+functions were added to make it parse it correctly, as the stack was
+dynamic, but was determined by the size of the event stored.
 
- 1. Open nosy device for the first time and call ioctl with command
-    NOSY_IOC_START, then a new client A will be malloced and added to
-    doubly linked list.
- 2. Open nosy device for the second time and call ioctl with command
-    NOSY_IOC_START, then a new client B will be malloced and added to
-    doubly linked list.
- 3. Call ioctl with command NOSY_IOC_START for client A, then client A
-    will be readded to the doubly linked list. Now the doubly linked
-    list is messed up.
- 4. Close the first nosy device and nosy_release will be called. In
-    nosy_release, client A will be unlinked and freed.
- 5. Close the second nosy device, and client A will be referenced,
-    resulting in UAF.
+Although this fixed user space on how it read the event, it changed the
+internal structure used for the stack trace event. It changed the array
+size from [0] to [8] (added 8 entries). This increased the size of the
+stack trace event by 8 words. The size reserved on the ring buffer was the
+size of the stack trace event plus the number of stack entries found in
+the stack trace. That commit caused the amount to be 8 more than what was
+needed because it did not expect the caller field to have any size. This
+produced 8 entries of garbage (and reading random data) from the stack
+trace event:
 
-The root cause of this bug is that the element in the doubly linked list
-is reentered into the list.
+          <idle>-0       [002] d... 1976396.837549: <stack trace>
+ => trace_event_raw_event_sched_switch
+ => __traceiter_sched_switch
+ => __schedule
+ => schedule_idle
+ => do_idle
+ => cpu_startup_entry
+ => secondary_startup_64_no_verify
+ => 0xc8c5e150ffff93de
+ => 0xffff93de
+ => 0
+ => 0
+ => 0xc8c5e17800000000
+ => 0x1f30affff93de
+ => 0x00000004
+ => 0x200000000
 
-Fix this bug by adding a check before inserting a client.  If a client
-is already in the linked list, don't insert it.
+Instead, subtract the size of the caller field from the size of the event
+to make sure that only the amount needed to store the stack trace is
+reserved.
 
-The following KASAN report reveals it:
+Link: https://lore.kernel.org/lkml/your-ad-here.call-01617191565-ext-9692@work.hours/
 
-   BUG: KASAN: use-after-free in nosy_release+0x1ea/0x210
-   Write of size 8 at addr ffff888102ad7360 by task poc
-   CPU: 3 PID: 337 Comm: poc Not tainted 5.12.0-rc5+ #6
-   Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-   Call Trace:
-     nosy_release+0x1ea/0x210
-     __fput+0x1e2/0x840
-     task_work_run+0xe8/0x180
-     exit_to_user_mode_prepare+0x114/0x120
-     syscall_exit_to_user_mode+0x1d/0x40
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-   Allocated by task 337:
-     nosy_open+0x154/0x4d0
-     misc_open+0x2ec/0x410
-     chrdev_open+0x20d/0x5a0
-     do_dentry_open+0x40f/0xe80
-     path_openat+0x1cf9/0x37b0
-     do_filp_open+0x16d/0x390
-     do_sys_openat2+0x11d/0x360
-     __x64_sys_open+0xfd/0x1a0
-     do_syscall_64+0x33/0x40
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-   Freed by task 337:
-     kfree+0x8f/0x210
-     nosy_release+0x158/0x210
-     __fput+0x1e2/0x840
-     task_work_run+0xe8/0x180
-     exit_to_user_mode_prepare+0x114/0x120
-     syscall_exit_to_user_mode+0x1d/0x40
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-   The buggy address belongs to the object at ffff888102ad7300 which belongs to the cache kmalloc-128 of size 128
-   The buggy address is located 96 bytes inside of 128-byte region [ffff888102ad7300, ffff888102ad7380)
-
-[ Modified to use 'list_empty()' inside proper lock  - Linus ]
-
-Link: https://lore.kernel.org/lkml/1617433116-5930-1-git-send-email-zheyuma97@gmail.com/
-Reported-and-tested-by: 马哲宇 (Zheyu Ma) <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Cc: Greg Kroah-Hartman <greg@kroah.com>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: cbc3b92ce037 ("tracing: Set kernel_stack's caller size properly")
+Reported-by: Vasily Gorbik <gor@linux.ibm.com>
+Tested-by: Vasily Gorbik <gor@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firewire/nosy.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firewire/nosy.c b/drivers/firewire/nosy.c
-index a128dd1126ae..ac85e03e88e1 100644
---- a/drivers/firewire/nosy.c
-+++ b/drivers/firewire/nosy.c
-@@ -359,6 +359,7 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	struct client *client = file->private_data;
- 	spinlock_t *client_list_lock = &client->lynx->client_list_lock;
- 	struct nosy_stats stats;
-+	int ret;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2857,7 +2857,8 @@ static void __ftrace_trace_stack(struct
  
- 	switch (cmd) {
- 	case NOSY_IOC_GET_STATS:
-@@ -373,11 +374,15 @@ nosy_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 			return 0;
- 
- 	case NOSY_IOC_START:
-+		ret = -EBUSY;
- 		spin_lock_irq(client_list_lock);
--		list_add_tail(&client->link, &client->lynx->client_list);
-+		if (list_empty(&client->link)) {
-+			list_add_tail(&client->link, &client->lynx->client_list);
-+			ret = 0;
-+		}
- 		spin_unlock_irq(client_list_lock);
- 
--		return 0;
-+		return ret;
- 
- 	case NOSY_IOC_STOP:
- 		spin_lock_irq(client_list_lock);
--- 
-2.30.2
-
+ 	size = nr_entries * sizeof(unsigned long);
+ 	event = __trace_buffer_lock_reserve(buffer, TRACE_STACK,
+-					    sizeof(*entry) + size, flags, pc);
++				    (sizeof(*entry) - sizeof(entry->caller)) + size,
++				    flags, pc);
+ 	if (!event)
+ 		goto out;
+ 	entry = ring_buffer_event_data(event);
 
 
