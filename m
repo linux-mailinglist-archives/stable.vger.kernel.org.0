@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8CA353DBA
+	by mail.lfdr.de (Postfix) with ESMTP id EC241353DBD
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237407AbhDEJCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43934 "EHLO mail.kernel.org"
+        id S237417AbhDEJCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237153AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237353AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Apr 2021 05:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5F0A60238;
-        Mon,  5 Apr 2021 09:01:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC7EA613A7;
+        Mon,  5 Apr 2021 09:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613289;
-        bh=xfLohfPhWmd0fYFVl0yHHyw7P6u+3ZNvJL33bj69CX4=;
+        s=korg; t=1617613292;
+        bh=0CAvNLxa7T4c+czQjRhfvYUZISeiK0mp0cw4a5h8vmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Erf61afxoMgcl1DiyPyw7ar+r+yBfAq83Y94UlsX82ftY3eoTEpX5jvQurrGM4OS7
-         h3S+oc2D2IwnQ6+xafrpCvTG367uAD0+JeBX+AcredMnGxuOO1mxPY9nJeV66elx/N
-         r0Ac+sb3aYF3RGQn0klYn6iGS4qi85objapWdmGo=
+        b=o25CTbfomuFMDyoZ8p65uXZX24KBCDZpZtX/bBGkKPRMVhzhpzC25LRZpdwAtzseF
+         se7Kf4bkGgADLGTAuMeoLBl/NR0lOdrhfMBVp58Ab2nhRkxeNO8KtQwJB+TipAM41v
+         O6K2kxGmv/J+ByljMp7ZoONeznnkY5d2fdDTr/u4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianqun Xu <jay.xu@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Wang Panzhenzhuan <randy.wang@rock-chips.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 39/56] pinctrl: rockchip: fix restore error in resume
-Date:   Mon,  5 Apr 2021 10:54:10 +0200
-Message-Id: <20210405085023.779801579@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 40/56] extcon: Add stubs for extcon_register_notifier_all() functions
+Date:   Mon,  5 Apr 2021 10:54:11 +0200
+Message-Id: <20210405085023.810618504@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
 References: <20210405085022.562176619@linuxfoundation.org>
@@ -41,47 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Panzhenzhuan <randy.wang@rock-chips.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit c971af25cda94afe71617790826a86253e88eab0 upstream.
+[ Upstream commit c9570d4a5efd04479b3cd09c39b571eb031d94f4 ]
 
-The restore in resume should match to suspend which only set for RK3288
-SoCs pinctrl.
+Add stubs for extcon_register_notifier_all() function for !CONFIG_EXTCON
+case.  This is useful for compile testing and for drivers which use
+EXTCON but do not require it (therefore do not depend on CONFIG_EXTCON).
 
-Fixes: 8dca933127024 ("pinctrl: rockchip: save and restore gpio6_c6 pinmux in suspend/resume")
-Reviewed-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Wang Panzhenzhuan <randy.wang@rock-chips.com>
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210223100725.269240-1-jay.xu@rock-chips.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 815429b39d94 ("extcon: Add new extcon_register_notifier_all() to monitor all external connectors")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ include/linux/extcon.h | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -3353,12 +3353,15 @@ static int __maybe_unused rockchip_pinct
- static int __maybe_unused rockchip_pinctrl_resume(struct device *dev)
+diff --git a/include/linux/extcon.h b/include/linux/extcon.h
+index 7f033b1ea568..fdef4c784d03 100644
+--- a/include/linux/extcon.h
++++ b/include/linux/extcon.h
+@@ -279,6 +279,29 @@ static inline  void devm_extcon_unregister_notifier(struct device *dev,
+ 				struct extcon_dev *edev, unsigned int id,
+ 				struct notifier_block *nb) { }
+ 
++static inline int extcon_register_notifier_all(struct extcon_dev *edev,
++					       struct notifier_block *nb)
++{
++	return 0;
++}
++
++static inline int extcon_unregister_notifier_all(struct extcon_dev *edev,
++						 struct notifier_block *nb)
++{
++	return 0;
++}
++
++static inline int devm_extcon_register_notifier_all(struct device *dev,
++						    struct extcon_dev *edev,
++						    struct notifier_block *nb)
++{
++	return 0;
++}
++
++static inline void devm_extcon_unregister_notifier_all(struct device *dev,
++						       struct extcon_dev *edev,
++						       struct notifier_block *nb) { }
++
+ static inline struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name)
  {
- 	struct rockchip_pinctrl *info = dev_get_drvdata(dev);
--	int ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
--			       rk3288_grf_gpio6c_iomux |
--			       GPIO6C6_SEL_WRITE_ENABLE);
-+	int ret;
- 
--	if (ret)
--		return ret;
-+	if (info->ctrl->type == RK3288) {
-+		ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
-+				   rk3288_grf_gpio6c_iomux |
-+				   GPIO6C6_SEL_WRITE_ENABLE);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	return pinctrl_force_default(info->pctl_dev);
- }
+ 	return ERR_PTR(-ENODEV);
+-- 
+2.30.2
+
 
 
