@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A7EB353E45
+	by mail.lfdr.de (Postfix) with ESMTP id D5BC7353E46
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237726AbhDEJFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47942 "EHLO mail.kernel.org"
+        id S237841AbhDEJFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238119AbhDEJE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:04:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D431F6138D;
-        Mon,  5 Apr 2021 09:04:18 +0000 (UTC)
+        id S238130AbhDEJE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8173661393;
+        Mon,  5 Apr 2021 09:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613459;
-        bh=ywmWI70xJ5ohq05THjb0e1GZcrlA6Y5cTtRiIFB8xE4=;
+        s=korg; t=1617613462;
+        bh=+rVl4jhU2e9mq9REOVtefD3OfuH0dIJsE4fUJ8fqP5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQoprQrpCp91psMxxnlDTutKVe0WseinDY6+4vlWxfUKB6ob4MO2ZxVht7pSmdBj5
-         4CylVkZ5S7BUy1ewmI2qlUCEDtgvTYCSltVT0lvfB8kp7cQrzITbbt+WfFIqBzjPL4
-         XTkKnjeczcrbdqD/p5u2Pchymg/IweyBBAgi56IY=
+        b=GizJyJ/LfIFgKmjOr8HpCaOMn0x0bwhQ3f9B09ePsiEE7yUfpnzVHTwQS3g/H1EDG
+         k8e8omxB8Fx+L6RWKkIWkXXPc9nqmByttSEyRXX2nD83dHowtgdoNy9dxVaG4FqbxQ
+         yoHS0LA0Tmd/CBrgKC0DLwhCYmCHX3Onrlz7M/QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 43/74] ALSA: hda: Add missing sanity checks in PM prepare/complete callbacks
-Date:   Mon,  5 Apr 2021 10:54:07 +0200
-Message-Id: <20210405085026.130706267@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 44/74] ALSA: hda/realtek: fix a determine_headset_type issue for a Dell AIO
+Date:   Mon,  5 Apr 2021 10:54:08 +0200
+Message-Id: <20210405085026.163320175@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
 References: <20210405085024.703004126@linuxfoundation.org>
@@ -38,47 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 66affb7bb0dc0905155a1b2475261aa704d1ddb5 upstream.
+commit febf22565549ea7111e7d45e8f2d64373cc66b11 upstream.
 
-The recently added PM prepare and complete callbacks don't have the
-sanity check whether the card instance has been properly initialized,
-which may potentially lead to Oops.
+We found a recording issue on a Dell AIO, users plug a headset-mic and
+select headset-mic from UI, but can't record any sound from
+headset-mic. The root cause is the determine_headset_type() returns a
+wrong type, e.g. users plug a ctia type headset, but that function
+returns omtp type.
 
-This patch adds the azx_is_pm_ready() call in each place
-appropriately like other PM callbacks.
+On this machine, the internal mic is not connected to the codec, the
+"Input Source" is headset mic by default. And when users plug a
+headset, the determine_headset_type() will be called immediately, the
+codec on this AIO is alc274, the delay time for this codec in the
+determine_headset_type() is only 80ms, the delay is too short to
+correctly determine the headset type, the fail rate is nearly 99% when
+users plug the headset with the normal speed.
 
-Fixes: f5dac54d9d93 ("ALSA: hda: Separate runtime and system suspend")
+Other codecs set several hundred ms delay time, so here I change the
+delay time to 850ms for alc2x4 series, after this change, the fail
+rate is zero unless users plug the headset slowly on purpose.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210329113059.25035-2-tiwai@suse.de
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210320091542.6748-1-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1022,6 +1022,9 @@ static int azx_prepare(struct device *de
- 	struct snd_card *card = dev_get_drvdata(dev);
- 	struct azx *chip;
- 
-+	if (!azx_is_pm_ready(card))
-+		return 0;
-+
- 	chip = card->private_data;
- 	chip->pm_prepared = 1;
- 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
-@@ -1039,6 +1042,9 @@ static void azx_complete(struct device *
- 	struct snd_card *card = dev_get_drvdata(dev);
- 	struct azx *chip;
- 
-+	if (!azx_is_pm_ready(card))
-+		return;
-+
- 	chip = card->private_data;
- 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
- 	chip->pm_prepared = 0;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5192,7 +5192,7 @@ static void alc_determine_headset_type(s
+ 	case 0x10ec0274:
+ 	case 0x10ec0294:
+ 		alc_process_coef_fw(codec, coef0274);
+-		msleep(80);
++		msleep(850);
+ 		val = alc_read_coef_idx(codec, 0x46);
+ 		is_ctia = (val & 0x00f0) == 0x00f0;
+ 		break;
 
 
