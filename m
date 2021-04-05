@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D444B354085
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E29E354087
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240292AbhDEJSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:18:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40772 "EHLO mail.kernel.org"
+        id S240007AbhDEJSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:18:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239963AbhDEJST (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:18:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D7F660FE4;
-        Mon,  5 Apr 2021 09:18:13 +0000 (UTC)
+        id S239966AbhDEJSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:18:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17759613A5;
+        Mon,  5 Apr 2021 09:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614293;
-        bh=s3DzKyLrNRce3GMjrPJ3Z9Tn1J3unfFRWWsqvHZd7wY=;
+        s=korg; t=1617614296;
+        bh=TLfNtit7mxypnT50eV012j8QyfYlr8lSJ2xARyOlL5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erI6o98wKXqfBmMzOcvh1cL0rSd35yiNFfjTb6nS3c1T0mmR+BX4+Nd7KC21ConR5
-         EGmED8vtZUECzafD1cO2HTRze00RCWMe/toLOPdDvF1x1Afjy3PuEFkWeJoWf2Vb6C
-         s6ETsKBwj1sRsUET5gXiSvFfYZuRBx7am5hsn7eY=
+        b=jvkokfzvMVbBF9s0TWcpefQLnE2GjspLePd5pPW/zSADdqDeoxk7j7zF7hoQjOtA2
+         E2rmOLSVYCRGpMiGro4dF9a/cbuc18sCCozxVqeZ61Rhm978w4mhQxy3TuK7Sh4b2z
+         eh0zZweukjRpd2eCB0S/zxEhF4YCqn6smz3BgUbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b67aaae8d3a927f68d20@syzkaller.appspotmail.com,
-        Du Cheng <ducheng2@gmail.com>
-Subject: [PATCH 5.11 148/152] drivers: video: fbcon: fix NULL dereference in fbcon_cursor()
-Date:   Mon,  5 Apr 2021 10:54:57 +0200
-Message-Id: <20210405085039.029929021@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        syzbot+e74b94fe601ab9552d69@syzkaller.appspotmail.com,
+        Arnd Bergman <arnd@arndb.de>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.11 149/152] riscv: evaluate put_user() arg before enabling user access
+Date:   Mon,  5 Apr 2021 10:54:58 +0200
+Message-Id: <20210405085039.060702525@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
 References: <20210405085034.233917714@linuxfoundation.org>
@@ -40,32 +41,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-commit 01faae5193d6190b7b3aa93dae43f514e866d652 upstream.
+commit 285a76bb2cf51b0c74c634f2aaccdb93e1f2a359 upstream.
 
-add null-check on function pointer before dereference on ops->cursor
+The <asm/uaccess.h> header has a problem with put_user(a, ptr) if
+the 'a' is not a simple variable, such as a function. This can lead
+to the compiler producing code as so:
 
-Reported-by: syzbot+b67aaae8d3a927f68d20@syzkaller.appspotmail.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Link: https://lore.kernel.org/r/20210312081421.452405-1-ducheng2@gmail.com
+1:	enable_user_access()
+2:	evaluate 'a' into register 'r'
+3:	put 'r' to 'ptr'
+4:	disable_user_acess()
+
+The issue is that 'a' is now being evaluated with the user memory
+protections disabled. So we try and force the evaulation by assigning
+'x' to __val at the start, and hoping the compiler barriers in
+ enable_user_access() do the job of ordering step 2 before step 1.
+
+This has shown up in a bug where 'a' sleeps and thus schedules out
+and loses the SR_SUM flag. This isn't sufficient to fully fix, but
+should reduce the window of opportunity. The first instance of this
+we found is in scheudle_tail() where the code does:
+
+$ less -N kernel/sched/core.c
+
+4263  if (current->set_child_tid)
+4264         put_user(task_pid_vnr(current), current->set_child_tid);
+
+Here, the task_pid_vnr(current) is called within the block that has
+enabled the user memory access. This can be made worse with KASAN
+which makes task_pid_vnr() a rather large call with plenty of
+opportunity to sleep.
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Reported-by: syzbot+e74b94fe601ab9552d69@syzkaller.appspotmail.com
+Suggested-by: Arnd Bergman <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/video/fbdev/core/fbcon.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1341,6 +1341,9 @@ static void fbcon_cursor(struct vc_data
- 
- 	ops->cursor_flash = (mode == CM_ERASE) ? 0 : 1;
- 
-+	if (!ops->cursor)
-+		return;
-+
- 	ops->cursor(vc, info, mode, get_color(vc, info, c, 1),
- 		    get_color(vc, info, c, 0));
- }
+--
+Changes since v1:
+- fixed formatting and updated the patch description with more info
+
+Changes since v2:
+- fixed commenting on __put_user() (schwab@linux-m68k.org)
+
+Change since v3:
+- fixed RFC in patch title. Should be ready to merge.
+
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+---
+ arch/riscv/include/asm/uaccess.h |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+--- a/arch/riscv/include/asm/uaccess.h
++++ b/arch/riscv/include/asm/uaccess.h
+@@ -306,7 +306,9 @@ do {								\
+  * data types like structures or arrays.
+  *
+  * @ptr must have pointer-to-simple-variable type, and @x must be assignable
+- * to the result of dereferencing @ptr.
++ * to the result of dereferencing @ptr. The value of @x is copied to avoid
++ * re-ordering where @x is evaluated inside the block that enables user-space
++ * access (thus bypassing user space protection if @x is a function).
+  *
+  * Caller must check the pointer with access_ok() before calling this
+  * function.
+@@ -316,12 +318,13 @@ do {								\
+ #define __put_user(x, ptr)					\
+ ({								\
+ 	__typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
++	__typeof__(*__gu_ptr) __val = (x);			\
+ 	long __pu_err = 0;					\
+ 								\
+ 	__chk_user_ptr(__gu_ptr);				\
+ 								\
+ 	__enable_user_access();					\
+-	__put_user_nocheck(x, __gu_ptr, __pu_err);		\
++	__put_user_nocheck(__val, __gu_ptr, __pu_err);		\
+ 	__disable_user_access();				\
+ 								\
+ 	__pu_err;						\
 
 
