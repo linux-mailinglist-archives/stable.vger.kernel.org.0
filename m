@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0F3354022
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7EB353E45
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240671AbhDEJQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35988 "EHLO mail.kernel.org"
+        id S237726AbhDEJFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240625AbhDEJPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A46A60FE4;
-        Mon,  5 Apr 2021 09:15:42 +0000 (UTC)
+        id S238119AbhDEJE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:04:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D431F6138D;
+        Mon,  5 Apr 2021 09:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614143;
-        bh=YjaNCdwBRVsObd96FbrMkd1ju3QxDkKzfnL3gAaDQ6c=;
+        s=korg; t=1617613459;
+        bh=ywmWI70xJ5ohq05THjb0e1GZcrlA6Y5cTtRiIFB8xE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q8JBv2bcoBvp/gtcX/X100NucQ+nTRsFkMjEz/wNESvG+umA/+TZ3l73+JAnYPXsj
-         8SgWGFhgeBBtI5E5pqleoQbAL8EgIk4yAZPXdWVu7SV+LGokExcLNtInn2UNW+MiIR
-         LIzjkwGoQVZBtndykaCn9nbqfK1HsaS+fHKoh8I8=
+        b=EQoprQrpCp91psMxxnlDTutKVe0WseinDY6+4vlWxfUKB6ob4MO2ZxVht7pSmdBj5
+         4CylVkZ5S7BUy1ewmI2qlUCEDtgvTYCSltVT0lvfB8kp7cQrzITbbt+WfFIqBzjPL4
+         XTkKnjeczcrbdqD/p5u2Pchymg/IweyBBAgi56IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.11 098/152] vfio/nvlink: Add missing SPAPR_TCE_IOMMU depends
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 43/74] ALSA: hda: Add missing sanity checks in PM prepare/complete callbacks
 Date:   Mon,  5 Apr 2021 10:54:07 +0200
-Message-Id: <20210405085037.426135578@linuxfoundation.org>
+Message-Id: <20210405085026.130706267@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +38,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit e0146a108ce4d2c22b9510fd12268e3ee72a0161 upstream.
+commit 66affb7bb0dc0905155a1b2475261aa704d1ddb5 upstream.
 
-Compiling the nvlink stuff relies on the SPAPR_TCE_IOMMU otherwise there
-are compile errors:
+The recently added PM prepare and complete callbacks don't have the
+sanity check whether the card instance has been properly initialized,
+which may potentially lead to Oops.
 
- drivers/vfio/pci/vfio_pci_nvlink2.c:101:10: error: implicit declaration of function 'mm_iommu_put' [-Werror,-Wimplicit-function-declaration]
-                            ret = mm_iommu_put(data->mm, data->mem);
+This patch adds the azx_is_pm_ready() call in each place
+appropriately like other PM callbacks.
 
-As PPC only defines these functions when the config is set.
-
-Previously this wasn't a problem by chance as SPAPR_TCE_IOMMU was the only
-IOMMU that could have satisfied IOMMU_API on POWERNV.
-
-Fixes: 179209fa1270 ("vfio: IOMMU_API should be selected")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Message-Id: <0-v1-83dba9768fc3+419-vfio_nvlink2_kconfig_jgg@nvidia.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: f5dac54d9d93 ("ALSA: hda: Separate runtime and system suspend")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210329113059.25035-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vfio/pci/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -42,7 +42,7 @@ config VFIO_PCI_IGD
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1022,6 +1022,9 @@ static int azx_prepare(struct device *de
+ 	struct snd_card *card = dev_get_drvdata(dev);
+ 	struct azx *chip;
  
- config VFIO_PCI_NVLINK2
- 	def_bool y
--	depends on VFIO_PCI && PPC_POWERNV
-+	depends on VFIO_PCI && PPC_POWERNV && SPAPR_TCE_IOMMU
- 	help
- 	  VFIO PCI support for P9 Witherspoon machine with NVIDIA V100 GPUs
++	if (!azx_is_pm_ready(card))
++		return 0;
++
+ 	chip = card->private_data;
+ 	chip->pm_prepared = 1;
+ 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+@@ -1039,6 +1042,9 @@ static void azx_complete(struct device *
+ 	struct snd_card *card = dev_get_drvdata(dev);
+ 	struct azx *chip;
  
++	if (!azx_is_pm_ready(card))
++		return;
++
+ 	chip = card->private_data;
+ 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
+ 	chip->pm_prepared = 0;
 
 
