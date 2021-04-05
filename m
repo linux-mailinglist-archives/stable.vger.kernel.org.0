@@ -2,129 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BA95354385
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 17:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF1B35440B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238086AbhDEPma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 11:42:30 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:49714 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237254AbhDEPma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 11:42:30 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 1B2181C0B7D; Mon,  5 Apr 2021 17:42:22 +0200 (CEST)
-Date:   Mon, 5 Apr 2021 17:42:21 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH 5.10 079/126] drm/tegra: sor: Grab runtime PM reference
- across reset
-Message-ID: <20210405154221.GB305@amd>
-References: <20210405085031.040238881@linuxfoundation.org>
- <20210405085033.686284735@linuxfoundation.org>
+        id S242025AbhDEQEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:04:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241916AbhDEQEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:04:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4275D613B8;
+        Mon,  5 Apr 2021 16:04:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1617638647;
+        bh=bqcHL98/5DIfVZ4OpfrnQ/Lr5T/8yN1YD9VjwhQTA2g=;
+        h=From:To:Cc:Subject:Date:From;
+        b=By8QQuI0ybx3rNKeDgWczVAOrK21KLR+KCOa/Fu9MHmwKeb7jx63hLUg/E/Ab61ks
+         LJZkz/Btb+gq4FK/PEb0HcmQIAw4HA+CWttS3H1sO2YriGAc87iMSqBdZWL7DZr+Dh
+         jry62JrWW6fe+X/0gfmyebtUCCzbmtE4saqGzCbFwzUPu5CZfs5HOyY9vdS1bx/UT5
+         AqJRQ2sG5Hd8OTs6hI/4fv21byBHFRw5SAq4R1zIvvZqel0/GSuAdlcnfAZrWDzADC
+         3hlqAmlHUt+eKuiqSVjOAqvNytb/25C+gIAbyGgljNP8Q1DUOvXhQsSXrC1hJz5Mij
+         N7QQKbl+HzwpQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        Georgi Djakov <georgi.djakov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 01/22] interconnect: core: fix error return code of icc_link_destroy()
+Date:   Mon,  5 Apr 2021 12:03:44 -0400
+Message-Id: <20210405160406.268132-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
-Content-Disposition: inline
-In-Reply-To: <20210405085033.686284735@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
---TRYliJ5NKNqkz5bu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[ Upstream commit 715ea61532e731c62392221238906704e63d75b6 ]
 
-Hi!
+When krealloc() fails and new is NULL, no error return code of
+icc_link_destroy() is assigned.
+To fix this bug, ret is assigned with -ENOMEM hen new is NULL.
 
-> However, these functions alone don't provide any guarantees at the
-> system level. Drivers need to ensure that the only a single consumer has
-> access to the reset at the same time. In order for the SOR to be able to
-> exclusively access its reset, it must therefore ensure that the SOR
-> power domain is not powered off by holding on to a runtime PM reference
-> to that power domain across the reset assert/deassert operation.
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Link: https://lore.kernel.org/r/20210306132857.17020-1-baijiaju1990@gmail.com
+Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/interconnect/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Yeah, but it should not leak the PM reference in the error handling.
+diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
+index 5ad519c9f239..8a1e70e00876 100644
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -942,6 +942,8 @@ int icc_link_destroy(struct icc_node *src, struct icc_node *dst)
+ 		       GFP_KERNEL);
+ 	if (new)
+ 		src->links = new;
++	else
++		ret = -ENOMEM;
+ 
+ out:
+ 	mutex_unlock(&icc_lock);
+-- 
+2.30.2
 
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-
-Best regards,
-								Pavel
-
-diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index 7b88261f57bb..b3b727b2a3c5 100644
---- a/drivers/gpu/drm/tegra/sor.c
-+++ b/drivers/gpu/drm/tegra/sor.c
-@@ -3125,21 +3125,21 @@ static int tegra_sor_init(struct host1x_client *cli=
-ent)
- 		if (err < 0) {
- 			dev_err(sor->dev, "failed to acquire SOR reset: %d\n",
- 				err);
--			return err;
-+			goto maybe_put;
- 		}
-=20
- 		err =3D reset_control_assert(sor->rst);
- 		if (err < 0) {
- 			dev_err(sor->dev, "failed to assert SOR reset: %d\n",
- 				err);
--			return err;
-+			goto maybe_put;
- 		}
- 	}
-=20
- 	err =3D clk_prepare_enable(sor->clk);
- 	if (err < 0) {
- 		dev_err(sor->dev, "failed to enable clock: %d\n", err);
--		return err;
-+		goto maybe_put;
- 	}
-=20
- 	usleep_range(1000, 3000);
-@@ -3150,7 +3150,7 @@ static int tegra_sor_init(struct host1x_client *clien=
-t)
- 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
- 				err);
- 			clk_disable_unprepare(sor->clk);
--			return err;
-+			goto maybe_put;
- 		}
-=20
- 		reset_control_release(sor->rst);
-@@ -3171,6 +3171,11 @@ static int tegra_sor_init(struct host1x_client *clie=
-nt)
- 	}
-=20
- 	return 0;
-+
-+ maybe_put:
-+	if (sor->rst)
-+		pm_runtime_put(sor->dev);
-+	return err;
- }
-=20
- static int tegra_sor_exit(struct host1x_client *client)
-
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---TRYliJ5NKNqkz5bu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmBrL90ACgkQMOfwapXb+vIE+wCdHHkpngng4wHW2vwssmWAFT9r
-MlIAn15qzXAkKpR3X1Y2UnYe03EuuWqT
-=9iYm
------END PGP SIGNATURE-----
-
---TRYliJ5NKNqkz5bu--
