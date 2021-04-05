@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF74353EB3
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 552F6353F76
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238172AbhDEJHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:07:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51940 "EHLO mail.kernel.org"
+        id S239112AbhDEJMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238313AbhDEJHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:07:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0B4A613A3;
-        Mon,  5 Apr 2021 09:07:13 +0000 (UTC)
+        id S239132AbhDEJML (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:12:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CAF461398;
+        Mon,  5 Apr 2021 09:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613634;
-        bh=Y93aup53NrPIhSUs1EPNQUU2Qq3Y3yX9hWLnNgtR5H0=;
+        s=korg; t=1617613925;
+        bh=5YJl6L9oXrrCDxxPTrxzhW1TMVxXP40JoRhfG+XLU+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ypJ92I0hIE3zdHhJbaJG03hCbacxveSeBEgACvAJtTYe8zr9opAODW4CRaowDWB6D
-         HJ8QBJ/DchaE9V6Eye3fOe6V5KyFaLDl1dBPV8106gfIDtXgL9eNCTmUfIB3f532nb
-         bkAjrsP1QPwgcXvY1W4RiWFfebuMtjfaPWYmaUro=
+        b=SoEmcZy2EPII93Z4JqxQ8twOcbi0o5rEfuQdeYsOqm7Trrab5jk8SAYyPchpzo8FV
+         PsEA7RMBPAYu8vYAA11d0TDJLXJ7MpmgsfkrPU3LD9DJlPgmWXtsbR0A9Pr8488fHw
+         JqS7VEuAuT6pm/9WY0a+eoCSeDkBTaRkCc8PMn8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhaolong Zhang <zhangzl2013@126.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 005/126] ext4: fix bh ref count on error paths
+        stable@vger.kernel.org, Bruce Fields <bfields@redhat.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 018/152] NFSD: fix error handling in NFSv4.0 callbacks
 Date:   Mon,  5 Apr 2021 10:52:47 +0200
-Message-Id: <20210405085031.219488436@linuxfoundation.org>
+Message-Id: <20210405085034.832749513@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhaolong Zhang <zhangzl2013@126.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit c915fb80eaa6194fa9bd0a4487705cd5b0dda2f1 ]
+[ Upstream commit b4250dd868d1b42c0a65de11ef3afbee67ba5d2f ]
 
-__ext4_journalled_writepage should drop bhs' ref count on error paths
+When the server tries to do a callback and a client fails it due to
+authentication problems, we need the server to set callback down
+flag in RENEW so that client can recover.
 
-Signed-off-by: Zhaolong Zhang <zhangzl2013@126.com>
-Link: https://lore.kernel.org/r/1614678151-70481-1-git-send-email-zhangzl2013@126.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Suggested-by: Bruce Fields <bfields@redhat.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Tested-by: Benjamin Coddington <bcodding@redhat.com>
+Link: https://lore.kernel.org/linux-nfs/FB84E90A-1A03-48B3-8BF7-D9D10AC2C9FE@oracle.com/T/#t
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/nfsd/nfs4callback.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index c2b8ba343bb4..3f11c948feb0 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1937,13 +1937,13 @@ static int __ext4_journalled_writepage(struct page *page,
- 	if (!ret)
- 		ret = err;
- 
--	if (!ext4_has_inline_data(inode))
--		ext4_walk_page_buffers(NULL, page_bufs, 0, len,
--				       NULL, bput_one);
- 	ext4_set_inode_state(inode, EXT4_STATE_JDATA);
- out:
- 	unlock_page(page);
- out_no_pagelock:
-+	if (!inline_data && page_bufs)
-+		ext4_walk_page_buffers(NULL, page_bufs, 0, len,
-+				       NULL, bput_one);
- 	brelse(inode_bh);
- 	return ret;
- }
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 052be5bf9ef5..7325592b456e 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -1189,6 +1189,7 @@ static void nfsd4_cb_done(struct rpc_task *task, void *calldata)
+ 		switch (task->tk_status) {
+ 		case -EIO:
+ 		case -ETIMEDOUT:
++		case -EACCES:
+ 			nfsd4_mark_cb_down(clp, task->tk_status);
+ 		}
+ 		break;
 -- 
 2.30.1
 
