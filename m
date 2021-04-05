@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7464353D26
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CDDD353C95
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233511AbhDEI6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:58:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38952 "EHLO mail.kernel.org"
+        id S232632AbhDEIzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:55:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233768AbhDEI6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:58:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86A58610E8;
-        Mon,  5 Apr 2021 08:58:29 +0000 (UTC)
+        id S232650AbhDEIzf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:55:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2B3461394;
+        Mon,  5 Apr 2021 08:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613110;
-        bh=P8OIFN9oUsvXQWhnQgc7VwsAYpD37SayKjmKz7ggFSE=;
+        s=korg; t=1617612930;
+        bh=MlyTaj7W++fNCFdKYwJ6dFVEUcqxdZy5BLzsyLSTJfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wc6+T7KvSCes+TlrO3nOuSN8lYqipcMAZ1zqOeQblmv3j2EAuZWDgyWDO3cJ1Uksx
-         EioaGolK6psw8d9+MRRp62RzP685+CeQi/0QALRMvovapDyIGK5ls2Br9ZdsAuem/c
-         P+EouoVw6bD1DZ1yty6G4nrBZxeSY8e8Hq1fJ5oo=
+        b=hJj0BPj3YE6QYW8puqGrfS2uFjF8Nte3/9ZaEW2zBtDkjf36PJ+Rg9C7nx43OMlcx
+         OQvBezdu/r5Y/EDh/YfyFvqCkFcar66Vxn0d95aNUh8ah6T5rcZ5XFq8s4RY5bojbL
+         IxxyaUBQ1McxodIzTaTd+eKKtXFTNzC8aJ3muqWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/52] net: wan/lmc: unregister device when no matching device is found
+Subject: [PATCH 4.4 14/28] net: wan/lmc: unregister device when no matching device is found
 Date:   Mon,  5 Apr 2021 10:53:48 +0200
-Message-Id: <20210405085022.718919824@linuxfoundation.org>
+Message-Id: <20210405085017.471054915@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
+References: <20210405085017.012074144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -116,10 +116,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/net/wan/lmc/lmc_main.c b/drivers/net/wan/lmc/lmc_main.c
-index bb43d176eb4e..41b5c6b236d2 100644
+index c178e1218347..88cf948ce8d4 100644
 --- a/drivers/net/wan/lmc/lmc_main.c
 +++ b/drivers/net/wan/lmc/lmc_main.c
-@@ -922,6 +922,8 @@ static int lmc_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+@@ -926,6 +926,8 @@ static int lmc_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
          break;
      default:
  	printk(KERN_WARNING "%s: LMC UNKNOWN CARD!\n", dev->name);
