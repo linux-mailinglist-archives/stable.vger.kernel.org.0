@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B1D1353DD3
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C67E353DD6
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237467AbhDEJCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44468 "EHLO mail.kernel.org"
+        id S237486AbhDEJCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237174AbhDEJCW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6927E613A0;
-        Mon,  5 Apr 2021 09:02:15 +0000 (UTC)
+        id S237441AbhDEJCY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48DED6138A;
+        Mon,  5 Apr 2021 09:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613336;
-        bh=0ebjN4qmRkCnER2i7q8+mmD/rP379wDy7xvCeeFgChc=;
+        s=korg; t=1617613338;
+        bh=wX/fpNQiUvj6q9tk+n+PbQKIH9s4Vpeagy7RLrNXehU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsUyRDWand9jDiWnDkgCxZrqS+b7/nmW+8gzOAPqKcYHBqD8C055KroPpE3wPDasf
-         VHQHwjQY56nz9cuoxLtdWvs5xxULxkD6MTq8TnaskBXzFGc+ewgz762ySKlji4KtKe
-         AO5hVQCmgIj8SpsVJZDX+/dsxgBfW/3OyZYeEL34=
+        b=oatDMwX2m1M7nqodwqLj/N7g2Zum51zshXNc0MbQpKkAfSXv/s3/NPsasJI1PXWZx
+         r2h0bVHwTFg+wW5fdBtopUwvSR0XavUvQXFzZvXATl/5OUrIdwGuBHkzvpx700X8XK
+         dspzIeFuC9/pSewpQuO1mTl14rfWfFwAic6rIxJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
-Subject: [PATCH 4.19 54/56] staging: rtl8192e: Fix incorrect source in memcpy()
-Date:   Mon,  5 Apr 2021 10:54:25 +0200
-Message-Id: <20210405085024.252311750@linuxfoundation.org>
+Subject: [PATCH 4.19 55/56] staging: rtl8192e: Change state information from u16 to u8
+Date:   Mon,  5 Apr 2021 10:54:26 +0200
+Message-Id: <20210405085024.281363850@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
 References: <20210405085022.562176619@linuxfoundation.org>
@@ -40,65 +40,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit 72ad25fbbb78930f892b191637359ab5b94b3190 upstream.
+commit e78836ae76d20f38eed8c8c67f21db97529949da upstream.
 
-The variable "info_element" is of the following type:
+The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
+bytes in total while the operations performed on this array through-out
+the code base are only 2 bytes.
 
-	struct rtllib_info_element *info_element
+The "CcxRmState" field is fed only 2 bytes of data using memcpy():
 
-defined in drivers/staging/rtl8192e/rtllib.h:
+(In rtllib_rx.c:1972)
+	memcpy(network->CcxRmState, &info_element->data[4], 2)
 
-	struct rtllib_info_element {
-		u8 id;
-		u8 len;
-		u8 data[];
-	} __packed;
+With "info_element->data[]" being a u8 array, if 2 bytes are written
+into "CcxRmState" (whose one element is u16 size), then the 2 u8
+elements from "data[]" gets squashed and written into the first element
+("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
+fed with any data.
 
-The "len" field defines the size of the "data[]" array. The code is
-supposed to check if "info_element->len" is greater than 4 and later
-equal to 6. If this is satisfied then, the last two bytes (the 4th and
-5th element of u8 "data[]" array) are copied into "network->CcxRmState".
+Same in file rtllib_rx.c:2522:
+	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
 
-Right now the code uses "memcpy()" with the source as "&info_element[4]"
-which would copy in wrong and unintended information. The struct
-"rtllib_info_element" has a size of 2 bytes for "id" and "len",
-therefore indexing will be done in interval of 2 bytes. So,
-"info_element[4]" would point to data which is beyond the memory
-allocated for this pointer (that is, at x+8, while "info_element" has
-been allocated only from x to x+7 (2 + 6 => 8 bytes)).
+The above line duplicates "src" data to "dst" but only writes 2 bytes
+(and not 4, which is the actual size). Again, only 1st element gets the
+value while the 2nd element remains uninitialized.
 
-This patch rectifies this error by using "&info_element->data[4]" which
-correctly copies the last two bytes of "data[]".
+This later makes operations done with CcxRmState unpredictable in the
+following lines as the 1st element is having a squashed number while the
+2nd element is having an uninitialized random number.
 
-NOTE: The faulty line of code came from the following commit:
+rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
+rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
+
+network->MBssidMask is also of type u8 and not u16.
+
+Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
+data written into this array and read from it make sense and are not
+random values.
+
+NOTE: The wrong initialization of "CcxRmState" can be seen in the
+following commit:
 
 commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
 
-The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
-which had the faulty line of code. This file has been deleted (or
-possibly renamed) with the contents copied in to a new file
-`rtl8192e/rtllib_rx.c` along with additional code in the commit
-94a799425eee (tagged in Fixes).
+The above commit created a file `rtl8192e/ieee80211.h` which used to
+have the faulty line. The file has been deleted (or possibly renamed)
+with the contents copied in to a new file `rtl8192e/rtllib.h` along with
+additional code in the commit 94a799425eee (tagged in Fixes).
 
 Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
 Cc: stable@vger.kernel.org
 Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210323113413.29179-1-atulgopinathan@gmail.com
+Link: https://lore.kernel.org/r/20210323113413.29179-2-atulgopinathan@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c |    2 +-
+ drivers/staging/rtl8192e/rtllib.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1978,7 +1978,7 @@ static void rtllib_parse_mife_generic(st
- 	    info_element->data[2] == 0x96 &&
- 	    info_element->data[3] == 0x01) {
- 		if (info_element->len == 6) {
--			memcpy(network->CcxRmState, &info_element[4], 2);
-+			memcpy(network->CcxRmState, &info_element->data[4], 2);
- 			if (network->CcxRmState[0] != 0)
- 				network->bCcxRmEnable = true;
- 			else
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -1110,7 +1110,7 @@ struct rtllib_network {
+ 	bool	bWithAironetIE;
+ 	bool	bCkipSupported;
+ 	bool	bCcxRmEnable;
+-	u16	CcxRmState[2];
++	u8	CcxRmState[2];
+ 	bool	bMBssidValid;
+ 	u8	MBssidMask;
+ 	u8	MBssid[ETH_ALEN];
 
 
