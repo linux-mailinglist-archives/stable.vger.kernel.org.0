@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A667E353ED0
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879F8353FF9
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238140AbhDEJIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:08:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53502 "EHLO mail.kernel.org"
+        id S239137AbhDEJPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238528AbhDEJIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:08:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C52FE61398;
-        Mon,  5 Apr 2021 09:07:53 +0000 (UTC)
+        id S239790AbhDEJOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:14:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CFD3611C1;
+        Mon,  5 Apr 2021 09:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613674;
-        bh=n4KazJf4TpJvLsPlFKEsRrEybWv3CSa+V22IoslR6hA=;
+        s=korg; t=1617614050;
+        bh=f5X60IfhNuIilOQ7s+6siO+BL2LEjV2i80PBB29Ydz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLgFOgfJPncKJSJnGj5MkxRs0CIUmyZBNYNDkilo8E9WKgMFXpsrK606bb6v2F/in
-         WuqIVbRIdh/uRR6m1kWJy4yeJNEqWEJD++bO0FKcXt03zbyACKULi/o3lwXa99rGos
-         OHkiwNGRZ56UdRmduPkmDhutmVgoeRK6KqjN58Bo=
+        b=hiPDc3ZJlGuUT+XfxvxsYC2ixpobbzN/TVRadfAm27yCqBB7L6d1BWlzC+oindGQ5
+         dFVTCfO6ZxtvgWf3XkzmmpdtZ9I5Uc34TqSqGe8YlSafKGDpWQWqQ8hpyMUr7IxJtY
+         de9OOw5+4Iii+Y/PBmXd/SxGShqBNj07BGCJjbKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/126] net: ipa: fix register write command validation
+Subject: [PATCH 5.11 064/152] net: ipa: fix register write command validation
 Date:   Mon,  5 Apr 2021 10:53:33 +0200
-Message-Id: <20210405085032.724159388@linuxfoundation.org>
+Message-Id: <20210405085036.354000736@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,7 +74,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 24 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/net/ipa/ipa_cmd.c b/drivers/net/ipa/ipa_cmd.c
-index d92dd3f09b73..46d8b7336d8f 100644
+index 002e51448510..eb65a11e33ea 100644
 --- a/drivers/net/ipa/ipa_cmd.c
 +++ b/drivers/net/ipa/ipa_cmd.c
 @@ -1,7 +1,7 @@
