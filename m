@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A869B353E6A
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5930F353F5D
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237480AbhDEJFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49852 "EHLO mail.kernel.org"
+        id S238706AbhDEJLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:11:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58691 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238078AbhDEJFl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95776613A5;
-        Mon,  5 Apr 2021 09:05:34 +0000 (UTC)
+        id S238945AbhDEJLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:11:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB7B861399;
+        Mon,  5 Apr 2021 09:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613535;
-        bh=6jV/f9eFRf6AafyyWRwu6QXjI+04Oryi/+TjtsHveLU=;
+        s=korg; t=1617613885;
+        bh=olnoqY4RSvvcll1Lt7jxoHHmhvFq5T45mZKtg4kwdwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBfTuQIZeyTfDNN/9L+5RUhvVE62eK9NsUCflgP46vd4C6roz3ibFsY4fNOl3VQMF
-         gLaEd/0e6qQiEInBqmNhUY3/HrQNL3DctOIs89mQM5z1Dq+mxlv9Pvr7QW7tJDMNlx
-         96hrgINUUmy71Si58+pHp8Bfr4EyIAJs9410haNA=
+        b=h3BbhQagSAGAx0hby9J3WofVszolMZYO+H6OL3o950xYygodRnfTrlk4zDBR47/ba
+         pT69eMg3Y+Vws/ULU08FBRS3uadaiZjTqztji5SVbCHTLa+eELVyXAKoznb+sRM2aT
+         OfjtACaqoXZBB/f7gB7zvBHRVCDiCW4w3wnD72VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
-Subject: [PATCH 5.4 73/74] staging: rtl8192e: Change state information from u16 to u8
+        stable@vger.kernel.org,
+        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH 5.10 115/126] usb: dwc2: Fix HPRT0.PrtSusp bit setting for HiKey 960 board.
 Date:   Mon,  5 Apr 2021 10:54:37 +0200
-Message-Id: <20210405085027.124276814@linuxfoundation.org>
+Message-Id: <20210405085034.845290850@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,74 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
 
-commit e78836ae76d20f38eed8c8c67f21db97529949da upstream.
+commit 5e3bbae8ee3d677a0aa2919dc62b5c60ea01ba61 upstream.
 
-The "u16 CcxRmState[2];" array field in struct "rtllib_network" has 4
-bytes in total while the operations performed on this array through-out
-the code base are only 2 bytes.
+Increased the waiting timeout for HPRT0.PrtSusp register field
+to be set, because on HiKey 960 board HPRT0.PrtSusp wasn't
+generated with the existing timeout.
 
-The "CcxRmState" field is fed only 2 bytes of data using memcpy():
-
-(In rtllib_rx.c:1972)
-	memcpy(network->CcxRmState, &info_element->data[4], 2)
-
-With "info_element->data[]" being a u8 array, if 2 bytes are written
-into "CcxRmState" (whose one element is u16 size), then the 2 u8
-elements from "data[]" gets squashed and written into the first element
-("CcxRmState[0]") while the second element ("CcxRmState[1]") is never
-fed with any data.
-
-Same in file rtllib_rx.c:2522:
-	 memcpy(dst->CcxRmState, src->CcxRmState, 2);
-
-The above line duplicates "src" data to "dst" but only writes 2 bytes
-(and not 4, which is the actual size). Again, only 1st element gets the
-value while the 2nd element remains uninitialized.
-
-This later makes operations done with CcxRmState unpredictable in the
-following lines as the 1st element is having a squashed number while the
-2nd element is having an uninitialized random number.
-
-rtllib_rx.c:1973:    if (network->CcxRmState[0] != 0)
-rtllib_rx.c:1977:    network->MBssidMask = network->CcxRmState[1] & 0x07;
-
-network->MBssidMask is also of type u8 and not u16.
-
-Fix this by changing the type of "CcxRmState" from u16 to u8 so that the
-data written into this array and read from it make sense and are not
-random values.
-
-NOTE: The wrong initialization of "CcxRmState" can be seen in the
-following commit:
-
-commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
-
-The above commit created a file `rtl8192e/ieee80211.h` which used to
-have the faulty line. The file has been deleted (or possibly renamed)
-with the contents copied in to a new file `rtl8192e/rtllib.h` along with
-additional code in the commit 94a799425eee (tagged in Fixes).
-
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210323113413.29179-2-atulgopinathan@gmail.com
+Cc: <stable@vger.kernel.org> # 4.18
+Fixes: 22bb5cfdf13a ("usb: dwc2: Fix host exit from hibernation flow.")
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210326102447.8F7FEA005D@mailhost.synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtllib.h |    2 +-
+ drivers/usb/dwc2/hcd.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8192e/rtllib.h
-+++ b/drivers/staging/rtl8192e/rtllib.h
-@@ -1105,7 +1105,7 @@ struct rtllib_network {
- 	bool	bWithAironetIE;
- 	bool	bCkipSupported;
- 	bool	bCcxRmEnable;
--	u16	CcxRmState[2];
-+	u8	CcxRmState[2];
- 	bool	bMBssidValid;
- 	u8	MBssidMask;
- 	u8	MBssid[ETH_ALEN];
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -5398,7 +5398,7 @@ int dwc2_host_enter_hibernation(struct d
+ 	dwc2_writel(hsotg, hprt0, HPRT0);
+ 
+ 	/* Wait for the HPRT0.PrtSusp register field to be set */
+-	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 3000))
++	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 5000))
+ 		dev_warn(hsotg->dev, "Suspend wasn't generated\n");
+ 
+ 	/*
 
 
