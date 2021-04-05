@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF1B35440B
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0823354410
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242025AbhDEQEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:04:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
+        id S241916AbhDEQE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:04:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241916AbhDEQEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:04:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4275D613B8;
-        Mon,  5 Apr 2021 16:04:07 +0000 (UTC)
+        id S241925AbhDEQEP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:04:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 445D8613BE;
+        Mon,  5 Apr 2021 16:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638647;
-        bh=bqcHL98/5DIfVZ4OpfrnQ/Lr5T/8yN1YD9VjwhQTA2g=;
-        h=From:To:Cc:Subject:Date:From;
-        b=By8QQuI0ybx3rNKeDgWczVAOrK21KLR+KCOa/Fu9MHmwKeb7jx63hLUg/E/Ab61ks
-         LJZkz/Btb+gq4FK/PEb0HcmQIAw4HA+CWttS3H1sO2YriGAc87iMSqBdZWL7DZr+Dh
-         jry62JrWW6fe+X/0gfmyebtUCCzbmtE4saqGzCbFwzUPu5CZfs5HOyY9vdS1bx/UT5
-         AqJRQ2sG5Hd8OTs6hI/4fv21byBHFRw5SAq4R1zIvvZqel0/GSuAdlcnfAZrWDzADC
-         3hlqAmlHUt+eKuiqSVjOAqvNytb/25C+gIAbyGgljNP8Q1DUOvXhQsSXrC1hJz5Mij
-         N7QQKbl+HzwpQ==
+        s=k20201202; t=1617638648;
+        bh=IEtWHw7bJb9vjJoLGg1W3RkS+VuGnWdJ2aCrDqR6WrE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ioDnRpnC+Tf7udmSLCAE/c/TWECbA/PyjMTUlD/cvXvz/Mx6+T45OdRUWhMmaW1Dr
+         5aq666KFQ55DumqEZPVzx3Y1OXGSXqy0Pp6/Q6jhy7EGAOwpYTnYeGD/Wzu4dgMXqD
+         alRYnnxlTZisSXVhj4LkEvLuwSMfKGywFkVV6XG8o/NqA5wWNTpK4hcTPYB6kYNZSi
+         15Z7vgs/SzE7teYXTZA9zg7TfYcprhwHnIj2j4fYtcR19GjrAN6i25hOVyUeRr3Jab
+         ad2vmddMDgB9onx6T9zpfCd8JIrvlOOOPbwKtHWPGiQW1wFpp7zPqR7XV189y5CWkv
+         RqOpq2w4PNtEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Georgi Djakov <georgi.djakov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 01/22] interconnect: core: fix error return code of icc_link_destroy()
-Date:   Mon,  5 Apr 2021 12:03:44 -0400
-Message-Id: <20210405160406.268132-1-sashal@kernel.org>
+Cc:     Andrew Price <anprice@redhat.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.11 02/22] gfs2: Flag a withdraw if init_threads() fails
+Date:   Mon,  5 Apr 2021 12:03:45 -0400
+Message-Id: <20210405160406.268132-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210405160406.268132-1-sashal@kernel.org>
+References: <20210405160406.268132-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,36 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Andrew Price <anprice@redhat.com>
 
-[ Upstream commit 715ea61532e731c62392221238906704e63d75b6 ]
+[ Upstream commit 62dd0f98a0e5668424270b47a0c2e973795faba7 ]
 
-When krealloc() fails and new is NULL, no error return code of
-icc_link_destroy() is assigned.
-To fix this bug, ret is assigned with -ENOMEM hen new is NULL.
+Interrupting mount with ^C quickly enough can cause the kthread_run()
+calls in gfs2's init_threads() to fail and the error path leads to a
+deadlock on the s_umount rwsem. The abridged chain of events is:
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20210306132857.17020-1-baijiaju1990@gmail.com
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+  [mount path]
+  get_tree_bdev()
+    sget_fc()
+      alloc_super()
+        down_write_nested(&s->s_umount, SINGLE_DEPTH_NESTING); [acquired]
+    gfs2_fill_super()
+      gfs2_make_fs_rw()
+        init_threads()
+          kthread_run()
+            ( Interrupted )
+      [Error path]
+      gfs2_gl_hash_clear()
+        flush_workqueue(glock_workqueue)
+          wait_for_completion()
+
+  [workqueue context]
+  glock_work_func()
+    run_queue()
+      do_xmote()
+        freeze_go_sync()
+          freeze_super()
+            down_write(&sb->s_umount) [deadlock]
+
+In freeze_go_sync() there is a gfs2_withdrawn() check that we can use to
+make sure freeze_super() is not called in the error path, so add a
+gfs2_withdraw_delayed() call when init_threads() fails.
+
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=212231
+
+Reported-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/gfs2/super.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
-index 5ad519c9f239..8a1e70e00876 100644
---- a/drivers/interconnect/core.c
-+++ b/drivers/interconnect/core.c
-@@ -942,6 +942,8 @@ int icc_link_destroy(struct icc_node *src, struct icc_node *dst)
- 		       GFP_KERNEL);
- 	if (new)
- 		src->links = new;
-+	else
-+		ret = -ENOMEM;
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 754ea2a137b4..34ca312457a6 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -169,8 +169,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	int error;
  
- out:
- 	mutex_unlock(&icc_lock);
+ 	error = init_threads(sdp);
+-	if (error)
++	if (error) {
++		gfs2_withdraw_delayed(sdp);
+ 		return error;
++	}
+ 
+ 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+ 	if (gfs2_withdrawn(sdp)) {
 -- 
 2.30.2
 
