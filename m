@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A450353D45
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BF17353D06
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234113AbhDEI7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
+        id S233405AbhDEI56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:57:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236891AbhDEI7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:59:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E84006124C;
-        Mon,  5 Apr 2021 08:59:16 +0000 (UTC)
+        id S233412AbhDEI54 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:57:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 298BF61394;
+        Mon,  5 Apr 2021 08:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613157;
-        bh=Yx3v3+Luu+n6Ib+g+kDFy7A8Xaf5dJ3/wdBGWY4YD/E=;
+        s=korg; t=1617613070;
+        bh=DGygBtLJa/yKzYG591I1aoO7BnJv1M2SDAXPEDEBLdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HHQnV366cdYfR/7BjXMEcNREQHce9hScvPE2yOyiQEgg7gMTzRzuxZN/EiBszN3ju
-         YvSn/52SMA8BOWoGnwmMrZYrjLaAajltBWgWv96BvrSLiGXKAclg1T7OlHQ5VYCvCg
-         tZA3UdwOZSr83dnhRv2mPHfAZR3M2ULzFf0S5c5I=
+        b=0jeBWuNxDzZEAKT64te+ja47iq9N0qCQgx7xJJAVOduq6j9W7ZozihLucimTdVrJH
+         ohx/amWt5UEkwqkNxxhyac+gQImBt1KRKS/Vc3Edv4qSoRtUqlPmZpGNHssUoF6K75
+         lYsVjNTyNdJA9R954wYto7xB6RtjltJAdydnUX1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.14 41/52] usbip: vhci_hcd fix shift out-of-bounds in vhci_hub_control()
+        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
+Subject: [PATCH 4.9 32/35] staging: rtl8192e: Fix incorrect source in memcpy()
 Date:   Mon,  5 Apr 2021 10:54:07 +0200
-Message-Id: <20210405085023.317033272@linuxfoundation.org>
+Message-Id: <20210405085019.884517664@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+References: <20210405085018.871387942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +38,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit 1cc5ed25bdade86de2650a82b2730108a76de20c upstream.
+commit 72ad25fbbb78930f892b191637359ab5b94b3190 upstream.
 
-Fix shift out-of-bounds in vhci_hub_control() SetPortFeature handling.
+The variable "info_element" is of the following type:
 
-UBSAN: shift-out-of-bounds in drivers/usb/usbip/vhci_hcd.c:605:42
-shift exponent 768 is too large for 32-bit type 'int'
+	struct rtllib_info_element *info_element
 
-Reported-by: syzbot+3dea30b047f41084de66@syzkaller.appspotmail.com
+defined in drivers/staging/rtl8192e/rtllib.h:
+
+	struct rtllib_info_element {
+		u8 id;
+		u8 len;
+		u8 data[];
+	} __packed;
+
+The "len" field defines the size of the "data[]" array. The code is
+supposed to check if "info_element->len" is greater than 4 and later
+equal to 6. If this is satisfied then, the last two bytes (the 4th and
+5th element of u8 "data[]" array) are copied into "network->CcxRmState".
+
+Right now the code uses "memcpy()" with the source as "&info_element[4]"
+which would copy in wrong and unintended information. The struct
+"rtllib_info_element" has a size of 2 bytes for "id" and "len",
+therefore indexing will be done in interval of 2 bytes. So,
+"info_element[4]" would point to data which is beyond the memory
+allocated for this pointer (that is, at x+8, while "info_element" has
+been allocated only from x to x+7 (2 + 6 => 8 bytes)).
+
+This patch rectifies this error by using "&info_element->data[4]" which
+correctly copies the last two bytes of "data[]".
+
+NOTE: The faulty line of code came from the following commit:
+
+commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
+
+The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
+which had the faulty line of code. This file has been deleted (or
+possibly renamed) with the contents copied in to a new file
+`rtl8192e/rtllib_rx.c` along with additional code in the commit
+94a799425eee (tagged in Fixes).
+
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
 Cc: stable@vger.kernel.org
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20210324230654.34798-1-skhan@linuxfoundation.org
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210323113413.29179-1-atulgopinathan@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/vhci_hcd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/rtl8192e/rtllib_rx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -608,6 +608,8 @@ static int vhci_hub_control(struct usb_h
- 				pr_err("invalid port number %d\n", wIndex);
- 				goto error;
- 			}
-+			if (wValue >= 32)
-+				goto error;
- 			if (hcd->speed == HCD_USB3) {
- 				if ((vhci_hcd->port_status[rhport] &
- 				     USB_SS_PORT_STAT_POWER) != 0) {
+--- a/drivers/staging/rtl8192e/rtllib_rx.c
++++ b/drivers/staging/rtl8192e/rtllib_rx.c
+@@ -1986,7 +1986,7 @@ static void rtllib_parse_mife_generic(st
+ 	    info_element->data[2] == 0x96 &&
+ 	    info_element->data[3] == 0x01) {
+ 		if (info_element->len == 6) {
+-			memcpy(network->CcxRmState, &info_element[4], 2);
++			memcpy(network->CcxRmState, &info_element->data[4], 2);
+ 			if (network->CcxRmState[0] != 0)
+ 				network->bCcxRmEnable = true;
+ 			else
 
 
