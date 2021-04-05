@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CEAD353DE7
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2050335401C
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237548AbhDEJCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44978 "EHLO mail.kernel.org"
+        id S240647AbhDEJQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:16:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237382AbhDEJCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CFB3613A3;
-        Mon,  5 Apr 2021 09:02:34 +0000 (UTC)
+        id S239616AbhDEJPh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:15:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FC1C613A9;
+        Mon,  5 Apr 2021 09:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613355;
-        bh=u2jVFkZy+FaVDNHt0rk+Xc3Su9LLmVQxUWY1LqwQ4rg=;
+        s=korg; t=1617614130;
+        bh=uW6oDUm5OGgrAlcJAqE/N3uUNnNkdl5IGSMnsyGW+o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1AB7hv0F2Pc/EHdhdaMpzgsw56AwlX9vW6BcqFmEiaEwAoNK6e11w15J0+X4P/Nx
-         ICcpG8hBzbiNNbymvbWVjO11uNGcEnvj6lfWeT6s4SG8i0+YHBwTB1NXuU3fl3Fn1X
-         1nuy+bjHRE4NR1sRgmssJaH5B4I0LChZ41SSG0+E=
+        b=aA0UIUuCdUMhtM3da4eo+TgzKDdesikdU1SA3JfFD1XLAQwgg1UDUPQPMBLvyd82Z
+         5k5gaXfr3XhVvkzn83YyGeaAncjRJwhigN64V96OlxHj0zb0qPvhtUnnQ+ZJpIDyGe
+         v+j65YwmSzQl5ODKhpmvLabQd813UHk1qOIQD6Bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Asutosh Das <asutoshd@codeaurora.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 32/56] PM: runtime: Fix race getting/putting suppliers at probe
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        syzbot <syzbot+690cb1e51970435f9775@syzkaller.appspotmail.com>
+Subject: [PATCH 5.11 094/152] reiserfs: update reiserfs_xattrs_initialized() condition
 Date:   Mon,  5 Apr 2021 10:54:03 +0200
-Message-Id: <20210405085023.563497205@linuxfoundation.org>
+Message-Id: <20210405085037.303774073@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,93 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-commit 9dfacc54a8661bc8be6e08cffee59596ec59f263 upstream.
+commit 5e46d1b78a03d52306f21f77a4e4a144b6d31486 upstream.
 
-pm_runtime_put_suppliers() must not decrement rpm_active unless the
-consumer is suspended. That is because, otherwise, it could suspend
-suppliers for an active consumer.
+syzbot is reporting NULL pointer dereference at reiserfs_security_init()
+[1], for commit ab17c4f02156c4f7 ("reiserfs: fixup xattr_root caching")
+is assuming that REISERFS_SB(s)->xattr_root != NULL in
+reiserfs_xattr_jcreate_nblocks() despite that commit made
+REISERFS_SB(sb)->priv_root != NULL && REISERFS_SB(s)->xattr_root == NULL
+case possible.
 
-That can happen as follows:
+I guess that commit 6cb4aff0a77cc0e6 ("reiserfs: fix oops while creating
+privroot with selinux enabled") wanted to check xattr_root != NULL
+before reiserfs_xattr_jcreate_nblocks(), for the changelog is talking
+about the xattr root.
 
- static int driver_probe_device(struct device_driver *drv, struct device *dev)
- {
-	int ret = 0;
+  The issue is that while creating the privroot during mount
+  reiserfs_security_init calls reiserfs_xattr_jcreate_nblocks which
+  dereferences the xattr root. The xattr root doesn't exist, so we get
+  an oops.
 
-	if (!device_is_registered(dev))
-		return -ENODEV;
+Therefore, update reiserfs_xattrs_initialized() to check both the
+privroot and the xattr root.
 
-	dev->can_match = true;
-	pr_debug("bus: '%s': %s: matched device %s with driver %s\n",
-		 drv->bus->name, __func__, dev_name(dev), drv->name);
-
-	pm_runtime_get_suppliers(dev);
-	if (dev->parent)
-		pm_runtime_get_sync(dev->parent);
-
- At this point, dev can runtime suspend so rpm_put_suppliers() can run,
- rpm_active becomes 1 (the lowest value).
-
-	pm_runtime_barrier(dev);
-	if (initcall_debug)
-		ret = really_probe_debug(dev, drv);
-	else
-		ret = really_probe(dev, drv);
-
- Probe callback can have runtime resumed dev, and then runtime put
- so dev is awaiting autosuspend, but rpm_active is 2.
-
-	pm_request_idle(dev);
-
-	if (dev->parent)
-		pm_runtime_put(dev->parent);
-
-	pm_runtime_put_suppliers(dev);
-
- Now pm_runtime_put_suppliers() will put the supplier
- i.e. rpm_active 2 -> 1, but consumer can still be active.
-
-	return ret;
- }
-
-Fix by checking the runtime status. For any status other than
-RPM_SUSPENDED, rpm_active can be considered to be "owned" by
-rpm_[get/put]_suppliers() and pm_runtime_put_suppliers() need do nothing.
-
-Reported-by: Asutosh Das <asutoshd@codeaurora.org>
-Fixes: 4c06c4e6cf63 ("driver core: Fix possible supplier PM-usage counter imbalance")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://syzkaller.appspot.com/bug?id=8abaedbdeb32c861dc5340544284167dd0e46cde # [1]
+Reported-and-tested-by: syzbot <syzbot+690cb1e51970435f9775@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 6cb4aff0a77c ("reiserfs: fix oops while creating privroot with selinux enabled")
+Acked-by: Jeff Mahoney <jeffm@suse.com>
+Acked-by: Jan Kara <jack@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/power/runtime.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/reiserfs/xattr.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -1586,6 +1586,8 @@ void pm_runtime_get_suppliers(struct dev
- void pm_runtime_put_suppliers(struct device *dev)
+--- a/fs/reiserfs/xattr.h
++++ b/fs/reiserfs/xattr.h
+@@ -43,7 +43,7 @@ void reiserfs_security_free(struct reise
+ 
+ static inline int reiserfs_xattrs_initialized(struct super_block *sb)
  {
- 	struct device_link *link;
-+	unsigned long flags;
-+	bool put;
- 	int idx;
+-	return REISERFS_SB(sb)->priv_root != NULL;
++	return REISERFS_SB(sb)->priv_root && REISERFS_SB(sb)->xattr_root;
+ }
  
- 	idx = device_links_read_lock();
-@@ -1593,7 +1595,11 @@ void pm_runtime_put_suppliers(struct dev
- 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node)
- 		if (link->supplier_preactivated) {
- 			link->supplier_preactivated = false;
--			if (refcount_dec_not_one(&link->rpm_active))
-+			spin_lock_irqsave(&dev->power.lock, flags);
-+			put = pm_runtime_status_suspended(dev) &&
-+			      refcount_dec_not_one(&link->rpm_active);
-+			spin_unlock_irqrestore(&dev->power.lock, flags);
-+			if (put)
- 				pm_runtime_put(link->supplier);
- 		}
- 
+ #define xattr_size(size) ((size) + sizeof(struct reiserfs_xattr_header))
 
 
