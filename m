@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E4F354009
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB3E353F0A
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240615AbhDEJPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34322 "EHLO mail.kernel.org"
+        id S238192AbhDEJKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240319AbhDEJPA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01AFC61002;
-        Mon,  5 Apr 2021 09:14:53 +0000 (UTC)
+        id S238656AbhDEJI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:08:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B84B613AE;
+        Mon,  5 Apr 2021 09:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614094;
-        bh=S1pV+yQzFrlhkXSO06HXrBj8jSwAimplDjRtHW2G/wE=;
+        s=korg; t=1617613729;
+        bh=g1GEh3DaFz9pq3eT97ZJ15eZY32UTZJ1ZlJMbDMdH4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y1J3E9vnPdWAfQ3ilHY8zh/V6VmCwOw6RlWD+Dhb79YwiBNMnIp/WE2UNqJCzAg8+
-         WpV1NuBhJ3moc73O+2hVVLCDZEuq2xo0IWbgeFhXmjatGjHOtQ+A2E6qwJ+XVswHuW
-         MohacN9LFtA5IPnaXOzQE4sdF+4o4ivv0PkXsrzc=
+        b=H986GH2I+hhU3QyGjWXuVY8lK7xmhJ7F6AP38Bwrt9IuJVf2lfRJQsuyL8HVsgsPf
+         TuHTcHMzUjW5oQEikCjUMJzYedu8QM4xMV5q0sGyBPrdbn1eg7LFIapTrdy430QEKG
+         7F/iqA67/Pdm3Wg4/mv2+FcTjv/NM0GiYr7Os/ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.11 082/152] PM: runtime: Fix ordering in pm_runtime_get_suppliers()
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 069/126] tracing: Fix stack trace event size
 Date:   Mon,  5 Apr 2021 10:53:51 +0200
-Message-Id: <20210405085036.917095694@linuxfoundation.org>
+Message-Id: <20210405085033.333923549@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit c0c33442f7203704aef345647e14c2fb86071001 upstream.
+commit 9deb193af69d3fd6dd8e47f292b67c805a787010 upstream.
 
-rpm_active indicates how many times the supplier usage_count has been
-incremented. Consequently it must be updated after pm_runtime_get_sync() of
-the supplier, not before.
+Commit cbc3b92ce037 fixed an issue to modify the macros of the stack trace
+event so that user space could parse it properly. Originally the stack
+trace format to user space showed that the called stack was a dynamic
+array. But it is not actually a dynamic array, in the way that other
+dynamic event arrays worked, and this broke user space parsing for it. The
+update was to make the array look to have 8 entries in it. Helper
+functions were added to make it parse it correctly, as the stack was
+dynamic, but was determined by the size of the event stored.
 
-Fixes: 4c06c4e6cf63 ("driver core: Fix possible supplier PM-usage counter imbalance")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Although this fixed user space on how it read the event, it changed the
+internal structure used for the stack trace event. It changed the array
+size from [0] to [8] (added 8 entries). This increased the size of the
+stack trace event by 8 words. The size reserved on the ring buffer was the
+size of the stack trace event plus the number of stack entries found in
+the stack trace. That commit caused the amount to be 8 more than what was
+needed because it did not expect the caller field to have any size. This
+produced 8 entries of garbage (and reading random data) from the stack
+trace event:
+
+          <idle>-0       [002] d... 1976396.837549: <stack trace>
+ => trace_event_raw_event_sched_switch
+ => __traceiter_sched_switch
+ => __schedule
+ => schedule_idle
+ => do_idle
+ => cpu_startup_entry
+ => secondary_startup_64_no_verify
+ => 0xc8c5e150ffff93de
+ => 0xffff93de
+ => 0
+ => 0
+ => 0xc8c5e17800000000
+ => 0x1f30affff93de
+ => 0x00000004
+ => 0x200000000
+
+Instead, subtract the size of the caller field from the size of the event
+to make sure that only the amount needed to store the stack trace is
+reserved.
+
+Link: https://lore.kernel.org/lkml/your-ad-here.call-01617191565-ext-9692@work.hours/
+
+Cc: stable@vger.kernel.org
+Fixes: cbc3b92ce037 ("tracing: Set kernel_stack's caller size properly")
+Reported-by: Vasily Gorbik <gor@linux.ibm.com>
+Tested-by: Vasily Gorbik <gor@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/power/runtime.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -1690,8 +1690,8 @@ void pm_runtime_get_suppliers(struct dev
- 				device_links_read_lock_held())
- 		if (link->flags & DL_FLAG_PM_RUNTIME) {
- 			link->supplier_preactivated = true;
--			refcount_inc(&link->rpm_active);
- 			pm_runtime_get_sync(link->supplier);
-+			refcount_inc(&link->rpm_active);
- 		}
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2984,7 +2984,8 @@ static void __ftrace_trace_stack(struct
  
- 	device_links_read_unlock(idx);
+ 	size = nr_entries * sizeof(unsigned long);
+ 	event = __trace_buffer_lock_reserve(buffer, TRACE_STACK,
+-					    sizeof(*entry) + size, flags, pc);
++				    (sizeof(*entry) - sizeof(entry->caller)) + size,
++				    flags, pc);
+ 	if (!event)
+ 		goto out;
+ 	entry = ring_buffer_event_data(event);
 
 
