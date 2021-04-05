@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 583EE354024
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3314C353DCE
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240676AbhDEJQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36222 "EHLO mail.kernel.org"
+        id S237443AbhDEJCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:02:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238841AbhDEJPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:15:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA27D613C0;
-        Mon,  5 Apr 2021 09:15:45 +0000 (UTC)
+        id S236753AbhDEJCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:02:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9704D61394;
+        Mon,  5 Apr 2021 09:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614146;
-        bh=AfdecFrfGmOZYjAL2BqLAuvMuaEY/6RIiQT6dO47MiY=;
+        s=korg; t=1617613284;
+        bh=3YldFbS0jeDrOqBvwJCNGPj6AF3aTcml6rBFENGn7ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyLl6XkcGo+RXlPdtlhwcJXBrlZQ/lQJYhra57WuiLZMG6BgVDjoKsLI1HF1Po45U
-         tUipo9HtnGBDH72GVtGiQgpT0MwDi2j+fng+9JO6Kv3/Ak+dvkGRDBa/dp6F3BJ5zd
-         VFWFC2DunFxi5Jk8YHMTTXJMJKfWgkKpXOV7+2eM=
+        b=nhlGwFNT66t7ZRbgxuj99oz1nKuGZQViSmwtF2/2XIR9NYHNo0dkyFauocxyMZazd
+         V2/8D5sSkcKCHEdZ1Dki8EfcjAIGRi+huxSuvGvVOtWiAFglgKJjQYP1pd/sq9KSk8
+         kLNsbzXukvsCFi0YJN6UvW/SBRNamas1K3GzE6PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.11 099/152] pinctrl: microchip-sgpio: Fix wrong register offset for IRQ trigger
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Xi Ruoyao <xry111@mengyan1223.wang>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 37/56] drm/amdgpu: check alignment on CPU page for bo map
 Date:   Mon,  5 Apr 2021 10:54:08 +0200
-Message-Id: <20210405085037.463854199@linuxfoundation.org>
+Message-Id: <20210405085023.716805033@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
+References: <20210405085022.562176619@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Povlsen <lars.povlsen@microchip.com>
+From: Xℹ Ruoyao <xry111@mengyan1223.wang>
 
-commit 5d5f2919273d1089a00556cad68e7f462f3dd2eb upstream.
+commit e3512fb67093fabdf27af303066627b921ee9bd8 upstream.
 
-This patch fixes using a wrong register offset when configuring an IRQ
-trigger type.
+The page table of AMDGPU requires an alignment to CPU page so we should
+check ioctl parameters for it.  Return -EINVAL if some parameter is
+unaligned to CPU page, instead of corrupt the page table sliently.
 
-Fixes: be2dc859abd4 ("pinctrl: pinctrl-microchip-sgpio: Add irq support (for sparx5)")
-Reported-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: Lars Povlsen <lars.povlsen@microchip.com>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Link: https://lore.kernel.org/r/20210203123825.611576-1-lars.povlsen@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-microchip-sgpio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-microchip-sgpio.c
-+++ b/drivers/pinctrl/pinctrl-microchip-sgpio.c
-@@ -572,7 +572,7 @@ static void microchip_sgpio_irq_settype(
- 	/* Type value spread over 2 registers sets: low, high bit */
- 	sgpio_clrsetbits(bank->priv, REG_INT_TRIGGER, addr.bit,
- 			 BIT(addr.port), (!!(type & 0x1)) << addr.port);
--	sgpio_clrsetbits(bank->priv, REG_INT_TRIGGER + SGPIO_MAX_BITS, addr.bit,
-+	sgpio_clrsetbits(bank->priv, REG_INT_TRIGGER, SGPIO_MAX_BITS + addr.bit,
- 			 BIT(addr.port), (!!(type & 0x2)) << addr.port);
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -2076,8 +2076,8 @@ int amdgpu_vm_bo_map(struct amdgpu_devic
+ 	uint64_t eaddr;
  
- 	if (type == SGPIO_INT_TRG_LEVEL)
+ 	/* validate the parameters */
+-	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
+-	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
++	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
++	    size == 0 || size & ~PAGE_MASK)
+ 		return -EINVAL;
+ 
+ 	/* make sure object fit at this offset */
+@@ -2141,8 +2141,8 @@ int amdgpu_vm_bo_replace_map(struct amdg
+ 	int r;
+ 
+ 	/* validate the parameters */
+-	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
+-	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
++	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
++	    size == 0 || size & ~PAGE_MASK)
+ 		return -EINVAL;
+ 
+ 	/* make sure object fit at this offset */
 
 
