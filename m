@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F945353E9A
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4339353FFD
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237382AbhDEJHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:07:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50706 "EHLO mail.kernel.org"
+        id S239392AbhDEJPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238259AbhDEJGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:06:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D33C361002;
-        Mon,  5 Apr 2021 09:06:32 +0000 (UTC)
+        id S239872AbhDEJOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:14:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 324C6611C1;
+        Mon,  5 Apr 2021 09:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613593;
-        bh=5lkXy9QAJUzflm//ImAiJZsaODEjkF9zLcTFNlU8a1U=;
+        s=korg; t=1617614058;
+        bh=/9ujew30/khoYdl8uTOuMTpa+/+vYu2kig65Xjphl34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TbkHDDKYmdeceZ6L8FUuVI10iniqPv5tZ0X34lmlYk9aJs5jdaUfEbW2Rn5nPEE5c
-         Es1kWTMzF8gHi7XlEWJHA45S3ydZZuGJU3iyzmS8Inu3lAj5fUtiOOk5pRAkkPk30p
-         Ji8/cFI2uAJQo12w6JW0K7WKYKmoQA5Kjm30pQA8=
+        b=XBj8eccL6BA4BAKSZsdg9LCq/NXfGHN8USYLA+czUWnXRXCQrQgH8zgkWMY9sLrFq
+         4yY56/BJ3ZoXwOAakD80twjim814x/MWGrDBhLmBjQT0VSI1DfARyEF5J32k3BxwxF
+         hrI2RKlPcX7BxznuCj/Fjam5FvFkC+jpoQb7wc5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 020/126] kernel: freezer should treat PF_IO_WORKER like PF_KTHREAD for freezing
+        stable@vger.kernel.org, Elad Grupi <elad.grupi@dell.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 033/152] nvmet-tcp: fix kmap leak when data digest in use
 Date:   Mon,  5 Apr 2021 10:53:02 +0200
-Message-Id: <20210405085031.696287678@linuxfoundation.org>
+Message-Id: <20210405085035.329432506@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
-References: <20210405085031.040238881@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Elad Grupi <elad.grupi@dell.com>
 
-[ Upstream commit 15b2219facadec583c24523eed40fa45865f859f ]
+[ Upstream commit bac04454ef9fada009f0572576837548b190bf94 ]
 
-Don't send fake signals to PF_IO_WORKER threads, they don't accept
-signals. Just treat them like kthreads in this regard, all they need
-is a wakeup as no forced kernel/user transition is needed.
+When data digest is enabled we should unmap pdu iovec before handling
+the data digest pdu.
 
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Elad Grupi <elad.grupi@dell.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/freezer.c | 2 +-
+ drivers/nvme/target/tcp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/freezer.c b/kernel/freezer.c
-index dc520f01f99d..1a2d57d1327c 100644
---- a/kernel/freezer.c
-+++ b/kernel/freezer.c
-@@ -134,7 +134,7 @@ bool freeze_task(struct task_struct *p)
- 		return false;
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index 8b0485ada315..d658c6e8263a 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1098,11 +1098,11 @@ static int nvmet_tcp_try_recv_data(struct nvmet_tcp_queue *queue)
+ 		cmd->rbytes_done += ret;
  	}
  
--	if (!(p->flags & PF_KTHREAD))
-+	if (!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))
- 		fake_signal_wake_up(p);
- 	else
- 		wake_up_state(p, TASK_INTERRUPTIBLE);
++	nvmet_tcp_unmap_pdu_iovec(cmd);
+ 	if (queue->data_digest) {
+ 		nvmet_tcp_prep_recv_ddgst(cmd);
+ 		return 0;
+ 	}
+-	nvmet_tcp_unmap_pdu_iovec(cmd);
+ 
+ 	if (!(cmd->flags & NVMET_TCP_F_INIT_FAILED) &&
+ 	    cmd->rbytes_done == cmd->req.transfer_len) {
 -- 
 2.30.1
 
