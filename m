@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94272354013
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0EE353FFE
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239390AbhDEJPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34084 "EHLO mail.kernel.org"
+        id S239441AbhDEJPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:15:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239929AbhDEJO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:14:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D83AB60FE4;
-        Mon,  5 Apr 2021 09:14:20 +0000 (UTC)
+        id S239948AbhDEJOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:14:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92B8361393;
+        Mon,  5 Apr 2021 09:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614061;
-        bh=ssoKzKFC+66OBKC5z+OK6y19dVXJjX1i3Snn7lGXxfI=;
+        s=korg; t=1617614064;
+        bh=3BvR0ffp7+3mRB0vqYFJ4S/UdIIp26m/T6ItaId+zvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnFxbhuUc/TPyL6uxEX1RQ6907lpdLqzfZcp8bO2TzFDtuotKD9MR80m9W5p6IIKf
-         HvPNbtYvkQWD/4gqZ2UVk6T2kBvqGHGqze4MsUaY2KDIuqIA1OYRG5mZTawZec4CGL
-         mUI+rbO84IIfb2B83Xd6xh4Cp/GnKDxcPI8UObCw=
+        b=G8CIEhuuLXK3JAOXQb0aW6qwWeYG33jfzEB6p+Xv/nBw1eASbYzrQwgEt8RXjlRwO
+         ltq2RrE7t5u7IBTjFGiiuK+XoxT7jlKM4R/8UwVl1a1xxQxX62ZQdlgLibuwIrEZgI
+         T+rNe3nmqNb334yK4ukED8EnqPdUXjodbS95r8XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Metzmacher <metze@samba.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 034/152] io_uring: imply MSG_NOSIGNAL for send[msg]()/recv[msg]() calls
-Date:   Mon,  5 Apr 2021 10:53:03 +0200
-Message-Id: <20210405085035.360327580@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 035/152] Revert "PM: ACPI: reboot: Use S5 for reboot"
+Date:   Mon,  5 Apr 2021 10:53:04 +0200
+Message-Id: <20210405085035.400511931@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
 References: <20210405085034.233917714@linuxfoundation.org>
@@ -39,60 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 76cd979f4f38a27df22efb5773a0d567181a9392 ]
+[ Upstream commit 9d3fcb28f9b9750b474811a2964ce022df56336e ]
 
-We never want to generate any SIGPIPE, -EPIPE only is much better.
+This reverts commit d60cd06331a3566d3305b3c7b566e79edf4e2095.
 
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Link: https://lore.kernel.org/r/38961085c3ec49fd21550c7788f214d1ff02d2d4.1615908477.git.metze@samba.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This patch causes a panic when rebooting my Dell Poweredge r440.  I do
+not have the full panic log as it's lost at that stage of the reboot and
+I do not have a serial console.  Reverting this patch makes my system
+able to reboot again.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/reboot.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index aaf9b5d49c17..26b4af9831da 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4648,7 +4648,7 @@ static int io_sendmsg(struct io_kiocb *req, bool force_nonblock,
- 		kmsg = &iomsg;
- 	}
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
-@@ -4692,7 +4692,7 @@ static int io_send(struct io_kiocb *req, bool force_nonblock,
- 	msg.msg_controllen = 0;
- 	msg.msg_namelen = 0;
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
-@@ -4886,7 +4886,7 @@ static int io_recvmsg(struct io_kiocb *req, bool force_nonblock,
- 				1, req->sr_msg.len);
- 	}
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
-@@ -4944,7 +4944,7 @@ static int io_recv(struct io_kiocb *req, bool force_nonblock,
- 	msg.msg_iocb = NULL;
- 	msg.msg_flags = 0;
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
+diff --git a/kernel/reboot.c b/kernel/reboot.c
+index eb1b15850761..a6ad5eb2fa73 100644
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -244,8 +244,6 @@ void migrate_to_reboot_cpu(void)
+ void kernel_restart(char *cmd)
+ {
+ 	kernel_restart_prepare(cmd);
+-	if (pm_power_off_prepare)
+-		pm_power_off_prepare();
+ 	migrate_to_reboot_cpu();
+ 	syscore_shutdown();
+ 	if (!cmd)
 -- 
 2.30.1
 
