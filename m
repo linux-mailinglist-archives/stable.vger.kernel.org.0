@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C08353E67
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D47E353E69
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238145AbhDEJFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49676 "EHLO mail.kernel.org"
+        id S238263AbhDEJFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237878AbhDEJFg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:05:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDF44613A7;
-        Mon,  5 Apr 2021 09:05:28 +0000 (UTC)
+        id S238679AbhDEJFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B002613A4;
+        Mon,  5 Apr 2021 09:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613529;
-        bh=PrvXvLexksylJ5hd1iSur2YhtvHzTqsiS9WEgISJ7Qc=;
+        s=korg; t=1617613532;
+        bh=1FlLlzjcLm0GeT7D8m4KQAXu/GrkAdfaWvVzN3j0/p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z20R3dAwdigg/D2wSbxjHqIzKkVcJxdrH3HNi/HvNh4BzQtigX12rQZP2uAY8PFMZ
-         n8paFEjhQ6M1+PiIQxg5zEvxZhlf1wz0GhM30unv7FHSyOnIAuNFQkmVd4RjzfVH+N
-         7S64T3cEHM9xEGbBk9sqGyLtfkVe2CSB4351D96o=
+        b=pkj99TnXwM77ey9l3CkvUr31ZC+lC8LUZFtDDljVO8KZDa3ALUS87QtYe61WFF7U6
+         tYVJTDJgwHPpSmY8key68CAT7IAAfVUpAPqr9UYaaKOhmH3jOVge1sj/Q+BZNWrg37
+         uut1YnpVHn6uwwxpVg1qxAKIFsQ5ljAoQ3vfcmXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Subject: [PATCH 5.4 71/74] usb: dwc2: Prevent core suspend when port connection flag is 0
-Date:   Mon,  5 Apr 2021 10:54:35 +0200
-Message-Id: <20210405085027.047740968@linuxfoundation.org>
+        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
+Subject: [PATCH 5.4 72/74] staging: rtl8192e: Fix incorrect source in memcpy()
+Date:   Mon,  5 Apr 2021 10:54:36 +0200
+Message-Id: <20210405085027.087688941@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
 References: <20210405085024.703004126@linuxfoundation.org>
@@ -39,37 +38,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit 93f672804bf2d7a49ef3fd96827ea6290ca1841e upstream.
+commit 72ad25fbbb78930f892b191637359ab5b94b3190 upstream.
 
-In host mode port connection status flag is "0" when loading
-the driver. After loading the driver system asserts suspend
-which is handled by "_dwc2_hcd_suspend()" function. Before
-the system suspend the port connection status is "0". As
-result need to check the "port_connect_status" if it is "0",
-then skipping entering to suspend.
+The variable "info_element" is of the following type:
 
-Cc: <stable@vger.kernel.org> # 5.2
-Fixes: 6f6d70597c15 ("usb: dwc2: bus suspend/resume for hosts with DWC2_POWER_DOWN_PARAM_NONE")
-Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Link: https://lore.kernel.org/r/20210326102510.BDEDEA005D@mailhost.synopsys.com
+	struct rtllib_info_element *info_element
+
+defined in drivers/staging/rtl8192e/rtllib.h:
+
+	struct rtllib_info_element {
+		u8 id;
+		u8 len;
+		u8 data[];
+	} __packed;
+
+The "len" field defines the size of the "data[]" array. The code is
+supposed to check if "info_element->len" is greater than 4 and later
+equal to 6. If this is satisfied then, the last two bytes (the 4th and
+5th element of u8 "data[]" array) are copied into "network->CcxRmState".
+
+Right now the code uses "memcpy()" with the source as "&info_element[4]"
+which would copy in wrong and unintended information. The struct
+"rtllib_info_element" has a size of 2 bytes for "id" and "len",
+therefore indexing will be done in interval of 2 bytes. So,
+"info_element[4]" would point to data which is beyond the memory
+allocated for this pointer (that is, at x+8, while "info_element" has
+been allocated only from x to x+7 (2 + 6 => 8 bytes)).
+
+This patch rectifies this error by using "&info_element->data[4]" which
+correctly copies the last two bytes of "data[]".
+
+NOTE: The faulty line of code came from the following commit:
+
+commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
+
+The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
+which had the faulty line of code. This file has been deleted (or
+possibly renamed) with the contents copied in to a new file
+`rtl8192e/rtllib_rx.c` along with additional code in the commit
+94a799425eee (tagged in Fixes).
+
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
+Cc: stable@vger.kernel.org
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210323113413.29179-1-atulgopinathan@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/hcd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8192e/rtllib_rx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -4322,7 +4322,8 @@ static int _dwc2_hcd_suspend(struct usb_
- 	if (hsotg->op_state == OTG_STATE_B_PERIPHERAL)
- 		goto unlock;
- 
--	if (hsotg->params.power_down > DWC2_POWER_DOWN_PARAM_PARTIAL)
-+	if (hsotg->params.power_down != DWC2_POWER_DOWN_PARAM_PARTIAL ||
-+	    hsotg->flags.b.port_connect_status == 0)
- 		goto skip_power_saving;
- 
- 	/*
+--- a/drivers/staging/rtl8192e/rtllib_rx.c
++++ b/drivers/staging/rtl8192e/rtllib_rx.c
+@@ -1968,7 +1968,7 @@ static void rtllib_parse_mife_generic(st
+ 	    info_element->data[2] == 0x96 &&
+ 	    info_element->data[3] == 0x01) {
+ 		if (info_element->len == 6) {
+-			memcpy(network->CcxRmState, &info_element[4], 2);
++			memcpy(network->CcxRmState, &info_element->data[4], 2);
+ 			if (network->CcxRmState[0] != 0)
+ 				network->bCcxRmEnable = true;
+ 			else
 
 
