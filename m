@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7AF2353D72
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1341C354066
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237087AbhDEI7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:59:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40930 "EHLO mail.kernel.org"
+        id S239037AbhDEJRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:17:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237049AbhDEI7u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:59:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7227460238;
-        Mon,  5 Apr 2021 08:59:43 +0000 (UTC)
+        id S239672AbhDEJRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:17:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D25C861399;
+        Mon,  5 Apr 2021 09:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613184;
-        bh=diM6It5E7UCmROdwlQZyjDQqpu4vcXZq88LiZnYlkJI=;
+        s=korg; t=1617614237;
+        bh=mJaVOwAdvfTwxy0QbloNLXIMUQzFFL1QfTrn4J2rh+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEb1gchftEzfRV2XdId6FeWP2TY3I/KqFQDwfjWvNfg9EeRedFnmZ7xVmlPGNXAdZ
-         IKDVZ/cG1rSCdAt4Facund9KP+Cmi8zOd+FyOUoszOT1WFkzaEmtVPU/6HC/Bk33Vx
-         2rjsXVBjlJtflbtBitWenOW8cLkExiuXjGg6MC7g=
+        b=JhiQSZHR4jR0xfaC3uiVwsgsXUlSF5VGrVED6sWjcEa63CFCWx/euoxPFtOgyh9Rv
+         PPntqGLe8SBoueUttkJhIFfU3Zh+jgHuP+H7ZbghEg2I2l3QS2TJzpb8JLMZAEmQCj
+         6HHKzPz5em6IIq6DXkmkZOyZW7xHgnwCmFtLpx7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gopinathan <atulgopinathan@gmail.com>
-Subject: [PATCH 4.14 50/52] staging: rtl8192e: Fix incorrect source in memcpy()
+        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 107/152] KVM: x86/mmu: Rename goal_gfn to next_last_level_gfn
 Date:   Mon,  5 Apr 2021 10:54:16 +0200
-Message-Id: <20210405085023.608316474@linuxfoundation.org>
+Message-Id: <20210405085037.713624585@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,67 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Ben Gardon <bgardon@google.com>
 
-commit 72ad25fbbb78930f892b191637359ab5b94b3190 upstream.
+[ Upstream commit 74953d3530280dc53256054e1906f58d07bfba44 ]
 
-The variable "info_element" is of the following type:
+The goal_gfn field in tdp_iter can be misleading as it implies that it
+is the iterator's final goal. It is really a target for the lowest gfn
+mapped by the leaf level SPTE the iterator will traverse towards. Change
+the field's name to be more precise.
 
-	struct rtllib_info_element *info_element
-
-defined in drivers/staging/rtl8192e/rtllib.h:
-
-	struct rtllib_info_element {
-		u8 id;
-		u8 len;
-		u8 data[];
-	} __packed;
-
-The "len" field defines the size of the "data[]" array. The code is
-supposed to check if "info_element->len" is greater than 4 and later
-equal to 6. If this is satisfied then, the last two bytes (the 4th and
-5th element of u8 "data[]" array) are copied into "network->CcxRmState".
-
-Right now the code uses "memcpy()" with the source as "&info_element[4]"
-which would copy in wrong and unintended information. The struct
-"rtllib_info_element" has a size of 2 bytes for "id" and "len",
-therefore indexing will be done in interval of 2 bytes. So,
-"info_element[4]" would point to data which is beyond the memory
-allocated for this pointer (that is, at x+8, while "info_element" has
-been allocated only from x to x+7 (2 + 6 => 8 bytes)).
-
-This patch rectifies this error by using "&info_element->data[4]" which
-correctly copies the last two bytes of "data[]".
-
-NOTE: The faulty line of code came from the following commit:
-
-commit ecdfa44610fa ("Staging: add Realtek 8192 PCI wireless driver")
-
-The above commit created the file `rtl8192e/ieee80211/ieee80211_rx.c`
-which had the faulty line of code. This file has been deleted (or
-possibly renamed) with the contents copied in to a new file
-`rtl8192e/rtllib_rx.c` along with additional code in the commit
-94a799425eee (tagged in Fixes).
-
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210323113413.29179-1-atulgopinathan@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20210202185734.1680553-13-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/mmu/tdp_iter.c | 20 ++++++++++----------
+ arch/x86/kvm/mmu/tdp_iter.h |  4 ++--
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1979,7 +1979,7 @@ static void rtllib_parse_mife_generic(st
- 	    info_element->data[2] == 0x96 &&
- 	    info_element->data[3] == 0x01) {
- 		if (info_element->len == 6) {
--			memcpy(network->CcxRmState, &info_element[4], 2);
-+			memcpy(network->CcxRmState, &info_element->data[4], 2);
- 			if (network->CcxRmState[0] != 0)
- 				network->bCcxRmEnable = true;
- 			else
+diff --git a/arch/x86/kvm/mmu/tdp_iter.c b/arch/x86/kvm/mmu/tdp_iter.c
+index 87b7e16911db..9917c55b7d24 100644
+--- a/arch/x86/kvm/mmu/tdp_iter.c
++++ b/arch/x86/kvm/mmu/tdp_iter.c
+@@ -22,21 +22,21 @@ static gfn_t round_gfn_for_level(gfn_t gfn, int level)
+ 
+ /*
+  * Sets a TDP iterator to walk a pre-order traversal of the paging structure
+- * rooted at root_pt, starting with the walk to translate goal_gfn.
++ * rooted at root_pt, starting with the walk to translate next_last_level_gfn.
+  */
+ void tdp_iter_start(struct tdp_iter *iter, u64 *root_pt, int root_level,
+-		    int min_level, gfn_t goal_gfn)
++		    int min_level, gfn_t next_last_level_gfn)
+ {
+ 	WARN_ON(root_level < 1);
+ 	WARN_ON(root_level > PT64_ROOT_MAX_LEVEL);
+ 
+-	iter->goal_gfn = goal_gfn;
++	iter->next_last_level_gfn = next_last_level_gfn;
+ 	iter->root_level = root_level;
+ 	iter->min_level = min_level;
+ 	iter->level = root_level;
+ 	iter->pt_path[iter->level - 1] = root_pt;
+ 
+-	iter->gfn = round_gfn_for_level(iter->goal_gfn, iter->level);
++	iter->gfn = round_gfn_for_level(iter->next_last_level_gfn, iter->level);
+ 	tdp_iter_refresh_sptep(iter);
+ 
+ 	iter->valid = true;
+@@ -82,7 +82,7 @@ static bool try_step_down(struct tdp_iter *iter)
+ 
+ 	iter->level--;
+ 	iter->pt_path[iter->level - 1] = child_pt;
+-	iter->gfn = round_gfn_for_level(iter->goal_gfn, iter->level);
++	iter->gfn = round_gfn_for_level(iter->next_last_level_gfn, iter->level);
+ 	tdp_iter_refresh_sptep(iter);
+ 
+ 	return true;
+@@ -106,7 +106,7 @@ static bool try_step_side(struct tdp_iter *iter)
+ 		return false;
+ 
+ 	iter->gfn += KVM_PAGES_PER_HPAGE(iter->level);
+-	iter->goal_gfn = iter->gfn;
++	iter->next_last_level_gfn = iter->gfn;
+ 	iter->sptep++;
+ 	iter->old_spte = READ_ONCE(*iter->sptep);
+ 
+@@ -166,13 +166,13 @@ void tdp_iter_next(struct tdp_iter *iter)
+  */
+ void tdp_iter_refresh_walk(struct tdp_iter *iter)
+ {
+-	gfn_t goal_gfn = iter->goal_gfn;
++	gfn_t next_last_level_gfn = iter->next_last_level_gfn;
+ 
+-	if (iter->gfn > goal_gfn)
+-		goal_gfn = iter->gfn;
++	if (iter->gfn > next_last_level_gfn)
++		next_last_level_gfn = iter->gfn;
+ 
+ 	tdp_iter_start(iter, iter->pt_path[iter->root_level - 1],
+-		       iter->root_level, iter->min_level, goal_gfn);
++		       iter->root_level, iter->min_level, next_last_level_gfn);
+ }
+ 
+ u64 *tdp_iter_root_pt(struct tdp_iter *iter)
+diff --git a/arch/x86/kvm/mmu/tdp_iter.h b/arch/x86/kvm/mmu/tdp_iter.h
+index 47170d0dc98e..b2dd269c631f 100644
+--- a/arch/x86/kvm/mmu/tdp_iter.h
++++ b/arch/x86/kvm/mmu/tdp_iter.h
+@@ -15,7 +15,7 @@ struct tdp_iter {
+ 	 * The iterator will traverse the paging structure towards the mapping
+ 	 * for this GFN.
+ 	 */
+-	gfn_t goal_gfn;
++	gfn_t next_last_level_gfn;
+ 	/* Pointers to the page tables traversed to reach the current SPTE */
+ 	u64 *pt_path[PT64_ROOT_MAX_LEVEL];
+ 	/* A pointer to the current SPTE */
+@@ -52,7 +52,7 @@ struct tdp_iter {
+ u64 *spte_to_child_pt(u64 pte, int level);
+ 
+ void tdp_iter_start(struct tdp_iter *iter, u64 *root_pt, int root_level,
+-		    int min_level, gfn_t goal_gfn);
++		    int min_level, gfn_t next_last_level_gfn);
+ void tdp_iter_next(struct tdp_iter *iter);
+ void tdp_iter_refresh_walk(struct tdp_iter *iter);
+ u64 *tdp_iter_root_pt(struct tdp_iter *iter);
+-- 
+2.30.1
+
 
 
