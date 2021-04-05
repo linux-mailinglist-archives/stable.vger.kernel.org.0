@@ -2,79 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD17A354375
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 17:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79DFB35437B
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 17:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238106AbhDEPah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 11:30:37 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:43944 "EHLO
+        id S238351AbhDEPfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 11:35:00 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47818 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232714AbhDEPag (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 11:30:36 -0400
+        with ESMTP id S238291AbhDEPfA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Apr 2021 11:35:00 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id A1A401C0B81; Mon,  5 Apr 2021 17:30:29 +0200 (CEST)
-Date:   Mon, 5 Apr 2021 17:30:29 +0200
+        id 2AFE51C0B7D; Mon,  5 Apr 2021 17:34:53 +0200 (CEST)
+Date:   Mon, 5 Apr 2021 17:34:52 +0200
 From:   Pavel Machek <pavel@ucw.cz>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 039/126] can: dev: move driver related
- infrastructure into separate subdir
-Message-ID: <20210405153029.GB32232@amd>
+Subject: Re: [PATCH 5.10 047/126] ath10k: hold RCU lock when calling
+ ieee80211_find_sta_by_ifaddr()
+Message-ID: <20210405153452.GC32232@amd>
 References: <20210405085031.040238881@linuxfoundation.org>
- <20210405085032.339701089@linuxfoundation.org>
+ <20210405085032.596054465@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="lEGEL1/lMxI0MVQ2"
+        protocol="application/pgp-signature"; boundary="9Ek0hoCL9XbhcSqy"
 Content-Disposition: inline
-In-Reply-To: <20210405085032.339701089@linuxfoundation.org>
+In-Reply-To: <20210405085032.596054465@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---lEGEL1/lMxI0MVQ2
+--9Ek0hoCL9XbhcSqy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Marc Kleine-Budde <mkl@pengutronix.de>
->=20
-> [ Upstream commit 3e77f70e734584e0ad1038e459ed3fd2400f873a ]
->=20
-> This patch moves the CAN driver related infrastructure into a separate su=
-bdir.
-> It will be split into more files in the coming patches.
+> Fix ath10k_wmi_tlv_op_pull_peer_stats_info() to hold RCU lock before it
+> calls ieee80211_find_sta_by_ifaddr() and release it when the resulting
+> pointer is no longer needed.
 
-I don't think this is suitable for stable. I don't think any of the
-follow up patches depend on it...?
+It does that. But is also does the unlock even if it did not take the
+lock:
+
+> +++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+> @@ -576,13 +576,13 @@ static void ath10k_wmi_event_tdls_peer(struct ath10=
+k *ar, struct sk_buff *skb)
+>  	case WMI_TDLS_TEARDOWN_REASON_TX:
+>  	case WMI_TDLS_TEARDOWN_REASON_RSSI:
+>  	case WMI_TDLS_TEARDOWN_REASON_PTR_TIMEOUT:
+> +		rcu_read_lock();
+>  		station =3D ieee80211_find_sta_by_ifaddr(ar->hw,
+>  						       ev->peer_macaddr.addr,
+>  						       NULL);
+>  		if (!station) {
+>  			ath10k_warn(ar, "did not find station from tdls peer event");
+> -			kfree(tb);
+> -			return;
+> +			goto exit;
+>  		}
+>  		arvif =3D ath10k_get_arvif(ar, __le32_to_cpu(ev->vdev_id));
+>  		ieee80211_tdls_oper_request(
+> @@ -593,6 +593,9 @@ static void ath10k_wmi_event_tdls_peer(struct ath10k =
+*ar, struct sk_buff *skb)
+>  					);
+>  		break;
+>  	}
+> +
+> +exit:
+> +	rcu_read_unlock();
+>  	kfree(tb);
+>  }
+
+The switch only takes the lock in 3 branches, but it is released
+unconditionally at the end.
+
+Something like this?
 
 Best regards,
 								Pavel
 
->  drivers/net/can/Makefile               | 7 +------
->  drivers/net/can/dev/Makefile           | 7 +++++++
->  drivers/net/can/{ =3D> dev}/dev.c        | 0
->  drivers/net/can/{ =3D> dev}/rx-offload.c | 0
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wirele=
+ss/ath/ath10k/wmi-tlv.c
+index e7072fc4f487..e03ff56d938b 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -582,20 +582,19 @@ static void ath10k_wmi_event_tdls_peer(struct ath10k =
+*ar, struct sk_buff *skb)
+ 						       NULL);
+ 		if (!station) {
+ 			ath10k_warn(ar, "did not find station from tdls peer event");
+-			goto exit;
+-		}
+-		arvif =3D ath10k_get_arvif(ar, __le32_to_cpu(ev->vdev_id));
+-		ieee80211_tdls_oper_request(
++		} else {
++			arvif =3D ath10k_get_arvif(ar, __le32_to_cpu(ev->vdev_id));
++			ieee80211_tdls_oper_request(
+ 					arvif->vif, station->addr,
+ 					NL80211_TDLS_TEARDOWN,
+ 					WLAN_REASON_TDLS_TEARDOWN_UNREACHABLE,
+ 					GFP_ATOMIC
+ 					);
++		}
++		rcu_read_unlock();
+ 		break;
+ 	}
+=20
+-exit:
+-	rcu_read_unlock();
+ 	kfree(tb);
+ }
+=20
+
 
 --=20
 http://www.livejournal.com/~pavelmachek
 
---lEGEL1/lMxI0MVQ2
+--9Ek0hoCL9XbhcSqy
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmBrLRQACgkQMOfwapXb+vLz2QCfQi57uvjSLOc0libOSz6A+Ox6
-hb8Anj+y8PiT1bKf7tNq7B4i2+Fw4UIG
-=O/ji
+iEYEARECAAYFAmBrLhwACgkQMOfwapXb+vKkJACfX2IZWhZgB25cUE0Z9ij0EH75
+eOAAnAnqYgGWEgn9M4c0O1zko9JRR4DE
+=QVpV
 -----END PGP SIGNATURE-----
 
---lEGEL1/lMxI0MVQ2--
+--9Ek0hoCL9XbhcSqy--
