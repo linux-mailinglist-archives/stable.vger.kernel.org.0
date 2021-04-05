@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB96A3544AF
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B114354488
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239570AbhDEQF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:05:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57728 "EHLO mail.kernel.org"
+        id S242195AbhDEQFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:05:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242230AbhDEQFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:05:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30C6C613D3;
-        Mon,  5 Apr 2021 16:05:05 +0000 (UTC)
+        id S242173AbhDEQFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:05:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 537BE613DD;
+        Mon,  5 Apr 2021 16:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638705;
-        bh=4o0qfCOK3YDB8Y42Ckv92umSJ6MdZ2L9LE1gUf69sLQ=;
+        s=k20201202; t=1617638707;
+        bh=TXztknuaVtG48pbylDS46y44Jtupw/59hlWRCyx51hY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nPAf6bD5dwEDNH4C0qXpiLkLyZprZ4CGkk6HGkNGIn5VCO7wmOw7tLl9R8sBDEdCB
-         N214uekFPdgvTMtLZDEgYnIbDxqklLf+X3sFmA4DBarS09FXrsvfMUy7HDKUjXQAYg
-         m+WM4oEeamWRkUEK9YQyo4U55y7i1YsbMDQ71TLqCXcyGmFJLIxGTogQbDGsc8Zyqk
-         MTMtgxwwq3QU5rfLsCN9Bh+TMNpSMJWWQXEHlwONS1LxR04aNNDW283K+KwTJTW7GR
-         4HqKhJEPuiNQjKdyudvHjzRq2Y5WjVyX7pqdFv3bMmJ3wKkndZr5e6p8mOlzQ9H1a6
-         Upqz3bTvQ9FPA==
+        b=UUw65nq7Hp/s18tzK8lPtvr0Hj/PvKfDKgH93SB0R74MI4d5BrM+jBo/aYIHsPuDd
+         tXedsl28xxVrs3j+Xg9RTZFdnQmBD5OBcr9EKwt+lMdNWgRlmi5XRg3An5Tg3Nrzsq
+         mBbCacDxUlz0qlMggsI9NvrJMJk6pgLrQK8fX6KJ64a/oCqPSjOXuidVa9XlQ28kQD
+         hLFOf2EPeiJpLpPGXBFVyDTTEdz7Jk0qRPZxsIQLb+N6u1t0SXOJ4UPBkW3RNOaSwD
+         K/U8Fcg71EfNgtt8oy5dYqaJQBx5cmTkhVzTEmqygfZv3WEqt1IJC1GlVNestLA879
+         I/Ll457UOduoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 05/13] gfs2: report "already frozen/thawed" errors
-Date:   Mon,  5 Apr 2021 12:04:50 -0400
-Message-Id: <20210405160459.268794-5-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/13] drm/tegra: dc: Don't set PLL clock to 0Hz
+Date:   Mon,  5 Apr 2021 12:04:51 -0400
+Message-Id: <20210405160459.268794-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210405160459.268794-1-sashal@kernel.org>
 References: <20210405160459.268794-1-sashal@kernel.org>
@@ -42,59 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit ff132c5f93c06bd4432bbab5c369e468653bdec4 ]
+[ Upstream commit f8fb97c915954fc6de6513cdf277103b5c6df7b3 ]
 
-Before this patch, gfs2's freeze function failed to report an error
-when the target file system was already frozen as it should (and as
-generic vfs function freeze_super does. Similarly, gfs2's thaw function
-failed to report an error when trying to thaw a file system that is not
-frozen, as vfs function thaw_super does. The errors were checked, but
-it always returned a 0 return code.
+RGB output doesn't allow to change parent clock rate of the display and
+PCLK rate is set to 0Hz in this case. The tegra_dc_commit_state() shall
+not set the display clock to 0Hz since this change propagates to the
+parent clock. The DISP clock is defined as a NODIV clock by the tegra-clk
+driver and all NODIV clocks use the CLK_SET_RATE_PARENT flag.
 
-This patch adds the missing error return codes to gfs2 freeze and thaw.
+This bug stayed unnoticed because by default PLLP is used as the parent
+clock for the display controller and PLLP silently skips the erroneous 0Hz
+rate changes because it always has active child clocks that don't permit
+rate changes. The PLLP isn't acceptable for some devices that we want to
+upstream (like Samsung Galaxy Tab and ASUS TF700T) due to a display panel
+clock rate requirements that can't be fulfilled by using PLLP and then the
+bug pops up in this case since parent clock is set to 0Hz, killing the
+display output.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Don't touch DC clock if pclk=0 in order to fix the problem.
+
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/super.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/tegra/dc.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 50c925d9c610..9c593fd50c6a 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -757,11 +757,13 @@ void gfs2_freeze_func(struct work_struct *work)
- static int gfs2_freeze(struct super_block *sb)
- {
- 	struct gfs2_sbd *sdp = sb->s_fs_info;
--	int error = 0;
-+	int error;
- 
- 	mutex_lock(&sdp->sd_freeze_mutex);
--	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN)
-+	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN) {
-+		error = -EBUSY;
- 		goto out;
-+	}
- 
- 	if (test_bit(SDF_WITHDRAWN, &sdp->sd_flags)) {
- 		error = -EINVAL;
-@@ -798,10 +800,10 @@ static int gfs2_unfreeze(struct super_block *sb)
- 	struct gfs2_sbd *sdp = sb->s_fs_info;
- 
- 	mutex_lock(&sdp->sd_freeze_mutex);
--        if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
-+	if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
- 	    !gfs2_holder_initialized(&sdp->sd_freeze_gh)) {
- 		mutex_unlock(&sdp->sd_freeze_mutex);
--                return 0;
-+		return -EINVAL;
+diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+index fbf57bc3cdab..617cbe468aec 100644
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -1667,6 +1667,11 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 			dev_err(dc->dev,
+ 				"failed to set clock rate to %lu Hz\n",
+ 				state->pclk);
++
++		err = clk_set_rate(dc->clk, state->pclk);
++		if (err < 0)
++			dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
++				dc->clk, state->pclk, err);
  	}
  
- 	gfs2_glock_dq_uninit(&sdp->sd_freeze_gh);
+ 	DRM_DEBUG_KMS("rate: %lu, div: %u\n", clk_get_rate(dc->clk),
+@@ -1677,11 +1682,6 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 		value = SHIFT_CLK_DIVIDER(state->div) | PIXEL_CLK_DIVIDER_PCD1;
+ 		tegra_dc_writel(dc, value, DC_DISP_DISP_CLOCK_CONTROL);
+ 	}
+-
+-	err = clk_set_rate(dc->clk, state->pclk);
+-	if (err < 0)
+-		dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
+-			dc->clk, state->pclk, err);
+ }
+ 
+ static void tegra_dc_stop(struct tegra_dc *dc)
 -- 
 2.30.2
 
