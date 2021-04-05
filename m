@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57CBC353DB5
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DFBF354021
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237378AbhDEJCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43756 "EHLO mail.kernel.org"
+        id S238478AbhDEJQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:16:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237316AbhDEJB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:01:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E71E613A1;
-        Mon,  5 Apr 2021 09:01:17 +0000 (UTC)
+        id S239297AbhDEJPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:15:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61DC261002;
+        Mon,  5 Apr 2021 09:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613278;
-        bh=fk0CpbvYKGTCgyObhHOqABeY4+98Y/Acm4saB4fiq7Y=;
+        s=korg; t=1617614140;
+        bh=cq7RFyQrAvQ12App5cGcCe7rP1QlP9h9XdWi9AAusmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibeNKkZyKc9/7BDARRq7aXPnkUc9ZZXlb7SerUKbfH9mh0rCSiKKoWC1/PRNFPNjp
-         v/DeC3JEn27bR0X6tBCcrVEJzb27iJP69EHO6tU9XRVxvFXIVaw3y/SbppDraXbfDl
-         1n3rUoLqgu+OX4tLFdoWCaeGkvAzryXPoPAeqHOs=
+        b=IFw9xUQD/zbE4oJ4T6ZF/sNGVnxPf1Lf4on4DzPML9XwZqdlTttMxQFwiXz3lRekI
+         COSvFfBxnHyw2zLxjplMkpRi7G6xkM7/seNFW9ym1iliQvtZZiYzTgILpkIfIqu3O9
+         Tl0km1hu7JIyOVk2bAek9XFH77AHAbuCYDQF0HbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
-        <zhouyanjie@wanyeetech.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 35/56] mm: fix race by making init_zero_pfn() early_initcall
+        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.11 097/152] drm/tegra: sor: Grab runtime PM reference across reset
 Date:   Mon,  5 Apr 2021 10:54:06 +0200
-Message-Id: <20210405085023.658580585@linuxfoundation.org>
+Message-Id: <20210405085037.397037918@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-commit e720e7d0e983bf05de80b231bccc39f1487f0f16 upstream.
+commit ac097aecfef0bb289ca53d2fe0b73fc7e1612a05 upstream.
 
-There are code paths that rely on zero_pfn to be fully initialized
-before core_initcall.  For example, wq_sysfs_init() is a core_initcall
-function that eventually results in a call to kernel_execve, which
-causes a page fault with a subsequent mmput.  If zero_pfn is not
-initialized by then it may not get cleaned up properly and result in an
-error:
+The SOR resets are exclusively shared with the SOR power domain. This
+means that exclusive access can only be granted temporarily and in order
+for that to work, a rigorous sequence must be observed. To ensure that a
+single consumer gets exclusive access to a reset, each consumer must
+implement a rigorous protocol using the reset_control_acquire() and
+reset_control_release() functions.
 
-  BUG: Bad rss-counter state mm:(ptrval) type:MM_ANONPAGES val:1
+However, these functions alone don't provide any guarantees at the
+system level. Drivers need to ensure that the only a single consumer has
+access to the reset at the same time. In order for the SOR to be able to
+exclusively access its reset, it must therefore ensure that the SOR
+power domain is not powered off by holding on to a runtime PM reference
+to that power domain across the reset assert/deassert operation.
 
-Here is an analysis of the race as seen on a MIPS device. On this
-particular MT7621 device (Ubiquiti ER-X), zero_pfn is PFN 0 until
-initialized, at which point it becomes PFN 5120:
+This used to work fine by accident, but was revealed when recently more
+devices started to rely on the SOR power domain.
 
-  1. wq_sysfs_init calls into kobject_uevent_env at core_initcall:
-       kobject_uevent_env+0x7e4/0x7ec
-       kset_register+0x68/0x88
-       bus_register+0xdc/0x34c
-       subsys_virtual_register+0x34/0x78
-       wq_sysfs_init+0x1c/0x4c
-       do_one_initcall+0x50/0x1a8
-       kernel_init_freeable+0x230/0x2c8
-       kernel_init+0x10/0x100
-       ret_from_kernel_thread+0x14/0x1c
-
-  2. kobject_uevent_env() calls call_usermodehelper_exec() which executes
-     kernel_execve asynchronously.
-
-  3. Memory allocations in kernel_execve cause a page fault, bumping the
-     MM reference counter:
-       add_mm_counter_fast+0xb4/0xc0
-       handle_mm_fault+0x6e4/0xea0
-       __get_user_pages.part.78+0x190/0x37c
-       __get_user_pages_remote+0x128/0x360
-       get_arg_page+0x34/0xa0
-       copy_string_kernel+0x194/0x2a4
-       kernel_execve+0x11c/0x298
-       call_usermodehelper_exec_async+0x114/0x194
-
-  4. In case zero_pfn has not been initialized yet, zap_pte_range does
-     not decrement the MM_ANONPAGES RSS counter and the BUG message is
-     triggered shortly afterwards when __mmdrop checks the ref counters:
-       __mmdrop+0x98/0x1d0
-       free_bprm+0x44/0x118
-       kernel_execve+0x160/0x1d8
-       call_usermodehelper_exec_async+0x114/0x194
-       ret_from_kernel_thread+0x14/0x1c
-
-To avoid races such as described above, initialize init_zero_pfn at
-early_initcall level.  Depending on the architecture, ZERO_PAGE is
-either constant or gets initialized even earlier, at paging_init, so
-there is no issue with initializing zero_pfn earlier.
-
-Link: https://lkml.kernel.org/r/CALCv0x2YqOXEAy2Q=hafjhHCtTHVodChv1qpM=niAXOpqEbt7w@mail.gmail.com
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: stable@vger.kernel.org
-Tested-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 11c632e1cfd3 ("drm/tegra: sor: Implement acquire/release for reset")
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/tegra/sor.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -148,7 +148,7 @@ static int __init init_zero_pfn(void)
- 	zero_pfn = page_to_pfn(ZERO_PAGE(0));
- 	return 0;
- }
--core_initcall(init_zero_pfn);
-+early_initcall(init_zero_pfn);
+--- a/drivers/gpu/drm/tegra/sor.c
++++ b/drivers/gpu/drm/tegra/sor.c
+@@ -3115,6 +3115,12 @@ static int tegra_sor_init(struct host1x_
+ 	 * kernel is possible.
+ 	 */
+ 	if (sor->rst) {
++		err = pm_runtime_resume_and_get(sor->dev);
++		if (err < 0) {
++			dev_err(sor->dev, "failed to get runtime PM: %d\n", err);
++			return err;
++		}
++
+ 		err = reset_control_acquire(sor->rst);
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to acquire SOR reset: %d\n",
+@@ -3148,6 +3154,7 @@ static int tegra_sor_init(struct host1x_
+ 		}
  
+ 		reset_control_release(sor->rst);
++		pm_runtime_put(sor->dev);
+ 	}
  
- #if defined(SPLIT_RSS_COUNTING)
+ 	err = clk_prepare_enable(sor->clk_safe);
 
 
