@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B26A353C92
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92D0A353D24
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232636AbhDEIze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33404 "EHLO mail.kernel.org"
+        id S234052AbhDEI6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:58:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232632AbhDEIzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:55:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CB736138A;
-        Mon,  5 Apr 2021 08:55:27 +0000 (UTC)
+        id S233790AbhDEI6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:58:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBDFE6124C;
+        Mon,  5 Apr 2021 08:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612927;
-        bh=L01JovcBjBZNhh1gifHTBdzfGuBvGBH2eg/yPaQihXg=;
+        s=korg; t=1617613107;
+        bh=eGZ6m/uVWoRASlnaJghtEG/qLbZLh8SCbSVDqp+OP7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpjaVvbIwdTN+Hx4KzedtaTlXRUsMaEDsd82TfN2yEEXkZYWsNFTRo1tXNnVUIeIN
-         HLFRVcLDusmK/IGh3IXVhWdAmMu45nK0p5NxZ37dDnYNEar+QsIYUOD226RW4Rqlsp
-         puSa5dmGmMNqSoFPJuS5Cmug/cUtcKAS0fw009fk=
+        b=m6AEY050plFBa+L+zPeUO4CjujSzN72Z1PBtISz+8olwDHG15laXXxVEanYhtvDt+
+         DbXK20+r/DD8Sx0F4AOm5KqZEcQj8oH5qJ/UK9GjV9JmUS+Mlvm096CSl7ZzJFC5nF
+         GzxhkYSoHS99ps9iik0nc1i/tiq7+HE2i04JH0fE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Doug Brown <doug@schmorgal.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/28] appletalk: Fix skb allocation size in loopback case
+Subject: [PATCH 4.14 21/52] appletalk: Fix skb allocation size in loopback case
 Date:   Mon,  5 Apr 2021 10:53:47 +0200
-Message-Id: <20210405085017.440980315@linuxfoundation.org>
+Message-Id: <20210405085022.686963431@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
-References: <20210405085017.012074144@linuxfoundation.org>
+In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
+References: <20210405085021.996963957@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 21 insertions(+), 12 deletions(-)
 
 diff --git a/net/appletalk/ddp.c b/net/appletalk/ddp.c
-index ace94170f55e..1048cddcc9a3 100644
+index b4268bd2e557..36a67e62710c 100644
 --- a/net/appletalk/ddp.c
 +++ b/net/appletalk/ddp.c
 @@ -1575,8 +1575,8 @@ static int atalk_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
