@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB00353D7C
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE7E9353F46
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237120AbhDEJAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:00:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41330 "EHLO mail.kernel.org"
+        id S239056AbhDEJKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237122AbhDEJAD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:00:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DD6D60238;
-        Mon,  5 Apr 2021 08:59:56 +0000 (UTC)
+        id S239448AbhDEJKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:10:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 530D561393;
+        Mon,  5 Apr 2021 09:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613197;
+        s=korg; t=1617613843;
         bh=uW6oDUm5OGgrAlcJAqE/N3uUNnNkdl5IGSMnsyGW+o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+32Xq8evYl9OntgNcZHQURroJI3uL6V1q3qKhYCOI5Yrd/gRyWZg3ysegmCKYDTB
-         N3+2r07KmLsfp0RdaZaYM2aJIy+KFO0CtExjB1xHKnwXvbPXkygytzohHZBXELjovZ
-         DBIoww5A5M1Lp0jthusil8D1DzhlIcX3A2WKzD4E=
+        b=C/MbzaQ+CzbQgj1vJYdbLipyPBXX7jIaLoS54WHrFbessS8MmElBQx1HWrba71MyG
+         fHxB5ZZodFk49lpXHeKUNjuBwqjEMHu9wp1OxfvEW+aG+6HJDdYomQNbUuAzMe2J+3
+         RVFjUfLPe1e74+caoAFZvGNOWaUC67wo82rjSZDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         syzbot <syzbot+690cb1e51970435f9775@syzkaller.appspotmail.com>
-Subject: [PATCH 4.14 31/52] reiserfs: update reiserfs_xattrs_initialized() condition
-Date:   Mon,  5 Apr 2021 10:53:57 +0200
-Message-Id: <20210405085022.999630262@linuxfoundation.org>
+Subject: [PATCH 5.10 076/126] reiserfs: update reiserfs_xattrs_initialized() condition
+Date:   Mon,  5 Apr 2021 10:53:58 +0200
+Message-Id: <20210405085033.584694955@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-References: <20210405085021.996963957@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
