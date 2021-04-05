@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D1635402F
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4FE8353EDF
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239339AbhDEJQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:16:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37226 "EHLO mail.kernel.org"
+        id S238567AbhDEJIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:08:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240662AbhDEJQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:16:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6E8D61002;
-        Mon,  5 Apr 2021 09:16:04 +0000 (UTC)
+        id S238590AbhDEJIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:08:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFCE7613A8;
+        Mon,  5 Apr 2021 09:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614165;
-        bh=bS9v8Sn+M9PdSho+hk1fWodUee1upM8TnfkiJCOAKg8=;
+        s=korg; t=1617613696;
+        bh=5wzuOc2+vaYdYoEDiAHvdDZik+tc70rjc23ZwEXT4yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXDOg/0Hd2S7ca5mFSNqCW+ZMg8U22Sb2JdBZvtZeFN9vEzx0jFjEOk3Sm3Sz8rY6
-         4nd7ZfPYb5ZnhCkJOIRguJlMqTLQ/d6T5g78CLvg83SmQzIUVdyq8eXy4BECoiAu0Q
-         vBeY/4pPJ7ATyNPBtpUipEjv24Aw9hHw6xVkCjT4=
+        b=SCe0+C8SL2sbSN156Ym1bnJvySdyjA71/XC/xRhTVu2iAg49ymsztZnUlq0CkfHuE
+         7hETg1WU6WWVqfAjM7EqIhdaxYkDhOFq+9hXRsJYHuOsRtM79PO/umtwI0ZGsIEO5o
+         6AHU8acp+etNwsGqix7nAIBKXVZ0/B/Wtx37WakY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ikjoon Jang <ikjn@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 071/152] ALSA: usb-audio: Apply sample rate quirk to Logitech Connect
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 058/126] ALSA: hda: Re-add dropped snd_poewr_change_state() calls
 Date:   Mon,  5 Apr 2021 10:53:40 +0200
-Message-Id: <20210405085036.583091435@linuxfoundation.org>
+Message-Id: <20210405085032.969397072@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +38,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ikjoon Jang <ikjn@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 625bd5a616ceda4840cd28f82e957c8ced394b6a upstream.
+commit c8f79808cd8eb5bc8d14de129bd6d586d3fce0aa upstream.
 
-Logitech ConferenceCam Connect is a compound USB device with UVC and
-UAC. Not 100% reproducible but sometimes it keeps responding STALL to
-every control transfer once it receives get_freq request.
+The card power state change via snd_power_change_state() at the system
+suspend/resume seems dropped mistakenly during the PM code rewrite.
+The card power state doesn't play much role nowadays but it's still
+referred in a few places such as the HDMI codec driver.
 
-This patch adds 046d:0x084c to a snd_usb_get_sample_rate_quirk list.
+This patch restores them, but in a more appropriate place now in the
+prepare and complete callbacks.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203419
-Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
+Fixes: f5dac54d9d93 ("ALSA: hda: Separate runtime and system suspend")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210324105153.2322881-1-ikjn@chromium.org
+Link: https://lore.kernel.org/r/20210329113059.25035-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_intel.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1521,6 +1521,7 @@ bool snd_usb_get_sample_rate_quirk(struc
- 	case USB_ID(0x21b4, 0x0081): /* AudioQuest DragonFly */
- 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
- 	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
-+	case USB_ID(0x046d, 0x084c): /* Logitech ConferenceCam Connect */
- 		return true;
- 	}
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1025,6 +1025,7 @@ static int azx_prepare(struct device *de
+ 
+ 	chip = card->private_data;
+ 	chip->pm_prepared = 1;
++	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+ 
+ 	flush_work(&azx_bus(chip)->unsol_work);
+ 
+@@ -1040,6 +1041,7 @@ static void azx_complete(struct device *
+ 	struct azx *chip;
+ 
+ 	chip = card->private_data;
++	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
+ 	chip->pm_prepared = 0;
+ }
  
 
 
