@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25C15354069
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 366D6353F68
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239641AbhDEJRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:17:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39780 "EHLO mail.kernel.org"
+        id S239070AbhDEJL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239792AbhDEJRn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:17:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5080613AC;
-        Mon,  5 Apr 2021 09:17:29 +0000 (UTC)
+        id S238892AbhDEJLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:11:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE130613A7;
+        Mon,  5 Apr 2021 09:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614250;
-        bh=WL1ZxEQxzl/JQBs3FER3IAxgsvUr28RtXr896Fwniew=;
+        s=korg; t=1617613875;
+        bh=UKghFny69coTffHjMIZPzcbMA/FSap3044jk8omocHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYrNYnjbdNx8MQk+W0Gf6jTy4JBtb6hYIZecdiFDkEjfNAWcEpnL/Bd2g7nH4/vjV
-         la1sPqXAXP3RcQ5e0Bdz3aRZgFHBaHi5qCPIgbe9i46kYEkIBjjcyfkQch4WmVBad9
-         UB2DkxwWiGfQZpD9Jwx86MfX6L8C1TQtyqmX3x5M=
+        b=QH27VaWGDSskJ0Jo819ye5uG+nz/ykHSxy4mS4U0MPXQWnbu+MQE2yJaWaB8buAp+
+         X7cyIQUBZrzrFwL69fzTw+9/69xc9TuQARO3vBFBy6VBoGWJ1MLW+DrYHo63WHDmY4
+         X2A8WDGmqR0c8IsTw6V0p7u6kRI2LGc8Mbm6hrlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.11 138/152] USB: cdc-acm: fix use-after-free after probe failure
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 125/126] Revert "kernel: freezer should treat PF_IO_WORKER like PF_KTHREAD for freezing"
 Date:   Mon,  5 Apr 2021 10:54:47 +0200
-Message-Id: <20210405085038.701140984@linuxfoundation.org>
+Message-Id: <20210405085035.165900931@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +38,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 4e49bf376c0451ad2eae2592e093659cde12be9a upstream.
+commit d3dc04cd81e0eaf50b2d09ab051a13300e587439 upstream.
 
-If tty-device registration fails the driver would fail to release the
-data interface. When the device is later disconnected, the disconnect
-callback would still be called for the data interface and would go about
-releasing already freed resources.
+This reverts commit 15b2219facadec583c24523eed40fa45865f859f.
 
-Fixes: c93d81955005 ("usb: cdc-acm: fix error handling in acm_probe()")
-Cc: stable@vger.kernel.org      # 3.9
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210322155318.9837-3-johan@kernel.org
+Before IO threads accepted signals, the freezer using take signals to wake
+up an IO thread would cause them to loop without any way to clear the
+pending signal. That is no longer the case, so stop special casing
+PF_IO_WORKER in the freezer.
+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/freezer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1516,6 +1516,11 @@ skip_countries:
+--- a/kernel/freezer.c
++++ b/kernel/freezer.c
+@@ -134,7 +134,7 @@ bool freeze_task(struct task_struct *p)
+ 		return false;
+ 	}
  
- 	return 0;
- alloc_fail6:
-+	if (!acm->combined_interfaces) {
-+		/* Clear driver data so that disconnect() returns early. */
-+		usb_set_intfdata(data_interface, NULL);
-+		usb_driver_release_interface(&acm_driver, data_interface);
-+	}
- 	if (acm->country_codes) {
- 		device_remove_file(&acm->control->dev,
- 				&dev_attr_wCountryCodes);
+-	if (!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))
++	if (!(p->flags & PF_KTHREAD))
+ 		fake_signal_wake_up(p);
+ 	else
+ 		wake_up_state(p, TASK_INTERRUPTIBLE);
 
 
