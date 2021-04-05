@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1323A35444B
+	by mail.lfdr.de (Postfix) with ESMTP id 8403935444C
 	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242145AbhDEQE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242149AbhDEQE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Apr 2021 12:04:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56680 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242114AbhDEQEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242115AbhDEQEt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Apr 2021 12:04:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AC40613B8;
-        Mon,  5 Apr 2021 16:04:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25D36613C8;
+        Mon,  5 Apr 2021 16:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638678;
-        bh=lcU4DKczLEKRUAQnyQb4jFFbgCf8JhMH6o2UIlf5vnM=;
+        s=k20201202; t=1617638679;
+        bh=0tqqrg5SxBnAodsMUL9L2jGPSa47lkhstrn2nGqA+MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvGmBhGFyMI113ogCxxf2oeRNs4VDtetGbzM5dWve93Fad+UVgndL9E7xe02tXxp6
-         H1m/1QtJClmhILSIHhI2ya4Wgfb+lnQAQNtB/Op1I+D1k0ziJI3qk0Feqd3dvxmYlV
-         tFOFBIym8UqbBhECxoT8U3QMsJMRHLS8VtaITBLn/7jT8zlL0eI4TP/UTujOgwLW5O
-         jHQcTMT5360YO+KVe/SdFS7BBZ2QXFddJ/UXd42ShdcVBEGQfvYQaP13ckYTIRDscS
-         VBn3hDJHO20b/QsVqjbxMvWy6SvjngecET61PKx8ntbeg4p0oFD0NlaAW2Nt1B7D3Z
-         Rz/Q8bewqypNA==
+        b=dMZA0CMCmHfeYZGkoy2rg07huti7wV5LUze+LwNQuDz/R/UX+S31mU62FqFExfCbd
+         mup2+T4RWUYSyUJYzF1z9Bhc5/bDf7m3zmiP7KHGbxCdzKIAYvNGTcE6bpBPZVo0jx
+         xsxFylh+g1Fh6T/8uBDomI6X57jfDh8LF5SQ3CDeEz/cvp3sEkty8hvfh1K7HUM/gT
+         XEwmgR42SiPVAXrt+Ehq958GDBTGzykjN3yhrf7wO90xzAB3aVMKAnUuXemrbi5jIv
+         LmYUFtHAc+CjmQJF6XaCwSG676J1qQu1nbecXl/AfwW+YeXBunNrIv3IrJR32G2Vh2
+         vMkyOth0PPW1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Liu Ying <victor.liu@nxp.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 05/22] drm/imx: imx-ldb: fix out of bounds array access warning
-Date:   Mon,  5 Apr 2021 12:04:14 -0400
-Message-Id: <20210405160432.268374-5-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 06/22] gfs2: report "already frozen/thawed" errors
+Date:   Mon,  5 Apr 2021 12:04:15 -0400
+Message-Id: <20210405160432.268374-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210405160432.268374-1-sashal@kernel.org>
 References: <20210405160432.268374-1-sashal@kernel.org>
@@ -44,60 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 33ce7f2f95cabb5834cf0906308a5cb6103976da ]
+[ Upstream commit ff132c5f93c06bd4432bbab5c369e468653bdec4 ]
 
-When CONFIG_OF is disabled, building with 'make W=1' produces warnings
-about out of bounds array access:
+Before this patch, gfs2's freeze function failed to report an error
+when the target file system was already frozen as it should (and as
+generic vfs function freeze_super does. Similarly, gfs2's thaw function
+failed to report an error when trying to thaw a file system that is not
+frozen, as vfs function thaw_super does. The errors were checked, but
+it always returned a 0 return code.
 
-drivers/gpu/drm/imx/imx-ldb.c: In function 'imx_ldb_set_clock.constprop':
-drivers/gpu/drm/imx/imx-ldb.c:186:8: error: array subscript -22 is below array bounds of 'struct clk *[4]' [-Werror=array-bounds]
+This patch adds the missing error return codes to gfs2 freeze and thaw.
 
-Add an error check before the index is used, which helps with the
-warning, as well as any possible other error condition that may be
-triggered at runtime.
-
-The warning could be fixed by adding a Kconfig depedency on CONFIG_OF,
-but Liu Ying points out that the driver may hit the out-of-bounds
-problem at runtime anyway.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Liu Ying <victor.liu@nxp.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/imx-ldb.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/gfs2/super.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
-index 41e2978cb1eb..75036aaa0c63 100644
---- a/drivers/gpu/drm/imx/imx-ldb.c
-+++ b/drivers/gpu/drm/imx/imx-ldb.c
-@@ -190,6 +190,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
- 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
- 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 0581612dd91e..077dc8c035a8 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -769,11 +769,13 @@ void gfs2_freeze_func(struct work_struct *work)
+ static int gfs2_freeze(struct super_block *sb)
+ {
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
+-	int error = 0;
++	int error;
  
-+	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
-+		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
-+		return;
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN)
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN) {
++		error = -EBUSY;
+ 		goto out;
 +	}
-+
- 	drm_panel_prepare(imx_ldb_ch->panel);
  
- 	if (dual) {
-@@ -248,6 +253,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
- 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
- 	u32 bus_format = imx_ldb_ch->bus_format;
+ 	for (;;) {
+ 		if (gfs2_withdrawn(sdp)) {
+@@ -814,10 +816,10 @@ static int gfs2_unfreeze(struct super_block *sb)
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
  
-+	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
-+		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
-+		return;
-+	}
-+
- 	if (mode->clock > 170000) {
- 		dev_warn(ldb->dev,
- 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-        if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
+ 	    !gfs2_holder_initialized(&sdp->sd_freeze_gh)) {
+ 		mutex_unlock(&sdp->sd_freeze_mutex);
+-                return 0;
++		return -EINVAL;
+ 	}
+ 
+ 	gfs2_freeze_unlock(&sdp->sd_freeze_gh);
 -- 
 2.30.2
 
