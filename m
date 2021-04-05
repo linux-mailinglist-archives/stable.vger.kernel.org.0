@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDE7353E9E
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93B63353EA0
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238184AbhDEJHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:07:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
+        id S238270AbhDEJHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238322AbhDEJGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:06:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27F7B61398;
-        Mon,  5 Apr 2021 09:06:40 +0000 (UTC)
+        id S238485AbhDEJGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:06:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 066AD6138D;
+        Mon,  5 Apr 2021 09:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613601;
-        bh=dfh0CajR97u9GzqeIMphjS6NhVroN0wqKfyhX2/ZZag=;
+        s=korg; t=1617613604;
+        bh=84+c7E0lzFxtfuh6ak2QsrMkI16t//R+YNvlVmEu+Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gvow69si9tuAyPKz5HhhG9uh03fO00W86t9q2veI3fi43pSB9l7O6XjEcZXoZAkaJ
-         Uss5rF2m1IojZonZutqSgXrT9k7kzOUshEBwU5RRxuThp5G8OBkgr/KtLPa9A4EGF2
-         aU2vknV9TrgMa02SWSUUJgfmqCmG3w9/eP5kj6eA=
+        b=hBIm3HK/MBtUXz8XH0CgRSjevPEcUlCNqh1eFlbNc1cWiFBu0hSd3rE7lY/+s6MAG
+         XWYplKFGxh3jhnST6FvLhW1vje2pxydKg6wZ28Df0vmwM32wyyjXc05eENVuCZWbln
+         roGUVEv1VwEAITTqazzY6ggmZe8IqY4cQ+dB03YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Kai=20M=C3=A4kisara?= <kai.makisara@kolumbus.fi>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/126] scsi: st: Fix a use after free in st_open()
-Date:   Mon,  5 Apr 2021 10:53:05 +0200
-Message-Id: <20210405085031.800513835@linuxfoundation.org>
+Subject: [PATCH 5.10 024/126] scsi: qla2xxx: Fix broken #endif placement
+Date:   Mon,  5 Apr 2021 10:53:06 +0200
+Message-Id: <20210405085031.831737367@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
 References: <20210405085031.040238881@linuxfoundation.org>
@@ -42,37 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit c8c165dea4c8f5ad67b1240861e4f6c5395fa4ac ]
+[ Upstream commit 5999b9e5b1f8a2f5417b755130919b3ac96f5550 ]
 
-In st_open(), if STp->in_use is true, STp will be freed by
-scsi_tape_put(). However, STp is still used by DEBC_printk() after. It is
-better to DEBC_printk() before scsi_tape_put().
+Only half of the file is under include guard because terminating #endif
+is placed too early.
 
-Link: https://lore.kernel.org/r/20210311064636.10522-1-lyl2019@mail.ustc.edu.cn
-Acked-by: Kai Mäkisara <kai.makisara@kolumbus.fi>
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/YE4snvoW1SuwcXAn@localhost.localdomain
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/st.c | 2 +-
+ drivers/scsi/qla2xxx/qla_target.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
-index e2e5356a997d..19bc8c923fce 100644
---- a/drivers/scsi/st.c
-+++ b/drivers/scsi/st.c
-@@ -1269,8 +1269,8 @@ static int st_open(struct inode *inode, struct file *filp)
- 	spin_lock(&st_use_lock);
- 	if (STp->in_use) {
- 		spin_unlock(&st_use_lock);
--		scsi_tape_put(STp);
- 		DEBC_printk(STp, "Device already in use.\n");
-+		scsi_tape_put(STp);
- 		return (-EBUSY);
- 	}
+diff --git a/drivers/scsi/qla2xxx/qla_target.h b/drivers/scsi/qla2xxx/qla_target.h
+index 1cff7c69d448..1e94586c7eb2 100644
+--- a/drivers/scsi/qla2xxx/qla_target.h
++++ b/drivers/scsi/qla2xxx/qla_target.h
+@@ -116,7 +116,6 @@
+ 	(min(1270, ((ql) > 0) ? (QLA_TGT_DATASEGS_PER_CMD_24XX + \
+ 		QLA_TGT_DATASEGS_PER_CONT_24XX*((ql) - 1)) : 0))
+ #endif
+-#endif
  
+ #define GET_TARGET_ID(ha, iocb) ((HAS_EXTENDED_IDS(ha))			\
+ 			 ? le16_to_cpu((iocb)->u.isp2x.target.extended)	\
+@@ -244,6 +243,7 @@ struct ctio_to_2xxx {
+ #ifndef CTIO_RET_TYPE
+ #define CTIO_RET_TYPE	0x17		/* CTIO return entry */
+ #define ATIO_TYPE7 0x06 /* Accept target I/O entry for 24xx */
++#endif
+ 
+ struct fcp_hdr {
+ 	uint8_t  r_ctl;
 -- 
 2.30.1
 
