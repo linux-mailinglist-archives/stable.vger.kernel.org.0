@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A69E5353DAB
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC08353E4A
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237325AbhDEJCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
+        id S237913AbhDEJF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:05:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237274AbhDEJBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:01:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F3906138A;
-        Mon,  5 Apr 2021 09:00:59 +0000 (UTC)
+        id S238204AbhDEJEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:04:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D90D161002;
+        Mon,  5 Apr 2021 09:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613259;
-        bh=bHwf+JLLnxdRp1kLjTZ/mDd52aXc2pttgahFApdfMy0=;
+        s=korg; t=1617613469;
+        bh=8GPadsI2gF/q0uVwc0Vr/B7ZoGZ2U/szHr+2mEiZflE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cym04ZAj/NQagpgUwC8uWLueQxNGa8w63MGQJ8Kv3WGysXei8d0Ira7ekSwew0xML
-         Jq5P5H25rwCqVyLXqQ2NftNlQYw7ZlqeFADWuBmJ+/X40uGtlQm7HN8PAg3zhuG3hW
-         wlRJ86sr/nv8EmI0B5aI/socUVmdN7KO1Wo1OSqU=
+        b=sGu6eu3rq2L20wAztxQv3PWYdyRqwITimfUFyk97ZhBLo0cHF93W8mMeAA4Uof4wE
+         jXPLw8sx/ur35DQp2DD4osM3VGEKb/X6PdEyg/MLql+WXzwWOLpceoxbNjT1VWmgcU
+         FNeeXHo7rPgByWeUe/r+RrvCc4TCVnPMzC/C1/fI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Benjamin Rood <benjaminjrood@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/56] ASoC: rt5640: Fix dac- and adc- vol-tlv values being off by a factor of 10
+Subject: [PATCH 5.4 13/74] ASoC: sgtl5000: set DAP_AVC_CTRL register to correct default value on probe
 Date:   Mon,  5 Apr 2021 10:53:37 +0200
-Message-Id: <20210405085022.757955226@linuxfoundation.org>
+Message-Id: <20210405085025.157220960@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Benjamin Rood <benjaminjrood@gmail.com>
 
-[ Upstream commit cfa26ed1f9f885c2fd8f53ca492989d1e16d0199 ]
+[ Upstream commit f86f58e3594fb0ab1993d833d3b9a2496f3c928c ]
 
-The adc_vol_tlv volume-control has a range from -17.625 dB to +30 dB,
-not -176.25 dB to + 300 dB. This wrong scale is esp. a problem in userspace
-apps which translate the dB scale to a linear scale. With the logarithmic
-dB scale being of by a factor of 10 we loose all precision in the lower
-area of the range when apps translate things to a linear scale.
+According to the SGTL5000 datasheet [1], the DAP_AVC_CTRL register has
+the following bit field definitions:
 
-E.g. the 0 dB default, which corresponds with a value of 47 of the
-0 - 127 range for the control, would be shown as 0/100 in alsa-mixer.
+| BITS  | FIELD       | RW | RESET | DEFINITION                        |
+| 15    | RSVD        | RO | 0x0   | Reserved                          |
+| 14    | RSVD        | RW | 0x1   | Reserved                          |
+| 13:12 | MAX_GAIN    | RW | 0x1   | Max Gain of AVC in expander mode  |
+| 11:10 | RSVD        | RO | 0x0   | Reserved                          |
+| 9:8   | LBI_RESP    | RW | 0x1   | Integrator Response               |
+| 7:6   | RSVD        | RO | 0x0   | Reserved                          |
+| 5     | HARD_LMT_EN | RW | 0x0   | Enable hard limiter mode          |
+| 4:1   | RSVD        | RO | 0x0   | Reserved                          |
+| 0     | EN          | RW | 0x0   | Enable/Disable AVC                |
 
-Since the centi-dB values used in the TLV struct cannot represent the
-0.375 dB step size used by these controls, change the TLV definition
-for them to specify a min and max value instead of min + stepsize.
+The original default value written to the DAP_AVC_CTRL register during
+sgtl5000_i2c_probe() was 0x0510.  This would incorrectly write values to
+bits 4 and 10, which are defined as RESERVED.  It would also not set
+bits 12 and 14 to their correct RESET values of 0x1, and instead set
+them to 0x0.  While the DAP_AVC module is effectively disabled because
+the EN bit is 0, this default value is still writing invalid values to
+registers that are marked as read-only and RESERVED as well as not
+setting bits 12 and 14 to their correct default values as defined by the
+datasheet.
 
-Note this mirrors commit 3f31f7d9b540 ("ASoC: rt5670: Fix dac- and adc-
-vol-tlv values being off by a factor of 10") which made the exact same
-change to the rt5670 codec driver.
+The correct value that should be written to the DAP_AVC_CTRL register is
+0x5100, which configures the register bits to the default values defined
+by the datasheet, and prevents any writes to bits defined as
+'read-only'.  Generally speaking, it is best practice to NOT attempt to
+write values to registers/bits defined as RESERVED, as it generally
+produces unwanted/undefined behavior, or errors.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210226143817.84287-2-hdegoede@redhat.com
+Also, all credit for this patch should go to my colleague Dan MacDonald
+<dmacdonald@curbellmedical.com> for finding this error in the first
+place.
+
+[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
+
+Signed-off-by: Benjamin Rood <benjaminjrood@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20210219183308.GA2117@ubuntu-dev
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5640.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/sgtl5000.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5640.c b/sound/soc/codecs/rt5640.c
-index 974e1a449172..63e19a6a9790 100644
---- a/sound/soc/codecs/rt5640.c
-+++ b/sound/soc/codecs/rt5640.c
-@@ -342,9 +342,9 @@ static bool rt5640_readable_register(struct device *dev, unsigned int reg)
- }
- 
- static const DECLARE_TLV_DB_SCALE(out_vol_tlv, -4650, 150, 0);
--static const DECLARE_TLV_DB_SCALE(dac_vol_tlv, -65625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(dac_vol_tlv, -6562, 0);
- static const DECLARE_TLV_DB_SCALE(in_vol_tlv, -3450, 150, 0);
--static const DECLARE_TLV_DB_SCALE(adc_vol_tlv, -17625, 375, 0);
-+static const DECLARE_TLV_DB_MINMAX(adc_vol_tlv, -1762, 3000);
- static const DECLARE_TLV_DB_SCALE(adc_bst_tlv, 0, 1200, 0);
- 
- /* {0, +20, +24, +30, +35, +40, +44, +50, +52} dB */
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index f5b59305c957..8a1e485982d8 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -71,7 +71,7 @@ static const struct reg_default sgtl5000_reg_defaults[] = {
+ 	{ SGTL5000_DAP_EQ_BASS_BAND4,		0x002f },
+ 	{ SGTL5000_DAP_MAIN_CHAN,		0x8000 },
+ 	{ SGTL5000_DAP_MIX_CHAN,		0x0000 },
+-	{ SGTL5000_DAP_AVC_CTRL,		0x0510 },
++	{ SGTL5000_DAP_AVC_CTRL,		0x5100 },
+ 	{ SGTL5000_DAP_AVC_THRESHOLD,		0x1473 },
+ 	{ SGTL5000_DAP_AVC_ATTACK,		0x0028 },
+ 	{ SGTL5000_DAP_AVC_DECAY,		0x0050 },
 -- 
 2.30.1
 
