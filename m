@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F2D3544A8
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:05:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C70A53544AC
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 18:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242015AbhDEQFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 12:05:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
+        id S238417AbhDEQFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 12:05:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239140AbhDEQFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 12:05:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC01613E1;
-        Mon,  5 Apr 2021 16:05:33 +0000 (UTC)
+        id S239080AbhDEQFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 12:05:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96208613C0;
+        Mon,  5 Apr 2021 16:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617638733;
-        bh=KYAN3BxRm/d45qQPO+VJEPD+cFCDPf1hNxi5Ys+0qpg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h92QLovv6yxv98kykkoj2uXOxV3D4/DMS5Xblt2+8i94wS+e5AehFAOCNRUF7P/Qq
-         9KqZaxmO8+og+FbH6lGedQhZDggxIuL0QJr+oqfUdBFt9IwkOIzEOTLqXpYjyRe7oc
-         FLsnx22Y0/oo4GH4VNZuzZN3X4XVsIGlKX0//UOWTvhTwuoEuEePp7i4dHMhIdSZGw
-         8SwPyQL4Qr+QM5eLPZUyeBN0uju2a6qrObOgYXlFJX44SZN/obdyCofPrXbBopdPj/
-         OBqvVtIVizbTtUD5DrEdP11JvqzGQDiNSAXLMdtfs0Rl0MASbEG1uEXciJtO8PcbYg
-         JqTCIlnMqc88A==
+        s=k20201202; t=1617638736;
+        bh=NP6z82y8UYkzlwGvlhVl2v3BmtjsrN94IHTrZKg4lEo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZROe7LlMT6MwG4TlmQ3u5PADCm06R8hE0h/sr5t47+A+VoLa7potm6dEn1DmFiBaK
+         7ER8hOdup7kX924bF3biHP+KLYZxNAgq8zD4/1fyliZhcwnnofodZZ/tSvYjINEC3f
+         OooUGOsX/Teit31yixeEqkZROriMZUfTULH4QXCqWPuC6d2YGZcB87aiLbTjHCJtX4
+         eqtVCb0OBCmtg9ftXtCX/SuGWLdRGLUvAru2RoTcvmbLlq/nEi/KcBwQxu8rqmWE07
+         gEk0nOOkM33/WMC3BzK0t/9R4Lqoq2kGu0ibha6D4nX5sSK0P/bQbGcJFtrt5hZkAb
+         Q0RQSy00hM4rQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, Keith Busch <kbusch@kernel.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 5/5] block: only update parent bi_status when bio fail
-Date:   Mon,  5 Apr 2021 12:05:26 -0400
-Message-Id: <20210405160526.269140-5-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Liu Ying <victor.liu@nxp.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 1/2] drm/imx: imx-ldb: fix out of bounds array access warning
+Date:   Mon,  5 Apr 2021 12:05:33 -0400
+Message-Id: <20210405160534.269237-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210405160526.269140-1-sashal@kernel.org>
-References: <20210405160526.269140-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,77 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3edf5346e4f2ce2fa0c94651a90a8dda169565ee ]
+[ Upstream commit 33ce7f2f95cabb5834cf0906308a5cb6103976da ]
 
-For multiple split bios, if one of the bio is fail, the whole
-should return error to application. But we found there is a race
-between bio_integrity_verify_fn and bio complete, which return
-io success to application after one of the bio fail. The race as
-following:
+When CONFIG_OF is disabled, building with 'make W=1' produces warnings
+about out of bounds array access:
 
-split bio(READ)          kworker
+drivers/gpu/drm/imx/imx-ldb.c: In function 'imx_ldb_set_clock.constprop':
+drivers/gpu/drm/imx/imx-ldb.c:186:8: error: array subscript -22 is below array bounds of 'struct clk *[4]' [-Werror=array-bounds]
 
-nvme_complete_rq
-blk_update_request //split error=0
-  bio_endio
-    bio_integrity_endio
-      queue_work(kintegrityd_wq, &bip->bip_work);
+Add an error check before the index is used, which helps with the
+warning, as well as any possible other error condition that may be
+triggered at runtime.
 
-                         bio_integrity_verify_fn
-                         bio_endio //split bio
-                          __bio_chain_endio
-                             if (!parent->bi_status)
+The warning could be fixed by adding a Kconfig depedency on CONFIG_OF,
+but Liu Ying points out that the driver may hit the out-of-bounds
+problem at runtime anyway.
 
-                               <interrupt entry>
-                               nvme_irq
-                                 blk_update_request //parent error=7
-                                 req_bio_endio
-                                    bio->bi_status = 7 //parent bio
-                               <interrupt exit>
-
-                               parent->bi_status = 0
-                        parent->bi_end_io() // return bi_status=0
-
-The bio has been split as two: split and parent. When split
-bio completed, it depends on kworker to do endio, while
-bio_integrity_verify_fn have been interrupted by parent bio
-complete irq handler. Then, parent bio->bi_status which have
-been set in irq handler will overwrite by kworker.
-
-In fact, even without the above race, we also need to conside
-the concurrency beteen mulitple split bio complete and update
-the same parent bi_status. Normally, multiple split bios will
-be issued to the same hctx and complete from the same irq
-vector. But if we have updated queue map between multiple split
-bios, these bios may complete on different hw queue and different
-irq vector. Then the concurrency update parent bi_status may
-cause the final status error.
-
-Suggested-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210331115359.1125679-1-yuyufen@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/imx/imx-ldb.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/block/bio.c b/block/bio.c
-index 1384f9790882..30df1b45dde8 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -312,7 +312,7 @@ static struct bio *__bio_chain_endio(struct bio *bio)
- {
- 	struct bio *parent = bio->bi_private;
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 2df407b2b0da..3a9d06de81b4 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -212,6 +212,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
+ 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
  
--	if (!parent->bi_status)
-+	if (bio->bi_status && !parent->bi_status)
- 		parent->bi_status = bio->bi_status;
- 	bio_put(bio);
- 	return parent;
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	drm_panel_prepare(imx_ldb_ch->panel);
+ 
+ 	if (dual) {
+@@ -270,6 +275,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 	u32 bus_format = imx_ldb_ch->bus_format;
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	if (mode->clock > 170000) {
+ 		dev_warn(ldb->dev,
+ 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
 -- 
 2.30.2
 
