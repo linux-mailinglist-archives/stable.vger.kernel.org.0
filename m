@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE63353E48
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A34F6354025
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237895AbhDEJFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:05:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
+        id S239310AbhDEJQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:16:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238140AbhDEJEa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:04:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2476561002;
-        Mon,  5 Apr 2021 09:04:23 +0000 (UTC)
+        id S239119AbhDEJPy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:15:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E7A161427;
+        Mon,  5 Apr 2021 09:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613464;
-        bh=5IxbLfMfAzxJUCCm2QG0PWeYtdItXDQJK0p/zM1e95U=;
+        s=korg; t=1617614148;
+        bh=7AuWsnj/tw+RkTigsDxavoaeOgH0YxJSvw9BwjsED4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddn0wn0Qw3yMMKYFqwVwXoUfJXT9rovljK1/CeOtT5pAfBA6rWz77feSlB4r2eXFK
-         tC+Cm2H3+TjemyP0mAWnUs+pS29aLScN1Y5D4YEfk0PES79fVPYr/K16v+Hz39bAVF
-         oPTKCTZXR8/mIDxyNt6IE4WsxjhFVpFJHlT4xnjQ=
+        b=LAmN5s1Hh8Af0XJCuyYhEKtz8qUKDhNF7JN7oo6CUZ/fiN8DdVsUOLXRmTY2W17pe
+         jLaXvjgK5AZqxBj/fbX111jM/Q0a5lnW3a0zoSPW8+v/YW6CiVy3DdLXELzn0Etl6H
+         syrSKsMjudLktW9KTVh0TEJjSZgCo0gDIvMDZp30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 45/74] ALSA: hda/realtek: call alc_update_headset_mode() in hp_automute_hook
+        stable@vger.kernel.org, Jianqun Xu <jay.xu@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Wang Panzhenzhuan <randy.wang@rock-chips.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.11 100/152] pinctrl: rockchip: fix restore error in resume
 Date:   Mon,  5 Apr 2021 10:54:09 +0200
-Message-Id: <20210405085026.198424950@linuxfoundation.org>
+Message-Id: <20210405085037.493828572@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
-References: <20210405085024.703004126@linuxfoundation.org>
+In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
+References: <20210405085034.233917714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Wang Panzhenzhuan <randy.wang@rock-chips.com>
 
-commit e54f30befa7990b897189b44a56c1138c6bfdbb5 upstream.
+commit c971af25cda94afe71617790826a86253e88eab0 upstream.
 
-We found the alc_update_headset_mode() is not called on some machines
-when unplugging the headset, as a result, the mode of the
-ALC_HEADSET_MODE_UNPLUGGED can't be set, then the current_headset_type
-is not cleared, if users plug a differnt type of headset next time,
-the determine_headset_type() will not be called and the audio jack is
-set to the headset type of previous time.
+The restore in resume should match to suspend which only set for RK3288
+SoCs pinctrl.
 
-On the Dell machines which connect the dmic to the PCH, if we open
-the gnome-sound-setting and unplug the headset, this issue will
-happen. Those machines disable the auto-mute by ucm and has no
-internal mic in the input source, so the update_headset_mode() will
-not be called by cap_sync_hook or automute_hook when unplugging, and
-because the gnome-sound-setting is opened, the codec will not enter
-the runtime_suspend state, so the update_headset_mode() will not be
-called by alc_resume when unplugging. In this case the
-hp_automute_hook is called when unplugging, so add
-update_headset_mode() calling to this function.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210320091542.6748-2-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 8dca933127024 ("pinctrl: rockchip: save and restore gpio6_c6 pinmux in suspend/resume")
+Reviewed-by: Jianqun Xu <jay.xu@rock-chips.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Wang Panzhenzhuan <randy.wang@rock-chips.com>
+Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
+Link: https://lore.kernel.org/r/20210223100725.269240-1-jay.xu@rock-chips.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/pinctrl-rockchip.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5376,6 +5376,7 @@ static void alc_update_headset_jack_cb(s
- 				       struct hda_jack_callback *jack)
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -3727,12 +3727,15 @@ static int __maybe_unused rockchip_pinct
+ static int __maybe_unused rockchip_pinctrl_resume(struct device *dev)
  {
- 	snd_hda_gen_hp_automute(codec, jack);
-+	alc_update_headset_mode(codec);
- }
+ 	struct rockchip_pinctrl *info = dev_get_drvdata(dev);
+-	int ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
+-			       rk3288_grf_gpio6c_iomux |
+-			       GPIO6C6_SEL_WRITE_ENABLE);
++	int ret;
  
- static void alc_probe_headset_mode(struct hda_codec *codec)
+-	if (ret)
+-		return ret;
++	if (info->ctrl->type == RK3288) {
++		ret = regmap_write(info->regmap_base, RK3288_GRF_GPIO6C_IOMUX,
++				   rk3288_grf_gpio6c_iomux |
++				   GPIO6C6_SEL_WRITE_ENABLE);
++		if (ret)
++			return ret;
++	}
+ 
+ 	return pinctrl_force_default(info->pctl_dev);
+ }
 
 
