@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C727D353CBB
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADA00353CFA
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 10:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232823AbhDEI4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 04:56:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34824 "EHLO mail.kernel.org"
+        id S233172AbhDEI5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 04:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232910AbhDEI40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 04:56:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AFB361245;
-        Mon,  5 Apr 2021 08:56:20 +0000 (UTC)
+        id S233296AbhDEI5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 04:57:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 943FB61394;
+        Mon,  5 Apr 2021 08:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617612980;
-        bh=I2wM7d8m3gQj4oCpdlaDJdwdAUqStOU4cVPfVyEn7II=;
+        s=korg; t=1617613056;
+        bh=T8twyrasx4l19CUuEcFnhOqaYQqq+ba8U0BTnRQo/ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ECJ2djGjVhuM7WZClPSytH9LHcrOBw+mn8cheMm5ITSkE6GOcrl9mH5ch8eM4h0KU
-         huWD5S7sJyADBUj26fK9VhgT7gJINGe2nHBhvYBPdsNabnqNzMvLQO9SdfLyVlfQFW
-         I2W5my6iFNHfUnkZjHAQcFp6OcdPqj/FYHE3q2l4=
+        b=EPNI+01UNqeDE2yJ4h033RMbw197d+7LoKOVJpHFijVuNDqFub+Q2cnTzvgbsEVyZ
+         3sTrAU2yZxhdi1fxLLwjNLd6NTsBjuzWTgHOSlSicYeIXF3FD47TSCJG6UpuNUVcm1
+         WzW+dCljLPPMh1ytu5LSxRnTv6gBhwQp4datb/vQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/28] scsi: qla2xxx: Fix broken #endif placement
+Subject: [PATCH 4.9 08/35] powerpc: Force inlining of cpu_has_feature() to avoid build failure
 Date:   Mon,  5 Apr 2021 10:53:43 +0200
-Message-Id: <20210405085017.319504623@linuxfoundation.org>
+Message-Id: <20210405085019.137640199@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085017.012074144@linuxfoundation.org>
-References: <20210405085017.012074144@linuxfoundation.org>
+In-Reply-To: <20210405085018.871387942@linuxfoundation.org>
+References: <20210405085018.871387942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 5999b9e5b1f8a2f5417b755130919b3ac96f5550 ]
+[ Upstream commit eed5fae00593ab9d261a0c1ffc1bdb786a87a55a ]
 
-Only half of the file is under include guard because terminating #endif
-is placed too early.
+The code relies on constant folding of cpu_has_feature() based
+on possible and always true values as defined per
+CPU_FTRS_ALWAYS and CPU_FTRS_POSSIBLE.
 
-Link: https://lore.kernel.org/r/YE4snvoW1SuwcXAn@localhost.localdomain
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Build failure is encountered with for instance
+book3e_all_defconfig on kisskb in the AMDGPU driver which uses
+cpu_has_feature(CPU_FTR_VSX_COMP) to decide whether calling
+kernel_enable_vsx() or not.
+
+The failure is due to cpu_has_feature() not being inlined with
+that configuration with gcc 4.9.
+
+In the same way as commit acdad8fb4a15 ("powerpc: Force inlining of
+mmu_has_feature to fix build failure"), for inlining of
+cpu_has_feature().
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b231dfa040ce4cc37f702f5c3a595fdeabfe0462.1615378209.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/cpu_has_feature.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.h b/drivers/scsi/qla2xxx/qla_target.h
-index bca584ae45b7..7a6fafa8ba56 100644
---- a/drivers/scsi/qla2xxx/qla_target.h
-+++ b/drivers/scsi/qla2xxx/qla_target.h
-@@ -112,7 +112,6 @@
- 	(min(1270, ((ql) > 0) ? (QLA_TGT_DATASEGS_PER_CMD_24XX + \
- 		QLA_TGT_DATASEGS_PER_CONT_24XX*((ql) - 1)) : 0))
- #endif
--#endif
+diff --git a/arch/powerpc/include/asm/cpu_has_feature.h b/arch/powerpc/include/asm/cpu_has_feature.h
+index 6e834caa3720..7b10b3ef7739 100644
+--- a/arch/powerpc/include/asm/cpu_has_feature.h
++++ b/arch/powerpc/include/asm/cpu_has_feature.h
+@@ -6,7 +6,7 @@
+ #include <linux/bug.h>
+ #include <asm/cputable.h>
  
- #define GET_TARGET_ID(ha, iocb) ((HAS_EXTENDED_IDS(ha))			\
- 			 ? le16_to_cpu((iocb)->u.isp2x.target.extended)	\
-@@ -323,6 +322,7 @@ struct ctio_to_2xxx {
- #ifndef CTIO_RET_TYPE
- #define CTIO_RET_TYPE	0x17		/* CTIO return entry */
- #define ATIO_TYPE7 0x06 /* Accept target I/O entry for 24xx */
-+#endif
- 
- struct fcp_hdr {
- 	uint8_t  r_ctl;
+-static inline bool early_cpu_has_feature(unsigned long feature)
++static __always_inline bool early_cpu_has_feature(unsigned long feature)
+ {
+ 	return !!((CPU_FTRS_ALWAYS & feature) ||
+ 		  (CPU_FTRS_POSSIBLE & cur_cpu_spec->cpu_features & feature));
+@@ -45,7 +45,7 @@ static __always_inline bool cpu_has_feature(unsigned long feature)
+ 	return static_branch_likely(&cpu_feature_keys[i]);
+ }
+ #else
+-static inline bool cpu_has_feature(unsigned long feature)
++static __always_inline bool cpu_has_feature(unsigned long feature)
+ {
+ 	return early_cpu_has_feature(feature);
+ }
 -- 
 2.30.1
 
