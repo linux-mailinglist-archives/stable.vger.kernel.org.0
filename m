@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7EA353DCC
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19635353E74
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237433AbhDEJCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:02:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43940 "EHLO mail.kernel.org"
+        id S237856AbhDEJGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237348AbhDEJCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F0E3613AE;
-        Mon,  5 Apr 2021 09:01:47 +0000 (UTC)
+        id S238656AbhDEJFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:05:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87EBA61002;
+        Mon,  5 Apr 2021 09:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613308;
-        bh=01X+ZlqpsSMrBWtoBB43At5ms1yK6F8ZDglb7QSOXhY=;
+        s=korg; t=1617613546;
+        bh=K5nbEc/DLrkYJWuKUU9FdNe9arkZubSvE6PlGSyjR4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dytfBcwkq8zrHsxESNq6Tr475qRQTOl7dbwEUit/KfmMZbjhvk4ktK1F8ncTB/NFa
-         bLqFXyHFJZm9TnH8OJX4IL1SV1tjmb75mF3IfHKzl8dHrS/PCSfYgCJ4SOiF30uFTf
-         ERWvgZsbPY/SzvSt/tk9O5jM+ZGsoa+6+T0gzvxg=
+        b=kLUr3nm4NLcD6pnf5nzYNt1C8cpDLItmNNmVoLjVY9cV+ttuWJ/KqcaepZQa2ztl1
+         8aQY+wb7/ai0peYnXVS9Ulcx0LlMXIFQ21W3TVQTONjga61XwRRXXLxg/OPEFp7sCX
+         dUr/klwMLdgvYyBK93LXUJ2NEOt3DEsBHJ/XEqhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bhushan Shah <bshah@kde.org>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 4.19 45/56] usb: musb: Fix suspend with devices connected for a64
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Xi Ruoyao <xry111@mengyan1223.wang>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 52/74] drm/amdgpu: check alignment on CPU page for bo map
 Date:   Mon,  5 Apr 2021 10:54:16 +0200
-Message-Id: <20210405085023.965967943@linuxfoundation.org>
+Message-Id: <20210405085026.432078790@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-References: <20210405085022.562176619@linuxfoundation.org>
+In-Reply-To: <20210405085024.703004126@linuxfoundation.org>
+References: <20210405085024.703004126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Xℹ Ruoyao <xry111@mengyan1223.wang>
 
-commit 92af4fc6ec331228aca322ca37c8aea7b150a151 upstream.
+commit e3512fb67093fabdf27af303066627b921ee9bd8 upstream.
 
-Pinephone running on Allwinner A64 fails to suspend with USB devices
-connected as reported by Bhushan Shah <bshah@kde.org>. Reverting
-commit 5fbf7a253470 ("usb: musb: fix idling for suspend after
-disconnect interrupt") fixes the issue.
+The page table of AMDGPU requires an alignment to CPU page so we should
+check ioctl parameters for it.  Return -EINVAL if some parameter is
+unaligned to CPU page, instead of corrupt the page table sliently.
 
-Let's add suspend checks also for suspend after disconnect interrupt
-quirk handling like we already do elsewhere.
-
-Fixes: 5fbf7a253470 ("usb: musb: fix idling for suspend after disconnect interrupt")
-Reported-by: Bhushan Shah <bshah@kde.org>
-Tested-by: Bhushan Shah <bshah@kde.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210324071142.42264-1-tony@atomide.com
-Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/musb/musb_core.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -1868,10 +1868,14 @@ static void musb_pm_runtime_check_sessio
- 		MUSB_DEVCTL_HR;
- 	switch (devctl & ~s) {
- 	case MUSB_QUIRK_B_DISCONNECT_99:
--		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
--		schedule_delayed_work(&musb->irq_work,
--				      msecs_to_jiffies(1000));
--		break;
-+		if (musb->quirk_retries && !musb->flush_irq_work) {
-+			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
-+			schedule_delayed_work(&musb->irq_work,
-+					      msecs_to_jiffies(1000));
-+			musb->quirk_retries--;
-+			break;
-+		}
-+		/* fall through */
- 	case MUSB_QUIRK_B_INVALID_VBUS_91:
- 		if (musb->quirk_retries && !musb->flush_irq_work) {
- 			musb_dbg(musb,
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -2123,8 +2123,8 @@ int amdgpu_vm_bo_map(struct amdgpu_devic
+ 	uint64_t eaddr;
+ 
+ 	/* validate the parameters */
+-	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
+-	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
++	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
++	    size == 0 || size & ~PAGE_MASK)
+ 		return -EINVAL;
+ 
+ 	/* make sure object fit at this offset */
+@@ -2188,8 +2188,8 @@ int amdgpu_vm_bo_replace_map(struct amdg
+ 	int r;
+ 
+ 	/* validate the parameters */
+-	if (saddr & AMDGPU_GPU_PAGE_MASK || offset & AMDGPU_GPU_PAGE_MASK ||
+-	    size == 0 || size & AMDGPU_GPU_PAGE_MASK)
++	if (saddr & ~PAGE_MASK || offset & ~PAGE_MASK ||
++	    size == 0 || size & ~PAGE_MASK)
+ 		return -EINVAL;
+ 
+ 	/* make sure object fit at this offset */
 
 
