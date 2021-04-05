@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0A7353F74
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA541353EA9
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239129AbhDEJMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:12:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59286 "EHLO mail.kernel.org"
+        id S238254AbhDEJHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:07:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239104AbhDEJMH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:12:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 993BB613A3;
-        Mon,  5 Apr 2021 09:11:59 +0000 (UTC)
+        id S238161AbhDEJHH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:07:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CED1613A5;
+        Mon,  5 Apr 2021 09:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617613920;
-        bh=CDd15vNGaWLUqR63Q6Okm9EKlIgZ1VWYnN7Vj1s12aI=;
+        s=korg; t=1617613621;
+        bh=sv2npbch/fm+Qb1D2o9pjkfxFI9GqFDf7UDnay+PbO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4V2WTo6bw+EGQCvf2JRO3OWXcP7iBnKzx5J4K5Kc7/i0oyuD3XtaAGgwfheveCzL
-         U6nbCtkXHeU3prj6VTdld3MS6jlEkQHg3Yc8DqVB9nfD/aSvx+cb9xpXcLDg0zJOKb
-         SUTyKUQyaNfstkWVPyQWZaTXLFECHtQ9MHcD4LIo=
+        b=Y8GBkRZXERKZQ9GqwEFTKYM8KUq2U4T1VoBsuaVkL8DJBO4IKDgdMG4wZ7PTHZGkE
+         1FCnBYGk5doHh+9Y5raqCf5gR3itSek8pxVM03JfQcxHi3MiztgowD48/62MB5Q8ez
+         RJgmlK2P3BX/aY/sWyyGk6C2a/P+G1qMiXERUZ84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 016/152] ASoC: cs42l42: Fix mixer volume control
+Subject: [PATCH 5.10 003/126] virtiofs: Fail dax mount if device does not support it
 Date:   Mon,  5 Apr 2021 10:52:45 +0200
-Message-Id: <20210405085034.770188523@linuxfoundation.org>
+Message-Id: <20210405085031.160465045@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Vivek Goyal <vgoyal@redhat.com>
 
-[ Upstream commit 72d904763ae6a8576e7ad034f9da4f0e3c44bf24 ]
+[ Upstream commit 3f9b9efd82a84f27e95d0414f852caf1fa839e83 ]
 
-The minimum value is 0x3f (-63dB), which also is mute
+Right now "mount -t virtiofs -o dax myfs /mnt/virtiofs" succeeds even
+if filesystem deivce does not have a cache window and hence DAX can't
+be supported.
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20210305173442.195740-4-tanureal@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This gives a false sense to user that they are using DAX with virtiofs
+but fact of the matter is that they are not.
+
+Fix this by returning error if dax can't be supported and user has asked
+for it.
+
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/fuse/virtio_fs.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 4f9ad9547929..d5078ce79fad 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -401,7 +401,7 @@ static const struct regmap_config cs42l42_regmap = {
- };
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index d2c0e58c6416..3d83c9e12848 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1324,8 +1324,15 @@ static int virtio_fs_fill_super(struct super_block *sb, struct fs_context *fsc)
  
- static DECLARE_TLV_DB_SCALE(adc_tlv, -9600, 100, false);
--static DECLARE_TLV_DB_SCALE(mixer_tlv, -6200, 100, false);
-+static DECLARE_TLV_DB_SCALE(mixer_tlv, -6300, 100, true);
- 
- static const char * const cs42l42_hpf_freq_text[] = {
- 	"1.86Hz", "120Hz", "235Hz", "466Hz"
-@@ -458,7 +458,7 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
- 				CS42L42_DAC_HPF_EN_SHIFT, true, false),
- 	SOC_DOUBLE_R_TLV("Mixer Volume", CS42L42_MIXER_CHA_VOL,
- 			 CS42L42_MIXER_CHB_VOL, CS42L42_MIXER_CH_VOL_SHIFT,
--				0x3e, 1, mixer_tlv)
-+				0x3f, 1, mixer_tlv)
- };
- 
- static int cs42l42_hpdrv_evt(struct snd_soc_dapm_widget *w,
+ 	/* virtiofs allocates and installs its own fuse devices */
+ 	ctx->fudptr = NULL;
+-	if (ctx->dax)
++	if (ctx->dax) {
++		if (!fs->dax_dev) {
++			err = -EINVAL;
++			pr_err("virtio-fs: dax can't be enabled as filesystem"
++			       " device does not support it.\n");
++			goto err_free_fuse_devs;
++		}
+ 		ctx->dax_dev = fs->dax_dev;
++	}
+ 	err = fuse_fill_super_common(sb, ctx);
+ 	if (err < 0)
+ 		goto err_free_fuse_devs;
 -- 
 2.30.1
 
