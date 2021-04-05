@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 038FC353FF4
-	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11FED353EC9
+	for <lists+stable@lfdr.de>; Mon,  5 Apr 2021 12:34:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238981AbhDEJPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Apr 2021 05:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
+        id S238563AbhDEJIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Apr 2021 05:08:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239641AbhDEJOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Apr 2021 05:14:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C10860FE4;
-        Mon,  5 Apr 2021 09:13:59 +0000 (UTC)
+        id S238334AbhDEJHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Apr 2021 05:07:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C9F361002;
+        Mon,  5 Apr 2021 09:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617614040;
-        bh=+xAhD1Tdz5cO8Rdha1TSMYGIgyRReH40iWt5+HZgRJQ=;
+        s=korg; t=1617613663;
+        bh=uRc8hbKucGk+nf9GdNdK5D30R6r1o5Jgunn4Ep7dOYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VB+hCJdjNDvuMwojSGAmxTtW+4BMLJFyD3pLmNT8IGn9D+lgVDkQThq90FKpynlM6
-         gH0l8KTsPRffZiLNXO9cLrcmhJgk42+81WWe5rGPw+nKoJz1Sx3llZNDSZosA9RSPF
-         QefRfEwDOwaHZbtqzlB9lz43Kl0FulaouJ+pPOBE=
+        b=Wsl415R/10pDTg1f9M7d4jNRdKeNHwqBmEXYHiJxdQc8aVvYyjnUz641nlPHLET67
+         O9GuKGs6KmLW4WcdkPDrkQ5hR/uxbAELaoKLtYBFkmgYzAi2uQtuVPMfqSxu23B8UX
+         4rJi7+Z0vFUQnTz0Fg4I+jsyHJ2kqpRJwBs/RNT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Rossi <nathan.rossi@digi.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 060/152] net: ethernet: aquantia: Handle error cleanup of start on open
+Subject: [PATCH 5.10 047/126] ath10k: hold RCU lock when calling ieee80211_find_sta_by_ifaddr()
 Date:   Mon,  5 Apr 2021 10:53:29 +0200
-Message-Id: <20210405085036.231086166@linuxfoundation.org>
+Message-Id: <20210405085032.596054465@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210405085034.233917714@linuxfoundation.org>
-References: <20210405085034.233917714@linuxfoundation.org>
+In-Reply-To: <20210405085031.040238881@linuxfoundation.org>
+References: <20210405085031.040238881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Rossi <nathan.rossi@digi.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 8a28af7a3e85ddf358f8c41e401a33002f7a9587 ]
+[ Upstream commit 09078368d516918666a0122f2533dc73676d3d7e ]
 
-The aq_nic_start function can fail in a variety of cases which leaves
-the device in broken state.
+ieee80211_find_sta_by_ifaddr() must be called under the RCU lock and
+the resulting pointer is only valid under RCU lock as well.
 
-An example case where the start function fails is the
-request_threaded_irq which can be interrupted, resulting in a EINTR
-result. This can be manually triggered by bringing the link up (e.g. ip
-link set up) and triggering a SIGINT on the initiating process (e.g.
-Ctrl+C). This would put the device into a half configured state.
-Subsequently bringing the link up again would cause the napi_enable to
-BUG.
+Fix ath10k_wmi_tlv_op_pull_peer_stats_info() to hold RCU lock before it
+calls ieee80211_find_sta_by_ifaddr() and release it when the resulting
+pointer is no longer needed.
 
-In order to correctly clean up the failed attempt to start a device call
-aq_nic_stop.
+This problem was found while reviewing code to debug RCU warn from
+ath10k_wmi_tlv_parse_peer_stats_info().
 
-Signed-off-by: Nathan Rossi <nathan.rossi@digi.com>
-Reviewed-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/linux-wireless/7230c9e5-2632-b77e-c4f9-10eca557a5bb@linuxfoundation.org/
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210210212107.40373-1-skhan@linuxfoundation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/wmi-tlv.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_main.c b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-index 8f70a3909929..4af0cd9530de 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-@@ -71,8 +71,10 @@ static int aq_ndev_open(struct net_device *ndev)
- 		goto err_exit;
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+index e6135795719a..e7072fc4f487 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -576,13 +576,13 @@ static void ath10k_wmi_event_tdls_peer(struct ath10k *ar, struct sk_buff *skb)
+ 	case WMI_TDLS_TEARDOWN_REASON_TX:
+ 	case WMI_TDLS_TEARDOWN_REASON_RSSI:
+ 	case WMI_TDLS_TEARDOWN_REASON_PTR_TIMEOUT:
++		rcu_read_lock();
+ 		station = ieee80211_find_sta_by_ifaddr(ar->hw,
+ 						       ev->peer_macaddr.addr,
+ 						       NULL);
+ 		if (!station) {
+ 			ath10k_warn(ar, "did not find station from tdls peer event");
+-			kfree(tb);
+-			return;
++			goto exit;
+ 		}
+ 		arvif = ath10k_get_arvif(ar, __le32_to_cpu(ev->vdev_id));
+ 		ieee80211_tdls_oper_request(
+@@ -593,6 +593,9 @@ static void ath10k_wmi_event_tdls_peer(struct ath10k *ar, struct sk_buff *skb)
+ 					);
+ 		break;
+ 	}
++
++exit:
++	rcu_read_unlock();
+ 	kfree(tb);
+ }
  
- 	err = aq_nic_start(aq_nic);
--	if (err < 0)
-+	if (err < 0) {
-+		aq_nic_stop(aq_nic);
- 		goto err_exit;
-+	}
- 
- err_exit:
- 	if (err < 0)
 -- 
 2.30.1
 
