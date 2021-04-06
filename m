@@ -2,168 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C43354C28
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 07:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A831C354C34
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 07:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbhDFFNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 01:13:22 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41886 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229808AbhDFFNW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 01:13:22 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 136553AL029296;
-        Tue, 6 Apr 2021 01:13:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : in-reply-to : references : date : message-id : content-type :
- mime-version; s=pp1; bh=s82s0+sXgTlqUeexhZf9DrTLQmM2Ml3zVC2Ke7u8xEs=;
- b=pKAn0lTEBcnoTlHqe4rjYJGnAxc3UWFWZ/+n7hRrPQ8slr1SG9AlXgFhT44Hm9yB4B9e
- rZ1ulHmNJo1awVbXbjEHI/RUVWALFOJExzytQnr8EI6yqS0qlGsTtqvzi4wnnaQ3tH0O
- MbukwMnl6acvaf6bnJqzfP8uKlg8u9gutpixNuS+/2ZRxoSZSdqde58hh6vGMuRxgeRC
- Gv6rQIIieVS/J1ciPdcwlHdctMH+7WYbg6SyxaDu+k4ks0ZptF7hngXr/kut98fNkNm1
- y7oR3ArrYx7En8EPy2kwM5F2eX3qVGSnRAqOwzT3tXT7q0fRFdJECsprDQfrsf5HLVPc lA== 
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37q5kxf6gr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Apr 2021 01:13:07 -0400
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 1365C42D013376;
-        Tue, 6 Apr 2021 05:13:07 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma01wdc.us.ibm.com with ESMTP id 37q2q8wh19-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Apr 2021 05:13:07 +0000
-Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1365D5Gg25559534
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 6 Apr 2021 05:13:05 GMT
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8AE00C6055;
-        Tue,  6 Apr 2021 05:13:05 +0000 (GMT)
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6511CC6057;
-        Tue,  6 Apr 2021 05:13:03 +0000 (GMT)
-Received: from skywalker.linux.ibm.com (unknown [9.102.1.249])
-        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue,  6 Apr 2021 05:13:02 +0000 (GMT)
-X-Mailer: emacs 28.0.50 (via feedmail 11-beta-1 I)
-From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-To:     Vaibhav Jain <vaibhav@linux.ibm.com>, linux-nvdimm@lists.01.org
-Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Shivaprasad G Bhat <sbhat@linux.ibm.com>,
+        id S243785AbhDFFU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 01:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59244 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S243784AbhDFFU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Apr 2021 01:20:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BA94613A7;
+        Tue,  6 Apr 2021 05:20:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1617686422;
+        bh=3NcBaEoWjlVSrVBe7hD6rG6bz0CN3bQZ4ZiVM5LVJ5c=;
+        h=Subject:To:From:Date:From;
+        b=Yv01fuPsrnT8YNPhmO4mBln8pEjhzB2dN8STnnfvV2RMmfGHJNJdg/fHh+kkTLR+W
+         rGJEQtd6oNYLZc5bcsojAWfwa8rxnsoCNaPzXCzBAByZwDTly0GNgtrMvnqPdRaaMF
+         TXuddDOOMYPqTlYEJUT8aBJNxXE0DhRFjvq5fVEY=
+Subject: patch "misc: vmw_vmci: explicitly initialize vmci_notify_bm_set_msg struct" added to char-misc-next
+To:     penguin-kernel@I-love.SAKURA.ne.jp, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH v2] libnvdimm/region: Update nvdimm_has_flush() to
- handle ND_REGION_ASYNC
-In-Reply-To: <20210406032233.490596-1-vaibhav@linux.ibm.com>
-References: <20210406032233.490596-1-vaibhav@linux.ibm.com>
-Date:   Tue, 06 Apr 2021 10:43:00 +0530
-Message-ID: <874kgk6lnn.fsf@linux.ibm.com>
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Q-omDbo3gGYKDEqzDlH-irVBIPiADIsr
-X-Proofpoint-GUID: Q-omDbo3gGYKDEqzDlH-irVBIPiADIsr
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 06 Apr 2021 07:20:19 +0200
+Message-ID: <16176864192548@kroah.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-04-06_01:2021-04-01,2021-04-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=999 suspectscore=0 phishscore=0 lowpriorityscore=0
- malwarescore=0 mlxscore=0 priorityscore=1501 spamscore=0 clxscore=1011
- bulkscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104030000 definitions=main-2104060033
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Vaibhav Jain <vaibhav@linux.ibm.com> writes:
 
-> In case a platform doesn't provide explicit flush-hints but provides an
-> explicit flush callback via ND_REGION_ASYNC region flag, then
-> nvdimm_has_flush() still returns '0' indicating that writes do not
-> require flushing. This happens on PPC64 with patch at [1] applied,
-> where 'deep_flush' of a region was denied even though an explicit
-> flush function was provided.
->
-> Similar problem is also seen with virtio-pmem where the 'deep_flush'
-> sysfs attribute is not visible as in absence of any registered nvdimm,
-> 'nd_region->ndr_mappings == 0'.
->
-> Fix this by updating nvdimm_has_flush() adding a condition to
-> nvdimm_has_flush() testing for ND_REGION_ASYNC flag on the region
-> and see if a 'region->flush' callback is assigned. Also remove
-> explicit test for 'nd_region->ndr_mapping' since regions can be marked
-> 'ND_REGION_SYNC' without any explicit mappings as in case of
-> virtio-pmem.
+This is a note to let you know that I've just added the patch titled
 
-Do we need to check for ND_REGION_ASYNC? What if the backend wants to
-provide a synchronous dax region but with different deep flush semantic
-than writing to wpq flush address? 
-ie,
+    misc: vmw_vmci: explicitly initialize vmci_notify_bm_set_msg struct
 
->
-> References:
-> [1] "powerpc/papr_scm: Implement support for H_SCM_FLUSH hcall"
-> https://lore.kernel.org/linux-nvdimm/161703936121.36.7260632399	582101498.stgit@e1fbed493c87
->
-> Cc: <stable@vger.kernel.org>
-> Fixes: c5d4355d10d4 ("libnvdimm: nd_region flush callback support")
-> Reported-by: Shivaprasad G Bhat <sbhat@linux.ibm.com>
-> Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-> ---
-> Changelog:
->
-> v2:
-> * Added the fixes tag and addressed the patch to stable tree [ Aneesh ]
-> * Updated patch description to address the virtio-pmem case.
-> * Removed test for 'nd_region->ndr_mappings' from beginning of
->   nvdimm_has_flush() to handle the virtio-pmem case.
-> ---
->  drivers/nvdimm/region_devs.c | 14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
-> index ef23119db574..cdf5eb6fa425 100644
-> --- a/drivers/nvdimm/region_devs.c
-> +++ b/drivers/nvdimm/region_devs.c
-> @@ -1234,11 +1234,15 @@ int nvdimm_has_flush(struct nd_region *nd_region)
->  {
->  	int i;
->  
-> -	/* no nvdimm or pmem api == flushing capability unknown */
-> -	if (nd_region->ndr_mappings == 0
-> -			|| !IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API))
-> +	/* no pmem api == flushing capability unknown */
-> +	if (!IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API))
->  		return -ENXIO;
->  
-> +	/* Test if an explicit flush function is defined */
-> +	if (test_bit(ND_REGION_ASYNC, &nd_region->flags) && nd_region->flush)
-> +		return 1;
-> +
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
 
 
-        if (nd_region->flush)
-                return 1
+From 376565b9717c30cd58ad33860fa42697615fa2e4 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date: Fri, 2 Apr 2021 21:17:41 +0900
+Subject: misc: vmw_vmci: explicitly initialize vmci_notify_bm_set_msg struct
+
+KMSAN complains that the vmci_use_ppn64() == false path in
+vmci_dbell_register_notification_bitmap() left upper 32bits of
+bitmap_set_msg.bitmap_ppn64 member uninitialized.
+
+  =====================================================
+  BUG: KMSAN: uninit-value in kmsan_check_memory+0xd/0x10
+  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.11.0-rc7+ #4
+  Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 02/27/2020
+  Call Trace:
+   dump_stack+0x21c/0x280
+   kmsan_report+0xfb/0x1e0
+   kmsan_internal_check_memory+0x484/0x520
+   kmsan_check_memory+0xd/0x10
+   iowrite8_rep+0x86/0x380
+   vmci_send_datagram+0x150/0x280
+   vmci_dbell_register_notification_bitmap+0x133/0x1e0
+   vmci_guest_probe_device+0xcab/0x1e70
+   pci_device_probe+0xab3/0xe70
+   really_probe+0xd16/0x24d0
+   driver_probe_device+0x29d/0x3a0
+   device_driver_attach+0x25a/0x490
+   __driver_attach+0x78c/0x840
+   bus_for_each_dev+0x210/0x340
+   driver_attach+0x89/0xb0
+   bus_add_driver+0x677/0xc40
+   driver_register+0x485/0x8e0
+   __pci_register_driver+0x1ff/0x350
+   vmci_guest_init+0x3e/0x41
+   vmci_drv_init+0x1d6/0x43f
+   do_one_initcall+0x39c/0x9a0
+   do_initcall_level+0x1d7/0x259
+   do_initcalls+0x127/0x1cb
+   do_basic_setup+0x33/0x36
+   kernel_init_freeable+0x29a/0x3ed
+   kernel_init+0x1f/0x840
+   ret_from_fork+0x1f/0x30
+
+  Local variable ----bitmap_set_msg@vmci_dbell_register_notification_bitmap created at:
+   vmci_dbell_register_notification_bitmap+0x50/0x1e0
+   vmci_dbell_register_notification_bitmap+0x50/0x1e0
+
+  Bytes 28-31 of 32 are uninitialized
+  Memory access of size 32 starts at ffff88810098f570
+  =====================================================
+
+Fixes: 83e2ec765be03e8a ("VMCI: doorbell implementation.")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Link: https://lore.kernel.org/r/20210402121742.3917-1-penguin-kernel@I-love.SAKURA.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/misc/vmw_vmci/vmci_doorbell.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/misc/vmw_vmci/vmci_doorbell.c b/drivers/misc/vmw_vmci/vmci_doorbell.c
+index 345addd9306d..fa8a7fce4481 100644
+--- a/drivers/misc/vmw_vmci/vmci_doorbell.c
++++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
+@@ -326,7 +326,7 @@ int vmci_dbell_host_context_notify(u32 src_cid, struct vmci_handle handle)
+ bool vmci_dbell_register_notification_bitmap(u64 bitmap_ppn)
+ {
+ 	int result;
+-	struct vmci_notify_bm_set_msg bitmap_set_msg;
++	struct vmci_notify_bm_set_msg bitmap_set_msg = { };
+ 
+ 	bitmap_set_msg.hdr.dst = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
+ 						  VMCI_SET_NOTIFY_BITMAP);
+-- 
+2.31.1
 
 
-> +	/* Test if any flush hints for the region are available */
->  	for (i = 0; i < nd_region->ndr_mappings; i++) {
->  		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
->  		struct nvdimm *nvdimm = nd_mapping->nvdimm;
-> @@ -1249,8 +1253,8 @@ int nvdimm_has_flush(struct nd_region *nd_region)
->  	}
->  
->  	/*
-> -	 * The platform defines dimm devices without hints, assume
-> -	 * platform persistence mechanism like ADR
-> +	 * The platform defines dimm devices without hints nor explicit flush,
-> +	 * assume platform persistence mechanism like ADR
->  	 */
->  	return 0;
->  }
-> -- 
-> 2.30.2
-> _______________________________________________
-> Linux-nvdimm mailing list -- linux-nvdimm@lists.01.org
-> To unsubscribe send an email to linux-nvdimm-leave@lists.01.org
