@@ -2,92 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A31355457
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 14:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 493EE3554D6
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 15:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243437AbhDFM56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 08:57:58 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:54902 "EHLO www.linuxtv.org"
+        id S243573AbhDFNSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 09:18:53 -0400
+Received: from elvis.franken.de ([193.175.24.41]:59078 "EHLO elvis.franken.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239330AbhDFM55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Apr 2021 08:57:57 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1lTlHA-00EYie-TS; Tue, 06 Apr 2021 12:57:48 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Tue, 06 Apr 2021 12:53:07 +0000
-Subject: [git:media_tree/master] media: venus: hfi_cmds: Support plane-actual-info property from v1
-To:     linuxtv-commits@linuxtv.org
-Cc:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        stable@vger.kernel.org,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1lTlHA-00EYie-TS@www.linuxtv.org>
+        id S242526AbhDFNSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Apr 2021 09:18:47 -0400
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1lTlbK-0006qP-03; Tue, 06 Apr 2021 15:18:38 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 0A7CBC24D9; Tue,  6 Apr 2021 15:06:30 +0200 (CEST)
+Date:   Tue, 6 Apr 2021 15:06:29 +0200
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Huacai Chen <chenhuacai@kernel.org>
+Cc:     linux-mips@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: Fix a longstanding error in div64.h
+Message-ID: <20210406130629.GE9505@alpha.franken.de>
+References: <20210406112404.2671507-1-chenhuacai@loongson.cn>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210406112404.2671507-1-chenhuacai@loongson.cn>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+On Tue, Apr 06, 2021 at 07:24:03PM +0800, Huacai Chen wrote:
+> Only 32bit kernel need __div64_32(), but commit c21004cd5b4cb7d479514d4
+> ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.") makes it depend
+> on 64bit kernel by mistake. This patch fix this longstanding error.
+> 
+> Fixes: c21004cd5b4cb7d479514d4 ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+> ---
+>  arch/mips/include/asm/div64.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/mips/include/asm/div64.h b/arch/mips/include/asm/div64.h
+> index dc5ea5736440..d199fe36eb46 100644
+> --- a/arch/mips/include/asm/div64.h
+> +++ b/arch/mips/include/asm/div64.h
+> @@ -11,7 +11,7 @@
+>  
+>  #include <asm-generic/div64.h>
+>  
+> -#if BITS_PER_LONG == 64
+> +#if BITS_PER_LONG == 32
 
-Subject: media: venus: hfi_cmds: Support plane-actual-info property from v1
-Author:  Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Date:    Sat Mar 6 13:16:41 2021 +0100
+are you sure this will make a difference ? asm-generic/div64.h checks
+for __div64_32, which is not defined before including it here.
 
-The property is supported from v1 and upwards. So move it to
-set_property_1x.
+Thomas.
 
-Fixes: 01e869e78756 ("media: venus: venc: fix handlig of S_SELECTION and G_SELECTION")
-Cc: stable@vger.kernel.org # v5.12
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/platform/qcom/venus/hfi_cmds.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
-
----
-
-diff --git a/drivers/media/platform/qcom/venus/hfi_cmds.c b/drivers/media/platform/qcom/venus/hfi_cmds.c
-index 4f7565834469..558510a8dfc8 100644
---- a/drivers/media/platform/qcom/venus/hfi_cmds.c
-+++ b/drivers/media/platform/qcom/venus/hfi_cmds.c
-@@ -1039,6 +1039,18 @@ static int pkt_session_set_property_1x(struct hfi_session_set_property_pkt *pkt,
- 		pkt->shdr.hdr.size += sizeof(u32) + sizeof(*hierp);
- 		break;
- 	}
-+	case HFI_PROPERTY_PARAM_UNCOMPRESSED_PLANE_ACTUAL_INFO: {
-+		struct hfi_uncompressed_plane_actual_info *in = pdata;
-+		struct hfi_uncompressed_plane_actual_info *info = prop_data;
-+
-+		info->buffer_type = in->buffer_type;
-+		info->num_planes = in->num_planes;
-+		info->plane_format[0] = in->plane_format[0];
-+		if (in->num_planes > 1)
-+			info->plane_format[1] = in->plane_format[1];
-+		pkt->shdr.hdr.size += sizeof(u32) + sizeof(*info);
-+		break;
-+	}
- 
- 	/* FOLLOWING PROPERTIES ARE NOT IMPLEMENTED IN CORE YET */
- 	case HFI_PROPERTY_CONFIG_BUFFER_REQUIREMENTS:
-@@ -1205,18 +1217,6 @@ pkt_session_set_property_4xx(struct hfi_session_set_property_pkt *pkt,
- 		pkt->shdr.hdr.size += sizeof(u32) + sizeof(*cu);
- 		break;
- 	}
--	case HFI_PROPERTY_PARAM_UNCOMPRESSED_PLANE_ACTUAL_INFO: {
--		struct hfi_uncompressed_plane_actual_info *in = pdata;
--		struct hfi_uncompressed_plane_actual_info *info = prop_data;
--
--		info->buffer_type = in->buffer_type;
--		info->num_planes = in->num_planes;
--		info->plane_format[0] = in->plane_format[0];
--		if (in->num_planes > 1)
--			info->plane_format[1] = in->plane_format[1];
--		pkt->shdr.hdr.size += sizeof(u32) + sizeof(*info);
--		break;
--	}
- 	case HFI_PROPERTY_CONFIG_VENC_MAX_BITRATE:
- 	case HFI_PROPERTY_CONFIG_VDEC_POST_LOOP_DEBLOCKER:
- 	case HFI_PROPERTY_PARAM_BUFFER_ALLOC_MODE:
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
