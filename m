@@ -2,105 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C04355137
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 12:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4CD3551F6
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 13:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232637AbhDFKve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 06:51:34 -0400
-Received: from foss.arm.com ([217.140.110.172]:40688 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231156AbhDFKvd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Apr 2021 06:51:33 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D4F9531B;
-        Tue,  6 Apr 2021 03:51:25 -0700 (PDT)
-Received: from e125770.cambridge.arm.com (e125770.cambridge.arm.com [10.1.197.16])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4D44A3F73D;
-        Tue,  6 Apr 2021 03:51:24 -0700 (PDT)
-From:   Luca Fancellu <luca.fancellu@arm.com>
-To:     sstabellini@kernel.org, jgross@suse.com, jgrall@amazon.com
-Cc:     boris.ostrovsky@oracle.com, tglx@linutronix.de, wei.liu@kernel.org,
-        jbeulich@suse.com, yyankovskyi@gmail.com,
-        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, bertrand.marquis@arm.com
-Subject: [PATCH] xen/evtchn: Change irq_info lock to raw_spinlock_t
-Date:   Tue,  6 Apr 2021 11:51:04 +0100
-Message-Id: <20210406105105.10141-1-luca.fancellu@arm.com>
-X-Mailer: git-send-email 2.17.1
+        id S242197AbhDFLXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 07:23:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58608 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241465AbhDFLXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 07:23:31 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C575C06174A;
+        Tue,  6 Apr 2021 04:23:23 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id y32so6929403pga.11;
+        Tue, 06 Apr 2021 04:23:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=O4phrYeUUbsfvsJh88wd3ET5VrsBh8Qxjkdc2Metveg=;
+        b=oW7Y6cf0v/yl6GRPjRnrbbsc2geh1rDE8wfJWMBrBvwvT+Tm6xFy5IDn9naa4LZF0/
+         fnTuMQFqeTKSTBuHJiW6MTGAhEIkYxMHdhwT3M7Rjx+54l/RnMPU8CAQKv7sWqZ47ooL
+         UWoGqDp9gXLeljhXUDu4BmMpJdlAVjFTDbw1e5l3l9X4Es5AreMiRw58WMaLJYMwG0Fx
+         AZ/oFRYs/p8wIRFIVSajfSIKuCbrB2VeJMrwf29E+CnS0tqnChMAXpk3WoKo2wbp5ca+
+         NAFwwQCP1Yg1T9VqB4Qqm5vjR2UYus2E+gEOVUglSELCCRMZCA/xiebsBxrawKfJz7Rx
+         rUCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=O4phrYeUUbsfvsJh88wd3ET5VrsBh8Qxjkdc2Metveg=;
+        b=gJGQT3xmGU14Q3ftGxRJNoXDekMtBwXNh4Xowb4VyJ4GiyNFAwEHq1DqZATMPx32GX
+         unPXD0KFSGbd8+QIFyuxdz7VCiVyvJwlSgGt017Z5BBj9e3tue0yfbLObe4FQSwmrnHf
+         4T2kA/djkyU8bZqfl2iTP/z2CCnti53h3JZZEcN75Tq4agczBe9KqBnXVuKsjbneEgIu
+         6c1SRLKGRZfQsbB5j2bSaasMuB4gILez+Jkk20qdQUddlJo7PZoAbWOL53L1xUcc2Bq/
+         UA+9oRwc0RpB94geQsEUOCOKMfUXQPIcH9K56g6Bv7DzKOPH20thByz7ieYaq7eBv56O
+         SaYg==
+X-Gm-Message-State: AOAM533/b/qKFCJIGEP0jSziAlD8RmLdvwzNtR0oOG0YvElXApzsabEl
+        vrubH7lHRXSiEXxQ3oxKlBeTaCEi1zg=
+X-Google-Smtp-Source: ABdhPJw9M4TWOX0V/5BI8PMeVpFphj0SmIDzgNsS6j4CJ0gQCX4FRHOxphkGTi9npUfptEhKq/Y9qg==
+X-Received: by 2002:a63:604:: with SMTP id 4mr26793057pgg.267.1617708203116;
+        Tue, 06 Apr 2021 04:23:23 -0700 (PDT)
+Received: from localhost.localdomain ([132.145.85.142])
+        by smtp.gmail.com with ESMTPSA id v18sm18869645pfn.117.2021.04.06.04.23.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Apr 2021 04:23:22 -0700 (PDT)
+Sender: Huacai Chen <chenhuacai@gmail.com>
+From:   Huacai Chen <chenhuacai@kernel.org>
+X-Google-Original-From: Huacai Chen <chenhuacai@loongson.cn>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     linux-mips@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
+Subject: [PATCH] MIPS: Fix a longstanding error in div64.h
+Date:   Tue,  6 Apr 2021 19:24:03 +0800
+Message-Id: <20210406112404.2671507-1-chenhuacai@loongson.cn>
+X-Mailer: git-send-email 2.27.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Unmask operation must be called with interrupt disabled,
-on preempt_rt spin_lock_irqsave/spin_unlock_irqrestore
-don't disable/enable interrupts, so use raw_* implementation
-and change lock variable in struct irq_info from spinlock_t
-to raw_spinlock_t
+Only 32bit kernel need __div64_32(), but commit c21004cd5b4cb7d479514d4
+("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.") makes it depend
+on 64bit kernel by mistake. This patch fix this longstanding error.
 
+Fixes: c21004cd5b4cb7d479514d4 ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
 Cc: stable@vger.kernel.org
-Fixes: 25da4618af24 ("xen/events: don't unmask an event channel
-when an eoi is pending")
-
-Signed-off-by: Luca Fancellu <luca.fancellu@arm.com>
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
 ---
- drivers/xen/events/events_base.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/mips/include/asm/div64.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 8236e2364eeb..7bbfd58958bc 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -110,7 +110,7 @@ struct irq_info {
- 	unsigned short eoi_cpu; /* EOI must happen on this cpu-1 */
- 	unsigned int irq_epoch; /* If eoi_cpu valid: irq_epoch of event */
- 	u64 eoi_time;           /* Time in jiffies when to EOI. */
--	spinlock_t lock;
-+	raw_spinlock_t lock;
+diff --git a/arch/mips/include/asm/div64.h b/arch/mips/include/asm/div64.h
+index dc5ea5736440..d199fe36eb46 100644
+--- a/arch/mips/include/asm/div64.h
++++ b/arch/mips/include/asm/div64.h
+@@ -11,7 +11,7 @@
  
- 	union {
- 		unsigned short virq;
-@@ -312,7 +312,7 @@ static int xen_irq_info_common_setup(struct irq_info *info,
- 	info->evtchn = evtchn;
- 	info->cpu = cpu;
- 	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
--	spin_lock_init(&info->lock);
-+	raw_spin_lock_init(&info->lock);
+ #include <asm-generic/div64.h>
  
- 	ret = set_evtchn_to_irq(evtchn, irq);
- 	if (ret < 0)
-@@ -472,28 +472,28 @@ static void do_mask(struct irq_info *info, u8 reason)
- {
- 	unsigned long flags;
+-#if BITS_PER_LONG == 64
++#if BITS_PER_LONG == 32
  
--	spin_lock_irqsave(&info->lock, flags);
-+	raw_spin_lock_irqsave(&info->lock, flags);
+ #include <linux/types.h>
  
- 	if (!info->mask_reason)
- 		mask_evtchn(info->evtchn);
- 
- 	info->mask_reason |= reason;
- 
--	spin_unlock_irqrestore(&info->lock, flags);
-+	raw_spin_unlock_irqrestore(&info->lock, flags);
- }
- 
- static void do_unmask(struct irq_info *info, u8 reason)
- {
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&info->lock, flags);
-+	raw_spin_lock_irqsave(&info->lock, flags);
- 
- 	info->mask_reason &= ~reason;
- 
- 	if (!info->mask_reason)
- 		unmask_evtchn(info->evtchn);
- 
--	spin_unlock_irqrestore(&info->lock, flags);
-+	raw_spin_unlock_irqrestore(&info->lock, flags);
- }
- 
- #ifdef CONFIG_X86
 -- 
-2.17.1
+2.27.0
 
