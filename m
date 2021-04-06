@@ -2,119 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E7E355C22
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 21:22:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 507A4355C2B
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 21:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241060AbhDFTWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 15:22:53 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:48889 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229488AbhDFTWx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 15:22:53 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 0D4E31567;
-        Tue,  6 Apr 2021 15:22:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Tue, 06 Apr 2021 15:22:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=C59toQeGzXwFwjO16nyv9LOjwCU
-        SLowD6NlzSgCuGYM=; b=tgX7twj1d1+oYO8cJFbWwea1tCymtZXgbE/WcgFXaA1
-        Xt1IoHp0QAizv6rDd/cTtze9JXF1pqcjkAz0LwGhWef5453aS24EQgaBXKVnmYhz
-        u/lPkJP6mIl4Fd0jNGkgfD43VTMFmVTRvpDVtmTzPsOycDuZaH6X7AKMFk0DZMLj
-        Mw6s9MO7SbLkPOu53/12dahOWfvrB3NxM6k3NcwqYt/Gl6pyAoyX77g10RABf8aG
-        DbF9TPBkXEgFAtw8e4gTcUhdfr5zUY43VjaUDDThAMSKFVJeCXAVaZWk0L0Y8Aum
-        oIJqv6fMn0oBR/6ha6kBdbwJuRKOFRlYgFBZ+8sCa2g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=C59toQ
-        eGzXwFwjO16nyv9LOjwCUSLowD6NlzSgCuGYM=; b=ujBs3Otf1069bLZhZThEmT
-        dygCQV3SUIk0g58ZOUmU8GbyfuzpevKwMMw2z3g96ryA4Qd65VcKN36+6Xi9Ntvl
-        LVFHzRxeOSrPMk5zzJsHWM2VCNhkLIZVLdsKjZa5SfpkA3tNGA1VrqQ2CBF1NCFd
-        mOb1GUlyVL/ry95Uny6Pl0Z1+PxpxoadYZCkqJvLC9XJezD0dFGUQAnjILoxNZq7
-        JDCKEWoBQGfGIM3dVWwy1V6hIMdsHm/QgzNVueWq++n3r6kbjtcFNuHHCwJ2R771
-        dCVmxBDOVK3f20hbkRpvqJyQT0r5KP/A9sCWxfOF/D9qpVWu8N0j5o/WowJp8gKg
-        ==
-X-ME-Sender: <xms:A7VsYKUjZXWX46AM_a-6KRWcnDVtyZpFWgOKyO0oLft1fo4q_b5xbQ>
-    <xme:A7VsYNh_0nLt2cuWibfNEGU2oD7E3XXNey69nrahFi8NRGXw0DGLltQwerHg7bDoE
-    uzgnJ8jCRItXw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudejhedgkeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeiieevhf
-    ehtddvudefjeehffegtdfghfdvvdektdehueduleeiteffkefffedtheenucffohhmrghi
-    nhepuhhrlhguvghfvghnshgvrdgtohhmpdhkvghrnhgvlhdrohhrghenucfkphepkeefrd
-    ekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
-    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:A7VsYEDqvqlMCv4-0Z9M3nNT18p-qlsUbvs7lBSDtBuZlNojHuAB3w>
-    <xmx:A7VsYGe-NKhwxlDDn4m5V2Wy7u2_85277xkaazm8J4WtKVm2klrzZQ>
-    <xmx:A7VsYEeRnnsf9XNTuNBiWYOuTvmtVsf_s-tQuAGPY-CQSxtDQzxfSA>
-    <xmx:A7VsYOvVZMZDUkl7CYqqGwkrO4pN1Y0QCyEQi8_tA6UOTtSAvEfGIQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1AD7824005E;
-        Tue,  6 Apr 2021 15:22:43 -0400 (EDT)
-Date:   Tue, 6 Apr 2021 21:22:40 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Mike Christie <michael.christie@oracle.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Gulam Mohamed <gulam.mohamed@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        open-iscsi@googlegroups.com, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 07/22] scsi: iscsi: Fix race condition
- between login and sync thread
-Message-ID: <YGy1AJl1KnymOjHE@kroah.com>
-References: <20210405160432.268374-1-sashal@kernel.org>
- <20210405160432.268374-7-sashal@kernel.org>
- <be0783c0-4ca8-d7fd-ce97-c24c2f1d8e84@oracle.com>
+        id S233971AbhDFT2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 15:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52716 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233527AbhDFT2l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 15:28:41 -0400
+Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAD4DC06174A;
+        Tue,  6 Apr 2021 12:28:32 -0700 (PDT)
+Received: by mail-il1-x12b.google.com with SMTP id c18so7540010iln.7;
+        Tue, 06 Apr 2021 12:28:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=V+9IBnnDWwF5bA/uOPxMCh5R3le9aBNY4U0lwaK9R/w=;
+        b=adwamlucztIc0MSna8H9oes/oLiAN/OySUHgtAuhHRvhxzetLmHo+Z+cpsbZhOWVAF
+         +2Ez3O5x2unjOXI13majOCOiPDDxnoUhDE23FnNiWrswHIP6eguB05bX4vYKY2VceHHE
+         Zm+RoO9NaFqEi6o/+4E/3kld2u8Pt6ik8o1DE2+T0XTYXBISrn+I9AXK0I+aT20FxVGZ
+         BjOvdipncmX3hHTQj0OzNap6+BHa9Hqh4IBMyGT6wcmPismEK3DWjZ7PK0Z4BjSpQRBF
+         U+NyMR1h8a3+mnsD97AF+Gj/xqpUJVAHS3YNAngIDvGnXltCtLloDRbB3kHUNgFMSUWi
+         3bkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=V+9IBnnDWwF5bA/uOPxMCh5R3le9aBNY4U0lwaK9R/w=;
+        b=eEd8oeWLPGUENSvKfkYfX72MiCL2XYdO/LQw7bdR0xhQAFDju6mjPXpJ/OIBWzqAAy
+         Cbz55FXWN2fzSYFTXKWoMSrfEnCfOpT+Vo8Z0b2paTbtRR4qbSOhGhNO1UJ6P8TNw6S/
+         MyHy86ygl6fHgC3XB4JLoGb82nPyo9UnvUbP1JmXr9UyjtHU8EoHsPAnNHU0T5xw8gU3
+         lqrAWoFWhRolVchyjSFASc9gQYFYE93kUJpd0cop1mQODPzmaiXiRXMGV0g0np804iZF
+         2O2IrwhOnsdlGoBOiNxTMG/4wgXYo9WzP8Sdh5UkCTMSCFG7t/AXtUKTZ3pjCLNlYXD9
+         KEfw==
+X-Gm-Message-State: AOAM530h0vC3xu/UxBAZqXPL84ckqo6cMK4tyEtHYPjAH1UtgqmR955H
+        41IbMR8el9+aTocZuVj1IdN+sMuWCNYs0b31Y2Q=
+X-Google-Smtp-Source: ABdhPJyqK17Dv9uOZS3bqIAfHhKcyL5NNUmYoe+6UcKRBsMoIbFQeSZA1n50HL6M3lTekmKnkesydMWPsOqyv/i/Qmk=
+X-Received: by 2002:a05:6e02:ec9:: with SMTP id i9mr5379002ilk.0.1617737312092;
+ Tue, 06 Apr 2021 12:28:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <be0783c0-4ca8-d7fd-ce97-c24c2f1d8e84@oracle.com>
+References: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
+ <CAGETcx9ifDoWeBN1KR4zKfs-q73iGo9C-joz4UqayeE3euDQWg@mail.gmail.com>
+ <CALCv0x3-A3PruJJ6wmzBZ5544Zj8_R7wFXkOm6H-a5tG406wYQ@mail.gmail.com>
+ <CAGETcx8tgKoWAoqSgEQS8DRyMqzd7fGDfsWwsBEywVAPXRo1_A@mail.gmail.com> <20210406174050.GA1963300@robh.at.kernel.org>
+In-Reply-To: <20210406174050.GA1963300@robh.at.kernel.org>
+From:   Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Date:   Tue, 6 Apr 2021 12:28:21 -0700
+Message-ID: <CALCv0x2D6Y78XK7aeyyivcXqXZreHZd3kJc49tvtHx9eX+YH2w@mail.gmail.com>
+Subject: Re: [PATCH] of: property: do not create device links from *nr-gpios
+To:     Rob Herring <robh@kernel.org>
+Cc:     Saravana Kannan <saravanak@google.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 06, 2021 at 12:24:32PM -0500, Mike Christie wrote:
-> On 4/5/21 11:04 AM, Sasha Levin wrote:
-> > From: Gulam Mohamed <gulam.mohamed@oracle.com>
-> > 
-> > [ Upstream commit 9e67600ed6b8565da4b85698ec659b5879a6c1c6 ]
-> > 
-> > A kernel panic was observed due to a timing issue between the sync thread
-> > and the initiator processing a login response from the target. The session
-> > reopen can be invoked both from the session sync thread when iscsid
-> > restarts and from iscsid through the error handler. Before the initiator
-> > receives the response to a login, another reopen request can be sent from
-> > the error handler/sync session. When the initial login response is
-> > subsequently processed, the connection has been closed and the socket has
-> > been released.
-> > 
-> > To fix this a new connection state, ISCSI_CONN_BOUND, is added:
-> > 
-> >  - Set the connection state value to ISCSI_CONN_DOWN upon
-> >    iscsi_if_ep_disconnect() and iscsi_if_stop_conn()
-> > 
-> >  - Set the connection state to the newly created value ISCSI_CONN_BOUND
-> >    after bind connection (transport->bind_conn())
-> > 
-> >  - In iscsi_set_param(), return -ENOTCONN if the connection state is not
-> >    either ISCSI_CONN_BOUND or ISCSI_CONN_UP
-> > 
-> > Link: https://urldefense.com/v3/__https://lore.kernel.org/r/20210325093248.284678-1-gulam.mohamed@oracle.com__;!!GqivPVa7Brio!Jiqrc6pu3EgrquzpG-KpNQkNebwKUgctkE0MN1MloQ2y5Y4OVOkKN0yCr2_W_CX2oRet$ 
-> > Reviewed-by: Mike Christie <michael.christie@oracle.com>
-> 
-> 
-> There was a mistake in my review of this patch. It will also require
-> this "[PATCH 1/1] scsi: iscsi: fix iscsi cls conn state":
-> 
-> https://lore.kernel.org/linux-scsi/20210406171746.5016-1-michael.christie@oracle.com/T/#u
-> 
-> 
+On Tue, Apr 6, 2021 at 10:40 AM Rob Herring <robh@kernel.org> wrote:
+>
+> On Mon, Apr 05, 2021 at 01:18:56PM -0700, Saravana Kannan wrote:
+> > On Mon, Apr 5, 2021 at 1:10 PM Ilya Lipnitskiy
+> > <ilya.lipnitskiy@gmail.com> wrote:
+> > >
+> > > Hi Saravana,
+> > >
+> > > On Mon, Apr 5, 2021 at 1:01 PM Saravana Kannan <saravanak@google.com> wrote:
+> > > >
+> > > > On Sun, Apr 4, 2021 at 8:14 PM Ilya Lipnitskiy
+> > > > <ilya.lipnitskiy@gmail.com> wrote:
+> > > > >
+> > > > > [<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
+> > > > > the number of GPIOs present on a system, not define a GPIO. nr-gpios is
+> > > > > not configured by #gpio-cells and can't be parsed along with other
+> > > > > "*-gpios" properties.
+> > > > >
+> > > > > scripts/dtc/checks.c also has a special case for nr-gpio{s}. However,
+> > > > > nr-gpio is not really special, so we only need to fix nr-gpios suffix
+> > > > > here.
+> > > >
+> > > > The only example of this that I see is "snps,nr-gpios".
+> > > arch/arm64/boot/dts/apm/apm-shadowcat.dtsi uses "apm,nr-gpios", with
+> > > parsing code in drivers/gpio/gpio-xgene-sb.c. There is also code in
+> > > drivers/gpio/gpio-adnp.c and drivers/gpio/gpio-mockup.c using
+> > > "nr-gpios" without any vendor prefix.
+> >
+> > Ah ok. I just grepped the DT files. I'm not sure what Rob's position
+> > is on supporting DT files not in upstream. Thanks for the
+> > clarification.
+>
+> If it's something we had documented, then we have to support it
+Do I read this correctly as a sort-of Ack of my proposed [PATCH v2] in
+this thread, since it aligns the code with the published DT schema?
 
-I don't see this in Linus's tree yet, so we can't take it until then :(
-
-thanks,
-
-greg k-h
+Ilya
