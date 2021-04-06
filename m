@@ -2,186 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F5F355272
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 13:38:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDED4355274
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 13:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238037AbhDFLiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 07:38:12 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59048 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237938AbhDFLiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 07:38:11 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 136BXqiV094482;
-        Tue, 6 Apr 2021 07:38:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : in-reply-to : references : date : message-id : content-type :
- mime-version; s=pp1; bh=6FhOHENgjSCBnpnNXq4GLsOGvoRCKRNUEsPyd9gy5A0=;
- b=VTcT6kPQr0crLQo1T6q7SxJLVYJ6DMJRvwfOP1Jt1GckVn8mN2NXNQlZ1Jo+zymDEJon
- JImpZoL37hv1oZRwIZS2qwu6Oqc1HgjRDMhRfr4CVsH70UkHozSHeZR+A+C2aQm/GcB2
- chSh8YxYjX9FxOOIo558fav+CO9kxt4Axsa4VUWQbWz0adUPJNqS6isjoS2m4UZDOH3R
- mDf1q0M3zdEwfylOLuZC7EmXM2t6xpZH8V/WaeMuVTJwrTOUUBFmYTiqKSnlvbvcctIQ
- 2R+rP+31wdlFnV+4MD3QTstQB4K0PzIEKCSuMWXqW4KtvLZVLx4T9lmFYjDWtbU6PswT Yw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37q5byxxy9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Apr 2021 07:38:00 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 136BWtx4020239;
-        Tue, 6 Apr 2021 11:37:58 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 37q2n2t3x1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Apr 2021 11:37:58 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 136BbYMi24248716
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 6 Apr 2021 11:37:35 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 64D39A4055;
-        Tue,  6 Apr 2021 11:37:55 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3CEE4A4051;
-        Tue,  6 Apr 2021 11:37:53 +0000 (GMT)
-Received: from vajain21.in.ibm.com (unknown [9.85.74.34])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Tue,  6 Apr 2021 11:37:53 +0000 (GMT)
-Received: by vajain21.in.ibm.com (sSMTP sendmail emulation); Tue, 06 Apr 2021 17:07:52 +0530
-From:   Vaibhav Jain <vaibhav@linux.ibm.com>
-To:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        linux-nvdimm@lists.01.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Shivaprasad G Bhat <sbhat@linux.ibm.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] libnvdimm/region: Update nvdimm_has_flush() to
- handle ND_REGION_ASYNC
-In-Reply-To: <874kgk6lnn.fsf@linux.ibm.com>
-References: <20210406032233.490596-1-vaibhav@linux.ibm.com>
- <874kgk6lnn.fsf@linux.ibm.com>
-Date:   Tue, 06 Apr 2021 17:07:52 +0530
-Message-ID: <87wntfhcdr.fsf@vajain21.in.ibm.com>
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Ylw8S7OQS24Fs7iUj2QlgXaFMv5PHTGh
-X-Proofpoint-ORIG-GUID: Ylw8S7OQS24Fs7iUj2QlgXaFMv5PHTGh
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S241774AbhDFLif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 07:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33812 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237938AbhDFLif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 07:38:35 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60482C06174A;
+        Tue,  6 Apr 2021 04:38:27 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id n2so15122905ejy.7;
+        Tue, 06 Apr 2021 04:38:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=iTEUgiIQVz1rqjlpydUZiBeTPGXMaZVSh39Lp2/IRQw=;
+        b=m67oh6sipyb9fxohn9HQYAAaiouSsyL5bRHgiMsVyM/Yn5PS5wUgaMUr+pPOqI7/1T
+         Z8jXJYeJ5RMM4xE7oW1eplFmWeLBlhCoyoZmbtWser2DxKfW1kQOGaSIjkr8Oebf2uzT
+         L6TpaWGHd6PWzPqAyF7SZMIxRJrNrVawvk9Lnd9cyPDhR+LZE0acI4H91uINE9y6w0Qk
+         DV6CYmvgzfjqqH6VNvrG/ArUAo1jGwRhn5HGx10rTedCzyH36mWaTCPMAbo8USTV8vIQ
+         51Bt7scVSHS2LtLftX5xVHP0NSTao9HYgd/8TM+Rr7ZyBIaNe2EsWinVP9IsHotawZvb
+         u8+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=iTEUgiIQVz1rqjlpydUZiBeTPGXMaZVSh39Lp2/IRQw=;
+        b=jguVmR90H+5GZ1xHW0BP9oYiMvgx6zMlZLeMb66G6hqu00u7/Iy0oSXYokKmyL//ft
+         7K0LZVj+9kqQuaumHc0kMxvWkV1ZzLBmq2FhDmacXTpCpQmc41fL23ckm/Pgj1AkM7jd
+         qECJ9OJFUDZL/bW62Aclh38joY/A34Jc9T04NV8gN3fs9rMkuMugtM5ULfzqe/nXfryr
+         4YRIPQOMIY/9CxgvPouWixDkAMjsXtRvTHEdoXUAnHUGXNpvmlktjrEfxxLFIGDDP4CB
+         3w/5lqiPXNpVb9gRqifJte5CowUO/jnfbdH79saREJM5OjByIKZQL2C4O460ZJNrzgkQ
+         KTyw==
+X-Gm-Message-State: AOAM531P99sHcdVGg+DRVHPEBaQIyMo5N4OHV7opziwvDpVCnKXQpHlu
+        QqJtsVJJZooVYUeDFyNVglw=
+X-Google-Smtp-Source: ABdhPJwV4lrVUb7PsDGuKZdCKTsCSNgo7l45l+K3bP4jeeYU3C21DOhpSrQtGT0pN2GlWQeQsEiBrg==
+X-Received: by 2002:a17:906:ad4:: with SMTP id z20mr32776404ejf.496.1617709106193;
+        Tue, 06 Apr 2021 04:38:26 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id e12sm4186390edv.11.2021.04.06.04.38.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Apr 2021 04:38:25 -0700 (PDT)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Tue, 6 Apr 2021 13:38:24 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 013/247] cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag
+ on setting cifs_sb->prepath.
+Message-ID: <YGxIMCsclG4E1/ck@eldamar.lan>
+References: <20210301161031.684018251@linuxfoundation.org>
+ <20210301161032.337414143@linuxfoundation.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-04-06_02:2021-04-01,2021-04-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- mlxlogscore=999 priorityscore=1501 mlxscore=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 bulkscore=0 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104030000 definitions=main-2104060080
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210301161032.337414143@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Aneesh,
-Thanks for looking into this patch.
+Hi,
 
-"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com> writes:
+On Mon, Mar 01, 2021 at 05:10:33PM +0100, Greg Kroah-Hartman wrote:
+> From: Shyam Prasad N <sprasad@microsoft.com>
+> 
+> [ Upstream commit a738c93fb1c17e386a09304b517b1c6b2a6a5a8b ]
+> 
+> While debugging another issue today, Steve and I noticed that if a
+> subdir for a file share is already mounted on the client, any new
+> mount of any other subdir (or the file share root) of the same share
+> results in sharing the cifs superblock, which e.g. can result in
+> incorrect device name.
+> 
+> While setting prefix path for the root of a cifs_sb,
+> CIFS_MOUNT_USE_PREFIX_PATH flag should also be set.
+> Without it, prepath is not even considered in some places,
+> and output of "mount" and various /proc/<>/*mount* related
+> options can be missing part of the device name.
+> 
+> Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+> Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+> Signed-off-by: Steve French <stfrench@microsoft.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/cifs/connect.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+> index 6285085195c15..632249ce61eba 100644
+> --- a/fs/cifs/connect.c
+> +++ b/fs/cifs/connect.c
+> @@ -3882,6 +3882,7 @@ int cifs_setup_cifs_sb(struct smb_vol *pvolume_info,
+>  		cifs_sb->prepath = kstrdup(pvolume_info->prepath, GFP_KERNEL);
+>  		if (cifs_sb->prepath == NULL)
+>  			return -ENOMEM;
+> +		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_USE_PREFIX_PATH;
+>  	}
+>  
+>  	return 0;
 
-> Vaibhav Jain <vaibhav@linux.ibm.com> writes:
->
->> In case a platform doesn't provide explicit flush-hints but provides an
->> explicit flush callback via ND_REGION_ASYNC region flag, then
->> nvdimm_has_flush() still returns '0' indicating that writes do not
->> require flushing. This happens on PPC64 with patch at [1] applied,
->> where 'deep_flush' of a region was denied even though an explicit
->> flush function was provided.
->>
->> Similar problem is also seen with virtio-pmem where the 'deep_flush'
->> sysfs attribute is not visible as in absence of any registered nvdimm,
->> 'nd_region->ndr_mappings == 0'.
->>
->> Fix this by updating nvdimm_has_flush() adding a condition to
->> nvdimm_has_flush() testing for ND_REGION_ASYNC flag on the region
->> and see if a 'region->flush' callback is assigned. Also remove
->> explicit test for 'nd_region->ndr_mapping' since regions can be marked
->> 'ND_REGION_SYNC' without any explicit mappings as in case of
->> virtio-pmem.
->
-> Do we need to check for ND_REGION_ASYNC? What if the backend wants to
-> provide a synchronous dax region but with different deep flush semantic
-> than writing to wpq flush address? 
-> ie,
+A user in Debian reported an issue with mounts of DFS shares after an
+update in Debian from 4.19.177 to 4.181:
 
-For a synchronous dax region, writes arent expected to require any
-flushing (or deep-flush) so this function should ideally return '0' in
-such a case. Hence I had added the test for ND_REGION_ASYNC region flag.
+https://lists.debian.org/debian-user/2021/04/msg00062.html
 
->
->>
->> References:
->> [1] "powerpc/papr_scm: Implement support for H_SCM_FLUSH hcall"
->> https://lore.kernel.org/linux-nvdimm/161703936121.36.7260632399	582101498.stgit@e1fbed493c87
->>
->> Cc: <stable@vger.kernel.org>
->> Fixes: c5d4355d10d4 ("libnvdimm: nd_region flush callback support")
->> Reported-by: Shivaprasad G Bhat <sbhat@linux.ibm.com>
->> Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
->> ---
->> Changelog:
->>
->> v2:
->> * Added the fixes tag and addressed the patch to stable tree [ Aneesh ]
->> * Updated patch description to address the virtio-pmem case.
->> * Removed test for 'nd_region->ndr_mappings' from beginning of
->>   nvdimm_has_flush() to handle the virtio-pmem case.
->> ---
->>  drivers/nvdimm/region_devs.c | 14 +++++++++-----
->>  1 file changed, 9 insertions(+), 5 deletions(-)
->>
->> diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
->> index ef23119db574..cdf5eb6fa425 100644
->> --- a/drivers/nvdimm/region_devs.c
->> +++ b/drivers/nvdimm/region_devs.c
->> @@ -1234,11 +1234,15 @@ int nvdimm_has_flush(struct nd_region *nd_region)
->>  {
->>  	int i;
->>  
->> -	/* no nvdimm or pmem api == flushing capability unknown */
->> -	if (nd_region->ndr_mappings == 0
->> -			|| !IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API))
->> +	/* no pmem api == flushing capability unknown */
->> +	if (!IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API))
->>  		return -ENXIO;
->>  
->> +	/* Test if an explicit flush function is defined */
->> +	if (test_bit(ND_REGION_ASYNC, &nd_region->flags) && nd_region->flush)
->> +		return 1;
->> +
->
->
->         if (nd_region->flush)
->                 return 1
->
->
->> +	/* Test if any flush hints for the region are available */
->>  	for (i = 0; i < nd_region->ndr_mappings; i++) {
->>  		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
->>  		struct nvdimm *nvdimm = nd_mapping->nvdimm;
->> @@ -1249,8 +1253,8 @@ int nvdimm_has_flush(struct nd_region *nd_region)
->>  	}
->>  
->>  	/*
->> -	 * The platform defines dimm devices without hints, assume
->> -	 * platform persistence mechanism like ADR
->> +	 * The platform defines dimm devices without hints nor explicit flush,
->> +	 * assume platform persistence mechanism like ADR
->>  	 */
->>  	return 0;
->>  }
->> -- 
->> 2.30.2
->> _______________________________________________
->> Linux-nvdimm mailing list -- linux-nvdimm@lists.01.org
->> To unsubscribe send an email to linux-nvdimm-leave@lists.01.org
-> _______________________________________________
-> Linux-nvdimm mailing list -- linux-nvdimm@lists.01.org
-> To unsubscribe send an email to linux-nvdimm-leave@lists.01.org
+In a test setup i was able to reproduce the issue with 4.19.184 itself
+(but interestingly not withing the 5.10.y series, checked 5.10.26)
+which both contain the above commit.
 
--- 
-Cheers
-~ Vaibhav
+4.19.184 with a738c93fb1c1 ("cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag
+on setting cifs_sb->prepath.") reverted fixes the issue.
+
+Is there probably some missing prerequisites missing in the 4.19.y
+brach? I could not test othr versions, but maybe other versions are
+affected as well as before 4.19.y, as the commit was backported to
+4.14.223 as well.
+
+Regards,
+Salvatore
