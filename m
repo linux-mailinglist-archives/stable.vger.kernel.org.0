@@ -2,109 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEFFE355ED6
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 00:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F71C355F18
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 00:51:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236121AbhDFWcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 18:32:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230160AbhDFWcR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Apr 2021 18:32:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D702061284;
-        Tue,  6 Apr 2021 22:32:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617748328;
-        bh=eRMoe/YgEPTSiX+gZtg3ZTJaDtwdttX1NZsHhehUqKw=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=u7r8b316Z51vN/ImKoUHJZJIZ+RSuTHqPcc3w6453rqoHkQvV2Pti98F0YCIUbt+D
-         cEw//YckhzHJkq60bnWlaPvf5ws0Ry05lvivSPFvrifoclIQq0vxRrKIykHG+Lbs6t
-         0V5pNAHbrt9InUBwI29WZ9tTgrz7QAE0qYRlk6UG9JKfXvGUeBXQf+18DyyCe4QaOb
-         6dx0P27WoMOP9aUMMsfS0iJtVL0V4+FJXAh5BtHhHg1foz+YzhHajd6umTjKHrOhR0
-         9RFJb+zX2iRNsDwbYKX2TSgSMC8uLzCVd6iYAgh7+nkmwPaj/1QpTTswfLOY+hT/0e
-         jX/OzC6sJik6g==
-Received: by mail-ed1-f50.google.com with SMTP id ba6so10901639edb.1;
-        Tue, 06 Apr 2021 15:32:07 -0700 (PDT)
-X-Gm-Message-State: AOAM532fvjfdupny6WXskzXc+h2qEmRyo8H+mnEU2K86tBllBi7OwTQK
-        pLKLMy38CJe1XY9YPR953+1FrQXAlVzwEshzXw==
-X-Google-Smtp-Source: ABdhPJwdESgC/GU++8VxM2LyjZDtBJl2yGCxL1+YwvrHU66u1t6nMvF/pizCBzl6ayrp4J3Evz0YpZB8EYtB1A/kQKI=
-X-Received: by 2002:a05:6402:5252:: with SMTP id t18mr736852edd.258.1617748326514;
- Tue, 06 Apr 2021 15:32:06 -0700 (PDT)
+        id S1344293AbhDFWvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 18:51:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344418AbhDFWv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 18:51:27 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0740C061762
+        for <stable@vger.kernel.org>; Tue,  6 Apr 2021 15:51:18 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id l76so11516410pga.6
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 15:51:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DyRvV0lIlVIbA4m1ZYei8geHpYP0Fc/UF27vdE6xSDQ=;
+        b=zwWCjBOgUPATZa5lEL5EidaQo27cp1NOBfNoKjcEeDo0ZRHL0JhdyRicmlS3Y4MklS
+         S/q0bf/2zDDMNl5BGwGVWErRqTiqq0eq+2UAAM+ZysBXgnqzz+B4ckDB8Kg5OOsPXy8X
+         lc4fUtiaAB8YzsNI4T6LTgkPtiKdpGm7P5tAJZx9WO0vkuwYHQUAPJ9hJiH2SIB09FGZ
+         zKfyE8kfUIonP60zv9af52s+co6L6U8AAFOtZwNOOvgocLjpMSXZ1XrIoE3m2cYrP5W0
+         DhjaFwGzXAyjpl6brUfROS1AmpH1U70WYrAfdhWHaepG6Jeihm7xFjWFJDO0+U45Y7Hj
+         L29g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DyRvV0lIlVIbA4m1ZYei8geHpYP0Fc/UF27vdE6xSDQ=;
+        b=t1jlDwzRjdGKqRMh2FxwO3R89XPkKkpSosyiJfulcpgOPngiSgV3JWBqF/KWET4jJD
+         dIR4U1rjlVveEz7/HAYcQR7eLOAVn4eFhvU8lCBZzm++NwxE22VE59S9GW3xPfeQM4A1
+         S+zF5nOCmdM1QiIh76lFDfFVzr35pYC4/ADgPLNrO82U1s/B8ZHJPkf6whzMAi80yFK+
+         3JjVPRYV+8fi8fCkP/DpA4Se6FKJRFp3I3PVOFJGAT6VgVqGszKa/quOxsJb6hayEk5H
+         sosC7qv35xetaEzhRQ0wWjwfyjl49VmUAilKqEJt/wFFWIomJZsmPJa9aLOtMeG4UOjI
+         6wVg==
+X-Gm-Message-State: AOAM531suaOCm7elnQYiUak9vJk9uolqEf2ImRb75mEIOahuVadvM/Qi
+        3DjAfFgzAZE+mLbajhuM7tXskDb92NWNDQ==
+X-Google-Smtp-Source: ABdhPJx4uBSKqTstPBp9h1cX1Gj+hW4M5GIFlJ1OWB8U29x8qfeZslLswXlwvCUg7dvTqk7fe14RCw==
+X-Received: by 2002:a05:6a00:15c4:b029:204:33ea:ced0 with SMTP id o4-20020a056a0015c4b029020433eaced0mr346642pfu.20.1617749478374;
+        Tue, 06 Apr 2021 15:51:18 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f135sm19408074pfa.102.2021.04.06.15.51.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Apr 2021 15:51:18 -0700 (PDT)
+Message-ID: <606ce5e6.1c69fb81.15357.18a5@mx.google.com>
+Date:   Tue, 06 Apr 2021 15:51:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
- <CAGETcx9ifDoWeBN1KR4zKfs-q73iGo9C-joz4UqayeE3euDQWg@mail.gmail.com>
- <CALCv0x3-A3PruJJ6wmzBZ5544Zj8_R7wFXkOm6H-a5tG406wYQ@mail.gmail.com>
- <CAGETcx8tgKoWAoqSgEQS8DRyMqzd7fGDfsWwsBEywVAPXRo1_A@mail.gmail.com>
- <20210406174050.GA1963300@robh.at.kernel.org> <CALCv0x2D6Y78XK7aeyyivcXqXZreHZd3kJc49tvtHx9eX+YH2w@mail.gmail.com>
- <CAGETcx8aWReU=bv7FEujQGmJy91CORNQo6nY8x0+T3fOiN3YFQ@mail.gmail.com>
-In-Reply-To: <CAGETcx8aWReU=bv7FEujQGmJy91CORNQo6nY8x0+T3fOiN3YFQ@mail.gmail.com>
-From:   Rob Herring <robh@kernel.org>
-Date:   Tue, 6 Apr 2021 17:31:54 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqKAFRM3Zv7oMDY=AUO6kRtC-JRM1iJB-LM5PRd-o8zUOw@mail.gmail.com>
-Message-ID: <CAL_JsqKAFRM3Zv7oMDY=AUO6kRtC-JRM1iJB-LM5PRd-o8zUOw@mail.gmail.com>
-Subject: Re: [PATCH] of: property: do not create device links from *nr-gpios
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.27-126-gae5ffd885a4f6
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 122 runs,
+ 1 regressions (v5.10.27-126-gae5ffd885a4f6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 6, 2021 at 4:28 PM Saravana Kannan <saravanak@google.com> wrote:
->
-> On Tue, Apr 6, 2021 at 12:28 PM Ilya Lipnitskiy
-> <ilya.lipnitskiy@gmail.com> wrote:
-> >
-> > On Tue, Apr 6, 2021 at 10:40 AM Rob Herring <robh@kernel.org> wrote:
-> > >
-> > > On Mon, Apr 05, 2021 at 01:18:56PM -0700, Saravana Kannan wrote:
-> > > > On Mon, Apr 5, 2021 at 1:10 PM Ilya Lipnitskiy
-> > > > <ilya.lipnitskiy@gmail.com> wrote:
-> > > > >
-> > > > > Hi Saravana,
-> > > > >
-> > > > > On Mon, Apr 5, 2021 at 1:01 PM Saravana Kannan <saravanak@google.com> wrote:
-> > > > > >
-> > > > > > On Sun, Apr 4, 2021 at 8:14 PM Ilya Lipnitskiy
-> > > > > > <ilya.lipnitskiy@gmail.com> wrote:
-> > > > > > >
-> > > > > > > [<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
-> > > > > > > the number of GPIOs present on a system, not define a GPIO. nr-gpios is
-> > > > > > > not configured by #gpio-cells and can't be parsed along with other
-> > > > > > > "*-gpios" properties.
-> > > > > > >
-> > > > > > > scripts/dtc/checks.c also has a special case for nr-gpio{s}. However,
-> > > > > > > nr-gpio is not really special, so we only need to fix nr-gpios suffix
-> > > > > > > here.
-> > > > > >
-> > > > > > The only example of this that I see is "snps,nr-gpios".
-> > > > > arch/arm64/boot/dts/apm/apm-shadowcat.dtsi uses "apm,nr-gpios", with
-> > > > > parsing code in drivers/gpio/gpio-xgene-sb.c. There is also code in
-> > > > > drivers/gpio/gpio-adnp.c and drivers/gpio/gpio-mockup.c using
-> > > > > "nr-gpios" without any vendor prefix.
-> > > >
-> > > > Ah ok. I just grepped the DT files. I'm not sure what Rob's position
-> > > > is on supporting DT files not in upstream. Thanks for the
-> > > > clarification.
-> > >
-> > > If it's something we had documented, then we have to support it
-> > Do I read this correctly as a sort-of Ack of my proposed [PATCH v2] in
-> > this thread, since it aligns the code with the published DT schema?
->
-> He's talking about the DT binding documentation in the kernel.
->
-> I interpret Rob's reply as, you can do all of this:
-> 1. Just fix up all drivers that use "*nr-gpios" that don't have
-> binding documentation in the kernel. Change them to use ngpios.
-> 2. Try to switch away old defunct ARM server DTs from nr-gpios to
-> ngpios (both drivers and DT) and see if people notice.
-> 3. Change the fw_devlink parsing code to have exceptions only for
-> cases that are using nr-gpios after (1) and (2).
+stable-rc/queue/5.10 baseline: 122 runs, 1 regressions (v5.10.27-126-gae5ff=
+d885a4f6)
 
-Yes, but (3) is not gated on (1) and (2). I'm applying v2.
+Regressions Summary
+-------------------
 
-Rob
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.27-126-gae5ffd885a4f6/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.27-126-gae5ffd885a4f6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ae5ffd885a4f63d5aecbc14080dfffcb63cc4131 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606cb0aa1103a23030dac6ce
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.27-=
+126-gae5ffd885a4f6/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.27-=
+126-gae5ffd885a4f6/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606cb0aa1103a23030dac=
+6cf
+        failing since 4 days (last pass: v5.10.27-36-g06b1e2d598020, first =
+fail: v5.10.27-53-gcd7f2c515425) =
+
+ =20
