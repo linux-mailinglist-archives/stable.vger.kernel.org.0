@@ -2,158 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC102355888
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 17:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22147355897
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 17:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346057AbhDFPvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 11:51:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33284 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346058AbhDFPvP (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 6 Apr 2021 11:51:15 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA2B1C06174A
-        for <Stable@vger.kernel.org>; Tue,  6 Apr 2021 08:51:06 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id x7so14754961wrw.10
-        for <Stable@vger.kernel.org>; Tue, 06 Apr 2021 08:51:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=sB3uhrWUFIlrWgy3IF7Nx3Gf9L0Og2hG6FUTVqjECC8=;
-        b=tHX73a8vNPTfaQY7sFB1l3hrQY55fIJXZDM2yOdUujC5sIVP74fXzUx4WtcKD7ElOl
-         vaLYQTMmYAhe00Wv8kciqCcWgKdHxWsVtTJERs1Pz0x1FZ7JiBtbWTFQW1lJgDtMQtfq
-         9/hcmd7ahuRgSevBbIFaU2XTW1h7tUwl7LdDj1yk7ThAhAkBKhdvX6WLDJeUhexbAdzi
-         +Ee5nBR8+qFVO48+l1AD/e4XsRZDQa01/13S873otsqhIwn/y4EleiWOXOAjaEXlfWDJ
-         9YeRwOvm2i95jK0FK05LguoGCqp5lCSLvGOBz6Dglnwgog6OYnEvvSgpZUYCiC/9MMrc
-         o1jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=sB3uhrWUFIlrWgy3IF7Nx3Gf9L0Og2hG6FUTVqjECC8=;
-        b=DZPOAwhzMbzEp+JVXLe0du8JAlcBxfkyAWkmjQwCGlUnZNhCRw1xFQXocBwRDsc/Yj
-         khjbxH14KVjH/FSYZQC6lOw8DRP/l6zvyw6sdygbxyxTyeEfdNpa6FY2Mp0OYxdIN1nz
-         RECWmXb7zSagjmK1k+ew4hTGljYL+tzAD+dwsxc/XzIoXbpajsJHeAtxwmLEa2W4OMom
-         ouypJeG1q9pn0oIy9JaM3fPnAdhUMo/l8UybKbRLIeXk5l3CZkHkqTv4mNSotCtdK1hB
-         G4XfencEcP9pyB54SLUUJPHVR4jSTkKIHPHWtxdREs1ECDllv82dhCstAq6Rs3esn0Kj
-         FzQg==
-X-Gm-Message-State: AOAM532ZVSeATBHUOZA8bI7qGvUhF1CxJMpXPGFZthrK3GH26VbXmleb
-        AVznrOhvP/vPnXreyIwCrBQ=
-X-Google-Smtp-Source: ABdhPJxiOd9h9AnYrLNHa6WZCmwzo3kXI18kGKKj6aYiniJVbGlZ+iZwjfrZ6/Gft4skr+7n/qQNsQ==
-X-Received: by 2002:adf:f645:: with SMTP id x5mr13791040wrp.314.1617724265478;
-        Tue, 06 Apr 2021 08:51:05 -0700 (PDT)
-Received: from debian (host-84-13-30-150.opaltelecom.net. [84.13.30.150])
-        by smtp.gmail.com with ESMTPSA id k16sm12919703wrl.47.2021.04.06.08.51.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Apr 2021 08:51:05 -0700 (PDT)
-Date:   Tue, 6 Apr 2021 16:51:03 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     xiang.ye@intel.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] iio: hid-sensor-prox: Fix scale not
- correct issue" failed to apply to 4.9-stable tree
-Message-ID: <YGyDZ/jeAXqypWSa@debian>
-References: <16164044805955@kroah.com>
+        id S1346105AbhDFP46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 11:56:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46182 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243801AbhDFP46 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 11:56:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1617724609;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=B9TSushbKcbys7h4GTYrIoqJijCxN8pA8C0KkTcK0xE=;
+        b=FhxqngP3/s7FvbZ7gvgDXut9cocOGNBkEIPvpbDo8T60FNFRlv1bbRSvzEwTgfRFc2eKTt
+        OH+O59yFQhWTKFvZ9IGWvbeBHVuyVE3LNJVnBYrG7QgV3BZvC+iTCjOrTC2GkQ3f+i1w/a
+        H46fxvo2Za8HDrz+25PRnXjhu80oJpI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-527-TnwDKGxmM8GK-Cio77yizg-1; Tue, 06 Apr 2021 11:56:45 -0400
+X-MC-Unique: TnwDKGxmM8GK-Cio77yizg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D2EDF190A7A0;
+        Tue,  6 Apr 2021 15:56:43 +0000 (UTC)
+Received: from vitty.brq.redhat.com (unknown [10.40.194.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1B8B76062F;
+        Tue,  6 Apr 2021 15:56:40 +0000 (UTC)
+From:   Vitaly Kuznetsov <vkuznets@redhat.com>
+To:     linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc:     x86@kernel.org, Len Brown <lenb@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org,
+        kernel test robot <lkp@intel.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3] ACPI: processor: Fix build when CONFIG_ACPI_PROCESSOR=m
+Date:   Tue,  6 Apr 2021 17:56:40 +0200
+Message-Id: <20210406155640.564341-1-vkuznets@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="anw0q34835k+/tsM"
-Content-Disposition: inline
-In-Reply-To: <16164044805955@kroah.com>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Commit 8cdddd182bd7 ("ACPI: processor: Fix CPU0 wakeup in
+acpi_idle_play_dead()") tried to fix CPU0 hotplug breakage by copying
+wakeup_cpu0() + start_cpu0() logic from hlt_play_dead()//mwait_play_dead()
+into acpi_idle_play_dead(). The problem is that these functions are not
+exported to modules so when CONFIG_ACPI_PROCESSOR=m build fails.
 
---anw0q34835k+/tsM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The issue could've been fixed by exporting both wakeup_cpu0()/start_cpu0()
+(the later from assembly) but it seems putting the whole pattern into a
+new function and exporting it instead is better.
 
-Hi Greg,
-
-On Mon, Mar 22, 2021 at 10:14:40AM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-
-Here is the backport, will also apply to 4.4-stable.
-
-
---
-Regards
-Sudip
-
---anw0q34835k+/tsM
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-iio-hid-sensor-prox-Fix-scale-not-correct-issue.patch"
-
-From 35b0c1a113b0126dbb762cb9204f4590c0851cff Mon Sep 17 00:00:00 2001
-From: Ye Xiang <xiang.ye@intel.com>
-Date: Sat, 30 Jan 2021 18:25:30 +0800
-Subject: [PATCH] iio: hid-sensor-prox: Fix scale not correct issue
-
-commit d68c592e02f6f49a88e705f13dfc1883432cf300 upstream
-
-Currently, the proxy sensor scale is zero because it just return the
-exponent directly. To fix this issue, this patch use
-hid_sensor_format_scale to process the scale first then return the
-output.
-
-Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 8cdddd182bd7 ("CPI: processor: Fix CPU0 wakeup in acpi_idle_play_dead()")
+Cc: <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 ---
- drivers/iio/light/hid-sensor-prox.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+Changes since v2:
+- Use proper kerneldoc format [Rafael J. Wysocki]
+---
+ arch/x86/include/asm/smp.h    |  2 +-
+ arch/x86/kernel/smpboot.c     | 26 ++++++++++++--------------
+ drivers/acpi/processor_idle.c |  4 +---
+ 3 files changed, 14 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 45ca056f019e..63041dcec7af 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -37,6 +37,9 @@ struct prox_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info prox_attr;
- 	u32 human_presence;
-+	int scale_pre_decml;
-+	int scale_post_decml;
-+	int scale_precision;
- };
+diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
+index 57ef2094af93..630ff08532be 100644
+--- a/arch/x86/include/asm/smp.h
++++ b/arch/x86/include/asm/smp.h
+@@ -132,7 +132,7 @@ void native_play_dead(void);
+ void play_dead_common(void);
+ void wbinvd_on_cpu(int cpu);
+ int wbinvd_on_all_cpus(void);
+-bool wakeup_cpu0(void);
++void cond_wakeup_cpu0(void);
  
- /* Channel definitions */
-@@ -105,8 +108,9 @@ static int prox_read_raw(struct iio_dev *indio_dev,
- 		ret_type = IIO_VAL_INT;
- 		break;
- 	case IIO_CHAN_INFO_SCALE:
--		*val = prox_state->prox_attr.units;
--		ret_type = IIO_VAL_INT;
-+		*val = prox_state->scale_pre_decml;
-+		*val2 = prox_state->scale_post_decml;
-+		ret_type = prox_state->scale_precision;
- 		break;
- 	case IIO_CHAN_INFO_OFFSET:
- 		*val = hid_sensor_convert_exponent(
-@@ -240,6 +244,12 @@ static int prox_parse_report(struct platform_device *pdev,
- 			st->common_attributes.sensitivity.index,
- 			st->common_attributes.sensitivity.report_id);
- 	}
-+
-+	st->scale_precision = hid_sensor_format_scale(
-+				hsdev->usage,
-+				&st->prox_attr,
-+				&st->scale_pre_decml, &st->scale_post_decml);
-+
- 	return ret;
+ void native_smp_send_reschedule(int cpu);
+ void native_send_call_func_ipi(const struct cpumask *mask);
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index f877150a91da..16703c35a944 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -1659,13 +1659,17 @@ void play_dead_common(void)
+ 	local_irq_disable();
  }
+ 
+-bool wakeup_cpu0(void)
++/**
++ * cond_wakeup_cpu0 - Wake up CPU0 if needed.
++ *
++ * If NMI wants to wake up CPU0, start CPU0.
++ */
++void cond_wakeup_cpu0(void)
+ {
+ 	if (smp_processor_id() == 0 && enable_start_cpu0)
+-		return true;
+-
+-	return false;
++		start_cpu0();
+ }
++EXPORT_SYMBOL_GPL(cond_wakeup_cpu0);
+ 
+ /*
+  * We need to flush the caches before going to sleep, lest we have
+@@ -1734,11 +1738,8 @@ static inline void mwait_play_dead(void)
+ 		__monitor(mwait_ptr, 0, 0);
+ 		mb();
+ 		__mwait(eax, 0);
+-		/*
+-		 * If NMI wants to wake up CPU0, start CPU0.
+-		 */
+-		if (wakeup_cpu0())
+-			start_cpu0();
++
++		cond_wakeup_cpu0();
+ 	}
+ }
+ 
+@@ -1749,11 +1750,8 @@ void hlt_play_dead(void)
+ 
+ 	while (1) {
+ 		native_halt();
+-		/*
+-		 * If NMI wants to wake up CPU0, start CPU0.
+-		 */
+-		if (wakeup_cpu0())
+-			start_cpu0();
++
++		cond_wakeup_cpu0();
+ 	}
+ }
+ 
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 768a6b4d2368..4e2d76b8b697 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -544,9 +544,7 @@ static int acpi_idle_play_dead(struct cpuidle_device *dev, int index)
+ 			return -ENODEV;
+ 
+ #if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
+-		/* If NMI wants to wake up CPU0, start CPU0. */
+-		if (wakeup_cpu0())
+-			start_cpu0();
++		cond_wakeup_cpu0();
+ #endif
+ 	}
  
 -- 
 2.30.2
 
-
---anw0q34835k+/tsM--
