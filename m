@@ -2,96 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB23355D1A
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46640355D0B
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237959AbhDFUof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 16:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41086 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245587AbhDFUof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:44:35 -0400
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75E8C061756
-        for <stable@vger.kernel.org>; Tue,  6 Apr 2021 13:44:26 -0700 (PDT)
-Received: by mail-qk1-x749.google.com with SMTP id x11so13350115qki.22
-        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 13:44:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=rePpgg0NtSFQvI03Pc8QaLoe8pSD5aFacV3/oLpjZHQ=;
-        b=FX3QcbUXsZ59fiysV19KfwNB413SDl/OlsR+WLyXtn9ZBiHJPKMd2bENepGaL4VSKb
-         jutDqNThkQVO6KaxOF8ybJymqywdem5D2Cz9e6rrNrHaUvoWfpvYK+8T0sgVYVHk4W2s
-         99n5ikrVe3rB3KDJeJPsvbVkj+opdgteG2liTJhJDwyQaiOlM7rzoAW9Mm1+q9Q+mwEJ
-         BDhHXCqC4NT6vT9V+qOES9V5ti5Vn3k5CogfAw0DbIiNc73UvTP2IKZ1o3gST/siXb5C
-         RIepwGyHeczFiFWECoCETLUUd2ei33/nFPwBBNXnY4FEKsy416Bo6jdzma22sNxYIdQy
-         33vQ==
+        id S1347245AbhDFUoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 16:44:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55196 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1347212AbhDFUoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:44:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1617741837;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9gAUBSas1c2zynPZGsm5lpmI/COC2SlQ+0LwpbtGnEY=;
+        b=UGNajZKAOC5jW0A7vvOsN1FNUSuKF+iS4WtGV99902Q0m1CIE8rTRs4NpAhmsiQEz64LaF
+        nEm9ClsfmpEHcA9zhcfWaIHw0DbY6pJlRX9usGNXwkeNxqN+2kY6cUBMVYQhchp8Bz3ilb
+        GA/rLvyC7Gw4c1UOCn4Eyr83SvogTbs=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-581-rvUZEAE4OUiLxD9wMa5ySw-1; Tue, 06 Apr 2021 16:43:55 -0400
+X-MC-Unique: rvUZEAE4OUiLxD9wMa5ySw-1
+Received: by mail-ej1-f71.google.com with SMTP id o11so2296833ejx.23
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 13:43:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=rePpgg0NtSFQvI03Pc8QaLoe8pSD5aFacV3/oLpjZHQ=;
-        b=dS7ElxqN6Peerrn1OdvBAA/hN02tIjM876K9aJ7g2SH+Cxxi/5leljHahWyiPKfC9u
-         loj1BHAHc8knbn4DdWeeaC7/g138tiOH7UGWDT2VmTIyleTK/xhcVzbzmF+VSzfeLAIf
-         llgHuZdRf/BqUIbUgDOmsH755rl+AeVih2aKf7hNDh2v5Pg9WAs7hn7S4DqYHzNKDVhq
-         nd677PP5d1JkalrYABN6hgOP/bO9xUli6JnwcY9WgHx0jF9tEqRh7CKaQLa3+WVTcI3x
-         4q1amQeT1JbDrxbG3Yaw2d4TWurEtYZcC7haiwWBsWY+/wUgvbgivF3Azyrl0yEaLY5g
-         d/XA==
-X-Gm-Message-State: AOAM533USzvT+z2mG1dxrGzdb1CPgsfb4vTmwYC8Qn38pU56IC4MTHPh
-        /Ia6xmz4nso0Cbx1FF9XlS+XrrfZwP6uzCXbTnJsbsu06llw2nSyGNoOB7P0pUw4hgngkoZEtzM
-        KyiUv0Up9WyxllG8+wlhFV0sSUOP/DovDGUaJm/d1FJ63UUZcm5b/LLtfihE=
-X-Google-Smtp-Source: ABdhPJxmNHKj0YsagYpo3qjbBR8hT+Z9H+94vNmOc6KtrwrB13ZpYlcu/Qp6o3GX/MPrUzlm8axQT+6Sfw==
-X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a0c:ee81:: with SMTP id u1mr20076365qvr.14.1617741866073;
- Tue, 06 Apr 2021 13:44:26 -0700 (PDT)
-Date:   Tue,  6 Apr 2021 20:43:27 +0000
-In-Reply-To: <20210406204326.1932888-1-jxgao@google.com>
-Message-Id: <20210406204326.1932888-9-jxgao@google.com>
-Mime-Version: 1.0
-References: <20210406204326.1932888-1-jxgao@google.com>
-X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
-Subject: [PATCH V2 v5.4 8/8] nvme-pci: set min_align_mask
-From:   Jianxiong Gao <jxgao@google.com>
-To:     stable@vger.kernel.org
-Cc:     Jianxiong Gao <jxgao@google.com>, Christoph Hellwig <hch@lst.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=9gAUBSas1c2zynPZGsm5lpmI/COC2SlQ+0LwpbtGnEY=;
+        b=du6KtjAR81a5eAEiIq07bRLSqn4YkZApN6RQaJebbIYzWR7ytJHd0p1tVJeFzPElow
+         THZBIb1ZUAuxAPWOib2m2dDOa3LmOZl0I0BupbYyBVpAhs7dj60qqGLPQZIRVuiRewGG
+         oAJQK4pNEOMlDSGy3DVdwKMHNOcTxq2gsaOQ2i00LvTWeAmeGlcFyYH5/VsJ32vaWaSo
+         F8oczziDdfO7ScD2CDQkLzB4P675evnHLAXfHcKzeQvw7uBGE78tRZCgmMSqxdC1kFUf
+         1wxF28/Wm+K315PmebbC/1ZjeY5uRMrZQ84k4ouNVw+q2QZ1xBqR124YsOv9rlPdT2UM
+         8ZbQ==
+X-Gm-Message-State: AOAM530uHeW+8QCgpQ6VBVnsWH9bbESYYn2V12Ln+lQb+Ioqh2XjeGHP
+        5oBqbC3sPv8unQd4cZopK8uMRU9uf6AhmxqJ6Te8MiJdWQOCmU6ti6/Y81npLTT7tjLa2+S/R36
+        ZQFvUFL8BoMVU8OXy
+X-Received: by 2002:a17:906:5203:: with SMTP id g3mr35123521ejm.95.1617741834519;
+        Tue, 06 Apr 2021 13:43:54 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxB8CQ5zi2U8KCqc/sM5wQa7uXbbaNHIZF+GVJ7SPEwuoOJKAUWSWazNJSLH7SJOhDH8dQOSA==
+X-Received: by 2002:a17:906:5203:: with SMTP id g3mr35123507ejm.95.1617741834348;
+        Tue, 06 Apr 2021 13:43:54 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id s12sm9340838edx.18.2021.04.06.13.43.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 06 Apr 2021 13:43:53 -0700 (PDT)
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Peter Feiner <pfeiner@google.com>,
+        Ben Gardon <bgardon@google.com>
+References: <20210405085031.040238881@linuxfoundation.org>
+ <20210405085034.229578703@linuxfoundation.org>
+ <98478382-23f8-57af-dc17-23c7d9899b9a@redhat.com> <YGxm+WISdIqfwqXD@sashalap>
+ <fd2030f3-55ba-6088-733b-ac6a551e2170@redhat.com> <YGyiDC2iP4CmWgUJ@sashalap>
+ <81059969-e146-6ed3-01b6-341cbcf1b3ae@redhat.com> <YGy6EVb+JeNu7EOs@sashalap>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 5.10 096/126] KVM: x86/mmu: Use atomic ops to set SPTEs in
+ TDP MMU map
+Message-ID: <b2b05936-f545-9272-714b-845d54fa78eb@redhat.com>
+Date:   Tue, 6 Apr 2021 22:43:52 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
+MIME-Version: 1.0
+In-Reply-To: <YGy6EVb+JeNu7EOs@sashalap>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+On 06/04/21 21:44, Sasha Levin wrote:
+> On Tue, Apr 06, 2021 at 08:28:27PM +0200, Paolo Bonzini wrote:
+>> If a patch doesn't (more or less trivially) apply, the maintainer 
+>> should take action.  Distro maintainers can also jump in and post the 
+>> backport to subsystem mailing lists.  If the stable kernel loses a 
+>> patch because a maintainer doesn't have the time to do a backport, 
+>> it's not the end of the world.
+> 
+> This quickly went from a "world class" to "fuck it".
 
-'commit 3d2d861eb03e ("nvme-pci: set min_align_mask")'
+Known bugs are better than unknown bugs.  If something is reported on 
+4.19 and the stable@ backports were only done up to 5.4 because the 
+backport was a bit more messy, it's okay.  If a user comes up with a 
+weird bug that I've never seen and that it's caused by a botched 
+backport, it's much worse.
 
-The PRP addressing scheme requires all PRP entries except for the
-first one to have a zero offset into the NVMe controller pages (which
-can be different from the Linux PAGE_SIZE).  Use the min_align_mask
-device parameter to ensure that swiotlb does not change the address
-of the buffer modulo the device page size to ensure that the PRPs
-won't be malformed.
+In this specific case we're talking of 5.10; but in many cases users of 
+really old kernels, let's say 4.4-4.9 at this point, won't care about 
+having *all* bugfixes.  Some newer (and thus more buggy) features may be 
+so distant from the mainline in those kernels, or so immature, that no 
+one will consider them while staying on such an old kernel.
 
-Signed-off-by: Jianxiong Gao <jxgao@google.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Jianxiong Gao <jxgao@google.com>
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
----
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+Again, kernel necrophilia pays my bills, so I have some experience there. :)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 869f462e6b6e..087ae2b2a853 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2576,6 +2576,7 @@ static void nvme_reset_work(struct work_struct *work)
- 	 * Don't limit the IOMMU merged segment size.
- 	 */
- 	dma_set_max_seg_size(dev->dev, 0xffffffff);
-+	dma_set_min_align_mask(dev->dev, dev->ctrl.page_size - 1);
- 
- 	mutex_unlock(&dev->shutdown_lock);
- 
--- 
-2.27.0
+> It's understandable that maintainers don't have all the time in the
+> world for this, but are you really asking not to backport fixes to
+> stable trees because you don't have the time for it and don't want
+> anyone else to do it instead?
+
+If a bug is serious I *will* do the backport; I literally did this 
+specific backport on the first working day after the failure report. 
+But not all bugs are created equal and neither are all stable@-worthy 
+bugs.  I try to use the "Fixes" tag correctly, but sometimes a bug that 
+*technically* is 10-years-old may not be worthwhile or even possible to 
+fix even in 5.4.
+
+That said... one thing that would be really, really awesome would be a 
+website where you navigate a Linux checkout and for each directory you 
+can choose to get a list of stable patches that were Cc-ed to stable@ 
+and failed to apply.  A pipedream maybe, but also a great internship 
+project. :)
+
+Paolo
+
+> Maybe consider designating someone who knows the subsystem well and does
+> have time for this?
 
