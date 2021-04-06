@@ -2,158 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2420355CFB
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B40D9355D11
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347197AbhDFUfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 16:35:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39094 "EHLO
+        id S1347211AbhDFUoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 16:44:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231488AbhDFUff (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:35:35 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB6C2C06174A;
-        Tue,  6 Apr 2021 13:35:26 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id i18so12112335wrm.5;
-        Tue, 06 Apr 2021 13:35:26 -0700 (PDT)
+        with ESMTP id S245587AbhDFUoV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:44:21 -0400
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD82EC061756
+        for <stable@vger.kernel.org>; Tue,  6 Apr 2021 13:44:13 -0700 (PDT)
+Received: by mail-pl1-x649.google.com with SMTP id e12so8306563plh.7
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 13:44:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=IfVWHQROAUp8Y3SbnzHentJjYUhOt/k/kD9IkCRlVTE=;
-        b=YQgBitNHBUbKbM/2k2JKStIyt3GEQYdhkyy0Gfz3N17ncZrhaHETxK+yDGhG3mjX6y
-         qWPS3cltCHRLKJlEdXllvDVN/XRfe92L0xXi/Qlw5HFfdB/ygEYBsvy1+XyE/WZju6Tu
-         6vfjYpnQJB5lzIuwiF7b23hIvZvyVLuTLsADL1cLs19h09sut9T7cX4ITVdPWuaYKys/
-         oOLy4qj+Dx6XttmN+5pUL2dXZMFeC6XcE6aH6qeuxZRxN8/VvnwGbmja9E/mTmqBsI0g
-         K+Tf4H/LLH7seHm0MuTlgYLv9CtDrtrnNnCnjM/SI/KFNCGl3Oj+KRXUKim/2ArlBXS2
-         jsgQ==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=P3P9lr1iVS3KUMTytwAf56LSsIDD0F1+oGbUaACPQmM=;
+        b=rDH+oyj6bB7TrFXkLN7cwb18FxqszXFvxGSnIFn6TqLV6+PCR/oeibXWN22NxlOC5T
+         EXT2a5+jGkWJ+nk6WNTVbG0nlAUsBqMPnhxsG5NJ5vzAEM5BU1lbColGyStDENjlI4IR
+         5Ac50EppkUvqD0OIe6Z8/a75MFgmr/ExYO1bBhU8yngqQ7rnCuEPYExwCDy69upAmlLO
+         zDSmFOcTensaXP6sqjNr0qz6MokjOX2PD6PVhITr1PqyV/jy250m4yUjMOxhm6zojlI/
+         00JwO1g41jjUDp4SE5Ob64uTNND8CVDnz5U/CHKLM4CgNGMD9oxZdOdyapo8zCchZmoj
+         t6jA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=IfVWHQROAUp8Y3SbnzHentJjYUhOt/k/kD9IkCRlVTE=;
-        b=myT+ISDZQVVWynSNq+QpCBm/c7HHB7rXF2Uwruz7LucCYpJ7FKzPy5XnYI+UbI9z69
-         8/Vei8GuqNxtinwijuRxCsknk/DYA0UD2P8z+Vs2aY3a4kbor4k9WGmKpcqsu06ZL5mc
-         QbNdYPoAHbitanv//oZZQbeO7xxqWX/D4fp0YCAYNAerrAsm7DoRXvCrDfmtscWa1cjO
-         KG2W2gJlBAyY7o/izLLZ1Ag/QT5SJej+Wk/sTYo/5x6838qrJ/VHbb01Effsg2m55MaS
-         SlN0r8/dRbnybDWzJ4Yd120M9zHGibeF0Wyf+bNLnJJ76eaRdGq41TyzcijXz9HALOgw
-         XhHA==
-X-Gm-Message-State: AOAM533Z/Wxt3TqCir4Epn+cVSWtgBgbNrd0MMYhVLuwM8G2BXnMKH9J
-        OGUSa9FV2od07ykSd/NZIxg=
-X-Google-Smtp-Source: ABdhPJx72Gg+T2lFgZxO+e7rdZxDHj82BUhUNdC6lOvKQG/IpFOtOPvFB8qBwrcItFIMewqTeOXHOg==
-X-Received: by 2002:a5d:6d05:: with SMTP id e5mr77918wrq.324.1617741325681;
-        Tue, 06 Apr 2021 13:35:25 -0700 (PDT)
-Received: from localhost.localdomain (p200300f1370b4300428d5cfffeb99db8.dip0.t-ipconnect.de. [2003:f1:370b:4300:428d:5cff:feb9:9db8])
-        by smtp.googlemail.com with ESMTPSA id q14sm14040564wrg.64.2021.04.06.13.35.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Apr 2021 13:35:25 -0700 (PDT)
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-To:     hauke@hauke-m.de, andrew@lunn.ch, f.fainelli@gmail.com,
-        vivien.didelot@gmail.com, olteanv@gmail.com, netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux@armlinux.org.uk,
-        linux-kernel@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH RFC net 2/2] net: dsa: lantiq_gswip: Configure all remaining GSWIP_MII_CFG bits
-Date:   Tue,  6 Apr 2021 22:35:08 +0200
-Message-Id: <20210406203508.476122-3-martin.blumenstingl@googlemail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210406203508.476122-1-martin.blumenstingl@googlemail.com>
-References: <20210406203508.476122-1-martin.blumenstingl@googlemail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=P3P9lr1iVS3KUMTytwAf56LSsIDD0F1+oGbUaACPQmM=;
+        b=LLbSFbbgCXUU7LhibJc1zovzyvpeXILE2zqn+v3itOS/UZ0FR/DCL8O7jK8a/zV95+
+         j5cqPjG61j7nNdUKMR5a7+EgKsbrG/vm3FHdO9SmUTxQDxm9lHQvjrN2QpkrZAHcXB1q
+         JqIxKrjiANxWVoJw30+ShvLgZhXeeeJ6hAS7rdWdzcP/S/l3MSOfkHXYjTDH1DHuKHj/
+         MMeaK+NqeA+B6gTGwCvgdDfR3xfTbaDhHABJR/50xv8r3PLHthqXwgeDHcEdaI2wP5fp
+         QZm2kRVaq4V5NboRBYG2Rf1LHNYeDm4jKfujZete4PKnBoARzQSVQ1EuLMGybaLUQu+k
+         QzQw==
+X-Gm-Message-State: AOAM531WympmXnJ55vgcVuZecZKqyW96cO3lewjJNX4i5jYrkRr6/3mV
+        cfAGendaVyvesMvdNaTSU5LWhpyAjQJPOI5n7q7keo1i2x9Unpw+UXPgk/0e/ia7diXfdo/Cifq
+        nWY3KC5878UzA11JwOpVIQ5DqMsPAm8bmlnW7EFRHGPgSORTT3D60CgcBtMM=
+X-Google-Smtp-Source: ABdhPJwVuZKgKqNqhqSzZesnLxwhAHOqtYFlRraVzVc2+6+12CN4ZcJAZzVUbciVqkKQqvHzv9r7ZOsU4Q==
+X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
+ (user=jxgao job=sendgmr) by 2002:a63:5d22:: with SMTP id r34mr40977pgb.102.1617741853126;
+ Tue, 06 Apr 2021 13:44:13 -0700 (PDT)
+Date:   Tue,  6 Apr 2021 20:43:19 +0000
+Message-Id: <20210406204326.1932888-1-jxgao@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
+Subject: [PATCH V2 v5.4 0/8] preserve DMA offsets when using swiotlb
+From:   Jianxiong Gao <jxgao@google.com>
+To:     stable@vger.kernel.org
+Cc:     Jianxiong Gao <jxgao@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are a few more bits in the GSWIP_MII_CFG register for which we
-did rely on the boot-loader (or the hardware defaults) to set them up
-properly.
+Hi all,
 
-For some external RMII PHYs we need to select the GSWIP_MII_CFG_RMII_CLK
-bit and also we should un-set it for non-RMII PHYs. The GSWIP IP also
-supports in-band auto-negotiation for RGMII PHYs. Set or unset the
-corresponding bit depending on the auto-negotiation mode.
+This series of backports fixes the SWIOTLB library to maintain the
+page offset when mapping a DMA address. The bug that motivated this
+patch series manifested when running a 5.4 kernel as a SEV guest with
+an NVMe device. However, any device that infers information from the
+page offset and is accessed through the SWIOTLB will benefit from this
+bug fix.
 
-Clear the xMII isolation bit when set at initialization time if it was
-previously set by the bootloader. Not doing so could lead to no traffic
-(neither RX nor TX) on a port with this bit set.
+change log:
+From V1 to V2:
+	Updated comments to match sign-offs from original patch.
+	Updated patch 5 and 7 to make sure they apply cleanly.
 
-While here, also add the GSWIP_MII_CFG_RESET bit. We don't need to
-manage it because this bit is self-clearning when set. We still add it
-here to get a better overview of the GSWIP_MII_CFG register.
+Jianxiong Gao (8):
+  driver core: add a min_align_mask field to struct 
+    device_dma_parameters
+  swiotlb: factor out an io_tlb_offset helper
+  swiotlb: factor out a nr_slots helper
+  swiotlb: clean up swiotlb_tbl_unmap_single
+  swiotlb: refactor swiotlb_tbl_map_single
+  swiotlb: don't modify orig_addr in  swiotlb_tbl_sync_single
+  swiotlb: respect min_align_mask
+  nvme-pci: set min_align_mask
 
-Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Cc: stable@vger.kernel.org
-Suggested-by: Hauke Mehrtens <hauke@hauke-m.de>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
----
- drivers/net/dsa/lantiq_gswip.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/nvme/host/pci.c     |   1 +
+ include/linux/device.h      |   1 +
+ include/linux/dma-mapping.h |  16 +++
+ include/linux/swiotlb.h     |   1 +
+ kernel/dma/swiotlb.c        | 260 ++++++++++++++++++++----------------
+ 5 files changed, 162 insertions(+), 117 deletions(-)
 
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 47ea3a8c90a4..f330035ed85b 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -93,8 +93,12 @@
- 
- /* GSWIP MII Registers */
- #define GSWIP_MII_CFGp(p)		(0x2 * (p))
-+#define  GSWIP_MII_CFG_RESET		BIT(15)
- #define  GSWIP_MII_CFG_EN		BIT(14)
-+#define  GSWIP_MII_CFG_ISOLATE		BIT(13)
- #define  GSWIP_MII_CFG_LDCLKDIS		BIT(12)
-+#define  GSWIP_MII_CFG_RGMII_IBS	BIT(8)
-+#define  GSWIP_MII_CFG_RMII_CLK		BIT(7)
- #define  GSWIP_MII_CFG_MODE_MIIP	0x0
- #define  GSWIP_MII_CFG_MODE_MIIM	0x1
- #define  GSWIP_MII_CFG_MODE_RMIIP	0x2
-@@ -821,9 +825,11 @@ static int gswip_setup(struct dsa_switch *ds)
- 	/* Configure the MDIO Clock 2.5 MHz */
- 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
- 
--	/* Disable the xMII link */
-+	/* Disable the xMII interface and clear it's isolation bit */
- 	for (i = 0; i < priv->hw_info->max_ports; i++)
--		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
-+		gswip_mii_mask_cfg(priv,
-+				   GSWIP_MII_CFG_EN | GSWIP_MII_CFG_ISOLATE,
-+				   0, i);
- 
- 	/* enable special tag insertion on cpu port */
- 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
-@@ -1597,19 +1603,29 @@ static void gswip_phylink_mac_config(struct dsa_switch *ds, int port,
- 		break;
- 	case PHY_INTERFACE_MODE_RMII:
- 		miicfg |= GSWIP_MII_CFG_MODE_RMIIM;
-+
-+		/* Configure the RMII clock as output: */
-+		miicfg |= GSWIP_MII_CFG_RMII_CLK;
- 		break;
- 	case PHY_INTERFACE_MODE_RGMII:
- 	case PHY_INTERFACE_MODE_RGMII_ID:
- 	case PHY_INTERFACE_MODE_RGMII_RXID:
- 	case PHY_INTERFACE_MODE_RGMII_TXID:
- 		miicfg |= GSWIP_MII_CFG_MODE_RGMII;
-+
-+		if (phylink_autoneg_inband(mode))
-+			miicfg |= GSWIP_MII_CFG_RGMII_IBS;
- 		break;
- 	default:
- 		dev_err(ds->dev,
- 			"Unsupported interface: %d\n", state->interface);
- 		return;
- 	}
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_MODE_MASK, miicfg, port);
-+
-+	gswip_mii_mask_cfg(priv,
-+			   GSWIP_MII_CFG_MODE_MASK | GSWIP_MII_CFG_RMII_CLK |
-+			   GSWIP_MII_CFG_RGMII_IBS | GSWIP_MII_CFG_LDCLKDIS,
-+			   miicfg, port);
- 
- 	gswip_port_set_link(priv, port, state->link);
- 	gswip_port_set_speed(priv, port, state->speed, state->interface);
 -- 
-2.31.1
+2.27.0
 
