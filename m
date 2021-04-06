@@ -2,168 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01D733554E5
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 15:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE214355520
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 15:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242625AbhDFNWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 09:22:30 -0400
-Received: from mail-ot1-f46.google.com ([209.85.210.46]:45816 "EHLO
-        mail-ot1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242618AbhDFNW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 09:22:28 -0400
-Received: by mail-ot1-f46.google.com with SMTP id 91-20020a9d08640000b0290237d9c40382so14550882oty.12;
-        Tue, 06 Apr 2021 06:22:19 -0700 (PDT)
+        id S231919AbhDFNaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 09:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232450AbhDFNaW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 09:30:22 -0400
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D09C06175F
+        for <stable@vger.kernel.org>; Tue,  6 Apr 2021 06:30:11 -0700 (PDT)
+Received: by mail-il1-x130.google.com with SMTP id r17so5315496ilt.0
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 06:30:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zbkgM7EklYBgMqnsRgXu/OttXW0k5WuSVERLeYOfs6c=;
+        b=YKa/dr0N4/hryeRJlHCpY30TWqqo7GaxNQfMYygCMtHN2eujpvjvFMIbxRxAEAOzrX
+         IJuv5hzDc5ZXN+N87aAvcuy+cZ3Ljpezx/x5edPftTwLA3XImsRyBsG8vk/ViMTiMnO8
+         6EzkJLq532/nm+WSEeyWkvZ7ZEiN+DRhbL2zE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=VoWY/s77zLLDu+Op6P265Vg8YKwWqy+Vh24Ks0b7ijw=;
-        b=JADnTbGDklp8ckWALguRNFBcgQocVHCWE164QOxNX7EBpl42mZRJeuJpPYneo3SX9K
-         UacS8GdAMwFFAfTSMsFIoWEiKMEGXCRTkUyN7q8TpHGiFnSh/geKphzvgaD9BrmDQ7Ol
-         len1TtUdy011uq3TYBbFbZ3wCsYuZezsiIv1g2SEMBWr2u6hlE8jeoOVRZqlp7p5+nZ7
-         sTo5KVVKt9FVhA/FhkfIMusxrdconYYEwUbfeoPoyoNUEUUvGZq6lhsEnDujUEuY9w8w
-         I4ta7VRYUgS7b4P1sal/nfvkdfO0/U6HSFvJpZQCeUcaqyHwC+83eEyrerdQoea9xedf
-         2S7g==
-X-Gm-Message-State: AOAM531vOlqqpO+wYmbU+0iD1G+lq3ObBp7Y1YbiS6s5Izqwwlx3ZzyM
-        sT6f2PNqtSmwwvvupYZOxUFO58UMbHcaVBzdTNA=
-X-Google-Smtp-Source: ABdhPJz2fyrytIoslGUKKUA2m10f98uEsyHqThzFXBrDG5t8ALIUf7K0wQGA9GduVuuduEo53PSsC6TXquOwEXFIy3k=
-X-Received: by 2002:a05:6830:55b:: with SMTP id l27mr25959514otb.260.1617715338923;
- Tue, 06 Apr 2021 06:22:18 -0700 (PDT)
+        bh=zbkgM7EklYBgMqnsRgXu/OttXW0k5WuSVERLeYOfs6c=;
+        b=TSJYjGuZMUHPcD0dU+6Xb4M3qGTseIN7qhsnP1CnYjsQ6SL7ka15WPrdiA/eiwdwyi
+         ounIiAdcdGI1dH59NTx3ODan9TqSywa+LGso5SlgrgRa+XY251Ldtzc5zNy+LKAlZMV1
+         11SgFfGN13Pg/cZj2pu7cAOHTPX/8baRa/hYeCsoOYPF/VxOKiq0ItQ/Q9OteDx85s7K
+         dB9iO/McG4W46ET6//lq0v9FaNa+g5JYtQk0Tcwjo8FaE4ihCyJnT91otox3KOvYK92T
+         qVnZmxQNGmxGOBfbCmvBpTV6AaKK6YqhAhFhOOfE3yFirZE0NR1CcAX1s/kBCp2bPQ9O
+         Xw/Q==
+X-Gm-Message-State: AOAM530mdrlFWjlo0450LxzAJzJvG9uRjlYzFrJhj+gXGA9ikj+XWPcB
+        N0q3Sip4pbMiVYpog0UwuyvWdcitQKk+gA==
+X-Google-Smtp-Source: ABdhPJzTB9/gHNx6WW7buJShPGj+6rIIFxYqSokuOZVd924pcse+XQXo+T6Z89UWBQ0J/tnh248O1Q==
+X-Received: by 2002:a92:2c08:: with SMTP id t8mr23468577ile.72.1617715810740;
+        Tue, 06 Apr 2021 06:30:10 -0700 (PDT)
+Received: from mail-io1-f52.google.com (mail-io1-f52.google.com. [209.85.166.52])
+        by smtp.gmail.com with ESMTPSA id h193sm13843443iof.9.2021.04.06.06.30.09
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 06 Apr 2021 06:30:09 -0700 (PDT)
+Received: by mail-io1-f52.google.com with SMTP id b10so15546574iot.4
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 06:30:09 -0700 (PDT)
+X-Received: by 2002:a6b:8ec2:: with SMTP id q185mr23730961iod.150.1617715808496;
+ Tue, 06 Apr 2021 06:30:08 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210406125047.547501-1-vkuznets@redhat.com>
-In-Reply-To: <20210406125047.547501-1-vkuznets@redhat.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 6 Apr 2021 15:22:00 +0200
-Message-ID: <CAJZ5v0hpkF-acQAomZZKN=r00gNy831R7J-ZWZgWnoCJe5xSkg@mail.gmail.com>
-Subject: Re: [PATCH] ACPI: processor: Fix build when CONFIG_ACPI_PROCESSOR=m
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Len Brown <lenb@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Stable <stable@vger.kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20210315123406.1523607-1-ribalda@chromium.org>
+ <34c90095-bcbf-5530-786a-e709cc493fa9@linux.intel.com> <CANiDSCvMvYVN0+zN3du2pJfGLPJ_f7Ees2YrfybJgUDmBjq2jQ@mail.gmail.com>
+ <db0bac15-01a1-5cc0-f72d-135ce5f9b788@linux.intel.com>
+In-Reply-To: <db0bac15-01a1-5cc0-f72d-135ce5f9b788@linux.intel.com>
+From:   Ricardo Ribalda <ribalda@chromium.org>
+Date:   Tue, 6 Apr 2021 15:29:57 +0200
+X-Gmail-Original-Message-ID: <CANiDSCujua6DYbys7EF_Qgg4XskvG0qRDOrVmAvTpZDMFtzf9g@mail.gmail.com>
+Message-ID: <CANiDSCujua6DYbys7EF_Qgg4XskvG0qRDOrVmAvTpZDMFtzf9g@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] media: staging/intel-ipu3: Fix memory leak in imu_fmt
+To:     Bingbu Cao <bingbu.cao@linux.intel.com>
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Tianshu Qiu <tian.shu.qiu@intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux Media Mailing List <linux-media@vger.kernel.org>,
+        devel@driverdev.osuosl.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 6, 2021 at 2:50 PM Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
->
-> Commit 8cdddd182bd7 ("ACPI: processor: Fix CPU0 wakeup in
-> acpi_idle_play_dead()") tried to fix CPU0 hotplug breakage by copying
-> wakeup_cpu0() + start_cpu0() logic from hlt_play_dead()//mwait_play_dead()
-> into acpi_idle_play_dead(). The problem is that these functions are not
-> exported to modules so when CONFIG_ACPI_PROCESSOR=m build fails.
->
-> The issue could've been fixed by exporting both wakeup_cpu0()/start_cpu0()
-> (the later from assembly) but it seems putting the whole pattern into a
-> new function and exporting it instead is better.
->
-> Reported-by: kernel test robot <lkp@intel.com>
-> Fixes: 8cdddd182bd7 ("CPI: processor: Fix CPU0 wakeup in acpi_idle_play_dead()")
-> Cc: <stable@vger.kernel.org> # 5.10+
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> ---
->  arch/x86/include/asm/smp.h    |  2 +-
->  arch/x86/kernel/smpboot.c     | 15 ++++++++++-----
->  drivers/acpi/processor_idle.c |  3 +--
->  3 files changed, 12 insertions(+), 8 deletions(-)
->
-> diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
-> index 57ef2094af93..6f79deb1f970 100644
-> --- a/arch/x86/include/asm/smp.h
-> +++ b/arch/x86/include/asm/smp.h
-> @@ -132,7 +132,7 @@ void native_play_dead(void);
->  void play_dead_common(void);
->  void wbinvd_on_cpu(int cpu);
->  int wbinvd_on_all_cpus(void);
-> -bool wakeup_cpu0(void);
-> +void wakeup_cpu0_if_needed(void);
->
->  void native_smp_send_reschedule(int cpu);
->  void native_send_call_func_ipi(const struct cpumask *mask);
-> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-> index f877150a91da..9547d870ee27 100644
-> --- a/arch/x86/kernel/smpboot.c
-> +++ b/arch/x86/kernel/smpboot.c
-> @@ -1659,7 +1659,7 @@ void play_dead_common(void)
->         local_irq_disable();
->  }
->
-> -bool wakeup_cpu0(void)
-> +static bool wakeup_cpu0(void)
->  {
->         if (smp_processor_id() == 0 && enable_start_cpu0)
->                 return true;
-> @@ -1667,6 +1667,13 @@ bool wakeup_cpu0(void)
->         return false;
->  }
->
-> +void wakeup_cpu0_if_needed(void)
-> +{
-> +       if (wakeup_cpu0())
-> +               start_cpu0();
-
-Note that all of the callers of wakeup_cpu0 do the above, so maybe
-make them all use the new function?
-
-In which case it can be rewritten in the following way
-
-void cond_wakeup_cpu0(void)
-{
-        if (smp_processor_id() == 0 && enable_start_cpu0)
-                start_cpu0();
-}
-EXPORT_SYMBOL_GPL(cond_wakeup_cpu0);
-
-Also please add a proper kerneldoc comment to it and maybe drop the
-comments at the call sites?
+Hi Bingbu
 
 
-> +}
-> +EXPORT_SYMBOL_GPL(wakeup_cpu0_if_needed);
-> +
->  /*
->   * We need to flush the caches before going to sleep, lest we have
->   * dirty data in our caches when we come back up.
-> @@ -1737,8 +1744,7 @@ static inline void mwait_play_dead(void)
->                 /*
->                  * If NMI wants to wake up CPU0, start CPU0.
->                  */
-> -               if (wakeup_cpu0())
-> -                       start_cpu0();
-> +               wakeup_cpu0_if_needed();
->         }
->  }
+Maybe you want to add your Reviewed-by ? ;)
+
+Thanks!
+On Wed, Mar 17, 2021 at 7:48 AM Bingbu Cao <bingbu.cao@linux.intel.com> wrote:
 >
-> @@ -1752,8 +1758,7 @@ void hlt_play_dead(void)
->                 /*
->                  * If NMI wants to wake up CPU0, start CPU0.
->                  */
-> -               if (wakeup_cpu0())
-> -                       start_cpu0();
-> +               wakeup_cpu0_if_needed();
->         }
->  }
 >
-> diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
-> index 768a6b4d2368..de15116b754a 100644
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -545,8 +545,7 @@ static int acpi_idle_play_dead(struct cpuidle_device *dev, int index)
+> On 3/17/21 1:50 AM, Ricardo Ribalda wrote:
+> > Hi Bingbu
+> >
+> > Thanks for your review
+> >
+> > On Tue, Mar 16, 2021 at 12:29 PM Bingbu Cao <bingbu.cao@linux.intel.com> wrote:
+> >>
+> >> Hi, Ricardo
+> >>
+> >> Thanks for your patch.
+> >> It looks fine for me, do you mind squash 2 patchsets into 1 commit?
+> >
+> > Are you sure? There are two different issues that we are solving.
 >
->  #if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
->                 /* If NMI wants to wake up CPU0, start CPU0. */
-> -               if (wakeup_cpu0())
-> -                       start_cpu0();
-> +               wakeup_cpu0_if_needed();
->  #endif
->         }
+> Oh, I see. I thought you were fixing 1 issue here.
+> Thanks!
+>
+> >
+> > Best regards!
+> >
+> >>
+> >> On 3/15/21 8:34 PM, Ricardo Ribalda wrote:
+> >>> We are losing the reference to an allocated memory if try. Change the
+> >>> order of the check to avoid that.
+> >>>
+> >>> Cc: stable@vger.kernel.org
+> >>> Fixes: 6d5f26f2e045 ("media: staging/intel-ipu3-v4l: reduce kernel stack usage")
+> >>> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+> >>> ---
+> >>>  drivers/staging/media/ipu3/ipu3-v4l2.c | 11 +++++++----
+> >>>  1 file changed, 7 insertions(+), 4 deletions(-)
+> >>>
+> >>> diff --git a/drivers/staging/media/ipu3/ipu3-v4l2.c b/drivers/staging/media/ipu3/ipu3-v4l2.c
+> >>> index 60aa02eb7d2a..35a74d99322f 100644
+> >>> --- a/drivers/staging/media/ipu3/ipu3-v4l2.c
+> >>> +++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
+> >>> @@ -693,6 +693,13 @@ static int imgu_fmt(struct imgu_device *imgu, unsigned int pipe, int node,
+> >>>               if (inode == IMGU_NODE_STAT_3A || inode == IMGU_NODE_PARAMS)
+> >>>                       continue;
+> >>>
+> >>> +             /* CSS expects some format on OUT queue */
+> >>> +             if (i != IPU3_CSS_QUEUE_OUT &&
+> >>> +                 !imgu_pipe->nodes[inode].enabled) {
+> >>> +                     fmts[i] = NULL;
+> >>> +                     continue;
+> >>> +             }
+> >>> +
+> >>>               if (try) {
+> >>>                       fmts[i] = kmemdup(&imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp,
+> >>>                                         sizeof(struct v4l2_pix_format_mplane),
+> >>> @@ -705,10 +712,6 @@ static int imgu_fmt(struct imgu_device *imgu, unsigned int pipe, int node,
+> >>>                       fmts[i] = &imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp;
+> >>>               }
+> >>>
+> >>> -             /* CSS expects some format on OUT queue */
+> >>> -             if (i != IPU3_CSS_QUEUE_OUT &&
+> >>> -                 !imgu_pipe->nodes[inode].enabled)
+> >>> -                     fmts[i] = NULL;
+> >>>       }
+> >>>
+> >>>       if (!try) {
+> >>>
+> >>
+> >> --
+> >> Best regards,
+> >> Bingbu Cao
+> >
+> >
+> >
 >
 > --
-> 2.30.2
->
+> Best regards,
+> Bingbu Cao
+
+
+
+-- 
+Ricardo Ribalda
