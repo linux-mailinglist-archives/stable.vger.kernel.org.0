@@ -2,150 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DE69355875
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 17:48:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC102355888
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 17:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233848AbhDFPtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 11:49:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46897 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231784AbhDFPtD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 11:49:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617724134;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2E9FBI0FyS37cy8+M6B/bRI7HePcKctqTpcNooNX+xs=;
-        b=CR+8hu3+ORH0Jsqfl43+O/7m/XfFmemgQo9yLdRnWmygljUl8m9HizgLy0kqV9fAVLuJQH
-        PE+1Ul7ych60AtwAUbK8541Y+TYKlUdYBr9ehknP8dgt7zivx85M2V1zfr/83By4z/JDgQ
-        pjAT0hykg9ifOnDw8W7h36HPsl0jWc4=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-319-HWy_ofpnMTqAA03LCtCB1Q-1; Tue, 06 Apr 2021 11:48:53 -0400
-X-MC-Unique: HWy_ofpnMTqAA03LCtCB1Q-1
-Received: by mail-ed1-f70.google.com with SMTP id m21so985157edp.12
-        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 08:48:53 -0700 (PDT)
+        id S1346057AbhDFPvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 11:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33284 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346058AbhDFPvP (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 6 Apr 2021 11:51:15 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA2B1C06174A
+        for <Stable@vger.kernel.org>; Tue,  6 Apr 2021 08:51:06 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id x7so14754961wrw.10
+        for <Stable@vger.kernel.org>; Tue, 06 Apr 2021 08:51:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=sB3uhrWUFIlrWgy3IF7Nx3Gf9L0Og2hG6FUTVqjECC8=;
+        b=tHX73a8vNPTfaQY7sFB1l3hrQY55fIJXZDM2yOdUujC5sIVP74fXzUx4WtcKD7ElOl
+         vaLYQTMmYAhe00Wv8kciqCcWgKdHxWsVtTJERs1Pz0x1FZ7JiBtbWTFQW1lJgDtMQtfq
+         9/hcmd7ahuRgSevBbIFaU2XTW1h7tUwl7LdDj1yk7ThAhAkBKhdvX6WLDJeUhexbAdzi
+         +Ee5nBR8+qFVO48+l1AD/e4XsRZDQa01/13S873otsqhIwn/y4EleiWOXOAjaEXlfWDJ
+         9YeRwOvm2i95jK0FK05LguoGCqp5lCSLvGOBz6Dglnwgog6OYnEvvSgpZUYCiC/9MMrc
+         o1jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2E9FBI0FyS37cy8+M6B/bRI7HePcKctqTpcNooNX+xs=;
-        b=dFMvbv6uDrRr2JTBZdgIp2K1ULytRz1t3nTaQ6Rjwg7hympmJbfMgKwkOYDXcqNAkp
-         7i1iJSxZenePvfh20B4Q4YrxE4iVgYeGabFY6/1Q3Vt1vAUsfBUi+B+0CLkpSYvaFbsU
-         WtIZKb49iY0xN0jsZ0R6s5Wd/lvqxAS2CgVOWpMHqXftM1XVIDp87StZ/X7yx3jndohR
-         mSzZSgJziEq8zS99DXnTzQ5wX7GeP+f4nVIUqsKIXE0PoPthySoR7D6PZFOkXn0o3vuE
-         Odo0NqasNscgiIN+mjB6BPjRMx2JcG+1pZ1JAKWW6kWts5c/7QUKxCeoashAdVQkK9bK
-         nUKg==
-X-Gm-Message-State: AOAM533Xs0bkoERxJs4XIWZ82FHmOz+qiLe+lnsrMm2UaenTenhwwZ9T
-        oY8RyTwx1upet5KLW9JSPmqwY5bQe4QXYlP714s0g9QoBg/AtEiijp5f5qVCUlgHRpsZzhxR6uE
-        XZmJdSj6egBJ+D56a
-X-Received: by 2002:a17:906:1957:: with SMTP id b23mr8137630eje.245.1617724132150;
-        Tue, 06 Apr 2021 08:48:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwmyB262cEUVNIN+Rjs909ZczmcbzipE3/L8ejlxteip+MOjiMkQOsVI3ODXeuCw2J3w2Qtlg==
-X-Received: by 2002:a17:906:1957:: with SMTP id b23mr8137608eje.245.1617724131968;
-        Tue, 06 Apr 2021 08:48:51 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id lk12sm11419176ejb.14.2021.04.06.08.48.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Apr 2021 08:48:51 -0700 (PDT)
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Peter Feiner <pfeiner@google.com>,
-        Ben Gardon <bgardon@google.com>
-References: <20210405085031.040238881@linuxfoundation.org>
- <20210405085034.229578703@linuxfoundation.org>
- <98478382-23f8-57af-dc17-23c7d9899b9a@redhat.com> <YGxm+WISdIqfwqXD@sashalap>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 5.10 096/126] KVM: x86/mmu: Use atomic ops to set SPTEs in
- TDP MMU map
-Message-ID: <fd2030f3-55ba-6088-733b-ac6a551e2170@redhat.com>
-Date:   Tue, 6 Apr 2021 17:48:50 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=sB3uhrWUFIlrWgy3IF7Nx3Gf9L0Og2hG6FUTVqjECC8=;
+        b=DZPOAwhzMbzEp+JVXLe0du8JAlcBxfkyAWkmjQwCGlUnZNhCRw1xFQXocBwRDsc/Yj
+         khjbxH14KVjH/FSYZQC6lOw8DRP/l6zvyw6sdygbxyxTyeEfdNpa6FY2Mp0OYxdIN1nz
+         RECWmXb7zSagjmK1k+ew4hTGljYL+tzAD+dwsxc/XzIoXbpajsJHeAtxwmLEa2W4OMom
+         ouypJeG1q9pn0oIy9JaM3fPnAdhUMo/l8UybKbRLIeXk5l3CZkHkqTv4mNSotCtdK1hB
+         G4XfencEcP9pyB54SLUUJPHVR4jSTkKIHPHWtxdREs1ECDllv82dhCstAq6Rs3esn0Kj
+         FzQg==
+X-Gm-Message-State: AOAM532ZVSeATBHUOZA8bI7qGvUhF1CxJMpXPGFZthrK3GH26VbXmleb
+        AVznrOhvP/vPnXreyIwCrBQ=
+X-Google-Smtp-Source: ABdhPJxiOd9h9AnYrLNHa6WZCmwzo3kXI18kGKKj6aYiniJVbGlZ+iZwjfrZ6/Gft4skr+7n/qQNsQ==
+X-Received: by 2002:adf:f645:: with SMTP id x5mr13791040wrp.314.1617724265478;
+        Tue, 06 Apr 2021 08:51:05 -0700 (PDT)
+Received: from debian (host-84-13-30-150.opaltelecom.net. [84.13.30.150])
+        by smtp.gmail.com with ESMTPSA id k16sm12919703wrl.47.2021.04.06.08.51.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Apr 2021 08:51:05 -0700 (PDT)
+Date:   Tue, 6 Apr 2021 16:51:03 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     xiang.ye@intel.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] iio: hid-sensor-prox: Fix scale not
+ correct issue" failed to apply to 4.9-stable tree
+Message-ID: <YGyDZ/jeAXqypWSa@debian>
+References: <16164044805955@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <YGxm+WISdIqfwqXD@sashalap>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="anw0q34835k+/tsM"
+Content-Disposition: inline
+In-Reply-To: <16164044805955@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/04/21 15:49, Sasha Levin wrote:
-> On Tue, Apr 06, 2021 at 08:09:26AM +0200, Paolo Bonzini wrote:
->> Whoa no, you have included basically a whole new feature, except for 
->> the final patch that actually enables the feature.  The whole new MMU 
+
+--anw0q34835k+/tsM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg,
+
+On Mon, Mar 22, 2021 at 10:14:40AM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> Right, we would usually grab dependencies rather than modifying the
-> patch. It means we diverge less with upstream, and custom backports tend
-> to be buggier than just grabbing dependencies.
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-In general I can't disagree.  However, you *are* modifying at least 
-commit 048f49809c in your backport, so it's not clear where you draw the 
-line and why you didn't ask for help (more on this below).
+Here is the backport, will also apply to 4.4-stable.
 
-Only the first five patches here are actual prerequisites for an easy 
-backport of the two commits that actually matter (a835429cda91, "KVM: 
-x86/mmu: Ensure TLBs are flushed when yielding during GFN range zap"; 
-and 048f49809c52, "KVM: x86/mmu: Ensure TLBs are flushed for TDP MMU 
-during NX zapping", 2021-03-30).  Everything after "KVM: x86/mmu: Yield 
-in TDU MMU iter even if no SPTES changed" could be dropped without 
-making it any harder to backport those two.
 
->> is still not meant to be used in production and development is still 
->> happening as of 5.13.
-> 
-> Unrelated to this discussion, but how are folks supposed to know which
-> feature can and which feature can't be used in production? If it's a
-> released kernel, in theory anyone can pick up 5.12 and use it in
-> production.
+--
+Regards
+Sudip
 
-It's not enabled by default and requires turning on a module parameter.
+--anw0q34835k+/tsM
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-iio-hid-sensor-prox-Fix-scale-not-correct-issue.patch"
 
-That also means that something like CKI will not notice if anything's 
-wrong with these patches.  It also means that I could just shrug and 
-hope that no one ever runs this code in 5.10 and 5.11 (which is actually 
-the most likely case), but it is the process that is *just wrong*.
+From 35b0c1a113b0126dbb762cb9204f4590c0851cff Mon Sep 17 00:00:00 2001
+From: Ye Xiang <xiang.ye@intel.com>
+Date: Sat, 30 Jan 2021 18:25:30 +0800
+Subject: [PATCH] iio: hid-sensor-prox: Fix scale not correct issue
 
->> Were all these patches (82-97) included just to enable patch 98 ("KVM: 
->> x86/mmu: Ensure TLBs are flushed for TDP MMU during NX zapping")? Same 
->> for 105-120 in 5.11.
-> 
-> Yup. Is there anything wrong with those patches?
+commit d68c592e02f6f49a88e705f13dfc1883432cf300 upstream
 
-The big issue, and the one that you ignoredz every time we discuss this 
-topic, is that this particular subset of 17 has AFAIK never been tested 
-by anyone.
+Currently, the proxy sensor scale is zero because it just return the
+exponent directly. To fix this issue, this patch use
+hid_sensor_format_scale to process the scale first then return the
+output.
 
-There's plenty of locking changes in here, one patch that you didn't 
-backport has this in its commit message:
+Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/iio/light/hid-sensor-prox.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-    This isn't technically a bug fix in the current code [...] but that
-    is all very, very subtle, and will break at the slightest sneeze,
+diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+index 45ca056f019e..63041dcec7af 100644
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -37,6 +37,9 @@ struct prox_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info prox_attr;
+ 	u32 human_presence;
++	int scale_pre_decml;
++	int scale_post_decml;
++	int scale_precision;
+ };
+ 
+ /* Channel definitions */
+@@ -105,8 +108,9 @@ static int prox_read_raw(struct iio_dev *indio_dev,
+ 		ret_type = IIO_VAL_INT;
+ 		break;
+ 	case IIO_CHAN_INFO_SCALE:
+-		*val = prox_state->prox_attr.units;
+-		ret_type = IIO_VAL_INT;
++		*val = prox_state->scale_pre_decml;
++		*val2 = prox_state->scale_post_decml;
++		ret_type = prox_state->scale_precision;
+ 		break;
+ 	case IIO_CHAN_INFO_OFFSET:
+ 		*val = hid_sensor_convert_exponent(
+@@ -240,6 +244,12 @@ static int prox_parse_report(struct platform_device *pdev,
+ 			st->common_attributes.sensitivity.index,
+ 			st->common_attributes.sensitivity.report_id);
+ 	}
++
++	st->scale_precision = hid_sensor_format_scale(
++				hsdev->usage,
++				&st->prox_attr,
++				&st->scale_pre_decml, &st->scale_post_decml);
++
+ 	return ret;
+ }
+ 
+-- 
+2.30.2
 
-meaning that the locking in 5.10 and 5.11 was also less robust to 
-changes elsewhere in the code.
 
-Let's also talk about the process and the timing.  I got the "failed to 
-apply" automated message last Friday and I was going to work on the 
-backport today since yesterday was a holiday here.  I was *never* CCed 
-on a post of this backport for maintainers to review; you guys 
-*literally* took random subsets of patches from a feature that is new 
-and in active development, and hoped that they worked on a past release.
-
-I could be happy because you just provided me with a perfect example of 
-why to use my employer's franken-kernel instead of upstream stable 
-kernels... ;) but this is not how a world-class operating system is 
-developed.  Who cares if a VM breaks or even if my laptop panics; but 
-I'd seriously fear for my data if you applied the same attitude to XFS 
-or ext4fs.
-
-For now, please drop all 17 patches from 5.10 and 5.11.  I'll send a 
-tested backport as soon as possible.
-
-Paolo
-
+--anw0q34835k+/tsM--
