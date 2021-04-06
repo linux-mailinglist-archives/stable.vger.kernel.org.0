@@ -2,125 +2,285 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46640355D0B
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 696D7355D10
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347245AbhDFUoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 16:44:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55196 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1347212AbhDFUoG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:44:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617741837;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9gAUBSas1c2zynPZGsm5lpmI/COC2SlQ+0LwpbtGnEY=;
-        b=UGNajZKAOC5jW0A7vvOsN1FNUSuKF+iS4WtGV99902Q0m1CIE8rTRs4NpAhmsiQEz64LaF
-        nEm9ClsfmpEHcA9zhcfWaIHw0DbY6pJlRX9usGNXwkeNxqN+2kY6cUBMVYQhchp8Bz3ilb
-        GA/rLvyC7Gw4c1UOCn4Eyr83SvogTbs=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-581-rvUZEAE4OUiLxD9wMa5ySw-1; Tue, 06 Apr 2021 16:43:55 -0400
-X-MC-Unique: rvUZEAE4OUiLxD9wMa5ySw-1
-Received: by mail-ej1-f71.google.com with SMTP id o11so2296833ejx.23
-        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 13:43:55 -0700 (PDT)
+        id S245473AbhDFUoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 16:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41008 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347211AbhDFUoT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:44:19 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0078CC061756
+        for <stable@vger.kernel.org>; Tue,  6 Apr 2021 13:44:10 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id l1so8165877plg.12
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 13:44:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TQJSZKvvInRahIXqnhXk7Vz5BNxfev/6ASc3EYzqbPA=;
+        b=bXYabgJ7MV/n6HO6y9UKqDnlDL/UMnu/GVp+9tDUuv1xzF0tFgKx+aQv3kkmHV6TFI
+         rLiDpsnr9uDsjjlFVDuF/GabwXNPvKWGzvZfCcjiUkftTkX9j4mzpJ1zw4Ru1e8JI+Q9
+         LeSGUcNnt+h/ul7v2mo00WxSwC4hTLhlR9JxVKxjNRILNHOFSWQFC0HDDOmQTajUxFQE
+         a7wqmqrfc7JyplCEPKurcstn+DfKk6OdiKH6WxgrpSeafMvKrvoZFLfflLShBpQvI7bj
+         WIuJ27caNKvvoUXYzZykli70S2wHCIB9/OY2YtTVP5eCn9hsI7SsNhO0mfzkeGjD2nl0
+         G1lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9gAUBSas1c2zynPZGsm5lpmI/COC2SlQ+0LwpbtGnEY=;
-        b=du6KtjAR81a5eAEiIq07bRLSqn4YkZApN6RQaJebbIYzWR7ytJHd0p1tVJeFzPElow
-         THZBIb1ZUAuxAPWOib2m2dDOa3LmOZl0I0BupbYyBVpAhs7dj60qqGLPQZIRVuiRewGG
-         oAJQK4pNEOMlDSGy3DVdwKMHNOcTxq2gsaOQ2i00LvTWeAmeGlcFyYH5/VsJ32vaWaSo
-         F8oczziDdfO7ScD2CDQkLzB4P675evnHLAXfHcKzeQvw7uBGE78tRZCgmMSqxdC1kFUf
-         1wxF28/Wm+K315PmebbC/1ZjeY5uRMrZQ84k4ouNVw+q2QZ1xBqR124YsOv9rlPdT2UM
-         8ZbQ==
-X-Gm-Message-State: AOAM530uHeW+8QCgpQ6VBVnsWH9bbESYYn2V12Ln+lQb+Ioqh2XjeGHP
-        5oBqbC3sPv8unQd4cZopK8uMRU9uf6AhmxqJ6Te8MiJdWQOCmU6ti6/Y81npLTT7tjLa2+S/R36
-        ZQFvUFL8BoMVU8OXy
-X-Received: by 2002:a17:906:5203:: with SMTP id g3mr35123521ejm.95.1617741834519;
-        Tue, 06 Apr 2021 13:43:54 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxB8CQ5zi2U8KCqc/sM5wQa7uXbbaNHIZF+GVJ7SPEwuoOJKAUWSWazNJSLH7SJOhDH8dQOSA==
-X-Received: by 2002:a17:906:5203:: with SMTP id g3mr35123507ejm.95.1617741834348;
-        Tue, 06 Apr 2021 13:43:54 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id s12sm9340838edx.18.2021.04.06.13.43.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Apr 2021 13:43:53 -0700 (PDT)
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Peter Feiner <pfeiner@google.com>,
-        Ben Gardon <bgardon@google.com>
-References: <20210405085031.040238881@linuxfoundation.org>
- <20210405085034.229578703@linuxfoundation.org>
- <98478382-23f8-57af-dc17-23c7d9899b9a@redhat.com> <YGxm+WISdIqfwqXD@sashalap>
- <fd2030f3-55ba-6088-733b-ac6a551e2170@redhat.com> <YGyiDC2iP4CmWgUJ@sashalap>
- <81059969-e146-6ed3-01b6-341cbcf1b3ae@redhat.com> <YGy6EVb+JeNu7EOs@sashalap>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 5.10 096/126] KVM: x86/mmu: Use atomic ops to set SPTEs in
- TDP MMU map
-Message-ID: <b2b05936-f545-9272-714b-845d54fa78eb@redhat.com>
-Date:   Tue, 6 Apr 2021 22:43:52 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TQJSZKvvInRahIXqnhXk7Vz5BNxfev/6ASc3EYzqbPA=;
+        b=QR1U/OQUGrYv59Y4lubBh6EsEqgsErMN6t0p95nMf7VF6jdN4ZV9YLBFn5IXmjTmCd
+         w92eJdWGKRqMczZEtGBYEbV1gR/pJx/YEQR5pJuEAPzoHk+MHJ3dhlKCvyDWy+t5sXrm
+         KC7E7ZcIFQN47ZrdXY3GFaOFDK8/avz4nid6OSO33ewloTj9cf238+u/Tsb/VB/f6rBT
+         n3w9JiDSOT22Qj32xMUSJpc/f07153ccQZi/qytW2HWDprMu2t/SaRAj3uY0GTmJIvbs
+         Y5SgNkQ+P1hfnwkqRcNhURRPUO888aDtcpZ/ZGJvXa4OnoLNFWjZZIGUhaZm0DA7jJSN
+         vhIA==
+X-Gm-Message-State: AOAM533wA1znmgb0+4Zmp0Lk5yy13p5DAU6cB96IU5/c6NCcrDwu9eTM
+        80zQhHnTpyeIgXTDXUnKLAIkytGDKuoNWA==
+X-Google-Smtp-Source: ABdhPJzYptMixukbOagOqMMJo4yzv3tbWuekrak1q5DaD91edi3ZuBkIsRogyIu37RYWdlHMG6Wtlg==
+X-Received: by 2002:a17:90a:1509:: with SMTP id l9mr3150pja.163.1617741850289;
+        Tue, 06 Apr 2021 13:44:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a15sm3074942pjs.47.2021.04.06.13.44.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Apr 2021 13:44:10 -0700 (PDT)
+Message-ID: <606cc81a.1c69fb81.ef403.8b48@mx.google.com>
+Date:   Tue, 06 Apr 2021 13:44:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YGy6EVb+JeNu7EOs@sashalap>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.264-35-g1ffb19313be9
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 baseline: 97 runs,
+ 5 regressions (v4.9.264-35-g1ffb19313be9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/04/21 21:44, Sasha Levin wrote:
-> On Tue, Apr 06, 2021 at 08:28:27PM +0200, Paolo Bonzini wrote:
->> If a patch doesn't (more or less trivially) apply, the maintainer 
->> should take action.  Distro maintainers can also jump in and post the 
->> backport to subsystem mailing lists.  If the stable kernel loses a 
->> patch because a maintainer doesn't have the time to do a backport, 
->> it's not the end of the world.
-> 
-> This quickly went from a "world class" to "fuck it".
+stable-rc/queue/4.9 baseline: 97 runs, 5 regressions (v4.9.264-35-g1ffb1931=
+3be9)
 
-Known bugs are better than unknown bugs.  If something is reported on 
-4.19 and the stable@ backports were only done up to 5.4 because the 
-backport was a bit more messy, it's okay.  If a user comes up with a 
-weird bug that I've never seen and that it's caused by a botched 
-backport, it's much worse.
+Regressions Summary
+-------------------
 
-In this specific case we're talking of 5.10; but in many cases users of 
-really old kernels, let's say 4.4-4.9 at this point, won't care about 
-having *all* bugfixes.  Some newer (and thus more buggy) features may be 
-so distant from the mainline in those kernels, or so immature, that no 
-one will consider them while staying on such an old kernel.
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-Again, kernel necrophilia pays my bills, so I have some experience there. :)
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-> It's understandable that maintainers don't have all the time in the
-> world for this, but are you really asking not to backport fixes to
-> stable trees because you don't have the time for it and don't want
-> anyone else to do it instead?
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-If a bug is serious I *will* do the backport; I literally did this 
-specific backport on the first working day after the failure report. 
-But not all bugs are created equal and neither are all stable@-worthy 
-bugs.  I try to use the "Fixes" tag correctly, but sometimes a bug that 
-*technically* is 10-years-old may not be worthwhile or even possible to 
-fix even in 5.4.
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-That said... one thing that would be really, really awesome would be a 
-website where you navigate a Linux checkout and for each directory you 
-can choose to get a list of stable patches that were Cc-ed to stable@ 
-and failed to apply.  A pipedream maybe, but also a great internship 
-project. :)
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Paolo
 
-> Maybe consider designating someone who knows the subsystem well and does
-> have time for this?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.264-35-g1ffb19313be9/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.264-35-g1ffb19313be9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1ffb19313be9928a46c6f8b29d75dfc4b27ea526 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606c9418ee962a3d9bdac6f4
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/606c9418ee962a3=
+d9bdac6fb
+        failing since 0 day (last pass: v4.9.264-24-g1d82835a5e4b, first fa=
+il: v4.9.264-35-g9e8200f3a1d22)
+        2 lines
+
+    2021-04-06 17:02:12.405000+00:00  [   20.380126] smsc95xx 3-1.1:1.0 eth=
+0: register 'smsc95xx' at usb-4a064c00.ehci-1.1, smsc95xx USB 2.0 Ethernet,=
+ 46:3b:c7:e8:d9:3e
+    2021-04-06 17:02:12.412000+00:00  [   20.392791] usbcore: registered ne=
+w interface driver smsc95xx
+    2021-04-06 17:02:12.454000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/123
+    2021-04-06 17:02:12.463000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-04-06 17:02:12.479000+00:00  [   20.456756] <LAVA_SIGNAL_TESTCASE =
+TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606c91055927f1e631dac6c3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606c91055927f1e631dac=
+6c4
+        failing since 143 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606c9111fe3b829fbddac6c2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606c9111fe3b829fbddac=
+6c3
+        failing since 143 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606c90b093cd2eb6c0dac6c9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606c90b093cd2eb6c0dac=
+6ca
+        failing since 143 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606c90b553488a068fdac6d0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.264-3=
+5-g1ffb19313be9/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606c90b553488a068fdac=
+6d1
+        failing since 143 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
