@@ -2,261 +2,279 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D08354CF6
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 08:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD6E354CFE
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 08:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237872AbhDFGdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 02:33:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51618 "EHLO
+        id S239498AbhDFGhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 02:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237859AbhDFGdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 02:33:42 -0400
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2BEAC06174A;
-        Mon,  5 Apr 2021 23:33:33 -0700 (PDT)
-Received: by mail-il1-x134.google.com with SMTP id p8so7773252ilm.13;
-        Mon, 05 Apr 2021 23:33:33 -0700 (PDT)
+        with ESMTP id S238603AbhDFGhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 02:37:20 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50D2C06174A
+        for <stable@vger.kernel.org>; Mon,  5 Apr 2021 23:37:13 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id c204so5955993pfc.4
+        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 23:37:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=YclcbZ+01yOe2Y4RWo3drdGY4HnFs/FnK/QDmZ3CspM=;
-        b=JLU2V0NeOjUOxTZwOmi0PFOf+ojXYlFd31249WDobTVv5dnlQ1xtrm9BToC2ee6+oP
-         TxAkW7vwRGC+NjOdAi/GhI7dJjaAVcnq6Ppgy0HHSMMT4elJzYRGQlcFHEtNPVUiqSkI
-         bZAIH4EGBOZophikiOxnvjyKZWMcwlvem1Yv3hSQHbDVuQd657jRLbEaQ6OOiwQ9F/i+
-         lBdVGj63HZDI7W4fpqJcETVvE8fZTIVKsul/NFhu+pFXrjCpeblU1B2Nv3o0K/HDLI12
-         +CBm4c55OZQ5LaLGrddZz3F/oUKDIGoucqrm81Yl9Kd603zpi3WwJvYiHFxCYwil0t6A
-         2BTA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fXt4hG9J8oWaVrHryHlbMHRc1Aa8D9AuGMn5nZeXgCA=;
+        b=vjwaX1go4Fw0ISNTxph8C0t3iOeLYTuXFrgceBdYWPC4l/+PojG3GT6A1kG7V9JTlu
+         Ho80ha1Jem51096mLZXyXNIuKdpcat4w+mrZxgFbNpIW67oBzIdB6TMP0C2CTFZkmot6
+         k2X4bbRQHMdFKgftqcl6zTwm4R3h3R73I54Kc7Ekn5eyxHsy6aq9P7a3U+LFgWP9jWM6
+         v6qWvcbaMp5xt1ihFlgbn8C3ey9cMVSeZgTvCcjyNkrQjA6vnLHmpGgva7O8AtNHqOJY
+         MwBo9/AGxPHjwvbSBFPKELUkkXjJ11px+nt1dXFt8bWRDsKNV6z/39lqP88M0P9qoZCF
+         CZow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=YclcbZ+01yOe2Y4RWo3drdGY4HnFs/FnK/QDmZ3CspM=;
-        b=UK5KEAYXl+TgQ5+e7JPRvxeZryr6Vgn6E3jSW0vDLMIH6Y4tC4SofBA+5yqurTlQWS
-         /D5GgMprDyJzZEzcc+z77pOgt84e1yyg9aUebbWJ8FpM/1kIZxZQveynNcN18xIsQuU4
-         vGCCkyoWC+YrqZw/TixD8zdsYBr1ZRyU1K903Usc8p2Bu8D3/6TKoshIwbAujDoLhpoC
-         5JtyFR5FfvMVcONmvtI25RIONTiby6G2H/9lbzlsakm7WvEzvXiYT9cWz4HKULD1984h
-         Vbd/ZjmVnLp8r9Ul6bgHKUpJRnXxdJpp9UqUTY6H6pOK5vCJklx8pkcRGf2XAESlbDIB
-         CBOA==
-X-Gm-Message-State: AOAM532XApz6StMOSsLFcDHZDuSFtdHFz8l/ULxsvtPyKf7TE4hFXvX7
-        B7WFiJffIiBDjb2UWmKSt8XAerx24I6ou3B6DlFCd2IG1q0=
-X-Google-Smtp-Source: ABdhPJzxKELBFbd8rqATxsC27bWUIAhfFgNUQr9htiFY6wCyDgPTupIMbva1DLRpQ8apqiVvMmfumeMLw1juu1wITbc=
-X-Received: by 2002:a92:d78f:: with SMTP id d15mr22474033iln.112.1617690813213;
- Mon, 05 Apr 2021 23:33:33 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fXt4hG9J8oWaVrHryHlbMHRc1Aa8D9AuGMn5nZeXgCA=;
+        b=CsGQ7/aZ1K6ZTRfKTm1+rjMSW7kpAIlZXhxNtoLXya4w//h/ARPO6sFPytLI5uFE/Q
+         x+ypMi8685WTPJaXP6WywYbtBpF+86zauZEP4zpdG7GTD9YC8x7ONwIP1hdbpYycT9sA
+         Ny4Oq21+4NGmQVFaUC5PrnsRiHTWDuGC/xZYbau2KKxA+xROCmyWiMAyaSDxvZym3B4s
+         wHs1jV4v6aboTNUXTSvZudA1ANz165KsK43WcJapvOhC8qn4Mb4knxv2T+9e8/P1i9wM
+         fVyDbOmpb1KtT/Atk6mH1Y0NzZBBdm1mN0DJmiWcMF7VMjNYRwIYY8iBIJf5G+vpiiBO
+         OjPg==
+X-Gm-Message-State: AOAM533p95XDE6GhoLgAhsxbiJExBHu86Rk7ipTwtLrsenaHCjFTYACF
+        tKWWmAEXQJdSbJJCVLhs7ehDGZoPS2XAvg==
+X-Google-Smtp-Source: ABdhPJzr72uL2vSU1K64yaA/u8xw1VXCcFJQ8Dkt2xb8sdNkzL0zsVENQ1bC7RTSSJ/KTo0qOYD8Cw==
+X-Received: by 2002:a63:ba1c:: with SMTP id k28mr16825433pgf.328.1617691033031;
+        Mon, 05 Apr 2021 23:37:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j20sm1634831pji.3.2021.04.05.23.37.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Apr 2021 23:37:12 -0700 (PDT)
+Message-ID: <606c0198.1c69fb81.bc5d9.5c68@mx.google.com>
+Date:   Mon, 05 Apr 2021 23:37:12 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210319232510.f1a139cfdd9c.Ic5c7c9d1d28972059e132ea653a21a427c326678@changeid>
-In-Reply-To: <20210319232510.f1a139cfdd9c.Ic5c7c9d1d28972059e132ea653a21a427c326678@changeid>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Tue, 6 Apr 2021 08:33:00 +0200
-Message-ID: <CA+icZUX0ToCQouzVaYfdPNyMphz27=sjVgnsprJWSAACVo4_jw@mail.gmail.com>
-Subject: Re: [PATCH] rfkill: revert back to old userspace API by default
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     linux-wireless@vger.kernel.org,
-        Johannes Berg <johannes.berg@intel.com>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.184-57-ge80ef2122d5c0
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y baseline: 110 runs,
+ 5 regressions (v4.19.184-57-ge80ef2122d5c0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 11:26 PM Johannes Berg
-<johannes@sipsolutions.net> wrote:
->
-> From: Johannes Berg <johannes.berg@intel.com>
->
-> Recompiling with the new extended version of struct rfkill_event
-> broke systemd in *two* ways:
->  - It used "sizeof(struct rfkill_event)" to read the event, but
->    then complained if it actually got something != 8, this broke
->    it on new kernels (that include the updated API);
->  - It used sizeof(struct rfkill_event) to write a command, but
->    didn't implement the intended expansion protocol where the
->    kernel returns only how many bytes it accepted, and errored
->    out due to the unexpected smaller size on kernels that didn't
->    include the updated API.
->
-> Even though systemd has now been fixed, that fix may not be always
-> deployed, and other applications could potentially have similar
-> issues.
->
-> As such, in the interest of avoiding regressions, revert the
-> default API "struct rfkill_event" back to the original size.
->
-> Instead, add a new "struct rfkill_event_ext" that extends it by
-> the new field, and even more clearly document that applications
-> should be prepared for extensions in two ways:
->  * write might only accept fewer bytes on older kernels, and
->    will return how many to let userspace know which data may
->    have been ignored;
->  * read might return anything between 8 (the original size) and
->    whatever size the application sized its buffer at, indicating
->    how much event data was supported by the kernel.
->
-> Perhaps that will help avoid such issues in the future and we
-> won't have to come up with another version of the struct if we
-> ever need to extend it again.
->
-> Applications that want to take advantage of the new field will
-> have to be modified to use struct rfkill_event_ext instead now,
-> which comes with the danger of them having already been updated
-> to use it from 'struct rfkill_event', but I found no evidence
-> of that, and it's still relatively new.
->
-> Cc: stable@vger.kernel.org # 5.11
-> Reported-by: Takashi Iwai <tiwai@suse.de>
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+stable-rc/linux-4.19.y baseline: 110 runs, 5 regressions (v4.19.184-57-ge80=
+ef2122d5c0)
 
-Thanks for the patch.
+Regressions Summary
+-------------------
 
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # LLVM/Clang v12.0.0-r4 (x86-64)
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-- Sedat -
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-> ---
->  include/uapi/linux/rfkill.h | 80 +++++++++++++++++++++++++++++++------
->  net/rfkill/core.c           |  7 ++--
->  2 files changed, 72 insertions(+), 15 deletions(-)
->
-> diff --git a/include/uapi/linux/rfkill.h b/include/uapi/linux/rfkill.h
-> index 03e8af87b364..9b77cfc42efa 100644
-> --- a/include/uapi/linux/rfkill.h
-> +++ b/include/uapi/linux/rfkill.h
-> @@ -86,34 +86,90 @@ enum rfkill_hard_block_reasons {
->   * @op: operation code
->   * @hard: hard state (0/1)
->   * @soft: soft state (0/1)
-> + *
-> + * Structure used for userspace communication on /dev/rfkill,
-> + * used for events from the kernel and control to the kernel.
-> + */
-> +struct rfkill_event {
-> +       __u32 idx;
-> +       __u8  type;
-> +       __u8  op;
-> +       __u8  soft;
-> +       __u8  hard;
-> +} __attribute__((packed));
-> +
-> +/**
-> + * struct rfkill_event_ext - events for userspace on /dev/rfkill
-> + * @idx: index of dev rfkill
-> + * @type: type of the rfkill struct
-> + * @op: operation code
-> + * @hard: hard state (0/1)
-> + * @soft: soft state (0/1)
->   * @hard_block_reasons: valid if hard is set. One or several reasons from
->   *     &enum rfkill_hard_block_reasons.
->   *
->   * Structure used for userspace communication on /dev/rfkill,
->   * used for events from the kernel and control to the kernel.
-> + *
-> + * See the extensibility docs below.
->   */
-> -struct rfkill_event {
-> +struct rfkill_event_ext {
->         __u32 idx;
->         __u8  type;
->         __u8  op;
->         __u8  soft;
->         __u8  hard;
-> +
-> +       /*
-> +        * older kernels will accept/send only up to this point,
-> +        * and if extended further up to any chunk marked below
-> +        */
-> +
->         __u8  hard_block_reasons;
->  } __attribute__((packed));
->
-> -/*
-> - * We are planning to be backward and forward compatible with changes
-> - * to the event struct, by adding new, optional, members at the end.
-> - * When reading an event (whether the kernel from userspace or vice
-> - * versa) we need to accept anything that's at least as large as the
-> - * version 1 event size, but might be able to accept other sizes in
-> - * the future.
-> +/**
-> + * DOC: Extensibility
-> + *
-> + * Originally, we had planned to allow backward and forward compatible
-> + * changes by just adding fields at the end of the structure that are
-> + * then not reported on older kernels on read(), and not written to by
-> + * older kernels on write(), with the kernel reporting the size it did
-> + * accept as the result.
-> + *
-> + * This would have allowed userspace to detect on read() and write()
-> + * which kernel structure version it was dealing with, and if was just
-> + * recompiled it would have gotten the new fields, but obviously not
-> + * accessed them, but things should've continued to work.
-> + *
-> + * Unfortunately, while actually exercising this mechanism to add the
-> + * hard block reasons field, we found that userspace (notably systemd)
-> + * did all kinds of fun things not in line with this scheme:
-> + *
-> + * 1. treat the (expected) short writes as an error;
-> + * 2. ask to read sizeof(struct rfkill_event) but then compare the
-> + *    actual return value to RFKILL_EVENT_SIZE_V1 and treat any
-> + *    mismatch as an error.
-> + *
-> + * As a consequence, just recompiling with a new struct version caused
-> + * things to no longer work correctly on old and new kernels.
-> + *
-> + * Hence, we've rolled back &struct rfkill_event to the original version
-> + * and added &struct rfkill_event_ext. This effectively reverts to the
-> + * old behaviour for all userspace, unless it explicitly opts in to the
-> + * rules outlined here by using the new &struct rfkill_event_ext.
-> + *
-> + * Userspace using &struct rfkill_event_ext must adhere to the following
-> + * rules
->   *
-> - * One exception is the kernel -- we already have two event sizes in
-> - * that we've made the 'hard' member optional since our only option
-> - * is to ignore it anyway.
-> + * 1. accept short writes, optionally using them to detect that it's
-> + *    running on an older kernel;
-> + * 2. accept short reads, knowing that this means it's running on an
-> + *    older kernel;
-> + * 3. treat reads that are as long as requested as acceptable, not
-> + *    checking against RFKILL_EVENT_SIZE_V1 or such.
->   */
-> -#define RFKILL_EVENT_SIZE_V1   8
-> +#define RFKILL_EVENT_SIZE_V1   sizeof(struct rfkill_event)
->
->  /* ioctl for turning off rfkill-input (if present) */
->  #define RFKILL_IOC_MAGIC       'R'
-> diff --git a/net/rfkill/core.c b/net/rfkill/core.c
-> index 68d6ef9e59fc..ac15a944573f 100644
-> --- a/net/rfkill/core.c
-> +++ b/net/rfkill/core.c
-> @@ -69,7 +69,7 @@ struct rfkill {
->
->  struct rfkill_int_event {
->         struct list_head        list;
-> -       struct rfkill_event     ev;
-> +       struct rfkill_event_ext ev;
->  };
->
->  struct rfkill_data {
-> @@ -253,7 +253,8 @@ static void rfkill_global_led_trigger_unregister(void)
->  }
->  #endif /* CONFIG_RFKILL_LEDS */
->
-> -static void rfkill_fill_event(struct rfkill_event *ev, struct rfkill *rfkill,
-> +static void rfkill_fill_event(struct rfkill_event_ext *ev,
-> +                             struct rfkill *rfkill,
->                               enum rfkill_operation op)
->  {
->         unsigned long flags;
-> @@ -1237,7 +1238,7 @@ static ssize_t rfkill_fop_write(struct file *file, const char __user *buf,
->                                 size_t count, loff_t *pos)
->  {
->         struct rfkill *rfkill;
-> -       struct rfkill_event ev;
-> +       struct rfkill_event_ext ev;
->         int ret;
->
->         /* we don't need the 'hard' variable but accept it */
-> --
-> 2.30.2
->
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.184-57-ge80ef2122d5c0/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.184-57-ge80ef2122d5c0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e80ef2122d5c0531670cb281f5beea2cb469aee1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606bc89c3921b1b791dac6d6
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-p=
+anda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-p=
+anda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/606bc89c3921b1b=
+791dac6dd
+        new failure (last pass: v4.19.184-40-gea7c9d15cb8d4)
+        2 lines
+
+    2021-04-06 02:33:59.314000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/108
+    2021-04-06 02:33:59.323000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-04-06 02:33:59.337000+00:00  <8>[   22.744018] <LAVA_SIGNAL_TESTCA=
+SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606bc9c4c2ed8fd504dac6f2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606bc9c4c2ed8fd504dac=
+6f3
+        failing since 138 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606bc99ec2ed8fd504dac6c7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606bc99ec2ed8fd504dac=
+6c8
+        failing since 138 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606bc9d271740bcc59dac6b2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606bc9d271740bcc59dac=
+6b3
+        failing since 138 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606bc94e784e8e23f2dac6ec
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline=
+-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+84-57-ge80ef2122d5c0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline=
+-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606bc94e784e8e23f2dac=
+6ed
+        failing since 138 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =20
