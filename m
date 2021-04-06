@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C77355D14
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:44:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4AD355D15
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 22:44:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245597AbhDFUo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 16:44:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41048 "EHLO
+        id S245610AbhDFUoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 16:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245587AbhDFUo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:44:26 -0400
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3538C061756
-        for <stable@vger.kernel.org>; Tue,  6 Apr 2021 13:44:18 -0700 (PDT)
-Received: by mail-pl1-x64a.google.com with SMTP id k9so8283233pls.13
-        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 13:44:18 -0700 (PDT)
+        with ESMTP id S232859AbhDFUoa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 16:44:30 -0400
+Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85AE5C06174A
+        for <stable@vger.kernel.org>; Tue,  6 Apr 2021 13:44:20 -0700 (PDT)
+Received: by mail-pf1-x449.google.com with SMTP id 7so11413160pfn.4
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 13:44:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=ph8QNVbJQpFHoFHcw/UjJ2x7qwIiEdCHHUYp/82KbYo=;
-        b=Qq1M2ouVCDNR0r1/1tbZIrUOimL/Mp5BppXybNmXHhUWtbrIXo4DFa6qrhpVw6keuS
-         tt8b4vTLglmih0vMPwQF66NkBiRGg+3Xv6w04P25eVcOzfqwnFLGjp9W0kCJGjdHNi8X
-         2nTGHJWQbjiQsv46b0ab0Y1MQXi4KLFM8RZSBAhoiWpV+x6/0kyilSdzvLHnNLawuKkM
-         WXMmiZfbObbNPetgudaj5x/ori2ohfIN0dr/2an8x1PdoJWkORkGNuhIN/VyB806xCoz
-         ZZweOpHYMsqubZTTfYQUq1sFvSmxEECaLSaavoJzkY+OzD4vOI/Yv1t3vd52xW0CPlW+
-         z5pA==
+        bh=IyEiC9I8hW/pLSP82lpiKKcDMjbhuVg6sO7+Ng3Y1aE=;
+        b=NWvRru4nk/sntVa/PCd2Lb2oET58YbtWDqO2F2iJ+RXfcQ6k+X+aT0FZbJW6kHT10E
+         tq5cWtmJ6Nu64EMvZA/dQ/7xwUSyQvT3tBQoYjMoXXRKuQGXTQr9i09RKcxLbIz6iLg3
+         UvUrt/uCvgnYfB+4W8PxvIiJXeDnHajzfvqaTuxEIWadhw39rFyf3Zy3k+F7Ncii4wnF
+         TklorHXKNa9mtgAOFmRbZBVkz7lA06nE+G7yXVwg8vE9VCwBDymNpo7QoiKmqEa0K5HE
+         +XnurYCDnC3xPFXLUZ+kE9wbdibDGPTSxH4U5Qgcw1ZB3KWdqWA/wQ0UTCMe6Mq+qJAM
+         KW3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=ph8QNVbJQpFHoFHcw/UjJ2x7qwIiEdCHHUYp/82KbYo=;
-        b=rllyrq660iBP/evy7tidIL0RHsC04YMFfXykuotr3kfGknSAngfWeXKx6VMdYPkIHG
-         E22eW85wP//Hr3e+wiGRaas0FJyIfqohVlgjhcJyZqrI6iUZ4vHgCRhovVPhyu/eI36A
-         5U/9NkQC1PUXwTzrBUQAeDBAMlypPJpsL5FUzDMIbLl3iycXroKjsaIfDt85gNGDCBw8
-         ioGASGgxBcl7QvI0YSqsLP2CiM6W/iKG8K90+8aSorZgptLGFggKBTfYqi7ImqIFB1BZ
-         rEG7c6ZkY5kf27wKeE7O2A//asW1jt8wfOQ9h7ciny/VTfx570RYwOsLGQ6SCOGLMF31
-         GfDQ==
-X-Gm-Message-State: AOAM531oH2QrOWAQVLqj2aomatoqo2l3zjzYa5dUDHG4C/eC3S+MT//P
-        m/n3OvzdtCYmYj/De53S5yFhs1UQ0gsoHj7rgwlJMVBRMGMxsRusRqVgkPJYskZOzfYWiijstuf
-        t8zpeqQ67ePVra3ZmIyv5i7rT9PE0lFGIX+nKb7dFdWAX8+JLUeaOtviHCmg=
-X-Google-Smtp-Source: ABdhPJzssHx9HQQZPRTDIRWWFq0TEzstH0V23AFCgVqOkTrlvlXWvRJOH69gfysAwLc3tsWbcXxITwT10g==
+        bh=IyEiC9I8hW/pLSP82lpiKKcDMjbhuVg6sO7+Ng3Y1aE=;
+        b=OCgtzj8A2TFwDCAyFY4ZMfmAU69mAyU76uUcO0T2PFfoSwJ5yQMJkDB3b1LBOwnkxG
+         E53gwytUz6+jGpjo3vyetboQqL6GLeCNwipCi/66OvsIijzST5QbOV/7kwWMgM/4sd84
+         pSzH5GYlzx0AqYIJHhn3ncaW021bRYLNIUN1V9H9UYCpcP9lljLKLwpHZkwzmSMdicZS
+         m/p5iJ17tyIzlHk+I06afqOPHoPcsZ/v60e8pQn/xACWqAqTAubc8Sp5jtJaeVKoQsSs
+         vj44fiXFaObajG0gE4CNZw2DUyoIFLUSTtYWqGZUbmfQQtpNodsQKEICfAWDr9XumGQF
+         56pw==
+X-Gm-Message-State: AOAM530yx4ibNH7Su+5aC1Z2AlxvI1SsVioSQcU2UrRD9MYGaNkugBge
+        3ELhFccNPgOX2kteBpc4uDNAyN87jnUYh5Z58r+FV8VUIAQDZtT+J49okfK83r70tE+Y2sss1FL
+        UI9Ks9wnyyepGanqV35QBk/CZZB9pw7ls4Tc+/yIKnuZg6icoQdd4JWnI7fs=
+X-Google-Smtp-Source: ABdhPJzMq7gw8BMukWehMEOeY9/VWahs2D9rd+klH+B0SsTSCedaTbkpp9v35JSGmT6x92MHFqcdzG432w==
 X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a17:902:f687:b029:e8:da63:6195 with SMTP id
- l7-20020a170902f687b02900e8da636195mr62732plg.75.1617741858271; Tue, 06 Apr
- 2021 13:44:18 -0700 (PDT)
-Date:   Tue,  6 Apr 2021 20:43:22 +0000
+ (user=jxgao job=sendgmr) by 2002:a62:5ac4:0:b029:22e:e8de:eaba with SMTP id
+ o187-20020a625ac40000b029022ee8deeabamr29498639pfb.4.1617741859901; Tue, 06
+ Apr 2021 13:44:19 -0700 (PDT)
+Date:   Tue,  6 Apr 2021 20:43:23 +0000
 In-Reply-To: <20210406204326.1932888-1-jxgao@google.com>
-Message-Id: <20210406204326.1932888-4-jxgao@google.com>
+Message-Id: <20210406204326.1932888-5-jxgao@google.com>
 Mime-Version: 1.0
 References: <20210406204326.1932888-1-jxgao@google.com>
 X-Mailer: git-send-email 2.31.0.208.g409f899ff0-goog
-Subject: [PATCH V2 v5.4 3/8] swiotlb: factor out a nr_slots helper
+Subject: [PATCH V2 v5.4 4/8] swiotlb: clean up swiotlb_tbl_unmap_single
 From:   Jianxiong Gao <jxgao@google.com>
 To:     stable@vger.kernel.org
 Cc:     Jianxiong Gao <jxgao@google.com>, Christoph Hellwig <hch@lst.de>,
@@ -64,9 +64,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-'commit c32a77fd1878 ("swiotlb: factor out a nr_slots helper")'
+'commit ca10d0f8e530 ("swiotlb: clean up swiotlb_tbl_unmap_single")'
 
-Factor out a helper to find the number of slots for a given size.
+Remove a layer of pointless indentation, replace a hard to follow
+ternary expression with a plain if/else.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Jianxiong Gao <jxgao@google.com>
@@ -74,70 +75,62 @@ Tested-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Jianxiong Gao <jxgao@google.com>
 ---
- include/linux/swiotlb.h |  1 +
- kernel/dma/swiotlb.c    | 13 +++++++++----
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ kernel/dma/swiotlb.c | 42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index cde3dc18e21a..ea8e2e28459d 100644
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -28,6 +28,7 @@ enum swiotlb_force {
-  * controllable.
-  */
- #define IO_TLB_SHIFT 11
-+#define IO_TLB_SIZE (1 << IO_TLB_SHIFT)
- 
- extern void swiotlb_init(int verbose);
- int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 9fa71a91c235..70023393dd6b 100644
+index 70023393dd6b..10c20010710c 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -179,6 +179,11 @@ static inline unsigned long io_tlb_offset(unsigned long val)
- 	return val & (IO_TLB_SEGSIZE - 1);
- }
- 
-+static inline unsigned long nr_slots(u64 val)
-+{
-+	return DIV_ROUND_UP(val, IO_TLB_SIZE);
-+}
+@@ -610,28 +610,28 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 	 * with slots below and above the pool being returned.
+ 	 */
+ 	spin_lock_irqsave(&io_tlb_lock, flags);
+-	{
+-		count = ((index + nslots) < ALIGN(index + 1, IO_TLB_SEGSIZE) ?
+-			 io_tlb_list[index + nslots] : 0);
+-		/*
+-		 * Step 1: return the slots to the free list, merging the
+-		 * slots with superceeding slots
+-		 */
+-		for (i = index + nslots - 1; i >= index; i--) {
+-			io_tlb_list[i] = ++count;
+-			io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+-		}
+-		/*
+-		 * Step 2: merge the returned slots with the preceding slots,
+-		 * if available (non zero)
+-		 */
+-		for (i = index - 1;
+-		     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
+-		     io_tlb_list[i]; i--)
+-			io_tlb_list[i] = ++count;
+-
+-		io_tlb_used -= nslots;
++	if (index + nslots < ALIGN(index + 1, IO_TLB_SEGSIZE))
++		count = io_tlb_list[index + nslots];
++	else
++		count = 0;
++	/*
++	 * Step 1: return the slots to the free list, merging the slots with
++	 * superceeding slots
++	 */
++	for (i = index + nslots - 1; i >= index; i--) {
++		io_tlb_list[i] = ++count;
++		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
 +
- /*
-  * Early SWIOTLB allocation may be too early to allow an architecture to
-  * perform the desired operations.  This function allows the architecture to
-@@ -477,20 +482,20 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
- 
- 	tbl_dma_addr &= mask;
- 
--	offset_slots = ALIGN(tbl_dma_addr, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
-+	offset_slots = nr_slots(tbl_dma_addr);
- 
- 	/*
- 	 * Carefully handle integer overflow which can occur when mask == ~0UL.
- 	 */
- 	max_slots = mask + 1
--		    ? ALIGN(mask + 1, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT
-+		    ? nr_slots(mask + 1)
- 		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
- 
- 	/*
- 	 * For mappings greater than or equal to a page, we limit the stride
- 	 * (and hence alignment) to a page size.
- 	 */
--	nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
-+	nslots = nr_slots(alloc_size);
- 	if (alloc_size >= PAGE_SIZE)
- 		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
- 	else
-@@ -586,7 +591,7 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
- 			      enum dma_data_direction dir, unsigned long attrs)
- {
- 	unsigned long flags;
--	int i, count, nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
-+	int i, count, nslots = nr_slots(alloc_size);
- 	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
- 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
++	/*
++	 * Step 2: merge the returned slots with the preceding slots, if
++	 * available (non zero)
++	 */
++	for (i = index - 1;
++	     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 && io_tlb_list[i];
++	     i--)
++		io_tlb_list[i] = ++count;
++	io_tlb_used -= nslots;
+ 	spin_unlock_irqrestore(&io_tlb_lock, flags);
+ }
  
 -- 
 2.27.0
