@@ -2,452 +2,261 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E833C354C95
-	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 08:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D08354CF6
+	for <lists+stable@lfdr.de>; Tue,  6 Apr 2021 08:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233267AbhDFGJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 02:09:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49581 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233367AbhDFGJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 02:09:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617689371;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QivBVbOG5v21FlaMXX9/5DY8mlhE7eZfYka8iBisMVI=;
-        b=Fkudkx9825/KJVHdLEPQNHBSe7Dq+SVIhdOlkNs9+CM4bQ4rwVR9FzJ7TGHAHiPVO78ZR/
-        EEBy2qqr+sj2JSxOw6yCLKmS2knwapiTKVQ59Nw+UgzI33gipMpt6CGgQ2mQU8Cgszs29+
-        6scz1ALeEdaLFETQWM3E4UyuxAcjzQc=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-107-aooX-1lcMaWtHRzi-HIjkA-1; Tue, 06 Apr 2021 02:09:29 -0400
-X-MC-Unique: aooX-1lcMaWtHRzi-HIjkA-1
-Received: by mail-ed1-f69.google.com with SMTP id m21so208952edp.12
-        for <stable@vger.kernel.org>; Mon, 05 Apr 2021 23:09:29 -0700 (PDT)
+        id S237872AbhDFGdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 02:33:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51618 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237859AbhDFGdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 02:33:42 -0400
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2BEAC06174A;
+        Mon,  5 Apr 2021 23:33:33 -0700 (PDT)
+Received: by mail-il1-x134.google.com with SMTP id p8so7773252ilm.13;
+        Mon, 05 Apr 2021 23:33:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=YclcbZ+01yOe2Y4RWo3drdGY4HnFs/FnK/QDmZ3CspM=;
+        b=JLU2V0NeOjUOxTZwOmi0PFOf+ojXYlFd31249WDobTVv5dnlQ1xtrm9BToC2ee6+oP
+         TxAkW7vwRGC+NjOdAi/GhI7dJjaAVcnq6Ppgy0HHSMMT4elJzYRGQlcFHEtNPVUiqSkI
+         bZAIH4EGBOZophikiOxnvjyKZWMcwlvem1Yv3hSQHbDVuQd657jRLbEaQ6OOiwQ9F/i+
+         lBdVGj63HZDI7W4fpqJcETVvE8fZTIVKsul/NFhu+pFXrjCpeblU1B2Nv3o0K/HDLI12
+         +CBm4c55OZQ5LaLGrddZz3F/oUKDIGoucqrm81Yl9Kd603zpi3WwJvYiHFxCYwil0t6A
+         2BTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QivBVbOG5v21FlaMXX9/5DY8mlhE7eZfYka8iBisMVI=;
-        b=hZamR9d6kKHIEn3rDj7hGld/99T7vPzqtfx2Bz3+iWQ+uh6qwm/Bon4Tg9HrpxSZ0+
-         0YTDnZMy4swlsocMGgiTVrWkiYfNQphwrfTEobXjIYLYjunhLyweE35wXggPvCrn5p+I
-         XBjfgzvtjcCLmax75JcLTtQy/beJC/USH5Xx4BcEusp3EFqx6o3CXJVzmPQVAdxtjxZs
-         QHJb2pMOU2AiurAKD9fL4elnqVrbgNCLPdJyObR72P2PwtfaWjFUUEQAK71fmdZvJnrL
-         BjFz+5n7HlLcprQDIomxlz96fjr2FI9HlXXARiGqjU+h0u3S+ofeK6061LAANvB2wdZ5
-         LQRg==
-X-Gm-Message-State: AOAM531FdXcxrMCjPbARw0OFJ/uMCR0/6bZZYEdala6TNoa7gaDIpHoe
-        wiu4Zo5hSsMDffvQ5WEZMiHglLkgDAQ5aKbqBSkoPsq9Ek1Nz2w7AHni2jHvwB1On/B11ZGUTfp
-        T+tzu+Q2Pftj3lIZe
-X-Received: by 2002:a50:ec8c:: with SMTP id e12mr22126846edr.249.1617689368283;
-        Mon, 05 Apr 2021 23:09:28 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzR/yMoDpxdvJidvpMiFKcac0lKa5a3szoG/TK1tOUjjdt0Susgx91SIbFuoVmzLNKqTpA6gg==
-X-Received: by 2002:a50:ec8c:: with SMTP id e12mr22126826edr.249.1617689368012;
-        Mon, 05 Apr 2021 23:09:28 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id bq18sm6303805ejb.27.2021.04.05.23.09.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Apr 2021 23:09:27 -0700 (PDT)
-Subject: Re: [PATCH 5.10 096/126] KVM: x86/mmu: Use atomic ops to set SPTEs in
- TDP MMU map
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
-        Ben Gardon <bgardon@google.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20210405085031.040238881@linuxfoundation.org>
- <20210405085034.229578703@linuxfoundation.org>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <98478382-23f8-57af-dc17-23c7d9899b9a@redhat.com>
-Date:   Tue, 6 Apr 2021 08:09:26 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=YclcbZ+01yOe2Y4RWo3drdGY4HnFs/FnK/QDmZ3CspM=;
+        b=UK5KEAYXl+TgQ5+e7JPRvxeZryr6Vgn6E3jSW0vDLMIH6Y4tC4SofBA+5yqurTlQWS
+         /D5GgMprDyJzZEzcc+z77pOgt84e1yyg9aUebbWJ8FpM/1kIZxZQveynNcN18xIsQuU4
+         vGCCkyoWC+YrqZw/TixD8zdsYBr1ZRyU1K903Usc8p2Bu8D3/6TKoshIwbAujDoLhpoC
+         5JtyFR5FfvMVcONmvtI25RIONTiby6G2H/9lbzlsakm7WvEzvXiYT9cWz4HKULD1984h
+         Vbd/ZjmVnLp8r9Ul6bgHKUpJRnXxdJpp9UqUTY6H6pOK5vCJklx8pkcRGf2XAESlbDIB
+         CBOA==
+X-Gm-Message-State: AOAM532XApz6StMOSsLFcDHZDuSFtdHFz8l/ULxsvtPyKf7TE4hFXvX7
+        B7WFiJffIiBDjb2UWmKSt8XAerx24I6ou3B6DlFCd2IG1q0=
+X-Google-Smtp-Source: ABdhPJzxKELBFbd8rqATxsC27bWUIAhfFgNUQr9htiFY6wCyDgPTupIMbva1DLRpQ8apqiVvMmfumeMLw1juu1wITbc=
+X-Received: by 2002:a92:d78f:: with SMTP id d15mr22474033iln.112.1617690813213;
+ Mon, 05 Apr 2021 23:33:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210405085034.229578703@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210319232510.f1a139cfdd9c.Ic5c7c9d1d28972059e132ea653a21a427c326678@changeid>
+In-Reply-To: <20210319232510.f1a139cfdd9c.Ic5c7c9d1d28972059e132ea653a21a427c326678@changeid>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Tue, 6 Apr 2021 08:33:00 +0200
+Message-ID: <CA+icZUX0ToCQouzVaYfdPNyMphz27=sjVgnsprJWSAACVo4_jw@mail.gmail.com>
+Subject: Re: [PATCH] rfkill: revert back to old userspace API by default
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-wireless@vger.kernel.org,
+        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05/04/21 10:54, Greg Kroah-Hartman wrote:
-> From: Ben Gardon <bgardon@google.com>
-> 
-> [ Upstream commit 9a77daacc87dee9fd63e31243f21894132ed8407 ]
-> 
-> To prepare for handling page faults in parallel, change the TDP MMU
-> page fault handler to use atomic operations to set SPTEs so that changes
-> are not lost if multiple threads attempt to modify the same SPTE.
-> 
-> Reviewed-by: Peter Feiner <pfeiner@google.com>
-> Signed-off-by: Ben Gardon <bgardon@google.com>
-> 
-> Message-Id: <20210202185734.1680553-21-bgardon@google.com>
-> [Document new locking rules. - Paolo]
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Fri, Mar 19, 2021 at 11:26 PM Johannes Berg
+<johannes@sipsolutions.net> wrote:
+>
+> From: Johannes Berg <johannes.berg@intel.com>
+>
+> Recompiling with the new extended version of struct rfkill_event
+> broke systemd in *two* ways:
+>  - It used "sizeof(struct rfkill_event)" to read the event, but
+>    then complained if it actually got something != 8, this broke
+>    it on new kernels (that include the updated API);
+>  - It used sizeof(struct rfkill_event) to write a command, but
+>    didn't implement the intended expansion protocol where the
+>    kernel returns only how many bytes it accepted, and errored
+>    out due to the unexpected smaller size on kernels that didn't
+>    include the updated API.
+>
+> Even though systemd has now been fixed, that fix may not be always
+> deployed, and other applications could potentially have similar
+> issues.
+>
+> As such, in the interest of avoiding regressions, revert the
+> default API "struct rfkill_event" back to the original size.
+>
+> Instead, add a new "struct rfkill_event_ext" that extends it by
+> the new field, and even more clearly document that applications
+> should be prepared for extensions in two ways:
+>  * write might only accept fewer bytes on older kernels, and
+>    will return how many to let userspace know which data may
+>    have been ignored;
+>  * read might return anything between 8 (the original size) and
+>    whatever size the application sized its buffer at, indicating
+>    how much event data was supported by the kernel.
+>
+> Perhaps that will help avoid such issues in the future and we
+> won't have to come up with another version of the struct if we
+> ever need to extend it again.
+>
+> Applications that want to take advantage of the new field will
+> have to be modified to use struct rfkill_event_ext instead now,
+> which comes with the danger of them having already been updated
+> to use it from 'struct rfkill_event', but I found no evidence
+> of that, and it's still relatively new.
+>
+> Cc: stable@vger.kernel.org # 5.11
+> Reported-by: Takashi Iwai <tiwai@suse.de>
+> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+
+Thanks for the patch.
+
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # LLVM/Clang v12.0.0-r4 (x86-64)
+
+- Sedat -
+
 > ---
->   Documentation/virt/kvm/locking.rst |   9 +-
->   arch/x86/include/asm/kvm_host.h    |  13 +++
->   arch/x86/kvm/mmu/tdp_mmu.c         | 142 ++++++++++++++++++++++-------
->   3 files changed, 130 insertions(+), 34 deletions(-)
-> 
-> diff --git a/Documentation/virt/kvm/locking.rst b/Documentation/virt/kvm/locking.rst
-> index b21a34c34a21..0aa4817b466d 100644
-> --- a/Documentation/virt/kvm/locking.rst
-> +++ b/Documentation/virt/kvm/locking.rst
-> @@ -16,7 +16,14 @@ The acquisition orders for mutexes are as follows:
->   - kvm->slots_lock is taken outside kvm->irq_lock, though acquiring
->     them together is quite rare.
->   
-> -On x86, vcpu->mutex is taken outside kvm->arch.hyperv.hv_lock.
-> +On x86:
-> +
-> +- vcpu->mutex is taken outside kvm->arch.hyperv.hv_lock
-> +
-> +- kvm->arch.mmu_lock is an rwlock.  kvm->arch.tdp_mmu_pages_lock is
-> +  taken inside kvm->arch.mmu_lock, and cannot be taken without already
-> +  holding kvm->arch.mmu_lock (typically with ``read_lock``, otherwise
-> +  there's no need to take kvm->arch.tdp_mmu_pages_lock at all).
->   
->   Everything else is a leaf: no other lock is taken inside the critical
->   sections.
-> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-> index 02d4c74d30e2..47cd8f9b3fe7 100644
-> --- a/arch/x86/include/asm/kvm_host.h
-> +++ b/arch/x86/include/asm/kvm_host.h
-> @@ -1014,6 +1014,19 @@ struct kvm_arch {
->   	struct list_head tdp_mmu_roots;
->   	/* List of struct tdp_mmu_pages not being used as roots */
->   	struct list_head tdp_mmu_pages;
-> +
-> +	/*
-> +	 * Protects accesses to the following fields when the MMU lock
-> +	 * is held in read mode:
-> +	 *  - tdp_mmu_pages (above)
-> +	 *  - the link field of struct kvm_mmu_pages used by the TDP MMU
-> +	 *  - lpage_disallowed_mmu_pages
-> +	 *  - the lpage_disallowed_link field of struct kvm_mmu_pages used
-> +	 *    by the TDP MMU
-> +	 * It is acceptable, but not necessary, to acquire this lock when
-> +	 * the thread holds the MMU lock in write mode.
-> +	 */
-> +	spinlock_t tdp_mmu_pages_lock;
->   };
->   
->   struct kvm_vm_stat {
-> diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-> index 14d69c01c710..eb38f74af3f2 100644
-> --- a/arch/x86/kvm/mmu/tdp_mmu.c
-> +++ b/arch/x86/kvm/mmu/tdp_mmu.c
-> @@ -7,6 +7,7 @@
->   #include "tdp_mmu.h"
->   #include "spte.h"
->   
-> +#include <asm/cmpxchg.h>
->   #include <trace/events/kvm.h>
->   
->   #ifdef CONFIG_X86_64
-> @@ -33,6 +34,7 @@ void kvm_mmu_init_tdp_mmu(struct kvm *kvm)
->   	kvm->arch.tdp_mmu_enabled = true;
->   
->   	INIT_LIST_HEAD(&kvm->arch.tdp_mmu_roots);
-> +	spin_lock_init(&kvm->arch.tdp_mmu_pages_lock);
->   	INIT_LIST_HEAD(&kvm->arch.tdp_mmu_pages);
->   }
->   
-> @@ -225,7 +227,8 @@ static void tdp_mmu_free_sp_rcu_callback(struct rcu_head *head)
->   }
->   
->   static void handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
-> -				u64 old_spte, u64 new_spte, int level);
-> +				u64 old_spte, u64 new_spte, int level,
-> +				bool shared);
->   
->   static int kvm_mmu_page_as_id(struct kvm_mmu_page *sp)
->   {
-> @@ -267,17 +270,26 @@ static void handle_changed_spte_dirty_log(struct kvm *kvm, int as_id, gfn_t gfn,
->    *
->    * @kvm: kvm instance
->    * @sp: the new page
-> + * @shared: This operation may not be running under the exclusive use of
-> + *	    the MMU lock and the operation must synchronize with other
-> + *	    threads that might be adding or removing pages.
->    * @account_nx: This page replaces a NX large page and should be marked for
->    *		eventual reclaim.
->    */
->   static void tdp_mmu_link_page(struct kvm *kvm, struct kvm_mmu_page *sp,
-> -			      bool account_nx)
-> +			      bool shared, bool account_nx)
->   {
-> -	lockdep_assert_held_write(&kvm->mmu_lock);
-> +	if (shared)
-> +		spin_lock(&kvm->arch.tdp_mmu_pages_lock);
-> +	else
-> +		lockdep_assert_held_write(&kvm->mmu_lock);
->   
->   	list_add(&sp->link, &kvm->arch.tdp_mmu_pages);
->   	if (account_nx)
->   		account_huge_nx_page(kvm, sp);
-> +
-> +	if (shared)
-> +		spin_unlock(&kvm->arch.tdp_mmu_pages_lock);
->   }
->   
->   /**
-> @@ -285,14 +297,24 @@ static void tdp_mmu_link_page(struct kvm *kvm, struct kvm_mmu_page *sp,
->    *
->    * @kvm: kvm instance
->    * @sp: the page to be removed
-> + * @shared: This operation may not be running under the exclusive use of
-> + *	    the MMU lock and the operation must synchronize with other
-> + *	    threads that might be adding or removing pages.
->    */
-> -static void tdp_mmu_unlink_page(struct kvm *kvm, struct kvm_mmu_page *sp)
-> +static void tdp_mmu_unlink_page(struct kvm *kvm, struct kvm_mmu_page *sp,
-> +				bool shared)
->   {
-> -	lockdep_assert_held_write(&kvm->mmu_lock);
-> +	if (shared)
-> +		spin_lock(&kvm->arch.tdp_mmu_pages_lock);
-> +	else
-> +		lockdep_assert_held_write(&kvm->mmu_lock);
->   
->   	list_del(&sp->link);
->   	if (sp->lpage_disallowed)
->   		unaccount_huge_nx_page(kvm, sp);
-> +
-> +	if (shared)
-> +		spin_unlock(&kvm->arch.tdp_mmu_pages_lock);
->   }
->   
->   /**
-> @@ -300,28 +322,39 @@ static void tdp_mmu_unlink_page(struct kvm *kvm, struct kvm_mmu_page *sp)
->    *
->    * @kvm: kvm instance
->    * @pt: the page removed from the paging structure
-> + * @shared: This operation may not be running under the exclusive use
-> + *	    of the MMU lock and the operation must synchronize with other
-> + *	    threads that might be modifying SPTEs.
->    *
->    * Given a page table that has been removed from the TDP paging structure,
->    * iterates through the page table to clear SPTEs and free child page tables.
->    */
-> -static void handle_removed_tdp_mmu_page(struct kvm *kvm, u64 *pt)
-> +static void handle_removed_tdp_mmu_page(struct kvm *kvm, u64 *pt,
-> +					bool shared)
->   {
->   	struct kvm_mmu_page *sp = sptep_to_sp(pt);
->   	int level = sp->role.level;
->   	gfn_t gfn = sp->gfn;
->   	u64 old_child_spte;
-> +	u64 *sptep;
->   	int i;
->   
->   	trace_kvm_mmu_prepare_zap_page(sp);
->   
-> -	tdp_mmu_unlink_page(kvm, sp);
-> +	tdp_mmu_unlink_page(kvm, sp, shared);
->   
->   	for (i = 0; i < PT64_ENT_PER_PAGE; i++) {
-> -		old_child_spte = READ_ONCE(*(pt + i));
-> -		WRITE_ONCE(*(pt + i), 0);
-> +		sptep = pt + i;
-> +
-> +		if (shared) {
-> +			old_child_spte = xchg(sptep, 0);
-> +		} else {
-> +			old_child_spte = READ_ONCE(*sptep);
-> +			WRITE_ONCE(*sptep, 0);
-> +		}
->   		handle_changed_spte(kvm, kvm_mmu_page_as_id(sp),
->   			gfn + (i * KVM_PAGES_PER_HPAGE(level - 1)),
-> -			old_child_spte, 0, level - 1);
-> +			old_child_spte, 0, level - 1, shared);
->   	}
->   
->   	kvm_flush_remote_tlbs_with_address(kvm, gfn,
-> @@ -338,12 +371,16 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, u64 *pt)
->    * @old_spte: The value of the SPTE before the change
->    * @new_spte: The value of the SPTE after the change
->    * @level: the level of the PT the SPTE is part of in the paging structure
-> + * @shared: This operation may not be running under the exclusive use of
-> + *	    the MMU lock and the operation must synchronize with other
-> + *	    threads that might be modifying SPTEs.
->    *
->    * Handle bookkeeping that might result from the modification of a SPTE.
->    * This function must be called for all TDP SPTE modifications.
->    */
->   static void __handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
-> -				u64 old_spte, u64 new_spte, int level)
-> +				  u64 old_spte, u64 new_spte, int level,
-> +				  bool shared)
->   {
->   	bool was_present = is_shadow_present_pte(old_spte);
->   	bool is_present = is_shadow_present_pte(new_spte);
-> @@ -413,18 +450,51 @@ static void __handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
->   	 */
->   	if (was_present && !was_leaf && (pfn_changed || !is_present))
->   		handle_removed_tdp_mmu_page(kvm,
-> -				spte_to_child_pt(old_spte, level));
-> +				spte_to_child_pt(old_spte, level), shared);
->   }
->   
->   static void handle_changed_spte(struct kvm *kvm, int as_id, gfn_t gfn,
-> -				u64 old_spte, u64 new_spte, int level)
-> +				u64 old_spte, u64 new_spte, int level,
-> +				bool shared)
->   {
-> -	__handle_changed_spte(kvm, as_id, gfn, old_spte, new_spte, level);
-> +	__handle_changed_spte(kvm, as_id, gfn, old_spte, new_spte, level,
-> +			      shared);
->   	handle_changed_spte_acc_track(old_spte, new_spte, level);
->   	handle_changed_spte_dirty_log(kvm, as_id, gfn, old_spte,
->   				      new_spte, level);
->   }
->   
-> +/*
-> + * tdp_mmu_set_spte_atomic - Set a TDP MMU SPTE atomically and handle the
-> + * associated bookkeeping
+>  include/uapi/linux/rfkill.h | 80 +++++++++++++++++++++++++++++++------
+>  net/rfkill/core.c           |  7 ++--
+>  2 files changed, 72 insertions(+), 15 deletions(-)
+>
+> diff --git a/include/uapi/linux/rfkill.h b/include/uapi/linux/rfkill.h
+> index 03e8af87b364..9b77cfc42efa 100644
+> --- a/include/uapi/linux/rfkill.h
+> +++ b/include/uapi/linux/rfkill.h
+> @@ -86,34 +86,90 @@ enum rfkill_hard_block_reasons {
+>   * @op: operation code
+>   * @hard: hard state (0/1)
+>   * @soft: soft state (0/1)
 > + *
-> + * @kvm: kvm instance
-> + * @iter: a tdp_iter instance currently on the SPTE that should be set
-> + * @new_spte: The value the SPTE should be set to
-> + * Returns: true if the SPTE was set, false if it was not. If false is returned,
-> + *	    this function will have no side-effects.
+> + * Structure used for userspace communication on /dev/rfkill,
+> + * used for events from the kernel and control to the kernel.
 > + */
-> +static inline bool tdp_mmu_set_spte_atomic(struct kvm *kvm,
-> +					   struct tdp_iter *iter,
-> +					   u64 new_spte)
-> +{
-> +	u64 *root_pt = tdp_iter_root_pt(iter);
-> +	struct kvm_mmu_page *root = sptep_to_sp(root_pt);
-> +	int as_id = kvm_mmu_page_as_id(root);
+> +struct rfkill_event {
+> +       __u32 idx;
+> +       __u8  type;
+> +       __u8  op;
+> +       __u8  soft;
+> +       __u8  hard;
+> +} __attribute__((packed));
 > +
-> +	lockdep_assert_held_read(&kvm->mmu_lock);
+> +/**
+> + * struct rfkill_event_ext - events for userspace on /dev/rfkill
+> + * @idx: index of dev rfkill
+> + * @type: type of the rfkill struct
+> + * @op: operation code
+> + * @hard: hard state (0/1)
+> + * @soft: soft state (0/1)
+>   * @hard_block_reasons: valid if hard is set. One or several reasons from
+>   *     &enum rfkill_hard_block_reasons.
+>   *
+>   * Structure used for userspace communication on /dev/rfkill,
+>   * used for events from the kernel and control to the kernel.
+> + *
+> + * See the extensibility docs below.
+>   */
+> -struct rfkill_event {
+> +struct rfkill_event_ext {
+>         __u32 idx;
+>         __u8  type;
+>         __u8  op;
+>         __u8  soft;
+>         __u8  hard;
 > +
-> +	if (cmpxchg64(rcu_dereference(iter->sptep), iter->old_spte,
-> +		      new_spte) != iter->old_spte)
-> +		return false;
+> +       /*
+> +        * older kernels will accept/send only up to this point,
+> +        * and if extended further up to any chunk marked below
+> +        */
 > +
-> +	handle_changed_spte(kvm, as_id, iter->gfn, iter->old_spte, new_spte,
-> +			    iter->level, true);
-> +
-> +	return true;
-> +}
-> +
-> +
->   /*
->    * __tdp_mmu_set_spte - Set a TDP MMU SPTE and handle the associated bookkeeping
->    * @kvm: kvm instance
-> @@ -454,7 +524,7 @@ static inline void __tdp_mmu_set_spte(struct kvm *kvm, struct tdp_iter *iter,
->   	WRITE_ONCE(*rcu_dereference(iter->sptep), new_spte);
->   
->   	__handle_changed_spte(kvm, as_id, iter->gfn, iter->old_spte, new_spte,
-> -			      iter->level);
-> +			      iter->level, false);
->   	if (record_acc_track)
->   		handle_changed_spte_acc_track(iter->old_spte, new_spte,
->   					      iter->level);
-> @@ -629,23 +699,18 @@ static int tdp_mmu_map_handle_target_level(struct kvm_vcpu *vcpu, int write,
->   	int ret = 0;
->   	int make_spte_ret = 0;
->   
-> -	if (unlikely(is_noslot_pfn(pfn))) {
-> +	if (unlikely(is_noslot_pfn(pfn)))
->   		new_spte = make_mmio_spte(vcpu, iter->gfn, ACC_ALL);
-> -		trace_mark_mmio_spte(rcu_dereference(iter->sptep), iter->gfn,
-> -				     new_spte);
-> -	} else {
-> +	else
->   		make_spte_ret = make_spte(vcpu, ACC_ALL, iter->level, iter->gfn,
->   					 pfn, iter->old_spte, prefault, true,
->   					 map_writable, !shadow_accessed_mask,
->   					 &new_spte);
-> -		trace_kvm_mmu_set_spte(iter->level, iter->gfn,
-> -				       rcu_dereference(iter->sptep));
-> -	}
->   
->   	if (new_spte == iter->old_spte)
->   		ret = RET_PF_SPURIOUS;
-> -	else
-> -		tdp_mmu_set_spte(vcpu->kvm, iter, new_spte);
-> +	else if (!tdp_mmu_set_spte_atomic(vcpu->kvm, iter, new_spte))
-> +		return RET_PF_RETRY;
->   
->   	/*
->   	 * If the page fault was caused by a write but the page is write
-> @@ -659,8 +724,13 @@ static int tdp_mmu_map_handle_target_level(struct kvm_vcpu *vcpu, int write,
->   	}
->   
->   	/* If a MMIO SPTE is installed, the MMIO will need to be emulated. */
-> -	if (unlikely(is_mmio_spte(new_spte)))
-> +	if (unlikely(is_mmio_spte(new_spte))) {
-> +		trace_mark_mmio_spte(rcu_dereference(iter->sptep), iter->gfn,
-> +				     new_spte);
->   		ret = RET_PF_EMULATE;
-> +	} else
-> +		trace_kvm_mmu_set_spte(iter->level, iter->gfn,
-> +				       rcu_dereference(iter->sptep));
->   
->   	trace_kvm_mmu_set_spte(iter->level, iter->gfn,
->   			       rcu_dereference(iter->sptep));
-> @@ -719,7 +789,8 @@ int kvm_tdp_mmu_map(struct kvm_vcpu *vcpu, gpa_t gpa, u32 error_code,
->   		 */
->   		if (is_shadow_present_pte(iter.old_spte) &&
->   		    is_large_pte(iter.old_spte)) {
-> -			tdp_mmu_set_spte(vcpu->kvm, &iter, 0);
-> +			if (!tdp_mmu_set_spte_atomic(vcpu->kvm, &iter, 0))
-> +				break;
->   
->   			kvm_flush_remote_tlbs_with_address(vcpu->kvm, iter.gfn,
->   					KVM_PAGES_PER_HPAGE(iter.level));
-> @@ -736,19 +807,24 @@ int kvm_tdp_mmu_map(struct kvm_vcpu *vcpu, gpa_t gpa, u32 error_code,
->   			sp = alloc_tdp_mmu_page(vcpu, iter.gfn, iter.level);
->   			child_pt = sp->spt;
->   
-> -			tdp_mmu_link_page(vcpu->kvm, sp,
-> -					  huge_page_disallowed &&
-> -					  req_level >= iter.level);
-> -
->   			new_spte = make_nonleaf_spte(child_pt,
->   						     !shadow_accessed_mask);
->   
-> -			trace_kvm_mmu_get_page(sp, true);
-> -			tdp_mmu_set_spte(vcpu->kvm, &iter, new_spte);
-> +			if (tdp_mmu_set_spte_atomic(vcpu->kvm, &iter,
-> +						    new_spte)) {
-> +				tdp_mmu_link_page(vcpu->kvm, sp, true,
-> +						  huge_page_disallowed &&
-> +						  req_level >= iter.level);
-> +
-> +				trace_kvm_mmu_get_page(sp, true);
-> +			} else {
-> +				tdp_mmu_free_sp(sp);
-> +				break;
-> +			}
->   		}
->   	}
->   
-> -	if (WARN_ON(iter.level != level)) {
-> +	if (iter.level != level) {
->   		rcu_read_unlock();
->   		return RET_PF_RETRY;
->   	}
-> 
-
-Whoa no, you have included basically a whole new feature, except for the 
-final patch that actually enables the feature.  The whole new MMU is 
-still not meant to be used in production and development is still 
-happening as of 5.13.
-
-Were all these patches (82-97) included just to enable patch 98 ("KVM: 
-x86/mmu: Ensure TLBs are flushed for TDP MMU during NX zapping")?  Same 
-for 105-120 in 5.11.
-
-Paolo
-
+>         __u8  hard_block_reasons;
+>  } __attribute__((packed));
+>
+> -/*
+> - * We are planning to be backward and forward compatible with changes
+> - * to the event struct, by adding new, optional, members at the end.
+> - * When reading an event (whether the kernel from userspace or vice
+> - * versa) we need to accept anything that's at least as large as the
+> - * version 1 event size, but might be able to accept other sizes in
+> - * the future.
+> +/**
+> + * DOC: Extensibility
+> + *
+> + * Originally, we had planned to allow backward and forward compatible
+> + * changes by just adding fields at the end of the structure that are
+> + * then not reported on older kernels on read(), and not written to by
+> + * older kernels on write(), with the kernel reporting the size it did
+> + * accept as the result.
+> + *
+> + * This would have allowed userspace to detect on read() and write()
+> + * which kernel structure version it was dealing with, and if was just
+> + * recompiled it would have gotten the new fields, but obviously not
+> + * accessed them, but things should've continued to work.
+> + *
+> + * Unfortunately, while actually exercising this mechanism to add the
+> + * hard block reasons field, we found that userspace (notably systemd)
+> + * did all kinds of fun things not in line with this scheme:
+> + *
+> + * 1. treat the (expected) short writes as an error;
+> + * 2. ask to read sizeof(struct rfkill_event) but then compare the
+> + *    actual return value to RFKILL_EVENT_SIZE_V1 and treat any
+> + *    mismatch as an error.
+> + *
+> + * As a consequence, just recompiling with a new struct version caused
+> + * things to no longer work correctly on old and new kernels.
+> + *
+> + * Hence, we've rolled back &struct rfkill_event to the original version
+> + * and added &struct rfkill_event_ext. This effectively reverts to the
+> + * old behaviour for all userspace, unless it explicitly opts in to the
+> + * rules outlined here by using the new &struct rfkill_event_ext.
+> + *
+> + * Userspace using &struct rfkill_event_ext must adhere to the following
+> + * rules
+>   *
+> - * One exception is the kernel -- we already have two event sizes in
+> - * that we've made the 'hard' member optional since our only option
+> - * is to ignore it anyway.
+> + * 1. accept short writes, optionally using them to detect that it's
+> + *    running on an older kernel;
+> + * 2. accept short reads, knowing that this means it's running on an
+> + *    older kernel;
+> + * 3. treat reads that are as long as requested as acceptable, not
+> + *    checking against RFKILL_EVENT_SIZE_V1 or such.
+>   */
+> -#define RFKILL_EVENT_SIZE_V1   8
+> +#define RFKILL_EVENT_SIZE_V1   sizeof(struct rfkill_event)
+>
+>  /* ioctl for turning off rfkill-input (if present) */
+>  #define RFKILL_IOC_MAGIC       'R'
+> diff --git a/net/rfkill/core.c b/net/rfkill/core.c
+> index 68d6ef9e59fc..ac15a944573f 100644
+> --- a/net/rfkill/core.c
+> +++ b/net/rfkill/core.c
+> @@ -69,7 +69,7 @@ struct rfkill {
+>
+>  struct rfkill_int_event {
+>         struct list_head        list;
+> -       struct rfkill_event     ev;
+> +       struct rfkill_event_ext ev;
+>  };
+>
+>  struct rfkill_data {
+> @@ -253,7 +253,8 @@ static void rfkill_global_led_trigger_unregister(void)
+>  }
+>  #endif /* CONFIG_RFKILL_LEDS */
+>
+> -static void rfkill_fill_event(struct rfkill_event *ev, struct rfkill *rfkill,
+> +static void rfkill_fill_event(struct rfkill_event_ext *ev,
+> +                             struct rfkill *rfkill,
+>                               enum rfkill_operation op)
+>  {
+>         unsigned long flags;
+> @@ -1237,7 +1238,7 @@ static ssize_t rfkill_fop_write(struct file *file, const char __user *buf,
+>                                 size_t count, loff_t *pos)
+>  {
+>         struct rfkill *rfkill;
+> -       struct rfkill_event ev;
+> +       struct rfkill_event_ext ev;
+>         int ret;
+>
+>         /* we don't need the 'hard' variable but accept it */
+> --
+> 2.30.2
+>
