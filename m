@@ -2,69 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D98BD355FB9
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 01:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D12B4356045
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 02:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344760AbhDFXuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 19:50:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39360 "EHLO mail.kernel.org"
+        id S236609AbhDGA0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 20:26:12 -0400
+Received: from vps0.lunn.ch ([185.16.172.187]:37144 "EHLO vps0.lunn.ch"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344770AbhDFXuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Apr 2021 19:50:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 8DF41613C0;
-        Tue,  6 Apr 2021 23:50:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617753009;
-        bh=zU5PgoVX2+C0VrAQex2YCIxLZ67eZY8t2e0MftEbYLQ=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=mJRJ+0F598Bd7NO2mfX+bICpAhOOEDMNyWUIt0KaebLJkSb8CZIHZiYbuS8z9DhKS
-         P9qQUxkdrkqd0vG1i7Ig/tb98l/BlGPGffGsbBq17elGiFbNg0nAr0l9lKcujmnPXU
-         P68109bzf+0usMg1eMgho769QG0iif8qT4OMWSrDVf3HQwsN6W4PY9kn/tCzLnoDkS
-         v7ixYFkVO61pyq18Tt/cQpdGJQ9v0FqOqq0VkDY2s9Havzn1+Jt6DHndZI0q5jKqWi
-         tpjvQQ01JqRU712epjS4XJBFEP12y84kj580o/hNA7G0aa04zYeYOHrlcl73pA82Zw
-         5YubED4voGCPg==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 7D1E960A2A;
-        Tue,  6 Apr 2021 23:50:09 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S236599AbhDGA0M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Apr 2021 20:26:12 -0400
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94)
+        (envelope-from <andrew@lunn.ch>)
+        id 1lTw17-00FDi1-2A; Wed, 07 Apr 2021 02:25:57 +0200
+Date:   Wed, 7 Apr 2021 02:25:57 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc:     hauke@hauke-m.de, f.fainelli@gmail.com, vivien.didelot@gmail.com,
+        olteanv@gmail.com, netdev@vger.kernel.org, davem@davemloft.net,
+        kuba@kernel.org, linux@armlinux.org.uk,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH RFC net 1/2] net: dsa: lantiq_gswip: Don't use PHY auto
+ polling
+Message-ID: <YGz8FRBsj68xIbX/@lunn.ch>
+References: <20210406203508.476122-1-martin.blumenstingl@googlemail.com>
+ <20210406203508.476122-2-martin.blumenstingl@googlemail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v1 1/1] ethtool: fix incorrect datatype in set_eee ops
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161775300950.25054.9937992682848380005.git-patchwork-notify@kernel.org>
-Date:   Tue, 06 Apr 2021 23:50:09 +0000
-References: <20210406131730.25404-1-vee.khee.wong@linux.intel.com>
-In-Reply-To: <20210406131730.25404-1-vee.khee.wong@linux.intel.com>
-To:     Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, mkubecek@suse.cz,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210406203508.476122-2-martin.blumenstingl@googlemail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Tue,  6 Apr 2021 21:17:30 +0800 you wrote:
-> The member 'tx_lpi_timer' is defined with __u32 datatype in the ethtool
-> header file. Hence, we should use ethnl_update_u32() in set_eee ops.
+On Tue, Apr 06, 2021 at 10:35:07PM +0200, Martin Blumenstingl wrote:
+> PHY auto polling on the GSWIP hardware can be used so link changes
+> (speed, link up/down, etc.) can be detected automatically. Internally
+> GSWIP reads the PHY's registers for this functionality. Based on this
+> automatic detection GSWIP can also automatically re-configure it's port
+> settings. Unfortunately this auto polling (and configuration) mechanism
+> seems to cause various issues observed by different people on different
+> devices:
+> - FritzBox 7360v2: the two Gbit/s ports (connected to the two internal
+>   PHY11G instances) are working fine but the two Fast Ethernet ports
+>   (using an AR8030 RMII PHY) are completely dead (neither RX nor TX are
+>   received). It turns out that the AR8030 PHY sets the BMSR_ESTATEN bit
+>   as well as the ESTATUS_1000_TFULL and ESTATUS_1000_XFULL bits. This
+>   makes the PHY auto polling state machine (rightfully?) think that the
+>   established link speed (when the other side is Gbit/s capable) is
+>   1Gbit/s.
+> - None of the Ethernet ports on the Zyxel P-2812HNU-F1 (two are
+>   connected to the internal PHY11G GPHYs while the other three are
+>   external RGMII PHYs) are working. Neither RX nor TX traffic was
+>   observed. It is not clear which part of the PHY auto polling state-
+>   machine caused this.
+> - FritzBox 7412 (only one LAN port which is connected to one of the
+>   internal GPHYs running in PHY22F / Fast Ethernet mode) was seeing
+>   random disconnects (link down events could be seen). Sometimes all
+>   traffic would stop after such disconnect. It is not clear which part
+>   of the PHY auto polling state-machine cauased this.
+> - TP-Link TD-W9980 (two ports are connected to the internal GPHYs
+>   running in PHY11G / Gbit/s mode, the other two are external RGMII
+>   PHYs) was affected by similar issues as the FritzBox 7412 just without
+>   the "link down" events
 > 
-> Fixes: fd77be7bd43c ("ethtool: set EEE settings with EEE_SET request")
-> Cc: <stable@vger.kernel.org> # 5.10.x
-> Cc: Michal Kubecek <mkubecek@suse.cz>
-> Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+> Switch to software based configuration instead of PHY auto polling (and
+> letting the GSWIP hardware configure the ports automatically) for the
+> following link parameters:
+> - link up/down
+> - link speed
+> - full/half duplex
+> - flow control (RX / TX pause)
 > 
-> [...]
+> After a big round of manual testing by various people (who helped test
+> this on OpenWrt) it turns out that this fixes all reported issues.
+> 
+> Additionally it can be considered more future proof because any
+> "quirk" which is implemented for a PHY on the driver side can now be
+> used with the GSWIP hardware as well because Linux is in control of the
+> link parameters.
+> 
+> As a nice side-effect this also solves a problem where fixed-links were
+> not supported previously because we were relying on the PHY auto polling
+> mechanism, which cannot work for fixed-links as there's no PHY from
+> where it can read the registers. Configuring the link settings on the
+> GSWIP ports means that we now use the settings from device-tree also for
+> ports with fixed-links.
+> 
+> Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+> Fixes: 3e6fdeb28f4c33 ("net: dsa: lantiq_gswip: Let GSWIP automatically set the xMII clock")
+> Cc: stable@vger.kernel.org
+> Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-Here is the summary with links:
-  - [net,v1,1/1] ethtool: fix incorrect datatype in set_eee ops
-    https://git.kernel.org/netdev/net/c/63cf32389925
+Having the MAC polling the PHY is pretty much always a bad idea.
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
-
+    Andrew
