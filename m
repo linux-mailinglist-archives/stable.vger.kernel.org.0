@@ -2,165 +2,335 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 687A23572B6
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 19:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B753573A6
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 19:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354620AbhDGRGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 13:06:33 -0400
-Received: from mail-ot1-f41.google.com ([209.85.210.41]:46048 "EHLO
-        mail-ot1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354588AbhDGRG1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 13:06:27 -0400
-Received: by mail-ot1-f41.google.com with SMTP id 91-20020a9d08640000b0290237d9c40382so18730766oty.12;
-        Wed, 07 Apr 2021 10:06:17 -0700 (PDT)
+        id S234717AbhDGRyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 13:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229917AbhDGRyD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 13:54:03 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF78C06175F
+        for <stable@vger.kernel.org>; Wed,  7 Apr 2021 10:53:53 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id l1so9722265plg.12
+        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 10:53:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TVTjWKaCtPI961SS6F/b7YErVsS/Ym0P8GAL46cdyCE=;
+        b=jySecifHd4s/pAwjKhiK5zPL6kpbyFe4N7x6Ndn85Axy4OGeAIQDVA8jjy6OTI02m8
+         LhPVQs4DVWvKKg8wy9x//k5omb0CaF0AB2qdAvvUpSV3+GxFYjTm5LqVznM8FHPJr3Is
+         5s1K+Edx/Jdd0LpgbIo9lXCJYOy9tqYFkqUpx/g6hSU0LzhFo+W0fei3nI5vg8ybLH+N
+         x8lu5a8m+iivsr/b0ojJmlAqHtOIyYwSrqNQAW14WJspJxQisHSx+i0QL52GO1qiVxNo
+         5bTVdCjLlM0SfOYChJku3gEWyvZKnPMmmqzKT6YlKT+c60qWjYQ00UtdJqcHoqr2Cxkh
+         K5Ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=abnQRkdJvp2BPIa2wpxV2nwwLsa1/aF4RGi27RRL+2M=;
-        b=kSu6+mb1EnRqHaiQyIfq6p+xPeurnN/oYfIQ5wyLJX2kJNHzGui1w4936WBjrNSqJJ
-         NsaDHxpo2lTpITa+6AOY4jiQLNOB5sOjYaxq+wLVT0vXUQQ2AkdoeLZayMT+sxWcGcIc
-         x5b/XXMyWwVp6FQuC0orW4BfK21SMqv67l9nB2kWhv66G43x9h+qkjL3j0ZblthcGKcb
-         xB2XZVgUh8oBXMRrAfkqc/4HHomZhYcR1q8tQs19izoCJ0NewbLUErWayc+SSm+SG/IW
-         ttTk7NZ5ONJ4AtAiIpq5ZTLogFJQuH0hIXT352McRmL5DeWHPkkf2mfnJUBPksgnxqO1
-         xX5Q==
-X-Gm-Message-State: AOAM532+ZP2LUWJGhMjhfvQ2ShiRQjBtWjLBwML78SS0CK4YwzWe02T8
-        wUnCsXHuvnBUgEf1QRcNWW1CkK2IZmKLN78paVg=
-X-Google-Smtp-Source: ABdhPJzCYFheOkHMIqBHjQXvEhsxnEDPLw9Y4mxOzFMKycSTj9M7XrhE/ivVZC6UEsO9Nyggo/LRjbivWc0B0LkQaBI=
-X-Received: by 2002:a9d:4811:: with SMTP id c17mr3947200otf.206.1617815176928;
- Wed, 07 Apr 2021 10:06:16 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TVTjWKaCtPI961SS6F/b7YErVsS/Ym0P8GAL46cdyCE=;
+        b=m10hrX6KKolSOmH7kt0bvgtzHsDe3u2G9pZglxJTY4GYEVWl0iIISZUy/252w1Xge5
+         V+jtmc/zYIkVaUgDevHrhRCZPt0r9+4UayiJJ8xazMnply/ehFDbK5P4SnMQKFUcLt8X
+         XMMuddq0vKiAU7HHP3NjGUaxGI4CnsqwropW2ew/U8xrCpyLlzgldxnSZOZB9LnCWS9G
+         Q77vuovQDnVcIOqiUN/3orePILtTcJnQVt6h/zetciGkwOFWgNmDTj8UAWRDCE/oNw9L
+         hprhQITEx+3TEIfy1hXl4TZM+dKu/z8kbhX2PWqrObzIIcmc8MdwIXJ+SKmu1z50iUWI
+         vuzg==
+X-Gm-Message-State: AOAM530U58DjR3EoaBnyNpzvyFAOdYSHn4QXIABYbj6jd/RTuKz8LSIg
+        UXrVWJ6RhC0bgFUnWQQ95CE5GuZXQ2EEdw==
+X-Google-Smtp-Source: ABdhPJyj8Gx7/LCJux8+tIdcmiIOjSac1T3Wc8a8QINht2VwBJcJPITCTHLJ8H9Kvj11hzKCC4I9RA==
+X-Received: by 2002:a17:902:a606:b029:e9:4c3:c96b with SMTP id u6-20020a170902a606b02900e904c3c96bmr4105407plq.14.1617818033261;
+        Wed, 07 Apr 2021 10:53:53 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mp21sm6324147pjb.16.2021.04.07.10.53.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Apr 2021 10:53:52 -0700 (PDT)
+Message-ID: <606df1b0.1c69fb81.3a2e4.0b4b@mx.google.com>
+Date:   Wed, 07 Apr 2021 10:53:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210406155640.564341-1-vkuznets@redhat.com>
-In-Reply-To: <20210406155640.564341-1-vkuznets@redhat.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 7 Apr 2021 19:06:05 +0200
-Message-ID: <CAJZ5v0gqSEzkja-eAOvWEFs=HLv=046sj=g03ukVFhDF0xUdTg@mail.gmail.com>
-Subject: Re: [PATCH v3] ACPI: processor: Fix build when CONFIG_ACPI_PROCESSOR=m
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Len Brown <lenb@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Stable <stable@vger.kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.229
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.14.y baseline: 107 runs, 7 regressions (v4.14.229)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 6, 2021 at 5:56 PM Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
->
-> Commit 8cdddd182bd7 ("ACPI: processor: Fix CPU0 wakeup in
-> acpi_idle_play_dead()") tried to fix CPU0 hotplug breakage by copying
-> wakeup_cpu0() + start_cpu0() logic from hlt_play_dead()//mwait_play_dead()
-> into acpi_idle_play_dead(). The problem is that these functions are not
-> exported to modules so when CONFIG_ACPI_PROCESSOR=m build fails.
->
-> The issue could've been fixed by exporting both wakeup_cpu0()/start_cpu0()
-> (the later from assembly) but it seems putting the whole pattern into a
-> new function and exporting it instead is better.
->
-> Reported-by: kernel test robot <lkp@intel.com>
-> Fixes: 8cdddd182bd7 ("CPI: processor: Fix CPU0 wakeup in acpi_idle_play_dead()")
-> Cc: <stable@vger.kernel.org> # 5.10+
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+stable/linux-4.14.y baseline: 107 runs, 7 regressions (v4.14.229)
 
-Applied as 5.12-rc material, thanks!
+Regressions Summary
+-------------------
 
-> ---
-> Changes since v2:
-> - Use proper kerneldoc format [Rafael J. Wysocki]
-> ---
->  arch/x86/include/asm/smp.h    |  2 +-
->  arch/x86/kernel/smpboot.c     | 26 ++++++++++++--------------
->  drivers/acpi/processor_idle.c |  4 +---
->  3 files changed, 14 insertions(+), 18 deletions(-)
->
-> diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
-> index 57ef2094af93..630ff08532be 100644
-> --- a/arch/x86/include/asm/smp.h
-> +++ b/arch/x86/include/asm/smp.h
-> @@ -132,7 +132,7 @@ void native_play_dead(void);
->  void play_dead_common(void);
->  void wbinvd_on_cpu(int cpu);
->  int wbinvd_on_all_cpus(void);
-> -bool wakeup_cpu0(void);
-> +void cond_wakeup_cpu0(void);
->
->  void native_smp_send_reschedule(int cpu);
->  void native_send_call_func_ipi(const struct cpumask *mask);
-> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-> index f877150a91da..16703c35a944 100644
-> --- a/arch/x86/kernel/smpboot.c
-> +++ b/arch/x86/kernel/smpboot.c
-> @@ -1659,13 +1659,17 @@ void play_dead_common(void)
->         local_irq_disable();
->  }
->
-> -bool wakeup_cpu0(void)
-> +/**
-> + * cond_wakeup_cpu0 - Wake up CPU0 if needed.
-> + *
-> + * If NMI wants to wake up CPU0, start CPU0.
-> + */
-> +void cond_wakeup_cpu0(void)
->  {
->         if (smp_processor_id() == 0 && enable_start_cpu0)
-> -               return true;
-> -
-> -       return false;
-> +               start_cpu0();
->  }
-> +EXPORT_SYMBOL_GPL(cond_wakeup_cpu0);
->
->  /*
->   * We need to flush the caches before going to sleep, lest we have
-> @@ -1734,11 +1738,8 @@ static inline void mwait_play_dead(void)
->                 __monitor(mwait_ptr, 0, 0);
->                 mb();
->                 __mwait(eax, 0);
-> -               /*
-> -                * If NMI wants to wake up CPU0, start CPU0.
-> -                */
-> -               if (wakeup_cpu0())
-> -                       start_cpu0();
-> +
-> +               cond_wakeup_cpu0();
->         }
->  }
->
-> @@ -1749,11 +1750,8 @@ void hlt_play_dead(void)
->
->         while (1) {
->                 native_halt();
-> -               /*
-> -                * If NMI wants to wake up CPU0, start CPU0.
-> -                */
-> -               if (wakeup_cpu0())
-> -                       start_cpu0();
-> +
-> +               cond_wakeup_cpu0();
->         }
->  }
->
-> diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
-> index 768a6b4d2368..4e2d76b8b697 100644
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -544,9 +544,7 @@ static int acpi_idle_play_dead(struct cpuidle_device *dev, int index)
->                         return -ENODEV;
->
->  #if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
-> -               /* If NMI wants to wake up CPU0, start CPU0. */
-> -               if (wakeup_cpu0())
-> -                       start_cpu0();
-> +               cond_wakeup_cpu0();
->  #endif
->         }
->
-> --
-> 2.30.2
->
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+hip07-d05            | arm64 | lab-collabora | gcc-8    | defconfig        =
+   | 1          =
+
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.229/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.229
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      0cc244011f40280b78fc344d5c2aac5a0c659f77 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+hip07-d05            | arm64 | lab-collabora | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606dbde218c5fac33bdac6b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606dbde218c5fac33bdac=
+6b2
+        new failure (last pass: v4.14.227) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606dbd33dd14d355cbdac6b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606dbd33dd14d355cbdac=
+6b2
+        failing since 369 days (last pass: v4.14.172, first fail: v4.14.175=
+) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606dbdedb6dbabf582dac6cb
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/606dbdedb6dbabf=
+582dac6d2
+        new failure (last pass: v4.14.228)
+        2 lines
+
+    2021-04-07 14:12:57.808000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-04-07 14:12:57.822000+00:00  [   20.316711] <LAVA_SIGNAL_TESTCASE =
+TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606dbb4e60c043ac3edac6ca
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606dbb4e60c043ac3edac=
+6cb
+        failing since 139 days (last pass: v4.14.206, first fail: v4.14.207=
+) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606dbb35f3428908a2dac6ca
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606dbb35f3428908a2dac=
+6cb
+        failing since 139 days (last pass: v4.14.206, first fail: v4.14.207=
+) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606dbb7caa85c8b0e9dac6eb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606dbb7caa85c8b0e9dac=
+6ec
+        failing since 139 days (last pass: v4.14.206, first fail: v4.14.207=
+) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/606dbb021dd57a02c0dac6b4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.229/=
+arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606dbb021dd57a02c0dac=
+6b5
+        failing since 139 days (last pass: v4.14.206, first fail: v4.14.207=
+) =
+
+ =20
