@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FCED356635
+	by mail.lfdr.de (Postfix) with ESMTP id B98D7356636
 	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 10:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344602AbhDGIPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 04:15:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44990 "EHLO mail.kernel.org"
+        id S1344866AbhDGIPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 04:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233700AbhDGIPc (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Wed, 7 Apr 2021 04:15:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 499E3611AF;
-        Wed,  7 Apr 2021 08:15:21 +0000 (UTC)
+        id S1344451AbhDGIPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Apr 2021 04:15:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEA40613A7;
+        Wed,  7 Apr 2021 08:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617783321;
-        bh=GE9jEXqIbzW7QFTvANxdh62E/e6uZcQw1EBM35UUT9c=;
+        s=korg; t=1617783324;
+        bh=sugoICY8iWs46Vr9CfNaRSGhpHzfYuwGQVQwQCUPbOs=;
         h=Subject:To:From:Date:From;
-        b=pNH8jWl4/XDc5WWYEgaRVA9+6ePl7EUPXPPOfr21y5m1qoSMd5VpMna1F6oSGnylq
-         KB47Jpz4YVHN9rV2hNzmon1MRzLXAf1p1ouZQ3qKKs/u5Kmo64k2joXQ58Egbo+7Rn
-         awiFSgVvbw84wi3gNCktoOdDCo6vnEn/dWRSrTJI=
-Subject: patch "iio: magnetometer: yas530: Include right header" added to staging-next
-To:     linus.walleij@linaro.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, harvey.harrison@gmail.com, lkp@intel.com
+        b=m0HWSJMuLIoa0+wmAqKNAYWBuAFkbxUpgpofjL6OIDHJa2nCVelE60Velr6wNKklb
+         xnfPyto3879NsyRhpqGVmO6dcQD5Y7CKle0tNiujIqHX6uq/tlpuP4XnC36/6zNY8s
+         H3GZHAswBXBYE8N4lm46Pkx4RULnKvHSsAEEmDX4=
+Subject: patch "iio: sx9310: Fix access to variable DT array" added to staging-next
+To:     gwendal@chromium.org, Jonathan.Cameron@huawei.com,
+        andy.shevchenko@gmail.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 07 Apr 2021 10:10:39 +0200
-Message-ID: <161778303913249@kroah.com>
+Date:   Wed, 07 Apr 2021 10:10:40 +0200
+Message-ID: <161778304070114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: magnetometer: yas530: Include right header
+    iio: sx9310: Fix access to variable DT array
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,44 +51,94 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From bb354aeb364f9dee51e16edfdf6194ce4ba9237e Mon Sep 17 00:00:00 2001
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Mon, 15 Feb 2021 16:30:32 +0100
-Subject: iio: magnetometer: yas530: Include right header
+From 6f0078ae704d94b1a93e5f3d0a44cf3d8090fa91 Mon Sep 17 00:00:00 2001
+From: Gwendal Grignou <gwendal@chromium.org>
+Date: Fri, 26 Mar 2021 11:46:02 -0700
+Subject: iio: sx9310: Fix access to variable DT array
 
-To get access to the big endian byte order parsing helpers
-drivers need to include <asm/unaligned.h> and nothing else.
+With the current code, we want to read 4 entries from DT array
+"semtech,combined-sensors". If there are less, we silently fail as
+of_property_read_u32_array() returns -EOVERFLOW.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Harvey Harrison <harvey.harrison@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210215153032.47962-1-linus.walleij@linaro.org
+First count the number of entries and if between 1 and 4, collect the
+content of the array.
+
+Fixes: 5b19ca2c78a0 ("iio: sx9310: Set various settings from DT")
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210326184603.251683-2-gwendal@chromium.org
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/magnetometer/yamaha-yas530.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/proximity/sx9310.c | 40 ++++++++++++++++++++++++----------
+ 1 file changed, 28 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/yamaha-yas530.c b/drivers/iio/magnetometer/yamaha-yas530.c
-index cee6207d8847..2f2f8cb3c26c 100644
---- a/drivers/iio/magnetometer/yamaha-yas530.c
-+++ b/drivers/iio/magnetometer/yamaha-yas530.c
-@@ -32,13 +32,14 @@
- #include <linux/regmap.h>
- #include <linux/regulator/consumer.h>
- #include <linux/random.h>
--#include <linux/unaligned/be_byteshift.h>
+diff --git a/drivers/iio/proximity/sx9310.c b/drivers/iio/proximity/sx9310.c
+index 394c2afe0f23..289c76bb3b02 100644
+--- a/drivers/iio/proximity/sx9310.c
++++ b/drivers/iio/proximity/sx9310.c
+@@ -1213,17 +1213,17 @@ static int sx9310_init_compensation(struct iio_dev *indio_dev)
+ }
  
- #include <linux/iio/buffer.h>
- #include <linux/iio/iio.h>
- #include <linux/iio/trigger_consumer.h>
- #include <linux/iio/triggered_buffer.h>
+ static const struct sx9310_reg_default *
+-sx9310_get_default_reg(struct sx9310_data *data, int i,
++sx9310_get_default_reg(struct sx9310_data *data, int idx,
+ 		       struct sx9310_reg_default *reg_def)
+ {
+-	int ret;
+ 	const struct device_node *np = data->client->dev.of_node;
+-	u32 combined[SX9310_NUM_CHANNELS] = { 4, 4, 4, 4 };
++	u32 combined[SX9310_NUM_CHANNELS];
++	u32 start = 0, raw = 0, pos = 0;
+ 	unsigned long comb_mask = 0;
++	int ret, i, count;
+ 	const char *res;
+-	u32 start = 0, raw = 0, pos = 0;
  
-+#include <asm/unaligned.h>
-+
- /* This register map covers YAS530 and YAS532 but differs in YAS 537 and YAS539 */
- #define YAS5XX_DEVICE_ID		0x80
- #define YAS5XX_ACTUATE_INIT_COIL	0x81
+-	memcpy(reg_def, &sx9310_default_regs[i], sizeof(*reg_def));
++	memcpy(reg_def, &sx9310_default_regs[idx], sizeof(*reg_def));
+ 	if (!np)
+ 		return reg_def;
+ 
+@@ -1234,15 +1234,31 @@ sx9310_get_default_reg(struct sx9310_data *data, int i,
+ 			reg_def->def |= SX9310_REG_PROX_CTRL2_SHIELDEN_GROUND;
+ 		}
+ 
+-		reg_def->def &= ~SX9310_REG_PROX_CTRL2_COMBMODE_MASK;
+-		of_property_read_u32_array(np, "semtech,combined-sensors",
+-					   combined, ARRAY_SIZE(combined));
+-		for (i = 0; i < ARRAY_SIZE(combined); i++) {
+-			if (combined[i] <= SX9310_NUM_CHANNELS)
+-				comb_mask |= BIT(combined[i]);
++		count = of_property_count_elems_of_size(np, "semtech,combined-sensors",
++							sizeof(u32));
++		if (count > 0 && count <= ARRAY_SIZE(combined)) {
++			ret = of_property_read_u32_array(np, "semtech,combined-sensors",
++							 combined, count);
++			if (ret)
++				break;
++		} else {
++			/*
++			 * Either the property does not exist in the DT or the
++			 * number of entries is incorrect.
++			 */
++			break;
++		}
++		for (i = 0; i < count; i++) {
++			if (combined[i] >= SX9310_NUM_CHANNELS) {
++				/* Invalid sensor (invalid DT). */
++				break;
++			}
++			comb_mask |= BIT(combined[i]);
+ 		}
++		if (i < count)
++			break;
+ 
+-		comb_mask &= 0xf;
++		reg_def->def &= ~SX9310_REG_PROX_CTRL2_COMBMODE_MASK;
+ 		if (comb_mask == (BIT(3) | BIT(2) | BIT(1) | BIT(0)))
+ 			reg_def->def |= SX9310_REG_PROX_CTRL2_COMBMODE_CS0_CS1_CS2_CS3;
+ 		else if (comb_mask == (BIT(1) | BIT(2)))
 -- 
 2.31.1
 
