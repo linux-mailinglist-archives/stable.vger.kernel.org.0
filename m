@@ -2,100 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991EF357232
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 18:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 527F3357259
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 18:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236026AbhDGQd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 12:33:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47484 "EHLO
+        id S1347636AbhDGQrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 12:47:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232103AbhDGQdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 12:33:55 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 089F3C061756
-        for <stable@vger.kernel.org>; Wed,  7 Apr 2021 09:33:45 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id 185so15234441ybf.3
-        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 09:33:45 -0700 (PDT)
+        with ESMTP id S245696AbhDGQrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 12:47:47 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E79BC061756;
+        Wed,  7 Apr 2021 09:47:37 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id i4so1179278pjk.1;
+        Wed, 07 Apr 2021 09:47:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0lwsn0u8IqnICGvyAtiBlcyUYYkzwv4EZu9XbSKhZrg=;
-        b=TWEJp7OutTUnO1JIFD74hY9u3yciqYCtgTdf56knITi6CkAmDtCZZXDMRNzmbxnwrh
-         bLHAUsZyRk7YcRxxvH0CTDeN94hfbeaxsbuMc3jFOmszMsXYQ6t7s+4XYsSSQoYD0XMm
-         g0xESiZe/ihc/ZUZhY1zfewcJSN5cKnL5I05FBSo4ZfGoR6AO9Fbk6mSYP5PU7/ek/WR
-         /2DTrzU+zBKENUWBy14uNSqqlSy3Bj83K+hkINV0y2/4b3cQXOJasAoO0gzC31WUmfgX
-         sK/EqdltijimdWmmrGTeeKImYGQK5Mukh16EitOpxY/MQh11Uz77zdL7q/9GmnfUQp66
-         gw+g==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=oGh9bkiyj6+EkWkOQAdYaOgpqM5cW8idh8bXV6aXyO0=;
+        b=FTFoS+IIVQZVCzbPWJKNuk9ooiaUnHASKGfJzfKbfXQMAecp/A3EwHonJ8kHmqDegt
+         13uQx3ef/b3aPrKx1T7TdEV4qKRljsmP7r5Xd2C6B9GUGzvQNmDjLWq2gb8/Zgf6k0dR
+         1nz/LWlz8h2dH4g71S9RzTSmdSWWGYuDQyO6SPpU8yGyP/UBSpxSN1ANvBWgxMqNqkmD
+         DZ8VAKWtpA1SSCajpphfxLzVBsUp9y/W+D+nBMBn/S6sMO3masT3leI5yXvdUOHM3jb4
+         rxEdmEchgi0/yhm26XU4jYGxrFVDSSZoqb3s2PfHwP/etqIy2atta7FC6rE5jbSfG6Ir
+         KMug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0lwsn0u8IqnICGvyAtiBlcyUYYkzwv4EZu9XbSKhZrg=;
-        b=Yz1TwGhUD/as/RESxSmw9A1P4L+ASfWecWTirSBisQIFoDB8+tEXlwMQmScZgs9EyY
-         jOZA17eiyDlFEXi8gXPnVoAFmdDkqAao4sP87yaFEQw6VhNruQZHqXX5N1kBIwEIx3vw
-         rzIjbXkusMbzaHNohlJRSQa7mmcq4Z8tNUHPAo++/TSzCXGslrgMLKKAaanuP+TLhfWa
-         9tNzRdVGOlTRT5nn47VEm5e7EpITJfPckTqem6pE0+x+BEVeVEpbyUqMtGZR1wwusBu2
-         lBt2NMkO4fXH+TfNUTnsM7MPDgvpLZ5Ld9iTpztW03qCiKQ9IISNj85SsAxwK2/+NaHO
-         3GvA==
-X-Gm-Message-State: AOAM5302Z0ZMYmFOtWBOjqQ2DE8CjXlSD6qP2DPzH6ClaerUxh6ADGPv
-        7kzYeuUieZUQHzlvkvhLe4QGeFStlPYqnYFwiBgaLA==
-X-Google-Smtp-Source: ABdhPJxMcZIjSk5SxemHmmgHhUXGk613blsBNSxX/7m9hmiZI2uoGUA/6Ddd825mHLMNN1EViUgxwXpkg1G7eOH3h+0=
-X-Received: by 2002:a25:c801:: with SMTP id y1mr5843563ybf.250.1617813224849;
- Wed, 07 Apr 2021 09:33:44 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=oGh9bkiyj6+EkWkOQAdYaOgpqM5cW8idh8bXV6aXyO0=;
+        b=VYDeMkV6VUfjUHyWvUnXuc8XaL0xSMVK/UbFUT2NxkkrwM4ve+iL9AWwWb1kKGFpww
+         kFWcN2dD45abbJG2wffGFtwG6lLLRysl35ToqcEVRp4ipJRf3j+8mHcP+tF7am6cPR9O
+         nWf+ej0j1wnGmRdHUI+2ytGOgD2QWcherKMR4YDw/aP6kfFS+7AG+9/hXc8JsSpja/RN
+         MMtGo18reC8OkXKLVIubNKaKm1erp1nN89ShLVgfT+25uib4S41zTtYEZjA0+wW+GXF3
+         7o7S4TuZXJLMiC58AEM/Tlj8m7scfFQTjsHJVtr2sPRJrOF40RWUIkNJSx+WIPyz7Vf5
+         gG3A==
+X-Gm-Message-State: AOAM531NpMTEmjSe6YSETRWIB+Jr6fQTIdIbUyMmL/GnIbp+z6476UMT
+        wcRqQ1eSuY85s8laV2tQFCd53C6T9kw=
+X-Google-Smtp-Source: ABdhPJy9yq4HYZgj7+0LjaaaE7HmIOIeHCQulpqZzEk/JyIm2fgHsu7LnIP5ESNi7bwQG/5ncclsHQ==
+X-Received: by 2002:a17:90b:3909:: with SMTP id ob9mr4233859pjb.181.1617814056539;
+        Wed, 07 Apr 2021 09:47:36 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id w7sm17762242pff.208.2021.04.07.09.47.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 07 Apr 2021 09:47:35 -0700 (PDT)
+Subject: Re: [PATCH RFC net 2/2] net: dsa: lantiq_gswip: Configure all
+ remaining GSWIP_MII_CFG bits
+To:     Andrew Lunn <andrew@lunn.ch>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc:     hauke@hauke-m.de, vivien.didelot@gmail.com, olteanv@gmail.com,
+        netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux@armlinux.org.uk, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210406203508.476122-1-martin.blumenstingl@googlemail.com>
+ <20210406203508.476122-3-martin.blumenstingl@googlemail.com>
+ <YGz9hMcgZ1sUkgLO@lunn.ch>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <98ef4831-27eb-48d4-1421-c6496b174659@gmail.com>
+Date:   Wed, 7 Apr 2021 09:47:32 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.9.0
 MIME-Version: 1.0
-References: <20210401181741.168763-1-surenb@google.com> <CAHk-=wg8MDMLi8x+u-dee-ai0KiAavm6+JceV00gRXQRFG=Cgw@mail.gmail.com>
- <c7d580fe-e467-4f08-a11d-6b8ceaf41e8f@suse.cz> <CAHk-=wiQCrpxGL4o5piCSqJF0jahUUYW=9R=oGATiiPnkaGY0g@mail.gmail.com>
-In-Reply-To: <CAHk-=wiQCrpxGL4o5piCSqJF0jahUUYW=9R=oGATiiPnkaGY0g@mail.gmail.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Wed, 7 Apr 2021 09:33:34 -0700
-Message-ID: <CAJuCfpFgHMMWZgch5gfjHj936gmpDztb8ZT-vJn6G0-r5BvceA@mail.gmail.com>
-Subject: Re: [PATCH 0/5] 4.14 backports of fixes for "CoW after fork() issue"
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Vlastimil Babka <vbabka@suse.cz>, Peter Xu <peterx@redhat.com>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jann Horn <jannh@google.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>, Shaohua Li <shli@fb.com>,
-        Nadav Amit <namit@vmware.com>, Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Android Kernel Team <kernel-team@android.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <YGz9hMcgZ1sUkgLO@lunn.ch>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 7, 2021 at 9:07 AM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Wed, Apr 7, 2021 at 6:22 AM Vlastimil Babka <vbabka@suse.cz> wrote:
-> >
-> > 1) Ignore the issue (outside of Android at least). The security model of zygote
-> > is unusual. Where else a parent of fork() doesn't trust the child, which is the
-> > same binary?
->
-> Agreed. I think this is basically an android-only issue (with
-> _possibly_ some impact on crazy "pin-and-fork" loads), and doesn't
-> necessarily merit a backport at all.
->
-> If Android people insist on using very old kernels, knowing that they
-> do things that are questionable with those old kernels, at some point
-> it's just _their_ problem.
 
-We don't really insist on using old kernels but rather we are stuck
-with them for some time.
-Trying my hand at backporting the patchsets Peter mentioned proved
-this to be far from easy with many dependencies. Let me look into
-Vlastimil's suggestion to backport only 17839856fd58 and it sounds
-like 5.4 already followed that path. Thanks for all the information!
-Suren.
 
->
->                  Linus
->
-> --
-> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
->
+On 4/6/2021 5:32 PM, Andrew Lunn wrote:
+>>  	case PHY_INTERFACE_MODE_RGMII:
+>>  	case PHY_INTERFACE_MODE_RGMII_ID:
+>>  	case PHY_INTERFACE_MODE_RGMII_RXID:
+>>  	case PHY_INTERFACE_MODE_RGMII_TXID:
+>>  		miicfg |= GSWIP_MII_CFG_MODE_RGMII;
+>> +
+>> +		if (phylink_autoneg_inband(mode))
+>> +			miicfg |= GSWIP_MII_CFG_RGMII_IBS;
+> 
+> Is there any other MAC driver doing this? Are there any boards
+> actually enabling it? Since it is so odd, if there is nothing using
+> it, i would be tempted to leave this out.
+
+Some PHYs (Broadcom namely) support suppressing the RGMII in-band
+signaling towards the MAC, so if the MAC relies on that signaling to
+configure itself based on what the PHY reports this may not work.
+-- 
+Florian
