@@ -2,49 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DC4356054
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 02:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E061356062
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 02:34:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242177AbhDGAcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 20:32:20 -0400
-Received: from vps0.lunn.ch ([185.16.172.187]:37182 "EHLO vps0.lunn.ch"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236581AbhDGAcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Apr 2021 20:32:19 -0400
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94)
-        (envelope-from <andrew@lunn.ch>)
-        id 1lTw72-00FDm5-Ce; Wed, 07 Apr 2021 02:32:04 +0200
-Date:   Wed, 7 Apr 2021 02:32:04 +0200
-From:   Andrew Lunn <andrew@lunn.ch>
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc:     hauke@hauke-m.de, f.fainelli@gmail.com, vivien.didelot@gmail.com,
-        olteanv@gmail.com, netdev@vger.kernel.org, davem@davemloft.net,
-        kuba@kernel.org, linux@armlinux.org.uk,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH RFC net 2/2] net: dsa: lantiq_gswip: Configure all
- remaining GSWIP_MII_CFG bits
-Message-ID: <YGz9hMcgZ1sUkgLO@lunn.ch>
-References: <20210406203508.476122-1-martin.blumenstingl@googlemail.com>
- <20210406203508.476122-3-martin.blumenstingl@googlemail.com>
+        id S242821AbhDGAeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 20:34:20 -0400
+Received: from mail-ot1-f51.google.com ([209.85.210.51]:42773 "EHLO
+        mail-ot1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242066AbhDGAeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 20:34:19 -0400
+Received: by mail-ot1-f51.google.com with SMTP id c24-20020a9d6c980000b02902662e210895so15937928otr.9;
+        Tue, 06 Apr 2021 17:34:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=lzeGNRdWUJv2a1laWpy/LzDxaThmJOfkKyLxodeO5FE=;
+        b=MG0IWwjhltZ5F6Rn6A4uxZ4GgcsX1y6RTL0W9g1ztOpIfsIAD9l+JF+0MsOJ7B6sd8
+         mP/apYVAYaeo2oIY1nDVpW71rcD+OjK0s/R5FusxWIWl3HlcZA3nnoLkbdFAChz0tmjZ
+         FtdhUQ0b9OJk1rBcWX6cBWsgvGqm1QAF/8tNWqwyLeM5ZLMtLzwfPvlqkl8brr3B/wqs
+         MTGgwWf+FJBausJpnOQ1uvTxKF8LYyj8hkpZHkGjzfoX6rfajguCFxudUmmN9WgHLiu6
+         SW/1ttm5lcdkT6g6XRG2FsHmoj6rm2xp7TXXz+Op2YrRVe07F3SBGvOfGJhUy0yf7evN
+         vknQ==
+X-Gm-Message-State: AOAM5334xNFJZHeXSulY0if8JZylH6WmVuMWZM23XEiurPTLgL/H1mDa
+        3y3hjY6s3jITfbHkdrsOSA==
+X-Google-Smtp-Source: ABdhPJwwyXsQupa/7sAW8FjC80e+JpflpB9uKOjbJBquCfhYxsXsOIqScb4YC0WY433fUEKCuYqDRg==
+X-Received: by 2002:a05:6830:2472:: with SMTP id x50mr629053otr.69.1617755651052;
+        Tue, 06 Apr 2021 17:34:11 -0700 (PDT)
+Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id i17sm4947303ota.53.2021.04.06.17.34.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Apr 2021 17:34:09 -0700 (PDT)
+Received: (nullmailer pid 2558224 invoked by uid 1000);
+        Wed, 07 Apr 2021 00:34:08 -0000
+Date:   Tue, 6 Apr 2021 19:34:08 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Saravana Kannan <saravanak@google.com>
+Cc:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] of: property: fw_devlink: do not link ".*,nr-gpios"
+Message-ID: <20210407003408.GA2551507@robh.at.kernel.org>
+References: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
+ <20210405222540.18145-1-ilya.lipnitskiy@gmail.com>
+ <CAGETcx-gF4r1TeY2AA4Vwb5e+5O+_O3E2ENo5tKhh=n_EOJnEQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210406203508.476122-3-martin.blumenstingl@googlemail.com>
+In-Reply-To: <CAGETcx-gF4r1TeY2AA4Vwb5e+5O+_O3E2ENo5tKhh=n_EOJnEQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->  	case PHY_INTERFACE_MODE_RGMII:
->  	case PHY_INTERFACE_MODE_RGMII_ID:
->  	case PHY_INTERFACE_MODE_RGMII_RXID:
->  	case PHY_INTERFACE_MODE_RGMII_TXID:
->  		miicfg |= GSWIP_MII_CFG_MODE_RGMII;
-> +
-> +		if (phylink_autoneg_inband(mode))
-> +			miicfg |= GSWIP_MII_CFG_RGMII_IBS;
+On Tue, Apr 06, 2021 at 04:09:10PM -0700, Saravana Kannan wrote:
+> On Mon, Apr 5, 2021 at 3:26 PM Ilya Lipnitskiy
+> <ilya.lipnitskiy@gmail.com> wrote:
+> >
+> > [<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
+> > the number of GPIOs present on a system, not define a GPIO. nr-gpios is
+> > not configured by #gpio-cells and can't be parsed along with other
+> > "*-gpios" properties.
+> >
+> > nr-gpios without the "<vendor>," prefix is not allowed by the DT
+> > spec[1], so only add exception for the ",nr-gpios" suffix and let the
+> > error message continue being printed for non-compliant implementations.
+> >
+> > [0]: nr-gpios is referenced in Documentation/devicetree/bindings/gpio:
+> >  - gpio-adnp.txt
+> >  - gpio-xgene-sb.txt
+> >  - gpio-xlp.txt
+> >  - snps,dw-apb-gpio.yaml
+> >
+> > [1]:
+> > Link: https://github.com/devicetree-org/dt-schema/blob/cb53a16a1eb3e2169ce170c071e47940845ec26e/schemas/gpio/gpio-consumer.yaml#L20
+> >
+> > Fixes errors such as:
+> >   OF: /palmbus@300000/gpio@600: could not find phandle
+> >
+> > Fixes: 7f00be96f125 ("of: property: Add device link support for interrupt-parent, dmas and -gpio(s)")
+> > Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+> > Cc: Saravana Kannan <saravanak@google.com>
+> > Cc: <stable@vger.kernel.org> # 5.5.x
+> > ---
+> >  drivers/of/property.c | 11 ++++++++++-
+> >  1 file changed, 10 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/of/property.c b/drivers/of/property.c
+> > index 2046ae311322..1793303e84ac 100644
+> > --- a/drivers/of/property.c
+> > +++ b/drivers/of/property.c
+> > @@ -1281,7 +1281,16 @@ DEFINE_SIMPLE_PROP(pinctrl7, "pinctrl-7", NULL)
+> >  DEFINE_SIMPLE_PROP(pinctrl8, "pinctrl-8", NULL)
+> >  DEFINE_SUFFIX_PROP(regulators, "-supply", NULL)
+> >  DEFINE_SUFFIX_PROP(gpio, "-gpio", "#gpio-cells")
+> > -DEFINE_SUFFIX_PROP(gpios, "-gpios", "#gpio-cells")
+> > +
+> > +static struct device_node *parse_gpios(struct device_node *np,
+> > +                                      const char *prop_name, int index)
+> > +{
+> > +       if (!strcmp_suffix(prop_name, ",nr-gpios"))
+> > +               return NULL;
+> 
+> Ah I somehow missed this patch. This gives a blanked exception for
+> vendor,nr-gpios. I'd prefer explicit exceptions for all the instances
+> of ",nr-gpios" we are grandfathering in. Any future additions should
+> be rejected. Can we do that please?
+> 
+> Rob, you okay with making this list more explicit?
 
-Is there any other MAC driver doing this? Are there any boards
-actually enabling it? Since it is so odd, if there is nothing using
-it, i would be tempted to leave this out.
+Not the kernel's job IMO. A schema is the right way to handle that.
 
-    Andrew
+Rob
