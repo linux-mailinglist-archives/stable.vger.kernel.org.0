@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DB15356633
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 10:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FCED356635
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 10:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239337AbhDGIP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 04:15:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44914 "EHLO mail.kernel.org"
+        id S1344602AbhDGIPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 04:15:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233700AbhDGIP0 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Wed, 7 Apr 2021 04:15:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7998611AF;
-        Wed,  7 Apr 2021 08:15:15 +0000 (UTC)
+        id S233700AbhDGIPc (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 7 Apr 2021 04:15:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 499E3611AF;
+        Wed,  7 Apr 2021 08:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617783316;
-        bh=APXrrlmcfZc36p6fZ6CPqY7ky/LFbPYH3WsDRLUo0wg=;
+        s=korg; t=1617783321;
+        bh=GE9jEXqIbzW7QFTvANxdh62E/e6uZcQw1EBM35UUT9c=;
         h=Subject:To:From:Date:From;
-        b=i3fsDPmKA37kf3O+Z5u3HB6TI56DSl4DFF7LKrQu7XWTiwfiEfQypc42oz6aAiebU
-         Vnp9NHirqzVOGsOZKx6BA2teZgfFs8TvzPURHXGPWB75jos1qU6YiCfqZt/AebFFEf
-         aljwfYALS8ZSf1A0CjpvRV7qt5z47JoscPjs4ZQ8=
-Subject: patch "iio: magnetometer: yas530: Fix return value on error path" added to staging-next
+        b=pNH8jWl4/XDc5WWYEgaRVA9+6ePl7EUPXPPOfr21y5m1qoSMd5VpMna1F6oSGnylq
+         KB47Jpz4YVHN9rV2hNzmon1MRzLXAf1p1ouZQ3qKKs/u5Kmo64k2joXQ58Egbo+7Rn
+         awiFSgVvbw84wi3gNCktoOdDCo6vnEn/dWRSrTJI=
+Subject: patch "iio: magnetometer: yas530: Include right header" added to staging-next
 To:     linus.walleij@linaro.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
-        dan.carpenter@oracle.com, lkp@intel.com
+        Stable@vger.kernel.org, harvey.harrison@gmail.com, lkp@intel.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 07 Apr 2021 10:10:38 +0200
-Message-ID: <161778303822356@kroah.com>
+Date:   Wed, 07 Apr 2021 10:10:39 +0200
+Message-ID: <161778303913249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: magnetometer: yas530: Fix return value on error path
+    iio: magnetometer: yas530: Include right header
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -52,38 +51,44 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From e64837bf9e2c063d6b5bab51c0554a60270f636d Mon Sep 17 00:00:00 2001
+From bb354aeb364f9dee51e16edfdf6194ce4ba9237e Mon Sep 17 00:00:00 2001
 From: Linus Walleij <linus.walleij@linaro.org>
-Date: Mon, 15 Feb 2021 16:30:23 +0100
-Subject: iio: magnetometer: yas530: Fix return value on error path
+Date: Mon, 15 Feb 2021 16:30:32 +0100
+Subject: iio: magnetometer: yas530: Include right header
 
-There was a missed return variable assignment in the
-default errorpath of the switch statement in yas5xx_probe().
-Fix it.
+To get access to the big endian byte order parsing helpers
+drivers need to include <asm/unaligned.h> and nothing else.
 
 Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Suggested-by: Harvey Harrison <harvey.harrison@gmail.com>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210215153023.47899-1-linus.walleij@linaro.org
 Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210215153032.47962-1-linus.walleij@linaro.org
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/magnetometer/yamaha-yas530.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/magnetometer/yamaha-yas530.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/iio/magnetometer/yamaha-yas530.c b/drivers/iio/magnetometer/yamaha-yas530.c
-index d46f23d82b3d..cee6207d8847 100644
+index cee6207d8847..2f2f8cb3c26c 100644
 --- a/drivers/iio/magnetometer/yamaha-yas530.c
 +++ b/drivers/iio/magnetometer/yamaha-yas530.c
-@@ -887,6 +887,7 @@ static int yas5xx_probe(struct i2c_client *i2c,
- 		strncpy(yas5xx->name, "yas532", sizeof(yas5xx->name));
- 		break;
- 	default:
-+		ret = -ENODEV;
- 		dev_err(dev, "unhandled device ID %02x\n", yas5xx->devid);
- 		goto assert_reset;
- 	}
+@@ -32,13 +32,14 @@
+ #include <linux/regmap.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/random.h>
+-#include <linux/unaligned/be_byteshift.h>
+ 
+ #include <linux/iio/buffer.h>
+ #include <linux/iio/iio.h>
+ #include <linux/iio/trigger_consumer.h>
+ #include <linux/iio/triggered_buffer.h>
+ 
++#include <asm/unaligned.h>
++
+ /* This register map covers YAS530 and YAS532 but differs in YAS 537 and YAS539 */
+ #define YAS5XX_DEVICE_ID		0x80
+ #define YAS5XX_ACTUATE_INIT_COIL	0x81
 -- 
 2.31.1
 
