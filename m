@@ -2,84 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADDB3356086
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 02:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9E5356089
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 03:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347643AbhDGA6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 20:58:17 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:15925 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347642AbhDGA6Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 20:58:16 -0400
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4FFQv64CyzzkhwW;
-        Wed,  7 Apr 2021 08:56:18 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
- 14.3.498.0; Wed, 7 Apr 2021 08:58:01 +0800
-Subject: Re: [PATCH 4.14 00/52] 4.14.229-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210405085021.996963957@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <0eb50860-646a-d35d-1547-b25f186d9d58@huawei.com>
-Date:   Wed, 7 Apr 2021 08:58:00 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S233962AbhDGBEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Apr 2021 21:04:20 -0400
+Received: from mail-pf1-f173.google.com ([209.85.210.173]:36607 "EHLO
+        mail-pf1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233073AbhDGBEU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 21:04:20 -0400
+Received: by mail-pf1-f173.google.com with SMTP id g15so11724384pfq.3
+        for <stable@vger.kernel.org>; Tue, 06 Apr 2021 18:04:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Nrx7vAYL/v9rvNMTti5K1Qo11AwKaoS5LOcemj/8W2U=;
+        b=iBhhXk1MxmJ2MYETFtjweYoDthf9zcKNCY1Oq6D/yd3hI5YEQfPi6dOf9c4/Z1GxOS
+         OU+7OkQ9tbjsY0D69egOg4/Rz5measmGpVCBM0ocAc6c/7vZ20/m6LLthCkI0QDpFPIb
+         GWrT9PmJIE3tG7RYWkzM1YZBwZXo26hZeDQMe6DWmDRcCAmN4XfjZZwcHHSrDRk2nav/
+         zBIer05YJtkBWEhQyLJCE5h294govztGKQsyPkF/0dHsgGTqUrvsOC8c07mIE7Nwar6X
+         Ji1plQLyUBivF35/QMUu0LYlSMrrGboA70FmfBIC0XEz7DK0N7dQLfDhtY+htXyeMj2z
+         FFLA==
+X-Gm-Message-State: AOAM531ASgBTK4SXW7AQ6n8DmXTfKLffVAuRZpMHk69iLLfbcorPnEUw
+        HVIFyn2MEcXlPKLdGpOwKADeLQGOFSk=
+X-Google-Smtp-Source: ABdhPJwwVWKwRWSy9PYi5/d1lPFYyUnpeCqjbdXMS72m+AKyxxRx0TRIxHVn8+G/LtwFjkvMd+dFjg==
+X-Received: by 2002:a62:1a08:0:b029:220:da90:9173 with SMTP id a8-20020a621a080000b0290220da909173mr783294pfa.65.1617757451729;
+        Tue, 06 Apr 2021 18:04:11 -0700 (PDT)
+Received: from ?IPv6:2601:647:4802:9070:3103:b16c:6e5:14e0? ([2601:647:4802:9070:3103:b16c:6e5:14e0])
+        by smtp.gmail.com with ESMTPSA id e9sm19464280pgk.69.2021.04.06.18.04.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 06 Apr 2021 18:04:11 -0700 (PDT)
+Subject: Re: [PATCH stable/5.4..5.8] nvme-mpath: replace direct_make_request
+ with generic_make_request
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>, linux-nvme@lists.infradead.org
+References: <20210402200841.347696-1-sagi@grimberg.me>
+ <YGgG2TAA9TNqM9S6@kroah.com>
+From:   Sagi Grimberg <sagi@grimberg.me>
+Message-ID: <00e36c71-9f2c-5b38-96fd-3d471382f6ac@grimberg.me>
+Date:   Tue, 6 Apr 2021 18:04:09 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <20210405085021.996963957@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+In-Reply-To: <YGgG2TAA9TNqM9S6@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-
-On 2021/4/5 16:53, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.229 release.
-> There are 52 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+>> Hence, we need to fix all the kernels that were before submit_bio_noacct was
+>> introduced.
 > 
-> Responses should be made by Wed, 07 Apr 2021 08:50:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.229-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> Why can we not just add submit_bio_noacct to the 5.4 kernel to correct
+> this?  What commit id is that?
 
-Tested on x86 for 4.14.229-rc1,
+Hey Greg,
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.14.y
-Version: 4.14.229-rc1
-Commit: 9d1c6513551e6928da195e22c6b32ed0adf42593
-Compiler: gcc version 7.3.0 (GCC)
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 4667
-passed: 4667
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
-
+submit_bio_noacct was applied as part of a rework by Christoph that I
+didn't feel was suitable as a stable candidate. The commit-id is:
+ed00aabd5eb9fb44d6aff1173234a2e911b9fead
