@@ -2,120 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF833572DB
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 19:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 687A23572B6
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 19:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354684AbhDGRNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 13:13:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56132 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235711AbhDGRNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 13:13:00 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C535C06175F
-        for <stable@vger.kernel.org>; Wed,  7 Apr 2021 10:12:50 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id d12so29707284lfv.11
-        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 10:12:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+88jxDCU+SNdWXTN3z3TZI8sQwpTFP6rVmjQ1IvMUp0=;
-        b=NEqJedWWmmdhqwXjNwjktue2V23wNTRtBfoImIIAzQVurOySj5Javl6oNqSxLuGk/6
-         H5db28mPuPm8ZICBA974Hz2HSIUZgFYCpQjj7wNrm2YortKw0r9rkQz6xqx2G3ohOwJL
-         KBqlJrRjasxTbcKYfFCNzd5whuFSFbHBux824=
+        id S1354620AbhDGRGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 13:06:33 -0400
+Received: from mail-ot1-f41.google.com ([209.85.210.41]:46048 "EHLO
+        mail-ot1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354588AbhDGRG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 13:06:27 -0400
+Received: by mail-ot1-f41.google.com with SMTP id 91-20020a9d08640000b0290237d9c40382so18730766oty.12;
+        Wed, 07 Apr 2021 10:06:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=+88jxDCU+SNdWXTN3z3TZI8sQwpTFP6rVmjQ1IvMUp0=;
-        b=r0+dq9hD2fl3lpM6ewuXII6iYp9/v7xOe81P0kUB8HuOxAkJ1620HoUVI2CLoDyL0x
-         ki253A/BkzgpGpzxqjKUWcjNpOXfNr49SMgQO6X5yE9LAQEcRJJXAzkgtnmKvgR1RN5k
-         hC/a16oHFRKmjiqqVsJWPMEJVOhXfVwjqwpyUfOxwdMQPkrIHN+K8rJ0NUsfosRjfVL7
-         AogGPmZZ4ZXrl5/VNbF0kcYAQPB2vnIXi7sTD3oYdQiwYmygN+7wIXR071nBshntvqOq
-         sQjJJbZsMchGKdPcs7Kh9gha45uxbEyIk5uZstuQJAEDFD51+x07V+p4lyE6sr3cI69z
-         8iLQ==
-X-Gm-Message-State: AOAM532uxKzwe7cH4mR1tfQfJGxwdTuF9ncqT0wRIINVYrkijmP6/mYh
-        IvftKbAE74FpnnEm42vWzKuYzL5tZSs75vo+
-X-Google-Smtp-Source: ABdhPJwHNTHCKIf8BdzwTNd87pcny9/V7IWj5FP5rjYdP/EebYYrPoELKXWBlz31FHniITdgPAZ9Hw==
-X-Received: by 2002:a05:6512:218d:: with SMTP id b13mr1095081lft.228.1617815568660;
-        Wed, 07 Apr 2021 10:12:48 -0700 (PDT)
-Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com. [209.85.208.182])
-        by smtp.gmail.com with ESMTPSA id t198sm652690lff.121.2021.04.07.10.12.48
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Apr 2021 10:12:48 -0700 (PDT)
-Received: by mail-lj1-f182.google.com with SMTP id y1so21576187ljm.10
-        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 10:12:48 -0700 (PDT)
-X-Received: by 2002:a2e:9acf:: with SMTP id p15mr2701576ljj.61.1617815105311;
- Wed, 07 Apr 2021 10:05:05 -0700 (PDT)
+        bh=abnQRkdJvp2BPIa2wpxV2nwwLsa1/aF4RGi27RRL+2M=;
+        b=kSu6+mb1EnRqHaiQyIfq6p+xPeurnN/oYfIQ5wyLJX2kJNHzGui1w4936WBjrNSqJJ
+         NsaDHxpo2lTpITa+6AOY4jiQLNOB5sOjYaxq+wLVT0vXUQQ2AkdoeLZayMT+sxWcGcIc
+         x5b/XXMyWwVp6FQuC0orW4BfK21SMqv67l9nB2kWhv66G43x9h+qkjL3j0ZblthcGKcb
+         xB2XZVgUh8oBXMRrAfkqc/4HHomZhYcR1q8tQs19izoCJ0NewbLUErWayc+SSm+SG/IW
+         ttTk7NZ5ONJ4AtAiIpq5ZTLogFJQuH0hIXT352McRmL5DeWHPkkf2mfnJUBPksgnxqO1
+         xX5Q==
+X-Gm-Message-State: AOAM532+ZP2LUWJGhMjhfvQ2ShiRQjBtWjLBwML78SS0CK4YwzWe02T8
+        wUnCsXHuvnBUgEf1QRcNWW1CkK2IZmKLN78paVg=
+X-Google-Smtp-Source: ABdhPJzCYFheOkHMIqBHjQXvEhsxnEDPLw9Y4mxOzFMKycSTj9M7XrhE/ivVZC6UEsO9Nyggo/LRjbivWc0B0LkQaBI=
+X-Received: by 2002:a9d:4811:: with SMTP id c17mr3947200otf.206.1617815176928;
+ Wed, 07 Apr 2021 10:06:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210401181741.168763-1-surenb@google.com> <CAHk-=wg8MDMLi8x+u-dee-ai0KiAavm6+JceV00gRXQRFG=Cgw@mail.gmail.com>
- <c7d580fe-e467-4f08-a11d-6b8ceaf41e8f@suse.cz> <CAHk-=wiQCrpxGL4o5piCSqJF0jahUUYW=9R=oGATiiPnkaGY0g@mail.gmail.com>
- <CAJuCfpFgHMMWZgch5gfjHj936gmpDztb8ZT-vJn6G0-r5BvceA@mail.gmail.com>
-In-Reply-To: <CAJuCfpFgHMMWZgch5gfjHj936gmpDztb8ZT-vJn6G0-r5BvceA@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 7 Apr 2021 10:04:49 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wj0JH6PnG7dW51Sr5ZqhomqSaSLTQV7z4Si2dLeSVcO_g@mail.gmail.com>
-Message-ID: <CAHk-=wj0JH6PnG7dW51Sr5ZqhomqSaSLTQV7z4Si2dLeSVcO_g@mail.gmail.com>
-Subject: Re: [PATCH 0/5] 4.14 backports of fixes for "CoW after fork() issue"
-To:     Suren Baghdasaryan <surenb@google.com>,
-        Mikulas Patocka <mpatocka@redhat.com>
-Cc:     Vlastimil Babka <vbabka@suse.cz>, Peter Xu <peterx@redhat.com>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jann Horn <jannh@google.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>, Shaohua Li <shli@fb.com>,
-        Nadav Amit <namit@vmware.com>, Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Android Kernel Team <kernel-team@android.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
+References: <20210406155640.564341-1-vkuznets@redhat.com>
+In-Reply-To: <20210406155640.564341-1-vkuznets@redhat.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 7 Apr 2021 19:06:05 +0200
+Message-ID: <CAJZ5v0gqSEzkja-eAOvWEFs=HLv=046sj=g03ukVFhDF0xUdTg@mail.gmail.com>
+Subject: Re: [PATCH v3] ACPI: processor: Fix build when CONFIG_ACPI_PROCESSOR=m
+To:     Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc:     ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Stable <stable@vger.kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 7, 2021 at 9:33 AM Suren Baghdasaryan <surenb@google.com> wrote:
+On Tue, Apr 6, 2021 at 5:56 PM Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
 >
-> Trying my hand at backporting the patchsets Peter mentioned proved
-> this to be far from easy with many dependencies. Let me look into
-> Vlastimil's suggestion to backport only 17839856fd58 and it sounds
-> like 5.4 already followed that path.
+> Commit 8cdddd182bd7 ("ACPI: processor: Fix CPU0 wakeup in
+> acpi_idle_play_dead()") tried to fix CPU0 hotplug breakage by copying
+> wakeup_cpu0() + start_cpu0() logic from hlt_play_dead()//mwait_play_dead()
+> into acpi_idle_play_dead(). The problem is that these functions are not
+> exported to modules so when CONFIG_ACPI_PROCESSOR=m build fails.
+>
+> The issue could've been fixed by exporting both wakeup_cpu0()/start_cpu0()
+> (the later from assembly) but it seems putting the whole pattern into a
+> new function and exporting it instead is better.
+>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Fixes: 8cdddd182bd7 ("CPI: processor: Fix CPU0 wakeup in acpi_idle_play_dead()")
+> Cc: <stable@vger.kernel.org> # 5.10+
+> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-Well, in many ways 17839856fd58 was the "simple and obvious" fix, and
-I do think it's easily backportable.
+Applied as 5.12-rc material, thanks!
 
-But it *did* cause problems too. Those problems may not be issues on
-those old kernels, though.
-
-In particular, commit 17839856fd58 caused uffd-wp to stop working
-right, and it caused some issues with debugging (I forget the exact
-details, but I think it was strace accessing PROT_NONE or write-only
-pages or something like that, and COW failed).
-
-But yes, in many ways that commit is a much simpler and more
-straightforward one (which is why I tried it once - we ended up with
-the much more subtle and far-reaching fixes after the UFFD issues
-crept up).
-
-The issues that 17839856fd58 caused may be entire non-events in old
-kernels. In fact, the uffd writeprotect API was added fairly recently
-(see commit 63b2d4174c4a that made it into v5.7), so the uffd-wp issue
-that was triggered probably cannot happen in the old kernels.
-
-The strace issue might not be relevant either, but I forget what the
-details were. Mikilas should know.
-
-See
-
-  https://lore.kernel.org/lkml/alpine.LRH.2.02.2009031328040.6929@file01.intranet.prod.int.rdu2.redhat.com/
-
-for Mikulas report. I never looked into it in detail, because by then
-the uffd-wp issue had already come up, so it was juat another nail in
-the coffin for that simpler approach.
-
-Mikulas, do you remember?
-
-            Linus
+> ---
+> Changes since v2:
+> - Use proper kerneldoc format [Rafael J. Wysocki]
+> ---
+>  arch/x86/include/asm/smp.h    |  2 +-
+>  arch/x86/kernel/smpboot.c     | 26 ++++++++++++--------------
+>  drivers/acpi/processor_idle.c |  4 +---
+>  3 files changed, 14 insertions(+), 18 deletions(-)
+>
+> diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
+> index 57ef2094af93..630ff08532be 100644
+> --- a/arch/x86/include/asm/smp.h
+> +++ b/arch/x86/include/asm/smp.h
+> @@ -132,7 +132,7 @@ void native_play_dead(void);
+>  void play_dead_common(void);
+>  void wbinvd_on_cpu(int cpu);
+>  int wbinvd_on_all_cpus(void);
+> -bool wakeup_cpu0(void);
+> +void cond_wakeup_cpu0(void);
+>
+>  void native_smp_send_reschedule(int cpu);
+>  void native_send_call_func_ipi(const struct cpumask *mask);
+> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+> index f877150a91da..16703c35a944 100644
+> --- a/arch/x86/kernel/smpboot.c
+> +++ b/arch/x86/kernel/smpboot.c
+> @@ -1659,13 +1659,17 @@ void play_dead_common(void)
+>         local_irq_disable();
+>  }
+>
+> -bool wakeup_cpu0(void)
+> +/**
+> + * cond_wakeup_cpu0 - Wake up CPU0 if needed.
+> + *
+> + * If NMI wants to wake up CPU0, start CPU0.
+> + */
+> +void cond_wakeup_cpu0(void)
+>  {
+>         if (smp_processor_id() == 0 && enable_start_cpu0)
+> -               return true;
+> -
+> -       return false;
+> +               start_cpu0();
+>  }
+> +EXPORT_SYMBOL_GPL(cond_wakeup_cpu0);
+>
+>  /*
+>   * We need to flush the caches before going to sleep, lest we have
+> @@ -1734,11 +1738,8 @@ static inline void mwait_play_dead(void)
+>                 __monitor(mwait_ptr, 0, 0);
+>                 mb();
+>                 __mwait(eax, 0);
+> -               /*
+> -                * If NMI wants to wake up CPU0, start CPU0.
+> -                */
+> -               if (wakeup_cpu0())
+> -                       start_cpu0();
+> +
+> +               cond_wakeup_cpu0();
+>         }
+>  }
+>
+> @@ -1749,11 +1750,8 @@ void hlt_play_dead(void)
+>
+>         while (1) {
+>                 native_halt();
+> -               /*
+> -                * If NMI wants to wake up CPU0, start CPU0.
+> -                */
+> -               if (wakeup_cpu0())
+> -                       start_cpu0();
+> +
+> +               cond_wakeup_cpu0();
+>         }
+>  }
+>
+> diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+> index 768a6b4d2368..4e2d76b8b697 100644
+> --- a/drivers/acpi/processor_idle.c
+> +++ b/drivers/acpi/processor_idle.c
+> @@ -544,9 +544,7 @@ static int acpi_idle_play_dead(struct cpuidle_device *dev, int index)
+>                         return -ENODEV;
+>
+>  #if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
+> -               /* If NMI wants to wake up CPU0, start CPU0. */
+> -               if (wakeup_cpu0())
+> -                       start_cpu0();
+> +               cond_wakeup_cpu0();
+>  #endif
+>         }
+>
+> --
+> 2.30.2
+>
