@@ -2,129 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC6D3567DE
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 11:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1CBE356890
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 11:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234695AbhDGJYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 05:24:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36620 "EHLO
+        id S237559AbhDGJ5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 05:57:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350053AbhDGJYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 05:24:01 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF48C061762;
-        Wed,  7 Apr 2021 02:22:35 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id d5-20020a17090a2a45b029014d934553c4so232586pjg.1;
-        Wed, 07 Apr 2021 02:22:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=A+TWgw6kTqY++Fbxfd3CQDQjeBZ3Vc7fKTS3ggHgVhQ=;
-        b=M2sUfffeZ2hnL+c1iGiVTLrm9KwGVs9zUBidMXDJPkQF5lsN5BDOIcrhqnfODxY/fD
-         nZXGnLetK1FrrCoa4d6INNpkfrqfAcPNEybpLAyCAiLHKJ6dQCz7gy/Vc65+rVhnY4zj
-         KkCsK3DhNrR3lmJQcU0qYUAC5iECg6K+Kk3/+fU+HXcDNSNXv+ow/9IbyD9whB5+nqfp
-         IPcDW0GRVWiMTyktqaAWezW++jJBvWDnI1K3mkwelgoASi9WXf/R6ZA1T+okFpgckdJi
-         71csPTpml/BbU4obMaMCx54c7TeqxtwtYo9m8EGiDAlpp9s5UeArTeZDW+JagmrVAByi
-         pKCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=A+TWgw6kTqY++Fbxfd3CQDQjeBZ3Vc7fKTS3ggHgVhQ=;
-        b=lGlygL+AD1WEIMjNSHVswfLsAMIJbJbkMil0/0XFncW+NZtFlsfwCO+JP3jlDVqBXN
-         O3RsBV7KWQEi3iui5xlsCxOufAxSw4RIA7V0NfQs8FXWc53w/VkpdEBrL2MnIxEw2zy1
-         FhnZPjVGy3y83RUTFARXk9F28wJUfPiB4T94sKncsL/jScsAb6SaJT48N2+uJopMHMZl
-         fC2PTL89pCJLfuEBPaaBu9CEAYTWwpVlwj4trR7gej1Q7F+v2BijMFzDpWkA2NbNTvE9
-         NcETw5UU1Z8XnPvymSpLP/usCIi8WorXV3Pu+060xNoUUbQPDfq/Kjde9uhe89XSGFQP
-         rjLg==
-X-Gm-Message-State: AOAM533QFlQofmk6Gfvo7g+jvg55OEn/hVZHG54JilLN3kjocXAdT71/
-        uJbDQa4uu0wT0QqnjJWe7cEOJYPlgP4=
-X-Google-Smtp-Source: ABdhPJxyXF57a5wIABXH9FvJcrDrIOY1A7f0crYA5jYLabOno2oufKKoRKJXmTn3n1ZxhqCDovGFiw==
-X-Received: by 2002:a17:902:7c88:b029:e6:f006:f8e5 with SMTP id y8-20020a1709027c88b02900e6f006f8e5mr2281396pll.1.1617787355132;
-        Wed, 07 Apr 2021 02:22:35 -0700 (PDT)
-Received: from localhost.localdomain ([132.145.85.142])
-        by smtp.gmail.com with ESMTPSA id f14sm21849430pfk.92.2021.04.07.02.22.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Apr 2021 02:22:34 -0700 (PDT)
-Sender: Huacai Chen <chenhuacai@gmail.com>
-From:   Huacai Chen <chenhuacai@kernel.org>
-X-Google-Original-From: Huacai Chen <chenhuacai@loongson.cn>
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     linux-mips@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
-Subject: [PATCH V3] MIPS: Fix longstanding errors in div64.h
-Date:   Wed,  7 Apr 2021 17:23:07 +0800
-Message-Id: <20210407092307.3920801-1-chenhuacai@loongson.cn>
-X-Mailer: git-send-email 2.27.0
+        with ESMTP id S235053AbhDGJ5h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 05:57:37 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07400C061756;
+        Wed,  7 Apr 2021 02:57:27 -0700 (PDT)
+Date:   Wed, 07 Apr 2021 09:57:24 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1617789445;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y5FLxlgSbexvqy2fxlM9SqEVAma4qXNuQhn4SL5UkIk=;
+        b=2Dm7z5zULhx5OvRlLUVkUNNXy8aDsuiZpRWngcivpZ5SrkcKvkmlVIySsDAdvVq5BwRJ9f
+        57JD5evhjgZGgSZpwFaajFmvMm30dsCJpzFma0bor1WEbav0Nj7qme5bE8X51kg4aooKSC
+        /kuK9lVDZFaN4HzjQDC5mkqNxwT/D8zD+zbwNRvV0Y9BktBGzBMctWbTExwuJ7kpiS678y
+        SJSzeEs++B/n3sE/383AQIZgki3UZTFm+TeJdalvEJtBug+t6fsdT75U+gvwZsrzVY9P95
+        8BFu1cVMjxAWxhJLbNrae3YrEr064TdVrerb+oAw6h5vUwAwbLJFvATEXQXYyw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1617789445;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y5FLxlgSbexvqy2fxlM9SqEVAma4qXNuQhn4SL5UkIk=;
+        b=hz+WEwZ1pLiauU75JepV0A8wgi3iGLWLYgXYw5Unu8j7Q4nzo0K+ZyQzBII8BR47ftjfDV
+        1QZF6hf3b17ee/Cw==
+From:   "tip-bot2 for William Roche" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] RAS/CEC: Correct ce_add_elem()'s returned values
+Cc:     William Roche <william.roche@oracle.com>,
+        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1617722939-29670-1-git-send-email-william.roche@oracle.com>
+References: <1617722939-29670-1-git-send-email-william.roche@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <161778944414.29796.5725343346963494205.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are four errors in div64.h caused by commit c21004cd5b4cb7d479514
-("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."):
+The following commit has been merged into the x86/urgent branch of tip:
 
-1, Only 32bit kernel need __div64_32(), but the above commit makes it
-   depend on 64bit kernel by mistake.
+Commit-ID:     3a62583c2853b0ab37a57dde79decea210b5fb89
+Gitweb:        https://git.kernel.org/tip/3a62583c2853b0ab37a57dde79decea210b5fb89
+Author:        William Roche <william.roche@oracle.com>
+AuthorDate:    Tue, 06 Apr 2021 11:28:59 -04:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Wed, 07 Apr 2021 11:52:26 +02:00
 
-2, asm-generic/div64.h should be included after __div64_32() definition.
+RAS/CEC: Correct ce_add_elem()'s returned values
 
-3, __n should be initialized as *n before use (and "*__n >> 32" should
-   be "__n >> 32") in __div64_32() definition.
+ce_add_elem() uses different return values to signal a result from
+adding an element to the collector. Commit in Fixes: broke the case
+where the element being added is not found in the array. Correct that.
 
-4, linux/types.h should be included at the first place, otherwise BITS_
-   PER_LONG is not defined.
+ [ bp: Rewrite commit message, add kernel-doc comments. ]
 
-Fixes: c21004cd5b4cb7d479514 ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Fixes: de0e0624d86f ("RAS/CEC: Check count_threshold unconditionally")
+Signed-off-by: William Roche <william.roche@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/1617722939-29670-1-git-send-email-william.roche@oracle.com
 ---
- arch/mips/include/asm/div64.h | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/ras/cec.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/include/asm/div64.h b/arch/mips/include/asm/div64.h
-index dc5ea5736440..d827c13c3bc5 100644
---- a/arch/mips/include/asm/div64.h
-+++ b/arch/mips/include/asm/div64.h
-@@ -9,12 +9,10 @@
- #ifndef __ASM_DIV64_H
- #define __ASM_DIV64_H
+diff --git a/drivers/ras/cec.c b/drivers/ras/cec.c
+index ddecf25..d7894f1 100644
+--- a/drivers/ras/cec.c
++++ b/drivers/ras/cec.c
+@@ -309,11 +309,20 @@ static bool sanity_check(struct ce_array *ca)
+ 	return ret;
+ }
  
--#include <asm-generic/div64.h>
--
--#if BITS_PER_LONG == 64
--
- #include <linux/types.h>
++/**
++ * cec_add_elem - Add an element to the CEC array.
++ * @pfn:	page frame number to insert
++ *
++ * Return values:
++ * - <0:	on error
++ * -  0:	on success
++ * - >0:	when the inserted pfn was offlined
++ */
+ static int cec_add_elem(u64 pfn)
+ {
+ 	struct ce_array *ca = &ce_arr;
++	int count, err, ret = 0;
+ 	unsigned int to = 0;
+-	int count, ret = 0;
  
-+#if BITS_PER_LONG == 32
-+
- /*
-  * No traps on overflows for any of these...
-  */
-@@ -24,9 +22,9 @@
- 	unsigned long __cf, __tmp, __tmp2, __i;				\
- 	unsigned long __quot32, __mod32;				\
- 	unsigned long __high, __low;					\
--	unsigned long long __n;						\
-+	unsigned long long __n = *n;					\
- 									\
--	__high = *__n >> 32;						\
-+	__high = __n >> 32;						\
- 	__low = __n;							\
- 	__asm__(							\
- 	"	.set	push					\n"	\
-@@ -63,6 +61,8 @@
- 	__mod32;							\
- })
+ 	/*
+ 	 * We can be called very early on the identify_cpu() path where we are
+@@ -330,8 +339,8 @@ static int cec_add_elem(u64 pfn)
+ 	if (ca->n == MAX_ELEMS)
+ 		WARN_ON(!del_lru_elem_unlocked(ca));
  
--#endif /* BITS_PER_LONG == 64 */
-+#endif /* BITS_PER_LONG == 32 */
-+
-+#include <asm-generic/div64.h>
- 
- #endif /* __ASM_DIV64_H */
--- 
-2.27.0
-
+-	ret = find_elem(ca, pfn, &to);
+-	if (ret < 0) {
++	err = find_elem(ca, pfn, &to);
++	if (err < 0) {
+ 		/*
+ 		 * Shift range [to-end] to make room for one more element.
+ 		 */
