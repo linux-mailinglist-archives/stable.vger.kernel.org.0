@@ -2,164 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F7D735648F
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 08:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D471356618
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 10:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345908AbhDGGyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 02:54:33 -0400
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.219]:26616 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229778AbhDGGyd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 02:54:33 -0400
-X-Greylist: delayed 65459 seconds by postgrey-1.27 at vger.kernel.org; Wed, 07 Apr 2021 02:54:32 EDT
-ARC-Seal: i=1; a=rsa-sha256; t=1617778439; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=aDBhyX2qyfqn9yRvJbRwgrKZ9ZLt7qXSd5mmCJIeV09gLLdQz9zm49CxY+Z+7VqVbL
-    aww0YUQEsACQAoM2unyedhXlzQ9U4/H3GmfUZMW2QuF3S82XMDET049vb3y2TW7cbMz0
-    BVAUlrbxkA0+ic/7GBZKYL4mNsSZlmobvlZogzTh7c6IcDszgoiFiCRrkluhmqOGeGfB
-    9+9YINc5n1u37I8JJCaAj318FKpFkxi9cX2yy3tA1LwfiyI3xteFIvKdc7WgqpC/8xsc
-    7Xl4oGDjAXbNhGlgF9F0op7e52HmsrgLkx2atNoButClUSRG6XsfoRP5ZGGWiM6a1T6Z
-    tEKw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1617778439;
-    s=strato-dkim-0002; d=strato.com;
-    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=P5hGny6peY1W3q+ENDdnrLLrGMO9JUwOh6qT+B3s6/c=;
-    b=mFsp9+PJvbyzgpBlFzoweX1kos26ZLrGLElcnQXlbS/d3BtN7L2TIg60FL1egIw9fP
-    vWZgk6WgWOG4jekCjr2YrovXjiKQYtszBdRpSw1iQS/S0geb2RyuQjUbCs0ap9WmSAOK
-    WEttz1w56tAhsELoKRWJJWHLc6tziYjglmw67e6vzSGmzUkwzdmQxNstFo/+amt525ek
-    XmX65HIlaEFgga8NMULRc2Regv8P+3LjEZl+BdUbSZ/kIX1oJXOQtgR6iT3C2Z1zA/+B
-    lgzRlGQvAY4f27qY7p6OQhP/df+jx4SeVqyP6Ba7IZ2gPcZW3ZQZRI5hwYOLNdVx+dXo
-    rHMA==
-ARC-Authentication-Results: i=1; strato.com;
-    dkim=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1617778439;
-    s=strato-dkim-0002; d=goldelico.com;
-    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=P5hGny6peY1W3q+ENDdnrLLrGMO9JUwOh6qT+B3s6/c=;
-    b=R3RWWamNaoVyX6T+OX8JvB6YpGEjz/kGCDW1AZWFAUqV/ZyRmfjYSbXhrz7gSNL/e/
-    d8knMIsA2eFilkLgSSVQ3VDN05PXkmyJA5aKYjePlAFjbPGvJT84+7FFl5tviLB5Wk2M
-    GtEOlY0edaNZc8G3iA5TRhwcxB0MxV/l5NyQYalO+NZobEMBsJ3ByJfjylWUOGYNeydh
-    A+Hl7i6WJDNAMAfumRkAqOit2TjW0A7N249ioWb8juOT8wajJURBq+VZ3Q6YUV0teBCr
-    HrNZfpcF2znJxLc3YaR1OBkyjjojxv/VfWUoQHpa3PqDEBld3cfQgg4MsG8r/vS6AiqP
-    9oVA==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj4Qpw9iZeHmMmw43sSFQ="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-    by smtp.strato.de (RZmta 47.23.1 DYNA|AUTH)
-    with ESMTPSA id h03350x376rxkLX
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-    Wed, 7 Apr 2021 08:53:59 +0200 (CEST)
-Subject: Re: [PATCH V2] MIPS: Fix longstanding errors in div64.h
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=us-ascii
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <20210407062916.3465459-1-chenhuacai@loongson.cn>
-Date:   Wed, 7 Apr 2021 08:53:59 +0200
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <62DEADA1-E599-4909-84B3-5EF5FF144874@goldelico.com>
-References: <20210407062916.3465459-1-chenhuacai@loongson.cn>
-To:     Huacai Chen <chenhuacai@kernel.org>
-X-Mailer: Apple Mail (2.3124)
+        id S1346964AbhDGIJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 04:09:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41492 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1346933AbhDGIJQ (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 7 Apr 2021 04:09:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17A206139C;
+        Wed,  7 Apr 2021 08:09:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1617782947;
+        bh=s14EjHZiZhvopdauHW4h/goKWYZfE0R21yzDu2RbUb4=;
+        h=Subject:To:From:Date:From;
+        b=SpJgJbOB3r+1oAZuv2euu7Yv/VmrTMjp5vF/Bsxt1OdtMi66YfuJjbQNu/lFVA1Dz
+         MdT1M2G3O/zV+GddQkUNctrd5gtqQEjejysOO1LWjzouJKGc9gjCHx9pmQ3gUfwmaX
+         fSFAK2webMvF8K6B12DiIOw4RitiKkEP/Wfnp81g=
+Subject: patch "iio:accel:adis16201: Fix wrong axis assignment that prevents loading" added to staging-testing
+To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        ardeleanalex@gmail.com, himanshujha199640@gmail.com,
+        nuno.sa@analog.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 07 Apr 2021 10:08:50 +0200
+Message-ID: <16177829301294@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-> Am 07.04.2021 um 08:29 schrieb Huacai Chen <chenhuacai@kernel.org>:
->=20
-> There are three errors in div64.h caused by commit =
-c21004cd5b4cb7d479514
-> ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."):
->=20
-> 1, Only 32bit kernel need __div64_32(), but the above commit makes it
-> depend on 64bit kernel by mistake.
->=20
-> 2, asm-generic/div64.h should be included after __div64_32() =
-definition.
->=20
-> 3, __n should be initialized as *n before use (and "*__n >> 32" should
-> be "__n >> 32") in __div64_32() definition.
->=20
-> Fixes: c21004cd5b4cb7d479514 ("MIPS: Rewrite <asm/div64.h> to work =
-with gcc 4.4.0.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-> ---
-> arch/mips/include/asm/div64.h | 10 +++++-----
-> 1 file changed, 5 insertions(+), 5 deletions(-)
->=20
-> diff --git a/arch/mips/include/asm/div64.h =
-b/arch/mips/include/asm/div64.h
-> index dc5ea5736440..3be2318f8e0e 100644
-> --- a/arch/mips/include/asm/div64.h
-> +++ b/arch/mips/include/asm/div64.h
-> @@ -9,9 +9,7 @@
-> #ifndef __ASM_DIV64_H
-> #define __ASM_DIV64_H
->=20
-> -#include <asm-generic/div64.h>
-> -
-> -#if BITS_PER_LONG =3D=3D 64
-> +#if BITS_PER_LONG =3D=3D 32
->=20
-> #include <linux/types.h>
->=20
-> @@ -24,9 +22,9 @@
-> 	unsigned long __cf, __tmp, __tmp2, __i;				=
-\
-> 	unsigned long __quot32, __mod32;				=
-\
-> 	unsigned long __high, __low;					=
-\
-> -	unsigned long long __n;						=
-\
-> +	unsigned long long __n =3D *n;					=
-\
-> 									=
-\
-> -	__high =3D *__n >> 32;						=
-\
-> +	__high =3D __n >> 32;						=
-\
-> 	__low =3D __n;							=
-\
-> 	__asm__(							=
-\
-> 	"	.set	push					\n"	=
-\
-> @@ -65,4 +63,6 @@
->=20
-> #endif /* BITS_PER_LONG =3D=3D 64 */
+This is a note to let you know that I've just added the patch titled
 
-IMHO these #if/else/endif comments should also be fixed.
+    iio:accel:adis16201: Fix wrong axis assignment that prevents loading
 
->=20
-> +#include <asm-generic/div64.h>
-> +
-> #endif /* __ASM_DIV64_H */
-> --=20
-> 2.27.0
->=20
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
 
-compiles fine now. But I still get a linker issue:
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-fs/ubifs/budget.o: In function `div_u64_rem':
-fs/ubifs/budget.c:(.text+0x1fc): undefined reference to `__div64_32'
-fs/ubifs/lpt.o: In function `div_u64_rem':
-fs/ubifs/lpt.c:(.text+0x8fc): undefined reference to `__div64_32'
-make[2]: *** [vmlinux] Error 1
-make[1]: *** [__build_one_by_one] Error 2
-make: *** [__sub-make] Error 2
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-BR and thanks,
-Nikolaus Schaller
+If you have any questions about this process, please let me know.
+
+
+From 4e102429f3dc62dce546f6107e34a4284634196d Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Sun, 21 Mar 2021 18:29:56 +0000
+Subject: iio:accel:adis16201: Fix wrong axis assignment that prevents loading
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Whilst running some basic tests as part of writing up the dt-bindings for
+this driver (to follow), it became clear it doesn't actually load
+currently.
+
+iio iio:device1: tried to double register : in_incli_x_index
+adis16201 spi0.0: Failed to create buffer sysfs interfaces
+adis16201: probe of spi0.0 failed with error -16
+
+Looks like a cut and paste / update bug.  Fixes tag obviously not accurate
+but we don't want to bother carry thing back to before the driver moved
+out of staging.
+
+Fixes: 591298e54cea ("Staging: iio: accel: adis16201: Move adis16201 driver out of staging")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Cc: Himanshu Jha <himanshujha199640@gmail.com>
+Cc: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Link: https://lore.kernel.org/r/20210321182956.844652-1-jic23@kernel.org
+---
+ drivers/iio/accel/adis16201.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/iio/accel/adis16201.c b/drivers/iio/accel/adis16201.c
+index 3633a4e302c6..fe225990de24 100644
+--- a/drivers/iio/accel/adis16201.c
++++ b/drivers/iio/accel/adis16201.c
+@@ -215,7 +215,7 @@ static const struct iio_chan_spec adis16201_channels[] = {
+ 	ADIS_AUX_ADC_CHAN(ADIS16201_AUX_ADC_REG, ADIS16201_SCAN_AUX_ADC, 0, 12),
+ 	ADIS_INCLI_CHAN(X, ADIS16201_XINCL_OUT_REG, ADIS16201_SCAN_INCLI_X,
+ 			BIT(IIO_CHAN_INFO_CALIBBIAS), 0, 14),
+-	ADIS_INCLI_CHAN(X, ADIS16201_YINCL_OUT_REG, ADIS16201_SCAN_INCLI_Y,
++	ADIS_INCLI_CHAN(Y, ADIS16201_YINCL_OUT_REG, ADIS16201_SCAN_INCLI_Y,
+ 			BIT(IIO_CHAN_INFO_CALIBBIAS), 0, 14),
+ 	IIO_CHAN_SOFT_TIMESTAMP(7)
+ };
+-- 
+2.31.1
+
 
