@@ -2,182 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B6B357498
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 20:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4053574A9
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 20:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344788AbhDGSzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 14:55:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50302 "EHLO
+        id S240685AbhDGS5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 14:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236043AbhDGSzO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 14:55:14 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B88C061761
-        for <stable@vger.kernel.org>; Wed,  7 Apr 2021 11:55:05 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id 71so21841481ybl.0
-        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 11:55:04 -0700 (PDT)
+        with ESMTP id S1355503AbhDGS4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 14:56:51 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850DCC061760;
+        Wed,  7 Apr 2021 11:56:39 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id a25so6366718ejk.0;
+        Wed, 07 Apr 2021 11:56:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=/gR9Ty4JZXDPsNPdLjznxvXioeerIHzHsL4Fen6xU1U=;
-        b=kJ22aMNQIfFXGVMQiKwfbQW3A8aS4n5OKTXXtKoy2tOtKbZ5sveNWwXkW41JRZ1+2I
-         P13YGxxyK+57NNHrszU/vP1yleMjLLDk3bW1VEAdo6X6v8iqysIGAG7AdkrssBHdHQBo
-         XHYZhCKlY78qBBUwIIuVsOAxavnwdZoPmOBmyBkapOEmcEfnxiwxlEIjLOgv10UBHAEz
-         UocGhah+miptm6iW/OQbdxMXbVF1RUwO511bHCbpdT6R5nz3QWP51rlgWVeJv6w0PkIz
-         h1VyApQQ8i0OOkV905dB8upSt0ykYhk9v1oZd9l11Pdp4m6VmpU+iJlpyTgHM5pO6P95
-         MeJA==
+        bh=0RxFgR6aOcICR1FXkZyxfT0N1Hrrv9abE87587TKcQo=;
+        b=PKiUx6gR3sgKZfmJes6q1PCysle9q+11gvYlhe7m1iHz6Pr93RV3uQleWy2NxbjARI
+         /zjXAPpAPn4LOtHu6Zq5PebmS0C6HGnNQnhgH4T9oSXCbabe5GGTeAwj0QIzZTrZ2cYM
+         oMb/tWZeP+TlH5hSfNTfb3SCNoZv2tGCbx7yKYoAyoogmfwdbP0DU5KkZcXl76eFGKSx
+         SqXd7YHygha1SpcuGl/A+2DUv+XTFtQ/5xR5kpzWLBy4/1b/0BeqfMgUXTr1YpR0IBfX
+         41zdYqdxfGEqdrOk7rEG4Q2z+3rsbLYZFvnCpziIU+jWpBXAuZhd2jS5gdjPSe8M5RDc
+         BoiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=/gR9Ty4JZXDPsNPdLjznxvXioeerIHzHsL4Fen6xU1U=;
-        b=g+nfcVGf0vo4PaK9PHoYDW9i2hlFFl1te1DnEVstHrN06XIY2acHHljGBSz4ZDm+B2
-         8U6DcSCU93Gi3+j7fQV/UmIW8YtU+ZaoL/ib0sHNv3roLubf+8Skay6xIwuUTeY3Txli
-         eM71TRmvcwu100gKOUVB1+fMZHQoN3mpNFtkQKJAPtRFLZGx18okHuZCttmvxh2BswWB
-         7i91jiDU7AXwSWAlvs3tx8Th1HOOYfnZnJ1lPKWCoIkclQOLETw1RurEuListDvF1shH
-         Cdprw0RDSpSdBKboM/ry0z6kFC9GSZeLIuPNGlETzaA+yf9WXj1yFhs+GOhcd+qjI39Y
-         tw9g==
-X-Gm-Message-State: AOAM533/2wZFyHDhWrhGDnItR4wKdlvtrzPVquRS86/5m/XSGp4uuqHK
-        eC3knj413+hI84bGGteXBlN8/wTjA9+tJfJZwsw=
-X-Google-Smtp-Source: ABdhPJwPMNy6IRcmExulR9MCR1vcQCNmfIHGc9HGamIK0SxX/x86lIIw/i0JtpjrWuCRXIPe2t60eNGwb5/pn+f5RhM=
-X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:c454:8587:ce1c:e900])
- (user=ndesaulniers job=sendgmr) by 2002:a25:9108:: with SMTP id
- v8mr6177944ybl.460.1617821704165; Wed, 07 Apr 2021 11:55:04 -0700 (PDT)
-Date:   Wed,  7 Apr 2021 11:54:55 -0700
-In-Reply-To: <20210407185456.41943-1-ndesaulniers@google.com>
-Message-Id: <20210407185456.41943-2-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <20210407185456.41943-1-ndesaulniers@google.com>
-X-Mailer: git-send-email 2.31.1.295.g9ea45b61b8-goog
-Subject: [PATCH 1/2] gcov: re-fix clang-11+ support
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Fangrui Song <maskray@google.com>,
-        Prasad Sodagudi <psodagud@quicinc.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0RxFgR6aOcICR1FXkZyxfT0N1Hrrv9abE87587TKcQo=;
+        b=khQyd5sAZyUZIbcAMtPeN2xKrAFDCiZOwKiEBmwptnPI2P8gJRqp9NpYHBSI2DFR+P
+         Uv5ohntC6Sv6Fq+UyGn/SXFEGKJBXC9Tf0/3q/4p42dD+ucvdmpYdZ91eS7auXV1YMtC
+         MLiY356gPUch20itlJqkGKe2jtJrMzxIkaq+tPFaaGQtpAlTLGFZ+BJF8RKY4xaptGG5
+         FvYuvFvhekoS1UpzIeYzHj6oZ7L8Jye8SjrG8L8+Mb750xsVlPgc9DyR8EHzCxv9OEvg
+         JGa6F6lU7wFVp/2FzukqrDY46O2zrj0gwL5iepuhI9F9G614TIfXiEdkff0uH5hqFSUG
+         Usaw==
+X-Gm-Message-State: AOAM533JvqigYUUAqH8Haa0n5jtkapqYKj+yYWrNTpsO7WfGa2HBU8wK
+        ajTs0Wc290xCiIx2vTd9gcEkPPoFFSokTd9LDq8=
+X-Google-Smtp-Source: ABdhPJxXmKOL4W9oQ9c1GekPrRP1YHuZyu5iI1h4yVnEfmAxQIYj01TiewpZaRoiR3Fu5Bx+7IMeMbqm1V7eC6QpjWk=
+X-Received: by 2002:a17:906:d15a:: with SMTP id br26mr5465774ejb.328.1617821798254;
+ Wed, 07 Apr 2021 11:56:38 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210406203508.476122-1-martin.blumenstingl@googlemail.com>
+ <20210406203508.476122-2-martin.blumenstingl@googlemail.com> <YGz8FRBsj68xIbX/@lunn.ch>
+In-Reply-To: <YGz8FRBsj68xIbX/@lunn.ch>
+From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date:   Wed, 7 Apr 2021 20:56:27 +0200
+Message-ID: <CAFBinCD-jEUbyuuV=SLER8O1+PwhmiqHXFMaEX=h5mca=SDLgg@mail.gmail.com>
+Subject: Re: [PATCH RFC net 1/2] net: dsa: lantiq_gswip: Don't use PHY auto polling
+To:     Andrew Lunn <andrew@lunn.ch>
+Cc:     Hauke Mehrtens <hauke@hauke-m.de>, f.fainelli@gmail.com,
+        vivien.didelot@gmail.com, olteanv@gmail.com,
+        netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux@armlinux.org.uk, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LLVM changed the expected function signature for
-llvm_gcda_emit_function() in the clang-11 release.  Users of clang-11 or
-newer may have noticed their kernels producing invalid coverage
-information:
+Hi Andrew,
 
-$ llvm-cov gcov -a -c -u -f -b <input>.gcda -- gcno=<input>.gcno
-1 <func>: checksum mismatch, \
-  (<lineno chksum A>, <cfg chksum B>) != (<lineno chksum A>, <cfg chksum C>)
-2 Invalid .gcda File!
-...
+On Wed, Apr 7, 2021 at 2:25 AM Andrew Lunn <andrew@lunn.ch> wrote:
+[...]
+> Having the MAC polling the PHY is pretty much always a bad idea.
+>
+> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+thanks for reviewing this!
 
-Fix up the function signatures so calling this function interprets its
-parameters correctly and computes the correct cfg checksum. In
-particular, in clang-11, the additional checksum is no longer optional.
+For my own curiosity: is there a "recommended" way where to configure
+link up/down, speed, duplex and flow control? currently I have the
+logic in both, .phylink_mac_config and .phylink_mac_link_up.
 
-Link: https://reviews.llvm.org/rG25544ce2df0daa4304c07e64b9c8b0f7df60c11d
-Cc: stable@vger.kernel.org #5.4+
-Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
-Tested-by: Prasad Sodagudi <psodagud@quicinc.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
- kernel/gcov/clang.c | 38 +++++++++++++++++++++++++++++++++-----
- 1 file changed, 33 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/gcov/clang.c b/kernel/gcov/clang.c
-index d41f5ecda9db..1747204541bf 100644
---- a/kernel/gcov/clang.c
-+++ b/kernel/gcov/clang.c
-@@ -69,7 +69,9 @@ struct gcov_fn_info {
- 
- 	u32 ident;
- 	u32 checksum;
-+#if CONFIG_CLANG_VERSION < 110000
- 	u8 use_extra_checksum;
-+#endif
- 	u32 cfg_checksum;
- 
- 	u32 num_counters;
-@@ -111,6 +113,7 @@ void llvm_gcda_start_file(const char *orig_filename, u32 version, u32 checksum)
- }
- EXPORT_SYMBOL(llvm_gcda_start_file);
- 
-+#if CONFIG_CLANG_VERSION < 110000
- void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
- 		u8 use_extra_checksum, u32 cfg_checksum)
- {
-@@ -126,6 +129,21 @@ void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
- 	info->cfg_checksum = cfg_checksum;
- 	list_add_tail(&info->head, &current_info->functions);
- }
-+#else
-+void llvm_gcda_emit_function(u32 ident, u32 func_checksum, u32 cfg_checksum)
-+{
-+	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
-+
-+	if (!info)
-+		return;
-+
-+	INIT_LIST_HEAD(&info->head);
-+	info->ident = ident;
-+	info->checksum = func_checksum;
-+	info->cfg_checksum = cfg_checksum;
-+	list_add_tail(&info->head, &current_info->functions);
-+}
-+#endif
- EXPORT_SYMBOL(llvm_gcda_emit_function);
- 
- void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
-@@ -256,11 +274,16 @@ int gcov_info_is_compatible(struct gcov_info *info1, struct gcov_info *info2)
- 		!list_is_last(&fn_ptr2->head, &info2->functions)) {
- 		if (fn_ptr1->checksum != fn_ptr2->checksum)
- 			return false;
-+#if CONFIG_CLANG_VERSION < 110000
- 		if (fn_ptr1->use_extra_checksum != fn_ptr2->use_extra_checksum)
- 			return false;
- 		if (fn_ptr1->use_extra_checksum &&
- 			fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
- 			return false;
-+#else
-+		if (fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
-+			return false;
-+#endif
- 		fn_ptr1 = list_next_entry(fn_ptr1, head);
- 		fn_ptr2 = list_next_entry(fn_ptr2, head);
- 	}
-@@ -378,17 +401,22 @@ size_t convert_to_gcda(char *buffer, struct gcov_info *info)
- 
- 	list_for_each_entry(fi_ptr, &info->functions, head) {
- 		u32 i;
--		u32 len = 2;
--
--		if (fi_ptr->use_extra_checksum)
--			len++;
- 
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
--		pos += store_gcov_u32(buffer, pos, len);
-+#if CONFIG_CLANG_VERSION < 110000
-+		pos += store_gcov_u32(buffer, pos,
-+			fi_ptr->use_extra_checksum ? 3 : 2);
-+#else
-+		pos += store_gcov_u32(buffer, pos, 3);
-+#endif
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->checksum);
-+#if CONFIG_CLANG_VERSION < 110000
- 		if (fi_ptr->use_extra_checksum)
- 			pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-+#else
-+		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-+#endif
- 
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_COUNTER_BASE);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->num_counters * 2);
--- 
-2.31.1.295.g9ea45b61b8-goog
-
+Thank you!
+Martin
