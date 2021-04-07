@@ -2,94 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF4435614E
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 04:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B024E356308
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 07:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343707AbhDGCGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Apr 2021 22:06:07 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:15618 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243034AbhDGCGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Apr 2021 22:06:07 -0400
-Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4FFSNy5RbYz1BG04;
-        Wed,  7 Apr 2021 10:03:46 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.498.0; Wed, 7 Apr 2021 10:05:53 +0800
-Subject: Re: [PATCH 4.19 00/56] 4.19.185-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210405085022.562176619@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <7cb5135e-09e8-ce3b-b1cb-30a13eb7afd5@huawei.com>
-Date:   Wed, 7 Apr 2021 10:05:53 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S233584AbhDGF2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 01:28:18 -0400
+Received: from verein.lst.de ([213.95.11.211]:57436 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233085AbhDGF2R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Apr 2021 01:28:17 -0400
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 666C368B02; Wed,  7 Apr 2021 07:28:06 +0200 (CEST)
+Date:   Wed, 7 Apr 2021 07:28:06 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Sagi Grimberg <sagi@grimberg.me>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>, linux-nvme@lists.infradead.org
+Subject: Re: [PATCH stable/5.4..5.8] nvme-mpath: replace
+ direct_make_request with generic_make_request
+Message-ID: <20210407052806.GA18573@lst.de>
+References: <20210402200841.347696-1-sagi@grimberg.me> <YGgG2TAA9TNqM9S6@kroah.com> <00e36c71-9f2c-5b38-96fd-3d471382f6ac@grimberg.me>
 MIME-Version: 1.0
-In-Reply-To: <20210405085022.562176619@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00e36c71-9f2c-5b38-96fd-3d471382f6ac@grimberg.me>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Apr 06, 2021 at 06:04:09PM -0700, Sagi Grimberg wrote:
+>
+>>> Hence, we need to fix all the kernels that were before submit_bio_noacct was
+>>> introduced.
+>>
+>> Why can we not just add submit_bio_noacct to the 5.4 kernel to correct
+>> this?  What commit id is that?
+>
+> Hey Greg,
+>
+> submit_bio_noacct was applied as part of a rework by Christoph that I
+> didn't feel was suitable as a stable candidate. The commit-id is:
+> ed00aabd5eb9fb44d6aff1173234a2e911b9fead
 
-
-On 2021/4/5 16:53, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.185 release.
-> There are 56 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 07 Apr 2021 08:50:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.185-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-Tested on arm64 and x86 for 4.19.185-rc1,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.19.y
-Version: 4.19.185-rc1
-Commit: e80ef2122d5c0531670cb281f5beea2cb469aee1
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 4679
-passed: 4679
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 4679
-passed: 4679
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
-
+submit_bio_noacct really is just a new name for generic_make_request,
+as the old one was horribly misleading.  So this does use
+submit_bio_noacct, just with its old name.
