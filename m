@@ -2,134 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EDA935677F
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 11:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC6D3567DE
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 11:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349833AbhDGJAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 05:00:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33330 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349834AbhDGJAt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Apr 2021 05:00:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0FD4613AF;
-        Wed,  7 Apr 2021 09:00:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617786039;
-        bh=fMpsd6/3AdZowr8uUdPzoLkHuvWBGtqJSRxeuK8Gsyo=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=I6Trl4WXfXvULtvaMMWeECjjN/7ZQVWVPQ5DKNBRogAXB/4kweusOsIFo9UVbJrK0
-         tprbih6ugO62OC+RbgnUM7mpJx7F3sW+sGG1y1fN9UNu+o+sgDdnVV+qr6fBoa5Hv4
-         VtspMBnAhZjYYpuKk6kE2Yg5wU6vKpnttJcDv+75oiSq4Eo0amr1SBGBuCA7HCJVYv
-         eVc82fVtChtt7BkR1nOK2vgnjGzwYBrDh5ie65fHIl6vj4ZPircD7R8ga2+qyEh2Pg
-         MPQPj5D2NoesUwqkjWHoMGKFgtRFZYRWp4E18ZS99rW5L/RRBrpD4M3jCg2l2NzWrX
-         KvHSxR6x6fXHA==
-Received: by mail-il1-f180.google.com with SMTP id b17so208426ilh.6;
-        Wed, 07 Apr 2021 02:00:39 -0700 (PDT)
-X-Gm-Message-State: AOAM530Ofov6dWCdhMBIx1LiMQaLW55vgZjrPMusVLKBCy2gN52TBR0U
-        Mial+tqY7Rbt4zngfuzWlb2MvsLunyeQtz3G8rQ=
-X-Google-Smtp-Source: ABdhPJyIeE9jtyhpe0uhXLjV3hgbaGodJEHOo8fhE+WDAdJBEO7RhLKwzGUrApj/M9LzB23wrxU9f4e9dNcKeJFLmGs=
-X-Received: by 2002:a92:1311:: with SMTP id 17mr1528534ilt.134.1617786039153;
- Wed, 07 Apr 2021 02:00:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210407062916.3465459-1-chenhuacai@loongson.cn> <62DEADA1-E599-4909-84B3-5EF5FF144874@goldelico.com>
-In-Reply-To: <62DEADA1-E599-4909-84B3-5EF5FF144874@goldelico.com>
+        id S234695AbhDGJYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 05:24:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36620 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350053AbhDGJYB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 05:24:01 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF48C061762;
+        Wed,  7 Apr 2021 02:22:35 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id d5-20020a17090a2a45b029014d934553c4so232586pjg.1;
+        Wed, 07 Apr 2021 02:22:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=A+TWgw6kTqY++Fbxfd3CQDQjeBZ3Vc7fKTS3ggHgVhQ=;
+        b=M2sUfffeZ2hnL+c1iGiVTLrm9KwGVs9zUBidMXDJPkQF5lsN5BDOIcrhqnfODxY/fD
+         nZXGnLetK1FrrCoa4d6INNpkfrqfAcPNEybpLAyCAiLHKJ6dQCz7gy/Vc65+rVhnY4zj
+         KkCsK3DhNrR3lmJQcU0qYUAC5iECg6K+Kk3/+fU+HXcDNSNXv+ow/9IbyD9whB5+nqfp
+         IPcDW0GRVWiMTyktqaAWezW++jJBvWDnI1K3mkwelgoASi9WXf/R6ZA1T+okFpgckdJi
+         71csPTpml/BbU4obMaMCx54c7TeqxtwtYo9m8EGiDAlpp9s5UeArTeZDW+JagmrVAByi
+         pKCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=A+TWgw6kTqY++Fbxfd3CQDQjeBZ3Vc7fKTS3ggHgVhQ=;
+        b=lGlygL+AD1WEIMjNSHVswfLsAMIJbJbkMil0/0XFncW+NZtFlsfwCO+JP3jlDVqBXN
+         O3RsBV7KWQEi3iui5xlsCxOufAxSw4RIA7V0NfQs8FXWc53w/VkpdEBrL2MnIxEw2zy1
+         FhnZPjVGy3y83RUTFARXk9F28wJUfPiB4T94sKncsL/jScsAb6SaJT48N2+uJopMHMZl
+         fC2PTL89pCJLfuEBPaaBu9CEAYTWwpVlwj4trR7gej1Q7F+v2BijMFzDpWkA2NbNTvE9
+         NcETw5UU1Z8XnPvymSpLP/usCIi8WorXV3Pu+060xNoUUbQPDfq/Kjde9uhe89XSGFQP
+         rjLg==
+X-Gm-Message-State: AOAM533QFlQofmk6Gfvo7g+jvg55OEn/hVZHG54JilLN3kjocXAdT71/
+        uJbDQa4uu0wT0QqnjJWe7cEOJYPlgP4=
+X-Google-Smtp-Source: ABdhPJxyXF57a5wIABXH9FvJcrDrIOY1A7f0crYA5jYLabOno2oufKKoRKJXmTn3n1ZxhqCDovGFiw==
+X-Received: by 2002:a17:902:7c88:b029:e6:f006:f8e5 with SMTP id y8-20020a1709027c88b02900e6f006f8e5mr2281396pll.1.1617787355132;
+        Wed, 07 Apr 2021 02:22:35 -0700 (PDT)
+Received: from localhost.localdomain ([132.145.85.142])
+        by smtp.gmail.com with ESMTPSA id f14sm21849430pfk.92.2021.04.07.02.22.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Apr 2021 02:22:34 -0700 (PDT)
+Sender: Huacai Chen <chenhuacai@gmail.com>
 From:   Huacai Chen <chenhuacai@kernel.org>
-Date:   Wed, 7 Apr 2021 17:00:27 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H4cohyqmLEwPQ5B_1ZviOPegB-LSNFGKXvOV6s2zOmh-Q@mail.gmail.com>
-Message-ID: <CAAhV-H4cohyqmLEwPQ5B_1ZviOPegB-LSNFGKXvOV6s2zOmh-Q@mail.gmail.com>
-Subject: Re: [PATCH V2] MIPS: Fix longstanding errors in div64.h
-To:     "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-Google-Original-From: Huacai Chen <chenhuacai@loongson.cn>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     linux-mips@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
+Subject: [PATCH V3] MIPS: Fix longstanding errors in div64.h
+Date:   Wed,  7 Apr 2021 17:23:07 +0800
+Message-Id: <20210407092307.3920801-1-chenhuacai@loongson.cn>
+X-Mailer: git-send-email 2.27.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Nikolaus,
+There are four errors in div64.h caused by commit c21004cd5b4cb7d479514
+("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."):
 
-On Wed, Apr 7, 2021 at 2:57 PM H. Nikolaus Schaller <hns@goldelico.com> wrote:
->
->
-> > Am 07.04.2021 um 08:29 schrieb Huacai Chen <chenhuacai@kernel.org>:
-> >
-> > There are three errors in div64.h caused by commit c21004cd5b4cb7d479514
-> > ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."):
-> >
-> > 1, Only 32bit kernel need __div64_32(), but the above commit makes it
-> > depend on 64bit kernel by mistake.
-> >
-> > 2, asm-generic/div64.h should be included after __div64_32() definition.
-> >
-> > 3, __n should be initialized as *n before use (and "*__n >> 32" should
-> > be "__n >> 32") in __div64_32() definition.
-> >
-> > Fixes: c21004cd5b4cb7d479514 ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-> > ---
-> > arch/mips/include/asm/div64.h | 10 +++++-----
-> > 1 file changed, 5 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/arch/mips/include/asm/div64.h b/arch/mips/include/asm/div64.h
-> > index dc5ea5736440..3be2318f8e0e 100644
-> > --- a/arch/mips/include/asm/div64.h
-> > +++ b/arch/mips/include/asm/div64.h
-> > @@ -9,9 +9,7 @@
-> > #ifndef __ASM_DIV64_H
-> > #define __ASM_DIV64_H
-> >
-> > -#include <asm-generic/div64.h>
-> > -
-> > -#if BITS_PER_LONG == 64
-> > +#if BITS_PER_LONG == 32
-> >
-> > #include <linux/types.h>
-> >
-> > @@ -24,9 +22,9 @@
-> >       unsigned long __cf, __tmp, __tmp2, __i;                         \
-> >       unsigned long __quot32, __mod32;                                \
-> >       unsigned long __high, __low;                                    \
-> > -     unsigned long long __n;                                         \
-> > +     unsigned long long __n = *n;                                    \
-> >                                                                       \
-> > -     __high = *__n >> 32;                                            \
-> > +     __high = __n >> 32;                                             \
-> >       __low = __n;                                                    \
-> >       __asm__(                                                        \
-> >       "       .set    push                                    \n"     \
-> > @@ -65,4 +63,6 @@
-> >
-> > #endif /* BITS_PER_LONG == 64 */
->
-> IMHO these #if/else/endif comments should also be fixed.
->
-> >
-> > +#include <asm-generic/div64.h>
-> > +
-> > #endif /* __ASM_DIV64_H */
-> > --
-> > 2.27.0
-> >
->
-> compiles fine now. But I still get a linker issue:
->
-> fs/ubifs/budget.o: In function `div_u64_rem':
-> fs/ubifs/budget.c:(.text+0x1fc): undefined reference to `__div64_32'
-> fs/ubifs/lpt.o: In function `div_u64_rem':
-> fs/ubifs/lpt.c:(.text+0x8fc): undefined reference to `__div64_32'
-> make[2]: *** [vmlinux] Error 1
-> make[1]: *** [__build_one_by_one] Error 2
-> make: *** [__sub-make] Error 2
-Oh, there is the 4th bug in this file....
-linux/types.h should be included at the first place, otherwise
-BITS_PER_LONG is not defined...
+1, Only 32bit kernel need __div64_32(), but the above commit makes it
+   depend on 64bit kernel by mistake.
 
-Huacai
->
-> BR and thanks,
-> Nikolaus Schaller
->
+2, asm-generic/div64.h should be included after __div64_32() definition.
+
+3, __n should be initialized as *n before use (and "*__n >> 32" should
+   be "__n >> 32") in __div64_32() definition.
+
+4, linux/types.h should be included at the first place, otherwise BITS_
+   PER_LONG is not defined.
+
+Fixes: c21004cd5b4cb7d479514 ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+---
+ arch/mips/include/asm/div64.h | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/arch/mips/include/asm/div64.h b/arch/mips/include/asm/div64.h
+index dc5ea5736440..d827c13c3bc5 100644
+--- a/arch/mips/include/asm/div64.h
++++ b/arch/mips/include/asm/div64.h
+@@ -9,12 +9,10 @@
+ #ifndef __ASM_DIV64_H
+ #define __ASM_DIV64_H
+ 
+-#include <asm-generic/div64.h>
+-
+-#if BITS_PER_LONG == 64
+-
+ #include <linux/types.h>
+ 
++#if BITS_PER_LONG == 32
++
+ /*
+  * No traps on overflows for any of these...
+  */
+@@ -24,9 +22,9 @@
+ 	unsigned long __cf, __tmp, __tmp2, __i;				\
+ 	unsigned long __quot32, __mod32;				\
+ 	unsigned long __high, __low;					\
+-	unsigned long long __n;						\
++	unsigned long long __n = *n;					\
+ 									\
+-	__high = *__n >> 32;						\
++	__high = __n >> 32;						\
+ 	__low = __n;							\
+ 	__asm__(							\
+ 	"	.set	push					\n"	\
+@@ -63,6 +61,8 @@
+ 	__mod32;							\
+ })
+ 
+-#endif /* BITS_PER_LONG == 64 */
++#endif /* BITS_PER_LONG == 32 */
++
++#include <asm-generic/div64.h>
+ 
+ #endif /* __ASM_DIV64_H */
+-- 
+2.27.0
+
