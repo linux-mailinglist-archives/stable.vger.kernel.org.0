@@ -2,131 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC65357602
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 22:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2253357603
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 22:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356116AbhDGU2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 16:28:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42330 "EHLO
+        id S233412AbhDGU2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 16:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233879AbhDGU1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 16:27:48 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4817AC061765
-        for <stable@vger.kernel.org>; Wed,  7 Apr 2021 13:27:38 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id q6-20020a17090a4306b02900c42a012202so102659pjg.5
-        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 13:27:38 -0700 (PDT)
+        with ESMTP id S235408AbhDGU2a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 16:28:30 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F07C061760;
+        Wed,  7 Apr 2021 13:28:20 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id h10so22386650edt.13;
+        Wed, 07 Apr 2021 13:28:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZHkiZcJi3if+ZrrRNn8XjcBefl2YTWxUK60APFdP/6k=;
-        b=GuMT4jL3TtylSuWD0XVtTX7r0mkaui7ajqqMWJ1SKilT/NXQP3FSxnh6A2Cb7POIPn
-         ViGb2TX9br8nfsiCwiyU37y3fMsAEN90tvVsEm7ovTRDPZCHMOfV3/SuUkioRc5emez8
-         IgFFzL8juzU+KeXh9iaMiA4R1vAkY1D2li7RbiDeeABGdzyyXaXXhu6huL/Yss5C9/rC
-         wT5zyC43Uduhda7/APEtvZ+LCnjIo9pLg4Xdz1GEw1G1CNLCelRSKBRbithU4g0NIthz
-         wClq1rLaVeal20WQX6qH4JnYcncpjlvQ+KHKXB7QUI348c1DqhCnCpvllnCkFQYhh/CY
-         VB8w==
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0MxUAskbmJY5Prgjp13oo7z/Vq83CplGpuyXsktRaUM=;
+        b=Cu7ArvKiHdUdPXByHlVDV8NLlKv9fZoNmwQW+TO9tGDXQRXhvOvPKzL+qhu75m+/zC
+         hSpgxIyTp1tIww7zL+uZJ9ciw9qr5TM4ofnQXLqm2bG80SgGUWLw5Kh4IleXW3aQmVuk
+         nSsjuKLyzO2kin413OrxSBNNAe3pqxQQIEhZicFxk9TBHrQFk/4AskKgwsLXfQ/KSAVy
+         r9t2WVcIxJlyGZNwzX+ftENJPdnpaCHjIy5NXerRFsHTkCkOef4Nwlnd1j9UluRabXeL
+         RWWZDmrqpA7lLTO1wTtclP9fJ2Ck4IilFwJWQeIIBfv/1FV7eMttS7JRchEzED3qs2vq
+         z3zQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZHkiZcJi3if+ZrrRNn8XjcBefl2YTWxUK60APFdP/6k=;
-        b=iV2eNbzGrAMz4f6OoXL0yUReLauR9rTsXKY1WBpQ9Bnaj+StnRSZyapI8yFVC6rkKZ
-         yAwn3zITBtu/dbuJO207wc4RnIE96KuuFRmE8NKdzcrPa+tphGI1W7zCCYUDPk+kkcKn
-         Gd49z8VN4rKia9F3FB6nUNb4bwH3INebsYCbEz3bREHswyWPgZOF+SAG7J/ZHt0SdmGP
-         EcX7RFG67bCiCv21rkKeDiNp8zI5wUCdF8D413Ekn2IGSSGybVO4S7XCrG0sKRxPiQxt
-         iY1gm0xcGuWd8JOh6BjiS0gs36SV+s2k2nvxvj9VyAtL7XujLTCcjRFzGkd03RhUTgMc
-         WK2Q==
-X-Gm-Message-State: AOAM533xE0fdhtmWW62jxmnjR5nSuV3DIgds/mMsoSsxYy9uWa9hlwYp
-        a4vynl/kuMyki9Z1XNpRcOy8oJ6W6tzF0A/P
-X-Google-Smtp-Source: ABdhPJwWp6NIXYPit9NdN7JO5+YExNwrvvMDgJ7RDR53Llgw7KmIU5FWmyQ9knksM8b1UhyBEFtBMw==
-X-Received: by 2002:a17:902:c40e:b029:e9:3fb8:872f with SMTP id k14-20020a170902c40eb02900e93fb8872fmr4672183plk.74.1617827257688;
-        Wed, 07 Apr 2021 13:27:37 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x69sm22582924pfd.161.2021.04.07.13.27.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Apr 2021 13:27:37 -0700 (PDT)
-Message-ID: <606e15b9.1c69fb81.20ab7.85f4@mx.google.com>
-Date:   Wed, 07 Apr 2021 13:27:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0MxUAskbmJY5Prgjp13oo7z/Vq83CplGpuyXsktRaUM=;
+        b=Pg66KUNij8EmOuNKwwlzpc691D44EX2D359zhQ0HPtD9rdAWGSJ0PB3oZrXQs6DkpB
+         E3Pyar4//ZGNRRXGDnYp3iQpQElc/QFWvl1ofpiYzGRgxKe+i/HJms+Ypv5qJ7OWbwrS
+         MOHktiutDcNwvQ4jhRQ1mdpsL5+9jgP+uODuWDBil2jZZ6MB1Shs6g5hK+W8E4xUvKHy
+         dCc6ycu6YL9wSHsLKXmnxUNhLY+p3y8V1WUhtp3AIU6JUjBE5DUNguRDD+ii+qoZ9781
+         +ED0RLYNedp20PmQSR8vwP0sydEsn36iicuSA0t+3sm31sKeHNFV/oXcSTfBUCZjJjQb
+         z3ZQ==
+X-Gm-Message-State: AOAM530r8/f7FxQZZbIaIDH98oJv/4bBdYk+o0l4mmcVk7aX5njI6umf
+        3ESvaZBbm4OTYRe+nQhuFtrBGdy2IDM9e2bJJ4o=
+X-Google-Smtp-Source: ABdhPJxlNJnoddl7LC8q09tsdRU3DkXF+KhfaPsB3GA6gvebHj5LPn2oTAJbAff5K7PgYPIEEm3vcDUdecUjQSG20qo=
+X-Received: by 2002:aa7:c957:: with SMTP id h23mr6639140edt.301.1617827299037;
+ Wed, 07 Apr 2021 13:28:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.27-109-g62509e249d802
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 119 runs,
- 1 regressions (v5.10.27-109-g62509e249d802)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20210406203508.476122-1-martin.blumenstingl@googlemail.com>
+ <20210406203508.476122-2-martin.blumenstingl@googlemail.com>
+ <YGz8FRBsj68xIbX/@lunn.ch> <CAFBinCD-jEUbyuuV=SLER8O1+PwhmiqHXFMaEX=h5mca=SDLgg@mail.gmail.com>
+ <YG4Lku8sgwokW0NH@lunn.ch>
+In-Reply-To: <YG4Lku8sgwokW0NH@lunn.ch>
+From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date:   Wed, 7 Apr 2021 22:28:08 +0200
+Message-ID: <CAFBinCBE7BtEvDF044BeONCfCAaJOTYNkTTkhTJidaM97BQmYQ@mail.gmail.com>
+Subject: Re: [PATCH RFC net 1/2] net: dsa: lantiq_gswip: Don't use PHY auto polling
+To:     Andrew Lunn <andrew@lunn.ch>
+Cc:     Hauke Mehrtens <hauke@hauke-m.de>, f.fainelli@gmail.com,
+        vivien.didelot@gmail.com, olteanv@gmail.com,
+        netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux@armlinux.org.uk, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 119 runs, 1 regressions (v5.10.27-109-g62509=
-e249d802)
+On Wed, Apr 7, 2021 at 9:44 PM Andrew Lunn <andrew@lunn.ch> wrote:
+>
+> > For my own curiosity: is there a "recommended" way where to configure
+> > link up/down, speed, duplex and flow control? currently I have the
+> > logic in both, .phylink_mac_config and .phylink_mac_link_up.
+>
+> You probably want to read the documentation in
+>
+> include/linux/phylink.h
+it turns out that I should have scrolled down in that file.
+there's a perfect explanation in it about the various functions, just
+not at the top.
+thanks for the hint!
 
-Regressions Summary
--------------------
+For my own reference:
+[...] @state->link [...] are never guaranteed to be correct, and so
+any mac_config() implementation must never reference these fields.
+I am referencing state->link so I will fix that in v2
 
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
+[...] drivers may use @state->speed, @state->duplex and @state->pause
+to configure the MAC, but this is deprecated; such drivers should be
+converted to use mac_link_up
+so I will also drop these also from the gswip_phylink_mac_config implementation
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.27-109-g62509e249d802/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.27-109-g62509e249d802
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      62509e249d8025256ccad8e23b58d4110ba6ab54 =
-
-
-
-Test Regressions
----------------- =
+If dropping the modifications to gswip_phylink_mac_config is my only change:
+do you want me to keep or drop your Reviewed-by in v2?
 
 
-
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/606dddb27209eae8a7dac6cb
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.27-=
-109-g62509e249d802/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
-7-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.27-=
-109-g62509e249d802/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
-7-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/606dddb27209eae=
-8a7dac6d1
-        new failure (last pass: v5.10.27-109-gba0af7445cc12)
-        1 lines
-
-    2021-04-07 16:28:11.617000+00:00  <8>[   13.559885] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D1>   =
-
- =20
+Best regards,
+Martin
