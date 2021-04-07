@@ -2,61 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70192356CA1
-	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 14:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C710356CA8
+	for <lists+stable@lfdr.de>; Wed,  7 Apr 2021 14:52:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352426AbhDGMvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Apr 2021 08:51:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53266 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352436AbhDGMvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Apr 2021 08:51:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E50D761279;
-        Wed,  7 Apr 2021 12:50:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617799857;
-        bh=+xgTyeHX2g7WM+VExjEg53lxrjvf4HVnJKmAKXV2P/c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NuNLDOEVsGkXQUl2i4u1+AjOwHjWiePrFfr78XcqxJr1NQpSos3cTCxoWbhUMeovd
-         1BUDHVMqJ2hpHQG4y/uwrBtjjdKSMiWQKCzRfBD3nRi+dbL0+Ge2OLb1cmJcouXIy/
-         KXVV7zwv/RQtlcLqUtS9ldgQm1tME4G/8uyVpHbY=
-Date:   Wed, 7 Apr 2021 14:50:54 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
+        id S233680AbhDGMwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Apr 2021 08:52:06 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:58205 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230234AbhDGMwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Apr 2021 08:52:06 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 8FEFAED5;
+        Wed,  7 Apr 2021 08:51:56 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 07 Apr 2021 08:51:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=/aYFMyNkSf9zo3OlT7kr7GvBGzf
+        jsnq44x3V0w1uOpw=; b=MpFDT/bjcI0sIrpFQGKk+H2BigHIUx4wanidcWPC0ar
+        xOH4ilcCeNsLxtO5GWFZDkUpT12Xny08O/MMEO3N4Ut/pmWWdv9w2Zxg5jqY6uBQ
+        m2Ph5Xr/ktTuswnc4hGTBSYJEzME55a0a1Gv4ZZn8MRZGOxIVV179jW/c1LYEm8v
+        1ee85d2MnLDZjUnYv/y8z+6BDssDqFMlsCVZx0j0LRF5ZslkBz514oFEkSwBIvnl
+        2dqOLbMlftQoyQoVRNOV09U1Esv9/xT+ffi1LmP0D00ph9k4MJdgUzD87+Xcu7pQ
+        pnbZ5WF/qUN9vqX6Qz9x/wZMv1GoeiyxtldwgMG30zw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/aYFMy
+        NkSf9zo3OlT7kr7GvBGzfjsnq44x3V0w1uOpw=; b=ZKdRYkZ4LzFP3Dri3B157f
+        8P0M0hfe3QusKUzImbUSG+9X48n55d7LGWMN0bCoDa0hW/mtDHtRH7RdJ8Oz6Tlv
+        40QIEyRi0fG6LitwBBFJKegIW2oN/TY0TCloeSQZoCwDFj58S+7PggFloWV/CRnl
+        9iGA9fy2EnDgHoaCWDNN6hTY16qQec+tP0w4G99M3IxuvMyOXvzR2q6NdDSFp7fu
+        wp17zOxxAmS4D8UgUXGp9gefVzrhMz+ZX5zTyFVxYNnZVtQ8HLXzO1Jvdg1Bm/CZ
+        2HLFvayJZ1KlK3X+worrtSe9Gi0Hs11ZtYM9Ugyp04OeNZ/PrhGu7H9vQQd/nbtQ
+        ==
+X-ME-Sender: <xms:7KptYEpZpxxxeiCcDDhc8UhUbRRZFbnfiNbR2w5FiUZo62tYuwdQuQ>
+    <xme:7KptYKqcp1HCyMbvY8hiJoDokd4TcAcqheGk7pRm2SOOLocv3DaE9PG60MAirbViX
+    -vhLnP_A9TypA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudejjedgheeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:7KptYJPINitpyFQniKyyR6__s_C0gyxYYaxuUZ55pr4IRDQDhLC0Gw>
+    <xmx:7KptYL7k7kSMvHLnFu3x0gN2_US4gfEnfILEBaRQZaylAKxB5cCHzw>
+    <xmx:7KptYD7dpdriY_CBrbdRE-QYuNnfRsNt7k-sDQv-zb51V4M6V62Vwg>
+    <xmx:7KptYMX6PkvCF__ygBQfKNVaS0yWocpoG6zZ-MowOMB67NvnCVX3xw>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id BB17D24005A;
+        Wed,  7 Apr 2021 08:51:55 -0400 (EDT)
+Date:   Wed, 7 Apr 2021 14:51:53 +0200
+From:   Greg KH <greg@kroah.com>
 To:     Jianxiong Gao <jxgao@google.com>
-Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5.10 1/8] driver core: add a min_align_mask field to
- struct  device_dma_parameters
-Message-ID: <YG2qruv25jVq+Fe9@kroah.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v5.10 0/8] preserve DMA offsets when using swiotlb
+Message-ID: <YG2q6Tm58tWRBtmK@kroah.com>
 References: <20210405210230.1707074-1-jxgao@google.com>
- <20210405210230.1707074-2-jxgao@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210405210230.1707074-2-jxgao@google.com>
+In-Reply-To: <20210405210230.1707074-1-jxgao@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 05, 2021 at 09:02:23PM +0000, Jianxiong Gao wrote:
-> 'commit 36950f2da1ea ("driver core: add a min_align_mask field to struct device_dma_parameters")'
-
-Odd first line, can you at least try to use the normal format we use for
-stable kernels?
-
-> Some devices rely on the address offset in a page to function
-> correctly (NVMe driver as an example). These devices may use
-> a different page size than the Linux kernel. The address offset
-> has to be preserved upon mapping, and in order to do so, we
-> need to record the page_offset_mask first.
+On Mon, Apr 05, 2021 at 09:02:22PM +0000, Jianxiong Gao wrote:
+> Hi all,
 > 
-> Signed-off-by: Jianxiong Gao <jxgao@google.com>
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> This series of backports fixes the SWIOTLB library to maintain the
+> page offset when mapping a DMA address. The bug that motivated this
+> patch series manifested when running a 5.4 kernel as a SEV guest with
+> an NVMe device. However, any device that infers information from the
+> page offset and is accessed through the SWIOTLB will benefit from this
+> bug fix.
 
-What happened to all the other signed-off-by lines?
+But this is 5.10, not 5.4, why mention 5.4 here?
 
-And yours should go last, right?
+And you are backporting a 5.12-rc feature to 5.10, what happened to
+5.11?
 
-This series needs work :(
+Why not just use 5.12 to get this new feature instead of using an older
+kernel?  It's not like this has ever worked before, right?
 
 thanks,
 
