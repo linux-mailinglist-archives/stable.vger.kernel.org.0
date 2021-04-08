@@ -2,97 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BC1357FC7
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 11:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F91357FBA
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 11:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230322AbhDHJrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 05:47:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:56223 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230291AbhDHJrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 05:47:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617875220;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+mPdPPkL2uexbS0eM20lasDqx05OgOBYtjBXonlsDAo=;
-        b=LG3eu7tKMK8u63hCuxICxDHcBI1nbW+fm2voxrXgYqG4vYTzx2RXb7DeFdX9ybUVMGZ8N8
-        FXaG0rT9dXYedMT1rL9MS2yDrfz8830phszconLPDc0vj8B4Z8yOVPR86peKJZWspyaiFv
-        YOlb77Nx5SCgG8By8Zx7rDjA+udQFcY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-212-bCSOr24NM8yqrpMNEqdq9Q-1; Thu, 08 Apr 2021 05:46:57 -0400
-X-MC-Unique: bCSOr24NM8yqrpMNEqdq9Q-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D325C80364C;
-        Thu,  8 Apr 2021 09:46:55 +0000 (UTC)
-Received: from wangxiaodeMacBook-Air.local (ovpn-13-53.pek2.redhat.com [10.72.13.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3BC985C5E1;
-        Thu,  8 Apr 2021 09:46:46 +0000 (UTC)
-Subject: Re: [PATCH 4/5] vdpa/mlx5: Fix wrong use of bit numbers
-To:     Eli Cohen <elic@nvidia.com>, mst@redhat.com, parav@nvidia.com,
-        si-wei.liu@oracle.com, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20210408091047.4269-1-elic@nvidia.com>
- <20210408091047.4269-5-elic@nvidia.com>
-From:   Jason Wang <jasowang@redhat.com>
-Message-ID: <f2ffac98-2ce7-f9c1-de93-09e9347d0991@redhat.com>
-Date:   Thu, 8 Apr 2021 17:46:45 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.0
+        id S231380AbhDHJqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 05:46:10 -0400
+Received: from mga11.intel.com ([192.55.52.93]:65396 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231526AbhDHJqK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Apr 2021 05:46:10 -0400
+IronPort-SDR: 41n6wvK8JMiuPw7e3rd6VKKict9znRktPuPVziAlXhfgraurcQ+KZYJbVq/vDZPKqIereP7AZg
+ SiQcEJIMbpcA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9947"; a="190297870"
+X-IronPort-AV: E=Sophos;i="5.82,206,1613462400"; 
+   d="scan'208";a="190297870"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2021 02:45:59 -0700
+IronPort-SDR: UigdVX/N05m7yt7W4YwlhEF3a9siLtZO3DtdQB8EiWx6OEPnqBb6nrrU2gSUO+kv3Hozr9jHm0
+ B43285QvQsQw==
+X-IronPort-AV: E=Sophos;i="5.82,206,1613462400"; 
+   d="scan'208";a="458756758"
+Received: from unknown (HELO intel.com) ([10.237.72.91])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2021 02:45:55 -0700
+Date:   Thu, 8 Apr 2021 12:48:42 +0300
+From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/i915: Don't zero out the Y plane's watermarks
+Message-ID: <20210408094842.GA14051@intel.com>
+References: <20210327005945.4929-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20210408091047.4269-5-elic@nvidia.com>
-Content-Type: text/plain; charset=gbk; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+In-Reply-To: <20210327005945.4929-1-ville.syrjala@linux.intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Mar 27, 2021 at 02:59:45AM +0200, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> Don't zero out the watermarks for the Y plane since we've already
+> computed them when computing the UV plane's watermarks (since the
+> UV plane always appears before ethe Y plane when iterating through
+> the planes).
+> 
+> This leads to allocating no DDB for the Y plane since .min_ddb_alloc
+> also gets zeroed. And that of course leads to underruns when scanning
+> out planar formats.
+> 
+> We really need to re-enable the pre-merge pixel format tests or else
+> I'll just keep breaking this stuff...
 
-ÔÚ 2021/4/8 ÏÂÎç5:10, Eli Cohen Ð´µÀ:
-> VIRTIO_F_VERSION_1 is a bit number. Use BIT_ULL() with mask
-> conditionals.
->
-> Also, in mlx5_vdpa_is_little_endian() use BIT_ULL for consistency with
-> the rest of the code.
->
-> Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
 
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+> Fixes: dbf71381d733 ("drm/i915: Nuke intel_atomic_crtc_state_for_each_plane_state() from skl+ wm code")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 > ---
->   drivers/vdpa/mlx5/net/mlx5_vnet.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index a49ebb250253..6fe61fc57790 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -820,7 +820,7 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
->   	MLX5_SET(virtio_q, vq_ctx, event_qpn_or_msix, mvq->fwqp.mqp.qpn);
->   	MLX5_SET(virtio_q, vq_ctx, queue_size, mvq->num_ent);
->   	MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0,
-> -		 !!(ndev->mvdev.actual_features & VIRTIO_F_VERSION_1));
-> +		 !!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_F_VERSION_1)));
->   	MLX5_SET64(virtio_q, vq_ctx, desc_addr, mvq->desc_addr);
->   	MLX5_SET64(virtio_q, vq_ctx, used_addr, mvq->device_addr);
->   	MLX5_SET64(virtio_q, vq_ctx, available_addr, mvq->driver_addr);
-> @@ -1554,7 +1554,7 @@ static void clear_virtqueues(struct mlx5_vdpa_net *ndev)
->   static inline bool mlx5_vdpa_is_little_endian(struct mlx5_vdpa_dev *mvdev)
->   {
->   	return virtio_legacy_is_little_endian() ||
-> -		(mvdev->actual_features & (1ULL << VIRTIO_F_VERSION_1));
-> +		(mvdev->actual_features & BIT_ULL(VIRTIO_F_VERSION_1));
->   }
->   
->   static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
-
+>  drivers/gpu/drm/i915/intel_pm.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+> index b2aede2be89d..49c19acdb7c6 100644
+> --- a/drivers/gpu/drm/i915/intel_pm.c
+> +++ b/drivers/gpu/drm/i915/intel_pm.c
+> @@ -5511,12 +5511,12 @@ static int icl_build_plane_wm(struct intel_crtc_state *crtc_state,
+>  	struct skl_plane_wm *wm = &crtc_state->wm.skl.raw.planes[plane_id];
+>  	int ret;
+>  
+> -	memset(wm, 0, sizeof(*wm));
+> -
+>  	/* Watermarks calculated in master */
+>  	if (plane_state->planar_slave)
+>  		return 0;
+>  
+> +	memset(wm, 0, sizeof(*wm));
+> +
+>  	if (plane_state->planar_linked_plane) {
+>  		const struct drm_framebuffer *fb = plane_state->hw.fb;
+>  		enum plane_id y_plane_id = plane_state->planar_linked_plane->id;
+> -- 
+> 2.26.2
+> 
