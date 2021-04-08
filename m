@@ -2,153 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E9CD358CCB
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 20:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98366358CE1
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 20:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232908AbhDHSjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 14:39:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50862 "EHLO
+        id S232790AbhDHSqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 14:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232862AbhDHSjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 14:39:05 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ABEEC061760;
-        Thu,  8 Apr 2021 11:38:54 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id m3so3625556edv.5;
-        Thu, 08 Apr 2021 11:38:53 -0700 (PDT)
+        with ESMTP id S232775AbhDHSqu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 14:46:50 -0400
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB2AC061761
+        for <stable@vger.kernel.org>; Thu,  8 Apr 2021 11:46:39 -0700 (PDT)
+Received: by mail-qt1-x849.google.com with SMTP id h26so1659119qtm.13
+        for <stable@vger.kernel.org>; Thu, 08 Apr 2021 11:46:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=czCdUgUKYE195RMgtc10Qp0uf7frLXf3Xd3lvhOg2uw=;
-        b=KwEKBSAKM6HHd76b94vG7Pg/JzJpmOum0Kfl+EnEoRKAf9TqBTQTfinSbSUtOuzLqD
-         ZTsTJObuQnucCSiSawb5dE31KIQdWlTmkVSUmI6ZKopfRtghd5r8csk35X3Z23iS0eFR
-         7JPIP8doUDS2ox+ilfYQng9hK/bS0w1Ss9s7uNIowNzQgTW5M9vGIiJm0mSHekJzTIpb
-         QamCt7RXv8yNwhcHj8ZnfdJDv9dW8v3pGvu+Q0/wS33+weoFWcMDA3HERJ6GEGO+L2DT
-         CmJxKzveb5qoJvbKNpVA3mZZD0v7ygPR7zt6W7c9RldsU0Zbfwlmw55hDB7QGyYz7SuV
-         kqpw==
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=6gAnMk/3QmoHKKKOynZbE6ARTru22AXVPx9J9ennqYk=;
+        b=CsxGIoVitXO3OMbftljWu8Ki/FTK07cSA2VhLFY87N/obK/8HhQZTl3uWoLXcLQY+9
+         5XeUpzxisdaS1wXSrhGdjDUBgEN1xJqho2avlRpMrJ7x7wFuZZVox4bm9t8ME1fvefAB
+         73l3UAuQ3P/qkAZ3I0b8k8OxQAk/XlFrKuzbvy75sQxwVEfiGZu38eaC8C/qvX7fr3F4
+         wpBLuRw7iEovcshgem96DIb8CJLc4UWoFJ8pbS73TaWo3YhI1iQvwHvOsyTBv5bMBF4d
+         8BMw9g/iWrTuB6XFmPbApdr7P7ADW4iVgnCP/7uCEimfRvK7CcPlJ56vNkQfvR971+Nm
+         z5Xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=czCdUgUKYE195RMgtc10Qp0uf7frLXf3Xd3lvhOg2uw=;
-        b=WJDBBesVFWyluvj3CNwj3jNh2MZIeDTf5B6OOXWe5IvY6pT7V6s2OSnEJNzvheg9x0
-         9o7SpY7D4j5E2qFoEqtwvCaYTzo+AtAm0aYudHfg4NGFfsG2U+0bXJXoXved8Y8coA8b
-         5HN9K6zgvjok4IXWWy1Z4GepZ6Yg9JCVoZE10zBppPqxfjuH9RrHMqG6fsCN+pZTyB3u
-         ojG463zwtVofDGBopXQ3lyBmz9TYyEVqtRHxBqXxFZQLgKgVuRqN2a9Qiq/OUVSCOUB7
-         XMB8BVPQNFMuN8/Oq/+AWogaFyJTzbSZN63Uf0fUMoE+IysgEcWkRYHU9vP05cwaAFO4
-         PnqA==
-X-Gm-Message-State: AOAM531QK+bShpDUNhBSRBCEyRgQoru4DnETyGhNyVKppTSwVQQSHCdM
-        0irfrvyQRTODA25OZYyU+ca2KzfBzEU=
-X-Google-Smtp-Source: ABdhPJxuOj4EnYJs8L3ScOS8DLZbtsR14mAVrT8Uz3NN1XObVjpiUYlbtv0ec6xsFUF81VWl97ugKQ==
-X-Received: by 2002:a05:6402:1bdc:: with SMTP id ch28mr13203322edb.202.1617907132765;
-        Thu, 08 Apr 2021 11:38:52 -0700 (PDT)
-Received: from localhost.localdomain (p200300f1370e7400428d5cfffeb99db8.dip0.t-ipconnect.de. [2003:f1:370e:7400:428d:5cff:feb9:9db8])
-        by smtp.googlemail.com with ESMTPSA id yh6sm92125ejb.37.2021.04.08.11.38.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Apr 2021 11:38:52 -0700 (PDT)
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-To:     hauke@hauke-m.de, andrew@lunn.ch, f.fainelli@gmail.com,
-        vivien.didelot@gmail.com, olteanv@gmail.com, netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux@armlinux.org.uk,
-        linux-kernel@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH net v2 2/2] net: dsa: lantiq_gswip: Configure all remaining GSWIP_MII_CFG bits
-Date:   Thu,  8 Apr 2021 20:38:28 +0200
-Message-Id: <20210408183828.1907807-3-martin.blumenstingl@googlemail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210408183828.1907807-1-martin.blumenstingl@googlemail.com>
-References: <20210408183828.1907807-1-martin.blumenstingl@googlemail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=6gAnMk/3QmoHKKKOynZbE6ARTru22AXVPx9J9ennqYk=;
+        b=N0fb/J8MfTRuje84PsPofkl75GlY0ojFm3SeoE+3Na2ZvlVRyONko77JTPcwcutQjZ
+         /g3MCTU8NevbjbzTruOz++q9a8DerWVQ7E6LFvmo4kdvgtrMhXm2ihz4PROAufNn3YvQ
+         YP16WYVtpx//7rHXECv2d2arTW7MlO+YewN21yQn2177DJLeVhu2XAoH4WCMUmauVnl6
+         KrEI49zAO1K0HAG3H7a0Gx73NSXfQYnq23F80H/9Kh2ebxqB2vc6OPgbZ1j+TR1l9ngI
+         BZZxzCMvxEw7CWT6SYAl/xiUs6YyJMns5dsfkfU/IIxntGcQErFlLhntOIEKguXBg1ZA
+         yTkw==
+X-Gm-Message-State: AOAM531HasooV5R2VonzIsLFyW2aOis2Rffg6d0eh1Lq15waitWroanw
+        6jh6XQlRPE73kj4NVvLhpRVDAMgJRt+Y2pSc6no=
+X-Google-Smtp-Source: ABdhPJx+2L0KBR1ZPGbYTlVAcnVbbQqhcwdmzzAvpjnvX13zyvL6J85xqR1BgJt7Q//RHnzPLAzwNyrX2hirSOEK2yc=
+X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:258e:3713:7415:ce58])
+ (user=ndesaulniers job=sendgmr) by 2002:a05:6214:2628:: with SMTP id
+ gv8mr10352013qvb.19.1617907598457; Thu, 08 Apr 2021 11:46:38 -0700 (PDT)
+Date:   Thu,  8 Apr 2021 11:46:31 -0700
+In-Reply-To: <20210407152621.3826f93e893c0cf9b327071f@linux-foundation.org>
+Message-Id: <20210408184631.1156669-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <20210407152621.3826f93e893c0cf9b327071f@linux-foundation.org>
+X-Mailer: git-send-email 2.31.1.295.g9ea45b61b8-goog
+Subject: [PATCH v2] gcov: re-fix clang-11+ support
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     akpm@linux-foundation.org
+Cc:     clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        maskray@google.com, nathan@kernel.org, ndesaulniers@google.com,
+        oberpar@linux.ibm.com, psodagud@quicinc.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are a few more bits in the GSWIP_MII_CFG register for which we
-did rely on the boot-loader (or the hardware defaults) to set them up
-properly.
+LLVM changed the expected function signature for
+llvm_gcda_emit_function() in the clang-11 release.  Users of clang-11 or
+newer may have noticed their kernels producing invalid coverage
+information:
 
-For some external RMII PHYs we need to select the GSWIP_MII_CFG_RMII_CLK
-bit and also we should un-set it for non-RMII PHYs. The
-GSWIP_MII_CFG_RMII_CLK bit is ignored for other PHY connection modes.
+$ llvm-cov gcov -a -c -u -f -b <input>.gcda -- gcno=<input>.gcno
+1 <func>: checksum mismatch, \
+  (<lineno chksum A>, <cfg chksum B>) != (<lineno chksum A>, <cfg chksum C>)
+2 Invalid .gcda File!
+...
 
-The GSWIP IP also supports in-band auto-negotiation for RGMII PHYs when
-the GSWIP_MII_CFG_RGMII_IBS bit is set. Clear this bit always as there's
-no known hardware which uses this (so it is not tested yet).
+Fix up the function signatures so calling this function interprets its
+parameters correctly and computes the correct cfg checksum. In
+particular, in clang-11, the additional checksum is no longer optional.
 
-Clear the xMII isolation bit when set at initialization time if it was
-previously set by the bootloader. Not doing so could lead to no traffic
-(neither RX nor TX) on a port with this bit set.
-
-While here, also add the GSWIP_MII_CFG_RESET bit. We don't need to
-manage it because this bit is self-clearning when set. We still add it
-here to get a better overview of the GSWIP_MII_CFG register.
-
-Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Cc: stable@vger.kernel.org
-Suggested-by: Hauke Mehrtens <hauke@hauke-m.de>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://reviews.llvm.org/rG25544ce2df0daa4304c07e64b9c8b0f7df60c11d
+Cc: stable@vger.kernel.org #5.4+
+Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
+Tested-by: Prasad Sodagudi <psodagud@quicinc.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+Changes V1 -> V2:
+* Carried Nathan's reviewed-by tag.
+* Rebased on mainline, as per Andrew.
+* Left off patch 2/2 from the series
+https://lore.kernel.org/lkml/20210407185456.41943-1-ndesaulniers@google.com/
+  I assume that dropping support for clang-10+GCOV will be held
+  separately for -next for 5.13, while this will be sent for 5.12?
 
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 126d4ea868ba..bf5c62e5c0b0 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -93,8 +93,12 @@
+ kernel/gcov/clang.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
+
+diff --git a/kernel/gcov/clang.c b/kernel/gcov/clang.c
+index 8743150db2ac..c466c7fbdece 100644
+--- a/kernel/gcov/clang.c
++++ b/kernel/gcov/clang.c
+@@ -70,7 +70,9 @@ struct gcov_fn_info {
  
- /* GSWIP MII Registers */
- #define GSWIP_MII_CFGp(p)		(0x2 * (p))
-+#define  GSWIP_MII_CFG_RESET		BIT(15)
- #define  GSWIP_MII_CFG_EN		BIT(14)
-+#define  GSWIP_MII_CFG_ISOLATE		BIT(13)
- #define  GSWIP_MII_CFG_LDCLKDIS		BIT(12)
-+#define  GSWIP_MII_CFG_RGMII_IBS	BIT(8)
-+#define  GSWIP_MII_CFG_RMII_CLK		BIT(7)
- #define  GSWIP_MII_CFG_MODE_MIIP	0x0
- #define  GSWIP_MII_CFG_MODE_MIIM	0x1
- #define  GSWIP_MII_CFG_MODE_RMIIP	0x2
-@@ -821,9 +825,11 @@ static int gswip_setup(struct dsa_switch *ds)
- 	/* Configure the MDIO Clock 2.5 MHz */
- 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
+ 	u32 ident;
+ 	u32 checksum;
++#if CONFIG_CLANG_VERSION < 110000
+ 	u8 use_extra_checksum;
++#endif
+ 	u32 cfg_checksum;
  
--	/* Disable the xMII link */
-+	/* Disable the xMII interface and clear it's isolation bit */
- 	for (i = 0; i < priv->hw_info->max_ports; i++)
--		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
-+		gswip_mii_mask_cfg(priv,
-+				   GSWIP_MII_CFG_EN | GSWIP_MII_CFG_ISOLATE,
-+				   0, i);
+ 	u32 num_counters;
+@@ -145,10 +147,8 @@ void llvm_gcda_emit_function(u32 ident, const char *function_name,
  
- 	/* enable special tag insertion on cpu port */
- 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
-@@ -1597,6 +1603,9 @@ static void gswip_phylink_mac_config(struct dsa_switch *ds, int port,
- 		break;
- 	case PHY_INTERFACE_MODE_RMII:
- 		miicfg |= GSWIP_MII_CFG_MODE_RMIIM;
-+
-+		/* Configure the RMII clock as output: */
-+		miicfg |= GSWIP_MII_CFG_RMII_CLK;
- 		break;
- 	case PHY_INTERFACE_MODE_RGMII:
- 	case PHY_INTERFACE_MODE_RGMII_ID:
-@@ -1609,7 +1618,11 @@ static void gswip_phylink_mac_config(struct dsa_switch *ds, int port,
- 			"Unsupported interface: %d\n", state->interface);
- 		return;
+ 	list_add_tail(&info->head, &current_info->functions);
+ }
+-EXPORT_SYMBOL(llvm_gcda_emit_function);
+ #else
+-void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
+-		u8 use_extra_checksum, u32 cfg_checksum)
++void llvm_gcda_emit_function(u32 ident, u32 func_checksum, u32 cfg_checksum)
+ {
+ 	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
+ 
+@@ -158,12 +158,11 @@ void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
+ 	INIT_LIST_HEAD(&info->head);
+ 	info->ident = ident;
+ 	info->checksum = func_checksum;
+-	info->use_extra_checksum = use_extra_checksum;
+ 	info->cfg_checksum = cfg_checksum;
+ 	list_add_tail(&info->head, &current_info->functions);
+ }
+-EXPORT_SYMBOL(llvm_gcda_emit_function);
+ #endif
++EXPORT_SYMBOL(llvm_gcda_emit_function);
+ 
+ void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
+ {
+@@ -293,11 +292,16 @@ int gcov_info_is_compatible(struct gcov_info *info1, struct gcov_info *info2)
+ 		!list_is_last(&fn_ptr2->head, &info2->functions)) {
+ 		if (fn_ptr1->checksum != fn_ptr2->checksum)
+ 			return false;
++#if CONFIG_CLANG_VERSION < 110000
+ 		if (fn_ptr1->use_extra_checksum != fn_ptr2->use_extra_checksum)
+ 			return false;
+ 		if (fn_ptr1->use_extra_checksum &&
+ 			fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
+ 			return false;
++#else
++		if (fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
++			return false;
++#endif
+ 		fn_ptr1 = list_next_entry(fn_ptr1, head);
+ 		fn_ptr2 = list_next_entry(fn_ptr2, head);
  	}
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_MODE_MASK, miicfg, port);
-+
-+	gswip_mii_mask_cfg(priv,
-+			   GSWIP_MII_CFG_MODE_MASK | GSWIP_MII_CFG_RMII_CLK |
-+			   GSWIP_MII_CFG_RGMII_IBS | GSWIP_MII_CFG_LDCLKDIS,
-+			   miicfg, port);
+@@ -529,17 +533,22 @@ static size_t convert_to_gcda(char *buffer, struct gcov_info *info)
  
- 	switch (state->interface) {
- 	case PHY_INTERFACE_MODE_RGMII_ID:
+ 	list_for_each_entry(fi_ptr, &info->functions, head) {
+ 		u32 i;
+-		u32 len = 2;
+-
+-		if (fi_ptr->use_extra_checksum)
+-			len++;
+ 
+ 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
+-		pos += store_gcov_u32(buffer, pos, len);
++#if CONFIG_CLANG_VERSION < 110000
++		pos += store_gcov_u32(buffer, pos,
++			fi_ptr->use_extra_checksum ? 3 : 2);
++#else
++		pos += store_gcov_u32(buffer, pos, 3);
++#endif
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->checksum);
++#if CONFIG_CLANG_VERSION < 110000
+ 		if (fi_ptr->use_extra_checksum)
+ 			pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
++#else
++		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
++#endif
+ 
+ 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_COUNTER_BASE);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->num_counters * 2);
+
+base-commit: 3fb4f979b4fa1f92a02b538ae86e725b73e703d0
 -- 
-2.31.1
+2.31.1.295.g9ea45b61b8-goog
 
