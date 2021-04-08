@@ -2,113 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1077435822E
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 13:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2FB93582A4
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 14:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231344AbhDHLlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 07:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42994 "EHLO
+        id S230412AbhDHMCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 08:02:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231375AbhDHLlU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 07:41:20 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC00BC061760;
-        Thu,  8 Apr 2021 04:41:08 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id m3so2011510edv.5;
-        Thu, 08 Apr 2021 04:41:08 -0700 (PDT)
+        with ESMTP id S229837AbhDHMCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 08:02:00 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DEF1C061760
+        for <stable@vger.kernel.org>; Thu,  8 Apr 2021 05:01:49 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id j6-20020a17090adc86b02900cbfe6f2c96so1235551pjv.1
+        for <stable@vger.kernel.org>; Thu, 08 Apr 2021 05:01:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=9W5u9JNowWa9GKxAEJ2E0StodFgzOY5U/p+9mBXj95I=;
-        b=JS9eJVgfynJVA/3KbS/hCW7MZIRKZOZIb53vErZBMLiiUIDtvkF1fooyQqBpG/Nkha
-         KDqgCL/4YxMOHY4MTNymEdVId38BxQKiBv+9mgVVOwdTua1aDF4OB+lwfCIYXz/74RSX
-         IvcwsAmiN9MvOQ2G8IJn8//yx9tHkXRpfIBLRk9Qh8ONXrg7pMxB5LHfqjy8KX1W3RKW
-         NxYTE4UbK4zYnK/rNUNvbIbItAkTqolE4KbtEO7FDHdne+Hg0ED8YZC0ja8qbIQ9ufdM
-         FyXdrjraBx40JUUtVYMdxfSkd1LQOQ2C04485KMr/UUrOXpVamPb9JC2UT0Hz9OX3W/z
-         Tm0g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=LKSdzpib2CnMp1WYw3nhlxLATkQgi4wNFrM/Xf3C5Fs=;
+        b=0kDy36vHwnGgFprpYa4r7PHdL3a6Meyf60h8NULhzMUyU+7nRtGsHOi3/6yi3TQ4A0
+         J70jKkT8ocD1Jg+VbVFMTqrVC7g2TYuLwdLdysGE/xbd3P6wmzaZ7lWWGnw+anvxO3aj
+         WUdgRNzlvOFVYMWJczOQ3jJCR7ZdfJhwtLuLMSKWOneK82CiPUoKTUGCQEWXuW6anjcV
+         aKHVg2edD3GKU21RhHV1scBjD4WvHqDObPYrU0fmUD37r1hsRrSc4MGaPuZrhHauuPpL
+         KrURtGCgp7/nCmXDzVZHHmW/I/s3bsymmyc3WTJK3QZ4uQPxaQlg4YSliVhAKcX7wzxl
+         pxFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=9W5u9JNowWa9GKxAEJ2E0StodFgzOY5U/p+9mBXj95I=;
-        b=qJkr4Mn04mBKgNYlHGtflnHpIF2D9eu5xHbM2tkWKu3UbWPmWBg2j36ZGfDWfDebr0
-         NU7/AtfnQCX5hQz2Ooyw6xHz2ktxz9jsoVIHQDUV2ycIWZep0D+C4vUvCT1ob6me6Wyj
-         gcBe4YXvs2lC5uAbK+yqCbu7GvriyHBlDOETIGr4w+l5gcHfPvcRmyo/g3OQDgvX7S/1
-         yhAQuAZtdmATwmax4LIn42E1POFbrFnuNEwdwnRbArs7xNdNJVFqBRXiEEXq/L5UffpG
-         oVq0iAAJTrm/GunHQjfODg1LpsPJ/Z9mWyYifdsE3IK03vPKpKj4MPdIhSOPwwbd7fv4
-         A1/g==
-X-Gm-Message-State: AOAM531/KwcTk5rbk+QH51fp07MQbWeplVJz+yTEXbFmyvKoe4kPQh7J
-        cZ11ZFbViht1IEg+VHDs4V0=
-X-Google-Smtp-Source: ABdhPJxHjMV9iH5aPR/Kq3Q/3Ykz/dCa08ogguDQJ1C7Z1FnpkfIOpxzgMQf5JbPNlDlihhMHL27mw==
-X-Received: by 2002:a50:d84e:: with SMTP id v14mr11046764edj.357.1617882067518;
-        Thu, 08 Apr 2021 04:41:07 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id q25sm17449500edt.51.2021.04.08.04.41.06
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=LKSdzpib2CnMp1WYw3nhlxLATkQgi4wNFrM/Xf3C5Fs=;
+        b=HEddpkkpWY2OJaDyUC9bY6AJ39NMc7qGgxAiNhvPvgg1auU+67lrOX6m3WcQ8txzGD
+         scc4GCJ2wBdjFw4WhuSHxRnYe4op26/vikIG+pPZCVbLwsEoTiDPOnV600PxJfANBGmx
+         vtlB4ibUUjw/NNvFn0qM/1Ju62LhxD7vCE2f+RBV1XN7qw6cwh5catYg5jOZ6wkB+uGi
+         WetoH9hqaqjsKNItvTLDWd4IwvJZeN/kqZjeFmafOEwkpR8V3rqB7o2LAHs9M7jS5NF+
+         UU2cdH6ghz4qcotcoHVoJ9etc3CUxJ0P0Pe7L8SeW9p5fIVhcMwTP88JQlWgeEn1BPgY
+         EavA==
+X-Gm-Message-State: AOAM531g0tsho4AQ27LvW0CKYR+5WkcDrAv7gqC3qdzj/oOKm+o9XEk9
+        QVLEFC9RXZVM9fr+NZdOxVefm09MqBSzDZNH
+X-Google-Smtp-Source: ABdhPJwitLJ5EunEn+BF9JjDrHqWdBludkH8WLeLdfLTSYJlV19ObDWVOzEDFTvV8QjUOTX6b5eOFQ==
+X-Received: by 2002:a17:903:4106:b029:e9:244f:9aca with SMTP id r6-20020a1709034106b02900e9244f9acamr7603782pld.58.1617883308496;
+        Thu, 08 Apr 2021 05:01:48 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id kk6sm8527749pjb.51.2021.04.08.05.01.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Apr 2021 04:41:06 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Thu, 8 Apr 2021 13:41:05 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Shyam Prasad <Shyam.Prasad@microsoft.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steven French <Steven.French@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [EXTERNAL] Re: [PATCH 4.19 013/247] cifs: Set
- CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.
-Message-ID: <YG7r0UaivWZL762N@eldamar.lan>
-References: <20210301161031.684018251@linuxfoundation.org>
- <20210301161032.337414143@linuxfoundation.org>
- <YGxIMCsclG4E1/ck@eldamar.lan>
- <YGxlJXv/+IPaErUr@kroah.com>
- <PSAP153MB04220682838AC9D025414B6094769@PSAP153MB0422.APCP153.PROD.OUTLOOK.COM>
- <YGx3u01Wa/DDnjlV@eldamar.lan>
+        Thu, 08 Apr 2021 05:01:48 -0700 (PDT)
+Message-ID: <606ef0ac.1c69fb81.9bd5e.5acc@mx.google.com>
+Date:   Thu, 08 Apr 2021 05:01:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YGx3u01Wa/DDnjlV@eldamar.lan>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.28
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.10.y baseline: 156 runs, 1 regressions (v5.10.28)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Shyam,
+stable/linux-5.10.y baseline: 156 runs, 1 regressions (v5.10.28)
 
-On Tue, Apr 06, 2021 at 05:01:17PM +0200, Salvatore Bonaccorso wrote:
-> Hi,
-> 
-> On Tue, Apr 06, 2021 at 02:00:48PM +0000, Shyam Prasad wrote:
-> > Hi Greg,
-> > We'll need to debug this further to understand what's going on. 
-> 
-> Greg asked it the same happens with 5.4 as well, I do not know I was
-> not able to test 5.4.y (yet) but only 5.10.y and 4.19.y.
-> > 
-> > Hi Salvatore,
-> > Any chance that you'll be able to provide us the cifsFYI logs from the time of mount failure?
-> > https://wiki.samba.org/index.php/LinuxCIFS_troubleshooting#Enabling_Debugging
-> 
-> Please find it attached. Is this enough information?
-> 
-> The mentioned home DFS link 'home' is a DFS link to
-> msdfs:SECONDHOST\REDACTED on a Samba host.
-> 
-> The mount is triggered as
-> 
-> mount -t cifs //HOSTIP/REDACTED/home /mnt --verbose -o username='REDACTED,domain=DOMAIN'
+Regressions Summary
+-------------------
 
-So I can confirm the issue is both present in 4.19.185 and 5.4.110
-upstream (without any Debian patches applied, we do not anyway apply
-any cifs related one on top of the respetive upstream version).
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1      =
+    =
 
-The issue is not present in 5.10.28.
 
-So I think there are commits as dependency of a738c93fb1c1 ("cifs: Set
-CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.") which
-are required and not applied in the released before 5.10.y which make
-introducing the regression.
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.28/plan/baseline/
 
-Regards,
-Salvatore
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.28
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      ecdfb9d70fb8c4d7dd9a5fa28c675b4ebe705f85 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/606ebb80374a2bfecbdac6b2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.28/a=
+rm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.28/a=
+rm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/606ebb80374a2bfecbdac=
+6b3
+        new failure (last pass: v5.10.27) =
+
+ =20
