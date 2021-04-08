@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD80357C29
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 08:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93809357C2B
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 08:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229776AbhDHGLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 02:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60280 "EHLO mail.kernel.org"
+        id S229777AbhDHGLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 02:11:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229506AbhDHGLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Apr 2021 02:11:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E29C610CB;
-        Thu,  8 Apr 2021 06:11:10 +0000 (UTC)
+        id S229506AbhDHGLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Apr 2021 02:11:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D3A8610A2;
+        Thu,  8 Apr 2021 06:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617862271;
-        bh=UExMJ4r8/ECjtQ9Lwxi6lZicLpdEygSujrBTAavCgVU=;
+        s=korg; t=1617862279;
+        bh=WRRHEOCh/uayY+7CJVGLxDBEIOndEl6kK6ZQyAQsQew=;
         h=Subject:To:From:Date:From;
-        b=SuhWwPnHno5IGEIPTMo8WuzWbETUZK8kdQAW9LNmfnoDPBrzmnABtOjeN/iRynWEm
-         84AWk4Ej5xvlWaceNbpAnmKDMATpc8d7aZoqzmq7Ru66u7IClUL+GVYKGrx4PAOvOR
-         cU/4Jyymcw+ujca5ixcfrUZf8QaY+vSETQVMgbLM=
-Subject: patch "phy: cadence: Sierra: Fix PHY power_on sequence" added to char-misc-next
-To:     kishon@ti.com, p.zabel@pengutronix.de, stable@vger.kernel.org,
+        b=Sn0M7d60JUExqMQohtxw1mmASQkUFmF9tNQwzNzrtlEV1REpRd3U6Er8kt3JI7teh
+         q3ICcXloFE/3ddO8YCD3bE0As/CoSAUWPHlDJPEpqfNo3NCX6nTIfTzjAZWLcBA+iA
+         JnPb5haf3rl6+8rekEiyzJL10kaRPnb+KF2X0frk=
+Subject: patch "phy: ti: j721e-wiz: Invoke wiz_init() before" added to char-misc-next
+To:     kishon@ti.com, sjakhade@cadence.com, stable@vger.kernel.org,
         vkoul@kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 08 Apr 2021 08:08:08 +0200
-Message-ID: <1617862088236125@kroah.com>
+Date:   Thu, 08 Apr 2021 08:08:09 +0200
+Message-ID: <16178620891710@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    phy: cadence: Sierra: Fix PHY power_on sequence
+    phy: ti: j721e-wiz: Invoke wiz_init() before
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,52 +51,68 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 5b4f5757f83be34d1428a1ffbb68d4a1966e9aae Mon Sep 17 00:00:00 2001
+From f7eb147d306ad2efae6837e20d2944f03be42eb4 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
-Date: Fri, 19 Mar 2021 18:11:16 +0530
-Subject: phy: cadence: Sierra: Fix PHY power_on sequence
+Date: Fri, 19 Mar 2021 18:11:17 +0530
+Subject: phy: ti: j721e-wiz: Invoke wiz_init() before
+ of_platform_device_create()
 
-Commit 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
-de-asserts PHY_RESET even before the configurations are loaded in
-phy_init(). However PHY_RESET should be de-asserted only after
-all the configurations has been initialized, instead of de-asserting
-in probe. Fix it here.
+Invoke wiz_init() before configuring anything else in Sierra/Torrent
+(invoked as part of of_platform_device_create()). wiz_init() resets the
+SERDES device and any configuration done in the probe() of
+Sierra/Torrent will be lost. In order to prevent SERDES configuration
+from getting reset, invoke wiz_init() immediately before invoking
+of_platform_device_create().
 
-Fixes: 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
+Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Cc: <stable@vger.kernel.org> # v5.4+
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20210319124128.13308-2-kishon@ti.com
+Reviewed-by: Swapnil Jakhade <sjakhade@cadence.com>
+Cc: <stable@vger.kernel.org> # v5.10
+Link: https://lore.kernel.org/r/20210319124128.13308-3-kishon@ti.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 ---
- drivers/phy/cadence/phy-cadence-sierra.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/phy/ti/phy-j721e-wiz.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/phy/cadence/phy-cadence-sierra.c b/drivers/phy/cadence/phy-cadence-sierra.c
-index 26a0badabe38..19f32ae877b9 100644
---- a/drivers/phy/cadence/phy-cadence-sierra.c
-+++ b/drivers/phy/cadence/phy-cadence-sierra.c
-@@ -319,6 +319,12 @@ static int cdns_sierra_phy_on(struct phy *gphy)
- 	u32 val;
- 	int ret;
+diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
+index 3c003f9d0b6f..53d01da2894a 100644
+--- a/drivers/phy/ti/phy-j721e-wiz.c
++++ b/drivers/phy/ti/phy-j721e-wiz.c
+@@ -1264,27 +1264,24 @@ static int wiz_probe(struct platform_device *pdev)
+ 		goto err_get_sync;
+ 	}
  
-+	ret = reset_control_deassert(sp->phy_rst);
++	ret = wiz_init(wiz);
 +	if (ret) {
-+		dev_err(dev, "Failed to take the PHY out of reset\n");
-+		return ret;
++		dev_err(dev, "WIZ initialization failed\n");
++		goto err_wiz_init;
 +	}
 +
- 	/* Take the PHY lane group out of reset */
- 	ret = reset_control_deassert(ins->lnk_rst);
- 	if (ret) {
-@@ -616,7 +622,6 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
+ 	serdes_pdev = of_platform_device_create(child_node, NULL, dev);
+ 	if (!serdes_pdev) {
+ 		dev_WARN(dev, "Unable to create SERDES platform device\n");
+ 		ret = -ENOMEM;
+-		goto err_pdev_create;
+-	}
+-	wiz->serdes_pdev = serdes_pdev;
+-
+-	ret = wiz_init(wiz);
+-	if (ret) {
+-		dev_err(dev, "WIZ initialization failed\n");
+ 		goto err_wiz_init;
+ 	}
++	wiz->serdes_pdev = serdes_pdev;
  
- 	pm_runtime_enable(dev);
- 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
--	reset_control_deassert(sp->phy_rst);
- 	return PTR_ERR_OR_ZERO(phy_provider);
+ 	of_node_put(child_node);
+ 	return 0;
  
- put_child:
+ err_wiz_init:
+-	of_platform_device_destroy(&serdes_pdev->dev, NULL);
+-
+-err_pdev_create:
+ 	wiz_clock_cleanup(wiz, node);
+ 
+ err_get_sync:
 -- 
 2.31.1
 
