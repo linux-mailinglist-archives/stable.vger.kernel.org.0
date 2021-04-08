@@ -2,120 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C67B6357D53
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 09:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 383CF357D61
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 09:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbhDHH2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 03:28:43 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:59968 "EHLO
+        id S230411AbhDHHab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 03:30:31 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:60094 "EHLO
         smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229623AbhDHH2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 03:28:41 -0400
-Received: from mailhost.synopsys.com (mdc-mailhost1.synopsys.com [10.225.0.209])
+        by vger.kernel.org with ESMTP id S230342AbhDHHa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 03:30:26 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 400F640556;
-        Thu,  8 Apr 2021 07:28:30 +0000 (UTC)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id EE05240788;
+        Thu,  8 Apr 2021 07:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1617866911; bh=MayTwbhgx5n8GaJ/Kha7XYbeB6XviL3Z8jfc1aJZQRQ=;
+        t=1617867016; bh=h0c3Ab83WtpD8J1J8C8z3WJ3MO7dMp3GAkYTqraf9Vc=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=GT4eAEcDxrVoJRaN+l35ES5wNXBCIpX2GLONMcy5VFTeMeN02GeZffu8I29qYPZU/
-         1QlM/jSiPK36z7hL4E8nL8yCxxJKpMdXowC3MBGweYBonscPEwhhjzsUQTglrcUl5d
-         +0pA7YP7Wxua15xObS8AXUOYKn7xlvkBiuRs4v2F6FYcITNKApGrZje+CvHgs8SPpW
-         Tf+6BkKH6G64brSDplDOzDCpVouIB5yYNNwwGFAFHyOpSzaq0IzRuR3Ct32r3ezFiZ
-         Yg7FRSVN1KX/036LguP4LBaDgxPAujzDS7THqbSXZBQwNhM/zOKfzmj9xNwG4FkyFH
-         bfi5KsPTo7kBg==
+        b=hGIaa/EpXp+V22hvNBBeiXM17BgQRP5bYEiBzNlBAMVluuyy+BTo4ZDYjVKU+GHXn
+         pv3Y/NTLxtO5ucaCtNxYiH6G7YXcMRY4VVQZWrZnBFMS25TNLCLZ/akz1so60kudPG
+         IBzPb5f7CNfb1FpA8K5086yXNFJdHxfbP0qkwKXZXluXiPxk/MyfP9D5Krr7dkm7r8
+         iwv8+Gwq7V6iGpLdVGhsW5v/RbJzoElKDIOsKUIoZbsIhi1W2sK97JtOaSplSwxOi8
+         tViNPq6b18IF7ZoV+uliALIAtZjxc2jbjvXaY6Nxid5jt4jEBEAmufPANpNqBfnPUg
+         WbSQP/INwRoLw==
 Received: from razpc-HP (razpc-hp.internal.synopsys.com [10.116.126.207])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 61347A022E;
-        Thu,  8 Apr 2021 07:28:25 +0000 (UTC)
-Received: by razpc-HP (sSMTP sendmail emulation); Thu, 08 Apr 2021 11:28:24 +0400
-Date:   Thu, 08 Apr 2021 11:28:24 +0400
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 5BF7FA0094;
+        Thu,  8 Apr 2021 07:30:12 +0000 (UTC)
+Received: by razpc-HP (sSMTP sendmail emulation); Thu, 08 Apr 2021 11:30:11 +0400
+Date:   Thu, 08 Apr 2021 11:30:11 +0400
 In-Reply-To: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
 References: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
 X-SNPS-Relay: synopsys.com
 From:   Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Subject: [PATCH v2 00/14] usb: dwc2: Fix Partial Power down issues.
-To:     John Youn <John.Youn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
+Subject: [PATCH v2 13/14] usb: dwc2: Fix partial power down exiting by system resume
+To:     Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
         linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Mian Yousaf Kaukab <yousaf.kaukab@intel.com>,
-        Gregory Herrero <gregory.herrero@intel.com>,
         Douglas Anderson <dianders@chromium.org>
-Cc:     Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+Cc:     John Youn <John.Youn@synopsys.com>,
+        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
         Paul Zimmerman <paulz@synopsys.com>, <stable@vger.kernel.org>,
-        Robert Baldyga <r.baldyga@samsung.com>,
         Kever Yang <kever.yang@rock-chips.com>
-Message-Id: <20210408072825.61347A022E@mailhost.synopsys.com>
+Message-Id: <20210408073012.5BF7FA0094@mailhost.synopsys.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch set fixes and improves the Partial Power Down mode for
-dwc2 core.
-It adds support for the following cases
-    1. Entering and exiting partial power down when a port is
-       suspended, resumed, port reset is asserted.
-    2. Exiting the partial power down mode before removing driver.
-    3. Exiting partial power down in wakeup detected interrupt handler.
-    4. Exiting from partial power down mode when connector ID.
-       status changes to "connId B
+Fixes the implementation of exiting from partial power down
+power saving mode when PC is resumed.
 
-It updates and fixes the implementation of dwc2 entering and
-exiting partial power down mode when the system (PC) is suspended.
+Added port connection status checking which prevents exiting from
+Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
+Power Down mode.
 
-The patch set also improves the implementation of function handlers
-for entering and exiting host or device partial power down.
+Rearranged the implementation to get rid of many "if"
+statements.
 
-NOTE: This is the second patch set in the power saving mode fixes
-series.
-This patch set is part of multiple series and is continuation
-of the "usb: dwc2: Fix and improve power saving modes" patch set.
-(Patch set link: https://marc.info/?l=linux-usb&m=160379622403975&w=2).
-The patches that were included in the "usb: dwc2:
-Fix and improve power saving modes" which was submitted
-earlier was too large and needed to be split up into
-smaller patch sets.
+NOTE: Switch case statement is used for hibernation partial
+power down and clock gating mode determination. In this patch
+only Partial Power Down is implemented the Hibernation and
+clock gating implementations are planned to be added.
 
-Changes since V1:
-No changes in the patches or the source code.
-Sending the second version of the patch set because the first version
-was not received by vger.kernel.org.
+Cc: <stable@vger.kernel.org>
+Fixes: 6f6d70597c15 ("usb: dwc2: bus suspend/resume for hosts with DWC2_POWER_DOWN_PARAM_NONE")
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+---
+ Changes in v2:
+ - None
 
+ drivers/usb/dwc2/hcd.c | 90 +++++++++++++++++++++---------------------
+ 1 file changed, 46 insertions(+), 44 deletions(-)
 
-
-Artur Petrosyan (14):
-  usb: dwc2: Add device partial power down functions
-  usb: dwc2: Add host partial power down functions
-  usb: dwc2: Update enter and exit partial power down functions
-  usb: dwc2: Add partial power down exit flow in wakeup intr.
-  usb: dwc2: Update port suspend/resume function definitions.
-  usb: dwc2: Add enter partial power down when port is suspended
-  usb: dwc2: Add exit partial power down when port is resumed
-  usb: dwc2: Add exit partial power down when port reset is asserted
-  usb: dwc2: Add part. power down exit from
-    dwc2_conn_id_status_change().
-  usb: dwc2: Allow exit partial power down in urb enqueue
-  usb: dwc2: Fix session request interrupt handler
-  usb: dwc2: Update partial power down entering by system suspend
-  usb: dwc2: Fix partial power down exiting by system resume
-  usb: dwc2: Add exit partial power down before removing driver
-
- drivers/usb/dwc2/core.c      | 113 ++-------
- drivers/usb/dwc2/core.h      |  27 ++-
- drivers/usb/dwc2/core_intr.c |  46 ++--
- drivers/usb/dwc2/gadget.c    | 148 ++++++++++-
- drivers/usb/dwc2/hcd.c       | 458 +++++++++++++++++++++++++----------
- drivers/usb/dwc2/hw.h        |   1 +
- drivers/usb/dwc2/platform.c  |  11 +-
- 7 files changed, 558 insertions(+), 246 deletions(-)
-
-
-base-commit: e9fcb07704fcef6fa6d0333fd2b3a62442eaf45b
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index 34030bafdff4..f096006df96f 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -4427,7 +4427,7 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ {
+ 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
+ 	unsigned long flags;
+-	u32 pcgctl;
++	u32 hprt0;
+ 	int ret = 0;
+ 
+ 	spin_lock_irqsave(&hsotg->lock, flags);
+@@ -4438,11 +4438,40 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ 	if (hsotg->lx_state != DWC2_L2)
+ 		goto unlock;
+ 
+-	if (hsotg->params.power_down > DWC2_POWER_DOWN_PARAM_PARTIAL) {
++	hprt0 = dwc2_read_hprt0(hsotg);
++
++	/*
++	 * Added port connection status checking which prevents exiting from
++	 * Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
++	 * Power Down mode.
++	 */
++	if (hprt0 & HPRT0_CONNSTS) {
++		hsotg->lx_state = DWC2_L0;
++		goto unlock;
++	}
++
++	switch (hsotg->params.power_down) {
++	case DWC2_POWER_DOWN_PARAM_PARTIAL:
++		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
++		if (ret)
++			dev_err(hsotg->dev,
++				"exit partial_power_down failed\n");
++		/*
++		 * Set HW accessible bit before powering on the controller
++		 * since an interrupt may rise.
++		 */
++		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
++		break;
++	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
++	case DWC2_POWER_DOWN_PARAM_NONE:
++	default:
+ 		hsotg->lx_state = DWC2_L0;
+ 		goto unlock;
+ 	}
+ 
++	/* Change Root port status, as port status change occurred after resume.*/
++	hsotg->flags.b.port_suspend_change = 1;
++
+ 	/*
+ 	 * Enable power if not already done.
+ 	 * This must not be spinlocked since duration
+@@ -4454,52 +4483,25 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ 		spin_lock_irqsave(&hsotg->lock, flags);
+ 	}
+ 
+-	if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
+-		/*
+-		 * Set HW accessible bit before powering on the controller
+-		 * since an interrupt may rise.
+-		 */
+-		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+-
+-
+-		/* Exit partial_power_down */
+-		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
+-		if (ret && (ret != -ENOTSUPP))
+-			dev_err(hsotg->dev, "exit partial_power_down failed\n");
+-	} else {
+-		pcgctl = readl(hsotg->regs + PCGCTL);
+-		pcgctl &= ~PCGCTL_STOPPCLK;
+-		writel(pcgctl, hsotg->regs + PCGCTL);
+-	}
+-
+-	hsotg->lx_state = DWC2_L0;
+-
++	/* Enable external vbus supply after resuming the port. */
+ 	spin_unlock_irqrestore(&hsotg->lock, flags);
++	dwc2_vbus_supply_init(hsotg);
+ 
+-	if (hsotg->bus_suspended) {
+-		spin_lock_irqsave(&hsotg->lock, flags);
+-		hsotg->flags.b.port_suspend_change = 1;
+-		spin_unlock_irqrestore(&hsotg->lock, flags);
+-		dwc2_port_resume(hsotg);
+-	} else {
+-		if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
+-			dwc2_vbus_supply_init(hsotg);
+-
+-			/* Wait for controller to correctly update D+/D- level */
+-			usleep_range(3000, 5000);
+-		}
++	/* Wait for controller to correctly update D+/D- level */
++	usleep_range(3000, 5000);
++	spin_lock_irqsave(&hsotg->lock, flags);
+ 
+-		/*
+-		 * Clear Port Enable and Port Status changes.
+-		 * Enable Port Power.
+-		 */
+-		dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
+-				HPRT0_ENACHG, HPRT0);
+-		/* Wait for controller to detect Port Connect */
+-		usleep_range(5000, 7000);
+-	}
++	/*
++	 * Clear Port Enable and Port Status changes.
++	 * Enable Port Power.
++	 */
++	dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
++			HPRT0_ENACHG, HPRT0);
+ 
+-	return ret;
++	/* Wait for controller to detect Port Connect */
++	spin_unlock_irqrestore(&hsotg->lock, flags);
++	usleep_range(5000, 7000);
++	spin_lock_irqsave(&hsotg->lock, flags);
+ unlock:
+ 	spin_unlock_irqrestore(&hsotg->lock, flags);
+ 
 -- 
 2.25.1
 
