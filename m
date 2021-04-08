@@ -2,94 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 292FC357FB7
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 11:46:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DDB3357FBD
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 11:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231509AbhDHJqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 05:46:05 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:36630 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231500AbhDHJqF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 05:46:05 -0400
-Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        id S231254AbhDHJqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 05:46:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40841 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231500AbhDHJqT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 05:46:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1617875168;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+Ed8cXY4Fne68ovFitKR7CHeZADetAwCYIlL4r4Eb7U=;
+        b=Lr35rziQnaP6LBty/yNixZj/2cLkYgLDFlnIaLen5Se0C4QuLYlmPZVL5rvAvyeR2Egb9P
+        rxTjA9ANhFs/rXr8I4arqwY2i3VCxY2T4zsbeJ41o6dHU3DiJ37+82B8D9hVjlyBLBzrJA
+        7B5qoI5F9pdoBS4LkX6aSo8lJRRkwko=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-553-4ZpPA4M8OmqqMcNkDqAJog-1; Thu, 08 Apr 2021 05:46:05 -0400
+X-MC-Unique: 4ZpPA4M8OmqqMcNkDqAJog-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 1ADDAC09B1;
-        Thu,  8 Apr 2021 09:45:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1617875154; bh=xhxpjgTpa9pFuo9pJIVEGylg0epbNh6oZH7CA1L2gdc=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=XwhmdZ+cHK82HfuPZpbrVajJB7gaG6sEgI5MkcbfqwFCEGwcoWENtex6/3WTza2bL
-         zGXWzWm3Z/e+z1+iLCP9YIsxGhL0RjIRyLqxRZFOzL+q5kvgTEdRPsatidjBv51Gj9
-         /stm0yw6iBRoAY8BqjW7yiBOsQu6YwfL4HTXndPXIm7cZhRzKhV6zXNexkb9EIgl9G
-         TQYoVQFWUnmlR4Rg/91qqkkfvf0qhL/7I4tJn+slSTZDZxRKGobOa0xgzj6dzKMNyz
-         HjTkHdJhHcwCrnBG/QS7Urv4L8nqvk2gTUyx5GZDCSzhu/8u2dA/jmvRkW/RtbsnXY
-         icPLptyHBDV3w==
-Received: from razpc-HP (razpc-hp.internal.synopsys.com [10.116.126.207])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 75484A0094;
-        Thu,  8 Apr 2021 09:45:50 +0000 (UTC)
-Received: by razpc-HP (sSMTP sendmail emulation); Thu, 08 Apr 2021 13:45:49 +0400
-Date:   Thu, 08 Apr 2021 13:45:49 +0400
-In-Reply-To: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
-References: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Subject: [PATCH v3 11/14] usb: dwc2: Fix session request interrupt handler
-To:     John Youn <John.Youn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Mian Yousaf Kaukab <yousaf.kaukab@intel.com>,
-        Gregory Herrero <gregory.herrero@intel.com>
-Cc:     Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        <stable@vger.kernel.org>, Robert Baldyga <r.baldyga@samsung.com>
-Message-Id: <20210408094550.75484A0094@mailhost.synopsys.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 905E98189D6;
+        Thu,  8 Apr 2021 09:46:01 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-53.pek2.redhat.com [10.72.13.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 05FE36B543;
+        Thu,  8 Apr 2021 09:45:55 +0000 (UTC)
+Subject: Re: [PATCH 5/5] vdpa/mlx5: Fix suspend/resume index restoration
+To:     Eli Cohen <elic@nvidia.com>, mst@redhat.com, parav@nvidia.com,
+        si-wei.liu@oracle.com, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20210408091047.4269-1-elic@nvidia.com>
+ <20210408091047.4269-6-elic@nvidia.com>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <a5356a13-6d7d-8086-bfff-ff869aec5449@redhat.com>
+Date:   Thu, 8 Apr 2021 17:45:54 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.9.0
+MIME-Version: 1.0
+In-Reply-To: <20210408091047.4269-6-elic@nvidia.com>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-According to programming guide in host mode, port
-power must be turned on in session request
-interrupt handlers.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 21795c826a45 ("usb: dwc2: exit hibernation on session request")
-Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
----
- drivers/usb/dwc2/core_intr.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ÔÚ 2021/4/8 ÏÂÎç5:10, Eli Cohen Ð´µÀ:
+> When we suspend the VM, the VDPA interface will be reset. When the VM is
+> resumed again, clear_virtqueues() will clear the available and used
+> indices resulting in hardware virqtqueue objects becoming out of sync.
+> We can avoid this function alltogether since qemu will clear them if
+> required, e.g. when the VM went through a reboot.
+>
+> Moreover, since the hw available and used indices should always be
+> identical on query and should be restored to the same value same value
+> for virtqueues that complete in order, we set the single value provided
+> by set_vq_state(). In get_vq_state() we return the value of hardware
+> used index.
+>
+> Fixes: b35ccebe3ef7 ("vdpa/mlx5: Restore the hardware used index after change map")
+> Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
+> ---
 
-diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
-index 0a7f9330907f..8c0152b514be 100644
---- a/drivers/usb/dwc2/core_intr.c
-+++ b/drivers/usb/dwc2/core_intr.c
-@@ -307,6 +307,7 @@ static void dwc2_handle_conn_id_status_change_intr(struct dwc2_hsotg *hsotg)
- static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
- {
- 	int ret;
-+	u32 hprt0;
- 
- 	/* Clear interrupt */
- 	dwc2_writel(hsotg, GINTSTS_SESSREQINT, GINTSTS);
-@@ -328,6 +329,13 @@ static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
- 		 * established
- 		 */
- 		dwc2_hsotg_disconnect(hsotg);
-+	} else {
-+		/* Turn on the port power bit. */
-+		hprt0 = dwc2_read_hprt0(hsotg);
-+		hprt0 |= HPRT0_PWR;
-+		dwc2_writel(hsotg, hprt0, HPRT0);
-+		/* Connect hcd after port power is set. */
-+		dwc2_hcd_connect(hsotg);
- 	}
- }
- 
--- 
-2.25.1
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+
+>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 21 ++++++++-------------
+>   1 file changed, 8 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 6fe61fc57790..4d2809c7d4e3 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1169,6 +1169,7 @@ static void suspend_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *m
+>   		return;
+>   	}
+>   	mvq->avail_idx = attr.available_index;
+> +	mvq->used_idx = attr.used_index;
+>   }
+>   
+>   static void suspend_vqs(struct mlx5_vdpa_net *ndev)
+> @@ -1426,6 +1427,7 @@ static int mlx5_vdpa_set_vq_state(struct vdpa_device *vdev, u16 idx,
+>   		return -EINVAL;
+>   	}
+>   
+> +	mvq->used_idx = state->avail_index;
+>   	mvq->avail_idx = state->avail_index;
+>   	return 0;
+>   }
+> @@ -1443,7 +1445,11 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa
+>   	 * that cares about emulating the index after vq is stopped.
+>   	 */
+>   	if (!mvq->initialized) {
+> -		state->avail_index = mvq->avail_idx;
+> +		/* Firmware returns a wrong value for the available index.
+> +		 * Since both values should be identical, we take the value of
+> +		 * used_idx which is reported correctly.
+> +		 */
+> +		state->avail_index = mvq->used_idx;
+>   		return 0;
+>   	}
+>   
+> @@ -1452,7 +1458,7 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa
+>   		mlx5_vdpa_warn(mvdev, "failed to query virtqueue\n");
+>   		return err;
+>   	}
+> -	state->avail_index = attr.available_index;
+> +	state->avail_index = attr.used_index;
+>   	return 0;
+>   }
+>   
+> @@ -1540,16 +1546,6 @@ static void teardown_virtqueues(struct mlx5_vdpa_net *ndev)
+>   	}
+>   }
+>   
+> -static void clear_virtqueues(struct mlx5_vdpa_net *ndev)
+> -{
+> -	int i;
+> -
+> -	for (i = ndev->mvdev.max_vqs - 1; i >= 0; i--) {
+> -		ndev->vqs[i].avail_idx = 0;
+> -		ndev->vqs[i].used_idx = 0;
+> -	}
+> -}
+> -
+>   /* TODO: cross-endian support */
+>   static inline bool mlx5_vdpa_is_little_endian(struct mlx5_vdpa_dev *mvdev)
+>   {
+> @@ -1785,7 +1781,6 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+>   	if (!status) {
+>   		mlx5_vdpa_info(mvdev, "performing device reset\n");
+>   		teardown_driver(ndev);
+> -		clear_virtqueues(ndev);
+>   		mlx5_vdpa_destroy_mr(&ndev->mvdev);
+>   		ndev->mvdev.status = 0;
+>   		ndev->mvdev.mlx_features = 0;
 
