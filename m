@@ -2,104 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B597358CE6
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 20:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8597358D4E
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 21:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232790AbhDHSth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 14:49:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53138 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231676AbhDHStg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 14:49:36 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A6BC061760;
-        Thu,  8 Apr 2021 11:49:25 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id g10so1510135plt.8;
-        Thu, 08 Apr 2021 11:49:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=iaZA9uccUhevRcQXh1gy8pD/RdVdtZQych5CAmgXTRw=;
-        b=piIlDdMykZWRNqBj+SejOLbpkS//URH6CnbJ87LsCyZG15F2iCsmANew1vP9Xyd/ts
-         2vAld14Jflhbah7+bgN5Kw1MefEAr73Z6/bQTjVWNYv4B1GNoL2J/KH/uK4fbIS7H2uv
-         8n68AIc7mWbfp6XmZX3o2vrxKm4QqNBVIyUHFqKf4AtqUkH2Vv6XNHKZi7cpMJmDGsXk
-         fm5V0Rf+J91w1LFABu5PIKEs1AfFdwFJqGVvrG6RsrRCZssvJhAN+xJ9OUes5lxuvPLP
-         7IykOUOWIVPPGZbfvRsKe3mzgc+OYwjzR4vOkQSD92l+Wi4BkjqM4SbE6omsrWzzoaRk
-         88bA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=iaZA9uccUhevRcQXh1gy8pD/RdVdtZQych5CAmgXTRw=;
-        b=DQ5YDp3y9vCWIP3I0Sbv3t/gWzZbvxU1lTukxeeZCu34ASoOU1zXd1abMpmUKvsDHI
-         S98fGghBy7T+cR6+yof6mJLq0tqqkjxH9EVh4ZJeBlNyOGzSMpsfvrQhEu9auT8VFyE3
-         qs/3vch9NZU7rzlfoB4dZYg0Z6rqEpWVQutdkVGClamDJ3SlveNicZYHbeAtbshHOsoX
-         excwJA7Z8qXj3C/B/oyoCxhSFUsqQnMQuGUAw4iMtRpXNYbeVqitU2YsWIpgE9UaXXOK
-         ZilsaAE/2VS8xSuxQMlvgCDgCZ4nyohx/kf+qIkzNj/Zgg7Ir+uKukLBxnROXmKkTKEq
-         AEmA==
-X-Gm-Message-State: AOAM530XdHiavwUV7xnqOIJNasKnIpyhsoEK8R+rijXkAKl1q9Q4F3UF
-        tBdhdfAdc3CFGE/52YVVli2Fi1JIEoA=
-X-Google-Smtp-Source: ABdhPJz3VROIBwGEDOUQzf0UiQQ1EdfYV2EMhPwucdJKLC8iIMeYog8glMZikMgkbmoeCG/h3cGNhA==
-X-Received: by 2002:a17:90a:df15:: with SMTP id gp21mr10013340pjb.127.1617907764302;
-        Thu, 08 Apr 2021 11:49:24 -0700 (PDT)
-Received: from [10.230.29.202] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id g12sm133641pjd.57.2021.04.08.11.49.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Apr 2021 11:49:23 -0700 (PDT)
-Subject: Re: [PATCH net v2 2/2] net: dsa: lantiq_gswip: Configure all
- remaining GSWIP_MII_CFG bits
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        hauke@hauke-m.de, andrew@lunn.ch, vivien.didelot@gmail.com,
-        olteanv@gmail.com, netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux@armlinux.org.uk,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20210408183828.1907807-1-martin.blumenstingl@googlemail.com>
- <20210408183828.1907807-3-martin.blumenstingl@googlemail.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <19b78806-ff51-567c-5121-674db706682f@gmail.com>
-Date:   Thu, 8 Apr 2021 11:49:15 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.9.0
+        id S232999AbhDHTN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 15:13:29 -0400
+Received: from smtp21.cstnet.cn ([159.226.251.21]:37334 "EHLO cstnet.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232804AbhDHTN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Apr 2021 15:13:28 -0400
+Received: from localhost.localdomain (unknown [124.16.141.242])
+        by APP-01 (Coremail) with SMTP id qwCowABnf7egVW9gQsQWAA--.23405S2;
+        Fri, 09 Apr 2021 03:12:41 +0800 (CST)
+From:   Jianmin Wang <jianmin@iscas.ac.cn>
+To:     gregkh@linuxfoundation.org
+Cc:     davem@davemloft.net, dzickus@redhat.com,
+        herbert@gondor.apana.org.au, jianmin@iscas.ac.cn,
+        linux-crypto@vger.kernel.org, netdev@vger.kernel.org,
+        omosnace@redhat.com, smueller@chronox.de, stable@vger.kernel.org,
+        steffen.klassert@secunet.com
+Subject: Re: Re: [PATCH] backports: crypto user - make NETLINK_CRYPTO work 
+Date:   Thu,  8 Apr 2021 19:11:48 +0000
+Message-Id: <20210408191148.51259-1-jianmin@iscas.ac.cn>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <YGs3Voq0codXCHbA@kroah.com>
+References: <YGs3Voq0codXCHbA@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210408183828.1907807-3-martin.blumenstingl@googlemail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: qwCowABnf7egVW9gQsQWAA--.23405S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxXFyDCrWxZr1kCF4DXFykAFb_yoW5AF4xpF
+        yfKr4ayF45J3yxA3yxZr1Fq3sYg3yftr15G397W3y8ZF4UtryFvrZFvw15uryUGrs5WayY
+        yFWUKw1fWw4DArDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUvK14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+        1l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+        6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r
+        4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+        I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+        4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628v
+        n2kIc2xKxwCY02Avz4vE14v_WwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJV
+        W8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF
+        1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6x
+        IIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF
+        0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxh
+        VjvjDU0xZFpf9x0JUfnYwUUUUU=
+X-Originating-IP: [124.16.141.242]
+X-CM-SenderInfo: xmld0z1lq6x2xfdvhtffof0/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Apr 05, 2021 at 16:14 UTC, Greg KH wrote:
+> On Mon, Apr 05, 2021 at 01:55:15PM +0000, Jianmin Wang wrote:
+> > There is same problem found in linux 4.19.y as upstream commit. The 
+> > changes of crypto_user_* and cryptouser.h files from upstream patch are merged into 
+> > crypto/crypto_user.c for backporting.
+> > 
+> > Upstream commit:
+> >     commit 91b05a7e7d8033a90a64f5fc0e3808db423e420a
+> >     Author: Ondrej Mosnacek <omosnace@redhat.com>
+> >     Date:   Tue,  9 Jul 2019 13:11:24 +0200
+> > 
+> >     Currently, NETLINK_CRYPTO works only in the init network namespace. It
+> >     doesn't make much sense to cut it out of the other network namespaces,
+> >     so do the minor plumbing work necessary to make it work in any network
+> >     namespace. Code inspired by net/core/sock_diag.c.
+> > 
+> >     Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> >     Signed-off-by: default avatarHerbert Xu <herbert@gondor.apana.org.au>
+> > 
+> > Signed-off-by: Jianmin Wang <jianmin@iscas.ac.cn>
+> > ---
+> >  crypto/crypto_user.c        | 37 +++++++++++++++++++++++++------------
+> >  include/net/net_namespace.h |  3 +++
+> >  2 files changed, 28 insertions(+), 12 deletions(-)
+> 
+> How does this change fit with the stable kernel rules?  It looks to be a
+> new feature, if you need this, why not just use a newer kernel version?
+> What is preventing you from doing that?
+> 
 
+This problem was found when we deployed new services on our container cluster, 
+while the new services need to invoke libkcapi in the container environment.
 
-On 4/8/2021 11:38 AM, Martin Blumenstingl wrote:
-> There are a few more bits in the GSWIP_MII_CFG register for which we
-> did rely on the boot-loader (or the hardware defaults) to set them up
-> properly.
-> 
-> For some external RMII PHYs we need to select the GSWIP_MII_CFG_RMII_CLK
-> bit and also we should un-set it for non-RMII PHYs. The
-> GSWIP_MII_CFG_RMII_CLK bit is ignored for other PHY connection modes.
-> 
-> The GSWIP IP also supports in-band auto-negotiation for RGMII PHYs when
-> the GSWIP_MII_CFG_RGMII_IBS bit is set. Clear this bit always as there's
-> no known hardware which uses this (so it is not tested yet).
-> 
-> Clear the xMII isolation bit when set at initialization time if it was
-> previously set by the bootloader. Not doing so could lead to no traffic
-> (neither RX nor TX) on a port with this bit set.
-> 
-> While here, also add the GSWIP_MII_CFG_RESET bit. We don't need to
-> manage it because this bit is self-clearning when set. We still add it
-> here to get a better overview of the GSWIP_MII_CFG register.
-> 
-> Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+We have verified that the problem doesn't exist on newer kernel version. 
+However, due to many services and the cluster running on many server machines 
+whose host os are long-term linux distribution with linux 4.19 kernel, it will 
+cost too much to migrate them to newer os with newer kernel version. This is 
+why we need to fix the problem on linux 4.19.
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Only when we run docker with param --net=host, the libkcapi can be invoked 
+properly. Otherwise, almost all test cases in smuellerDD/libkcapi [1] will 
+failed with same error as below:
+
+    libkcapi - Error: Netlink error: sendmsg failed
+    libkcapi - Error: Netlink error: sendmsg failed
+    libkcapi - Error: NETLINK_CRYPTO: cannot obtain cipher information for 
+      hmac(sha1) (is required crypto_user.c patch missing? see documentation)
+
+The cause is same as statement in upstream commit 91b05a7e, which is that 
+NETLINK_CRYPTO works only in the init network namespace.
+
+In my opinion, there are still many linux distribution running with linux 4.19 
+or similar version, such as Debian 10 with linux 4.19, CentOS 8 with linux 4.18
+and also their derivatives. If other people want to use libkcapi in container 
+environment, they will also be bothered by this problem. [2]
+
+So I think this patch meet two rules in stable kernel rules: It must fix a real
+bug that bothers people and the upstream commit 91b05a7e exists in Linus's tree
+from linux 5.4.
+
+Thanks for your review and reply.
+
+--
+Email: Jianmin Wang <jianmin@iscas.ac.cn>
+
