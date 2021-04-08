@@ -2,88 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89334357FAC
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 11:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 292FC357FB7
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 11:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231476AbhDHJpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 05:45:47 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39697 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231474AbhDHJpp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 05:45:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617875134;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=x7I3DmGLXrsRyzlHfy6cDu8vSs80M025TjfxeEvur9E=;
-        b=GA1MUk3d7A4vewTEhaorEibiLIH2v6VKGE67hyC/g9kpo9UfPbjWv11VJMN3WV08HfYOG5
-        7zhBK8FddrPvsUXq9o+nmCrznH6a26qqxMsTyqK7b/DRF29UZ9uHV3kk9qBpV9WyKDt+Og
-        1YvZcfOY8pgGiuOBJhEWJeLYlwCLJMQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-462-Xl-Ef9tEPrWyv8Gfc99AZA-1; Thu, 08 Apr 2021 05:45:32 -0400
-X-MC-Unique: Xl-Ef9tEPrWyv8Gfc99AZA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S231509AbhDHJqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 05:46:05 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:36630 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231500AbhDHJqF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 05:46:05 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 02FBA6D241;
-        Thu,  8 Apr 2021 09:45:31 +0000 (UTC)
-Received: from wangxiaodeMacBook-Air.local (ovpn-13-53.pek2.redhat.com [10.72.13.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E52CF5D9CA;
-        Thu,  8 Apr 2021 09:45:23 +0000 (UTC)
-Subject: Re: [PATCH 3/5] vdpa/mlx5: Retrieve BAR address suitable any function
-To:     Eli Cohen <elic@nvidia.com>, mst@redhat.com, parav@nvidia.com,
-        si-wei.liu@oracle.com, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20210408091047.4269-1-elic@nvidia.com>
- <20210408091047.4269-4-elic@nvidia.com>
-From:   Jason Wang <jasowang@redhat.com>
-Message-ID: <67feb53c-91dc-f299-0c83-ce459cb0da5e@redhat.com>
-Date:   Thu, 8 Apr 2021 17:45:22 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.0
-MIME-Version: 1.0
-In-Reply-To: <20210408091047.4269-4-elic@nvidia.com>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 1ADDAC09B1;
+        Thu,  8 Apr 2021 09:45:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1617875154; bh=xhxpjgTpa9pFuo9pJIVEGylg0epbNh6oZH7CA1L2gdc=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=XwhmdZ+cHK82HfuPZpbrVajJB7gaG6sEgI5MkcbfqwFCEGwcoWENtex6/3WTza2bL
+         zGXWzWm3Z/e+z1+iLCP9YIsxGhL0RjIRyLqxRZFOzL+q5kvgTEdRPsatidjBv51Gj9
+         /stm0yw6iBRoAY8BqjW7yiBOsQu6YwfL4HTXndPXIm7cZhRzKhV6zXNexkb9EIgl9G
+         TQYoVQFWUnmlR4Rg/91qqkkfvf0qhL/7I4tJn+slSTZDZxRKGobOa0xgzj6dzKMNyz
+         HjTkHdJhHcwCrnBG/QS7Urv4L8nqvk2gTUyx5GZDCSzhu/8u2dA/jmvRkW/RtbsnXY
+         icPLptyHBDV3w==
+Received: from razpc-HP (razpc-hp.internal.synopsys.com [10.116.126.207])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 75484A0094;
+        Thu,  8 Apr 2021 09:45:50 +0000 (UTC)
+Received: by razpc-HP (sSMTP sendmail emulation); Thu, 08 Apr 2021 13:45:49 +0400
+Date:   Thu, 08 Apr 2021 13:45:49 +0400
+In-Reply-To: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
+References: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Subject: [PATCH v3 11/14] usb: dwc2: Fix session request interrupt handler
+To:     John Youn <John.Youn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mian Yousaf Kaukab <yousaf.kaukab@intel.com>,
+        Gregory Herrero <gregory.herrero@intel.com>
+Cc:     Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        <stable@vger.kernel.org>, Robert Baldyga <r.baldyga@samsung.com>
+Message-Id: <20210408094550.75484A0094@mailhost.synopsys.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+According to programming guide in host mode, port
+power must be turned on in session request
+interrupt handlers.
 
-ÔÚ 2021/4/8 ÏÂÎç5:10, Eli Cohen Ð´µÀ:
-> struct mlx5_core_dev has a bar_addr field that contains the correct bar
-> address for the function regardless of whether it is pci function or sub
-> function. Use it.
->
-> Fixes: 1958fc2f0712 ("net/mlx5: SF, Add auxiliary device driver")
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
-> Reviewed-by: Parav Pandit <parav@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 21795c826a45 ("usb: dwc2: exit hibernation on session request")
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+---
+ drivers/usb/dwc2/core_intr.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-
-> ---
->   drivers/vdpa/mlx5/core/resources.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/vdpa/mlx5/core/resources.c b/drivers/vdpa/mlx5/core/resources.c
-> index 96e6421c5d1c..6521cbd0f5c2 100644
-> --- a/drivers/vdpa/mlx5/core/resources.c
-> +++ b/drivers/vdpa/mlx5/core/resources.c
-> @@ -246,7 +246,8 @@ int mlx5_vdpa_alloc_resources(struct mlx5_vdpa_dev *mvdev)
->   	if (err)
->   		goto err_key;
->   
-> -	kick_addr = pci_resource_start(mdev->pdev, 0) + offset;
-> +	kick_addr = mdev->bar_addr + offset;
-> +
->   	res->kick_addr = ioremap(kick_addr, PAGE_SIZE);
->   	if (!res->kick_addr) {
->   		err = -ENOMEM;
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index 0a7f9330907f..8c0152b514be 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -307,6 +307,7 @@ static void dwc2_handle_conn_id_status_change_intr(struct dwc2_hsotg *hsotg)
+ static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
+ {
+ 	int ret;
++	u32 hprt0;
+ 
+ 	/* Clear interrupt */
+ 	dwc2_writel(hsotg, GINTSTS_SESSREQINT, GINTSTS);
+@@ -328,6 +329,13 @@ static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
+ 		 * established
+ 		 */
+ 		dwc2_hsotg_disconnect(hsotg);
++	} else {
++		/* Turn on the port power bit. */
++		hprt0 = dwc2_read_hprt0(hsotg);
++		hprt0 |= HPRT0_PWR;
++		dwc2_writel(hsotg, hprt0, HPRT0);
++		/* Connect hcd after port power is set. */
++		dwc2_hcd_connect(hsotg);
+ 	}
+ }
+ 
+-- 
+2.25.1
 
