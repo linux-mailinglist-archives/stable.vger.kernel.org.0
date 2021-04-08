@@ -2,118 +2,275 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8597358D4E
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 21:13:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BBAC358F4A
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 23:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232999AbhDHTN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 15:13:29 -0400
-Received: from smtp21.cstnet.cn ([159.226.251.21]:37334 "EHLO cstnet.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232804AbhDHTN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Apr 2021 15:13:28 -0400
-Received: from localhost.localdomain (unknown [124.16.141.242])
-        by APP-01 (Coremail) with SMTP id qwCowABnf7egVW9gQsQWAA--.23405S2;
-        Fri, 09 Apr 2021 03:12:41 +0800 (CST)
-From:   Jianmin Wang <jianmin@iscas.ac.cn>
-To:     gregkh@linuxfoundation.org
-Cc:     davem@davemloft.net, dzickus@redhat.com,
-        herbert@gondor.apana.org.au, jianmin@iscas.ac.cn,
-        linux-crypto@vger.kernel.org, netdev@vger.kernel.org,
-        omosnace@redhat.com, smueller@chronox.de, stable@vger.kernel.org,
-        steffen.klassert@secunet.com
-Subject: Re: Re: [PATCH] backports: crypto user - make NETLINK_CRYPTO work 
-Date:   Thu,  8 Apr 2021 19:11:48 +0000
-Message-Id: <20210408191148.51259-1-jianmin@iscas.ac.cn>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <YGs3Voq0codXCHbA@kroah.com>
-References: <YGs3Voq0codXCHbA@kroah.com>
+        id S232426AbhDHViD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 17:38:03 -0400
+Received: from mga06.intel.com ([134.134.136.31]:55548 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232404AbhDHViD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Apr 2021 17:38:03 -0400
+IronPort-SDR: cPWbDu6A/RZQbXA33ZaULKlI51bdbnX9OlyLKL5gAWwIbhaBb6bAGZLSsiWQq+aAQzDbH8a7a8
+ shygouTW8ogw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9948"; a="254971705"
+X-IronPort-AV: E=Sophos;i="5.82,207,1613462400"; 
+   d="scan'208";a="254971705"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2021 14:37:51 -0700
+IronPort-SDR: liih20CqRgUu+I/aveZgYLoxeabzKmjS+ppLcW32yCEPAhtje/pIeqKdYSlT1GBgoz7G15hIK8
+ 0vh8guKWsDXw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.82,207,1613462400"; 
+   d="scan'208";a="448815701"
+Received: from alison-desk.jf.intel.com ([10.54.74.53])
+  by FMSMGA003.fm.intel.com with ESMTP; 08 Apr 2021 14:37:50 -0700
+Date:   Thu, 8 Apr 2021 14:36:40 -0700
+From:   Alison Schofield <alison.schofield@intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>
+Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Rientjes <rientjes@google.com>,
+        Igor Mammedov <imammedo@redhat.com>,
+        Prarit Bhargava <prarit@redhat.com>, brice.goglin@gmail.com
+Subject: Re: [PATCH v3] x86, sched: Treat Intel SNC topology as default, COD
+ as exception
+Message-ID: <20210408213640.GA24727@alison-desk.jf.intel.com>
+References: <20210310190233.31752-1-alison.schofield@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: qwCowABnf7egVW9gQsQWAA--.23405S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxXFyDCrWxZr1kCF4DXFykAFb_yoW5AF4xpF
-        yfKr4ayF45J3yxA3yxZr1Fq3sYg3yftr15G397W3y8ZF4UtryFvrZFvw15uryUGrs5WayY
-        yFWUKw1fWw4DArDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUvK14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-        1l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
-        6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r
-        4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-        I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-        4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628v
-        n2kIc2xKxwCY02Avz4vE14v_WwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJV
-        W8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF
-        1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6x
-        IIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF
-        0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxh
-        VjvjDU0xZFpf9x0JUfnYwUUUUU=
-X-Originating-IP: [124.16.141.242]
-X-CM-SenderInfo: xmld0z1lq6x2xfdvhtffof0/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210310190233.31752-1-alison.schofield@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 05, 2021 at 16:14 UTC, Greg KH wrote:
-> On Mon, Apr 05, 2021 at 01:55:15PM +0000, Jianmin Wang wrote:
-> > There is same problem found in linux 4.19.y as upstream commit. The 
-> > changes of crypto_user_* and cryptouser.h files from upstream patch are merged into 
-> > crypto/crypto_user.c for backporting.
-> > 
-> > Upstream commit:
-> >     commit 91b05a7e7d8033a90a64f5fc0e3808db423e420a
-> >     Author: Ondrej Mosnacek <omosnace@redhat.com>
-> >     Date:   Tue,  9 Jul 2019 13:11:24 +0200
-> > 
-> >     Currently, NETLINK_CRYPTO works only in the init network namespace. It
-> >     doesn't make much sense to cut it out of the other network namespaces,
-> >     so do the minor plumbing work necessary to make it work in any network
-> >     namespace. Code inspired by net/core/sock_diag.c.
-> > 
-> >     Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> >     Signed-off-by: default avatarHerbert Xu <herbert@gondor.apana.org.au>
-> > 
-> > Signed-off-by: Jianmin Wang <jianmin@iscas.ac.cn>
-> > ---
-> >  crypto/crypto_user.c        | 37 +++++++++++++++++++++++++------------
-> >  include/net/net_namespace.h |  3 +++
-> >  2 files changed, 28 insertions(+), 12 deletions(-)
+Ping - any feedback?
+Thanks!
+
+On Wed, Mar 10, 2021 at 11:02:33AM -0800, Alison Schofield wrote:
+> Commit 1340ccfa9a9a ("x86,sched: Allow topologies where NUMA nodes
+> share an LLC") added a vendor and model specific check to never
+> call topology_sane() for Intel Skylake Server systems where NUMA
+> nodes share an LLC.
 > 
-> How does this change fit with the stable kernel rules?  It looks to be a
-> new feature, if you need this, why not just use a newer kernel version?
-> What is preventing you from doing that?
+> Intel Ice Lake and Sapphire Rapids CPUs also enumerate an LLC that is
+> shared by multiple NUMA nodes. The LLC on these CPUs is shared for
+> off-package data access but private to the NUMA node for on-package
+> access. Rather than managing a list of allowable SNC topologies, make
+> this SNC topology the default, and treat Intel's Cluster-On-Die (COD)
+> topology as the exception.
 > 
-
-This problem was found when we deployed new services on our container cluster, 
-while the new services need to invoke libkcapi in the container environment.
-
-We have verified that the problem doesn't exist on newer kernel version. 
-However, due to many services and the cluster running on many server machines 
-whose host os are long-term linux distribution with linux 4.19 kernel, it will 
-cost too much to migrate them to newer os with newer kernel version. This is 
-why we need to fix the problem on linux 4.19.
-
-Only when we run docker with param --net=host, the libkcapi can be invoked 
-properly. Otherwise, almost all test cases in smuellerDD/libkcapi [1] will 
-failed with same error as below:
-
-    libkcapi - Error: Netlink error: sendmsg failed
-    libkcapi - Error: Netlink error: sendmsg failed
-    libkcapi - Error: NETLINK_CRYPTO: cannot obtain cipher information for 
-      hmac(sha1) (is required crypto_user.c patch missing? see documentation)
-
-The cause is same as statement in upstream commit 91b05a7e, which is that 
-NETLINK_CRYPTO works only in the init network namespace.
-
-In my opinion, there are still many linux distribution running with linux 4.19 
-or similar version, such as Debian 10 with linux 4.19, CentOS 8 with linux 4.18
-and also their derivatives. If other people want to use libkcapi in container 
-environment, they will also be bothered by this problem. [2]
-
-So I think this patch meet two rules in stable kernel rules: It must fix a real
-bug that bothers people and the upstream commit 91b05a7e exists in Linus's tree
-from linux 5.4.
-
-Thanks for your review and reply.
-
---
-Email: Jianmin Wang <jianmin@iscas.ac.cn>
-
+> In SNC mode, Sky Lake, Ice Lake, and Sapphire Rapids servers do not
+> emit this warning:
+> 
+> sched: CPU #3's llc-sibling CPU #0 is not on the same node! [node: 1 != 0]. Ignoring dependency.
+> 
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Alison Schofield <alison.schofield@intel.com>
+> Cc: stable@vger.kernel.org
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Tony Luck <tony.luck@intel.com>
+> Cc: Tim Chen <tim.c.chen@linux.intel.com>
+> Cc: "H. Peter Anvin" <hpa@linux.intel.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Igor Mammedov <imammedo@redhat.com>
+> Cc: Prarit Bhargava <prarit@redhat.com>
+> Cc: brice.goglin@gmail.com
+> ---
+> 
+> Changes v2->v3:
+> - This is a v3 of this patch: https://lore.kernel.org/lkml/20210216195804.24204-1-alison.schofield@intel.com/
+> - Implemented PeterZ suggestion, and his code, to check for COD instead
+>   of SNC.
+> - Updated commit message and log.
+> - Added 'Cc stable.
+> 
+> Changes v1->v2:
+> - Implemented the minimal required change of adding the new models to
+>   the existing vendor and model specific check.
+> 
+> - Side effect of going minimalist: no longer labelled an X86_BUG (TonyL)
+> 
+> - Considered PeterZ suggestion of checking for COD CPUs, rather than
+>   SNC CPUs. That meant this snc_cpu list would go away, and so it never
+>   needs updating. That ups the stakes for this patch wrt LOC changed
+>   and testing needed. It actually drove me back to this simplest soln.
+> 
+> - Considered DaveH suggestion to remove the check altogether and recognize
+>   these topologies as sane. Not running with that further here. This patch
+>   is what is needed now. The broader discussion of sane topologies can
+>   carry on independent of this update.
+> 
+> - Updated commit message and log.
+> 
+> 
+>  arch/x86/kernel/smpboot.c | 90 ++++++++++++++++++++-------------------
+>  1 file changed, 46 insertions(+), 44 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+> index 02813a7f3a7c..147b2f3a2a09 100644
+> --- a/arch/x86/kernel/smpboot.c
+> +++ b/arch/x86/kernel/smpboot.c
+> @@ -458,29 +458,52 @@ static bool match_smt(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+>  	return false;
+>  }
+>  
+> +static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+> +{
+> +	if (c->phys_proc_id == o->phys_proc_id &&
+> +	    c->cpu_die_id == o->cpu_die_id)
+> +		return true;
+> +	return false;
+> +}
+> +
+> +/*
+> + * Unlike the other levels, we do not enforce keeping a
+> + * multicore group inside a NUMA node.  If this happens, we will
+> + * discard the MC level of the topology later.
+> + */
+> +static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+> +{
+> +	if (c->phys_proc_id == o->phys_proc_id)
+> +		return true;
+> +	return false;
+> +}
+> +
+>  /*
+> - * Define snc_cpu[] for SNC (Sub-NUMA Cluster) CPUs.
+> + * Define intel_cod_cpu[] for Intel COD (Cluster-on-Die) CPUs.
+>   *
+> - * These are Intel CPUs that enumerate an LLC that is shared by
+> - * multiple NUMA nodes. The LLC on these systems is shared for
+> - * off-package data access but private to the NUMA node (half
+> - * of the package) for on-package access.
+> + * Any Intel CPU that has multiple nodes per package and does not
+> + * match intel_cod_cpu[] has the SNC (Sub-NUMA Cluster) topology.
+>   *
+> - * CPUID (the source of the information about the LLC) can only
+> - * enumerate the cache as being shared *or* unshared, but not
+> - * this particular configuration. The CPU in this case enumerates
+> - * the cache to be shared across the entire package (spanning both
+> - * NUMA nodes).
+> + * When in SNC mode, these CPUs enumerate an LLC that is shared
+> + * by multiple NUMA nodes. The LLC is shared for off-package data
+> + * access but private to the NUMA node (half of the package) for
+> + * on-package access. CPUID (the source of the information about
+> + * the LLC) can only enumerate the cache as shared or unshared,
+> + * but not this particular configuration.
+>   */
+>  
+> -static const struct x86_cpu_id snc_cpu[] = {
+> -	X86_MATCH_INTEL_FAM6_MODEL(SKYLAKE_X, NULL),
+> +static const struct x86_cpu_id intel_cod_cpu[] = {
+> +	X86_MATCH_INTEL_FAM6_MODEL(HASWELL_X, 0),	/* COD */
+> +	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL_X, 0),	/* COD */
+> +	X86_MATCH_INTEL_FAM6_MODEL(ANY, 1),		/* SNC */
+>  	{}
+>  };
+>  
+>  static bool match_llc(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+>  {
+> +	const struct x86_cpu_id *id = x86_match_cpu(intel_cod_cpu);
+>  	int cpu1 = c->cpu_index, cpu2 = o->cpu_index;
+> +	bool intel_snc = id && id->driver_data;
+>  
+>  	/* Do not match if we do not have a valid APICID for cpu: */
+>  	if (per_cpu(cpu_llc_id, cpu1) == BAD_APICID)
+> @@ -495,32 +518,12 @@ static bool match_llc(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+>  	 * means 'c' does not share the LLC of 'o'. This will be
+>  	 * reflected to userspace.
+>  	 */
+> -	if (!topology_same_node(c, o) && x86_match_cpu(snc_cpu))
+> +	if (match_pkg(c, o) && !topology_same_node(c, o) && intel_snc)
+>  		return false;
+>  
+>  	return topology_sane(c, o, "llc");
+>  }
+>  
+> -/*
+> - * Unlike the other levels, we do not enforce keeping a
+> - * multicore group inside a NUMA node.  If this happens, we will
+> - * discard the MC level of the topology later.
+> - */
+> -static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+> -{
+> -	if (c->phys_proc_id == o->phys_proc_id)
+> -		return true;
+> -	return false;
+> -}
+> -
+> -static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+> -{
+> -	if ((c->phys_proc_id == o->phys_proc_id) &&
+> -		(c->cpu_die_id == o->cpu_die_id))
+> -		return true;
+> -	return false;
+> -}
+> -
+>  
+>  #if defined(CONFIG_SCHED_SMT) || defined(CONFIG_SCHED_MC)
+>  static inline int x86_sched_itmt_flags(void)
+> @@ -592,14 +595,23 @@ void set_cpu_sibling_map(int cpu)
+>  	for_each_cpu(i, cpu_sibling_setup_mask) {
+>  		o = &cpu_data(i);
+>  
+> +		if (match_pkg(c, o) && !topology_same_node(c, o))
+> +			x86_has_numa_in_package = true;
+> +
+>  		if ((i == cpu) || (has_smt && match_smt(c, o)))
+>  			link_mask(topology_sibling_cpumask, cpu, i);
+>  
+>  		if ((i == cpu) || (has_mp && match_llc(c, o)))
+>  			link_mask(cpu_llc_shared_mask, cpu, i);
+>  
+> +		if ((i == cpu) || (has_mp && match_die(c, o)))
+> +			link_mask(topology_die_cpumask, cpu, i);
+>  	}
+>  
+> +	threads = cpumask_weight(topology_sibling_cpumask(cpu));
+> +	if (threads > __max_smt_threads)
+> +		__max_smt_threads = threads;
+> +
+>  	/*
+>  	 * This needs a separate iteration over the cpus because we rely on all
+>  	 * topology_sibling_cpumask links to be set-up.
+> @@ -613,8 +625,7 @@ void set_cpu_sibling_map(int cpu)
+>  			/*
+>  			 *  Does this new cpu bringup a new core?
+>  			 */
+> -			if (cpumask_weight(
+> -			    topology_sibling_cpumask(cpu)) == 1) {
+> +			if (threads == 1) {
+>  				/*
+>  				 * for each core in package, increment
+>  				 * the booted_cores for this new cpu
+> @@ -631,16 +642,7 @@ void set_cpu_sibling_map(int cpu)
+>  			} else if (i != cpu && !c->booted_cores)
+>  				c->booted_cores = cpu_data(i).booted_cores;
+>  		}
+> -		if (match_pkg(c, o) && !topology_same_node(c, o))
+> -			x86_has_numa_in_package = true;
+> -
+> -		if ((i == cpu) || (has_mp && match_die(c, o)))
+> -			link_mask(topology_die_cpumask, cpu, i);
+>  	}
+> -
+> -	threads = cpumask_weight(topology_sibling_cpumask(cpu));
+> -	if (threads > __max_smt_threads)
+> -		__max_smt_threads = threads;
+>  }
+>  
+>  /* maps the cpu to the sched domain representing multi-core */
+> -- 
+> 2.20.1
+> 
