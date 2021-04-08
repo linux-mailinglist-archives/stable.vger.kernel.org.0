@@ -2,158 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BD02358137
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 13:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1077435822E
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 13:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230322AbhDHLAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 07:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52248 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhDHLAt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Apr 2021 07:00:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A950F608FE;
-        Thu,  8 Apr 2021 11:00:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617879636;
-        bh=Dkg7QdY5kyGAiD7cdHvYb+UjEUHo0BETWXZ37AlnuZo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qXCAmq6HFhTrVPziAFYql6iYKhIBxFjkDXU+wRWjck2vSD1W9QJ8UKTvJsqEV0I7e
-         Fqd6KxdvFt9QIjZRwuyGBJheEHfGo09jfgCERdzrCRjIyo6wdJWqz+Lcj99rT61/6K
-         Mdo6MEDzYAhIVQl7wOR5yAhXNZvfTpyYo79ptbd8=
-Date:   Thu, 8 Apr 2021 13:00:33 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Cc:     John Youn <John.Youn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        id S231344AbhDHLlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 07:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42994 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231375AbhDHLlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 07:41:20 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC00BC061760;
+        Thu,  8 Apr 2021 04:41:08 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id m3so2011510edv.5;
+        Thu, 08 Apr 2021 04:41:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=9W5u9JNowWa9GKxAEJ2E0StodFgzOY5U/p+9mBXj95I=;
+        b=JS9eJVgfynJVA/3KbS/hCW7MZIRKZOZIb53vErZBMLiiUIDtvkF1fooyQqBpG/Nkha
+         KDqgCL/4YxMOHY4MTNymEdVId38BxQKiBv+9mgVVOwdTua1aDF4OB+lwfCIYXz/74RSX
+         IvcwsAmiN9MvOQ2G8IJn8//yx9tHkXRpfIBLRk9Qh8ONXrg7pMxB5LHfqjy8KX1W3RKW
+         NxYTE4UbK4zYnK/rNUNvbIbItAkTqolE4KbtEO7FDHdne+Hg0ED8YZC0ja8qbIQ9ufdM
+         FyXdrjraBx40JUUtVYMdxfSkd1LQOQ2C04485KMr/UUrOXpVamPb9JC2UT0Hz9OX3W/z
+         Tm0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=9W5u9JNowWa9GKxAEJ2E0StodFgzOY5U/p+9mBXj95I=;
+        b=qJkr4Mn04mBKgNYlHGtflnHpIF2D9eu5xHbM2tkWKu3UbWPmWBg2j36ZGfDWfDebr0
+         NU7/AtfnQCX5hQz2Ooyw6xHz2ktxz9jsoVIHQDUV2ycIWZep0D+C4vUvCT1ob6me6Wyj
+         gcBe4YXvs2lC5uAbK+yqCbu7GvriyHBlDOETIGr4w+l5gcHfPvcRmyo/g3OQDgvX7S/1
+         yhAQuAZtdmATwmax4LIn42E1POFbrFnuNEwdwnRbArs7xNdNJVFqBRXiEEXq/L5UffpG
+         oVq0iAAJTrm/GunHQjfODg1LpsPJ/Z9mWyYifdsE3IK03vPKpKj4MPdIhSOPwwbd7fv4
+         A1/g==
+X-Gm-Message-State: AOAM531/KwcTk5rbk+QH51fp07MQbWeplVJz+yTEXbFmyvKoe4kPQh7J
+        cZ11ZFbViht1IEg+VHDs4V0=
+X-Google-Smtp-Source: ABdhPJxHjMV9iH5aPR/Kq3Q/3Ykz/dCa08ogguDQJ1C7Z1FnpkfIOpxzgMQf5JbPNlDlihhMHL27mw==
+X-Received: by 2002:a50:d84e:: with SMTP id v14mr11046764edj.357.1617882067518;
+        Thu, 08 Apr 2021 04:41:07 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id q25sm17449500edt.51.2021.04.08.04.41.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Apr 2021 04:41:06 -0700 (PDT)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Thu, 8 Apr 2021 13:41:05 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Shyam Prasad <Shyam.Prasad@microsoft.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Mian Yousaf Kaukab <yousaf.kaukab@intel.com>,
-        Gregory Herrero <gregory.herrero@intel.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Paul Zimmerman <paulz@synopsys.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Robert Baldyga <r.baldyga@samsung.com>,
-        Kever Yang <kever.yang@rock-chips.com>
-Subject: Re: [PATCH v2 00/14] usb: dwc2: Fix Partial Power down issues.
-Message-ID: <YG7iUey+Rtof+3Up@kroah.com>
-References: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
- <20210408072825.61347A022E@mailhost.synopsys.com>
- <3625b740-b362-5ec6-8fba-cd7babcab35b@synopsys.com>
- <af45ed18-2ce4-43da-f28c-d5cda0710b9f@synopsys.com>
+        Aurelien Aptel <aaptel@suse.com>,
+        Steven French <Steven.French@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [EXTERNAL] Re: [PATCH 4.19 013/247] cifs: Set
+ CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.
+Message-ID: <YG7r0UaivWZL762N@eldamar.lan>
+References: <20210301161031.684018251@linuxfoundation.org>
+ <20210301161032.337414143@linuxfoundation.org>
+ <YGxIMCsclG4E1/ck@eldamar.lan>
+ <YGxlJXv/+IPaErUr@kroah.com>
+ <PSAP153MB04220682838AC9D025414B6094769@PSAP153MB0422.APCP153.PROD.OUTLOOK.COM>
+ <YGx3u01Wa/DDnjlV@eldamar.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <af45ed18-2ce4-43da-f28c-d5cda0710b9f@synopsys.com>
+In-Reply-To: <YGx3u01Wa/DDnjlV@eldamar.lan>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 08, 2021 at 10:09:20AM +0000, Artur Petrosyan wrote:
-> Hi Greg,
+Hi Shyam,
+
+On Tue, Apr 06, 2021 at 05:01:17PM +0200, Salvatore Bonaccorso wrote:
+> Hi,
 > 
-> On 4/8/2021 13:17, Artur Petrosyan wrote:
+> On Tue, Apr 06, 2021 at 02:00:48PM +0000, Shyam Prasad wrote:
 > > Hi Greg,
-> > 
-> > On 4/8/2021 11:28, Artur Petrosyan wrote:
-> >> This patch set fixes and improves the Partial Power Down mode for
-> >> dwc2 core.
-> >> It adds support for the following cases
-> >>       1. Entering and exiting partial power down when a port is
-> >>          suspended, resumed, port reset is asserted.
-> >>       2. Exiting the partial power down mode before removing driver.
-> >>       3. Exiting partial power down in wakeup detected interrupt handler.
-> >>       4. Exiting from partial power down mode when connector ID.
-> >>          status changes to "connId B
-> >>
-> >> It updates and fixes the implementation of dwc2 entering and
-> >> exiting partial power down mode when the system (PC) is suspended.
-> >>
-> >> The patch set also improves the implementation of function handlers
-> >> for entering and exiting host or device partial power down.
-> >>
-> >> NOTE: This is the second patch set in the power saving mode fixes
-> >> series.
-> >> This patch set is part of multiple series and is continuation
-> >> of the "usb: dwc2: Fix and improve power saving modes" patch set.
-> >> (Patch set link: https://urldefense.com/v3/__https://marc.info/?l=linux-usb&m=160379622403975&w=2__;!!A4F2R9G_pg!IJ-Xl1ZwQU2kmqHB3ITyWyno9BgpWUsC647AqK7GIlgzJu9BzT6VN7jt--__fGdMtgWF69M$ ).
-> >> The patches that were included in the "usb: dwc2:
-> >> Fix and improve power saving modes" which was submitted
-> >> earlier was too large and needed to be split up into
-> >> smaller patch sets.
-> >>
-> >> Changes since V1:
-> >> No changes in the patches or the source code.
-> >> Sending the second version of the patch set because the first version
-> >> was not received by vger.kernel.org.
-> >>
-> >>
-> >>
-> >> Artur Petrosyan (14):
-> >>     usb: dwc2: Add device partial power down functions
-> >>     usb: dwc2: Add host partial power down functions
-> >>     usb: dwc2: Update enter and exit partial power down functions
-> >>     usb: dwc2: Add partial power down exit flow in wakeup intr.
-> >>     usb: dwc2: Update port suspend/resume function definitions.
-> >>     usb: dwc2: Add enter partial power down when port is suspended
-> >>     usb: dwc2: Add exit partial power down when port is resumed
-> >>     usb: dwc2: Add exit partial power down when port reset is asserted
-> >>     usb: dwc2: Add part. power down exit from
-> >>       dwc2_conn_id_status_change().
-> >>     usb: dwc2: Allow exit partial power down in urb enqueue
-> >>     usb: dwc2: Fix session request interrupt handler
-> >>     usb: dwc2: Update partial power down entering by system suspend
-> >>     usb: dwc2: Fix partial power down exiting by system resume
-> >>     usb: dwc2: Add exit partial power down before removing driver
-> >>
-> >>    drivers/usb/dwc2/core.c      | 113 ++-------
-> >>    drivers/usb/dwc2/core.h      |  27 ++-
-> >>    drivers/usb/dwc2/core_intr.c |  46 ++--
-> >>    drivers/usb/dwc2/gadget.c    | 148 ++++++++++-
-> >>    drivers/usb/dwc2/hcd.c       | 458 +++++++++++++++++++++++++----------
-> >>    drivers/usb/dwc2/hw.h        |   1 +
-> >>    drivers/usb/dwc2/platform.c  |  11 +-
-> >>    7 files changed, 558 insertions(+), 246 deletions(-)
-> >>
-> >>
-> >> base-commit: e9fcb07704fcef6fa6d0333fd2b3a62442eaf45b
-> >>
-> > 
-> > Re sending as a "v2" did not work :(.
-> > The patches are not in lore again.
-> > 
-> > Could the issue be with a comma in the end of To: or Cc: list?
-> > Let me remove the comma in the end of those lists and try sending as "v3".
-> > 
-> > Regards,
-> > Artur
-> > 
+> > We'll need to debug this further to understand what's going on. 
 > 
-> I just removed the comma in the end of those lists and resent the patch 
-> set as a "v3" and they are already seen in lore.
-> There is one strange thing though on lore. Some patch titles are not 
-> fully visible.
+> Greg asked it the same happens with 5.4 as well, I do not know I was
+> not able to test 5.4.y (yet) but only 5.10.y and 4.19.y.
+> > 
+> > Hi Salvatore,
+> > Any chance that you'll be able to provide us the cifsFYI logs from the time of mount failure?
+> > https://wiki.samba.org/index.php/LinuxCIFS_troubleshooting#Enabling_Debugging
 > 
-> For sure the issue was comma in the end of To: or Cc: lists.
-> Not working example.
-> To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-> linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+> Please find it attached. Is this enough information?
+> 
+> The mentioned home DFS link 'home' is a DFS link to
+> msdfs:SECONDHOST\REDACTED on a Samba host.
+> 
+> The mount is triggered as
+> 
+> mount -t cifs //HOSTIP/REDACTED/home /mnt --verbose -o username='REDACTED,domain=DOMAIN'
 
-That's an invalid To: line for email.
+So I can confirm the issue is both present in 4.19.185 and 5.4.110
+upstream (without any Debian patches applied, we do not anyway apply
+any cifs related one on top of the respetive upstream version).
 
-> Working example.
-> To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-> linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+The issue is not present in 5.10.28.
 
-That's a correct line.
+So I think there are commits as dependency of a738c93fb1c1 ("cifs: Set
+CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.") which
+are required and not applied in the released before 5.10.y which make
+introducing the regression.
 
-> If the comma is at least in the end of one of those lists (To: or Cc:) 
-> vger.kernel.org mailing server will not accept them.
-
-I recommend using 'git send-email' with the --to="foo@bar.com" type
-options so that you don't have to hand-edit the lines to try to get
-stuff like this correct, as it is easy to get wrong.
-
-thanks,
-
-greg k-h
+Regards,
+Salvatore
