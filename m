@@ -2,207 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D01E0357B6C
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 06:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95C7357B65
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 06:32:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbhDHElu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 00:41:50 -0400
-Received: from mga09.intel.com ([134.134.136.24]:61665 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229534AbhDHElt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Apr 2021 00:41:49 -0400
-IronPort-SDR: 3VL4maFV30pzj2eUvSx2iU9YkSTKjBr5Y3TGrqoaHunoGY8OU7vwgQcdTkYRPOeMTVjr6clkc+
- +rDkcLR3vb7Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9947"; a="193571820"
-X-IronPort-AV: E=Sophos;i="5.82,205,1613462400"; 
-   d="scan'208";a="193571820"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Apr 2021 21:41:37 -0700
-IronPort-SDR: QgPTai8qsRYIxJB9cbtKU0LEEXQs+NQgzGRSdiEGaXLNexM8ZyQelHMsG8jBf96vTyWuqDDSEN
- wLeSpg7g+6LA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.82,205,1613462400"; 
-   d="scan'208";a="441590560"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.128]) ([10.239.159.128])
-  by fmsmga004.fm.intel.com with ESMTP; 07 Apr 2021 21:41:34 -0700
-Cc:     baolu.lu@linux.intel.com, David Woodhouse <dwmw2@infradead.org>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        "Gonglei (Arei)" <arei.gonglei@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] iommu/vt-d: Force to flush iotlb before creating
- superpage
-To:     "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
-        <longpeng2@huawei.com>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20210401071834.1639-1-longpeng2@huawei.com>
- <9c368419-6e45-6b27-0f34-26b581589fa7@linux.intel.com>
- <611cb5849c9a497b8289004dddb71150@huawei.com>
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Message-ID: <808394ea-9ff0-7a6d-72e7-f037e5cd3110@linux.intel.com>
-Date:   Thu, 8 Apr 2021 12:32:05 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S229552AbhDHEck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 00:32:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229534AbhDHEck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 00:32:40 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6CEBC061760
+        for <stable@vger.kernel.org>; Wed,  7 Apr 2021 21:32:29 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id a6so568432wrw.8
+        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 21:32:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=digitalocean.com; s=google;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=dw4i+61NZcuNcUhPgHt6UqSYxkc7dV51hhmNID/NlXE=;
+        b=DQqhQk5HCaFv0et3xLhBbufdgvnIOEcaWlKs0w7urEW7bf4VUynNeRc8sL6tAvM0x0
+         1bRPtrVBy8zX6wcIeMc1KWcDupuvj7qIwkaia/s1sXptu47dXfejFGXb8CAuzDvWb3/F
+         I5OQrwkkIR1/dVDmq9JuY6LtkELBQXLeoiG2c=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=dw4i+61NZcuNcUhPgHt6UqSYxkc7dV51hhmNID/NlXE=;
+        b=qvTFNxuaKpal07tVlOy98ftOyrQ7nqJFa+2jJpLIZABcDJoVNaROq+knUBn7DVk4sX
+         7Fw0OQsmbT1r2az+i5ODudSk/RZuOdls7iM8B+RsA/lrzjhYk0lZGAA0ImQ+LX1QMnf7
+         2WKQv3fsQC00+jFknF5tbdTfGYCjfehicIgvpBDz6r/4V1/WhebnPIk+WBu85sgB3eFi
+         WMDXMcOEArr+Szmd88myqk+lWox0H4KPE5wHVWkLQ2RkaHzNGbuTt589vWdbqUZVsHj8
+         +YgbrCAE5gTdxGXSMeWMPhjCLqPyhE79AMPhvwLL/ce5winINQAoSyudSxTN5x95R8hY
+         vtWg==
+X-Gm-Message-State: AOAM533eXCujfBrJC5R8YhCDpPJ3zoQ7pE4tMDxrjnfQERPeUjIVJQ6F
+        D9psv6N8LdMdLCNu48n+U3/6DdPK3KS7QQJ6vApEcxWRLo1rbQ==
+X-Google-Smtp-Source: ABdhPJwjQhGBkTzGd7pjhVwI0ZgzjSCUYV2HQhOD6xXWuwISYwLYzxNX+a7PYWGXBQes9oDSCkG+tSGB0hClvX7W6rU=
+X-Received: by 2002:a5d:420f:: with SMTP id n15mr8374987wrq.186.1617856348288;
+ Wed, 07 Apr 2021 21:32:28 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <611cb5849c9a497b8289004dddb71150@huawei.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+From:   Patrick Mccormick <pmccormick@digitalocean.com>
+Date:   Wed, 7 Apr 2021 21:32:16 -0700
+Message-ID: <CAAjnzAm-vUPWRVPx01=JNwVit+7Jq3M8kr+m2PZvGBbjTcoBsg@mail.gmail.com>
+Subject: PASS: stable-rc/linux-5.10.y (v5.10.28)
+To:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Longpeng,
+We ran tests on this kernel:
 
-On 4/7/21 2:35 PM, Longpeng (Mike, Cloud Infrastructure Service Product 
-Dept.) wrote:
-> Hi Baolu,
-> 
->> -----Original Message-----
->> From: Lu Baolu [mailto:baolu.lu@linux.intel.com]
->> Sent: Friday, April 2, 2021 12:44 PM
->> To: Longpeng (Mike, Cloud Infrastructure Service Product Dept.)
->> <longpeng2@huawei.com>; iommu@lists.linux-foundation.org;
->> linux-kernel@vger.kernel.org
->> Cc: baolu.lu@linux.intel.com; David Woodhouse <dwmw2@infradead.org>; Nadav
->> Amit <nadav.amit@gmail.com>; Alex Williamson <alex.williamson@redhat.com>;
->> Kevin Tian <kevin.tian@intel.com>; Gonglei (Arei) <arei.gonglei@huawei.com>;
->> stable@vger.kernel.org
->> Subject: Re: [PATCH] iommu/vt-d: Force to flush iotlb before creating superpage
->>
->> Hi Longpeng,
->>
->> On 4/1/21 3:18 PM, Longpeng(Mike) wrote:
->>> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
->>> index ee09323..cbcb434 100644
->>> --- a/drivers/iommu/intel/iommu.c
->>> +++ b/drivers/iommu/intel/iommu.c
->>> @@ -2342,9 +2342,20 @@ static inline int hardware_largepage_caps(struct
->> dmar_domain *domain,
->>>    				 * removed to make room for superpage(s).
->>>    				 * We're adding new large pages, so make sure
->>>    				 * we don't remove their parent tables.
->>> +				 *
->>> +				 * We also need to flush the iotlb before creating
->>> +				 * superpage to ensure it does not perserves any
->>> +				 * obsolete info.
->>>    				 */
->>> -				dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
->>> -						       largepage_lvl + 1);
->>> +				if (dma_pte_present(pte)) {
->>
->> The dma_pte_free_pagetable() clears a batch of PTEs. So checking current PTE is
->> insufficient. How about removing this check and always performing cache
->> invalidation?
->>
-> 
-> Um...the PTE here may be present( e.g. 4K mapping --> superpage mapping ) orNOT-present ( e.g. create a totally new superpage mapping ), but we only need to call free_pagetable and flush_iotlb in the former case, right ?
+commit ecdfb9d70fb8c4d7dd9a5fa28c675b4ebe705f85 (HEAD ->
+rc/linux-5.10.y, stable_rc/linux-5.10.y)
+Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Wed Apr 7 15:00:14 2021 +0200
 
-But this code covers multiple PTEs and perhaps crosses the page
-boundary.
+    Linux 5.10.28
+...
 
-How about moving this code into a separated function and check PTE
-presence there. A sample code could look like below: [compiled but not
-tested!]
+28/28 tests passed, 0 failed, 0 errors, 0 warnings.
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index d334f5b4e382..0e04d450c38a 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -2300,6 +2300,41 @@ static inline int hardware_largepage_caps(struct 
-dmar_domain *domain,
-         return level;
-  }
+Specific tests run:
 
-+/*
-+ * Ensure that old small page tables are removed to make room for 
-superpage(s).
-+ * We're going to add new large pages, so make sure we don't remove 
-their parent
-+ * tables. The IOTLB/devTLBs should be flushed if any PDE/PTEs are cleared.
-+ */
-+static void switch_to_super_page(struct dmar_domain *domain,
-+                                unsigned long start_pfn,
-+                                unsigned long end_pfn, int level)
-+{
-+       unsigned long lvl_pages = lvl_to_nr_pages(level);
-+       struct dma_pte *pte = NULL;
-+       int i;
-+
-+       while (start_pfn <= end_pfn) {
-+               if (!pte)
-+                       pte = pfn_to_dma_pte(domain, start_pfn, &level);
-+
-+               if (dma_pte_present(pte)) {
-+                       dma_pte_free_pagetable(domain, start_pfn,
-+                                              start_pfn + lvl_pages - 1,
-+                                              level + 1);
-+
-+                       for_each_domain_iommu(i, domain)
-+                               iommu_flush_iotlb_psi(g_iommus[i], domain,
-+                                                     start_pfn, lvl_pages,
-+                                                     0, 0);
-+               }
-+
-+               pte++;
-+               start_pfn += lvl_pages;
-+               if (first_pte_in_page(pte))
-+                       pte = NULL;
-+       }
-+}
-+
-  static int
-  __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
-                  unsigned long phys_pfn, unsigned long nr_pages, int prot)
-@@ -2341,22 +2376,11 @@ __domain_mapping(struct dmar_domain *domain, 
-unsigned long iov_pfn,
-                                 return -ENOMEM;
-                         /* It is large page*/
-                         if (largepage_lvl > 1) {
--                               unsigned long nr_superpages, end_pfn;
-+                               unsigned long end_pfn;
-
-                                 pteval |= DMA_PTE_LARGE_PAGE;
--                               lvl_pages = lvl_to_nr_pages(largepage_lvl);
--
--                               nr_superpages = nr_pages / lvl_pages;
--                               end_pfn = iov_pfn + nr_superpages * 
-lvl_pages - 1;
--
--                               /*
--                                * Ensure that old small page tables are
--                                * removed to make room for superpage(s).
--                                * We're adding new large pages, so make 
-sure
--                                * we don't remove their parent tables.
--                                */
--                               dma_pte_free_pagetable(domain, iov_pfn, 
-end_pfn,
--                                                      largepage_lvl + 1);
-+                               end_pfn = ((iov_pfn + nr_pages) & 
-level_mask(largepage_lvl)) - 1;
-+                               switch_to_super_page(domain, iov_pfn, 
-end_pfn, largepage_lvl);
-                         } else {
-                                 pteval &= ~(uint64_t)DMA_PTE_LARGE_PAGE;
-                         }
-
-I will send you the diff patch off list. Any thoughts?
-
-Best regards,
-baolu
-
-> 
->>> +					int i;
->>> +
->>> +					dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
->>> +							       largepage_lvl + 1);
->>> +					for_each_domain_iommu(i, domain)
->>> +						iommu_flush_iotlb_psi(g_iommus[i], domain,
->>> +								      iov_pfn, nr_pages, 0, 0);
->>> +
->>
->> Best regards,
->> baolu
+ (01/28) ltp.py:LTP.test_nptl:  PASS (6.03 s)
+ (02/28) ltp.py:LTP.test_math:  PASS (1.90 s)
+ (03/28) ltp.py:LTP.test_hugetlb:  PASS (0.08 s)
+ (04/28) ltp.py:LTP.test_ipc:  PASS (20.09 s)
+ (05/28) ltp.py:LTP.test_uevent:  PASS (0.06 s)
+ (06/28) ltp.py:LTP.test_containers:  PASS (36.71 s)
+ (07/28) ltp.py:LTP.test_filecaps:  PASS (0.10 s)
+ (08/28) ltp.py:LTP.test_hyperthreading:  PASS (71.20 s)
+ (09/28) kpatch.sh:  PASS (10.59 s)
+ (10/28) perf.py:PerfNonPriv.test_perf_help:  PASS (0.08 s)
+ (11/28) perf.py:PerfNonPriv.test_perf_version:  PASS (0.06 s)
+ (12/28) perf.py:PerfNonPriv.test_perf_list:  PASS (0.41 s)
+ (13/28) perf.py:PerfPriv.test_perf_record:  PASS (4.75 s)
+ (14/28) perf.py:PerfPriv.test_perf_cmd_kallsyms:  PASS (0.26 s)
+ (15/28) perf.py:PerfPriv.test_perf_cmd_annotate:  PASS (5.48 s)
+ (16/28) perf.py:PerfPriv.test_perf_cmd_evlist:  PASS (0.07 s)
+ (17/28) perf.py:PerfPriv.test_perf_cmd_script:  PASS (0.52 s)
+ (18/28) perf.py:PerfPriv.test_perf_stat:  PASS (3.22 s)
+ (19/28) perf.py:PerfPriv.test_perf_bench:  PASS (0.07 s)
+ (20/28) kselftest.py:kselftest.test_sysctl:  PASS (0.19 s)
+ (21/28) kselftest.py:kselftest.test_size:  PASS (0.02 s)
+ (22/28) kselftest.py:kselftest.test_x86:  PASS (0.25 s)
+ (23/28) kselftest.py:kselftest.test_sigaltstack:  PASS (0.02 s)
+ (24/28) kselftest.py:kselftest.test_tmpfs:  PASS (0.02 s)
+ (25/28) kselftest.py:kselftest.test_user:  PASS (0.02 s)
+ (26/28) kselftest.py:kselftest.test_timens:  PASS (0.08 s)
+ (27/28) kselftest.py:kselftest.test_kvm:  PASS (13.64 s)
+ (28/28) kselftest.py:kselftest.test_timers:  PASS (555.18 s)
+RESULTS    : PASS 28 | ERROR 0 | FAIL 0 | SKIP 0 | WARN 0 | INTERRUPT
+0 | CANCEL 0
