@@ -2,94 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C95C7357B65
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 06:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F09D357B9D
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 06:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229552AbhDHEck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 00:32:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34404 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229534AbhDHEck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 00:32:40 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6CEBC061760
-        for <stable@vger.kernel.org>; Wed,  7 Apr 2021 21:32:29 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id a6so568432wrw.8
-        for <stable@vger.kernel.org>; Wed, 07 Apr 2021 21:32:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=dw4i+61NZcuNcUhPgHt6UqSYxkc7dV51hhmNID/NlXE=;
-        b=DQqhQk5HCaFv0et3xLhBbufdgvnIOEcaWlKs0w7urEW7bf4VUynNeRc8sL6tAvM0x0
-         1bRPtrVBy8zX6wcIeMc1KWcDupuvj7qIwkaia/s1sXptu47dXfejFGXb8CAuzDvWb3/F
-         I5OQrwkkIR1/dVDmq9JuY6LtkELBQXLeoiG2c=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=dw4i+61NZcuNcUhPgHt6UqSYxkc7dV51hhmNID/NlXE=;
-        b=qvTFNxuaKpal07tVlOy98ftOyrQ7nqJFa+2jJpLIZABcDJoVNaROq+knUBn7DVk4sX
-         7Fw0OQsmbT1r2az+i5ODudSk/RZuOdls7iM8B+RsA/lrzjhYk0lZGAA0ImQ+LX1QMnf7
-         2WKQv3fsQC00+jFknF5tbdTfGYCjfehicIgvpBDz6r/4V1/WhebnPIk+WBu85sgB3eFi
-         WMDXMcOEArr+Szmd88myqk+lWox0H4KPE5wHVWkLQ2RkaHzNGbuTt589vWdbqUZVsHj8
-         +YgbrCAE5gTdxGXSMeWMPhjCLqPyhE79AMPhvwLL/ce5winINQAoSyudSxTN5x95R8hY
-         vtWg==
-X-Gm-Message-State: AOAM533eXCujfBrJC5R8YhCDpPJ3zoQ7pE4tMDxrjnfQERPeUjIVJQ6F
-        D9psv6N8LdMdLCNu48n+U3/6DdPK3KS7QQJ6vApEcxWRLo1rbQ==
-X-Google-Smtp-Source: ABdhPJwjQhGBkTzGd7pjhVwI0ZgzjSCUYV2HQhOD6xXWuwISYwLYzxNX+a7PYWGXBQes9oDSCkG+tSGB0hClvX7W6rU=
-X-Received: by 2002:a5d:420f:: with SMTP id n15mr8374987wrq.186.1617856348288;
- Wed, 07 Apr 2021 21:32:28 -0700 (PDT)
+        id S229512AbhDHE4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 00:56:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41160 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229506AbhDHE43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Apr 2021 00:56:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CF13611C2;
+        Thu,  8 Apr 2021 04:56:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1617857779;
+        bh=Dh8EBh8o4mdoCP4ktf58imRPni3ZO2VzlY4tEcTKB8M=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=jG4gPnD0Qzce2goNw/RB7tjtByhkqfh5qhtNMcvmn/cHPXSZKoF3QK42E/6y460QU
+         7RUsHS5XFoT9GLz0WOL7z/P025WGynHQK7YHb0od0Zovxgt+8LgfPaKFL9HT78Wge8
+         z5Nuhzg6jsL6jK49yPy8aSHUhszQzy8pTftg3u41ViY8GOqmo9Uwt7CtzLVjsg+h5R
+         PJXU+PsANssqUjfx9djCGVxgXO/eY3mtYbY7o8xe0XCHe18FkvmJtfea9MNY+spsFr
+         fGTgY71LMOodabtBsIt1Gklqjw7nlq0iKemF1A8SJ36cRL83uyb/p0OTcRmv8HQ4cn
+         fXMdqjKtZ9Krw==
+Received: by mail-io1-f41.google.com with SMTP id x17so889998iog.2;
+        Wed, 07 Apr 2021 21:56:19 -0700 (PDT)
+X-Gm-Message-State: AOAM533c2ZzxkI5M6V+GrH/XjhfLugvWVAGaHikkHVd0aw0DlPYXgXku
+        B2yoBJ3VVvI24KHFXMbSgDF7DW27WZJXVjReess=
+X-Google-Smtp-Source: ABdhPJzyOxI5ZGpU3sUGR5wjZHZHQvJPFW98pSD4hFAs4ti6u4LZYjwYTOeT+mICbsmXJIKNIDZFe9EX6NrViJ/qN/I=
+X-Received: by 2002:a05:6602:2be1:: with SMTP id d1mr5151464ioy.148.1617857778420;
+ Wed, 07 Apr 2021 21:56:18 -0700 (PDT)
 MIME-Version: 1.0
-From:   Patrick Mccormick <pmccormick@digitalocean.com>
-Date:   Wed, 7 Apr 2021 21:32:16 -0700
-Message-ID: <CAAjnzAm-vUPWRVPx01=JNwVit+7Jq3M8kr+m2PZvGBbjTcoBsg@mail.gmail.com>
-Subject: PASS: stable-rc/linux-5.10.y (v5.10.28)
-To:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+References: <20210406112404.2671507-1-chenhuacai@loongson.cn>
+ <0338A250-3BF9-4B96-B9DE-61BE573CBB4C@goldelico.com> <3e27d0e0-4494-7a94-e0d7-046fb8898603@wanyeetech.com>
+ <alpine.DEB.2.21.2104062343250.65251@angie.orcam.me.uk> <CAAhV-H7V2ykFqCv8n8pYs1ujbUYNy5UqPu21VPyj_Qzx5y8upQ@mail.gmail.com>
+ <alpine.DEB.2.21.2104071530370.65251@angie.orcam.me.uk>
+In-Reply-To: <alpine.DEB.2.21.2104071530370.65251@angie.orcam.me.uk>
+From:   Huacai Chen <chenhuacai@kernel.org>
+Date:   Thu, 8 Apr 2021 12:56:06 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H7AH3JDHH-Ru_qhTZZt1zE69n4Yvskn8iDi0EPegXfHvQ@mail.gmail.com>
+Message-ID: <CAAhV-H7AH3JDHH-Ru_qhTZZt1zE69n4Yvskn8iDi0EPegXfHvQ@mail.gmail.com>
+Subject: Re: [PATCH] MIPS: Fix a longstanding error in div64.h
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     Zhou Yanjie <zhouyu@wanyeetech.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips <linux-mips@vger.kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        stable <stable@vger.kernel.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We ran tests on this kernel:
+Hi, Maciej,
 
-commit ecdfb9d70fb8c4d7dd9a5fa28c675b4ebe705f85 (HEAD ->
-rc/linux-5.10.y, stable_rc/linux-5.10.y)
-Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date:   Wed Apr 7 15:00:14 2021 +0200
+On Wed, Apr 7, 2021 at 9:38 PM Maciej W. Rozycki <macro@orcam.me.uk> wrote:
+>
+> On Wed, 7 Apr 2021, Huacai Chen wrote:
+>
+> > >  This code is rather broken in an obvious way, starting from:
+> > >
+> > >         unsigned long long __n;                                         \
+> > >                                                                         \
+> > >         __high = *__n >> 32;                                            \
+> > >         __low = __n;                                                    \
+> > >
+> > > where `__n' is used uninitialised.  Since this is my code originally I'll
+> > > look into it; we may want to reinstate `do_div' too, which didn't have to
+> > > be removed in the first place.
+> > I think we can reuse the generic do_div().
+>
+>  We can, but it's not clear to me if this is optimal.  We have a DIVMOD
+> instruction which original code took advantage of (although I can see
+> potential in reusing bits from include/asm-generic/div64.h).  The two
+> implementations would have to be benchmarked against each other across a
+> couple of different CPUs.
+The original MIPS do_div() has "h" constraint, and this is also the
+reason why Ralf rewrote this file. How can we reintroduce do_div()
+without "h" constraint?
 
-    Linux 5.10.28
-...
-
-28/28 tests passed, 0 failed, 0 errors, 0 warnings.
-
-Specific tests run:
-
- (01/28) ltp.py:LTP.test_nptl:  PASS (6.03 s)
- (02/28) ltp.py:LTP.test_math:  PASS (1.90 s)
- (03/28) ltp.py:LTP.test_hugetlb:  PASS (0.08 s)
- (04/28) ltp.py:LTP.test_ipc:  PASS (20.09 s)
- (05/28) ltp.py:LTP.test_uevent:  PASS (0.06 s)
- (06/28) ltp.py:LTP.test_containers:  PASS (36.71 s)
- (07/28) ltp.py:LTP.test_filecaps:  PASS (0.10 s)
- (08/28) ltp.py:LTP.test_hyperthreading:  PASS (71.20 s)
- (09/28) kpatch.sh:  PASS (10.59 s)
- (10/28) perf.py:PerfNonPriv.test_perf_help:  PASS (0.08 s)
- (11/28) perf.py:PerfNonPriv.test_perf_version:  PASS (0.06 s)
- (12/28) perf.py:PerfNonPriv.test_perf_list:  PASS (0.41 s)
- (13/28) perf.py:PerfPriv.test_perf_record:  PASS (4.75 s)
- (14/28) perf.py:PerfPriv.test_perf_cmd_kallsyms:  PASS (0.26 s)
- (15/28) perf.py:PerfPriv.test_perf_cmd_annotate:  PASS (5.48 s)
- (16/28) perf.py:PerfPriv.test_perf_cmd_evlist:  PASS (0.07 s)
- (17/28) perf.py:PerfPriv.test_perf_cmd_script:  PASS (0.52 s)
- (18/28) perf.py:PerfPriv.test_perf_stat:  PASS (3.22 s)
- (19/28) perf.py:PerfPriv.test_perf_bench:  PASS (0.07 s)
- (20/28) kselftest.py:kselftest.test_sysctl:  PASS (0.19 s)
- (21/28) kselftest.py:kselftest.test_size:  PASS (0.02 s)
- (22/28) kselftest.py:kselftest.test_x86:  PASS (0.25 s)
- (23/28) kselftest.py:kselftest.test_sigaltstack:  PASS (0.02 s)
- (24/28) kselftest.py:kselftest.test_tmpfs:  PASS (0.02 s)
- (25/28) kselftest.py:kselftest.test_user:  PASS (0.02 s)
- (26/28) kselftest.py:kselftest.test_timens:  PASS (0.08 s)
- (27/28) kselftest.py:kselftest.test_kvm:  PASS (13.64 s)
- (28/28) kselftest.py:kselftest.test_timers:  PASS (555.18 s)
-RESULTS    : PASS 28 | ERROR 0 | FAIL 0 | SKIP 0 | WARN 0 | INTERRUPT
-0 | CANCEL 0
+Huacai
+>
+> > >  Huacai, thanks for your investigation!  Please be more careful in
+> > > verifying your future submissions however.
+> > Sorry, I thought there is only one bug in div64.h, but in fact there
+> > are three...
+>
+>  This just shows the verification you made was not good enough, hence my
+> observation.
+>
+>   Maciej
