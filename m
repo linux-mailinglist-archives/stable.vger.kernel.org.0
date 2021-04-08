@@ -2,147 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 813F3358FF6
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 00:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DEC43590A1
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 01:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232404AbhDHWqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 18:46:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232632AbhDHWqd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 18:46:33 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CECAC061760;
-        Thu,  8 Apr 2021 15:46:20 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id bx20so3123276edb.12;
-        Thu, 08 Apr 2021 15:46:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=oAeXxEdVlznuiPjvchmS6RIRpHke1PU0HYUnkTGypso=;
-        b=JuSjNgq7hyche6rTysSqRfv22oC866jtESS9MuITNIHHQNgolbO5c+6x4J8vTGBKFO
-         R7KmRnjOqRbSPO+rbdTNCgsUfQVXrZ3PUK75SZDOKWgc+Hvx35FYFj0iEqiZ94gnBCVw
-         GDRuzw7+kuvXUlKLPNapidv46BxXsrjOXwqD1mNEj919S9CuD42y1UCQ4iBYdY79Og5o
-         ICSRSQTbCoLTmq7o2qEpLhzAyVZOpnHdD1RGtHTm7r0KmTjEyFWvuCxtn1FnfwQIHp/V
-         5ytL1zlrOsN5mSRc6RyTORFHvFHZHo+4jx7qGY8bf+UAFOxo83CoFEps7Cz3EyT/lAWy
-         Vcog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=oAeXxEdVlznuiPjvchmS6RIRpHke1PU0HYUnkTGypso=;
-        b=l5hYNDfS2AhCf14Xajx/h3JXW+Duu9bnszMbFYqvsCQbyv6w2WUEPWS6WaaaFXWuYi
-         2S665yBoATR0OCEaAm6gx8bhYuCwIM8b4fy5uf47rmc545JOmurMAtXg1qvfeyHrljNC
-         3GJd8vV9NWrYWh3f/QBn7beRmo4RijTmD8znTHoRINH521QQqU8EBp3JYxWU6BzKbHOb
-         vDVgJv5wvJlO4PFoV0eGosSTaLTjf4oGPe5ZJu54nhg5TUV1X5qWv5QkHP6OHmqvXFfl
-         vY/gqKdbZaU0iqxU+xfMZwCm8p+vGlpieSinmHnrOi1UZJzoGHGONL5jdELfytsm1XtR
-         I62A==
-X-Gm-Message-State: AOAM5302Nr9JiT7FluJpN6LAUm3uTwSdSCNdh6+skpdfKa+SMjhIRj2N
-        HKS/NPcKMrVVA16NBHg1Uus=
-X-Google-Smtp-Source: ABdhPJzGfeW4yc8tC/zigJemFnDb0zZZDVYrcQrCrJKbgEdNEYGIRv4n2bIY7oKOD9oeS4iIPQ56RQ==
-X-Received: by 2002:aa7:c950:: with SMTP id h16mr14330826edt.381.1617921978972;
-        Thu, 08 Apr 2021 15:46:18 -0700 (PDT)
-Received: from skbuf (5-12-16-165.residential.rdsnet.ro. [5.12.16.165])
-        by smtp.gmail.com with ESMTPSA id q16sm374237edv.61.2021.04.08.15.46.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Apr 2021 15:46:18 -0700 (PDT)
-Date:   Fri, 9 Apr 2021 01:46:17 +0300
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc:     hauke@hauke-m.de, andrew@lunn.ch, f.fainelli@gmail.com,
-        vivien.didelot@gmail.com, netdev@vger.kernel.org,
-        davem@davemloft.net, kuba@kernel.org, linux@armlinux.org.uk,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net v2 1/2] net: dsa: lantiq_gswip: Don't use PHY auto
- polling
-Message-ID: <20210408224617.crnllsf7eedxr6cp@skbuf>
-References: <20210408183828.1907807-1-martin.blumenstingl@googlemail.com>
- <20210408183828.1907807-2-martin.blumenstingl@googlemail.com>
+        id S233007AbhDHXul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 19:50:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34724 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232793AbhDHXuj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Apr 2021 19:50:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id AB13C610F8;
+        Thu,  8 Apr 2021 23:50:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1617925827;
+        bh=F0uP/nWIdK+V6oyBdJT4pqjUo8NRNN3upI17deigMdg=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=J2HgrMI1lQOIkUsYhQkTp9OpJKHBahC3silK+rCND8XenJo7916nmDnJf+9lff0s4
+         fbyYFBfRB4Hd6IJ4XvBlTiKQRnC9sI/3eg0wfI4ihgCUoEH1LKthZZHIIuzMJf2Iqc
+         KvMCVJO2iMOE2gfwbmJSFEsAXRqyTQU4pS17PrDMrcIjAsoEv7hhanP06hAsg0XusZ
+         mR/53AJzBJdya6C9Jna84HZ0qU6+KBoupflmwO/VOFbSs04/4+FzVd1PwF9/7DGbA/
+         hbYo84RNDuWQwcMK404YU4nQM88rd9jMjfaQhRlaFOpsl1dwx0J1BBtWVfNselUKKu
+         FZtzlsSxX5X6A==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 9AC7A60975;
+        Thu,  8 Apr 2021 23:50:27 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210408183828.1907807-2-martin.blumenstingl@googlemail.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] net: ipv6: check for validity before dereferencing
+ cfg->fc_nlinfo.nlh
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <161792582762.13386.8901145268048636141.git-patchwork-notify@kernel.org>
+Date:   Thu, 08 Apr 2021 23:50:27 +0000
+References: <20210408220129.GA3111136@LEGION>
+In-Reply-To: <20210408220129.GA3111136@LEGION>
+To:     Muhammad Usama Anjum <musamaanjum@gmail.com>
+Cc:     davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        kuba@kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        colin.king@canonical.com, dan.carpenter@oracle.com,
+        stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 08, 2021 at 08:38:27PM +0200, Martin Blumenstingl wrote:
-> PHY auto polling on the GSWIP hardware can be used so link changes
-> (speed, link up/down, etc.) can be detected automatically. Internally
-> GSWIP reads the PHY's registers for this functionality. Based on this
-> automatic detection GSWIP can also automatically re-configure it's port
-> settings. Unfortunately this auto polling (and configuration) mechanism
-> seems to cause various issues observed by different people on different
-> devices:
-> - FritzBox 7360v2: the two Gbit/s ports (connected to the two internal
->   PHY11G instances) are working fine but the two Fast Ethernet ports
->   (using an AR8030 RMII PHY) are completely dead (neither RX nor TX are
->   received). It turns out that the AR8030 PHY sets the BMSR_ESTATEN bit
->   as well as the ESTATUS_1000_TFULL and ESTATUS_1000_XFULL bits. This
->   makes the PHY auto polling state machine (rightfully?) think that the
->   established link speed (when the other side is Gbit/s capable) is
->   1Gbit/s.
+Hello:
 
-Why do you say "rightfully"? The PHY is gigabit capable, and it reports
-that via the Extended Status register. This is one of the reasons why
-the "advertising" and "supported" link modes are separate concepts,
-because even though you support gigabit, you don't advertise it because
-you are in RMII mode.
+This patch was applied to netdev/net.git (refs/heads/master):
 
-How does turning off the auto polling feature help circumvent the
-Atheros PHY reporting "issue"? Do we even know that is the problem, or
-is it simply a guess on your part based on something that looked strange?
-
-> - None of the Ethernet ports on the Zyxel P-2812HNU-F1 (two are
->   connected to the internal PHY11G GPHYs while the other three are
->   external RGMII PHYs) are working. Neither RX nor TX traffic was
->   observed. It is not clear which part of the PHY auto polling state-
->   machine caused this.
-
-Great.
-
-> - FritzBox 7412 (only one LAN port which is connected to one of the
->   internal GPHYs running in PHY22F / Fast Ethernet mode) was seeing
->   random disconnects (link down events could be seen). Sometimes all
->   traffic would stop after such disconnect. It is not clear which part
->   of the PHY auto polling state-machine cauased this.
-> - TP-Link TD-W9980 (two ports are connected to the internal GPHYs
->   running in PHY11G / Gbit/s mode, the other two are external RGMII
->   PHYs) was affected by similar issues as the FritzBox 7412 just without
->   the "link down" events
+On Fri, 9 Apr 2021 03:01:29 +0500 you wrote:
+> nlh is being checked for validtity two times when it is dereferenced in
+> this function. Check for validity again when updating the flags through
+> nlh pointer to make the dereferencing safe.
 > 
-> Switch to software based configuration instead of PHY auto polling (and
-> letting the GSWIP hardware configure the ports automatically) for the
-> following link parameters:
-> - link up/down
-> - link speed
-> - full/half duplex
-> - flow control (RX / TX pause)
+> CC: <stable@vger.kernel.org>
+> Addresses-Coverity: ("NULL pointer dereference")
+> Signed-off-by: Muhammad Usama Anjum <musamaanjum@gmail.com>
+> 
+> [...]
 
-What does the auto polling feature consist of, exactly? Is there some
-sort of microcontroller accessing the MDIO bus simultaneously with
-Linux?
+Here is the summary with links:
+  - net: ipv6: check for validity before dereferencing cfg->fc_nlinfo.nlh
+    https://git.kernel.org/netdev/net/c/864db232dc70
 
-> After a big round of manual testing by various people (who helped test
-> this on OpenWrt) it turns out that this fixes all reported issues.
-> 
-> Additionally it can be considered more future proof because any
-> "quirk" which is implemented for a PHY on the driver side can now be
-> used with the GSWIP hardware as well because Linux is in control of the
-> link parameters.
-> 
-> As a nice side-effect this also solves a problem where fixed-links were
-> not supported previously because we were relying on the PHY auto polling
-> mechanism, which cannot work for fixed-links as there's no PHY from
-> where it can read the registers. Configuring the link settings on the
-> GSWIP ports means that we now use the settings from device-tree also for
-> ports with fixed-links.
-> 
-> Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-> Fixes: 3e6fdeb28f4c33 ("net: dsa: lantiq_gswip: Let GSWIP automatically set the xMII clock")
-> Cc: stable@vger.kernel.org
-> Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> ---
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
