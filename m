@@ -2,149 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DDB3357FBD
+	by mail.lfdr.de (Postfix) with ESMTP id B42E4357FBF
 	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 11:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbhDHJqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 05:46:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40841 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231500AbhDHJqT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 05:46:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617875168;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+Ed8cXY4Fne68ovFitKR7CHeZADetAwCYIlL4r4Eb7U=;
-        b=Lr35rziQnaP6LBty/yNixZj/2cLkYgLDFlnIaLen5Se0C4QuLYlmPZVL5rvAvyeR2Egb9P
-        rxTjA9ANhFs/rXr8I4arqwY2i3VCxY2T4zsbeJ41o6dHU3DiJ37+82B8D9hVjlyBLBzrJA
-        7B5qoI5F9pdoBS4LkX6aSo8lJRRkwko=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-553-4ZpPA4M8OmqqMcNkDqAJog-1; Thu, 08 Apr 2021 05:46:05 -0400
-X-MC-Unique: 4ZpPA4M8OmqqMcNkDqAJog-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S231551AbhDHJqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 05:46:22 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:36658 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231535AbhDHJqV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 05:46:21 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 905E98189D6;
-        Thu,  8 Apr 2021 09:46:01 +0000 (UTC)
-Received: from wangxiaodeMacBook-Air.local (ovpn-13-53.pek2.redhat.com [10.72.13.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 05FE36B543;
-        Thu,  8 Apr 2021 09:45:55 +0000 (UTC)
-Subject: Re: [PATCH 5/5] vdpa/mlx5: Fix suspend/resume index restoration
-To:     Eli Cohen <elic@nvidia.com>, mst@redhat.com, parav@nvidia.com,
-        si-wei.liu@oracle.com, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20210408091047.4269-1-elic@nvidia.com>
- <20210408091047.4269-6-elic@nvidia.com>
-From:   Jason Wang <jasowang@redhat.com>
-Message-ID: <a5356a13-6d7d-8086-bfff-ff869aec5449@redhat.com>
-Date:   Thu, 8 Apr 2021 17:45:54 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.0
-MIME-Version: 1.0
-In-Reply-To: <20210408091047.4269-6-elic@nvidia.com>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 7489BC09B1;
+        Thu,  8 Apr 2021 09:46:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1617875170; bh=FWpEAx8NEXX4eN+wdVxG3JT0O/qA+/18ZWtggy74EFI=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=cBd4j+UravxrJOMFTywrx+rtZ6uXkSuFrBM/WRR9zeoiY5telfvyKDe/VKkJKLmf4
+         HDL9TY/wuxXjbx009bvfWs0x2+2xH4I0IvT+S1UZCCJfB3Uwz8jRanOck55i8Z0yp4
+         OFJPE728qci5kYwa78maY/fQV7mgfdASMQsg6aZAiEcyXA5PduKzUWgDjemYlCRlSg
+         eUyly2xfevdhbTEJliRoAC5DjXnZcWp2y0IsAVrN6OJR/A6alezV/Hc7If95vS82g9
+         Wv9dmXbvqDhwDGpWn0PImm9JYqj2o9kDeiMlfIH1/BE3ncZBPmKhjZpyf76wF4tCiT
+         Ei3E8/ABuI5CQ==
+Received: from razpc-HP (razpc-hp.internal.synopsys.com [10.116.126.207])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 1A9BAA0094;
+        Thu,  8 Apr 2021 09:46:07 +0000 (UTC)
+Received: by razpc-HP (sSMTP sendmail emulation); Thu, 08 Apr 2021 13:46:06 +0400
+Date:   Thu, 08 Apr 2021 13:46:06 +0400
+In-Reply-To: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
+References: <cover.1617782102.git.Arthur.Petrosyan@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Subject: [PATCH v3 13/14] usb: dwc2: Fix partial power down exiting by system resume
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Douglas Anderson <dianders@chromium.org>
+Cc:     John Youn <John.Youn@synopsys.com>,
+        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
+        Paul Zimmerman <paulz@synopsys.com>, <stable@vger.kernel.org>,
+        Kever Yang <kever.yang@rock-chips.com>
+Message-Id: <20210408094607.1A9BAA0094@mailhost.synopsys.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Fixes the implementation of exiting from partial power down
+power saving mode when PC is resumed.
 
-ÔÚ 2021/4/8 ÏÂÎç5:10, Eli Cohen Ð´µÀ:
-> When we suspend the VM, the VDPA interface will be reset. When the VM is
-> resumed again, clear_virtqueues() will clear the available and used
-> indices resulting in hardware virqtqueue objects becoming out of sync.
-> We can avoid this function alltogether since qemu will clear them if
-> required, e.g. when the VM went through a reboot.
->
-> Moreover, since the hw available and used indices should always be
-> identical on query and should be restored to the same value same value
-> for virtqueues that complete in order, we set the single value provided
-> by set_vq_state(). In get_vq_state() we return the value of hardware
-> used index.
->
-> Fixes: b35ccebe3ef7 ("vdpa/mlx5: Restore the hardware used index after change map")
-> Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
-> ---
+Added port connection status checking which prevents exiting from
+Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
+Power Down mode.
 
+Rearranged the implementation to get rid of many "if"
+statements.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+NOTE: Switch case statement is used for hibernation partial
+power down and clock gating mode determination. In this patch
+only Partial Power Down is implemented the Hibernation and
+clock gating implementations are planned to be added.
 
+Cc: <stable@vger.kernel.org>
+Fixes: 6f6d70597c15 ("usb: dwc2: bus suspend/resume for hosts with DWC2_POWER_DOWN_PARAM_NONE")
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+---
+ Changes in v3:
+ - None
+ Changes in v2:
+ - None
 
->   drivers/vdpa/mlx5/net/mlx5_vnet.c | 21 ++++++++-------------
->   1 file changed, 8 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 6fe61fc57790..4d2809c7d4e3 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -1169,6 +1169,7 @@ static void suspend_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *m
->   		return;
->   	}
->   	mvq->avail_idx = attr.available_index;
-> +	mvq->used_idx = attr.used_index;
->   }
->   
->   static void suspend_vqs(struct mlx5_vdpa_net *ndev)
-> @@ -1426,6 +1427,7 @@ static int mlx5_vdpa_set_vq_state(struct vdpa_device *vdev, u16 idx,
->   		return -EINVAL;
->   	}
->   
-> +	mvq->used_idx = state->avail_index;
->   	mvq->avail_idx = state->avail_index;
->   	return 0;
->   }
-> @@ -1443,7 +1445,11 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa
->   	 * that cares about emulating the index after vq is stopped.
->   	 */
->   	if (!mvq->initialized) {
-> -		state->avail_index = mvq->avail_idx;
-> +		/* Firmware returns a wrong value for the available index.
-> +		 * Since both values should be identical, we take the value of
-> +		 * used_idx which is reported correctly.
-> +		 */
-> +		state->avail_index = mvq->used_idx;
->   		return 0;
->   	}
->   
-> @@ -1452,7 +1458,7 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa
->   		mlx5_vdpa_warn(mvdev, "failed to query virtqueue\n");
->   		return err;
->   	}
-> -	state->avail_index = attr.available_index;
-> +	state->avail_index = attr.used_index;
->   	return 0;
->   }
->   
-> @@ -1540,16 +1546,6 @@ static void teardown_virtqueues(struct mlx5_vdpa_net *ndev)
->   	}
->   }
->   
-> -static void clear_virtqueues(struct mlx5_vdpa_net *ndev)
-> -{
-> -	int i;
-> -
-> -	for (i = ndev->mvdev.max_vqs - 1; i >= 0; i--) {
-> -		ndev->vqs[i].avail_idx = 0;
-> -		ndev->vqs[i].used_idx = 0;
-> -	}
-> -}
-> -
->   /* TODO: cross-endian support */
->   static inline bool mlx5_vdpa_is_little_endian(struct mlx5_vdpa_dev *mvdev)
->   {
-> @@ -1785,7 +1781,6 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
->   	if (!status) {
->   		mlx5_vdpa_info(mvdev, "performing device reset\n");
->   		teardown_driver(ndev);
-> -		clear_virtqueues(ndev);
->   		mlx5_vdpa_destroy_mr(&ndev->mvdev);
->   		ndev->mvdev.status = 0;
->   		ndev->mvdev.mlx_features = 0;
+ drivers/usb/dwc2/hcd.c | 90 +++++++++++++++++++++---------------------
+ 1 file changed, 46 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index 34030bafdff4..f096006df96f 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -4427,7 +4427,7 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ {
+ 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
+ 	unsigned long flags;
+-	u32 pcgctl;
++	u32 hprt0;
+ 	int ret = 0;
+ 
+ 	spin_lock_irqsave(&hsotg->lock, flags);
+@@ -4438,11 +4438,40 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ 	if (hsotg->lx_state != DWC2_L2)
+ 		goto unlock;
+ 
+-	if (hsotg->params.power_down > DWC2_POWER_DOWN_PARAM_PARTIAL) {
++	hprt0 = dwc2_read_hprt0(hsotg);
++
++	/*
++	 * Added port connection status checking which prevents exiting from
++	 * Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
++	 * Power Down mode.
++	 */
++	if (hprt0 & HPRT0_CONNSTS) {
++		hsotg->lx_state = DWC2_L0;
++		goto unlock;
++	}
++
++	switch (hsotg->params.power_down) {
++	case DWC2_POWER_DOWN_PARAM_PARTIAL:
++		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
++		if (ret)
++			dev_err(hsotg->dev,
++				"exit partial_power_down failed\n");
++		/*
++		 * Set HW accessible bit before powering on the controller
++		 * since an interrupt may rise.
++		 */
++		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
++		break;
++	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
++	case DWC2_POWER_DOWN_PARAM_NONE:
++	default:
+ 		hsotg->lx_state = DWC2_L0;
+ 		goto unlock;
+ 	}
+ 
++	/* Change Root port status, as port status change occurred after resume.*/
++	hsotg->flags.b.port_suspend_change = 1;
++
+ 	/*
+ 	 * Enable power if not already done.
+ 	 * This must not be spinlocked since duration
+@@ -4454,52 +4483,25 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ 		spin_lock_irqsave(&hsotg->lock, flags);
+ 	}
+ 
+-	if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
+-		/*
+-		 * Set HW accessible bit before powering on the controller
+-		 * since an interrupt may rise.
+-		 */
+-		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+-
+-
+-		/* Exit partial_power_down */
+-		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
+-		if (ret && (ret != -ENOTSUPP))
+-			dev_err(hsotg->dev, "exit partial_power_down failed\n");
+-	} else {
+-		pcgctl = readl(hsotg->regs + PCGCTL);
+-		pcgctl &= ~PCGCTL_STOPPCLK;
+-		writel(pcgctl, hsotg->regs + PCGCTL);
+-	}
+-
+-	hsotg->lx_state = DWC2_L0;
+-
++	/* Enable external vbus supply after resuming the port. */
+ 	spin_unlock_irqrestore(&hsotg->lock, flags);
++	dwc2_vbus_supply_init(hsotg);
+ 
+-	if (hsotg->bus_suspended) {
+-		spin_lock_irqsave(&hsotg->lock, flags);
+-		hsotg->flags.b.port_suspend_change = 1;
+-		spin_unlock_irqrestore(&hsotg->lock, flags);
+-		dwc2_port_resume(hsotg);
+-	} else {
+-		if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
+-			dwc2_vbus_supply_init(hsotg);
+-
+-			/* Wait for controller to correctly update D+/D- level */
+-			usleep_range(3000, 5000);
+-		}
++	/* Wait for controller to correctly update D+/D- level */
++	usleep_range(3000, 5000);
++	spin_lock_irqsave(&hsotg->lock, flags);
+ 
+-		/*
+-		 * Clear Port Enable and Port Status changes.
+-		 * Enable Port Power.
+-		 */
+-		dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
+-				HPRT0_ENACHG, HPRT0);
+-		/* Wait for controller to detect Port Connect */
+-		usleep_range(5000, 7000);
+-	}
++	/*
++	 * Clear Port Enable and Port Status changes.
++	 * Enable Port Power.
++	 */
++	dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
++			HPRT0_ENACHG, HPRT0);
+ 
+-	return ret;
++	/* Wait for controller to detect Port Connect */
++	spin_unlock_irqrestore(&hsotg->lock, flags);
++	usleep_range(5000, 7000);
++	spin_lock_irqsave(&hsotg->lock, flags);
+ unlock:
+ 	spin_unlock_irqrestore(&hsotg->lock, flags);
+ 
+-- 
+2.25.1
 
