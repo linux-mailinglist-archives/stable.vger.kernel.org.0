@@ -2,185 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98366358CE1
-	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 20:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C468D358CE3
+	for <lists+stable@lfdr.de>; Thu,  8 Apr 2021 20:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232790AbhDHSqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 14:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52546 "EHLO
+        id S232771AbhDHSsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Apr 2021 14:48:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232775AbhDHSqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 14:46:50 -0400
-Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB2AC061761
-        for <stable@vger.kernel.org>; Thu,  8 Apr 2021 11:46:39 -0700 (PDT)
-Received: by mail-qt1-x849.google.com with SMTP id h26so1659119qtm.13
-        for <stable@vger.kernel.org>; Thu, 08 Apr 2021 11:46:39 -0700 (PDT)
+        with ESMTP id S232768AbhDHSsv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Apr 2021 14:48:51 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0601C061760;
+        Thu,  8 Apr 2021 11:48:39 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id z22-20020a17090a0156b029014d4056663fso1930098pje.0;
+        Thu, 08 Apr 2021 11:48:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=6gAnMk/3QmoHKKKOynZbE6ARTru22AXVPx9J9ennqYk=;
-        b=CsxGIoVitXO3OMbftljWu8Ki/FTK07cSA2VhLFY87N/obK/8HhQZTl3uWoLXcLQY+9
-         5XeUpzxisdaS1wXSrhGdjDUBgEN1xJqho2avlRpMrJ7x7wFuZZVox4bm9t8ME1fvefAB
-         73l3UAuQ3P/qkAZ3I0b8k8OxQAk/XlFrKuzbvy75sQxwVEfiGZu38eaC8C/qvX7fr3F4
-         wpBLuRw7iEovcshgem96DIb8CJLc4UWoFJ8pbS73TaWo3YhI1iQvwHvOsyTBv5bMBF4d
-         8BMw9g/iWrTuB6XFmPbApdr7P7ADW4iVgnCP/7uCEimfRvK7CcPlJ56vNkQfvR971+Nm
-         z5Xw==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=QkZRHIeVAtMclnbf69iEmwFuxNIgUD1wl1hPkUbv0+4=;
+        b=JeL4/htdYtHE3hOWpnmiUh0UNlkkuVLE1e4Nu/UNDrd5gzGAqHyXZsdqEpS1R3ICyb
+         Y7ZgnktRRTqzIqywZMaaAY9wV+OPW+D6HYf9u96znmAheJZMQgEAJiQsfqYjWkNSiSbj
+         YfDh97J7OenVx+II2koVQ5kMRJM70stbUjbfriwxYmgLcKcD/S7Dz1MfsmB+whZKN8k5
+         Cm9kwKOvNyen/5XyB7FUUfEbNmU5njNXuGFGcm6tlcoYys6J28kCp7DUA3J+gHj5QAV8
+         QJc5KhkDPEdWx+667JE3251j7Kwv+6xMGPOU8Y0Gbsyqt4fSAAcAULjj0iWcZ9asxxXd
+         RP8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=6gAnMk/3QmoHKKKOynZbE6ARTru22AXVPx9J9ennqYk=;
-        b=N0fb/J8MfTRuje84PsPofkl75GlY0ojFm3SeoE+3Na2ZvlVRyONko77JTPcwcutQjZ
-         /g3MCTU8NevbjbzTruOz++q9a8DerWVQ7E6LFvmo4kdvgtrMhXm2ihz4PROAufNn3YvQ
-         YP16WYVtpx//7rHXECv2d2arTW7MlO+YewN21yQn2177DJLeVhu2XAoH4WCMUmauVnl6
-         KrEI49zAO1K0HAG3H7a0Gx73NSXfQYnq23F80H/9Kh2ebxqB2vc6OPgbZ1j+TR1l9ngI
-         BZZxzCMvxEw7CWT6SYAl/xiUs6YyJMns5dsfkfU/IIxntGcQErFlLhntOIEKguXBg1ZA
-         yTkw==
-X-Gm-Message-State: AOAM531HasooV5R2VonzIsLFyW2aOis2Rffg6d0eh1Lq15waitWroanw
-        6jh6XQlRPE73kj4NVvLhpRVDAMgJRt+Y2pSc6no=
-X-Google-Smtp-Source: ABdhPJx+2L0KBR1ZPGbYTlVAcnVbbQqhcwdmzzAvpjnvX13zyvL6J85xqR1BgJt7Q//RHnzPLAzwNyrX2hirSOEK2yc=
-X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:258e:3713:7415:ce58])
- (user=ndesaulniers job=sendgmr) by 2002:a05:6214:2628:: with SMTP id
- gv8mr10352013qvb.19.1617907598457; Thu, 08 Apr 2021 11:46:38 -0700 (PDT)
-Date:   Thu,  8 Apr 2021 11:46:31 -0700
-In-Reply-To: <20210407152621.3826f93e893c0cf9b327071f@linux-foundation.org>
-Message-Id: <20210408184631.1156669-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <20210407152621.3826f93e893c0cf9b327071f@linux-foundation.org>
-X-Mailer: git-send-email 2.31.1.295.g9ea45b61b8-goog
-Subject: [PATCH v2] gcov: re-fix clang-11+ support
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     akpm@linux-foundation.org
-Cc:     clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org,
-        maskray@google.com, nathan@kernel.org, ndesaulniers@google.com,
-        oberpar@linux.ibm.com, psodagud@quicinc.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=QkZRHIeVAtMclnbf69iEmwFuxNIgUD1wl1hPkUbv0+4=;
+        b=TDx+Z60MznK8Nd2WJVWO8ABISBCvt7YFFpHn4FIOm4UpJcaduzHpbvULztMNN9jOcQ
+         /Xf7Md5wHYnC3PhKNsZjcgvJNS/oaB9kzNdySG8f1DE4RYNCqr1UUZQQLwVQZak77f7z
+         nxV9uxGgzdIMQCRHblag9r+DhvS2mO2bs61DKmXGxWcTZeouCznAPfyAk4ntAkA5/3W9
+         jCaWJtAn61nqCKcwO/s34DN30fFkmehgzfqrAUBif72Q7gXQiN+gv8DDjQ5CeD0KKkGx
+         oShLDzCrNm13i47WPIzl3Si8mBNUUYHyBjnfsgZEbm2F+aGun99afXCdVfYjKvubgSSk
+         RyoQ==
+X-Gm-Message-State: AOAM533qU10QQDKyQ3sqD58ihSsIKTkgV7t1WFd1dEVeil6ZDjHcE5c8
+        B6K5MzpOwPfH+Go248T/bj3gmixaE9I=
+X-Google-Smtp-Source: ABdhPJz6nMDs7woEDIGKCe65uJ5cWjQgSxzD8EB0fAZgtitxpsgQckjPSrXph54VDnfYBJOXfqHPuA==
+X-Received: by 2002:a17:90b:1b0c:: with SMTP id nu12mr9996958pjb.129.1617907718784;
+        Thu, 08 Apr 2021 11:48:38 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id l1sm122385pgt.29.2021.04.08.11.48.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 08 Apr 2021 11:48:38 -0700 (PDT)
+Subject: Re: [PATCH net v2 1/2] net: dsa: lantiq_gswip: Don't use PHY auto
+ polling
+To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        hauke@hauke-m.de, andrew@lunn.ch, vivien.didelot@gmail.com,
+        olteanv@gmail.com, netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux@armlinux.org.uk,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20210408183828.1907807-1-martin.blumenstingl@googlemail.com>
+ <20210408183828.1907807-2-martin.blumenstingl@googlemail.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <8be6a8c9-67d3-b1ed-7d1e-e594ba73ae13@gmail.com>
+Date:   Thu, 8 Apr 2021 11:48:33 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.9.0
+MIME-Version: 1.0
+In-Reply-To: <20210408183828.1907807-2-martin.blumenstingl@googlemail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LLVM changed the expected function signature for
-llvm_gcda_emit_function() in the clang-11 release.  Users of clang-11 or
-newer may have noticed their kernels producing invalid coverage
-information:
 
-$ llvm-cov gcov -a -c -u -f -b <input>.gcda -- gcno=<input>.gcno
-1 <func>: checksum mismatch, \
-  (<lineno chksum A>, <cfg chksum B>) != (<lineno chksum A>, <cfg chksum C>)
-2 Invalid .gcda File!
-...
 
-Fix up the function signatures so calling this function interprets its
-parameters correctly and computes the correct cfg checksum. In
-particular, in clang-11, the additional checksum is no longer optional.
+On 4/8/2021 11:38 AM, Martin Blumenstingl wrote:
+> PHY auto polling on the GSWIP hardware can be used so link changes
+> (speed, link up/down, etc.) can be detected automatically. Internally
+> GSWIP reads the PHY's registers for this functionality. Based on this
+> automatic detection GSWIP can also automatically re-configure it's port
+> settings. Unfortunately this auto polling (and configuration) mechanism
+> seems to cause various issues observed by different people on different
+> devices:
+> - FritzBox 7360v2: the two Gbit/s ports (connected to the two internal
+>   PHY11G instances) are working fine but the two Fast Ethernet ports
+>   (using an AR8030 RMII PHY) are completely dead (neither RX nor TX are
+>   received). It turns out that the AR8030 PHY sets the BMSR_ESTATEN bit
+>   as well as the ESTATUS_1000_TFULL and ESTATUS_1000_XFULL bits. This
+>   makes the PHY auto polling state machine (rightfully?) think that the
+>   established link speed (when the other side is Gbit/s capable) is
+>   1Gbit/s.
+> - None of the Ethernet ports on the Zyxel P-2812HNU-F1 (two are
+>   connected to the internal PHY11G GPHYs while the other three are
+>   external RGMII PHYs) are working. Neither RX nor TX traffic was
+>   observed. It is not clear which part of the PHY auto polling state-
+>   machine caused this.
+> - FritzBox 7412 (only one LAN port which is connected to one of the
+>   internal GPHYs running in PHY22F / Fast Ethernet mode) was seeing
+>   random disconnects (link down events could be seen). Sometimes all
+>   traffic would stop after such disconnect. It is not clear which part
+>   of the PHY auto polling state-machine cauased this.
+> - TP-Link TD-W9980 (two ports are connected to the internal GPHYs
+>   running in PHY11G / Gbit/s mode, the other two are external RGMII
+>   PHYs) was affected by similar issues as the FritzBox 7412 just without
+>   the "link down" events
+> 
+> Switch to software based configuration instead of PHY auto polling (and
+> letting the GSWIP hardware configure the ports automatically) for the
+> following link parameters:
+> - link up/down
+> - link speed
+> - full/half duplex
+> - flow control (RX / TX pause)
+> 
+> After a big round of manual testing by various people (who helped test
+> this on OpenWrt) it turns out that this fixes all reported issues.
+> 
+> Additionally it can be considered more future proof because any
+> "quirk" which is implemented for a PHY on the driver side can now be
+> used with the GSWIP hardware as well because Linux is in control of the
+> link parameters.
+> 
+> As a nice side-effect this also solves a problem where fixed-links were
+> not supported previously because we were relying on the PHY auto polling
+> mechanism, which cannot work for fixed-links as there's no PHY from
+> where it can read the registers. Configuring the link settings on the
+> GSWIP ports means that we now use the settings from device-tree also for
+> ports with fixed-links.
+> 
+> Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+> Fixes: 3e6fdeb28f4c33 ("net: dsa: lantiq_gswip: Let GSWIP automatically set the xMII clock")
+> Cc: stable@vger.kernel.org
+> Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-Link: https://reviews.llvm.org/rG25544ce2df0daa4304c07e64b9c8b0f7df60c11d
-Cc: stable@vger.kernel.org #5.4+
-Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
-Tested-by: Prasad Sodagudi <psodagud@quicinc.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
----
-Changes V1 -> V2:
-* Carried Nathan's reviewed-by tag.
-* Rebased on mainline, as per Andrew.
-* Left off patch 2/2 from the series
-https://lore.kernel.org/lkml/20210407185456.41943-1-ndesaulniers@google.com/
-  I assume that dropping support for clang-10+GCOV will be held
-  separately for -next for 5.13, while this will be sent for 5.12?
-
- kernel/gcov/clang.c | 29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
-
-diff --git a/kernel/gcov/clang.c b/kernel/gcov/clang.c
-index 8743150db2ac..c466c7fbdece 100644
---- a/kernel/gcov/clang.c
-+++ b/kernel/gcov/clang.c
-@@ -70,7 +70,9 @@ struct gcov_fn_info {
- 
- 	u32 ident;
- 	u32 checksum;
-+#if CONFIG_CLANG_VERSION < 110000
- 	u8 use_extra_checksum;
-+#endif
- 	u32 cfg_checksum;
- 
- 	u32 num_counters;
-@@ -145,10 +147,8 @@ void llvm_gcda_emit_function(u32 ident, const char *function_name,
- 
- 	list_add_tail(&info->head, &current_info->functions);
- }
--EXPORT_SYMBOL(llvm_gcda_emit_function);
- #else
--void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
--		u8 use_extra_checksum, u32 cfg_checksum)
-+void llvm_gcda_emit_function(u32 ident, u32 func_checksum, u32 cfg_checksum)
- {
- 	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
- 
-@@ -158,12 +158,11 @@ void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
- 	INIT_LIST_HEAD(&info->head);
- 	info->ident = ident;
- 	info->checksum = func_checksum;
--	info->use_extra_checksum = use_extra_checksum;
- 	info->cfg_checksum = cfg_checksum;
- 	list_add_tail(&info->head, &current_info->functions);
- }
--EXPORT_SYMBOL(llvm_gcda_emit_function);
- #endif
-+EXPORT_SYMBOL(llvm_gcda_emit_function);
- 
- void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
- {
-@@ -293,11 +292,16 @@ int gcov_info_is_compatible(struct gcov_info *info1, struct gcov_info *info2)
- 		!list_is_last(&fn_ptr2->head, &info2->functions)) {
- 		if (fn_ptr1->checksum != fn_ptr2->checksum)
- 			return false;
-+#if CONFIG_CLANG_VERSION < 110000
- 		if (fn_ptr1->use_extra_checksum != fn_ptr2->use_extra_checksum)
- 			return false;
- 		if (fn_ptr1->use_extra_checksum &&
- 			fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
- 			return false;
-+#else
-+		if (fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
-+			return false;
-+#endif
- 		fn_ptr1 = list_next_entry(fn_ptr1, head);
- 		fn_ptr2 = list_next_entry(fn_ptr2, head);
- 	}
-@@ -529,17 +533,22 @@ static size_t convert_to_gcda(char *buffer, struct gcov_info *info)
- 
- 	list_for_each_entry(fi_ptr, &info->functions, head) {
- 		u32 i;
--		u32 len = 2;
--
--		if (fi_ptr->use_extra_checksum)
--			len++;
- 
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
--		pos += store_gcov_u32(buffer, pos, len);
-+#if CONFIG_CLANG_VERSION < 110000
-+		pos += store_gcov_u32(buffer, pos,
-+			fi_ptr->use_extra_checksum ? 3 : 2);
-+#else
-+		pos += store_gcov_u32(buffer, pos, 3);
-+#endif
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->checksum);
-+#if CONFIG_CLANG_VERSION < 110000
- 		if (fi_ptr->use_extra_checksum)
- 			pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-+#else
-+		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-+#endif
- 
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_COUNTER_BASE);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->num_counters * 2);
-
-base-commit: 3fb4f979b4fa1f92a02b538ae86e725b73e703d0
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.31.1.295.g9ea45b61b8-goog
-
+Florian
