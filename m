@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5F3359B14
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A450A359AEE
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233877AbhDIKHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51372 "EHLO mail.kernel.org"
+        id S233775AbhDIKHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234148AbhDIKE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:04:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E8061285;
-        Fri,  9 Apr 2021 10:01:20 +0000 (UTC)
+        id S232897AbhDIKCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:02:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA0C061260;
+        Fri,  9 Apr 2021 10:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962481;
-        bh=nG11RkYSGaq/Yu4rccoqMvjH10Gztn5Fe2Xfzd7brFg=;
+        s=korg; t=1617962418;
+        bh=dj5VacYFoiQnvunQeXBeyt0jxRmd1RVx1iUDaLJvhp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNG2m5p4A79XMm3jZZlBACGx1u9qXtdfMJuYRw0GdObGFbryTuNfLL4jq5iYwpIJ0
-         3ZSnNQdWBHmwV8gEuF4b2iB7oz1Z9aEb8ZVnW5cBQ2kc6NPxUlu4L+IHzhOPXvsHNC
-         ZwrfRn2C2zK/s607kpKYzTSHoTB5JJSejKENGLIo=
+        b=WBs7o9EAoaMdc0mvKLcxDfMisrrapF2xQSuYtdB/BiJF2I+6g4aShZ4nEIdZDVOv9
+         AEOu40Ig6J4qUuoWjplIOw0xmIzC3hnk52CbKLF4r68wQtGIMy3bTLPn07BP2iAa4H
+         qcM8B9No0s0PwtXIE0covDT8tzVr5YIG8wF6xVwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 30/45] selftests/vm: fix out-of-tree build
-Date:   Fri,  9 Apr 2021 11:53:56 +0200
-Message-Id: <20210409095306.386033688@linuxfoundation.org>
+Subject: [PATCH 5.10 35/41] kbuild: Add resolve_btfids clean to root clean target
+Date:   Fri,  9 Apr 2021 11:53:57 +0200
+Message-Id: <20210409095305.936373764@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rong Chen <rong.a.chen@intel.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 19ec368cbc7ee1915e78c120b7a49c7f14734192 ]
+[ Upstream commit 50d3a3f81689586697a38cd60070181ebe626ad9 ]
 
-When building out-of-tree, attempting to make target from $(OUTPUT) directory:
+The resolve_btfids tool is used during the kernel build,
+so we should clean it on kernel's make clean.
 
-  make[1]: *** No rule to make target '$(OUTPUT)/protection_keys.c', needed by '$(OUTPUT)/protection_keys_32'.
+Invoking the the resolve_btfids clean as part of root
+'make clean'.
 
-Link: https://lkml.kernel.org/r/20210315094700.522753-1-rong.a.chen@intel.com
-Signed-off-by: Rong Chen <rong.a.chen@intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20210205124020.683286-5-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Makefile | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
-index d42115e4284d..8b0cd421ebd3 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -101,7 +101,7 @@ endef
- ifeq ($(CAN_BUILD_I386),1)
- $(BINARIES_32): CFLAGS += -m32
- $(BINARIES_32): LDLIBS += -lrt -ldl -lm
--$(BINARIES_32): %_32: %.c
-+$(BINARIES_32): $(OUTPUT)/%_32: %.c
- 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(notdir $^) $(LDLIBS) -o $@
- $(foreach t,$(TARGETS),$(eval $(call gen-target-rule-32,$(t))))
+diff --git a/Makefile b/Makefile
+index cb76f64abb6d..3a3937ab7ed0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1083,6 +1083,11 @@ ifdef CONFIG_STACK_VALIDATION
+   endif
  endif
-@@ -109,7 +109,7 @@ endif
- ifeq ($(CAN_BUILD_X86_64),1)
- $(BINARIES_64): CFLAGS += -m64
- $(BINARIES_64): LDLIBS += -lrt -ldl
--$(BINARIES_64): %_64: %.c
-+$(BINARIES_64): $(OUTPUT)/%_64: %.c
- 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(notdir $^) $(LDLIBS) -o $@
- $(foreach t,$(TARGETS),$(eval $(call gen-target-rule-64,$(t))))
- endif
+ 
++PHONY += resolve_btfids_clean
++
++resolve_btfids_clean:
++	$(Q)$(MAKE) -sC $(srctree)/tools/bpf/resolve_btfids O=$(abspath $(objtree))/tools/bpf/resolve_btfids clean
++
+ ifdef CONFIG_BPF
+ ifdef CONFIG_DEBUG_INFO_BTF
+   ifeq ($(has_libelf),1)
+@@ -1500,7 +1505,7 @@ vmlinuxclean:
+ 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/link-vmlinux.sh clean
+ 	$(Q)$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) clean)
+ 
+-clean: archclean vmlinuxclean
++clean: archclean vmlinuxclean resolve_btfids_clean
+ 
+ # mrproper - Delete all generated files, including .config
+ #
 -- 
 2.30.2
 
