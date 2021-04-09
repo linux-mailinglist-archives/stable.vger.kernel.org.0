@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81756359AF8
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FB3359AB5
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233971AbhDIKHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51554 "EHLO mail.kernel.org"
+        id S233909AbhDIKCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:02:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233719AbhDIKDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:03:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40DB16125F;
-        Fri,  9 Apr 2021 10:00:35 +0000 (UTC)
+        id S233817AbhDIJ7k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:59:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C008D6120E;
+        Fri,  9 Apr 2021 09:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962435;
-        bh=92AuBmyyIh32FCb7AW4Ia2WAaBJt828hN833PaULxe4=;
+        s=korg; t=1617962334;
+        bh=ykZVOh3dNKinZnqk0fKmOCRHlYo/PHfCjsky/WzUwUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qgfcJyY9bYGowGv3P+k4Ren3qC06Wi4QRfyyNS8xCriYx/bnTgQQKUR1caeTaLQ0
-         iTlQYc5fxf41HJuzjN/Kd4RGNdBZun19tcQF9894LV1tCm1MbvqvS3qvf6Bp+txbtJ
-         imSdnvR1mC6ZM3fqx2wwjKqRG4P390eJgTz8SZSc=
+        b=KrwXpg8yDTCB9y9A71dgG8xWoqoiNOm7xjwBzRPVnl3UmA0nTWfxPNGysuUClhxFL
+         pj3NRct1n1Hq0eAocvC+SA9NGjUMkJogPKo6UGzkIMV//72Qz1S/9l54jB36yGRcqV
+         rMaPdb810IOUQmGkzZhnSgqnkG9Pb2e32Oa7DFhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        stable@vger.kernel.org, Kalyan Thota <kalyan_t@codeaurora.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 15/45] drm/msm/adreno: a5xx_power: Dont apply A540 lm_setup to other GPUs
+Subject: [PATCH 5.10 19/41] drm/msm/disp/dpu1: icc path needs to be set before dpu runtime resume
 Date:   Fri,  9 Apr 2021 11:53:41 +0200
-Message-Id: <20210409095305.890730057@linuxfoundation.org>
+Message-Id: <20210409095305.452791177@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Kalyan Thota <kalyant@codeaurora.org>
 
-[ Upstream commit 4a9d36b0610aa7034340e976652e5b43320dd7c5 ]
+[ Upstream commit 627dc55c273dab308303a5217bd3e767d7083ddb ]
 
-While passing the A530-specific lm_setup func to A530 and A540
-to !A530 was fine back when only these two were supported, it
-certainly is not a good idea to send A540 specifics to smaller
-GPUs like A508 and friends.
+DPU runtime resume will request for a min vote on the AXI bus as
+it is a necessary step before turning ON the AXI clock.
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+The change does below
+1) Move the icc path set before requesting runtime get_sync.
+2) remove the dependency of hw catalog for min ib vote
+as it is initialized at a later point.
+
+Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_power.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_power.c b/drivers/gpu/drm/msm/adreno/a5xx_power.c
-index f176a6f3eff6..e58670a61df4 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_power.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_power.c
-@@ -304,7 +304,7 @@ int a5xx_power_init(struct msm_gpu *gpu)
- 	/* Set up the limits management */
- 	if (adreno_is_a530(adreno_gpu))
- 		a530_lm_setup(gpu);
--	else
-+	else if (adreno_is_a540(adreno_gpu))
- 		a540_lm_setup(gpu);
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index d93c44f6996d..e69ea810e18d 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -43,6 +43,8 @@
+ #define DPU_DEBUGFS_DIR "msm_dpu"
+ #define DPU_DEBUGFS_HWMASKNAME "hw_log_mask"
  
- 	/* Set up SP/TP power collpase */
++#define MIN_IB_BW	400000000ULL /* Min ib vote 400MB */
++
+ static int dpu_kms_hw_init(struct msm_kms *kms);
+ static void _dpu_kms_mmu_destroy(struct dpu_kms *dpu_kms);
+ 
+@@ -929,6 +931,9 @@ static int dpu_kms_hw_init(struct msm_kms *kms)
+ 		DPU_DEBUG("REG_DMA is not defined");
+ 	}
+ 
++	if (of_device_is_compatible(dev->dev->of_node, "qcom,sc7180-mdss"))
++		dpu_kms_parse_data_bus_icc_path(dpu_kms);
++
+ 	pm_runtime_get_sync(&dpu_kms->pdev->dev);
+ 
+ 	dpu_kms->core_rev = readl_relaxed(dpu_kms->mmio + 0x0);
+@@ -1030,9 +1035,6 @@ static int dpu_kms_hw_init(struct msm_kms *kms)
+ 
+ 	dpu_vbif_init_memtypes(dpu_kms);
+ 
+-	if (of_device_is_compatible(dev->dev->of_node, "qcom,sc7180-mdss"))
+-		dpu_kms_parse_data_bus_icc_path(dpu_kms);
+-
+ 	pm_runtime_put_sync(&dpu_kms->pdev->dev);
+ 
+ 	return 0;
+@@ -1189,10 +1191,10 @@ static int __maybe_unused dpu_runtime_resume(struct device *dev)
+ 
+ 	ddev = dpu_kms->dev;
+ 
++	WARN_ON(!(dpu_kms->num_paths));
+ 	/* Min vote of BW is required before turning on AXI clk */
+ 	for (i = 0; i < dpu_kms->num_paths; i++)
+-		icc_set_bw(dpu_kms->path[i], 0,
+-			dpu_kms->catalog->perf.min_dram_ib);
++		icc_set_bw(dpu_kms->path[i], 0, Bps_to_icc(MIN_IB_BW));
+ 
+ 	rc = msm_dss_enable_clk(mp->clk_config, mp->num_clk, true);
+ 	if (rc) {
 -- 
 2.30.2
 
