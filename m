@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3833359AC4
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4710A359AD4
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233541AbhDIKDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:03:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
+        id S232876AbhDIKDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233867AbhDIKAx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:00:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FE28611EF;
-        Fri,  9 Apr 2021 09:59:26 +0000 (UTC)
+        id S234012AbhDIKBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:01:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4E55611BF;
+        Fri,  9 Apr 2021 09:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962366;
-        bh=v7eYA02GetuYGqzE7mDeysV+IzalbQuzzeQPpJgUDHk=;
+        s=korg; t=1617962383;
+        bh=yaOy7cYHZV7/KPe2qpIv1N8cRj+HVPyn/GfRTuoufno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nU+IDhUMa1Ts1X7JAfwlvzGG7a6rU+yw+17ZpEbbv1NxWPpQoeoAM0F3gS9WNBlM
-         pGtzlyClJnqejIWyRXsl7K30mJHP5GVZrI34BOrlI3yq/4eqopNPu5KUiAMimzKVRw
-         FRKm+Yg/lR2enanHNUdXPgQ/w3CV2cOF30SpSMBM=
+        b=qnx4+u30A/+6vGzttaXxJyEipAqAcFjOiJYvL7aBXJt8PV8mpqjiExgk3cBTBN0Uk
+         q7DokEOXgpFZjUHL33IjZ56xDl3n0ONoFd6cIJ2rv5/J44mwfsd8ojbccRjU0OqKpS
+         P59pC+iPlffGauf8WyzKipRRwLcMCK5QOW3J12bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alban Bedel <albeu@free.fr>,
-        Alexander Kobel <a-kobel@a-kobel.de>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 03/41] platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
-Date:   Fri,  9 Apr 2021 11:53:25 +0200
-Message-Id: <20210409095304.930451761@linuxfoundation.org>
+Subject: [PATCH 5.10 04/41] bpf, x86: Use kvmalloc_array instead kmalloc_array in bpf_jit_comp
+Date:   Fri,  9 Apr 2021 11:53:26 +0200
+Message-Id: <20210409095304.962182823@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
 References: <20210409095304.818847860@linuxfoundation.org>
@@ -41,42 +41,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alban Bedel <albeu@free.fr>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 56678a5f44ef5f0ad9a67194bbee2280c6286534 ]
+[ Upstream commit de920fc64cbaa031f947e9be964bda05fd090380 ]
 
-Like a few other system the Lenovo ThinkPad X1 Tablet Gen 2 miss the
-HEBC method, which prevent the power button from working. Add a quirk
-to enable the button array on this system family and fix the power
-button.
+x86 bpf_jit_comp.c used kmalloc_array to store jited addresses
+for each bpf insn. With a large bpf program, we have see the
+following allocation failures in our production server:
 
-Signed-off-by: Alban Bedel <albeu@free.fr>
-Tested-by: Alexander Kobel <a-kobel@a-kobel.de>
-Link: https://lore.kernel.org/r/20210222141559.3775-1-albeu@free.fr
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+    page allocation failure: order:5, mode:0x40cc0(GFP_KERNEL|__GFP_COMP),
+                             nodemask=(null),cpuset=/,mems_allowed=0"
+    Call Trace:
+    dump_stack+0x50/0x70
+    warn_alloc.cold.120+0x72/0xd2
+    ? __alloc_pages_direct_compact+0x157/0x160
+    __alloc_pages_slowpath+0xcdb/0xd00
+    ? get_page_from_freelist+0xe44/0x1600
+    ? vunmap_page_range+0x1ba/0x340
+    __alloc_pages_nodemask+0x2c9/0x320
+    kmalloc_order+0x18/0x80
+    kmalloc_order_trace+0x1d/0xa0
+    bpf_int_jit_compile+0x1e2/0x484
+    ? kmalloc_order_trace+0x1d/0xa0
+    bpf_prog_select_runtime+0xc3/0x150
+    bpf_prog_load+0x480/0x720
+    ? __mod_memcg_lruvec_state+0x21/0x100
+    __do_sys_bpf+0xc31/0x2040
+    ? close_pdeo+0x86/0xe0
+    do_syscall_64+0x42/0x110
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    RIP: 0033:0x7f2f300f7fa9
+    Code: Bad RIP value.
+
+Dumped assembly:
+
+    ffffffff810b6d70 <bpf_int_jit_compile>:
+    ; {
+    ffffffff810b6d70: e8 eb a5 b4 00        callq   0xffffffff81c01360 <__fentry__>
+    ffffffff810b6d75: 41 57                 pushq   %r15
+    ...
+    ffffffff810b6f39: e9 72 fe ff ff        jmp     0xffffffff810b6db0 <bpf_int_jit_compile+0x40>
+    ;       addrs = kmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
+    ffffffff810b6f3e: 8b 45 0c              movl    12(%rbp), %eax
+    ;       return __kmalloc(bytes, flags);
+    ffffffff810b6f41: be c0 0c 00 00        movl    $3264, %esi
+    ;       addrs = kmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
+    ffffffff810b6f46: 8d 78 01              leal    1(%rax), %edi
+    ;       if (unlikely(check_mul_overflow(n, size, &bytes)))
+    ffffffff810b6f49: 48 c1 e7 02           shlq    $2, %rdi
+    ;       return __kmalloc(bytes, flags);
+    ffffffff810b6f4d: e8 8e 0c 1d 00        callq   0xffffffff81287be0 <__kmalloc>
+    ;       if (!addrs) {
+    ffffffff810b6f52: 48 85 c0              testq   %rax, %rax
+
+Change kmalloc_array() to kvmalloc_array() to avoid potential
+allocation error for big bpf programs.
+
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210309015647.3657852-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-hid.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/net/bpf_jit_comp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
-index 86261970bd8f..8a0cd5bf0065 100644
---- a/drivers/platform/x86/intel-hid.c
-+++ b/drivers/platform/x86/intel-hid.c
-@@ -86,6 +86,13 @@ static const struct dmi_system_id button_array_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x2 Detachable"),
- 		},
- 	},
-+	{
-+		.ident = "Lenovo ThinkPad X1 Tablet Gen 2",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Tablet Gen 2"),
-+		},
-+	},
- 	{ }
- };
- 
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 023ac12f54a2..4cf3612ccd37 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -2038,7 +2038,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		extra_pass = true;
+ 		goto skip_init_addrs;
+ 	}
+-	addrs = kmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
++	addrs = kvmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
+ 	if (!addrs) {
+ 		prog = orig_prog;
+ 		goto out_addrs;
+@@ -2128,7 +2128,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		if (image)
+ 			bpf_prog_fill_jited_linfo(prog, addrs + 1);
+ out_addrs:
+-		kfree(addrs);
++		kvfree(addrs);
+ 		kfree(jit_data);
+ 		prog->aux->jit_data = NULL;
+ 	}
 -- 
 2.30.2
 
