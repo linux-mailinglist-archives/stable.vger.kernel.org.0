@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 931453599F7
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E92F359A20
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbhDIJzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:55:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
+        id S233613AbhDIJ4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:56:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233043AbhDIJzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:55:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E755361182;
-        Fri,  9 Apr 2021 09:54:46 +0000 (UTC)
+        id S233464AbhDIJzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:55:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F1261181;
+        Fri,  9 Apr 2021 09:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962087;
-        bh=r+em3lp58j5sL5Sag0dbfT13hKuA67iS9h1Kl0XKhXA=;
+        s=korg; t=1617962136;
+        bh=Szysmpw0/D5Cn7QxAttk1NY23HJvZ75cKA4mT2mBYDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeosdHhYANjuFMPDxx8uyeB4iP7HyReRPYlhbLtZRNbpdg0UWinUKM5vkChJMWG3D
-         ozDnYQ+1ggzpezgK5M3LT/eLHRl3iehcKOvNSQ8lVNTSmsy6cCnGvHmLe/c75DU+xn
-         o3g4NWL/rZOuAOAZ6akJ3n/xJhz5eMvqmDTLLqhU=
+        b=BkuczEmI8rmusNxNeB3VlJ0tF109MBQouAaFumTcABlHNnZZyaz7O5M+EQnVGD8cE
+         JBV6IPoEmwnjGX8mkzSOennYLIAlip4dy5wCQSK1EcPnUqBPgdq1DNhqKggAjf9Bm0
+         KvuOyhe0mtcQI3akDOWRZBRr5X86HCLjWgmSFvDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 18/20] init/Kconfig: make COMPILE_TEST depend on !UML
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 04/13] drm/msm: Ratelimit invalid-fence message
 Date:   Fri,  9 Apr 2021 11:53:24 +0200
-Message-Id: <20210409095300.531289850@linuxfoundation.org>
+Message-Id: <20210409095259.772069495@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095259.957388690@linuxfoundation.org>
-References: <20210409095259.957388690@linuxfoundation.org>
+In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
+References: <20210409095259.624577828@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Rob Clark <robdclark@chromium.org>
 
-commit bc083a64b6c035135c0f80718f9e9192cc0867c6 upstream.
+[ Upstream commit 7ad48d27a2846bfda29214fb454d001c3e02b9e7 ]
 
-UML is a bit special since it does not have iomem nor dma.  That means a
-lot of drivers will not build if they miss a dependency on HAS_IOMEM.
-s390 used to have the same issues but since it gained PCI support UML is
-the only stranger.
+We have seen a couple cases where low memory situations cause something
+bad to happen, followed by a flood of these messages obscuring the root
+cause.  Lets ratelimit the dmesg spam so that next time it happens we
+don't lose the kernel traces leading up to this.
 
-We are tired of patching dozens of new drivers after every merge window
-just to un-break allmod/yesconfig UML builds.  One could argue that a
-decent driver has to know on what it depends and therefore a missing
-HAS_IOMEM dependency is a clear driver bug.  But the dependency not
-obvious and not everyone does UML builds with COMPILE_TEST enabled when
-developing a device driver.
-
-A possible solution to make these builds succeed on UML would be
-providing stub functions for ioremap() and friends which fail upon
-runtime.  Another one is simply disabling COMPILE_TEST for UML.  Since
-it is the least hassle and does not force use to fake iomem support
-let's do the latter.
-
-Link: http://lkml.kernel.org/r/1466152995-28367-1-git-send-email-richard@nod.at
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/msm_fence.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -65,6 +65,7 @@ config CROSS_COMPILE
+diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
+index a9b9b1c95a2e..9dbd17be51f7 100644
+--- a/drivers/gpu/drm/msm/msm_fence.c
++++ b/drivers/gpu/drm/msm/msm_fence.c
+@@ -56,7 +56,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
+ 	int ret;
  
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
-+	depends on !UML
- 	default n
- 	help
- 	  Some drivers can be compiled on a different platform than they are
+ 	if (fence > fctx->last_fence) {
+-		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
++		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
+ 				fctx->name, fence, fctx->last_fence);
+ 		return -EINVAL;
+ 	}
+-- 
+2.30.2
+
 
 
