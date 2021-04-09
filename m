@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1824D359A3E
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8036E359A28
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233758AbhDIJ5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44698 "EHLO mail.kernel.org"
+        id S233490AbhDIJ4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:56:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233640AbhDIJ43 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D77FF611C0;
-        Fri,  9 Apr 2021 09:56:15 +0000 (UTC)
+        id S233505AbhDIJ4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:56:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 641866115B;
+        Fri,  9 Apr 2021 09:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962176;
-        bh=P5pAX8CGqKLZIoiYZTtzs/24ht4yQbWSH0meskpaXP4=;
+        s=korg; t=1617962149;
+        bh=jX/uMPf9O5TqBbLReJpZMDzgWBSR4cg8pgu28NAtz/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w14FlDMog3NehobdFfjOdkTD2U7SAo+Hgv4mlLrBGMYYedHUh7uQrE4AiHCkAr3Ek
-         zzx7H4m/x/chomeEBw2/pKS2HGv2EuUZlMG4VlR3FZK89fYzHMy+zzsZz6F6/jH83Y
-         bEPZyadhLydoAz/0SPUUMNtWx48W4esnzx0z3o+4=
+        b=Jrty2x33x99qJKjDdrVBwBu3hVsY1OPiK5NPBCwEsma+L3KaEo/bOyGWB3HqLYGa3
+         XmL9dpTpOtRjhyiDz7+VPa1Vr3xC1EQfDvG5cfX8CZKRjPoVgtI820JxF0xKDitQut
+         912TaBY5l2tiSfjcr9RxCjKfaFUFnpI3ei3YAVo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Karthikeyan Kathirvel <kathirve@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Tom Talpey <tom@talpey.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/14] mac80211: choose first enabled channel for monitor
+Subject: [PATCH 4.9 09/13] cifs: Silently ignore unknown oplock break handle
 Date:   Fri,  9 Apr 2021 11:53:29 +0200
-Message-Id: <20210409095300.535712990@linuxfoundation.org>
+Message-Id: <20210409095259.926118372@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
-References: <20210409095300.391558233@linuxfoundation.org>
+In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
+References: <20210409095259.624577828@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 041c881a0ba8a75f71118bd9766b78f04beed469 ]
+[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
 
-Even if the first channel from sband channel list is invalid
-or disabled mac80211 ends up choosing it as the default channel
-for monitor interfaces, making them not usable.
+Make SMB2 not print out an error when an oplock break is received for an
+unknown handle, similar to SMB1.  The debug message which is printed for
+these unknown handles may also be misleading, so fix that too.
 
-Fix this by assigning the first available valid or enabled
-channel instead.
+The SMB2 lease break path is not affected by this patch.
 
-Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
-Link: https://lore.kernel.org/r/1615440547-7661-1-git-send-email-kathirve@codeaurora.org
-[reword commit message, comment, code cleanups]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Without this, a program which writes to a file from one thread, and
+opens, reads, and writes the same file from another thread triggers the
+below errors several times a minute when run against a Samba server
+configured with "smb2 leases = no".
+
+ CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
+ 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
+ 00000010: 00000001 00000000 ffffffff ffffffff  ................
+ 00000020: 00000000 00000000 00000000 00000000  ................
+ 00000030: 00000000 00000000 00000000 00000000  ................
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/main.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ fs/cifs/smb2misc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-index 8a51f94ec1ce..2136ce3b4489 100644
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -913,8 +913,19 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
- 			continue;
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -651,8 +651,8 @@ smb2_is_valid_oplock_break(char *buffer,
+ 		}
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+-	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
+-	return false;
++	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
++	return true;
+ }
  
- 		if (!dflt_chandef.chan) {
-+			/*
-+			 * Assign the first enabled channel to dflt_chandef
-+			 * from the list of channels
-+			 */
-+			for (i = 0; i < sband->n_channels; i++)
-+				if (!(sband->channels[i].flags &
-+						IEEE80211_CHAN_DISABLED))
-+					break;
-+			/* if none found then use the first anyway */
-+			if (i == sband->n_channels)
-+				i = 0;
- 			cfg80211_chandef_create(&dflt_chandef,
--						&sband->channels[0],
-+						&sband->channels[i],
- 						NL80211_CHAN_NO_HT);
- 			/* init channel we're on */
- 			if (!local->use_chanctx && !local->_oper_chandef.chan) {
--- 
-2.30.2
-
+ void
 
 
