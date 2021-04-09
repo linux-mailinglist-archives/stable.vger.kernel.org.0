@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7135359B0B
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDCF7359AC2
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233919AbhDIKHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51182 "EHLO mail.kernel.org"
+        id S233417AbhDIKC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:02:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234077AbhDIKE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:04:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94F026128C;
-        Fri,  9 Apr 2021 10:01:04 +0000 (UTC)
+        id S233829AbhDIKAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:00:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F11A1611F1;
+        Fri,  9 Apr 2021 09:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962465;
-        bh=remeRqQSZdAKtDQ5b6HvkjLjZMA0xfhMsjcWwvk6B7E=;
+        s=korg; t=1617962364;
+        bh=Eyk8V1EXcB2tviQVNu4eTXGcnt36r8DS8FxRhP9LU08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHNvXF9zNEXT6rX4vvRh9JdJfmPsiH1xGklAXWbhK6a04olCYsHFPjaHCszTKLyAF
-         Ii/WiOQ0KergsyyR1PFJzoOgVrIe14yEM5EVmJnAB+c+aMgm9DoW0r4rEZTaF2vD/l
-         c/PMdE/fwnJPU6PtsnwZn6ckK7Vr9mDN3xEMnUjg=
+        b=b2cyLa+Pjl1ImKZsmIAiSCtAdVNGg1jbN/LVBPCXJwi+sedNZnTi58ya7JgEnc5ZZ
+         U4SuaYv/Tww5GTy5BYHVz1/xcqermjjxy/je6rMotDsw2OBepsOYnoVbxV2abHYNLG
+         GaDpD9Yedao1AJpPT16V9bweI7xS2J198cQc/ZT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Tom Talpey <tom@talpey.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 25/45] platform/x86: intel_pmt_class: Initial resource to 0
+Subject: [PATCH 5.10 29/41] cifs: Silently ignore unknown oplock break handle
 Date:   Fri,  9 Apr 2021 11:53:51 +0200
-Message-Id: <20210409095306.223969623@linuxfoundation.org>
+Message-Id: <20210409095305.752570676@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David E. Box <david.e.box@linux.intel.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 7547deff8a221e6bf1e563cf1b636844a8e5378a ]
+[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
 
-Initialize the struct resource in intel_pmt_dev_register to zero to avoid a
-fault should the char *name field be non-zero.
+Make SMB2 not print out an error when an oplock break is received for an
+unknown handle, similar to SMB1.  The debug message which is printed for
+these unknown handles may also be misleading, so fix that too.
 
-Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-Link: https://lore.kernel.org/r/20210317024455.3071477-1-david.e.box@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+The SMB2 lease break path is not affected by this patch.
+
+Without this, a program which writes to a file from one thread, and
+opens, reads, and writes the same file from another thread triggers the
+below errors several times a minute when run against a Samba server
+configured with "smb2 leases = no".
+
+ CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
+ 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
+ 00000010: 00000001 00000000 ffffffff ffffffff  ................
+ 00000020: 00000000 00000000 00000000 00000000  ................
+ 00000030: 00000000 00000000 00000000 00000000  ................
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmt_class.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2misc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_pmt_class.c b/drivers/platform/x86/intel_pmt_class.c
-index c8939fba4509..ee2b3bbeb83d 100644
---- a/drivers/platform/x86/intel_pmt_class.c
-+++ b/drivers/platform/x86/intel_pmt_class.c
-@@ -173,7 +173,7 @@ static int intel_pmt_dev_register(struct intel_pmt_entry *entry,
- 				  struct intel_pmt_namespace *ns,
- 				  struct device *parent)
- {
--	struct resource res;
-+	struct resource res = {0};
- 	struct device *dev;
- 	int ret;
+diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+index db22d686c61f..be3df90bb2bc 100644
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -745,8 +745,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+ 		}
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+-	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
+-	return false;
++	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
++	return true;
+ }
  
+ void
 -- 
 2.30.2
 
