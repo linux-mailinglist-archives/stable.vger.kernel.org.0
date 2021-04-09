@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A290359ADA
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E843359B13
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233888AbhDIKEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45724 "EHLO mail.kernel.org"
+        id S233468AbhDIKHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:07:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234060AbhDIKBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:01:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E30611F0;
-        Fri,  9 Apr 2021 09:59:48 +0000 (UTC)
+        id S234147AbhDIKE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:04:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B726861182;
+        Fri,  9 Apr 2021 10:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962388;
-        bh=SWgR4AmNllzJKJGwEVumW0kADe+peqxL8v8mobvaEpg=;
+        s=korg; t=1617962478;
+        bh=nASWuHlKD8CqwwcldSbXDzmniWIdhDF5v2rTX1UEUhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eELGK4/LIHOK+muwkdC6QupaEk8uWRAk2qK5+ojVCsgVrnG7DnV1HcscKbRTvlLqQ
-         GXk3St+ojELtOQKtbfGuVl42L6KXEh7yKBdmdN5xzsA/jNlylhwoZBpXfhpcTf3+aS
-         u0FhyyRCb4mPAVHBABnMeQ5RTj6Z9QgNOJ1d1zL8=
+        b=Eopk/kGStYe1bMxVcG9UGN8IpAZ3EITjz4GH/Bf/lfrHH3azMh29hIc3Z1pd45NXx
+         CloUJfS5De3Iid16XwOO7jtEtSsqU693jSXhmvZkzOronlmN6ceZ6AjJWcTWbDnIOA
+         T14+J7ijFW2MP8XgtXLtVe1vfH+hz1NUowZgFW2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Andrianov <andrianov@ispras.ru>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
+        Akhil P Oommen <akhilpo@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/41] net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
-Date:   Fri,  9 Apr 2021 11:53:28 +0200
-Message-Id: <20210409095305.022244081@linuxfoundation.org>
+Subject: [PATCH 5.11 03/45] drm/msm: a6xx: Make sure the SQE microcode is safe
+Date:   Fri,  9 Apr 2021 11:53:29 +0200
+Message-Id: <20210409095305.508979530@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
-References: <20210409095304.818847860@linuxfoundation.org>
+In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
+References: <20210409095305.397149021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Andrianov <andrianov@ispras.ru>
+From: Jordan Crouse <jcrouse@codeaurora.org>
 
-[ Upstream commit 0571a753cb07982cc82f4a5115e0b321da89e1f3 ]
+[ Upstream commit 8490f02a3ca45fd1bbcadc243b4db9b69d0e3450 ]
 
-pxa168_eth_remove() firstly calls unregister_netdev(),
-then cancels a timeout work. unregister_netdev() shuts down a device
-interface and removes it from the kernel tables. If the timeout occurs
-in parallel, the timeout work (pxa168_eth_tx_timeout_task) performs stop
-and open of the device. It may lead to an inconsistent state and memory
-leaks.
+Most a6xx targets have security issues that were fixed with new versions
+of the microcode(s). Make sure that we are booting with a safe version of
+the microcode for the target and print a message and error if not.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+v2: Add more informative error messages and fix typos
 
-Signed-off-by: Pavel Andrianov <andrianov@ispras.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
+Reviewed-by: Akhil P Oommen <akhilpo@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/pxa168_eth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 77 ++++++++++++++++++++++-----
+ 1 file changed, 64 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/pxa168_eth.c b/drivers/net/ethernet/marvell/pxa168_eth.c
-index d1e4d42e497d..3712e1786091 100644
---- a/drivers/net/ethernet/marvell/pxa168_eth.c
-+++ b/drivers/net/ethernet/marvell/pxa168_eth.c
-@@ -1544,8 +1544,8 @@ static int pxa168_eth_remove(struct platform_device *pdev)
- 	clk_disable_unprepare(pep->clk);
- 	mdiobus_unregister(pep->smi_bus);
- 	mdiobus_free(pep->smi_bus);
--	unregister_netdev(dev);
- 	cancel_work_sync(&pep->tx_timeout_task);
-+	unregister_netdev(dev);
- 	free_netdev(dev);
- 	return 0;
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 0366419d8bfe..e7a8442b59af 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -521,28 +521,73 @@ static int a6xx_cp_init(struct msm_gpu *gpu)
+ 	return a6xx_idle(gpu, ring) ? 0 : -EINVAL;
  }
+ 
+-static void a6xx_ucode_check_version(struct a6xx_gpu *a6xx_gpu,
++/*
++ * Check that the microcode version is new enough to include several key
++ * security fixes. Return true if the ucode is safe.
++ */
++static bool a6xx_ucode_check_version(struct a6xx_gpu *a6xx_gpu,
+ 		struct drm_gem_object *obj)
+ {
++	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
++	struct msm_gpu *gpu = &adreno_gpu->base;
+ 	u32 *buf = msm_gem_get_vaddr(obj);
++	bool ret = false;
+ 
+ 	if (IS_ERR(buf))
+-		return;
++		return false;
+ 
+ 	/*
+-	 * If the lowest nibble is 0xa that is an indication that this microcode
+-	 * has been patched. The actual version is in dword [3] but we only care
+-	 * about the patchlevel which is the lowest nibble of dword [3]
+-	 *
+-	 * Otherwise check that the firmware is greater than or equal to 1.90
+-	 * which was the first version that had this fix built in
++	 * Targets up to a640 (a618, a630 and a640) need to check for a
++	 * microcode version that is patched to support the whereami opcode or
++	 * one that is new enough to include it by default.
+ 	 */
+-	if (((buf[0] & 0xf) == 0xa) && (buf[2] & 0xf) >= 1)
+-		a6xx_gpu->has_whereami = true;
+-	else if ((buf[0] & 0xfff) > 0x190)
+-		a6xx_gpu->has_whereami = true;
++	if (adreno_is_a618(adreno_gpu) || adreno_is_a630(adreno_gpu) ||
++		adreno_is_a640(adreno_gpu)) {
++		/*
++		 * If the lowest nibble is 0xa that is an indication that this
++		 * microcode has been patched. The actual version is in dword
++		 * [3] but we only care about the patchlevel which is the lowest
++		 * nibble of dword [3]
++		 *
++		 * Otherwise check that the firmware is greater than or equal
++		 * to 1.90 which was the first version that had this fix built
++		 * in
++		 */
++		if ((((buf[0] & 0xf) == 0xa) && (buf[2] & 0xf) >= 1) ||
++			(buf[0] & 0xfff) >= 0x190) {
++			a6xx_gpu->has_whereami = true;
++			ret = true;
++			goto out;
++		}
+ 
++		DRM_DEV_ERROR(&gpu->pdev->dev,
++			"a630 SQE ucode is too old. Have version %x need at least %x\n",
++			buf[0] & 0xfff, 0x190);
++	}  else {
++		/*
++		 * a650 tier targets don't need whereami but still need to be
++		 * equal to or newer than 1.95 for other security fixes
++		 */
++		if (adreno_is_a650(adreno_gpu)) {
++			if ((buf[0] & 0xfff) >= 0x195) {
++				ret = true;
++				goto out;
++			}
++
++			DRM_DEV_ERROR(&gpu->pdev->dev,
++				"a650 SQE ucode is too old. Have version %x need at least %x\n",
++				buf[0] & 0xfff, 0x195);
++		}
++
++		/*
++		 * When a660 is added those targets should return true here
++		 * since those have all the critical security fixes built in
++		 * from the start
++		 */
++	}
++out:
+ 	msm_gem_put_vaddr(obj);
++	return ret;
+ }
+ 
+ static int a6xx_ucode_init(struct msm_gpu *gpu)
+@@ -565,7 +610,13 @@ static int a6xx_ucode_init(struct msm_gpu *gpu)
+ 		}
+ 
+ 		msm_gem_object_set_name(a6xx_gpu->sqe_bo, "sqefw");
+-		a6xx_ucode_check_version(a6xx_gpu, a6xx_gpu->sqe_bo);
++		if (!a6xx_ucode_check_version(a6xx_gpu, a6xx_gpu->sqe_bo)) {
++			msm_gem_unpin_iova(a6xx_gpu->sqe_bo, gpu->aspace);
++			drm_gem_object_put(a6xx_gpu->sqe_bo);
++
++			a6xx_gpu->sqe_bo = NULL;
++			return -EPERM;
++		}
+ 	}
+ 
+ 	gpu_write64(gpu, REG_A6XX_CP_SQE_INSTR_BASE_LO,
 -- 
 2.30.2
 
