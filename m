@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13934359A43
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B01A359A82
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233445AbhDIJ5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:57:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44824 "EHLO mail.kernel.org"
+        id S232995AbhDIJ7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:59:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233666AbhDIJ4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF1D761182;
-        Fri,  9 Apr 2021 09:56:23 +0000 (UTC)
+        id S232690AbhDIJ6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:58:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E68B0611C9;
+        Fri,  9 Apr 2021 09:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962184;
-        bh=I4X2BwyE5he9AmSsD0uodM8qJTSafLXvfC8PLNLBUk4=;
+        s=korg; t=1617962273;
+        bh=bsFM7WeYYZuM7ZFtbJVcc8RKIoG3fR8o7lX0984to60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iA7XImCueKZDUtCa+cyE4Lupoga22w+aTZWbLpLShLHiqXM0bQk0PrZx31Bq3Hltd
-         Cb+3kPvjtHYil/G4f4DizQ2aQoik4TnhNtFNWBAc8u8ae1PWWOCa8zD45jdbNxLI6J
-         ihXdW++v0y5PiR5p4Sh3Vu9bSmSWY+qY7sKroadw=
+        b=QH6sB84J20m2Ji1zocRscbT4woWWkWEH8gHHXTPtLoQTa8Oei4Nc1D4pdJD/fqXBT
+         zY2bSxA7ha66Hly2WiTmUflsdW9fZ8o2DUjYASm5R6q3vzfssPybS8pb0yWZQ1opeN
+         kcddrJI8LNBYb+7EpgLevqEgPKiOuczsTY4jAbtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/14] x86/build: Turn off -fcf-protection for realmode targets
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 02/23] bus: ti-sysc: Fix warning on unbind if reset is not deasserted
 Date:   Fri,  9 Apr 2021 11:53:32 +0200
-Message-Id: <20210409095300.627874417@linuxfoundation.org>
+Message-Id: <20210409095302.974340470@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
-References: <20210409095300.391558233@linuxfoundation.org>
+In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
+References: <20210409095302.894568462@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 9fcb51c14da2953de585c5c6e50697b8a6e91a7b ]
+[ Upstream commit a7b5d7c4969aba8d1f04c29048906abaa71fb6a9 ]
 
-The new Ubuntu GCC packages turn on -fcf-protection globally,
-which causes a build failure in the x86 realmode code:
+We currently get thefollowing on driver unbind if a reset is configured
+and asserted:
 
-  cc1: error: ‘-fcf-protection’ is not compatible with this target
+WARNING: CPU: 0 PID: 993 at drivers/reset/core.c:432 reset_control_assert
+...
+(reset_control_assert) from [<c0fecda8>] (sysc_remove+0x190/0x1e4)
+(sysc_remove) from [<c0a2bb58>] (platform_remove+0x24/0x3c)
+(platform_remove) from [<c0a292fc>] (__device_release_driver+0x154/0x214)
+(__device_release_driver) from [<c0a2a210>] (device_driver_detach+0x3c/0x8c)
+(device_driver_detach) from [<c0a27d64>] (unbind_store+0x60/0xd4)
+(unbind_store) from [<c0546bec>] (kernfs_fop_write_iter+0x10c/0x1cc)
 
-Turn it off explicitly on compilers that understand this option.
+Let's fix it by checking the reset status.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210323124846.1584944-1-arnd@kernel.org
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/ti-sysc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 9f33a69b5605..146aadeb7c8e 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -35,7 +35,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -D__KERNEL__ \
- 		   -DDISABLE_BRANCH_PROFILING \
- 		   -Wall -Wstrict-prototypes -march=i386 -mregparm=3 \
- 		   -fno-strict-aliasing -fomit-frame-pointer -fno-pic \
--		   -mno-mmx -mno-sse
-+		   -mno-mmx -mno-sse $(call cc-option,-fcf-protection=none)
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 3934ce3385ac..f9ff6d433dfe 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -2685,7 +2685,9 @@ static int sysc_remove(struct platform_device *pdev)
  
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+-	reset_control_assert(ddata->rsts);
++
++	if (!reset_control_status(ddata->rsts))
++		reset_control_assert(ddata->rsts);
+ 
+ unprepare:
+ 	sysc_unprepare(ddata);
 -- 
 2.30.2
 
