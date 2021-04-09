@@ -2,48 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8382C359A5B
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65147359A80
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233689AbhDIJ6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:58:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45536 "EHLO mail.kernel.org"
+        id S233583AbhDIJ7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:59:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232897AbhDIJ5M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:57:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8F13611C0;
-        Fri,  9 Apr 2021 09:56:58 +0000 (UTC)
+        id S233680AbhDIJ6N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:58:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B0D0611EF;
+        Fri,  9 Apr 2021 09:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962219;
-        bh=CC4AGHOsqlVAg4Qj3WyLqdMSYYCTPYqIbvo/AV/DhQo=;
+        s=korg; t=1617962265;
+        bh=bMO7+OlXtqhwxjryLT2BUHdvTX1FUX8IwS06ZC+aIag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LW4soUlwKgQnjxDU41pPH41lUunHDP58wSg36IddKAtplIbvnX9Xq4u+qXTWdi9yf
-         M1O2XzNJLWZtJt3yVLjU1FJvQ+nwwgsP1VQ7xR/yyPu7QTAsv5msLLiApU3lUmWSgr
-         +F+keaEfEPQnaaA3Zh40cHWXjU2TuYWX5h11G/lQ=
+        b=MWnO+hCfvXd2vTh7q/bMBnI9pytyQ4Ss52GWoNfygYMENdlLaRw7t5Rd7jWO0FMqZ
+         TjsqUheQ3bkql+bFYdl4Z23Vn39pL+PyfO4blEFimd+9hVP/aqvfr0j9tBWyHGOK/R
+         Uze3vbJMp5wB8rv0HE4a0SqUU+hrpEO7PLmexJBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        KP Singh <kpsingh@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Terrell <terrelln@fb.com>,
-        Quentin Perret <qperret@google.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Enrico Weigelt, metux IT consult" <lkml@metux.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 18/18] init/Kconfig: make COMPILE_TEST depend on HAS_IOMEM
-Date:   Fri,  9 Apr 2021 11:53:46 +0200
-Message-Id: <20210409095302.124053288@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/23] cifs: revalidate mapping when we open files for SMB1 POSIX
+Date:   Fri,  9 Apr 2021 11:53:47 +0200
+Message-Id: <20210409095303.442894853@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
-References: <20210409095301.525783608@linuxfoundation.org>
+In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
+References: <20210409095302.894568462@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,60 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit ea29b20a828511de3348334e529a3d046a180416 upstream.
+[ Upstream commit cee8f4f6fcabfdf229542926128e9874d19016d5 ]
 
-I read the commit log of the following two:
+RHBZ: 1933527
 
-- bc083a64b6c0 ("init/Kconfig: make COMPILE_TEST depend on !UML")
-- 334ef6ed06fa ("init/Kconfig: make COMPILE_TEST depend on !S390")
+Under SMB1 + POSIX, if an inode is reused on a server after we have read and
+cached a part of a file, when we then open the new file with the
+re-cycled inode there is a chance that we may serve the old data out of cache
+to the application.
+This only happens for SMB1 (deprecated) and when posix are used.
+The simplest solution to avoid this race is to force a revalidate
+on smb1-posix open.
 
-Both are talking about HAS_IOMEM dependency missing in many drivers.
-
-So, 'depends on HAS_IOMEM' seems the direct, sensible solution to me.
-
-This does not change the behavior of UML. UML still cannot enable
-COMPILE_TEST because it does not provide HAS_IOMEM.
-
-The current dependency for S390 is too strong. Under the condition of
-CONFIG_PCI=y, S390 provides HAS_IOMEM, hence can enable COMPILE_TEST.
-
-I also removed the meaningless 'default n'.
-
-Link: https://lkml.kernel.org/r/20210224140809.1067582-1-masahiroy@kernel.org
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Arnd Bergmann <arnd@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: KP Singh <kpsingh@google.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Quentin Perret <qperret@google.com>
-Cc: Valentin Schneider <valentin.schneider@arm.com>
-Cc: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/Kconfig |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/cifs/file.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -66,8 +66,7 @@ config INIT_ENV_ARG_LIMIT
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 31d578739341..1aac8d38f887 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -164,6 +164,7 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
+ 			goto posix_open_ret;
+ 		}
+ 	} else {
++		cifs_revalidate_mapping(*pinode);
+ 		cifs_fattr_to_inode(*pinode, &fattr);
+ 	}
  
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
--	depends on !UML && !S390
--	default n
-+	depends on HAS_IOMEM
- 	help
- 	  Some drivers can be compiled on a different platform than they are
- 	  intended to be run on. Despite they cannot be loaded there (or even
+-- 
+2.30.2
+
 
 
