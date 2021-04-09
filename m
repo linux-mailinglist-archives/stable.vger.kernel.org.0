@@ -2,77 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3087C359A23
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2AF359A48
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233630AbhDIJ4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:56:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43810 "EHLO mail.kernel.org"
+        id S233664AbhDIJ5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233467AbhDIJzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:55:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 959BD611C2;
-        Fri,  9 Apr 2021 09:55:38 +0000 (UTC)
+        id S233285AbhDIJ4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:56:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0A9F611BE;
+        Fri,  9 Apr 2021 09:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962139;
-        bh=Uqml/KA/LDaiQMffdH+X3U5y31CkFL+hRJwvfJ42j8I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5fWQsg2ZUvxD7yTlNDabBH+q/C13lKg2JxyJZB6aEFtUvUvbpkNM4060Bv+24TxN
-         HV6Kp0ww+1Esk+ug+Zt/MA+pDXF4GRVXMd0RaRrdpCazZKKNNZwTRpoagt34x8MlIw
-         FHYqJNmHrcMRWrR93RL5EsVm6p5tXiRa0XC8MZpY=
+        s=korg; t=1617962192;
+        bh=aKcFGglahUqnzO72BRM18Ck3Tou7QLF36XNEMwWXDkQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=u63BvOOdwEorzBnrSNu/ZVhqwaGJJfS5RS6s5cIl8O6+STr85uwkc5SPmgtr0ZTNu
+         HGqb3suOFAKnwan/+hvovFTiF0nnb2QmAH+lKaUxXtN9xKA0nL+L0Qp/vMyJl0ZX5t
+         5pD+WGD7kD2F5jjoiWxVZqecHPUBe/6m5tGI8r9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/13] x86/build: Turn off -fcf-protection for realmode targets
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.14 00/14] 4.14.230-rc1 review
 Date:   Fri,  9 Apr 2021 11:53:25 +0200
-Message-Id: <20210409095259.801666868@linuxfoundation.org>
+Message-Id: <20210409095300.391558233@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
-References: <20210409095259.624577828@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.230-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.230-rc1
+X-KernelTest-Deadline: 2021-04-11T09:53+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+This is the start of the stable review cycle for the 4.14.230 release.
+There are 14 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 9fcb51c14da2953de585c5c6e50697b8a6e91a7b ]
+Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
+Anything received after that time might be too late.
 
-The new Ubuntu GCC packages turn on -fcf-protection globally,
-which causes a build failure in the x86 realmode code:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.230-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-  cc1: error: ‘-fcf-protection’ is not compatible with this target
+thanks,
 
-Turn it off explicitly on compilers that understand this option.
+greg k-h
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210323124846.1584944-1-arnd@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+-------------
+Pseudo-Shortlog of commits:
 
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 9f0099c46c88..9ebbd4892557 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -34,7 +34,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -D__KERNEL__ \
- 		   -DDISABLE_BRANCH_PROFILING \
- 		   -Wall -Wstrict-prototypes -march=i386 -mregparm=3 \
- 		   -fno-strict-aliasing -fomit-frame-pointer -fno-pic \
--		   -mno-mmx -mno-sse
-+		   -mno-mmx -mno-sse $(call cc-option,-fcf-protection=none)
- 
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
--- 
-2.30.2
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.230-rc1
 
+Masahiro Yamada <masahiroy@kernel.org>
+    init/Kconfig: make COMPILE_TEST depend on HAS_IOMEM
+
+Heiko Carstens <hca@linux.ibm.com>
+    init/Kconfig: make COMPILE_TEST depend on !S390
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf, x86: Validate computation of branch displacements for x86-64
+
+Vincent Whitchurch <vincent.whitchurch@axis.com>
+    cifs: Silently ignore unknown oplock break handle
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: revalidate mapping when we open files for SMB1 POSIX
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    ia64: mca: allocate early mca with GFP_ATOMIC
+
+Martin Wilck <mwilck@suse.com>
+    scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+
+Arnd Bergmann <arnd@arndb.de>
+    x86/build: Turn off -fcf-protection for realmode targets
+
+Esteve Varela Colominas <esteve.varela@gmail.com>
+    platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
+
+Rob Clark <robdclark@chromium.org>
+    drm/msm: Ratelimit invalid-fence message
+
+Karthikeyan Kathirvel <kathirve@codeaurora.org>
+    mac80211: choose first enabled channel for monitor
+
+Tong Zhang <ztong0001@gmail.com>
+    mISDN: fix crash in fritzpci
+
+Pavel Andrianov <andrianov@ispras.ru>
+    net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
+
+Mans Rullgard <mans@mansr.com>
+    ARM: dts: am33xx: add aliases for mmc interfaces
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                  |  4 ++--
+ arch/arm/boot/dts/am33xx.dtsi             |  3 +++
+ arch/ia64/kernel/mca.c                    |  2 +-
+ arch/x86/Makefile                         |  2 +-
+ arch/x86/net/bpf_jit_comp.c               | 11 ++++++++++-
+ drivers/gpu/drm/msm/msm_fence.c           |  2 +-
+ drivers/isdn/hardware/mISDN/mISDNipac.c   |  2 +-
+ drivers/net/ethernet/marvell/pxa168_eth.c |  2 +-
+ drivers/platform/x86/thinkpad_acpi.c      |  8 +++++++-
+ drivers/target/target_core_pscsi.c        |  8 ++++++++
+ fs/cifs/file.c                            |  1 +
+ fs/cifs/smb2misc.c                        |  4 ++--
+ init/Kconfig                              |  3 +--
+ net/mac80211/main.c                       | 13 ++++++++++++-
+ 14 files changed, 51 insertions(+), 14 deletions(-)
 
 
