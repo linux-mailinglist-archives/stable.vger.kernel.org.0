@@ -2,140 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BCE359898
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E446D35999F
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231599AbhDIJGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:06:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41950 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231370AbhDIJGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 05:06:35 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306E2C061760
-        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 02:06:22 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id ep1-20020a17090ae641b029014d48811e37so2846654pjb.4
-        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 02:06:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=GqZGXLk+X9q67l9k2zXDnD9Sl98K/rmzJAl+c1jCHds=;
-        b=HY2NtTysHUgRQUmYP00YrCNJ/y2sgJONAmbYOJl6IR8RyaLRB+0OQWpP/BAA3SXCyH
-         3pmwTK70A/HkljyK/s2zy3bwKTUhaSQHycXBxSQ6lPZ00IYcDCSMC1tdIXGnijdCpxJL
-         ihUtVW1HkJiQF0UgJKkPANsjzVNxZLN1TfooA1AYc+l6/sVc/doY2Ggzp4HjOxHjiA/+
-         rGyX8e9/B+6gu7RoOP3MBXf/L3k4sCOJcc/Vu2FiVRl91YzV7xcaVMpA+SGFJxeUk+Zk
-         DqkKUiaOk5J6NumfJ15gBmz7ZuV/+ngdX8XPIMEYt3zHX3eoM8za11dYV9Fa1QtPOufm
-         3F1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=GqZGXLk+X9q67l9k2zXDnD9Sl98K/rmzJAl+c1jCHds=;
-        b=aQB/FY73SdDnmhSvSZ2e4wu8fVVuseg+pXHXTNJ2/LfUw7MYALdZkKJ05bfnH/STox
-         FgNh1quOTvFntzxe9JJHbwl+rJoEKym0eGFS15m+uXRlWcxjuIZZc/FtH+DjDWaqpD9s
-         SVbjPMSsBP9BDB+EW1lJBLdNfB1nbcHYD9xtVK6NTrzhL6hhT1pmvX2a+TB687LxZyhm
-         ToxFAuFXTIOL3vDMzcOQwVCGCdnWC3gjXzhZvj1EhboFSLYG6jf3wnhM43zCsegS0Xpq
-         XHiyOBo3qwN4OB53KAvQK+dpgN2WDHSYS03FEamjyoh57C71BWOjjtZlDme3MKsYyqlR
-         86YQ==
-X-Gm-Message-State: AOAM5327el+ZPVQlXZVGcaeJl+P+TyI96CBiIAAmg5cFeQ6iGFXNWXv+
-        U6nRcZ0kwGpf45IXv+y1k3WmLhHV8HdBKinVZIo=
-X-Google-Smtp-Source: ABdhPJyH0MlSbHFMmun2WIrJzLYBbnpWTlmr4wdx7ybc0OXM6+recNUpW5wYytBpQUBKWwy0HspZW4ZFh2zALWajik8=
-X-Received: by 2002:a17:902:a587:b029:e7:347d:4872 with SMTP id
- az7-20020a170902a587b02900e7347d4872mr12388777plb.2.1617959181495; Fri, 09
- Apr 2021 02:06:21 -0700 (PDT)
+        id S233060AbhDIJnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:43:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39484 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232900AbhDIJnn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:43:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB5E6611C1;
+        Fri,  9 Apr 2021 09:43:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1617961410;
+        bh=Dj05UCVcx4wOD8bjMGlyIdpYgd/Rj1GMWa63lFLlKT8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VS8wMxVJw2IZPQyASbKNR5kW0xS/aGvl04b/iozEMiWlzFp67MxLoQVY4Wu0UXUQr
+         9mYCY3lG2299Oxxgtk2Wp00FcDiI19m6u/WuqLM8+uJSmm7+Pf7fxt5Mf/ugwwT1th
+         5ly9sQTLwTCuEOzIVifC97Uc+uEt0WC4IoqAul4A=
+Date:   Fri, 9 Apr 2021 11:43:27 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sagi Grimberg <sagi@grimberg.me>
+Cc:     Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org,
+        Keith Busch <kbusch@kernel.org>, linux-nvme@lists.infradead.org
+Subject: Re: [PATCH stable/5.4..5.8] nvme-mpath: replace direct_make_request
+ with generic_make_request
+Message-ID: <YHAhv+ruvQwB3bM9@kroah.com>
+References: <20210402200841.347696-1-sagi@grimberg.me>
+ <YGgG2TAA9TNqM9S6@kroah.com>
+ <00e36c71-9f2c-5b38-96fd-3d471382f6ac@grimberg.me>
+ <20210407052806.GA18573@lst.de>
+ <a1674400-b265-6506-71cb-fd893d3f52c4@grimberg.me>
 MIME-Version: 1.0
-Received: by 2002:a05:7300:66d3:b029:7:16f5:7487 with HTTP; Fri, 9 Apr 2021
- 02:06:18 -0700 (PDT)
-Reply-To: uchennailobitenone@gmail.com
-From:   uchenna <robertandersongood20@gmail.com>
-Date:   Fri, 9 Apr 2021 02:06:18 -0700
-Message-ID: <CAEC7LWGcE0x9tJdwS++zmvSp1fvNsWGoKtXibQyujuNvfzffkw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a1674400-b265-6506-71cb-fd893d3f52c4@grimberg.me>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-0JTQvtGA0L7Qs9C+0Lkg0LTRgNGD0LMsDQoNCtCc0LXQvdGPINC30L7QstGD0YIgQmFyLnVjaGVu
-bmEgaWxvYmkuINCvINCw0LTQstC+0LrQsNGCINC4INC80LXQvdC10LTQttC10YAg0L/QviDRgNCw
-0LHQvtGC0LUg0YENCtC60LvQuNC10L3RgtCw0LzQuCDQvNC+0LXQs9C+INC/0L7QutC+0LnQvdC+
-0LPQviDQutC70LjQtdC90YLQsC4g0JIgMjAxNiDQs9C+0LTRgyDQvNC+0Lkg0LrQu9C40LXQvdGC
-INC/0L4g0LjQvNC10L3QuA0KKNC80LjRgdGC0LXRgCDQlNC20L7QvSwg0YHQutC+0L3Rh9Cw0LvR
-gdGPKSwg0L7RgdGC0LDQstC40LIg0L/QvtGB0LvQtSDRgdC10LHRjyDQvdCw0YHQu9C10LTRgdGC
-0LLQviDQsiDRgNCw0LfQvNC10YDQtSDRgdC10LzQuA0K0LzQuNC70LvQuNC+0L3QvtCyINC/0Y/R
-gtC40YHQvtGCINGC0YvRgdGP0Ycg0LTQvtC70LvQsNGA0L7QsiDQodCo0JAgKDcsNSDQvNC40LvQ
-u9C40L7QvdCwINC00L7Qu9C70LDRgNC+0LIg0KHQqNCQKS4g0JzQvtC5DQrQv9C+0LrQvtC50L3R
-i9C5INC60LvQuNC10L3RgiDQuCDQt9Cw0LrQsNC00YvRh9C90YvQuSDQtNGA0YPQsyDQstGL0YDQ
-vtGBINCyIMKr0JTQvtC8INCx0LXQtyDQvNCw0YLQtdGA0LjCuy4g0KMg0L3QtdCz0L4g0L3QtQ0K
-0LHRi9C70L4g0L3QuCDRgdC10LzRjNC4LCDQvdC4INCx0LXQvdC10YTQuNGG0LjQsNGA0LAsINC9
-0Lgg0LHQu9C40LbQsNC50YjQuNGFINGA0L7QtNGB0YLQstC10L3QvdC40LrQvtCyINC/0L4NCtC9
-0LDRgdC70LXQtNGB0YLQstGDLCDQvtGB0YLQsNCy0YjQtdC80YPRgdGPINCyINCR0LDQvdC60LUu
-DQoNCtCk0LjQvdCw0L3RgdC+0LLRi9C5INC30LDQutC+0L0g0L4g0L3QsNGB0LvQtdC00L7QstCw
-0L3QuNC4INGH0LXRgtC60L4g0YDQsNC30YDQtdGI0LDQtdGCINGD0LzQtdGA0YjQtdC80YMg0LHQ
-sNC90LrRgw0K0LjRgdC/0L7Qu9GM0LfQvtCy0LDRgtGMINGB0YDQtdC00YHRgtCy0LAg0YPQvNC1
-0YDRiNC10LPQviDQv9C+INGB0LLQvtC10LzRgyDRg9GB0LzQvtGC0YDQtdC90LjRjiwg0LXRgdC7
-0LgNCtC90LDRgdC70LXQtNGB0YLQstC10L3QvdGL0LUg0YHRgNC10LTRgdGC0LLQsCDQvtGB0YLQ
-sNC90YPRgtGB0Y8g0L3QtdCy0L7RgdGC0YDQtdCx0L7QstCw0L3QvdGL0LzQuCDQv9C+0YHQu9C1
-INGB0LzQtdGA0YLQuA0K0LLQu9Cw0LTQtdC70YzRhtCwINGB0YDQtdC00YHRgtCyPyDQryDRgdCy
-0Y/Qt9Cw0LvRgdGPINGBINCy0LDQvNC4INC/0L7RgtC+0LzRgywg0YfRgtC+INCy0Ysg0L3QvtGB
-0LjRgtC1INGC0YMg0LbQtQ0K0YTQsNC80LjQu9C40Y4g0YEg0L/QvtC60L7QudC90L7Qs9C+LCDQ
-uCDRjyDQvNC+0LPRgyDQv9GA0LXQtNGB0YLQsNCy0LjRgtGMINCy0LDRgSDQutCw0Log0L/QvtC7
-0YPRh9Cw0YLQtdC70Y8g0LgNCtCx0LvQuNC20LDQudGI0LXQs9C+INGA0L7QtNGB0YLQstC10L3Q
-vdC40LrQsCDRgdGA0LXQtNGB0YLQsiDQvNC+0LXQs9C+INC/0L7QutC+0LnQvdC+0LPQviDQutC7
-0LjQtdC90YLQsCwg0YLQvtCz0LTQsCDQstGLDQrRgdGC0LDQvdC10YLQtSDQtdCz0L4g0LHQu9C4
-0LbQsNC50YjQuNC8INGA0L7QtNGB0YLQstC10L3QvdC40LrQvtC8INC4INC/0L7RgtGA0LXQsdGD
-0LXRgtC1INGB0YDQtdC00YHRgtCy0LAuDQoNCtCX0LDQutC+0L0g0L4g0L3QsNGB0LvQtdC00YHR
-gtCy0LUg0Y/QstC90L4g0L7RgdGC0LDQstC70Y/QtdGCINC00L7QutCw0LfQsNGC0LXQu9GM0YHR
-gtCy0L4g0YLQvtCz0L4sINC60YLQviDRj9Cy0LvRj9C10YLRgdGPDQrQsdC70LjQttCw0LnRiNC4
-0Lwg0YDQvtC00YHRgtCy0LXQvdC90LjQutC+0LwsINCwINC60YLQviDQvdC10YIsINC/0L7QutC+
-0LnQvdC+0LzRgyDQsNC00LLQvtC60LDRgtGDLiDQl9Cw0LrQvtC9INCz0LvQsNGB0LjRgiwNCtGH
-0YLQviDRjywg0LrQsNC6INC/0L7QutC+0LnQvdGL0Lkg0LDQtNCy0L7QutCw0YIsINC/0L7RgdC7
-0LXQtNC90LXQtSDRgdC70L7QstC+INCyINC+0YLQvdC+0YjQtdC90LjQuCDRgtC+0LPQviwg0LrR
-gtC+DQrRj9Cy0LvRj9C10YLRgdGPINCx0LXQvdC10YTQuNGG0LjQsNGA0L7QvCDRg9C80LXRgNGI
-0LjRhSDRgdGA0LXQtNGB0YLQsi4g0K3RgtC+INC90LAgMTAwJSDQt9Cw0LrQvtC90L3Qviwg0Lgg
-0LrQsNC6DQrRjtGA0LjRgdGCINGPINC30L3QsNGOINGN0YLQvi4g0KLQsNC6INC60LDQuiDRjdGC
-0L4g0LHRg9C00LXRgiDRgdCy0LjQtNC10YLQtdC70YzRgdGC0LLQvtC8INC00LvRjyDQstCw0YEg
-0Lgg0LzQtdC90Y8sDQrQtdGB0LvQuCDQstGLINC00LDQtNC40YLQtSDQldGB0LvQuCDQstGLINC3
-0LDQuNC90YLQtdGA0LXRgdC+0LLQsNC90Ysg0LIg0Y3RgtC+0Lwg0L/RgNC10LTQu9C+0LbQtdC9
-0LjQuCDQuCDQs9C+0YLQvtCy0YsNCtC+0LHRgNCw0LHQvtGC0LDRgtGMINC10LPQviDQsdC10LfR
-g9C/0YDQtdGH0L3QviDQuCDRgSDQtNC+0LLQtdGA0LjQtdC8LCDRgtC+INC90LXQvNC10LTQu9C1
-0L3QvdC+INGB0LLRj9C20LjRgtC10YHRjCDRgdC+DQrQvNC90L7QuS4g0JXRgdC70Lgg0LLQsNC8
-INGN0YLQviDQvdC1INC40L3RgtC10YDQtdGB0L3Qviwg0Lgg0LLRiyDQvdCw0YjQu9C4INGN0YLQ
-viDQv9C40YHRjNC80L4g0L7RgdC60L7RgNCx0LjRgtC10LvRjNC90YvQvA0K0LjQu9C4INGB0YfQ
-uNGC0LDQtdGC0LUsINGH0YLQviDRjdGC0L4g0LzQvtGI0LXQvdC90LjRh9C10YHRgtCy0L4sINC9
-0LUg0L7RgtCy0LXRh9Cw0LnRgtC1Lg0KDQrQryDQs9Cw0YDQsNC90YLQuNGA0YPRjiwg0YfRgtC+
-INGC0YDQsNC90LfQsNC60YbQuNGPINCx0YPQtNC10YIg0LLRi9C/0L7Qu9C90LXQvdCwINCyINGB
-0L7QvtGC0LLQtdGC0YHRgtCy0LjQuCDRgSDQt9Cw0LrQvtC90L3Ri9C8DQrRgdC+0LPQu9Cw0YjQ
-tdC90LjQtdC8LCDQutC+0YLQvtGA0L7QtSDQt9Cw0YnQuNGC0LjRgiDQstCw0YEg0L7RgiDQu9GO
-0LHQvtCz0L4g0L3QsNGA0YPRiNC10L3QuNGPINC30LDQutC+0L3QsC4g0KDQtdC20LjQvA0K0YHQ
-vtCy0LzQtdGB0YLQvdC+0LPQviDQuNGB0L/QvtC70YzQt9C+0LLQsNC90LjRjyDQv9C+0YHQu9C1
-INC/0LXRgNC10LLQvtC00LAg0LTQtdC90LXQsyDQvdCwINGD0LrQsNC30LDQvdC90YvQuSDQstCw
-0LzQuA0K0LHQsNC90LrQvtCy0YHQutC40Lkg0YHRh9C10YIg0YHQvtGB0YLQsNCy0LvRj9C10YIg
-NTAlINC00LvRjyDQvNC10L3RjyDQuCA1MCUg0LTQu9GPINCy0LDRgS4g0JXRgdC70Lgg0Y3RgtC+
-DQrQv9GA0LXQtNC70L7QttC10L3QuNC1INGB0L7QstC/0LDQtNCw0LXRgiDRgSDQstCw0YjQuNC8
-INCy0L3Rg9GC0YDQtdC90L3QuNC8INGB0YLRgNC10LzQu9C10L3QuNC10Lwg0Log0YPRgdC/0LXR
-hdGDLCDQstCw0YENCtC/0YDQvtGB0Y/RgiDQsdGL0YHRgtGA0L4g0L7RgtCy0LXRgtC40YLRjCwg
-0YPQutCw0LfQsNCyINC90LAg0LLQsNGI0YMg0LPQvtGC0L7QstC90L7RgdGC0Ywg0Lgg0LjQvdGC
-0LXRgNC10YEg0Log0YPRh9Cw0YHRgtC40Y4NCtCyINCx0LjQt9C90LXRgdC1Lg0KDQrQn9GA0LXQ
-ttC00LUg0YfQtdC8INC80Ysg0L/QtdGA0LXQudC00LXQvCDQuiDRgdC70LXQtNGD0Y7RidC10LzR
-gyDRiNCw0LPRgy4g0J/RgNC40LLQtdC00LXQvdC90LDRjyDQvdC40LbQtSDQuNC90YTQvtGA0LzQ
-sNGG0LjRjw0K0L3QtdC+0LHRhdC+0LTQuNC80LAg0L7RgiDQstCw0YEg0LTQu9GPINC/0L7QtNCz
-0L7RgtC+0LLQutC4INGN0YLQvtC5INGC0YDQsNC90LfQsNC60YbQuNC4LCDQsCDQuNC80LXQvdC9
-0L46DQoxLiDQktCw0YjQuCDQv9C+0LvQvdGL0LUg0LjQvNC10L3QsCAuLi4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4uIC4uDQoyLiDQlNCw0YLQsCDRgNC+0LbQtNC10L3QuNGPIC4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4uLg0KMy4g0J/QvtC70L3Ri9C5INC60L7QvdGC0LDQutGC0L3Ri9C5INCw0LTRgNC1
-0YEgLi4uLi4uLi4uLiAo0JTQvtC8INC4INC+0YTQuNGBKQ0KNC4g0KfQsNGB0YLQvdGL0LUg0YLQ
-tdC70LXRhNC+0L3RiyAuLi4uLi4uLi4uLi4uLi4uLi4uLi4uLg0KNS4g0J3QvtC80LXRgNCwINGE
-0LDQutGB0L7QsiAuLi4uLi4uLi4uLi4uLi4uDQo2LiDQodC10LzQtdC50L3QvtC1INC/0L7Qu9C+
-0LbQtdC90LjQtSAuLi4uLi4uLi4uLi4uLi4uLi4uLi4uLg0KNy4g0KDQvtC0INC30LDQvdGP0YLQ
-uNC5IC4uLi4uLi4uLi4uLi4uLi4uLiAuLi4uLi4uDQo4LiDQodGC0YDQsNC90LAgLi4uLi4uLi4u
-Li4uLi4uLi4uLi4uLi4uLg0KOS4g0JLQsNGIINC70LjRh9C90YvQuSDQsNC00YDQtdGBINGN0LvQ
-tdC60YLRgNC+0L3QvdC+0Lkg0L/QvtGH0YLRiyDQtNC70Y8g0YPQtNC+0LHQvdC+0LPQviDQvtCx
-0YnQtdC90LjRjyAuLi4uLi4uLg0KDQrQktGLINC00L7Qu9C20L3RiyDRgdCy0Y/Qt9Cw0YLRjNGB
-0Y8g0YHQviDQvNC90L7QuSDRh9C10YDQtdC3INC80L7QuSDQu9C40YfQvdGL0Lkg0LDQtNGA0LXR
-gSDRjdC70LXQutGC0YDQvtC90L3QvtC5INC/0L7Rh9GC0Ys6DQp1Y2hlbm5haWxvYml0ZW5vbmVA
-Z21haWwuY29tDQrQndCw0LjQu9GD0YfRiNC40LUg0L/QvtC20LXQu9Cw0L3QuNGPLA0K0JHQsNGA
-LiDQo9GH0LXQvdC90LAg0JjQu9C+0LHQuA0K
+On Wed, Apr 07, 2021 at 04:18:30PM -0700, Sagi Grimberg wrote:
+> 
+> > > > > Hence, we need to fix all the kernels that were before submit_bio_noacct was
+> > > > > introduced.
+> > > > 
+> > > > Why can we not just add submit_bio_noacct to the 5.4 kernel to correct
+> > > > this?  What commit id is that?
+> > > 
+> > > Hey Greg,
+> > > 
+> > > submit_bio_noacct was applied as part of a rework by Christoph that I
+> > > didn't feel was suitable as a stable candidate. The commit-id is:
+> > > ed00aabd5eb9fb44d6aff1173234a2e911b9fead
+> > 
+> > submit_bio_noacct really is just a new name for generic_make_request,
+> > as the old one was horribly misleading.  So this does use
+> > submit_bio_noacct, just with its old name.
+> 
+> commit ed00aabd5eb9fb44d6aff1173234a2e911b9fead does not apply
+> cleanly on any of these kernels, so I think it's better to take this
+> small one-liner instead of trying to fit a commit that changes the
+> name treewide.
+> 
+> Greg, what is your preference? backporting
+> ed00aabd5eb9fb44d6aff1173234a2e911b9fead to the various kernels
+> or to take this isolated one?
+
+I took just this change now, thanks.
+
+greg k-h
