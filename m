@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2096359AE6
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3597B359B26
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232870AbhDIKG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50814 "EHLO mail.kernel.org"
+        id S234246AbhDIKHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:07:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233426AbhDIKCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8622D6103E;
-        Fri,  9 Apr 2021 10:00:04 +0000 (UTC)
+        id S234253AbhDIKFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:05:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 555D561354;
+        Fri,  9 Apr 2021 10:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962405;
-        bh=hmIcV6g2nTUsEzZimcA6GiCe/NcKeNtvL1AKwwHtmtQ=;
+        s=korg; t=1617962506;
+        bh=GDHvtSMoL1f+2k/HHA8kWHYrlGOFCjpXqcsVYxgGRhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srIs3/jRd+AuSxZwCB58zqll7qTbqhYGTyGU10sRbO4rOPmJISUN4bsU89huJ71/7
-         Vuc0O79cAtzDjVXT8sLD8oSXSy0Z/pFpicbMGoPyk6fFkAXstLBa8FQpNAEtw6Z/j1
-         exaUbhZXobc0Vl0a+4nvvGnZuc1la3lSJqr3dKhQ=
+        b=SzitXB5AB9EM4E7vefOS67k0LynqhmeQNN+5Zae5cazy7mrUko7wVjsOoiUbxb9yE
+         c9v8z+CKn/mJpPLVSphsl+Am/5OgyM2ViE5zzrbIDbHJs10/9Abc9gFJFCF7Nvd+BI
+         Qjvd8OnaO0MfHDMFMTWtao8UADAbdvez6pBtxqEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislav Fomichev <sdf@google.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Tom Talpey <tom@talpey.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 37/41] tools/resolve_btfids: Add /libbpf to .gitignore
-Date:   Fri,  9 Apr 2021 11:53:59 +0200
-Message-Id: <20210409095306.011497745@linuxfoundation.org>
+Subject: [PATCH 5.11 34/45] cifs: Silently ignore unknown oplock break handle
+Date:   Fri,  9 Apr 2021 11:54:00 +0200
+Message-Id: <20210409095306.526169690@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
-References: <20210409095304.818847860@linuxfoundation.org>
+In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
+References: <20210409095305.397149021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 90a82b1fa40d0cee33d1c9306dc54412442d1e57 ]
+[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
 
-This is what I see after compiling the kernel:
+Make SMB2 not print out an error when an oplock break is received for an
+unknown handle, similar to SMB1.  The debug message which is printed for
+these unknown handles may also be misleading, so fix that too.
 
- # bpf-next...bpf-next/master
- ?? tools/bpf/resolve_btfids/libbpf/
+The SMB2 lease break path is not affected by this patch.
 
-Fixes: fc6b48f692f8 ("tools/resolve_btfids: Build libbpf and libsubcmd in separate directories")
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210212010053.668700-1-sdf@google.com
+Without this, a program which writes to a file from one thread, and
+opens, reads, and writes the same file from another thread triggers the
+below errors several times a minute when run against a Samba server
+configured with "smb2 leases = no".
+
+ CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
+ 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
+ 00000010: 00000001 00000000 ffffffff ffffffff  ................
+ 00000020: 00000000 00000000 00000000 00000000  ................
+ 00000030: 00000000 00000000 00000000 00000000  ................
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/resolve_btfids/.gitignore | 1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2misc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/bpf/resolve_btfids/.gitignore b/tools/bpf/resolve_btfids/.gitignore
-index 25f308c933cc..16913fffc985 100644
---- a/tools/bpf/resolve_btfids/.gitignore
-+++ b/tools/bpf/resolve_btfids/.gitignore
-@@ -1,2 +1,3 @@
- /fixdep
- /resolve_btfids
-+/libbpf/
+diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+index d9073b569e17..53fb751bf210 100644
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -754,8 +754,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+ 		}
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+-	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
+-	return false;
++	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
++	return true;
+ }
+ 
+ void
 -- 
 2.30.2
 
