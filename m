@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E92F359A20
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 552E13599F8
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233613AbhDIJ4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:56:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
+        id S233175AbhDIJzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:55:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233464AbhDIJzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:55:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F1261181;
-        Fri,  9 Apr 2021 09:55:35 +0000 (UTC)
+        id S232964AbhDIJzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:55:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93F8E611C9;
+        Fri,  9 Apr 2021 09:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962136;
-        bh=Szysmpw0/D5Cn7QxAttk1NY23HJvZ75cKA4mT2mBYDE=;
+        s=korg; t=1617962090;
+        bh=55GvB+ZBPGH92rbkSluyz0cHnOKe5To3V3NJBZFj5zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BkuczEmI8rmusNxNeB3VlJ0tF109MBQouAaFumTcABlHNnZZyaz7O5M+EQnVGD8cE
-         JBV6IPoEmwnjGX8mkzSOennYLIAlip4dy5wCQSK1EcPnUqBPgdq1DNhqKggAjf9Bm0
-         KvuOyhe0mtcQI3akDOWRZBRr5X86HCLjWgmSFvDU=
+        b=1P9nRXYXNW2Da+Ap2VrCXO1jp6FgdPfQztyLdtwcHc8jRoeWKh5t+YX26bTXdMEmP
+         U/4hF2PFSxuptGGKqPgWFmByw+e+F1mworLd8aiHoVyvjG/kpZG97weInBIS54dJYk
+         W9ClMZAHz26NnQNYhGmOzTwuheqOzfpHKNbSNZ6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/13] drm/msm: Ratelimit invalid-fence message
-Date:   Fri,  9 Apr 2021 11:53:24 +0200
-Message-Id: <20210409095259.772069495@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 19/20] init/Kconfig: make COMPILE_TEST depend on !S390
+Date:   Fri,  9 Apr 2021 11:53:25 +0200
+Message-Id: <20210409095300.561096141@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
-References: <20210409095259.624577828@linuxfoundation.org>
+In-Reply-To: <20210409095259.957388690@linuxfoundation.org>
+References: <20210409095259.957388690@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 7ad48d27a2846bfda29214fb454d001c3e02b9e7 ]
+commit 334ef6ed06fa1a54e35296b77b693bcf6d63ee9e upstream.
 
-We have seen a couple cases where low memory situations cause something
-bad to happen, followed by a flood of these messages obscuring the root
-cause.  Lets ratelimit the dmesg spam so that next time it happens we
-don't lose the kernel traces leading up to this.
+While allmodconfig and allyesconfig build for s390 there are also
+various bots running compile tests with randconfig, where PCI is
+disabled. This reveals that a lot of drivers should actually depend on
+HAS_IOMEM.
+Adding this to each device driver would be a never ending story,
+therefore just disable COMPILE_TEST for s390.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The reasoning is more or less the same as described in
+commit bc083a64b6c0 ("init/Kconfig: make COMPILE_TEST depend on !UML").
+
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Arnd Bergmann <arnd@kernel.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_fence.c | 2 +-
+ init/Kconfig |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
-index a9b9b1c95a2e..9dbd17be51f7 100644
---- a/drivers/gpu/drm/msm/msm_fence.c
-+++ b/drivers/gpu/drm/msm/msm_fence.c
-@@ -56,7 +56,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
- 	int ret;
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -65,7 +65,7 @@ config CROSS_COMPILE
  
- 	if (fence > fctx->last_fence) {
--		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
-+		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
- 				fctx->name, fence, fctx->last_fence);
- 		return -EINVAL;
- 	}
--- 
-2.30.2
-
+ config COMPILE_TEST
+ 	bool "Compile also drivers which will not load"
+-	depends on !UML
++	depends on !UML && !S390
+ 	default n
+ 	help
+ 	  Some drivers can be compiled on a different platform than they are
 
 
