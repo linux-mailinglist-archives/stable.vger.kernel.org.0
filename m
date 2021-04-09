@@ -2,96 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49BBF35A8B7
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 00:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0963D35A949
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 01:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235010AbhDIWcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 18:32:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49460 "EHLO
+        id S235184AbhDIXgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 19:36:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234951AbhDIWcN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 18:32:13 -0400
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A149C061763
-        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 15:32:00 -0700 (PDT)
-Received: by mail-io1-xd2c.google.com with SMTP id d12so3355455iod.12
-        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 15:32:00 -0700 (PDT)
+        with ESMTP id S235141AbhDIXgg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 19:36:36 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8894C061764
+        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 16:36:22 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id u9so8329412ljd.11
+        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 16:36:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=LyVEXM4TmInjbu+KbY9qpw8hJXr4CrkW2ZOgUZ+M4BA=;
-        b=Azopk5RVVPkbdafyzlAwLMi5Hz+KXXjoXzGkuUods75WbPdFNCYevyX8CaFi/WydCF
-         31Oh+lyQq43ZWyQT2zHbVDHYqV3hsLxImw+yyO1FkQP5cLthJdySzo6XvuWwzKRm43QV
-         XTCzTYNC863uVJ8OwaGcptzvB6yWgEkPkr9EQ=
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MQEhdxl+cSU7BC7XRTZDcCsNpOwQL3MJhJomrvmkJCY=;
+        b=naXn5kfXgRlukFVoSCe/aS9mSub16qMDDnXU0x9NB9VvBXEc/nCg53QsttbiYYoOdy
+         NvXp8jYd89b8HUaPN7fRNWO7pgHhHGs0K2z7HvJSpG4ldxCjcMZNSGLrjUXwkFVHREQu
+         EkdeDYJ7eqF5tFBnfniDsngW17bsbFPd/pBe5DFNZhQSWnOUt41ATFBagvjygDaOpiYo
+         62J7wMp79geIT6GRT+gjXifp+0VcR8gXSKkd4nk/0kY3pkxISXwVA86aOf+t+AdlrKRe
+         U7Y/TWL9S15pzXqvCbz7Fo4iNaFjd0uAUUBxFrQUZ7BwZ3283l1O3CNk3bQetk5ztkO4
+         RIrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=LyVEXM4TmInjbu+KbY9qpw8hJXr4CrkW2ZOgUZ+M4BA=;
-        b=mD+Qv89PkQemoWrOoX+DOMcF0powie6LQK8jIu1nWTkcxvLn6tm5KxSDJWGcJe3P7L
-         Z5/1Am5dOe7Q2KCD0IFNJgE342/XGtvA06dLIbo7k6pJtA6SEM69wqOOuuo3cYxFn4W/
-         0brPAiqi0uEFU6tOTFHopc5sXkz6bBcTCU+QINnBKl5HkdC4pd2dK76ANr0S+h4Ap6i9
-         aP5h+Pg0hiMZUKj76n3makeJamWVnfJKQ/3RpLPlP+uafk390oCWAqqdbubEqazO/7yP
-         swcAmXLjD6E2W+bJxZ97dwJ8k/AJR+6DyKiBpE06wBRhkhkmpEJ6YXYBytUPYzyie+uC
-         +VEg==
-X-Gm-Message-State: AOAM531s0zI0Cqo2hGhm3Npr2CRJ2+C5O+R+lEhZ5jfa/bypkudh2hh8
-        mJYHIpK+2HixDEuEXSn0d+SkiA==
-X-Google-Smtp-Source: ABdhPJxudhSnnUH+2iUvXsMMidUT4RADAD6TfRkDFtd4q/Dg9UvT4+AFbxt8KuaAmOHxq7bSCxsZhA==
-X-Received: by 2002:a05:6638:2a3:: with SMTP id d3mr17326922jaq.42.1618007519929;
-        Fri, 09 Apr 2021 15:31:59 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id o6sm1816670ioa.21.2021.04.09.15.31.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 09 Apr 2021 15:31:59 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/13] 4.9.266-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20210409095259.624577828@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <d308015d-6a38-61e0-b2c1-4fdade360efb@linuxfoundation.org>
-Date:   Fri, 9 Apr 2021 16:31:58 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MQEhdxl+cSU7BC7XRTZDcCsNpOwQL3MJhJomrvmkJCY=;
+        b=fZs9KPqpt8p2+Cnx8+BLVifKdwa4NGtCSJlqvn9Y2rn66UXuBMP5VpMnGU/1rWfvx+
+         JEzNAnXdxO2oAhLIokZeCWf3bjENMRYexmTwbWEyt0PNNGEGu3wWak9hpr0Jc1EjnGZP
+         XKpm5UUXkBfNLl/a4RJiP+ePdtk95sXzzxXYdObLXVIPY1vpM/wdumzAUr/PJlP2ZwGt
+         pihZYa+qik+w361TmrsLRq+1WJHEBBG0o7p7jTqvlJ4t+wM672LLSUuHDDrH+w9+UdkS
+         7tMDgXMXlnUfoTT4bY4d2IFLTXyO53a/nO/sOkiiQSH5NQ9jVjexpXoyjuAsvVoK01cs
+         3vqQ==
+X-Gm-Message-State: AOAM530gsQ4qcbLbLp+zmXEBb84g0nIpqXXcTKwWgji8JdfL9GyZCERx
+        91wW6OPfhNyPQMt64POy3DB73geYGwVC1L6ceDpoDA==
+X-Google-Smtp-Source: ABdhPJxPZM+yBj5h9pJP265DYko714wL+M/i9xL4wgwVQK69SoBcfbh2i4JxHFXtqH+bSlHJjvuHtaD+RYSUTCWwTuU=
+X-Received: by 2002:a2e:3603:: with SMTP id d3mr10563594lja.495.1618011380903;
+ Fri, 09 Apr 2021 16:36:20 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210409221155.1113205-1-nathan@kernel.org>
+In-Reply-To: <20210409221155.1113205-1-nathan@kernel.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Fri, 9 Apr 2021 16:36:09 -0700
+Message-ID: <CAKwvOdnTFXPy29L5JhcMBJAP4STfZUMn6739Mc4J_2Qwu3efBw@mail.gmail.com>
+Subject: Re: [PATCH] crypto: arm/curve25519 - Move '.fpu' after '.arch'
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Jessica Clarke <jrtc27@jrtc27.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/9/21 3:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.266 release.
-> There are 13 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.266-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Fri, Apr 9, 2021 at 3:12 PM Nathan Chancellor <nathan@kernel.org> wrote:
+>
+> Debian's clang carries a patch that makes the default FPU mode
+> 'vfp3-d16' instead of 'neon' for 'armv7-a' to avoid generating NEON
+> instructions on hardware that does not support them:
+>
+> https://salsa.debian.org/pkg-llvm-team/llvm-toolchain/-/raw/5a61ca6f21b4ad8c6ac4970e5ea5a7b5b4486d22/debian/patches/clang-arm-default-vfp3-on-armv7a.patch
+> https://bugs.debian.org/841474
+> https://bugs.debian.org/842142
+> https://bugs.debian.org/914268
 
-Compiled and booted on my test system. No dmesg regressions.
+Another good link would be the one from Jessica describing more
+precisely what the ARM targets for Debian are:
+https://wiki.debian.org/ArchitectureSpecificsMemo#armel
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+>
+> This results in the following build error when clang's integrated
+> assembler is used because the '.arch' directive overrides the '.fpu'
+> directive:
+>
+> arch/arm/crypto/curve25519-core.S:25:2: error: instruction requires: NEON
+>  vmov.i32 q0, #1
+>  ^
+> arch/arm/crypto/curve25519-core.S:26:2: error: instruction requires: NEON
+>  vshr.u64 q1, q0, #7
+>  ^
+> arch/arm/crypto/curve25519-core.S:27:2: error: instruction requires: NEON
+>  vshr.u64 q0, q0, #8
+>  ^
+> arch/arm/crypto/curve25519-core.S:28:2: error: instruction requires: NEON
+>  vmov.i32 d4, #19
+>  ^
+>
+> Shuffle the order of the '.arch' and '.fpu' directives so that the code
+> builds regardless of the default FPU mode. This has been tested against
+> both clang with and without Debian's patch and GCC.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: d8f1308a025f ("crypto: arm/curve25519 - wire up NEON implementation")
+> Link: https://github.com/ClangBuiltLinux/continuous-integration2/issues/118
+> Reported-by: Arnd Bergmann <arnd@arndb.de>
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+> Suggested-by: Jessica Clarke <jrtc27@jrtc27.com>
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 
-thanks,
--- Shuah
+Great work tracking down that Debian was carrying patches! Thank you!
+I've run this through the same 3 assemblers.
 
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+
+> ---
+>  arch/arm/crypto/curve25519-core.S | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/arm/crypto/curve25519-core.S b/arch/arm/crypto/curve25519-core.S
+> index be18af52e7dc..b697fa5d059a 100644
+> --- a/arch/arm/crypto/curve25519-core.S
+> +++ b/arch/arm/crypto/curve25519-core.S
+> @@ -10,8 +10,8 @@
+>  #include <linux/linkage.h>
+>
+>  .text
+> -.fpu neon
+>  .arch armv7-a
+> +.fpu neon
+>  .align 4
+>
+>  ENTRY(curve25519_neon)
+>
+> base-commit: e49d033bddf5b565044e2abe4241353959bc9120
+> --
+> 2.31.1.189.g2e36527f23
+>
+
+
+-- 
+Thanks,
+~Nick Desaulniers
