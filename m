@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9A6359A6F
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 582F7359A55
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233244AbhDIJ6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45122 "EHLO mail.kernel.org"
+        id S233153AbhDIJ6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:58:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233527AbhDIJ5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:57:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94063611CA;
-        Fri,  9 Apr 2021 09:57:29 +0000 (UTC)
+        id S233739AbhDIJ5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:57:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4C16611F1;
+        Fri,  9 Apr 2021 09:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962250;
-        bh=9Qi3pQ2+QNaOBIwKPixpKhTUZGCIOx9GESj8uXGpRgg=;
+        s=korg; t=1617962208;
+        bh=mwazPJ0t0Re/7WL7b032RcZjqG/HBMUy6MLj9Ulslpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbXTCoUbUyCf35rFUmRtj5lq/mTS4G5mhUgmXKwv4/F3WawkeosEHClisY8gVR9CI
-         khpYUaYeFwr239LdoPhR20g3FP6rBC6QUrkyEU60eeNiXPxz5jstWe+eUX8NToO4ys
-         EemEYi4JrDngK+loCfbJchRw0P+8G8Eew5KyDtrI=
+        b=kfb4F+pS42DNDOY7sCwRsfvSEcgx/EuPpEChwEtBQrStwGB3EC9ZX5S8baQavidh/
+         OyGFvAPptSQHsolVlXEYLXQgv/zeGKQ/PZM6OwTIXSwnUst3K+JUeWRudUoVEilKSD
+         1q3XqeZ7NOHvcAzZ1cwRd6sOHtZmxCJcpsMADw6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ludovic Senecaux <linuxludo@free.fr>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Tom Talpey <tom@talpey.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/23] netfilter: conntrack: Fix gre tunneling over ipv6
-Date:   Fri,  9 Apr 2021 11:53:41 +0200
-Message-Id: <20210409095303.259492171@linuxfoundation.org>
+Subject: [PATCH 4.19 14/18] cifs: Silently ignore unknown oplock break handle
+Date:   Fri,  9 Apr 2021 11:53:42 +0200
+Message-Id: <20210409095301.991539747@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
-References: <20210409095302.894568462@linuxfoundation.org>
+In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
+References: <20210409095301.525783608@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ludovic Senecaux <linuxludo@free.fr>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 8b2030b4305951f44afef80225f1475618e25a73 ]
+[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
 
-This fix permits gre connections to be tracked within ip6tables rules
+Make SMB2 not print out an error when an oplock break is received for an
+unknown handle, similar to SMB1.  The debug message which is printed for
+these unknown handles may also be misleading, so fix that too.
 
-Signed-off-by: Ludovic Senecaux <linuxludo@free.fr>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The SMB2 lease break path is not affected by this patch.
+
+Without this, a program which writes to a file from one thread, and
+opens, reads, and writes the same file from another thread triggers the
+below errors several times a minute when run against a Samba server
+configured with "smb2 leases = no".
+
+ CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
+ 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
+ 00000010: 00000001 00000000 ffffffff ffffffff  ................
+ 00000020: 00000000 00000000 00000000 00000000  ................
+ 00000030: 00000000 00000000 00000000 00000000  ................
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto_gre.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/cifs/smb2misc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_gre.c b/net/netfilter/nf_conntrack_proto_gre.c
-index 5b05487a60d2..db11e403d818 100644
---- a/net/netfilter/nf_conntrack_proto_gre.c
-+++ b/net/netfilter/nf_conntrack_proto_gre.c
-@@ -218,9 +218,6 @@ int nf_conntrack_gre_packet(struct nf_conn *ct,
- 			    enum ip_conntrack_info ctinfo,
- 			    const struct nf_hook_state *state)
- {
--	if (state->pf != NFPROTO_IPV4)
--		return -NF_ACCEPT;
--
- 	if (!nf_ct_is_confirmed(ct)) {
- 		unsigned int *timeouts = nf_ct_timeout_lookup(ct);
+diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+index 7d875a47d022..7177720e822e 100644
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -738,8 +738,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+ 		}
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+-	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
+-	return false;
++	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
++	return true;
+ }
  
+ void
 -- 
 2.30.2
 
