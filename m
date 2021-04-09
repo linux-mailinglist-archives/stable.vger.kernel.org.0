@@ -2,177 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6373359365
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 05:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D55E33593AC
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 06:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233241AbhDIDtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Apr 2021 23:49:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42238 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233234AbhDIDtW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Apr 2021 23:49:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9653061055;
-        Fri,  9 Apr 2021 03:49:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1617940149;
-        bh=0gUWXb3/doFw11CsQ5dxmRy4Vyr8oi5eKYlMmI2lp8Y=;
-        h=Date:From:To:Subject:From;
-        b=WI4xvS3fURCKxu1E3aXhjfbe0mZCLhbKj6kYBvvxnkd+LbVt4tGFp76zGkySR70T0
-         NONhSB0akpgTHvwdcI2RWBbVG3FbMVBHI/HYShxPK5+UwmwrWDQ6FkslqlPz9IkAgd
-         v+VupFREXkqmYoXZkH/V0Rc0049yKkEIoAbqdI0k=
-Date:   Thu, 08 Apr 2021 20:49:09 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, nathan@kernel.org,
-        ndesaulniers@google.com, psodagud@quicinc.com,
+        id S230219AbhDIERL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 00:17:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35166 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230200AbhDIERL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 00:17:11 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F68FC061762
+        for <stable@vger.kernel.org>; Thu,  8 Apr 2021 21:16:59 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id ot17-20020a17090b3b51b0290109c9ac3c34so4314198pjb.4
+        for <stable@vger.kernel.org>; Thu, 08 Apr 2021 21:16:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=a0qsp2jIyenJ7KHlPYVUT6/QMykCuCokvpYJBkoNKqc=;
+        b=UwV8R/Q8+Casp+Pr+/Ktx9Z6WK5t0P2rFMKBKIpUjWSSl8OSpfZViFSMulAfx4hbnP
+         W49eveLRdRyxptJtTAhj7Ikfmsb9guP7kMgG4HGKmLeg9RZJ1zmYfrtgkFl1LJLvvd+M
+         jAYoAdCI5eDyI/Y457bz2jfz3irfpyRFuTLaM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=a0qsp2jIyenJ7KHlPYVUT6/QMykCuCokvpYJBkoNKqc=;
+        b=paUkN0WiH6YvLEIVZXLB+xt//haGKrRV+1eFnKqOYRAUlvLx6d6lFVNVCoRbMLNCWJ
+         dR8luocxe6Q0YOiWQrJ39TRjzacPeIKUHgFwJFY3+p+3nU35R5ujMfyRHAWk0H8lWTRp
+         DlKVbGinf2d2ShS+C6gMc7vNe+/1AV42wPXYQYT3/FKRJDr2O7xknEZUna5/tLlaK9wv
+         RXPlyClgTr3rRi+unFqkp+y+DnrikIMVK1gn1uHZ64VN99HyKqaWnfRB4KdM9KcFPAzU
+         tmto2CXCKgXcPHSd40ZEjpvKCDc3IeeiZtZBkmtMRhWgtQJcPmSr7I9OfXh2UDgzm0fQ
+         /tpQ==
+X-Gm-Message-State: AOAM531FmcBMTo3PiDyWTqgVGbdtel0qjEWtsdmCsi4uv7nde9Rl5IQN
+        LPJEooWUSfqQiM0XuHw9RAIgNw==
+X-Google-Smtp-Source: ABdhPJyGyvCVEa7LiGau1j+FxGNErVPRWIzRVPPBHEYkQhjh2VoBYdj4TU0vPnGb3OyVgIqdufgkqQ==
+X-Received: by 2002:a17:90b:ecc:: with SMTP id gz12mr11681301pjb.79.1617941818642;
+        Thu, 08 Apr 2021 21:16:58 -0700 (PDT)
+Received: from chromium.org ([2401:fa00:8f:2:4c17:c5d7:544d:4527])
+        by smtp.gmail.com with ESMTPSA id y66sm794846pgb.78.2021.04.08.21.16.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Apr 2021 21:16:58 -0700 (PDT)
+Date:   Fri, 9 Apr 2021 13:16:54 +0900
+From:   Tomasz Figa <tfiga@chromium.org>
+To:     Ricardo Ribalda <ribalda@chromium.org>
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Tianshu Qiu <tian.shu.qiu@intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, linux-media@vger.kernel.org,
+        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject:  + gcov-re-fix-clang-11-support.patch added to -mm tree
-Message-ID: <20210409034909.Jv0bVKDo3%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+Subject: Re: [PATCH v2 2/2] media: staging/intel-ipu3: Fix set_fmt error
+ handling
+Message-ID: <YG/VNufYSadPL9a9@chromium.org>
+References: <20210315123406.1523607-1-ribalda@chromium.org>
+ <20210315123406.1523607-2-ribalda@chromium.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210315123406.1523607-2-ribalda@chromium.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 15, 2021 at 01:34:06PM +0100, Ricardo Ribalda wrote:
+> If there in an error during a set_fmt, do not overwrite the previous
+> sizes with the invalid config.
+> 
+> [   38.662975] ipu3-imgu 0000:00:05.0: swiotlb buffer is full (sz: 4096 bytes)
+> [   38.662980] DMA: Out of SW-IOMMU space for 4096 bytes at device 0000:00:05.0
+> [   38.663010] general protection fault: 0000 [#1] PREEMPT SMP
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 6d5f26f2e045 ("media: staging/intel-ipu3-v4l: reduce kernel stack usage")
+> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+> ---
+>  drivers/staging/media/ipu3/ipu3-v4l2.c | 25 ++++++++++++++-----------
+>  1 file changed, 14 insertions(+), 11 deletions(-)
 
-The patch titled
-     Subject: gcov: re-fix clang-11+ support
-has been added to the -mm tree.  Its filename is
-     gcov-re-fix-clang-11-support.patch
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/gcov-re-fix-clang-11-support.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/gcov-re-fix-clang-11-support.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Nick Desaulniers <ndesaulniers@google.com>
-Subject: gcov: re-fix clang-11+ support
-
-LLVM changed the expected function signature for llvm_gcda_emit_function()
-in the clang-11 release.  Users of clang-11 or newer may have noticed
-their kernels producing invalid coverage information:
-
-$ llvm-cov gcov -a -c -u -f -b <input>.gcda -- gcno=<input>.gcno
-1 <func>: checksum mismatch, \
-  (<lineno chksum A>, <cfg chksum B>) != (<lineno chksum A>, <cfg chksum C>)
-2 Invalid .gcda File!
-...
-
-Fix up the function signatures so calling this function interprets its
-parameters correctly and computes the correct cfg checksum.  In
-particular, in clang-11, the additional checksum is no longer optional.
-
-Link: https://reviews.llvm.org/rG25544ce2df0daa4304c07e64b9c8b0f7df60c11d
-Link: https://lkml.kernel.org/r/20210408184631.1156669-1-ndesaulniers@google.com
-Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
-Tested-by: Prasad Sodagudi <psodagud@quicinc.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.4+]
-
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- kernel/gcov/clang.c |   29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
-
---- a/kernel/gcov/clang.c~gcov-re-fix-clang-11-support
-+++ a/kernel/gcov/clang.c
-@@ -70,7 +70,9 @@ struct gcov_fn_info {
- 
- 	u32 ident;
- 	u32 checksum;
-+#if CONFIG_CLANG_VERSION < 110000
- 	u8 use_extra_checksum;
-+#endif
- 	u32 cfg_checksum;
- 
- 	u32 num_counters;
-@@ -145,10 +147,8 @@ void llvm_gcda_emit_function(u32 ident,
- 
- 	list_add_tail(&info->head, &current_info->functions);
- }
--EXPORT_SYMBOL(llvm_gcda_emit_function);
- #else
--void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
--		u8 use_extra_checksum, u32 cfg_checksum)
-+void llvm_gcda_emit_function(u32 ident, u32 func_checksum, u32 cfg_checksum)
- {
- 	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
- 
-@@ -158,12 +158,11 @@ void llvm_gcda_emit_function(u32 ident,
- 	INIT_LIST_HEAD(&info->head);
- 	info->ident = ident;
- 	info->checksum = func_checksum;
--	info->use_extra_checksum = use_extra_checksum;
- 	info->cfg_checksum = cfg_checksum;
- 	list_add_tail(&info->head, &current_info->functions);
- }
--EXPORT_SYMBOL(llvm_gcda_emit_function);
- #endif
-+EXPORT_SYMBOL(llvm_gcda_emit_function);
- 
- void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
- {
-@@ -293,11 +292,16 @@ int gcov_info_is_compatible(struct gcov_
- 		!list_is_last(&fn_ptr2->head, &info2->functions)) {
- 		if (fn_ptr1->checksum != fn_ptr2->checksum)
- 			return false;
-+#if CONFIG_CLANG_VERSION < 110000
- 		if (fn_ptr1->use_extra_checksum != fn_ptr2->use_extra_checksum)
- 			return false;
- 		if (fn_ptr1->use_extra_checksum &&
- 			fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
- 			return false;
-+#else
-+		if (fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
-+			return false;
-+#endif
- 		fn_ptr1 = list_next_entry(fn_ptr1, head);
- 		fn_ptr2 = list_next_entry(fn_ptr2, head);
- 	}
-@@ -529,17 +533,22 @@ static size_t convert_to_gcda(char *buff
- 
- 	list_for_each_entry(fi_ptr, &info->functions, head) {
- 		u32 i;
--		u32 len = 2;
--
--		if (fi_ptr->use_extra_checksum)
--			len++;
- 
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
--		pos += store_gcov_u32(buffer, pos, len);
-+#if CONFIG_CLANG_VERSION < 110000
-+		pos += store_gcov_u32(buffer, pos,
-+			fi_ptr->use_extra_checksum ? 3 : 2);
-+#else
-+		pos += store_gcov_u32(buffer, pos, 3);
-+#endif
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->checksum);
-+#if CONFIG_CLANG_VERSION < 110000
- 		if (fi_ptr->use_extra_checksum)
- 			pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-+#else
-+		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-+#endif
- 
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_COUNTER_BASE);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->num_counters * 2);
-_
-
-Patches currently in -mm which might be from ndesaulniers@google.com are
-
-gcov-re-fix-clang-11-support.patch
-gcov-clang-drop-support-for-clang-10-and-older.patch
-
+Best regards,
+Tomasz
