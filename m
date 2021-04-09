@@ -2,119 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC08B35A83E
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 23:18:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A1D235A849
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 23:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234079AbhDIVSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 17:18:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33630 "EHLO
+        id S234079AbhDIVVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 17:21:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233687AbhDIVSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 17:18:20 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F04C061762
-        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 14:18:06 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id d124so5023660pfa.13
-        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 14:18:06 -0700 (PDT)
+        with ESMTP id S233687AbhDIVU7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 17:20:59 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511B1C061762;
+        Fri,  9 Apr 2021 14:20:46 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id d11so3002583wro.13;
+        Fri, 09 Apr 2021 14:20:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qnqF4eq7BeeuAE4H8t/Gl43MESxllC1YhfT+bMUgAx0=;
-        b=i4tXix4O8IjNuO8KrQ0h8fidWIFVSz0toY2U2fOQiH2jFf6HvDP3L0oei2V+fnTUJQ
-         wCG9/PyrkjHOU8gNvxEc+A1noTfKRV3Zt64XB06Mvvt3UlpOHqWY581P3hojw91ULx4D
-         fO2auBOkq4Nt6SPeFh8ewTquycc9mV4CkLZZhjpZMxwKiSQevmu2YRT2eNoI5houxFV4
-         JU4yYT1k1J883wckGcVPuDTH66032qkIwqU3bsc9c0lRemzwMWZJo8+5n8UFiLNx77v7
-         FMmpXALOE1YsFceX0ZmlwAS89UuET6gOd11CALwyIFsm7y6bPEjBRABg5s5OGx80Ibg3
-         7nPg==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=tJMx3joEzDkhqOdTLxiBP2TD6ATdYz9StpsYXzOK1QQ=;
+        b=UpXbR+pOLFN5fqOn6JcqFmuzUuPGt0W5rryRsUzW2iE8ZNb9SSeWCoezFDkIpBxvd6
+         oHVpX8uDlEaCUbwzXd+XhA3SmfpnsBUO2RtLTq0vwIIXcVm1tkUjXbiVSOfyML5Zb1BG
+         5yTF30SWUk7NLYA2jPHEn9jJq/55fULsj61yn4J7S2Udaheq1NNBjO51Xk6za9RnKZQG
+         kx6ugEu1LXiOSBylxSyxfUO+VP5hN/pVWtQfIw3vOldisxcxtI0BSvx9IWgr/yn0Jml2
+         dG9ftXl3VJ2MTd9RSgGnudVFf30lTAeQUyORcspM2mDBL9Qnr42TojhqH0pMrcB9dzuB
+         cgyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qnqF4eq7BeeuAE4H8t/Gl43MESxllC1YhfT+bMUgAx0=;
-        b=nliGGstIBAY/QdoQFBioYfQnLR859m1BR2W/HhRPis2YUQo5are4U5fCuFFznUTquQ
-         eKLOudSGJPUVcb1xIyE/vCvx8x6U1SSzVnToch8JaQLcQN8YgqAUvPTqLQAvi3lLfZF2
-         DFLQitUgvVRPkDpTyenJsj2dx79AVmeKbDBLMMX/hHhYYjzqF1/D9F1FNIPCvNgu+L7e
-         VGbgFu+zNRMCrc8JCG3HwoebsH1ybrBr7K3loIHfzSeBHJFZo0Y/LGC+PFUHPvPz+T6p
-         SgLvrXKRQlonch+mVxAJDNtXI5cVuUx9jAcEltLQTX738jQPg5EMKLijB6uMghBMXldK
-         j9mw==
-X-Gm-Message-State: AOAM5335wYA5/5g4nMIsV3JgNY+Oq6npDHZvk3HvjLz8OjXsUcHzcbEo
-        H9EFh7GZKEg3Q1ZgvUnI0wtYpHXKFfJysCqV
-X-Google-Smtp-Source: ABdhPJzh1dEUL6T+qjCifUvwJmIqxUJGdl7SM7S5VG15BYCuYf0QrTUKUM7i0oQKRsvQHOAy8igKIw==
-X-Received: by 2002:a05:6a00:1651:b029:241:afa4:92b1 with SMTP id m17-20020a056a001651b0290241afa492b1mr14137536pfc.12.1618003086151;
-        Fri, 09 Apr 2021 14:18:06 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h18sm3591884pgj.51.2021.04.09.14.18.05
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tJMx3joEzDkhqOdTLxiBP2TD6ATdYz9StpsYXzOK1QQ=;
+        b=VQ2KkyHCyCx5YNavf9g+RvqPZk6pXXOuoF1W2whLt/3aAOugP7ZxVxMCvc59fTJmi1
+         QxIJkiwsBckiRWfo0dovB7JxSpPkt62O1UVEJs8rg7iBlUyZCRdJ3y5fOmAr8/ff2fTP
+         VLXpMLPkuvDLfdJEe10kgzXrwRb4ZVRmkU0E9nca1SteMs/Lo42/Qi7GktFpqYrERjLZ
+         pSWbp0z64pXaJ71S0KIxxAEXTEno76CdjGw1vH3iF/rrlNArCdyXFumjsAJnf/T2+oQl
+         kLKvu5UMgNILuveAAmYXXkG1HQ3dLs8bp2ySihC3j/QSS+PuPeKbuq1qnpFXRNR2myzn
+         jgNg==
+X-Gm-Message-State: AOAM530dIJhNgHXtZKVuzHCWn9YG2yz6KWGyPVMwZue3qpGH0Kg6Y+4M
+        9619HFl6dVy9ljtWSjtY4oIziYNX3ij/qGdl
+X-Google-Smtp-Source: ABdhPJxch+iZP7gI7QDv0RUho5LDfhsXf1rqhrii+pJULVdhYn4KkzTcQ+Yk16N8YPMxMPvLjfYRaA==
+X-Received: by 2002:adf:efc9:: with SMTP id i9mr1774929wrp.173.1618003245126;
+        Fri, 09 Apr 2021 14:20:45 -0700 (PDT)
+Received: from debian (host-84-13-30-150.opaltelecom.net. [84.13.30.150])
+        by smtp.gmail.com with ESMTPSA id p17sm5260124wmq.47.2021.04.09.14.20.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Apr 2021 14:18:05 -0700 (PDT)
-Message-ID: <6070c48d.1c69fb81.a85b0.9a64@mx.google.com>
-Date:   Fri, 09 Apr 2021 14:18:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Fri, 09 Apr 2021 14:20:44 -0700 (PDT)
+Date:   Fri, 9 Apr 2021 22:20:43 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/23] 5.4.111-rc1 review
+Message-ID: <YHDFK5IYfxvlC0L5@debian>
+References: <20210409095302.894568462@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.28-41-g4005a6006d0ae
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 126 runs,
- 1 regressions (v5.10.28-41-g4005a6006d0ae)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 126 runs, 1 regressions (v5.10.28-41-g4005a6=
-006d0ae)
+Hi Greg,
 
-Regressions Summary
--------------------
+On Fri, Apr 09, 2021 at 11:53:30AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.111 release.
+> There are 23 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
+> Anything received after that time might be too late.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+Build test:
+mips: 65 configs -> no new failure
+arm: 107 configs -> no new failure
+x86_64: 2 configs -> no failure
 
+Boot test:
+x86_64: Booted on my test laptop. No regression.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.28-41-g4005a6006d0ae/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.28-41-g4005a6006d0ae
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4005a6006d0ae3fe69e4eef5f1851cb1941361c5 =
-
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
 
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60708c0f7853aa5a45dac6db
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.28-=
-41-g4005a6006d0ae/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.28-=
-41-g4005a6006d0ae/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60708c0f7853aa5a45dac=
-6dc
-        new failure (last pass: v5.10.28-41-g3a4f6976974a) =
-
- =20
+--
+Regards
+Sudip
