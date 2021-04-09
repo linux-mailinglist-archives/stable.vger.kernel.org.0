@@ -2,107 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E94635A8A0
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 00:12:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A5C035A8A7
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 00:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234883AbhDIWMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 18:12:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53520 "EHLO mail.kernel.org"
+        id S234654AbhDIWPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 18:15:15 -0400
+Received: from mail.zx2c4.com ([104.131.123.232]:52004 "EHLO mail.zx2c4.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234602AbhDIWMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 18:12:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0ABB610A8;
-        Fri,  9 Apr 2021 22:12:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618006337;
-        bh=M7s3pMhdWn3yHEsyevVbXdjmmUWWkdETqRhmlxr/BlU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=u8y2wdd5u/QpjQy7m0Mnv9ezCsy+6q+xfW8jgXnagVFBq5MniZ9a9DTrDCRolQoo5
-         oI8lvsMs7amktN21+2FJzdF5kbvYLuyYfKXdXKpkfZJVvc0XLX8gaaZK8xAmVYkJy3
-         hwhOCQiTO6ZUpg6y+Ez9Fo9qD99ihYlmbCxBQYZxdyPhFAkD/2+tIVtfk1KauI7h2w
-         0rboiSLYcZLBBIycx9UZ/c0QVsBjiUZaTO5xRE4Yw8B/FN15qzo1ANrs8sjPHNhP+g
-         NByXHDb9V0M3wOtvCHGVDXveeFDKPd9SQtCY55QGJCzx34J2b9hkYiGoVFz99dS7wL
-         TY8gT0uhpgaqQ==
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     Russell King <linux@armlinux.org.uk>,
+        id S234517AbhDIWPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 18:15:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1618006496;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UASekFbVhQj5MYvWTJ3Pb9W7iYXFe8RQLalyImAe1zE=;
+        b=ZUdMEW9IzGwdnwc4qtASbp1hQHuGe9OB3hTR50Gq61PjoS9KKHLhUAXT4sWKDko68g4fGo
+        tJcaW25sKcQB5nPT/25OFn9wr9TWeXt9buxnxuIhd7PcdypVBRRQQXVSysUV1I3Tm91lK5
+        qPaiWvKaa4wkkikWnnm2AglqBH4qLao=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 080918ed (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Fri, 9 Apr 2021 22:14:56 +0000 (UTC)
+Received: by mail-yb1-f170.google.com with SMTP id g38so8185638ybi.12;
+        Fri, 09 Apr 2021 15:14:55 -0700 (PDT)
+X-Gm-Message-State: AOAM532gNqM6ijjgivA6J9Y8l8/VjrUCRNmAlAxKLr5d7GUdggpfVeD1
+        TvSKybCEWl38iXNCSls+llv1I3q3nv4RYR4zAiY=
+X-Google-Smtp-Source: ABdhPJxTGz5VnzVclm7kInmXeFjGoBq+fXJaQfGzxNC0FZkkiyxe81tTTrrCAKrChon8v1JflKVgYgqAYnHt0+jpuLg=
+X-Received: by 2002:a25:a3e3:: with SMTP id e90mr19023469ybi.279.1618006495224;
+ Fri, 09 Apr 2021 15:14:55 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210409221155.1113205-1-nathan@kernel.org>
+In-Reply-To: <20210409221155.1113205-1-nathan@kernel.org>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Fri, 9 Apr 2021 16:14:44 -0600
+X-Gmail-Original-Message-ID: <CAHmME9raNqAftSHuJZ1VE0Xp=yGfuVN+i1j2tCAEDSynsgqy7w@mail.gmail.com>
+Message-ID: <CAHmME9raNqAftSHuJZ1VE0Xp=yGfuVN+i1j2tCAEDSynsgqy7w@mail.gmail.com>
+Subject: Re: [PATCH] crypto: arm/curve25519 - Move '.fpu' after '.arch'
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Russell King <linux@armlinux.org.uk>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Ard Biesheuvel <ardb@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Nathan Chancellor <nathan@kernel.org>, stable@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
         Jessica Clarke <jrtc27@jrtc27.com>
-Subject: [PATCH] crypto: arm/curve25519 - Move '.fpu' after '.arch'
-Date:   Fri,  9 Apr 2021 15:11:55 -0700
-Message-Id: <20210409221155.1113205-1-nathan@kernel.org>
-X-Mailer: git-send-email 2.31.1.189.g2e36527f23
-MIME-Version: 1.0
-X-Patchwork-Bot: notify
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Debian's clang carries a patch that makes the default FPU mode
-'vfp3-d16' instead of 'neon' for 'armv7-a' to avoid generating NEON
-instructions on hardware that does not support them:
+Seems reasonable to me.
 
-https://salsa.debian.org/pkg-llvm-team/llvm-toolchain/-/raw/5a61ca6f21b4ad8c6ac4970e5ea5a7b5b4486d22/debian/patches/clang-arm-default-vfp3-on-armv7a.patch
-https://bugs.debian.org/841474
-https://bugs.debian.org/842142
-https://bugs.debian.org/914268
-
-This results in the following build error when clang's integrated
-assembler is used because the '.arch' directive overrides the '.fpu'
-directive:
-
-arch/arm/crypto/curve25519-core.S:25:2: error: instruction requires: NEON
- vmov.i32 q0, #1
- ^
-arch/arm/crypto/curve25519-core.S:26:2: error: instruction requires: NEON
- vshr.u64 q1, q0, #7
- ^
-arch/arm/crypto/curve25519-core.S:27:2: error: instruction requires: NEON
- vshr.u64 q0, q0, #8
- ^
-arch/arm/crypto/curve25519-core.S:28:2: error: instruction requires: NEON
- vmov.i32 d4, #19
- ^
-
-Shuffle the order of the '.arch' and '.fpu' directives so that the code
-builds regardless of the default FPU mode. This has been tested against
-both clang with and without Debian's patch and GCC.
-
-Cc: stable@vger.kernel.org
-Fixes: d8f1308a025f ("crypto: arm/curve25519 - wire up NEON implementation")
-Link: https://github.com/ClangBuiltLinux/continuous-integration2/issues/118
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Jessica Clarke <jrtc27@jrtc27.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- arch/arm/crypto/curve25519-core.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm/crypto/curve25519-core.S b/arch/arm/crypto/curve25519-core.S
-index be18af52e7dc..b697fa5d059a 100644
---- a/arch/arm/crypto/curve25519-core.S
-+++ b/arch/arm/crypto/curve25519-core.S
-@@ -10,8 +10,8 @@
- #include <linux/linkage.h>
- 
- .text
--.fpu neon
- .arch armv7-a
-+.fpu neon
- .align 4
- 
- ENTRY(curve25519_neon)
-
-base-commit: e49d033bddf5b565044e2abe4241353959bc9120
--- 
-2.31.1.189.g2e36527f23
-
+Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
