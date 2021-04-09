@@ -2,134 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF6735A744
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 21:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2872A35A764
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 21:47:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233883AbhDIToB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 15:44:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41444 "EHLO
+        id S232855AbhDITry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 15:47:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232855AbhDIToA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 15:44:00 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26E1C061762;
-        Fri,  9 Apr 2021 12:43:46 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id u21so10396318ejo.13;
-        Fri, 09 Apr 2021 12:43:46 -0700 (PDT)
+        with ESMTP id S233657AbhDITry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 15:47:54 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCF20C061762
+        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 12:47:39 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id u7so1453454plr.6
+        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 12:47:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=5UYa70dh30D9VBwtvT7OqpO7sw3vtfJKMvIiKRh6GeY=;
-        b=fkkfoPoRz8d83AokzQ7L6GTbjaKU/DhNM7q7RVEpqTsF1klo1m6lCvAwTolJSXWAbM
-         JIBjY40QgYqcJtcXxfejiZ9bkv+j/sEyxjpFch/MH6jDX2IGNJ4Yi35w8a1eyHKescx2
-         0TFIOqIqdwr+uKCrBH/P28A8cnv8GgvR7hj96mBL8BXcpfGgPtkR5sBg81vdSBGcfaN1
-         Xe/74i/JICYjlKWAAiBPCvpeYIZTtsnjjtBmLfcccUqAtIxFCtfTKi5i+mrIAEmxYrU4
-         TZHcnRvCkKUKGwIHina+mheILLHyyGDmukDdeKKHmPpWDCoxkfvPGKaMRavdq5w8XQYE
-         3pEg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=331gjZr6R/f/S9bgH6VS0ZgXmhXM8oTANUDy4EvNPq8=;
+        b=J0aw/qvfStiZ2I6R3/U7l7UOYbdST63HX+qAIKwNDRY7GZ3cPlHPyWdzuar/xJdCfS
+         0JsxaE//r9w/iL4bARhQbYbZiZ34tRMOfmcXAHmUW1pEM9Y5BLloUVjpe8dPlsLUctXp
+         q3ip1QhoNX02XaWaowBhlze2kES/WpXINqdHDVnxg6ihXL3NQS/luwOqi1PsJS+iSe4j
+         8OZsgYEfEUzIiVVnZnt4CpgGcdnh6REVeDaaPKd2JZAIP+Bob8ny/oG7HWGsZTZUzk7N
+         YhJCmUcTkcv6wDlZkfve6v8BCgKlydDtkEJYcEAlXz3T8JOHtn9i1otBSeT33VVXqqCh
+         E4aQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5UYa70dh30D9VBwtvT7OqpO7sw3vtfJKMvIiKRh6GeY=;
-        b=ID1e00AuAtK9DW71L3YxLtC9jhXawAUKOgNR1PWCyI/QzWr4o13dSrnxWMUlmjlHKv
-         /xo8I8AR4d5JPZw4lRSB/8dNCEciwGRCADWY4LfSM+GuzKs/kEmjXijBdUgm313bqWn8
-         tO0RNYZquPuDbcgle85Q7JA9aXcUrDiSqwvXsjG8GB64E5dYydXsGnzeLzBqlBtfygaX
-         eR3NNt0G/DSxtMIzGmgVeq1hlhZp55VrrMZaFTBY08tzrUWN1rD387YAV1qR1agMcrYY
-         SU37+LwWhzsW5ngjB+yc3Kz+nuDYShGVmOUXciJkrDBXNAhmDImV3UP3zo+9cVwWCkUw
-         R21g==
-X-Gm-Message-State: AOAM531ZvKvNCOvZTyknOelD04Z/OWcwTnMOCeL4Cqw/1uh5XtiJ6mw9
-        PLmcc029jrrnXxgiRA3U5Go1fAv3tL7p+T7kbjs=
-X-Google-Smtp-Source: ABdhPJwVOEIyaQjI4MXQ5Xe0/oNdshHtbZvqJV5v6rYd9A0WUvhzGw4rIa1yYreweKKm2yAIzl7WKxRs/bJRhOOzp1c=
-X-Received: by 2002:a17:906:3ce9:: with SMTP id d9mr347758ejh.172.1617997425581;
- Fri, 09 Apr 2021 12:43:45 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=331gjZr6R/f/S9bgH6VS0ZgXmhXM8oTANUDy4EvNPq8=;
+        b=XoL9n1qSMSTIYZNG0tAtKtfFKzBxwYTn29ITYXWREoNguCbiNeNB+bTSSpMnL8VQIQ
+         3SN3SlFKWxYRad6p21mbQrccexAV2wjux8ct3u5z+cckbjs0KEPWnHZk+QGwU4WOSLJ9
+         KsJ6+wioRcNO/jgfWA3+yayt5wKle0WXDuQI53S05//TrU5h+bip+1jsx8UNZCmD25IF
+         3OqYjJvPiu0Pp9pN48cfUtaMsZ8tESOLWVsn2khiL2Y6Qa/opsz5MwzMESMVcj/D3vIO
+         YEPRJcAuX8NVqTkaZk4SAhsyAkdn7f5FDbFJGDepxvBQyPL73HdqKkvKd4SCnFS41ZUx
+         8ePg==
+X-Gm-Message-State: AOAM53174SUUP2pJYRTDC5o7ERGAW2fucyrwgunU4Kf4IYB6JKfEmIdY
+        GfD5y1XstrfBlUF+M/mOGH91OSVlLwHyY2HV
+X-Google-Smtp-Source: ABdhPJx82hDk87PxPJ1tpjR3oeIBfxxRUULVyd1tp9IneKKyqVHF7fROEO1A+itL1e80TrCiX2nAwA==
+X-Received: by 2002:a17:90a:a613:: with SMTP id c19mr2955768pjq.117.1617997659108;
+        Fri, 09 Apr 2021 12:47:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id bk8sm2967551pjb.13.2021.04.09.12.47.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Apr 2021 12:47:38 -0700 (PDT)
+Message-ID: <6070af5a.1c69fb81.57dc5.804d@mx.google.com>
+Date:   Fri, 09 Apr 2021 12:47:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210408183828.1907807-1-martin.blumenstingl@googlemail.com>
- <20210408183828.1907807-2-martin.blumenstingl@googlemail.com> <20210408224617.crnllsf7eedxr6cp@skbuf>
-In-Reply-To: <20210408224617.crnllsf7eedxr6cp@skbuf>
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date:   Fri, 9 Apr 2021 21:43:34 +0200
-Message-ID: <CAFBinCAACrUO+89TnPs=5hhkV_73N5hxz=18u9o-NERUC_wpGg@mail.gmail.com>
-Subject: Re: [PATCH net v2 1/2] net: dsa: lantiq_gswip: Don't use PHY auto polling
-To:     Vladimir Oltean <olteanv@gmail.com>
-Cc:     Hauke Mehrtens <hauke@hauke-m.de>, andrew@lunn.ch,
-        f.fainelli@gmail.com, vivien.didelot@gmail.com,
-        netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux@armlinux.org.uk, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.229-15-g135dd04537d5b
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 baseline: 136 runs,
+ 5 regressions (v4.14.229-15-g135dd04537d5b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Vladimir,
+stable-rc/queue/4.14 baseline: 136 runs, 5 regressions (v4.14.229-15-g135dd=
+04537d5b)
 
-On Fri, Apr 9, 2021 at 12:46 AM Vladimir Oltean <olteanv@gmail.com> wrote:
->
-> On Thu, Apr 08, 2021 at 08:38:27PM +0200, Martin Blumenstingl wrote:
-> > PHY auto polling on the GSWIP hardware can be used so link changes
-> > (speed, link up/down, etc.) can be detected automatically. Internally
-> > GSWIP reads the PHY's registers for this functionality. Based on this
-> > automatic detection GSWIP can also automatically re-configure it's port
-> > settings. Unfortunately this auto polling (and configuration) mechanism
-> > seems to cause various issues observed by different people on different
-> > devices:
-> > - FritzBox 7360v2: the two Gbit/s ports (connected to the two internal
-> >   PHY11G instances) are working fine but the two Fast Ethernet ports
-> >   (using an AR8030 RMII PHY) are completely dead (neither RX nor TX are
-> >   received). It turns out that the AR8030 PHY sets the BMSR_ESTATEN bit
-> >   as well as the ESTATUS_1000_TFULL and ESTATUS_1000_XFULL bits. This
-> >   makes the PHY auto polling state machine (rightfully?) think that the
-> >   established link speed (when the other side is Gbit/s capable) is
-> >   1Gbit/s.
->
-> Why do you say "rightfully"? The PHY is gigabit capable, and it reports
-> that via the Extended Status register. This is one of the reasons why
-> the "advertising" and "supported" link modes are separate concepts,
-> because even though you support gigabit, you don't advertise it because
-> you are in RMII mode.
-according to the marketing materials of the AR8030 it is a "Ultra
-low-power single RMII Fast Ethernet PHY"
-based on that I am referring to this PHY as "not Gbit/s capable"
-(other PHYs from the AR803x series are Gbit/s capable though)
+Regressions Summary
+-------------------
 
-> How does turning off the auto polling feature help circumvent the
-> Atheros PHY reporting "issue"? Do we even know that is the problem, or
-> is it simply a guess on your part based on something that looked strange?
-I have a patch in my queue (which I'll send for the next -net-next
-cycle) which adds "ethtool -d" (.get_regs) support to the GSWIP
-driver.
-There are multiple status registers, one of them indicates that the
-link speed (as result of the auto polling mechanism) is 1Gbit/s
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-[...]
-> > Switch to software based configuration instead of PHY auto polling (and
-> > letting the GSWIP hardware configure the ports automatically) for the
-> > following link parameters:
-> > - link up/down
-> > - link speed
-> > - full/half duplex
-> > - flow control (RX / TX pause)
->
-> What does the auto polling feature consist of, exactly? Is there some
-> sort of microcontroller accessing the MDIO bus simultaneously with
-> Linux?
-I believe the answer is yes, but there's no clear description in the
-datasheet for a newer GSWIP revision [0]
-"Figure 8" on page 41 (or page 39 if you go by the numbers at the
-bottom of each page) has a description of the state machine logic.
-If I understood Hauke correct the "not fiber" part is only checked for
-newer GSWIP revisions
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Please note that the datasheet from [0] refers to part number GSW140
-which is a stand-alone IC.
-The GSWIP driver (currently) supports an older revision (at least two
-generations older) of GSWIP which is built into Lantiq xRX200 and
-xRX300 SoCs.
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
 
-Best regards,
-Martin
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.229-15-g135dd04537d5b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.229-15-g135dd04537d5b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      135dd04537d5bde1e2ba9df4ae0ffd0f92298c6e =
 
 
-[0] https://www.maxlinear.com/document/index?id=23266&languageid=1033&type=Datasheet&partnumber=GSW140&filename=617930_GSW140_DS_Rev1.7.pdf&part=GSW140
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60707a985cee14ef8cdac6ee
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60707a985cee14ef8cdac=
+6ef
+        failing since 146 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60707a815cee14ef8cdac6bb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60707a815cee14ef8cdac=
+6bc
+        failing since 146 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60707aae64ff9da43cdac6c7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60707aae64ff9da43cdac=
+6c8
+        failing since 146 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60707aa764ff9da43cdac6c2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60707aa764ff9da43cdac=
+6c3
+        failing since 146 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6070907eea77e68d57dac6c8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.229=
+-15-g135dd04537d5b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6070907eea77e68d57dac=
+6c9
+        failing since 146 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
