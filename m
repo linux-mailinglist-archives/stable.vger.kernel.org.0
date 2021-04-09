@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3E3359B10
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7B2359AE5
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233771AbhDIKHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
+        id S232850AbhDIKDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234122AbhDIKEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:04:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE4AC6128E;
-        Fri,  9 Apr 2021 10:01:09 +0000 (UTC)
+        id S233883AbhDIKBD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:01:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 843D96100B;
+        Fri,  9 Apr 2021 09:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962470;
-        bh=Vf/4atIVJIZu8M3poCXKaRHTSUmtfUTlzgP46VsUrEE=;
+        s=korg; t=1617962372;
+        bh=468E9xolqwqaMx889QTebTC2v0UfCzdw38F83fOG2kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBLAnXBXth7+iIqTpSe2yOqKU8yuIc+vTBRvYKyilJOIHp3F/JxDVWkfDGubuU+Ym
-         xkZFAA4//BHAQbWIzaK3datZkYxZpG8TOMqTFh+iSQDXpscUpGDvxfHlJOSdyX69UM
-         4cHEmB8y14nStNzRqoyE5td/J+DxuqoYj6fBbtWo=
+        b=gp5nJMOy92CaCRVer8DnBvruS6TDqfT6yl+xK8eBnWQOo7/JeQ+BeQ+WBXCsBvvoK
+         EBTKGQltFyMyEZJZqa/flb3DI42AJMKCDQpFVKDx0pyXsFz55YyhNhIEEu0ArxqABU
+         89KeKaNzz0YCYI3Z9bp9y/nvyGfmcvQk4rtJJa0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 27/45] ptp_qoriq: fix overflow in ptp_qoriq_adjfine() u64 calcalation
+Subject: [PATCH 5.10 31/41] math: Export mul_u64_u64_div_u64
 Date:   Fri,  9 Apr 2021 11:53:53 +0200
-Message-Id: <20210409095306.292333665@linuxfoundation.org>
+Message-Id: <20210409095305.811484624@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangbo Lu <yangbo.lu@nxp.com>
+From: David S. Miller <davem@davemloft.net>
 
-[ Upstream commit f51d7bf1dbe5522c51c93fe8faa5f4abbdf339cd ]
+[ Upstream commit bf45947864764548697e7515fe693e10f173f312 ]
 
-Current calculation for diff of TMR_ADD register value may have
-64-bit overflow in this code line, when long type scaled_ppm is
-large.
-
-adj *= scaled_ppm;
-
-This patch is to resolve it by using mul_u64_u64_div_u64().
-
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Fixes: f51d7bf1dbe5 ("ptp_qoriq: fix overflow in ptp_qoriq_adjfine() u64 calcalation")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ptp/ptp_qoriq.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ lib/math/div64.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ptp/ptp_qoriq.c b/drivers/ptp/ptp_qoriq.c
-index beb5f74944cd..08f4cf0ad9e3 100644
---- a/drivers/ptp/ptp_qoriq.c
-+++ b/drivers/ptp/ptp_qoriq.c
-@@ -189,15 +189,16 @@ int ptp_qoriq_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
- 	tmr_add = ptp_qoriq->tmr_add;
- 	adj = tmr_add;
+diff --git a/lib/math/div64.c b/lib/math/div64.c
+index 3952a07130d8..edd1090c9edb 100644
+--- a/lib/math/div64.c
++++ b/lib/math/div64.c
+@@ -230,4 +230,5 @@ u64 mul_u64_u64_div_u64(u64 a, u64 b, u64 c)
  
--	/* calculate diff as adj*(scaled_ppm/65536)/1000000
--	 * and round() to the nearest integer
-+	/*
-+	 * Calculate diff and round() to the nearest integer
-+	 *
-+	 * diff = adj * (ppb / 1000000000)
-+	 *      = adj * scaled_ppm / 65536000000
- 	 */
--	adj *= scaled_ppm;
--	diff = div_u64(adj, 8000000);
--	diff = (diff >> 13) + ((diff >> 12) & 1);
-+	diff = mul_u64_u64_div_u64(adj, scaled_ppm, 32768000000);
-+	diff = DIV64_U64_ROUND_UP(diff, 2);
- 
- 	tmr_add = neg_adj ? tmr_add - diff : tmr_add + diff;
--
- 	ptp_qoriq->write(&regs->ctrl_regs->tmr_add, tmr_add);
- 
- 	return 0;
+ 	return res + div64_u64(a * b, c);
+ }
++EXPORT_SYMBOL(mul_u64_u64_div_u64);
+ #endif
 -- 
 2.30.2
 
