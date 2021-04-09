@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8036E359A28
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE0A359A5D
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbhDIJ4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:56:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
+        id S233535AbhDIJ6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:58:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233505AbhDIJ4D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 641866115B;
-        Fri,  9 Apr 2021 09:55:49 +0000 (UTC)
+        id S233409AbhDIJ5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:57:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62AED611BF;
+        Fri,  9 Apr 2021 09:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962149;
-        bh=jX/uMPf9O5TqBbLReJpZMDzgWBSR4cg8pgu28NAtz/Q=;
+        s=korg; t=1617962221;
+        bh=Mutaf/l//cjTnf5ww/mgqigexYN26XxY39BM9zOOWOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jrty2x33x99qJKjDdrVBwBu3hVsY1OPiK5NPBCwEsma+L3KaEo/bOyGWB3HqLYGa3
-         XmL9dpTpOtRjhyiDz7+VPa1Vr3xC1EQfDvG5cfX8CZKRjPoVgtI820JxF0xKDitQut
-         912TaBY5l2tiSfjcr9RxCjKfaFUFnpI3ei3YAVo0=
+        b=KTspBqzuf3ASIdPMDXsM2qPHFx7b3I9TAi8yESiW97lGxQHBcBv+upE5+HI5dELiK
+         j9r7kcGllbmpREUAE32EC/H5/eSvX0+FClNaXLamEEwVbeh4EDS/F5Ika03zNGO7LA
+         HNsbBypO6gCSWQSsYc5dZq3GP1ZAG3aCKPtIlKcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Tom Talpey <tom@talpey.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/13] cifs: Silently ignore unknown oplock break handle
-Date:   Fri,  9 Apr 2021 11:53:29 +0200
-Message-Id: <20210409095259.926118372@linuxfoundation.org>
+Subject: [PATCH 4.19 02/18] bus: ti-sysc: Fix warning on unbind if reset is not deasserted
+Date:   Fri,  9 Apr 2021 11:53:30 +0200
+Message-Id: <20210409095301.606177901@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
-References: <20210409095259.624577828@linuxfoundation.org>
+In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
+References: <20210409095301.525783608@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
+[ Upstream commit a7b5d7c4969aba8d1f04c29048906abaa71fb6a9 ]
 
-Make SMB2 not print out an error when an oplock break is received for an
-unknown handle, similar to SMB1.  The debug message which is printed for
-these unknown handles may also be misleading, so fix that too.
+We currently get thefollowing on driver unbind if a reset is configured
+and asserted:
 
-The SMB2 lease break path is not affected by this patch.
+WARNING: CPU: 0 PID: 993 at drivers/reset/core.c:432 reset_control_assert
+...
+(reset_control_assert) from [<c0fecda8>] (sysc_remove+0x190/0x1e4)
+(sysc_remove) from [<c0a2bb58>] (platform_remove+0x24/0x3c)
+(platform_remove) from [<c0a292fc>] (__device_release_driver+0x154/0x214)
+(__device_release_driver) from [<c0a2a210>] (device_driver_detach+0x3c/0x8c)
+(device_driver_detach) from [<c0a27d64>] (unbind_store+0x60/0xd4)
+(unbind_store) from [<c0546bec>] (kernfs_fop_write_iter+0x10c/0x1cc)
 
-Without this, a program which writes to a file from one thread, and
-opens, reads, and writes the same file from another thread triggers the
-below errors several times a minute when run against a Samba server
-configured with "smb2 leases = no".
+Let's fix it by checking the reset status.
 
- CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
- 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
- 00000010: 00000001 00000000 ffffffff ffffffff  ................
- 00000020: 00000000 00000000 00000000 00000000  ................
- 00000030: 00000000 00000000 00000000 00000000  ................
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2misc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bus/ti-sysc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -651,8 +651,8 @@ smb2_is_valid_oplock_break(char *buffer,
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
--	return false;
-+	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
-+	return true;
- }
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 54c8c8644df2..b6a278183d82 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -1814,7 +1814,9 @@ static int sysc_remove(struct platform_device *pdev)
  
- void
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+-	reset_control_assert(ddata->rsts);
++
++	if (!reset_control_status(ddata->rsts))
++		reset_control_assert(ddata->rsts);
+ 
+ unprepare:
+ 	sysc_unprepare(ddata);
+-- 
+2.30.2
+
 
 
