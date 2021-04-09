@@ -2,77 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3496A35A7D2
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 22:27:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9282E35A7D3
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 22:27:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233943AbhDIU1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 16:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51494 "EHLO mail.kernel.org"
+        id S234183AbhDIU1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 16:27:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233824AbhDIU1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 16:27:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F74F610A8;
-        Fri,  9 Apr 2021 20:27:23 +0000 (UTC)
+        id S233824AbhDIU1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 16:27:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F2A86113A;
+        Fri,  9 Apr 2021 20:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1618000043;
-        bh=7ms6+3bG6fT5U/1g8c9M+XCu/LHEVKAEuADu6uC5ARo=;
+        s=korg; t=1618000046;
+        bh=MC5rJIiACHa4l6pT6GTWaov4H6yXZ+j3/ppxa3BO3ts=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=iUw5+yGj1f7ug3pYSFPhv8eS7FK36brsNXkFGK2OQjt3CsyAvbVIMn0qG4lvowsHA
-         ZZ2u6h9hMvoFXAw/uZ5M0DTxV1A3BVdojmRx6ldoG/kd9T7a4EHrP3RfctL/3obVMr
-         dtZuNpWf/t/1nKHozxSmH717lKvAcXDHGH40NNdI=
-Date:   Fri, 09 Apr 2021 13:27:23 -0700
+        b=YbZ2Y0PhHjNGMsgKJT+4ep/68sV/XRY+Q1U8Afv6NBLkO7LAZEr3SRzyiSNVE9M/u
+         KdmXO4N6aEER1uTe3WrKBsg6kkbqsV+fQUoRfweRT2WtytxHzo+Dc9dU1yl8EUQSuH
+         Cdl4hj4hgV/mpozo2iqbJ1W68uNk9WpZpsMxVm0A=
+Date:   Fri, 09 Apr 2021 13:27:26 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, deanbo422@gmail.com, green.hu@gmail.com,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        nickhu@andestech.com, rppt@linux.ibm.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, willy@infradead.org,
-        ying.huang@intel.com
-Subject:  [patch 08/16] nds32: flush_dcache_page: use
- page_mapping_file to avoid races with swapoff
-Message-ID: <20210409202723.P4c1fnEGD%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, nathan@kernel.org,
+        ndesaulniers@google.com, psodagud@quicinc.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 09/16] gcov: re-fix clang-11+ support
+Message-ID: <20210409202726.UGh0KJFgU%akpm@linux-foundation.org>
 In-Reply-To: <20210409132633.6855fc8fea1b3905ea1bb4be@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: nds32: flush_dcache_page: use page_mapping_file to avoid races with swapoff
+From: Nick Desaulniers <ndesaulniers@google.com>
+Subject: gcov: re-fix clang-11+ support
 
-Commit cb9f753a3731 ("mm: fix races between swapoff and flush dcache")
-updated flush_dcache_page implementations on several architectures to use
-page_mapping_file() in order to avoid races between page_mapping() and
-swapoff().
+LLVM changed the expected function signature for llvm_gcda_emit_function()
+in the clang-11 release.  Users of clang-11 or newer may have noticed
+their kernels producing invalid coverage information:
 
-This update missed arch/nds32 and there is a possibility of a race there.
+$ llvm-cov gcov -a -c -u -f -b <input>.gcda -- gcno=<input>.gcno
+1 <func>: checksum mismatch, \
+  (<lineno chksum A>, <cfg chksum B>) != (<lineno chksum A>, <cfg chksum C>)
+2 Invalid .gcda File!
+...
 
-Replace page_mapping() with page_mapping_file() in nds32 implementation of
-flush_dcache_page().
+Fix up the function signatures so calling this function interprets its
+parameters correctly and computes the correct cfg checksum.  In
+particular, in clang-11, the additional checksum is no longer optional.
 
-Link: https://lkml.kernel.org/r/20210330175126.26500-1-rppt@kernel.org
-Fixes: cb9f753a3731 ("mm: fix races between swapoff and flush dcache")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Greentime Hu <green.hu@gmail.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Nick Hu <nickhu@andestech.com>
-Cc: Vincent Chen <deanbo422@gmail.com>
-Cc: <stable@vger.kernel.org>
+Link: https://reviews.llvm.org/rG25544ce2df0daa4304c07e64b9c8b0f7df60c11d
+Link: https://lkml.kernel.org/r/20210408184631.1156669-1-ndesaulniers@google.com
+Reported-by: Prasad Sodagudi <psodagud@quicinc.com>
+Tested-by: Prasad Sodagudi <psodagud@quicinc.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Cc: <stable@vger.kernel.org>	[5.4+]
+
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- arch/nds32/mm/cacheflush.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/gcov/clang.c |   29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
---- a/arch/nds32/mm/cacheflush.c~nds32-flush_dcache_page-use-page_mapping_file-to-avoid-races-with-swapoff
-+++ a/arch/nds32/mm/cacheflush.c
-@@ -238,7 +238,7 @@ void flush_dcache_page(struct page *page
- {
- 	struct address_space *mapping;
+--- a/kernel/gcov/clang.c~gcov-re-fix-clang-11-support
++++ a/kernel/gcov/clang.c
+@@ -70,7 +70,9 @@ struct gcov_fn_info {
  
--	mapping = page_mapping(page);
-+	mapping = page_mapping_file(page);
- 	if (mapping && !mapping_mapped(mapping))
- 		set_bit(PG_dcache_dirty, &page->flags);
- 	else {
+ 	u32 ident;
+ 	u32 checksum;
++#if CONFIG_CLANG_VERSION < 110000
+ 	u8 use_extra_checksum;
++#endif
+ 	u32 cfg_checksum;
+ 
+ 	u32 num_counters;
+@@ -145,10 +147,8 @@ void llvm_gcda_emit_function(u32 ident,
+ 
+ 	list_add_tail(&info->head, &current_info->functions);
+ }
+-EXPORT_SYMBOL(llvm_gcda_emit_function);
+ #else
+-void llvm_gcda_emit_function(u32 ident, u32 func_checksum,
+-		u8 use_extra_checksum, u32 cfg_checksum)
++void llvm_gcda_emit_function(u32 ident, u32 func_checksum, u32 cfg_checksum)
+ {
+ 	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
+ 
+@@ -158,12 +158,11 @@ void llvm_gcda_emit_function(u32 ident,
+ 	INIT_LIST_HEAD(&info->head);
+ 	info->ident = ident;
+ 	info->checksum = func_checksum;
+-	info->use_extra_checksum = use_extra_checksum;
+ 	info->cfg_checksum = cfg_checksum;
+ 	list_add_tail(&info->head, &current_info->functions);
+ }
+-EXPORT_SYMBOL(llvm_gcda_emit_function);
+ #endif
++EXPORT_SYMBOL(llvm_gcda_emit_function);
+ 
+ void llvm_gcda_emit_arcs(u32 num_counters, u64 *counters)
+ {
+@@ -293,11 +292,16 @@ int gcov_info_is_compatible(struct gcov_
+ 		!list_is_last(&fn_ptr2->head, &info2->functions)) {
+ 		if (fn_ptr1->checksum != fn_ptr2->checksum)
+ 			return false;
++#if CONFIG_CLANG_VERSION < 110000
+ 		if (fn_ptr1->use_extra_checksum != fn_ptr2->use_extra_checksum)
+ 			return false;
+ 		if (fn_ptr1->use_extra_checksum &&
+ 			fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
+ 			return false;
++#else
++		if (fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
++			return false;
++#endif
+ 		fn_ptr1 = list_next_entry(fn_ptr1, head);
+ 		fn_ptr2 = list_next_entry(fn_ptr2, head);
+ 	}
+@@ -529,17 +533,22 @@ static size_t convert_to_gcda(char *buff
+ 
+ 	list_for_each_entry(fi_ptr, &info->functions, head) {
+ 		u32 i;
+-		u32 len = 2;
+-
+-		if (fi_ptr->use_extra_checksum)
+-			len++;
+ 
+ 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
+-		pos += store_gcov_u32(buffer, pos, len);
++#if CONFIG_CLANG_VERSION < 110000
++		pos += store_gcov_u32(buffer, pos,
++			fi_ptr->use_extra_checksum ? 3 : 2);
++#else
++		pos += store_gcov_u32(buffer, pos, 3);
++#endif
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->checksum);
++#if CONFIG_CLANG_VERSION < 110000
+ 		if (fi_ptr->use_extra_checksum)
+ 			pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
++#else
++		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
++#endif
+ 
+ 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_COUNTER_BASE);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->num_counters * 2);
 _
