@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C251C359A94
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4BE359AAD
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbhDIJ7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:59:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45976 "EHLO mail.kernel.org"
+        id S233656AbhDIKBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:01:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233684AbhDIJ63 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:58:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4CB4611F2;
-        Fri,  9 Apr 2021 09:58:10 +0000 (UTC)
+        id S233705AbhDIJ7R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:59:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 095C861207;
+        Fri,  9 Apr 2021 09:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962291;
-        bh=w7eOLUZzfbIq0CW8OGecdu9cCFhWJvntA2dUEBXeX7w=;
+        s=korg; t=1617962320;
+        bh=9Qi3pQ2+QNaOBIwKPixpKhTUZGCIOx9GESj8uXGpRgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1OoD641l+rcZ+TIIZlxHKnIHZev5XnMrXCSXAbthmu/ZzVrwGCPzDAH7Pug0hrm3
-         CWIGTy6fsh2rLBCA1ygMPMbk7ZgQyKizd7g32eKhzTeHDaVEOZogSBedXSt/ySVW4x
-         jj61OdncfHcaaB8+oBH0JPCxLn3aC0kDMCZFKPwU=
+        b=zEUf8CQBIG2LS0kDY/A5sJi5XWxZRqx5aZUlOn0pUS8K4+oci3XVX0YXLI0lvalJV
+         +JQDd/bdmCnkfG16+AYlrdaMqIbOU3AIkDf05SIimGranmDtpRZoT3EwV4ZG18+wYa
+         LwBQXOPAdx2jgrkoD0LyoJkFSRQ1zthf+55+VIR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
-        Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Ludovic Senecaux <linuxludo@free.fr>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/23] net/mlx5e: Enforce minimum value check for ICOSQ size
-Date:   Fri,  9 Apr 2021 11:53:35 +0200
-Message-Id: <20210409095303.076312498@linuxfoundation.org>
+Subject: [PATCH 5.10 14/41] netfilter: conntrack: Fix gre tunneling over ipv6
+Date:   Fri,  9 Apr 2021 11:53:36 +0200
+Message-Id: <20210409095305.294519518@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
-References: <20210409095302.894568462@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@nvidia.com>
+From: Ludovic Senecaux <linuxludo@free.fr>
 
-[ Upstream commit 5115daa675ccf70497fe56e8916cf738d8212c10 ]
+[ Upstream commit 8b2030b4305951f44afef80225f1475618e25a73 ]
 
-The ICOSQ size should not go below MLX5E_PARAMS_MINIMUM_LOG_SQ_SIZE.
-Enforce this where it's missing.
+This fix permits gre connections to be tracked within ip6tables rules
 
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Ludovic Senecaux <linuxludo@free.fr>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/netfilter/nf_conntrack_proto_gre.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 8b8581f71e79..36b9a364ef26 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -2365,8 +2365,9 @@ static u8 mlx5e_build_icosq_log_wq_sz(struct mlx5e_params *params,
+diff --git a/net/netfilter/nf_conntrack_proto_gre.c b/net/netfilter/nf_conntrack_proto_gre.c
+index 5b05487a60d2..db11e403d818 100644
+--- a/net/netfilter/nf_conntrack_proto_gre.c
++++ b/net/netfilter/nf_conntrack_proto_gre.c
+@@ -218,9 +218,6 @@ int nf_conntrack_gre_packet(struct nf_conn *ct,
+ 			    enum ip_conntrack_info ctinfo,
+ 			    const struct nf_hook_state *state)
  {
- 	switch (params->rq_wq_type) {
- 	case MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ:
--		return order_base_2(MLX5E_UMR_WQEBBS) +
--			mlx5e_get_rq_log_wq_sz(rqp->rqc);
-+		return max_t(u8, MLX5E_PARAMS_MINIMUM_LOG_SQ_SIZE,
-+			     order_base_2(MLX5E_UMR_WQEBBS) +
-+			     mlx5e_get_rq_log_wq_sz(rqp->rqc));
- 	default: /* MLX5_WQ_TYPE_CYCLIC */
- 		return MLX5E_PARAMS_MINIMUM_LOG_SQ_SIZE;
- 	}
+-	if (state->pf != NFPROTO_IPV4)
+-		return -NF_ACCEPT;
+-
+ 	if (!nf_ct_is_confirmed(ct)) {
+ 		unsigned int *timeouts = nf_ct_timeout_lookup(ct);
+ 
 -- 
 2.30.2
 
