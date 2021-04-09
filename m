@@ -2,170 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76AA359AA2
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC7E359A42
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233631AbhDIKA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:00:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
+        id S233093AbhDIJ50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233672AbhDIJ6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:58:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE26F6115B;
-        Fri,  9 Apr 2021 09:58:23 +0000 (UTC)
+        id S233364AbhDIJ4f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:56:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65A206115B;
+        Fri,  9 Apr 2021 09:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962304;
-        bh=2JLdwvKTdmbTI+ca4pn4a6yPfTuAGBZya56gHs9rVwM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=QtjJw1KEwHbHoxq0ZqGOe/z/Vr+ryrHQgNGTb5AIiZlK/xrXWBv4WdS4aMBv4Soqw
-         9OCA6qMtfbdbrK7cnzk9H4gYB5R5bLf/6TBEKiALjcdhmgmD45RRmS1uCaguFhnZQR
-         ccaHBBOTjtASa2mrV/OCANY9I5A9C/YFxh6BT+fU=
+        s=korg; t=1617962181;
+        bh=935/d+9Z6EF4J1nuSjo9f/QoUwF8wa+o6YFFqGQOjBs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=fG15XFktAPc/QacMI4IO4C8iZ5RZV5IHPrTov9ChgLW6ebRBTDFNyorodxBzIlYxo
+         s8BIs89+aC4eoLiYheCvYGJkuI0QRKdxn7YKL5qvXFAjCwzVEdOUW/bJzU14M+Davu
+         G9b3r1PsAk4L7tREoBkzEgvoa7zjW94/No9lljcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.4 00/23] 5.4.111-rc1 review
-Date:   Fri,  9 Apr 2021 11:53:30 +0200
-Message-Id: <20210409095302.894568462@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Esteve Varela Colominas <esteve.varela@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/14] platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
+Date:   Fri,  9 Apr 2021 11:53:31 +0200
+Message-Id: <20210409095300.598125276@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
+In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
+References: <20210409095300.391558233@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.111-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.111-rc1
-X-KernelTest-Deadline: 2021-04-11T09:53+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.111 release.
-There are 23 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Esteve Varela Colominas <esteve.varela@gmail.com>
 
-Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 3d677f12ea3a2097a16ded570623567403dea959 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.111-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+On many recent ThinkPad laptops, there's a new LED next to the ESC key,
+that indicates the FnLock status.
+When the Fn+ESC combo is pressed, FnLock is toggled, which causes the
+Media Key functionality to change, making it so that the media keys
+either perform their media key function, or function as an F-key by
+default. The Fn key can be used the access the alternate function at any
+time.
 
-thanks,
+With the current linux kernel, the LED doens't change state if you press
+the Fn+ESC key combo. However, the media key functionality *does*
+change. This is annoying, since the LED will stay on if it was on during
+bootup, and it makes it hard to keep track what the current state of the
+FnLock is.
 
-greg k-h
+This patch calls an ACPI function, that gets the current media key
+state, when the Fn+ESC key combo is pressed. Through testing it was
+discovered that this function causes the LED to update correctly to
+reflect the current state when this function is called.
 
--------------
-Pseudo-Shortlog of commits:
+The relevant ACPI calls are the following:
+\_SB_.PCI0.LPC0.EC0_.HKEY.GMKS: Get media key state, returns 0x603 if the FnLock mode is enabled, and 0x602 if it's disabled.
+\_SB_.PCI0.LPC0.EC0_.HKEY.SMKS: Set media key state, sending a 1 will enable FnLock mode, and a 0 will disable it.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.111-rc1
+Relevant discussion:
+https://bugzilla.kernel.org/show_bug.cgi?id=207841
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1881015
 
-Masahiro Yamada <masahiroy@kernel.org>
-    init/Kconfig: make COMPILE_TEST depend on HAS_IOMEM
+Signed-off-by: Esteve Varela Colominas <esteve.varela@gmail.com>
+Link: https://lore.kernel.org/r/20210315195823.23212-1-esteve.varela@gmail.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/platform/x86/thinkpad_acpi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Heiko Carstens <hca@linux.ibm.com>
-    init/Kconfig: make COMPILE_TEST depend on !S390
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index ffaaccded34e..30bfd51c0e58 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -3964,13 +3964,19 @@ static bool hotkey_notify_6xxx(const u32 hkey,
+ 
+ 	case TP_HKEY_EV_KEY_NUMLOCK:
+ 	case TP_HKEY_EV_KEY_FN:
+-	case TP_HKEY_EV_KEY_FN_ESC:
+ 		/* key press events, we just ignore them as long as the EC
+ 		 * is still reporting them in the normal keyboard stream */
+ 		*send_acpi_ev = false;
+ 		*ignore_acpi_ev = true;
+ 		return true;
+ 
++	case TP_HKEY_EV_KEY_FN_ESC:
++		/* Get the media key status to foce the status LED to update */
++		acpi_evalf(hkey_handle, NULL, "GMKS", "v");
++		*send_acpi_ev = false;
++		*ignore_acpi_ev = true;
++		return true;
++
+ 	case TP_HKEY_EV_TABLET_CHANGED:
+ 		tpacpi_input_send_tabletsw();
+ 		hotkey_tablet_mode_notify_change();
+-- 
+2.30.2
 
-Sagi Grimberg <sagi@grimberg.me>
-    nvme-mpath: replace direct_make_request with generic_make_request
-
-Piotr Krysiuk <piotras@gmail.com>
-    bpf, x86: Validate computation of branch displacements for x86-32
-
-Piotr Krysiuk <piotras@gmail.com>
-    bpf, x86: Validate computation of branch displacements for x86-64
-
-Vincent Whitchurch <vincent.whitchurch@axis.com>
-    cifs: Silently ignore unknown oplock break handle
-
-Ronnie Sahlberg <lsahlber@redhat.com>
-    cifs: revalidate mapping when we open files for SMB1 POSIX
-
-Sergei Trofimovich <slyfox@gentoo.org>
-    ia64: fix format strings for err_inject
-
-Sergei Trofimovich <slyfox@gentoo.org>
-    ia64: mca: allocate early mca with GFP_ATOMIC
-
-Martin Wilck <mwilck@suse.com>
-    scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
-
-Arnd Bergmann <arnd@arndb.de>
-    x86/build: Turn off -fcf-protection for realmode targets
-
-Esteve Varela Colominas <esteve.varela@gmail.com>
-    platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
-
-Ludovic Senecaux <linuxludo@free.fr>
-    netfilter: conntrack: Fix gre tunneling over ipv6
-
-Rob Clark <robdclark@chromium.org>
-    drm/msm: Ratelimit invalid-fence message
-
-Konrad Dybcio <konrad.dybcio@somainline.org>
-    drm/msm/adreno: a5xx_power: Don't apply A540 lm_setup to other GPUs
-
-Karthikeyan Kathirvel <kathirve@codeaurora.org>
-    mac80211: choose first enabled channel for monitor
-
-Tong Zhang <ztong0001@gmail.com>
-    mISDN: fix crash in fritzpci
-
-Pavel Andrianov <andrianov@ispras.ru>
-    net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
-
-Tariq Toukan <tariqt@nvidia.com>
-    net/mlx5e: Enforce minimum value check for ICOSQ size
-
-Yonghong Song <yhs@fb.com>
-    bpf, x86: Use kvmalloc_array instead kmalloc_array in bpf_jit_comp
-
-Alban Bedel <albeu@free.fr>
-    platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
-
-Tony Lindgren <tony@atomide.com>
-    bus: ti-sysc: Fix warning on unbind if reset is not deasserted
-
-Mans Rullgard <mans@mansr.com>
-    ARM: dts: am33xx: add aliases for mmc interfaces
-
-
--------------
-
-Diffstat:
-
- Makefile                                          |  4 ++--
- arch/arm/boot/dts/am33xx.dtsi                     |  3 +++
- arch/ia64/kernel/err_inject.c                     | 22 +++++++++++-----------
- arch/ia64/kernel/mca.c                            |  2 +-
- arch/x86/Makefile                                 |  2 +-
- arch/x86/net/bpf_jit_comp.c                       | 15 ++++++++++++---
- arch/x86/net/bpf_jit_comp32.c                     | 11 ++++++++++-
- drivers/bus/ti-sysc.c                             |  4 +++-
- drivers/gpu/drm/msm/adreno/a5xx_power.c           |  2 +-
- drivers/gpu/drm/msm/msm_fence.c                   |  2 +-
- drivers/isdn/hardware/mISDN/mISDNipac.c           |  2 +-
- drivers/net/ethernet/marvell/pxa168_eth.c         |  2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |  5 +++--
- drivers/nvme/host/multipath.c                     |  2 +-
- drivers/platform/x86/intel-hid.c                  |  7 +++++++
- drivers/platform/x86/thinkpad_acpi.c              |  8 +++++++-
- drivers/target/target_core_pscsi.c                |  8 ++++++++
- fs/cifs/file.c                                    |  1 +
- fs/cifs/smb2misc.c                                |  4 ++--
- init/Kconfig                                      |  3 +--
- net/mac80211/main.c                               | 13 ++++++++++++-
- net/netfilter/nf_conntrack_proto_gre.c            |  3 ---
- 22 files changed, 89 insertions(+), 36 deletions(-)
 
 
