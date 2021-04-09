@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BACA359B18
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04E9A359ADD
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbhDIKHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51566 "EHLO mail.kernel.org"
+        id S233837AbhDIKEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:04:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234198AbhDIKFK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:05:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5718C6120E;
-        Fri,  9 Apr 2021 10:01:30 +0000 (UTC)
+        id S233706AbhDIKBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:01:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D443A61221;
+        Fri,  9 Apr 2021 09:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962490;
-        bh=yaOy7cYHZV7/KPe2qpIv1N8cRj+HVPyn/GfRTuoufno=;
+        s=korg; t=1617962397;
+        bh=LrzzfTbwiK3OB9WdWUInWmIVYV7/3jgwGKThzM5586o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJwuRbh3TZ+45UG+xdWom8ezjALDzUCK/ZkKmQPbiOtn8tfXyL5CYG5RE4COKmOlq
-         EZaA5/MsOyi1G9H2Fy610XlDAXZOAenxPE2uw6FtabiFVycz5+Z7YwpT+mUW8OYUyj
-         mHDVSHp6fBmpDmqVOHf9HnHg/VreNo3A/AXrVNZs=
+        b=VgpnIeLwHt8Ccbyn785JB3/gD0SdJGYcfOBlPlacFaJ767TAU/c4uZ1hgtW4e6U1z
+         5zmgYSiCgkVmGoxJ3YhUmy51T4v0laLA5gy1v9kIDcBXumq+QmasDJCGnDRiHusd19
+         j5fBO87oraE8WndNBFFFWt131ogrSrnp6t4HwCAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Daniel Phan <daniel.phan36@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 05/45] bpf, x86: Use kvmalloc_array instead kmalloc_array in bpf_jit_comp
+Subject: [PATCH 5.10 09/41] mac80211: Check crypto_aead_encrypt for errors
 Date:   Fri,  9 Apr 2021 11:53:31 +0200
-Message-Id: <20210409095305.566499819@linuxfoundation.org>
+Message-Id: <20210409095305.120511822@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,93 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Daniel Phan <daniel.phan36@gmail.com>
 
-[ Upstream commit de920fc64cbaa031f947e9be964bda05fd090380 ]
+[ Upstream commit 58d25626f6f0ea5bcec3c13387b9f835d188723d ]
 
-x86 bpf_jit_comp.c used kmalloc_array to store jited addresses
-for each bpf insn. With a large bpf program, we have see the
-following allocation failures in our production server:
+crypto_aead_encrypt returns <0 on error, so if these calls are not checked,
+execution may continue with failed encrypts.  It also seems that these two
+crypto_aead_encrypt calls are the only instances in the codebase that are
+not checked for errors.
 
-    page allocation failure: order:5, mode:0x40cc0(GFP_KERNEL|__GFP_COMP),
-                             nodemask=(null),cpuset=/,mems_allowed=0"
-    Call Trace:
-    dump_stack+0x50/0x70
-    warn_alloc.cold.120+0x72/0xd2
-    ? __alloc_pages_direct_compact+0x157/0x160
-    __alloc_pages_slowpath+0xcdb/0xd00
-    ? get_page_from_freelist+0xe44/0x1600
-    ? vunmap_page_range+0x1ba/0x340
-    __alloc_pages_nodemask+0x2c9/0x320
-    kmalloc_order+0x18/0x80
-    kmalloc_order_trace+0x1d/0xa0
-    bpf_int_jit_compile+0x1e2/0x484
-    ? kmalloc_order_trace+0x1d/0xa0
-    bpf_prog_select_runtime+0xc3/0x150
-    bpf_prog_load+0x480/0x720
-    ? __mod_memcg_lruvec_state+0x21/0x100
-    __do_sys_bpf+0xc31/0x2040
-    ? close_pdeo+0x86/0xe0
-    do_syscall_64+0x42/0x110
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
-    RIP: 0033:0x7f2f300f7fa9
-    Code: Bad RIP value.
-
-Dumped assembly:
-
-    ffffffff810b6d70 <bpf_int_jit_compile>:
-    ; {
-    ffffffff810b6d70: e8 eb a5 b4 00        callq   0xffffffff81c01360 <__fentry__>
-    ffffffff810b6d75: 41 57                 pushq   %r15
-    ...
-    ffffffff810b6f39: e9 72 fe ff ff        jmp     0xffffffff810b6db0 <bpf_int_jit_compile+0x40>
-    ;       addrs = kmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
-    ffffffff810b6f3e: 8b 45 0c              movl    12(%rbp), %eax
-    ;       return __kmalloc(bytes, flags);
-    ffffffff810b6f41: be c0 0c 00 00        movl    $3264, %esi
-    ;       addrs = kmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
-    ffffffff810b6f46: 8d 78 01              leal    1(%rax), %edi
-    ;       if (unlikely(check_mul_overflow(n, size, &bytes)))
-    ffffffff810b6f49: 48 c1 e7 02           shlq    $2, %rdi
-    ;       return __kmalloc(bytes, flags);
-    ffffffff810b6f4d: e8 8e 0c 1d 00        callq   0xffffffff81287be0 <__kmalloc>
-    ;       if (!addrs) {
-    ffffffff810b6f52: 48 85 c0              testq   %rax, %rax
-
-Change kmalloc_array() to kvmalloc_array() to avoid potential
-allocation error for big bpf programs.
-
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210309015647.3657852-1-yhs@fb.com
+Signed-off-by: Daniel Phan <daniel.phan36@gmail.com>
+Link: https://lore.kernel.org/r/20210309204137.823268-1-daniel.phan36@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/aead_api.c | 5 +++--
+ net/mac80211/aes_gmac.c | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 023ac12f54a2..4cf3612ccd37 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -2038,7 +2038,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 		extra_pass = true;
- 		goto skip_init_addrs;
- 	}
--	addrs = kmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
-+	addrs = kvmalloc_array(prog->len + 1, sizeof(*addrs), GFP_KERNEL);
- 	if (!addrs) {
- 		prog = orig_prog;
- 		goto out_addrs;
-@@ -2128,7 +2128,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 		if (image)
- 			bpf_prog_fill_jited_linfo(prog, addrs + 1);
- out_addrs:
--		kfree(addrs);
-+		kvfree(addrs);
- 		kfree(jit_data);
- 		prog->aux->jit_data = NULL;
- 	}
+diff --git a/net/mac80211/aead_api.c b/net/mac80211/aead_api.c
+index d7b3d905d535..b00d6f5b33f4 100644
+--- a/net/mac80211/aead_api.c
++++ b/net/mac80211/aead_api.c
+@@ -23,6 +23,7 @@ int aead_encrypt(struct crypto_aead *tfm, u8 *b_0, u8 *aad, size_t aad_len,
+ 	struct aead_request *aead_req;
+ 	int reqsize = sizeof(*aead_req) + crypto_aead_reqsize(tfm);
+ 	u8 *__aad;
++	int ret;
+ 
+ 	aead_req = kzalloc(reqsize + aad_len, GFP_ATOMIC);
+ 	if (!aead_req)
+@@ -40,10 +41,10 @@ int aead_encrypt(struct crypto_aead *tfm, u8 *b_0, u8 *aad, size_t aad_len,
+ 	aead_request_set_crypt(aead_req, sg, sg, data_len, b_0);
+ 	aead_request_set_ad(aead_req, sg[0].length);
+ 
+-	crypto_aead_encrypt(aead_req);
++	ret = crypto_aead_encrypt(aead_req);
+ 	kfree_sensitive(aead_req);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ int aead_decrypt(struct crypto_aead *tfm, u8 *b_0, u8 *aad, size_t aad_len,
+diff --git a/net/mac80211/aes_gmac.c b/net/mac80211/aes_gmac.c
+index 6f3b3a0cc10a..512cab073f2e 100644
+--- a/net/mac80211/aes_gmac.c
++++ b/net/mac80211/aes_gmac.c
+@@ -22,6 +22,7 @@ int ieee80211_aes_gmac(struct crypto_aead *tfm, const u8 *aad, u8 *nonce,
+ 	struct aead_request *aead_req;
+ 	int reqsize = sizeof(*aead_req) + crypto_aead_reqsize(tfm);
+ 	const __le16 *fc;
++	int ret;
+ 
+ 	if (data_len < GMAC_MIC_LEN)
+ 		return -EINVAL;
+@@ -59,10 +60,10 @@ int ieee80211_aes_gmac(struct crypto_aead *tfm, const u8 *aad, u8 *nonce,
+ 	aead_request_set_crypt(aead_req, sg, sg, 0, iv);
+ 	aead_request_set_ad(aead_req, GMAC_AAD_LEN + data_len);
+ 
+-	crypto_aead_encrypt(aead_req);
++	ret = crypto_aead_encrypt(aead_req);
+ 	kfree_sensitive(aead_req);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ struct crypto_aead *ieee80211_aes_gmac_key_setup(const u8 key[],
 -- 
 2.30.2
 
