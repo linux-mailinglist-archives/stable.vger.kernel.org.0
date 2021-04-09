@@ -2,228 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD3F359BD8
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A93B2359C2C
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:34:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233161AbhDIKVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:21:12 -0400
-Received: from foss.arm.com ([217.140.110.172]:47450 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234250AbhDIKTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:19:31 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B3EF11FB;
-        Fri,  9 Apr 2021 03:19:17 -0700 (PDT)
-Received: from e119884-lin.cambridge.arm.com (e119884-lin.cambridge.arm.com [10.1.196.72])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AD8B63F73D;
-        Fri,  9 Apr 2021 03:19:16 -0700 (PDT)
-From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
-To:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kasan-dev@googlegroups.com
-Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2] arm64: mte: Move MTE TCF0 check in entry-common
-Date:   Fri,  9 Apr 2021 11:19:02 +0100
-Message-Id: <20210409101902.2800-1-vincenzo.frascino@arm.com>
-X-Mailer: git-send-email 2.30.2
+        id S233797AbhDIKed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:34:33 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:41042 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233505AbhDIKeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 06:34:12 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 306A41C0B78; Fri,  9 Apr 2021 12:33:56 +0200 (CEST)
+Date:   Fri, 9 Apr 2021 12:33:55 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Pavel Andrianov <andrianov@ispras.ru>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 06/41] net: pxa168_eth: Fix a potential data race in
+ pxa168_eth_remove
+Message-ID: <20210409103355.GA10988@amd>
+References: <20210409095304.818847860@linuxfoundation.org>
+ <20210409095305.022244081@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
+In-Reply-To: <20210409095305.022244081@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The check_mte_async_tcf macro sets the TIF flag non-atomically. This can
-race with another CPU doing a set_tsk_thread_flag() and all the other flags
-can be lost in the process.
 
-Move the tcf0 check to enter_from_user_mode() and clear tcf0 in
-exit_to_user_mode() to address the problem.
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Note: Moving the check in entry-common allows to use set_thread_flag()
-which is safe.
+Hi!
 
-Fixes: 637ec831ea4f ("arm64: mte: Handle synchronous and asynchronous tag check faults")
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: stable@vger.kernel.org
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
----
- arch/arm64/include/asm/mte.h     |  8 ++++++++
- arch/arm64/kernel/entry-common.c |  6 ++++++
- arch/arm64/kernel/entry.S        | 34 --------------------------------
- arch/arm64/kernel/mte.c          | 33 +++++++++++++++++++++++++++++--
- 4 files changed, 45 insertions(+), 36 deletions(-)
+> [ Upstream commit 0571a753cb07982cc82f4a5115e0b321da89e1f3 ]
+>=20
+> pxa168_eth_remove() firstly calls unregister_netdev(),
+> then cancels a timeout work. unregister_netdev() shuts down a device
+> interface and removes it from the kernel tables. If the timeout occurs
+> in parallel, the timeout work (pxa168_eth_tx_timeout_task) performs stop
+> and open of the device. It may lead to an inconsistent state and memory
+> leaks.
 
-diff --git a/arch/arm64/include/asm/mte.h b/arch/arm64/include/asm/mte.h
-index 9b557a457f24..2ecb2156dac1 100644
---- a/arch/arm64/include/asm/mte.h
-+++ b/arch/arm64/include/asm/mte.h
-@@ -31,6 +31,8 @@ void mte_invalidate_tags(int type, pgoff_t offset);
- void mte_invalidate_tags_area(int type);
- void *mte_allocate_tag_storage(void);
- void mte_free_tag_storage(char *storage);
-+void noinstr check_mte_async_tcf0(void);
-+void noinstr clear_mte_async_tcf0(void);
- 
- #ifdef CONFIG_ARM64_MTE
- 
-@@ -83,6 +85,12 @@ static inline int mte_ptrace_copy_tags(struct task_struct *child,
+AFAICT the timeout work does a lot of processing, including
+pxa168_eth_open(), pxa168_init_phy() and phy_connect_direct(). We
+probably don't want that to run with clock being disabled and DMA
+being unmapped.
+
+We certainly don't want phy_disconnect() being undone by
+phy_connect_direct() running in the workqueue.
+
+IOW this patch is not enough to fix the bugs, and at least fix below
+is needed to get something reasonable.
+
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+								Pavel
+
+> +++ b/drivers/net/ethernet/marvell/pxa168_eth.c
+> @@ -1544,8 +1544,8 @@ static int pxa168_eth_remove(struct platform_device=
+ *pdev)
+>  	clk_disable_unprepare(pep->clk);
+>  	mdiobus_unregister(pep->smi_bus);
+>  	mdiobus_free(pep->smi_bus);
+> -	unregister_netdev(dev);
+>  	cancel_work_sync(&pep->tx_timeout_task);
+> +	unregister_netdev(dev);
+>  	free_netdev(dev);
+>  	return 0;
+>  }
+
+diff --git a/drivers/net/ethernet/marvell/pxa168_eth.c b/drivers/net/ethern=
+et/marvell/pxa168_eth.c
+index d1e4d42e497d..432be22a51be 100644
+--- a/drivers/net/ethernet/marvell/pxa168_eth.c
++++ b/drivers/net/ethernet/marvell/pxa168_eth.c
+@@ -1532,7 +1532,8 @@ static int pxa168_eth_remove(struct platform_device *=
+pdev)
  {
- 	return -EIO;
- }
-+static inline void check_mte_async_tcf0(void)
-+{
-+}
-+static inline void clear_mte_async_tcf0(void)
-+{
-+}
- 
- static inline void mte_assign_mem_tag_range(void *addr, size_t size)
- {
-diff --git a/arch/arm64/kernel/entry-common.c b/arch/arm64/kernel/entry-common.c
-index 9d3588450473..837d3624a1d5 100644
---- a/arch/arm64/kernel/entry-common.c
-+++ b/arch/arm64/kernel/entry-common.c
-@@ -289,10 +289,16 @@ asmlinkage void noinstr enter_from_user_mode(void)
- 	CT_WARN_ON(ct_state() != CONTEXT_USER);
- 	user_exit_irqoff();
- 	trace_hardirqs_off_finish();
-+
-+	/* Check for asynchronous tag check faults in user space */
-+	check_mte_async_tcf0();
- }
- 
- asmlinkage void noinstr exit_to_user_mode(void)
- {
-+	/* Ignore asynchronous tag check faults in the uaccess routines */
-+	clear_mte_async_tcf0();
-+
- 	trace_hardirqs_on_prepare();
- 	lockdep_hardirqs_on_prepare(CALLER_ADDR0);
- 	user_enter_irqoff();
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index a31a0a713c85..fb57df0d453f 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -34,15 +34,11 @@
-  * user and kernel mode.
-  */
- 	.macro user_exit_irqoff
--#if defined(CONFIG_CONTEXT_TRACKING) || defined(CONFIG_TRACE_IRQFLAGS)
- 	bl	enter_from_user_mode
--#endif
- 	.endm
- 
- 	.macro user_enter_irqoff
--#if defined(CONFIG_CONTEXT_TRACKING) || defined(CONFIG_TRACE_IRQFLAGS)
- 	bl	exit_to_user_mode
--#endif
- 	.endm
- 
- 	.macro	clear_gp_regs
-@@ -147,32 +143,6 @@ alternative_cb_end
- .L__asm_ssbd_skip\@:
- 	.endm
- 
--	/* Check for MTE asynchronous tag check faults */
--	.macro check_mte_async_tcf, flgs, tmp
--#ifdef CONFIG_ARM64_MTE
--alternative_if_not ARM64_MTE
--	b	1f
--alternative_else_nop_endif
--	mrs_s	\tmp, SYS_TFSRE0_EL1
--	tbz	\tmp, #SYS_TFSR_EL1_TF0_SHIFT, 1f
--	/* Asynchronous TCF occurred for TTBR0 access, set the TI flag */
--	orr	\flgs, \flgs, #_TIF_MTE_ASYNC_FAULT
--	str	\flgs, [tsk, #TSK_TI_FLAGS]
--	msr_s	SYS_TFSRE0_EL1, xzr
--1:
--#endif
--	.endm
+ 	struct net_device *dev =3D platform_get_drvdata(pdev);
+ 	struct pxa168_eth_private *pep =3D netdev_priv(dev);
 -
--	/* Clear the MTE asynchronous tag check faults */
--	.macro clear_mte_async_tcf
--#ifdef CONFIG_ARM64_MTE
--alternative_if ARM64_MTE
--	dsb	ish
--	msr_s	SYS_TFSRE0_EL1, xzr
--alternative_else_nop_endif
--#endif
--	.endm
--
- 	.macro mte_set_gcr, tmp, tmp2
- #ifdef CONFIG_ARM64_MTE
- 	/*
-@@ -243,8 +213,6 @@ alternative_else_nop_endif
- 	ldr	x19, [tsk, #TSK_TI_FLAGS]
- 	disable_step_tsk x19, x20
- 
--	/* Check for asynchronous tag check faults in user space */
--	check_mte_async_tcf x19, x22
- 	apply_ssbd 1, x22, x23
- 
- 	ptrauth_keys_install_kernel tsk, x20, x22, x23
-@@ -775,8 +743,6 @@ SYM_CODE_START_LOCAL(ret_to_user)
- 	cbnz	x2, work_pending
- finish_ret_to_user:
- 	user_enter_irqoff
--	/* Ignore asynchronous tag check faults in the uaccess routines */
--	clear_mte_async_tcf
- 	enable_step_tsk x19, x2
- #ifdef CONFIG_GCC_PLUGIN_STACKLEAK
- 	bl	stackleak_erase
-diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-index b3c70a612c7a..84a942c25870 100644
---- a/arch/arm64/kernel/mte.c
-+++ b/arch/arm64/kernel/mte.c
-@@ -166,14 +166,43 @@ static void set_gcr_el1_excl(u64 excl)
- 	 */
++=09
++	cancel_work_sync(&pep->tx_timeout_task);
+ 	if (pep->htpr) {
+ 		dma_free_coherent(pep->dev->dev.parent, HASH_ADDR_TABLE_SIZE,
+ 				  pep->htpr, pep->htpr_dma);
+@@ -1545,7 +1546,6 @@ static int pxa168_eth_remove(struct platform_device *=
+pdev)
+ 	mdiobus_unregister(pep->smi_bus);
+ 	mdiobus_free(pep->smi_bus);
+ 	unregister_netdev(dev);
+-	cancel_work_sync(&pep->tx_timeout_task);
+ 	free_netdev(dev);
+ 	return 0;
  }
- 
--void flush_mte_state(void)
-+void noinstr check_mte_async_tcf0(void)
-+{
-+	u64 tcf0;
-+
-+	if (!system_supports_mte())
-+		return;
-+
-+	/*
-+	 * dsb(ish) is not required before the register read
-+	 * because the TFSRE0_EL1 is automatically synchronized
-+	 * by the hardware on exception entry as SCTLR_EL1.ITFSB
-+	 * is set.
-+	 */
-+	tcf0 = read_sysreg_s(SYS_TFSRE0_EL1);
-+
-+	if (tcf0 & SYS_TFSR_EL1_TF0)
-+		set_thread_flag(TIF_MTE_ASYNC_FAULT);
-+
-+	write_sysreg_s(0, SYS_TFSRE0_EL1);
-+}
-+
-+void noinstr clear_mte_async_tcf0(void)
- {
- 	if (!system_supports_mte())
- 		return;
- 
--	/* clear any pending asynchronous tag fault */
- 	dsb(ish);
- 	write_sysreg_s(0, SYS_TFSRE0_EL1);
-+}
-+
-+void flush_mte_state(void)
-+{
-+	if (!system_supports_mte())
-+		return;
-+
-+	/* clear any pending asynchronous tag fault */
-+	clear_mte_async_tcf0();
- 	clear_thread_flag(TIF_MTE_ASYNC_FAULT);
- 	/* disable tag checking */
- 	set_sctlr_el1_tcf0(SCTLR_EL1_TCF0_NONE);
--- 
-2.30.2
 
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmBwLZMACgkQMOfwapXb+vKHeACcDyESzRhB6oVMJt2LOPVZC3oH
+FZkAoK/uKgltga666cAWkBuOBlLkeNuf
+=62ZG
+-----END PGP SIGNATURE-----
+
+--ZGiS0Q5IWpPtfppv--
