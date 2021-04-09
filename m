@@ -2,78 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBA7359FA4
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 15:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7884A359FAA
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 15:17:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232286AbhDINQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 09:16:20 -0400
-Received: from smtp25.cstnet.cn ([159.226.251.25]:38168 "EHLO cstnet.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231127AbhDINQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 09:16:16 -0400
-Received: from localhost.localdomain (unknown [124.16.141.242])
-        by APP-05 (Coremail) with SMTP id zQCowADX31ttU3BgsuQdAA--.25000S2;
-        Fri, 09 Apr 2021 21:15:33 +0800 (CST)
-From:   Jianmin Wang <jianmin@iscas.ac.cn>
-To:     gregkh@linuxfoundation.org
-Cc:     davem@davemloft.net, dzickus@redhat.com,
-        herbert@gondor.apana.org.au, jianmin@iscas.ac.cn,
-        linux-crypto@vger.kernel.org, netdev@vger.kernel.org,
-        omosnace@redhat.com, smueller@chronox.de, stable@vger.kernel.org,
-        steffen.klassert@secunet.com
-Subject: Re: Re: [PATCH] backports: crypto user - make NETLINK_CRYPTO work
-Date:   Fri,  9 Apr 2021 13:14:57 +0000
-Message-Id: <20210409131457.51384-1-jianmin@iscas.ac.cn>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <YG/11xcauoPY0sn+@kroah.com>
-References: <YG/11xcauoPY0sn+@kroah.com>
+        id S231946AbhDINRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 09:17:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56106 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231127AbhDINRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 09:17:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75D43610FB;
+        Fri,  9 Apr 2021 13:17:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1617974240;
+        bh=mj9ng5mnlUJ2y/Nx/U3q6xwvJCeCc+8BQWG7PVb6iMs=;
+        h=Subject:To:From:Date:From;
+        b=1DjxatlGdCNb9UuJCFjf+Bya5Xz8YOF2nUpto19DN2veo/MNxsG0k1rnzYVsqe3n0
+         bJ+ztNz1mZqYI9dKb3QgB9BaCryoz3SZn7An5pW8IKIemGeOOWOqNyERqvTy8zOHIt
+         2R68BmflEAEvo34EuPpmXRWarkF5pHHCQP+D6zAU=
+Subject: patch "usb: dwc2: Fix session request interrupt handler" added to usb-testing
+To:     Arthur.Petrosyan@synopsys.com, Minas.Harutyunyan@synopsys.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 09 Apr 2021 15:17:00 +0200
+Message-ID: <161797422020658@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: zQCowADX31ttU3BgsuQdAA--.25000S2
-X-Coremail-Antispam: 1UD129KBjvdXoW7XFWDAFW8AFyDXrW7CFyUJrb_yoWDJrgEgF
-        yktr95C3sxuFZYkFn8Gr90vas0gFWFgry0q34jqrW5ZryDJasxZ3WrCr9ag3sxGw1rGrnI
-        kF12qa92ka429jkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUbxkFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-        6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-        A2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j
-        6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-        Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-        I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r
-        4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628v
-        n2kIc2xKxwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F4
-        0E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFyl
-        IxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxV
-        AFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_
-        Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUb
-        0D73UUUUU==
-X-Originating-IP: [124.16.141.242]
-X-CM-SenderInfo: xmld0z1lq6x2xfdvhtffof0/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 09, 2021 at 08:36:07 +0200, Greg KH
-> On Thu, Apr 08, 2021 at 07:11:48PM +0000, Jianmin Wang wrote:
-> > while the new services need to invoke libkcapi in the container environment.
-> > 
-> > We have verified that the problem doesn't exist on newer kernel version. 
-> > However, due to many services and the cluster running on many server machines 
-> > whose host os are long-term linux distribution with linux 4.19 kernel, it will 
-> > cost too much to migrate them to newer os with newer kernel version. This is 
-> > why we need to fix the problem on linux 4.19.
->
-> But this is not a regression, but rather a "resolve an issue that has
-> never worked for new hardware", right?
-> 
-> And for that, moving to a new kernel seems like a wise thing to do to
-> me because we do not like backporting new features.  Distro kernel are
-> of course, free to do that if they wish.
-> 
-> thanks,
-> 
-> greg k-h
 
-I understand. Thank you for your review and response.
---
-Email: Jianmin Wang <jianmin@iscas.ac.cn>
+This is a note to let you know that I've just added the patch titled
+
+    usb: dwc2: Fix session request interrupt handler
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 42b32b164acecd850edef010915a02418345a033 Mon Sep 17 00:00:00 2001
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Date: Thu, 8 Apr 2021 13:45:49 +0400
+Subject: usb: dwc2: Fix session request interrupt handler
+
+According to programming guide in host mode, port
+power must be turned on in session request
+interrupt handlers.
+
+Fixes: 21795c826a45 ("usb: dwc2: exit hibernation on session request")
+Cc: <stable@vger.kernel.org>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210408094550.75484A0094@mailhost.synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/dwc2/core_intr.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index 0a7f9330907f..8c0152b514be 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -307,6 +307,7 @@ static void dwc2_handle_conn_id_status_change_intr(struct dwc2_hsotg *hsotg)
+ static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
+ {
+ 	int ret;
++	u32 hprt0;
+ 
+ 	/* Clear interrupt */
+ 	dwc2_writel(hsotg, GINTSTS_SESSREQINT, GINTSTS);
+@@ -328,6 +329,13 @@ static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
+ 		 * established
+ 		 */
+ 		dwc2_hsotg_disconnect(hsotg);
++	} else {
++		/* Turn on the port power bit. */
++		hprt0 = dwc2_read_hprt0(hsotg);
++		hprt0 |= HPRT0_PWR;
++		dwc2_writel(hsotg, hprt0, HPRT0);
++		/* Connect hcd after port power is set. */
++		dwc2_hcd_connect(hsotg);
+ 	}
+ }
+ 
+-- 
+2.31.1
+
 
