@@ -2,75 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7437359A40
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E76AA359AA2
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233493AbhDIJ5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44726 "EHLO mail.kernel.org"
+        id S233631AbhDIKA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:00:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233655AbhDIJ4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A14016115C;
-        Fri,  9 Apr 2021 09:56:18 +0000 (UTC)
+        id S233672AbhDIJ6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:58:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE26F6115B;
+        Fri,  9 Apr 2021 09:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962179;
-        bh=i9H08rKNPCDFCto/eGhd+dFQRD9tjWlncXUq4Ng5sjs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQBULByKRtYOwIlukzvq0URB+Y9p1ldNRviU7HpZgDpkIQqVhVXfCPstkRZo5dijH
-         17mDhBUEsmExYrl4mDet1d7DA2cdKQkI73an7OMuoA8dLrAQEPFMC9Zf+JCEvOspTj
-         KtjaThyGOYHiE5dc+hrWPUgd7jJH8KUHFjepCBtI=
+        s=korg; t=1617962304;
+        bh=2JLdwvKTdmbTI+ca4pn4a6yPfTuAGBZya56gHs9rVwM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QtjJw1KEwHbHoxq0ZqGOe/z/Vr+ryrHQgNGTb5AIiZlK/xrXWBv4WdS4aMBv4Soqw
+         9OCA6qMtfbdbrK7cnzk9H4gYB5R5bLf/6TBEKiALjcdhmgmD45RRmS1uCaguFhnZQR
+         ccaHBBOTjtASa2mrV/OCANY9I5A9C/YFxh6BT+fU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/14] drm/msm: Ratelimit invalid-fence message
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/23] 5.4.111-rc1 review
 Date:   Fri,  9 Apr 2021 11:53:30 +0200
-Message-Id: <20210409095300.567414904@linuxfoundation.org>
+Message-Id: <20210409095302.894568462@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
-References: <20210409095300.391558233@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.111-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.111-rc1
+X-KernelTest-Deadline: 2021-04-11T09:53+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+This is the start of the stable review cycle for the 5.4.111 release.
+There are 23 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 7ad48d27a2846bfda29214fb454d001c3e02b9e7 ]
+Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
+Anything received after that time might be too late.
 
-We have seen a couple cases where low memory situations cause something
-bad to happen, followed by a flood of these messages obscuring the root
-cause.  Lets ratelimit the dmesg spam so that next time it happens we
-don't lose the kernel traces leading up to this.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.111-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/gpu/drm/msm/msm_fence.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+thanks,
 
-diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
-index a2f89bac9c16..4c0ac0360b93 100644
---- a/drivers/gpu/drm/msm/msm_fence.c
-+++ b/drivers/gpu/drm/msm/msm_fence.c
-@@ -56,7 +56,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
- 	int ret;
- 
- 	if (fence > fctx->last_fence) {
--		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
-+		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
- 				fctx->name, fence, fctx->last_fence);
- 		return -EINVAL;
- 	}
--- 
-2.30.2
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.111-rc1
+
+Masahiro Yamada <masahiroy@kernel.org>
+    init/Kconfig: make COMPILE_TEST depend on HAS_IOMEM
+
+Heiko Carstens <hca@linux.ibm.com>
+    init/Kconfig: make COMPILE_TEST depend on !S390
+
+Sagi Grimberg <sagi@grimberg.me>
+    nvme-mpath: replace direct_make_request with generic_make_request
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf, x86: Validate computation of branch displacements for x86-32
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf, x86: Validate computation of branch displacements for x86-64
+
+Vincent Whitchurch <vincent.whitchurch@axis.com>
+    cifs: Silently ignore unknown oplock break handle
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: revalidate mapping when we open files for SMB1 POSIX
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    ia64: fix format strings for err_inject
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    ia64: mca: allocate early mca with GFP_ATOMIC
+
+Martin Wilck <mwilck@suse.com>
+    scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+
+Arnd Bergmann <arnd@arndb.de>
+    x86/build: Turn off -fcf-protection for realmode targets
+
+Esteve Varela Colominas <esteve.varela@gmail.com>
+    platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
+
+Ludovic Senecaux <linuxludo@free.fr>
+    netfilter: conntrack: Fix gre tunneling over ipv6
+
+Rob Clark <robdclark@chromium.org>
+    drm/msm: Ratelimit invalid-fence message
+
+Konrad Dybcio <konrad.dybcio@somainline.org>
+    drm/msm/adreno: a5xx_power: Don't apply A540 lm_setup to other GPUs
+
+Karthikeyan Kathirvel <kathirve@codeaurora.org>
+    mac80211: choose first enabled channel for monitor
+
+Tong Zhang <ztong0001@gmail.com>
+    mISDN: fix crash in fritzpci
+
+Pavel Andrianov <andrianov@ispras.ru>
+    net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
+
+Tariq Toukan <tariqt@nvidia.com>
+    net/mlx5e: Enforce minimum value check for ICOSQ size
+
+Yonghong Song <yhs@fb.com>
+    bpf, x86: Use kvmalloc_array instead kmalloc_array in bpf_jit_comp
+
+Alban Bedel <albeu@free.fr>
+    platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
+
+Tony Lindgren <tony@atomide.com>
+    bus: ti-sysc: Fix warning on unbind if reset is not deasserted
+
+Mans Rullgard <mans@mansr.com>
+    ARM: dts: am33xx: add aliases for mmc interfaces
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          |  4 ++--
+ arch/arm/boot/dts/am33xx.dtsi                     |  3 +++
+ arch/ia64/kernel/err_inject.c                     | 22 +++++++++++-----------
+ arch/ia64/kernel/mca.c                            |  2 +-
+ arch/x86/Makefile                                 |  2 +-
+ arch/x86/net/bpf_jit_comp.c                       | 15 ++++++++++++---
+ arch/x86/net/bpf_jit_comp32.c                     | 11 ++++++++++-
+ drivers/bus/ti-sysc.c                             |  4 +++-
+ drivers/gpu/drm/msm/adreno/a5xx_power.c           |  2 +-
+ drivers/gpu/drm/msm/msm_fence.c                   |  2 +-
+ drivers/isdn/hardware/mISDN/mISDNipac.c           |  2 +-
+ drivers/net/ethernet/marvell/pxa168_eth.c         |  2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |  5 +++--
+ drivers/nvme/host/multipath.c                     |  2 +-
+ drivers/platform/x86/intel-hid.c                  |  7 +++++++
+ drivers/platform/x86/thinkpad_acpi.c              |  8 +++++++-
+ drivers/target/target_core_pscsi.c                |  8 ++++++++
+ fs/cifs/file.c                                    |  1 +
+ fs/cifs/smb2misc.c                                |  4 ++--
+ init/Kconfig                                      |  3 +--
+ net/mac80211/main.c                               | 13 ++++++++++++-
+ net/netfilter/nf_conntrack_proto_gre.c            |  3 ---
+ 22 files changed, 89 insertions(+), 36 deletions(-)
 
 
