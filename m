@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5078359A19
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13934359A43
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233426AbhDIJ4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
+        id S233445AbhDIJ5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233528AbhDIJzi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:55:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6076A6115C;
-        Fri,  9 Apr 2021 09:55:25 +0000 (UTC)
+        id S233666AbhDIJ4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:56:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF1D761182;
+        Fri,  9 Apr 2021 09:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962126;
-        bh=55GvB+ZBPGH92rbkSluyz0cHnOKe5To3V3NJBZFj5zA=;
+        s=korg; t=1617962184;
+        bh=I4X2BwyE5he9AmSsD0uodM8qJTSafLXvfC8PLNLBUk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCq10vEJzkogwu5mQCukzBsIvB4PMszpMLbpzhrBXYlxAU3Xw6LhlhJFjnsJtDd6K
-         87rjdPmXztpzgeCeiuQfTuwDCb6ARdjLJRPaZCim49IQNJKnuId8Pf3OtERC4JwF2G
-         0GQ86KmSsHfqVa123bLYjXB8soUJuON3QruAOPzI=
+        b=iA7XImCueKZDUtCa+cyE4Lupoga22w+aTZWbLpLShLHiqXM0bQk0PrZx31Bq3Hltd
+         Cb+3kPvjtHYil/G4f4DizQ2aQoik4TnhNtFNWBAc8u8ae1PWWOCa8zD45jdbNxLI6J
+         ihXdW++v0y5PiR5p4Sh3Vu9bSmSWY+qY7sKroadw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 12/13] init/Kconfig: make COMPILE_TEST depend on !S390
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 07/14] x86/build: Turn off -fcf-protection for realmode targets
 Date:   Fri,  9 Apr 2021 11:53:32 +0200
-Message-Id: <20210409095300.027621195@linuxfoundation.org>
+Message-Id: <20210409095300.627874417@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
-References: <20210409095259.624577828@linuxfoundation.org>
+In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
+References: <20210409095300.391558233@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 334ef6ed06fa1a54e35296b77b693bcf6d63ee9e upstream.
+[ Upstream commit 9fcb51c14da2953de585c5c6e50697b8a6e91a7b ]
 
-While allmodconfig and allyesconfig build for s390 there are also
-various bots running compile tests with randconfig, where PCI is
-disabled. This reveals that a lot of drivers should actually depend on
-HAS_IOMEM.
-Adding this to each device driver would be a never ending story,
-therefore just disable COMPILE_TEST for s390.
+The new Ubuntu GCC packages turn on -fcf-protection globally,
+which causes a build failure in the x86 realmode code:
 
-The reasoning is more or less the same as described in
-commit bc083a64b6c0 ("init/Kconfig: make COMPILE_TEST depend on !UML").
+  cc1: error: ‘-fcf-protection’ is not compatible with this target
 
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Turn it off explicitly on compilers that understand this option.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210323124846.1584944-1-arnd@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/Kconfig |    2 +-
+ arch/x86/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -65,7 +65,7 @@ config CROSS_COMPILE
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 9f33a69b5605..146aadeb7c8e 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -35,7 +35,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -D__KERNEL__ \
+ 		   -DDISABLE_BRANCH_PROFILING \
+ 		   -Wall -Wstrict-prototypes -march=i386 -mregparm=3 \
+ 		   -fno-strict-aliasing -fomit-frame-pointer -fno-pic \
+-		   -mno-mmx -mno-sse
++		   -mno-mmx -mno-sse $(call cc-option,-fcf-protection=none)
  
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
--	depends on !UML
-+	depends on !UML && !S390
- 	default n
- 	help
- 	  Some drivers can be compiled on a different platform than they are
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
+-- 
+2.30.2
+
 
 
