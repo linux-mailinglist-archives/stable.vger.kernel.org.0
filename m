@@ -2,97 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7AE835A552
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 20:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805FA35A584
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 20:15:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234442AbhDISKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 14:10:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48786 "EHLO
+        id S234598AbhDISPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 14:15:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233332AbhDISKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 14:10:21 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2670EC061761;
-        Fri,  9 Apr 2021 11:10:08 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id l76so4517263pga.6;
-        Fri, 09 Apr 2021 11:10:08 -0700 (PDT)
+        with ESMTP id S234683AbhDISPO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 14:15:14 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A90C061764
+        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 11:15:01 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id c17so4766083pfn.6
+        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 11:15:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=tbJlZpWRjDeZI4enqunevdZyznCdZANpEDZIY7Yi9+E=;
-        b=OA9t5Wgr30FA6MFWcJ7nTMzsiOyOnYavKWcyo7jeu7G9BeWv3QS/Kl8gb0zO+0paVV
-         NHJU9GQwT8JlmFVzBikZWpa6HtsU+6ib4wPevWbbrnFrDQQvszLU3ODTqQXo+vdmpJo6
-         cY8ZY8kgTSC15+NHVpZw3COUT29fHtlwMo3nWztbQiVtjMTy4aIHx6HD877C2fsEycP7
-         jhjfmoSEm06KpyTXzCWtfm1jezyqPNl1MgMYtsybub+7pgbdZg4eBwytvueVhdEU73nP
-         2u4fXxeO7PMLrtcqnTnhcxvpAux+CTr2LotS4EJZgw1yLRuJry8iRkEVlBOrTzsz5SEJ
-         2oXw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tejPCX0X6RPxkV132Sm142VoXAu4xSqb5rzTI4yUYT0=;
+        b=BQFlfjxxBmWdWy6bidYO0kPvktEv28w5BZfqfKnKT5plvvdXa8i2Cnk5SfSAIql0GF
+         3slVrjGQCaSIYEMjfwb9+RWDn+tyBBTHUPWHn6J7cX/Um60sIUxgiAxwI6EuyVlY7avN
+         GHE422UcEnyZttmY6I+wzKBQSBixOjc8YDz6WtV2jYgxS7xSaWrEW29BPvAOF0Jpf/M/
+         a/VrsKb5Z3QNen1SszwCSeQqIJnNjnukGpXIcAcPiBbT6Sfv3y0v6JRZGixezHCzWryn
+         m+dmCLuTFqLVaMYpE7WJ3Hj0oUJwv1aamm5oNrvRIW/p+r6BEln+rmGTQsbAOI0S1ZyA
+         MWcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=tbJlZpWRjDeZI4enqunevdZyznCdZANpEDZIY7Yi9+E=;
-        b=k+AXS7IJBG+1wDPBMBvz9goQZebbJjMLh2a3rz1fwgj5SyIzcQtBgjHzqm9LxdaEME
-         xN6Dyv22AdXFwR1zRv7eNZ/iZs1/jzXV1+//oPIrGT3mshpkLYEuacZJ9EAhpBPqK6g4
-         6OISzuhcd/GwPUGr0cZ5c68nZGGEKsVkMFugL98HUAG1QjEkqBT/T9V1EcgthQsypt8P
-         MEV7u6MZv5leP7PkpnoNVzS+2sYLHMMkkEocuysRsrTlki5/DLshDXpoDq1bo1NmlPi8
-         tPaCeQInu20dPz2iIV9mLxP0HsuVoKidO40xGALpDJodGULdIDtC9gmXe9XlbzL7qISQ
-         6n+A==
-X-Gm-Message-State: AOAM531kX+/CmTuOnKp/UFYY9QfV2Xd9wqlRfPLfFhF9rCWFWZDZ8LVV
-        iFJD9HqP8cbgW0a9/i4PsCJDBHRX0L4=
-X-Google-Smtp-Source: ABdhPJxCLgIVCvukjmR+5lWm+dnIC1KwXpSXANY826s/K6QI6An7cAHT0zXaazUPRDwEPdFux0aYQQ==
-X-Received: by 2002:aa7:92cb:0:b029:1f1:542f:2b2b with SMTP id k11-20020aa792cb0000b02901f1542f2b2bmr13189833pfa.31.1617991807241;
-        Fri, 09 Apr 2021 11:10:07 -0700 (PDT)
-Received: from [10.230.2.159] ([192.19.228.250])
-        by smtp.gmail.com with ESMTPSA id q3sm3093248pgb.80.2021.04.09.11.10.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 09 Apr 2021 11:10:06 -0700 (PDT)
-Subject: Re: [PATCH 5.10 00/41] 5.10.29-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210409095304.818847860@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <80994039-bc7f-fc11-ebe5-ad70e62fa39e@gmail.com>
-Date:   Fri, 9 Apr 2021 11:10:03 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.9.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tejPCX0X6RPxkV132Sm142VoXAu4xSqb5rzTI4yUYT0=;
+        b=SJMy4ejvTCg2ST/0Xd4P3QECPCOSb7197KZ8odCcPg4zh0jPp8ERjYf8vx12viBDMi
+         GrYw8mUWrjIFRE3aF+jY9DWSmdnvvaDCM6MVWea0iqeeBX4iSvqVqXVQJ832+GhZ+K32
+         /bnN+mx7GG9T6s5ZDhR4/hgA/dZLpilYoSDvAshM0uAAEcz5Pt+sk1N7A2l97AtyyD/s
+         V0+8DM9T3bObqGTgEAezIyuVgBvGe8NKkb+uyVHwz7d4KMU+SWc3oMbew2ZwyKZUo35g
+         Wt8rE5I9u+4wncQqcurol8ACNIfFAd8rDsV54DLRO1qiSNExWIf4z5bX61RJXzMMdux0
+         MYYQ==
+X-Gm-Message-State: AOAM532OFCJ81pv7F4YC16xDU9HR0esAnxQsC90UsVjpIcn+TsMKziw8
+        8JPdNJG09/s3Tmy1yqRReWxoByNHIrNOKQ==
+X-Google-Smtp-Source: ABdhPJwKxiedTVBYcXneKSRSbDdhlgULznWSili51CPOooyHlb0PjAfKECV+hfm8BcRNFR1XctOqNw==
+X-Received: by 2002:aa7:95ae:0:b029:247:b279:9f48 with SMTP id a14-20020aa795ae0000b0290247b2799f48mr3031624pfk.29.1617992101061;
+        Fri, 09 Apr 2021 11:15:01 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b7sm2772551pfd.55.2021.04.09.11.15.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Apr 2021 11:15:00 -0700 (PDT)
+Message-ID: <607099a4.1c69fb81.9dcc6.7726@mx.google.com>
+Date:   Fri, 09 Apr 2021 11:15:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.28-42-g18f507c37f33
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 173 runs,
+ 1 regressions (v5.10.28-42-g18f507c37f33)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.10.y baseline: 173 runs, 1 regressions (v5.10.28-42-g18f5=
+07c37f33)
+
+Regressions Summary
+-------------------
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
 
-On 4/9/2021 2:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.29 release.
-> There are 41 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.29-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.28-42-g18f507c37f33/plan/baseline/
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit kernels:
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.28-42-g18f507c37f33
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      18f507c37f338c5d30f58839060d3af0d8504162 =
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60706a63123097185adac6c3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.2=
+8-42-g18f507c37f33/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.2=
+8-42-g18f507c37f33/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60706a63123097185adac=
+6c4
+        new failure (last pass: v5.10.27-127-g17879c574df0a) =
+
+ =20
