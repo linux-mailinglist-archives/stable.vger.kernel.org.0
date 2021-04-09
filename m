@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 324AC359AAC
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C251C359A94
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:59:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233456AbhDIKBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:01:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45536 "EHLO mail.kernel.org"
+        id S233575AbhDIJ7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:59:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233615AbhDIJ7O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:59:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 491AB61205;
-        Fri,  9 Apr 2021 09:58:37 +0000 (UTC)
+        id S233684AbhDIJ63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:58:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4CB4611F2;
+        Fri,  9 Apr 2021 09:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962317;
-        bh=4Ec/QfZsmhDmWj+2nCwATss9P+aU2FPa9MFw0FFo6WU=;
+        s=korg; t=1617962291;
+        bh=w7eOLUZzfbIq0CW8OGecdu9cCFhWJvntA2dUEBXeX7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13XOy04+9uyAXLcQwaYHsYWjq75a54Eiy0NIwOura0FGVx9UutUgGelBpTdaffBq1
-         a/oD4xCGUlkRVBgePyibIyebP0cBjw5Lm8VuL01vTSoYm06hg6cWsVRFvdYmyTTPen
-         hlvFyKYBFF8gfiwD85IYbCkhThhgKoJTM2vftrA8=
+        b=J1OoD641l+rcZ+TIIZlxHKnIHZev5XnMrXCSXAbthmu/ZzVrwGCPzDAH7Pug0hrm3
+         CWIGTy6fsh2rLBCA1ygMPMbk7ZgQyKizd7g32eKhzTeHDaVEOZogSBedXSt/ySVW4x
+         jj61OdncfHcaaB8+oBH0JPCxLn3aC0kDMCZFKPwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 13/41] drm/msm: Ratelimit invalid-fence message
+Subject: [PATCH 5.4 05/23] net/mlx5e: Enforce minimum value check for ICOSQ size
 Date:   Fri,  9 Apr 2021 11:53:35 +0200
-Message-Id: <20210409095305.255826808@linuxfoundation.org>
+Message-Id: <20210409095303.076312498@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
-References: <20210409095304.818847860@linuxfoundation.org>
+In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
+References: <20210409095302.894568462@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-[ Upstream commit 7ad48d27a2846bfda29214fb454d001c3e02b9e7 ]
+[ Upstream commit 5115daa675ccf70497fe56e8916cf738d8212c10 ]
 
-We have seen a couple cases where low memory situations cause something
-bad to happen, followed by a flood of these messages obscuring the root
-cause.  Lets ratelimit the dmesg spam so that next time it happens we
-don't lose the kernel traces leading up to this.
+The ICOSQ size should not go below MLX5E_PARAMS_MINIMUM_LOG_SQ_SIZE.
+Enforce this where it's missing.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_fence.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
-index ad2703698b05..cd59a5918038 100644
---- a/drivers/gpu/drm/msm/msm_fence.c
-+++ b/drivers/gpu/drm/msm/msm_fence.c
-@@ -45,7 +45,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
- 	int ret;
- 
- 	if (fence > fctx->last_fence) {
--		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
-+		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
- 				fctx->name, fence, fctx->last_fence);
- 		return -EINVAL;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 8b8581f71e79..36b9a364ef26 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -2365,8 +2365,9 @@ static u8 mlx5e_build_icosq_log_wq_sz(struct mlx5e_params *params,
+ {
+ 	switch (params->rq_wq_type) {
+ 	case MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ:
+-		return order_base_2(MLX5E_UMR_WQEBBS) +
+-			mlx5e_get_rq_log_wq_sz(rqp->rqc);
++		return max_t(u8, MLX5E_PARAMS_MINIMUM_LOG_SQ_SIZE,
++			     order_base_2(MLX5E_UMR_WQEBBS) +
++			     mlx5e_get_rq_log_wq_sz(rqp->rqc));
+ 	default: /* MLX5_WQ_TYPE_CYCLIC */
+ 		return MLX5E_PARAMS_MINIMUM_LOG_SQ_SIZE;
  	}
 -- 
 2.30.2
