@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A45AF359B23
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1920C359B28
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234227AbhDIKHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50814 "EHLO mail.kernel.org"
+        id S234268AbhDIKHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:07:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234255AbhDIKFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:05:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D977C61208;
-        Fri,  9 Apr 2021 10:01:48 +0000 (UTC)
+        id S234279AbhDIKFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:05:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FD116120D;
+        Fri,  9 Apr 2021 10:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962509;
-        bh=xXgc/LrvaHagmhht2AXAJk271go6SZPRg5+0SuRCKLE=;
+        s=korg; t=1617962511;
+        bh=j+LuwkqM7U3QhRWAjsn+caADMu8VJkSKPKc+BGNZ2YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hd54zr1QvKoBzPC5cbacH71q0xSaC/kvuwF5U3TSB0xWzR7/qvam96b+d7gGJSIrJ
-         5LcvCePIeJpFJKMKvE+zFw8WkaDhHW+KxAvie7BrGlwqLdwGEhLRMNO/pqLlmvAS9S
-         R3YDBe9xZE+CjsY9p/L/WS8Dffmk57nQPyQdYyIQ=
+        b=FrwJaQxL3tmeP1BUsZlpr4QSayW5nIOxOIxsFHArophNZRA7Sjz/7WkR6jLUVsvDi
+         LVz3FVclKGO4y8cM5Zv7aGb56HqWupGbP0ZdaUYEkitpuj+v9ixK7+MCKokCOrioYM
+         1QY5MDeQYzu2aYVIOuGdOfjRBK29mHkctR6jhhKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.11 43/45] bpf, x86: Validate computation of branch displacements for x86-64
-Date:   Fri,  9 Apr 2021 11:54:09 +0200
-Message-Id: <20210409095306.799709487@linuxfoundation.org>
+Subject: [PATCH 5.11 44/45] bpf, x86: Validate computation of branch displacements for x86-32
+Date:   Fri,  9 Apr 2021 11:54:10 +0200
+Message-Id: <20210409095306.830457398@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
 References: <20210409095305.397149021@linuxfoundation.org>
@@ -41,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Piotr Krysiuk <piotras@gmail.com>
 
-commit e4d4d456436bfb2fe412ee2cd489f7658449b098 upstream.
+commit 26f55a59dc65ff77cd1c4b37991e26497fc68049 upstream.
 
 The branch displacement logic in the BPF JIT compilers for x86 assumes
 that, for any generated branch instruction, the distance cannot
@@ -71,12 +71,12 @@ Reviewed-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/net/bpf_jit_comp.c |   11 ++++++++++-
+ arch/x86/net/bpf_jit_comp32.c |   11 ++++++++++-
  1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1476,7 +1476,16 @@ emit_jmp:
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -2278,7 +2278,16 @@ notyet:
  		}
  
  		if (image) {
