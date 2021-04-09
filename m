@@ -2,124 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5297359A3C
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958C5359A68
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233601AbhDIJ5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:57:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
+        id S232642AbhDIJ63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:58:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233586AbhDIJ40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B51A611BF;
-        Fri,  9 Apr 2021 09:56:13 +0000 (UTC)
+        id S233771AbhDIJ5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:57:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24537611BE;
+        Fri,  9 Apr 2021 09:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962173;
-        bh=8DRw1WgndKxhi58SgcuQYiRxFEAHXT4LyT3172QVfYk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9jdv3rtjZXvXV0jaGJtBRBkm0DlDcsSvQjkAXehgbKeuwNdIG6ArONgZ+BtRCZVD
-         m7B3bPcwt4pcdAbrbQqn9iv7GoH/E0+R/8ZIimIJtVF14Am8XCd4pOP9Vj4Iu9i2Af
-         cH1G7EfRH4jIGvhHtyVE3HKHi2j9sjjXxz6ZKWpY=
+        s=korg; t=1617962242;
+        bh=ZTGjvPpX4x6XCHR41mBzBpjePuAtjMXdtn8AuUA4s7w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=prKSx7IX8MT7jSsFXRNWXKe2G+R3u7cOU92p4FwrzHQOP5/nP435uPLMKf5++EOqg
+         Y3jVsreq6nEAiF3mWzvQcmR56vW08jhswCoWqvZcZ07mH74TjDiR82Xlbp4sVc6R6G
+         QwOAZE/kTea9KnQhWJVRuwb1zIVv5HCDRgDbQGEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/14] mISDN: fix crash in fritzpci
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.19 00/18] 4.19.186-rc1 review
 Date:   Fri,  9 Apr 2021 11:53:28 +0200
-Message-Id: <20210409095300.504622651@linuxfoundation.org>
+Message-Id: <20210409095301.525783608@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
-References: <20210409095300.391558233@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.186-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.186-rc1
+X-KernelTest-Deadline: 2021-04-11T09:53+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+This is the start of the stable review cycle for the 4.19.186 release.
+There are 18 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit a9f81244d2e33e6dfcef120fefd30c96b3f7cdb0 ]
+Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
+Anything received after that time might be too late.
 
-setup_fritz() in avmfritz.c might fail with -EIO and in this case the
-isac.type and isac.write_reg is not initialized and remains 0(NULL).
-A subsequent call to isac_release() will dereference isac->write_reg and
-crash.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.186-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-[    1.737444] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    1.737809] #PF: supervisor instruction fetch in kernel mode
-[    1.738106] #PF: error_code(0x0010) - not-present page
-[    1.738378] PGD 0 P4D 0
-[    1.738515] Oops: 0010 [#1] SMP NOPTI
-[    1.738711] CPU: 0 PID: 180 Comm: systemd-udevd Not tainted 5.12.0-rc2+ #78
-[    1.739077] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-p
-rebuilt.qemu.org 04/01/2014
-[    1.739664] RIP: 0010:0x0
-[    1.739807] Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-[    1.740200] RSP: 0018:ffffc9000027ba10 EFLAGS: 00010202
-[    1.740478] RAX: 0000000000000000 RBX: ffff888102f41840 RCX: 0000000000000027
-[    1.740853] RDX: 00000000000000ff RSI: 0000000000000020 RDI: ffff888102f41800
-[    1.741226] RBP: ffffc9000027ba20 R08: ffff88817bc18440 R09: ffffc9000027b808
-[    1.741600] R10: 0000000000000001 R11: 0000000000000001 R12: ffff888102f41840
-[    1.741976] R13: 00000000fffffffb R14: ffff888102f41800 R15: ffff8881008b0000
-[    1.742351] FS:  00007fda3a38a8c0(0000) GS:ffff88817bc00000(0000) knlGS:0000000000000000
-[    1.742774] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.743076] CR2: ffffffffffffffd6 CR3: 00000001021ec000 CR4: 00000000000006f0
-[    1.743452] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    1.743828] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    1.744206] Call Trace:
-[    1.744339]  isac_release+0xcc/0xe0 [mISDNipac]
-[    1.744582]  fritzpci_probe.cold+0x282/0x739 [avmfritz]
-[    1.744861]  local_pci_probe+0x48/0x80
-[    1.745063]  pci_device_probe+0x10f/0x1c0
-[    1.745278]  really_probe+0xfb/0x420
-[    1.745471]  driver_probe_device+0xe9/0x160
-[    1.745693]  device_driver_attach+0x5d/0x70
-[    1.745917]  __driver_attach+0x8f/0x150
-[    1.746123]  ? device_driver_attach+0x70/0x70
-[    1.746354]  bus_for_each_dev+0x7e/0xc0
-[    1.746560]  driver_attach+0x1e/0x20
-[    1.746751]  bus_add_driver+0x152/0x1f0
-[    1.746957]  driver_register+0x74/0xd0
-[    1.747157]  ? 0xffffffffc00d8000
-[    1.747334]  __pci_register_driver+0x54/0x60
-[    1.747562]  AVM_init+0x36/0x1000 [avmfritz]
-[    1.747791]  do_one_initcall+0x48/0x1d0
-[    1.747997]  ? __cond_resched+0x19/0x30
-[    1.748206]  ? kmem_cache_alloc_trace+0x390/0x440
-[    1.748458]  ? do_init_module+0x28/0x250
-[    1.748669]  do_init_module+0x62/0x250
-[    1.748870]  load_module+0x23ee/0x26a0
-[    1.749073]  __do_sys_finit_module+0xc2/0x120
-[    1.749307]  ? __do_sys_finit_module+0xc2/0x120
-[    1.749549]  __x64_sys_finit_module+0x1a/0x20
-[    1.749782]  do_syscall_64+0x38/0x90
+thanks,
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/isdn/hardware/mISDN/mISDNipac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+greg k-h
 
-diff --git a/drivers/isdn/hardware/mISDN/mISDNipac.c b/drivers/isdn/hardware/mISDN/mISDNipac.c
-index e240010b93fa..c87cb193830c 100644
---- a/drivers/isdn/hardware/mISDN/mISDNipac.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNipac.c
-@@ -711,7 +711,7 @@ isac_release(struct isac_hw *isac)
- {
- 	if (isac->type & IPAC_TYPE_ISACX)
- 		WriteISAC(isac, ISACX_MASK, 0xff);
--	else
-+	else if (isac->type != 0)
- 		WriteISAC(isac, ISAC_MASK, 0xff);
- 	if (isac->dch.timer.function != NULL) {
- 		del_timer(&isac->dch.timer);
--- 
-2.30.2
+-------------
+Pseudo-Shortlog of commits:
 
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.186-rc1
+
+Masahiro Yamada <masahiroy@kernel.org>
+    init/Kconfig: make COMPILE_TEST depend on HAS_IOMEM
+
+Heiko Carstens <hca@linux.ibm.com>
+    init/Kconfig: make COMPILE_TEST depend on !S390
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf, x86: Validate computation of branch displacements for x86-32
+
+Piotr Krysiuk <piotras@gmail.com>
+    bpf, x86: Validate computation of branch displacements for x86-64
+
+Vincent Whitchurch <vincent.whitchurch@axis.com>
+    cifs: Silently ignore unknown oplock break handle
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: revalidate mapping when we open files for SMB1 POSIX
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    ia64: fix format strings for err_inject
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    ia64: mca: allocate early mca with GFP_ATOMIC
+
+Martin Wilck <mwilck@suse.com>
+    scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+
+Arnd Bergmann <arnd@arndb.de>
+    x86/build: Turn off -fcf-protection for realmode targets
+
+Esteve Varela Colominas <esteve.varela@gmail.com>
+    platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
+
+Rob Clark <robdclark@chromium.org>
+    drm/msm: Ratelimit invalid-fence message
+
+Karthikeyan Kathirvel <kathirve@codeaurora.org>
+    mac80211: choose first enabled channel for monitor
+
+Tong Zhang <ztong0001@gmail.com>
+    mISDN: fix crash in fritzpci
+
+Pavel Andrianov <andrianov@ispras.ru>
+    net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
+
+Alban Bedel <albeu@free.fr>
+    platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
+
+Tony Lindgren <tony@atomide.com>
+    bus: ti-sysc: Fix warning on unbind if reset is not deasserted
+
+Mans Rullgard <mans@mansr.com>
+    ARM: dts: am33xx: add aliases for mmc interfaces
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                  |  4 ++--
+ arch/arm/boot/dts/am33xx.dtsi             |  3 +++
+ arch/ia64/kernel/err_inject.c             | 22 +++++++++++-----------
+ arch/ia64/kernel/mca.c                    |  2 +-
+ arch/x86/Makefile                         |  2 +-
+ arch/x86/net/bpf_jit_comp.c               | 11 ++++++++++-
+ arch/x86/net/bpf_jit_comp32.c             | 11 ++++++++++-
+ drivers/bus/ti-sysc.c                     |  4 +++-
+ drivers/gpu/drm/msm/msm_fence.c           |  2 +-
+ drivers/isdn/hardware/mISDN/mISDNipac.c   |  2 +-
+ drivers/net/ethernet/marvell/pxa168_eth.c |  2 +-
+ drivers/platform/x86/intel-hid.c          |  7 +++++++
+ drivers/platform/x86/thinkpad_acpi.c      |  8 +++++++-
+ drivers/target/target_core_pscsi.c        |  8 ++++++++
+ fs/cifs/file.c                            |  1 +
+ fs/cifs/smb2misc.c                        |  4 ++--
+ init/Kconfig                              |  3 +--
+ net/mac80211/main.c                       | 13 ++++++++++++-
+ 18 files changed, 82 insertions(+), 27 deletions(-)
 
 
