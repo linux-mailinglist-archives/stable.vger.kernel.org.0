@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAEFC359AB8
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3833359AC4
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233711AbhDIKCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:02:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44802 "EHLO mail.kernel.org"
+        id S233541AbhDIKDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:03:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233803AbhDIJ7n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:59:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85B9C61208;
-        Fri,  9 Apr 2021 09:58:56 +0000 (UTC)
+        id S233867AbhDIKAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:00:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FE28611EF;
+        Fri,  9 Apr 2021 09:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962337;
-        bh=u6ACm87tIaTDC/s1TvlZHWFlYHvQHhRlaKM7hkC40oI=;
+        s=korg; t=1617962366;
+        bh=v7eYA02GetuYGqzE7mDeysV+IzalbQuzzeQPpJgUDHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CFXTUgkbdX3E6V7qJTWfYZm5Fo0X+HMS9zS0NLCnvDOQx0CKFptuRCpLrvBwrXm0w
-         SOmxaGl+lc07h5jdDWd1RKxTeccvCqUzaTni0wbYJMPJXhSp/Zg1B0xu9rq5JYb3DB
-         uLz6wCaG0sCmz3aj74QmoWAZq6UG8C5vxLJg0Quw=
+        b=0nU+IDhUMa1Ts1X7JAfwlvzGG7a6rU+yw+17ZpEbbv1NxWPpQoeoAM0F3gS9WNBlM
+         pGtzlyClJnqejIWyRXsl7K30mJHP5GVZrI34BOrlI3yq/4eqopNPu5KUiAMimzKVRw
+         FRKm+Yg/lR2enanHNUdXPgQ/w3CV2cOF30SpSMBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Alban Bedel <albeu@free.fr>,
+        Alexander Kobel <a-kobel@a-kobel.de>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 02/41] bus: ti-sysc: Fix warning on unbind if reset is not deasserted
-Date:   Fri,  9 Apr 2021 11:53:24 +0200
-Message-Id: <20210409095304.900437252@linuxfoundation.org>
+Subject: [PATCH 5.10 03/41] platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
+Date:   Fri,  9 Apr 2021 11:53:25 +0200
+Message-Id: <20210409095304.930451761@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
 References: <20210409095304.818847860@linuxfoundation.org>
@@ -39,45 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Alban Bedel <albeu@free.fr>
 
-[ Upstream commit a7b5d7c4969aba8d1f04c29048906abaa71fb6a9 ]
+[ Upstream commit 56678a5f44ef5f0ad9a67194bbee2280c6286534 ]
 
-We currently get thefollowing on driver unbind if a reset is configured
-and asserted:
+Like a few other system the Lenovo ThinkPad X1 Tablet Gen 2 miss the
+HEBC method, which prevent the power button from working. Add a quirk
+to enable the button array on this system family and fix the power
+button.
 
-WARNING: CPU: 0 PID: 993 at drivers/reset/core.c:432 reset_control_assert
-...
-(reset_control_assert) from [<c0fecda8>] (sysc_remove+0x190/0x1e4)
-(sysc_remove) from [<c0a2bb58>] (platform_remove+0x24/0x3c)
-(platform_remove) from [<c0a292fc>] (__device_release_driver+0x154/0x214)
-(__device_release_driver) from [<c0a2a210>] (device_driver_detach+0x3c/0x8c)
-(device_driver_detach) from [<c0a27d64>] (unbind_store+0x60/0xd4)
-(unbind_store) from [<c0546bec>] (kernfs_fop_write_iter+0x10c/0x1cc)
-
-Let's fix it by checking the reset status.
-
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Alban Bedel <albeu@free.fr>
+Tested-by: Alexander Kobel <a-kobel@a-kobel.de>
+Link: https://lore.kernel.org/r/20210222141559.3775-1-albeu@free.fr
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/intel-hid.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 45f5530666d3..16e389dce111 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -3044,7 +3044,9 @@ static int sysc_remove(struct platform_device *pdev)
+diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
+index 86261970bd8f..8a0cd5bf0065 100644
+--- a/drivers/platform/x86/intel-hid.c
++++ b/drivers/platform/x86/intel-hid.c
+@@ -86,6 +86,13 @@ static const struct dmi_system_id button_array_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x2 Detachable"),
+ 		},
+ 	},
++	{
++		.ident = "Lenovo ThinkPad X1 Tablet Gen 2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Tablet Gen 2"),
++		},
++	},
+ 	{ }
+ };
  
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
--	reset_control_assert(ddata->rsts);
-+
-+	if (!reset_control_status(ddata->rsts))
-+		reset_control_assert(ddata->rsts);
- 
- unprepare:
- 	sysc_unprepare(ddata);
 -- 
 2.30.2
 
