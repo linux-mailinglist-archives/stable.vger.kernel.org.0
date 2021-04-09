@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3597B359B26
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B56359AEA
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234246AbhDIKHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51678 "EHLO mail.kernel.org"
+        id S233411AbhDIKG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:06:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234253AbhDIKFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:05:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 555D561354;
-        Fri,  9 Apr 2021 10:01:46 +0000 (UTC)
+        id S233085AbhDIKCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:02:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 330F16124A;
+        Fri,  9 Apr 2021 10:00:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962506;
-        bh=GDHvtSMoL1f+2k/HHA8kWHYrlGOFCjpXqcsVYxgGRhg=;
+        s=korg; t=1617962407;
+        bh=xXgc/LrvaHagmhht2AXAJk271go6SZPRg5+0SuRCKLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzitXB5AB9EM4E7vefOS67k0LynqhmeQNN+5Zae5cazy7mrUko7wVjsOoiUbxb9yE
-         c9v8z+CKn/mJpPLVSphsl+Am/5OgyM2ViE5zzrbIDbHJs10/9Abc9gFJFCF7Nvd+BI
-         Qjvd8OnaO0MfHDMFMTWtao8UADAbdvez6pBtxqEk=
+        b=JSp6Kr+d+u2SnL431R/nnirDfaOP2jgt/kX6wNWcXPKmVTNknpjCvmxPDgyUCSHiZ
+         ypY8dkqnVjwDsxabIkN/KZUMD7LPPF2HcxF//Siqp+PeNIIgNrN+RFndH8obR6plN8
+         GsYh08yjOq3paCQGJsc8f7uAqmimO6He851embo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Tom Talpey <tom@talpey.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 34/45] cifs: Silently ignore unknown oplock break handle
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.10 38/41] bpf, x86: Validate computation of branch displacements for x86-64
 Date:   Fri,  9 Apr 2021 11:54:00 +0200
-Message-Id: <20210409095306.526169690@linuxfoundation.org>
+Message-Id: <20210409095306.041350244@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Piotr Krysiuk <piotras@gmail.com>
 
-[ Upstream commit 219481a8f90ec3a5eed9638fb35609e4b1aeece7 ]
+commit e4d4d456436bfb2fe412ee2cd489f7658449b098 upstream.
 
-Make SMB2 not print out an error when an oplock break is received for an
-unknown handle, similar to SMB1.  The debug message which is printed for
-these unknown handles may also be misleading, so fix that too.
+The branch displacement logic in the BPF JIT compilers for x86 assumes
+that, for any generated branch instruction, the distance cannot
+increase between optimization passes.
 
-The SMB2 lease break path is not affected by this patch.
+But this assumption can be violated due to how the distances are
+computed. Specifically, whenever a backward branch is processed in
+do_jit(), the distance is computed by subtracting the positions in the
+machine code from different optimization passes. This is because part
+of addrs[] is already updated for the current optimization pass, before
+the branch instruction is visited.
 
-Without this, a program which writes to a file from one thread, and
-opens, reads, and writes the same file from another thread triggers the
-below errors several times a minute when run against a Samba server
-configured with "smb2 leases = no".
+And so the optimizer can expand blocks of machine code in some cases.
 
- CIFS: VFS: \\192.168.0.1 No task to wake, unknown frame received! NumMids 2
- 00000000: 424d53fe 00000040 00000000 00000012  .SMB@...........
- 00000010: 00000001 00000000 ffffffff ffffffff  ................
- 00000020: 00000000 00000000 00000000 00000000  ................
- 00000030: 00000000 00000000 00000000 00000000  ................
+This can confuse the optimizer logic, where it assumes that a fixed
+point has been reached for all machine code blocks once the total
+program size stops changing. And then the JIT compiler can output
+abnormal machine code containing incorrect branch displacements.
 
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To mitigate this issue, we assert that a fixed point is reached while
+populating the output image. This rejects any problematic programs.
+The issue affects both x86-32 and x86-64. We mitigate separately to
+ease backporting.
+
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Reviewed-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2misc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/net/bpf_jit_comp.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
-index d9073b569e17..53fb751bf210 100644
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -754,8 +754,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -1476,7 +1476,16 @@ emit_jmp:
  		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
--	return false;
-+	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
-+	return true;
- }
  
- void
--- 
-2.30.2
-
+ 		if (image) {
+-			if (unlikely(proglen + ilen > oldproglen)) {
++			/*
++			 * When populating the image, assert that:
++			 *
++			 *  i) We do not write beyond the allocated space, and
++			 * ii) addrs[i] did not change from the prior run, in order
++			 *     to validate assumptions made for computing branch
++			 *     displacements.
++			 */
++			if (unlikely(proglen + ilen > oldproglen ||
++				     proglen + ilen != addrs[i])) {
+ 				pr_err("bpf_jit: fatal error\n");
+ 				return -EFAULT;
+ 			}
 
 
