@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 284CD359AF4
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0281F359AB2
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbhDIKHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51372 "EHLO mail.kernel.org"
+        id S233060AbhDIKBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:01:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233550AbhDIKDH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:03:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F0A4611F2;
-        Fri,  9 Apr 2021 10:00:27 +0000 (UTC)
+        id S233936AbhDIJ7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:59:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C506121F;
+        Fri,  9 Apr 2021 09:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962428;
-        bh=LrzzfTbwiK3OB9WdWUInWmIVYV7/3jgwGKThzM5586o=;
+        s=korg; t=1617962326;
+        bh=VxoJmc3w8Jg63Gj0JpCAQ8fEFiA7dFne0yZFtGuMaCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5ouoh1XJH401CWQ98yf33zGRhum0CsH0FHAFrQQAqOnIet7RgNmtdTXeVBHuxLP/
-         if+N7jJ03C1lMkhu51o5ppCDNd0WYPJvspbXWXG/mu7DHbfMj9wlR1RVTFmVsBFfNs
-         9TYqWGlTIsEzAorusUEsMFjORgYTk97QhBKMuqEA=
+        b=QCd1I6p347OPUlPxIdE7qG5wQrS0F3pmLdSnBQ0i9fuwahOFRZJXylj/qZVIJ+Uxi
+         OAXg5aieK0Fmy2XLPP1Kz91HK2pEo4lcUqaPoKXfDAPxt/XWAeaSHu++caFDRjXJE/
+         vguM+tIZ9f20NO94bRiQFBgKprfHCk4relJHZZV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Phan <daniel.phan36@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 12/45] mac80211: Check crypto_aead_encrypt for errors
+Subject: [PATCH 5.10 16/41] net: ipa: fix init header command validation
 Date:   Fri,  9 Apr 2021 11:53:38 +0200
-Message-Id: <20210409095305.794681785@linuxfoundation.org>
+Message-Id: <20210409095305.361379304@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +40,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Phan <daniel.phan36@gmail.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 58d25626f6f0ea5bcec3c13387b9f835d188723d ]
+[ Upstream commit b4afd4b90a7cfe54c7cd9db49e3c36d552325eac ]
 
-crypto_aead_encrypt returns <0 on error, so if these calls are not checked,
-execution may continue with failed encrypts.  It also seems that these two
-crypto_aead_encrypt calls are the only instances in the codebase that are
-not checked for errors.
+We use ipa_cmd_header_valid() to ensure certain values we will
+program into hardware are within range, well in advance of when we
+actually program them.  This way we avoid having to check for errors
+when we actually program the hardware.
 
-Signed-off-by: Daniel Phan <daniel.phan36@gmail.com>
-Link: https://lore.kernel.org/r/20210309204137.823268-1-daniel.phan36@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Unfortunately the dev_err() call for a bad offset value does not
+supply the arguments to match the format specifiers properly.
+Fix this.
+
+There was also supposed to be a check to ensure the size to be
+programmed fits in the field that holds it.  Add this missing check.
+
+Rearrange the way we ensure the header table fits in overall IPA
+memory range.
+
+Finally, update ipa_cmd_table_valid() so the format of messages
+printed for errors matches what's done in ipa_cmd_header_valid().
+
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/aead_api.c | 5 +++--
- net/mac80211/aes_gmac.c | 5 +++--
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ipa/ipa_cmd.c | 50 ++++++++++++++++++++++++++-------------
+ 1 file changed, 33 insertions(+), 17 deletions(-)
 
-diff --git a/net/mac80211/aead_api.c b/net/mac80211/aead_api.c
-index d7b3d905d535..b00d6f5b33f4 100644
---- a/net/mac80211/aead_api.c
-+++ b/net/mac80211/aead_api.c
-@@ -23,6 +23,7 @@ int aead_encrypt(struct crypto_aead *tfm, u8 *b_0, u8 *aad, size_t aad_len,
- 	struct aead_request *aead_req;
- 	int reqsize = sizeof(*aead_req) + crypto_aead_reqsize(tfm);
- 	u8 *__aad;
-+	int ret;
+diff --git a/drivers/net/ipa/ipa_cmd.c b/drivers/net/ipa/ipa_cmd.c
+index 46d8b7336d8f..a47378b7d9b2 100644
+--- a/drivers/net/ipa/ipa_cmd.c
++++ b/drivers/net/ipa/ipa_cmd.c
+@@ -175,21 +175,23 @@ bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
+ 			    : field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK);
+ 	if (mem->offset > offset_max ||
+ 	    ipa->mem_offset > offset_max - mem->offset) {
+-		dev_err(dev, "IPv%c %s%s table region offset too large "
+-			      "(0x%04x + 0x%04x > 0x%04x)\n",
+-			      ipv6 ? '6' : '4', hashed ? "hashed " : "",
+-			      route ? "route" : "filter",
+-			      ipa->mem_offset, mem->offset, offset_max);
++		dev_err(dev, "IPv%c %s%s table region offset too large\n",
++			ipv6 ? '6' : '4', hashed ? "hashed " : "",
++			route ? "route" : "filter");
++		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
++			ipa->mem_offset, mem->offset, offset_max);
++
+ 		return false;
+ 	}
  
- 	aead_req = kzalloc(reqsize + aad_len, GFP_ATOMIC);
- 	if (!aead_req)
-@@ -40,10 +41,10 @@ int aead_encrypt(struct crypto_aead *tfm, u8 *b_0, u8 *aad, size_t aad_len,
- 	aead_request_set_crypt(aead_req, sg, sg, data_len, b_0);
- 	aead_request_set_ad(aead_req, sg[0].length);
+ 	if (mem->offset > ipa->mem_size ||
+ 	    mem->size > ipa->mem_size - mem->offset) {
+-		dev_err(dev, "IPv%c %s%s table region out of range "
+-			      "(0x%04x + 0x%04x > 0x%04x)\n",
+-			      ipv6 ? '6' : '4', hashed ? "hashed " : "",
+-			      route ? "route" : "filter",
+-			      mem->offset, mem->size, ipa->mem_size);
++		dev_err(dev, "IPv%c %s%s table region out of range\n",
++			ipv6 ? '6' : '4', hashed ? "hashed " : "",
++			route ? "route" : "filter");
++		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
++			mem->offset, mem->size, ipa->mem_size);
++
+ 		return false;
+ 	}
  
--	crypto_aead_encrypt(aead_req);
-+	ret = crypto_aead_encrypt(aead_req);
- 	kfree_sensitive(aead_req);
+@@ -205,22 +207,36 @@ static bool ipa_cmd_header_valid(struct ipa *ipa)
+ 	u32 size_max;
+ 	u32 size;
  
--	return 0;
-+	return ret;
- }
++	/* In ipa_cmd_hdr_init_local_add() we record the offset and size
++	 * of the header table memory area.  Make sure the offset and size
++	 * fit in the fields that need to hold them, and that the entire
++	 * range is within the overall IPA memory range.
++	 */
+ 	offset_max = field_max(HDR_INIT_LOCAL_FLAGS_HDR_ADDR_FMASK);
+ 	if (mem->offset > offset_max ||
+ 	    ipa->mem_offset > offset_max - mem->offset) {
+-		dev_err(dev, "header table region offset too large "
+-			      "(0x%04x + 0x%04x > 0x%04x)\n",
+-			      ipa->mem_offset + mem->offset, offset_max);
++		dev_err(dev, "header table region offset too large\n");
++		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
++			ipa->mem_offset, mem->offset, offset_max);
++
+ 		return false;
+ 	}
  
- int aead_decrypt(struct crypto_aead *tfm, u8 *b_0, u8 *aad, size_t aad_len,
-diff --git a/net/mac80211/aes_gmac.c b/net/mac80211/aes_gmac.c
-index 6f3b3a0cc10a..512cab073f2e 100644
---- a/net/mac80211/aes_gmac.c
-+++ b/net/mac80211/aes_gmac.c
-@@ -22,6 +22,7 @@ int ieee80211_aes_gmac(struct crypto_aead *tfm, const u8 *aad, u8 *nonce,
- 	struct aead_request *aead_req;
- 	int reqsize = sizeof(*aead_req) + crypto_aead_reqsize(tfm);
- 	const __le16 *fc;
-+	int ret;
+ 	size_max = field_max(HDR_INIT_LOCAL_FLAGS_TABLE_SIZE_FMASK);
+ 	size = ipa->mem[IPA_MEM_MODEM_HEADER].size;
+ 	size += ipa->mem[IPA_MEM_AP_HEADER].size;
+-	if (mem->offset > ipa->mem_size || size > ipa->mem_size - mem->offset) {
+-		dev_err(dev, "header table region out of range "
+-			      "(0x%04x + 0x%04x > 0x%04x)\n",
+-			      mem->offset, size, ipa->mem_size);
++
++	if (size > size_max) {
++		dev_err(dev, "header table region size too large\n");
++		dev_err(dev, "    (0x%04x > 0x%08x)\n", size, size_max);
++
++		return false;
++	}
++	if (size > ipa->mem_size || mem->offset > ipa->mem_size - size) {
++		dev_err(dev, "header table region out of range\n");
++		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
++			mem->offset, size, ipa->mem_size);
++
+ 		return false;
+ 	}
  
- 	if (data_len < GMAC_MIC_LEN)
- 		return -EINVAL;
-@@ -59,10 +60,10 @@ int ieee80211_aes_gmac(struct crypto_aead *tfm, const u8 *aad, u8 *nonce,
- 	aead_request_set_crypt(aead_req, sg, sg, 0, iv);
- 	aead_request_set_ad(aead_req, GMAC_AAD_LEN + data_len);
- 
--	crypto_aead_encrypt(aead_req);
-+	ret = crypto_aead_encrypt(aead_req);
- 	kfree_sensitive(aead_req);
- 
--	return 0;
-+	return ret;
- }
- 
- struct crypto_aead *ieee80211_aes_gmac_key_setup(const u8 key[],
 -- 
 2.30.2
 
