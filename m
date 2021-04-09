@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC7E359A42
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89452359A18
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233093AbhDIJ50 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:57:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44802 "EHLO mail.kernel.org"
+        id S233410AbhDIJ4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:56:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233364AbhDIJ4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65A206115B;
-        Fri,  9 Apr 2021 09:56:21 +0000 (UTC)
+        id S233527AbhDIJzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:55:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1845E6115B;
+        Fri,  9 Apr 2021 09:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962181;
-        bh=935/d+9Z6EF4J1nuSjo9f/QoUwF8wa+o6YFFqGQOjBs=;
+        s=korg; t=1617962123;
+        bh=MTJHk6ahuEGox4z9zkGzrjsztitpvcgvjDXnoQWHf9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG15XFktAPc/QacMI4IO4C8iZ5RZV5IHPrTov9ChgLW6ebRBTDFNyorodxBzIlYxo
-         s8BIs89+aC4eoLiYheCvYGJkuI0QRKdxn7YKL5qvXFAjCwzVEdOUW/bJzU14M+Davu
-         G9b3r1PsAk4L7tREoBkzEgvoa7zjW94/No9lljcE=
+        b=MlzyO01/vm0cpqmdnnNDCEhnVt2PBrwXteiaCJb33h6S+UlZY2Zw3o55ws/PjzEQa
+         FiscNec4xGrv9cbkdmOMtyZCgDCzzwc5xsgRnBHDZpoohILwxcS91gOP2ztYvJMsJX
+         qpTuuQsSkTpayJqaA5tC8rZaaelpksq3+86pDjaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Esteve Varela Colominas <esteve.varela@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/14] platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
+        "Shih-Yuan Lee (FourDollars)" <sylee@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 11/13] ALSA: hda/realtek - Fix pincfg for Dell XPS 13 9370
 Date:   Fri,  9 Apr 2021 11:53:31 +0200
-Message-Id: <20210409095300.598125276@linuxfoundation.org>
+Message-Id: <20210409095259.997727415@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
-References: <20210409095300.391558233@linuxfoundation.org>
+In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
+References: <20210409095259.624577828@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esteve Varela Colominas <esteve.varela@gmail.com>
+From: "Shih-Yuan Lee (FourDollars)" <sylee@canonical.com>
 
-[ Upstream commit 3d677f12ea3a2097a16ded570623567403dea959 ]
+commit 8df4b0031067758d8b0a3bfde7d35e980d0376d5 upstream
 
-On many recent ThinkPad laptops, there's a new LED next to the ESC key,
-that indicates the FnLock status.
-When the Fn+ESC combo is pressed, FnLock is toggled, which causes the
-Media Key functionality to change, making it so that the media keys
-either perform their media key function, or function as an F-key by
-default. The Fn key can be used the access the alternate function at any
-time.
+The initial pin configs for Dell headset mode of ALC3271 has changed.
 
-With the current linux kernel, the LED doens't change state if you press
-the Fn+ESC key combo. However, the media key functionality *does*
-change. This is annoying, since the LED will stay on if it was on during
-bootup, and it makes it hard to keep track what the current state of the
-FnLock is.
+/sys/class/sound/hwC0D0/init_pin_configs: (BIOS 0.1.4)
+0x12 0xb7a60130
+0x13 0xb8a61140
+0x14 0x40000000
+0x16 0x411111f0
+0x17 0x90170110
+0x18 0x411111f0
+0x19 0x411111f0
+0x1a 0x411111f0
+0x1b 0x411111f0
+0x1d 0x4087992d
+0x1e 0x411111f0
+0x21 0x04211020
 
-This patch calls an ACPI function, that gets the current media key
-state, when the Fn+ESC key combo is pressed. Through testing it was
-discovered that this function causes the LED to update correctly to
-reflect the current state when this function is called.
+has changed to ...
 
-The relevant ACPI calls are the following:
-\_SB_.PCI0.LPC0.EC0_.HKEY.GMKS: Get media key state, returns 0x603 if the FnLock mode is enabled, and 0x602 if it's disabled.
-\_SB_.PCI0.LPC0.EC0_.HKEY.SMKS: Set media key state, sending a 1 will enable FnLock mode, and a 0 will disable it.
+/sys/class/sound/hwC0D0/init_pin_configs: (BIOS 0.2.0)
+0x12 0xb7a60130
+0x13 0x40000000
+0x14 0x411111f0
+0x16 0x411111f0
+0x17 0x90170110
+0x18 0x411111f0
+0x19 0x411111f0
+0x1a 0x411111f0
+0x1b 0x411111f0
+0x1d 0x4067992d
+0x1e 0x411111f0
+0x21 0x04211020
 
-Relevant discussion:
-https://bugzilla.kernel.org/show_bug.cgi?id=207841
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1881015
-
-Signed-off-by: Esteve Varela Colominas <esteve.varela@gmail.com>
-Link: https://lore.kernel.org/r/20210315195823.23212-1-esteve.varela@gmail.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b4576de87243 ("ALSA: hda/realtek - Fix typo of pincfg for Dell quirk")
+Signed-off-by: Shih-Yuan Lee (FourDollars) <sylee@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index ffaaccded34e..30bfd51c0e58 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -3964,13 +3964,19 @@ static bool hotkey_notify_6xxx(const u32 hkey,
- 
- 	case TP_HKEY_EV_KEY_NUMLOCK:
- 	case TP_HKEY_EV_KEY_FN:
--	case TP_HKEY_EV_KEY_FN_ESC:
- 		/* key press events, we just ignore them as long as the EC
- 		 * is still reporting them in the normal keyboard stream */
- 		*send_acpi_ev = false;
- 		*ignore_acpi_ev = true;
- 		return true;
- 
-+	case TP_HKEY_EV_KEY_FN_ESC:
-+		/* Get the media key status to foce the status LED to update */
-+		acpi_evalf(hkey_handle, NULL, "GMKS", "v");
-+		*send_acpi_ev = false;
-+		*ignore_acpi_ev = true;
-+		return true;
-+
- 	case TP_HKEY_EV_TABLET_CHANGED:
- 		tpacpi_input_send_tabletsw();
- 		hotkey_tablet_mode_notify_change();
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6285,7 +6285,6 @@ static const struct snd_hda_pin_quirk al
+ 	SND_HDA_PIN_QUIRK(0x10ec0299, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
+ 		ALC225_STANDARD_PINS,
+ 		{0x12, 0xb7a60130},
+-		{0x13, 0xb8a61140},
+ 		{0x17, 0x90170110}),
+ 	{}
+ };
 
 
