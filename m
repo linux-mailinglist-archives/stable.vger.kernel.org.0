@@ -2,121 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6887935A740
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 21:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF6735A744
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 21:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234193AbhDITmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 15:42:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41122 "EHLO
+        id S233883AbhDIToB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 15:44:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234006AbhDITme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 15:42:34 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E453C061764
-        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 12:42:21 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id c6so5097244qtc.1
-        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 12:42:21 -0700 (PDT)
+        with ESMTP id S232855AbhDIToA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 15:44:00 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26E1C061762;
+        Fri,  9 Apr 2021 12:43:46 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id u21so10396318ejo.13;
+        Fri, 09 Apr 2021 12:43:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=OFTSox0XE2cJ5i/WptJgwAzts8ZiaiuohDM7xn7cty8=;
-        b=QzAH9lGnFFR/geLOlo6UwmTeA+ENERKZCD53aFZL30TSNSc958Bm90CS+vkQ7A0j94
-         fCd0Gp49sHR5kBJLAiTWqq2wQxk25fbqypvBEEAln2uPLZtRCg13hbHc7TdrQUjB4nDn
-         On/K/dtcYBfWjp3yFgFFm2YYnAXyUrVP9dWjU=
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=5UYa70dh30D9VBwtvT7OqpO7sw3vtfJKMvIiKRh6GeY=;
+        b=fkkfoPoRz8d83AokzQ7L6GTbjaKU/DhNM7q7RVEpqTsF1klo1m6lCvAwTolJSXWAbM
+         JIBjY40QgYqcJtcXxfejiZ9bkv+j/sEyxjpFch/MH6jDX2IGNJ4Yi35w8a1eyHKescx2
+         0TFIOqIqdwr+uKCrBH/P28A8cnv8GgvR7hj96mBL8BXcpfGgPtkR5sBg81vdSBGcfaN1
+         Xe/74i/JICYjlKWAAiBPCvpeYIZTtsnjjtBmLfcccUqAtIxFCtfTKi5i+mrIAEmxYrU4
+         TZHcnRvCkKUKGwIHina+mheILLHyyGDmukDdeKKHmPpWDCoxkfvPGKaMRavdq5w8XQYE
+         3pEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=OFTSox0XE2cJ5i/WptJgwAzts8ZiaiuohDM7xn7cty8=;
-        b=THdG4HVwr1Mn/c1GD7VkOn6whuoTxc+CZExLW8Fo5bVZyMfulw6498LDITmetkdVVf
-         5ckgbIc6Z9qO1wh4gsPFUpsQ4FaPYHgC0/UjE4syHe9zNerd47h8oy2daQpVh0qAeVf+
-         DsXcFgqc8kUom+/r0CuNAaKFwOaqTRd2l1AkQ+z7TP6XshRuJNotTPU48vkkJvhY9HTm
-         kmZkmD3iSIEDfbf9C0nGsr3JXJGZWdT8JwUami/LA2TSbLQJD9v67XUBCu2dW1V6W00P
-         ULUnl/dGsvMS9WeAczL9Ul8io/AWUoJVUnxLmE713ICZJJtDg8cYQPLmWt0U9U8LvRIA
-         fGmg==
-X-Gm-Message-State: AOAM531fLQwA7TLtCYiE8MYdx65Og+kvJMYlinU2uC+GQ2SuAr/DTFqi
-        XJfpQZq5bhoDB61vXDXdEN768g==
-X-Google-Smtp-Source: ABdhPJxzT4kyxdeN3XUBh/t6iPeWQS/mXIz5J2vliMosSIJvyhS7itIaZ3B61x1bhK74Hgkul5qdfg==
-X-Received: by 2002:ac8:6044:: with SMTP id k4mr14162915qtm.4.1617997340386;
-        Fri, 09 Apr 2021 12:42:20 -0700 (PDT)
-Received: from bill-the-cat (cpe-65-184-140-239.ec.res.rr.com. [65.184.140.239])
-        by smtp.gmail.com with ESMTPSA id s13sm2489647qtx.42.2021.04.09.12.42.19
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 09 Apr 2021 12:42:19 -0700 (PDT)
-Date:   Fri, 9 Apr 2021 15:41:47 -0400
-From:   Tom Rini <trini@konsulko.com>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Paul Burton <paulburton@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Simon Glass <sjg@chromium.org>, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] MIPS: generic: Update node names to avoid unit addresses
-Message-ID: <20210409194147.GK1310@bill-the-cat>
-References: <20210409174734.GJ1310@bill-the-cat>
- <20210409192128.3998606-1-nathan@kernel.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5UYa70dh30D9VBwtvT7OqpO7sw3vtfJKMvIiKRh6GeY=;
+        b=ID1e00AuAtK9DW71L3YxLtC9jhXawAUKOgNR1PWCyI/QzWr4o13dSrnxWMUlmjlHKv
+         /xo8I8AR4d5JPZw4lRSB/8dNCEciwGRCADWY4LfSM+GuzKs/kEmjXijBdUgm313bqWn8
+         tO0RNYZquPuDbcgle85Q7JA9aXcUrDiSqwvXsjG8GB64E5dYydXsGnzeLzBqlBtfygaX
+         eR3NNt0G/DSxtMIzGmgVeq1hlhZp55VrrMZaFTBY08tzrUWN1rD387YAV1qR1agMcrYY
+         SU37+LwWhzsW5ngjB+yc3Kz+nuDYShGVmOUXciJkrDBXNAhmDImV3UP3zo+9cVwWCkUw
+         R21g==
+X-Gm-Message-State: AOAM531ZvKvNCOvZTyknOelD04Z/OWcwTnMOCeL4Cqw/1uh5XtiJ6mw9
+        PLmcc029jrrnXxgiRA3U5Go1fAv3tL7p+T7kbjs=
+X-Google-Smtp-Source: ABdhPJwVOEIyaQjI4MXQ5Xe0/oNdshHtbZvqJV5v6rYd9A0WUvhzGw4rIa1yYreweKKm2yAIzl7WKxRs/bJRhOOzp1c=
+X-Received: by 2002:a17:906:3ce9:: with SMTP id d9mr347758ejh.172.1617997425581;
+ Fri, 09 Apr 2021 12:43:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xzsJsQN6Lm/oxwnO"
-Content-Disposition: inline
-In-Reply-To: <20210409192128.3998606-1-nathan@kernel.org>
-X-Clacks-Overhead: GNU Terry Pratchett
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20210408183828.1907807-1-martin.blumenstingl@googlemail.com>
+ <20210408183828.1907807-2-martin.blumenstingl@googlemail.com> <20210408224617.crnllsf7eedxr6cp@skbuf>
+In-Reply-To: <20210408224617.crnllsf7eedxr6cp@skbuf>
+From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date:   Fri, 9 Apr 2021 21:43:34 +0200
+Message-ID: <CAFBinCAACrUO+89TnPs=5hhkV_73N5hxz=18u9o-NERUC_wpGg@mail.gmail.com>
+Subject: Re: [PATCH net v2 1/2] net: dsa: lantiq_gswip: Don't use PHY auto polling
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     Hauke Mehrtens <hauke@hauke-m.de>, andrew@lunn.ch,
+        f.fainelli@gmail.com, vivien.didelot@gmail.com,
+        netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux@armlinux.org.uk, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Vladimir,
 
---xzsJsQN6Lm/oxwnO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Apr 9, 2021 at 12:46 AM Vladimir Oltean <olteanv@gmail.com> wrote:
+>
+> On Thu, Apr 08, 2021 at 08:38:27PM +0200, Martin Blumenstingl wrote:
+> > PHY auto polling on the GSWIP hardware can be used so link changes
+> > (speed, link up/down, etc.) can be detected automatically. Internally
+> > GSWIP reads the PHY's registers for this functionality. Based on this
+> > automatic detection GSWIP can also automatically re-configure it's port
+> > settings. Unfortunately this auto polling (and configuration) mechanism
+> > seems to cause various issues observed by different people on different
+> > devices:
+> > - FritzBox 7360v2: the two Gbit/s ports (connected to the two internal
+> >   PHY11G instances) are working fine but the two Fast Ethernet ports
+> >   (using an AR8030 RMII PHY) are completely dead (neither RX nor TX are
+> >   received). It turns out that the AR8030 PHY sets the BMSR_ESTATEN bit
+> >   as well as the ESTATUS_1000_TFULL and ESTATUS_1000_XFULL bits. This
+> >   makes the PHY auto polling state machine (rightfully?) think that the
+> >   established link speed (when the other side is Gbit/s capable) is
+> >   1Gbit/s.
+>
+> Why do you say "rightfully"? The PHY is gigabit capable, and it reports
+> that via the Extended Status register. This is one of the reasons why
+> the "advertising" and "supported" link modes are separate concepts,
+> because even though you support gigabit, you don't advertise it because
+> you are in RMII mode.
+according to the marketing materials of the AR8030 it is a "Ultra
+low-power single RMII Fast Ethernet PHY"
+based on that I am referring to this PHY as "not Gbit/s capable"
+(other PHYs from the AR803x series are Gbit/s capable though)
 
-On Fri, Apr 09, 2021 at 12:21:28PM -0700, Nathan Chancellor wrote:
+> How does turning off the auto polling feature help circumvent the
+> Atheros PHY reporting "issue"? Do we even know that is the problem, or
+> is it simply a guess on your part based on something that looked strange?
+I have a patch in my queue (which I'll send for the next -net-next
+cycle) which adds "ethtool -d" (.get_regs) support to the GSWIP
+driver.
+There are multiple status registers, one of them indicates that the
+link speed (as result of the auto polling mechanism) is 1Gbit/s
 
-> With the latest mkimage from U-Boot 2021.04, the generic defconfigs no
-> longer build, failing with:
->=20
-> /usr/bin/mkimage: verify_header failed for FIT Image support with exit co=
-de 1
->=20
-> This is expected after the linked U-Boot commits because '@' is
-> forbidden in the node names due to the way that libfdt treats nodes with
-> the same prefix but different unit addresses.
->=20
-> Switch the '@' in the node name to '-'. Drop the unit addresses from the
-> hash and kernel child nodes because there is only one node so they do
-> not need to have a number to differentiate them.
->=20
-> Cc: stable@vger.kernel.org
-> Link: https://source.denx.de/u-boot/u-boot/-/commit/79af75f7776fc20b0d7eb=
-6afe1e27c00fdb4b9b4
-> Link: https://source.denx.de/u-boot/u-boot/-/commit/3f04db891a353f4b127ed=
-57279279f851c6b4917
-> Suggested-by: Simon Glass <sjg@chromium.org>
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+[...]
+> > Switch to software based configuration instead of PHY auto polling (and
+> > letting the GSWIP hardware configure the ports automatically) for the
+> > following link parameters:
+> > - link up/down
+> > - link speed
+> > - full/half duplex
+> > - flow control (RX / TX pause)
+>
+> What does the auto polling feature consist of, exactly? Is there some
+> sort of microcontroller accessing the MDIO bus simultaneously with
+> Linux?
+I believe the answer is yes, but there's no clear description in the
+datasheet for a newer GSWIP revision [0]
+"Figure 8" on page 41 (or page 39 if you go by the numbers at the
+bottom of each page) has a description of the state machine logic.
+If I understood Hauke correct the "not fiber" part is only checked for
+newer GSWIP revisions
 
-Reviewed-by: Tom Rini <trini@konsulko.com>
+Please note that the datasheet from [0] refers to part number GSW140
+which is a stand-alone IC.
+The GSWIP driver (currently) supports an older revision (at least two
+generations older) of GSWIP which is built into Lantiq xRX200 and
+xRX300 SoCs.
 
---=20
-Tom
 
---xzsJsQN6Lm/oxwnO
-Content-Type: application/pgp-signature; name="signature.asc"
+Best regards,
+Martin
 
------BEGIN PGP SIGNATURE-----
 
-iQGzBAABCgAdFiEEGjx/cOCPqxcHgJu/FHw5/5Y0tywFAmBwrfgACgkQFHw5/5Y0
-tywsiQv8DJ4MGJ2Hg+DBmgGuc6jVnJx72/P02b4IvetoDvNTEcEMjHZ8ZxbQKhfM
-6squHGIFqLQfLLJ/DC0EzvmFckf250Akbf5pFvOzWVHTKVNwBNBT2X3hfzZu8h9k
-/j4LVtnkWbaYHInpBvf3WNW/UZdbAlhidlTjQs131JzgwND26W5zdN1xXrmFtujZ
-HQn85lzWfJ3HOjx0kuXlCJM8hnP94WYgm6um6MaQHFgyDNd/oggK1lti7zaULC+7
-la2V4YvcmlYhTbcUy5y1SO5va7Zad9hVNcQS5BqFWmgJ8dOXP7EjwPrYsqIYQn11
-mzNmd4H7N9QYKhbndnjFEO0xvWdenzgQW6DJJr2UrbcaLAcr+q9mkY3eaBo9Btyf
-mIBEdwUm5/3nSHqh71lXmZpAPbX/hYcKlbTm7cTz67MdLuypWuk6662DoQIFUnB2
-o0l4YHeJ4Fowca/jiJ8XiNMfb9XmnbYYVExRtE/ufjDftxVli46tUN270V1fMSCM
-P9a5xgN8
-=gfSn
------END PGP SIGNATURE-----
-
---xzsJsQN6Lm/oxwnO--
+[0] https://www.maxlinear.com/document/index?id=23266&languageid=1033&type=Datasheet&partnumber=GSW140&filename=617930_GSW140_DS_Rev1.7.pdf&part=GSW140
