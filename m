@@ -2,199 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4728635954E
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 08:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AAEE359599
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 08:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233234AbhDIGSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 02:18:31 -0400
-Received: from mta-02.yadro.com ([89.207.88.252]:46364 "EHLO mta-01.yadro.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229498AbhDIGSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 02:18:30 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mta-01.yadro.com (Postfix) with ESMTP id 05E8C412EE;
-        Fri,  9 Apr 2021 06:18:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
-        content-type:content-type:content-transfer-encoding:mime-version
-        :x-mailer:message-id:date:date:subject:subject:from:from
-        :received:received:received; s=mta-01; t=1617949095; x=
-        1619763496; bh=E1rdHzqRAxVOToKn3pwobD/TFergpyDv0wx3i4KVc68=; b=Q
-        It4+MOfGwE7TqV7205ljOMPEiSA6A9Rfy99SlvRrewzMy9Y9eGCLqu/dFb2RJ9HT
-        L0MACAJjVq9ieYqQGhHrEVtosFipfJROyHExN+p5Jz5wogeJxloPmQs7GN1bqxkh
-        RLNrVVZG/ra4BOSoI578547a6eDfdy2nQGj7qTmMF8=
-X-Virus-Scanned: amavisd-new at yadro.com
-Received: from mta-01.yadro.com ([127.0.0.1])
-        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id EJw90tPJgKAj; Fri,  9 Apr 2021 09:18:15 +0300 (MSK)
-Received: from T-EXCH-03.corp.yadro.com (t-exch-03.corp.yadro.com [172.17.100.103])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mta-01.yadro.com (Postfix) with ESMTPS id 9643B41280;
-        Fri,  9 Apr 2021 09:18:14 +0300 (MSK)
-Received: from localhost (172.17.204.212) by T-EXCH-03.corp.yadro.com
- (172.17.100.103) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id 15.1.669.32; Fri, 9 Apr
- 2021 09:18:14 +0300
-From:   Roman Bolshakov <r.bolshakov@yadro.com>
-To:     <martin.petersen@oracle.com>, <linux-scsi@vger.kernel.org>
-CC:     <linux@yadro.com>, Roman Bolshakov <r.bolshakov@yadro.com>,
-        Daniel Wagner <daniel.wagner@suse.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>, <stable@vger.kernel.org>,
-        Aleksandr Volkov <a.y.volkov@yadro.com>,
-        Aleksandr Miloserdov <a.miloserdov@yadro.com>
-Subject: [PATCH] Revert "scsi: qla2xxx: Limit interrupt vectors to number of CPUs"
-Date:   Fri, 9 Apr 2021 09:17:59 +0300
-Message-ID: <20210409061759.42807-1-r.bolshakov@yadro.com>
-X-Mailer: git-send-email 2.30.1
+        id S233444AbhDIGgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 02:36:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37348 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233433AbhDIGgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 02:36:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6905B610A4;
+        Fri,  9 Apr 2021 06:36:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1617950170;
+        bh=Pa6sc6KdgMU8OPM8MPPDIysVIiBGA9HtFAZWYbwr3Ws=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SfZgeUIJEHlgFk6MpgwpQoVi74BDBevhrltQqWRXemdWRQftn0W7eHlhaw4+zG3Xq
+         +DhRc1xBdg37Ls/w6KoWhZJP5pTet8PvKHHVzZ5KEKcgJ84Y73K8dfOSMnZgUkr+RQ
+         g/Svk8mUI3QGxTkWd1B63+Tl378y6YgBRtTTUcYg=
+Date:   Fri, 9 Apr 2021 08:36:07 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jianmin Wang <jianmin@iscas.ac.cn>
+Cc:     davem@davemloft.net, dzickus@redhat.com,
+        herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
+        netdev@vger.kernel.org, omosnace@redhat.com, smueller@chronox.de,
+        stable@vger.kernel.org, steffen.klassert@secunet.com
+Subject: Re: Re: [PATCH] backports: crypto user - make NETLINK_CRYPTO work
+Message-ID: <YG/11xcauoPY0sn+@kroah.com>
+References: <YGs3Voq0codXCHbA@kroah.com>
+ <20210408191148.51259-1-jianmin@iscas.ac.cn>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [172.17.204.212]
-X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
- T-EXCH-03.corp.yadro.com (172.17.100.103)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210408191148.51259-1-jianmin@iscas.ac.cn>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit a6dcfe08487e ("scsi: qla2xxx: Limit interrupt vectors to number
-of CPUs") lowers the number of allocated MSI-X vectors to the number of
-CPUs.
+On Thu, Apr 08, 2021 at 07:11:48PM +0000, Jianmin Wang wrote:
+> On Mon, Apr 05, 2021 at 16:14 UTC, Greg KH wrote:
+> > On Mon, Apr 05, 2021 at 01:55:15PM +0000, Jianmin Wang wrote:
+> > > There is same problem found in linux 4.19.y as upstream commit. The 
+> > > changes of crypto_user_* and cryptouser.h files from upstream patch are merged into 
+> > > crypto/crypto_user.c for backporting.
+> > > 
+> > > Upstream commit:
+> > >     commit 91b05a7e7d8033a90a64f5fc0e3808db423e420a
+> > >     Author: Ondrej Mosnacek <omosnace@redhat.com>
+> > >     Date:   Tue,  9 Jul 2019 13:11:24 +0200
+> > > 
+> > >     Currently, NETLINK_CRYPTO works only in the init network namespace. It
+> > >     doesn't make much sense to cut it out of the other network namespaces,
+> > >     so do the minor plumbing work necessary to make it work in any network
+> > >     namespace. Code inspired by net/core/sock_diag.c.
+> > > 
+> > >     Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > >     Signed-off-by: default avatarHerbert Xu <herbert@gondor.apana.org.au>
+> > > 
+> > > Signed-off-by: Jianmin Wang <jianmin@iscas.ac.cn>
+> > > ---
+> > >  crypto/crypto_user.c        | 37 +++++++++++++++++++++++++------------
+> > >  include/net/net_namespace.h |  3 +++
+> > >  2 files changed, 28 insertions(+), 12 deletions(-)
+> > 
+> > How does this change fit with the stable kernel rules?  It looks to be a
+> > new feature, if you need this, why not just use a newer kernel version?
+> > What is preventing you from doing that?
+> > 
+> 
+> This problem was found when we deployed new services on our container cluster, 
+> while the new services need to invoke libkcapi in the container environment.
+> 
+> We have verified that the problem doesn't exist on newer kernel version. 
+> However, due to many services and the cluster running on many server machines 
+> whose host os are long-term linux distribution with linux 4.19 kernel, it will 
+> cost too much to migrate them to newer os with newer kernel version. This is 
+> why we need to fix the problem on linux 4.19.
 
-That breaks vector allocation assumptions in qla83xx_iospace_config(),
-qla24xx_enable_msix() and qla2x00_iospace_config(). Either of the
-functions computes maximum number of qpairs as:
+But this is not a regression, but rather a "resolve an issue that has
+never worked for new hardware", right?
 
-  ha->max_qpairs = ha->msix_count - 1 (MB interrupt) - 1 (default
-                   response queue) - 1 (ATIO, in dual or pure target mode)
+And for that, moving to a new kernel seems like a wise thing to do to
+me because we do not like backporting new features.  Distro kernel are
+of course, free to do that if they wish.
 
-max_qpairs is set to zero in case of two CPUs and initiator mode. The
-number is then used to allocate ha->queue_pair_map inside
-qla2x00_alloc_queues(). No allocation happens and ha->queue_pair_map is
-left NULL but the driver thinks there are queue pairs available.
+thanks,
 
-qla2xxx_queuecommand() tries to find a qpair in the map and crashes:
-
-  if (ha->mqenable) {
-          uint32_t tag;
-          uint16_t hwq;
-          struct qla_qpair *qpair = NULL;
-
-          tag = blk_mq_unique_tag(cmd->request);
-          hwq = blk_mq_unique_tag_to_hwq(tag);
-          qpair = ha->queue_pair_map[hwq]; # <- HERE
-
-          if (qpair)
-                  return qla2xxx_mqueuecommand(host, cmd, qpair);
-  }
-
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  CPU: 0 PID: 72 Comm: kworker/u4:3 Tainted: G        W         5.10.0-rc1+ #25
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.0.0-prebuilt.qemu-project.org 04/01/2014
-  Workqueue: scsi_wq_7 fc_scsi_scan_rport [scsi_transport_fc]
-  RIP: 0010:qla2xxx_queuecommand+0x16b/0x3f0 [qla2xxx]
-  Call Trace:
-   scsi_queue_rq+0x58c/0xa60
-   blk_mq_dispatch_rq_list+0x2b7/0x6f0
-   ? __sbitmap_get_word+0x2a/0x80
-   __blk_mq_sched_dispatch_requests+0xb8/0x170
-   blk_mq_sched_dispatch_requests+0x2b/0x50
-   __blk_mq_run_hw_queue+0x49/0xb0
-   __blk_mq_delay_run_hw_queue+0xfb/0x150
-   blk_mq_sched_insert_request+0xbe/0x110
-   blk_execute_rq+0x45/0x70
-   __scsi_execute+0x10e/0x250
-   scsi_probe_and_add_lun+0x228/0xda0
-   __scsi_scan_target+0xf4/0x620
-   ? __pm_runtime_resume+0x4f/0x70
-   scsi_scan_target+0x100/0x110
-   fc_scsi_scan_rport+0xa1/0xb0 [scsi_transport_fc]
-   process_one_work+0x1ea/0x3b0
-   worker_thread+0x28/0x3b0
-   ? process_one_work+0x3b0/0x3b0
-   kthread+0x112/0x130
-   ? kthread_park+0x80/0x80
-   ret_from_fork+0x22/0x30
-
-Unfortunately it's not enough to force single queue mode for systems
-with small CPU count, the warning would be still produced:
-
-  WARNING: CPU: 0 PID: 1039 at drivers/pci/msi.c:1323 pci_irq_get_affinity+0x36/0x80
-  CPU: 0 PID: 1039 Comm: modprobe Not tainted 5.12.0-rc1+ #26
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.0.0-prebuilt.qemu-project.org 04/01/2014
-  RIP: 0010:pci_irq_get_affinity+0x36/0x80
-  Call Trace:
-   blk_mq_pci_map_queues+0x32/0xc0
-   blk_mq_alloc_tag_set+0x131/0x310
-   scsi_add_host_with_dma+0x79/0x2f0
-   qla2x00_probe_one+0x1870/0x2410 [qla2xxx]
-   local_pci_probe+0x3d/0x90
-   ? pci_assign_irq+0x22/0xd0
-   pci_device_probe+0xd5/0x170
-   really_probe+0x1c5/0x3a0
-   driver_probe_device+0x49/0xa0
-   device_driver_attach+0x4a/0x50
-   __driver_attach+0x67/0xb0
-   ? device_driver_attach+0x50/0x50
-   bus_for_each_dev+0x71/0xb0
-   bus_add_driver+0x177/0x1f0
-   ? 0xffffffffc02fa000
-   driver_register+0x56/0xf0
-   ? 0xffffffffc02fa000
-   qla2x00_module_init+0x1a2/0x20a [qla2xxx]
-   do_one_initcall+0x3f/0x1c0
-   ? __cond_resched+0x10/0x40
-   ? kmem_cache_alloc_trace+0x36/0x1a0
-   do_init_module+0x56/0x1ed
-   load_module+0x219e/0x2880
-   ? __do_sys_finit_module+0x9c/0xe0
-   __do_sys_finit_module+0x9c/0xe0
-   do_syscall_64+0x33/0x40
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7f2d3adcf759
-
-Also, former MSI-X allocation might be more performant - two more
-nr_hw_queues, especially on the small and medium initiators. Therefore,
-it's best to revert the offending commit.
-
-Cc: Daniel Wagner <daniel.wagner@suse.com>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-Cc: Quinn Tran <qutran@marvell.com>
-Cc: Nilesh Javali <njavali@marvell.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: stable@vger.kernel.org # 5.11+
-Fixes: a6dcfe08487e ("scsi: qla2xxx: Limit interrupt vectors to number of CPUs")
-Reported-by: Aleksandr Volkov <a.y.volkov@yadro.com>
-Reported-by: Aleksandr Miloserdov <a.miloserdov@yadro.com>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
----
- drivers/scsi/qla2xxx/qla_isr.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index 11d6e0db07fe..6641978dfecf 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3998,12 +3998,10 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
- 	if (USER_CTRL_IRQ(ha) || !ha->mqiobase) {
- 		/* user wants to control IRQ setting for target mode */
- 		ret = pci_alloc_irq_vectors(ha->pdev, min_vecs,
--		    min((u16)ha->msix_count, (u16)num_online_cpus()),
--		    PCI_IRQ_MSIX);
-+		    ha->msix_count, PCI_IRQ_MSIX);
- 	} else
- 		ret = pci_alloc_irq_vectors_affinity(ha->pdev, min_vecs,
--		    min((u16)ha->msix_count, (u16)num_online_cpus()),
--		    PCI_IRQ_MSIX | PCI_IRQ_AFFINITY,
-+		    ha->msix_count, PCI_IRQ_MSIX | PCI_IRQ_AFFINITY,
- 		    &desc);
- 
- 	if (ret < 0) {
--- 
-2.30.1
-
+greg k-h
