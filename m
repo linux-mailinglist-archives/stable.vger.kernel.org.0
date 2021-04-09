@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09CC3359A6B
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF06359A5E
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233776AbhDIJ6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46030 "EHLO mail.kernel.org"
+        id S233310AbhDIJ6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:58:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233380AbhDIJ5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:57:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDA476103E;
-        Fri,  9 Apr 2021 09:57:24 +0000 (UTC)
+        id S233533AbhDIJ5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:57:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 184F4611C2;
+        Fri,  9 Apr 2021 09:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962245;
-        bh=rOZ9CQRHhljiSGN7CpM8eyMYPwcJ9P6ODZZHtp2HWvU=;
+        s=korg; t=1617962224;
+        bh=qycwxaWt4Ghm0SGjjl6Eb0J2087GMQuYj0+JzQ+GhRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3fEn17O+P1DXApHEmQJCh3Ky1vIMNIALAsxrwawTXKGbpW7IecmtgQnlgfNDxoau
-         TehA+5kOU8kt7b0vaYmSSalZeM+Plx1SgrTOCBj91iJfnvlXmVzXuVynSvdq6UqpII
-         blozT3kWybX+ALLg56aSQx49jO+vGHGe2+MB+2Fk=
+        b=QLSppnT1HXqiZC8faGgc9eyXLw6kMMzKNUl5ZnjYqI97p9nQhOLb+L2PXuu3X2D7I
+         U0yyenwCrO7VelmmWz+y0B0XpyxiYFiJWn9XX1KxwKV5KX+289MloV9MeDYBJRNSDa
+         GCpmFdlnOCdwjQZE8rDrx0FqAxa83oPm6aHNQRCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Alban Bedel <albeu@free.fr>,
+        Alexander Kobel <a-kobel@a-kobel.de>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/23] ARM: dts: am33xx: add aliases for mmc interfaces
+Subject: [PATCH 4.19 03/18] platform/x86: intel-hid: Support Lenovo ThinkPad X1 Tablet Gen 2
 Date:   Fri,  9 Apr 2021 11:53:31 +0200
-Message-Id: <20210409095302.942307930@linuxfoundation.org>
+Message-Id: <20210409095301.641317014@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
-References: <20210409095302.894568462@linuxfoundation.org>
+In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
+References: <20210409095301.525783608@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,39 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Alban Bedel <albeu@free.fr>
 
-[ Upstream commit 9bbce32a20d6a72c767a7f85fd6127babd1410ac ]
+[ Upstream commit 56678a5f44ef5f0ad9a67194bbee2280c6286534 ]
 
-Without DT aliases, the numbering of mmc interfaces is unpredictable.
-Adding them makes it possible to refer to devices consistently.  The
-popular suggestion to use UUIDs obviously doesn't work with a blank
-device fresh from the factory.
+Like a few other system the Lenovo ThinkPad X1 Tablet Gen 2 miss the
+HEBC method, which prevent the power button from working. Add a quirk
+to enable the button array on this system family and fix the power
+button.
 
-See commit fa2d0aa96941 ("mmc: core: Allow setting slot index via
-device tree alias") for more discussion.
-
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Alban Bedel <albeu@free.fr>
+Tested-by: Alexander Kobel <a-kobel@a-kobel.de>
+Link: https://lore.kernel.org/r/20210222141559.3775-1-albeu@free.fr
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am33xx.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/x86/intel-hid.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index fb6b8aa12cc5..77fa7c0f2104 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -40,6 +40,9 @@ aliases {
- 		ethernet1 = &cpsw_emac1;
- 		spi0 = &spi0;
- 		spi1 = &spi1;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
- 	};
+diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
+index d7d69eadb9bb..fa3cda69cec9 100644
+--- a/drivers/platform/x86/intel-hid.c
++++ b/drivers/platform/x86/intel-hid.c
+@@ -94,6 +94,13 @@ static const struct dmi_system_id button_array_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x2 Detachable"),
+ 		},
+ 	},
++	{
++		.ident = "Lenovo ThinkPad X1 Tablet Gen 2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Tablet Gen 2"),
++		},
++	},
+ 	{ }
+ };
  
- 	cpus {
 -- 
 2.30.2
 
