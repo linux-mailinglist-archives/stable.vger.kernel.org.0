@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47307359A4B
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C0BF359A9E
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233318AbhDIJ5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:57:43 -0400
+        id S233857AbhDIKAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:00:17 -0400
 Received: from mail.kernel.org ([198.145.29.99]:45122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233038AbhDIJ4v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D612C611C1;
-        Fri,  9 Apr 2021 09:56:36 +0000 (UTC)
+        id S233511AbhDIJ6q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:58:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D33F3611BE;
+        Fri,  9 Apr 2021 09:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962197;
-        bh=/VG/p+NAkMVBBjXx6LRY9rwJA+QB77JrDnWMbMJHDDk=;
+        s=korg; t=1617962299;
+        bh=PEsWAovB893nxOhB0lObleZhDaezFPfqrvJWImgeMPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqA/JTTqn2qFcH6ln5+4zxIIjHYRaGZkoQ4BkbYIVLk3aiZX8nkdzN8HlF/kUgz8Y
-         EJdG/DjUzKJ4MkdWkNQIybQBtKDjghbSF+6M7LJxwr+C2VmWO7qyRNgRsOClVQK68y
-         6viqQvdCZ9DXfwYdFTfibXw1BXCbbDc+XuYI30U8=
+        b=JtzefQIofkDJSeyJodM7WDViCBYafTEXxnaepTyhHwO9LusSLTsuPkDsFSVhyYVQ5
+         1vX4nRtV0z1VneQoszIfyRkoaFbIWs+58aKr9Kgw45NoeEoiehN/ll4qF8uGx4rMNc
+         CHiqPjdfFvRzWQlOmOmywGyH33rJfskNAYrFokK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Lee Duncan <lduncan@suse.com>, Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Karthikeyan Kathirvel <kathirve@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/18] scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+Subject: [PATCH 5.4 08/23] mac80211: choose first enabled channel for monitor
 Date:   Fri,  9 Apr 2021 11:53:38 +0200
-Message-Id: <20210409095301.864124749@linuxfoundation.org>
+Message-Id: <20210409095303.168335295@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
-References: <20210409095301.525783608@linuxfoundation.org>
+In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
+References: <20210409095302.894568462@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
 
-[ Upstream commit 36fa766faa0c822c860e636fe82b1affcd022974 ]
+[ Upstream commit 041c881a0ba8a75f71118bd9766b78f04beed469 ]
 
-If pscsi_map_sg() fails, make sure to drop references to already allocated
-bios.
+Even if the first channel from sband channel list is invalid
+or disabled mac80211 ends up choosing it as the default channel
+for monitor interfaces, making them not usable.
 
-Link: https://lore.kernel.org/r/20210323212431.15306-2-mwilck@suse.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by assigning the first available valid or enabled
+channel instead.
+
+Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+Link: https://lore.kernel.org/r/1615440547-7661-1-git-send-email-kathirve@codeaurora.org
+[reword commit message, comment, code cleanups]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_pscsi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/mac80211/main.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
-index 47d76c862014..02c4e3beb264 100644
---- a/drivers/target/target_core_pscsi.c
-+++ b/drivers/target/target_core_pscsi.c
-@@ -970,6 +970,14 @@ pscsi_map_sg(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 3e8561c3b0e7..5b3189a37680 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -954,8 +954,19 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 			continue;
  
- 	return 0;
- fail:
-+	if (bio)
-+		bio_put(bio);
-+	while (req->bio) {
-+		bio = req->bio;
-+		req->bio = bio->bi_next;
-+		bio_put(bio);
-+	}
-+	req->biotail = NULL;
- 	return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
- }
- 
+ 		if (!dflt_chandef.chan) {
++			/*
++			 * Assign the first enabled channel to dflt_chandef
++			 * from the list of channels
++			 */
++			for (i = 0; i < sband->n_channels; i++)
++				if (!(sband->channels[i].flags &
++						IEEE80211_CHAN_DISABLED))
++					break;
++			/* if none found then use the first anyway */
++			if (i == sband->n_channels)
++				i = 0;
+ 			cfg80211_chandef_create(&dflt_chandef,
+-						&sband->channels[0],
++						&sband->channels[i],
+ 						NL80211_CHAN_NO_HT);
+ 			/* init channel we're on */
+ 			if (!local->use_chanctx && !local->_oper_chandef.chan) {
 -- 
 2.30.2
 
