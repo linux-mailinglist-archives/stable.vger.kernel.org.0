@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 516FF359ABD
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBB6359B02
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233054AbhDIKCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:02:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44346 "EHLO mail.kernel.org"
+        id S233854AbhDIKHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:07:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234015AbhDIKAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:00:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 751AE6121E;
-        Fri,  9 Apr 2021 09:59:10 +0000 (UTC)
+        id S233597AbhDIKDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:03:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 451DF6120A;
+        Fri,  9 Apr 2021 10:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962350;
-        bh=ZMIgxUyuyvzRy1ap1beSK8+1Wjeu7ewBPuop87BzI5w=;
+        s=korg; t=1617962451;
+        bh=nG+E1Y/BwJH31MhMQ0PLwe9qJUa5u8Ufx/6TMKjHvF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3Ay2HV+hJiAPe4urk5sJm38CnLFQskB1RzBNC/QxCemLwQXHlSPQ51G4x6FgzcI0
-         Uunsf8aAN9DjWbzRhMJOZWl1aFb6BWFEFgfqeXsBvQxWZaB56x1OEfBwrMkL0LtRSY
-         BPu83WmbU1stuiMrSx6aRta+dGZNtBmyz4F0CLkg=
+        b=aWiCooL9echSfzXf13HXlPYeYMpcw3WBMxG+dUNWmUg+36cJxJbRVCxp99beKadoM
+         o+B1npP/zH8gJZBimemtNUpssDztmglZIf4gSjJk9DgTbsP2g3qbroRCrSk64735AQ
+         mj8D56XVApjHkRzwe6nHKXF3wDViEUqYAakyRz84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Lee Duncan <lduncan@suse.com>, Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Esteve Varela Colominas <esteve.varela@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 24/41] scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+Subject: [PATCH 5.11 20/45] platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
 Date:   Fri,  9 Apr 2021 11:53:46 +0200
-Message-Id: <20210409095305.601311444@linuxfoundation.org>
+Message-Id: <20210409095306.058480730@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
-References: <20210409095304.818847860@linuxfoundation.org>
+In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
+References: <20210409095305.397149021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Esteve Varela Colominas <esteve.varela@gmail.com>
 
-[ Upstream commit 36fa766faa0c822c860e636fe82b1affcd022974 ]
+[ Upstream commit 3d677f12ea3a2097a16ded570623567403dea959 ]
 
-If pscsi_map_sg() fails, make sure to drop references to already allocated
-bios.
+On many recent ThinkPad laptops, there's a new LED next to the ESC key,
+that indicates the FnLock status.
+When the Fn+ESC combo is pressed, FnLock is toggled, which causes the
+Media Key functionality to change, making it so that the media keys
+either perform their media key function, or function as an F-key by
+default. The Fn key can be used the access the alternate function at any
+time.
 
-Link: https://lore.kernel.org/r/20210323212431.15306-2-mwilck@suse.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+With the current linux kernel, the LED doens't change state if you press
+the Fn+ESC key combo. However, the media key functionality *does*
+change. This is annoying, since the LED will stay on if it was on during
+bootup, and it makes it hard to keep track what the current state of the
+FnLock is.
+
+This patch calls an ACPI function, that gets the current media key
+state, when the Fn+ESC key combo is pressed. Through testing it was
+discovered that this function causes the LED to update correctly to
+reflect the current state when this function is called.
+
+The relevant ACPI calls are the following:
+\_SB_.PCI0.LPC0.EC0_.HKEY.GMKS: Get media key state, returns 0x603 if the FnLock mode is enabled, and 0x602 if it's disabled.
+\_SB_.PCI0.LPC0.EC0_.HKEY.SMKS: Set media key state, sending a 1 will enable FnLock mode, and a 0 will disable it.
+
+Relevant discussion:
+https://bugzilla.kernel.org/show_bug.cgi?id=207841
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1881015
+
+Signed-off-by: Esteve Varela Colominas <esteve.varela@gmail.com>
+Link: https://lore.kernel.org/r/20210315195823.23212-1-esteve.varela@gmail.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_pscsi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/platform/x86/thinkpad_acpi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
-index 4e37fa9b409d..723a51a3f431 100644
---- a/drivers/target/target_core_pscsi.c
-+++ b/drivers/target/target_core_pscsi.c
-@@ -939,6 +939,14 @@ pscsi_map_sg(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index f3e8eca8d86d..9f8da7155a89 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -4080,13 +4080,19 @@ static bool hotkey_notify_6xxx(const u32 hkey,
  
- 	return 0;
- fail:
-+	if (bio)
-+		bio_put(bio);
-+	while (req->bio) {
-+		bio = req->bio;
-+		req->bio = bio->bi_next;
-+		bio_put(bio);
-+	}
-+	req->biotail = NULL;
- 	return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
- }
+ 	case TP_HKEY_EV_KEY_NUMLOCK:
+ 	case TP_HKEY_EV_KEY_FN:
+-	case TP_HKEY_EV_KEY_FN_ESC:
+ 		/* key press events, we just ignore them as long as the EC
+ 		 * is still reporting them in the normal keyboard stream */
+ 		*send_acpi_ev = false;
+ 		*ignore_acpi_ev = true;
+ 		return true;
  
++	case TP_HKEY_EV_KEY_FN_ESC:
++		/* Get the media key status to foce the status LED to update */
++		acpi_evalf(hkey_handle, NULL, "GMKS", "v");
++		*send_acpi_ev = false;
++		*ignore_acpi_ev = true;
++		return true;
++
+ 	case TP_HKEY_EV_TABLET_CHANGED:
+ 		tpacpi_input_send_tabletsw();
+ 		hotkey_tablet_mode_notify_change();
 -- 
 2.30.2
 
