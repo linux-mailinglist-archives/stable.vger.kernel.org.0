@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EDC8359A46
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 101F8359A62
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbhDIJ5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:57:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43734 "EHLO mail.kernel.org"
+        id S233805AbhDIJ6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233310AbhDIJ4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 233A2611C9;
-        Fri,  9 Apr 2021 09:56:28 +0000 (UTC)
+        id S233423AbhDIJ5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:57:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0E6D6115C;
+        Fri,  9 Apr 2021 09:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962189;
-        bh=v6jf9yR0q+q45Cfz46wjLTQH4szE4WfWNwHXWOKXtjs=;
+        s=korg; t=1617962232;
+        bh=PN1incmu1iRF0jLxAlMJ+fkGYo7KnKKtOuUt+T+AoxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkKbugXs4nUt+XlNkq3j8o7+IlzKBZ9xNCW58gGjalRTqmeSa8KvYC0sW1x3oGpL2
-         yFzBxElOCCpCU5ojzKyUgPsJj2yA4wq85VZAolScOLzj/hpqJRaj+i2gQpJ9rYsnl6
-         fz+yNDRrc7kpfm7SrAyfk74ZR4eG45c+4NZ8D6dY=
+        b=D2REfOYSkNufbQAAUEnQrBFEqk6kloWcaf1pToxBShIl5OrKalgAsmlLG1l6cy4Qg
+         OAStfGGSYowReR2jkHdlFd2WxOf+2N+CLPpLFBbbIJbpVHSZlo72ZEPCS1TZG1b7RI
+         7JLMeOuTjlz2m6OTEbTFRHqr5rp/f0Cs3mTzT9Tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Karthikeyan Kathirvel <kathirve@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/14] ia64: mca: allocate early mca with GFP_ATOMIC
+Subject: [PATCH 4.19 06/18] mac80211: choose first enabled channel for monitor
 Date:   Fri,  9 Apr 2021 11:53:34 +0200
-Message-Id: <20210409095300.697751636@linuxfoundation.org>
+Message-Id: <20210409095301.733643349@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
-References: <20210409095300.391558233@linuxfoundation.org>
+In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
+References: <20210409095301.525783608@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
 
-[ Upstream commit f2a419cf495f95cac49ea289318b833477e1a0e2 ]
+[ Upstream commit 041c881a0ba8a75f71118bd9766b78f04beed469 ]
 
-The sleep warning happens at early boot right at secondary CPU
-activation bootup:
+Even if the first channel from sband channel list is invalid
+or disabled mac80211 ends up choosing it as the default channel
+for monitor interfaces, making them not usable.
 
-    smp: Bringing up secondary CPUs ...
-    BUG: sleeping function called from invalid context at mm/page_alloc.c:4942
-    in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 0, name: swapper/1
-    CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.12.0-rc2-00007-g79e228d0b611-dirty #99
-    ..
-    Call Trace:
-      show_stack+0x90/0xc0
-      dump_stack+0x150/0x1c0
-      ___might_sleep+0x1c0/0x2a0
-      __might_sleep+0xa0/0x160
-      __alloc_pages_nodemask+0x1a0/0x600
-      alloc_page_interleave+0x30/0x1c0
-      alloc_pages_current+0x2c0/0x340
-      __get_free_pages+0x30/0xa0
-      ia64_mca_cpu_init+0x2d0/0x3a0
-      cpu_init+0x8b0/0x1440
-      start_secondary+0x60/0x700
-      start_ap+0x750/0x780
-    Fixed BSP b0 value from CPU 1
+Fix this by assigning the first available valid or enabled
+channel instead.
 
-As I understand interrupts are not enabled yet and system has a lot of
-memory.  There is little chance to sleep and switch to GFP_ATOMIC should
-be a no-op.
-
-Link: https://lkml.kernel.org/r/20210315085045.204414-1-slyfox@gentoo.org
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+Link: https://lore.kernel.org/r/1615440547-7661-1-git-send-email-kathirve@codeaurora.org
+[reword commit message, comment, code cleanups]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/mca.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/main.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/arch/ia64/kernel/mca.c b/arch/ia64/kernel/mca.c
-index 555b11180156..16a7dae5f770 100644
---- a/arch/ia64/kernel/mca.c
-+++ b/arch/ia64/kernel/mca.c
-@@ -1860,7 +1860,7 @@ ia64_mca_cpu_init(void *cpu_data)
- 			data = mca_bootmem();
- 			first_time = 0;
- 		} else
--			data = (void *)__get_free_pages(GFP_KERNEL,
-+			data = (void *)__get_free_pages(GFP_ATOMIC,
- 							get_order(sz));
- 		if (!data)
- 			panic("Could not allocate MCA memory for cpu %d\n",
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 68db2a356443..f44d00f35fe7 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -931,8 +931,19 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 			continue;
+ 
+ 		if (!dflt_chandef.chan) {
++			/*
++			 * Assign the first enabled channel to dflt_chandef
++			 * from the list of channels
++			 */
++			for (i = 0; i < sband->n_channels; i++)
++				if (!(sband->channels[i].flags &
++						IEEE80211_CHAN_DISABLED))
++					break;
++			/* if none found then use the first anyway */
++			if (i == sband->n_channels)
++				i = 0;
+ 			cfg80211_chandef_create(&dflt_chandef,
+-						&sband->channels[0],
++						&sband->channels[i],
+ 						NL80211_CHAN_NO_HT);
+ 			/* init channel we're on */
+ 			if (!local->use_chanctx && !local->_oper_chandef.chan) {
 -- 
 2.30.2
 
