@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A0C359B20
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 475E9359AF0
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234145AbhDIKHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50636 "EHLO mail.kernel.org"
+        id S233821AbhDIKHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234213AbhDIKFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:05:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A9FF611C1;
-        Fri,  9 Apr 2021 10:01:40 +0000 (UTC)
+        id S233569AbhDIKDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:03:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E9F36115B;
+        Fri,  9 Apr 2021 10:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962501;
-        bh=uPkxKX2nfk6yX0mAQ0QklyFjQ73GJm7jFXLBziLAyyU=;
+        s=korg; t=1617962423;
+        bh=bJgG9no5xh/Cz0WtH7XO6q/37s45CFSv3lDISxUTGNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PwaDkvNWZRkHSixN/NIDHkSCbha8VUjEray9a2qeZpL0DJYe8/AVJI0ZmMV/NOqfl
-         jM9tlOkwiqUl7Zt9eyHuzESsEZt/nw67CTiNTPQGkBkK6zm/3Xa0UQZ842YDAsPBa6
-         tkOJ/ylv/3mEWnq2lXMf93en8mfI/nVwkTx6czOc=
+        b=rfyV7VrmFYWLLxVI2m6r3c0LICPUmQpoW+JyJ3+nODrSX1nJlFW8izFLAWyajfC1h
+         G9PRhzDGx21tlrFGmmUeeLVq8AE6aj19J5nkSdRIeR4P8qwxuBS5cT3KK1o8X77/nD
+         0F0w9ZDBy4TMUpnvNql0vICye/WPjmpu4U9Khc80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 09/45] mISDN: fix crash in fritzpci
-Date:   Fri,  9 Apr 2021 11:53:35 +0200
-Message-Id: <20210409095305.687960430@linuxfoundation.org>
+Subject: [PATCH 5.11 10/45] net: arcnet: com20020 fix error handling
+Date:   Fri,  9 Apr 2021 11:53:36 +0200
+Message-Id: <20210409095305.723972395@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
 References: <20210409095305.397149021@linuxfoundation.org>
@@ -42,82 +42,132 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit a9f81244d2e33e6dfcef120fefd30c96b3f7cdb0 ]
+[ Upstream commit 6577b9a551aedb86bca6d4438c28386361845108 ]
 
-setup_fritz() in avmfritz.c might fail with -EIO and in this case the
-isac.type and isac.write_reg is not initialized and remains 0(NULL).
-A subsequent call to isac_release() will dereference isac->write_reg and
-crash.
+There are two issues when handling error case in com20020pci_probe()
 
-[    1.737444] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    1.737809] #PF: supervisor instruction fetch in kernel mode
-[    1.738106] #PF: error_code(0x0010) - not-present page
-[    1.738378] PGD 0 P4D 0
-[    1.738515] Oops: 0010 [#1] SMP NOPTI
-[    1.738711] CPU: 0 PID: 180 Comm: systemd-udevd Not tainted 5.12.0-rc2+ #78
-[    1.739077] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-p
-rebuilt.qemu.org 04/01/2014
-[    1.739664] RIP: 0010:0x0
-[    1.739807] Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-[    1.740200] RSP: 0018:ffffc9000027ba10 EFLAGS: 00010202
-[    1.740478] RAX: 0000000000000000 RBX: ffff888102f41840 RCX: 0000000000000027
-[    1.740853] RDX: 00000000000000ff RSI: 0000000000000020 RDI: ffff888102f41800
-[    1.741226] RBP: ffffc9000027ba20 R08: ffff88817bc18440 R09: ffffc9000027b808
-[    1.741600] R10: 0000000000000001 R11: 0000000000000001 R12: ffff888102f41840
-[    1.741976] R13: 00000000fffffffb R14: ffff888102f41800 R15: ffff8881008b0000
-[    1.742351] FS:  00007fda3a38a8c0(0000) GS:ffff88817bc00000(0000) knlGS:0000000000000000
-[    1.742774] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.743076] CR2: ffffffffffffffd6 CR3: 00000001021ec000 CR4: 00000000000006f0
-[    1.743452] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    1.743828] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    1.744206] Call Trace:
-[    1.744339]  isac_release+0xcc/0xe0 [mISDNipac]
-[    1.744582]  fritzpci_probe.cold+0x282/0x739 [avmfritz]
-[    1.744861]  local_pci_probe+0x48/0x80
-[    1.745063]  pci_device_probe+0x10f/0x1c0
-[    1.745278]  really_probe+0xfb/0x420
-[    1.745471]  driver_probe_device+0xe9/0x160
-[    1.745693]  device_driver_attach+0x5d/0x70
-[    1.745917]  __driver_attach+0x8f/0x150
-[    1.746123]  ? device_driver_attach+0x70/0x70
-[    1.746354]  bus_for_each_dev+0x7e/0xc0
-[    1.746560]  driver_attach+0x1e/0x20
-[    1.746751]  bus_add_driver+0x152/0x1f0
-[    1.746957]  driver_register+0x74/0xd0
-[    1.747157]  ? 0xffffffffc00d8000
-[    1.747334]  __pci_register_driver+0x54/0x60
-[    1.747562]  AVM_init+0x36/0x1000 [avmfritz]
-[    1.747791]  do_one_initcall+0x48/0x1d0
-[    1.747997]  ? __cond_resched+0x19/0x30
-[    1.748206]  ? kmem_cache_alloc_trace+0x390/0x440
-[    1.748458]  ? do_init_module+0x28/0x250
-[    1.748669]  do_init_module+0x62/0x250
-[    1.748870]  load_module+0x23ee/0x26a0
-[    1.749073]  __do_sys_finit_module+0xc2/0x120
-[    1.749307]  ? __do_sys_finit_module+0xc2/0x120
-[    1.749549]  __x64_sys_finit_module+0x1a/0x20
-[    1.749782]  do_syscall_64+0x38/0x90
+1. priv might be not initialized yet when calling com20020pci_remove()
+from com20020pci_probe(), since the priv is set at the very last but it
+can jump to error handling in the middle and priv remains NULL.
+2. memory leak - the net device is allocated in alloc_arcdev but not
+properly released if error happens in the middle of the big for loop
+
+[    1.529110] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[    1.531447] RIP: 0010:com20020pci_remove+0x15/0x60 [com20020_pci]
+[    1.536805] Call Trace:
+[    1.536939]  com20020pci_probe+0x3f2/0x48c [com20020_pci]
+[    1.537226]  local_pci_probe+0x48/0x80
+[    1.539918]  com20020pci_init+0x3f/0x1000 [com20020_pci]
 
 Signed-off-by: Tong Zhang <ztong0001@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/mISDNipac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/arcnet/com20020-pci.c | 34 +++++++++++++++++--------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/mISDNipac.c b/drivers/isdn/hardware/mISDN/mISDNipac.c
-index ec475087fbf9..39f841b42488 100644
---- a/drivers/isdn/hardware/mISDN/mISDNipac.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNipac.c
-@@ -694,7 +694,7 @@ isac_release(struct isac_hw *isac)
- {
- 	if (isac->type & IPAC_TYPE_ISACX)
- 		WriteISAC(isac, ISACX_MASK, 0xff);
--	else
-+	else if (isac->type != 0)
- 		WriteISAC(isac, ISAC_MASK, 0xff);
- 	if (isac->dch.timer.function != NULL) {
- 		del_timer(&isac->dch.timer);
+diff --git a/drivers/net/arcnet/com20020-pci.c b/drivers/net/arcnet/com20020-pci.c
+index 8bdc44b7e09a..3c8f665c1558 100644
+--- a/drivers/net/arcnet/com20020-pci.c
++++ b/drivers/net/arcnet/com20020-pci.c
+@@ -127,6 +127,8 @@ static int com20020pci_probe(struct pci_dev *pdev,
+ 	int i, ioaddr, ret;
+ 	struct resource *r;
+ 
++	ret = 0;
++
+ 	if (pci_enable_device(pdev))
+ 		return -EIO;
+ 
+@@ -139,6 +141,8 @@ static int com20020pci_probe(struct pci_dev *pdev,
+ 	priv->ci = ci;
+ 	mm = &ci->misc_map;
+ 
++	pci_set_drvdata(pdev, priv);
++
+ 	INIT_LIST_HEAD(&priv->list_dev);
+ 
+ 	if (mm->size) {
+@@ -161,7 +165,7 @@ static int com20020pci_probe(struct pci_dev *pdev,
+ 		dev = alloc_arcdev(device);
+ 		if (!dev) {
+ 			ret = -ENOMEM;
+-			goto out_port;
++			break;
+ 		}
+ 		dev->dev_port = i;
+ 
+@@ -178,7 +182,7 @@ static int com20020pci_probe(struct pci_dev *pdev,
+ 			pr_err("IO region %xh-%xh already allocated\n",
+ 			       ioaddr, ioaddr + cm->size - 1);
+ 			ret = -EBUSY;
+-			goto out_port;
++			goto err_free_arcdev;
+ 		}
+ 
+ 		/* Dummy access after Reset
+@@ -216,18 +220,18 @@ static int com20020pci_probe(struct pci_dev *pdev,
+ 		if (arcnet_inb(ioaddr, COM20020_REG_R_STATUS) == 0xFF) {
+ 			pr_err("IO address %Xh is empty!\n", ioaddr);
+ 			ret = -EIO;
+-			goto out_port;
++			goto err_free_arcdev;
+ 		}
+ 		if (com20020_check(dev)) {
+ 			ret = -EIO;
+-			goto out_port;
++			goto err_free_arcdev;
+ 		}
+ 
+ 		card = devm_kzalloc(&pdev->dev, sizeof(struct com20020_dev),
+ 				    GFP_KERNEL);
+ 		if (!card) {
+ 			ret = -ENOMEM;
+-			goto out_port;
++			goto err_free_arcdev;
+ 		}
+ 
+ 		card->index = i;
+@@ -253,29 +257,29 @@ static int com20020pci_probe(struct pci_dev *pdev,
+ 
+ 		ret = devm_led_classdev_register(&pdev->dev, &card->tx_led);
+ 		if (ret)
+-			goto out_port;
++			goto err_free_arcdev;
+ 
+ 		ret = devm_led_classdev_register(&pdev->dev, &card->recon_led);
+ 		if (ret)
+-			goto out_port;
++			goto err_free_arcdev;
+ 
+ 		dev_set_drvdata(&dev->dev, card);
+ 
+ 		ret = com20020_found(dev, IRQF_SHARED);
+ 		if (ret)
+-			goto out_port;
++			goto err_free_arcdev;
+ 
+ 		devm_arcnet_led_init(dev, dev->dev_id, i);
+ 
+ 		list_add(&card->list, &priv->list_dev);
+-	}
++		continue;
+ 
+-	pci_set_drvdata(pdev, priv);
+-
+-	return 0;
+-
+-out_port:
+-	com20020pci_remove(pdev);
++err_free_arcdev:
++		free_arcdev(dev);
++		break;
++	}
++	if (ret)
++		com20020pci_remove(pdev);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
