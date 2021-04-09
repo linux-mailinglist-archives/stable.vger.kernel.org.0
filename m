@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE0A359A5D
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A77359A16
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:55:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233535AbhDIJ6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:58:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
+        id S232855AbhDIJ4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233409AbhDIJ5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62AED611BF;
-        Fri,  9 Apr 2021 09:57:01 +0000 (UTC)
+        id S233519AbhDIJze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:55:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D2A2611C9;
+        Fri,  9 Apr 2021 09:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962221;
-        bh=Mutaf/l//cjTnf5ww/mgqigexYN26XxY39BM9zOOWOk=;
+        s=korg; t=1617962120;
+        bh=V+x+2INcOzgnWu+tLDdUCCUQothP++KGc7g0v0HqrGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTspBqzuf3ASIdPMDXsM2qPHFx7b3I9TAi8yESiW97lGxQHBcBv+upE5+HI5dELiK
-         j9r7kcGllbmpREUAE32EC/H5/eSvX0+FClNaXLamEEwVbeh4EDS/F5Ika03zNGO7LA
-         HNsbBypO6gCSWQSsYc5dZq3GP1ZAG3aCKPtIlKcg=
+        b=YVDiGwKQ7hlJs1wl28mUzIp6Ek9Z6Gp6evuo7n8pEOGekh1j6kU7FPtFf4x+Yc48i
+         c3/GHcgAjWTLInj5N4ovUO374/l9gJ0JIPHdNAjzrvf8NtNJEbyfyYDcZC4jtFL/HG
+         Dx0E/+Uu+bX3d2doXZIOfDqk4//4Qt6n6+WI6kxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/18] bus: ti-sysc: Fix warning on unbind if reset is not deasserted
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.9 10/13] bpf, x86: Validate computation of branch displacements for x86-64
 Date:   Fri,  9 Apr 2021 11:53:30 +0200
-Message-Id: <20210409095301.606177901@linuxfoundation.org>
+Message-Id: <20210409095259.965251658@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
-References: <20210409095301.525783608@linuxfoundation.org>
+In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
+References: <20210409095259.624577828@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Piotr Krysiuk <piotras@gmail.com>
 
-[ Upstream commit a7b5d7c4969aba8d1f04c29048906abaa71fb6a9 ]
+commit e4d4d456436bfb2fe412ee2cd489f7658449b098 upstream.
 
-We currently get thefollowing on driver unbind if a reset is configured
-and asserted:
+The branch displacement logic in the BPF JIT compilers for x86 assumes
+that, for any generated branch instruction, the distance cannot
+increase between optimization passes.
 
-WARNING: CPU: 0 PID: 993 at drivers/reset/core.c:432 reset_control_assert
-...
-(reset_control_assert) from [<c0fecda8>] (sysc_remove+0x190/0x1e4)
-(sysc_remove) from [<c0a2bb58>] (platform_remove+0x24/0x3c)
-(platform_remove) from [<c0a292fc>] (__device_release_driver+0x154/0x214)
-(__device_release_driver) from [<c0a2a210>] (device_driver_detach+0x3c/0x8c)
-(device_driver_detach) from [<c0a27d64>] (unbind_store+0x60/0xd4)
-(unbind_store) from [<c0546bec>] (kernfs_fop_write_iter+0x10c/0x1cc)
+But this assumption can be violated due to how the distances are
+computed. Specifically, whenever a backward branch is processed in
+do_jit(), the distance is computed by subtracting the positions in the
+machine code from different optimization passes. This is because part
+of addrs[] is already updated for the current optimization pass, before
+the branch instruction is visited.
 
-Let's fix it by checking the reset status.
+And so the optimizer can expand blocks of machine code in some cases.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can confuse the optimizer logic, where it assumes that a fixed
+point has been reached for all machine code blocks once the total
+program size stops changing. And then the JIT compiler can output
+abnormal machine code containing incorrect branch displacements.
+
+To mitigate this issue, we assert that a fixed point is reached while
+populating the output image. This rejects any problematic programs.
+The issue affects both x86-32 and x86-64. We mitigate separately to
+ease backporting.
+
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Reviewed-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/ti-sysc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/net/bpf_jit_comp.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 54c8c8644df2..b6a278183d82 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1814,7 +1814,9 @@ static int sysc_remove(struct platform_device *pdev)
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -1082,7 +1082,16 @@ common_load:
+ 		}
  
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
--	reset_control_assert(ddata->rsts);
-+
-+	if (!reset_control_status(ddata->rsts))
-+		reset_control_assert(ddata->rsts);
- 
- unprepare:
- 	sysc_unprepare(ddata);
--- 
-2.30.2
-
+ 		if (image) {
+-			if (unlikely(proglen + ilen > oldproglen)) {
++			/*
++			 * When populating the image, assert that:
++			 *
++			 *  i) We do not write beyond the allocated space, and
++			 * ii) addrs[i] did not change from the prior run, in order
++			 *     to validate assumptions made for computing branch
++			 *     displacements.
++			 */
++			if (unlikely(proglen + ilen > oldproglen ||
++				     proglen + ilen != addrs[i])) {
+ 				pr_err("bpf_jit_compile fatal error\n");
+ 				return -EFAULT;
+ 			}
 
 
