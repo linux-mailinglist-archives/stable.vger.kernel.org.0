@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF89359B3E
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B05359B30
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234447AbhDIKH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51088 "EHLO mail.kernel.org"
+        id S234320AbhDIKHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:07:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233838AbhDIKCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:02:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEADD61263;
-        Fri,  9 Apr 2021 10:00:09 +0000 (UTC)
+        id S234316AbhDIKFv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:05:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6635D61356;
+        Fri,  9 Apr 2021 10:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962410;
-        bh=j+LuwkqM7U3QhRWAjsn+caADMu8VJkSKPKc+BGNZ2YM=;
+        s=korg; t=1617962518;
+        bh=xF3OLvrkXxqieUA3Lge8W0wrSbztqaJOn4/7BbTbDSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1c2Iq9K4FKHSQzIyeFuCT72Wru1hom/1k20tjbY3WTgEm3j9iIhdj/KoYO3OeGlM
-         WpagJEht/1CkYg0BpfXg4HZ4lQcuMhuXgiNYdC/HvZcHyjSEi3qvbs/6Ob3yrKcFkp
-         LiEf+XcRQIJf5jhjY3UA4Tpd3jNPkB7UY5O7pi+g=
+        b=lufoO43cR2HtBeKImwF8iq0jjt5meVsdqG3uIbuCH/hZYOotxan30JfEFHYDP2Vvx
+         Q4pWB/5H2uq9dvqDagkyIA8GOm2i1nxzpiR/wXcP9z30y3wMsZoB7aBxtROT/ma1FQ
+         QISY46+HmNIuBmmZXRx03GHZTe9ZFZBFG6YXY8D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.10 39/41] bpf, x86: Validate computation of branch displacements for x86-32
-Date:   Fri,  9 Apr 2021 11:54:01 +0200
-Message-Id: <20210409095306.075652415@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 36/45] math: Export mul_u64_u64_div_u64
+Date:   Fri,  9 Apr 2021 11:54:02 +0200
+Message-Id: <20210409095306.589673475@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
-References: <20210409095304.818847860@linuxfoundation.org>
+In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
+References: <20210409095305.397149021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +39,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Krysiuk <piotras@gmail.com>
+From: David S. Miller <davem@davemloft.net>
 
-commit 26f55a59dc65ff77cd1c4b37991e26497fc68049 upstream.
+[ Upstream commit bf45947864764548697e7515fe693e10f173f312 ]
 
-The branch displacement logic in the BPF JIT compilers for x86 assumes
-that, for any generated branch instruction, the distance cannot
-increase between optimization passes.
-
-But this assumption can be violated due to how the distances are
-computed. Specifically, whenever a backward branch is processed in
-do_jit(), the distance is computed by subtracting the positions in the
-machine code from different optimization passes. This is because part
-of addrs[] is already updated for the current optimization pass, before
-the branch instruction is visited.
-
-And so the optimizer can expand blocks of machine code in some cases.
-
-This can confuse the optimizer logic, where it assumes that a fixed
-point has been reached for all machine code blocks once the total
-program size stops changing. And then the JIT compiler can output
-abnormal machine code containing incorrect branch displacements.
-
-To mitigate this issue, we assert that a fixed point is reached while
-populating the output image. This rejects any problematic programs.
-The issue affects both x86-32 and x86-64. We mitigate separately to
-ease backporting.
-
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
-Reviewed-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f51d7bf1dbe5 ("ptp_qoriq: fix overflow in ptp_qoriq_adjfine() u64 calcalation")
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp32.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ lib/math/div64.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/net/bpf_jit_comp32.c
-+++ b/arch/x86/net/bpf_jit_comp32.c
-@@ -2278,7 +2278,16 @@ notyet:
- 		}
+diff --git a/lib/math/div64.c b/lib/math/div64.c
+index 064d68a5391a..46866394fc84 100644
+--- a/lib/math/div64.c
++++ b/lib/math/div64.c
+@@ -232,4 +232,5 @@ u64 mul_u64_u64_div_u64(u64 a, u64 b, u64 c)
  
- 		if (image) {
--			if (unlikely(proglen + ilen > oldproglen)) {
-+			/*
-+			 * When populating the image, assert that:
-+			 *
-+			 *  i) We do not write beyond the allocated space, and
-+			 * ii) addrs[i] did not change from the prior run, in order
-+			 *     to validate assumptions made for computing branch
-+			 *     displacements.
-+			 */
-+			if (unlikely(proglen + ilen > oldproglen ||
-+				     proglen + ilen != addrs[i])) {
- 				pr_err("bpf_jit: fatal error\n");
- 				return -EFAULT;
- 			}
+ 	return res + div64_u64(a * b, c);
+ }
++EXPORT_SYMBOL(mul_u64_u64_div_u64);
+ #endif
+-- 
+2.30.2
+
 
 
