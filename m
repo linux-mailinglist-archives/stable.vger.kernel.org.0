@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35CEB359B15
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:07:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 509A5359ADE
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 12:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233828AbhDIKH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 06:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51554 "EHLO mail.kernel.org"
+        id S233954AbhDIKEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 06:04:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234187AbhDIKFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 06:05:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43A4661355;
-        Fri,  9 Apr 2021 10:01:25 +0000 (UTC)
+        id S233741AbhDIKCD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 06:02:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E678B6120C;
+        Fri,  9 Apr 2021 10:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962485;
-        bh=zBxvGtJmvHoaAo7R7ymWv4eLPi0x11uTP1qOZ1aLXFw=;
+        s=korg; t=1617962402;
+        bh=N8n3jcYHWyo1wp21uJxRgPbrFjs21WTUixqnVBSy01Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vKg5I6rtIHaZh/o4/H9QOjy7kB1aQkrKgnG3epYIpmcRPE621NM3E3IZbZfqFZ3En
-         8jy8Juv8R8tizjKf90yXMhisIANBvQT3rbEXYgLbC4EodUQ8Azzybgni+TyoJmjx4Q
-         QdVZ4o5KB+AaIjQFriIKOkmdCCn6wZlC22MVy/iY=
+        b=y3Z62XP0zPtQFvO6p4UeByqaTM8gYemtKPi3lkVVcANcazCdCY/Tz5qQmOPiYJV81
+         g6kvm/TVuGpv5g7Z91pNkN8RxAajppc37eYslNa1OWcKyGct/TQxIj8eEjCH396R3K
+         LGnOeODQd92RjBoE5cBWElRpZrkdFdiKpPdkZEGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 32/45] ia64: fix format strings for err_inject
+Subject: [PATCH 5.10 36/41] kbuild: Do not clean resolve_btfids if the output does not exist
 Date:   Fri,  9 Apr 2021 11:53:58 +0200
-Message-Id: <20210409095306.450179408@linuxfoundation.org>
+Message-Id: <20210409095305.973227790@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095305.397149021@linuxfoundation.org>
-References: <20210409095305.397149021@linuxfoundation.org>
+In-Reply-To: <20210409095304.818847860@linuxfoundation.org>
+References: <20210409095304.818847860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,108 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 95d44a470a6814207d52dd6312203b0f4ef12710 ]
+[ Upstream commit 0e1aa629f1ce9e8cb89e0cefb9e3bfb3dfa94821 ]
 
-Fix warning with %lx / u64 mismatch:
+Nathan reported issue with cleaning empty build directory:
 
-  arch/ia64/kernel/err_inject.c: In function 'show_resources':
-  arch/ia64/kernel/err_inject.c:62:22: warning:
-    format '%lx' expects argument of type 'long unsigned int',
-    but argument 3 has type 'u64' {aka 'long long unsigned int'}
-     62 |  return sprintf(buf, "%lx", name[cpu]);   \
-        |                      ^~~~~~~
+  $ make -s O=build distclean
+  ../../scripts/Makefile.include:4: *** \
+  O=/ho...build/tools/bpf/resolve_btfids does not exist.  Stop.
 
-Link: https://lkml.kernel.org/r/20210313104312.1548232-1-slyfox@gentoo.org
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The problem that tools scripts require existing output
+directory, otherwise it fails.
+
+Adding check around the resolve_btfids clean target to
+ensure the output directory is in place.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/bpf/20210211124004.1144344-1-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/err_inject.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ Makefile | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/ia64/kernel/err_inject.c b/arch/ia64/kernel/err_inject.c
-index 8b5b8e6bc9d9..dd5bfed52031 100644
---- a/arch/ia64/kernel/err_inject.c
-+++ b/arch/ia64/kernel/err_inject.c
-@@ -59,7 +59,7 @@ show_##name(struct device *dev, struct device_attribute *attr,	\
- 		char *buf)						\
- {									\
- 	u32 cpu=dev->id;						\
--	return sprintf(buf, "%lx\n", name[cpu]);			\
-+	return sprintf(buf, "%llx\n", name[cpu]);			\
- }
+diff --git a/Makefile b/Makefile
+index 3a3937ab7ed0..4420131d4709 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1085,8 +1085,14 @@ endif
  
- #define store(name)							\
-@@ -86,9 +86,9 @@ store_call_start(struct device *dev, struct device_attribute *attr,
+ PHONY += resolve_btfids_clean
  
- #ifdef ERR_INJ_DEBUG
- 	printk(KERN_DEBUG "pal_mc_err_inject for cpu%d:\n", cpu);
--	printk(KERN_DEBUG "err_type_info=%lx,\n", err_type_info[cpu]);
--	printk(KERN_DEBUG "err_struct_info=%lx,\n", err_struct_info[cpu]);
--	printk(KERN_DEBUG "err_data_buffer=%lx, %lx, %lx.\n",
-+	printk(KERN_DEBUG "err_type_info=%llx,\n", err_type_info[cpu]);
-+	printk(KERN_DEBUG "err_struct_info=%llx,\n", err_struct_info[cpu]);
-+	printk(KERN_DEBUG "err_data_buffer=%llx, %llx, %llx.\n",
- 			  err_data_buffer[cpu].data1,
- 			  err_data_buffer[cpu].data2,
- 			  err_data_buffer[cpu].data3);
-@@ -117,8 +117,8 @@ store_call_start(struct device *dev, struct device_attribute *attr,
++resolve_btfids_O = $(abspath $(objtree))/tools/bpf/resolve_btfids
++
++# tools/bpf/resolve_btfids directory might not exist
++# in output directory, skip its clean in that case
+ resolve_btfids_clean:
+-	$(Q)$(MAKE) -sC $(srctree)/tools/bpf/resolve_btfids O=$(abspath $(objtree))/tools/bpf/resolve_btfids clean
++ifneq ($(wildcard $(resolve_btfids_O)),)
++	$(Q)$(MAKE) -sC $(srctree)/tools/bpf/resolve_btfids O=$(resolve_btfids_O) clean
++endif
  
- #ifdef ERR_INJ_DEBUG
- 	printk(KERN_DEBUG "Returns: status=%d,\n", (int)status[cpu]);
--	printk(KERN_DEBUG "capabilities=%lx,\n", capabilities[cpu]);
--	printk(KERN_DEBUG "resources=%lx\n", resources[cpu]);
-+	printk(KERN_DEBUG "capabilities=%llx,\n", capabilities[cpu]);
-+	printk(KERN_DEBUG "resources=%llx\n", resources[cpu]);
- #endif
- 	return size;
- }
-@@ -131,7 +131,7 @@ show_virtual_to_phys(struct device *dev, struct device_attribute *attr,
- 			char *buf)
- {
- 	unsigned int cpu=dev->id;
--	return sprintf(buf, "%lx\n", phys_addr[cpu]);
-+	return sprintf(buf, "%llx\n", phys_addr[cpu]);
- }
- 
- static ssize_t
-@@ -145,7 +145,7 @@ store_virtual_to_phys(struct device *dev, struct device_attribute *attr,
- 	ret = get_user_pages_fast(virt_addr, 1, FOLL_WRITE, NULL);
- 	if (ret<=0) {
- #ifdef ERR_INJ_DEBUG
--		printk("Virtual address %lx is not existing.\n",virt_addr);
-+		printk("Virtual address %llx is not existing.\n", virt_addr);
- #endif
- 		return -EINVAL;
- 	}
-@@ -163,7 +163,7 @@ show_err_data_buffer(struct device *dev,
- {
- 	unsigned int cpu=dev->id;
- 
--	return sprintf(buf, "%lx, %lx, %lx\n",
-+	return sprintf(buf, "%llx, %llx, %llx\n",
- 			err_data_buffer[cpu].data1,
- 			err_data_buffer[cpu].data2,
- 			err_data_buffer[cpu].data3);
-@@ -178,13 +178,13 @@ store_err_data_buffer(struct device *dev,
- 	int ret;
- 
- #ifdef ERR_INJ_DEBUG
--	printk("write err_data_buffer=[%lx,%lx,%lx] on cpu%d\n",
-+	printk("write err_data_buffer=[%llx,%llx,%llx] on cpu%d\n",
- 		 err_data_buffer[cpu].data1,
- 		 err_data_buffer[cpu].data2,
- 		 err_data_buffer[cpu].data3,
- 		 cpu);
- #endif
--	ret=sscanf(buf, "%lx, %lx, %lx",
-+	ret = sscanf(buf, "%llx, %llx, %llx",
- 			&err_data_buffer[cpu].data1,
- 			&err_data_buffer[cpu].data2,
- 			&err_data_buffer[cpu].data3);
+ ifdef CONFIG_BPF
+ ifdef CONFIG_DEBUG_INFO_BTF
 -- 
 2.30.2
 
