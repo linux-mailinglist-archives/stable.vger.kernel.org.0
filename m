@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F08359A27
-	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5297359A3C
+	for <lists+stable@lfdr.de>; Fri,  9 Apr 2021 11:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232834AbhDIJ4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 05:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
+        id S233601AbhDIJ5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 05:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233367AbhDIJ4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Apr 2021 05:56:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C47BA611C0;
-        Fri,  9 Apr 2021 09:55:46 +0000 (UTC)
+        id S233586AbhDIJ40 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Apr 2021 05:56:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B51A611BF;
+        Fri,  9 Apr 2021 09:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1617962147;
-        bh=llLN9xU9vdoxLzdQwQJM2fJmmSdqDdov5+bePIV0doo=;
+        s=korg; t=1617962173;
+        bh=8DRw1WgndKxhi58SgcuQYiRxFEAHXT4LyT3172QVfYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXHw6/DtrL85sZESZSV8RhNzo0c+g2vWuO5I0pTOS2nJlxE3VAuvdDROUQL0txlMb
-         1jsXV1WQU0epaBBpHW1KDjBrF4Y2AStgvmoD6At39rVma36/Ch7HM507rQ5k/mZn6G
-         5KGIyPAYkkdTnkLnI43Yci2g8OjOZfd7DFOCQi1c=
+        b=o9jdv3rtjZXvXV0jaGJtBRBkm0DlDcsSvQjkAXehgbKeuwNdIG6ArONgZ+BtRCZVD
+         m7B3bPcwt4pcdAbrbQqn9iv7GoH/E0+R/8ZIimIJtVF14Am8XCd4pOP9Vj4Iu9i2Af
+         cH1G7EfRH4jIGvhHtyVE3HKHi2j9sjjXxz6ZKWpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/13] cifs: revalidate mapping when we open files for SMB1 POSIX
+Subject: [PATCH 4.14 03/14] mISDN: fix crash in fritzpci
 Date:   Fri,  9 Apr 2021 11:53:28 +0200
-Message-Id: <20210409095259.890571984@linuxfoundation.org>
+Message-Id: <20210409095300.504622651@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210409095259.624577828@linuxfoundation.org>
-References: <20210409095259.624577828@linuxfoundation.org>
+In-Reply-To: <20210409095300.391558233@linuxfoundation.org>
+References: <20210409095300.391558233@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit cee8f4f6fcabfdf229542926128e9874d19016d5 ]
+[ Upstream commit a9f81244d2e33e6dfcef120fefd30c96b3f7cdb0 ]
 
-RHBZ: 1933527
+setup_fritz() in avmfritz.c might fail with -EIO and in this case the
+isac.type and isac.write_reg is not initialized and remains 0(NULL).
+A subsequent call to isac_release() will dereference isac->write_reg and
+crash.
 
-Under SMB1 + POSIX, if an inode is reused on a server after we have read and
-cached a part of a file, when we then open the new file with the
-re-cycled inode there is a chance that we may serve the old data out of cache
-to the application.
-This only happens for SMB1 (deprecated) and when posix are used.
-The simplest solution to avoid this race is to force a revalidate
-on smb1-posix open.
+[    1.737444] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    1.737809] #PF: supervisor instruction fetch in kernel mode
+[    1.738106] #PF: error_code(0x0010) - not-present page
+[    1.738378] PGD 0 P4D 0
+[    1.738515] Oops: 0010 [#1] SMP NOPTI
+[    1.738711] CPU: 0 PID: 180 Comm: systemd-udevd Not tainted 5.12.0-rc2+ #78
+[    1.739077] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-p
+rebuilt.qemu.org 04/01/2014
+[    1.739664] RIP: 0010:0x0
+[    1.739807] Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+[    1.740200] RSP: 0018:ffffc9000027ba10 EFLAGS: 00010202
+[    1.740478] RAX: 0000000000000000 RBX: ffff888102f41840 RCX: 0000000000000027
+[    1.740853] RDX: 00000000000000ff RSI: 0000000000000020 RDI: ffff888102f41800
+[    1.741226] RBP: ffffc9000027ba20 R08: ffff88817bc18440 R09: ffffc9000027b808
+[    1.741600] R10: 0000000000000001 R11: 0000000000000001 R12: ffff888102f41840
+[    1.741976] R13: 00000000fffffffb R14: ffff888102f41800 R15: ffff8881008b0000
+[    1.742351] FS:  00007fda3a38a8c0(0000) GS:ffff88817bc00000(0000) knlGS:0000000000000000
+[    1.742774] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.743076] CR2: ffffffffffffffd6 CR3: 00000001021ec000 CR4: 00000000000006f0
+[    1.743452] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    1.743828] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    1.744206] Call Trace:
+[    1.744339]  isac_release+0xcc/0xe0 [mISDNipac]
+[    1.744582]  fritzpci_probe.cold+0x282/0x739 [avmfritz]
+[    1.744861]  local_pci_probe+0x48/0x80
+[    1.745063]  pci_device_probe+0x10f/0x1c0
+[    1.745278]  really_probe+0xfb/0x420
+[    1.745471]  driver_probe_device+0xe9/0x160
+[    1.745693]  device_driver_attach+0x5d/0x70
+[    1.745917]  __driver_attach+0x8f/0x150
+[    1.746123]  ? device_driver_attach+0x70/0x70
+[    1.746354]  bus_for_each_dev+0x7e/0xc0
+[    1.746560]  driver_attach+0x1e/0x20
+[    1.746751]  bus_add_driver+0x152/0x1f0
+[    1.746957]  driver_register+0x74/0xd0
+[    1.747157]  ? 0xffffffffc00d8000
+[    1.747334]  __pci_register_driver+0x54/0x60
+[    1.747562]  AVM_init+0x36/0x1000 [avmfritz]
+[    1.747791]  do_one_initcall+0x48/0x1d0
+[    1.747997]  ? __cond_resched+0x19/0x30
+[    1.748206]  ? kmem_cache_alloc_trace+0x390/0x440
+[    1.748458]  ? do_init_module+0x28/0x250
+[    1.748669]  do_init_module+0x62/0x250
+[    1.748870]  load_module+0x23ee/0x26a0
+[    1.749073]  __do_sys_finit_module+0xc2/0x120
+[    1.749307]  ? __do_sys_finit_module+0xc2/0x120
+[    1.749549]  __x64_sys_finit_module+0x1a/0x20
+[    1.749782]  do_syscall_64+0x38/0x90
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/hardware/mISDN/mISDNipac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 24508b69e78b..e2ce90fc504e 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -163,6 +163,7 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
- 			goto posix_open_ret;
- 		}
- 	} else {
-+		cifs_revalidate_mapping(*pinode);
- 		cifs_fattr_to_inode(*pinode, &fattr);
- 	}
- 
+diff --git a/drivers/isdn/hardware/mISDN/mISDNipac.c b/drivers/isdn/hardware/mISDN/mISDNipac.c
+index e240010b93fa..c87cb193830c 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNipac.c
++++ b/drivers/isdn/hardware/mISDN/mISDNipac.c
+@@ -711,7 +711,7 @@ isac_release(struct isac_hw *isac)
+ {
+ 	if (isac->type & IPAC_TYPE_ISACX)
+ 		WriteISAC(isac, ISACX_MASK, 0xff);
+-	else
++	else if (isac->type != 0)
+ 		WriteISAC(isac, ISAC_MASK, 0xff);
+ 	if (isac->dch.timer.function != NULL) {
+ 		del_timer(&isac->dch.timer);
 -- 
 2.30.2
 
