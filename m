@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF04735ADE4
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 16:01:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B423235ADE9
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 16:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234513AbhDJOCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 10:02:03 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:35381 "EHLO
+        id S234759AbhDJOCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 10:02:12 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:48003 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234392AbhDJOCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 10:02:01 -0400
+        by vger.kernel.org with ESMTP id S234548AbhDJOCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 10:02:08 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id B14441940AB9;
-        Sat, 10 Apr 2021 10:01:46 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0849F19411E6;
+        Sat, 10 Apr 2021 10:01:54 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 10 Apr 2021 10:01:46 -0400
+  by compute4.internal (MEProxy); Sat, 10 Apr 2021 10:01:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gTMkEW
-        FZIzW+U3x2gs7wM1UZYZd3f5yxeYdKlGDyklI=; b=YISffvUJ/SZo8tA76Obi6J
-        fQllIym4oYx6RmIyZxptKeXbAHoOcf9+WT8DcIRK9WuJCtqriYVtpIt8hAnTqhGw
-        iQvaEOAi5X52/4xdWgA2a8dLW+rGBzORIwE4OgzGWqNODlyAOctEgh+EiD8IIq2F
-        TiNcnX1iz6Pa0PziSyEGy6bhO+KlamY6OUr0IbodWXSiGxaXQ1l64/oxNZAjq60N
-        +XziMXMwX3tyClH1mFM8n0PMuhlMVdxXPktrIHQzlm8OZgMWV7LOB8TsMkLuPMnF
-        ezI50I67wgm7DYLiwKRj3sx89vNj6bj25aIzUuZgmq2/AVbNvJR/wricbnlmw7ZQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=NR5k0k
+        uLcY1pxV1Q0aRWkP+es/0wYA38f+mEMykuZdI=; b=PurGwBB7k72IfEeyei4NHM
+        +kpJXUDaUHAyVpHTG9R3ErCJWkbaASyaGAGCDUgbScM0KN+kHgPG73b9YNUT+8VM
+        HE8nGCCzMRvZ9acS19berDZwhdc3PcCkE46noyNrTZdQXZi1eauNzv+G4V9qo372
+        o62iu4LEpx9JMPB1MlQmbNk60/JR2uvUQLEYgz6BrcB0eCOI4zQbS1cXLBqpZsea
+        bul6K/3jqP0sKFHZ9biFmB53lwzbfqrc2yxIfd47PUNbLIPzQiU/XYEYC88pEBjG
+        nJhYoKFUStuQkfQVGXIZ1vgENAvdHtntkMDee9IVKGlOh+FkQTEjxgUw8rG4Yrcw
         ==
-X-ME-Sender: <xms:ya9xYDABbY2WIsuRPBfpBTSRxZPHB54SOYCiiSv7AsgwMrFyUs0m9w>
-    <xme:ya9xYJi9sCb27KmCDrC_OkR_QdCXYyiiaXZlnOYNpCujXa15hOA-ZikaYo7IrIyjg
-    V6XnV5jWu1i9Q>
+X-ME-Sender: <xms:0a9xYP3RhsQb5Q3LvYuvcEIa_tcUMUlvba1XlAxfCLECnbs_vuoT7g>
+    <xme:0a9xYOHSQhFkZM0lyW3kywteZ1YAtDb7Vkk3nvCIjEe-RWHeGQxk_JJ-cyKlFJkpu
+    wUOIWi_kvmJig>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:ya9xYOmhF9Os7RccQK6pWOOjcREvEB0jp09swsbl4Pzh9oM03QDJuQ>
-    <xmx:ya9xYFyyNrKkQCTHvHhULotLEtbfDIe_qnGgwuDnBEcxMXbGSCzhlw>
-    <xmx:ya9xYIRdnHbOdoiuhKwdTYmCDSL3HN0Qo-pFcpRAVKib_7w0It7g6Q>
-    <xmx:yq9xYDItd_hy5w_sdQ5cXTyLEcWYvKUhTa_CR9FcAST5jOHPAvkgxw>
+X-ME-Proxy: <xmx:0a9xYP5Htt-sQT_dGtpAiszACcXsLYauMZtqmAW7gk588i608qYxww>
+    <xmx:0a9xYE1HVuz-NdDeaaYFQTqgaT9UlYvTIVf9y9m6upEIU0FezCphlg>
+    <xmx:0a9xYCFOC-I1-Fa0P4x6H9iC0hNCW-XjtNLcIDI_48usXHYIaj6zKA>
+    <xmx:0q9xYEMP4EkEDVC_IKE2Us__VX5G2TrXZd1NTWOhK1e9rBisr8GAjQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6F0DF240054;
-        Sat, 10 Apr 2021 10:01:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] net: hso: fix null-ptr-deref during tty device unregistration" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A9CC6240057;
+        Sat, 10 Apr 2021 10:01:53 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: hso: fix null-ptr-deref during tty device unregistration" failed to apply to 4.9-stable tree
 To:     mail@anirudhrb.com, davem@davemloft.net, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 16:01:43 +0200
-Message-ID: <161806330327108@kroah.com>
+Date:   Sat, 10 Apr 2021 16:01:44 +0200
+Message-ID: <161806330417787@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
