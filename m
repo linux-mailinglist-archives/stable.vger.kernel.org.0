@@ -2,362 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDFDE35ACE3
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 13:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822B735ACE5
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 13:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234640AbhDJLUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 07:20:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43248 "EHLO mail.kernel.org"
+        id S234684AbhDJLUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 07:20:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234647AbhDJLUO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Apr 2021 07:20:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2160F610A2;
-        Sat, 10 Apr 2021 11:19:58 +0000 (UTC)
+        id S234647AbhDJLUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 07:20:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96D03610C8;
+        Sat, 10 Apr 2021 11:20:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618053599;
-        bh=N6EdtVKsh2ofFhjVntTgXkEqihkj7+hoPvBCV5VcLDc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZrd6dC4UywK/TpbP70Cp9lkrtSqx5K6H5ypmjaoi0TuPDMzLKrSRFr6mEhTDvghk
-         wUOcXNX6/YTHINto5CAqds0uv+YBBwzFFFfrvN2cO75JOVSoqvT5mvBp2zO8rIq9Ij
-         CvqkyaeRqxYUtft+WdnSRbmTuJ+bSRkTIMdQ9Bwc=
+        s=korg; t=1618053602;
+        bh=kq+PuPoMhDJVqbJFGKIOGAUpPfqqO7hCPnD4fcrHQjk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=n3pOtTb1G24dLbLKM5GqiVNoIPubdReOgvLBZyYDl7hess4M7FwwrA9Bo60JRp6vN
+         tWbEPwnI04dql1GKN9bvmLW3KAWOim//KuKdVdllsNfcb89gDHAnumqRNqUuB21hQq
+         V/YpxjAC0Q7IGol1U3Z5FrMEGeXsQO6egnHl23Fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.4.266
-Date:   Sat, 10 Apr 2021 13:19:52 +0200
-Message-Id: <1618053591130173@kroah.com>
+Subject: Linux 4.9.266
+Date:   Sat, 10 Apr 2021 13:19:56 +0200
+Message-Id: <16180535971175@kroah.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <161805359112471@kroah.com>
-References: <161805359112471@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index af742b6f9e23..8863ee364e7e 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 4
--SUBLEVEL = 265
-+SUBLEVEL = 266
- EXTRAVERSION =
- NAME = Blurry Fish Butt
- 
-diff --git a/arch/ia64/kernel/mca.c b/arch/ia64/kernel/mca.c
-index 2889412e03eb..0d5b64ddcdd1 100644
---- a/arch/ia64/kernel/mca.c
-+++ b/arch/ia64/kernel/mca.c
-@@ -1858,7 +1858,7 @@ ia64_mca_cpu_init(void *cpu_data)
- 			data = mca_bootmem();
- 			first_time = 0;
- 		} else
--			data = (void *)__get_free_pages(GFP_KERNEL,
-+			data = (void *)__get_free_pages(GFP_ATOMIC,
- 							get_order(sz));
- 		if (!data)
- 			panic("Could not allocate MCA memory for cpu %d\n",
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 5fece9334f12..2b3adb3008c3 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -34,7 +34,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -D__KERNEL__ \
- 		   -DDISABLE_BRANCH_PROFILING \
- 		   -Wall -Wstrict-prototypes -march=i386 -mregparm=3 \
- 		   -fno-strict-aliasing -fomit-frame-pointer -fno-pic \
--		   -mno-mmx -mno-sse
-+		   -mno-mmx -mno-sse $(call cc-option,-fcf-protection=none)
- 
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index bea13c35979e..82f8cd0a3af9 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1038,7 +1038,16 @@ common_load:
- 		}
- 
- 		if (image) {
--			if (unlikely(proglen + ilen > oldproglen)) {
-+			/*
-+			 * When populating the image, assert that:
-+			 *
-+			 *  i) We do not write beyond the allocated space, and
-+			 * ii) addrs[i] did not change from the prior run, in order
-+			 *     to validate assumptions made for computing branch
-+			 *     displacements.
-+			 */
-+			if (unlikely(proglen + ilen > oldproglen ||
-+				     proglen + ilen != addrs[i])) {
- 				pr_err("bpf_jit_compile fatal error\n");
- 				return -EFAULT;
- 			}
-diff --git a/drivers/isdn/hardware/mISDN/mISDNipac.c b/drivers/isdn/hardware/mISDN/mISDNipac.c
-index cb428b9ee441..b4639b0aab3c 100644
---- a/drivers/isdn/hardware/mISDN/mISDNipac.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNipac.c
-@@ -709,7 +709,7 @@ isac_release(struct isac_hw *isac)
- {
- 	if (isac->type & IPAC_TYPE_ISACX)
- 		WriteISAC(isac, ISACX_MASK, 0xff);
--	else
-+	else if (isac->type != 0)
- 		WriteISAC(isac, ISAC_MASK, 0xff);
- 	if (isac->dch.timer.function != NULL) {
- 		del_timer(&isac->dch.timer);
-diff --git a/drivers/mtd/nand/diskonchip.c b/drivers/mtd/nand/diskonchip.c
-index 0802158a3f75..557fcf1c21fe 100644
---- a/drivers/mtd/nand/diskonchip.c
-+++ b/drivers/mtd/nand/diskonchip.c
-@@ -1608,13 +1608,10 @@ static int __init doc_probe(unsigned long physadr)
- 		numchips = doc2001_init(mtd);
- 
- 	if ((ret = nand_scan(mtd, numchips)) || (ret = doc->late_init(mtd))) {
--		/* DBB note: i believe nand_release is necessary here, as
-+		/* DBB note: i believe nand_cleanup is necessary here, as
- 		   buffers may have been allocated in nand_base.  Check with
- 		   Thomas. FIX ME! */
--		/* nand_release will call mtd_device_unregister, but we
--		   haven't yet added it.  This is handled without incident by
--		   mtd_device_unregister, as far as I can tell. */
--		nand_release(mtd);
-+		nand_cleanup(nand);
- 		kfree(mtd);
- 		goto fail;
- 	}
-diff --git a/drivers/mtd/nand/orion_nand.c b/drivers/mtd/nand/orion_nand.c
-index ee83749fb1d3..7b4278d50b45 100644
---- a/drivers/mtd/nand/orion_nand.c
-+++ b/drivers/mtd/nand/orion_nand.c
-@@ -165,7 +165,7 @@ static int __init orion_nand_probe(struct platform_device *pdev)
- 	ret = mtd_device_parse_register(mtd, NULL, &ppdata,
- 			board->parts, board->nr_parts);
- 	if (ret) {
--		nand_release(mtd);
-+		nand_cleanup(nc);
- 		goto no_dev;
- 	}
- 
-diff --git a/drivers/mtd/nand/pasemi_nand.c b/drivers/mtd/nand/pasemi_nand.c
-index 83cf021b9651..8d289a882ca7 100644
---- a/drivers/mtd/nand/pasemi_nand.c
-+++ b/drivers/mtd/nand/pasemi_nand.c
-@@ -167,7 +167,7 @@ static int pasemi_nand_probe(struct platform_device *ofdev)
- 	if (mtd_device_register(pasemi_nand_mtd, NULL, 0)) {
- 		printk(KERN_ERR "pasemi_nand: Unable to register MTD device\n");
- 		err = -ENODEV;
--		goto out_lpc;
-+		goto out_cleanup_nand;
- 	}
- 
- 	printk(KERN_INFO "PA Semi NAND flash at %08llx, control at I/O %x\n",
-@@ -175,6 +175,8 @@ static int pasemi_nand_probe(struct platform_device *ofdev)
- 
- 	return 0;
- 
-+ out_cleanup_nand:
-+	nand_cleanup(chip);
-  out_lpc:
- 	release_region(lpcctl, 4);
-  out_ior:
-diff --git a/drivers/mtd/nand/plat_nand.c b/drivers/mtd/nand/plat_nand.c
-index 65b9dbbe6d6a..89c4a19b1740 100644
---- a/drivers/mtd/nand/plat_nand.c
-+++ b/drivers/mtd/nand/plat_nand.c
-@@ -102,7 +102,7 @@ static int plat_nand_probe(struct platform_device *pdev)
- 	if (!err)
- 		return err;
- 
--	nand_release(&data->mtd);
-+	nand_cleanup(&data->chip);
- out:
- 	if (pdata->ctrl.remove)
- 		pdata->ctrl.remove(pdev);
-diff --git a/drivers/mtd/nand/sharpsl.c b/drivers/mtd/nand/sharpsl.c
-index 082b6009736d..42b2a8d90d33 100644
---- a/drivers/mtd/nand/sharpsl.c
-+++ b/drivers/mtd/nand/sharpsl.c
-@@ -189,7 +189,7 @@ static int sharpsl_nand_probe(struct platform_device *pdev)
- 	return 0;
- 
- err_add:
--	nand_release(&sharpsl->mtd);
-+	nand_cleanup(this);
- 
- err_scan:
- 	iounmap(sharpsl->io);
-diff --git a/drivers/mtd/nand/socrates_nand.c b/drivers/mtd/nand/socrates_nand.c
-index b94f53427f0f..8775111837f4 100644
---- a/drivers/mtd/nand/socrates_nand.c
-+++ b/drivers/mtd/nand/socrates_nand.c
-@@ -204,7 +204,7 @@ static int socrates_nand_probe(struct platform_device *ofdev)
- 	if (!res)
- 		return res;
- 
--	nand_release(mtd);
-+	nand_cleanup(nand_chip);
- 
- out:
- 	iounmap(host->io_base);
-diff --git a/drivers/mtd/nand/tmio_nand.c b/drivers/mtd/nand/tmio_nand.c
-index befddf0776e4..d8c6c09917ad 100644
---- a/drivers/mtd/nand/tmio_nand.c
-+++ b/drivers/mtd/nand/tmio_nand.c
-@@ -445,7 +445,7 @@ static int tmio_probe(struct platform_device *dev)
- 	if (!retval)
- 		return retval;
- 
--	nand_release(mtd);
-+	nand_cleanup(nand_chip);
- 
- err_irq:
- 	tmio_hw_stop(dev, tmio);
-diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
-index b18bb0334ded..dcad5213eb34 100644
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -379,9 +379,15 @@ static int flexcan_chip_disable(struct flexcan_priv *priv)
- static int flexcan_chip_freeze(struct flexcan_priv *priv)
- {
- 	struct flexcan_regs __iomem *regs = priv->regs;
--	unsigned int timeout = 1000 * 1000 * 10 / priv->can.bittiming.bitrate;
-+	unsigned int timeout;
-+	u32 bitrate = priv->can.bittiming.bitrate;
- 	u32 reg;
- 
-+	if (bitrate)
-+		timeout = 1000 * 1000 * 10 / bitrate;
-+	else
-+		timeout = FLEXCAN_TIMEOUT_US / 10;
-+
- 	reg = flexcan_read(&regs->mcr);
- 	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
- 	flexcan_write(reg, &regs->mcr);
-diff --git a/drivers/net/ethernet/marvell/pxa168_eth.c b/drivers/net/ethernet/marvell/pxa168_eth.c
-index 7ace07dad6a3..9986f88618bd 100644
---- a/drivers/net/ethernet/marvell/pxa168_eth.c
-+++ b/drivers/net/ethernet/marvell/pxa168_eth.c
-@@ -1577,8 +1577,8 @@ static int pxa168_eth_remove(struct platform_device *pdev)
- 
- 	mdiobus_unregister(pep->smi_bus);
- 	mdiobus_free(pep->smi_bus);
--	unregister_netdev(dev);
- 	cancel_work_sync(&pep->tx_timeout_task);
-+	unregister_netdev(dev);
- 	free_netdev(dev);
- 	return 0;
- }
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index b5a05092f862..5bc617cb7721 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -163,6 +163,7 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
- 			goto posix_open_ret;
- 		}
- 	} else {
-+		cifs_revalidate_mapping(*pinode);
- 		cifs_fattr_to_inode(*pinode, &fattr);
- 	}
- 
-diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
-index 44198b9a5315..19baeb4ca511 100644
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -633,8 +633,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
--	return false;
-+	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
-+	return true;
- }
- 
- void
-diff --git a/init/Kconfig b/init/Kconfig
-index 5d8ada360ca3..9200c0ef2f1f 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -65,7 +65,7 @@ config CROSS_COMPILE
- 
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
--	default n
-+	depends on HAS_IOMEM
- 	help
- 	  Some drivers can be compiled on a different platform than they are
- 	  intended to be run on. Despite they cannot be loaded there (or even
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index ca8c8bdc1143..8822ae65a506 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -26,6 +26,7 @@
- #include <linux/linkage.h>
- #include <linux/uaccess.h>
- #include <linux/kprobes.h>
-+#include <linux/vmalloc.h>
- #include <linux/ftrace.h>
- #include <linux/module.h>
- #include <linux/percpu.h>
-@@ -6626,6 +6627,19 @@ static int allocate_trace_buffers(struct trace_array *tr, int size)
- 	 */
- 	allocate_snapshot = false;
- #endif
-+
-+	/*
-+	 * Because of some magic with the way alloc_percpu() works on
-+	 * x86_64, we need to synchronize the pgd of all the tables,
-+	 * otherwise the trace events that happen in x86_64 page fault
-+	 * handlers can't cope with accessing the chance that a
-+	 * alloc_percpu()'d memory might be touched in the page fault trace
-+	 * event. Oh, and we need to audit all other alloc_percpu() and vmalloc()
-+	 * calls in tracing, because something might get triggered within a
-+	 * page fault trace event!
-+	 */
-+	vmalloc_sync_mappings();
-+
- 	return 0;
- }
- 
-diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-index 15d23aeea634..2357b17254e7 100644
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -889,8 +889,19 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
- 			continue;
- 
- 		if (!dflt_chandef.chan) {
-+			/*
-+			 * Assign the first enabled channel to dflt_chandef
-+			 * from the list of channels
-+			 */
-+			for (i = 0; i < sband->n_channels; i++)
-+				if (!(sband->channels[i].flags &
-+						IEEE80211_CHAN_DISABLED))
-+					break;
-+			/* if none found then use the first anyway */
-+			if (i == sband->n_channels)
-+				i = 0;
- 			cfg80211_chandef_create(&dflt_chandef,
--						&sband->channels[0],
-+						&sband->channels[i],
- 						NL80211_CHAN_NO_HT);
- 			/* init channel we're on */
- 			if (!local->use_chanctx && !local->_oper_chandef.chan) {
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 4bfe06650277..51163309c875 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6212,7 +6212,6 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
- 	SND_HDA_PIN_QUIRK(0x10ec0299, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
- 		ALC225_STANDARD_PINS,
- 		{0x12, 0xb7a60130},
--		{0x13, 0xb8a61140},
- 		{0x17, 0x90170110}),
- 	{}
- };
+I'm announcing the release of the 4.9.266 kernel.
+
+All users of the 4.9 kernel series must upgrade.
+
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                  |    2 +-
+ arch/ia64/kernel/mca.c                    |    2 +-
+ arch/x86/Makefile                         |    2 +-
+ arch/x86/net/bpf_jit_comp.c               |   11 ++++++++++-
+ drivers/gpu/drm/msm/msm_fence.c           |    2 +-
+ drivers/isdn/hardware/mISDN/mISDNipac.c   |    2 +-
+ drivers/net/can/flexcan.c                 |    8 +++++++-
+ drivers/net/ethernet/marvell/pxa168_eth.c |    2 +-
+ drivers/target/target_core_pscsi.c        |    8 ++++++++
+ fs/cifs/file.c                            |    1 +
+ fs/cifs/smb2misc.c                        |    4 ++--
+ init/Kconfig                              |    3 +--
+ net/mac80211/main.c                       |   13 ++++++++++++-
+ sound/pci/hda/patch_realtek.c             |    1 -
+ 14 files changed, 47 insertions(+), 14 deletions(-)
+
+Angelo Dureghello (1):
+      can: flexcan: flexcan_chip_freeze(): fix chip freeze for missing bitrate
+
+Arnd Bergmann (1):
+      x86/build: Turn off -fcf-protection for realmode targets
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.266
+
+Heiko Carstens (1):
+      init/Kconfig: make COMPILE_TEST depend on !S390
+
+Karthikeyan Kathirvel (1):
+      mac80211: choose first enabled channel for monitor
+
+Martin Wilck (1):
+      scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+
+Masahiro Yamada (1):
+      init/Kconfig: make COMPILE_TEST depend on HAS_IOMEM
+
+Pavel Andrianov (1):
+      net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
+
+Piotr Krysiuk (1):
+      bpf, x86: Validate computation of branch displacements for x86-64
+
+Rob Clark (1):
+      drm/msm: Ratelimit invalid-fence message
+
+Ronnie Sahlberg (1):
+      cifs: revalidate mapping when we open files for SMB1 POSIX
+
+Sergei Trofimovich (1):
+      ia64: mca: allocate early mca with GFP_ATOMIC
+
+Shih-Yuan Lee (FourDollars) (1):
+      ALSA: hda/realtek - Fix pincfg for Dell XPS 13 9370
+
+Tong Zhang (1):
+      mISDN: fix crash in fritzpci
+
+Vincent Whitchurch (1):
+      cifs: Silently ignore unknown oplock break handle
+
