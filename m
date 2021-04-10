@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F2A35ADBF
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 15:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9766735ADDC
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 15:58:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234619AbhDJNmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 09:42:38 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:41919 "EHLO
+        id S234392AbhDJN6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 09:58:52 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:42087 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234180AbhDJNmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 09:42:38 -0400
+        by vger.kernel.org with ESMTP id S234376AbhDJN6w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 09:58:52 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BB78619407C0;
-        Sat, 10 Apr 2021 09:42:23 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 315E11941075;
+        Sat, 10 Apr 2021 09:58:37 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 10 Apr 2021 09:42:23 -0400
+  by compute4.internal (MEProxy); Sat, 10 Apr 2021 09:58:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=S++fwH
-        tp1fEPwbNe8tlfkfeUyNYnw5SNRpSUMhS6Mgs=; b=VyaBr4XkILEUlUdXq5fd8A
-        Mq8MkxV12rfKWqPrX5R6qMtMYW2Pa2Zm2rwXPLsXS1ZOOD1nO7LcORqeFNvuwiBg
-        zTj4/Dstu9Ph+lSrPLmK7phNSZuKH72aScOLz/G24p/+BCiIZup1mXJJVQ21o7fx
-        10XAMRvpxkCsruc5IVo1DwV2l9E/pbocRD7Vw0WyBC5dy2l3Y5tC2ueQFSCbvs4m
-        dxr3sFgTr8rHk4RKIyV8sr1klgeHscpYS1csbs32UHoD0bOTeLJnnlR7daWPSbVO
-        hg7Wqlu4ywTUAogqNvH0TYuTUS3AIcKAA0MejURxBaPHcP2v4irRYfSzeHUDtg5A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=OZ27Hc
+        Gb86s6ppFWiscndi+ZXOe1KKzWCJA3KftU03w=; b=GedLd8zTY+C2yvvOewgpF+
+        JHQsDRVlbZQ+v+xq5ep8VE3Yyjy5WnkXI9karztg34Gtx4W6GmNOG5IbWkKOGrcn
+        CtFLiJfO5QZ43vK+gJ//d+6qzTc1fQI23nzxxw+NC9AivkPSr7dmdV7gzPH4cdSF
+        AGy7BNLW3FAMjIwvPwnKmrmtUdhFRvmBRxC8vsgkybDnxhso6WZFsGlvnhZcsAid
+        L26ShY/xJ88Tag/6kNZHFUszCcrJ7LBGNRnfKit4mP2hAh3YBFQfACbCwsdjVHRn
+        RYIu2scdwq5rC8qd587B3ajEsdGISZVvC2gcgamZbIpUVoX+XOzbuLWAlyJig5cQ
         ==
-X-ME-Sender: <xms:P6txYCJ8aXlG1z89yrSg0SILUGur43G5kIrznn9EFSzdQuh_w4YHlg>
-    <xme:P6txYKKCvqry0EfSAskOuEG7Vtm5w2e5ZuTVqv7q4BwmC_2OZfoma4bUwdDI1wLwH
-    CWn3Y50lmq4VA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgieekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:Da9xYJSztO6sI0fw12myCMSjvOkQ1ZSLX3FYN5YfxXkFIUt3sqTRVA>
+    <xme:Da9xYCyKrSiNj8Rk95I3ibLtoXxSHdukNmOvrK1xESYVyKudoYavZUi2wq5umHoJL
+    vSO3LsOr6I1eg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:P6txYCuDM72kGLTGxGV8eU-gUNggDbG2W-MgZo_JfrgTw5wtlC9spA>
-    <xmx:P6txYHbnTlH67BQ8y4sU4DZ_5O__pSI93ctOhXndE2vW2tlwMcj-sw>
-    <xmx:P6txYJZVmHOONxO75o3SvrEhR3xvHEm9ZvHuu-bUZlBPgJ5G6CGjnw>
-    <xmx:P6txYKC6nzSOWajBYsbIpc2FxwuSFdSLSMzouRoF-uQ9s3vJvja72g>
+X-ME-Proxy: <xmx:Da9xYO2097vJEJ4R6EEzyJ-4Nh33SZ80OBaHQqvkqmZ03QYSRTHevg>
+    <xmx:Da9xYBBjZCoPA3O6lwq2uDYjOiSagNPod6wZvx2usGo3wDq1dDV6aw>
+    <xmx:Da9xYChSwqwiuYQU6clLU6qOJk2qj8z7f2Yec-2t8_5ggDSU-qOa0A>
+    <xmx:Da9xYGbAHi240cJFce08NK-yVY1T2F9tjWxZigFKRP3_vDv-sO9Elw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6A66F240054;
-        Sat, 10 Apr 2021 09:42:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: preserve pending TLB flush across calls to" failed to apply to 5.11-stable tree
-To:     pbonzini@redhat.com, seanjc@google.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D258E24005B;
+        Sat, 10 Apr 2021 09:58:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ice: Recognize 860 as iSCSI port in CEE mode" failed to apply to 5.10-stable tree
+To:     chinh.t.cao@intel.com, anthony.l.nguyen@intel.com,
+        tonyx.brelinski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 15:42:14 +0200
-Message-ID: <161806213423097@kroah.com>
+Date:   Sat, 10 Apr 2021 15:58:26 +0200
+Message-ID: <16180631061956@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,47 +71,121 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 315f02c60d9425b38eb8ad7f21b8a35e40db23f9 Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Tue, 6 Apr 2021 11:08:51 -0400
-Subject: [PATCH] KVM: x86/mmu: preserve pending TLB flush across calls to
- kvm_tdp_mmu_zap_sp
+From aeac8ce864d9c0836e12ed5b5cc80f62f3cccb7c Mon Sep 17 00:00:00 2001
+From: Chinh T Cao <chinh.t.cao@intel.com>
+Date: Fri, 26 Feb 2021 13:19:25 -0800
+Subject: [PATCH] ice: Recognize 860 as iSCSI port in CEE mode
 
-Right now, if a call to kvm_tdp_mmu_zap_sp returns false, the caller
-will skip the TLB flush, which is wrong.  There are two ways to fix
-it:
+iSCSI can use both TCP ports 860 and 3260. However, in our current
+implementation, the ice_aqc_opc_get_cee_dcb_cfg (0x0A07) AQ command
+doesn't provide a way to communicate the protocol port number to the
+AQ's caller. Thus, we assume that 3260 is the iSCSI port number at the
+AQ's caller layer.
 
-- since kvm_tdp_mmu_zap_sp will not yield and therefore will not flush
-  the TLB itself, we could change the call to kvm_tdp_mmu_zap_sp to
-  use "flush |= ..."
+Rely on the dcbx-willing mode, desired QoS and remote QoS configuration to
+determine which port number that iSCSI will use.
 
-- or we can chain the flush argument through kvm_tdp_mmu_zap_sp down
-  to __kvm_tdp_mmu_zap_gfn_range.  Note that kvm_tdp_mmu_zap_sp will
-  neither yield nor flush, so flush would never go from true to
-  false.
+Fixes: 0ebd3ff13cca ("ice: Add code for DCB initialization part 2/4")
+Signed-off-by: Chinh T Cao <chinh.t.cao@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-This patch does the former to simplify application to stable kernels,
-and to make it further clearer that kvm_tdp_mmu_zap_sp will not flush.
-
-Cc: seanjc@google.com
-Fixes: 048f49809c526 ("KVM: x86/mmu: Ensure TLBs are flushed for TDP MMU during NX zapping")
-Cc: <stable@vger.kernel.org> # 5.10.x: 048f49809c: KVM: x86/mmu: Ensure TLBs are flushed for TDP MMU during NX zapping
-Cc: <stable@vger.kernel.org> # 5.10.x: 33a3164161: KVM: x86/mmu: Don't allow TDP MMU to yield when recovering NX pages
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 486aa94ecf1d..951dae4e7175 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5906,7 +5906,7 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
- 				      lpage_disallowed_link);
- 		WARN_ON_ONCE(!sp->lpage_disallowed);
- 		if (is_tdp_mmu_page(sp)) {
--			flush = kvm_tdp_mmu_zap_sp(kvm, sp);
-+			flush |= kvm_tdp_mmu_zap_sp(kvm, sp);
+diff --git a/drivers/net/ethernet/intel/ice/ice_dcb.c b/drivers/net/ethernet/intel/ice/ice_dcb.c
+index e42727941ef5..211ac6f907ad 100644
+--- a/drivers/net/ethernet/intel/ice/ice_dcb.c
++++ b/drivers/net/ethernet/intel/ice/ice_dcb.c
+@@ -738,22 +738,27 @@ ice_aq_get_cee_dcb_cfg(struct ice_hw *hw,
+ /**
+  * ice_cee_to_dcb_cfg
+  * @cee_cfg: pointer to CEE configuration struct
+- * @dcbcfg: DCB configuration struct
++ * @pi: port information structure
+  *
+  * Convert CEE configuration from firmware to DCB configuration
+  */
+ static void
+ ice_cee_to_dcb_cfg(struct ice_aqc_get_cee_dcb_cfg_resp *cee_cfg,
+-		   struct ice_dcbx_cfg *dcbcfg)
++		   struct ice_port_info *pi)
+ {
+ 	u32 status, tlv_status = le32_to_cpu(cee_cfg->tlv_status);
+ 	u32 ice_aqc_cee_status_mask, ice_aqc_cee_status_shift;
++	u8 i, j, err, sync, oper, app_index, ice_app_sel_type;
+ 	u16 app_prio = le16_to_cpu(cee_cfg->oper_app_prio);
+-	u8 i, err, sync, oper, app_index, ice_app_sel_type;
+ 	u16 ice_aqc_cee_app_mask, ice_aqc_cee_app_shift;
++	struct ice_dcbx_cfg *cmp_dcbcfg, *dcbcfg;
+ 	u16 ice_app_prot_id_type;
+ 
+-	/* CEE PG data to ETS config */
++	dcbcfg = &pi->qos_cfg.local_dcbx_cfg;
++	dcbcfg->dcbx_mode = ICE_DCBX_MODE_CEE;
++	dcbcfg->tlv_status = tlv_status;
++
++	/* CEE PG data */
+ 	dcbcfg->etscfg.maxtcs = cee_cfg->oper_num_tc;
+ 
+ 	/* Note that the FW creates the oper_prio_tc nibbles reversed
+@@ -780,10 +785,16 @@ ice_cee_to_dcb_cfg(struct ice_aqc_get_cee_dcb_cfg_resp *cee_cfg,
+ 		}
+ 	}
+ 
+-	/* CEE PFC data to ETS config */
++	/* CEE PFC data */
+ 	dcbcfg->pfc.pfcena = cee_cfg->oper_pfc_en;
+ 	dcbcfg->pfc.pfccap = ICE_MAX_TRAFFIC_CLASS;
+ 
++	/* CEE APP TLV data */
++	if (dcbcfg->app_mode == ICE_DCBX_APPS_NON_WILLING)
++		cmp_dcbcfg = &pi->qos_cfg.desired_dcbx_cfg;
++	else
++		cmp_dcbcfg = &pi->qos_cfg.remote_dcbx_cfg;
++
+ 	app_index = 0;
+ 	for (i = 0; i < 3; i++) {
+ 		if (i == 0) {
+@@ -802,6 +813,18 @@ ice_cee_to_dcb_cfg(struct ice_aqc_get_cee_dcb_cfg_resp *cee_cfg,
+ 			ice_aqc_cee_app_shift = ICE_AQC_CEE_APP_ISCSI_S;
+ 			ice_app_sel_type = ICE_APP_SEL_TCPIP;
+ 			ice_app_prot_id_type = ICE_APP_PROT_ID_ISCSI;
++
++			for (j = 0; j < cmp_dcbcfg->numapps; j++) {
++				u16 prot_id = cmp_dcbcfg->app[j].prot_id;
++				u8 sel = cmp_dcbcfg->app[j].selector;
++
++				if  (sel == ICE_APP_SEL_TCPIP &&
++				     (prot_id == ICE_APP_PROT_ID_ISCSI ||
++				      prot_id == ICE_APP_PROT_ID_ISCSI_860)) {
++					ice_app_prot_id_type = prot_id;
++					break;
++				}
++			}
  		} else {
- 			kvm_mmu_prepare_zap_page(kvm, sp, &invalid_list);
- 			WARN_ON_ONCE(sp->lpage_disallowed);
+ 			/* FIP APP */
+ 			ice_aqc_cee_status_mask = ICE_AQC_CEE_FIP_STATUS_M;
+@@ -892,11 +915,8 @@ enum ice_status ice_get_dcb_cfg(struct ice_port_info *pi)
+ 	ret = ice_aq_get_cee_dcb_cfg(pi->hw, &cee_cfg, NULL);
+ 	if (!ret) {
+ 		/* CEE mode */
+-		dcbx_cfg = &pi->qos_cfg.local_dcbx_cfg;
+-		dcbx_cfg->dcbx_mode = ICE_DCBX_MODE_CEE;
+-		dcbx_cfg->tlv_status = le32_to_cpu(cee_cfg.tlv_status);
+-		ice_cee_to_dcb_cfg(&cee_cfg, dcbx_cfg);
+ 		ret = ice_get_ieee_or_cee_dcb_cfg(pi, ICE_DCBX_MODE_CEE);
++		ice_cee_to_dcb_cfg(&cee_cfg, pi);
+ 	} else if (pi->hw->adminq.sq_last_status == ICE_AQ_RC_ENOENT) {
+ 		/* CEE mode not enabled try querying IEEE data */
+ 		dcbx_cfg = &pi->qos_cfg.local_dcbx_cfg;
+diff --git a/drivers/net/ethernet/intel/ice/ice_type.h b/drivers/net/ethernet/intel/ice/ice_type.h
+index a6cb0c35748c..266036b7a49a 100644
+--- a/drivers/net/ethernet/intel/ice/ice_type.h
++++ b/drivers/net/ethernet/intel/ice/ice_type.h
+@@ -535,6 +535,7 @@ struct ice_dcb_app_priority_table {
+ #define ICE_TLV_STATUS_ERR	0x4
+ #define ICE_APP_PROT_ID_FCOE	0x8906
+ #define ICE_APP_PROT_ID_ISCSI	0x0cbc
++#define ICE_APP_PROT_ID_ISCSI_860 0x035c
+ #define ICE_APP_PROT_ID_FIP	0x8914
+ #define ICE_APP_SEL_ETHTYPE	0x1
+ #define ICE_APP_SEL_TCPIP	0x2
 
