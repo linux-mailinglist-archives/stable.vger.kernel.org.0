@@ -2,218 +2,409 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5573135A9B1
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 02:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82CCD35A9B6
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 02:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235249AbhDJAts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Apr 2021 20:49:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235215AbhDJAtr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 20:49:47 -0400
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC8FC061762
-        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 17:49:33 -0700 (PDT)
-Received: by mail-oi1-x22c.google.com with SMTP id x2so7590610oiv.2
-        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 17:49:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:reply-to:mime-version
-         :content-transfer-encoding;
-        bh=CVbQmHyA4ZzeHvRyveW1iGtt9QNh9Rt8u8Y4WsqNvSY=;
-        b=lO7kl5ieHDsoHLI/arB7f4WMon8h9iHgk+RqWUlEnOKKK7ccIOkGjzQuWaCYRHxirv
-         V+6HvaejNbzM3L3r/Npc1xJJBgb1qvHH1fqLosI4HSiInRNp/f/RougP1D7mviY7Nk1/
-         kdL/6JmSEE1rCTSk+Rtn9mqC5KjKKWAD/iXiD9qCr1Dzc24Qh1OVVsxRc4b4Ba+oprNl
-         FgNoGjPqq7XBXB7YbQQCJjkAgQanL5reqXYxU+gRhgtmpuRvmF54Zsp5K+AfEYLJH8O/
-         ubXooWFK6D939EtUI6o7APhghQsvNhLagL4uparX1lqK7vxu2wCcju+TMpFwOkyqweRx
-         Sx0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :mime-version:content-transfer-encoding;
-        bh=CVbQmHyA4ZzeHvRyveW1iGtt9QNh9Rt8u8Y4WsqNvSY=;
-        b=h6kFX/aim9LN1v5P+8J0yiQEjiMj0iaYZkdew3irK1peh3msFTdjpgkWWD7XDaXdHc
-         4W62gD7k+nMzsEwX2r93NVHNDrmDKGFDZQwAGvKdpdZFW9OIW6lWoSVhOCu3KhzF3dFi
-         +l2qXSHGDshhfh0pIpendA12WJXutMOQSisA8IWD+Cvj29qBhdmaztucbz6jJFhAUeqO
-         7YEqqzZlEXlfJtJcMh4/Pd3MaxLOvyNkYkI/eJ1CMDfeN2CQYWyOca3LLpwVoMd6PSRm
-         nQRShenePeZCxfezf6zDu5xLhBD2Aj79LT8Pvi9uOgFClr4Awla8ZemhvjNCiL/auYpK
-         /2Hg==
-X-Gm-Message-State: AOAM530CT66r7ABL3SZo+ZUrTeKZa+0iYGwjGSwn2kByfR2RTcnEJCKi
-        pXwD8UeLc9Xwi0++wbP7rss=
-X-Google-Smtp-Source: ABdhPJxuyuBpQ8tHmZwwJZjfHVVQxPx4WU7Jc+kDrCGouqqnbl0JCai9nkx1LPrE3qyF2xCw+LBy7A==
-X-Received: by 2002:aca:d884:: with SMTP id p126mr12092919oig.118.1618015772875;
-        Fri, 09 Apr 2021 17:49:32 -0700 (PDT)
-Received: from proxmox.local.lan (2603-80a0-0e01-cc2f-0226-b9ff-fe41-ba6b.res6.spectrum.com. [2603:80a0:e01:cc2f:226:b9ff:fe41:ba6b])
-        by smtp.googlemail.com with ESMTPSA id y13sm928927oti.79.2021.04.09.17.49.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Apr 2021 17:49:32 -0700 (PDT)
-From:   Tom Seewald <tseewald@gmail.com>
-To:     skhan@linuxfoundation.org
-Cc:     tseewald@gmail.com,
-        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
-        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
-        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        stable@vger.kernel.org
-Subject: [PATCH] usbip: fix vudc usbip_sockfd_store races leading to gpf
-Date:   Fri,  9 Apr 2021 19:49:30 -0500
-Message-Id: <20210410004930.17411-1-tseewald@gmail.com>
-X-Mailer: git-send-email 2.20.1
-Reply-To: 6f17ac98-5b23-3068-b6ec-4911273fe093@linuxfoundation.org
+        id S235215AbhDJAyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Apr 2021 20:54:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24047 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235312AbhDJAyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Apr 2021 20:54:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618016028;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=J36xFnxQMZSTZghdocUtDJe/dtH74ibyUogWOrxLZUg=;
+        b=TAtGyprJ8pEuktRQ0d9n/+aywt+Tl9V3BqQzCIqNafoCyowzyEYsmcETLITo5RoJjp0uly
+        k8HZ6mUw3DyqJnQggmL5eFxMpt7weh3RVPFXOJ7yJyJsMie3Tf9MCZljT80yWVP+xbNUBh
+        gIjrQoYiX+6e9k0TXAwBcCHpGyLZyEE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-110-mfn4jFfmPraFewls5_waAg-1; Fri, 09 Apr 2021 20:53:45 -0400
+X-MC-Unique: mfn4jFfmPraFewls5_waAg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F09B110054F6
+        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 00:53:44 +0000 (UTC)
+Received: from [172.21.19.132] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 97E8F18A50;
+        Sat, 10 Apr 2021 00:53:41 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.11.13-rc1 (stable,
+ ab8c6063)
+Date:   Sat, 10 Apr 2021 00:53:41 -0000
+CC:     Xiong Zhou <xzhou@redhat.com>
+Message-ID: <cki.93E5BE7785.XI1D2LLUMV@redhat.com>
+X-Gitlab-Pipeline-ID: 284003353
+X-Gitlab-Url: https://gitlab.com
+X-Gitlab-Path: =?utf-8?q?/redhat/red-hat-ci-tools/kernel/cki-internal-pipeli?=
+ =?utf-8?q?nes/external-triggers/pipelines/284003353?=
+X-DataWarehouse-Revision-IID: 11898
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[backport of mainline commit 46613c9dfa96 ("usbip: fix vudc
-usbip_sockfd_store races leading to gpf") to 4.9 and 4.14]
 
-usbip_sockfd_store() is invoked when user requests attach (import)
-detach (unimport) usb gadget device from usbip host. vhci_hcd sends
-import request and usbip_sockfd_store() exports the device if it is
-free for export.
+Hello,
 
-Export and unexport are governed by local state and shared state
-- Shared state (usbip device status, sockfd) - sockfd and Device
-  status are used to determine if stub should be brought up or shut
-  down. Device status is shared between host and client.
-- Local state (tcp_socket, rx and tx thread task_struct ptrs)
-  A valid tcp_socket controls rx and tx thread operations while the
-  device is in exported state.
-- While the device is exported, device status is marked used and socket,
-  sockfd, and thread pointers are valid.
+We ran automated tests on a recent commit from this kernel tree:
 
-Export sequence (stub-up) includes validating the socket and creating
-receive (rx) and transmit (tx) threads to talk to the client to provide
-access to the exported device. rx and tx threads depends on local and
-shared state to be correct and in sync.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: ab8c60637a48 - Linux 5.11.13-rc1
 
-Unexport (stub-down) sequence shuts the socket down and stops the rx and
-tx threads. Stub-down sequence relies on local and shared states to be
-in sync.
+The results of these automated tests are provided below.
 
-There are races in updating the local and shared status in the current
-stub-up sequence resulting in crashes. These stem from starting rx and
-tx threads before local and global state is updated correctly to be in
-sync.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-1. Doesn't handle kthread_create() error and saves invalid ptr in local
-   state that drives rx and tx threads.
-2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
-   before updating usbip_device status to SDEV_ST_USED. This opens up a
-   race condition between the threads and usbip_sockfd_store() stub up
-   and down handling.
+All kernel binaries, config files, and logs are available for download here:
 
-Fix the above problems:
-- Stop using kthread_get_run() macro to create/start threads.
-- Create threads and get task struct reference.
-- Add kthread_create() failure handling and bail out.
-- Hold usbip_device lock to update local and shared states after
-  creating rx and tx threads.
-- Update usbip_device status to SDEV_ST_USED.
-- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
-- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
-  and status) is complete.
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/04/09/284003353
 
-Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
-kthread_get_run() improper error handling problem and others. This is a
-hard problem to find and debug since the races aren't seen in a normal
-case. Fuzzing forces the race window to be small enough for the
-kthread_get_run() error path bug and starting threads before updating the
-local and shared state bug in the stub-up sequence.
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
----
- drivers/usb/usbip/vudc_sysfs.c | 42 +++++++++++++++++++++++++++-------
- 1 file changed, 34 insertions(+), 8 deletions(-)
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
-index e3f7c76d1956..f44d98eeb36a 100644
---- a/drivers/usb/usbip/vudc_sysfs.c
-+++ b/drivers/usb/usbip/vudc_sysfs.c
-@@ -103,8 +103,9 @@ static ssize_t dev_desc_read(struct file *file, struct kobject *kobj,
- }
- static BIN_ATTR_RO(dev_desc, sizeof(struct usb_device_descriptor));
- 
--static ssize_t store_sockfd(struct device *dev, struct device_attribute *attr,
--		     const char *in, size_t count)
-+static ssize_t store_sockfd(struct device *dev,
-+				 struct device_attribute *attr,
-+				 const char *in, size_t count)
- {
- 	struct vudc *udc = (struct vudc *) dev_get_drvdata(dev);
- 	int rv;
-@@ -113,6 +114,8 @@ static ssize_t store_sockfd(struct device *dev, struct device_attribute *attr,
- 	struct socket *socket;
- 	unsigned long flags;
- 	int ret;
-+	struct task_struct *tcp_rx = NULL;
-+	struct task_struct *tcp_tx = NULL;
- 
- 	rv = kstrtoint(in, 0, &sockfd);
- 	if (rv != 0)
-@@ -158,24 +161,47 @@ static ssize_t store_sockfd(struct device *dev, struct device_attribute *attr,
- 			goto sock_err;
- 		}
- 
--		udc->ud.tcp_socket = socket;
--
-+		/* unlock and create threads and get tasks */
- 		spin_unlock_irq(&udc->ud.lock);
- 		spin_unlock_irqrestore(&udc->lock, flags);
- 
--		udc->ud.tcp_rx = kthread_get_run(&v_rx_loop,
--						    &udc->ud, "vudc_rx");
--		udc->ud.tcp_tx = kthread_get_run(&v_tx_loop,
--						    &udc->ud, "vudc_tx");
-+		tcp_rx = kthread_create(&v_rx_loop, &udc->ud, "vudc_rx");
-+		if (IS_ERR(tcp_rx)) {
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
-+		tcp_tx = kthread_create(&v_tx_loop, &udc->ud, "vudc_tx");
-+		if (IS_ERR(tcp_tx)) {
-+			kthread_stop(tcp_rx);
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
-+
-+		/* get task structs now */
-+		get_task_struct(tcp_rx);
-+		get_task_struct(tcp_tx);
- 
-+		/* lock and update udc->ud state */
- 		spin_lock_irqsave(&udc->lock, flags);
- 		spin_lock_irq(&udc->ud.lock);
-+
-+		udc->ud.tcp_socket = socket;
-+		udc->ud.tcp_rx = tcp_rx;
-+		udc->ud.tcp_rx = tcp_tx;
- 		udc->ud.status = SDEV_ST_USED;
-+
- 		spin_unlock_irq(&udc->ud.lock);
- 
- 		do_gettimeofday(&udc->start_time);
- 		v_start_timer(udc);
- 		udc->connected = 1;
-+
-+		spin_unlock_irqrestore(&udc->lock, flags);
-+
-+		wake_up_process(udc->ud.tcp_rx);
-+		wake_up_process(udc->ud.tcp_tx);
-+		return count;
-+
- 	} else {
- 		if (!udc->connected) {
- 			dev_err(dev, "Device not connected");
--- 
-2.20.1
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
+o test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: lvm device-mapper te=
+st
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =F0=9F=92=A5 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
+o test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: lvm device-mapper te=
+st
+
+  s390x:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 xfstests - nfsv4.2
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
