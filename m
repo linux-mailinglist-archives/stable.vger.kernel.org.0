@@ -2,256 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF12B35ACE8
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 13:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C825835ACED
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 13:24:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234734AbhDJLUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 07:20:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43422 "EHLO mail.kernel.org"
+        id S234180AbhDJLYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 07:24:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234729AbhDJLUW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Apr 2021 07:20:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A940611F2;
-        Sat, 10 Apr 2021 11:20:07 +0000 (UTC)
+        id S234091AbhDJLYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 07:24:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8704A610CB;
+        Sat, 10 Apr 2021 11:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618053607;
-        bh=IUeCgvBdd8NOGagRYnUhI1Cyki5kx73PFi5me2jjgmw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pblt/0CU9HqBlxk7w1rAuXpZOb7LQQ4kuRygHnVn83/ctv8HowZX1Vf1dVtZ6fXJ5
-         w1QW+1Qt2MlsxYCbnpRlVgZyoy00kA5YwX46VjXYT6bSMVnlRhg3TisUPA3YSlsMaH
-         eC6fOc/j5QJLIvyEIyDyx3hgT5IYQwf2897V4ePk=
+        s=korg; t=1618053881;
+        bh=HW0d0eO3v4EhDvfbtxrFUAT9yVpKkp9co0ssN0SMbQs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=X2fFvLwMlrHdDh+b3Y9ktC4ZZaFNK3mi1qyjp2vTavNhm8xaAiRCuIx2jKAT4c/lU
+         yJ4sgVT/FQVeyayB7v8wyz5fqrfsQX/uLnQmeHMWiflrXnllc1bWx4LzSXJG+8gieU
+         DAvCJM/FmXloBxUoSFdVsdhW/gP9XKRgR93WRduI=
+Date:   Sat, 10 Apr 2021 13:24:38 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.9.266
-Date:   Sat, 10 Apr 2021 13:19:57 +0200
-Message-Id: <16180535977491@kroah.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <16180535971175@kroah.com>
-References: <16180535971175@kroah.com>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/18] 4.19.186-rc1 review
+Message-ID: <YHGK9p687604pOUv@kroah.com>
+References: <20210409095301.525783608@linuxfoundation.org>
+ <a3241bd5-c8cd-dd47-03a8-906b66cf74e8@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a3241bd5-c8cd-dd47-03a8-906b66cf74e8@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f47e685de5f6..9e055c32d77a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 265
-+SUBLEVEL = 266
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/ia64/kernel/mca.c b/arch/ia64/kernel/mca.c
-index 9509cc73b9c6..64ae9cde8bdb 100644
---- a/arch/ia64/kernel/mca.c
-+++ b/arch/ia64/kernel/mca.c
-@@ -1858,7 +1858,7 @@ ia64_mca_cpu_init(void *cpu_data)
- 			data = mca_bootmem();
- 			first_time = 0;
- 		} else
--			data = (void *)__get_free_pages(GFP_KERNEL,
-+			data = (void *)__get_free_pages(GFP_ATOMIC,
- 							get_order(sz));
- 		if (!data)
- 			panic("Could not allocate MCA memory for cpu %d\n",
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 9f0099c46c88..9ebbd4892557 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -34,7 +34,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -D__KERNEL__ \
- 		   -DDISABLE_BRANCH_PROFILING \
- 		   -Wall -Wstrict-prototypes -march=i386 -mregparm=3 \
- 		   -fno-strict-aliasing -fomit-frame-pointer -fno-pic \
--		   -mno-mmx -mno-sse
-+		   -mno-mmx -mno-sse $(call cc-option,-fcf-protection=none)
- 
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index eb5734112cb4..1d1434f9c5a6 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1082,7 +1082,16 @@ xadd:			if (is_imm8(insn->off))
- 		}
- 
- 		if (image) {
--			if (unlikely(proglen + ilen > oldproglen)) {
-+			/*
-+			 * When populating the image, assert that:
-+			 *
-+			 *  i) We do not write beyond the allocated space, and
-+			 * ii) addrs[i] did not change from the prior run, in order
-+			 *     to validate assumptions made for computing branch
-+			 *     displacements.
-+			 */
-+			if (unlikely(proglen + ilen > oldproglen ||
-+				     proglen + ilen != addrs[i])) {
- 				pr_err("bpf_jit_compile fatal error\n");
- 				return -EFAULT;
- 			}
-diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
-index a9b9b1c95a2e..9dbd17be51f7 100644
---- a/drivers/gpu/drm/msm/msm_fence.c
-+++ b/drivers/gpu/drm/msm/msm_fence.c
-@@ -56,7 +56,7 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
- 	int ret;
- 
- 	if (fence > fctx->last_fence) {
--		DRM_ERROR("%s: waiting on invalid fence: %u (of %u)\n",
-+		DRM_ERROR_RATELIMITED("%s: waiting on invalid fence: %u (of %u)\n",
- 				fctx->name, fence, fctx->last_fence);
- 		return -EINVAL;
- 	}
-diff --git a/drivers/isdn/hardware/mISDN/mISDNipac.c b/drivers/isdn/hardware/mISDN/mISDNipac.c
-index 8d338ba366d0..01a1afde5d3c 100644
---- a/drivers/isdn/hardware/mISDN/mISDNipac.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNipac.c
-@@ -711,7 +711,7 @@ isac_release(struct isac_hw *isac)
- {
- 	if (isac->type & IPAC_TYPE_ISACX)
- 		WriteISAC(isac, ISACX_MASK, 0xff);
--	else
-+	else if (isac->type != 0)
- 		WriteISAC(isac, ISAC_MASK, 0xff);
- 	if (isac->dch.timer.function != NULL) {
- 		del_timer(&isac->dch.timer);
-diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
-index b18bb0334ded..dcad5213eb34 100644
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -379,9 +379,15 @@ static int flexcan_chip_disable(struct flexcan_priv *priv)
- static int flexcan_chip_freeze(struct flexcan_priv *priv)
- {
- 	struct flexcan_regs __iomem *regs = priv->regs;
--	unsigned int timeout = 1000 * 1000 * 10 / priv->can.bittiming.bitrate;
-+	unsigned int timeout;
-+	u32 bitrate = priv->can.bittiming.bitrate;
- 	u32 reg;
- 
-+	if (bitrate)
-+		timeout = 1000 * 1000 * 10 / bitrate;
-+	else
-+		timeout = FLEXCAN_TIMEOUT_US / 10;
-+
- 	reg = flexcan_read(&regs->mcr);
- 	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
- 	flexcan_write(reg, &regs->mcr);
-diff --git a/drivers/net/ethernet/marvell/pxa168_eth.c b/drivers/net/ethernet/marvell/pxa168_eth.c
-index 5d5000c8edf1..09cb0ac701e1 100644
---- a/drivers/net/ethernet/marvell/pxa168_eth.c
-+++ b/drivers/net/ethernet/marvell/pxa168_eth.c
-@@ -1571,8 +1571,8 @@ static int pxa168_eth_remove(struct platform_device *pdev)
- 
- 	mdiobus_unregister(pep->smi_bus);
- 	mdiobus_free(pep->smi_bus);
--	unregister_netdev(dev);
- 	cancel_work_sync(&pep->tx_timeout_task);
-+	unregister_netdev(dev);
- 	free_netdev(dev);
- 	return 0;
- }
-diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
-index ef1c8c158f66..079db0bd3917 100644
---- a/drivers/target/target_core_pscsi.c
-+++ b/drivers/target/target_core_pscsi.c
-@@ -951,6 +951,14 @@ pscsi_map_sg(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
- 
- 	return 0;
- fail:
-+	if (bio)
-+		bio_put(bio);
-+	while (req->bio) {
-+		bio = req->bio;
-+		req->bio = bio->bi_next;
-+		bio_put(bio);
-+	}
-+	req->biotail = NULL;
- 	return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
- }
- 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 24508b69e78b..e2ce90fc504e 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -163,6 +163,7 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
- 			goto posix_open_ret;
- 		}
- 	} else {
-+		cifs_revalidate_mapping(*pinode);
- 		cifs_fattr_to_inode(*pinode, &fattr);
- 	}
- 
-diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
-index bddb2d7b3982..075b285bbd3e 100644
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -651,8 +651,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--	cifs_dbg(FYI, "Can not process oplock break for non-existent connection\n");
--	return false;
-+	cifs_dbg(FYI, "No file id matched, oplock break ignored\n");
-+	return true;
- }
- 
- void
-diff --git a/init/Kconfig b/init/Kconfig
-index 0a615bdc203a..07570008e2fd 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -65,8 +65,7 @@ config CROSS_COMPILE
- 
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
--	depends on !UML
--	default n
-+	depends on HAS_IOMEM
- 	help
- 	  Some drivers can be compiled on a different platform than they are
- 	  intended to be run on. Despite they cannot be loaded there (or even
-diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-index e3bbfb20ae82..f31fd21d59ba 100644
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -906,8 +906,19 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
- 			continue;
- 
- 		if (!dflt_chandef.chan) {
-+			/*
-+			 * Assign the first enabled channel to dflt_chandef
-+			 * from the list of channels
-+			 */
-+			for (i = 0; i < sband->n_channels; i++)
-+				if (!(sband->channels[i].flags &
-+						IEEE80211_CHAN_DISABLED))
-+					break;
-+			/* if none found then use the first anyway */
-+			if (i == sband->n_channels)
-+				i = 0;
- 			cfg80211_chandef_create(&dflt_chandef,
--						&sband->channels[0],
-+						&sband->channels[i],
- 						NL80211_CHAN_NO_HT);
- 			/* init channel we're on */
- 			if (!local->use_chanctx && !local->_oper_chandef.chan) {
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 79c45046edc6..7b94170aa5ec 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6285,7 +6285,6 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
- 	SND_HDA_PIN_QUIRK(0x10ec0299, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
- 		ALC225_STANDARD_PINS,
- 		{0x12, 0xb7a60130},
--		{0x13, 0xb8a61140},
- 		{0x17, 0x90170110}),
- 	{}
- };
+On Fri, Apr 09, 2021 at 02:55:16PM -0600, Shuah Khan wrote:
+> On 4/9/21 3:53 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.19.186 release.
+> > There are 18 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.186-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> I am seeing a new warn - will debug later on today and let you know
+> what I find:
+> 
+> 
+> WARNING: CPU: 9 PID: 0 at drivers/net/wireless/ath/ath10k/htt_rx.c:46
+> ath10k_htt_rx_pop_paddr+0xde/0x100 [ath10k_core]
+> Modules linked in: cmac algif_hash algif_skcipher af_alg bnep arc4
+> nls_iso8859_1 wmi_bmof snd_hda_codec_realtek snd_hda_codec_generic
+> snd_hda_codec_hdmi edac_mce_amd snd_hda_intel snd_hda_codec kvm_amd
+> snd_hda_core ccp snd_hwdep kvm snd_pcm snd_seq_midi crct10dif_pclmul
+> snd_seq_midi_event ghash_clmulni_intel pcbc snd_rawmidi ath10k_pci snd_seq
+> ath10k_core aesni_intel ath snd_seq_device rtsx_usb_ms btusb aes_x86_64
+> snd_timer crypto_simd btrtl cryptd joydev btbcm glue_helper memstick
+> mac80211 snd btintel input_leds bluetooth soundcore cfg80211 ecdh_generic
+> video wmi mac_hid sch_fq_codel parport_pc ppdev lp parport drm ip_tables
+> x_tables autofs4 hid_generic rtsx_usb_sdmmc usbhid rtsx_usb hid crc32_pclmul
+> uas i2c_piix4 r8169 ahci realtek usb_storage libahci gpio_amdpt gpio_generic
+> CPU: 9 PID: 0 Comm: swapper/9 Not tainted 4.19.186-rc1+ #24
+> Hardware name: LENOVO 90Q30008US/3728, BIOS O4ZKT1CA 09/16/2020
+> RIP: 0010:ath10k_htt_rx_pop_paddr+0xde/0x100 [ath10k_core]
+> Code: 02 00 00 48 85 c9 74 30 4c 8b 49 28 4d 85 c9 74 1e 48 8b 30 45 31 c0
+> b9 02 00 00 00 e8 9b 27 ca cc 4c 89 e0 4c 8b 65 f8 c9 c3 <0f> 0b 45 31 e4 4c
+> 89 e0 4c 8b 65 f8 c9 c3 48 8b 0d 1d df 4c cd eb
+> RSP: 0018:ffff8d81bf043da0 EFLAGS: 00010246
+> RAX: 0000000000000000 RBX: ffff8d81927b2150 RCX: ffff8d81b8c01580
+> RDX: 0000000000000008 RSI: 00000000ff708a80 RDI: ffff8d81b8c01e78
+> RBP: ffff8d81bf043da8 R08: 0000000000200000 R09: 0000000000000000
+> R10: ffffdd1f0f40f300 R11: 000ffffffffff000 R12: ffff8d81b8c02068
+> R13: ffff8d81b8c01580 R14: ffff8d81927b2148 R15: ffff8d81b8c01580
+> FS:  0000000000000000(0000) GS:ffff8d81bf040000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 000055a2c99a2000 CR3: 00000003de8d4000 CR4: 0000000000340ee0
+> Call Trace:
+>  <IRQ>
+>  ath10k_htt_txrx_compl_task+0x58d/0xe70 [ath10k_core]
+>  ath10k_pci_napi_poll+0x52/0x110 [ath10k_pci]
+>  net_rx_action+0x13c/0x350
+>  __do_softirq+0xd4/0x2ae
+>  irq_exit+0x9c/0xe0
+>  do_IRQ+0x86/0xe0
+>  common_interrupt+0xf/0xf
+>  </IRQ>
+> RIP: 0010:cpuidle_enter_state+0x10b/0x2c0
+> Code: ff e8 f9 68 85 ff 80 7d c7 00 74 17 9c 58 0f 1f 44 00 00 f6 c4 02 0f
+> 85 97 01 00 00 31 ff e8 6c 5d 8b ff fb 66 0f 1f 44 00 00 <48> b8 ff ff ff ff
+> f3 01 00 00 4c 2b 7d c8 ba ff ff ff 7f 49 39 c7
+> RSP: 0018:ffffb11e01a77e50 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffda
+> RAX: ffff8d81bf0626c0 RBX: ffff8d81b2690400 RCX: 00000006e8cb49d2
+> RDX: 0000000000000689 RSI: 00000006e8cb49d2 RDI: 0000000000000000
+> RBP: ffffb11e01a77e90 R08: 00000006e8cb505b R09: 0000000000000e29
+> R10: 0000000000000f04 R11: ffff8d81bf061528 R12: 0000000000000003
+> R13: ffffffff8df9e860 R14: ffffffff8df9e980 R15: 00000006e8cb505b
+>  cpuidle_enter+0x17/0x20
+> 
+
+Odd, there's no ath10k changes in here, only one wireless core change.
+Bisection would be great if you can do that, thanks!
+
+greg k-h
