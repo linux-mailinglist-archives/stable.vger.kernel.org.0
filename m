@@ -2,231 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A9435ABA4
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 09:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECD935AC06
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 10:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230235AbhDJH1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 03:27:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50890 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbhDJH1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 03:27:40 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA288C061762
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 00:27:25 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id g17so8307853edm.6
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 00:27:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=9t4IRZ/xinBCPXe8QPt8b+U2YfiOvj3rWWbVkVl9T04=;
-        b=myAq0fm9w1xMepaESeemquQQy91gZRs5y3tN5CYWCGP7+xereCOGhNa9ayLd7u9rhx
-         9w8GQ2LyefMz5tzQR7PsSb9bxn3EWGc/XqTo0nKxVlCebOHrHjJ4ZYdqylY0PVnx02TP
-         aQLNIYGRasdkFKRv3xVMTM7NgZNH2TTzKCRDQqPs9P4WNvk3/UMprehVAZuS1kZOK+Ss
-         GN5COX34xeTpToZLLMFvY8oKpNN/xmzQ5fvD4yOTTYZQ4zV+MDrfVfrD4DGyM86B+T3m
-         nqPy46qKt4JcXWWC2uvXythgpwJ0nTD2YjPf1wZyxJRj1l/ltu0NjL4JRW5NCSG0crci
-         BGVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=9t4IRZ/xinBCPXe8QPt8b+U2YfiOvj3rWWbVkVl9T04=;
-        b=L+IP0nfaHqM/u+6059QNbq3HlGXx/VQJgMAT7srQN8lOJVy/DiKVebZelr+3hWUCj9
-         1B68rHVQq66hgWT7Ad+5Ew2y1YpJeOKnpzZskZyuMJ4v9AULmA2WXCQiD8MhN8vtsaMv
-         QK8hRkZ3yH8COw33dqBk+V8iXEEaojZanrTOP9zOF09IapaUonDbgPNBnum7tzqgiT9C
-         lUmY+e44Groo8Ev6wSqTNhBh2SXVuvZ1EAiSHGK4MPo0F1LnIgC5ygWZfqiK//gyV9Hh
-         8R3UQU9qVlij/1NWxAysUtKSd5Rc+yvJzWsen8kSzSoEQSbkCzM4+fhoEYBqZ/k4FEzG
-         saOQ==
-X-Gm-Message-State: AOAM533bgxr6Bwo1hUyMPsXJchXhRVx0tYSXXNg83W0dsdKy8undyhd8
-        pByKIR3/eZuEtnP67xeLvYj15zsh8s0kuU2aVtwXSg==
-X-Google-Smtp-Source: ABdhPJwTilbpJpSK2NjPnCOgu3sFXGOexK40ZrbjnpEB9hu/CPBECSOySJ/eeP6qL/hw/wsB4aUYzPt0r5D2Oa/FhAg=
-X-Received: by 2002:a50:eb92:: with SMTP id y18mr12874227edr.230.1618039644471;
- Sat, 10 Apr 2021 00:27:24 -0700 (PDT)
+        id S229943AbhDJI4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 04:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60964 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229591AbhDJI4x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 04:56:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2385F610CB;
+        Sat, 10 Apr 2021 08:56:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618044998;
+        bh=uh476dzlm2ZLs/3KLJeBiudSJ+eOoSJUDrPdW896eBQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oSpM29hARBYcly2jIPOx3Wi0tvsmDxTsAuiepulAY/nmjcGb9VHKFiWTkYzuGnsWW
+         wFh3yXpdpeanQBcFTZVT9mv3HtLEzo+8p4rsnwVUDwC/rfykFoENE9ILXHpAVZZFto
+         Ym2VMs6e/feghkniisPpbh9arW9H4a9Eh7mR01OA=
+Date:   Sat, 10 Apr 2021 10:56:36 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Saravana Kannan <saravanak@google.com>
+Cc:     Rob Herring <robh@kernel.org>,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] of: property: fw_devlink: do not link ".*,nr-gpios"
+Message-ID: <YHFoRFJny4+fibG4@kroah.com>
+References: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
+ <20210405222540.18145-1-ilya.lipnitskiy@gmail.com>
+ <CAGETcx-gF4r1TeY2AA4Vwb5e+5O+_O3E2ENo5tKhh=n_EOJnEQ@mail.gmail.com>
+ <20210407003408.GA2551507@robh.at.kernel.org>
+ <CAGETcx8=sSWj_OmM1GPXNiLcv3anEkJnb_C7NoO9mNwS-O0KhQ@mail.gmail.com>
+ <CAL_JsqLs4c3+9WwV6Vnk9Tovb6HiyH7t+_WXYP-ZDO72mOcO+w@mail.gmail.com>
+ <CAGETcx-W_K9NFV51iBvyZ-Q+1LCUM3qipMmap9yEW_eu9B7CCg@mail.gmail.com>
 MIME-Version: 1.0
-References: <20210409095302.894568462@linuxfoundation.org>
-In-Reply-To: <20210409095302.894568462@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 10 Apr 2021 12:57:13 +0530
-Message-ID: <CA+G9fYs_RpXGYk4fscy-R-Nk6C3KyhiVD_J=pgA+3jQmSwdejA@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/23] 5.4.111-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGETcx-W_K9NFV51iBvyZ-Q+1LCUM3qipMmap9yEW_eu9B7CCg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 9 Apr 2021 at 15:29, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.111 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.111-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Apr 06, 2021 at 06:24:21PM -0700, Saravana Kannan wrote:
+> On Tue, Apr 6, 2021 at 6:10 PM Rob Herring <robh@kernel.org> wrote:
+> >
+> > On Tue, Apr 6, 2021 at 7:46 PM Saravana Kannan <saravanak@google.com> wrote:
+> > >
+> > > On Tue, Apr 6, 2021 at 5:34 PM Rob Herring <robh@kernel.org> wrote:
+> > > >
+> > > > On Tue, Apr 06, 2021 at 04:09:10PM -0700, Saravana Kannan wrote:
+> > > > > On Mon, Apr 5, 2021 at 3:26 PM Ilya Lipnitskiy
+> > > > > <ilya.lipnitskiy@gmail.com> wrote:
+> > > > > >
+> > > > > > [<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
+> > > > > > the number of GPIOs present on a system, not define a GPIO. nr-gpios is
+> > > > > > not configured by #gpio-cells and can't be parsed along with other
+> > > > > > "*-gpios" properties.
+> > > > > >
+> > > > > > nr-gpios without the "<vendor>," prefix is not allowed by the DT
+> > > > > > spec[1], so only add exception for the ",nr-gpios" suffix and let the
+> > > > > > error message continue being printed for non-compliant implementations.
+> > > > > >
+> > > > > > [0]: nr-gpios is referenced in Documentation/devicetree/bindings/gpio:
+> > > > > >  - gpio-adnp.txt
+> > > > > >  - gpio-xgene-sb.txt
+> > > > > >  - gpio-xlp.txt
+> > > > > >  - snps,dw-apb-gpio.yaml
+> > > > > >
+> > > > > > [1]:
+> > > > > > Link: https://github.com/devicetree-org/dt-schema/blob/cb53a16a1eb3e2169ce170c071e47940845ec26e/schemas/gpio/gpio-consumer.yaml#L20
+> > > > > >
+> > > > > > Fixes errors such as:
+> > > > > >   OF: /palmbus@300000/gpio@600: could not find phandle
+> > > > > >
+> > > > > > Fixes: 7f00be96f125 ("of: property: Add device link support for interrupt-parent, dmas and -gpio(s)")
+> > > > > > Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+> > > > > > Cc: Saravana Kannan <saravanak@google.com>
+> > > > > > Cc: <stable@vger.kernel.org> # 5.5.x
+> > > > > > ---
+> > > > > >  drivers/of/property.c | 11 ++++++++++-
+> > > > > >  1 file changed, 10 insertions(+), 1 deletion(-)
+> > > > > >
+> > > > > > diff --git a/drivers/of/property.c b/drivers/of/property.c
+> > > > > > index 2046ae311322..1793303e84ac 100644
+> > > > > > --- a/drivers/of/property.c
+> > > > > > +++ b/drivers/of/property.c
+> > > > > > @@ -1281,7 +1281,16 @@ DEFINE_SIMPLE_PROP(pinctrl7, "pinctrl-7", NULL)
+> > > > > >  DEFINE_SIMPLE_PROP(pinctrl8, "pinctrl-8", NULL)
+> > > > > >  DEFINE_SUFFIX_PROP(regulators, "-supply", NULL)
+> > > > > >  DEFINE_SUFFIX_PROP(gpio, "-gpio", "#gpio-cells")
+> > > > > > -DEFINE_SUFFIX_PROP(gpios, "-gpios", "#gpio-cells")
+> > > > > > +
+> > > > > > +static struct device_node *parse_gpios(struct device_node *np,
+> > > > > > +                                      const char *prop_name, int index)
+> > > > > > +{
+> > > > > > +       if (!strcmp_suffix(prop_name, ",nr-gpios"))
+> > > > > > +               return NULL;
+> > > > >
+> > > > > Ah I somehow missed this patch. This gives a blanked exception for
+> > > > > vendor,nr-gpios. I'd prefer explicit exceptions for all the instances
+> > > > > of ",nr-gpios" we are grandfathering in. Any future additions should
+> > > > > be rejected. Can we do that please?
+> > > > >
+> > > > > Rob, you okay with making this list more explicit?
+> > > >
+> > > > Not the kernel's job IMO. A schema is the right way to handle that.
+> > >
+> > > Ok, that's fine by me. Btw, let's land this in driver-core? I've made
+> > > changes there and this might cause conflicts. Not sure.
+> >
+> > It merges with linux-next fine. You'll need to resend this to Greg if
+> > you want to do that.
+> >
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> 
+> Hi Greg,
+> 
+> Can you pull this into driver-core please? I touch this file a lot and
+> might need to do so again if any fw_devlink=on issues come up. So
+> trying to preemptively avoid conflicts.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Pull what?  I'm totally lost in this thread, sorry...
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+If you need me to apply something, you at least need to cc: me on it :)
 
-## Build
-* kernel: 5.4.111-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: 9b00696cdc423c6b92ee4d7cea65858137f8456f
-* git describe: v5.4.110-24-g9b00696cdc42
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-10-24-g9b00696cdc42
+thanks,
 
-## No regressions (compared to v5.4.110)
-
-## No fixes (compared to v5.4.110)
-
-## Test result summary
- total: 66085, pass: 54986, fail: 899, skip: 9988, xfail: 212,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 191 total, 190 passed, 1 failed
-* arm64: 25 total, 25 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 13 passed, 1 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 25 total, 25 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+gre gk-h
