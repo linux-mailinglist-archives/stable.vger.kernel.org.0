@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C4935AE03
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 16:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8634E35AE04
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 16:13:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234392AbhDJOLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 10:11:55 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45387 "EHLO
+        id S234536AbhDJONx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 10:13:53 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:49187 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234513AbhDJOLy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 10:11:54 -0400
+        by vger.kernel.org with ESMTP id S234513AbhDJONx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 10:13:53 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3587919408FE;
-        Sat, 10 Apr 2021 10:11:39 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 10 Apr 2021 10:11:39 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id D8FCD19409BF;
+        Sat, 10 Apr 2021 10:13:37 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 10 Apr 2021 10:13:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Y0zNUY
-        axlGYoXtMLcdFfaaajdy2Yu0rIAL3zHKhR00I=; b=HcFLjv0WukjzCZIQzTtDsz
-        vtwT2V45iCsgTV2PWN74IWLlRqgqcdPBQ2djNPG0cmFbqa57gfgkw8rTCEw0WOiR
-        RFDOFIp7GX03fDi5ww3RRh7nTgy+yG963KYgmdpJ8Z7oBENgufwDySeXgk0IZGaj
-        06Q28lmmToZJXeRJCmj1a9PP3QaMrTg0Aig5+HXLDBaxlWyCyIDEFlaqRHGyEB1x
-        KAbOgibpSBNd1GUmoUFRVs+g6LB9SmywV5j+/HbGbdPQ7+UozLw5PheYFXxoNTWS
-        AmhzYDT6bR/de9QXyzbgizsjOWgGIT5Yt919py4oaqvBViu/v49yOZ6fifM+GNkg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gPN88v
+        MMx1s5KImzJu5vGYf5OjM/nMQQLcWQY2lUWn0=; b=o/uLB2EUlBbreecJ7ikwyK
+        PVhhk30d2tupHVJLSSVURZoWkabiHL42+c07PJEu9brFbwQb/ZeId2cWZw5orNdG
+        wof0lFAtaaR4LiMYCrostiDeKBRgYZj9t7bHcgFHbbKUfFhTSuQazyV8Dh9njlpr
+        vBQ1jhLI1hHkzyiFrWoeq2BoarR5NEgn5pBwkHWTyL42eCajLnUGD1Rp3gTvduvN
+        Es9BZ7w71uaBrOKRoXbWUWmMeCOqqMJ1THBbKdftwbuUE8oK54E3U4zbaLvPUxGp
+        iDntMgJw5Au9mIEY9N8qjfX+UzouUIrSC27XTIDCWkRjuTaVnZnbEct7LYb98vrw
         ==
-X-ME-Sender: <xms:G7JxYA5V7_cmvhpeNjPlP401JMugZuD2_MRQ5ipyc1KeurQao6sv_g>
-    <xme:G7JxYB7nL2wQoFOq0on7YH8scmd_qChGgQl_7FiYg-HYLfUZEEKDcVFHc6NUhEs3A
-    qA5pF3_PVlTFA>
+X-ME-Sender: <xms:kLJxYKkARqpcTE3BqzlRy7B10hLRhjX8NjEsukSpvLpEDl8s8k4LXQ>
+    <xme:kLJxYB06KNYbJTD4BbwZREy3mQ3WaXxCMUdEBC61wEWa48ALs98YmSkaHu-I2wure
+    TI8fmcJYy9kfA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepueeghfetheeuudefgfeutdegleehueeuvefhleevvd
-    egvedutdekueevvdehledtnecuffhomhgrihhnpehsphhinhhitghsrdhnvghtnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:G7JxYPezEiVOpP5R2l3q8-CjhmTENwn4d1mMih9cj4IAQR-89Dqmrg>
-    <xmx:G7JxYFL2PfVjqcDKdgi6_FnNHqqlbYXUFDM1MPVgoCrPeSwLBA378A>
-    <xmx:G7JxYEJRi4Jj891lGNqrw4s55oL3wQWtli5tOP-cEP5yAsyK-tPJqA>
-    <xmx:G7JxYI0o6LVGZqKYtEm7WwEsyrBQ9kNObnivXXEMnspaHUMKpPv3Ag>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:kLJxYIokcwPsBj8NcfGzYa4S-uFS-SlPajuj17UwQfG1vnHgDuEsaQ>
+    <xmx:kLJxYOn29YpyEHgdBIgW3paDZ-qvhoG5AllEsXHw1YymP_SnRJggFQ>
+    <xmx:kLJxYI07nw8kK7ydlTDFRroKST9ioLwWhMtO-Y4OzXVPi1e69btZzg>
+    <xmx:kbJxYFw7p7EhhCdlOqay6JF5jBUAY3rz-tXMDKzzrSJyvAyrHZOO1A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C33BA240054;
-        Sat, 10 Apr 2021 10:11:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] virtio_net: Do not pull payload in skb->head" failed to apply to 4.19-stable tree
-To:     edumazet@google.com, davem@davemloft.net, jasowang@redhat.com,
-        mst@redhat.com, xuanzhuo@linux.alibaba.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id F0A321080054;
+        Sat, 10 Apr 2021 10:13:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: dsa: lantiq_gswip: Don't use PHY auto polling" failed to apply to 5.4-stable tree
+To:     martin.blumenstingl@googlemail.com, andrew@lunn.ch,
+        davem@davemloft.net, f.fainelli@gmail.com, hauke@hauke-m.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 16:11:36 +0200
-Message-ID: <161806389686151@kroah.com>
+Date:   Sat, 10 Apr 2021 16:13:34 +0200
+Message-ID: <161806401467@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,111 +71,315 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db Mon Sep 17 00:00:00 2001
-From: Eric Dumazet <edumazet@google.com>
-Date: Fri, 2 Apr 2021 06:26:02 -0700
-Subject: [PATCH] virtio_net: Do not pull payload in skb->head
+From 3e9005be87777afc902b9f5497495898202d335d Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Thu, 8 Apr 2021 20:38:27 +0200
+Subject: [PATCH] net: dsa: lantiq_gswip: Don't use PHY auto polling
 
-Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") brought  a ~10% performance drop.
+PHY auto polling on the GSWIP hardware can be used so link changes
+(speed, link up/down, etc.) can be detected automatically. Internally
+GSWIP reads the PHY's registers for this functionality. Based on this
+automatic detection GSWIP can also automatically re-configure it's port
+settings. Unfortunately this auto polling (and configuration) mechanism
+seems to cause various issues observed by different people on different
+devices:
+- FritzBox 7360v2: the two Gbit/s ports (connected to the two internal
+  PHY11G instances) are working fine but the two Fast Ethernet ports
+  (using an AR8030 RMII PHY) are completely dead (neither RX nor TX are
+  received). It turns out that the AR8030 PHY sets the BMSR_ESTATEN bit
+  as well as the ESTATUS_1000_TFULL and ESTATUS_1000_XFULL bits. This
+  makes the PHY auto polling state machine (rightfully?) think that the
+  established link speed (when the other side is Gbit/s capable) is
+  1Gbit/s.
+- None of the Ethernet ports on the Zyxel P-2812HNU-F1 (two are
+  connected to the internal PHY11G GPHYs while the other three are
+  external RGMII PHYs) are working. Neither RX nor TX traffic was
+  observed. It is not clear which part of the PHY auto polling state-
+  machine caused this.
+- FritzBox 7412 (only one LAN port which is connected to one of the
+  internal GPHYs running in PHY22F / Fast Ethernet mode) was seeing
+  random disconnects (link down events could be seen). Sometimes all
+  traffic would stop after such disconnect. It is not clear which part
+  of the PHY auto polling state-machine cauased this.
+- TP-Link TD-W9980 (two ports are connected to the internal GPHYs
+  running in PHY11G / Gbit/s mode, the other two are external RGMII
+  PHYs) was affected by similar issues as the FritzBox 7412 just without
+  the "link down" events
 
-The reason for the performance drop was that GRO was forced
-to chain sk_buff (using skb_shinfo(skb)->frag_list), which
-uses more memory but also cause packet consumers to go over
-a lot of overhead handling all the tiny skbs.
+Switch to software based configuration instead of PHY auto polling (and
+letting the GSWIP hardware configure the ports automatically) for the
+following link parameters:
+- link up/down
+- link speed
+- full/half duplex
+- flow control (RX / TX pause)
 
-It turns out that virtio_net page_to_skb() has a wrong strategy :
-It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
-copies 128 bytes from the page, before feeding the packet to GRO stack.
+After a big round of manual testing by various people (who helped test
+this on OpenWrt) it turns out that this fixes all reported issues.
 
-This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
-meaning we were not packing MSS with 100% efficiency.
+Additionally it can be considered more future proof because any
+"quirk" which is implemented for a PHY on the driver side can now be
+used with the GSWIP hardware as well because Linux is in control of the
+link parameters.
 
-Fix is to pull only the ethernet header in page_to_skb()
+As a nice side-effect this also solves a problem where fixed-links were
+not supported previously because we were relying on the PHY auto polling
+mechanism, which cannot work for fixed-links as there's no PHY from
+where it can read the registers. Configuring the link settings on the
+GSWIP ports means that we now use the settings from device-tree also for
+ports with fixed-links.
 
-Then, we change virtio_net_hdr_to_skb() to pull the missing
-headers, instead of assuming they were already pulled by callers.
-
-This fixes the performance regression, but could also allow virtio_net
-to accept packets with more than 128bytes of headers.
-
-Many thanks to Xuan Zhuo for his report, and his tests/help.
-
-Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Link: https://www.spinics.net/lists/netdev/msg731397.html
-Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Fixes: 3e6fdeb28f4c33 ("net: dsa: lantiq_gswip: Let GSWIP automatically set the xMII clock")
+Cc: stable@vger.kernel.org
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 82e520d2cb12..0824e6999e49 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -406,9 +406,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	offset += hdr_padded_len;
- 	p += hdr_padded_len;
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 809dfa3be6bb..126d4ea868ba 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -190,6 +190,23 @@
+ #define GSWIP_PCE_DEFPVID(p)		(0x486 + ((p) * 0xA))
  
--	copy = len;
--	if (copy > skb_tailroom(skb))
--		copy = skb_tailroom(skb);
-+	/* Copy all frame if it fits skb->head, otherwise
-+	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
-+	 */
-+	if (len <= skb_tailroom(skb))
-+		copy = len;
-+	else
-+		copy = ETH_HLEN + metasize;
- 	skb_put_data(skb, p, copy);
+ #define GSWIP_MAC_FLEN			0x8C5
++#define GSWIP_MAC_CTRL_0p(p)		(0x903 + ((p) * 0xC))
++#define  GSWIP_MAC_CTRL_0_PADEN		BIT(8)
++#define  GSWIP_MAC_CTRL_0_FCS_EN	BIT(7)
++#define  GSWIP_MAC_CTRL_0_FCON_MASK	0x0070
++#define  GSWIP_MAC_CTRL_0_FCON_AUTO	0x0000
++#define  GSWIP_MAC_CTRL_0_FCON_RX	0x0010
++#define  GSWIP_MAC_CTRL_0_FCON_TX	0x0020
++#define  GSWIP_MAC_CTRL_0_FCON_RXTX	0x0030
++#define  GSWIP_MAC_CTRL_0_FCON_NONE	0x0040
++#define  GSWIP_MAC_CTRL_0_FDUP_MASK	0x000C
++#define  GSWIP_MAC_CTRL_0_FDUP_AUTO	0x0000
++#define  GSWIP_MAC_CTRL_0_FDUP_EN	0x0004
++#define  GSWIP_MAC_CTRL_0_FDUP_DIS	0x000C
++#define  GSWIP_MAC_CTRL_0_GMII_MASK	0x0003
++#define  GSWIP_MAC_CTRL_0_GMII_AUTO	0x0000
++#define  GSWIP_MAC_CTRL_0_GMII_MII	0x0001
++#define  GSWIP_MAC_CTRL_0_GMII_RGMII	0x0002
+ #define GSWIP_MAC_CTRL_2p(p)		(0x905 + ((p) * 0xC))
+ #define GSWIP_MAC_CTRL_2_MLEN		BIT(3) /* Maximum Untagged Frame Lnegth */
  
- 	if (metasize) {
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 98775d7fa696..b465f8f3e554 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 	skb_reset_mac_header(skb);
+@@ -653,16 +670,13 @@ static int gswip_port_enable(struct dsa_switch *ds, int port,
+ 			  GSWIP_SDMA_PCTRLp(port));
  
- 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
--		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
--		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-+		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
+ 	if (!dsa_is_cpu_port(ds, port)) {
+-		u32 macconf = GSWIP_MDIO_PHY_LINK_AUTO |
+-			      GSWIP_MDIO_PHY_SPEED_AUTO |
+-			      GSWIP_MDIO_PHY_FDUP_AUTO |
+-			      GSWIP_MDIO_PHY_FCONTX_AUTO |
+-			      GSWIP_MDIO_PHY_FCONRX_AUTO |
+-			      (phydev->mdio.addr & GSWIP_MDIO_PHY_ADDR_MASK);
+-
+-		gswip_mdio_w(priv, macconf, GSWIP_MDIO_PHYp(port));
+-		/* Activate MDIO auto polling */
+-		gswip_mdio_mask(priv, 0, BIT(port), GSWIP_MDIO_MDC_CFG0);
++		u32 mdio_phy = 0;
 +
-+		if (!pskb_may_pull(skb, needed))
-+			return -EINVAL;
- 
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
- 
- 		p_off = skb_transport_offset(skb) + thlen;
--		if (p_off > skb_headlen(skb))
-+		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -102,14 +106,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 			}
- 
- 			p_off = keys.control.thoff + thlen;
--			if (p_off > skb_headlen(skb) ||
-+			if (!pskb_may_pull(skb, p_off) ||
- 			    keys.basic.ip_proto != ip_proto)
- 				return -EINVAL;
- 
- 			skb_set_transport_header(skb, keys.control.thoff);
- 		} else if (gso_type) {
- 			p_off = thlen;
--			if (p_off > skb_headlen(skb))
-+			if (!pskb_may_pull(skb, p_off))
- 				return -EINVAL;
- 		}
++		if (phydev)
++			mdio_phy = phydev->mdio.addr & GSWIP_MDIO_PHY_ADDR_MASK;
++
++		gswip_mdio_mask(priv, GSWIP_MDIO_PHY_ADDR_MASK, mdio_phy,
++				GSWIP_MDIO_PHYp(port));
  	}
+ 
+ 	return 0;
+@@ -675,14 +689,6 @@ static void gswip_port_disable(struct dsa_switch *ds, int port)
+ 	if (!dsa_is_user_port(ds, port))
+ 		return;
+ 
+-	if (!dsa_is_cpu_port(ds, port)) {
+-		gswip_mdio_mask(priv, GSWIP_MDIO_PHY_LINK_DOWN,
+-				GSWIP_MDIO_PHY_LINK_MASK,
+-				GSWIP_MDIO_PHYp(port));
+-		/* Deactivate MDIO auto polling */
+-		gswip_mdio_mask(priv, BIT(port), 0, GSWIP_MDIO_MDC_CFG0);
+-	}
+-
+ 	gswip_switch_mask(priv, GSWIP_FDMA_PCTRL_EN, 0,
+ 			  GSWIP_FDMA_PCTRLp(port));
+ 	gswip_switch_mask(priv, GSWIP_SDMA_PCTRL_EN, 0,
+@@ -794,20 +800,31 @@ static int gswip_setup(struct dsa_switch *ds)
+ 	gswip_switch_w(priv, BIT(cpu_port), GSWIP_PCE_PMAP2);
+ 	gswip_switch_w(priv, BIT(cpu_port), GSWIP_PCE_PMAP3);
+ 
+-	/* disable PHY auto polling */
++	/* Deactivate MDIO PHY auto polling. Some PHYs as the AR8030 have an
++	 * interoperability problem with this auto polling mechanism because
++	 * their status registers think that the link is in a different state
++	 * than it actually is. For the AR8030 it has the BMSR_ESTATEN bit set
++	 * as well as ESTATUS_1000_TFULL and ESTATUS_1000_XFULL. This makes the
++	 * auto polling state machine consider the link being negotiated with
++	 * 1Gbit/s. Since the PHY itself is a Fast Ethernet RMII PHY this leads
++	 * to the switch port being completely dead (RX and TX are both not
++	 * working).
++	 * Also with various other PHY / port combinations (PHY11G GPHY, PHY22F
++	 * GPHY, external RGMII PEF7071/7072) any traffic would stop. Sometimes
++	 * it would work fine for a few minutes to hours and then stop, on
++	 * other device it would no traffic could be sent or received at all.
++	 * Testing shows that when PHY auto polling is disabled these problems
++	 * go away.
++	 */
+ 	gswip_mdio_w(priv, 0x0, GSWIP_MDIO_MDC_CFG0);
++
+ 	/* Configure the MDIO Clock 2.5 MHz */
+ 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
+ 
+-	for (i = 0; i < priv->hw_info->max_ports; i++) {
+-		/* Disable the xMII link */
++	/* Disable the xMII link */
++	for (i = 0; i < priv->hw_info->max_ports; i++)
+ 		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
+ 
+-		/* Automatically select the xMII interface clock */
+-		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_RATE_MASK,
+-				   GSWIP_MII_CFG_RATE_AUTO, i);
+-	}
+-
+ 	/* enable special tag insertion on cpu port */
+ 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
+ 			  GSWIP_FDMA_PCTRLp(cpu_port));
+@@ -1455,6 +1472,112 @@ static void gswip_phylink_validate(struct dsa_switch *ds, int port,
+ 	return;
+ }
+ 
++static void gswip_port_set_link(struct gswip_priv *priv, int port, bool link)
++{
++	u32 mdio_phy;
++
++	if (link)
++		mdio_phy = GSWIP_MDIO_PHY_LINK_UP;
++	else
++		mdio_phy = GSWIP_MDIO_PHY_LINK_DOWN;
++
++	gswip_mdio_mask(priv, GSWIP_MDIO_PHY_LINK_MASK, mdio_phy,
++			GSWIP_MDIO_PHYp(port));
++}
++
++static void gswip_port_set_speed(struct gswip_priv *priv, int port, int speed,
++				 phy_interface_t interface)
++{
++	u32 mdio_phy = 0, mii_cfg = 0, mac_ctrl_0 = 0;
++
++	switch (speed) {
++	case SPEED_10:
++		mdio_phy = GSWIP_MDIO_PHY_SPEED_M10;
++
++		if (interface == PHY_INTERFACE_MODE_RMII)
++			mii_cfg = GSWIP_MII_CFG_RATE_M50;
++		else
++			mii_cfg = GSWIP_MII_CFG_RATE_M2P5;
++
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_GMII_MII;
++		break;
++
++	case SPEED_100:
++		mdio_phy = GSWIP_MDIO_PHY_SPEED_M100;
++
++		if (interface == PHY_INTERFACE_MODE_RMII)
++			mii_cfg = GSWIP_MII_CFG_RATE_M50;
++		else
++			mii_cfg = GSWIP_MII_CFG_RATE_M25;
++
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_GMII_MII;
++		break;
++
++	case SPEED_1000:
++		mdio_phy = GSWIP_MDIO_PHY_SPEED_G1;
++
++		mii_cfg = GSWIP_MII_CFG_RATE_M125;
++
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_GMII_RGMII;
++		break;
++	}
++
++	gswip_mdio_mask(priv, GSWIP_MDIO_PHY_SPEED_MASK, mdio_phy,
++			GSWIP_MDIO_PHYp(port));
++	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_RATE_MASK, mii_cfg, port);
++	gswip_switch_mask(priv, GSWIP_MAC_CTRL_0_GMII_MASK, mac_ctrl_0,
++			  GSWIP_MAC_CTRL_0p(port));
++}
++
++static void gswip_port_set_duplex(struct gswip_priv *priv, int port, int duplex)
++{
++	u32 mac_ctrl_0, mdio_phy;
++
++	if (duplex == DUPLEX_FULL) {
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_FDUP_EN;
++		mdio_phy = GSWIP_MDIO_PHY_FDUP_EN;
++	} else {
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_FDUP_DIS;
++		mdio_phy = GSWIP_MDIO_PHY_FDUP_DIS;
++	}
++
++	gswip_switch_mask(priv, GSWIP_MAC_CTRL_0_FDUP_MASK, mac_ctrl_0,
++			  GSWIP_MAC_CTRL_0p(port));
++	gswip_mdio_mask(priv, GSWIP_MDIO_PHY_FDUP_MASK, mdio_phy,
++			GSWIP_MDIO_PHYp(port));
++}
++
++static void gswip_port_set_pause(struct gswip_priv *priv, int port,
++				 bool tx_pause, bool rx_pause)
++{
++	u32 mac_ctrl_0, mdio_phy;
++
++	if (tx_pause && rx_pause) {
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_FCON_RXTX;
++		mdio_phy = GSWIP_MDIO_PHY_FCONTX_EN |
++			   GSWIP_MDIO_PHY_FCONRX_EN;
++	} else if (tx_pause) {
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_FCON_TX;
++		mdio_phy = GSWIP_MDIO_PHY_FCONTX_EN |
++			   GSWIP_MDIO_PHY_FCONRX_DIS;
++	} else if (rx_pause) {
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_FCON_RX;
++		mdio_phy = GSWIP_MDIO_PHY_FCONTX_DIS |
++			   GSWIP_MDIO_PHY_FCONRX_EN;
++	} else {
++		mac_ctrl_0 = GSWIP_MAC_CTRL_0_FCON_NONE;
++		mdio_phy = GSWIP_MDIO_PHY_FCONTX_DIS |
++			   GSWIP_MDIO_PHY_FCONRX_DIS;
++	}
++
++	gswip_switch_mask(priv, GSWIP_MAC_CTRL_0_FCON_MASK,
++			  mac_ctrl_0, GSWIP_MAC_CTRL_0p(port));
++	gswip_mdio_mask(priv,
++			GSWIP_MDIO_PHY_FCONTX_MASK |
++			GSWIP_MDIO_PHY_FCONRX_MASK,
++			mdio_phy, GSWIP_MDIO_PHYp(port));
++}
++
+ static void gswip_phylink_mac_config(struct dsa_switch *ds, int port,
+ 				     unsigned int mode,
+ 				     const struct phylink_link_state *state)
+@@ -1511,6 +1634,9 @@ static void gswip_phylink_mac_link_down(struct dsa_switch *ds, int port,
+ 	struct gswip_priv *priv = ds->priv;
+ 
+ 	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, port);
++
++	if (!dsa_is_cpu_port(ds, port))
++		gswip_port_set_link(priv, port, false);
+ }
+ 
+ static void gswip_phylink_mac_link_up(struct dsa_switch *ds, int port,
+@@ -1522,6 +1648,13 @@ static void gswip_phylink_mac_link_up(struct dsa_switch *ds, int port,
+ {
+ 	struct gswip_priv *priv = ds->priv;
+ 
++	if (!dsa_is_cpu_port(ds, port)) {
++		gswip_port_set_link(priv, port, true);
++		gswip_port_set_speed(priv, port, speed, interface);
++		gswip_port_set_duplex(priv, port, duplex);
++		gswip_port_set_pause(priv, port, tx_pause, rx_pause);
++	}
++
+ 	gswip_mii_mask_cfg(priv, 0, GSWIP_MII_CFG_EN, port);
+ }
+ 
 
