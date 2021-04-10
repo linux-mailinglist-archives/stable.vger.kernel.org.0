@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FDC235ADDF
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 15:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FEA735ADDE
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 15:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234548AbhDJN7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 09:59:15 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:60799 "EHLO
+        id S234536AbhDJN7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 09:59:07 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:37865 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234376AbhDJN7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 09:59:15 -0400
+        by vger.kernel.org with ESMTP id S234376AbhDJN7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 09:59:07 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 538CE1940F5F;
-        Sat, 10 Apr 2021 09:59:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 10 Apr 2021 09:59:00 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 07DB91940F5F;
+        Sat, 10 Apr 2021 09:58:52 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 10 Apr 2021 09:58:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=c0Oo9F
-        a6qMegIDwGxIS+m20SDFGU+SjKDVFwsrlVbVI=; b=UqyLREARyF/OcKWAIFI5OV
-        AC6kF2pKAeVtZjz5n67HVPGq2mTGuqJA5EwqjRDQASZBKumwoQGAAB/e430/ShNU
-        NVR61/IODQjcFpOcheJDfnA4CNznfTGqn9rDA82ShNx/49JrjiNldA1DHw4OL233
-        33G19OIspJNsR5qFI+v0HVDKOqeyXTdP87AAZ4ukSQNa3nqTt2fWau8h+d1k9y3d
-        7F13k+dY1WmuZ2SITAl+ZrWmpKWMczoDMgeCAkJWX5JK8jQFn+krbomI8b9DHXZ+
-        VuFuWv7x5AJm0M3BaEjiTNjw329+Yig+b+loVtNj0h9n07h+3dNU4gz3LLVz05VA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RdPXXy
+        UtnWJVo6HtcVpVj+kfu8DVL1xSGaS5RM4QSTU=; b=WqIWTeXv4oD1X1WpQwwNww
+        PZjJZdeBSIYD+TWuSV2oovqlurYb3I143/tXxZXPaRw/iQAD9pVrW/vtUszjp/mT
+        +R7o5274XOMp641Vamq51LBPYZc4x1eCvqDNTvAnvna9Svx1k5bseGx8DJMaNId/
+        3qr5e0pBN7RaktnlvFmlUfIiSB6+PcOdQPsXhPsrlrIT/9xUvguV5A/wIeCyoKO6
+        fiBp+o8P5xlzGlthiHQpC3fNS1uekxvefDiiJJ6fdjd3pt0cgidY844jNV7Hqbyh
+        Fd//zL4J+WZXf2zRofk0T0HPMJNYVa/DotIdMFyOj1MabJywtP25S+xq0Orsm5rg
         ==
-X-ME-Sender: <xms:JK9xYEDFJI7qqYOc5VEOmx2uSatQVL7c4QCfa8qzCBDbylkNAGeCqQ>
-    <xme:JK9xYGiY1S0AJFNRXnC1VmKG3dF8tw6DqHZyIws9II1trlvVsGwAIhhzQrrmeN3kI
-    0tvEHK23IijFg>
+X-ME-Sender: <xms:G69xYOLrCX5zfRYvS_dwzj5lPJEW595nLn2uPsmovPXxaHHRlC4PWQ>
+    <xme:G69xYGKXdEx6wTJ6XlOn9p39UfA07hXbTQzMfQib0agiw1qkfpRGr0Qm3u0bBc_PR
+    n4Z1XZvAloWBQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:JK9xYHmsHxIn5d-7Wpd5Fb7yaOhDnXFlUMvshuDwJ6JRB27Smd6UcQ>
-    <xmx:JK9xYKyR4F4oHaa0ZvqC6qiZccaF_3ceJJMd8a4JwI2nIK2fAyXn4Q>
-    <xmx:JK9xYJRSUtci0iZuOdq7mTlDH3IUA0F5bY_B0iSu2ybSaz33MPSFeQ>
-    <xmx:JK9xYIKmn7L0Jy008pZf7vFaXppdsPSgcT9Unvbo24epsBAcLJmVRA>
+X-ME-Proxy: <xmx:G69xYOvYXs9kf_R26Of_L6Ox_ykfOjdGctS-COaeU3vioMDHkn6TBg>
+    <xmx:G69xYDbqzIl2WvLDT3Ttam13hoZYfeXBqTgPIgx0jtPtu1YtlChdHA>
+    <xmx:G69xYFYBuMCwCEnJUEym9QhmanB1X3DD2QjfiezYS1WuPs4jqgKWzA>
+    <xmx:HK9xYEzGBoj8zqSu-XpL7srQ8-sZS-bxpVl4QXeU_iAPRFkYF6r85Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 02B771080057;
-        Sat, 10 Apr 2021 09:58:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ice: prevent ice_open and ice_stop during reset" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8E0FC24005B;
+        Sat, 10 Apr 2021 09:58:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ice: prevent ice_open and ice_stop during reset" failed to apply to 4.19-stable tree
 To:     krzysztof.goreczny@intel.com, anthony.l.nguyen@intel.com,
         tonyx.brelinski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 10 Apr 2021 15:58:50 +0200
-Message-ID: <161806313022028@kroah.com>
+Message-ID: <161806313011134@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
