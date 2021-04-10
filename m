@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47EC835AEB8
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 17:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30C835AEB1
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 17:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234866AbhDJPMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 11:12:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56146 "EHLO
+        id S234813AbhDJPMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 11:12:50 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:20589 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234825AbhDJPMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 11:12:51 -0400
+        by vger.kernel.org with ESMTP id S234733AbhDJPMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 11:12:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1618067556;
+        s=mimecast20190719; t=1618067554;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=uzhRrfCt9pWIBDC08ZfuRJUiSWLNiQTMxzXRQmQs4PQ=;
-        b=EoALCMDJIDRxo15RxuWGWF1Y7/pzpIRahg8EGzqkmcfB2+8r3UwzK8P8+GRR5qUGfkZTpf
-        oPA9PAGoFZOkPGlLyhwcM5Qhc2W+Y2YIHc4HHoTOhapxtPFcOGyC0hQScgmlNaYxP2IEFl
-        hwDDjuijEfh8inXaXWZxxqoZMUFp4qA=
+        bh=6SyHI7qAP6/9cu703oa1R7UT5+/BkdlcwzRYz7m9g7c=;
+        b=aNlaEwclZ7DbnvTUtdmEQEONE5w3LUeQ2lrICC32E8KgUmZeGZOCkZ/7MVc452KQBITfIr
+        4AFvUs0+1fvq9rOQhCxH/BmvLF9pN07RQ2H5B9nkCuwdMZE2oG0K7kQZxyNzPj7C/nVDmr
+        JxylTvaGGX39CEH3sHD4kh1OJH8dru0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-487-TrbDwnz0MKWI27-gSgq4Rw-1; Sat, 10 Apr 2021 11:12:32 -0400
-X-MC-Unique: TrbDwnz0MKWI27-gSgq4Rw-1
+ us-mta-282-7ANCXBcJP9CIkeoIVeBLWA-1; Sat, 10 Apr 2021 11:12:32 -0400
+X-MC-Unique: 7ANCXBcJP9CIkeoIVeBLWA-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4007F5B38C;
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AA8CD81744F;
         Sat, 10 Apr 2021 15:12:31 +0000 (UTC)
 Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E4C0E18A5A;
-        Sat, 10 Apr 2021 15:12:30 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5A9935D9D3;
+        Sat, 10 Apr 2021 15:12:31 +0000 (UTC)
 From:   Paolo Bonzini <pbonzini@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     kvm@vger.kernel.org, sasha@kernel.org
-Subject: [PATCH 5.10/5.11 2/9] KVM: x86/mmu: Merge flush and non-flush tdp_mmu_iter_cond_resched
-Date:   Sat, 10 Apr 2021 11:12:22 -0400
-Message-Id: <20210410151229.4062930-3-pbonzini@redhat.com>
+Subject: [PATCH 5.10/5.11 3/9] KVM: x86/mmu: Rename goal_gfn to next_last_level_gfn
+Date:   Sat, 10 Apr 2021 11:12:23 -0400
+Message-Id: <20210410151229.4062930-4-pbonzini@redhat.com>
 In-Reply-To: <20210410151229.4062930-1-pbonzini@redhat.com>
 References: <20210410151229.4062930-1-pbonzini@redhat.com>
 MIME-Version: 1.0
@@ -50,120 +50,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Gardon <bgardon@google.com>
 
-[ Upstream commit e139a34ef9d5627a41e1c02210229082140d1f92 ]
+[ Upstream commit 74953d3530280dc53256054e1906f58d07bfba44 ]
 
-The flushing and non-flushing variants of tdp_mmu_iter_cond_resched have
-almost identical implementations. Merge the two functions and add a
-flush parameter.
+The goal_gfn field in tdp_iter can be misleading as it implies that it
+is the iterator's final goal. It is really a target for the lowest gfn
+mapped by the leaf level SPTE the iterator will traverse towards. Change
+the field's name to be more precise.
 
 Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20210202185734.1680553-12-bgardon@google.com>
+Message-Id: <20210202185734.1680553-13-bgardon@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 42 ++++++++++++--------------------------
- 1 file changed, 13 insertions(+), 29 deletions(-)
+ arch/x86/kvm/mmu/tdp_iter.c | 20 ++++++++++----------
+ arch/x86/kvm/mmu/tdp_iter.h |  4 ++--
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index abdd89771b9b..0dd27767c770 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -412,33 +412,13 @@ static inline void tdp_mmu_set_spte_no_dirty_log(struct kvm *kvm,
- 	for_each_tdp_pte(_iter, __va(_mmu->root_hpa),		\
- 			 _mmu->shadow_root_level, _start, _end)
+diff --git a/arch/x86/kvm/mmu/tdp_iter.c b/arch/x86/kvm/mmu/tdp_iter.c
+index 87b7e16911db..9917c55b7d24 100644
+--- a/arch/x86/kvm/mmu/tdp_iter.c
++++ b/arch/x86/kvm/mmu/tdp_iter.c
+@@ -22,21 +22,21 @@ static gfn_t round_gfn_for_level(gfn_t gfn, int level)
  
--/*
-- * Flush the TLB and yield if the MMU lock is contended or this thread needs to
-- * return control to the scheduler.
-- *
-- * If this function yields, it will also reset the tdp_iter's walk over the
-- * paging structure and the calling function should allow the iterator to
-- * continue its traversal from the paging structure root.
-- *
-- * Return true if this function yielded, the TLBs were flushed, and the
-- * iterator's traversal was reset. Return false if a yield was not needed.
-- */
--static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
--{
--	if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
--		kvm_flush_remote_tlbs(kvm);
--		cond_resched_lock(&kvm->mmu_lock);
--		tdp_iter_refresh_walk(iter);
--		return true;
--	}
--
--	return false;
--}
--
  /*
-  * Yield if the MMU lock is contended or this thread needs to return control
-  * to the scheduler.
-  *
-+ * If this function should yield and flush is set, it will perform a remote
-+ * TLB flush before yielding.
-+ *
-  * If this function yields, it will also reset the tdp_iter's walk over the
-  * paging structure and the calling function should allow the iterator to
-  * continue its traversal from the paging structure root.
-@@ -446,9 +426,13 @@ static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *it
-  * Return true if this function yielded and the iterator's traversal was reset.
-  * Return false if a yield was not needed.
+  * Sets a TDP iterator to walk a pre-order traversal of the paging structure
+- * rooted at root_pt, starting with the walk to translate goal_gfn.
++ * rooted at root_pt, starting with the walk to translate next_last_level_gfn.
   */
--static bool tdp_mmu_iter_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
-+static inline bool tdp_mmu_iter_cond_resched(struct kvm *kvm,
-+					     struct tdp_iter *iter, bool flush)
+ void tdp_iter_start(struct tdp_iter *iter, u64 *root_pt, int root_level,
+-		    int min_level, gfn_t goal_gfn)
++		    int min_level, gfn_t next_last_level_gfn)
  {
- 	if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
-+		if (flush)
-+			kvm_flush_remote_tlbs(kvm);
-+
- 		cond_resched_lock(&kvm->mmu_lock);
- 		tdp_iter_refresh_walk(iter);
- 		return true;
-@@ -491,7 +475,7 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 		tdp_mmu_set_spte(kvm, &iter, 0);
+ 	WARN_ON(root_level < 1);
+ 	WARN_ON(root_level > PT64_ROOT_MAX_LEVEL);
  
- 		flush_needed = !can_yield ||
--			       !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
-+			       !tdp_mmu_iter_cond_resched(kvm, &iter, true);
- 	}
- 	return flush_needed;
+-	iter->goal_gfn = goal_gfn;
++	iter->next_last_level_gfn = next_last_level_gfn;
+ 	iter->root_level = root_level;
+ 	iter->min_level = min_level;
+ 	iter->level = root_level;
+ 	iter->pt_path[iter->level - 1] = root_pt;
+ 
+-	iter->gfn = round_gfn_for_level(iter->goal_gfn, iter->level);
++	iter->gfn = round_gfn_for_level(iter->next_last_level_gfn, iter->level);
+ 	tdp_iter_refresh_sptep(iter);
+ 
+ 	iter->valid = true;
+@@ -82,7 +82,7 @@ static bool try_step_down(struct tdp_iter *iter)
+ 
+ 	iter->level--;
+ 	iter->pt_path[iter->level - 1] = child_pt;
+-	iter->gfn = round_gfn_for_level(iter->goal_gfn, iter->level);
++	iter->gfn = round_gfn_for_level(iter->next_last_level_gfn, iter->level);
+ 	tdp_iter_refresh_sptep(iter);
+ 
+ 	return true;
+@@ -106,7 +106,7 @@ static bool try_step_side(struct tdp_iter *iter)
+ 		return false;
+ 
+ 	iter->gfn += KVM_PAGES_PER_HPAGE(iter->level);
+-	iter->goal_gfn = iter->gfn;
++	iter->next_last_level_gfn = iter->gfn;
+ 	iter->sptep++;
+ 	iter->old_spte = READ_ONCE(*iter->sptep);
+ 
+@@ -166,13 +166,13 @@ void tdp_iter_next(struct tdp_iter *iter)
+  */
+ void tdp_iter_refresh_walk(struct tdp_iter *iter)
+ {
+-	gfn_t goal_gfn = iter->goal_gfn;
++	gfn_t next_last_level_gfn = iter->next_last_level_gfn;
+ 
+-	if (iter->gfn > goal_gfn)
+-		goal_gfn = iter->gfn;
++	if (iter->gfn > next_last_level_gfn)
++		next_last_level_gfn = iter->gfn;
+ 
+ 	tdp_iter_start(iter, iter->pt_path[iter->root_level - 1],
+-		       iter->root_level, iter->min_level, goal_gfn);
++		       iter->root_level, iter->min_level, next_last_level_gfn);
  }
-@@ -864,7 +848,7 @@ static bool wrprot_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 		tdp_mmu_set_spte_no_dirty_log(kvm, &iter, new_spte);
- 		spte_set = true;
  
--		tdp_mmu_iter_cond_resched(kvm, &iter);
-+		tdp_mmu_iter_cond_resched(kvm, &iter, false);
- 	}
- 	return spte_set;
- }
-@@ -923,7 +907,7 @@ static bool clear_dirty_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 		tdp_mmu_set_spte_no_dirty_log(kvm, &iter, new_spte);
- 		spte_set = true;
+ u64 *tdp_iter_root_pt(struct tdp_iter *iter)
+diff --git a/arch/x86/kvm/mmu/tdp_iter.h b/arch/x86/kvm/mmu/tdp_iter.h
+index 47170d0dc98e..b2dd269c631f 100644
+--- a/arch/x86/kvm/mmu/tdp_iter.h
++++ b/arch/x86/kvm/mmu/tdp_iter.h
+@@ -15,7 +15,7 @@ struct tdp_iter {
+ 	 * The iterator will traverse the paging structure towards the mapping
+ 	 * for this GFN.
+ 	 */
+-	gfn_t goal_gfn;
++	gfn_t next_last_level_gfn;
+ 	/* Pointers to the page tables traversed to reach the current SPTE */
+ 	u64 *pt_path[PT64_ROOT_MAX_LEVEL];
+ 	/* A pointer to the current SPTE */
+@@ -52,7 +52,7 @@ struct tdp_iter {
+ u64 *spte_to_child_pt(u64 pte, int level);
  
--		tdp_mmu_iter_cond_resched(kvm, &iter);
-+		tdp_mmu_iter_cond_resched(kvm, &iter, false);
- 	}
- 	return spte_set;
- }
-@@ -1039,7 +1023,7 @@ static bool set_dirty_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 		tdp_mmu_set_spte(kvm, &iter, new_spte);
- 		spte_set = true;
- 
--		tdp_mmu_iter_cond_resched(kvm, &iter);
-+		tdp_mmu_iter_cond_resched(kvm, &iter, false);
- 	}
- 
- 	return spte_set;
-@@ -1092,7 +1076,7 @@ static void zap_collapsible_spte_range(struct kvm *kvm,
- 
- 		tdp_mmu_set_spte(kvm, &iter, 0);
- 
--		spte_set = !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
-+		spte_set = !tdp_mmu_iter_cond_resched(kvm, &iter, true);
- 	}
- 
- 	if (spte_set)
+ void tdp_iter_start(struct tdp_iter *iter, u64 *root_pt, int root_level,
+-		    int min_level, gfn_t goal_gfn);
++		    int min_level, gfn_t next_last_level_gfn);
+ void tdp_iter_next(struct tdp_iter *iter);
+ void tdp_iter_refresh_walk(struct tdp_iter *iter);
+ u64 *tdp_iter_root_pt(struct tdp_iter *iter);
 -- 
 2.26.2
 
