@@ -2,85 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BDE235AD2C
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 14:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC5835AD2E
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 14:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234373AbhDJMIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 08:08:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57124 "EHLO mail.kernel.org"
+        id S234091AbhDJMIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 08:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231279AbhDJMIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Apr 2021 08:08:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88C0661165;
-        Sat, 10 Apr 2021 12:07:49 +0000 (UTC)
+        id S231279AbhDJMIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 08:08:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9653C611AF;
+        Sat, 10 Apr 2021 12:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618056470;
-        bh=TOGFWa9Nn+4J9hISS6++HsfYZalNKWKelOxu1CZ9JKc=;
+        s=korg; t=1618056507;
+        bh=/WH6SBPC+bQg04mE0kmlbX3u2IbS/MY+cappevAC1Zw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XeX6B1Wg1409bUXGrRz+W/5iV3gdA2dVbOF7KHXy+lzXYaOmYWK0hgL4Mma+PnYKk
-         zdaPSYSdFXcrLzsLvGuxh6SHUgp2XT0s2DkSzQss2/8A2Co5Z+SoqWtvcXg4cmim7j
-         Nm6MekC8iMXLpIxiQc/2Nsoo4r/Q3PHhMrQsUAHs=
-Date:   Sat, 10 Apr 2021 14:07:47 +0200
+        b=cjh7YLusfa6RqhdKrp9QIdy45lk9Rh8Dc3ufuRkcwwcmO1/sWDMIx8AQuX0AHWT02
+         WN1JwnTUHIytWZIQhSr9PanW9tLX7DESPOxTysGXvorLzJnE2Vbud8ppX/bqZ09H6Q
+         76gUEy7uT9vkTpxg5nAMisacuL3TQ4o0JwnF/Gv4=
+Date:   Sat, 10 Apr 2021 14:08:24 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Roman Guskov <rguskov@dh-electronics.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH stable] gpiolib: Read "gpio-line-names" from a firmware
- node
-Message-ID: <YHGVE1hMDUiK0P2A@kroah.com>
-References: <20210410090919.3157-1-brgl@bgdev.pl>
+To:     Saravana Kannan <saravanak@google.com>
+Cc:     Rob Herring <robh@kernel.org>,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] of: property: fw_devlink: do not link ".*,nr-gpios"
+Message-ID: <YHGVOO0j2VpzounG@kroah.com>
+References: <20210405031436.2465475-1-ilya.lipnitskiy@gmail.com>
+ <20210405222540.18145-1-ilya.lipnitskiy@gmail.com>
+ <CAGETcx-gF4r1TeY2AA4Vwb5e+5O+_O3E2ENo5tKhh=n_EOJnEQ@mail.gmail.com>
+ <20210407003408.GA2551507@robh.at.kernel.org>
+ <CAGETcx8=sSWj_OmM1GPXNiLcv3anEkJnb_C7NoO9mNwS-O0KhQ@mail.gmail.com>
+ <CAL_JsqLs4c3+9WwV6Vnk9Tovb6HiyH7t+_WXYP-ZDO72mOcO+w@mail.gmail.com>
+ <CAGETcx-W_K9NFV51iBvyZ-Q+1LCUM3qipMmap9yEW_eu9B7CCg@mail.gmail.com>
+ <CALCv0x1qOKkMmwJu82sXEJ3L5Y2n4eQp8n+SN1HYwcgpYm6CAw@mail.gmail.com>
+ <CAL_JsqJN5W60Cy6ec5HJxKMRag-MYO3yqkbBnWp6k_u6h85T=A@mail.gmail.com>
+ <CAGETcx_3CYxrSBtTgRkyRJUS0kdtn3ukLYpSznY-e9O6eOe+xA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210410090919.3157-1-brgl@bgdev.pl>
+In-Reply-To: <CAGETcx_3CYxrSBtTgRkyRJUS0kdtn3ukLYpSznY-e9O6eOe+xA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 10, 2021 at 11:09:19AM +0200, Bartosz Golaszewski wrote:
-> From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Fri, Apr 09, 2021 at 12:36:36PM -0700, Saravana Kannan wrote:
+> On Fri, Apr 9, 2021 at 12:26 PM Rob Herring <robh@kernel.org> wrote:
+> >
+> > On Wed, Apr 7, 2021 at 3:45 PM Ilya Lipnitskiy
+> > <ilya.lipnitskiy@gmail.com> wrote:
+> > >
+> > > On Tue, Apr 6, 2021 at 6:24 PM Saravana Kannan <saravanak@google.com> wrote:
+> > > >
+> > > > On Tue, Apr 6, 2021 at 6:10 PM Rob Herring <robh@kernel.org> wrote:
+> > > > >
+> > > > > On Tue, Apr 6, 2021 at 7:46 PM Saravana Kannan <saravanak@google.com> wrote:
+> > > > > >
+> > > > > > On Tue, Apr 6, 2021 at 5:34 PM Rob Herring <robh@kernel.org> wrote:
+> > > > > > >
+> > > > > > > On Tue, Apr 06, 2021 at 04:09:10PM -0700, Saravana Kannan wrote:
+> > > > > > > > On Mon, Apr 5, 2021 at 3:26 PM Ilya Lipnitskiy
+> > > > > > > > <ilya.lipnitskiy@gmail.com> wrote:
+> > > > > > > > >
+> > > > > > > > > [<vendor>,]nr-gpios property is used by some GPIO drivers[0] to indicate
+> > > > > > > > > the number of GPIOs present on a system, not define a GPIO. nr-gpios is
+> > > > > > > > > not configured by #gpio-cells and can't be parsed along with other
+> > > > > > > > > "*-gpios" properties.
+> > > > > > > > >
+> > > > > > > > > nr-gpios without the "<vendor>," prefix is not allowed by the DT
+> > > > > > > > > spec[1], so only add exception for the ",nr-gpios" suffix and let the
+> > > > > > > > > error message continue being printed for non-compliant implementations.
+> > > > > > > > >
+> > > > > > > > > [0]: nr-gpios is referenced in Documentation/devicetree/bindings/gpio:
+> > > > > > > > >  - gpio-adnp.txt
+> > > > > > > > >  - gpio-xgene-sb.txt
+> > > > > > > > >  - gpio-xlp.txt
+> > > > > > > > >  - snps,dw-apb-gpio.yaml
+> > > > > > > > >
+> > > > > > > > > [1]:
+> > > > > > > > > Link: https://github.com/devicetree-org/dt-schema/blob/cb53a16a1eb3e2169ce170c071e47940845ec26e/schemas/gpio/gpio-consumer.yaml#L20
+> > > > > > > > >
+> > > > > > > > > Fixes errors such as:
+> > > > > > > > >   OF: /palmbus@300000/gpio@600: could not find phandle
+> > > > > > > > >
+> > > > > > > > > Fixes: 7f00be96f125 ("of: property: Add device link support for interrupt-parent, dmas and -gpio(s)")
+> > > > > > > > > Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+> > > > > > > > > Cc: Saravana Kannan <saravanak@google.com>
+> > > > > > > > > Cc: <stable@vger.kernel.org> # 5.5.x
+> > > > > > > > > ---
+> > > > > > > > >  drivers/of/property.c | 11 ++++++++++-
+> > > > > > > > >  1 file changed, 10 insertions(+), 1 deletion(-)
+> > > > > > > > >
+> > > > > > > > > diff --git a/drivers/of/property.c b/drivers/of/property.c
+> > > > > > > > > index 2046ae311322..1793303e84ac 100644
+> > > > > > > > > --- a/drivers/of/property.c
+> > > > > > > > > +++ b/drivers/of/property.c
+> > > > > > > > > @@ -1281,7 +1281,16 @@ DEFINE_SIMPLE_PROP(pinctrl7, "pinctrl-7", NULL)
+> > > > > > > > >  DEFINE_SIMPLE_PROP(pinctrl8, "pinctrl-8", NULL)
+> > > > > > > > >  DEFINE_SUFFIX_PROP(regulators, "-supply", NULL)
+> > > > > > > > >  DEFINE_SUFFIX_PROP(gpio, "-gpio", "#gpio-cells")
+> > > > > > > > > -DEFINE_SUFFIX_PROP(gpios, "-gpios", "#gpio-cells")
+> > > > > > > > > +
+> > > > > > > > > +static struct device_node *parse_gpios(struct device_node *np,
+> > > > > > > > > +                                      const char *prop_name, int index)
+> > > > > > > > > +{
+> > > > > > > > > +       if (!strcmp_suffix(prop_name, ",nr-gpios"))
+> > > > > > > > > +               return NULL;
+> > > > > > > >
+> > > > > > > > Ah I somehow missed this patch. This gives a blanked exception for
+> > > > > > > > vendor,nr-gpios. I'd prefer explicit exceptions for all the instances
+> > > > > > > > of ",nr-gpios" we are grandfathering in. Any future additions should
+> > > > > > > > be rejected. Can we do that please?
+> > > > > > > >
+> > > > > > > > Rob, you okay with making this list more explicit?
+> > > > > > >
+> > > > > > > Not the kernel's job IMO. A schema is the right way to handle that.
+> > > > > >
+> > > > > > Ok, that's fine by me. Btw, let's land this in driver-core? I've made
+> > > > > > changes there and this might cause conflicts. Not sure.
+> > > > >
+> > > > > It merges with linux-next fine. You'll need to resend this to Greg if
+> > > > > you want to do that.
+> > > > >
+> > > > > Reviewed-by: Rob Herring <robh@kernel.org>
+> > > >
+> > > > Hi Greg,
+> > > >
+> > > > Can you pull this into driver-core please?
+> > > Do you want me to re-spin on top of driver-core? The patch is
+> > > currently based on dt/next in robh/linux.git
+> >
+> > I did say you need to resend the patch to Greg, but since there's no
+> > movement on this and I have other things to send upstream, I've
+> > applied it.
 > 
-> On STM32MP1, the GPIO banks are subnodes of pin-controller@50002000,
-> see arch/arm/boot/dts/stm32mp151.dtsi. The driver for
-> pin-controller@50002000 is in drivers/pinctrl/stm32/pinctrl-stm32.c
-> and iterates over all of its DT subnodes when registering each GPIO
-> bank gpiochip. Each gpiochip has:
+> :'(
 > 
->   - gpio_chip.parent = dev,
->     where dev is the device node of the pin controller
->   - gpio_chip.of_node = np,
->     which is the OF node of the GPIO bank
-> 
-> Therefore, dev_fwnode(chip->parent) != of_fwnode_handle(chip.of_node),
-> i.e. pin-controller@50002000 != pin-controller@50002000/gpio@5000*000.
-> 
-> The original code behaved correctly, as it extracted the "gpio-line-names"
-> from of_fwnode_handle(chip.of_node) = pin-controller@50002000/gpio@5000*000.
-> 
-> To achieve the same behaviour, read property from the firmware node.
-> 
-> Fixes: 7cba1a4d5e162 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
-> Cc: stable@vger.kernel.org
-> Reported-by: Marek Vasut <marex@denx.de>
-> Reported-by: Roman Guskov <rguskov@dh-electronics.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Tested-by: Marek Vasut <marex@denx.de>
-> Reviewed-by: Marek Vasut <marex@denx.de>
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> ---
-> Hi Greg,
-> 
-> This patch somehow got lost and never made its way into stable. Could you
-> please apply it?
+> If it's not too late, can we please drop it? I'm sure Greg would be
+> okay with picking this up.
 
-This has been added and removed more times than I can remember already.
+It's in Linus's tree, why does it matter who sends it in?
 
-Are you all _SURE_ this is safe for a stable kernel release?  Look in
-the archives for complaints when we added this in the past.
-
-thanks,
-
-greg k-h
+{sigh}
