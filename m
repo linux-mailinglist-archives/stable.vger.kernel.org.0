@@ -2,228 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 709AB35AC1D
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 11:08:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF83935AC1F
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 11:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231279AbhDJJIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 05:08:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44128 "EHLO
+        id S229943AbhDJJJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 05:09:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229591AbhDJJIR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 05:08:17 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAAF0C061763
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 02:08:02 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id s15so9215362edd.4
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 02:08:02 -0700 (PDT)
+        with ESMTP id S229591AbhDJJJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 05:09:55 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098BBC061763
+        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 02:09:41 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id j4-20020a05600c4104b029010c62bc1e20so4145337wmi.3
+        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 02:09:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=RdN7YkjdyQpf6iiNC2gA6eA2FYaZ/HS1hWiO5JvUgXw=;
-        b=Wa34Zl0cDudHtlBvNmen3pJkdksvotUKFYRm7DuyNpdMU1gsyXYqO4FXkAuGq5v5H+
-         4bL3R0mGOd0jwwUWiXTzvl0lCHOYZoJoPUAtKwbc89gkmLPTiLP6iagrfK5ryqqlSKwh
-         333SReDTSzjDfagekCo4QxliRrfsxz2xXvkISXE0rWbp/SMRO0y1kqrl5WOgS6XthUa6
-         ExlngeAn7VYvZHlu4B+935KYH4QedFqIIsyOIQWGzyaerqnM0DwUsiyoErxczfen2u6+
-         bszMUJrh6eiqNRD59KFeowVv/fH7jiMADvg2c1Dnv5zVt/0Z0nQ9brT28NrrBtmiUT5y
-         5RIA==
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=p8aPX/yhyDURpzd9he2oFVc3UD257yU7cZPkDvSNwmA=;
+        b=j8zUr5y1aGMOckYxnzgWhcFZvHUB26DkBP3lqp4GNu50qv1KWM/VV+68cxPaQgL5Je
+         Ju8UEj1Dnxb7sMT+qdfe1RgzE3k3mgb53UPIE5wutbGvwaJf5IiLh70HeZuuLOUWqKPh
+         bRvnMalO6C+CfsyYJm9+ZxkC0G9A7YGlY0vdOPz31DNLVbBFmzjjxUQ4yH2cD1vwtrUz
+         BpGm8tkC50O9w4bBSzzvJj+t1PryGF1Wew3hJ+ttv4uuA+jIHQVbccRpwRMKQOUHbvW4
+         zcx/iaxMPZ9Tlqt/wKG7V/X1FGIoBh3oX54O8iV/pgt2P5ttwEexvjncFmUDLTlUUQqb
+         L7wA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=RdN7YkjdyQpf6iiNC2gA6eA2FYaZ/HS1hWiO5JvUgXw=;
-        b=S8XrtWzoygUmCfgbNnIiQ1qLUcb9KiZ91a1+64sgCpwyqY62NPOz7IkUt3rg5p1B+B
-         JIi/2y3jAszxlT1HqLy6llQqAWwFNJj3KlSPabsUJ8JO8HlX4FGMGp3Xw44osMwmQNPt
-         UxZYhyDLktJNwjCEeMglGx5z6W4kOKkZgteyk+I/0gDt694ZowLl8r9Pf14GAe0Lg3Ud
-         Ta8KnMgT1w9lOumRok1T0/+zL7LsaaWcQ7wC4Ld8MGzg7XnS5DfqJuprCWBXquMUhume
-         str50FXTapUqxnl5NtRYHAwxC9SWzU+77HBkKum/JT/NsHy2TJV8v6iJUHZZY/0FA//j
-         mWbg==
-X-Gm-Message-State: AOAM531YzlG78zhjwY1DWlPrz5dUBIB/pp3vGOYMpCefBb2ngLgXv3S3
-        CYJjPDgDYfylBmyz39kpa2sR7qTBwM8/Q1v0c8nJGw==
-X-Google-Smtp-Source: ABdhPJxUtrh9zQUuo+LYNfKjxSTA/5MyqWQwZH46l6Y4oAU7CJ0jIfauv2bWU74yPO0J3GRHMIqyYVbwk1SNAEiSSe4=
-X-Received: by 2002:a50:c3c2:: with SMTP id i2mr21142662edf.23.1618045681491;
- Sat, 10 Apr 2021 02:08:01 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210409095301.525783608@linuxfoundation.org>
-In-Reply-To: <20210409095301.525783608@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 10 Apr 2021 14:37:49 +0530
-Message-ID: <CA+G9fYs3kDdR_3KwHQ7gaWAYXG5gRjsjBc9dZGWuvbciWdbC2w@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/18] 4.19.186-rc1 review
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=p8aPX/yhyDURpzd9he2oFVc3UD257yU7cZPkDvSNwmA=;
+        b=Sw/m2XwmDFTIAsgb6pAJll3HpMHMpvd0vgRPkZLeypBuFwHmoEw8NEkXgRtBUlIwDw
+         NpSgLIA5AlTyMRCYY4yXxN0J8ez/klOzjvhgiizbhYSmqiPtKSQNGJ6cCiC1aQkpyTiX
+         0uCVVRYHPr+cUPVrlP7X7i84D5AMK8IQW5FbSg85FpOHwBlJnFCPBFXWY0m0TWJFvzDw
+         PEL2jFSVKRI+cgLAKQVAFjf1QkxNP+6mjIE8BygUgA3kOC1L+qFoi3hNeloPLy+fwhNS
+         42KYefCkZqgAHYRAep948J10wxPjyJLj9xO+DXD7ZDcxBX6KTcZq7p4kAni7Fz0+toXW
+         zoFQ==
+X-Gm-Message-State: AOAM531PTyR6YGXPg9Xb3HwQ+WCnL+gNJwft+6L4N2IQoIIgv4dIUP2B
+        NZUNhOXLp8hgJfRlJck24L5XxA==
+X-Google-Smtp-Source: ABdhPJzMBdIAblvC8n15zoDbPzu6FnmiqaZWX7oEBVLEDZDBMRYWZrZCqK7Dtk92kopeMxP789R1Cg==
+X-Received: by 2002:a1c:a502:: with SMTP id o2mr12057387wme.16.1618045779784;
+        Sat, 10 Apr 2021 02:09:39 -0700 (PDT)
+Received: from debian-brgl.home (lfbn-nic-1-149-6.w2-15.abo.wanadoo.fr. [2.15.231.6])
+        by smtp.gmail.com with ESMTPSA id h63sm6986094wmh.13.2021.04.10.02.09.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 10 Apr 2021 02:09:39 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Roman Guskov <rguskov@dh-electronics.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH stable] gpiolib: Read "gpio-line-names" from a firmware node
+Date:   Sat, 10 Apr 2021 11:09:19 +0200
+Message-Id: <20210410090919.3157-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.30.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 9 Apr 2021 at 15:27, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.186 release.
-> There are 18 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.186-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On STM32MP1, the GPIO banks are subnodes of pin-controller@50002000,
+see arch/arm/boot/dts/stm32mp151.dtsi. The driver for
+pin-controller@50002000 is in drivers/pinctrl/stm32/pinctrl-stm32.c
+and iterates over all of its DT subnodes when registering each GPIO
+bank gpiochip. Each gpiochip has:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+  - gpio_chip.parent = dev,
+    where dev is the device node of the pin controller
+  - gpio_chip.of_node = np,
+    which is the OF node of the GPIO bank
 
-## Build
-* kernel: 4.19.186-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: 6aba908ea95f2196c499c922cfae662412d5040a
-* git describe: v4.19.185-19-g6aba908ea95f
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.185-19-g6aba908ea95f
+Therefore, dev_fwnode(chip->parent) != of_fwnode_handle(chip.of_node),
+i.e. pin-controller@50002000 != pin-controller@50002000/gpio@5000*000.
 
-## No regressions (compared to v4.19.185)
+The original code behaved correctly, as it extracted the "gpio-line-names"
+from of_fwnode_handle(chip.of_node) = pin-controller@50002000/gpio@5000*000.
 
-## No fixes (compared to v4.19.185)
+To achieve the same behaviour, read property from the firmware node.
 
-## Test result summary
- total: 67843, pass: 55043, fail: 1811, skip: 10773, xfail: 216,
+Fixes: 7cba1a4d5e162 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
+Cc: stable@vger.kernel.org
+Reported-by: Marek Vasut <marex@denx.de>
+Reported-by: Roman Guskov <rguskov@dh-electronics.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+Hi Greg,
 
-## Build Summary
-* arm: 96 total, 96 passed, 0 failed
-* arm64: 24 total, 24 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 13 passed, 1 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 39 total, 39 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 15 total, 14 passed, 1 failed
+This patch somehow got lost and never made its way into stable. Could you
+please apply it?
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+Thanks,
+Bartosz
 
---
-Linaro LKFT
-https://lkft.linaro.org
+ drivers/gpio/gpiolib.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 4253837f870b..7ec0822c0505 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -367,22 +367,18 @@ static int gpiochip_set_desc_names(struct gpio_chip *gc)
+  *
+  * Looks for device property "gpio-line-names" and if it exists assigns
+  * GPIO line names for the chip. The memory allocated for the assigned
+- * names belong to the underlying software node and should not be released
++ * names belong to the underlying firmware node and should not be released
+  * by the caller.
+  */
+ static int devprop_gpiochip_set_names(struct gpio_chip *chip)
+ {
+ 	struct gpio_device *gdev = chip->gpiodev;
+-	struct device *dev = chip->parent;
++	struct fwnode_handle *fwnode = dev_fwnode(&gdev->dev);
+ 	const char **names;
+ 	int ret, i;
+ 	int count;
+ 
+-	/* GPIO chip may not have a parent device whose properties we inspect. */
+-	if (!dev)
+-		return 0;
+-
+-	count = device_property_string_array_count(dev, "gpio-line-names");
++	count = fwnode_property_string_array_count(fwnode, "gpio-line-names");
+ 	if (count < 0)
+ 		return 0;
+ 
+@@ -396,7 +392,7 @@ static int devprop_gpiochip_set_names(struct gpio_chip *chip)
+ 	if (!names)
+ 		return -ENOMEM;
+ 
+-	ret = device_property_read_string_array(dev, "gpio-line-names",
++	ret = fwnode_property_read_string_array(fwnode, "gpio-line-names",
+ 						names, count);
+ 	if (ret < 0) {
+ 		dev_warn(&gdev->dev, "failed to read GPIO line names\n");
+-- 
+2.30.1
+
