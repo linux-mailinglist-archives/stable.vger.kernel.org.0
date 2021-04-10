@@ -2,424 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E7A35AF23
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 18:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A19A135AF3A
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 19:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234668AbhDJQut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 12:50:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58626 "EHLO
+        id S234871AbhDJRbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 13:31:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234392AbhDJQut (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 12:50:49 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7398C06138A
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 09:50:34 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id ot17-20020a17090b3b51b0290109c9ac3c34so6502337pjb.4
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 09:50:34 -0700 (PDT)
+        with ESMTP id S234392AbhDJRbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 13:31:00 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 734B1C06138A;
+        Sat, 10 Apr 2021 10:30:45 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id cu16so2464360pjb.4;
+        Sat, 10 Apr 2021 10:30:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=T2evOygL8o4ZIRc3dfZL+MeI2PA5yO+2bcySnFp3Rxo=;
-        b=jWS7GyCQo1ZrxAoy+tn3XDdq+Kq0pESEV2Ut8e4sDQp464SMVFG5LUpYXicNOT3Scy
-         Qz3t9+mXlUFrOBk0ZFvspC/aFbyIU2ykXCF7++eYryJgwrtV8KB2swsnGu7oXmCDKqWY
-         25rXHbAAyduvH2x+vgMFPiDCMRA9MsKOMyDhaJwB1PwF4N98vp5DhRJh/HA3v5j5LpfG
-         qdmw9pkrr5aHibdIPlxUZm6zVQy1zM2gFUsTCmDRUHIWNja+xaPT51Ji/kVsR6+DU5ES
-         QR99SX6u1halHEeauGQGlk2rh6f67BzT5Jf/XItSa8tjXaa7ca4zClkwWKJV2yfQYsza
-         hZSg==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=2VyxYortG0aGHUT2/EouoRYWTpky/T5nFCT2ISkObGo=;
+        b=qyBShVRlicTV1itY73GtSmyrpnUzuVODeNEveDV7nmWrAWj1fYQ3crxliAR1um32YG
+         6T6CdFcwDa3gJV06o9VDb3Gv1S//k3PiRvw8sPL5h0Xkz6lyAYWNPs9sqo2HLJEYYsBY
+         GC8Czl6soCHOHcgFz5L+WpTcglVUh5nnV44QWRXky6Rnjc3P0q1ymoXPG+hL+mkt195Y
+         PrP4idvE0C7oiH0ITZnnUUp7sO4vbiL5T5aKD4mFIgijg7oGjQX9CK73jQZ0u4nLF93a
+         dw/zWeNKA09VX9di87vzuOzgtSq4AgUn9be0jn3LS93nHN9rL+nA2EdwgJjrfclrnPjM
+         X8qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=T2evOygL8o4ZIRc3dfZL+MeI2PA5yO+2bcySnFp3Rxo=;
-        b=AufgTpk+T3ElYlIdV/jepZrRragnyFZ38+yelo1Tp8BbGkWtu/9eZ0btNlyLI+cW5q
-         2nEWqMQUOCSkoPSPYmExmC2yi2ZdmoEpr/2/hwHgFFi0OneSN5RC6Xh50REH3WrLwCZ5
-         dK7fbwQAtadsg7vVFXdqoNwEmH9GLXSTzOiQ95Xedpk2rqXAfCxz+Uz1Byajn+KkTP6v
-         UC0q6xkgf00/5YFbCRz5edOcqpg+Ass+2/KnxI1UKbmRnTJf1+1il+n6JaHh4+77qTkh
-         wXn8rLETsg3CcxLoOZnQbJkLhraaKlPJRN7nx7BpImeTxqzAcaoG7eZ8vqAiPpGNFTDx
-         CIew==
-X-Gm-Message-State: AOAM532Htt9AlOzkM4A2doessb1PtC/UbqGFWpQBJM5Jjf8hB1HOJzgg
-        v9yiExhgHELudYNPUXOPnzA/HPisfXLKrub6
-X-Google-Smtp-Source: ABdhPJzOjvs+00O+3dChmXKeXruD3P+fbxVXfl6cjdleeuLNjEdP0PCfzmyxjsBpE62rw/icDk1uxw==
-X-Received: by 2002:a17:90b:1e0f:: with SMTP id pg15mr19816774pjb.51.1618073433023;
-        Sat, 10 Apr 2021 09:50:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n25sm5224475pff.154.2021.04.10.09.50.32
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=2VyxYortG0aGHUT2/EouoRYWTpky/T5nFCT2ISkObGo=;
+        b=uZdWxVa249grYxcSdNihiwY3joJAtdgW80coA/fnOkAOZ5uZFReFRfqZESXrAgQviT
+         fmR4HvHAsy6tk2J6Bl/eyBHesDLHMMtVEzMQjRCwRFauB4nuiKLTdE/yrgEbD4XoHPRY
+         m8LBNCzeIoK+zD2pGzz/LqeCkx5z+cZupoFd6IqkryKhCZgTlX7gU0cxJ8wJ3WNGxhW3
+         FPbBQk3iolzGROOfGjNorlk+Ru44gS3+z20I54mx3uLRI+kXAuJHDVhOw8e2jAyuPyS7
+         f94ow4kN08TtM4No/Wfl9jYdZvVyMtK1XGOi16m2EfJ0kJ0MtMVn44Vxpa99ZbGRXLer
+         nEPw==
+X-Gm-Message-State: AOAM530x/L2zNYvk771BAaAWYbvrGYq4RlLAo6f9BWVICnePtNe9yiui
+        vjNRv7g54Np9bI0onnNJnA62cuwFJDg=
+X-Google-Smtp-Source: ABdhPJyhNxwu0CgCIG59cGakpvST+yDG8bOaJBmZ5PQxSTdLQ1CHMUMGs6xrZhc/Vr2YRS3dufKEiw==
+X-Received: by 2002:a17:90a:6282:: with SMTP id d2mr18766584pjj.168.1618075844853;
+        Sat, 10 Apr 2021 10:30:44 -0700 (PDT)
+Received: from localhost.localdomain ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id x25sm5578861pfu.189.2021.04.10.10.30.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Apr 2021 09:50:32 -0700 (PDT)
-Message-ID: <6071d758.1c69fb81.c4aa1.d484@mx.google.com>
-Date:   Sat, 10 Apr 2021 09:50:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Sat, 10 Apr 2021 10:30:44 -0700 (PDT)
+From:   James Smart <jsmart2021@gmail.com>
+To:     linux-scsi@vger.kernel.org
+Cc:     James Smart <jsmart2021@gmail.com>, stable@vger.kernel.org,
+        Justin Tee <justin.tee@broadcom.com>
+Subject: [PATCH 01/16] lpfc: Fix rmmod crash due to bad ring pointers to abort_iotag
+Date:   Sat, 10 Apr 2021 10:30:19 -0700
+Message-Id: <20210410173034.67618-2-jsmart2021@gmail.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210410173034.67618-1-jsmart2021@gmail.com>
+References: <20210410173034.67618-1-jsmart2021@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.266-1-g0a017d02fe71
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.4 baseline: 91 runs,
- 9 regressions (v4.4.266-1-g0a017d02fe71)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 91 runs, 9 regressions (v4.4.266-1-g0a017d02f=
-e71)
+Rmmod on sli4 adapters is sometimes hitting a bad ptr dereference
+in lpfc_els_free_iocb
+
+A prior patch refactored the lpfc_sli_abort_iocb routine. One of the
+changes was to convert from building/sending an abort within the
+routine to using a common routine. The reworked routine passes,
+without modification, the pring ptr to the new common routine. The
+older routine had logic to check sli3 vs sli4 and adapt the pring ptr
+if necessary as callers were passing sli3 pointers even when not on an
+sli4 adapter. The new routine is missing this check and adapt, so the
+sli-3 ring pointers are being used in sli-4 paths.
+
+Fix by cleaning up the calling routines. In review, there is no need to
+pass the ring ptr argument to abort_iocb at all. The routine can look at
+the adapter type itself and reference the proper ring.
+
+Fixes: db7531d2b377 ("scsi: lpfc: Convert abort handling to SLI-3 and SLI-4 handlers")
+Cc: <stable@vger.kernel.org> # v5.11+
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+---
+ drivers/scsi/lpfc/lpfc_crtn.h      |  4 ++--
+ drivers/scsi/lpfc/lpfc_hbadisc.c   | 10 +++-------
+ drivers/scsi/lpfc/lpfc_nportdisc.c |  4 +---
+ drivers/scsi/lpfc/lpfc_sli.c       | 20 +++++++++++++++-----
+ 4 files changed, 21 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/scsi/lpfc/lpfc_crtn.h b/drivers/scsi/lpfc/lpfc_crtn.h
+index eb4cf36229d5..e7db4496e8a9 100644
+--- a/drivers/scsi/lpfc/lpfc_crtn.h
++++ b/drivers/scsi/lpfc/lpfc_crtn.h
+@@ -353,8 +353,8 @@ int lpfc_sli_hbq_size(void);
+ int lpfc_sli_issue_abort_iotag(struct lpfc_hba *, struct lpfc_sli_ring *,
+ 			       struct lpfc_iocbq *, void *);
+ int lpfc_sli_sum_iocb(struct lpfc_vport *, uint16_t, uint64_t, lpfc_ctx_cmd);
+-int lpfc_sli_abort_iocb(struct lpfc_vport *, struct lpfc_sli_ring *, uint16_t,
+-			uint64_t, lpfc_ctx_cmd);
++int lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
++			lpfc_ctx_cmd abort_cmd);
+ int
+ lpfc_sli_abort_taskmgmt(struct lpfc_vport *, struct lpfc_sli_ring *,
+ 			uint16_t, uint64_t, lpfc_ctx_cmd);
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index 3b5cd23dd172..85633eb7524f 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -140,11 +140,8 @@ lpfc_terminate_rport_io(struct fc_rport *rport)
+ 			      "rport terminate: sid:x%x did:x%x flg:x%x",
+ 			      ndlp->nlp_sid, ndlp->nlp_DID, ndlp->nlp_flag);
+ 
+-	if (ndlp->nlp_sid != NLP_NO_SID) {
+-		lpfc_sli_abort_iocb(vport,
+-				    &vport->phba->sli.sli3_ring[LPFC_FCP_RING],
+-				    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+-	}
++	if (ndlp->nlp_sid != NLP_NO_SID)
++		lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+ }
+ 
+ /*
+@@ -299,8 +296,7 @@ lpfc_dev_loss_tmo_handler(struct lpfc_nodelist *ndlp)
+ 
+ 	if (ndlp->nlp_sid != NLP_NO_SID) {
+ 		warn_on = 1;
+-		lpfc_sli_abort_iocb(vport, &phba->sli.sli3_ring[LPFC_FCP_RING],
+-				    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
++		lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+ 	}
+ 
+ 	if (warn_on) {
+diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
+index 9aa907ce4c63..8472c5e716db 100644
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -2559,12 +2559,10 @@ static uint32_t
+ lpfc_rcv_prlo_mapped_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 			  void *arg, uint32_t evt)
+ {
+-	struct lpfc_hba  *phba = vport->phba;
+ 	struct lpfc_iocbq *cmdiocb = (struct lpfc_iocbq *) arg;
+ 
+ 	/* flush the target */
+-	lpfc_sli_abort_iocb(vport, &phba->sli.sli3_ring[LPFC_FCP_RING],
+-			    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
++	lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+ 
+ 	/* Treat like rcv logo */
+ 	lpfc_rcv_logo(vport, ndlp, cmdiocb, ELS_CMD_PRLO);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index f6e1e36eabdc..7832f8470667 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -11644,7 +11644,7 @@ lpfc_sli_issue_abort_iotag(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	icmd = &cmdiocb->iocb;
+ 	if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
+ 	    icmd->ulpCommand == CMD_CLOSE_XRI_CN ||
+-	    (cmdiocb->iocb_flag & LPFC_DRIVER_ABORTED) != 0)
++	    cmdiocb->iocb_flag & LPFC_DRIVER_ABORTED)
+ 		return IOCB_ABORTING;
+ 
+ 	if (!pring) {
+@@ -11942,7 +11942,6 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ /**
+  * lpfc_sli_abort_iocb - issue abort for all commands on a host/target/LUN
+  * @vport: Pointer to virtual port.
+- * @pring: Pointer to driver SLI ring object.
+  * @tgt_id: SCSI ID of the target.
+  * @lun_id: LUN ID of the scsi device.
+  * @abort_cmd: LPFC_CTX_LUN/LPFC_CTX_TGT/LPFC_CTX_HOST.
+@@ -11957,18 +11956,22 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+  * FCP iocbs associated with SCSI target specified by tgt_id parameter.
+  * When abort_cmd == LPFC_CTX_HOST, the function sends abort to all
+  * FCP iocbs associated with virtual port.
++ * The pring used for SLI3 is sli3_ring[LPFC_FCP_RING], for SLI4
++ * lpfc_sli4_calc_ring is used.
+  * This function returns number of iocbs it failed to abort.
+  * This function is called with no locks held.
+  **/
+ int
+-lpfc_sli_abort_iocb(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
+-		    uint16_t tgt_id, uint64_t lun_id, lpfc_ctx_cmd abort_cmd)
++lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
++		    lpfc_ctx_cmd abort_cmd)
+ {
+ 	struct lpfc_hba *phba = vport->phba;
++	struct lpfc_sli_ring *pring = NULL;
+ 	struct lpfc_iocbq *iocbq;
+ 	int errcnt = 0, ret_val = 0;
+ 	unsigned long iflags;
+ 	int i;
++	void *fcp_cmpl = NULL;
+ 
+ 	/* all I/Os are in process of being flushed */
+ 	if (phba->hba_flag & HBA_IOQ_FLUSH)
+@@ -11982,8 +11985,15 @@ lpfc_sli_abort_iocb(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
+ 			continue;
+ 
+ 		spin_lock_irqsave(&phba->hbalock, iflags);
++		if (phba->sli_rev == LPFC_SLI_REV3) {
++			pring = &phba->sli.sli3_ring[LPFC_FCP_RING];
++			fcp_cmpl = lpfc_sli_abort_fcp_cmpl;
++		} else if (phba->sli_rev == LPFC_SLI_REV4) {
++			pring = lpfc_sli4_calc_ring(phba, iocbq);
++			fcp_cmpl = lpfc_sli4_abort_fcp_cmpl;
++		}
+ 		ret_val = lpfc_sli_issue_abort_iotag(phba, pring, iocbq,
+-						     lpfc_sli_abort_fcp_cmpl);
++						     fcp_cmpl);
+ 		spin_unlock_irqrestore(&phba->hbalock, iflags);
+ 		if (ret_val != IOCB_SUCCESS)
+ 			errcnt++;
+-- 
+2.26.2
 
-Regressions Summary
--------------------
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
- | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.266-1-g0a017d02fe71/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.266-1-g0a017d02fe71
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0a017d02fe71162e6e26838e6a5c09f0ea913ff8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60719e2410bc3aa462dac6c3
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60719e2410bc3aa=
-462dac6ca
-        failing since 3 days (last pass: v4.4.264-20-gd676fabf20df3, first =
-fail: v4.4.264-28-gda1e1959d688b)
-        2 lines
-
-    2021-04-10 12:46:24.514000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/114
-    2021-04-10 12:46:24.524000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff26c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-04-10 12:46:24.540000+00:00  [   19.401153] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a11bf6716aa791dac6ce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a11bf6716aa791dac=
-6cf
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv2 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a117852fdd2a1ddac6c3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a117852fdd2a1ddac=
-6c4
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a997cff966a3b2dac6bf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a997cff966a3b2dac=
-6c0
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a1094a038939e5dac6b2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a1094a038939e5dac=
-6b3
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a107d08426cf38dac6e2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a107d08426cf38dac=
-6e3
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv3 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a116f6716aa791dac6c9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-irt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a116f6716aa791dac=
-6ca
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a980cff966a3b2dac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a980cff966a3b2dac=
-6b2
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6071a111d08426cf38dac6ee
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.266-1=
--g0a017d02fe71/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6071a111d08426cf38dac=
-6ef
-        failing since 147 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =20
