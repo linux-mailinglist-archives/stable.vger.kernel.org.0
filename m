@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 581EA35AB3F
+	by mail.lfdr.de (Postfix) with ESMTP id 6CE9835AB40
 	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 07:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233527AbhDJF6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229464AbhDJF6v (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 10 Apr 2021 01:58:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44546 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229464AbhDJF6q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Apr 2021 01:58:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 675FB610CB;
-        Sat, 10 Apr 2021 05:58:32 +0000 (UTC)
+        id S229591AbhDJF6t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 01:58:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A502E61184;
+        Sat, 10 Apr 2021 05:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618034312;
-        bh=I00iBf2FQJSGVfyH1cYnLwOFFzflaoAJLcWPWOuvDHs=;
+        s=korg; t=1618034315;
+        bh=xvAHAXxKvrrqGztaLCoMY5LWITzj0Vxkm5QQa0rhsrc=;
         h=Subject:To:From:Date:From;
-        b=WJzBn/HNiaLO0Nm7x1haAHeo4nZZsCbEeMPGDkz55yH2u/Gv3DfuVfFmWtJbc7c/p
-         wpTkRCawS7MDFYiu3k+ni1HTnPv1//535H8TDwpSd/92pxtcRpxwNL7TsdGL5vGTD4
-         R6cYTDa3gghPn1c72Pk878PiSQxocyU4wqdvK+Cc=
-Subject: patch "usb: dwc2: Fix partial power down exiting by system resume" added to usb-next
-To:     Arthur.Petrosyan@synopsys.com, Minas.Harutyunyan@synopsys.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=TQI71/0ln6SVfvgBamr+iLyita8bN6wviIkZ/YBYvmzzNmNZJBgIKs5+lzD/PWxKJ
+         2Q92DfLgEkvaTSQOBX/msUbFxs6Z/6sf75J8l17i9N5QF05b7A7pqecdUNMJi0WMib
+         aQqjUNf9xl3+445XE8td4qtzGnzIBaUhKuBqpyR0=
+Subject: patch "usb: typec: tcpm: Address incorrect values of tcpm psy for pps supply" added to usb-next
+To:     badhri@google.com, Adam.Thomson.Opensource@diasemi.com,
+        gregkh@linuxfoundation.org, heikki.krogerus@linux.intel.com,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 07:58:05 +0200
-Message-ID: <16180342856564@kroah.com>
+Date:   Sat, 10 Apr 2021 07:58:06 +0200
+Message-ID: <161803428615515@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc2: Fix partial power down exiting by system resume
+    usb: typec: tcpm: Address incorrect values of tcpm psy for pps supply
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,158 +52,231 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From c74c26f6e398387cc953b3fdb54858f09bfb696b Mon Sep 17 00:00:00 2001
-From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Date: Thu, 8 Apr 2021 13:46:06 +0400
-Subject: usb: dwc2: Fix partial power down exiting by system resume
+From e3a0720224873587954b55d193d5b4abb14f0443 Mon Sep 17 00:00:00 2001
+From: Badhri Jagan Sridharan <badhri@google.com>
+Date: Wed, 7 Apr 2021 13:07:19 -0700
+Subject: usb: typec: tcpm: Address incorrect values of tcpm psy for pps supply
 
-Fixes the implementation of exiting from partial power down
-power saving mode when PC is resumed.
+tcpm_pd_select_pps_apdo overwrites port->pps_data.min_volt,
+port->pps_data.max_volt, port->pps_data.max_curr even before
+port partner accepts the requests. This leaves incorrect values
+in current_limit and supply_voltage that get exported by
+"tcpm-source-psy-". Solving this problem by caching the request
+values in req_min_volt, req_max_volt, req_max_curr, req_out_volt,
+req_op_curr. min_volt, max_volt, max_curr gets updated once the
+partner accepts the request. current_limit, supply_voltage gets updated
+once local port's tcpm enters SNK_TRANSITION_SINK when the accepted
+current_limit and supply_voltage is enforced.
 
-Added port connection status checking which prevents exiting from
-Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
-Power Down mode.
-
-Rearranged the implementation to get rid of many "if"
-statements.
-
-NOTE: Switch case statement is used for hibernation partial
-power down and clock gating mode determination. In this patch
-only Partial Power Down is implemented the Hibernation and
-clock gating implementations are planned to be added.
-
-Fixes: 6f6d70597c15 ("usb: dwc2: bus suspend/resume for hosts with DWC2_POWER_DOWN_PARAM_NONE")
-Cc: <stable@vger.kernel.org>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Link: https://lore.kernel.org/r/20210408094607.1A9BAA0094@mailhost.synopsys.com
+Fixes: f2a8aa053c176 ("typec: tcpm: Represent source supply through power_supply")
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20210407200723.1914388-2-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/hcd.c | 90 +++++++++++++++++++++---------------------
- 1 file changed, 46 insertions(+), 44 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c | 88 +++++++++++++++++++++--------------
+ 1 file changed, 53 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
-index 34030bafdff4..f096006df96f 100644
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -4427,7 +4427,7 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 4ea4b30ae885..b4a40099d7e9 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -268,12 +268,27 @@ struct pd_mode_data {
+ 	struct typec_altmode_desc altmode_desc[ALTMODE_DISCOVERY_MAX];
+ };
+ 
++/*
++ * @min_volt: Actual min voltage at the local port
++ * @req_min_volt: Requested min voltage to the port partner
++ * @max_volt: Actual max voltage at the local port
++ * @req_max_volt: Requested max voltage to the port partner
++ * @max_curr: Actual max current at the local port
++ * @req_max_curr: Requested max current of the port partner
++ * @req_out_volt: Requested output voltage to the port partner
++ * @req_op_curr: Requested operating current to the port partner
++ * @supported: Parter has atleast one APDO hence supports PPS
++ * @active: PPS mode is active
++ */
+ struct pd_pps_data {
+ 	u32 min_volt;
++	u32 req_min_volt;
+ 	u32 max_volt;
++	u32 req_max_volt;
+ 	u32 max_curr;
+-	u32 out_volt;
+-	u32 op_curr;
++	u32 req_max_curr;
++	u32 req_out_volt;
++	u32 req_op_curr;
+ 	bool supported;
+ 	bool active;
+ };
+@@ -2498,8 +2513,8 @@ static void tcpm_pd_ctrl_request(struct tcpm_port *port,
+ 			break;
+ 		case SNK_NEGOTIATE_PPS_CAPABILITIES:
+ 			/* Revert data back from any requested PPS updates */
+-			port->pps_data.out_volt = port->supply_voltage;
+-			port->pps_data.op_curr = port->current_limit;
++			port->pps_data.req_out_volt = port->supply_voltage;
++			port->pps_data.req_op_curr = port->current_limit;
+ 			port->pps_status = (type == PD_CTRL_WAIT ?
+ 					    -EAGAIN : -EOPNOTSUPP);
+ 
+@@ -2548,8 +2563,11 @@ static void tcpm_pd_ctrl_request(struct tcpm_port *port,
+ 			break;
+ 		case SNK_NEGOTIATE_PPS_CAPABILITIES:
+ 			port->pps_data.active = true;
+-			port->req_supply_voltage = port->pps_data.out_volt;
+-			port->req_current_limit = port->pps_data.op_curr;
++			port->pps_data.min_volt = port->pps_data.req_min_volt;
++			port->pps_data.max_volt = port->pps_data.req_max_volt;
++			port->pps_data.max_curr = port->pps_data.req_max_curr;
++			port->req_supply_voltage = port->pps_data.req_out_volt;
++			port->req_current_limit = port->pps_data.req_op_curr;
+ 			tcpm_set_state(port, SNK_TRANSITION_SINK, 0);
+ 			break;
+ 		case SOFT_RESET_SEND:
+@@ -3108,16 +3126,16 @@ static unsigned int tcpm_pd_select_pps_apdo(struct tcpm_port *port)
+ 		src = port->source_caps[src_pdo];
+ 		snk = port->snk_pdo[snk_pdo];
+ 
+-		port->pps_data.min_volt = max(pdo_pps_apdo_min_voltage(src),
+-					      pdo_pps_apdo_min_voltage(snk));
+-		port->pps_data.max_volt = min(pdo_pps_apdo_max_voltage(src),
+-					      pdo_pps_apdo_max_voltage(snk));
+-		port->pps_data.max_curr = min_pps_apdo_current(src, snk);
+-		port->pps_data.out_volt = min(port->pps_data.max_volt,
+-					      max(port->pps_data.min_volt,
+-						  port->pps_data.out_volt));
+-		port->pps_data.op_curr = min(port->pps_data.max_curr,
+-					     port->pps_data.op_curr);
++		port->pps_data.req_min_volt = max(pdo_pps_apdo_min_voltage(src),
++						  pdo_pps_apdo_min_voltage(snk));
++		port->pps_data.req_max_volt = min(pdo_pps_apdo_max_voltage(src),
++						  pdo_pps_apdo_max_voltage(snk));
++		port->pps_data.req_max_curr = min_pps_apdo_current(src, snk);
++		port->pps_data.req_out_volt = min(port->pps_data.max_volt,
++						  max(port->pps_data.min_volt,
++						      port->pps_data.req_out_volt));
++		port->pps_data.req_op_curr = min(port->pps_data.max_curr,
++						 port->pps_data.req_op_curr);
+ 		power_supply_changed(port->psy);
+ 	}
+ 
+@@ -3245,10 +3263,10 @@ static int tcpm_pd_build_pps_request(struct tcpm_port *port, u32 *rdo)
+ 			tcpm_log(port, "Invalid APDO selected!");
+ 			return -EINVAL;
+ 		}
+-		max_mv = port->pps_data.max_volt;
+-		max_ma = port->pps_data.max_curr;
+-		out_mv = port->pps_data.out_volt;
+-		op_ma = port->pps_data.op_curr;
++		max_mv = port->pps_data.req_max_volt;
++		max_ma = port->pps_data.req_max_curr;
++		out_mv = port->pps_data.req_out_volt;
++		op_ma = port->pps_data.req_op_curr;
+ 		break;
+ 	default:
+ 		tcpm_log(port, "Invalid PDO selected!");
+@@ -3295,8 +3313,8 @@ static int tcpm_pd_build_pps_request(struct tcpm_port *port, u32 *rdo)
+ 	tcpm_log(port, "Requesting APDO %d: %u mV, %u mA",
+ 		 src_pdo_index, out_mv, op_ma);
+ 
+-	port->pps_data.op_curr = op_ma;
+-	port->pps_data.out_volt = out_mv;
++	port->pps_data.req_op_curr = op_ma;
++	port->pps_data.req_out_volt = out_mv;
+ 
+ 	return 0;
+ }
+@@ -5429,7 +5447,7 @@ static int tcpm_try_role(struct typec_port *p, int role)
+ 	return ret;
+ }
+ 
+-static int tcpm_pps_set_op_curr(struct tcpm_port *port, u16 op_curr)
++static int tcpm_pps_set_op_curr(struct tcpm_port *port, u16 req_op_curr)
  {
- 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
- 	unsigned long flags;
--	u32 pcgctl;
-+	u32 hprt0;
- 	int ret = 0;
- 
- 	spin_lock_irqsave(&hsotg->lock, flags);
-@@ -4438,11 +4438,40 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
- 	if (hsotg->lx_state != DWC2_L2)
- 		goto unlock;
- 
--	if (hsotg->params.power_down > DWC2_POWER_DOWN_PARAM_PARTIAL) {
-+	hprt0 = dwc2_read_hprt0(hsotg);
-+
-+	/*
-+	 * Added port connection status checking which prevents exiting from
-+	 * Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
-+	 * Power Down mode.
-+	 */
-+	if (hprt0 & HPRT0_CONNSTS) {
-+		hsotg->lx_state = DWC2_L0;
-+		goto unlock;
-+	}
-+
-+	switch (hsotg->params.power_down) {
-+	case DWC2_POWER_DOWN_PARAM_PARTIAL:
-+		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
-+		if (ret)
-+			dev_err(hsotg->dev,
-+				"exit partial_power_down failed\n");
-+		/*
-+		 * Set HW accessible bit before powering on the controller
-+		 * since an interrupt may rise.
-+		 */
-+		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-+		break;
-+	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
-+	case DWC2_POWER_DOWN_PARAM_NONE:
-+	default:
- 		hsotg->lx_state = DWC2_L0;
- 		goto unlock;
+ 	unsigned int target_mw;
+ 	int ret;
+@@ -5447,12 +5465,12 @@ static int tcpm_pps_set_op_curr(struct tcpm_port *port, u16 op_curr)
+ 		goto port_unlock;
  	}
  
-+	/* Change Root port status, as port status change occurred after resume.*/
-+	hsotg->flags.b.port_suspend_change = 1;
-+
- 	/*
- 	 * Enable power if not already done.
- 	 * This must not be spinlocked since duration
-@@ -4454,52 +4483,25 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
- 		spin_lock_irqsave(&hsotg->lock, flags);
+-	if (op_curr > port->pps_data.max_curr) {
++	if (req_op_curr > port->pps_data.max_curr) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
  	}
  
--	if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
--		/*
--		 * Set HW accessible bit before powering on the controller
--		 * since an interrupt may rise.
--		 */
--		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
--
--
--		/* Exit partial_power_down */
--		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
--		if (ret && (ret != -ENOTSUPP))
--			dev_err(hsotg->dev, "exit partial_power_down failed\n");
--	} else {
--		pcgctl = readl(hsotg->regs + PCGCTL);
--		pcgctl &= ~PCGCTL_STOPPCLK;
--		writel(pcgctl, hsotg->regs + PCGCTL);
--	}
--
--	hsotg->lx_state = DWC2_L0;
--
-+	/* Enable external vbus supply after resuming the port. */
- 	spin_unlock_irqrestore(&hsotg->lock, flags);
-+	dwc2_vbus_supply_init(hsotg);
+-	target_mw = (op_curr * port->pps_data.out_volt) / 1000;
++	target_mw = (req_op_curr * port->supply_voltage) / 1000;
+ 	if (target_mw < port->operating_snk_mw) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
+@@ -5466,10 +5484,10 @@ static int tcpm_pps_set_op_curr(struct tcpm_port *port, u16 op_curr)
+ 	}
  
--	if (hsotg->bus_suspended) {
--		spin_lock_irqsave(&hsotg->lock, flags);
--		hsotg->flags.b.port_suspend_change = 1;
--		spin_unlock_irqrestore(&hsotg->lock, flags);
--		dwc2_port_resume(hsotg);
--	} else {
--		if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
--			dwc2_vbus_supply_init(hsotg);
--
--			/* Wait for controller to correctly update D+/D- level */
--			usleep_range(3000, 5000);
--		}
-+	/* Wait for controller to correctly update D+/D- level */
-+	usleep_range(3000, 5000);
-+	spin_lock_irqsave(&hsotg->lock, flags);
+ 	/* Round down operating current to align with PPS valid steps */
+-	op_curr = op_curr - (op_curr % RDO_PROG_CURR_MA_STEP);
++	req_op_curr = req_op_curr - (req_op_curr % RDO_PROG_CURR_MA_STEP);
  
--		/*
--		 * Clear Port Enable and Port Status changes.
--		 * Enable Port Power.
--		 */
--		dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
--				HPRT0_ENACHG, HPRT0);
--		/* Wait for controller to detect Port Connect */
--		usleep_range(5000, 7000);
--	}
-+	/*
-+	 * Clear Port Enable and Port Status changes.
-+	 * Enable Port Power.
-+	 */
-+	dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
-+			HPRT0_ENACHG, HPRT0);
+ 	reinit_completion(&port->pps_complete);
+-	port->pps_data.op_curr = op_curr;
++	port->pps_data.req_op_curr = req_op_curr;
+ 	port->pps_status = 0;
+ 	port->pps_pending = true;
+ 	mutex_unlock(&port->lock);
+@@ -5490,7 +5508,7 @@ static int tcpm_pps_set_op_curr(struct tcpm_port *port, u16 op_curr)
+ 	return ret;
+ }
  
--	return ret;
-+	/* Wait for controller to detect Port Connect */
-+	spin_unlock_irqrestore(&hsotg->lock, flags);
-+	usleep_range(5000, 7000);
-+	spin_lock_irqsave(&hsotg->lock, flags);
- unlock:
- 	spin_unlock_irqrestore(&hsotg->lock, flags);
+-static int tcpm_pps_set_out_volt(struct tcpm_port *port, u16 out_volt)
++static int tcpm_pps_set_out_volt(struct tcpm_port *port, u16 req_out_volt)
+ {
+ 	unsigned int target_mw;
+ 	int ret;
+@@ -5508,13 +5526,13 @@ static int tcpm_pps_set_out_volt(struct tcpm_port *port, u16 out_volt)
+ 		goto port_unlock;
+ 	}
+ 
+-	if (out_volt < port->pps_data.min_volt ||
+-	    out_volt > port->pps_data.max_volt) {
++	if (req_out_volt < port->pps_data.min_volt ||
++	    req_out_volt > port->pps_data.max_volt) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
+ 	}
+ 
+-	target_mw = (port->pps_data.op_curr * out_volt) / 1000;
++	target_mw = (port->current_limit * req_out_volt) / 1000;
+ 	if (target_mw < port->operating_snk_mw) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
+@@ -5528,10 +5546,10 @@ static int tcpm_pps_set_out_volt(struct tcpm_port *port, u16 out_volt)
+ 	}
+ 
+ 	/* Round down output voltage to align with PPS valid steps */
+-	out_volt = out_volt - (out_volt % RDO_PROG_VOLT_MV_STEP);
++	req_out_volt = req_out_volt - (req_out_volt % RDO_PROG_VOLT_MV_STEP);
+ 
+ 	reinit_completion(&port->pps_complete);
+-	port->pps_data.out_volt = out_volt;
++	port->pps_data.req_out_volt = req_out_volt;
+ 	port->pps_status = 0;
+ 	port->pps_pending = true;
+ 	mutex_unlock(&port->lock);
+@@ -5589,8 +5607,8 @@ static int tcpm_pps_activate(struct tcpm_port *port, bool activate)
+ 
+ 	/* Trigger PPS request or move back to standard PDO contract */
+ 	if (activate) {
+-		port->pps_data.out_volt = port->supply_voltage;
+-		port->pps_data.op_curr = port->current_limit;
++		port->pps_data.req_out_volt = port->supply_voltage;
++		port->pps_data.req_op_curr = port->current_limit;
+ 	}
+ 	mutex_unlock(&port->lock);
  
 -- 
 2.31.1
