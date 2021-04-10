@@ -2,85 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A832635ACF4
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 13:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE59435ACF9
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 13:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234180AbhDJLat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 07:30:49 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44001 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231279AbhDJLat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 07:30:49 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id AB6F25C0109;
-        Sat, 10 Apr 2021 07:30:34 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 10 Apr 2021 07:30:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=YTCcS6TlCRRkwsAF7FqwhifD/vB
-        TIXiE3hWM+5pNyjU=; b=D0SbLl8yzwsq+TKkDMgwYdg2QOW6jyOPeP+BVey12ZO
-        kfSG6cM7UWWZ2iNTTb96/usdvlrgLtwVWCqQqT1TeWL+V0m0qvqzXIGC8hT1xh5g
-        pSHo4ZWyycrG8KlME714xjtlXO7V4R8OoBMK+XMUIalU3wH1RG0I0iX8J6SxvLjf
-        rW3AtwuaLhqZVE9sLSrF+QGlCODyw8di4tveCuqVpEcs+ftLyCGhM4eviYoVrwLQ
-        xcat6sBSP4FiRYOkJLT8cGy6HDyHzi3KuR0mNibg2ervFcICc94sk5U5/oa40CrH
-        FUVo7POvYIeOfxz998UdVsuvSwIRQzxLag+9MFJ7ZbA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YTCcS6
-        TlCRRkwsAF7FqwhifD/vBTIXiE3hWM+5pNyjU=; b=EywXAJNZXTHe/cZ/YteTsG
-        1vszJBqn1PhepTol/DAyCQigjwNSDqgCerKJmtQm/6lzqL+M2Ix9SCqUYXtcRVQt
-        VUJZ9aZHxNcuitvC2krMLKf/WPdspckCWzZjVNcw5ctS9OQQdgap1SSRAV3GTNMs
-        /C+i/tE1NRRakD+LnNarhj641Kxm9KcMVQnqRx72PkiZIR+tqBp0IhfnVK7CiulU
-        OEwjkAhlK+hkFyspNdeSYtiLbWEKjt2mjIWyO8soUhW8huSJbnBV3Kt4UCAiRf/m
-        PcdtcTfiUCJCuL3qDJ91ZSZN3DsSCJJ2YyAwcMY0JyjbrOfs8J8X0IPKxAZn8awg
-        ==
-X-ME-Sender: <xms:WoxxYA2alzyPrKFkGajZ07IVWq35JWyETObjUfDVFPgjeVyP-Gk_ww>
-    <xme:WoxxYLFh5pI4mlb1CRikYDViX9GQW02u0d4wcVfS09hbn4lF0fDVtQYtCvez-OTF6
-    35ECurfpnVnSA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedggeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujgesthdtre
-    dttddtvdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
-    necuggftrfgrthhtvghrnhepveeuheejgfffgfeivddukedvkedtleelleeghfeljeeiue
-    eggeevueduudekvdetnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfu
-    ihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtoh
-    hm
-X-ME-Proxy: <xmx:WoxxYI72aAy6OmZOwuNfCqMoAPq0ABfRHXk69Vsj3x6Ijeke1JqMyg>
-    <xmx:WoxxYJ36_0lEVFKkHnmQUTenplsadUlu8JEZkRhc3uNWnIosL4O1Gg>
-    <xmx:WoxxYDGHJugeDYrQkQ4FXCxajCrMmW0DYHw-_05bGL9wDmDA_1ut1g>
-    <xmx:WoxxYKy5uIOeky1YfWxs3Cifm6SJRtA-ci3JhKt3lZ62-jeJvrLtcQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4D04324005C;
-        Sat, 10 Apr 2021 07:30:34 -0400 (EDT)
-Date:   Sat, 10 Apr 2021 13:30:32 +0200
-From:   Greg KH <greg@kroah.com>
-To:     "Zidenberg, Tsahi" <tsahee@amazon.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 0/2] fix userspace access on arm64 for linux 5.4
-Message-ID: <YHGMWBj+DEW+EiQE@kroah.com>
-References: <56be4b97-8283-cf09-4dac-46d602cae97c@amazon.com>
+        id S234427AbhDJLgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 07:36:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231279AbhDJLgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 07:36:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00131610D1;
+        Sat, 10 Apr 2021 11:36:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618054569;
+        bh=P8TBfIEEAeMD2aLZUl+lRrtTFwG2hhGynffgruWVdzg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=I7vh51YhmB2zdxtaHKzi6Llh3QgAo+2UBal1djpjfu5wH7OAekbT98ne0vysBY6VV
+         Xlz9sUaktxfJtS/tXJbaCr208hzuS5wniwCMcPA5uE/tfEDQQfVWSJNQwdVU4nwnjI
+         2Mwzc6iQrJNfDYU35yIpz34+zR3VNlz7yyVqK/3M=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.14.230
+Date:   Sat, 10 Apr 2021 13:36:05 +0200
+Message-Id: <16180545661866@kroah.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <56be4b97-8283-cf09-4dac-46d602cae97c@amazon.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 29, 2021 at 01:56:53PM +0300, Zidenberg, Tsahi wrote:
-> 
-> arm64 access to userspace addresses in bpf and kprobes is broken,
-> because kernelspace address accessors are always used, and won't work
-> for userspace.
+I'm announcing the release of the 4.14.230 kernel.
 
-What does not work exactly?
+All users of the 4.14 kernel series must upgrade.
 
-What is broken that is fixed in these changes?  I can't seem to
-understand that as it feels like bpf and kprobes works on 5.4.y unless
-something broke it?
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-confused,
+thanks,
 
 greg k-h
+
+------------
+
+ Makefile                                  |    2 +-
+ arch/arm/boot/dts/am33xx.dtsi             |    3 +++
+ arch/ia64/kernel/mca.c                    |    2 +-
+ arch/x86/Makefile                         |    2 +-
+ arch/x86/net/bpf_jit_comp.c               |   11 ++++++++++-
+ drivers/gpu/drm/msm/msm_fence.c           |    2 +-
+ drivers/isdn/hardware/mISDN/mISDNipac.c   |    2 +-
+ drivers/net/can/flexcan.c                 |    8 +++++++-
+ drivers/net/ethernet/marvell/pxa168_eth.c |    2 +-
+ drivers/platform/x86/thinkpad_acpi.c      |    8 +++++++-
+ drivers/target/target_core_pscsi.c        |    8 ++++++++
+ fs/cifs/file.c                            |    1 +
+ fs/cifs/smb2misc.c                        |    4 ++--
+ init/Kconfig                              |    3 +--
+ net/mac80211/main.c                       |   13 ++++++++++++-
+ 15 files changed, 57 insertions(+), 14 deletions(-)
+
+Angelo Dureghello (1):
+      can: flexcan: flexcan_chip_freeze(): fix chip freeze for missing bitrate
+
+Arnd Bergmann (1):
+      x86/build: Turn off -fcf-protection for realmode targets
+
+Esteve Varela Colominas (1):
+      platform/x86: thinkpad_acpi: Allow the FnLock LED to change state
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.230
+
+Heiko Carstens (1):
+      init/Kconfig: make COMPILE_TEST depend on !S390
+
+Karthikeyan Kathirvel (1):
+      mac80211: choose first enabled channel for monitor
+
+Mans Rullgard (1):
+      ARM: dts: am33xx: add aliases for mmc interfaces
+
+Martin Wilck (1):
+      scsi: target: pscsi: Clean up after failure in pscsi_map_sg()
+
+Masahiro Yamada (1):
+      init/Kconfig: make COMPILE_TEST depend on HAS_IOMEM
+
+Pavel Andrianov (1):
+      net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
+
+Piotr Krysiuk (1):
+      bpf, x86: Validate computation of branch displacements for x86-64
+
+Rob Clark (1):
+      drm/msm: Ratelimit invalid-fence message
+
+Ronnie Sahlberg (1):
+      cifs: revalidate mapping when we open files for SMB1 POSIX
+
+Sergei Trofimovich (1):
+      ia64: mca: allocate early mca with GFP_ATOMIC
+
+Tong Zhang (1):
+      mISDN: fix crash in fritzpci
+
+Vincent Whitchurch (1):
+      cifs: Silently ignore unknown oplock break handle
+
