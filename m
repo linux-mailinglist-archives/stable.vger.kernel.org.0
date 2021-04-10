@@ -2,178 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E462735AAED
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 06:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F7735AB13
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 07:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbhDJExR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 00:53:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46206 "EHLO
+        id S229591AbhDJFSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 01:18:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229464AbhDJExR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 00:53:17 -0400
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96E09C061762;
-        Fri,  9 Apr 2021 21:53:03 -0700 (PDT)
-Received: by mail-ot1-x32d.google.com with SMTP id t23-20020a0568301e37b02901b65ab30024so7732860otr.4;
-        Fri, 09 Apr 2021 21:53:03 -0700 (PDT)
+        with ESMTP id S229494AbhDJFSt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 01:18:49 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA4FC061762
+        for <stable@vger.kernel.org>; Fri,  9 Apr 2021 22:18:35 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id b9so7533516wrs.1
+        for <stable@vger.kernel.org>; Fri, 09 Apr 2021 22:18:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=bL7Zqg78qITrTGx8VZ7++HQa6dmuoLMfUFQLMD05YYk=;
-        b=EW1xoCh17m5Uns4J4+3LE9ziSx0BgtsKXhwyh4zxtouIsZ0NHsO1NB/u9toy/C0Q6F
-         iLQBFJ2OVXEFdbKXo3alVwbCU6aYFK3T9tlcpq7qPpsWoUaLTAmApikaeX8CwQvzFqzG
-         LaYkylpEwuzbwdKLxVJ4keQr0oWWm7eAoyyKnuzrEhe5+21aA/dus723MVwAR3CzFsoj
-         XehafCjSpbP9yPvoZpirbzNAz7ei+e0iEDRvNQYVINJNYyOILRRDEqyFxps2ZvdNnlze
-         M+RHWI0Vh2UGlpgMmPU5w5POHTScgY7+OM8PKd7PL8XH6yizY9Ok2vTtlDqC7DqE/JbG
-         IFUg==
+        d=digitalocean.com; s=google;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=dN+Fv6zz0evMpfYsldVYwMf5bL2ZNdDL1qFGjogUZeo=;
+        b=PK6yJJAnifN4eAW4sYMiBmsFXDW8o9UsAIPFQXbB14Uk8SVUl4FbCAvSgslI57Wk1q
+         01yCxW2EjllLxaeV+ZUyxiM4he0bPozQdGLeyIuG3rYBtZBLkOXQnWx7DZUp80auzr9w
+         bVk2hFwjvIg2PvQsFgOucwpuclcXjZv+SrH9M=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=bL7Zqg78qITrTGx8VZ7++HQa6dmuoLMfUFQLMD05YYk=;
-        b=jtpsBCk4Fdeawu8ayLfMPZ+o1Q/20zoo3OM0yPh4hSAVu3fRZnNuA1AWRr1WsDCiI2
-         GaTQF26SFRzkXUeT4//5UvTup/bWGRt0kOB1w4Cxbeik05hTGtmiM4KWzwxdEaQ6UD9j
-         BYFj3O0IxcGFFLVTLSXLMb/BISbNy34plug4kwrzVDPpqcm5jbx9LMfnlQ6A6mupTVru
-         ct0OXwieaaEkSdg8RuLLF72/vFes0yZzp0bwHmdhzRXuIzfj3AME6Tm31a1r2mmV20yA
-         zTClQi6EQ6zLqoNGQI5Ok7JiMZ2c6re1Cr80ijzcftSN2ZE3d2TUCEFoDvUwagXsEbFr
-         XJOQ==
-X-Gm-Message-State: AOAM530CfvrxA3Azy3o3y76WflFi6PK7r6mUf4Qr9Uja/VL+Zvc49jsJ
-        tibzxgJBrybgyWO8ObmeVOY=
-X-Google-Smtp-Source: ABdhPJwWKeWaMdzDB1PLAeHNnBisxGB28G/vN/rhgylR0YTreWx/GhRU3mXpKoTg8wdoKLVuqOuc1w==
-X-Received: by 2002:a05:6830:1510:: with SMTP id k16mr14280600otp.57.1618030382948;
-        Fri, 09 Apr 2021 21:53:02 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t19sm1137273otm.40.2021.04.09.21.53.02
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 09 Apr 2021 21:53:02 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 9 Apr 2021 21:53:01 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 00/14] 4.14.230-rc1 review
-Message-ID: <20210410045301.GA135090@roeck-us.net>
-References: <20210409095300.391558233@linuxfoundation.org>
- <20210409201306.GC227412@roeck-us.net>
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=dN+Fv6zz0evMpfYsldVYwMf5bL2ZNdDL1qFGjogUZeo=;
+        b=pCnlDrH1Xe1qubKCq0bvXb9mz+idqDiVwL7U+YOEGn6kdiiAs0l8MmMej2YVLSmRf+
+         gupz9KexSWpf9Q7f7UjmlOlERmcCiJ/GKNVohkd48zaQ9+sFQnX4Y9twboKEHNavFljm
+         MSbiMwepJ1aAEu9tryP/qPNxSCHPz6RclzH7IgcJIRHGio9FpKICqUxOnKYioS6tUwVQ
+         V1aDJq9rA1nEhfqXLYgzQ918oMLV8gJ1Wjf/Sbhqc7kACZK4u45Q8wqhSzXn7S4X3Yrv
+         9M/pR8noEM3U2IFGZZAwllUoEb3faoJMKUqje6D8ImCPquPM8+VoPdgOzkH/oMmbV07b
+         RpLQ==
+X-Gm-Message-State: AOAM533IFWK7kYGlyPkIKuNPrQQUtADSBT2N8VE/mJftXK3vFc4Ps1xR
+        vzxT6CmKZMwLydHGNAaV96ivMagsbyAlGEGetZlC3faX6xX0kA==
+X-Google-Smtp-Source: ABdhPJzTB+Nt3siqpX+KloYzFjMAes+sHd2qcf0Ze00rmO6cghGvQ5eiUcA1xnUbaGbu+n7Vi8OjtObXhMYNgxMcJuA=
+X-Received: by 2002:adf:f705:: with SMTP id r5mr9704828wrp.327.1618031913922;
+ Fri, 09 Apr 2021 22:18:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210409201306.GC227412@roeck-us.net>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+From:   Patrick Mccormick <pmccormick@digitalocean.com>
+Date:   Fri, 9 Apr 2021 22:18:21 -0700
+Message-ID: <CAAjnzAk3Ct=Sk06b6Zjf=s6-7xU_ThcH28pw4nhCKfjqPqn92w@mail.gmail.com>
+Subject: PASS: stable-rc/linux-5.10.y (v5.10.29-rc1)
+To:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 09, 2021 at 01:13:06PM -0700, Guenter Roeck wrote:
-> On Fri, Apr 09, 2021 at 11:53:25AM +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.14.230 release.
-> > There are 14 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sun, 11 Apr 2021 09:52:52 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 168 pass: 168 fail: 0
-> Qemu test results:
-> 	total: 408 pass: 408 fail: 0
-> 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
-> 
-> Having said this, I did see a spurious crash, and I see an unusual warning.
-> I have seen the crash only once, but the warning happens with every boot.
-> These are likely not new but exposed because I added network interface
-> tests. This is all v4.14.y specific; I did not see it in other branches.
-> See below for the tracebacks. Maybe someone has seen it before.
-> 
-> Thanks,
-> Guenter
-> 
-> ---
-> ftgmac100 1e660000.ethernet eth0: NCSI interface down
-> ------------[ cut here ]------------
-> WARNING: CPU: 0 PID: 477 at drivers/base/dma-mapping.c:325 remap_allocator_free+0x54/0x5c
-> trying to free invalid coherent area: 909a1000
-> Modules linked in:
-> CPU: 0 PID: 477 Comm: ip Not tainted 4.14.230-rc1-00015-gbbc0ac1df344 #1
-> Hardware name: Generic DT based system
-> [<8000f8dc>] (unwind_backtrace) from [<8000d194>] (show_stack+0x10/0x14)
-> [<8000d194>] (show_stack) from [<805a5a80>] (__warn+0xc0/0xf4)
-> [<805a5a80>] (__warn) from [<800177b4>] (warn_slowpath_fmt+0x38/0x48)
-> [<800177b4>] (warn_slowpath_fmt) from [<80010554>] (remap_allocator_free+0x54/0x5c)
-> [<80010554>] (remap_allocator_free) from [<80010e4c>] (__arm_dma_free.constprop.0+0xec/0x13c)
-> [<80010e4c>] (__arm_dma_free.constprop.0) from [<80429924>] (ftgmac100_free_rings+0x17c/0x1f8)
-> [<80429924>] (ftgmac100_free_rings) from [<80429a24>] (ftgmac100_stop+0x84/0xa4)
-> [<80429a24>] (ftgmac100_stop) from [<804e8a70>] (__dev_close_many+0xac/0x100)
-> [<804e8a70>] (__dev_close_many) from [<804f0dc0>] (__dev_change_flags+0xb4/0x1a0)
-> [<804f0dc0>] (__dev_change_flags) from [<804f0ec4>] (dev_change_flags+0x18/0x48)
-> [<804f0ec4>] (dev_change_flags) from [<80561644>] (devinet_ioctl+0x6cc/0x808)
-> [<80561644>] (devinet_ioctl) from [<804d1548>] (sock_ioctl+0x188/0x2e4)
-> [<804d1548>] (sock_ioctl) from [<800eac80>] (do_vfs_ioctl+0x3a0/0x82c)
-> [<800eac80>] (do_vfs_ioctl) from [<800eb140>] (SyS_ioctl+0x34/0x60)
-> [<800eb140>] (SyS_ioctl) from [<8000a600>] (ret_fast_syscall+0x0/0x28)
-> ---[ end trace c13f2f82f69274ad ]---
-> 
-> =====
-> 
-> ftgmac100 1e660000.ethernet eth0: NCSI interface up
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> pgd = 9ec84000
-> [00000000] *pgd=9f7f6831, *pte=00000000, *ppte=00000000
-> Internal error: Oops: 17 [#1] ARM
-> Modules linked in:
-> CPU: 0 PID: 397 Comm: default.script Not tainted 4.14.230-rc1-00015-gbbc0ac1df344 #1
-> Hardware name: Generic DT based system
-> task: 9f5cc260 task.stack: 9ecee000
-> PC is at anon_vma_clone+0x64/0x19c
-> LR is at fs_reclaim_release+0x8/0x18
-> pc : [<800c1ccc>]    lr : [<80098b5c>]    psr: a0000153
-> sp : 9ecefe78  ip : 00000000  fp : ffffffff
-> r10: 01000200  r9 : 9f7e6d10  r8 : 80cb9a44
-> r7 : 9f7e0da0  r6 : 9f7e6d10  r5 : 9ed0f600  r4 : 9f5a562c
-> r3 : 00000030  r2 : 9fbdf618  r1 : 00000034  r0 : 9ed0f600
-> Flags: NzCv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment user
-> Control: 00c5387d  Table: 9ec84008  DAC: 00000055
-> Process default.script (pid: 397, stack limit = 0x9ecee188)
-> Stack: (0x9ecefe78 to 0x9ecf0000)
-> fe60:                                                       9f5a303c 9f5a3000
-> fe80: 00000002 9f7e0da0 9f7e0ab4 9f5a3000 9f77e600 9f7e0da0 9f5a3000 9f77e400
-> fea0: 9f72dc64 800c1e28 9f7e0ab0 9f7e0ab4 00000002 9f77e600 9f7e0da0 800161f8
-> fec0: 9f5cc640 cacd966c 9f5cc260 cd397f94 80cb0afc 00000000 80016870 00000000
-> fee0: 00000000 9f69f2f8 9f7e0aa8 807ca224 9f7e0aa0 9f72dc70 9f69f100 00000011
-> ff00: 9f77e658 9f77e458 9eceff08 9eceff08 9f5cc650 00000011 7eb26888 00000000
-> ff20: 00000000 00000000 9ecee000 00000000 76eff3a0 80016870 00000000 00000000
-> ff40: ffffffff 7eb26888 9eceff78 00000000 9ecee000 76ec4a28 7eb26888 9eceff78
-> ff60: 00000000 7eb26888 00000008 00000000 00000008 800245e4 76efdcd0 7eb26888
-> ff80: 00000000 00000002 8000a704 9ecee000 00000000 80016cd4 00000000 00000000
-> ffa0: 9ecee000 8000a520 76efdcd0 7eb26888 76efffcc 00000001 76efe7ac 00000000
-> ffc0: 76efdcd0 7eb26888 00000000 00000002 7eb26918 76efe000 76f00c60 76eff3a0
-> ffe0: 000e0350 7eb26888 76e96b94 76e96b98 60000150 76efffcc 00000000 00000000
-> [<800c1ccc>] (anon_vma_clone) from [<800c1e28>] (anon_vma_fork+0x24/0x138)
-> [<800c1e28>] (anon_vma_fork) from [<800161f8>] (copy_process.part.0+0x12a4/0x17dc)
-> [<800161f8>] (copy_process.part.0) from [<80016870>] (_do_fork+0xa0/0x488)
-> [<80016870>] (_do_fork) from [<80016cd4>] (sys_fork+0x24/0x2c)
-> [<80016cd4>] (sys_fork) from [<8000a520>] (ret_fast_syscall+0x0/0x4c)
-> Code: eb001f58 e2505000 0a000017 e594b004 (e59b9000)
-> ---[ end trace 6680cdd56c4514b7 ]---
-> 
+We ran tests on this kernel:
 
-Hmm, turns out those are a bit more severe than I thought. The fix for both
-the crash and the warning is commit 062b3e1b6d4f ("net/ncsi: Refactor MAC,
-VLAN filters"). Unfortunately, that commit does not apply on its own.
-The following sequence of commits on top of v4.14.y fixes the problem
-for me.
+commit 18f507c37f338c5d30f58839060d3af0d8504162 (HEAD ->
+rc/linux-5.10.y, stable_rc/linux-5.10.y)
+Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Fri Apr 9 11:53:03 2021 +0200
 
-5a6d80034471 net/ncsi: Make local function ncsi_get_filter() static
-9ef8690be13d net/ncsi: Improve general state logging
-04bad8bda9e2 net/ncsi: Don't return error on normal response
-955dc68cb9b2 net/ncsi: Add generic netlink family
-062b3e1b6d4f net/ncsi: Refactor MAC, VLAN filters
+    Linux 5.10.29-rc1
 
-Guenter
+32/32 test passed, 0 failed, 0 errors, 0 warnings.
+
+Specific tests run:
+
+(01/32) ltp.py:LTP.test_nptl:  PASS (6.52 s)
+ (02/32) ltp.py:LTP.test_math:  PASS (2.13 s)
+ (03/32) ltp.py:LTP.test_hugetlb:  PASS (0.08 s)
+ (04/32) ltp.py:LTP.test_ipc:  PASS (20.09 s)
+ (05/32) ltp.py:LTP.test_uevent:  PASS (0.05 s)
+ (06/32) ltp.py:LTP.test_containers:  PASS (36.76 s)
+ (07/32) ltp.py:LTP.test_filecaps:  PASS (0.11 s)
+ (08/32) ltp.py:LTP.test_hyperthreading:  PASS (71.19 s)
+ (09/32) kpatch.sh:  PASS (11.64 s)
+ (10/32) perf.py:PerfNonPriv.test_perf_help:  PASS (0.08 s)
+ (11/32) perf.py:PerfNonPriv.test_perf_version:  PASS (0.06 s)
+ (12/32) perf.py:PerfNonPriv.test_perf_list:  PASS (0.40 s)
+ (13/32) perf.py:PerfPriv.test_perf_record:  PASS (4.74 s)
+ (14/32) perf.py:PerfPriv.test_perf_cmd_kallsyms:  PASS (0.26 s)
+ (15/32) perf.py:PerfPriv.test_perf_cmd_annotate:  PASS (5.15 s)
+ (16/32) perf.py:PerfPriv.test_perf_cmd_evlist:  PASS (0.07 s)
+ (17/32) perf.py:PerfPriv.test_perf_cmd_script:  PASS (0.50 s)
+ (18/32) perf.py:PerfPriv.test_perf_stat:  PASS (3.22 s)
+ (19/32) perf.py:PerfPriv.test_perf_bench:  PASS (0.07 s)
+ (20/32) kselftest.py:kselftest.test_sysctl:  PASS (0.03 s)
+ (21/32) kselftest.py:kselftest.test_size:  PASS (0.02 s)
+ (22/32) kselftest.py:kselftest.test_sync:  PASS (0.46 s)
+ (23/32) kselftest.py:kselftest.test_capabilities:  PASS (0.03 s)
+ (24/32) kselftest.py:kselftest.test_x86:  PASS (0.26 s)
+ (25/32) kselftest.py:kselftest.test_pidfd:  PASS (13.06 s)
+ (26/32) kselftest.py:kselftest.test_membarrier:  PASS (0.18 s)
+ (27/32) kselftest.py:kselftest.test_sigaltstack:  PASS (0.03 s)
+ (28/32) kselftest.py:kselftest.test_tmpfs:  PASS (0.02 s)
+ (29/32) kselftest.py:kselftest.test_user:  PASS (0.02 s)
+ (30/32) kselftest.py:kselftest.test_sched:  PASS (0.03 s)
+ (31/32) kselftest.py:kselftest.test_timens:  PASS (0.09 s)
+ (32/32) kselftest.py:kselftest.test_timers:  PASS (554.44 s)
+RESULTS    : PASS 32 | ERROR 0 | FAIL 0 | SKIP 0 | WARN 0 | INTERRUPT
+0 | CANCEL 0
+
+Tested-by: pmccormick@digitalocean.com
