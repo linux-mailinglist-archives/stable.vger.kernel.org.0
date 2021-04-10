@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E82D35ADF7
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 16:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0478235AE00
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 16:10:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234513AbhDJOIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 10:08:12 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45991 "EHLO
+        id S234587AbhDJOKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 10:10:41 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:52805 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234392AbhDJOIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 10:08:11 -0400
+        by vger.kernel.org with ESMTP id S234513AbhDJOKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 10:10:40 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C15C0194102F;
-        Sat, 10 Apr 2021 10:07:56 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 10 Apr 2021 10:07:56 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id B39C019411BB;
+        Sat, 10 Apr 2021 10:10:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 10 Apr 2021 10:10:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=03lFOm
-        gvD/9IyfOzNYbaKtYcVZejEw6AH5IUk4yvw/4=; b=sz6lKLIDU/fPE6/7beQWbA
-        tX5Ffu+QJndsHpyEv6M0rtsrkPSPtk0kjnu5C7lgx7ZU75LR6QWqMZBb7ibzYzOo
-        RuS0wMIziPW80GCX9053QD+Ee1zfGUi18jAyc1XydLRJ2YR/nc3j7Vk/3tUwUG6s
-        1blWwIo1fBAaw8YZKmekT0Gqw/RHmlWMCgVM+3yVDts5sysCb69td3Fz8N+vEZWe
-        FN3TZMz8w3fiW5QjA8KAUJbz7TMjVfti987THRhcdtUU9RhY3su00jovQWd74mcu
-        i9S2Gn78hGf2VyZywLFxbX1Noivv3cP3d2btjDs1ET5etPR8v/j1Wxg+uvsVJUuA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hoLwF2
+        pP3OuJRK37eQRY/vw5HoxDSJX1ZFvfp7SLamc=; b=r0sENXVSMq2Mq6ElJ4kBEb
+        jOo4byGV9NPDquoTDAZ+03hxju94IdkV6lKig8sitHNygV5ExXvcQ0QkXjo+I34p
+        DT2RzKr6+mqdflsafMNp0uTiSxAvOGiOABof4i8fkb8iGvKh8q2G1BJXxvBoQa3g
+        Gc0WqqDeXa2ifg1p8eXYA7oaC0K1Z/kzSb+7j3b6aITjdFw+F6ZvsX0g4FHM4hJ7
+        2fYko3wceiBMOwXX4ya6KTKxJxicuePZLn8QrOduhDTPZPbPzD7sApIBNr9ZLIrl
+        9FtCRgagUihFTo3ZR39dvfMEMnmPGecCtfszo4+VYtY35FD+LfgbvqHtxtv3Yn1g
         ==
-X-ME-Sender: <xms:PLFxYPnd_tTxKd2Yb92X641pDaJx6atWDdvd0Nlqv-KMkStocNMpkg>
-    <xme:PLFxYC1VdINcNpf7Pkd24mPbqBo3Fmg2sSIY6iMxVlaqAx46UGs_E6QEbz_qqGAgR
-    NLjJYreXmLdxw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjeefucetufdoteggodetrfdotf
+X-ME-Sender: <xms:0bFxYAnmfA4iVBQhjkG4X3NGDInZJb-GLt11wBwhefD2gxfpYWhseA>
+    <xme:0bFxYP0jHIia8WgZKBgfJnL6zeueyIe3zqfAiAD3Q8H5rfMljmu5ABQqp0cM_wFv1
+    5kNTQSV1gmEwQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:PLFxYFoK6_8htsi6HOTXxspqjASuLdohO4kJ_odWxUT6_O9rWUBIhw>
-    <xmx:PLFxYHmwO_70XAJ032tK34QoBIDKGzFM0gynH1hS5j7LtiU6AREeLQ>
-    <xmx:PLFxYN2dxrkkKM6bAOS23GHV9DUNUPrAFbECU1K3JJY4grjySEU4ow>
-    <xmx:PLFxYO_xIJwav72XBBZ_vwBdsTqW2EK5Hc8xRSc6cewZzwXZyu3u7A>
+    gheqnecuggftrfgrthhtvghrnhepueeghfetheeuudefgfeutdegleehueeuvefhleevvd
+    egvedutdekueevvdehledtnecuffhomhgrihhnpehsphhinhhitghsrdhnvghtnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:0bFxYOr47MZa0VPFUAZDcFeoXwfuDuoTHJK-rz1gPceumlQLm5tUbQ>
+    <xmx:0bFxYMmjI0MzDWaNqXSUAVTCgy8mXU3oB--v3L-DvZwioRkiv_uCpw>
+    <xmx:0bFxYO0W4yLwTvumVQqbSKd7V2bhBdXoqIDLF8PynQ9IBWhoh88rkw>
+    <xmx:0bFxYDz_XBjmOJuGWbThUaPVRbJyXEKUILnw7XsjX_toeyLh7TX_lw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 14DF6240054;
-        Sat, 10 Apr 2021 10:07:55 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bpf, sockmap: Fix incorrect fwd_alloc accounting" failed to apply to 5.4-stable tree
-To:     john.fastabend@gmail.com, andrii@kernel.org, daniel@iogearbox.net
+        by mail.messagingengine.com (Postfix) with ESMTPA id BBA751080054;
+        Sat, 10 Apr 2021 10:10:24 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] virtio_net: Do not pull payload in skb->head" failed to apply to 4.9-stable tree
+To:     edumazet@google.com, davem@davemloft.net, jasowang@redhat.com,
+        mst@redhat.com, xuanzhuo@linux.alibaba.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 16:07:54 +0200
-Message-ID: <1618063674226238@kroah.com>
+Date:   Sat, 10 Apr 2021 16:10:22 +0200
+Message-ID: <161806382211579@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,133 +71,111 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 144748eb0c445091466c9b741ebd0bfcc5914f3d Mon Sep 17 00:00:00 2001
-From: John Fastabend <john.fastabend@gmail.com>
-Date: Thu, 1 Apr 2021 15:00:40 -0700
-Subject: [PATCH] bpf, sockmap: Fix incorrect fwd_alloc accounting
+From 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Fri, 2 Apr 2021 06:26:02 -0700
+Subject: [PATCH] virtio_net: Do not pull payload in skb->head
 
-Incorrect accounting fwd_alloc can result in a warning when the socket
-is torn down,
+Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") brought  a ~10% performance drop.
 
- [18455.319240] WARNING: CPU: 0 PID: 24075 at net/core/stream.c:208 sk_stream_kill_queues+0x21f/0x230
- [...]
- [18455.319543] Call Trace:
- [18455.319556]  inet_csk_destroy_sock+0xba/0x1f0
- [18455.319577]  tcp_rcv_state_process+0x1b4e/0x2380
- [18455.319593]  ? lock_downgrade+0x3a0/0x3a0
- [18455.319617]  ? tcp_finish_connect+0x1e0/0x1e0
- [18455.319631]  ? sk_reset_timer+0x15/0x70
- [18455.319646]  ? tcp_schedule_loss_probe+0x1b2/0x240
- [18455.319663]  ? lock_release+0xb2/0x3f0
- [18455.319676]  ? __release_sock+0x8a/0x1b0
- [18455.319690]  ? lock_downgrade+0x3a0/0x3a0
- [18455.319704]  ? lock_release+0x3f0/0x3f0
- [18455.319717]  ? __tcp_close+0x2c6/0x790
- [18455.319736]  ? tcp_v4_do_rcv+0x168/0x370
- [18455.319750]  tcp_v4_do_rcv+0x168/0x370
- [18455.319767]  __release_sock+0xbc/0x1b0
- [18455.319785]  __tcp_close+0x2ee/0x790
- [18455.319805]  tcp_close+0x20/0x80
+The reason for the performance drop was that GRO was forced
+to chain sk_buff (using skb_shinfo(skb)->frag_list), which
+uses more memory but also cause packet consumers to go over
+a lot of overhead handling all the tiny skbs.
 
-This currently happens because on redirect case we do skb_set_owner_r()
-with the original sock. This increments the fwd_alloc memory accounting
-on the original sock. Then on redirect we may push this into the queue
-of the psock we are redirecting to. When the skb is flushed from the
-queue we give the memory back to the original sock. The problem is if
-the original sock is destroyed/closed with skbs on another psocks queue
-then the original sock will not have a way to reclaim the memory before
-being destroyed. Then above warning will be thrown
+It turns out that virtio_net page_to_skb() has a wrong strategy :
+It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
+copies 128 bytes from the page, before feeding the packet to GRO stack.
 
-  sockA                          sockB
+This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
+meaning we were not packing MSS with 100% efficiency.
 
-  sk_psock_strp_read()
-   sk_psock_verdict_apply()
-     -- SK_REDIRECT --
-     sk_psock_skb_redirect()
-                                skb_queue_tail(psock_other->ingress_skb..)
+Fix is to pull only the ethernet header in page_to_skb()
 
-  sk_close()
-   sock_map_unref()
-     sk_psock_put()
-       sk_psock_drop()
-         sk_psock_zap_ingress()
+Then, we change virtio_net_hdr_to_skb() to pull the missing
+headers, instead of assuming they were already pulled by callers.
 
-At this point we have torn down our own psock, but have the outstanding
-skb in psock_other. Note that SK_PASS doesn't have this problem because
-the sk_psock_drop() logic releases the skb, its still associated with
-our psock.
+This fixes the performance regression, but could also allow virtio_net
+to accept packets with more than 128bytes of headers.
 
-To resolve lets only account for sockets on the ingress queue that are
-still associated with the current socket. On the redirect case we will
-check memory limits per 6fa9201a89898, but will omit fwd_alloc accounting
-until skb is actually enqueued. When the skb is sent via skb_send_sock_locked
-or received with sk_psock_skb_ingress memory will be claimed on psock_other.
+Many thanks to Xuan Zhuo for his report, and his tests/help.
 
-Fixes: 6fa9201a89898 ("bpf, sockmap: Avoid returning unneeded EAGAIN when redirecting to self")
-Reported-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/161731444013.68884.4021114312848535993.stgit@john-XPS-13-9370
+Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
+Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://www.spinics.net/lists/netdev/msg731397.html
+Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 1261512d6807..5def3a2e85be 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -488,6 +488,7 @@ static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb
- 	if (unlikely(!msg))
- 		return -EAGAIN;
- 	sk_msg_init(msg);
-+	skb_set_owner_r(skb, sk);
- 	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
- }
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 82e520d2cb12..0824e6999e49 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -406,9 +406,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 	offset += hdr_padded_len;
+ 	p += hdr_padded_len;
  
-@@ -790,7 +791,6 @@ static void sk_psock_tls_verdict_apply(struct sk_buff *skb, struct sock *sk, int
- {
- 	switch (verdict) {
- 	case __SK_REDIRECT:
--		skb_set_owner_r(skb, sk);
- 		sk_psock_skb_redirect(skb);
- 		break;
- 	case __SK_PASS:
-@@ -808,10 +808,6 @@ int sk_psock_tls_strp_read(struct sk_psock *psock, struct sk_buff *skb)
- 	rcu_read_lock();
- 	prog = READ_ONCE(psock->progs.skb_verdict);
- 	if (likely(prog)) {
--		/* We skip full set_owner_r here because if we do a SK_PASS
--		 * or SK_DROP we can skip skb memory accounting and use the
--		 * TLS context.
--		 */
- 		skb->sk = psock->sk;
- 		tcp_skb_bpf_redirect_clear(skb);
- 		ret = sk_psock_bpf_run(psock, prog, skb);
-@@ -880,12 +876,13 @@ static void sk_psock_strp_read(struct strparser *strp, struct sk_buff *skb)
- 		kfree_skb(skb);
- 		goto out;
+-	copy = len;
+-	if (copy > skb_tailroom(skb))
+-		copy = skb_tailroom(skb);
++	/* Copy all frame if it fits skb->head, otherwise
++	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
++	 */
++	if (len <= skb_tailroom(skb))
++		copy = len;
++	else
++		copy = ETH_HLEN + metasize;
+ 	skb_put_data(skb, p, copy);
+ 
+ 	if (metasize) {
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 98775d7fa696..b465f8f3e554 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 	skb_reset_mac_header(skb);
+ 
+ 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+-		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
+-		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
++		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
++
++		if (!pskb_may_pull(skb, needed))
++			return -EINVAL;
+ 
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
+ 
+ 		p_off = skb_transport_offset(skb) + thlen;
+-		if (p_off > skb_headlen(skb))
++		if (!pskb_may_pull(skb, p_off))
+ 			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+@@ -102,14 +106,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 			}
+ 
+ 			p_off = keys.control.thoff + thlen;
+-			if (p_off > skb_headlen(skb) ||
++			if (!pskb_may_pull(skb, p_off) ||
+ 			    keys.basic.ip_proto != ip_proto)
+ 				return -EINVAL;
+ 
+ 			skb_set_transport_header(skb, keys.control.thoff);
+ 		} else if (gso_type) {
+ 			p_off = thlen;
+-			if (p_off > skb_headlen(skb))
++			if (!pskb_may_pull(skb, p_off))
+ 				return -EINVAL;
+ 		}
  	}
--	skb_set_owner_r(skb, sk);
- 	prog = READ_ONCE(psock->progs.skb_verdict);
- 	if (likely(prog)) {
-+		skb->sk = sk;
- 		tcp_skb_bpf_redirect_clear(skb);
- 		ret = sk_psock_bpf_run(psock, prog, skb);
- 		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
-+		skb->sk = NULL;
- 	}
- 	sk_psock_verdict_apply(psock, skb, ret);
- out:
-@@ -956,12 +953,13 @@ static int sk_psock_verdict_recv(read_descriptor_t *desc, struct sk_buff *skb,
- 		kfree_skb(skb);
- 		goto out;
- 	}
--	skb_set_owner_r(skb, sk);
- 	prog = READ_ONCE(psock->progs.skb_verdict);
- 	if (likely(prog)) {
-+		skb->sk = sk;
- 		tcp_skb_bpf_redirect_clear(skb);
- 		ret = sk_psock_bpf_run(psock, prog, skb);
- 		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
-+		skb->sk = NULL;
- 	}
- 	sk_psock_verdict_apply(psock, skb, ret);
- out:
 
