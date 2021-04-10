@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 443C135AEBD
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 17:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC02C35AEB7
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 17:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234881AbhDJPMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 11:12:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:23026 "EHLO
+        id S234708AbhDJPMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 11:12:52 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47235 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234871AbhDJPMx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 11:12:53 -0400
+        by vger.kernel.org with ESMTP id S234836AbhDJPMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 11:12:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1618067558;
+        s=mimecast20190719; t=1618067556;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=oktMs7lkpM0GXdwO2HUaIBMFKeDXHdYaotmkuKpmYt0=;
-        b=WmnuYlwLOEOkIWykC+yI/rl9yv/30JRueLyfswHzLm9Ou0wH824APKwzqzHqnwjnqE59r5
-        p3rura+BoEhr5AlRJTCz7h9YQtotZ/iAhDiy1QlPSXqRK1L4gXibiWY2rXvToAq4/eHxli
-        uoDkUmQZ1rr6N0NSKxNteb16bfL2Ydo=
+        bh=yMatXKvHBR/N7qKy05z8BU1ZA0WuGdf7P1b2HvkGO14=;
+        b=etZf3MycAPHsQwFEpnF2hr/1Oq8MdPgf0Y/9ey0YjBVMTU5kLDzbPEk3rTDIT1XAcETtO9
+        7aStWMx2feqJH8GkeA4cT70hlSuXYmgpvAbZ+EL328QsTI0c4iQk7jIzaS2zNLyOomT2Tg
+        vaYg+Ifg1lmfBqWS5n2nXEm9MsYp6Og=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-157-KwGpkgFnNFOQ8jBIPEHtNA-1; Sat, 10 Apr 2021 11:12:34 -0400
-X-MC-Unique: KwGpkgFnNFOQ8jBIPEHtNA-1
+ us-mta-197-x8FzLk24PSeQ4GOl_prCfA-1; Sat, 10 Apr 2021 11:12:34 -0400
+X-MC-Unique: x8FzLk24PSeQ4GOl_prCfA-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F403D1856A64;
-        Sat, 10 Apr 2021 15:12:32 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6B70F107ACCD;
+        Sat, 10 Apr 2021 15:12:33 +0000 (UTC)
 Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A43B85D9D3;
-        Sat, 10 Apr 2021 15:12:32 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1AD7A5D9D3;
+        Sat, 10 Apr 2021 15:12:33 +0000 (UTC)
 From:   Paolo Bonzini <pbonzini@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     kvm@vger.kernel.org, sasha@kernel.org
-Subject: [PATCH 5.10/5.11 6/9] KVM: x86/mmu: Ensure TLBs are flushed when yielding during GFN range zap
-Date:   Sat, 10 Apr 2021 11:12:26 -0400
-Message-Id: <20210410151229.4062930-7-pbonzini@redhat.com>
+Subject: [PATCH 5.10/5.11 7/9] KVM: x86/mmu: Ensure TLBs are flushed for TDP MMU during NX zapping
+Date:   Sat, 10 Apr 2021 11:12:27 -0400
+Message-Id: <20210410151229.4062930-8-pbonzini@redhat.com>
 In-Reply-To: <20210410151229.4062930-1-pbonzini@redhat.com>
 References: <20210410151229.4062930-1-pbonzini@redhat.com>
 MIME-Version: 1.0
@@ -50,105 +50,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit a835429cda91621fca915d80672a157b47738afb ]
+[ Upstream commit 048f49809c526348775425420fb5b8e84fd9a133 ]
 
-When flushing a range of GFNs across multiple roots, ensure any pending
-flush from a previous root is honored before yielding while walking the
-tables of the current root.
+Honor the "flush needed" return from kvm_tdp_mmu_zap_gfn_range(), which
+does the flush itself if and only if it yields (which it will never do in
+this particular scenario), and otherwise expects the caller to do the
+flush.  If pages are zapped from the TDP MMU but not the legacy MMU, then
+no flush will occur.
 
-Note, kvm_tdp_mmu_zap_gfn_range() now intentionally overwrites its local
-"flush" with the result to avoid redundant flushes.  zap_gfn_range()
-preserves and return the incoming "flush", unless of course the flush was
-performed prior to yielding and no new flush was triggered.
-
-Fixes: 1af4a96025b3 ("KVM: x86/mmu: Yield in TDU MMU iter even if no SPTES changed")
+Fixes: 29cf0f5007a2 ("kvm: x86/mmu: NX largepage recovery for TDP MMU")
 Cc: stable@vger.kernel.org
-Reviewed-by: Ben Gardon <bgardon@google.com>
+Cc: Ben Gardon <bgardon@google.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210325200119.1359384-2-seanjc@google.com>
+Message-Id: <20210325200119.1359384-3-seanjc@google.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ arch/x86/kvm/mmu/mmu.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index 0567286fba39..0bb62b89476a 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -105,7 +105,7 @@ bool is_tdp_mmu_root(struct kvm *kvm, hpa_t hpa)
- }
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index ed861245ecf0..64ac8ae4f7a1 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5985,6 +5985,8 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
+ 	struct kvm_mmu_page *sp;
+ 	unsigned int ratio;
+ 	LIST_HEAD(invalid_list);
++	bool flush = false;
++	gfn_t gfn_end;
+ 	ulong to_zap;
  
- static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
--			  gfn_t start, gfn_t end, bool can_yield);
-+			  gfn_t start, gfn_t end, bool can_yield, bool flush);
- 
- void kvm_tdp_mmu_free_root(struct kvm *kvm, struct kvm_mmu_page *root)
- {
-@@ -118,7 +118,7 @@ void kvm_tdp_mmu_free_root(struct kvm *kvm, struct kvm_mmu_page *root)
- 
- 	list_del(&root->link);
- 
--	zap_gfn_range(kvm, root, 0, max_gfn, false);
-+	zap_gfn_range(kvm, root, 0, max_gfn, false, false);
- 
- 	free_page((unsigned long)root->spt);
- 	kmem_cache_free(mmu_page_header_cache, root);
-@@ -461,18 +461,19 @@ static inline bool tdp_mmu_iter_cond_resched(struct kvm *kvm,
-  * scheduler needs the CPU or there is contention on the MMU lock. If this
-  * function cannot yield, it will not release the MMU lock or reschedule and
-  * the caller must ensure it does not supply too large a GFN range, or the
-- * operation can cause a soft lockup.
-+ * operation can cause a soft lockup.  Note, in some use cases a flush may be
-+ * required by prior actions.  Ensure the pending flush is performed prior to
-+ * yielding.
-  */
- static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
--			  gfn_t start, gfn_t end, bool can_yield)
-+			  gfn_t start, gfn_t end, bool can_yield, bool flush)
- {
- 	struct tdp_iter iter;
--	bool flush_needed = false;
- 
- 	tdp_root_for_each_pte(iter, root, start, end) {
- 		if (can_yield &&
--		    tdp_mmu_iter_cond_resched(kvm, &iter, flush_needed)) {
--			flush_needed = false;
-+		    tdp_mmu_iter_cond_resched(kvm, &iter, flush)) {
-+			flush = false;
- 			continue;
+ 	rcu_idx = srcu_read_lock(&kvm->srcu);
+@@ -6006,19 +6008,20 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
+ 				      lpage_disallowed_link);
+ 		WARN_ON_ONCE(!sp->lpage_disallowed);
+ 		if (sp->tdp_mmu_page)
+-			kvm_tdp_mmu_zap_gfn_range(kvm, sp->gfn,
+-				sp->gfn + KVM_PAGES_PER_HPAGE(sp->role.level));
+-		else {
++			gfn_end = sp->gfn + KVM_PAGES_PER_HPAGE(sp->role.level);
++			flush = kvm_tdp_mmu_zap_gfn_range(kvm, sp->gfn, gfn_end);
++		} else {
+ 			kvm_mmu_prepare_zap_page(kvm, sp, &invalid_list);
+ 			WARN_ON_ONCE(sp->lpage_disallowed);
  		}
  
-@@ -490,9 +491,10 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 			continue;
- 
- 		tdp_mmu_set_spte(kvm, &iter, 0);
--		flush_needed = true;
-+		flush = true;
+ 		if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
+-			kvm_mmu_commit_zap_page(kvm, &invalid_list);
++			kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
+ 			cond_resched_lock(&kvm->mmu_lock);
++			flush = false;
+ 		}
  	}
--	return flush_needed;
-+
-+	return flush;
- }
+-	kvm_mmu_commit_zap_page(kvm, &invalid_list);
++	kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
  
- /*
-@@ -507,7 +509,7 @@ bool kvm_tdp_mmu_zap_gfn_range(struct kvm *kvm, gfn_t start, gfn_t end)
- 	bool flush = false;
- 
- 	for_each_tdp_mmu_root_yield_safe(kvm, root)
--		flush |= zap_gfn_range(kvm, root, start, end, true);
-+		flush = zap_gfn_range(kvm, root, start, end, true, flush);
- 
- 	return flush;
- }
-@@ -701,7 +703,7 @@ static int zap_gfn_range_hva_wrapper(struct kvm *kvm,
- 				     struct kvm_mmu_page *root, gfn_t start,
- 				     gfn_t end, unsigned long unused)
- {
--	return zap_gfn_range(kvm, root, start, end, false);
-+	return zap_gfn_range(kvm, root, start, end, false, false);
- }
- 
- int kvm_tdp_mmu_zap_hva_range(struct kvm *kvm, unsigned long start,
+ 	spin_unlock(&kvm->mmu_lock);
+ 	srcu_read_unlock(&kvm->srcu, rcu_idx);
 -- 
 2.26.2
 
