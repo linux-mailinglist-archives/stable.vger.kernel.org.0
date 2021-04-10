@@ -2,104 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E967635AC2C
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 11:12:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAC6635AC4F
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 11:15:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229943AbhDJJMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 05:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34388 "EHLO mail.kernel.org"
+        id S234333AbhDJJPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 05:15:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234436AbhDJJMn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Apr 2021 05:12:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38C2E61105;
-        Sat, 10 Apr 2021 09:12:28 +0000 (UTC)
+        id S234306AbhDJJPg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 05:15:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B0DE60233;
+        Sat, 10 Apr 2021 09:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618045948;
-        bh=t73lA2QU2YQnqurOZQCLt9Z3mDxNE/R5vJnWF3eARpA=;
-        h=Subject:To:From:Date:From;
-        b=Xht1mkJA3z39ibIIUXspX4wnjkzTC2ovjT07aVko68Wx+hIK366l7dUzb8R2gOh45
-         5032hgpRzfSgrPVODHDLk9VfUL7oFgHqI4mRVRh6V0EJty3YbGcrmAbvPJpre82BBq
-         ojcBpLQJRyMu0+LzG+mm4SFaXBNVGiJiSLO0yeNM=
-Subject: patch "fbdev: zero-fill colormap in fbcmap.c" added to char-misc-testing
-To:     phil@philpotter.co.uk, geert+renesas@glider.be,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 11:12:26 +0200
-Message-ID: <161804594616219@kroah.com>
+        s=korg; t=1618046121;
+        bh=ylacISelC0n5uq3LcWny5QQY5S3oyLsn0/lLqR99PSk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=c30pMcHbUE6mjml6G9xJuol9fJbGrG9PZ/sQEkACfNmUFQoVpZcR6CY5GUTzQE7ny
+         uV2CfIQZ9LeGAY+2hDpqNmF/aQi2BqqUqEXHtZSeShPTLIwnzMmqrIyvnjXzBE0BZK
+         Fg5Xr+wYncoviVx+GxxqA2FBwjom/Uk7f5KoMxXA=
+Date:   Sat, 10 Apr 2021 11:15:19 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Roman Guskov <rguskov@dh-electronics.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH stable] gpiolib: Read "gpio-line-names" from a firmware
+ node
+Message-ID: <YHFsp1Q0rcqQwz3t@kroah.com>
+References: <20210410090919.3157-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210410090919.3157-1-brgl@bgdev.pl>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Apr 10, 2021 at 11:09:19AM +0200, Bartosz Golaszewski wrote:
+> From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> 
+> On STM32MP1, the GPIO banks are subnodes of pin-controller@50002000,
+> see arch/arm/boot/dts/stm32mp151.dtsi. The driver for
+> pin-controller@50002000 is in drivers/pinctrl/stm32/pinctrl-stm32.c
+> and iterates over all of its DT subnodes when registering each GPIO
+> bank gpiochip. Each gpiochip has:
+> 
+>   - gpio_chip.parent = dev,
+>     where dev is the device node of the pin controller
+>   - gpio_chip.of_node = np,
+>     which is the OF node of the GPIO bank
+> 
+> Therefore, dev_fwnode(chip->parent) != of_fwnode_handle(chip.of_node),
+> i.e. pin-controller@50002000 != pin-controller@50002000/gpio@5000*000.
+> 
+> The original code behaved correctly, as it extracted the "gpio-line-names"
+> from of_fwnode_handle(chip.of_node) = pin-controller@50002000/gpio@5000*000.
+> 
+> To achieve the same behaviour, read property from the firmware node.
+> 
+> Fixes: 7cba1a4d5e162 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
+> Cc: stable@vger.kernel.org
+> Reported-by: Marek Vasut <marex@denx.de>
+> Reported-by: Roman Guskov <rguskov@dh-electronics.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Tested-by: Marek Vasut <marex@denx.de>
+> Reviewed-by: Marek Vasut <marex@denx.de>
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+> Hi Greg,
+> 
+> This patch somehow got lost and never made its way into stable. Could you
+> please apply it?
 
-This is a note to let you know that I've just added the patch titled
+What is the git commit id of it in Linus's tree?
 
-    fbdev: zero-fill colormap in fbcmap.c
+thanks,
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 19ab233989d0f7ab1de19a036e247afa4a0a1e9c Mon Sep 17 00:00:00 2001
-From: Phillip Potter <phil@philpotter.co.uk>
-Date: Wed, 31 Mar 2021 23:07:19 +0100
-Subject: fbdev: zero-fill colormap in fbcmap.c
-
-Use kzalloc() rather than kmalloc() for the dynamically allocated parts
-of the colormap in fb_alloc_cmap_gfp, to prevent a leak of random kernel
-data to userspace under certain circumstances.
-
-Fixes a KMSAN-found infoleak bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=741578659feabd108ad9e06696f0c1f2e69c4b6e
-
-Reported-by: syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210331220719.1499743-1-phil@philpotter.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/video/fbdev/core/fbcmap.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/video/fbdev/core/fbcmap.c b/drivers/video/fbdev/core/fbcmap.c
-index 757d5c3f620b..ff09e57f3c38 100644
---- a/drivers/video/fbdev/core/fbcmap.c
-+++ b/drivers/video/fbdev/core/fbcmap.c
-@@ -101,17 +101,17 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cmap, int len, int transp, gfp_t flags)
- 		if (!len)
- 			return 0;
- 
--		cmap->red = kmalloc(size, flags);
-+		cmap->red = kzalloc(size, flags);
- 		if (!cmap->red)
- 			goto fail;
--		cmap->green = kmalloc(size, flags);
-+		cmap->green = kzalloc(size, flags);
- 		if (!cmap->green)
- 			goto fail;
--		cmap->blue = kmalloc(size, flags);
-+		cmap->blue = kzalloc(size, flags);
- 		if (!cmap->blue)
- 			goto fail;
- 		if (transp) {
--			cmap->transp = kmalloc(size, flags);
-+			cmap->transp = kzalloc(size, flags);
- 			if (!cmap->transp)
- 				goto fail;
- 		} else {
--- 
-2.31.1
-
-
+greg k-h
