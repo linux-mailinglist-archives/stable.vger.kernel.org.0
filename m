@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FEA735ADDE
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 15:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E01D35ADE2
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 15:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234536AbhDJN7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 09:59:07 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:37865 "EHLO
+        id S234733AbhDJOAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 10:00:02 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:38959 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234376AbhDJN7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 09:59:07 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 07DB91940F5F;
-        Sat, 10 Apr 2021 09:58:52 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 10 Apr 2021 09:58:52 -0400
+        by vger.kernel.org with ESMTP id S234376AbhDJOAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Apr 2021 10:00:02 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id BDB7E194112B;
+        Sat, 10 Apr 2021 09:59:47 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Sat, 10 Apr 2021 09:59:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RdPXXy
-        UtnWJVo6HtcVpVj+kfu8DVL1xSGaS5RM4QSTU=; b=WqIWTeXv4oD1X1WpQwwNww
-        PZjJZdeBSIYD+TWuSV2oovqlurYb3I143/tXxZXPaRw/iQAD9pVrW/vtUszjp/mT
-        +R7o5274XOMp641Vamq51LBPYZc4x1eCvqDNTvAnvna9Svx1k5bseGx8DJMaNId/
-        3qr5e0pBN7RaktnlvFmlUfIiSB6+PcOdQPsXhPsrlrIT/9xUvguV5A/wIeCyoKO6
-        fiBp+o8P5xlzGlthiHQpC3fNS1uekxvefDiiJJ6fdjd3pt0cgidY844jNV7Hqbyh
-        Fd//zL4J+WZXf2zRofk0T0HPMJNYVa/DotIdMFyOj1MabJywtP25S+xq0Orsm5rg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=n4OEBo
+        JyHGFLCc2P91QNfIvgKCEtjgu5I+YPobcA7TA=; b=gIzY8XodD5KpvW/JfQH1RP
+        lj4vv1E9WmHIXC3/1kdM2W7Cd0/Yxhzzbxy32GvEmKNZvBMynJE3A0Liye9rhLdr
+        +PC9GoJCoRtPETUjWO/245HijrE8cR+62pAVRVTH9eDxzNoTXAIgWPo7iy2hf1T+
+        qYG47znZuPcKnEwibIT2ODP8EFT7b2XJtwlUwCy/s89wM2/xtLgTty2dUPszQJuu
+        Wr3i80ObhB4XnuwaI9FOXiIoJc2D6QSUMVgnSP5W9pucqDfGuJKDrmIakXo6u0eq
+        qlvdu1s0MvYHM2uFAlNMikbWKBGYPfaxhy1C11vEF6MOMDlBqx/ytpBU495MnulA
         ==
-X-ME-Sender: <xms:G69xYOLrCX5zfRYvS_dwzj5lPJEW595nLn2uPsmovPXxaHHRlC4PWQ>
-    <xme:G69xYGKXdEx6wTJ6XlOn9p39UfA07hXbTQzMfQib0agiw1qkfpRGr0Qm3u0bBc_PR
-    n4Z1XZvAloWBQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjeduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:U69xYN7U6sfR2kNhKWf4s3G-JbkbwARG0-k1malR9B9GexNMzhcL8w>
+    <xme:U69xYPILCXyfcpIUEtoBC002G8nAlfJsw5M5a26qtWVm8_FADKarP5AvkC67zPxEs
+    ZT4QN5og5vVtQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekfedgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
+    euudefveegffeuvdetleeunecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:G69xYOvYXs9kf_R26Of_L6Ox_ykfOjdGctS-COaeU3vioMDHkn6TBg>
-    <xmx:G69xYDbqzIl2WvLDT3Ttam13hoZYfeXBqTgPIgx0jtPtu1YtlChdHA>
-    <xmx:G69xYFYBuMCwCEnJUEym9QhmanB1X3DD2QjfiezYS1WuPs4jqgKWzA>
-    <xmx:HK9xYEzGBoj8zqSu-XpL7srQ8-sZS-bxpVl4QXeU_iAPRFkYF6r85Q>
+X-ME-Proxy: <xmx:U69xYPduWJHioOaUDUi5TM8IYldEMR8h8JnA_h08AT7etDVe83VSXg>
+    <xmx:U69xYKcyDOPEcVyUoZSxclNVbyYeyNvNyCY2sbaUhVCpGpfZOM9AqQ>
+    <xmx:U69xYKM6O_6xFP6JKIKc8Nv1g_2UMK3KvNGG_ccwr0J19WoY-1aNyQ>
+    <xmx:U69xYLLSh7zOXV1QFQnlwuachGcPE167E9WdwI3JBNTKHj9UF6BBlQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8E0FC24005B;
-        Sat, 10 Apr 2021 09:58:51 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ice: prevent ice_open and ice_stop during reset" failed to apply to 4.19-stable tree
-To:     krzysztof.goreczny@intel.com, anthony.l.nguyen@intel.com,
-        tonyx.brelinski@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2278C108005F;
+        Sat, 10 Apr 2021 09:59:47 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ice: Fix for dereference of NULL pointer" failed to apply to 4.19-stable tree
+To:     jacekx.bulatek@intel.com, anthony.l.nguyen@intel.com,
+        haiyue.wang@intel.com, tonyx.brelinski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 15:58:50 +0200
-Message-ID: <161806313011134@kroah.com>
+Date:   Sat, 10 Apr 2021 15:59:45 +0200
+Message-ID: <1618063185234184@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -71,108 +71,65 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e95fc8573e07c5e4825df4650fd8b8c93fad27a7 Mon Sep 17 00:00:00 2001
-From: Krzysztof Goreczny <krzysztof.goreczny@intel.com>
-Date: Fri, 26 Feb 2021 13:19:26 -0800
-Subject: [PATCH] ice: prevent ice_open and ice_stop during reset
+From 7a91d3f02b04b2fb18c2dfa8b6c4e5a40a2753f5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jacek=20Bu=C5=82atek?= <jacekx.bulatek@intel.com>
+Date: Fri, 26 Feb 2021 13:19:29 -0800
+Subject: [PATCH] ice: Fix for dereference of NULL pointer
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-There is a possibility of race between ice_open or ice_stop calls
-performed by OS and reset handling routine both trying to modify VSI
-resources. Observed scenarios:
-- reset handler deallocates memory in ice_vsi_free_arrays and ice_open
-  tries to access it in ice_vsi_cfg_txq leading to driver crash
-- reset handler deallocates memory in ice_vsi_free_arrays and ice_close
-  tries to access it in ice_down leading to driver crash
-- reset handler clears port scheduler topology and sets port state to
-  ICE_SCHED_PORT_STATE_INIT leading to ice_ena_vsi_txq fail in ice_open
+Add handling of allocation fault for ice_vsi_list_map_info.
 
-To prevent this additional checks in ice_open and ice_stop are
-introduced to make sure that OS is not allowed to alter VSI config while
-reset is in progress.
+Also *fi should not be NULL pointer, it is a reference to raw
+data field, so remove this variable and use the reference
+directly.
 
-Fixes: cdedef59deb0 ("ice: Configure VSIs for Tx/Rx")
-Signed-off-by: Krzysztof Goreczny <krzysztof.goreczny@intel.com>
+Fixes: 9daf8208dd4d ("ice: Add support for switch filter programming")
+Signed-off-by: Jacek Bułatek <jacekx.bulatek@intel.com>
+Co-developed-by: Haiyue Wang <haiyue.wang@intel.com>
+Signed-off-by: Haiyue Wang <haiyue.wang@intel.com>
 Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index 357706444dd5..1d4518638215 100644
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -642,6 +642,7 @@ int ice_fdir_create_dflt_rules(struct ice_pf *pf);
- int ice_aq_wait_for_event(struct ice_pf *pf, u16 opcode, unsigned long timeout,
- 			  struct ice_rq_event_info *event);
- int ice_open(struct net_device *netdev);
-+int ice_open_internal(struct net_device *netdev);
- int ice_stop(struct net_device *netdev);
- void ice_service_task_schedule(struct ice_pf *pf);
+diff --git a/drivers/net/ethernet/intel/ice/ice_switch.c b/drivers/net/ethernet/intel/ice/ice_switch.c
+index 67c965a3f5d2..387d3f6cd71e 100644
+--- a/drivers/net/ethernet/intel/ice/ice_switch.c
++++ b/drivers/net/ethernet/intel/ice/ice_switch.c
+@@ -1238,6 +1238,9 @@ ice_add_update_vsi_list(struct ice_hw *hw,
+ 			ice_create_vsi_list_map(hw, &vsi_handle_arr[0], 2,
+ 						vsi_list_id);
  
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index 8d4e2ad4328d..7ac2beaed95c 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -2620,7 +2620,7 @@ int ice_ena_vsi(struct ice_vsi *vsi, bool locked)
- 			if (!locked)
- 				rtnl_lock();
- 
--			err = ice_open(vsi->netdev);
-+			err = ice_open_internal(vsi->netdev);
- 
- 			if (!locked)
- 				rtnl_unlock();
-@@ -2649,7 +2649,7 @@ void ice_dis_vsi(struct ice_vsi *vsi, bool locked)
- 			if (!locked)
- 				rtnl_lock();
- 
--			ice_stop(vsi->netdev);
-+			ice_vsi_close(vsi);
- 
- 			if (!locked)
- 				rtnl_unlock();
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 53e053c997eb..255a07c1e33a 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -6632,6 +6632,28 @@ static void ice_tx_timeout(struct net_device *netdev, unsigned int txqueue)
-  * Returns 0 on success, negative value on failure
-  */
- int ice_open(struct net_device *netdev)
-+{
-+	struct ice_netdev_priv *np = netdev_priv(netdev);
-+	struct ice_pf *pf = np->vsi->back;
++		if (!m_entry->vsi_list_info)
++			return ICE_ERR_NO_MEMORY;
 +
-+	if (ice_is_reset_in_progress(pf->state)) {
-+		netdev_err(netdev, "can't open net device while reset is in progress");
-+		return -EBUSY;
-+	}
-+
-+	return ice_open_internal(netdev);
-+}
-+
-+/**
-+ * ice_open_internal - Called when a network interface becomes active
-+ * @netdev: network interface device structure
-+ *
-+ * Internal ice_open implementation. Should not be used directly except for ice_open and reset
-+ * handling routine
-+ *
-+ * Returns 0 on success, negative value on failure
-+ */
-+int ice_open_internal(struct net_device *netdev)
- {
- 	struct ice_netdev_priv *np = netdev_priv(netdev);
- 	struct ice_vsi *vsi = np->vsi;
-@@ -6712,6 +6734,12 @@ int ice_stop(struct net_device *netdev)
- {
- 	struct ice_netdev_priv *np = netdev_priv(netdev);
- 	struct ice_vsi *vsi = np->vsi;
-+	struct ice_pf *pf = vsi->back;
-+
-+	if (ice_is_reset_in_progress(pf->state)) {
-+		netdev_err(netdev, "can't stop net device while reset is in progress");
-+		return -EBUSY;
-+	}
+ 		/* If this entry was large action then the large action needs
+ 		 * to be updated to point to FWD to VSI list
+ 		 */
+@@ -2220,6 +2223,7 @@ ice_vsi_uses_fltr(struct ice_fltr_mgmt_list_entry *fm_entry, u16 vsi_handle)
+ 	return ((fm_entry->fltr_info.fltr_act == ICE_FWD_TO_VSI &&
+ 		 fm_entry->fltr_info.vsi_handle == vsi_handle) ||
+ 		(fm_entry->fltr_info.fltr_act == ICE_FWD_TO_VSI_LIST &&
++		 fm_entry->vsi_list_info &&
+ 		 (test_bit(vsi_handle, fm_entry->vsi_list_info->vsi_map))));
+ }
  
- 	ice_vsi_close(vsi);
+@@ -2292,14 +2296,12 @@ ice_add_to_vsi_fltr_list(struct ice_hw *hw, u16 vsi_handle,
+ 		return ICE_ERR_PARAM;
  
+ 	list_for_each_entry(fm_entry, lkup_list_head, list_entry) {
+-		struct ice_fltr_info *fi;
+-
+-		fi = &fm_entry->fltr_info;
+-		if (!fi || !ice_vsi_uses_fltr(fm_entry, vsi_handle))
++		if (!ice_vsi_uses_fltr(fm_entry, vsi_handle))
+ 			continue;
+ 
+ 		status = ice_add_entry_to_vsi_fltr_list(hw, vsi_handle,
+-							vsi_list_head, fi);
++							vsi_list_head,
++							&fm_entry->fltr_info);
+ 		if (status)
+ 			return status;
+ 	}
 
