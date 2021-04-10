@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CACB535AB41
-	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 07:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906B935AB42
+	for <lists+stable@lfdr.de>; Sat, 10 Apr 2021 07:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229591AbhDJF6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Apr 2021 01:58:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S230235AbhDJF64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Apr 2021 01:58:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229992AbhDJF6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Apr 2021 01:58:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 118C861028;
-        Sat, 10 Apr 2021 05:58:36 +0000 (UTC)
+        id S229992AbhDJF64 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Apr 2021 01:58:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB4CC61185;
+        Sat, 10 Apr 2021 05:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618034317;
-        bh=WaB06m2Sht1ypKN0ph9z1rqzPaQAbYTShk84UoToA/4=;
+        s=korg; t=1618034322;
+        bh=Y1uNHJnTp3Lnke8nttWAOSpdwPty5iPDcc8R1cwl9aQ=;
         h=Subject:To:From:Date:From;
-        b=QApQkripkyGiWNSvVIMoXwMkYufhGxOq8yNiLRB38oE22C+o9CtRr1novXuxgFxuM
-         opgceqlqAlB88GtZpGIGgesLjWdJ8bdbydSIGXCdTVHCoY8QSyhqA5su9776PRWIhE
-         4JvVqMuV8y1vJUeP3P9NEa4Fqua1dwmlECqVs/mE=
-Subject: patch "usb: typec: tcpm: Address incorrect values of tcpm psy for fixed" added to usb-next
+        b=y6jGlTfOjX5xm0VC94Q7Drqk6zwtcHf1+/bWOpJyvXhQpIZlUxntMdYufU2YaAvTF
+         gekA0xrFbtC/pmGE208Y/XyEaUHBulDs/w6BlfkAZlpM1u0m3AJgLi1e84mWpDS47h
+         9/iUQ39tETyqRwKhB6LIqqz4tV6tQZoZrDNL36lo=
+Subject: patch "usb: typec: tcpm: update power supply once partner accepts" added to usb-next
 To:     badhri@google.com, Adam.Thomson.Opensource@diasemi.com,
         gregkh@linuxfoundation.org, heikki.krogerus@linux.intel.com,
-        linux@roeck-us.net, stable@vger.kernel.org
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Apr 2021 07:58:06 +0200
-Message-ID: <16180342869457@kroah.com>
+Date:   Sat, 10 Apr 2021 07:58:07 +0200
+Message-ID: <161803428746116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: typec: tcpm: Address incorrect values of tcpm psy for fixed
+    usb: typec: tcpm: update power supply once partner accepts
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -52,81 +52,59 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From f3dedafb8263ca4791a92a23f5230068f5bde008 Mon Sep 17 00:00:00 2001
+From 4050f2683f2c3151dc3dd1501ac88c57caf810ff Mon Sep 17 00:00:00 2001
 From: Badhri Jagan Sridharan <badhri@google.com>
-Date: Wed, 7 Apr 2021 13:07:18 -0700
-Subject: usb: typec: tcpm: Address incorrect values of tcpm psy for fixed
- supply
+Date: Wed, 7 Apr 2021 13:07:20 -0700
+Subject: usb: typec: tcpm: update power supply once partner accepts
 
-tcpm_pd_build_request overwrites current_limit and supply_voltage
-even before port partner accepts the requests. This leaves stale
-values in current_limit and supply_voltage that get exported by
-"tcpm-source-psy-". Solving this problem by caching the request
-values of current limit/supply voltage in req_current_limit
-and req_supply_voltage. current_limit/supply_voltage gets updated
-once the port partner accepts the request.
+power_supply_changed needs to be called to notify clients
+after the partner accepts the requested values for the pps
+case.
+
+Also, remove the redundant power_supply_changed at the end
+of the tcpm_reset_port as power_supply_changed is already
+called right after usb_type is changed.
 
 Fixes: f2a8aa053c176 ("typec: tcpm: Represent source supply through power_supply")
 Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
 Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20210407200723.1914388-1-badhri@google.com
+Link: https://lore.kernel.org/r/20210407200723.1914388-3-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index ca1fc77697fc..4ea4b30ae885 100644
+index b4a40099d7e9..d1d03ee90d8f 100644
 --- a/drivers/usb/typec/tcpm/tcpm.c
 +++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -389,7 +389,10 @@ struct tcpm_port {
- 	unsigned int operating_snk_mw;
- 	bool update_sink_caps;
- 
--	/* Requested current / voltage */
-+	/* Requested current / voltage to the port partner */
-+	u32 req_current_limit;
-+	u32 req_supply_voltage;
-+	/* Actual current / voltage limit of the local port */
- 	u32 current_limit;
- 	u32 supply_voltage;
- 
-@@ -2435,8 +2438,8 @@ static void tcpm_pd_ctrl_request(struct tcpm_port *port,
- 		case SNK_TRANSITION_SINK:
- 			if (port->vbus_present) {
- 				tcpm_set_current_limit(port,
--						       port->current_limit,
--						       port->supply_voltage);
-+						       port->req_current_limit,
-+						       port->req_supply_voltage);
- 				port->explicit_contract = true;
- 				tcpm_set_auto_vbus_discharge_threshold(port,
- 								       TYPEC_PWR_MODE_PD,
-@@ -2545,8 +2548,8 @@ static void tcpm_pd_ctrl_request(struct tcpm_port *port,
- 			break;
- 		case SNK_NEGOTIATE_PPS_CAPABILITIES:
- 			port->pps_data.active = true;
--			port->supply_voltage = port->pps_data.out_volt;
--			port->current_limit = port->pps_data.op_curr;
-+			port->req_supply_voltage = port->pps_data.out_volt;
-+			port->req_current_limit = port->pps_data.op_curr;
+@@ -2568,6 +2568,7 @@ static void tcpm_pd_ctrl_request(struct tcpm_port *port,
+ 			port->pps_data.max_curr = port->pps_data.req_max_curr;
+ 			port->req_supply_voltage = port->pps_data.req_out_volt;
+ 			port->req_current_limit = port->pps_data.req_op_curr;
++			power_supply_changed(port->psy);
  			tcpm_set_state(port, SNK_TRANSITION_SINK, 0);
  			break;
  		case SOFT_RESET_SEND:
-@@ -3195,8 +3198,8 @@ static int tcpm_pd_build_request(struct tcpm_port *port, u32 *rdo)
- 			 flags & RDO_CAP_MISMATCH ? " [mismatch]" : "");
+@@ -3136,7 +3137,6 @@ static unsigned int tcpm_pd_select_pps_apdo(struct tcpm_port *port)
+ 						      port->pps_data.req_out_volt));
+ 		port->pps_data.req_op_curr = min(port->pps_data.max_curr,
+ 						 port->pps_data.req_op_curr);
+-		power_supply_changed(port->psy);
  	}
  
--	port->current_limit = ma;
--	port->supply_voltage = mv;
-+	port->req_current_limit = ma;
-+	port->req_supply_voltage = mv;
- 
- 	return 0;
+ 	return src_pdo;
+@@ -3561,8 +3561,6 @@ static void tcpm_reset_port(struct tcpm_port *port)
+ 	port->sink_cap_done = false;
+ 	if (port->tcpc->enable_frs)
+ 		port->tcpc->enable_frs(port->tcpc, false);
+-
+-	power_supply_changed(port->psy);
  }
+ 
+ static void tcpm_detach(struct tcpm_port *port)
 -- 
 2.31.1
 
