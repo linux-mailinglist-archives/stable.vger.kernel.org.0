@@ -2,30 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF7735B200
-	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 08:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1867135B225
+	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 09:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235229AbhDKG33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 02:29:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54494 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235277AbhDKG32 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 02:29:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D78F611C9;
-        Sun, 11 Apr 2021 06:29:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618122552;
-        bh=YEa86afLveTkZ9mRfteJ4uQnBGpMSJTm7LtgDUvSql4=;
-        h=Subject:To:From:Date:From;
-        b=oVPPgLOAkSyv1+g/crFZXeSyTDlFHR5hFk+3ZeEGtFSKGuT8Bq61RwVkDGnnR7tLX
-         WiGpLKJvrYvn1guQ1bhPPh24HCOq93sMy+azkMbGTqEF8qxb7kx2g9koOv/arAUeAX
-         Yxp7gKJsxZnURmfJb2EQ2WAHGou0N8ZDMxWkLLUs=
-Subject: patch "fbdev: zero-fill colormap in fbcmap.c" added to char-misc-next
-To:     phil@philpotter.co.uk, geert+renesas@glider.be,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        id S229804AbhDKHUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 03:20:31 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:43021 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229792AbhDKHUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 03:20:31 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id A3C1715D8;
+        Sun, 11 Apr 2021 03:20:14 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 11 Apr 2021 03:20:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Xp/pD+
+        pKX933fGgcY83So/A9K/1B6C9Tb3kasvx4Ofo=; b=f8GBvg0+sWsc9ANomILeiG
+        RIZX3OjTo0CjlL36lCUkERamrtkUAe2x/YpQ1EvFzf0Bs1kgtKavF9Ogm2x3LQgR
+        p5gztzDeUrXfyMsYoXvi8bfVqNcjht0Fu3kn8grAX6WWUHiIFCG0kKgz0nc2ti69
+        eo0ruFudCiMu7dWWgwUsrB4GHlclBBR5fwybrGj9pPcU/pLLw1NZYP6uzfM0pRaZ
+        K9cnWeB102RtkyHGjtA7LAcgjIl7Z3c8p7Tz4S3pt+6BmmVqeOzGyrxEhpErPPCg
+        XhMvcHO+pPHYMzjBBCZfa6fjghF8csRuN06bKyFa+Bb173TiSBpAH1KtCJWx9K4g
+        ==
+X-ME-Sender: <xms:LqNyYAUeb8YMJTUONGpvLRprb9Q0965h-mrPbX1V9B38lpoKQRXzUQ>
+    <xme:LqNyYEli2pxK8ezYUcYL1km7NevsNDNb3a7lDeo5khTC-SABz7RlY7mNqgJSH8Z1P
+    7RpPXaZIiVfEg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekgedguddulecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
+    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:LqNyYEbH9d0YSXyKklPFO3lNCfKIbzLkZCxfXL-lQDLcyjF2gxIIWQ>
+    <xmx:LqNyYPUoGgCdedHrKoQSpXjSqay-U0Xqv856Cxz7ghyZhGtynq6EuA>
+    <xmx:LqNyYKlSDwBLpRcdDbMRcmA8BBaaauiMTssP7oRmbHXLH6hyXsOFng>
+    <xmx:LqNyYBtH3rL4kZ1nnMJRenOGtYTiozjwjZ3PUlkIYzVynMWwTp5639timAQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E89C61080054;
+        Sun, 11 Apr 2021 03:20:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usbip: vudc synchronize sysfs code paths" failed to apply to 4.4-stable tree
+To:     skhan@linuxfoundation.org, gregkh@linuxfoundation.org
+Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Apr 2021 08:28:14 +0200
-Message-ID: <16181224949422@kroah.com>
+Date:   Sun, 11 Apr 2021 09:20:12 +0200
+Message-ID: <161812561211936@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,72 +59,82 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-    fbdev: zero-fill colormap in fbcmap.c
+thanks,
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
+greg k-h
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+------------------ original commit in Linus's tree ------------------
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+From bd8b82042269a95db48074b8bb400678dbac1815 Mon Sep 17 00:00:00 2001
+From: Shuah Khan <skhan@linuxfoundation.org>
+Date: Mon, 29 Mar 2021 19:36:50 -0600
+Subject: [PATCH] usbip: vudc synchronize sysfs code paths
 
-If you have any questions about this process, please let me know.
+Fuzzing uncovered race condition between sysfs code paths in usbip
+drivers. Device connect/disconnect code paths initiated through
+sysfs interface are prone to races if disconnect happens during
+connect and vice versa.
 
+Use sysfs_lock to protect sysfs paths in vudc.
 
-From 19ab233989d0f7ab1de19a036e247afa4a0a1e9c Mon Sep 17 00:00:00 2001
-From: Phillip Potter <phil@philpotter.co.uk>
-Date: Wed, 31 Mar 2021 23:07:19 +0100
-Subject: fbdev: zero-fill colormap in fbcmap.c
-
-Use kzalloc() rather than kmalloc() for the dynamically allocated parts
-of the colormap in fb_alloc_cmap_gfp, to prevent a leak of random kernel
-data to userspace under certain circumstances.
-
-Fixes a KMSAN-found infoleak bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=741578659feabd108ad9e06696f0c1f2e69c4b6e
-
-Reported-by: syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210331220719.1499743-1-phil@philpotter.co.uk
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/caabcf3fc87bdae970509b5ff32d05bb7ce2fb15.1616807117.git.skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/video/fbdev/core/fbcmap.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/video/fbdev/core/fbcmap.c b/drivers/video/fbdev/core/fbcmap.c
-index 757d5c3f620b..ff09e57f3c38 100644
---- a/drivers/video/fbdev/core/fbcmap.c
-+++ b/drivers/video/fbdev/core/fbcmap.c
-@@ -101,17 +101,17 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cmap, int len, int transp, gfp_t flags)
- 		if (!len)
- 			return 0;
+diff --git a/drivers/usb/usbip/vudc_dev.c b/drivers/usb/usbip/vudc_dev.c
+index c8eeabdd9b56..2bc428f2e261 100644
+--- a/drivers/usb/usbip/vudc_dev.c
++++ b/drivers/usb/usbip/vudc_dev.c
+@@ -572,6 +572,7 @@ static int init_vudc_hw(struct vudc *udc)
+ 	init_waitqueue_head(&udc->tx_waitq);
  
--		cmap->red = kmalloc(size, flags);
-+		cmap->red = kzalloc(size, flags);
- 		if (!cmap->red)
- 			goto fail;
--		cmap->green = kmalloc(size, flags);
-+		cmap->green = kzalloc(size, flags);
- 		if (!cmap->green)
- 			goto fail;
--		cmap->blue = kmalloc(size, flags);
-+		cmap->blue = kzalloc(size, flags);
- 		if (!cmap->blue)
- 			goto fail;
- 		if (transp) {
--			cmap->transp = kmalloc(size, flags);
-+			cmap->transp = kzalloc(size, flags);
- 			if (!cmap->transp)
- 				goto fail;
- 		} else {
--- 
-2.31.1
-
+ 	spin_lock_init(&ud->lock);
++	mutex_init(&ud->sysfs_lock);
+ 	ud->status = SDEV_ST_AVAILABLE;
+ 	ud->side = USBIP_VUDC;
+ 
+diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
+index 7383a543c6d1..f7633ee655a1 100644
+--- a/drivers/usb/usbip/vudc_sysfs.c
++++ b/drivers/usb/usbip/vudc_sysfs.c
+@@ -112,6 +112,7 @@ static ssize_t usbip_sockfd_store(struct device *dev,
+ 		dev_err(dev, "no device");
+ 		return -ENODEV;
+ 	}
++	mutex_lock(&udc->ud.sysfs_lock);
+ 	spin_lock_irqsave(&udc->lock, flags);
+ 	/* Don't export what we don't have */
+ 	if (!udc->driver || !udc->pullup) {
+@@ -187,6 +188,8 @@ static ssize_t usbip_sockfd_store(struct device *dev,
+ 
+ 		wake_up_process(udc->ud.tcp_rx);
+ 		wake_up_process(udc->ud.tcp_tx);
++
++		mutex_unlock(&udc->ud.sysfs_lock);
+ 		return count;
+ 
+ 	} else {
+@@ -207,6 +210,7 @@ static ssize_t usbip_sockfd_store(struct device *dev,
+ 	}
+ 
+ 	spin_unlock_irqrestore(&udc->lock, flags);
++	mutex_unlock(&udc->ud.sysfs_lock);
+ 
+ 	return count;
+ 
+@@ -216,6 +220,7 @@ static ssize_t usbip_sockfd_store(struct device *dev,
+ 	spin_unlock_irq(&udc->ud.lock);
+ unlock:
+ 	spin_unlock_irqrestore(&udc->lock, flags);
++	mutex_unlock(&udc->ud.sysfs_lock);
+ 
+ 	return ret;
+ }
 
