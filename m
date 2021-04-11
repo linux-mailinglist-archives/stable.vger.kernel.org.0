@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C973C35B22D
-	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 09:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20CEB35B22E
+	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 09:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235084AbhDKHWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 03:22:12 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51967 "EHLO
+        id S235092AbhDKHWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 03:22:21 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41749 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229792AbhDKHWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 03:22:12 -0400
+        by vger.kernel.org with ESMTP id S235085AbhDKHWV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 03:22:21 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id A8FCE14F0;
-        Sun, 11 Apr 2021 03:21:56 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 11 Apr 2021 03:21:56 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id A9AFF14BF;
+        Sun, 11 Apr 2021 03:22:04 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 11 Apr 2021 03:22:04 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8hO+lT
-        U+EH+jQH+/7IiM1vP4rW5Mfirxd0HRBcjOLLw=; b=tsonJK0ouJv8vGclL9jBaX
-        I7Xgj9lf6ARHKJcUBGwfYsGyZr9As4x00bSMKt6sC7tvo1+NdieP3Hj4xtIS3cQA
-        lPLjHaCnHgExIIdbTXqXop4/cnRTGVt+dncttNMOGwWfrf4mNznMCBEL+sdvgLAF
-        dFxM07eBV0TeHVMHYsnlxAguz9iXyFI98ahFEsvwRKzZJcxpcO2lpuBTjhMa9wRL
-        ctRsTLCXOtLBv90K9d73VyubwSxhskRPjJZVl8I88IJkHSLqFIafNc7Zj51wKX2/
-        /HFDS7bvkSRlCcUAuvwSS2hAwG5MEQ9/mOboBQkR0ikb/2EQ5Ic9G0MvGvEytYKg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LzUy4H
+        cn7NqcOo4Cz8P6b+fs0zc0Y9JkS+BHL6wpiWY=; b=a439MA8suM6njtxG6RfzHA
+        qhx/yWUWpX8jVs5GX/EMtq65vjRiXlaBKnsSUiPbPTlCT+vQStu6rQL4/9iqnRj1
+        E/Uy7WolxnsvdIR720ILEXLCQ0TfHhhN3s9ENexRESXqnIYLYuV5PuG4RS/8FNa7
+        1d8PYbK71BcZQyjpzqheYTsxC42b6AJepRI4FNi8Qr0drYeM9cvfdsdzcoP0XrOi
+        GoEfia2/DtTRzNeOIKk/Pki/zRzpD7uR+o+U0sjIXOeLq+BBTDQX68eqQsCnYJ6h
+        payJnc3wuX1iU9ZICDk6Aoq42iEC9sDlXLCr4CaxTeb1K7cBYZXFsCOqFSYkqddQ
         ==
-X-ME-Sender: <xms:lKNyYFJ1vpD9a67DbpAtRnWN9NPu3SGFTNI9G-E1gW_2qrIn9OTzxA>
-    <xme:lKNyYBK8DUpTArwYnc2Q801Jp4-udH48kZCPkHcm_yS_eTASmOstavGQ935HjjNZo
-    9ACZspJU8tSrw>
+X-ME-Sender: <xms:nKNyYOf03-6SePdr4zXMJRsZAxGyN7EKJURJj37lenoxVUrwLw4u5A>
+    <xme:nKNyYIPsTEogp8JhG-NUh9XPdA4GEk_Y7KWy_GKUy59m0yIemP7tS_trF2Sy3WVzw
+    QBqZzmEhZTw1g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudekgedguddulecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepjeenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepkeenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:lKNyYNuXydKFpGVY6SDrO4SzUjTDsp-KHPtFo6VeZhoYiVHleol2og>
-    <xmx:lKNyYGbWCwvFD0MpomGD_uHzIOo-4_rKjvUwtY8RNZUj_67VCPy8YA>
-    <xmx:lKNyYMax9axZCrioh6qOoXQQPeCo61pdhy7PTh9_a5t0rjbqHiTNAQ>
-    <xmx:lKNyYFC1QYGQmFz41o_84DztJ6sicfMSFf5d-MtrUn_bRjzZcjnVz7BUe2Y>
+X-ME-Proxy: <xmx:nKNyYPi9YlkQGRUWyNKSYhilexyd7vZBuyM2JQqvhBntMZ_r6PCSxw>
+    <xmx:nKNyYL8eOzv4vpUL9sdDGWVO4e6yfjJU7cjeyh_utB1YRfP7gyJfbg>
+    <xmx:nKNyYKt1I4zC_ZZ-tu1ykhQqaeKP6fOpFUM8ueG1WClMNrIcPUzW5w>
+    <xmx:nKNyYA2i3H5-Gxc-uAGW6j4wgKU_p5Qe2OpIXWEjMWC-9RjbLvgMQzyU9Zs>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CDD7124005C;
-        Sun, 11 Apr 2021 03:21:55 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usbip: synchronize event handler with sysfs code paths" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id EE3FA1080054;
+        Sun, 11 Apr 2021 03:22:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usbip: synchronize event handler with sysfs code paths" failed to apply to 4.9-stable tree
 To:     skhan@linuxfoundation.org, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Apr 2021 09:21:53 +0200
-Message-ID: <1618125713122194@kroah.com>
+Date:   Sun, 11 Apr 2021 09:21:54 +0200
+Message-ID: <16181257144093@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
