@@ -2,314 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C6235B480
-	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 15:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D9835B505
+	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 15:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235588AbhDKNGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 09:06:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35898 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235569AbhDKNGp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 09:06:45 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22399C061574
-        for <stable@vger.kernel.org>; Sun, 11 Apr 2021 06:06:29 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id k23-20020a17090a5917b02901043e35ad4aso7264191pji.3
-        for <stable@vger.kernel.org>; Sun, 11 Apr 2021 06:06:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JIMU7afMT5Sgf8WDStM7lYyB3eDo6ayAOjp7UUkSllk=;
-        b=2MCyL6/VS8/Qj2xvHLgXWM+k1FsSNopfZODAdC0S3FEj3O6voRTkDjn5c+PUdchKJo
-         zOdtLXqPHIJvFr0Qs3jgL5HMeOlX6YB3+SbznqSZcB1Og3y31iy9dqVO1TKK5vyvaBUy
-         0NiOie8yIiAHhqWTCBveN2WElT5mgBWUJouSR7uB9wOoN8FtwfAgJtRV2DOzDBGkxmEa
-         QfNmXUkldWpXJsesF2vCatoyrlTnmOehP3nmgT69xX6/hjJZLlwfR/3uFC+pCl5qCuO/
-         f12yDz4SOhd6fS8TklI3AC4pmqT7dEUSxNFOp7/Kz6BU1SXgrC+RtxWO8Jey7IOHcQ8c
-         viTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JIMU7afMT5Sgf8WDStM7lYyB3eDo6ayAOjp7UUkSllk=;
-        b=Z41AjJagJWR6BoonAw+VuVwprEa8zg/jr62hIcCpIDR5ibnUnVBPzocBU1F4dtngfD
-         39ob2UhDt6wTesiDbJhbxLux0piInQh93JpZEewXmMHMFzUQg5Bv4QjwXWZDqTKLvvFs
-         o7aJYR4IMA7kyIvRGq7OEV4v7uGI0zo0EAV1zhoGppjT1TofBrseIRsI/FXettzfdZFg
-         EjkIAkxYb069Maa+cob6iTwd3NLCYmJ1KW5c2cljnOKireb6CZo7tTgxY6jM9J79Xvgz
-         JqEAsVNQ40aR8EPEIopMuQQaQAOHLfGPsTYaBtVMw2NUrt0yt1HmBDF2jumTnFq4IjWV
-         4eUg==
-X-Gm-Message-State: AOAM530HIV/lOlE5QpdAL4eqZxtbUgf5KPweWEsImgPAAKrOdSYSq6pv
-        SMeXengXgqPC5j+Ozzg7fb/ukgOJPgpJew==
-X-Google-Smtp-Source: ABdhPJyAPAj0wemFxFF70b/2Y27xVEoeVf7uyhu/+bfWfdA34GQ+Eh72WJczWBIh4se3/VmdgU6f4Q==
-X-Received: by 2002:a17:902:9008:b029:e6:f37a:2183 with SMTP id a8-20020a1709029008b02900e6f37a2183mr21818864plp.49.1618146388404;
-        Sun, 11 Apr 2021 06:06:28 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s6sm7292584pfw.96.2021.04.11.06.06.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Apr 2021 06:06:28 -0700 (PDT)
-Message-ID: <6072f454.1c69fb81.fbf4f.1f10@mx.google.com>
-Date:   Sun, 11 Apr 2021 06:06:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236014AbhDKNot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 09:44:49 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:33442 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235703AbhDKNoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 09:44:04 -0400
+Date:   Sun, 11 Apr 2021 13:43:26 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1618148607;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=AbjMR5nQt2xl9HTdQrva+oXNpxjvXqwzBpkvmqrS/Ic=;
+        b=CJh5Z1iT6+BRnz8cFvGIB8MSv7HZ22nZYFSOFaizDapUJv91hcQcHsYb1a45O2yameuI8N
+        qWKekB2r3PjegU+s1/54XFUjOF5C1T61dg7ztIuEpS2Xem4ooIFu7YJx0DbMdpaP8Nr1zv
+        2/Ikz8vVbsFvKOtE2llqdPHrHB7ykoP51IDIgozkMWQ41eFnRsXjRRNGsghkRnus81ObLF
+        fmyGGnXMyblBn7mPztJL5q+Y2lTDKBADfAr1PPeJVqzHlCSBTTxGkHy2p4wFSgSoYV2CIa
+        twrIdrvWI7YfA64O6xVSNMNsJOEo69y3U0iHz3BDpwCMpY2frwC04SUv5RSqgw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1618148607;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=AbjMR5nQt2xl9HTdQrva+oXNpxjvXqwzBpkvmqrS/Ic=;
+        b=tMhOI69MsumO27QwMgyz6GT/dDBflKN3c7ZLOw1OdJnOpV/xLFDNyQjdHnSV76t6uYSBdL
+        lLtgOiqbtXk3zSBA==
+From:   "tip-bot2 for Frederic Weisbecker" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: core/rcu] rcu/nocb: Fix missed nocb_timer requeue
+Cc:     <stable@vger.kernel.org>, Josh Triplett <josh@joshtriplett.org>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.230-21-g1eb27eb19a3d
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 baseline: 140 runs,
- 6 regressions (v4.14.230-21-g1eb27eb19a3d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <161814860637.29796.8196578350712510174.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 140 runs, 6 regressions (v4.14.230-21-g1eb27=
-eb19a3d)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.230-21-g1eb27eb19a3d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.230-21-g1eb27eb19a3d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1eb27eb19a3d4bc77cb9cd19af0f92d861c3b039 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6072c04b9139781112dac6e1
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6072c04b9139781=
-112dac6e8
-        failing since 0 day (last pass: v4.14.230-14-g6c412903bfb3c, first =
-fail: v4.14.230-17-gc57ce7bb4982e)
-        2 lines
-
-    2021-04-11 09:24:23.953000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/105
-    2021-04-11 09:24:23.962000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6072bdeb44b04ca6fedac6b7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6072bdeb44b04ca6fedac=
-6b8
-        failing since 148 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6072bdd9fe37b1a295dac6ce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6072bdd9fe37b1a295dac=
-6cf
-        failing since 148 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6072bde344b04ca6fedac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6072bde344b04ca6fedac=
-6b2
-        failing since 148 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6072bd93bd60f2a81fdac6b5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6072bd93bd60f2a81fdac=
-6b6
-        failing since 148 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6072bd9abd60f2a81fdac6be
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
--21-g1eb27eb19a3d/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6072bd9abd60f2a81fdac=
-6bf
-        failing since 148 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
+The following commit has been merged into the core/rcu branch of tip:
+
+Commit-ID:     b2fcf2102049f6e56981e0ab3d9b633b8e2741da
+Gitweb:        https://git.kernel.org/tip/b2fcf2102049f6e56981e0ab3d9b633b8e2741da
+Author:        Frederic Weisbecker <frederic@kernel.org>
+AuthorDate:    Tue, 23 Feb 2021 01:09:59 +01:00
+Committer:     Paul E. McKenney <paulmck@kernel.org>
+CommitterDate: Mon, 15 Mar 2021 13:54:54 -07:00
+
+rcu/nocb: Fix missed nocb_timer requeue
+
+This sequence of events can lead to a failure to requeue a CPU's
+->nocb_timer:
+
+1.	There are no callbacks queued for any CPU covered by CPU 0-2's
+	->nocb_gp_kthread.  Note that ->nocb_gp_kthread is associated
+	with CPU 0.
+
+2.	CPU 1 enqueues its first callback with interrupts disabled, and
+	thus must defer awakening its ->nocb_gp_kthread.  It therefore
+	queues its rcu_data structure's ->nocb_timer.  At this point,
+	CPU 1's rdp->nocb_defer_wakeup is RCU_NOCB_WAKE.
+
+3.	CPU 2, which shares the same ->nocb_gp_kthread, also enqueues a
+	callback, but with interrupts enabled, allowing it to directly
+	awaken the ->nocb_gp_kthread.
+
+4.	The newly awakened ->nocb_gp_kthread associates both CPU 1's
+	and CPU 2's callbacks with a future grace period and arranges
+	for that grace period to be started.
+
+5.	This ->nocb_gp_kthread goes to sleep waiting for the end of this
+	future grace period.
+
+6.	This grace period elapses before the CPU 1's timer fires.
+	This is normally improbably given that the timer is set for only
+	one jiffy, but timers can be delayed.  Besides, it is possible
+	that kernel was built with CONFIG_RCU_STRICT_GRACE_PERIOD=y.
+
+7.	The grace period ends, so rcu_gp_kthread awakens the
+	->nocb_gp_kthread, which in turn awakens both CPU 1's and
+	CPU 2's ->nocb_cb_kthread.  Then ->nocb_gb_kthread sleeps
+	waiting for more newly queued callbacks.
+
+8.	CPU 1's ->nocb_cb_kthread invokes its callback, then sleeps
+	waiting for more invocable callbacks.
+
+9.	Note that neither kthread updated any ->nocb_timer state,
+	so CPU 1's ->nocb_defer_wakeup is still set to RCU_NOCB_WAKE.
+
+10.	CPU 1 enqueues its second callback, this time with interrupts
+ 	enabled so it can wake directly	->nocb_gp_kthread.
+	It does so with calling wake_nocb_gp() which also cancels the
+	pending timer that got queued in step 2. But that doesn't reset
+	CPU 1's ->nocb_defer_wakeup which is still set to RCU_NOCB_WAKE.
+	So CPU 1's ->nocb_defer_wakeup and its ->nocb_timer are now
+	desynchronized.
+
+11.	->nocb_gp_kthread associates the callback queued in 10 with a new
+	grace period, arranges for that grace period to start and sleeps
+	waiting for it to complete.
+
+12.	The grace period ends, rcu_gp_kthread awakens ->nocb_gp_kthread,
+	which in turn wakes up CPU 1's ->nocb_cb_kthread which then
+	invokes the callback queued in 10.
+
+13.	CPU 1 enqueues its third callback, this time with interrupts
+	disabled so it must queue a timer for a deferred wakeup. However
+	the value of its ->nocb_defer_wakeup is RCU_NOCB_WAKE which
+	incorrectly indicates that a timer is already queued.  Instead,
+	CPU 1's ->nocb_timer was cancelled in 10.  CPU 1 therefore fails
+	to queue the ->nocb_timer.
+
+14.	CPU 1 has its pending callback and it may go unnoticed until
+	some other CPU ever wakes up ->nocb_gp_kthread or CPU 1 ever
+	calls an explicit deferred wakeup, for example, during idle entry.
+
+This commit fixes this bug by resetting rdp->nocb_defer_wakeup everytime
+we delete the ->nocb_timer.
+
+It is quite possible that there is a similar scenario involving
+->nocb_bypass_timer and ->nocb_defer_wakeup.  However, despite some
+effort from several people, a failure scenario has not yet been located.
+However, that by no means guarantees that no such scenario exists.
+Finding a failure scenario is left as an exercise for the reader, and the
+"Fixes:" tag below relates to ->nocb_bypass_timer instead of ->nocb_timer.
+
+Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
+Cc: <stable@vger.kernel.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Reviewed-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+---
+ kernel/rcu/tree_plugin.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index a1a17ad..e392bd1 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1708,7 +1708,11 @@ static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		return false;
+ 	}
+-	del_timer(&rdp->nocb_timer);
++
++	if (READ_ONCE(rdp->nocb_defer_wakeup) > RCU_NOCB_WAKE_NOT) {
++		WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
++		del_timer(&rdp->nocb_timer);
++	}
+ 	rcu_nocb_unlock_irqrestore(rdp, flags);
+ 	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
+ 	if (force || READ_ONCE(rdp_gp->nocb_gp_sleep)) {
+@@ -2335,7 +2339,6 @@ static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
+ 		return false;
+ 	}
+ 	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
+-	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
+ 	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
+ 	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
+ 
