@@ -2,133 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 187E435B185
-	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 06:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF7735B200
+	for <lists+stable@lfdr.de>; Sun, 11 Apr 2021 08:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232180AbhDKEZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 00:25:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36980 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbhDKEZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 00:25:44 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93862C06138B
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 21:25:28 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id d10so6808259pgf.12
-        for <stable@vger.kernel.org>; Sat, 10 Apr 2021 21:25:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=FVAPE4oQB4VErgCwfnnplU8uEjxELf2jWXXI0fxBzXk=;
-        b=lvDP4AEMv/OAwQBjtNfPA5UF63hGt7gbLv7HfJiylYqcjjYWt3Y/BN6WE4wyuFJR/m
-         gZiCXDg23LbY64CzlcRblis+RPiuMtv4yzV3Okar8HrI8v7x4Am0xFcErtBkfCsf+SLt
-         36A5csaZDHJ4nmfJ7LQMl0guB5fuNgxAn4h/fiDkNISMgtMgNDSC+FWzUOJ617AQXw/Y
-         WhZW0gCa7Vccjp8cdi0rgCP10rXFJ6VGTi6uxphZCkGpYG/b8fup93cnZ9fkSCk8Q9SR
-         6MlCNQhu5WW0eodaaJM7fyUixpwhKpu9NTnJA6+/2Yh9UXsR+tGtulLi4l55S9zGcLYV
-         2cvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=FVAPE4oQB4VErgCwfnnplU8uEjxELf2jWXXI0fxBzXk=;
-        b=KJ9TUQb5HcLPznvy7+UXZ9BVTI82VsGLVpYLFmwkpTHbKLld2TpACc7eg02dAEX8LL
-         g8UhsiV/r9zSIo0pObDY2YTzb9k8YqJ2SX5Gcs9nPi0kLadwumvonM1Rf6rcDFiYwMGi
-         vys3WdoGVXT9sapfW0r4SxJwHzx8nB2nGNTo9vlEEPTNSF60jwf9x4OJbnmB5sz7sMs7
-         HqLpLozovbOhxaHuWLtBJbnbr5HqlAs2VRspXmP6faENlX7NMYL+XLAOoWEpHUm1RaR0
-         7EK5d7U50drCLvJYAyGulWOBSvNQ7x3snYDf+IIL/WyqhMDype5/Y1ojPa/hsoQhYWc9
-         Hr8w==
-X-Gm-Message-State: AOAM531iPWee051uBWiSanBxql74F37SueBQVlPdT9uxjldVq7m1koM9
-        OP8zPoB5zUvqh6Grz0lOjd68//tH4sj3+Q==
-X-Google-Smtp-Source: ABdhPJzENnJFc+Au8abUYwtBB0MYl3jpF5AyUDnPaJOZO0eicMZpU/YOz1DEkFs8tTHQHpL76EBxTw==
-X-Received: by 2002:a63:1202:: with SMTP id h2mr20947023pgl.35.1618115127872;
-        Sat, 10 Apr 2021 21:25:27 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m7sm6241220pfd.52.2021.04.10.21.25.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Apr 2021 21:25:27 -0700 (PDT)
-Message-ID: <60727a37.1c69fb81.564bf.fd7e@mx.google.com>
-Date:   Sat, 10 Apr 2021 21:25:27 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S235229AbhDKG33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 02:29:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54494 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235277AbhDKG32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 02:29:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D78F611C9;
+        Sun, 11 Apr 2021 06:29:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618122552;
+        bh=YEa86afLveTkZ9mRfteJ4uQnBGpMSJTm7LtgDUvSql4=;
+        h=Subject:To:From:Date:From;
+        b=oVPPgLOAkSyv1+g/crFZXeSyTDlFHR5hFk+3ZeEGtFSKGuT8Bq61RwVkDGnnR7tLX
+         WiGpLKJvrYvn1guQ1bhPPh24HCOq93sMy+azkMbGTqEF8qxb7kx2g9koOv/arAUeAX
+         Yxp7gKJsxZnURmfJb2EQ2WAHGou0N8ZDMxWkLLUs=
+Subject: patch "fbdev: zero-fill colormap in fbcmap.c" added to char-misc-next
+To:     phil@philpotter.co.uk, geert+renesas@glider.be,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 11 Apr 2021 08:28:14 +0200
+Message-ID: <16181224949422@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.186-21-g4659135847508
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 107 runs,
- 1 regressions (v4.19.186-21-g4659135847508)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 107 runs, 1 regressions (v4.19.186-21-g46591=
-35847508)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+    fbdev: zero-fill colormap in fbcmap.c
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 19ab233989d0f7ab1de19a036e247afa4a0a1e9c Mon Sep 17 00:00:00 2001
+From: Phillip Potter <phil@philpotter.co.uk>
+Date: Wed, 31 Mar 2021 23:07:19 +0100
+Subject: fbdev: zero-fill colormap in fbcmap.c
+
+Use kzalloc() rather than kmalloc() for the dynamically allocated parts
+of the colormap in fb_alloc_cmap_gfp, to prevent a leak of random kernel
+data to userspace under certain circumstances.
+
+Fixes a KMSAN-found infoleak bug reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=741578659feabd108ad9e06696f0c1f2e69c4b6e
+
+Reported-by: syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210331220719.1499743-1-phil@philpotter.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+ drivers/video/fbdev/core/fbcmap.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/video/fbdev/core/fbcmap.c b/drivers/video/fbdev/core/fbcmap.c
+index 757d5c3f620b..ff09e57f3c38 100644
+--- a/drivers/video/fbdev/core/fbcmap.c
++++ b/drivers/video/fbdev/core/fbcmap.c
+@@ -101,17 +101,17 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cmap, int len, int transp, gfp_t flags)
+ 		if (!len)
+ 			return 0;
+ 
+-		cmap->red = kmalloc(size, flags);
++		cmap->red = kzalloc(size, flags);
+ 		if (!cmap->red)
+ 			goto fail;
+-		cmap->green = kmalloc(size, flags);
++		cmap->green = kzalloc(size, flags);
+ 		if (!cmap->green)
+ 			goto fail;
+-		cmap->blue = kmalloc(size, flags);
++		cmap->blue = kzalloc(size, flags);
+ 		if (!cmap->blue)
+ 			goto fail;
+ 		if (transp) {
+-			cmap->transp = kmalloc(size, flags);
++			cmap->transp = kzalloc(size, flags);
+ 			if (!cmap->transp)
+ 				goto fail;
+ 		} else {
+-- 
+2.31.1
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.186-21-g4659135847508/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.186-21-g4659135847508
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      46591358475080ee39090c2e99e15f6266092f74 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/60723ea990f1686006dac6db
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
--21-g4659135847508/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
--21-g4659135847508/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60723ea990f1686=
-006dac6e2
-        new failure (last pass: v4.19.185-18-gb9c63423ccf3)
-        2 lines
-
-    2021-04-11 00:11:16.620000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/104
-    2021-04-11 00:11:16.630000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
