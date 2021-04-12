@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7660435C0BB
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D41DF35C0B9
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241342AbhDLJPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33550 "EHLO mail.kernel.org"
+        id S241338AbhDLJPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240624AbhDLJKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240627AbhDLJKs (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:10:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 986FF6135A;
-        Mon, 12 Apr 2021 09:05:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39AF4613AF;
+        Mon, 12 Apr 2021 09:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218358;
-        bh=2vlpjWMa4k7gcKDJtUV+aw0btDtN/qb3dbfGmDMAHwI=;
+        s=korg; t=1618218360;
+        bh=c5efIGUejmMRLYAWFjjNFTQg8Ptw+yEBIp3TSAEn1t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+FljoUUJPnjOHBzwhdYZpGi4BtpVJtXfAT3fDsw5dHevp9+NkHrbIxcyAM1BbmTZ
-         6Uc1qzirHCVSbZnY0y1TNIUkTgEqHtT3JzVDIPozKZull/zaodSFOpgXol2RsBUBIC
-         el3yAeLtPj2oxyh7Op1w2ihULHkQ6s+ZO0GL1UCI=
+        b=bBA4cKGZKtR77aIb70CTX8TWKiduTJjeC0h4pivhwQIlMOCEsI6tPpP+8+faNHOgT
+         eNzuRmN0OQ8jP3P8QIP9HtjocH75IYC9XwVnq7IAWj1bqolXgN38tqZ4gNPYl2vieA
+         SVzSEFOPi2KMQVM/3UrdN6mj8bWQSv3yjHVst9pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 132/210] net: dsa: Fix type was not set for devlink port
-Date:   Mon, 12 Apr 2021 10:40:37 +0200
-Message-Id: <20210412084020.412190253@linuxfoundation.org>
+Subject: [PATCH 5.11 133/210] clk: qcom: camcc: Update the clock ops for the SC7180
+Date:   Mon, 12 Apr 2021 10:40:38 +0200
+Message-Id: <20210412084020.443228377@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,50 +40,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kochetkov <fido_max@inbox.ru>
+From: Taniya Das <tdas@codeaurora.org>
 
-[ Upstream commit fb6ec87f7229b92baa81b35cbc76f2626d5bfadb ]
+[ Upstream commit e5c359f70e4b5e7b6c2bf4b0ca2d2686d543a37b ]
 
-If PHY is not available on DSA port (described at devicetree but absent or
-failed to detect) then kernel prints warning after 3700 secs:
+Some of the RCGs could be always ON from the XO source and could be used
+as the clock on signal for the GDSC to be operational. In the cases where
+the GDSCs are parked at different source with the source clock disabled,
+it could lead to the GDSC to be stuck at ON/OFF during gdsc disable/enable.
+Thus park the RCGs at XO during clock disable and update the rcg_ops to
+use the shared_ops.
 
-[ 3707.948771] ------------[ cut here ]------------
-[ 3707.948784] Type was not set for devlink port.
-[ 3707.948894] WARNING: CPU: 1 PID: 17 at net/core/devlink.c:8097 0xc083f9d8
-
-We should unregister the devlink port as a user port and
-re-register it as an unused port before executing "continue" in case of
-dsa_port_setup error.
-
-Fixes: 86f8b1c01a0a ("net: dsa: Do not make user port errors fatal")
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 15d09e830bbc ("clk: qcom: camcc: Add camera clock controller driver for SC7180")
+Signed-off-by: Taniya Das <tdas@codeaurora.org>
+Link: https://lore.kernel.org/r/1616809265-11912-1-git-send-email-tdas@codeaurora.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/dsa2.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/clk/qcom/camcc-sc7180.c | 50 ++++++++++++++++-----------------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
 
-diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
-index a04fd637b4cd..3ada338d7e08 100644
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -533,8 +533,14 @@ static int dsa_tree_setup_switches(struct dsa_switch_tree *dst)
+diff --git a/drivers/clk/qcom/camcc-sc7180.c b/drivers/clk/qcom/camcc-sc7180.c
+index dbac5651ab85..9bcf2f8ed4de 100644
+--- a/drivers/clk/qcom/camcc-sc7180.c
++++ b/drivers/clk/qcom/camcc-sc7180.c
+@@ -304,7 +304,7 @@ static struct clk_rcg2 cam_cc_bps_clk_src = {
+ 		.name = "cam_cc_bps_clk_src",
+ 		.parent_data = cam_cc_parent_data_2,
+ 		.num_parents = 5,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
  
- 	list_for_each_entry(dp, &dst->ports, list) {
- 		err = dsa_port_setup(dp);
--		if (err)
-+		if (err) {
-+			dsa_port_devlink_teardown(dp);
-+			dp->type = DSA_PORT_TYPE_UNUSED;
-+			err = dsa_port_devlink_setup(dp);
-+			if (err)
-+				goto teardown;
- 			continue;
-+		}
- 	}
+@@ -325,7 +325,7 @@ static struct clk_rcg2 cam_cc_cci_0_clk_src = {
+ 		.name = "cam_cc_cci_0_clk_src",
+ 		.parent_data = cam_cc_parent_data_5,
+ 		.num_parents = 3,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
  
- 	return 0;
+@@ -339,7 +339,7 @@ static struct clk_rcg2 cam_cc_cci_1_clk_src = {
+ 		.name = "cam_cc_cci_1_clk_src",
+ 		.parent_data = cam_cc_parent_data_5,
+ 		.num_parents = 3,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -360,7 +360,7 @@ static struct clk_rcg2 cam_cc_cphy_rx_clk_src = {
+ 		.name = "cam_cc_cphy_rx_clk_src",
+ 		.parent_data = cam_cc_parent_data_3,
+ 		.num_parents = 6,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -379,7 +379,7 @@ static struct clk_rcg2 cam_cc_csi0phytimer_clk_src = {
+ 		.name = "cam_cc_csi0phytimer_clk_src",
+ 		.parent_data = cam_cc_parent_data_0,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -393,7 +393,7 @@ static struct clk_rcg2 cam_cc_csi1phytimer_clk_src = {
+ 		.name = "cam_cc_csi1phytimer_clk_src",
+ 		.parent_data = cam_cc_parent_data_0,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -407,7 +407,7 @@ static struct clk_rcg2 cam_cc_csi2phytimer_clk_src = {
+ 		.name = "cam_cc_csi2phytimer_clk_src",
+ 		.parent_data = cam_cc_parent_data_0,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -421,7 +421,7 @@ static struct clk_rcg2 cam_cc_csi3phytimer_clk_src = {
+ 		.name = "cam_cc_csi3phytimer_clk_src",
+ 		.parent_data = cam_cc_parent_data_0,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -443,7 +443,7 @@ static struct clk_rcg2 cam_cc_fast_ahb_clk_src = {
+ 		.name = "cam_cc_fast_ahb_clk_src",
+ 		.parent_data = cam_cc_parent_data_0,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -466,7 +466,7 @@ static struct clk_rcg2 cam_cc_icp_clk_src = {
+ 		.name = "cam_cc_icp_clk_src",
+ 		.parent_data = cam_cc_parent_data_2,
+ 		.num_parents = 5,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -488,7 +488,7 @@ static struct clk_rcg2 cam_cc_ife_0_clk_src = {
+ 		.name = "cam_cc_ife_0_clk_src",
+ 		.parent_data = cam_cc_parent_data_4,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -510,7 +510,7 @@ static struct clk_rcg2 cam_cc_ife_0_csid_clk_src = {
+ 		.name = "cam_cc_ife_0_csid_clk_src",
+ 		.parent_data = cam_cc_parent_data_3,
+ 		.num_parents = 6,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -524,7 +524,7 @@ static struct clk_rcg2 cam_cc_ife_1_clk_src = {
+ 		.name = "cam_cc_ife_1_clk_src",
+ 		.parent_data = cam_cc_parent_data_4,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -538,7 +538,7 @@ static struct clk_rcg2 cam_cc_ife_1_csid_clk_src = {
+ 		.name = "cam_cc_ife_1_csid_clk_src",
+ 		.parent_data = cam_cc_parent_data_3,
+ 		.num_parents = 6,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -553,7 +553,7 @@ static struct clk_rcg2 cam_cc_ife_lite_clk_src = {
+ 		.parent_data = cam_cc_parent_data_4,
+ 		.num_parents = 4,
+ 		.flags = CLK_SET_RATE_PARENT,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -567,7 +567,7 @@ static struct clk_rcg2 cam_cc_ife_lite_csid_clk_src = {
+ 		.name = "cam_cc_ife_lite_csid_clk_src",
+ 		.parent_data = cam_cc_parent_data_3,
+ 		.num_parents = 6,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -590,7 +590,7 @@ static struct clk_rcg2 cam_cc_ipe_0_clk_src = {
+ 		.name = "cam_cc_ipe_0_clk_src",
+ 		.parent_data = cam_cc_parent_data_2,
+ 		.num_parents = 5,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -613,7 +613,7 @@ static struct clk_rcg2 cam_cc_jpeg_clk_src = {
+ 		.name = "cam_cc_jpeg_clk_src",
+ 		.parent_data = cam_cc_parent_data_2,
+ 		.num_parents = 5,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -635,7 +635,7 @@ static struct clk_rcg2 cam_cc_lrme_clk_src = {
+ 		.name = "cam_cc_lrme_clk_src",
+ 		.parent_data = cam_cc_parent_data_6,
+ 		.num_parents = 5,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -656,7 +656,7 @@ static struct clk_rcg2 cam_cc_mclk0_clk_src = {
+ 		.name = "cam_cc_mclk0_clk_src",
+ 		.parent_data = cam_cc_parent_data_1,
+ 		.num_parents = 3,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -670,7 +670,7 @@ static struct clk_rcg2 cam_cc_mclk1_clk_src = {
+ 		.name = "cam_cc_mclk1_clk_src",
+ 		.parent_data = cam_cc_parent_data_1,
+ 		.num_parents = 3,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -684,7 +684,7 @@ static struct clk_rcg2 cam_cc_mclk2_clk_src = {
+ 		.name = "cam_cc_mclk2_clk_src",
+ 		.parent_data = cam_cc_parent_data_1,
+ 		.num_parents = 3,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -698,7 +698,7 @@ static struct clk_rcg2 cam_cc_mclk3_clk_src = {
+ 		.name = "cam_cc_mclk3_clk_src",
+ 		.parent_data = cam_cc_parent_data_1,
+ 		.num_parents = 3,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -712,7 +712,7 @@ static struct clk_rcg2 cam_cc_mclk4_clk_src = {
+ 		.name = "cam_cc_mclk4_clk_src",
+ 		.parent_data = cam_cc_parent_data_1,
+ 		.num_parents = 3,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
+@@ -732,7 +732,7 @@ static struct clk_rcg2 cam_cc_slow_ahb_clk_src = {
+ 		.parent_data = cam_cc_parent_data_0,
+ 		.num_parents = 4,
+ 		.flags = CLK_SET_RATE_PARENT | CLK_OPS_PARENT_ENABLE,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_shared_ops,
+ 	},
+ };
+ 
 -- 
 2.30.2
 
