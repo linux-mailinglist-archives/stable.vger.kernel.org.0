@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B5235BCF9
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2DE935BE14
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237952AbhDLIqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:46:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38378 "EHLO mail.kernel.org"
+        id S238690AbhDLI4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237761AbhDLIp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:45:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22B986124A;
-        Mon, 12 Apr 2021 08:45:35 +0000 (UTC)
+        id S238840AbhDLIy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:54:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7759161369;
+        Mon, 12 Apr 2021 08:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217136;
-        bh=hgbYQ5L79uypRxxIO2S3Vn64L3Vc1hz9tY8Q2ZyH1nA=;
+        s=korg; t=1618217591;
+        bh=QV23nfLcDyAHvWzHcAueEE3r3+Nf6a3TBnLb/GZZRiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzEAvLpGn+GAEuk335ouB6eaUwn3BbDzJHQ4N0FoG5rbl6C9rFuIIXjcVawmk+MTh
-         mgNLQxSBNbIWN7fm3g8DHNeCpCD7LbgyFmjtHY0kmhpxJ710Xdd1UgpLxpSkXFXR1d
-         P+e+LFQI+U9d4r2RKxAgxknybv6LnSH/WTdt+KNc=
+        b=nSmznqV2RqJmfMjzy4lKqlvRK+y2y6x/1++9SGUlmkueZz+GmXfDDxfKD2XKOXkSj
+         +v0ZQKAZLL9JQ/x/nHePQ1p2gumQAA2ZSYJZIMAga1iO7ibIXCf4Ma43Z7mKYB6QOM
+         7jvU4Opuwhda6jBIL+VRexCIv9lCtPe8RUdfeYHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Xiaoming Ni <nixiaoming@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 008/111] nfc: Avoid endless loops caused by repeated llcp_sock_connect()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.10 072/188] thunderbolt: Fix off by one in tb_port_find_retimer()
 Date:   Mon, 12 Apr 2021 10:39:46 +0200
-Message-Id: <20210412084004.490597026@linuxfoundation.org>
+Message-Id: <20210412084016.048474042@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 4b5db93e7f2afbdfe3b78e37879a85290187e6f1 upstream.
+commit 08fe7ae1857080f5075df5ac7fef2ecd4e289117 upstream.
 
-When sock_wait_state() returns -EINPROGRESS, "sk->sk_state" is
- LLCP_CONNECTING. In this case, llcp_sock_connect() is repeatedly invoked,
- nfc_llcp_sock_link() will add sk to local->connecting_sockets twice.
- sk->sk_node->next will point to itself, that will make an endless loop
- and hang-up the system.
-To fix it, check whether sk->sk_state is LLCP_CONNECTING in
- llcp_sock_connect() to avoid repeated invoking.
+This array uses 1-based indexing so it corrupts memory one element
+beyond of the array.  Fix it by making the array one element larger.
 
-Fixes: b4011239a08e ("NFC: llcp: Fix non blocking sockets connections")
-Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Link: https://www.openwall.com/lists/oss-security/2020/11/01/1
-Cc: <stable@vger.kernel.org> #v3.11
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: dacb12877d92 ("thunderbolt: Add support for on-board retimers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/thunderbolt/retimer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -673,6 +673,10 @@ static int llcp_sock_connect(struct sock
- 		ret = -EISCONN;
- 		goto error;
- 	}
-+	if (sk->sk_state == LLCP_CONNECTING) {
-+		ret = -EINPROGRESS;
-+		goto error;
-+	}
+--- a/drivers/thunderbolt/retimer.c
++++ b/drivers/thunderbolt/retimer.c
+@@ -406,7 +406,7 @@ static struct tb_retimer *tb_port_find_r
+  */
+ int tb_retimer_scan(struct tb_port *port)
+ {
+-	u32 status[TB_MAX_RETIMER_INDEX] = {};
++	u32 status[TB_MAX_RETIMER_INDEX + 1] = {};
+ 	int ret, i, last_idx = 0;
  
- 	dev = nfc_get_device(addr->dev_idx);
- 	if (dev == NULL) {
+ 	if (!port->cap_usb4)
 
 
