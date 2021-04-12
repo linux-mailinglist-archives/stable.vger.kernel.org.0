@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ACEE35BDDC
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E147A35BDDB
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239118AbhDLIzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:55:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44272 "EHLO mail.kernel.org"
+        id S237676AbhDLIzs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:55:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238466AbhDLIwL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238471AbhDLIwL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 04:52:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECF9D611F0;
-        Mon, 12 Apr 2021 08:51:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A455561221;
+        Mon, 12 Apr 2021 08:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217476;
-        bh=Pssl+L1Ni8KwTl834n12ZJfzUk4qjK5DT37VcSCaQfE=;
+        s=korg; t=1618217479;
+        bh=D/HvxFYjZJ/ANAhaqPehwJ3N5Iqsp0HOSQFW644kqmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqMw/RgpqfkvtSYI7ZeKNNkkpTVh4GfQo9q8egKBT5j2DJfl8zV7/s5JbQgah8oP/
-         F7FIds0UlXwvdXBP9UCZfYXhJXXuy/KHIHQW6mFyIcokXZGWFvufyjN+Wy78j/JZ8S
-         fQsRPxqALypXO3GJeSO6mBKn9Vc6r8bHsMsUAE6U=
+        b=dOvcHI6uV1aQT7jnrOXMSoY4XQ5UJ3KBL6m/B3nd2xdXbCQ3xb/eTcMtQ8Yt7LtTF
+         CP4aBbNl5Lomrdlf5YyTgv5pdSs8BERTmoGZSmvmd9Gq/wc7Pgyu1wrLdKSe6jxCxu
+         0dgT/SVnQr0Wtt02PAVccBkEZn6LShoZ53ViCYtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
-        Helge Deller <deller@gmx.de>, Gao Xiang <hsiangkao@redhat.com>
-Subject: [PATCH 5.10 030/188] parisc: avoid a warning on u8 cast for cmpxchg on u8 pointers
-Date:   Mon, 12 Apr 2021 10:39:04 +0200
-Message-Id: <20210412084014.656272073@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>
+Subject: [PATCH 5.10 031/188] ARM: dts: turris-omnia: configure LED[2]/INTn pin as interrupt pin
+Date:   Mon, 12 Apr 2021 10:39:05 +0200
+Message-Id: <20210412084014.686141907@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -39,41 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit 4d752e5af63753ab5140fc282929b98eaa4bd12e upstream.
+commit a26c56ae67fa9fbb45a8a232dcd7ebaa7af16086 upstream.
 
-commit b344d6a83d01 ("parisc: add support for cmpxchg on u8 pointers")
-can generate a sparse warning ("cast truncates bits from constant
-value"), which has been reported several times [1] [2] [3].
+Use the `marvell,reg-init` DT property to configure the LED[2]/INTn pin
+of the Marvell 88E1514 ethernet PHY on Turris Omnia into interrupt mode.
 
-The original code worked as expected, but anyway, let silence such
-sparse warning as what others did [4].
+Without this the pin is by default in LED[2] mode, and the Marvell PHY
+driver configures LED[2] into "On - Link, Blink - Activity" mode.
 
-[1] https://lore.kernel.org/r/202104061220.nRMBwCXw-lkp@intel.com
-[2] https://lore.kernel.org/r/202012291914.T5Agcn99-lkp@intel.com
-[3] https://lore.kernel.org/r/202008210829.KVwn7Xeh%25lkp@intel.com
-[4] https://lore.kernel.org/r/20210315131512.133720-2-jacopo+renesas@jmondi.org
-Cc: Liam Beguin <liambeguin@gmail.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+This fixes the issue where the pca9538 GPIO/interrupt controller (which
+can't mask interrupts in HW) received too many interrupts and after a
+time started ignoring the interrupt with error message:
+  IRQ 71: nobody cared
+
+There is a work in progress to have the Marvell PHY driver support
+parsing PHY LED nodes from OF and registering the LEDs as Linux LED
+class devices. Once this is done the PHY driver can also automatically
+set the pin into INTn mode if it does not find LED[2] in OF.
+
+Until then, though, we fix this via `marvell,reg-init` DT property.
+
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Cc: Uwe Kleine-König <uwe@kleine-koenig.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/cmpxchg.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/parisc/include/asm/cmpxchg.h
-+++ b/arch/parisc/include/asm/cmpxchg.h
-@@ -72,7 +72,7 @@ __cmpxchg(volatile void *ptr, unsigned l
- #endif
- 	case 4: return __cmpxchg_u32((unsigned int *)ptr,
- 				     (unsigned int)old, (unsigned int)new_);
--	case 1: return __cmpxchg_u8((u8 *)ptr, (u8)old, (u8)new_);
-+	case 1: return __cmpxchg_u8((u8 *)ptr, old & 0xff, new_ & 0xff);
- 	}
- 	__cmpxchg_called_with_bad_pointer();
- 	return old;
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -236,6 +236,7 @@
+ 		status = "okay";
+ 		compatible = "ethernet-phy-id0141.0DD1", "ethernet-phy-ieee802.3-c22";
+ 		reg = <1>;
++		marvell,reg-init = <3 18 0 0x4985>;
+ 
+ 		/* irq is connected to &pcawan pin 7 */
+ 	};
 
 
