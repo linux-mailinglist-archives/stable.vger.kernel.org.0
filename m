@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80CCA35BD64
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65EE135BC7C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237832AbhDLIvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38250 "EHLO mail.kernel.org"
+        id S237467AbhDLInP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:43:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238030AbhDLItE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D460D61286;
-        Mon, 12 Apr 2021 08:47:59 +0000 (UTC)
+        id S237468AbhDLInM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:43:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BC9661221;
+        Mon, 12 Apr 2021 08:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217280;
-        bh=9g/bVRJ1aoldgEKD3LoXYipmQ7cfIU+mi+YDdBADxgk=;
+        s=korg; t=1618216975;
+        bh=twMd/l9+ZVWVrcqpegwIwDOMGGwqXLZm1YSBLe5KDio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYqRbk1ZymRhOqa2deqYyxgONKlCb9vu+7sg7ilMFzdHJD2ApTvSXAoUXryb4MySX
-         9PMJog+rrfSZA+nxI/gIG2w0Pv7RR75Bz5WWqr0QYLwx2UWp/YKOYtLPLUT/Vco0uY
-         BxMRXkAjaMty5/G8aAj3yoapfYlM8cSCh8rEPWzA=
+        b=17K4BTUjWIUDF7BQ2wMbSPUYu2bAMilUCa25cRutLVVdzlhfrZJS7wd2BXNFiGRlA
+         16Ud2TqCI6OIKqQdXHNg83O3FQGSNh//ceVct4/3gS/j38OGLkkf5l6RbrwXTHDt7E
+         g/QjoDrGBH2aCMT1VgS5VD0dRRMEB/7dz9kMcxIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/111] ASoC: wm8960: Fix wrong bclk and lrclk with pll enabled for some chips
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 23/66] usbip: stub-dev synchronize sysfs code paths
 Date:   Mon, 12 Apr 2021 10:40:29 +0200
-Message-Id: <20210412084005.963420648@linuxfoundation.org>
+Message-Id: <20210412083958.877015954@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 16b82e75c15a7dbd564ea3654f3feb61df9e1e6f ]
+commit 9dbf34a834563dada91366c2ac266f32ff34641a upstream.
 
-The input MCLK is 12.288MHz, the desired output sysclk is 11.2896MHz
-and sample rate is 44100Hz, with the configuration pllprescale=2,
-postscale=sysclkdiv=1, some chip may have wrong bclk
-and lrclk output with pll enabled in master mode, but with the
-configuration pllprescale=1, postscale=2, the output clock is correct.
+Fuzzing uncovered race condition between sysfs code paths in usbip
+drivers. Device connect/disconnect code paths initiated through
+sysfs interface are prone to races if disconnect happens during
+connect and vice versa.
 
->From Datasheet, the PLL performs best when f2 is between
-90MHz and 100MHz when the desired sysclk output is 11.2896MHz
-or 12.288MHz, so sysclkdiv = 2 (f2/8) is the best choice.
+Use sysfs_lock to protect sysfs paths in stub-dev.
 
-So search available sysclk_divs from 2 to 1 other than from 1 to 2.
-
-Fixes: 84fdc00d519f ("ASoC: codec: wm9860: Refactor PLL out freq search")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/1616150926-22892-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/2b182f3561b4a065bf3bf6dce3b0e9944ba17b3f.1616807117.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm8960.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/usb/usbip/stub_dev.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
-index 6cf0f6612bda..708fc4ed54ed 100644
---- a/sound/soc/codecs/wm8960.c
-+++ b/sound/soc/codecs/wm8960.c
-@@ -707,7 +707,13 @@ int wm8960_configure_pll(struct snd_soc_component *component, int freq_in,
- 	best_freq_out = -EINVAL;
- 	*sysclk_idx = *dac_idx = *bclk_idx = -1;
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -63,6 +63,7 @@ static ssize_t usbip_sockfd_store(struct
  
--	for (i = 0; i < ARRAY_SIZE(sysclk_divs); ++i) {
-+	/*
-+	 * From Datasheet, the PLL performs best when f2 is between
-+	 * 90MHz and 100MHz, the desired sysclk output is 11.2896MHz
-+	 * or 12.288MHz, then sysclkdiv = 2 is the best choice.
-+	 * So search sysclk_divs from 2 to 1 other than from 1 to 2.
-+	 */
-+	for (i = ARRAY_SIZE(sysclk_divs) - 1; i >= 0; --i) {
- 		if (sysclk_divs[i] == -1)
- 			continue;
- 		for (j = 0; j < ARRAY_SIZE(dac_divs); ++j) {
--- 
-2.30.2
-
+ 		dev_info(dev, "stub up\n");
+ 
++		mutex_lock(&sdev->ud.sysfs_lock);
+ 		spin_lock_irq(&sdev->ud.lock);
+ 
+ 		if (sdev->ud.status != SDEV_ST_AVAILABLE) {
+@@ -87,13 +88,13 @@ static ssize_t usbip_sockfd_store(struct
+ 		tcp_rx = kthread_create(stub_rx_loop, &sdev->ud, "stub_rx");
+ 		if (IS_ERR(tcp_rx)) {
+ 			sockfd_put(socket);
+-			return -EINVAL;
++			goto unlock_mutex;
+ 		}
+ 		tcp_tx = kthread_create(stub_tx_loop, &sdev->ud, "stub_tx");
+ 		if (IS_ERR(tcp_tx)) {
+ 			kthread_stop(tcp_rx);
+ 			sockfd_put(socket);
+-			return -EINVAL;
++			goto unlock_mutex;
+ 		}
+ 
+ 		/* get task structs now */
+@@ -112,6 +113,8 @@ static ssize_t usbip_sockfd_store(struct
+ 		wake_up_process(sdev->ud.tcp_rx);
+ 		wake_up_process(sdev->ud.tcp_tx);
+ 
++		mutex_unlock(&sdev->ud.sysfs_lock);
++
+ 	} else {
+ 		dev_info(dev, "stub down\n");
+ 
+@@ -122,6 +125,7 @@ static ssize_t usbip_sockfd_store(struct
+ 		spin_unlock_irq(&sdev->ud.lock);
+ 
+ 		usbip_event_add(&sdev->ud, SDEV_EVENT_DOWN);
++		mutex_unlock(&sdev->ud.sysfs_lock);
+ 	}
+ 
+ 	return count;
+@@ -130,6 +134,8 @@ sock_err:
+ 	sockfd_put(socket);
+ err:
+ 	spin_unlock_irq(&sdev->ud.lock);
++unlock_mutex:
++	mutex_unlock(&sdev->ud.sysfs_lock);
+ 	return -EINVAL;
+ }
+ static DEVICE_ATTR_WO(usbip_sockfd);
+@@ -295,6 +301,7 @@ static struct stub_device *stub_device_a
+ 	sdev->ud.side		= USBIP_STUB;
+ 	sdev->ud.status		= SDEV_ST_AVAILABLE;
+ 	spin_lock_init(&sdev->ud.lock);
++	mutex_init(&sdev->ud.sysfs_lock);
+ 	sdev->ud.tcp_socket	= NULL;
+ 	sdev->ud.sockfd		= -1;
+ 
 
 
