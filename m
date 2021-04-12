@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C6F35C071
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7C2935BEE7
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238797AbhDLJNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
+        id S239018AbhDLJCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240400AbhDLJKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BA1E611F0;
-        Mon, 12 Apr 2021 09:05:17 +0000 (UTC)
+        id S239219AbhDLI7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:59:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1310661279;
+        Mon, 12 Apr 2021 08:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218318;
-        bh=+511sdl679dmSqu6F2ut2LeBb5S4TxJUt0JO6lFb2DI=;
+        s=korg; t=1618217875;
+        bh=bzVuBvH+GsH8uCOPRG66Fn+aAgAUrd5smUzl+9BbwAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h109fqdA2WvTak6icTsoMUy4rZA8xAAi26o0DyXfs8AwTNEQ/uT+HZZKEX50y8Y4l
-         kWQavlFoycWNUI8c1Fd3zlNCFBICprnzd09cPqMbm15fDN74zJtJZx8jV7FarRpVQS
-         0tN3uDbfVW23mRPnU5hJYJM0IM5v33miScR0k5/g=
+        b=mZKawlWwW0Gbdx1Bv0z4uu2GL+k/3SH5oR0wb0qoaVbC6nY9oN+BVuhvYxY31t1ll
+         xs7jT/d7RWBt4SvukyJuS2gAQoX8IGw+n25Xgf+W0WgRSqg50r3rA/n/HX6XCzXGgC
+         +rlosfWkchjBpzFqtEBuhR0nBUS+AnQlseAl8kuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 152/210] i40e: Fix display statistics for veb_tc
+Subject: [PATCH 5.10 143/188] scsi: ufs: core: Fix wrong Task Tag used in task management request UPIUs
 Date:   Mon, 12 Apr 2021 10:40:57 +0200
-Message-Id: <20210412084021.053375427@linuxfoundation.org>
+Message-Id: <20210412084018.384209122@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,112 +41,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit c3214de929dbf1b7374add8bbed30ce82b197bbb ]
+[ Upstream commit 4b42d557a8add52b9a9924fb31e40a218aab7801 ]
 
-If veb-stats was enabled, the ethtool stats triggered a warning
-due to invalid size: 'unexpected stat size for veb.tc_%u_tx_packets'.
-This was due to an incorrect structure definition for the statistics.
-Structures and functions have been improved in line with requirements
-for the presentation of statistics, in particular for the functions:
-'i40e_add_ethtool_stats' and 'i40e_add_stat_strings'.
+In __ufshcd_issue_tm_cmd(), it is not correct to use hba->nutrs + req->tag
+as the Task Tag in a TMR UPIU. Directly use req->tag as the Task Tag.
 
-Fixes: 1510ae0be2a4 ("i40e: convert VEB TC stats to use an i40e_stats array")
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: e293313262d3 ("scsi: ufs: Fix broken task management command implementation")
+Link: https://lore.kernel.org/r/1617262750-4864-3-git-send-email-cang@codeaurora.org
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 52 ++++++++++++++++---
- 1 file changed, 46 insertions(+), 6 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index a92fac6f1389..849e38be69ff 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -232,6 +232,8 @@ static void __i40e_add_stat_strings(u8 **p, const struct i40e_stats stats[],
- 	I40E_STAT(struct i40e_vsi, _name, _stat)
- #define I40E_VEB_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_veb, _name, _stat)
-+#define I40E_VEB_TC_STAT(_name, _stat) \
-+	I40E_STAT(struct i40e_cp_veb_tc_stats, _name, _stat)
- #define I40E_PFC_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_pfc_stats, _name, _stat)
- #define I40E_QUEUE_STAT(_name, _stat) \
-@@ -266,11 +268,18 @@ static const struct i40e_stats i40e_gstrings_veb_stats[] = {
- 	I40E_VEB_STAT("veb.rx_unknown_protocol", stats.rx_unknown_protocol),
- };
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 7e1168ee2474..4215d9a8e5de 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6256,38 +6256,34 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
+ 	DECLARE_COMPLETION_ONSTACK(wait);
+ 	struct request *req;
+ 	unsigned long flags;
+-	int free_slot, task_tag, err;
++	int task_tag, err;
  
-+struct i40e_cp_veb_tc_stats {
-+	u64 tc_rx_packets;
-+	u64 tc_rx_bytes;
-+	u64 tc_tx_packets;
-+	u64 tc_tx_bytes;
-+};
-+
- static const struct i40e_stats i40e_gstrings_veb_tc_stats[] = {
--	I40E_VEB_STAT("veb.tc_%u_tx_packets", tc_stats.tc_tx_packets),
--	I40E_VEB_STAT("veb.tc_%u_tx_bytes", tc_stats.tc_tx_bytes),
--	I40E_VEB_STAT("veb.tc_%u_rx_packets", tc_stats.tc_rx_packets),
--	I40E_VEB_STAT("veb.tc_%u_rx_bytes", tc_stats.tc_rx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_packets", tc_tx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_bytes", tc_tx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_packets", tc_rx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_bytes", tc_rx_bytes),
- };
+ 	/*
+-	 * Get free slot, sleep if slots are unavailable.
+-	 * Even though we use wait_event() which sleeps indefinitely,
+-	 * the maximum wait time is bounded by %TM_CMD_TIMEOUT.
++	 * blk_get_request() is used here only to get a free tag.
+ 	 */
+ 	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
  
- static const struct i40e_stats i40e_gstrings_misc_stats[] = {
-@@ -2217,6 +2226,29 @@ static int i40e_get_sset_count(struct net_device *netdev, int sset)
+ 	req->end_io_data = &wait;
+-	free_slot = req->tag;
+-	WARN_ON_ONCE(free_slot < 0 || free_slot >= hba->nutmrs);
+ 	ufshcd_hold(hba, false);
+ 
+ 	spin_lock_irqsave(host->host_lock, flags);
+-	task_tag = hba->nutrs + free_slot;
+ 	blk_mq_start_request(req);
+ 
++	task_tag = req->tag;
+ 	treq->req_header.dword_0 |= cpu_to_be32(task_tag);
+ 
+-	memcpy(hba->utmrdl_base_addr + free_slot, treq, sizeof(*treq));
+-	ufshcd_vops_setup_task_mgmt(hba, free_slot, tm_function);
++	memcpy(hba->utmrdl_base_addr + task_tag, treq, sizeof(*treq));
++	ufshcd_vops_setup_task_mgmt(hba, task_tag, tm_function);
+ 
+ 	/* send command to the controller */
+-	__set_bit(free_slot, &hba->outstanding_tasks);
++	__set_bit(task_tag, &hba->outstanding_tasks);
+ 
+ 	/* Make sure descriptors are ready before ringing the task doorbell */
+ 	wmb();
+ 
+-	ufshcd_writel(hba, 1 << free_slot, REG_UTP_TASK_REQ_DOOR_BELL);
++	ufshcd_writel(hba, 1 << task_tag, REG_UTP_TASK_REQ_DOOR_BELL);
+ 	/* Make sure that doorbell is committed immediately */
+ 	wmb();
+ 
+@@ -6307,24 +6303,24 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
+ 		ufshcd_add_tm_upiu_trace(hba, task_tag, "tm_complete_err");
+ 		dev_err(hba->dev, "%s: task management cmd 0x%.2x timed-out\n",
+ 				__func__, tm_function);
+-		if (ufshcd_clear_tm_cmd(hba, free_slot))
+-			dev_WARN(hba->dev, "%s: unable clear tm cmd (slot %d) after timeout\n",
+-					__func__, free_slot);
++		if (ufshcd_clear_tm_cmd(hba, task_tag))
++			dev_WARN(hba->dev, "%s: unable to clear tm cmd (slot %d) after timeout\n",
++					__func__, task_tag);
+ 		err = -ETIMEDOUT;
+ 	} else {
+ 		err = 0;
+-		memcpy(treq, hba->utmrdl_base_addr + free_slot, sizeof(*treq));
++		memcpy(treq, hba->utmrdl_base_addr + task_tag, sizeof(*treq));
+ 
+ 		ufshcd_add_tm_upiu_trace(hba, task_tag, "tm_complete");
  	}
+ 
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+-	__clear_bit(free_slot, &hba->outstanding_tasks);
++	__clear_bit(task_tag, &hba->outstanding_tasks);
+ 	spin_unlock_irqrestore(hba->host->host_lock, flags);
+ 
++	ufshcd_release(hba);
+ 	blk_put_request(req);
+ 
+-	ufshcd_release(hba);
+ 	return err;
  }
- 
-+/**
-+ * i40e_get_veb_tc_stats - copy VEB TC statistics to formatted structure
-+ * @tc: the TC statistics in VEB structure (veb->tc_stats)
-+ * @i: the index of traffic class in (veb->tc_stats) structure to copy
-+ *
-+ * Copy VEB TC statistics from structure of arrays (veb->tc_stats) to
-+ * one dimensional structure i40e_cp_veb_tc_stats.
-+ * Produce formatted i40e_cp_veb_tc_stats structure of the VEB TC
-+ * statistics for the given TC.
-+ **/
-+static struct i40e_cp_veb_tc_stats
-+i40e_get_veb_tc_stats(struct i40e_veb_tc_stats *tc, unsigned int i)
-+{
-+	struct i40e_cp_veb_tc_stats veb_tc = {
-+		.tc_rx_packets = tc->tc_rx_packets[i],
-+		.tc_rx_bytes = tc->tc_rx_bytes[i],
-+		.tc_tx_packets = tc->tc_tx_packets[i],
-+		.tc_tx_bytes = tc->tc_tx_bytes[i],
-+	};
-+
-+	return veb_tc;
-+}
-+
- /**
-  * i40e_get_pfc_stats - copy HW PFC statistics to formatted structure
-  * @pf: the PF device structure
-@@ -2301,8 +2333,16 @@ static void i40e_get_ethtool_stats(struct net_device *netdev,
- 			       i40e_gstrings_veb_stats);
- 
- 	for (i = 0; i < I40E_MAX_TRAFFIC_CLASS; i++)
--		i40e_add_ethtool_stats(&data, veb_stats ? veb : NULL,
--				       i40e_gstrings_veb_tc_stats);
-+		if (veb_stats) {
-+			struct i40e_cp_veb_tc_stats veb_tc =
-+				i40e_get_veb_tc_stats(&veb->tc_stats, i);
-+
-+			i40e_add_ethtool_stats(&data, &veb_tc,
-+					       i40e_gstrings_veb_tc_stats);
-+		} else {
-+			i40e_add_ethtool_stats(&data, NULL,
-+					       i40e_gstrings_veb_tc_stats);
-+		}
- 
- 	i40e_add_ethtool_stats(&data, pf, i40e_gstrings_stats);
  
 -- 
 2.30.2
