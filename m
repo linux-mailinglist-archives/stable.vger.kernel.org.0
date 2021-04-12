@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6F535BE1B
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D21835BCFB
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238793AbhDLI47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:56:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46650 "EHLO mail.kernel.org"
+        id S237746AbhDLIqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238867AbhDLIzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B8AB6136B;
-        Mon, 12 Apr 2021 08:53:21 +0000 (UTC)
+        id S237776AbhDLIqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:46:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E1B061279;
+        Mon, 12 Apr 2021 08:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217601;
-        bh=p2OwqxFHSKfHPF7Uh5dxXGlLivSDO5iVmkwk2ean3h4=;
+        s=korg; t=1618217145;
+        bh=1QToRp4t/eGel+tKZM+X5YTXzHGnEJFgybPBj1GYK+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ej1f1h5OKgVJ3vdW7sbqgl8x4wgATlvZQO/YZZDVAv3hfvPzJBhC5obBb+GaRnFFX
-         /oSyV6eYN9SyW2xKqVvyM7Lsj3CHyceUsL4VfIlPm2JkNmDLrBoHlbKI30Hrdc1FK8
-         0qcexsdVZFAtLNUrWE/OWGvdqLq7z20qyClUdumY=
+        b=cCZuKhDuoKPd//lYEOCU8umeT3zwXXZZna49ZDeqTNA6VoURN92ZMfbVlyNS7RXmi
+         gS3nnwbW1v8dxgBVURcSymn2lj4Hjk10XtkoxL1YVBu6xURqw/Ona6T4yacR+v/AEs
+         WuKIPX4hetl8qh5PJ0Yz1TkOtgswQTeZ3N4RSVPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 076/188] usbip: synchronize event handler with sysfs code paths
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.4 012/111] drm/i915: Fix invalid access to ACPI _DSM objects
 Date:   Mon, 12 Apr 2021 10:39:50 +0200
-Message-Id: <20210412084016.183784317@linuxfoundation.org>
+Message-Id: <20210412084004.629496834@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 363eaa3a450abb4e63bd6e3ad79d1f7a0f717814 upstream.
+commit b6a37a93c9ac3900987c79b726d0bb3699d8db4e upstream.
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+intel_dsm_platform_mux_info() tries to parse the ACPI package data
+from _DSM for the debug information, but it assumes the fixed format
+without checking what values are stored in the elements actually.
+When an unexpected value is returned from BIOS, it may lead to GPF or
+NULL dereference, as reported recently.
 
-Use sysfs_lock to synchronize event handler with sysfs paths
-in usbip drivers.
+Add the checks of the contents in the returned values and skip the
+values for invalid cases.
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/c5c8723d3f29dfe3d759cfaafa7dd16b0dfe2918.1616807117.git.skhan@linuxfoundation.org
+v1->v2: Check the info contents before dereferencing, too
+
+BugLink: http://bugzilla.opensuse.org/show_bug.cgi?id=1184074
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210402082317.871-1-tiwai@suse.de
+(cherry picked from commit 337d7a1621c7f02af867229990ac67c97da1b53a)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/usbip_event.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/i915/display/intel_acpi.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/usbip/usbip_event.c
-+++ b/drivers/usb/usbip/usbip_event.c
-@@ -70,6 +70,7 @@ static void event_handler(struct work_st
- 	while ((ud = get_event()) != NULL) {
- 		usbip_dbg_eh("pending event %lx\n", ud->event);
- 
-+		mutex_lock(&ud->sysfs_lock);
- 		/*
- 		 * NOTE: shutdown must come first.
- 		 * Shutdown the device.
-@@ -90,6 +91,7 @@ static void event_handler(struct work_st
- 			ud->eh_ops.unusable(ud);
- 			unset_event(ud, USBIP_EH_UNUSABLE);
- 		}
-+		mutex_unlock(&ud->sysfs_lock);
- 
- 		wake_up(&ud->eh_waitq);
+--- a/drivers/gpu/drm/i915/display/intel_acpi.c
++++ b/drivers/gpu/drm/i915/display/intel_acpi.c
+@@ -83,13 +83,31 @@ static void intel_dsm_platform_mux_info(
+ 		return;
  	}
+ 
++	if (!pkg->package.count) {
++		DRM_DEBUG_DRIVER("no connection in _DSM\n");
++		return;
++	}
++
+ 	connector_count = &pkg->package.elements[0];
+ 	DRM_DEBUG_DRIVER("MUX info connectors: %lld\n",
+ 		  (unsigned long long)connector_count->integer.value);
+ 	for (i = 1; i < pkg->package.count; i++) {
+ 		union acpi_object *obj = &pkg->package.elements[i];
+-		union acpi_object *connector_id = &obj->package.elements[0];
+-		union acpi_object *info = &obj->package.elements[1];
++		union acpi_object *connector_id;
++		union acpi_object *info;
++
++		if (obj->type != ACPI_TYPE_PACKAGE || obj->package.count < 2) {
++			DRM_DEBUG_DRIVER("Invalid object for MUX #%d\n", i);
++			continue;
++		}
++
++		connector_id = &obj->package.elements[0];
++		info = &obj->package.elements[1];
++		if (info->type != ACPI_TYPE_BUFFER || info->buffer.length < 4) {
++			DRM_DEBUG_DRIVER("Invalid info for MUX obj #%d\n", i);
++			continue;
++		}
++
+ 		DRM_DEBUG_DRIVER("Connector id: 0x%016llx\n",
+ 			  (unsigned long long)connector_id->integer.value);
+ 		DRM_DEBUG_DRIVER("  port id: %s\n",
 
 
