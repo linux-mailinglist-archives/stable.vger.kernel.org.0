@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 801C935BF6C
+	by mail.lfdr.de (Postfix) with ESMTP id F0F1C35BF6D
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238868AbhDLJGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:06:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54786 "EHLO mail.kernel.org"
+        id S238922AbhDLJGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:06:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239075AbhDLJCZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:02:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D712F61277;
-        Mon, 12 Apr 2021 09:01:07 +0000 (UTC)
+        id S239104AbhDLJC0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:02:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A088A61283;
+        Mon, 12 Apr 2021 09:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218068;
-        bh=/nZERJHpbCS2/9x9axfPN9D6Maa+awKKzpED7hgcqSE=;
+        s=korg; t=1618218071;
+        bh=pXS7HcrEri1qk/T2C4B0R49ir6M9TZCkcZPLOhAro5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joiAXtJQtSlADtHR8EMQD+/nSGXmrQYq1Z8hPggbiDVrByk0FtH07OBgQBS4Y0kd4
-         eKXUDIoOpZ6vPtga4lEoNgmjShyD55cBniGJFkNhYKp4ODsvG6km0VDsoxfySNwOH9
-         m7fhl78a8m3v4WP55AeFpP6QdPaOqO81D/X1YWiM=
+        b=Yy1msW72bfh3qCwnlGExHWVb8ZD4KoT0teFjfd0b2d8c9TuHrHeKVpJPdbQNNjczB
+         uh7qVN+23wB6hA0rBWzA3voPZjobMez5EIAQOiwBSWELAjGIu17CK2DTpXYfnDzGkc
+         e9xmlYqW1IQsVAjDvz4fJzIWjM3yTWgkV71zgwWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.11 060/210] bpf, sockmap: Fix incorrect fwd_alloc accounting
-Date:   Mon, 12 Apr 2021 10:39:25 +0200
-Message-Id: <20210412084017.999589711@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Balazs Nemeth <bnemeth@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 061/210] net: ensure mac header is set in virtio_net_hdr_to_skb()
+Date:   Mon, 12 Apr 2021 10:39:26 +0200
+Message-Id: <20210412084018.030687595@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -40,135 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 144748eb0c445091466c9b741ebd0bfcc5914f3d upstream.
+commit 61431a5907fc36d0738e9a547c7e1556349a03e9 upstream.
 
-Incorrect accounting fwd_alloc can result in a warning when the socket
-is torn down,
+Commit 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
+added a call to dev_parse_header_protocol() but mac_header is not yet set.
 
- [18455.319240] WARNING: CPU: 0 PID: 24075 at net/core/stream.c:208 sk_stream_kill_queues+0x21f/0x230
- [...]
- [18455.319543] Call Trace:
- [18455.319556]  inet_csk_destroy_sock+0xba/0x1f0
- [18455.319577]  tcp_rcv_state_process+0x1b4e/0x2380
- [18455.319593]  ? lock_downgrade+0x3a0/0x3a0
- [18455.319617]  ? tcp_finish_connect+0x1e0/0x1e0
- [18455.319631]  ? sk_reset_timer+0x15/0x70
- [18455.319646]  ? tcp_schedule_loss_probe+0x1b2/0x240
- [18455.319663]  ? lock_release+0xb2/0x3f0
- [18455.319676]  ? __release_sock+0x8a/0x1b0
- [18455.319690]  ? lock_downgrade+0x3a0/0x3a0
- [18455.319704]  ? lock_release+0x3f0/0x3f0
- [18455.319717]  ? __tcp_close+0x2c6/0x790
- [18455.319736]  ? tcp_v4_do_rcv+0x168/0x370
- [18455.319750]  tcp_v4_do_rcv+0x168/0x370
- [18455.319767]  __release_sock+0xbc/0x1b0
- [18455.319785]  __tcp_close+0x2ee/0x790
- [18455.319805]  tcp_close+0x20/0x80
+This means that eth_hdr() reads complete garbage, and syzbot complained about it [1]
 
-This currently happens because on redirect case we do skb_set_owner_r()
-with the original sock. This increments the fwd_alloc memory accounting
-on the original sock. Then on redirect we may push this into the queue
-of the psock we are redirecting to. When the skb is flushed from the
-queue we give the memory back to the original sock. The problem is if
-the original sock is destroyed/closed with skbs on another psocks queue
-then the original sock will not have a way to reclaim the memory before
-being destroyed. Then above warning will be thrown
+This patch resets mac_header earlier, to get more coverage about this change.
 
-  sockA                          sockB
+Audit of virtio_net_hdr_to_skb() callers shows that this change should be safe.
 
-  sk_psock_strp_read()
-   sk_psock_verdict_apply()
-     -- SK_REDIRECT --
-     sk_psock_skb_redirect()
-                                skb_queue_tail(psock_other->ingress_skb..)
+[1]
 
-  sk_close()
-   sock_map_unref()
-     sk_psock_put()
-       sk_psock_drop()
-         sk_psock_zap_ingress()
+BUG: KASAN: use-after-free in eth_header_parse_protocol+0xdc/0xe0 net/ethernet/eth.c:282
+Read of size 2 at addr ffff888017a6200b by task syz-executor313/8409
 
-At this point we have torn down our own psock, but have the outstanding
-skb in psock_other. Note that SK_PASS doesn't have this problem because
-the sk_psock_drop() logic releases the skb, its still associated with
-our psock.
+CPU: 1 PID: 8409 Comm: syz-executor313 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:232
+ __kasan_report mm/kasan/report.c:399 [inline]
+ kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
+ eth_header_parse_protocol+0xdc/0xe0 net/ethernet/eth.c:282
+ dev_parse_header_protocol include/linux/netdevice.h:3177 [inline]
+ virtio_net_hdr_to_skb.constprop.0+0x99d/0xcd0 include/linux/virtio_net.h:83
+ packet_snd net/packet/af_packet.c:2994 [inline]
+ packet_sendmsg+0x2325/0x52b0 net/packet/af_packet.c:3031
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:674
+ sock_no_sendpage+0xf3/0x130 net/core/sock.c:2860
+ kernel_sendpage.part.0+0x1ab/0x350 net/socket.c:3631
+ kernel_sendpage net/socket.c:3628 [inline]
+ sock_sendpage+0xe5/0x140 net/socket.c:947
+ pipe_to_sendpage+0x2ad/0x380 fs/splice.c:364
+ splice_from_pipe_feed fs/splice.c:418 [inline]
+ __splice_from_pipe+0x43e/0x8a0 fs/splice.c:562
+ splice_from_pipe fs/splice.c:597 [inline]
+ generic_splice_sendpage+0xd4/0x140 fs/splice.c:746
+ do_splice_from fs/splice.c:767 [inline]
+ do_splice+0xb7e/0x1940 fs/splice.c:1079
+ __do_splice+0x134/0x250 fs/splice.c:1144
+ __do_sys_splice fs/splice.c:1350 [inline]
+ __se_sys_splice fs/splice.c:1332 [inline]
+ __x64_sys_splice+0x198/0x250 fs/splice.c:1332
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
 
-To resolve lets only account for sockets on the ingress queue that are
-still associated with the current socket. On the redirect case we will
-check memory limits per 6fa9201a89898, but will omit fwd_alloc accounting
-until skb is actually enqueued. When the skb is sent via skb_send_sock_locked
-or received with sk_psock_skb_ingress memory will be claimed on psock_other.
-
-Fixes: 6fa9201a89898 ("bpf, sockmap: Avoid returning unneeded EAGAIN when redirecting to self")
-Reported-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/161731444013.68884.4021114312848535993.stgit@john-XPS-13-9370
+Fixes: 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Balazs Nemeth <bnemeth@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skmsg.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ include/linux/virtio_net.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -488,6 +488,7 @@ static int sk_psock_skb_ingress_self(str
- 	if (unlikely(!msg))
- 		return -EAGAIN;
- 	sk_msg_init(msg);
-+	skb_set_owner_r(skb, sk);
- 	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
- }
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -62,6 +62,8 @@ static inline int virtio_net_hdr_to_skb(
+ 			return -EINVAL;
+ 	}
  
-@@ -791,7 +792,6 @@ static void sk_psock_tls_verdict_apply(s
- {
- 	switch (verdict) {
- 	case __SK_REDIRECT:
--		skb_set_owner_r(skb, sk);
- 		sk_psock_skb_redirect(skb);
- 		break;
- 	case __SK_PASS:
-@@ -809,10 +809,6 @@ int sk_psock_tls_strp_read(struct sk_pso
- 	rcu_read_lock();
- 	prog = READ_ONCE(psock->progs.skb_verdict);
- 	if (likely(prog)) {
--		/* We skip full set_owner_r here because if we do a SK_PASS
--		 * or SK_DROP we can skip skb memory accounting and use the
--		 * TLS context.
--		 */
- 		skb->sk = psock->sk;
- 		tcp_skb_bpf_redirect_clear(skb);
- 		ret = sk_psock_bpf_run(psock, prog, skb);
-@@ -881,12 +877,13 @@ static void sk_psock_strp_read(struct st
- 		kfree_skb(skb);
- 		goto out;
- 	}
--	skb_set_owner_r(skb, sk);
- 	prog = READ_ONCE(psock->progs.skb_verdict);
- 	if (likely(prog)) {
-+		skb->sk = sk;
- 		tcp_skb_bpf_redirect_clear(skb);
- 		ret = sk_psock_bpf_run(psock, prog, skb);
- 		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
-+		skb->sk = NULL;
- 	}
- 	sk_psock_verdict_apply(psock, skb, ret);
- out:
-@@ -957,12 +954,13 @@ static int sk_psock_verdict_recv(read_de
- 		kfree_skb(skb);
- 		goto out;
- 	}
--	skb_set_owner_r(skb, sk);
- 	prog = READ_ONCE(psock->progs.skb_verdict);
- 	if (likely(prog)) {
-+		skb->sk = sk;
- 		tcp_skb_bpf_redirect_clear(skb);
- 		ret = sk_psock_bpf_run(psock, prog, skb);
- 		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
-+		skb->sk = NULL;
- 	}
- 	sk_psock_verdict_apply(psock, skb, ret);
- out:
++	skb_reset_mac_header(skb);
++
+ 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+ 		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
+ 		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
 
 
