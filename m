@@ -2,94 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 417BD35CEF8
+	by mail.lfdr.de (Postfix) with ESMTP id 8D66335CEF9
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244574AbhDLQyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244580AbhDLQyG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Apr 2021 12:54:06 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:50209 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343867AbhDLQuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 12:50:22 -0400
-Received: from mail-wm1-f69.google.com ([209.85.128.69])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1lVzlB-0000ul-P7
-        for stable@vger.kernel.org; Mon, 12 Apr 2021 16:50:01 +0000
-Received: by mail-wm1-f69.google.com with SMTP id v65-20020a1cde440000b029012853a35ee7so1497704wmg.2
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 09:50:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2zPLG+73TKJr4dlw0cIaFEEl9n/wh4UyqgMutT/N1S0=;
-        b=QCoRAheA/IlqmnyZab7cqnsXSrJUYAKT9waIWuNgeDKTakkbzIf+gW/3AAgHfxYV98
-         4n2ZXF+j7TCIIYDRbi1sCBh+iPA1bO+Ryf6h68kBYGpYsfj0JQ1pS01jUIBHBo5WMS3/
-         LrWYWXqhukQ5UHD/kG6lCYsAAlNRruM7MPUaTtWqxwpWRxJHQGcRoptGPzNo1nM2QeoT
-         WUnBvyLsw0mwQqmrTkm+AqbcxdTgo6PQkggoMnQVh1V+I/lejRIfH6/TvLrYR/Wwy97a
-         Dk+4XEAZ+p6DgUaxPTF6MGNcE6uJcNdC1K17I1fVv/qcv1yVwEIKkgL/pc8yVDDOyEmL
-         pKVA==
-X-Gm-Message-State: AOAM533yn5wVFiy6jadg1DoZA3mvHKttheojPesmoOGAbic0dWRtXaoz
-        ld/QZKfZREzaEv/NK+HKlvBM1paoghgfvZWArQkt/RSjAGHg22QC0xHMrDEV3LsCAEhb7YM4xb8
-        uV+ZDnDFw6OcS9FVgUQodEa1i6BUrDJ4HRg==
-X-Received: by 2002:adf:fdcd:: with SMTP id i13mr17772180wrs.185.1618246201156;
-        Mon, 12 Apr 2021 09:50:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJygAkOubK8yScd9gznsmyE6svsoPN5jCJREMKdSVaKsNv67krChoq1OI9eneBff88eXscM0lw==
-X-Received: by 2002:adf:fdcd:: with SMTP id i13mr17772177wrs.185.1618246201065;
-        Mon, 12 Apr 2021 09:50:01 -0700 (PDT)
-Received: from [192.168.1.115] (xdsl-188-155-192-147.adslplus.ch. [188.155.192.147])
-        by smtp.gmail.com with ESMTPSA id g12sm8375299wru.47.2021.04.12.09.50.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Apr 2021 09:50:00 -0700 (PDT)
-Subject: Re: Newer stable-tools
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <f6ad8f77-6dd7-647e-5d4a-983754ba8442@canonical.com>
- <YHRzlIXXLUzfV0WT@sashalap>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Message-ID: <5e5195b3-a2e9-471e-cbdd-0951f13ecbb0@canonical.com>
-Date:   Mon, 12 Apr 2021 18:50:00 +0200
+Received: from foss.arm.com ([217.140.110.172]:55888 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S245663AbhDLQv7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:51:59 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AF20512FC;
+        Mon, 12 Apr 2021 09:51:40 -0700 (PDT)
+Received: from [192.168.0.110] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4CB453F73B;
+        Mon, 12 Apr 2021 09:51:38 -0700 (PDT)
+Subject: Re: [PATCH v2] KVM: arm64: Fully zero the vcpu state on reset
+To:     Marc Zyngier <maz@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu
+Cc:     James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>, kernel-team@android.com,
+        stable@vger.kernel.org
+References: <20210409173257.3031729-1-maz@kernel.org>
+From:   Alexandru Elisei <alexandru.elisei@arm.com>
+Message-ID: <977338ef-9b06-1fec-9075-5e9cbdb89bc2@arm.com>
+Date:   Mon, 12 Apr 2021 17:51:53 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+ Thunderbird/78.9.0
 MIME-Version: 1.0
-In-Reply-To: <YHRzlIXXLUzfV0WT@sashalap>
+In-Reply-To: <20210409173257.3031729-1-maz@kernel.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/04/2021 18:21, Sasha Levin wrote:
-> Hey Krzysztof!
-> 
-> On Mon, Apr 12, 2021 at 12:58:16PM +0200, Krzysztof Kozlowski wrote:
->> Hi Greg, Sasha and everyone,
->>
->> I am looking at stable-tools from Sasha [1] in hope in re-using it. The
->> problem I want to solve is to find easier commits in the distro tree,
->> which were fixed or reverted upstream. Something like steal-commits from
->> the stable-tools [1].
-> 
-> You're probably looking for stable-has-fixes :)
-> 
->> However the tools themself were not updated since some time and have
->> several issues, so the questions are:
->> 1. Do you have somewhere updated version which you would like to share?
-> 
-> So I've cleaned up and pushed the few patches I had locally to that
-> repo. It's not that it's abandoned, but rather it was working just fine
-> for me for the past few years so there wasn't anything too big done on
-> that front.
-> 
->> 2. Do you have other stable-toolset which you could share?
-> 
-> FWIW, Greg has his own set of scripts: https://github.com/gregkh/gregkh-linux/tree/master/scripts
+Hi Marc,
 
-Thanks, I'll try your changes and take a look at Greg's scripts.
+On 4/9/21 6:32 PM, Marc Zyngier wrote:
+> On vcpu reset, we expect all the registers to be brought back
+> to their initial state, which happens to be a bunch of zeroes.
+>
+> However, some recent commit broke this, and is now leaving a bunch
+> of registers (such as the FP state) with whatever was left by the
+> guest. My bad.
+>
+> Zero the reset of the state (32bit SPSRs and FPSIMD state).
+>
+> Cc: stable@vger.kernel.org
+> Fixes: e47c2055c68e ("KVM: arm64: Make struct kvm_regs userspace-only")
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> ---
+>
+> Notes:
+>     v2: Only reset the FPSIMD state and the AArch32 SPSRs to avoid
+>     corrupting CNTVOFF in creative ways.
 
-Best regards,
-Krzysztof
+I missed that last time, sorry.
+
+>
+>  arch/arm64/kvm/reset.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+> index bd354cd45d28..4b5acd84b8c8 100644
+> --- a/arch/arm64/kvm/reset.c
+> +++ b/arch/arm64/kvm/reset.c
+> @@ -242,6 +242,11 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+>  
+>  	/* Reset core registers */
+>  	memset(vcpu_gp_regs(vcpu), 0, sizeof(*vcpu_gp_regs(vcpu)));
+> +	memset(&vcpu->arch.ctxt.fp_regs, 0, sizeof(vcpu->arch.ctxt.fp_regs));
+> +	vcpu->arch.ctxt.spsr_abt = 0;
+> +	vcpu->arch.ctxt.spsr_und = 0;
+> +	vcpu->arch.ctxt.spsr_irq = 0;
+> +	vcpu->arch.ctxt.spsr_fiq = 0;
+
+Checked, and the only fields not touched by the change from struct kvm_cpu_context
+are sys_regs and __hyp_running_cpu. __hyp_running_cpu is assumed to be NULL for a
+guest and it doesn't change during the lifetime of a VCPU; it is set to NULL when
+struct kvm_vcpu is allocated.
+
+CNTVOFF_EL2 is not accessible to userspace (it's not in the sys_reg_descs and in
+the invariant_sys_regs arrays), so it's not necessary to reset it in case
+userspace changed it. Same for the other registers that are part of the VCPU
+context, but are not in sys_reg_descs.
+
+I think it's a good choice to skip zeroing the system registers. I compared
+vcpu->arch.ctxt.sys_regs with sys_regs_descs, there were quite a few registers
+that were part of the vcpu context (pointer authentication registers, virtual
+timer registers, and others) and not part of sys_regs_descs. If someone adds a
+register to the VCPU context, but not to sys_regs_descs, I think it would have
+been easy to miss the fact that KVM_ARM_VCPU_INIT zeroes it.
+
+Hopefully I haven't missed anything:
+
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+
+Thanks,
+
+Alex
+
+>  	vcpu_gp_regs(vcpu)->pstate = pstate;
+>  
+>  	/* Reset system registers */
