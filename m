@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610EF35C09C
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A761735BF23
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240520AbhDLJPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
+        id S239502AbhDLJDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240971AbhDLJLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:11:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E2B6613C3;
-        Mon, 12 Apr 2021 09:07:34 +0000 (UTC)
+        id S238635AbhDLI6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:58:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EBAA6135F;
+        Mon, 12 Apr 2021 08:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218455;
-        bh=0M6bUyhgdNHpt68OuYjW4TnIh3Hjh4bN64JdvKs3lzE=;
+        s=korg; t=1618217837;
+        bh=f0vDZguZh0FbWYHFEG301WAvVp6cUsAy93qNBVXQ4bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehEv/o4OFRJiTst7baBbNfFzX8otFs2FE7kg6CUkpEdAYd1lId6ne/Emz69yKLJLa
-         k0TgqXlwMIEyRQU1ZC7TUAmXmDhQa0q98zW04MC6V3mX7RLs9RcaLuiKHlj8jBtWDR
-         bQUAZUQ2NnX50TK5eWjMPQgd1WugHFk+xIZciQco=
+        b=RLfGkhvcqoOLzYnPQtTA5FpYUi+VExv3gI4PHnFQm/wyknY7kN6vS1QIzb06bMRwK
+         wnGgsOnXGvoOX30vknN9XYswKJDhWJzbfCwHRMwW0LxNTCWlsvmJ3k1iMgWiuQ9E2F
+         SOY8YyWoNVbVv9Nd+y/ULMcNfL6rjcKku1aGgfLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>, Andrew Vagin <avagin@openvz.org>,
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jin Yao <yao.jin@intel.com>, Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 170/210] perf inject: Fix repipe usage
-Date:   Mon, 12 Apr 2021 10:41:15 +0200
-Message-Id: <20210412084021.687066121@linuxfoundation.org>
+Subject: [PATCH 5.10 162/188] perf report: Fix wrong LBR block sorting
+Date:   Mon, 12 Apr 2021 10:41:16 +0200
+Message-Id: <20210412084019.012288404@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-[ Upstream commit 026334a3bb6a3919b42aba9fc11843db2b77fd41 ]
+[ Upstream commit f2013278ae40b89cc27916366c407ce5261815ef ]
 
-Since commit 14d3d54052539a1e ("perf session: Try to read pipe data from
-file") 'perf inject' has started printing "PERFILE2h" when not processing
-pipes.
+When '--total-cycles' is specified, it supports sorting for all blocks
+by 'Sampled Cycles%'. This is useful to concentrate on the globally
+hottest blocks.
 
-The commit exposed perf to the possiblity that the input is not a pipe
-but the 'repipe' parameter gets used. That causes the printing because
-perf inject sets 'repipe' to true always.
+'Sampled Cycles%' - block sampled cycles aggregation / total sampled cycles
 
-The 'repipe' parameter of perf_session__new() is used by 2 functions:
+But in current code, it doesn't use the cycles aggregation. Part of
+'cycles' counting is possibly dropped for some overlap jumps. But for
+identifying the hot block, we always need the full cycles.
 
-	- perf_file_header__read_pipe()
-	- trace_report()
+  # perf record -b ./triad_loop
+  # perf report --total-cycles --stdio
 
-In both cases, the functions copy data to STDOUT_FILENO when 'repipe' is
-true.
+Before:
 
-Fix by setting 'repipe' to true only if the output is a pipe.
+  #
+  # Sampled Cycles%  Sampled Cycles  Avg Cycles%  Avg Cycles                                          [Program Block Range]      Shared Object
+  # ...............  ..............  ...........  ..........  .............................................................  .................
+  #
+              0.81%             793        4.32%         793                           [setup-vdso.h:34 -> setup-vdso.h:40]         ld-2.27.so
+              0.49%             480        0.87%         160                    [native_write_msr+0 -> native_write_msr+16]  [kernel.kallsyms]
+              0.48%             476        0.52%          95                      [native_read_msr+0 -> native_read_msr+29]  [kernel.kallsyms]
+              0.31%             303        1.65%         303                              [nmi_restore+0 -> nmi_restore+37]  [kernel.kallsyms]
+              0.26%             255        1.39%         255      [nohz_balance_exit_idle+75 -> nohz_balance_exit_idle+162]  [kernel.kallsyms]
+              0.24%             234        1.28%         234                       [end_repeat_nmi+67 -> end_repeat_nmi+83]  [kernel.kallsyms]
+              0.23%             227        1.24%         227            [__irqentry_text_end+96 -> __irqentry_text_end+126]  [kernel.kallsyms]
+              0.20%             194        1.06%         194             [native_set_debugreg+52 -> native_set_debugreg+56]  [kernel.kallsyms]
+              0.11%             106        0.14%          26                [native_sched_clock+0 -> native_sched_clock+98]  [kernel.kallsyms]
+              0.10%              97        0.53%          97            [trigger_load_balance+0 -> trigger_load_balance+67]  [kernel.kallsyms]
+              0.09%              85        0.46%          85             [get-dynamic-info.h:102 -> get-dynamic-info.h:111]         ld-2.27.so
+  ...
+              0.00%           92.7K        0.02%           4                           [triad_loop.c:64 -> triad_loop.c:65]         triad_loop
 
-Fixes: e558a5bd8b74aff4 ("perf inject: Work with files")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Andrew Vagin <avagin@openvz.org>
-Link: http://lore.kernel.org/lkml/20210401103605.9000-1-adrian.hunter@intel.com
+The hottest block '[triad_loop.c:64 -> triad_loop.c:65]' is not at
+the top of output.
+
+After:
+
+  # Sampled Cycles%  Sampled Cycles  Avg Cycles%  Avg Cycles                                           [Program Block Range]      Shared Object
+  # ...............  ..............  ...........  ..........  ..............................................................  .................
+  #
+             94.35%           92.7K        0.02%           4                            [triad_loop.c:64 -> triad_loop.c:65]         triad_loop
+              0.81%             793        4.32%         793                            [setup-vdso.h:34 -> setup-vdso.h:40]         ld-2.27.so
+              0.49%             480        0.87%         160                     [native_write_msr+0 -> native_write_msr+16]  [kernel.kallsyms]
+              0.48%             476        0.52%          95                       [native_read_msr+0 -> native_read_msr+29]  [kernel.kallsyms]
+              0.31%             303        1.65%         303                               [nmi_restore+0 -> nmi_restore+37]  [kernel.kallsyms]
+              0.26%             255        1.39%         255       [nohz_balance_exit_idle+75 -> nohz_balance_exit_idle+162]  [kernel.kallsyms]
+              0.24%             234        1.28%         234                        [end_repeat_nmi+67 -> end_repeat_nmi+83]  [kernel.kallsyms]
+              0.23%             227        1.24%         227             [__irqentry_text_end+96 -> __irqentry_text_end+126]  [kernel.kallsyms]
+              0.20%             194        1.06%         194              [native_set_debugreg+52 -> native_set_debugreg+56]  [kernel.kallsyms]
+              0.11%             106        0.14%          26                 [native_sched_clock+0 -> native_sched_clock+98]  [kernel.kallsyms]
+              0.10%              97        0.53%          97             [trigger_load_balance+0 -> trigger_load_balance+67]  [kernel.kallsyms]
+              0.09%              85        0.46%          85              [get-dynamic-info.h:102 -> get-dynamic-info.h:111]         ld-2.27.so
+              0.08%              82        0.06%          11  [intel_pmu_drain_pebs_nhm+580 -> intel_pmu_drain_pebs_nhm+627]  [kernel.kallsyms]
+              0.08%              77        0.42%          77                  [lru_add_drain_cpu+0 -> lru_add_drain_cpu+133]  [kernel.kallsyms]
+              0.08%              74        0.10%          18                [handle_pmi_common+271 -> handle_pmi_common+310]  [kernel.kallsyms]
+              0.08%              74        0.40%          74              [get-dynamic-info.h:131 -> get-dynamic-info.h:157]         ld-2.27.so
+              0.07%              69        0.09%          17  [intel_pmu_drain_pebs_nhm+432 -> intel_pmu_drain_pebs_nhm+468]  [kernel.kallsyms]
+
+Now the hottest block is reported at the top of output.
+
+Fixes: b65a7d372b1a55db ("perf hist: Support block formats with compare/sort/display")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jin Yao <yao.jin@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210407024452.29988-1-yao.jin@linux.intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-inject.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/block-info.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/builtin-inject.c b/tools/perf/builtin-inject.c
-index 43937f4b399a..c0be51b95713 100644
---- a/tools/perf/builtin-inject.c
-+++ b/tools/perf/builtin-inject.c
-@@ -906,7 +906,7 @@ int cmd_inject(int argc, const char **argv)
+diff --git a/tools/perf/util/block-info.c b/tools/perf/util/block-info.c
+index 423ec69bda6c..5ecd4f401f32 100644
+--- a/tools/perf/util/block-info.c
++++ b/tools/perf/util/block-info.c
+@@ -201,7 +201,7 @@ static int block_total_cycles_pct_entry(struct perf_hpp_fmt *fmt,
+ 	double ratio = 0.0;
+ 
+ 	if (block_fmt->total_cycles)
+-		ratio = (double)bi->cycles / (double)block_fmt->total_cycles;
++		ratio = (double)bi->cycles_aggr / (double)block_fmt->total_cycles;
+ 
+ 	return color_pct(hpp, block_fmt->width, 100.0 * ratio);
+ }
+@@ -216,9 +216,9 @@ static int64_t block_total_cycles_pct_sort(struct perf_hpp_fmt *fmt,
+ 	double l, r;
+ 
+ 	if (block_fmt->total_cycles) {
+-		l = ((double)bi_l->cycles /
++		l = ((double)bi_l->cycles_aggr /
+ 			(double)block_fmt->total_cycles) * 100000.0;
+-		r = ((double)bi_r->cycles /
++		r = ((double)bi_r->cycles_aggr /
+ 			(double)block_fmt->total_cycles) * 100000.0;
+ 		return (int64_t)l - (int64_t)r;
  	}
- 
- 	data.path = inject.input_name;
--	inject.session = perf_session__new(&data, true, &inject.tool);
-+	inject.session = perf_session__new(&data, inject.output.is_pipe, &inject.tool);
- 	if (IS_ERR(inject.session))
- 		return PTR_ERR(inject.session);
- 
 -- 
 2.30.2
 
