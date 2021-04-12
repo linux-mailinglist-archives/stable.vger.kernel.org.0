@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D4E735BD2C
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58A4235BC68
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238140AbhDLIs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:48:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40046 "EHLO mail.kernel.org"
+        id S237381AbhDLImr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:42:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238005AbhDLIrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:47:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1716C61247;
-        Mon, 12 Apr 2021 08:46:48 +0000 (UTC)
+        id S237301AbhDLImq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:42:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E0316120F;
+        Mon, 12 Apr 2021 08:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217209;
-        bh=trgiaBG4kEh8rt00jC3X9zIWjcQ2Ue7UylSCEk2Qjkk=;
+        s=korg; t=1618216947;
+        bh=Pssl+L1Ni8KwTl834n12ZJfzUk4qjK5DT37VcSCaQfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCS9HHt9hGdaA5G3mvAWUYwLKjCXSGKuZra4FCJFT3++uPN0sTHU1nOzwn83izMIs
-         CL3cBGc3ow9oY7Pt2Q/D3LRQXnnHpuP4y+oMaR1pxL8Hhv536GdMnPfYgs7E0T0dgE
-         0sbJX6VrKkfjMy3GyUkgh5sMiFKPRYTg/loMcoy0=
+        b=Uqj6lyl8P53a0NkWxY3nqEylHpKo6+Xkq/ejqQikSMFaH2+sNqWNM5fp1Br6cx3Aa
+         kRnYBqNlu002Oqt8BUZuteAZO9LHilGpPgtmepWIKs0WSsEDw9SoCjkTygUOSzOhAj
+         KjcwO8kHaFrYYqQmwo27WZFRStUp31mW55vqwmYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/111] virtio_net: Do not pull payload in skb->head
+        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
+        Helge Deller <deller@gmx.de>, Gao Xiang <hsiangkao@redhat.com>
+Subject: [PATCH 4.19 14/66] parisc: avoid a warning on u8 cast for cmpxchg on u8 pointers
 Date:   Mon, 12 Apr 2021 10:40:20 +0200
-Message-Id: <20210412084005.653952525@linuxfoundation.org>
+Message-Id: <20210412083958.590701378@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,119 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-[ Upstream commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db ]
+commit 4d752e5af63753ab5140fc282929b98eaa4bd12e upstream.
 
-Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") brought  a ~10% performance drop.
+commit b344d6a83d01 ("parisc: add support for cmpxchg on u8 pointers")
+can generate a sparse warning ("cast truncates bits from constant
+value"), which has been reported several times [1] [2] [3].
 
-The reason for the performance drop was that GRO was forced
-to chain sk_buff (using skb_shinfo(skb)->frag_list), which
-uses more memory but also cause packet consumers to go over
-a lot of overhead handling all the tiny skbs.
+The original code worked as expected, but anyway, let silence such
+sparse warning as what others did [4].
 
-It turns out that virtio_net page_to_skb() has a wrong strategy :
-It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
-copies 128 bytes from the page, before feeding the packet to GRO stack.
-
-This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
-meaning we were not packing MSS with 100% efficiency.
-
-Fix is to pull only the ethernet header in page_to_skb()
-
-Then, we change virtio_net_hdr_to_skb() to pull the missing
-headers, instead of assuming they were already pulled by callers.
-
-This fixes the performance regression, but could also allow virtio_net
-to accept packets with more than 128bytes of headers.
-
-Many thanks to Xuan Zhuo for his report, and his tests/help.
-
-Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Link: https://www.spinics.net/lists/netdev/msg731397.html
-Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://lore.kernel.org/r/202104061220.nRMBwCXw-lkp@intel.com
+[2] https://lore.kernel.org/r/202012291914.T5Agcn99-lkp@intel.com
+[3] https://lore.kernel.org/r/202008210829.KVwn7Xeh%25lkp@intel.com
+[4] https://lore.kernel.org/r/20210315131512.133720-2-jacopo+renesas@jmondi.org
+Cc: Liam Beguin <liambeguin@gmail.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org # v5.8+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c   | 10 +++++++---
- include/linux/virtio_net.h | 14 +++++++++-----
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ arch/parisc/include/asm/cmpxchg.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b67460864b3c..d8ee001d8e8e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -406,9 +406,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	offset += hdr_padded_len;
- 	p += hdr_padded_len;
- 
--	copy = len;
--	if (copy > skb_tailroom(skb))
--		copy = skb_tailroom(skb);
-+	/* Copy all frame if it fits skb->head, otherwise
-+	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
-+	 */
-+	if (len <= skb_tailroom(skb))
-+		copy = len;
-+	else
-+		copy = ETH_HLEN + metasize;
- 	skb_put_data(skb, p, copy);
- 
- 	if (metasize) {
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 98775d7fa696..b465f8f3e554 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 	skb_reset_mac_header(skb);
- 
- 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
--		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
--		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-+		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
-+
-+		if (!pskb_may_pull(skb, needed))
-+			return -EINVAL;
- 
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
- 
- 		p_off = skb_transport_offset(skb) + thlen;
--		if (p_off > skb_headlen(skb))
-+		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -102,14 +106,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 			}
- 
- 			p_off = keys.control.thoff + thlen;
--			if (p_off > skb_headlen(skb) ||
-+			if (!pskb_may_pull(skb, p_off) ||
- 			    keys.basic.ip_proto != ip_proto)
- 				return -EINVAL;
- 
- 			skb_set_transport_header(skb, keys.control.thoff);
- 		} else if (gso_type) {
- 			p_off = thlen;
--			if (p_off > skb_headlen(skb))
-+			if (!pskb_may_pull(skb, p_off))
- 				return -EINVAL;
- 		}
+--- a/arch/parisc/include/asm/cmpxchg.h
++++ b/arch/parisc/include/asm/cmpxchg.h
+@@ -72,7 +72,7 @@ __cmpxchg(volatile void *ptr, unsigned l
+ #endif
+ 	case 4: return __cmpxchg_u32((unsigned int *)ptr,
+ 				     (unsigned int)old, (unsigned int)new_);
+-	case 1: return __cmpxchg_u8((u8 *)ptr, (u8)old, (u8)new_);
++	case 1: return __cmpxchg_u8((u8 *)ptr, old & 0xff, new_ & 0xff);
  	}
--- 
-2.30.2
-
+ 	__cmpxchg_called_with_bad_pointer();
+ 	return old;
 
 
