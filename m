@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3523E35BFD3
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C77135BFD6
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239206AbhDLJG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:06:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
+        id S239220AbhDLJHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:07:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240232AbhDLJFP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:05:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16A636134F;
-        Mon, 12 Apr 2021 09:02:22 +0000 (UTC)
+        id S240236AbhDLJFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:05:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93AFF61368;
+        Mon, 12 Apr 2021 09:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218143;
-        bh=QDDQMYiPxG+aUyQiCG50hJTNC7dLtm+Oh9GbfPEIuho=;
+        s=korg; t=1618218146;
+        bh=/JcazcCzHo730u3J7iiQT6+DSlFqUEOkxez7IsSL9IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClZvhj+lj2e+9rx4cPkaG4EoMkY0EgeFD2NWfLLAJN7FzBXL6/hXMGFD+0NwgKN9J
-         6PMztHvWM0duJqNM6p9H60GYkWQUJAE1XPdiNqqnELCkdrIxnsBaStABaGqLgaY2UU
-         UxE7XD/AUNecauq8A9L6CcMGdlmGb3UItBUsigu8=
+        b=WQ0TRHai0CarPypBQLF5XI5HYpIOprkHE4KHdml1RQNlvjiorr0a4bJuMvgy8jx2a
+         Gbfjx51DP0rYU4aZSmbdDKEvrX2e4qkZ7GMd0NT0SxOFRfBmtt0zFzsQ+WS5xLGmum
+         y8EQqm6xTBKWKQ7Pk8EhAagY6gMU33CQ8RIIUTiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.11 086/210] scsi: target: iscsi: Fix zero tag inside a trace event
-Date:   Mon, 12 Apr 2021 10:39:51 +0200
-Message-Id: <20210412084018.883437586@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Dennis Zhou <dennis@kernel.org>
+Subject: [PATCH 5.11 087/210] percpu: make pcpu_nr_empty_pop_pages per chunk type
+Date:   Mon, 12 Apr 2021 10:39:52 +0200
+Message-Id: <20210412084018.915959649@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,42 +40,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Roman Gushchin <guro@fb.com>
 
-commit 0352c3d3959a6cf543075b88c7e662fd3546f12e upstream.
+commit 0760fa3d8f7fceeea508b98899f1c826e10ffe78 upstream.
 
-target_sequencer_start event is triggered inside target_cmd_init_cdb().
-se_cmd.tag is not initialized with ITT at the moment so the event always
-prints zero tag.
+nr_empty_pop_pages is used to guarantee that there are some free
+populated pages to satisfy atomic allocations. Accounted and
+non-accounted allocations are using separate sets of chunks,
+so both need to have a surplus of empty pages.
 
-Link: https://lore.kernel.org/r/20210403215415.95077-1-r.bolshakov@yadro.com
-Cc: stable@vger.kernel.org # 5.10+
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This commit makes pcpu_nr_empty_pop_pages and the corresponding logic
+per chunk type.
+
+[Dennis]
+This issue came up as I was reviewing [1] and realized I missed this.
+Simultaneously, it was reported btrfs was seeing failed atomic
+allocations in fsstress tests [2] and [3].
+
+[1] https://lore.kernel.org/linux-mm/20210324190626.564297-1-guro@fb.com/
+[2] https://lore.kernel.org/linux-mm/20210401185158.3275.409509F4@e16-tech.com/
+[3] https://lore.kernel.org/linux-mm/CAL3q7H5RNBjCi708GH7jnczAOe0BLnacT9C+OBgA-Dx9jhB6SQ@mail.gmail.com/
+
+Fixes: 3c7be18ac9a0 ("mm: memcg/percpu: account percpu memory to memory cgroups")
+Cc: stable@vger.kernel.org # 5.9+
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Tested-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Dennis Zhou <dennis@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/target/iscsi/iscsi_target.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ mm/percpu-internal.h |    2 +-
+ mm/percpu-stats.c    |    9 +++++++--
+ mm/percpu.c          |   14 +++++++-------
+ 3 files changed, 15 insertions(+), 10 deletions(-)
 
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -1166,6 +1166,7 @@ int iscsit_setup_scsi_cmd(struct iscsi_c
+--- a/mm/percpu-internal.h
++++ b/mm/percpu-internal.h
+@@ -87,7 +87,7 @@ extern spinlock_t pcpu_lock;
  
- 	target_get_sess_cmd(&cmd->se_cmd, true);
+ extern struct list_head *pcpu_chunk_lists;
+ extern int pcpu_nr_slots;
+-extern int pcpu_nr_empty_pop_pages;
++extern int pcpu_nr_empty_pop_pages[];
  
-+	cmd->se_cmd.tag = (__force u32)cmd->init_task_tag;
- 	cmd->sense_reason = target_cmd_init_cdb(&cmd->se_cmd, hdr->cdb);
- 	if (cmd->sense_reason) {
- 		if (cmd->sense_reason == TCM_OUT_OF_RESOURCES) {
-@@ -1180,8 +1181,6 @@ int iscsit_setup_scsi_cmd(struct iscsi_c
- 	if (cmd->sense_reason)
- 		goto attach_cmd;
+ extern struct pcpu_chunk *pcpu_first_chunk;
+ extern struct pcpu_chunk *pcpu_reserved_chunk;
+--- a/mm/percpu-stats.c
++++ b/mm/percpu-stats.c
+@@ -145,6 +145,7 @@ static int percpu_stats_show(struct seq_
+ 	int slot, max_nr_alloc;
+ 	int *buffer;
+ 	enum pcpu_chunk_type type;
++	int nr_empty_pop_pages;
  
--	/* only used for printks or comparing with ->ref_task_tag */
--	cmd->se_cmd.tag = (__force u32)cmd->init_task_tag;
- 	cmd->sense_reason = target_cmd_parse_cdb(&cmd->se_cmd);
- 	if (cmd->sense_reason)
- 		goto attach_cmd;
+ alloc_buffer:
+ 	spin_lock_irq(&pcpu_lock);
+@@ -165,7 +166,11 @@ alloc_buffer:
+ 		goto alloc_buffer;
+ 	}
+ 
+-#define PL(X) \
++	nr_empty_pop_pages = 0;
++	for (type = 0; type < PCPU_NR_CHUNK_TYPES; type++)
++		nr_empty_pop_pages += pcpu_nr_empty_pop_pages[type];
++
++#define PL(X)								\
+ 	seq_printf(m, "  %-20s: %12lld\n", #X, (long long int)pcpu_stats_ai.X)
+ 
+ 	seq_printf(m,
+@@ -196,7 +201,7 @@ alloc_buffer:
+ 	PU(nr_max_chunks);
+ 	PU(min_alloc_size);
+ 	PU(max_alloc_size);
+-	P("empty_pop_pages", pcpu_nr_empty_pop_pages);
++	P("empty_pop_pages", nr_empty_pop_pages);
+ 	seq_putc(m, '\n');
+ 
+ #undef PU
+--- a/mm/percpu.c
++++ b/mm/percpu.c
+@@ -172,10 +172,10 @@ struct list_head *pcpu_chunk_lists __ro_
+ static LIST_HEAD(pcpu_map_extend_chunks);
+ 
+ /*
+- * The number of empty populated pages, protected by pcpu_lock.  The
+- * reserved chunk doesn't contribute to the count.
++ * The number of empty populated pages by chunk type, protected by pcpu_lock.
++ * The reserved chunk doesn't contribute to the count.
+  */
+-int pcpu_nr_empty_pop_pages;
++int pcpu_nr_empty_pop_pages[PCPU_NR_CHUNK_TYPES];
+ 
+ /*
+  * The number of populated pages in use by the allocator, protected by
+@@ -555,7 +555,7 @@ static inline void pcpu_update_empty_pag
+ {
+ 	chunk->nr_empty_pop_pages += nr;
+ 	if (chunk != pcpu_reserved_chunk)
+-		pcpu_nr_empty_pop_pages += nr;
++		pcpu_nr_empty_pop_pages[pcpu_chunk_type(chunk)] += nr;
+ }
+ 
+ /*
+@@ -1831,7 +1831,7 @@ area_found:
+ 		mutex_unlock(&pcpu_alloc_mutex);
+ 	}
+ 
+-	if (pcpu_nr_empty_pop_pages < PCPU_EMPTY_POP_PAGES_LOW)
++	if (pcpu_nr_empty_pop_pages[type] < PCPU_EMPTY_POP_PAGES_LOW)
+ 		pcpu_schedule_balance_work();
+ 
+ 	/* clear the areas and return address relative to base address */
+@@ -1999,7 +1999,7 @@ retry_pop:
+ 		pcpu_atomic_alloc_failed = false;
+ 	} else {
+ 		nr_to_pop = clamp(PCPU_EMPTY_POP_PAGES_HIGH -
+-				  pcpu_nr_empty_pop_pages,
++				  pcpu_nr_empty_pop_pages[type],
+ 				  0, PCPU_EMPTY_POP_PAGES_HIGH);
+ 	}
+ 
+@@ -2579,7 +2579,7 @@ void __init pcpu_setup_first_chunk(const
+ 
+ 	/* link the first chunk in */
+ 	pcpu_first_chunk = chunk;
+-	pcpu_nr_empty_pop_pages = pcpu_first_chunk->nr_empty_pop_pages;
++	pcpu_nr_empty_pop_pages[PCPU_CHUNK_ROOT] = pcpu_first_chunk->nr_empty_pop_pages;
+ 	pcpu_chunk_relocate(pcpu_first_chunk, -1);
+ 
+ 	/* include all regions of the first chunk */
 
 
