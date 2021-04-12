@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3FC335BC80
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D8635BE4C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237496AbhDLInW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:43:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34888 "EHLO mail.kernel.org"
+        id S238306AbhDLI5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237477AbhDLInR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:43:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59DD061244;
-        Mon, 12 Apr 2021 08:42:59 +0000 (UTC)
+        id S239039AbhDLIz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48F33611F0;
+        Mon, 12 Apr 2021 08:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618216979;
-        bh=p2OwqxFHSKfHPF7Uh5dxXGlLivSDO5iVmkwk2ean3h4=;
+        s=korg; t=1618217710;
+        bh=kxJ0YnO73BloS+aKac4i5xoe12tE1J3Ux0Qz1aii0Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8DuZ+DpCk/C0nyS8x4ucs7oSX73lEVb1Aaz92v2EkYAdcJ88urr02RFWe4AIMo2C
-         RKetnlFN8MaueKN1AHkdhzuLN+E+UKPdm8XpwRujqQO39ccIV2Ft13EmTkL52gZuHM
-         sH0CiHROa1zYpZ+9E7uW/+ZXAaCDG1dvB+PFIiHM=
+        b=abWuzW6gUK30TGI+w03LIjDQ0njyluoxOIT/7KEbj77IzvlscOXxT+WXD0e5lyYGM
+         oksck9RrWRMGEDXyz+gInfmM1ZfIHjmIKWU7hPK7N4KStQHVU6QAGvvX02VBqp+8z2
+         8ROORl1zl6LYFbpQFDJaQ5r/Bd2CsHhSoP0jB3OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 25/66] usbip: synchronize event handler with sysfs code paths
+        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 117/188] can: isotp: fix msg_namelen values depending on CAN_REQUIRED_SIZE
 Date:   Mon, 12 Apr 2021 10:40:31 +0200
-Message-Id: <20210412083958.938940755@linuxfoundation.org>
+Message-Id: <20210412084017.545729083@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 363eaa3a450abb4e63bd6e3ad79d1f7a0f717814 upstream.
+[ Upstream commit f522d9559b07854c231cf8f0b8cb5a3578f8b44e ]
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+Since commit f5223e9eee65 ("can: extend sockaddr_can to include j1939
+members") the sockaddr_can has been extended in size and a new
+CAN_REQUIRED_SIZE macro has been introduced to calculate the protocol
+specific needed size.
 
-Use sysfs_lock to synchronize event handler with sysfs paths
-in usbip drivers.
+The ABI for the msg_name and msg_namelen has not been adapted to the
+new CAN_REQUIRED_SIZE macro for the other CAN protocols which leads to
+a problem when an existing binary reads the (increased) struct
+sockaddr_can in msg_name.
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/c5c8723d3f29dfe3d759cfaafa7dd16b0dfe2918.1616807117.git.skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Reported-by: Richard Weinberger <richard@nod.at>
+Acked-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
+Link: https://lore.kernel.org/linux-can/1135648123.112255.1616613706554.JavaMail.zimbra@nod.at/T/#t
+Link: https://lore.kernel.org/r/20210325125850.1620-2-socketcan@hartkopp.net
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/usbip_event.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/can/isotp.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/usbip/usbip_event.c
-+++ b/drivers/usb/usbip/usbip_event.c
-@@ -70,6 +70,7 @@ static void event_handler(struct work_st
- 	while ((ud = get_event()) != NULL) {
- 		usbip_dbg_eh("pending event %lx\n", ud->event);
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index ea1e227b8e54..d5780ab29e09 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -77,6 +77,8 @@ MODULE_LICENSE("Dual BSD/GPL");
+ MODULE_AUTHOR("Oliver Hartkopp <socketcan@hartkopp.net>");
+ MODULE_ALIAS("can-proto-6");
  
-+		mutex_lock(&ud->sysfs_lock);
- 		/*
- 		 * NOTE: shutdown must come first.
- 		 * Shutdown the device.
-@@ -90,6 +91,7 @@ static void event_handler(struct work_st
- 			ud->eh_ops.unusable(ud);
- 			unset_event(ud, USBIP_EH_UNUSABLE);
- 		}
-+		mutex_unlock(&ud->sysfs_lock);
++#define ISOTP_MIN_NAMELEN CAN_REQUIRED_SIZE(struct sockaddr_can, can_addr.tp)
++
+ #define SINGLE_MASK(id) (((id) & CAN_EFF_FLAG) ? \
+ 			 (CAN_EFF_MASK | CAN_EFF_FLAG | CAN_RTR_FLAG) : \
+ 			 (CAN_SFF_MASK | CAN_EFF_FLAG | CAN_RTR_FLAG))
+@@ -981,7 +983,8 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 	sock_recv_timestamp(msg, sk, skb);
  
- 		wake_up(&ud->eh_waitq);
+ 	if (msg->msg_name) {
+-		msg->msg_namelen = sizeof(struct sockaddr_can);
++		__sockaddr_check_size(ISOTP_MIN_NAMELEN);
++		msg->msg_namelen = ISOTP_MIN_NAMELEN;
+ 		memcpy(msg->msg_name, skb->cb, msg->msg_namelen);
  	}
+ 
+@@ -1050,7 +1053,7 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 	int err = 0;
+ 	int notify_enetdown = 0;
+ 
+-	if (len < CAN_REQUIRED_SIZE(struct sockaddr_can, can_addr.tp))
++	if (len < ISOTP_MIN_NAMELEN)
+ 		return -EINVAL;
+ 
+ 	if (addr->can_addr.tp.rx_id == addr->can_addr.tp.tx_id)
+@@ -1136,13 +1139,13 @@ static int isotp_getname(struct socket *sock, struct sockaddr *uaddr, int peer)
+ 	if (peer)
+ 		return -EOPNOTSUPP;
+ 
+-	memset(addr, 0, sizeof(*addr));
++	memset(addr, 0, ISOTP_MIN_NAMELEN);
+ 	addr->can_family = AF_CAN;
+ 	addr->can_ifindex = so->ifindex;
+ 	addr->can_addr.tp.rx_id = so->rxid;
+ 	addr->can_addr.tp.tx_id = so->txid;
+ 
+-	return sizeof(*addr);
++	return ISOTP_MIN_NAMELEN;
+ }
+ 
+ static int isotp_setsockopt(struct socket *sock, int level, int optname,
+-- 
+2.30.2
+
 
 
