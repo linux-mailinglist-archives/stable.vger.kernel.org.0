@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6815D35BECE
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A18835C0A0
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238739AbhDLJCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:02:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48976 "EHLO mail.kernel.org"
+        id S240737AbhDLJPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239043AbhDLI7C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:59:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEA1861369;
-        Mon, 12 Apr 2021 08:57:21 +0000 (UTC)
+        id S240984AbhDLJLU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:11:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 257F5613AD;
+        Mon, 12 Apr 2021 09:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217842;
-        bh=V1OlOY5U2Rw1k7ZX8DzfHThSuCDmT3epTak46REhlDk=;
+        s=korg; t=1618218463;
+        bh=pVA0Qb5ZTGEkOb6cYmFWkQ0YdOSVcEhyp3g8m9oOVAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tncneYtNyrht+MmsAbdHaCjmzIYXvDNO7z03WqGzZ2+/ZUOYhREzPo1KxxbBkOKrV
-         gHIqXpA6l2ZzL6Ok18GOIO5xxNlMPJ+1GREb0ZBRK7YjoiLdyVftWfdefW+4WnbtPf
-         AdlOT2bMCxd5zu153WNJzIKBF9992x5u1S1Uig30=
+        b=Qu70VD4pbWsDJPDFk3PzdQQ2Jrm1g32RUHYEGykiTi5R8KOedhpX8wzJxQmUJ3M/g
+         ejFTW/Vik5epoDygBvzbq758truNYE++ES43xWhHLVvcWzmHMowbdtpszIInQdlElI
+         wNovJG2iDeWE0NqN79GJ4X32QRtEjKsv/ju1vBIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 164/188] drm/vc4: crtc: Reduce PV fifo threshold on hvs4
+Subject: [PATCH 5.11 173/210] iwlwifi: fix 11ax disabled bit in the regulatory capability flags
 Date:   Mon, 12 Apr 2021 10:41:18 +0200
-Message-Id: <20210412084019.086654852@linuxfoundation.org>
+Message-Id: <20210412084021.781886979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit eb9dfdd1ed40357b99a4201c8534c58c562e48c9 ]
+[ Upstream commit 07cc40fec9a85e669ea12e161a438d2cbd76f1ed ]
 
-Experimentally have found PV on hvs4 reports fifo full
-error with expected settings and does not with one less
+When version 2 of the regulatory capability flags API was implemented,
+the flag to disable 11ax was defined as bit 13, but this was later
+changed and the bit remained as bit 10, like in version 1.  This was
+never changed in the driver, so we were checking for the wrong bit in
+newer devices.  Fix it.
 
-This appears as:
-[drm:drm_atomic_helper_wait_for_flip_done] *ERROR* [CRTC:82:crtc-3] flip_done timed out
-
-with bit 10 of PV_STAT set "HVS driving pixels when the PV FIFO is full"
-
-Fixes: c8b75bca92cb ("drm/vc4: Add KMS support for Raspberry Pi.")
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210318161328.1471556-3-maxime@cerno.tech
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: e27c506a985c ("iwlwifi: regulatory: regulatory capabilities api change")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210326125611.6d28516b59cd.Id0248d5e4662695254f49ce37b0268834ed52918@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index 482219fb4db2..1d2416d466a3 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -210,6 +210,7 @@ static u32 vc4_get_fifo_full_level(struct vc4_crtc *vc4_crtc, u32 format)
- {
- 	const struct vc4_crtc_data *crtc_data = vc4_crtc_to_vc4_crtc_data(vc4_crtc);
- 	const struct vc4_pv_data *pv_data = vc4_crtc_to_vc4_pv_data(vc4_crtc);
-+	struct vc4_dev *vc4 = to_vc4_dev(vc4_crtc->base.dev);
- 	u32 fifo_len_bytes = pv_data->fifo_depth;
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+index 720193d16539..7da193a12871 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+@@ -232,7 +232,7 @@ enum iwl_reg_capa_flags_v2 {
+ 	REG_CAPA_V2_MCS_9_ALLOWED	= BIT(6),
+ 	REG_CAPA_V2_WEATHER_DISABLED	= BIT(7),
+ 	REG_CAPA_V2_40MHZ_ALLOWED	= BIT(8),
+-	REG_CAPA_V2_11AX_DISABLED	= BIT(13),
++	REG_CAPA_V2_11AX_DISABLED	= BIT(10),
+ };
  
- 	/*
-@@ -238,6 +239,22 @@ static u32 vc4_get_fifo_full_level(struct vc4_crtc *vc4_crtc, u32 format)
- 		if (crtc_data->hvs_output == 5)
- 			return 32;
- 
-+		/*
-+		 * It looks like in some situations, we will overflow
-+		 * the PixelValve FIFO (with the bit 10 of PV stat being
-+		 * set) and stall the HVS / PV, eventually resulting in
-+		 * a page flip timeout.
-+		 *
-+		 * Displaying the video overlay during a playback with
-+		 * Kodi on an RPi3 seems to be a great solution with a
-+		 * failure rate around 50%.
-+		 *
-+		 * Removing 1 from the FIFO full level however
-+		 * seems to completely remove that issue.
-+		 */
-+		if (!vc4->hvs->hvs5)
-+			return fifo_len_bytes - 3 * HVS_FIFO_LATENCY_PIX - 1;
-+
- 		return fifo_len_bytes - 3 * HVS_FIFO_LATENCY_PIX;
- 	}
- }
+ /*
 -- 
 2.30.2
 
