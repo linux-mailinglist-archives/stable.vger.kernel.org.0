@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3003535C097
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D97D35BEF5
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240346AbhDLJOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:14:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34454 "EHLO mail.kernel.org"
+        id S239136AbhDLJC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240891AbhDLJLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:11:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 292736139F;
-        Mon, 12 Apr 2021 09:07:12 +0000 (UTC)
+        id S239551AbhDLJAm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:00:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 202D461385;
+        Mon, 12 Apr 2021 08:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218432;
-        bh=n5WJa8ngEv7bEquikRAerBZToMl/YvbocI+gERKY1hI=;
+        s=korg; t=1618217895;
+        bh=m6Oub1k2Wh9ly8HF3jtsbb4Ph6qu7WqCG1PZbwA4cWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d8XbyaseH5t6zvMRdwCy/HCHQ4ZSvi3XEN4ckIAHnPBMPLDNgBmMih+5sd32JIumB
-         fye/AZGUdOSB4dxjgf7SMKISMEswOp4CjTZhR6jmjOuyTnyIVD0bY6PlSeklGt3Oz4
-         Y8q1JZg2/t5DoPck2J/eeRrlODEIZNsrqvRoQ2OA=
+        b=wbFhpHzW3iYK2RKQGpJtfQEXLUyd5RLrEzGMof4OxzhjBUBaIcRBeyPLlFmFms6TE
+         OwbuguSdLEiUsB0O/Pf0RQlmLAs8zzlmsnhAN795BZ+GDEQr0fLMPDZYsHLZjJiwE6
+         DOcI7cBtUPaC1ZAJh9AeCp59L6dwSeogyld8WP3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Tai <thomas.tai@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>
-Subject: [PATCH 5.11 195/210] x86/traps: Correct exc_general_protection() and math_error() return paths
+        stable@vger.kernel.org,
+        syzbot+fbf4fc11a819824e027b@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 5.10 186/188] net: ieee802154: forbid monitor for del llsec seclevel
 Date:   Mon, 12 Apr 2021 10:41:40 +0200
-Message-Id: <20210412084022.506578942@linuxfoundation.org>
+Message-Id: <20210412084019.803048666@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Tai <thomas.tai@oracle.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 632a1c209b8773cb0119fe3aada9f1db14fa357c upstream.
+commit 9dde130937e95b72adfae64ab21d6e7e707e2dac upstream.
 
-Commit
+This patch forbids to del llsec seclevel for monitor interfaces which we
+don't support yet. Otherwise we will access llsec mib which isn't
+initialized for monitors.
 
-  334872a09198 ("x86/traps: Attempt to fixup exceptions in vDSO before signaling")
-
-added return statements which bypass calling cond_local_irq_disable().
-
-According to
-
-  ca4c6a9858c2 ("x86/traps: Make interrupt enable/disable symmetric in C code"),
-
-cond_local_irq_disable() is needed because the asm return code no longer
-disables interrupts. Follow the existing code as an example to use "goto
-exit" instead of "return" statement.
-
- [ bp: Massage commit message. ]
-
-Fixes: 334872a09198 ("x86/traps: Attempt to fixup exceptions in vDSO before signaling")
-Signed-off-by: Thomas Tai <thomas.tai@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
-Link: https://lkml.kernel.org/r/1617902914-83245-1-git-send-email-thomas.tai@oracle.com
+Reported-by: syzbot+fbf4fc11a819824e027b@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-15-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/traps.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ieee802154/nl802154.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -556,7 +556,7 @@ DEFINE_IDTENTRY_ERRORCODE(exc_general_pr
- 		tsk->thread.trap_nr = X86_TRAP_GP;
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -2092,6 +2092,9 @@ static int nl802154_del_llsec_seclevel(s
+ 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
+ 	struct ieee802154_llsec_seclevel sl;
  
- 		if (fixup_vdso_exception(regs, X86_TRAP_GP, error_code, 0))
--			return;
-+			goto exit;
- 
- 		show_signal(tsk, SIGSEGV, "", desc, regs, error_code);
- 		force_sig(SIGSEGV);
-@@ -1057,7 +1057,7 @@ static void math_error(struct pt_regs *r
- 		goto exit;
- 
- 	if (fixup_vdso_exception(regs, trapnr, 0, 0))
--		return;
-+		goto exit;
- 
- 	force_sig_fault(SIGFPE, si_code,
- 			(void __user *)uprobe_get_trap_addr(regs));
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (!info->attrs[NL802154_ATTR_SEC_LEVEL] ||
+ 	    llsec_parse_seclevel(info->attrs[NL802154_ATTR_SEC_LEVEL],
+ 				 &sl) < 0)
 
 
