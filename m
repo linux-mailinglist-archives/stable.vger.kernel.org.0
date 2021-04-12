@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6241D35BD20
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3035835BE66
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238080AbhDLIrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:47:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39574 "EHLO mail.kernel.org"
+        id S238889AbhDLI6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:58:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237959AbhDLIqs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:46:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00F9F6127B;
-        Mon, 12 Apr 2021 08:46:29 +0000 (UTC)
+        id S238369AbhDLI4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:56:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EDB86124C;
+        Mon, 12 Apr 2021 08:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217190;
-        bh=A1+ge7BdZccAva6MTSnC+hiedozRwKCm4Ep9BcAz9rA=;
+        s=korg; t=1618217764;
+        bh=xbUPT3LN7PVYDuZXEkPkqXWnMHNZf1ODOAMORpEw98E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfH/TyDCqZt0T7w/gC2ZKTOgV+MMMmLinzrgh9Ro030rbVenhx/Rj1wYxjRoM/IMc
-         j2oktf4SevGY/G8NyxQv9gY7GgUuBB/5O5XPcMzUP/hBD+GxVEUJXq/gbPszBMiuta
-         02DHQGUFIZBBPs6utwX/0pCMagigYmr4oIdypXmw=
+        b=Bp+KNhsDCzwi/tzVqKULigzcpS65BDiMqtx3002rYiyCGhhY/6EJMaqK1NQmqyCiK
+         93PdzTws7zlzWzMFXVmQnaZotLvv8tCm3gndW8kwepr3vt1r1cLHyATRtDYa6vtqZ+
+         qGQoEKCVafzdbhxsyA1kKiM+LZ1dIzmQnYWIur5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 036/111] usbip: add sysfs_lock to synchronize sysfs code paths
-Date:   Mon, 12 Apr 2021 10:40:14 +0200
-Message-Id: <20210412084005.456968206@linuxfoundation.org>
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 101/188] esp: delete NETIF_F_SCTP_CRC bit from features for esp offload
+Date:   Mon, 12 Apr 2021 10:40:15 +0200
+Message-Id: <20210412084017.011504675@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,149 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 4e9c93af7279b059faf5bb1897ee90512b258a12 upstream.
+[ Upstream commit 154deab6a3ba47792936edf77f2f13a1cbc4351d ]
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+Now in esp4/6_gso_segment(), before calling inner proto .gso_segment,
+NETIF_F_CSUM_MASK bits are deleted, as HW won't be able to do the
+csum for inner proto due to the packet encrypted already.
 
-This problem is common to all drivers while it can be reproduced easily
-in vhci_hcd. Add a sysfs_lock to usbip_device struct to protect the paths.
+So the UDP/TCP packet has to do the checksum on its own .gso_segment.
+But SCTP is using CRC checksum, and for that NETIF_F_SCTP_CRC should
+be deleted to make SCTP do the csum in own .gso_segment as well.
 
-Use this in vhci_hcd to protect sysfs paths. For a complete fix, usip_host
-and usip-vudc drivers and the event handler will have to use this lock to
-protect the paths. These changes will be done in subsequent patches.
+In Xiumei's testing with SCTP over IPsec/veth, the packets are kept
+dropping due to the wrong CRC checksum.
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/b6568f7beae702bbc236a545d3c020106ca75eac.1616807117.git.skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/usbip_common.h |    3 +++
- drivers/usb/usbip/vhci_hcd.c     |    1 +
- drivers/usb/usbip/vhci_sysfs.c   |   30 +++++++++++++++++++++++++-----
- 3 files changed, 29 insertions(+), 5 deletions(-)
+ net/ipv4/esp4_offload.c | 6 ++++--
+ net/ipv6/esp6_offload.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/usbip/usbip_common.h
-+++ b/drivers/usb/usbip/usbip_common.h
-@@ -263,6 +263,9 @@ struct usbip_device {
- 	/* lock for status */
- 	spinlock_t lock;
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index 5bda5aeda579..d5c0f5a2a551 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -217,10 +217,12 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
  
-+	/* mutex for synchronizing sysfs store paths */
-+	struct mutex sysfs_lock;
-+
- 	int sockfd;
- 	struct socket *tcp_socket;
+ 	if ((!(skb->dev->gso_partial_features & NETIF_F_HW_ESP) &&
+ 	     !(features & NETIF_F_HW_ESP)) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM) &&
+ 		 !(skb->dev->gso_partial_features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
  
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -1096,6 +1096,7 @@ static void vhci_device_init(struct vhci
- 	vdev->ud.side   = USBIP_VHCI;
- 	vdev->ud.status = VDEV_ST_NULL;
- 	spin_lock_init(&vdev->ud.lock);
-+	mutex_init(&vdev->ud.sysfs_lock);
+ 	xo->flags |= XFRM_GSO_SEGMENT;
  
- 	INIT_LIST_HEAD(&vdev->priv_rx);
- 	INIT_LIST_HEAD(&vdev->priv_tx);
---- a/drivers/usb/usbip/vhci_sysfs.c
-+++ b/drivers/usb/usbip/vhci_sysfs.c
-@@ -185,6 +185,8 @@ static int vhci_port_disconnect(struct v
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 1ca516fb30e1..f35203ab39f5 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -254,9 +254,11 @@ static struct sk_buff *esp6_gso_segment(struct sk_buff *skb,
+ 	skb->encap_hdr_csum = 1;
  
- 	usbip_dbg_vhci_sysfs("enter\n");
+ 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
  
-+	mutex_lock(&vdev->ud.sysfs_lock);
-+
- 	/* lock */
- 	spin_lock_irqsave(&vhci->lock, flags);
- 	spin_lock(&vdev->ud.lock);
-@@ -195,6 +197,7 @@ static int vhci_port_disconnect(struct v
- 		/* unlock */
- 		spin_unlock(&vdev->ud.lock);
- 		spin_unlock_irqrestore(&vhci->lock, flags);
-+		mutex_unlock(&vdev->ud.sysfs_lock);
+ 	xo->flags |= XFRM_GSO_SEGMENT;
  
- 		return -EINVAL;
- 	}
-@@ -205,6 +208,8 @@ static int vhci_port_disconnect(struct v
- 
- 	usbip_event_add(&vdev->ud, VDEV_EVENT_DOWN);
- 
-+	mutex_unlock(&vdev->ud.sysfs_lock);
-+
- 	return 0;
- }
- 
-@@ -349,30 +354,36 @@ static ssize_t attach_store(struct devic
- 	else
- 		vdev = &vhci->vhci_hcd_hs->vdev[rhport];
- 
-+	mutex_lock(&vdev->ud.sysfs_lock);
-+
- 	/* Extract socket from fd. */
- 	socket = sockfd_lookup(sockfd, &err);
- 	if (!socket) {
- 		dev_err(dev, "failed to lookup sock");
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
- 	}
- 	if (socket->type != SOCK_STREAM) {
- 		dev_err(dev, "Expecting SOCK_STREAM - found %d",
- 			socket->type);
- 		sockfd_put(socket);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
- 	}
- 
- 	/* create threads before locking */
- 	tcp_rx = kthread_create(vhci_rx_loop, &vdev->ud, "vhci_rx");
- 	if (IS_ERR(tcp_rx)) {
- 		sockfd_put(socket);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
- 	}
- 	tcp_tx = kthread_create(vhci_tx_loop, &vdev->ud, "vhci_tx");
- 	if (IS_ERR(tcp_tx)) {
- 		kthread_stop(tcp_rx);
- 		sockfd_put(socket);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
- 	}
- 
- 	/* get task structs now */
-@@ -397,7 +408,8 @@ static ssize_t attach_store(struct devic
- 		 * Will be retried from userspace
- 		 * if there's another free port.
- 		 */
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto unlock_mutex;
- 	}
- 
- 	dev_info(dev, "pdev(%u) rhport(%u) sockfd(%d)\n",
-@@ -422,7 +434,15 @@ static ssize_t attach_store(struct devic
- 
- 	rh_port_connect(vdev, speed);
- 
-+	dev_info(dev, "Device attached\n");
-+
-+	mutex_unlock(&vdev->ud.sysfs_lock);
-+
- 	return count;
-+
-+unlock_mutex:
-+	mutex_unlock(&vdev->ud.sysfs_lock);
-+	return err;
- }
- static DEVICE_ATTR_WO(attach);
- 
+-- 
+2.30.2
+
 
 
