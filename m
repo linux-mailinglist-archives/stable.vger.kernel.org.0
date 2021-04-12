@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5078F35C008
+	by mail.lfdr.de (Postfix) with ESMTP id C560E35C009
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239197AbhDLJI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239299AbhDLJI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Apr 2021 05:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239204AbhDLJHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239210AbhDLJHA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:07:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 538716138A;
-        Mon, 12 Apr 2021 09:03:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ED1F6139C;
+        Mon, 12 Apr 2021 09:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218209;
-        bh=ANqvCsrIDcTNKVska+ktPilrJD2+3obbpeQNLkuYUoE=;
+        s=korg; t=1618218212;
+        bh=3M81bUulRZ1OJ8K1jzIUjMAQrCb+nJsOaPN0EFVYXos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gpVTWdqQEgrVaScpAT/YboTqU/zdk7FdU2kOMp2K5biHDNNk2vJ1KsAXZs9xKKjnH
-         AOCQm0dGkf8IuZb0rbBPcc3zZvs1+AZcOBlNgVisT3j2DpzlQnWaxjCJqyNOUI1s6i
-         Y5/dS1Vr6qBHoWkwhQPa/0izMlWNu6gFYdEOiPSM=
+        b=2r3vVGxF7nofdRGWqwaHSzQX8nOucWvWcw3dSWx2tbiRzWSX+lUM2OV5czAvLoCTa
+         QuoNtMqvxPmQ3XPtYCOw+MhjaoO+r7ZwJCP7QpkvMfaZ3ldzfp3Gy5Z0XiHVe0I01O
+         2lKbOpAlbGMfQLyBIaEIbioKcfqgzhKK+NTbiyX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 112/210] ASoC: SOF: Intel: HDA: fix core status verification
-Date:   Mon, 12 Apr 2021 10:40:17 +0200
-Message-Id: <20210412084019.741971149@linuxfoundation.org>
+Subject: [PATCH 5.11 113/210] ASoC: wm8960: Fix wrong bclk and lrclk with pll enabled for some chips
+Date:   Mon, 12 Apr 2021 10:40:18 +0200
+Message-Id: <20210412084019.773468969@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -44,52 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 927280909fa7d8e61596800d82f18047c6cfbbe4 ]
+[ Upstream commit 16b82e75c15a7dbd564ea3654f3feb61df9e1e6f ]
 
-When checking for enabled cores it isn't enough to check that
-some of the requested cores are running, we have to check that
-all of them are.
+The input MCLK is 12.288MHz, the desired output sysclk is 11.2896MHz
+and sample rate is 44100Hz, with the configuration pllprescale=2,
+postscale=sysclkdiv=1, some chip may have wrong bclk
+and lrclk output with pll enabled in master mode, but with the
+configuration pllprescale=1, postscale=2, the output clock is correct.
 
-Fixes: 747503b1813a ("ASoC: SOF: Intel: Add Intel specific HDA DSP HW operations")
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210322163728.16616-2-pierre-louis.bossart@linux.intel.com
+>From Datasheet, the PLL performs best when f2 is between
+90MHz and 100MHz when the desired sysclk output is 11.2896MHz
+or 12.288MHz, so sysclkdiv = 2 (f2/8) is the best choice.
+
+So search available sysclk_divs from 2 to 1 other than from 1 to 2.
+
+Fixes: 84fdc00d519f ("ASoC: codec: wm9860: Refactor PLL out freq search")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/1616150926-22892-1-git-send-email-shengjiu.wang@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-dsp.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ sound/soc/codecs/wm8960.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/intel/hda-dsp.c b/sound/soc/sof/intel/hda-dsp.c
-index 012bac41fee0..ea8e7ad8684d 100644
---- a/sound/soc/sof/intel/hda-dsp.c
-+++ b/sound/soc/sof/intel/hda-dsp.c
-@@ -226,10 +226,17 @@ bool hda_dsp_core_is_enabled(struct snd_sof_dev *sdev,
+diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
+index 660ec46eecf2..ceaf3bbb18e6 100644
+--- a/sound/soc/codecs/wm8960.c
++++ b/sound/soc/codecs/wm8960.c
+@@ -707,7 +707,13 @@ int wm8960_configure_pll(struct snd_soc_component *component, int freq_in,
+ 	best_freq_out = -EINVAL;
+ 	*sysclk_idx = *dac_idx = *bclk_idx = -1;
  
- 	val = snd_sof_dsp_read(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPCS);
- 
--	is_enable = (val & HDA_DSP_ADSPCS_CPA_MASK(core_mask)) &&
--		    (val & HDA_DSP_ADSPCS_SPA_MASK(core_mask)) &&
--		    !(val & HDA_DSP_ADSPCS_CRST_MASK(core_mask)) &&
--		    !(val & HDA_DSP_ADSPCS_CSTALL_MASK(core_mask));
-+#define MASK_IS_EQUAL(v, m, field) ({	\
-+	u32 _m = field(m);		\
-+	((v) & _m) == _m;		\
-+})
-+
-+	is_enable = MASK_IS_EQUAL(val, core_mask, HDA_DSP_ADSPCS_CPA_MASK) &&
-+		MASK_IS_EQUAL(val, core_mask, HDA_DSP_ADSPCS_SPA_MASK) &&
-+		!(val & HDA_DSP_ADSPCS_CRST_MASK(core_mask)) &&
-+		!(val & HDA_DSP_ADSPCS_CSTALL_MASK(core_mask));
-+
-+#undef MASK_IS_EQUAL
- 
- 	dev_dbg(sdev->dev, "DSP core(s) enabled? %d : core_mask %x\n",
- 		is_enable, core_mask);
+-	for (i = 0; i < ARRAY_SIZE(sysclk_divs); ++i) {
++	/*
++	 * From Datasheet, the PLL performs best when f2 is between
++	 * 90MHz and 100MHz, the desired sysclk output is 11.2896MHz
++	 * or 12.288MHz, then sysclkdiv = 2 is the best choice.
++	 * So search sysclk_divs from 2 to 1 other than from 1 to 2.
++	 */
++	for (i = ARRAY_SIZE(sysclk_divs) - 1; i >= 0; --i) {
+ 		if (sysclk_divs[i] == -1)
+ 			continue;
+ 		for (j = 0; j < ARRAY_SIZE(dac_divs); ++j) {
 -- 
 2.30.2
 
