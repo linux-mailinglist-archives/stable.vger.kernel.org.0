@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72D5335BE20
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4BB35BD52
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237760AbhDLI5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47054 "EHLO mail.kernel.org"
+        id S237455AbhDLIvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238883AbhDLIzJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 181A06137C;
-        Mon, 12 Apr 2021 08:53:35 +0000 (UTC)
+        id S238059AbhDLIr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:47:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4277B6135F;
+        Mon, 12 Apr 2021 08:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217616;
-        bh=D28Ivy8chvDsGmeDTnEzdtp9wTeG/+JDNjP49oHAdqE=;
+        s=korg; t=1618217231;
+        bh=HhsN8e56+DUXzwGRd4QuvcrbozfoA16U1c4+/jkeuqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7zi2EaYLq6cSvATfaO0+850zNbJ8eKgQFFFhy8X54oPW5ergfxiFVgQ/06DOWFC6
-         mc7ITDF1wpDKPayzTunCfmiOnv+qANK+tJ9NhBQYb3NQEDmuTsl44TWtWKDgNHP0Ll
-         n2f/tbSo2YDZ+3VZXTJH39OpKOAOMf6UEGE3werE=
+        b=l4ehLurOMVfjyM64eUGOm5jx9nbq3A22BGiYrHs0DPdoPE3jhKUBYgMyl3fopiiKD
+         Vo82+XI/TH3HV9ZNw5/2LLoABSBXGTwUqZzU1fhfi3sAZ+CcfPwWD6r2/25dMq0j9J
+         UUwFLjd6QRp7VT9F0HCn+UbpAzN00KnSfQu6eswQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Klaus Kudielka <klaus.kudielka@gmail.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, stable@kernel.org
-Subject: [PATCH 5.10 081/188] i2c: turn recovery error on init to debug
+        stable@vger.kernel.org, Jack Qiu <jack.qiu@huawei.com>,
+        Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 017/111] fs: direct-io: fix missing sdio->boundary
 Date:   Mon, 12 Apr 2021 10:39:55 +0200
-Message-Id: <20210412084016.337371761@linuxfoundation.org>
+Message-Id: <20210412084004.798189546@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Jack Qiu <jack.qiu@huawei.com>
 
-commit e409a6a3e0690efdef9b8a96197bc61ff117cfaf upstream.
+commit df41872b68601059dd4a84858952dcae58acd331 upstream.
 
-In some configurations, recovery is optional. So, don't throw an error
-when it is not used because e.g. pinctrl settings for recovery are not
-provided. Reword the message and make it debug output.
+I encountered a hung task issue, but not a performance one.  I run DIO
+on a device (need lba continuous, for example open channel ssd), maybe
+hungtask in below case:
 
-Reported-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Cc: stable@kernel.org
+  DIO:						Checkpoint:
+  get addr A(at boundary), merge into BIO,
+  no submit because boundary missing
+						flush dirty data(get addr A+1), wait IO(A+1)
+						writeback timeout, because DIO(A) didn't submit
+  get addr A+2 fail, because checkpoint is doing
+
+dio_send_cur_page() may clear sdio->boundary, so prevent it from missing
+a boundary.
+
+Link: https://lkml.kernel.org/r/20210322042253.38312-1-jack.qiu@huawei.com
+Fixes: b1058b981272 ("direct-io: submit bio after boundary buffer is added to it")
+Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/i2c-core-base.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/direct-io.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -378,7 +378,7 @@ static int i2c_gpio_init_recovery(struct
- static int i2c_init_recovery(struct i2c_adapter *adap)
+--- a/fs/direct-io.c
++++ b/fs/direct-io.c
+@@ -848,6 +848,7 @@ submit_page_section(struct dio *dio, str
+ 		    struct buffer_head *map_bh)
  {
- 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
--	char *err_str;
-+	char *err_str, *err_level = KERN_ERR;
+ 	int ret = 0;
++	int boundary = sdio->boundary;	/* dio_send_cur_page may clear it */
  
- 	if (!bri)
- 		return 0;
-@@ -387,7 +387,8 @@ static int i2c_init_recovery(struct i2c_
- 		return -EPROBE_DEFER;
- 
- 	if (!bri->recover_bus) {
--		err_str = "no recover_bus() found";
-+		err_str = "no suitable method provided";
-+		err_level = KERN_DEBUG;
- 		goto err;
- 	}
- 
-@@ -414,7 +415,7 @@ static int i2c_init_recovery(struct i2c_
- 
- 	return 0;
-  err:
--	dev_err(&adap->dev, "Not using recovery: %s\n", err_str);
-+	dev_printk(err_level, &adap->dev, "Not using recovery: %s\n", err_str);
- 	adap->bus_recovery_info = NULL;
- 
- 	return -EINVAL;
+ 	if (dio->op == REQ_OP_WRITE) {
+ 		/*
+@@ -886,10 +887,10 @@ submit_page_section(struct dio *dio, str
+ 	sdio->cur_page_fs_offset = sdio->block_in_file << sdio->blkbits;
+ out:
+ 	/*
+-	 * If sdio->boundary then we want to schedule the IO now to
++	 * If boundary then we want to schedule the IO now to
+ 	 * avoid metadata seeks.
+ 	 */
+-	if (sdio->boundary) {
++	if (boundary) {
+ 		ret = dio_send_cur_page(dio, sdio, map_bh);
+ 		if (sdio->bio)
+ 			dio_bio_submit(dio, sdio);
 
 
