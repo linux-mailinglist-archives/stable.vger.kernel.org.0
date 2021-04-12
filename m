@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F2735CBF9
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E37B035CC00
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243965AbhDLQ0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:26:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57688 "EHLO mail.kernel.org"
+        id S244555AbhDLQ0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:26:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243966AbhDLQYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:24:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C5216137E;
-        Mon, 12 Apr 2021 16:24:28 +0000 (UTC)
+        id S243509AbhDLQYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:24:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AC466135F;
+        Mon, 12 Apr 2021 16:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244669;
-        bh=66NdWp2CtQXh24sKJMkxOfxG01+moLWkPVs3IXI9yzM=;
+        s=k20201202; t=1618244671;
+        bh=OBNez7pe5st2L7+wrpz8FhsHh9EY6cWit9Q/8CozrB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AqY00+Veinz79JLmtR4CbAjLuGcTyxDH2Jg8NmFJ0/7q5eocgPwJcig/sYjlDhOXP
-         95xyqjlf8/VjehTAAI0eb946XpuIN9wAwGtXg9kDgPT9xnxQIAmPxbWHXpZUSLiGed
-         /LDTbTE/JPWYY9LpOXUx19bNrSxqhQy3LlgipJXTFhHeWUJfhYARgZbGsdqFCOvUO+
-         /8Ln4rEFx/DLox2KRj2ZI5qTfxq8dfWhsyhCFdmiT57MGClHkqbYHnkJSwlrkKBtvG
-         gaf2m0pyHEt9FbrbHxEZ5UYdN8jxg9MWhAfdVO74PVa47/e7zsnwXuM10hrNlnOl5A
-         KKjPamNfcNfww==
+        b=EehWKkbcscUNLN6gzgtHCorQre4mV8OdPuOYCRcIKNABPZvX7dfZ4JoQ7Zcm/hntE
+         DoSLt6wcjRG/uSitrNkApVOab7twpziEvUt7ZLv2+8TY5EIT3JB04kiARSeeA/VHN2
+         5ElKowH2NbIf1rgI5u5Xlrq+VTM7dc8dpSchv3fP/oeuf6mdfaVUSyESe17APBsFkI
+         587vof2QTY7g2Qy4wjtCmzl9ilDqeya5B3/qHQebD8jBo2tCSaDuBQh+i1HWd4XZ99
+         jZfzmj1XyAcPQPNjD40tp8MHZzsS4wLm+7z+WjP8guidf8Rud8KTE3CyVGK8+Chg+C
+         o1TjHakaB/BtQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Wilck <mwilck@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 22/46] scsi: scsi_transport_srp: Don't block target in SRP_PORT_LOST state
-Date:   Mon, 12 Apr 2021 12:23:37 -0400
-Message-Id: <20210412162401.314035-22-sashal@kernel.org>
+Cc:     Matt Chen <matt.chen@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 23/46] iwlwifi: add support for Qu with AX201 device
+Date:   Mon, 12 Apr 2021 12:23:38 -0400
+Message-Id: <20210412162401.314035-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162401.314035-1-sashal@kernel.org>
 References: <20210412162401.314035-1-sashal@kernel.org>
@@ -43,50 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Matt Chen <matt.chen@intel.com>
 
-[ Upstream commit 5cd0f6f57639c5afbb36100c69281fee82c95ee7 ]
+[ Upstream commit 97195d3cad852063208a1cd4f4d073459547a415 ]
 
-rport_dev_loss_timedout() sets the rport state to SRP_PORT_LOST and the
-SCSI target state to SDEV_TRANSPORT_OFFLINE. If this races with
-srp_reconnect_work(), a warning is printed:
+Add this specific Samsung AX201 sku to driver so it can be
+detected and initialized successfully.
 
-Mar 27 18:48:07 ictm1604s01h4 kernel: dev_loss_tmo expired for SRP port-18:1 / host18.
-Mar 27 18:48:07 ictm1604s01h4 kernel: ------------[ cut here ]------------
-Mar 27 18:48:07 ictm1604s01h4 kernel: scsi_internal_device_block(18:0:0:100) failed: ret = -22
-Mar 27 18:48:07 ictm1604s01h4 kernel: Call Trace:
-Mar 27 18:48:07 ictm1604s01h4 kernel:  ? scsi_target_unblock+0x50/0x50 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  starget_for_each_device+0x80/0xb0 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  target_block+0x24/0x30 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  device_for_each_child+0x57/0x90
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_rport+0xe4/0x230 [scsi_transport_srp]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_work+0x40/0xc0 [scsi_transport_srp]
-
-Avoid this by not trying to block targets for rports in SRP_PORT_LOST
-state.
-
-Link: https://lore.kernel.org/r/20210401091105.8046-1-mwilck@suse.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Matt Chen <matt.chen@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210326125611.30b622037714.Id9fd709cf1c8261c097bbfd7453f6476077dcafc@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_srp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index 1e939a2a387f..98a34ed10f1a 100644
---- a/drivers/scsi/scsi_transport_srp.c
-+++ b/drivers/scsi/scsi_transport_srp.c
-@@ -541,7 +541,7 @@ int srp_reconnect_rport(struct srp_rport *rport)
- 	res = mutex_lock_interruptible(&rport->mutex);
- 	if (res)
- 		goto out;
--	if (rport->state != SRP_RPORT_FAIL_FAST)
-+	if (rport->state != SRP_RPORT_FAIL_FAST && rport->state != SRP_RPORT_LOST)
- 		/*
- 		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
- 		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+index fa32f9045c0c..500fdb0b6c42 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+@@ -684,6 +684,7 @@ static const struct iwl_dev_info iwl_dev_info_table[] = {
+ 	IWL_DEV_INFO(0x4DF0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0, NULL),
+ 	IWL_DEV_INFO(0x4DF0, 0x2074, iwl_ax201_cfg_qu_hr, NULL),
+ 	IWL_DEV_INFO(0x4DF0, 0x4070, iwl_ax201_cfg_qu_hr, NULL),
++	IWL_DEV_INFO(0x4DF0, 0x6074, iwl_ax201_cfg_qu_hr, NULL),
+ 
+ 	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
+ 		      IWL_CFG_MAC_TYPE_PU, IWL_CFG_ANY,
 -- 
 2.30.2
 
