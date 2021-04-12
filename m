@@ -2,72 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7883635C2A8
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 12:03:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2984935C2B5
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 12:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239885AbhDLJrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:47:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47886 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243623AbhDLJmc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 05:42:32 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 703B8C06137C
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 02:40:20 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id sd23so10517808ejb.12
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 02:40:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=fTFWwMjCpocca3MO7P1jty1ObtUAP01oxLMOZnGcpik=;
-        b=rBDp4RrsLpp+aCu0FEHL8oAt5EmAmjWbdZugyZQY35JqydNBKIbnWo7y8uhde6OwuS
-         tyBFYfySPU7t/fsCKDHaudfqNmku+N/iNEQkrIe6GTpqLPlHeK7fIlxO4kOZG4zpWtJ5
-         EQRMUzOSO2Ui59a8Ga/z4dO7U1aHmrbVqDNBywBP2cFYjeZl3ivttwxprkUZrDk7uuwl
-         mWm3GNNXYJUCtxGi7RBEoGvupoPQ2NG9otToRW9AdhPKtsvQKjuyaBCSHEw9zkj4UHTN
-         xwRP9FY8+8FGu2SBjWXZCKM5hSYBiihycbXnfbGlRyao0LpU/3tKw/ArnGAbGzwfJt9X
-         wXGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=fTFWwMjCpocca3MO7P1jty1ObtUAP01oxLMOZnGcpik=;
-        b=qBFjNnr+11wh0/iCyLrJFT3vyZWWrv+K2piE/UvMx4EljpDxJnO8WdW15YhU7mfhjN
-         wiJpv3rfcofsbTYoEoZ5SXvCMwxcaHBn3xFqanGXt4MNzLlP+69Ve9KDCipl1ASsAHhd
-         uSeT9rBS1mwTv4jQ582eEmuR4vWDOLevffSUHoak2KDRJlLmo0FAkFiy1pZAHE/soqMj
-         iKEUbjqo0PR6q6aawaz4ZrgGC/uk52KllUyA6gk0uqo3nEZeTlHD44M3Lz/GsJQc7Fle
-         rvJmUmTnlzhHW1gDBqzQh/cbXgboRTcWCl8e4tRiERKADcJIBvFEyzDxnhxstN3DvbGZ
-         glZg==
-X-Gm-Message-State: AOAM533/tM2OKLBPKhbBr5jGYsRg8XKh97jP2/fWyJez7P0k6GBQEoXG
-        3tvPr8m//Iu6dxWOWIlXVA7ECk4b6vZjdCVAGjg=
-X-Google-Smtp-Source: ABdhPJweMugus+turuy1ZqaCt1HYPWeU/HEh+kXdjpN1XQkOCn8DO5KLsvnGXcSaTif4u5MD3+8th0eHNJ2H6YMpNP8=
-X-Received: by 2002:a17:906:8144:: with SMTP id z4mr10358636ejw.404.1618220419145;
- Mon, 12 Apr 2021 02:40:19 -0700 (PDT)
+        id S237219AbhDLJrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:47:35 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42236 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238959AbhDLJpc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:45:32 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1618220714; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7sa/hj4u/V5reWyozzht2uCFPvZTmFgvs67chooCm9w=;
+        b=ixDHpl+WefpBBW97JDvdapFctRI1FCKRJrYUvy1IlcBhan1vbckclU9UegDacILepp31JD
+        URzkFzmuboCpDZ3It2nLriqE40EU6BIqU0uHC+c02lzoX55F+B90bxkTbgDfjszX/rQddB
+        /FVIo83iBc9agoaAYNadJxshsA5T5Yg=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id DB96DAF1A;
+        Mon, 12 Apr 2021 09:45:13 +0000 (UTC)
+Subject: Re: [PATCH] xen/events: fix setting irq affinity
+To:     Juergen Gross <jgross@suse.com>
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        xen-devel@lists.xenproject.org, stable@vger.kernel.org
+References: <20210412062845.13946-1-jgross@suse.com>
+ <38b2b47d-a77a-9d02-3034-f1c4d03ffdd5@suse.com>
+ <bec9c7a5-5661-73b4-1b0b-137dacba7bbf@suse.com>
+From:   Jan Beulich <jbeulich@suse.com>
+Message-ID: <a5852f35-8828-c6a0-260a-cf095626eb1f@suse.com>
+Date:   Mon, 12 Apr 2021 11:45:14 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.0
 MIME-Version: 1.0
-Received: by 2002:a17:906:4d58:0:0:0:0 with HTTP; Mon, 12 Apr 2021 02:40:18
- -0700 (PDT)
-Reply-To: mrs.chantal166@gmail.com
-From:   Mrs Chantal <chantalmrs63@gmail.com>
-Date:   Mon, 12 Apr 2021 09:40:18 +0000
-Message-ID: <CAASsLd--k1avOsa14moXSp=qeDB1ade5rJGK5HMM0NJ1kkWwuA@mail.gmail.com>
-Subject: HELLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <bec9c7a5-5661-73b4-1b0b-137dacba7bbf@suse.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend
-You have been compensated with the sum of 4.3 million dollars in this
-united nation the payment will be issue into atm visa card and send to
-you from the santander bank we need your address and your whatsapp
-number
+On 12.04.2021 11:39, Juergen Gross wrote:
+> On 12.04.21 11:32, Jan Beulich wrote:
+>> Possibly related, but first of all seeing the redundancy between
+>> eoi_pirq() and ack_dynirq(): Wouldn't it make sense to break out the
+>> common part into a helper? (Really the former could simply call the
+>> latter as it seems.)
+> 
+> In theory, yes. OTOH this no longer applies to upstream, so i dind't
+> bother doing that for stable.
 
-Fill the followings with your details;
+Oh, I guess I should have check the tip of the tree first...
 
-1. Your Name:
-2. Country :
-3. Age and Sex:
-4. Occupation :
-5. Mobile Telephone:
-6. Delivery Address:
-7. Id Card Identification
+Jan
