@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D949D35BE21
+	by mail.lfdr.de (Postfix) with ESMTP id 72D5335BE20
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238717AbhDLI5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43824 "EHLO mail.kernel.org"
+        id S237760AbhDLI5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238881AbhDLIzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238883AbhDLIzJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 04:55:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87CBC6137B;
-        Mon, 12 Apr 2021 08:53:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 181A06137C;
+        Mon, 12 Apr 2021 08:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217614;
-        bh=/JcazcCzHo730u3J7iiQT6+DSlFqUEOkxez7IsSL9IY=;
+        s=korg; t=1618217616;
+        bh=D28Ivy8chvDsGmeDTnEzdtp9wTeG/+JDNjP49oHAdqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nH5pJiYvbQGYGXjOZGblVRhZz0C/f0no7wZP4Nv9QfoXaqDTEBlcdG1vZUjhxeoj/
-         Pe8WJyPm+OLQq1bUU5pi3+P9EcN9/OB6FPS01Tnnccxc2Pir4GszkVd3qYS8bn8zZM
-         mquJsY4ysGF7Qzy0MpMvZahR/ZK463BuEHm8OdTg=
+        b=s7zi2EaYLq6cSvATfaO0+850zNbJ8eKgQFFFhy8X54oPW5ergfxiFVgQ/06DOWFC6
+         mc7ITDF1wpDKPayzTunCfmiOnv+qANK+tJ9NhBQYb3NQEDmuTsl44TWtWKDgNHP0Ll
+         n2f/tbSo2YDZ+3VZXTJH39OpKOAOMf6UEGE3werE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Dennis Zhou <dennis@kernel.org>
-Subject: [PATCH 5.10 080/188] percpu: make pcpu_nr_empty_pop_pages per chunk type
-Date:   Mon, 12 Apr 2021 10:39:54 +0200
-Message-Id: <20210412084016.307117970@linuxfoundation.org>
+        stable@vger.kernel.org, Klaus Kudielka <klaus.kudielka@gmail.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@kernel.org>, stable@kernel.org
+Subject: [PATCH 5.10 081/188] i2c: turn recovery error on init to debug
+Date:   Mon, 12 Apr 2021 10:39:55 +0200
+Message-Id: <20210412084016.337371761@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -40,133 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 0760fa3d8f7fceeea508b98899f1c826e10ffe78 upstream.
+commit e409a6a3e0690efdef9b8a96197bc61ff117cfaf upstream.
 
-nr_empty_pop_pages is used to guarantee that there are some free
-populated pages to satisfy atomic allocations. Accounted and
-non-accounted allocations are using separate sets of chunks,
-so both need to have a surplus of empty pages.
+In some configurations, recovery is optional. So, don't throw an error
+when it is not used because e.g. pinctrl settings for recovery are not
+provided. Reword the message and make it debug output.
 
-This commit makes pcpu_nr_empty_pop_pages and the corresponding logic
-per chunk type.
-
-[Dennis]
-This issue came up as I was reviewing [1] and realized I missed this.
-Simultaneously, it was reported btrfs was seeing failed atomic
-allocations in fsstress tests [2] and [3].
-
-[1] https://lore.kernel.org/linux-mm/20210324190626.564297-1-guro@fb.com/
-[2] https://lore.kernel.org/linux-mm/20210401185158.3275.409509F4@e16-tech.com/
-[3] https://lore.kernel.org/linux-mm/CAL3q7H5RNBjCi708GH7jnczAOe0BLnacT9C+OBgA-Dx9jhB6SQ@mail.gmail.com/
-
-Fixes: 3c7be18ac9a0 ("mm: memcg/percpu: account percpu memory to memory cgroups")
-Cc: stable@vger.kernel.org # 5.9+
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Tested-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Dennis Zhou <dennis@kernel.org>
+Reported-by: Klaus Kudielka <klaus.kudielka@gmail.com>
+Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/percpu-internal.h |    2 +-
- mm/percpu-stats.c    |    9 +++++++--
- mm/percpu.c          |   14 +++++++-------
- 3 files changed, 15 insertions(+), 10 deletions(-)
+ drivers/i2c/i2c-core-base.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/mm/percpu-internal.h
-+++ b/mm/percpu-internal.h
-@@ -87,7 +87,7 @@ extern spinlock_t pcpu_lock;
- 
- extern struct list_head *pcpu_chunk_lists;
- extern int pcpu_nr_slots;
--extern int pcpu_nr_empty_pop_pages;
-+extern int pcpu_nr_empty_pop_pages[];
- 
- extern struct pcpu_chunk *pcpu_first_chunk;
- extern struct pcpu_chunk *pcpu_reserved_chunk;
---- a/mm/percpu-stats.c
-+++ b/mm/percpu-stats.c
-@@ -145,6 +145,7 @@ static int percpu_stats_show(struct seq_
- 	int slot, max_nr_alloc;
- 	int *buffer;
- 	enum pcpu_chunk_type type;
-+	int nr_empty_pop_pages;
- 
- alloc_buffer:
- 	spin_lock_irq(&pcpu_lock);
-@@ -165,7 +166,11 @@ alloc_buffer:
- 		goto alloc_buffer;
- 	}
- 
--#define PL(X) \
-+	nr_empty_pop_pages = 0;
-+	for (type = 0; type < PCPU_NR_CHUNK_TYPES; type++)
-+		nr_empty_pop_pages += pcpu_nr_empty_pop_pages[type];
-+
-+#define PL(X)								\
- 	seq_printf(m, "  %-20s: %12lld\n", #X, (long long int)pcpu_stats_ai.X)
- 
- 	seq_printf(m,
-@@ -196,7 +201,7 @@ alloc_buffer:
- 	PU(nr_max_chunks);
- 	PU(min_alloc_size);
- 	PU(max_alloc_size);
--	P("empty_pop_pages", pcpu_nr_empty_pop_pages);
-+	P("empty_pop_pages", nr_empty_pop_pages);
- 	seq_putc(m, '\n');
- 
- #undef PU
---- a/mm/percpu.c
-+++ b/mm/percpu.c
-@@ -172,10 +172,10 @@ struct list_head *pcpu_chunk_lists __ro_
- static LIST_HEAD(pcpu_map_extend_chunks);
- 
- /*
-- * The number of empty populated pages, protected by pcpu_lock.  The
-- * reserved chunk doesn't contribute to the count.
-+ * The number of empty populated pages by chunk type, protected by pcpu_lock.
-+ * The reserved chunk doesn't contribute to the count.
-  */
--int pcpu_nr_empty_pop_pages;
-+int pcpu_nr_empty_pop_pages[PCPU_NR_CHUNK_TYPES];
- 
- /*
-  * The number of populated pages in use by the allocator, protected by
-@@ -555,7 +555,7 @@ static inline void pcpu_update_empty_pag
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -378,7 +378,7 @@ static int i2c_gpio_init_recovery(struct
+ static int i2c_init_recovery(struct i2c_adapter *adap)
  {
- 	chunk->nr_empty_pop_pages += nr;
- 	if (chunk != pcpu_reserved_chunk)
--		pcpu_nr_empty_pop_pages += nr;
-+		pcpu_nr_empty_pop_pages[pcpu_chunk_type(chunk)] += nr;
- }
+ 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+-	char *err_str;
++	char *err_str, *err_level = KERN_ERR;
  
- /*
-@@ -1831,7 +1831,7 @@ area_found:
- 		mutex_unlock(&pcpu_alloc_mutex);
+ 	if (!bri)
+ 		return 0;
+@@ -387,7 +387,8 @@ static int i2c_init_recovery(struct i2c_
+ 		return -EPROBE_DEFER;
+ 
+ 	if (!bri->recover_bus) {
+-		err_str = "no recover_bus() found";
++		err_str = "no suitable method provided";
++		err_level = KERN_DEBUG;
+ 		goto err;
  	}
  
--	if (pcpu_nr_empty_pop_pages < PCPU_EMPTY_POP_PAGES_LOW)
-+	if (pcpu_nr_empty_pop_pages[type] < PCPU_EMPTY_POP_PAGES_LOW)
- 		pcpu_schedule_balance_work();
+@@ -414,7 +415,7 @@ static int i2c_init_recovery(struct i2c_
  
- 	/* clear the areas and return address relative to base address */
-@@ -1999,7 +1999,7 @@ retry_pop:
- 		pcpu_atomic_alloc_failed = false;
- 	} else {
- 		nr_to_pop = clamp(PCPU_EMPTY_POP_PAGES_HIGH -
--				  pcpu_nr_empty_pop_pages,
-+				  pcpu_nr_empty_pop_pages[type],
- 				  0, PCPU_EMPTY_POP_PAGES_HIGH);
- 	}
+ 	return 0;
+  err:
+-	dev_err(&adap->dev, "Not using recovery: %s\n", err_str);
++	dev_printk(err_level, &adap->dev, "Not using recovery: %s\n", err_str);
+ 	adap->bus_recovery_info = NULL;
  
-@@ -2579,7 +2579,7 @@ void __init pcpu_setup_first_chunk(const
- 
- 	/* link the first chunk in */
- 	pcpu_first_chunk = chunk;
--	pcpu_nr_empty_pop_pages = pcpu_first_chunk->nr_empty_pop_pages;
-+	pcpu_nr_empty_pop_pages[PCPU_CHUNK_ROOT] = pcpu_first_chunk->nr_empty_pop_pages;
- 	pcpu_chunk_relocate(pcpu_first_chunk, -1);
- 
- 	/* include all regions of the first chunk */
+ 	return -EINVAL;
 
 
