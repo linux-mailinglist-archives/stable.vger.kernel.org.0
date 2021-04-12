@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 832E335B895
+	by mail.lfdr.de (Postfix) with ESMTP id D25BD35B896
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236622AbhDLCXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59766 "EHLO mail.kernel.org"
+        id S236625AbhDLCXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236623AbhDLCXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C4826120D;
-        Mon, 12 Apr 2021 02:23:28 +0000 (UTC)
+        id S236623AbhDLCXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB9D96120E;
+        Mon, 12 Apr 2021 02:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194209;
-        bh=HDjx4KxAiBYeniGXSThyF+IkcqMb8jw3bdTh819I/tg=;
+        s=k20201202; t=1618194211;
+        bh=ytWmcET1qz00Fa2VHfoRsLT9A/pT/RhOrD4YL2BCXMk=;
         h=From:To:Cc:Subject:Date:From;
-        b=CvdRCNQ7j7SjbRfL7SGadl78Iz61diUo0kpWdU2vI838qAfFNHOGO02Q5/jFHJG9F
-         kAWr+Im8q2LSJOm2Jb0Of/7XgowtJkbO0sPQfxROysIQ/ck+dPAhTO0oPRmoPVa3Ff
-         mtvqS/RBEsNv3bpZ5OTv9xh/xty8nyfYEeQ36KCsVWaTX6ve1fz9tMXVkBNsC4jau9
-         K0wfsedQ1GP/DYNeemQAzd4+poPxI/A3vEJHib+NAO/YQ66q+TOJ9dA7x1sgh1i3NA
-         GsCn4OVZWUpTE+j1cdPu4gg7WP1NUvItxIBFbxVspdea+kgnGuo64xdiFdGYx8u118
-         N2oH3ExBeAQvg==
+        b=sp1OHJnocZiyC1D5htqgg7+n//i6lRMr6+KQEcCXwRGWCojqplwYmJz+OqqCpzSug
+         bIS1dDxphL3E5U+HSo0bBTyhiF8GAMSUmX25iAYN9gdA9ARSLXOXieSjhrbhUjGXh6
+         UT6ClV4oEA6WXXbS0+o/DhSazr5ao9pXMdaXkKDTdI3bFE3cNa1M6HLu0weYdS5W95
+         tpCJGZHMB3IMV/yBy16AaLW/W8o740U92AGOwpRFEcWjKhxc0WWia/8FHzjKySphkn
+         lb5WhjYIsVG9qC4B3rQBqGG6Ck8z4i+k17Woo6O7tkLc1e8b0p8t/PjJuRxJeT6tEz
+         s4+xuR/mAR3Kw==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, mateusz.palczewski@intel.com
-Cc:     Dawid Lukwinski <dawid.lukwinski@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: FAILED: Patch "i40e: Added Asym_Pause to supported link modes" failed to apply to 4.14-stable tree
-Date:   Sun, 11 Apr 2021 22:23:27 -0400
-Message-Id: <20210412022327.284462-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, lucien.xin@gmail.com
+Cc:     Xiumei Mu <xmu@redhat.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: FAILED: Patch "esp: delete NETIF_F_SCTP_CRC bit from features for esp offload" failed to apply to 4.14-stable tree
+Date:   Sun, 11 Apr 2021 22:23:29 -0400
+Message-Id: <20210412022329.284529-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -52,39 +49,69 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 90449e98c265296329446c7abcd2aae3b20c0bc9 Mon Sep 17 00:00:00 2001
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Date: Mon, 4 Jan 2021 15:00:02 +0000
-Subject: [PATCH] i40e: Added Asym_Pause to supported link modes
+From 154deab6a3ba47792936edf77f2f13a1cbc4351d Mon Sep 17 00:00:00 2001
+From: Xin Long <lucien.xin@gmail.com>
+Date: Fri, 19 Mar 2021 15:35:07 +0800
+Subject: [PATCH] esp: delete NETIF_F_SCTP_CRC bit from features for esp
+ offload
 
-Add Asym_Pause to supported link modes (it is supported by HW).
-Lack of Asym_Pause in supported modes can cause several problems,
-i.e. it won't be possible to turn the autonegotiation on
-with asymmetric pause settings (i.e. Tx on, Rx off).
+Now in esp4/6_gso_segment(), before calling inner proto .gso_segment,
+NETIF_F_CSUM_MASK bits are deleted, as HW won't be able to do the
+csum for inner proto due to the packet encrypted already.
 
-Fixes: 4e91bcd5d47a ("i40e: Finish implementation of ethtool get settings")
-Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Reviewed-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+So the UDP/TCP packet has to do the checksum on its own .gso_segment.
+But SCTP is using CRC checksum, and for that NETIF_F_SCTP_CRC should
+be deleted to make SCTP do the csum in own .gso_segment as well.
+
+In Xiumei's testing with SCTP over IPsec/veth, the packets are kept
+dropping due to the wrong CRC checksum.
+
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/esp4_offload.c | 6 ++++--
+ net/ipv6/esp6_offload.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index c70dec65a572..2c637a5678b3 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -1101,6 +1101,7 @@ static int i40e_get_link_ksettings(struct net_device *netdev,
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index 601f5fbfc63f..ed3de486ea34 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -217,10 +217,12 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
  
- 	/* Set flow control settings */
- 	ethtool_link_ksettings_add_link_mode(ks, supported, Pause);
-+	ethtool_link_ksettings_add_link_mode(ks, supported, Asym_Pause);
+ 	if ((!(skb->dev->gso_partial_features & NETIF_F_HW_ESP) &&
+ 	     !(features & NETIF_F_HW_ESP)) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM) &&
+ 		 !(skb->dev->gso_partial_features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
  
- 	switch (hw->fc.requested_mode) {
- 	case I40E_FC_FULL:
+ 	xo->flags |= XFRM_GSO_SEGMENT;
+ 
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 1ca516fb30e1..f35203ab39f5 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -254,9 +254,11 @@ static struct sk_buff *esp6_gso_segment(struct sk_buff *skb,
+ 	skb->encap_hdr_csum = 1;
+ 
+ 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 
+ 	xo->flags |= XFRM_GSO_SEGMENT;
+ 
 -- 
 2.30.2
 
