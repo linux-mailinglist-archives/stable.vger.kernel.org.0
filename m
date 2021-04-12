@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE9F35BDB2
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6140C35BDB4
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237816AbhDLIxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:53:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43476 "EHLO mail.kernel.org"
+        id S238222AbhDLIxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237429AbhDLIvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237908AbhDLIvC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 04:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE9386109E;
-        Mon, 12 Apr 2021 08:50:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A506B61221;
+        Mon, 12 Apr 2021 08:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217442;
-        bh=hVbYCz/9WfYrFQmnE77euXnoc9pDzhUZ0wwqOUp4IAg=;
+        s=korg; t=1618217445;
+        bh=AemVYUQYYDN1IfXCxWkhw0kUVwZhv3Usbs0TOhzwAVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMHg07nhhIf3BudoqP0MMk1lNZ4Ct/g7ZWfQp/l8d4o4p3LGFaucDobUQqeW4J2L8
-         h5RnJUxDjOg1daL4xtOUNhHR/8yZKcOp2+hsNNBDntxjJkw/RSTatJ/6+xuP5pkGCL
-         h5Znc3/zI/q1itBjDIyztks2zNf5EY8m4MqGecL4=
+        b=ntQ2wqUScb2Dh4pV27waq/oRgHIM2YReAaioM+tdEDtsqy6aQe/6sgeOiRJ+krNVR
+         gZRK/JV4dx6Qp7NMkWZYre/ta+ITVwdOzErC5wm1rF2ziw98M4Ca8WMC4sWeWdy9S2
+         maLYJi6jRca8dw5jwCdLWwS3sWNws40ieYgF6xzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 017/188] net: dsa: lantiq_gswip: Configure all remaining GSWIP_MII_CFG bits
-Date:   Mon, 12 Apr 2021 10:38:51 +0200
-Message-Id: <20210412084014.225280073@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.10 018/188] drm/i915: Fix invalid access to ACPI _DSM objects
+Date:   Mon, 12 Apr 2021 10:38:52 +0200
+Message-Id: <20210412084014.255357405@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -41,93 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 4b5923249b8fa427943b50b8f35265176472be38 upstream.
+commit b6a37a93c9ac3900987c79b726d0bb3699d8db4e upstream.
 
-There are a few more bits in the GSWIP_MII_CFG register for which we
-did rely on the boot-loader (or the hardware defaults) to set them up
-properly.
+intel_dsm_platform_mux_info() tries to parse the ACPI package data
+from _DSM for the debug information, but it assumes the fixed format
+without checking what values are stored in the elements actually.
+When an unexpected value is returned from BIOS, it may lead to GPF or
+NULL dereference, as reported recently.
 
-For some external RMII PHYs we need to select the GSWIP_MII_CFG_RMII_CLK
-bit and also we should un-set it for non-RMII PHYs. The
-GSWIP_MII_CFG_RMII_CLK bit is ignored for other PHY connection modes.
+Add the checks of the contents in the returned values and skip the
+values for invalid cases.
 
-The GSWIP IP also supports in-band auto-negotiation for RGMII PHYs when
-the GSWIP_MII_CFG_RGMII_IBS bit is set. Clear this bit always as there's
-no known hardware which uses this (so it is not tested yet).
+v1->v2: Check the info contents before dereferencing, too
 
-Clear the xMII isolation bit when set at initialization time if it was
-previously set by the bootloader. Not doing so could lead to no traffic
-(neither RX nor TX) on a port with this bit set.
-
-While here, also add the GSWIP_MII_CFG_RESET bit. We don't need to
-manage it because this bit is self-clearning when set. We still add it
-here to get a better overview of the GSWIP_MII_CFG register.
-
-Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Cc: stable@vger.kernel.org
-Suggested-by: Hauke Mehrtens <hauke@hauke-m.de>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: http://bugzilla.opensuse.org/show_bug.cgi?id=1184074
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210402082317.871-1-tiwai@suse.de
+(cherry picked from commit 337d7a1621c7f02af867229990ac67c97da1b53a)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/lantiq_gswip.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_acpi.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -93,8 +93,12 @@
- 
- /* GSWIP MII Registers */
- #define GSWIP_MII_CFGp(p)		(0x2 * (p))
-+#define  GSWIP_MII_CFG_RESET		BIT(15)
- #define  GSWIP_MII_CFG_EN		BIT(14)
-+#define  GSWIP_MII_CFG_ISOLATE		BIT(13)
- #define  GSWIP_MII_CFG_LDCLKDIS		BIT(12)
-+#define  GSWIP_MII_CFG_RGMII_IBS	BIT(8)
-+#define  GSWIP_MII_CFG_RMII_CLK		BIT(7)
- #define  GSWIP_MII_CFG_MODE_MIIP	0x0
- #define  GSWIP_MII_CFG_MODE_MIIM	0x1
- #define  GSWIP_MII_CFG_MODE_RMIIP	0x2
-@@ -833,9 +837,11 @@ static int gswip_setup(struct dsa_switch
- 	/* Configure the MDIO Clock 2.5 MHz */
- 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
- 
--	/* Disable the xMII link */
-+	/* Disable the xMII interface and clear it's isolation bit */
- 	for (i = 0; i < priv->hw_info->max_ports; i++)
--		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
-+		gswip_mii_mask_cfg(priv,
-+				   GSWIP_MII_CFG_EN | GSWIP_MII_CFG_ISOLATE,
-+				   0, i);
- 
- 	/* enable special tag insertion on cpu port */
- 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
-@@ -1611,6 +1617,9 @@ static void gswip_phylink_mac_config(str
- 		break;
- 	case PHY_INTERFACE_MODE_RMII:
- 		miicfg |= GSWIP_MII_CFG_MODE_RMIIM;
-+
-+		/* Configure the RMII clock as output: */
-+		miicfg |= GSWIP_MII_CFG_RMII_CLK;
- 		break;
- 	case PHY_INTERFACE_MODE_RGMII:
- 	case PHY_INTERFACE_MODE_RGMII_ID:
-@@ -1623,7 +1632,11 @@ static void gswip_phylink_mac_config(str
- 			"Unsupported interface: %d\n", state->interface);
+--- a/drivers/gpu/drm/i915/display/intel_acpi.c
++++ b/drivers/gpu/drm/i915/display/intel_acpi.c
+@@ -84,13 +84,31 @@ static void intel_dsm_platform_mux_info(
  		return;
  	}
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_MODE_MASK, miicfg, port);
-+
-+	gswip_mii_mask_cfg(priv,
-+			   GSWIP_MII_CFG_MODE_MASK | GSWIP_MII_CFG_RMII_CLK |
-+			   GSWIP_MII_CFG_RGMII_IBS | GSWIP_MII_CFG_LDCLKDIS,
-+			   miicfg, port);
  
- 	switch (state->interface) {
- 	case PHY_INTERFACE_MODE_RGMII_ID:
++	if (!pkg->package.count) {
++		DRM_DEBUG_DRIVER("no connection in _DSM\n");
++		return;
++	}
++
+ 	connector_count = &pkg->package.elements[0];
+ 	DRM_DEBUG_DRIVER("MUX info connectors: %lld\n",
+ 		  (unsigned long long)connector_count->integer.value);
+ 	for (i = 1; i < pkg->package.count; i++) {
+ 		union acpi_object *obj = &pkg->package.elements[i];
+-		union acpi_object *connector_id = &obj->package.elements[0];
+-		union acpi_object *info = &obj->package.elements[1];
++		union acpi_object *connector_id;
++		union acpi_object *info;
++
++		if (obj->type != ACPI_TYPE_PACKAGE || obj->package.count < 2) {
++			DRM_DEBUG_DRIVER("Invalid object for MUX #%d\n", i);
++			continue;
++		}
++
++		connector_id = &obj->package.elements[0];
++		info = &obj->package.elements[1];
++		if (info->type != ACPI_TYPE_BUFFER || info->buffer.length < 4) {
++			DRM_DEBUG_DRIVER("Invalid info for MUX obj #%d\n", i);
++			continue;
++		}
++
+ 		DRM_DEBUG_DRIVER("Connector id: 0x%016llx\n",
+ 			  (unsigned long long)connector_id->integer.value);
+ 		DRM_DEBUG_DRIVER("  port id: %s\n",
 
 
