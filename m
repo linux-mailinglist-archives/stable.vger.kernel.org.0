@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE1335BCCD
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E2C35BD96
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237725AbhDLIpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37260 "EHLO mail.kernel.org"
+        id S238501AbhDLIw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:52:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237468AbhDLIpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:45:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A883C61241;
-        Mon, 12 Apr 2021 08:44:44 +0000 (UTC)
+        id S238673AbhDLIuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:50:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 003AF61244;
+        Mon, 12 Apr 2021 08:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217085;
-        bh=6ckTbPMMaDUT4z/zGAWEqSYIUtGsOiCjYlVqascaMcs=;
+        s=korg; t=1618217403;
+        bh=fzqAs5/YzJXtkkxEdtON6yNfKrTBewolnD95yAlU674=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwTYx5MU539MF+H8pM3SN5P4XI+lNUTRAU0JHVyJEAoP9KQZe1uxo+kV5zI111+jG
-         pz/P/23EmvqNFJnQtO9x68v2eFpbO/R6TmF27NEbVChTG6+T7SUfoMbp6YXrjR2r4I
-         Cbj7TcJMJrDpBlk/a6wrXjih0Rj/VbdvU4ehZDx4=
+        b=Nf16ww3g1vNZIZ5KX7/7stkMk+I7rLNp1M/70XWnxiViASp8q2jkXQEL6dbA8H43K
+         7yLQT9ZX58UArDBJm6mtwgYQKN6l5AVA3I/e1kp7I6kpsozfW9xYUjJ459xFK7p7Al
+         tBVxzFAzChx7hWfmlUmCRj4Nd5WPVDrM++ZytNYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.19 63/66] net: ieee802154: forbid monitor for set llsec params
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 091/111] net/mlx5: Fix PBMC register mapping
 Date:   Mon, 12 Apr 2021 10:41:09 +0200
-Message-Id: <20210412084000.161986840@linuxfoundation.org>
+Message-Id: <20210412084007.271525013@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Aya Levin <ayal@nvidia.com>
 
-commit 88c17855ac4291fb462e13a86b7516773b6c932e upstream.
+[ Upstream commit 534b1204ca4694db1093b15cf3e79a99fcb6a6da ]
 
-This patch forbids to set llsec params for monitor interfaces which we
-don't support yet.
+Add reserved mapping to cover all the register in order to avoid setting
+arbitrary values to newer FW which implements the reserved fields.
 
-Reported-by: syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-3-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 50b4a3c23646 ("net/mlx5: PPTB and PBMC register firmware command support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl802154.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/mlx5/mlx5_ifc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1402,6 +1402,9 @@ static int nl802154_set_llsec_params(str
- 	u32 changed = 0;
- 	int ret;
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index 8099517e2e61..36516fe86fe7 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -9669,7 +9669,7 @@ struct mlx5_ifc_pbmc_reg_bits {
  
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
-+		return -EOPNOTSUPP;
-+
- 	if (info->attrs[NL802154_ATTR_SEC_ENABLED]) {
- 		u8 enabled;
+ 	struct mlx5_ifc_bufferx_reg_bits buffer[10];
  
+-	u8         reserved_at_2e0[0x40];
++	u8         reserved_at_2e0[0x80];
+ };
+ 
+ struct mlx5_ifc_qtct_reg_bits {
+-- 
+2.30.2
+
 
 
