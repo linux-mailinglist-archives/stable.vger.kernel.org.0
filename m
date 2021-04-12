@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E3035B887
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B4F35B888
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235857AbhDLCXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59356 "EHLO mail.kernel.org"
+        id S236609AbhDLCXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236608AbhDLCXO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 452536120D;
-        Mon, 12 Apr 2021 02:22:57 +0000 (UTC)
+        id S236608AbhDLCXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E046120E;
+        Mon, 12 Apr 2021 02:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194177;
-        bh=0wn2wFJ9NFS/oQS8VCJGCC8VG3wEQB9XQXNxo6qXQzk=;
-        h=From:To:Subject:Date:From;
-        b=a6FqrzTNc/5ne4+c77FYrITdCcRoIvFs5gh7kOXdka2vXfelivHKeI8EC9i+rhdm0
-         ghM4ty16Gaf9NHzj7tlGPOypEMyBwLgDVqU4KVHkuh89h5Ug7FDj5ADciPvnj7sIYW
-         gwh1yk1Gzl5p3ZKUQ28H8BMSS6nXWYNwdR1QSFGlt19lvjelQSU5EsGdosVnBIPLKJ
-         OTNxb5LQzLB32x4a6gbHPaOtNFKvD7N4n0lrhyMinDW1QiNIjTPx7R7YEWhR3VQ6cZ
-         lsLPRvPlNfnC23PFcVXdRzrjc2834viV76vpMWjAYTAltCoCv47RmmHjNboAEC0/By
-         Thk/qf7J1NmHw==
+        s=k20201202; t=1618194179;
+        bh=r5Pp5vMF3jRTvmUFxQvpbjidG/9lfq3U5nVw6SXn5LY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nhGBwcc3Qe6yZSql7odotCJEmrCvG2JndUaFBZ/IxcTHTxbBPkqP2XhxsiblpnIWF
+         ZPreTjuMq4vDXrQcKTPiXnCdVOdGO3GTd6qYFyq5CN0GEnYkW5tB+0yDx61b/g++0V
+         loeFa4WXOyQL3EL7GBoTHTwwRdDg6s/GsSAVSw/uMnygbvb8yE9QYVfmE2xUJeYXdA
+         tH9OTS/w/7rlZsvHNo9GgE1W/PKMqFPSBa2qt+xjVYgvBj/9g2TVYK2OkMKTbKg5/c
+         5oOnExpPPaxaVDyJ0PxCsB36M7ea4RnHHOPNrun6WyOy0+lumZRmPNUXEhTlB2SqRC
+         e5ze/Fa1XCPjQ==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, steffen.klassert@secunet.com
-Subject: FAILED: Patch "xfrm: Provide private skb extensions for segmented and hw offloaded ESP packets" failed to apply to 5.4-stable tree
-Date:   Sun, 11 Apr 2021 22:22:56 -0400
-Message-Id: <20210412022256.283478-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, evan.nimmo@alliedtelesis.co.nz
+Cc:     Steffen Klassert <steffen.klassert@secunet.com>
+Subject: FAILED: Patch "xfrm: Use actual socket sk instead of skb socket for xfrm_output_resume" failed to apply to 5.4-stable tree
+Date:   Sun, 11 Apr 2021 22:22:58 -0400
+Message-Id: <20210412022258.283547-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -47,88 +48,150 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From c7dbf4c08868d9db89b8bfe8f8245ca61b01ed2f Mon Sep 17 00:00:00 2001
-From: Steffen Klassert <steffen.klassert@secunet.com>
-Date: Fri, 26 Mar 2021 09:44:48 +0100
-Subject: [PATCH] xfrm: Provide private skb extensions for segmented and hw
- offloaded ESP packets
+From 9ab1265d52314fce1b51e8665ea6dbc9ac1a027c Mon Sep 17 00:00:00 2001
+From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+Date: Tue, 2 Mar 2021 08:00:04 +1300
+Subject: [PATCH] xfrm: Use actual socket sk instead of skb socket for
+ xfrm_output_resume
 
-Commit 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec
-crypto offload.") added a XFRM_XMIT flag to avoid duplicate ESP trailer
-insertion on HW offload. This flag is set on the secpath that is shared
-amongst segments. This lead to a situation where some segments are
-not transformed correctly when segmentation happens at layer 3.
+A situation can occur where the interface bound to the sk is different
+to the interface bound to the sk attached to the skb. The interface
+bound to the sk is the correct one however this information is lost inside
+xfrm_output2 and instead the sk on the skb is used in xfrm_output_resume
+instead. This assumes that the sk bound interface and the bound interface
+attached to the sk within the skb are the same which can lead to lookup
+failures inside ip_route_me_harder resulting in the packet being dropped.
 
-Fix this by using private skb extensions for segmented and hw offloaded
-ESP packets.
+We have an l2tp v3 tunnel with ipsec protection. The tunnel is in the
+global VRF however we have an encapsulated dot1q tunnel interface that
+is within a different VRF. We also have a mangle rule that marks the
+packets causing them to be processed inside ip_route_me_harder.
 
-Fixes: 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec crypto offload.")
+Prior to commit 31c70d5956fc ("l2tp: keep original skb ownership") this
+worked fine as the sk attached to the skb was changed from the dot1q
+encapsulated interface to the sk for the tunnel which meant the interface
+bound to the sk and the interface bound to the skb were identical.
+Commit 46d6c5ae953c ("netfilter: use actual socket sk rather than skb sk
+when routing harder") fixed some of these issues however a similar
+problem existed in the xfrm code.
+
+Fixes: 31c70d5956fc ("l2tp: keep original skb ownership")
+Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 ---
- net/ipv4/esp4_offload.c | 11 ++++++++++-
- net/ipv6/esp6_offload.c | 11 ++++++++++-
- net/xfrm/xfrm_device.c  |  2 --
- 3 files changed, 20 insertions(+), 4 deletions(-)
+ include/net/xfrm.h     |  2 +-
+ net/ipv4/ah4.c         |  2 +-
+ net/ipv4/esp4.c        |  2 +-
+ net/ipv6/ah6.c         |  2 +-
+ net/ipv6/esp6.c        |  2 +-
+ net/xfrm/xfrm_output.c | 10 +++++-----
+ 6 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
-index ed3de486ea34..33687cf58286 100644
---- a/net/ipv4/esp4_offload.c
-+++ b/net/ipv4/esp4_offload.c
-@@ -314,8 +314,17 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
- 	ip_hdr(skb)->tot_len = htons(skb->len);
- 	ip_send_check(ip_hdr(skb));
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index b2a06f10b62c..bfbc7810df94 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1557,7 +1557,7 @@ int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
+ int xfrm_trans_queue(struct sk_buff *skb,
+ 		     int (*finish)(struct net *, struct sock *,
+ 				   struct sk_buff *));
+-int xfrm_output_resume(struct sk_buff *skb, int err);
++int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err);
+ int xfrm_output(struct sock *sk, struct sk_buff *skb);
  
--	if (hw_offload)
-+	if (hw_offload) {
-+		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
-+			return -ENOMEM;
-+
-+		xo = xfrm_offload(skb);
-+		if (!xo)
-+			return -EINVAL;
-+
-+		xo->flags |= XFRM_XMIT;
- 		return 0;
-+	}
- 
- 	err = esp_output_tail(x, skb, &esp);
- 	if (err)
-diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
-index f35203ab39f5..4af56affaafd 100644
---- a/net/ipv6/esp6_offload.c
-+++ b/net/ipv6/esp6_offload.c
-@@ -348,8 +348,17 @@ static int esp6_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features
- 
- 	ipv6_hdr(skb)->payload_len = htons(len);
- 
--	if (hw_offload)
-+	if (hw_offload) {
-+		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
-+			return -ENOMEM;
-+
-+		xo = xfrm_offload(skb);
-+		if (!xo)
-+			return -EINVAL;
-+
-+		xo->flags |= XFRM_XMIT;
- 		return 0;
-+	}
- 
- 	err = esp6_output_tail(x, skb, &esp);
- 	if (err)
-diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
-index edf11893dbe8..6d6917b68856 100644
---- a/net/xfrm/xfrm_device.c
-+++ b/net/xfrm/xfrm_device.c
-@@ -134,8 +134,6 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
- 		return skb;
+ #if IS_ENABLED(CONFIG_NET_PKTGEN)
+diff --git a/net/ipv4/ah4.c b/net/ipv4/ah4.c
+index d99e1be94019..36ed85bf2ad5 100644
+--- a/net/ipv4/ah4.c
++++ b/net/ipv4/ah4.c
+@@ -141,7 +141,7 @@ static void ah_output_done(struct crypto_async_request *base, int err)
  	}
  
--	xo->flags |= XFRM_XMIT;
--
- 	if (skb_is_gso(skb) && unlikely(x->xso.dev != dev)) {
- 		struct sk_buff *segs;
+ 	kfree(AH_SKB_CB(skb)->tmp);
+-	xfrm_output_resume(skb, err);
++	xfrm_output_resume(skb->sk, skb, err);
+ }
  
+ static int ah_output(struct xfrm_state *x, struct sk_buff *skb)
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index a3271ec3e162..4b834bbf95e0 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -279,7 +279,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
+ 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
+ 			esp_output_tail_tcp(x, skb);
+ 		else
+-			xfrm_output_resume(skb, err);
++			xfrm_output_resume(skb->sk, skb, err);
+ 	}
+ }
+ 
+diff --git a/net/ipv6/ah6.c b/net/ipv6/ah6.c
+index 440080da805b..080ee7f44c64 100644
+--- a/net/ipv6/ah6.c
++++ b/net/ipv6/ah6.c
+@@ -316,7 +316,7 @@ static void ah6_output_done(struct crypto_async_request *base, int err)
+ 	}
+ 
+ 	kfree(AH_SKB_CB(skb)->tmp);
+-	xfrm_output_resume(skb, err);
++	xfrm_output_resume(skb->sk, skb, err);
+ }
+ 
+ static int ah6_output(struct xfrm_state *x, struct sk_buff *skb)
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 153ad103ba74..727d791ed5e6 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -314,7 +314,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
+ 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
+ 			esp_output_tail_tcp(x, skb);
+ 		else
+-			xfrm_output_resume(skb, err);
++			xfrm_output_resume(skb->sk, skb, err);
+ 	}
+ }
+ 
+diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
+index a7ab19353313..b81ca117dac7 100644
+--- a/net/xfrm/xfrm_output.c
++++ b/net/xfrm/xfrm_output.c
+@@ -503,22 +503,22 @@ out:
+ 	return err;
+ }
+ 
+-int xfrm_output_resume(struct sk_buff *skb, int err)
++int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err)
+ {
+ 	struct net *net = xs_net(skb_dst(skb)->xfrm);
+ 
+ 	while (likely((err = xfrm_output_one(skb, err)) == 0)) {
+ 		nf_reset_ct(skb);
+ 
+-		err = skb_dst(skb)->ops->local_out(net, skb->sk, skb);
++		err = skb_dst(skb)->ops->local_out(net, sk, skb);
+ 		if (unlikely(err != 1))
+ 			goto out;
+ 
+ 		if (!skb_dst(skb)->xfrm)
+-			return dst_output(net, skb->sk, skb);
++			return dst_output(net, sk, skb);
+ 
+ 		err = nf_hook(skb_dst(skb)->ops->family,
+-			      NF_INET_POST_ROUTING, net, skb->sk, skb,
++			      NF_INET_POST_ROUTING, net, sk, skb,
+ 			      NULL, skb_dst(skb)->dev, xfrm_output2);
+ 		if (unlikely(err != 1))
+ 			goto out;
+@@ -534,7 +534,7 @@ EXPORT_SYMBOL_GPL(xfrm_output_resume);
+ 
+ static int xfrm_output2(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
+-	return xfrm_output_resume(skb, 1);
++	return xfrm_output_resume(sk, skb, 1);
+ }
+ 
+ static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb)
 -- 
 2.30.2
 
