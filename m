@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 874F235BE6C
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1698C35BC65
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:42:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238900AbhDLI6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:58:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50126 "EHLO mail.kernel.org"
+        id S237311AbhDLImn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:42:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238616AbhDLI4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:56:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7B8661289;
-        Mon, 12 Apr 2021 08:56:14 +0000 (UTC)
+        id S236266AbhDLImm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:42:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B89FF60241;
+        Mon, 12 Apr 2021 08:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217775;
-        bh=2WZkXOt956qtWOlf8pzkbON2qStVVDV7YsrnMCDXkwY=;
+        s=korg; t=1618216945;
+        bh=A6NMrUo9PzqV0g+b+1ZLkVLe2KvddtC4M4PTT5zRk5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tq21XaoWa4bd0V0SMGRFt1vjQ8+SAyQ2R1vpQoQrIvkZnIj35i8/UqHmcGbEkPvR2
-         GmtFPuSxqBmxM9vZw+ELSE1Bhq1PyPSWcCaYZAH/ep7rhwctPSE9HwIal374FnwnCE
-         VkVaTsNBrofcBhtQYkMF5mJQ9/5AOLwi5u3CSViM=
+        b=DAyrCl/alcHfl+r/jLwAeN6b0S43WhvztA4N80F9hX1VTneNe5uQiPQpqT18Yr3Gm
+         JZUW7Ghd6JrHLdi2F4TCxqXIbjX4+3HRV9vh3uUQEGYWIz7sHmbiGaZws+G96yHkdO
+         tlbedb3wmOXI070vtRpEQ3x7CisrYBGbudHd6RDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Norbert Ciosek <norbertx.ciosek@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 105/188] virtchnl: Fix layout of RSS structures
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 13/66] parisc: parisc-agp requires SBA IOMMU driver
 Date:   Mon, 12 Apr 2021 10:40:19 +0200
-Message-Id: <20210412084017.140123086@linuxfoundation.org>
+Message-Id: <20210412083958.560522475@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norbert Ciosek <norbertx.ciosek@intel.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 22f8b5df881e9f1302514bbbbbb8649c2051de55 ]
+commit 9054284e8846b0105aad43a4e7174ca29fffbc44 upstream.
 
-Remove padding from RSS structures. Previous layout
-could lead to unwanted compiler optimizations
-in loops when iterating over key and lut arrays.
+Add a dependency to the SBA IOMMU driver to avoid:
+ERROR: modpost: "sba_list" [drivers/char/agp/parisc-agp.ko] undefined!
 
-Fixes: 65ece6de0114 ("virtchnl: Add missing explicit padding to structures")
-Signed-off-by: Norbert Ciosek <norbertx.ciosek@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/avf/virtchnl.h | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/char/agp/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/avf/virtchnl.h b/include/linux/avf/virtchnl.h
-index 40bad71865ea..532bcbfc4716 100644
---- a/include/linux/avf/virtchnl.h
-+++ b/include/linux/avf/virtchnl.h
-@@ -476,7 +476,6 @@ struct virtchnl_rss_key {
- 	u16 vsi_id;
- 	u16 key_len;
- 	u8 key[1];         /* RSS hash key, packed bytes */
--	u8 pad[1];
- };
+--- a/drivers/char/agp/Kconfig
++++ b/drivers/char/agp/Kconfig
+@@ -125,7 +125,7 @@ config AGP_HP_ZX1
  
- VIRTCHNL_CHECK_STRUCT_LEN(6, virtchnl_rss_key);
-@@ -485,7 +484,6 @@ struct virtchnl_rss_lut {
- 	u16 vsi_id;
- 	u16 lut_entries;
- 	u8 lut[1];        /* RSS lookup table */
--	u8 pad[1];
- };
- 
- VIRTCHNL_CHECK_STRUCT_LEN(6, virtchnl_rss_lut);
--- 
-2.30.2
-
+ config AGP_PARISC
+ 	tristate "HP Quicksilver AGP support"
+-	depends on AGP && PARISC && 64BIT
++	depends on AGP && PARISC && 64BIT && IOMMU_SBA
+ 	help
+ 	  This option gives you AGP GART support for the HP Quicksilver
+ 	  AGP bus adapter on HP PA-RISC machines (Ok, just on the C8000
 
 
