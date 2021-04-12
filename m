@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1902235CD5E
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:37:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD68F35CD65
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:37:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344084AbhDLQg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:36:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37292 "EHLO mail.kernel.org"
+        id S1344095AbhDLQhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245029AbhDLQdo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:33:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EAE36137B;
-        Mon, 12 Apr 2021 16:26:42 +0000 (UTC)
+        id S245052AbhDLQd4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:33:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DAE5613BF;
+        Mon, 12 Apr 2021 16:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244802;
-        bh=FdOaX8WnI7T1gfaf/zu47qGEtb6BiJ3GhJsV2l1CS8o=;
+        s=k20201202; t=1618244804;
+        bh=cipkI2R4wewVzpszPx2BUvIZojTZ/k31RMG6xNHv1G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8Rs50MZ+Vj6Qs6fy5OYmXhu+5mCQA3lHP35aWOqxyoEhaMlgRARniXKpt0wFX9O8
-         L3pW45cEjUbyPf+S7JE2KLdyqhqjnksw6nZNmIearBaRAE0WSJp5ljmM/tHrSDFvgf
-         0ShbABZb2l969AVefFlVnKOq0UMSF0Z4M0wQCY7O72GcofZI41TMbVBnmxbyIo6wnw
-         wQhMnjeHMqtLVLk7ElalqtmyG62UY0WnzI45s5yzhZOBlt6rWEJGsG84RKPHaymsvt
-         RQ01wPKi+7l9aSWADb7eU0kK0T9bX8DAjUerQrQZ+O+aIDyntCOpq0ZR2vteMQkbt8
-         Zxy8StXbB4NvA==
+        b=MZddKRpurAy7sxgWK5q2Izp8/K406lNx+fENbduUqvlJNHhi7guRSHo38QaHdYnNO
+         5dLv9Ca96M7FQG0WtcbK0qgiEDVxU1+MdQkXg8wvTRUcHnsXfRM/3WgSaWO3ZIGkJU
+         U9wYimbC+dcG98wAHqXMt/FKGRWlPcJopHf7VrC29udCqH8NkSZEOg8T2Jyl1sPqTr
+         ycqBtjlFP+bbSvtKFFZYcW8zIX1b2aLqK2/kajZ8ONn/hk5zAJ/6+235zXRXFAyNwY
+         TrqlNOnGeayo5IlCD5/8A5nvJPsIfIHkyB3ubp3Qo8R256mbQpZdX7ufI/SG2wglAw
+         cuYakVtAtCNiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Wilck <mwilck@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/25] scsi: scsi_transport_srp: Don't block target in SRP_PORT_LOST state
-Date:   Mon, 12 Apr 2021 12:26:14 -0400
-Message-Id: <20210412162630.315526-9-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 10/25] net: ieee802154: forbid monitor for set llsec params
+Date:   Mon, 12 Apr 2021 12:26:15 -0400
+Message-Id: <20210412162630.315526-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162630.315526-1-sashal@kernel.org>
 References: <20210412162630.315526-1-sashal@kernel.org>
@@ -43,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 5cd0f6f57639c5afbb36100c69281fee82c95ee7 ]
+[ Upstream commit 88c17855ac4291fb462e13a86b7516773b6c932e ]
 
-rport_dev_loss_timedout() sets the rport state to SRP_PORT_LOST and the
-SCSI target state to SDEV_TRANSPORT_OFFLINE. If this races with
-srp_reconnect_work(), a warning is printed:
+This patch forbids to set llsec params for monitor interfaces which we
+don't support yet.
 
-Mar 27 18:48:07 ictm1604s01h4 kernel: dev_loss_tmo expired for SRP port-18:1 / host18.
-Mar 27 18:48:07 ictm1604s01h4 kernel: ------------[ cut here ]------------
-Mar 27 18:48:07 ictm1604s01h4 kernel: scsi_internal_device_block(18:0:0:100) failed: ret = -22
-Mar 27 18:48:07 ictm1604s01h4 kernel: Call Trace:
-Mar 27 18:48:07 ictm1604s01h4 kernel:  ? scsi_target_unblock+0x50/0x50 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  starget_for_each_device+0x80/0xb0 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  target_block+0x24/0x30 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  device_for_each_child+0x57/0x90
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_rport+0xe4/0x230 [scsi_transport_srp]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_work+0x40/0xc0 [scsi_transport_srp]
-
-Avoid this by not trying to block targets for rports in SRP_PORT_LOST
-state.
-
-Link: https://lore.kernel.org/r/20210401091105.8046-1-mwilck@suse.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-3-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_srp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ieee802154/nl802154.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index a0e35028ebda..118e764108f7 100644
---- a/drivers/scsi/scsi_transport_srp.c
-+++ b/drivers/scsi/scsi_transport_srp.c
-@@ -555,7 +555,7 @@ int srp_reconnect_rport(struct srp_rport *rport)
- 	res = mutex_lock_interruptible(&rport->mutex);
- 	if (res)
- 		goto out;
--	if (rport->state != SRP_RPORT_FAIL_FAST)
-+	if (rport->state != SRP_RPORT_FAIL_FAST && rport->state != SRP_RPORT_LOST)
- 		/*
- 		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
- 		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
+diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
+index 99f6c254ea77..e07624fd8b3b 100644
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -1402,6 +1402,9 @@ static int nl802154_set_llsec_params(struct sk_buff *skb,
+ 	u32 changed = 0;
+ 	int ret;
+ 
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (info->attrs[NL802154_ATTR_SEC_ENABLED]) {
+ 		u8 enabled;
+ 
 -- 
 2.30.2
 
