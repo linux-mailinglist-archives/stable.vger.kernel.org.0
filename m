@@ -2,145 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CAF35CE7D
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E2EB35CEE0
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343932AbhDLQof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38904 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245263AbhDLQiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:38:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92FE861366;
-        Mon, 12 Apr 2021 16:29:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244943;
-        bh=4SwhDj3iDEdH7+mXs+MuzPV3kxZpat9gI12KS1vmveQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=IY0fBeE71qC7GJ6cYb34uZPcpbSrtDc+zvwjv4VQlIruHLPBrge1RPNjMBpdyLEk8
-         6ra9KKV84QVNFok3HeXmFVe8EdhKnR8RWWHGLsrvfddYaDpnJDVbBVYFyBRFg3miJr
-         w2e3Xa+vo6M3e1Y8dydcMNNvagtTR+NjPwmW6ic4KcHrpQHNxer0arYWPIv5rZQvw2
-         5Ybr0CbUEFlDEEVwTJRqHGoon4X8MlQ0FB/8Fu2ZbqeIss8CqlN6t69kUAkC93gQtY
-         kmNhIi0ppTvB9mv45buYZjVxxOlik1QKi8dklgOhiDvADP5SynIoAl/VGwlN0xLN3z
-         p+t02b5han+qw==
-Received: by pali.im (Postfix)
-        id 50FFC687; Mon, 12 Apr 2021 18:29:01 +0200 (CEST)
-From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH] net: sfp: cope with SFPs that set both LOS normal and LOS inverted
-Date:   Mon, 12 Apr 2021 18:28:33 +0200
-Message-Id: <20210412162833.17496-1-pali@kernel.org>
-X-Mailer: git-send-email 2.20.1
+        id S244285AbhDLQve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:51:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55778 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343838AbhDLQn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 12:43:58 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A414C06138F
+        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 09:34:27 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id m11so9531488pfc.11
+        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 09:34:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=kGG2TFpsWCGSpcodS4ySAY5p3Yx32Wo8rgioIHvhDyQ=;
+        b=hrzPyCrSu5hLeEt1pKvd9c2N7f8+jDKrTXyK+FlRvf3Y2wLnGZLumd1jSK7b52y7x3
+         Idpwxr5/4iqtkp97tFPqOCesl278H5/UcYxhnxOwnf76dNc9gr1o9df0tLwFnlc8R0OK
+         sOG+ygMZfW6Mwkulzl0Yr5nmLPJDmAB7BhYQgaRJgReBX5bQ1sWxXxdYNjFzguF/4TSA
+         nJrr5nmukwPzDUK4GkVKiCoHd1mtLKP3Nbn24oRZQ3IC/um5FKm7c99mwFg8l80gllsE
+         aSbcZAJX/KkcHn66IMkSS5eW1rvVAzol88fy/KWkmb0CCOtuE+dcHkNDdshySv979KwV
+         cWzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=kGG2TFpsWCGSpcodS4ySAY5p3Yx32Wo8rgioIHvhDyQ=;
+        b=mAm9OG6mACXcZOhVarK6hzXFiwt3eosX3ffhCXiwmOW15pS4YZoQGrpqGKv9UOv4GP
+         TkA4KLIGmmoMLsehEwC/1iBLCKk4CEhjt+WfJDNk5eV5tf+L1xpg6WAwW7AYziZasWm/
+         JRv5c9ZSuN36mHKwguJAab3t00eUezjEaNF/0YNuMVdM/Y6ZfI35I/6La+0QDYEiOCYz
+         5XsJ9TioJtdXDabA7Ss/Y/kklcW75gGOMc7gl52fjfAgTxXKv4t0dpec2J/BvFUJp0a7
+         rbU/zJdHK67SaxBTjdurRWBhpcPNgbvDIv7XDZ3OMnEJ1YOYCe7oR2Lg7rheYkU8+u7v
+         unrw==
+X-Gm-Message-State: AOAM532vLZb+PZq/Mgs9b8k+FsNAUub2y0abVBmd+aroAccI5XIkVO/W
+        bQKErZpwK8pf3SxB9kH1XTMGBgDOrL2djRT0
+X-Google-Smtp-Source: ABdhPJzzBRpba/D+AQxV4mwztzElf33KXGuhhaxWiyyFRGppLdu5VzF19ZEKElgVkTHtUC/Qqfr18Q==
+X-Received: by 2002:a62:5a83:0:b029:222:c9de:5c65 with SMTP id o125-20020a625a830000b0290222c9de5c65mr25958611pfb.23.1618245266529;
+        Mon, 12 Apr 2021 09:34:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h19sm120685pgm.40.2021.04.12.09.34.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Apr 2021 09:34:26 -0700 (PDT)
+Message-ID: <60747692.1c69fb81.c55e0.060e@mx.google.com>
+Date:   Mon, 12 Apr 2021 09:34:26 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.186-65-gf7275a2da53b
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.19 baseline: 108 runs,
+ 4 regressions (v4.19.186-65-gf7275a2da53b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+stable-rc/queue/4.19 baseline: 108 runs, 4 regressions (v4.19.186-65-gf7275=
+a2da53b)
 
-[ Upstream commit 624407d2cf14ff58e53bf4b2af9595c4f21d606e ]
+Regressions Summary
+-------------------
 
-The SFP MSA defines two option bits in byte 65 to indicate how the
-Rx_LOS signal on SFP pin 8 behaves:
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
+g | 1          =
 
-bit 2 - Loss of Signal implemented, signal inverted from standard
-        definition in SFP MSA (often called "Signal Detect").
-bit 1 - Loss of Signal implemented, signal as defined in SFP MSA
-        (often called "Rx_LOS").
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Clearly, setting both bits results in a meaningless situation: it would
-mean that LOS is implemented in both the normal sense (1 = signal loss)
-and inverted sense (0 = signal loss).
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Unfortunately, there are modules out there which set both bits, which
-will be initially interpret as "inverted" sense, and then, if the LOS
-signal changes state, we will toggle between LINK_UP and WAIT_LOS
-states.
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Change our LOS handling to give well defined behaviour: only interpret
-these bits as meaningful if exactly one is set, otherwise treat it as
-if LOS is not implemented.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/E1kyYQa-0004iR-CU@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-Please apply this commit to all stable releases where was already
-backported commit f0b4f847673299577c29b71d3f3acd3c313d81b7
-("net: sfp: add mode quirk for GPON module Ubiquiti U-Fiber Instant")
-as it depends on this commit. The Ubiquiti U-Fiber Instant SFP GPON
-module has set both LOS_NORMAL and LOS_INVERTED bits so without this
-commit it does not work. If I checked it correctly patch should go
-into 5.10 and 5.11 releases.
----
- drivers/net/phy/sfp.c | 36 ++++++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 14 deletions(-)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.186-65-gf7275a2da53b/plan/baseline/
 
-diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
-index 91d74c1a920a..55e6a2fc5bc6 100644
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -1482,15 +1482,19 @@ static void sfp_sm_link_down(struct sfp *sfp)
- 
- static void sfp_sm_link_check_los(struct sfp *sfp)
- {
--	unsigned int los = sfp->state & SFP_F_LOS;
-+	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
-+	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
-+	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
-+	bool los = false;
- 
- 	/* If neither SFP_OPTIONS_LOS_INVERTED nor SFP_OPTIONS_LOS_NORMAL
--	 * are set, we assume that no LOS signal is available.
-+	 * are set, we assume that no LOS signal is available. If both are
-+	 * set, we assume LOS is not implemented (and is meaningless.)
- 	 */
--	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED))
--		los ^= SFP_F_LOS;
--	else if (!(sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL)))
--		los = 0;
-+	if (los_options == los_inverted)
-+		los = !(sfp->state & SFP_F_LOS);
-+	else if (los_options == los_normal)
-+		los = !!(sfp->state & SFP_F_LOS);
- 
- 	if (los)
- 		sfp_sm_next(sfp, SFP_S_WAIT_LOS, 0);
-@@ -1500,18 +1504,22 @@ static void sfp_sm_link_check_los(struct sfp *sfp)
- 
- static bool sfp_los_event_active(struct sfp *sfp, unsigned int event)
- {
--	return (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED) &&
--		event == SFP_E_LOS_LOW) ||
--	       (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL) &&
--		event == SFP_E_LOS_HIGH);
-+	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
-+	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
-+	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
-+
-+	return (los_options == los_inverted && event == SFP_E_LOS_LOW) ||
-+	       (los_options == los_normal && event == SFP_E_LOS_HIGH);
- }
- 
- static bool sfp_los_event_inactive(struct sfp *sfp, unsigned int event)
- {
--	return (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED) &&
--		event == SFP_E_LOS_HIGH) ||
--	       (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL) &&
--		event == SFP_E_LOS_LOW);
-+	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
-+	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
-+	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
-+
-+	return (los_options == los_inverted && event == SFP_E_LOS_HIGH) ||
-+	       (los_options == los_normal && event == SFP_E_LOS_LOW);
- }
- 
- static void sfp_sm_fault(struct sfp *sfp, unsigned int next_state, bool warn)
--- 
-2.20.1
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.186-65-gf7275a2da53b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f7275a2da53b8d1f2030ebb82804f8db4d0e501e =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/607441e8c1fa32aff9dac72a
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/607441e8c1fa32a=
+ff9dac731
+        new failure (last pass: v4.19.186-52-gf2aee9aaba24e)
+        2 lines
+
+    2021-04-12 12:49:40.185000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/100
+    2021-04-12 12:49:40.194000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-04-12 12:49:40.209000+00:00  <8>[   22.833343] <LAVA_SIGNAL_TESTCA=
+SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60743d595b85a84121dac6c0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60743d595b85a84121dac=
+6c1
+        failing since 149 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60743d45aecfc31354dac6bf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60743d45aecfc31354dac=
+6c0
+        failing since 149 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60743cf2d383eb8b50dac6b6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.186=
+-65-gf7275a2da53b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60743cf2d383eb8b50dac=
+6b7
+        failing since 149 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
