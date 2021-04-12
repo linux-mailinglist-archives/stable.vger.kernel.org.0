@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D41DF35C0B9
+	by mail.lfdr.de (Postfix) with ESMTP id 63DDE35C0B8
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241338AbhDLJPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241336AbhDLJPh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Apr 2021 05:15:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240627AbhDLJKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240629AbhDLJKs (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:10:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39AF4613AF;
-        Mon, 12 Apr 2021 09:06:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C62BD61392;
+        Mon, 12 Apr 2021 09:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218360;
-        bh=c5efIGUejmMRLYAWFjjNFTQg8Ptw+yEBIp3TSAEn1t8=;
+        s=korg; t=1618218363;
+        bh=FUqgFfApoGjRxHq/MukDYLovoyFVuuo1SNIBrRck7qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBA4cKGZKtR77aIb70CTX8TWKiduTJjeC0h4pivhwQIlMOCEsI6tPpP+8+faNHOgT
-         eNzuRmN0OQ8jP3P8QIP9HtjocH75IYC9XwVnq7IAWj1bqolXgN38tqZ4gNPYl2vieA
-         SVzSEFOPi2KMQVM/3UrdN6mj8bWQSv3yjHVst9pc=
+        b=m70vEvQ2nwddM9fijYFnuag5tywtZFmNyFcTehN2tDBdP35fc1J9CX7KHjqCPk/CP
+         GUtFUP5aF5iaGxkVqsbSOAslPZOX41y0MkNF5ePK9iJRwhtRPvcjW/LkkqdXIXdYiB
+         +t8z98t5LckrMP1GLctgz6IaRt7OONdJWthdJG4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 133/210] clk: qcom: camcc: Update the clock ops for the SC7180
-Date:   Mon, 12 Apr 2021 10:40:38 +0200
-Message-Id: <20210412084020.443228377@linuxfoundation.org>
+Subject: [PATCH 5.11 134/210] cxgb4: avoid collecting SGE_QBASE regs during traffic
+Date:   Mon, 12 Apr 2021 10:40:39 +0200
+Message-Id: <20210412084020.472781383@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -40,255 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taniya Das <tdas@codeaurora.org>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit e5c359f70e4b5e7b6c2bf4b0ca2d2686d543a37b ]
+[ Upstream commit 1bfb3dea965ff9f6226fd1709338f227363b6061 ]
 
-Some of the RCGs could be always ON from the XO source and could be used
-as the clock on signal for the GDSC to be operational. In the cases where
-the GDSCs are parked at different source with the source clock disabled,
-it could lead to the GDSC to be stuck at ON/OFF during gdsc disable/enable.
-Thus park the RCGs at XO during clock disable and update the rcg_ops to
-use the shared_ops.
+Accessing SGE_QBASE_MAP[0-3] and SGE_QBASE_INDEX registers can lead
+to SGE missing doorbells under heavy traffic. So, only collect them
+when adapter is idle. Also update the regdump range to skip collecting
+these registers.
 
-Fixes: 15d09e830bbc ("clk: qcom: camcc: Add camera clock controller driver for SC7180")
-Signed-off-by: Taniya Das <tdas@codeaurora.org>
-Link: https://lore.kernel.org/r/1616809265-11912-1-git-send-email-tdas@codeaurora.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 80a95a80d358 ("cxgb4: collect SGE PF/VF queue map")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/camcc-sc7180.c | 50 ++++++++++++++++-----------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 23 +++++++++++++++----
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c    |  3 ++-
+ 2 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/qcom/camcc-sc7180.c b/drivers/clk/qcom/camcc-sc7180.c
-index dbac5651ab85..9bcf2f8ed4de 100644
---- a/drivers/clk/qcom/camcc-sc7180.c
-+++ b/drivers/clk/qcom/camcc-sc7180.c
-@@ -304,7 +304,7 @@ static struct clk_rcg2 cam_cc_bps_clk_src = {
- 		.name = "cam_cc_bps_clk_src",
- 		.parent_data = cam_cc_parent_data_2,
- 		.num_parents = 5,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+index 75474f810249..c5b0e725b238 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -1794,11 +1794,25 @@ int cudbg_collect_sge_indirect(struct cudbg_init *pdbg_init,
+ 	struct cudbg_buffer temp_buff = { 0 };
+ 	struct sge_qbase_reg_field *sge_qbase;
+ 	struct ireg_buf *ch_sge_dbg;
++	u8 padap_running = 0;
+ 	int i, rc;
++	u32 size;
  
-@@ -325,7 +325,7 @@ static struct clk_rcg2 cam_cc_cci_0_clk_src = {
- 		.name = "cam_cc_cci_0_clk_src",
- 		.parent_data = cam_cc_parent_data_5,
- 		.num_parents = 3,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
+-	rc = cudbg_get_buff(pdbg_init, dbg_buff,
+-			    sizeof(*ch_sge_dbg) * 2 + sizeof(*sge_qbase),
+-			    &temp_buff);
++	/* Accessing SGE_QBASE_MAP[0-3] and SGE_QBASE_INDEX regs can
++	 * lead to SGE missing doorbells under heavy traffic. So, only
++	 * collect them when adapter is idle.
++	 */
++	for_each_port(padap, i) {
++		padap_running = netif_running(padap->port[i]);
++		if (padap_running)
++			break;
++	}
++
++	size = sizeof(*ch_sge_dbg) * 2;
++	if (!padap_running)
++		size += sizeof(*sge_qbase);
++
++	rc = cudbg_get_buff(pdbg_init, dbg_buff, size, &temp_buff);
+ 	if (rc)
+ 		return rc;
  
-@@ -339,7 +339,7 @@ static struct clk_rcg2 cam_cc_cci_1_clk_src = {
- 		.name = "cam_cc_cci_1_clk_src",
- 		.parent_data = cam_cc_parent_data_5,
- 		.num_parents = 3,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
+@@ -1820,7 +1834,8 @@ int cudbg_collect_sge_indirect(struct cudbg_init *pdbg_init,
+ 		ch_sge_dbg++;
+ 	}
  
-@@ -360,7 +360,7 @@ static struct clk_rcg2 cam_cc_cphy_rx_clk_src = {
- 		.name = "cam_cc_cphy_rx_clk_src",
- 		.parent_data = cam_cc_parent_data_3,
- 		.num_parents = 6,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -379,7 +379,7 @@ static struct clk_rcg2 cam_cc_csi0phytimer_clk_src = {
- 		.name = "cam_cc_csi0phytimer_clk_src",
- 		.parent_data = cam_cc_parent_data_0,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -393,7 +393,7 @@ static struct clk_rcg2 cam_cc_csi1phytimer_clk_src = {
- 		.name = "cam_cc_csi1phytimer_clk_src",
- 		.parent_data = cam_cc_parent_data_0,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -407,7 +407,7 @@ static struct clk_rcg2 cam_cc_csi2phytimer_clk_src = {
- 		.name = "cam_cc_csi2phytimer_clk_src",
- 		.parent_data = cam_cc_parent_data_0,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -421,7 +421,7 @@ static struct clk_rcg2 cam_cc_csi3phytimer_clk_src = {
- 		.name = "cam_cc_csi3phytimer_clk_src",
- 		.parent_data = cam_cc_parent_data_0,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -443,7 +443,7 @@ static struct clk_rcg2 cam_cc_fast_ahb_clk_src = {
- 		.name = "cam_cc_fast_ahb_clk_src",
- 		.parent_data = cam_cc_parent_data_0,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -466,7 +466,7 @@ static struct clk_rcg2 cam_cc_icp_clk_src = {
- 		.name = "cam_cc_icp_clk_src",
- 		.parent_data = cam_cc_parent_data_2,
- 		.num_parents = 5,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -488,7 +488,7 @@ static struct clk_rcg2 cam_cc_ife_0_clk_src = {
- 		.name = "cam_cc_ife_0_clk_src",
- 		.parent_data = cam_cc_parent_data_4,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -510,7 +510,7 @@ static struct clk_rcg2 cam_cc_ife_0_csid_clk_src = {
- 		.name = "cam_cc_ife_0_csid_clk_src",
- 		.parent_data = cam_cc_parent_data_3,
- 		.num_parents = 6,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -524,7 +524,7 @@ static struct clk_rcg2 cam_cc_ife_1_clk_src = {
- 		.name = "cam_cc_ife_1_clk_src",
- 		.parent_data = cam_cc_parent_data_4,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -538,7 +538,7 @@ static struct clk_rcg2 cam_cc_ife_1_csid_clk_src = {
- 		.name = "cam_cc_ife_1_csid_clk_src",
- 		.parent_data = cam_cc_parent_data_3,
- 		.num_parents = 6,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -553,7 +553,7 @@ static struct clk_rcg2 cam_cc_ife_lite_clk_src = {
- 		.parent_data = cam_cc_parent_data_4,
- 		.num_parents = 4,
- 		.flags = CLK_SET_RATE_PARENT,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -567,7 +567,7 @@ static struct clk_rcg2 cam_cc_ife_lite_csid_clk_src = {
- 		.name = "cam_cc_ife_lite_csid_clk_src",
- 		.parent_data = cam_cc_parent_data_3,
- 		.num_parents = 6,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -590,7 +590,7 @@ static struct clk_rcg2 cam_cc_ipe_0_clk_src = {
- 		.name = "cam_cc_ipe_0_clk_src",
- 		.parent_data = cam_cc_parent_data_2,
- 		.num_parents = 5,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -613,7 +613,7 @@ static struct clk_rcg2 cam_cc_jpeg_clk_src = {
- 		.name = "cam_cc_jpeg_clk_src",
- 		.parent_data = cam_cc_parent_data_2,
- 		.num_parents = 5,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -635,7 +635,7 @@ static struct clk_rcg2 cam_cc_lrme_clk_src = {
- 		.name = "cam_cc_lrme_clk_src",
- 		.parent_data = cam_cc_parent_data_6,
- 		.num_parents = 5,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -656,7 +656,7 @@ static struct clk_rcg2 cam_cc_mclk0_clk_src = {
- 		.name = "cam_cc_mclk0_clk_src",
- 		.parent_data = cam_cc_parent_data_1,
- 		.num_parents = 3,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -670,7 +670,7 @@ static struct clk_rcg2 cam_cc_mclk1_clk_src = {
- 		.name = "cam_cc_mclk1_clk_src",
- 		.parent_data = cam_cc_parent_data_1,
- 		.num_parents = 3,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -684,7 +684,7 @@ static struct clk_rcg2 cam_cc_mclk2_clk_src = {
- 		.name = "cam_cc_mclk2_clk_src",
- 		.parent_data = cam_cc_parent_data_1,
- 		.num_parents = 3,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -698,7 +698,7 @@ static struct clk_rcg2 cam_cc_mclk3_clk_src = {
- 		.name = "cam_cc_mclk3_clk_src",
- 		.parent_data = cam_cc_parent_data_1,
- 		.num_parents = 3,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -712,7 +712,7 @@ static struct clk_rcg2 cam_cc_mclk4_clk_src = {
- 		.name = "cam_cc_mclk4_clk_src",
- 		.parent_data = cam_cc_parent_data_1,
- 		.num_parents = 3,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
-@@ -732,7 +732,7 @@ static struct clk_rcg2 cam_cc_slow_ahb_clk_src = {
- 		.parent_data = cam_cc_parent_data_0,
- 		.num_parents = 4,
- 		.flags = CLK_SET_RATE_PARENT | CLK_OPS_PARENT_ENABLE,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_shared_ops,
- 	},
- };
- 
+-	if (CHELSIO_CHIP_VERSION(padap->params.chip) > CHELSIO_T5) {
++	if (CHELSIO_CHIP_VERSION(padap->params.chip) > CHELSIO_T5 &&
++	    !padap_running) {
+ 		sge_qbase = (struct sge_qbase_reg_field *)ch_sge_dbg;
+ 		/* 1 addr reg SGE_QBASE_INDEX and 4 data reg
+ 		 * SGE_QBASE_MAP[0-3]
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+index 98d01a7497ec..581670dced6e 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+@@ -2090,7 +2090,8 @@ void t4_get_regs(struct adapter *adap, void *buf, size_t buf_size)
+ 		0x1190, 0x1194,
+ 		0x11a0, 0x11a4,
+ 		0x11b0, 0x11b4,
+-		0x11fc, 0x1274,
++		0x11fc, 0x123c,
++		0x1254, 0x1274,
+ 		0x1280, 0x133c,
+ 		0x1800, 0x18fc,
+ 		0x3000, 0x302c,
 -- 
 2.30.2
 
