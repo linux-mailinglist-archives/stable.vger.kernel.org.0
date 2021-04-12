@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5055135BDB0
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0884A35BCC3
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237613AbhDLIw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
+        id S237758AbhDLIpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:45:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238429AbhDLItr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 337566135A;
-        Mon, 12 Apr 2021 08:48:46 +0000 (UTC)
+        id S237694AbhDLIoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:44:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA79B611F0;
+        Mon, 12 Apr 2021 08:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217326;
-        bh=jnUE0CaMOYiyxx0A85k2dEb6Q3912c1bB9IlNE7W4bU=;
+        s=korg; t=1618217066;
+        bh=K2psyady3pG725dtChyP5Ahyyx2aXQl70cRYFZTIMPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GglbFrC+AXE3lyMUGtimNlS8nCMfsTRNikZj5nyR2ovC+hc/iRThyg42QMaHQRKaQ
-         LimELUUu6BPgTW4DIwcSi5LolxDQP28u7GcbgDO2Cu7kFOUUY1Nf2s1IFxUKqPP2HU
-         5BZKHztbfMRTCdIeTycSo8W2UGxhAISPvluID2Q8=
+        b=JNDH1ZMkF8gF9wS5NeiRglfNztj9iThf5WCINIfQbWBsZK53YCHmPPmGDXfNjs+Ol
+         HRxjDLFZZ8LvnKdvf2sDH73mAKwHVlNxdwiiV3iYEI6r6CSBU9u3CG2Q6xVnI4WIPV
+         Tlb2LERF8NP4LQt4/jUM5bXk6/s2FSHfF/lAYsPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/111] s390/cpcmd: fix inline assembly register clobbering
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.19 57/66] net: mac802154: Fix general protection fault
 Date:   Mon, 12 Apr 2021 10:41:03 +0200
-Message-Id: <20210412084007.087884494@linuxfoundation.org>
+Message-Id: <20210412083959.968930776@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 7a2f91441b2c1d81b77c1cd816a4659f4abc9cbe ]
+commit 1165affd484889d4986cf3b724318935a0b120d8 upstream.
 
-Register variables initialized using arithmetic. That leads to
-kasan instrumentaton code corrupting the registers contents.
-Follow GCC guidlines and use temporary variables for assigning
-init values to register variables.
+syzbot found general protection fault in crypto_destroy_tfm()[1].
+It was caused by wrong clean up loop in llsec_key_alloc().
+If one of the tfm array members is in IS_ERR() range it will
+cause general protection fault in clean up function [1].
 
-Fixes: 94c12cc7d196 ("[S390] Inline assembly cleanup.")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Local-Register-Variables.html
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Call Trace:
+ crypto_free_aead include/crypto/aead.h:191 [inline] [1]
+ llsec_key_alloc net/mac802154/llsec.c:156 [inline]
+ mac802154_llsec_key_add+0x9e0/0xcc0 net/mac802154/llsec.c:249
+ ieee802154_add_llsec_key+0x56/0x80 net/mac802154/cfg.c:338
+ rdev_add_llsec_key net/ieee802154/rdev-ops.h:260 [inline]
+ nl802154_add_llsec_key+0x3d3/0x560 net/ieee802154/nl802154.c:1584
+ genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:739
+ genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+ genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:674
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210304152125.1052825-1-paskripkin@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/cpcmd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/mac802154/llsec.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/cpcmd.c b/arch/s390/kernel/cpcmd.c
-index af013b4244d3..2da027359798 100644
---- a/arch/s390/kernel/cpcmd.c
-+++ b/arch/s390/kernel/cpcmd.c
-@@ -37,10 +37,12 @@ static int diag8_noresponse(int cmdlen)
+--- a/net/mac802154/llsec.c
++++ b/net/mac802154/llsec.c
+@@ -160,7 +160,7 @@ err_tfm0:
+ 	crypto_free_skcipher(key->tfm0);
+ err_tfm:
+ 	for (i = 0; i < ARRAY_SIZE(key->tfm); i++)
+-		if (key->tfm[i])
++		if (!IS_ERR_OR_NULL(key->tfm[i]))
+ 			crypto_free_aead(key->tfm[i]);
  
- static int diag8_response(int cmdlen, char *response, int *rlen)
- {
-+	unsigned long _cmdlen = cmdlen | 0x40000000L;
-+	unsigned long _rlen = *rlen;
- 	register unsigned long reg2 asm ("2") = (addr_t) cpcmd_buf;
- 	register unsigned long reg3 asm ("3") = (addr_t) response;
--	register unsigned long reg4 asm ("4") = cmdlen | 0x40000000L;
--	register unsigned long reg5 asm ("5") = *rlen;
-+	register unsigned long reg4 asm ("4") = _cmdlen;
-+	register unsigned long reg5 asm ("5") = _rlen;
- 
- 	asm volatile(
- 		"	diag	%2,%0,0x8\n"
--- 
-2.30.2
-
+ 	kzfree(key);
 
 
