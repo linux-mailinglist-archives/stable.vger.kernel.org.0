@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918A435CD55
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:36:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46E9535CD57
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240240AbhDLQgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37272 "EHLO mail.kernel.org"
+        id S245171AbhDLQg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:36:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244963AbhDLQdj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:33:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B966613B0;
-        Mon, 12 Apr 2021 16:26:34 +0000 (UTC)
+        id S244992AbhDLQdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:33:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD403613C5;
+        Mon, 12 Apr 2021 16:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244795;
-        bh=wQmhuzaCHK+pZWUvY/gW8zm0lQr9CrxBVVbOKseXz0M=;
+        s=k20201202; t=1618244796;
+        bh=Yh13L35ZM6esCqrd244WMvkZU0q1hVTkp93i3JHN/mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0EhGecoQcIb56ZVMYQ3gygVT2fdjq2YNzs9amWRXShhwnORp9n9IN0I5sqwMVJEN
-         1m7VYWo5GuypE29228Y1fzt9AOZVzScqkdwc8yb0vXG/jMGbmcFbTp6uXURrwxAlR4
-         HcA/kx1ZSG0xs/lqHpCEuQMi3cxCGzSbdL0iUuoilx7PmPED2WaZcY03xdnUjdexf7
-         KtgLjf+bszBizqiNdYUYp0g0xMJODZlLkvvQrDwQSbhCEvw2KjuugZ5gXysjF0+/7H
-         nFErq61MhBqKFZ9ZhsGaiyYoYoPNpTmy6ah/Vqfd5p1raxCLxX4uGA49dJarex6Ryz
-         TCuHoAJ7+xXCA==
+        b=TFGNPWP7bbAnC1dtN6ia7iEXR9XdTBGkTvBIzf+kt228jJPY3vgu1HscZU4SkSQSj
+         Tc8exncKAy3VEoxO+QDQ0gonqCxdNMMWmeQ5FhUyvjAoQlEKeLhGZ1RVasigC/jygc
+         5tb9vmtnighAdi2ufKpcAFfmdCYPfu+8o8DB0BPZrrGvy9nMZlstAxS3++IzrjaUw8
+         4CWz667UR4fNYR0FuL7zQg+Z4BMigdEI8lb5hNd8VbdgTR1qWoujvtkY0c1FRqbEPU
+         MpV6w1bhpO71t3TVDG5dB44+u7RDVcNYiMeo0j4UeBsOx7+ApaF5Qlumnix5LISHbL
+         AUSPc9QwqgKLA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Qing <wangqing@vivo.com>, Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 03/25] arc: kernel: Return -EFAULT if copy_to_user() fails
-Date:   Mon, 12 Apr 2021 12:26:08 -0400
-Message-Id: <20210412162630.315526-3-sashal@kernel.org>
+Cc:     Tong Zhu <zhutong@amazon.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/25] neighbour: Disregard DEAD dst in neigh_update
+Date:   Mon, 12 Apr 2021 12:26:09 -0400
+Message-Id: <20210412162630.315526-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162630.315526-1-sashal@kernel.org>
 References: <20210412162630.315526-1-sashal@kernel.org>
@@ -42,42 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Tong Zhu <zhutong@amazon.com>
 
-[ Upstream commit 46e152186cd89d940b26726fff11eb3f4935b45a ]
+[ Upstream commit d47ec7a0a7271dda08932d6208e4ab65ab0c987c ]
 
-The copy_to_user() function returns the number of bytes remaining to be
-copied, but we want to return -EFAULT if the copy doesn't complete.
+After a short network outage, the dst_entry is timed out and put
+in DST_OBSOLETE_DEAD. We are in this code because arp reply comes
+from this neighbour after network recovers. There is a potential
+race condition that dst_entry is still in DST_OBSOLETE_DEAD.
+With that, another neighbour lookup causes more harm than good.
 
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+In best case all packets in arp_queue are lost. This is
+counterproductive to the original goal of finding a better path
+for those packets.
+
+I observed a worst case with 4.x kernel where a dst_entry in
+DST_OBSOLETE_DEAD state is associated with loopback net_device.
+It leads to an ethernet header with all zero addresses.
+A packet with all zero source MAC address is quite deadly with
+mac80211, ath9k and 802.11 block ack.  It fails
+ieee80211_find_sta_by_ifaddr in ath9k (xmit.c). Ath9k flushes tx
+queue (ath_tx_complete_aggr). BAW (block ack window) is not
+updated. BAW logic is damaged and ath9k transmission is disabled.
+
+Signed-off-by: Tong Zhu <zhutong@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/signal.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/neighbour.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arc/kernel/signal.c b/arch/arc/kernel/signal.c
-index 48685445002e..da243420bcb5 100644
---- a/arch/arc/kernel/signal.c
-+++ b/arch/arc/kernel/signal.c
-@@ -99,7 +99,7 @@ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
- 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
- 
--	return err;
-+	return err ? -EFAULT : 0;
- }
- 
- static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
-@@ -113,7 +113,7 @@ static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
- 				&(sf->uc.uc_mcontext.regs.scratch),
- 				sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	if (err)
--		return err;
-+		return -EFAULT;
- 
- 	set_current_blocked(&set);
- 	regs->bta	= uregs.scratch.bta;
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 20f6c634ad68..f9aa9912f940 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -1266,7 +1266,7 @@ int neigh_update(struct neighbour *neigh, const u8 *lladdr, u8 new,
+ 			 * we can reinject the packet there.
+ 			 */
+ 			n2 = NULL;
+-			if (dst) {
++			if (dst && dst->obsolete != DST_OBSOLETE_DEAD) {
+ 				n2 = dst_neigh_lookup_skb(dst, skb);
+ 				if (n2)
+ 					n1 = n2;
 -- 
 2.30.2
 
