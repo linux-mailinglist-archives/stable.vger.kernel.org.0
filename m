@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 218A535BE44
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0025435BC6A
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238267AbhDLI5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44272 "EHLO mail.kernel.org"
+        id S237401AbhDLImy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:42:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239008AbhDLIzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A59161019;
-        Mon, 12 Apr 2021 08:54:40 +0000 (UTC)
+        id S237374AbhDLIms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:42:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20FFB611F0;
+        Mon, 12 Apr 2021 08:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217681;
-        bh=mHIS/D49/QscuLdBoE+4BuR7o/XM6yigLTtgCcvlugM=;
+        s=korg; t=1618216950;
+        bh=D/HvxFYjZJ/ANAhaqPehwJ3N5Iqsp0HOSQFW644kqmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BiUZyWf72ReocSqCng4oSgJCXw5OGMZGkHpJHN2L43+WSWRs4wwodzzpBwfb3mVkp
-         ezUhOo6UtBN+qUJbfgoB7u0lUNKJlpm0NSaLQ+7QBTvhGA6F80EYCBaRG3jlS74yrC
-         5uxAEGMNmTVnNo8mSqeGbqEoCin1jI2C8MgIvIcM=
+        b=Dymr480TSAVK7piCtopngrUwWnJG4flPjDji0EC06dbLnpYTN9SKKinvzbMKkXkB8
+         4q3IojeU0Dul2EMEkz71xkn0VBOfb+W+hZw2wtvsPYLmGL+yPG239QWb/1k7frrIv6
+         riCMZ6Y0iF1hxDbreVpWcA5qMWdGBCCXmBMbP68M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/188] i40e: Fix kernel oops when i40e driver removes VFs
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>
+Subject: [PATCH 4.19 15/66] ARM: dts: turris-omnia: configure LED[2]/INTn pin as interrupt pin
 Date:   Mon, 12 Apr 2021 10:40:21 +0200
-Message-Id: <20210412084017.201249432@linuxfoundation.org>
+Message-Id: <20210412083958.622107640@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 347b5650cd158d1d953487cc2bec567af5c5bf96 ]
+commit a26c56ae67fa9fbb45a8a232dcd7ebaa7af16086 upstream.
 
-Fix the reason of kernel oops when i40e driver removed VFs.
-Added new __I40E_VFS_RELEASING state to signalize releasing
-process by PF, that it makes possible to exit of reset VF procedure.
-Without this patch, it is possible to suspend the VFs reset by
-releasing VFs resources procedure. Retrying the reset after the
-timeout works on the freed VF memory causing a kernel oops.
+Use the `marvell,reg-init` DT property to configure the LED[2]/INTn pin
+of the Marvell 88E1514 ethernet PHY on Turris Omnia into interrupt mode.
 
-Fixes: d43d60e5eb95 ("i40e: ensure reset occurs when disabling VF")
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Without this the pin is by default in LED[2] mode, and the Marvell PHY
+driver configures LED[2] into "On - Link, Blink - Activity" mode.
+
+This fixes the issue where the pca9538 GPIO/interrupt controller (which
+can't mask interrupts in HW) received too many interrupts and after a
+time started ignoring the interrupt with error message:
+  IRQ 71: nobody cared
+
+There is a work in progress to have the Marvell PHY driver support
+parsing PHY LED nodes from OF and registering the LEDs as Linux LED
+class devices. Once this is done the PHY driver can also automatically
+set the pin into INTn mode if it does not find LED[2] in OF.
+
+Until then, though, we fix this via `marvell,reg-init` DT property.
+
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Cc: Uwe Kleine-König <uwe@kleine-koenig.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h             | 1 +
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 9 +++++++++
- 2 files changed, 10 insertions(+)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
-index 118473dfdcbd..fe1258778cbc 100644
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -142,6 +142,7 @@ enum i40e_state_t {
- 	__I40E_VIRTCHNL_OP_PENDING,
- 	__I40E_RECOVERY_MODE,
- 	__I40E_VF_RESETS_DISABLED,	/* disable resets during i40e_remove */
-+	__I40E_VFS_RELEASING,
- 	/* This must be last as it determines the size of the BITMAP */
- 	__I40E_STATE_SIZE__,
- };
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 3b269c70dcfe..e4f13a49c3df 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -137,6 +137,7 @@ void i40e_vc_notify_vf_reset(struct i40e_vf *vf)
-  **/
- static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
- {
-+	struct i40e_pf *pf = vf->pf;
- 	int i;
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -236,6 +236,7 @@
+ 		status = "okay";
+ 		compatible = "ethernet-phy-id0141.0DD1", "ethernet-phy-ieee802.3-c22";
+ 		reg = <1>;
++		marvell,reg-init = <3 18 0 0x4985>;
  
- 	i40e_vc_notify_vf_reset(vf);
-@@ -147,6 +148,11 @@ static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
- 	 * ensure a reset.
- 	 */
- 	for (i = 0; i < 20; i++) {
-+		/* If PF is in VFs releasing state reset VF is impossible,
-+		 * so leave it.
-+		 */
-+		if (test_bit(__I40E_VFS_RELEASING, pf->state))
-+			return;
- 		if (i40e_reset_vf(vf, false))
- 			return;
- 		usleep_range(10000, 20000);
-@@ -1574,6 +1580,8 @@ void i40e_free_vfs(struct i40e_pf *pf)
- 
- 	if (!pf->vf)
- 		return;
-+
-+	set_bit(__I40E_VFS_RELEASING, pf->state);
- 	while (test_and_set_bit(__I40E_VF_DISABLE, pf->state))
- 		usleep_range(1000, 2000);
- 
-@@ -1631,6 +1639,7 @@ void i40e_free_vfs(struct i40e_pf *pf)
- 		}
- 	}
- 	clear_bit(__I40E_VF_DISABLE, pf->state);
-+	clear_bit(__I40E_VFS_RELEASING, pf->state);
- }
- 
- #ifdef CONFIG_PCI_IOV
--- 
-2.30.2
-
+ 		/* irq is connected to &pcawan pin 7 */
+ 	};
 
 
