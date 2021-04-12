@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF3435BE48
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0BC35BD4E
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238459AbhDLI5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
+        id S238836AbhDLIu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:50:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239017AbhDLIzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03F0A61243;
-        Mon, 12 Apr 2021 08:54:53 +0000 (UTC)
+        id S237812AbhDLIrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:47:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3F5261248;
+        Mon, 12 Apr 2021 08:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217694;
-        bh=+e2r2grzBTdyP+uMHvEFBRxFfA8UirfmEE45ddhy5y8=;
+        s=korg; t=1618217224;
+        bh=mFVcdJ1kXDj6iMi0Jr7Ek4Q5Rwk6pnMFASFHtYOSMjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEvrKbz/eCYVWWwuf2QDkjRjV7rxCeXcl6/I+co6U/0hGw+1K8yjaPHP2SSnXu0g1
-         xsyaBLZSEvmyesOPAvpmW9kFGZ5IWqjApshb26DM9eBQkHx3yBacQpVPoYheJ8NWWA
-         LwjxJ8Hh9gmzmropdyZcpnG3VzlPM58P/d1u4W8I=
+        b=Xzg3m1ZEQMgjBDCZEZf2eTwvbKH81IxrB6BRB3cKYTeo3ghTKqGwHb1Jvgf0Beram
+         Em/fWlwCtTNIdtxG2Pwi2p/748OfANafAo3mL+7E/Vm7uXIL/k13aN7cCjCPHN+zu1
+         mLaxijuta0/PiSrN/o2InOz1UO04UB464MevpGn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 112/188] sch_red: fix off-by-one checks in red_check_params()
+Subject: [PATCH 5.4 048/111] esp: delete NETIF_F_SCTP_CRC bit from features for esp offload
 Date:   Mon, 12 Apr 2021 10:40:26 +0200
-Message-Id: <20210412084017.369780563@linuxfoundation.org>
+Message-Id: <20210412084005.858846509@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 3a87571f0ffc51ba3bf3ecdb6032861d0154b164 ]
+[ Upstream commit 154deab6a3ba47792936edf77f2f13a1cbc4351d ]
 
-This fixes following syzbot report:
+Now in esp4/6_gso_segment(), before calling inner proto .gso_segment,
+NETIF_F_CSUM_MASK bits are deleted, as HW won't be able to do the
+csum for inner proto due to the packet encrypted already.
 
-UBSAN: shift-out-of-bounds in ./include/net/red.h:237:23
-shift exponent 32 is too large for 32-bit type 'unsigned int'
-CPU: 1 PID: 8418 Comm: syz-executor170 Not tainted 5.12.0-rc4-next-20210324-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
- red_set_parms include/net/red.h:237 [inline]
- choke_change.cold+0x3c/0xc8 net/sched/sch_choke.c:414
- qdisc_create+0x475/0x12f0 net/sched/sch_api.c:1247
- tc_modify_qdisc+0x4c8/0x1a50 net/sched/sch_api.c:1663
- rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5553
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
- netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x43f039
-Code: 28 c3 e8 2a 14 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffdfa725168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000400488 RCX: 000000000043f039
-RDX: 0000000000000000 RSI: 0000000020000040 RDI: 0000000000000004
-RBP: 0000000000403020 R08: 0000000000400488 R09: 0000000000400488
-R10: 0000000000400488 R11: 0000000000000246 R12: 00000000004030b0
-R13: 0000000000000000 R14: 00000000004ac018 R15: 0000000000400488
+So the UDP/TCP packet has to do the checksum on its own .gso_segment.
+But SCTP is using CRC checksum, and for that NETIF_F_SCTP_CRC should
+be deleted to make SCTP do the csum in own .gso_segment as well.
 
-Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In Xiumei's testing with SCTP over IPsec/veth, the packets are kept
+dropping due to the wrong CRC checksum.
+
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/red.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/esp4_offload.c | 6 ++++--
+ net/ipv6/esp6_offload.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/red.h b/include/net/red.h
-index 9e6647c4ccd1..cc9f6b0d7f1e 100644
---- a/include/net/red.h
-+++ b/include/net/red.h
-@@ -171,9 +171,9 @@ static inline void red_set_vars(struct red_vars *v)
- static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog,
- 				    u8 Scell_log, u8 *stab)
- {
--	if (fls(qth_min) + Wlog > 32)
-+	if (fls(qth_min) + Wlog >= 32)
- 		return false;
--	if (fls(qth_max) + Wlog > 32)
-+	if (fls(qth_max) + Wlog >= 32)
- 		return false;
- 	if (Scell_log >= 32)
- 		return false;
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index 25c8ba6732df..8c0af30fb067 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -177,10 +177,12 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
+ 
+ 	if ((!(skb->dev->gso_partial_features & NETIF_F_HW_ESP) &&
+ 	     !(features & NETIF_F_HW_ESP)) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM) &&
+ 		 !(skb->dev->gso_partial_features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 
+ 	xo->flags |= XFRM_GSO_SEGMENT;
+ 
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 93e086cf058a..1c532638b2ad 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -210,9 +210,11 @@ static struct sk_buff *esp6_gso_segment(struct sk_buff *skb,
+ 	skb->encap_hdr_csum = 1;
+ 
+ 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 
+ 	xo->flags |= XFRM_GSO_SEGMENT;
+ 
 -- 
 2.30.2
 
