@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62CEE35CB72
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BCB735CB74
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243885AbhDLQYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243899AbhDLQYf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Apr 2021 12:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56028 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243694AbhDLQYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:24:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 261106101B;
-        Mon, 12 Apr 2021 16:23:53 +0000 (UTC)
+        id S243711AbhDLQYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:24:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CFFC61287;
+        Mon, 12 Apr 2021 16:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244634;
-        bh=oObnfVcrrOuvmowWFddpwKRb/CnoYWfUEUohX8mOOjY=;
+        s=k20201202; t=1618244635;
+        bh=FNUg1XRVrOeOXuEXVMppXQbDhVGuqH6mQqna3Sckp14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMMMQ1N66uxxYFpvqj4SAYOKp5XavnGrUxXPkQrQVed5unU3TwYteJ7NSOvk7wl9M
-         ii8dSqnZmdvZNi9H3fTAwsX8fpENAgAvzUenzwNbeGS3yBFK4s64ui8Kh4PpvvV54W
-         TYYltp5yTKMCPivRrvY43kBguZI/BZJ2dt1fg0As/KKu1/KdtEOCckwmApk6KgclYO
-         h8KG5R6/veMvAqu/Q6a3E+igXZAI9Cm9ASNz5ZNsLLCsHgvcHy/Lu7+InyQ8aCqeSh
-         0UBrZiQYkSxwpMMYq1nEo6xW/S6GvaAlwyL4a7DNiNVAlbKFbOAfmBCvev2Tj/L1vl
-         IhjP11Y8Q76tQ==
+        b=BvLtEjwfc9pXkWzymVd3UIHgjJ2nSu0ZhkzZiSAEJQeFnH795aQ5P4khRUnENyleG
+         6dzc/gHNO6RW9+d2QfGVdk8geckAAK1XTBZiDR/sthJr9YwyF1j2zoTfVhplgH+S/j
+         c46Zh00VSNQl8Q4J+RRcP7X5cU54XROUVcIr/6euaPTnasHcBqe1as35oTtjXS0obJ
+         astHl+HIIOzB505aXmZuMhcPtXYXXbD1631MMrIHNFFfxn2RNg1a1fB+fWd6KdGo7v
+         sQU3P+Aw/2OniSDtuHrrQW7m3ip3bXJTDVEWsHCtZTspqbvFfT6IAb2Iu7Mjl/Ts83
+         dktyOyDUnoe3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.11 46/51] net: tipc: Fix spelling errors in net/tipc module
-Date:   Mon, 12 Apr 2021 12:22:51 -0400
-Message-Id: <20210412162256.313524-46-sashal@kernel.org>
+Cc:     Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.11 47/51] drm/amd/display: Add missing mask for DCN3
+Date:   Mon, 12 Apr 2021 12:22:52 -0400
+Message-Id: <20210412162256.313524-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162256.313524-1-sashal@kernel.org>
 References: <20210412162256.313524-1-sashal@kernel.org>
@@ -44,65 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Qingqing Zhuo <qingqing.zhuo@amd.com>
 
-[ Upstream commit a79ace4b312953c5835fafb12adc3cb6878b26bd ]
+[ Upstream commit df7232c4c676be29f1cf45058ec156c1183539ff ]
 
-These patches fix a series of spelling errors in net/tipc module.
+[Why]
+DCN3 is not reusing DCN1 mask_sh_list, causing
+SURFACE_FLIP_INT_MASK missing in the mapping.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[How]
+Add the corresponding entry to DCN3 list.
+
+Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bearer.h | 6 +++---
- net/tipc/net.c    | 2 +-
- net/tipc/node.c   | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/tipc/bearer.h b/net/tipc/bearer.h
-index 6bf4550aa1ac..57c6a1a719e2 100644
---- a/net/tipc/bearer.h
-+++ b/net/tipc/bearer.h
-@@ -154,9 +154,9 @@ struct tipc_media {
-  * care of initializing all other fields.
-  */
- struct tipc_bearer {
--	void __rcu *media_ptr;			/* initalized by media */
--	u32 mtu;				/* initalized by media */
--	struct tipc_media_addr addr;		/* initalized by media */
-+	void __rcu *media_ptr;			/* initialized by media */
-+	u32 mtu;				/* initialized by media */
-+	struct tipc_media_addr addr;		/* initialized by media */
- 	char name[TIPC_MAX_BEARER_NAME];
- 	struct tipc_media *media;
- 	struct tipc_media_addr bcast_addr;
-diff --git a/net/tipc/net.c b/net/tipc/net.c
-index a129f661bee3..faf6bf554514 100644
---- a/net/tipc/net.c
-+++ b/net/tipc/net.c
-@@ -89,7 +89,7 @@
-  *     - A spin lock to protect the registry of kernel/driver users (reg.c)
-  *     - A global spin_lock (tipc_port_lock), which only task is to ensure
-  *       consistency where more than one port is involved in an operation,
-- *       i.e., whe a port is part of a linked list of ports.
-+ *       i.e., when a port is part of a linked list of ports.
-  *       There are two such lists; 'port_list', which is used for management,
-  *       and 'wait_list', which is used to queue ports during congestion.
-  *
-diff --git a/net/tipc/node.c b/net/tipc/node.c
-index 136338b85504..e0ee83263a39 100644
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -1734,7 +1734,7 @@ int tipc_node_xmit(struct net *net, struct sk_buff_head *list,
- }
- 
- /* tipc_node_xmit_skb(): send single buffer to destination
-- * Buffers sent via this functon are generally TIPC_SYSTEM_IMPORTANCE
-+ * Buffers sent via this function are generally TIPC_SYSTEM_IMPORTANCE
-  * messages, which will not be rejected
-  * The only exception is datagram messages rerouted after secondary
-  * lookup, which are rare and safe to dispose of anyway.
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
+index 5fa150f34c60..2e89acf46e54 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
+@@ -133,6 +133,7 @@
+ 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_EN, mask_sh),\
+ 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_IND_BLK, mask_sh),\
+ 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_IND_BLK_C, mask_sh),\
++	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_FLIP_INTERRUPT, SURFACE_FLIP_INT_MASK, mask_sh),\
+ 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, DET_BUF_PLANE1_BASE_ADDRESS, mask_sh),\
+ 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CB_B, mask_sh),\
+ 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CR_R, mask_sh),\
 -- 
 2.30.2
 
