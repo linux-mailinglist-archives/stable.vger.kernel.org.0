@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13BA735BD9D
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3701635BD84
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238578AbhDLIwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43120 "EHLO mail.kernel.org"
+        id S238230AbhDLIwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:52:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238728AbhDLIue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:50:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CA866109E;
-        Mon, 12 Apr 2021 08:50:16 +0000 (UTC)
+        id S238492AbhDLIt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:49:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0275461262;
+        Mon, 12 Apr 2021 08:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217416;
-        bh=QVrSs/VKhhTYXkFZV0qjk2roo7lUf4bHn6SSdXH2Cd8=;
+        s=korg; t=1618217357;
+        bh=RVeqEwSMV+afndYVVRf8Y8e2iIr5D1jKZ145Q8e1qhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K26eNtZMiCsTP1ypzpgEYkNU1ItobpHGy4X5gNkI44NQBc+YcxrxLouXZCqvv1MQ/
-         qKKBHZATDl0Cqec4pmr5gtAs9FEI2haXPCWZjTLpuxbD2chObWwn1dxK9H8/vsE/jT
-         pdyj1Tpk1PsR2NMRUDK3tePY7S/Maitw1qdlRaAo=
+        b=bBkpPMyQQ5Nd4gcx2yZE0SSfjcOzPQ2AE0UHLHJI4XmqeSZ7xOv+z7VUBXc9v438G
+         8WhX9oDw3PS/r/Zke4Xprcx1yHt9cWvRYY9Mq8CEPpCOKEY1ujUjnA4L2CIkcUPaLT
+         0MoDgtISjdoiVeAxLW4ofJL3k8VoOgt5lsIS244c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 096/111] dt-bindings: net: ethernet-controller: fix typo in NVMEM
-Date:   Mon, 12 Apr 2021 10:41:14 +0200
-Message-Id: <20210412084007.453699213@linuxfoundation.org>
+Subject: [PATCH 5.4 097/111] net: sched: bump refcount for new action in ACT replace mode
+Date:   Mon, 12 Apr 2021 10:41:15 +0200
+Message-Id: <20210412084007.483296509@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
 References: <20210412084004.200986670@linuxfoundation.org>
@@ -40,34 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit af9d316f3dd6d1385fbd1631b5103e620fc4298a upstream.
+commit 6855e8213e06efcaf7c02a15e12b1ae64b9a7149 upstream.
 
-The correct property name is "nvmem-cell-names". This is what:
-1. Was originally documented in the ethernet.txt
-2. Is used in DTS files
-3. Matches standard syntax for phandles
-4. Linux net subsystem checks for
+Currently, action creation using ACT API in replace mode is buggy.
+When invoking for non-existent action index 42,
 
-Fixes: 9d3de3c58347 ("dt-bindings: net: Add YAML schemas for the generic Ethernet options")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+	tc action replace action bpf obj foo.o sec <xyz> index 42
+
+kernel creates the action, fills up the netlink response, and then just
+deletes the action after notifying userspace.
+
+	tc action show action bpf
+
+doesn't list the action.
+
+This happens due to the following sequence when ovr = 1 (replace mode)
+is enabled:
+
+tcf_idr_check_alloc is used to atomically check and either obtain
+reference for existing action at index, or reserve the index slot using
+a dummy entry (ERR_PTR(-EBUSY)).
+
+This is necessary as pointers to these actions will be held after
+dropping the idrinfo lock, so bumping the reference count is necessary
+as we need to insert the actions, and notify userspace by dumping their
+attributes. Finally, we drop the reference we took using the
+tcf_action_put_many call in tcf_action_add. However, for the case where
+a new action is created due to free index, its refcount remains one.
+This when paired with the put_many call leads to the kernel setting up
+the action, notifying userspace of its creation, and then tearing it
+down. For existing actions, the refcount is still held so they remain
+unaffected.
+
+Fortunately due to rtnl_lock serialization requirement, such an action
+with refcount == 1 will not be concurrently deleted by anything else, at
+best CLS API can move its refcount up and down by binding to it after it
+has been published from tcf_idr_insert_many. Since refcount is atleast
+one until put_many call, CLS API cannot delete it. Also __tcf_action_put
+release path already ensures deterministic outcome (either new action
+will be created or existing action will be reused in case CLS API tries
+to bind to action concurrently) due to idr lock serialization.
+
+We fix this by making refcount of newly created actions as 2 in ACT API
+replace mode. A relaxed store will suffice as visibility is ensured only
+after the tcf_idr_insert_many call.
+
+Note that in case of creation or overwriting using CLS API only (i.e.
+bind = 1), overwriting existing action object is not allowed, and any
+such request is silently ignored (without error).
+
+The refcount bump that occurs in tcf_idr_check_alloc call there for
+existing action will pair with tcf_exts_destroy call made from the
+owner module for the same action. In case of action creation, there
+is no existing action, so no tcf_exts_destroy callback happens.
+
+This means no code changes for CLS API.
+
+Fixes: cae422f379f3 ("net: sched: use reference counting action init")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/net/ethernet-controller.yaml |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/act_api.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/Documentation/devicetree/bindings/net/ethernet-controller.yaml
-+++ b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
-@@ -51,7 +51,7 @@ properties:
-     description:
-       Reference to an nvmem node for the MAC address
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -935,6 +935,9 @@ struct tc_action *tcf_action_init_1(stru
+ 	if (err != ACT_P_CREATED)
+ 		module_put(a_o->owner);
  
--  nvmem-cells-names:
-+  nvmem-cell-names:
-     const: mac-address
++	if (!bind && ovr && err == ACT_P_CREATED)
++		refcount_set(&a->tcfa_refcnt, 2);
++
+ 	return a;
  
-   phy-connection-type:
+ err_mod:
 
 
