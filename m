@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F4BB35BD52
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4435E35BE25
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237455AbhDLIvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
+        id S238747AbhDLI5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238059AbhDLIr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:47:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4277B6135F;
-        Mon, 12 Apr 2021 08:47:11 +0000 (UTC)
+        id S238890AbhDLIzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CA5661371;
+        Mon, 12 Apr 2021 08:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217231;
-        bh=HhsN8e56+DUXzwGRd4QuvcrbozfoA16U1c4+/jkeuqQ=;
+        s=korg; t=1618217619;
+        bh=hL28yrMRsRB24o/40aYluezkCGAQvP8h6jL6QnsmLFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4ehLurOMVfjyM64eUGOm5jx9nbq3A22BGiYrHs0DPdoPE3jhKUBYgMyl3fopiiKD
-         Vo82+XI/TH3HV9ZNw5/2LLoABSBXGTwUqZzU1fhfi3sAZ+CcfPwWD6r2/25dMq0j9J
-         UUwFLjd6QRp7VT9F0HCn+UbpAzN00KnSfQu6eswQ=
+        b=LVROdIJPmAphJP1R8UwQ4YxmNIGjEabg7lBcDX+UeMMkp6KiBZMZifi7FgI3CPPu7
+         2GAypSrjPbFePXSrDH4VBkXbYixCdHsw8ldfehny8fLKK2rQPOQ86CfDz5S64/JOFF
+         h6shesv6cqaMPLOVocwc7bQSeEkZOlymSD/gPZhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Qiu <jack.qiu@huawei.com>,
-        Jan Kara <jack@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 017/111] fs: direct-io: fix missing sdio->boundary
-Date:   Mon, 12 Apr 2021 10:39:55 +0200
-Message-Id: <20210412084004.798189546@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ben Gardon <bgardon@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 082/188] KVM: x86/mmu: change TDP MMU yield function returns to match cond_resched
+Date:   Mon, 12 Apr 2021 10:39:56 +0200
+Message-Id: <20210412084016.370076281@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +41,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Qiu <jack.qiu@huawei.com>
+From: Ben Gardon <bgardon@google.com>
 
-commit df41872b68601059dd4a84858952dcae58acd331 upstream.
+[ Upstream commit e28a436ca4f65384cceaf3f4da0e00aa74244e6a ]
 
-I encountered a hung task issue, but not a performance one.  I run DIO
-on a device (need lba continuous, for example open channel ssd), maybe
-hungtask in below case:
+Currently the TDP MMU yield / cond_resched functions either return
+nothing or return true if the TLBs were not flushed. These are confusing
+semantics, especially when making control flow decisions in calling
+functions.
 
-  DIO:						Checkpoint:
-  get addr A(at boundary), merge into BIO,
-  no submit because boundary missing
-						flush dirty data(get addr A+1), wait IO(A+1)
-						writeback timeout, because DIO(A) didn't submit
-  get addr A+2 fail, because checkpoint is doing
+To clean things up, change both functions to have the same
+return value semantics as cond_resched: true if the thread yielded,
+false if it did not. If the function yielded in the _flush_ version,
+then the TLBs will have been flushed.
 
-dio_send_cur_page() may clear sdio->boundary, so prevent it from missing
-a boundary.
-
-Link: https://lkml.kernel.org/r/20210322042253.38312-1-jack.qiu@huawei.com
-Fixes: b1058b981272 ("direct-io: submit bio after boundary buffer is added to it")
-Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Peter Feiner <pfeiner@google.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20210202185734.1680553-2-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/direct-io.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c | 39 ++++++++++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
 
---- a/fs/direct-io.c
-+++ b/fs/direct-io.c
-@@ -848,6 +848,7 @@ submit_page_section(struct dio *dio, str
- 		    struct buffer_head *map_bh)
- {
- 	int ret = 0;
-+	int boundary = sdio->boundary;	/* dio_send_cur_page may clear it */
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index ffa0bd0e033f..22efd016f05e 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -405,8 +405,15 @@ static inline void tdp_mmu_set_spte_no_dirty_log(struct kvm *kvm,
+ 			 _mmu->shadow_root_level, _start, _end)
  
- 	if (dio->op == REQ_OP_WRITE) {
- 		/*
-@@ -886,10 +887,10 @@ submit_page_section(struct dio *dio, str
- 	sdio->cur_page_fs_offset = sdio->block_in_file << sdio->blkbits;
- out:
- 	/*
--	 * If sdio->boundary then we want to schedule the IO now to
-+	 * If boundary then we want to schedule the IO now to
- 	 * avoid metadata seeks.
- 	 */
--	if (sdio->boundary) {
-+	if (boundary) {
- 		ret = dio_send_cur_page(dio, sdio, map_bh);
- 		if (sdio->bio)
- 			dio_bio_submit(dio, sdio);
+ /*
+- * Flush the TLB if the process should drop kvm->mmu_lock.
+- * Return whether the caller still needs to flush the tlb.
++ * Flush the TLB and yield if the MMU lock is contended or this thread needs to
++ * return control to the scheduler.
++ *
++ * If this function yields, it will also reset the tdp_iter's walk over the
++ * paging structure and the calling function should allow the iterator to
++ * continue its traversal from the paging structure root.
++ *
++ * Return true if this function yielded, the TLBs were flushed, and the
++ * iterator's traversal was reset. Return false if a yield was not needed.
+  */
+ static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
+ {
+@@ -414,18 +421,32 @@ static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *it
+ 		kvm_flush_remote_tlbs(kvm);
+ 		cond_resched_lock(&kvm->mmu_lock);
+ 		tdp_iter_refresh_walk(iter);
+-		return false;
+-	} else {
+ 		return true;
+ 	}
++
++	return false;
+ }
+ 
+-static void tdp_mmu_iter_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
++/*
++ * Yield if the MMU lock is contended or this thread needs to return control
++ * to the scheduler.
++ *
++ * If this function yields, it will also reset the tdp_iter's walk over the
++ * paging structure and the calling function should allow the iterator to
++ * continue its traversal from the paging structure root.
++ *
++ * Return true if this function yielded and the iterator's traversal was reset.
++ * Return false if a yield was not needed.
++ */
++static bool tdp_mmu_iter_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
+ {
+ 	if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
+ 		cond_resched_lock(&kvm->mmu_lock);
+ 		tdp_iter_refresh_walk(iter);
++		return true;
+ 	}
++
++	return false;
+ }
+ 
+ /*
+@@ -461,10 +482,8 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 
+ 		tdp_mmu_set_spte(kvm, &iter, 0);
+ 
+-		if (can_yield)
+-			flush_needed = tdp_mmu_iter_flush_cond_resched(kvm, &iter);
+-		else
+-			flush_needed = true;
++		flush_needed = !can_yield ||
++			       !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
+ 	}
+ 	return flush_needed;
+ }
+@@ -1061,7 +1080,7 @@ static void zap_collapsible_spte_range(struct kvm *kvm,
+ 
+ 		tdp_mmu_set_spte(kvm, &iter, 0);
+ 
+-		spte_set = tdp_mmu_iter_flush_cond_resched(kvm, &iter);
++		spte_set = !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
+ 	}
+ 
+ 	if (spte_set)
+-- 
+2.30.2
+
 
 
