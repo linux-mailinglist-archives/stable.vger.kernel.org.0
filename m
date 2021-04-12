@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B946635BDAF
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3F335BDAE
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237475AbhDLIw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
+        id S237043AbhDLIw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238402AbhDLIto (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CE2A61243;
-        Mon, 12 Apr 2021 08:48:40 +0000 (UTC)
+        id S238426AbhDLItq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:49:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE7A461350;
+        Mon, 12 Apr 2021 08:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217321;
-        bh=qLAsV6EnQZ410mfAvXEaP21dJEdJ6verPYq8REvQuYE=;
+        s=korg; t=1618217324;
+        bh=n/7MHTp6tYd7007gylry+xCIh7YKgDN4hJmNcnE/37g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/uTaMkF/x9iKjo1cbcIzJBnGOLT47OGattnKuxbe6goHll0x4vNHR6OGwgmFA83e
-         jFG8RNCpV7pyZhWRlAbwOOT8UVp2+2Y19CEgD0Xb7aZX6pGDP8Zuexf+RJbGJY6PJs
-         qgAzfeaaIlHIQ2VIDqolxSTldQAJKV9uw2exQsTg=
+        b=uu9w+x2MbLv1NxwJbgl8VHGiYHyLNrAJ8D37OFwmbGJcChFGzz3V0o0uzYkA0fcc1
+         2wr87QdkbgoIJtDzcVne4g2pWSYgbcGVwMssfo7DC+GNqwYRz7LJXKueALFbOKrBXa
+         8VmelZDBQ7rmit7I8TiDL1Y8u9RcIhUDTgW2dcN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
-        Lukasz Bartosik <lb@semihalf.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 083/111] clk: fix invalid usage of list cursor in unregister
-Date:   Mon, 12 Apr 2021 10:41:01 +0200
-Message-Id: <20210412084007.026729988@linuxfoundation.org>
+        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 084/111] workqueue: Move the position of debug_work_activate() in __queue_work()
+Date:   Mon, 12 Apr 2021 10:41:02 +0200
+Message-Id: <20210412084007.056688641@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
 References: <20210412084004.200986670@linuxfoundation.org>
@@ -41,105 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Bartosik <lb@semihalf.com>
+From: Zqiang <qiang.zhang@windriver.com>
 
-[ Upstream commit 7045465500e465b09f09d6e5bdc260a9f1aab97b ]
+[ Upstream commit 0687c66b5f666b5ad433f4e94251590d9bc9d10e ]
 
-Fix invalid usage of a list_for_each_entry cursor in
-clk_notifier_unregister(). When list is empty or if the list
-is completely traversed (without breaking from the loop on one
-of the entries) then the list cursor does not point to a valid
-entry and therefore should not be used. The patch fixes a logical
-bug that hasn't been seen in pratice however it is analogus
-to the bug fixed in clk_notifier_register().
+The debug_work_activate() is called on the premise that
+the work can be inserted, because if wq be in WQ_DRAINING
+status, insert work may be failed.
 
-The issue was dicovered when running 5.12-rc1 kernel on x86_64
-with KASAN enabled:
-BUG: KASAN: global-out-of-bounds in clk_notifier_register+0xab/0x230
-Read of size 8 at addr ffffffffa0d10588 by task swapper/0/1
-
-CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc1 #1
-Hardware name: Google Caroline/Caroline,
-BIOS Google_Caroline.7820.430.0 07/20/2018
-Call Trace:
- dump_stack+0xee/0x15c
- print_address_description+0x1e/0x2dc
- kasan_report+0x188/0x1ce
- ? clk_notifier_register+0xab/0x230
- ? clk_prepare_lock+0x15/0x7b
- ? clk_notifier_register+0xab/0x230
- clk_notifier_register+0xab/0x230
- dw8250_probe+0xc01/0x10d4
- ...
- Memory state around the buggy address:
-  ffffffffa0d10480: 00 00 00 00 00 03 f9 f9 f9 f9 f9 f9 00 00 00 00
-  ffffffffa0d10500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9
- >ffffffffa0d10580: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00
-                          ^
-  ffffffffa0d10600: 00 00 00 00 00 00 f9 f9 f9 f9 f9 f9 00 00 00 00
-  ffffffffa0d10680: 00 00 00 00 00 00 00 00 f9 f9 f9 f9 00 00 00 00
-  ==================================================================
-
-Fixes: b2476490ef11 ("clk: introduce the common clock framework")
-Reported-by: Lukasz Majczak <lma@semihalf.com>
-Signed-off-by: Lukasz Bartosik <lb@semihalf.com>
-Link: https://lore.kernel.org/r/20210401225149.18826-2-lb@semihalf.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: e41e704bc4f4 ("workqueue: improve destroy_workqueue() debuggability")
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 30 +++++++++++++-----------------
- 1 file changed, 13 insertions(+), 17 deletions(-)
+ kernel/workqueue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 5db91903d02b..6ff87cd86712 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -4188,32 +4188,28 @@ EXPORT_SYMBOL_GPL(clk_notifier_register);
-  */
- int clk_notifier_unregister(struct clk *clk, struct notifier_block *nb)
- {
--	struct clk_notifier *cn = NULL;
--	int ret = -EINVAL;
-+	struct clk_notifier *cn;
-+	int ret = -ENOENT;
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 29c36c029062..5d7092e32912 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -1411,7 +1411,6 @@ static void __queue_work(int cpu, struct workqueue_struct *wq,
+ 	 */
+ 	lockdep_assert_irqs_disabled();
  
- 	if (!clk || !nb)
- 		return -EINVAL;
+-	debug_work_activate(work);
  
- 	clk_prepare_lock();
- 
--	list_for_each_entry(cn, &clk_notifier_list, node)
--		if (cn->clk == clk)
--			break;
--
--	if (cn->clk == clk) {
--		ret = srcu_notifier_chain_unregister(&cn->notifier_head, nb);
-+	list_for_each_entry(cn, &clk_notifier_list, node) {
-+		if (cn->clk == clk) {
-+			ret = srcu_notifier_chain_unregister(&cn->notifier_head, nb);
- 
--		clk->core->notifier_count--;
-+			clk->core->notifier_count--;
- 
--		/* XXX the notifier code should handle this better */
--		if (!cn->notifier_head.head) {
--			srcu_cleanup_notifier_head(&cn->notifier_head);
--			list_del(&cn->node);
--			kfree(cn);
-+			/* XXX the notifier code should handle this better */
-+			if (!cn->notifier_head.head) {
-+				srcu_cleanup_notifier_head(&cn->notifier_head);
-+				list_del(&cn->node);
-+				kfree(cn);
-+			}
-+			break;
- 		}
--
--	} else {
--		ret = -ENOENT;
+ 	/* if draining, only works from the same workqueue are allowed */
+ 	if (unlikely(wq->flags & __WQ_DRAINING) &&
+@@ -1493,6 +1492,7 @@ retry:
+ 		worklist = &pwq->delayed_works;
  	}
  
- 	clk_prepare_unlock();
++	debug_work_activate(work);
+ 	insert_work(pwq, work, worklist, work_flags);
+ 
+ out:
 -- 
 2.30.2
 
