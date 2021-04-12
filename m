@@ -2,342 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD24F35BC96
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0821335BC5C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237563AbhDLIny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:43:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35614 "EHLO mail.kernel.org"
+        id S229676AbhDLImd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:42:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237558AbhDLInu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:43:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0DAD6120F;
-        Mon, 12 Apr 2021 08:43:31 +0000 (UTC)
+        id S229581AbhDLImc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:42:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1147D6109E;
+        Mon, 12 Apr 2021 08:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217012;
-        bh=X/+cNkcjxB1cToApcnyzWttVNWQ8uwK6DlD9ao+/wQg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dmN/9tvdhDojAuOXq+8ON6/ATOd9Wxzh00u+YYbhnltJvn7CJtFlx0O0tJEFG5xx+
-         LLP5/gEiW+GOZSGc9+0m9nTHtG6CyvezoFk4k8SexZtq9wtp57T9aTzBGi8k98CdQq
-         GmoBV1+jNEIgbnWNxUotID29jvrHhHcQlKxMzCVc=
+        s=korg; t=1618216934;
+        bh=CtL/8G9P2obenZOVCjycKM3xYIEifjeuazudU1KrhCQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QCTYZPpyynINub3VmCfqxiZ+jBMHZ3tAv73GC07818mBFVzVgwMc+0uNvcaGBcpdP
+         2sQm5EXGJJHUrW4o2DP1aTqUfTTxxm3ILIBQb5c4cCRbt8dsBZ+jcJWjgGuG9kfFfD
+         w13NDG0/T1Mgnv6H7BOn8Q150gX9Uo5PtymNuDlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.19 00/66] 4.19.187-rc1 review
-Date:   Mon, 12 Apr 2021 10:40:06 +0200
-Message-Id: <20210412083958.129944265@linuxfoundation.org>
+        stable@vger.kernel.org, Jonas Holmberg <jonashg@axis.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 01/66] ALSA: aloop: Fix initialization of controls
+Date:   Mon, 12 Apr 2021 10:40:07 +0200
+Message-Id: <20210412083958.178443857@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.187-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.187-rc1
-X-KernelTest-Deadline: 2021-04-14T08:40+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.187 release.
-There are 66 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Wed, 14 Apr 2021 08:39:44 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.187-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.187-rc1
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath."
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: stop dump llsec params for monitors
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: forbid monitor for del llsec seclevel
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: forbid monitor for set llsec params
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: fix nl802154 del llsec devkey
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: fix nl802154 add llsec key
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: fix nl802154 del llsec dev
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: fix nl802154 del llsec key
-
-Alexander Aring <aahringo@redhat.com>
-    net: ieee802154: nl-mac: fix check on panid
-
-Pavel Skripkin <paskripkin@gmail.com>
-    net: mac802154: Fix general protection fault
-
-Pavel Skripkin <paskripkin@gmail.com>
-    drivers: net: fix memory leak in peak_usb_create_dev
-
-Pavel Skripkin <paskripkin@gmail.com>
-    drivers: net: fix memory leak in atusb_probe
-
-Phillip Potter <phil@philpotter.co.uk>
-    net: tun: set tun->dev->addr_len during TUNSETLINK processing
-
-Du Cheng <ducheng2@gmail.com>
-    cfg80211: remove WARN_ON() in cfg80211_sme_connect
-
-Kumar Kartikeya Dwivedi <memxor@gmail.com>
-    net: sched: bump refcount for new action in ACT replace mode
-
-Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-    clk: socfpga: fix iomem pointer cast on 64-bit
-
-Potnuri Bharat Teja <bharat@chelsio.com>
-    RDMA/cxgb4: check for ipv6 address properly while destroying listener
-
-Aya Levin <ayal@nvidia.com>
-    net/mlx5: Fix PBMC register mapping
-
-Raed Salem <raeds@nvidia.com>
-    net/mlx5: Fix placement of log_max_flow_counter
-
-Alexander Gordeev <agordeev@linux.ibm.com>
-    s390/cpcmd: fix inline assembly register clobbering
-
-Zqiang <qiang.zhang@windriver.com>
-    workqueue: Move the position of debug_work_activate() in __queue_work()
-
-Lukasz Bartosik <lb@semihalf.com>
-    clk: fix invalid usage of list cursor in unregister
-
-Lukasz Bartosik <lb@semihalf.com>
-    clk: fix invalid usage of list cursor in register
-
-Arnd Bergmann <arnd@arndb.de>
-    soc/fsl: qbman: fix conflicting alignment attributes
-
-Bastian Germann <bage@linutronix.de>
-    ASoC: sunxi: sun4i-codec: fill ASoC card owner
-
-Milton Miller <miltonm@us.ibm.com>
-    net/ncsi: Avoid channel_monitor hrtimer deadlock
-
-Stefan Riedmueller <s.riedmueller@phytec.de>
-    ARM: dts: imx6: pbab01: Set vmmc supply for both SD interfaces
-
-Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-    net:tipc: Fix a double free in tipc_sk_mcast_rcv
-
-Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-    cxgb4: avoid collecting SGE_QBASE regs during traffic
-
-Claudiu Manoil <claudiu.manoil@nxp.com>
-    gianfar: Handle error code at MAC address change
-
-Eric Dumazet <edumazet@google.com>
-    sch_red: fix off-by-one checks in red_check_params()
-
-Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-    amd-xgbe: Update DMA coherency values
-
-Eryk Rybak <eryk.roch.rybak@intel.com>
-    i40e: Fix kernel oops when i40e driver removes VF's
-
-Mateusz Palczewski <mateusz.palczewski@intel.com>
-    i40e: Added Asym_Pause to supported link modes
-
-Shengjiu Wang <shengjiu.wang@nxp.com>
-    ASoC: wm8960: Fix wrong bclk and lrclk with pll enabled for some chips
-
-Ahmed S. Darwish <a.darwish@linutronix.de>
-    net: xfrm: Localize sequence counter per network namespace
-
-Geert Uytterhoeven <geert+renesas@glider.be>
-    regulator: bd9571mwv: Fix AVS and DVFS voltage range
-
-Eyal Birger <eyal.birger@gmail.com>
-    xfrm: interface: fix ipv4 pmtu check to honor ip header df
-
-Eric Dumazet <edumazet@google.com>
-    virtio_net: Do not pull payload in skb->head
-
-Yuya Kusakabe <yuya.kusakabe@gmail.com>
-    virtio_net: Add XDP meta data support
-
-Wolfram Sang <wsa+renesas@sang-engineering.com>
-    i2c: turn recovery error on init to debug
-
-Shuah Khan <skhan@linuxfoundation.org>
-    usbip: synchronize event handler with sysfs code paths
-
-Shuah Khan <skhan@linuxfoundation.org>
-    usbip: vudc synchronize sysfs code paths
-
-Shuah Khan <skhan@linuxfoundation.org>
-    usbip: stub-dev synchronize sysfs code paths
-
-Shuah Khan <skhan@linuxfoundation.org>
-    usbip: add sysfs_lock to synchronize sysfs code paths
-
-Maciej Żenczykowski <maze@google.com>
-    net-ipv6: bugfix - raw & sctp - switch to ipv6_can_nonlocal_bind()
-
-Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-    net: sched: sch_teql: fix null-pointer dereference
-
-Eric Dumazet <edumazet@google.com>
-    net: ensure mac header is set in virtio_net_hdr_to_skb()
-
-Anirudh Rayabharam <mail@anirudhrb.com>
-    net: hso: fix null-ptr-deref during tty device unregistration
-
-Fabio Pricoco <fabio.pricoco@intel.com>
-    ice: Increase control queue timeout
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    batman-adv: initialize "struct batadv_tvlv_tt_vlan_data"->reserved field
-
-Marek Behún <kabel@kernel.org>
-    ARM: dts: turris-omnia: configure LED[2]/INTn pin as interrupt pin
-
-Gao Xiang <hsiangkao@redhat.com>
-    parisc: avoid a warning on u8 cast for cmpxchg on u8 pointers
-
-Helge Deller <deller@gmx.de>
-    parisc: parisc-agp requires SBA IOMMU driver
-
-Jack Qiu <jack.qiu@huawei.com>
-    fs: direct-io: fix missing sdio->boundary
-
-Wengang Wang <wen.gang.wang@oracle.com>
-    ocfs2: fix deadlock between setattr and dio_end_io_write
-
-Mike Rapoport <rppt@linux.ibm.com>
-    nds32: flush_dcache_page: use page_mapping_file to avoid races with swapoff
-
-Sergei Trofimovich <slyfox@gentoo.org>
-    ia64: fix user_stack_pointer() for ptrace()
-
-Muhammad Usama Anjum <musamaanjum@gmail.com>
-    net: ipv6: check for validity before dereferencing cfg->fc_nlinfo.nlh
-
-Luca Fancellu <luca.fancellu@arm.com>
-    xen/evtchn: Change irq_info lock to raw_spinlock_t
-
-Xiaoming Ni <nixiaoming@huawei.com>
-    nfc: Avoid endless loops caused by repeated llcp_sock_connect()
-
-Xiaoming Ni <nixiaoming@huawei.com>
-    nfc: fix memory leak in llcp_sock_connect()
-
-Xiaoming Ni <nixiaoming@huawei.com>
-    nfc: fix refcount leak in llcp_sock_connect()
-
-Xiaoming Ni <nixiaoming@huawei.com>
-    nfc: fix refcount leak in llcp_sock_bind()
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: intel: atom: Stop advertising non working S24LE support
-
-Jonas Holmberg <jonashg@axis.com>
-    ALSA: aloop: Fix initialization of controls
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/armada-385-turris-omnia.dts      |  1 +
- arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi       |  2 +
- arch/ia64/include/asm/ptrace.h                     |  8 +--
- arch/nds32/mm/cacheflush.c                         |  2 +-
- arch/parisc/include/asm/cmpxchg.h                  |  2 +-
- arch/s390/kernel/cpcmd.c                           |  6 ++-
- drivers/char/agp/Kconfig                           |  2 +-
- drivers/clk/clk.c                                  | 47 ++++++++--------
- drivers/clk/socfpga/clk-gate.c                     |  2 +-
- drivers/i2c/i2c-core-base.c                        |  7 +--
- drivers/infiniband/hw/cxgb4/cm.c                   |  3 +-
- drivers/net/can/usb/peak_usb/pcan_usb_core.c       |  6 ++-
- drivers/net/ethernet/amd/xgbe/xgbe.h               |  6 +--
- drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c     | 23 ++++++--
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c         |  3 +-
- drivers/net/ethernet/freescale/gianfar.c           |  6 ++-
- drivers/net/ethernet/intel/i40e/i40e.h             |  1 +
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c     |  1 +
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |  9 ++++
- drivers/net/ethernet/intel/ice/ice_controlq.h      |  4 +-
- drivers/net/ieee802154/atusb.c                     |  1 +
- drivers/net/tun.c                                  | 48 +++++++++++++++++
- drivers/net/usb/hso.c                              | 33 +++++-------
- drivers/net/virtio_net.c                           | 62 ++++++++++++++--------
- drivers/regulator/bd9571mwv-regulator.c            |  4 +-
- drivers/soc/fsl/qbman/qman.c                       |  2 +-
- drivers/usb/usbip/stub_dev.c                       | 11 +++-
- drivers/usb/usbip/usbip_common.h                   |  3 ++
- drivers/usb/usbip/usbip_event.c                    |  2 +
- drivers/usb/usbip/vhci_hcd.c                       |  1 +
- drivers/usb/usbip/vhci_sysfs.c                     | 30 +++++++++--
- drivers/usb/usbip/vudc_dev.c                       |  1 +
- drivers/usb/usbip/vudc_sysfs.c                     |  5 ++
- drivers/xen/events/events_base.c                   | 10 ++--
- drivers/xen/events/events_internal.h               |  2 +-
- fs/cifs/connect.c                                  |  1 -
- fs/direct-io.c                                     |  5 +-
- fs/ocfs2/aops.c                                    | 11 +---
- fs/ocfs2/file.c                                    |  8 ++-
- include/linux/mlx5/mlx5_ifc.h                      |  8 +--
- include/linux/virtio_net.h                         | 16 ++++--
- include/net/netns/xfrm.h                           |  4 +-
- include/net/red.h                                  |  4 +-
- kernel/workqueue.c                                 |  2 +-
- net/batman-adv/translation-table.c                 |  2 +
- net/ieee802154/nl-mac.c                            |  7 +--
- net/ieee802154/nl802154.c                          | 23 ++++++--
- net/ipv6/raw.c                                     |  2 +-
- net/ipv6/route.c                                   |  8 +--
- net/mac802154/llsec.c                              |  2 +-
- net/ncsi/ncsi-manage.c                             | 20 ++++---
- net/nfc/llcp_sock.c                                | 10 ++++
- net/sched/act_api.c                                |  3 ++
- net/sched/sch_teql.c                               |  3 ++
- net/sctp/ipv6.c                                    |  7 ++-
- net/tipc/socket.c                                  |  2 +-
- net/wireless/sme.c                                 |  2 +-
- net/xfrm/xfrm_interface.c                          |  3 ++
- net/xfrm/xfrm_state.c                              | 10 ++--
- sound/drivers/aloop.c                              | 11 ++--
- sound/soc/codecs/wm8960.c                          |  8 ++-
- sound/soc/intel/atom/sst-mfld-platform-pcm.c       |  6 +--
- sound/soc/sunxi/sun4i-codec.c                      |  5 ++
- 64 files changed, 371 insertions(+), 182 deletions(-)
+From: Jonas Holmberg <jonashg@axis.com>
+
+commit 168632a495f49f33a18c2d502fc249d7610375e9 upstream.
+
+Add a control to the card before copying the id so that the numid field
+is initialized in the copy. Otherwise the numid field of active_id,
+format_id, rate_id and channels_id will be the same (0) and
+snd_ctl_notify() will not queue the events properly.
+
+Signed-off-by: Jonas Holmberg <jonashg@axis.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210407075428.2666787-1-jonashg@axis.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ sound/drivers/aloop.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+--- a/sound/drivers/aloop.c
++++ b/sound/drivers/aloop.c
+@@ -1047,6 +1047,14 @@ static int loopback_mixer_new(struct loo
+ 					return -ENOMEM;
+ 				kctl->id.device = dev;
+ 				kctl->id.subdevice = substr;
++
++				/* Add the control before copying the id so that
++				 * the numid field of the id is set in the copy.
++				 */
++				err = snd_ctl_add(card, kctl);
++				if (err < 0)
++					return err;
++
+ 				switch (idx) {
+ 				case ACTIVE_IDX:
+ 					setup->active_id = kctl->id;
+@@ -1063,9 +1071,6 @@ static int loopback_mixer_new(struct loo
+ 				default:
+ 					break;
+ 				}
+-				err = snd_ctl_add(card, kctl);
+-				if (err < 0)
+-					return err;
+ 			}
+ 		}
+ 	}
 
 
