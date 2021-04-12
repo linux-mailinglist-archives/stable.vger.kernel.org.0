@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F76B35BD62
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C34435BCE1
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238101AbhDLIvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40154 "EHLO mail.kernel.org"
+        id S237784AbhDLIqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:46:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238020AbhDLIsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:48:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1826061279;
-        Mon, 12 Apr 2021 08:47:54 +0000 (UTC)
+        id S237785AbhDLIp1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:45:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 195CD61243;
+        Mon, 12 Apr 2021 08:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217275;
-        bh=bJfR3G0c/1iZa+d8UgeqFhSPFQg+veg3k275rUoBN08=;
+        s=korg; t=1618217109;
+        bh=FKgcklDzTZ70vCdx0/zhxPes56Xcsz2pWLjBk83lahs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMLFmQEs1rZc26HdhzmFt/6k00f+k0klIzyempRBgxtXyTB6Pep3dP5leHqLcz03+
-         0zL/eJJr+71kGtexjH17dkS6wT5aQwCHjQEzRhPeEny4Xfa8oml2fcr6s4tpSFwcvx
-         YRl+qKAtmEHfI+TGLmKbmdhWCvM/vgm+/Gx477NU=
+        b=KzXF4IO3ilu321/k5QHnE32VRxHgAeHfezV20qbgRnykGY0/wgWHp2GHYJjRoi6/8
+         NP2Eydm+v3A/h1zCfbnh716DvFxoBAAcg15+Gnw59qlbkagIrkHlrg6PR6sf5fdLjJ
+         WpjEnEn+Cqbr7avRhQ7gmGCQ41xd8PPlXblRRCN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/111] net: phy: broadcom: Only advertise EEE for supported modes
+Subject: [PATCH 4.19 39/66] net:tipc: Fix a double free in tipc_sk_mcast_rcv
 Date:   Mon, 12 Apr 2021 10:40:45 +0200
-Message-Id: <20210412084006.491220825@linuxfoundation.org>
+Message-Id: <20210412083959.378458562@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit c056d480b40a68f2520ccc156c7fae672d69d57d ]
+[ Upstream commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046 ]
 
-We should not be advertising EEE for modes that we do not support,
-correct that oversight by looking at the PHY device supported linkmodes.
+In the if(skb_peek(arrvq) == skb) branch, it calls __skb_dequeue(arrvq) to get
+the skb by skb = skb_peek(arrvq). Then __skb_dequeue() unlinks the skb from arrvq
+and returns the skb which equals to skb_peek(arrvq). After __skb_dequeue(arrvq)
+finished, the skb is freed by kfree_skb(__skb_dequeue(arrvq)) in the first time.
 
-Fixes: 99cec8a4dda2 ("net: phy: broadcom: Allow enabling or disabling of EEE")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Unfortunately, the same skb is freed in the second time by kfree_skb(skb) after
+the branch completed.
+
+My patch removes kfree_skb() in the if(skb_peek(arrvq) == skb) branch, because
+this skb will be freed by kfree_skb(skb) finally.
+
+Fixes: cb1b728096f54 ("tipc: eliminate race condition at multicast reception")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/bcm-phy-lib.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ net/tipc/socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/bcm-phy-lib.c b/drivers/net/phy/bcm-phy-lib.c
-index e0d3310957ff..c99883120556 100644
---- a/drivers/net/phy/bcm-phy-lib.c
-+++ b/drivers/net/phy/bcm-phy-lib.c
-@@ -190,7 +190,7 @@ EXPORT_SYMBOL_GPL(bcm_phy_enable_apd);
- 
- int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
- {
--	int val;
-+	int val, mask = 0;
- 
- 	/* Enable EEE at PHY level */
- 	val = phy_read_mmd(phydev, MDIO_MMD_AN, BRCM_CL45VEN_EEE_CONTROL);
-@@ -209,10 +209,17 @@ int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
- 	if (val < 0)
- 		return val;
- 
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
-+			      phydev->supported))
-+		mask |= MDIO_EEE_1000T;
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT,
-+			      phydev->supported))
-+		mask |= MDIO_EEE_100TX;
-+
- 	if (enable)
--		val |= (MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val |= mask;
- 	else
--		val &= ~(MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val &= ~mask;
- 
- 	phy_write_mmd(phydev, MDIO_MMD_AN, BCM_CL45VEN_EEE_ADV, (u32)val);
- 
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 16e2af3a00cc..4c35f9893081 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1187,7 +1187,7 @@ void tipc_sk_mcast_rcv(struct net *net, struct sk_buff_head *arrvq,
+ 		spin_lock_bh(&inputq->lock);
+ 		if (skb_peek(arrvq) == skb) {
+ 			skb_queue_splice_tail_init(&tmpq, inputq);
+-			kfree_skb(__skb_dequeue(arrvq));
++			__skb_dequeue(arrvq);
+ 		}
+ 		spin_unlock_bh(&inputq->lock);
+ 		__skb_queue_purge(&tmpq);
 -- 
 2.30.2
 
