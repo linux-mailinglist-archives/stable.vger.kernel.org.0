@@ -2,68 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D5735CAF5
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A290835CAF7
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239357AbhDLQWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:22:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54572 "EHLO mail.kernel.org"
+        id S241004AbhDLQXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238872AbhDLQV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:21:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC5360200;
-        Mon, 12 Apr 2021 16:21:41 +0000 (UTC)
+        id S238872AbhDLQXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:23:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 178B660200;
+        Mon, 12 Apr 2021 16:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244501;
-        bh=F9MZfGBdo6Ia24Mrrd0zSAoGtdBVeDq1mYJClGuku1Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fl8nBJOSegNwq85qUpaLFvyT5Fv6bGMXhdb+m/ogzoNnRMJ4/mngyJaZSOlwg/kFb
-         i84ZqIyi1j3qt0/5xi6NOsThUia/xS/vNNzRoZLIzkxEVdTjJPp6gz3vAfiI3fx9+O
-         QkkDPL2x0NU5nGOCKl51f7HlA8BgwrD8E/fZR/GHj/IKADSVnRaklNKvMVP6FogXE0
-         Vy+EL4Wick7WNRm089YB56nicfScs3HF8cY8+cEkLgIdcaAY5vLgUQP9llL0/Lz9vI
-         /lx1jDwCSdSYD6GBN4dzLGZMhFg1soWuYmSauXfgX5GX18Y+X34ZX5sp4Wu5iw8cqF
-         CNJ3WFkEwPWOA==
-Date:   Mon, 12 Apr 2021 12:21:40 -0400
+        s=k20201202; t=1618244578;
+        bh=o0WNHqBMyuqM8Ik2gpVug7ta1h9XY8Z9+PSnQlQ5404=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UyP7gt6X9SgUeYDLWqnAZZ06m2lpbxMUrbYE93F8bdBUhZGvsZ6mJhagOvQ/DCKf9
+         lbxIq5u1Zup2lhslfjwmVN87bYc2ADWAeH5JOZEJfkj/88xcEgvHLmoHU95sUJMKKv
+         WzxCz488LpPwrIiJNfIV13yCBhxhstq7O0BOUUaVtmVvCetxo7TRHdkOqg5tjRIsYD
+         yVkSlyuGKU+bgif41tfLsQbyn6yTjNkl3+bQk+zr4iCkxiSujrR61Qg19VNRLGbcOa
+         CTtlBewVa9Anuv8A/ijZLfEb/vJ9VsoRQhGYs7Il6g6rpJWerolwcyxNHotp8vogfu
+         rPTT+z/OC6auQ==
 From:   Sasha Levin <sashal@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Newer stable-tools
-Message-ID: <YHRzlIXXLUzfV0WT@sashalap>
-References: <f6ad8f77-6dd7-647e-5d4a-983754ba8442@canonical.com>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        syzbot+ac5c11d2959a8b3c4806@syzkaller.appspotmail.com,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 01/51] net: ieee802154: fix nl802154 del llsec key
+Date:   Mon, 12 Apr 2021 12:22:06 -0400
+Message-Id: <20210412162256.313524-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <f6ad8f77-6dd7-647e-5d4a-983754ba8442@canonical.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Krzysztof!
+From: Alexander Aring <aahringo@redhat.com>
 
-On Mon, Apr 12, 2021 at 12:58:16PM +0200, Krzysztof Kozlowski wrote:
->Hi Greg, Sasha and everyone,
->
->I am looking at stable-tools from Sasha [1] in hope in re-using it. The
->problem I want to solve is to find easier commits in the distro tree,
->which were fixed or reverted upstream. Something like steal-commits from
->the stable-tools [1].
+[ Upstream commit 37feaaf5ceb2245e474369312bb7b922ce7bce69 ]
 
-You're probably looking for stable-has-fixes :)
+This patch fixes a nullpointer dereference if NL802154_ATTR_SEC_KEY is
+not set by the user. If this is the case nl802154 will return -EINVAL.
 
->However the tools themself were not updated since some time and have
->several issues, so the questions are:
->1. Do you have somewhere updated version which you would like to share?
+Reported-by: syzbot+ac5c11d2959a8b3c4806@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210221174321.14210-1-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/ieee802154/nl802154.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-So I've cleaned up and pushed the few patches I had locally to that
-repo. It's not that it's abandoned, but rather it was working just fine
-for me for the past few years so there wasn't anything too big done on
-that front.
-
->2. Do you have other stable-toolset which you could share?
-
-FWIW, Greg has his own set of scripts: https://github.com/gregkh/gregkh-linux/tree/master/scripts
-
+diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
+index 7c5a1aa5adb4..2f0a138bd5eb 100644
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -1592,7 +1592,8 @@ static int nl802154_del_llsec_key(struct sk_buff *skb, struct genl_info *info)
+ 	struct nlattr *attrs[NL802154_KEY_ATTR_MAX + 1];
+ 	struct ieee802154_llsec_key_id id;
+ 
+-	if (nla_parse_nested_deprecated(attrs, NL802154_KEY_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_KEY], nl802154_key_policy, info->extack))
++	if (!info->attrs[NL802154_ATTR_SEC_KEY] ||
++	    nla_parse_nested_deprecated(attrs, NL802154_KEY_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_KEY], nl802154_key_policy, info->extack))
+ 		return -EINVAL;
+ 
+ 	if (ieee802154_llsec_parse_key_id(attrs[NL802154_KEY_ATTR_ID], &id) < 0)
 -- 
-Thanks,
-Sasha
+2.30.2
+
