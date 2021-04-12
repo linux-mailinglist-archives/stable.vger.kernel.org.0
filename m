@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B45335BE5D
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B4F35BCDA
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238225AbhDLI56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49206 "EHLO mail.kernel.org"
+        id S237767AbhDLIqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:46:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238305AbhDLI4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:56:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60F7561207;
-        Mon, 12 Apr 2021 08:55:44 +0000 (UTC)
+        id S237733AbhDLIpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:45:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBFEF60241;
+        Mon, 12 Apr 2021 08:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217745;
-        bh=R6lu/8AYsWJZd8e9Cj2tsa066UK2Gt0HYcjTaKtl83M=;
+        s=korg; t=1618217101;
+        bh=EvXScd5g8HMt6o/FKz8nYJ7vsp83HBpWwfqwm6F4ICQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qa4xmS6ZA/LUL53KRrv6Qf9DbBbs2sjT7EQGZXlkY4iZ9saolws8R9sH4J2uB1+x/
-         ACdfZGrtAb7OIM4bcgZo5OoUJT6cqJNUILUvrTO8c7GvSDeXeXCjAXsE8lEA37XsQz
-         tKVWXCWSwIDzp9YhwqL8jh1zHp3hP7BnZGPHRKxc=
+        b=yisBDrgtMjSPloHKmRP50dU/hYaXVn3RyiKlWrj3Ps3TgqbvQ6fwHxEJAwRd/plX+
+         k53BpC0gSD8OGyrm0BbK1LV6Kkk2xIZnuTHk4iOfGqA9oO85zXugNZE7RYzzj5kAVN
+         pnVRbCkQFd22H8HtkbMquLhGKa8AbEJKVfgdQiDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 128/188] net: phy: broadcom: Only advertise EEE for supported modes
+Subject: [PATCH 4.19 36/66] sch_red: fix off-by-one checks in red_check_params()
 Date:   Mon, 12 Apr 2021 10:40:42 +0200
-Message-Id: <20210412084017.905056771@linuxfoundation.org>
+Message-Id: <20210412083959.287168902@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit c056d480b40a68f2520ccc156c7fae672d69d57d ]
+[ Upstream commit 3a87571f0ffc51ba3bf3ecdb6032861d0154b164 ]
 
-We should not be advertising EEE for modes that we do not support,
-correct that oversight by looking at the PHY device supported linkmodes.
+This fixes following syzbot report:
 
-Fixes: 99cec8a4dda2 ("net: phy: broadcom: Allow enabling or disabling of EEE")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+UBSAN: shift-out-of-bounds in ./include/net/red.h:237:23
+shift exponent 32 is too large for 32-bit type 'unsigned int'
+CPU: 1 PID: 8418 Comm: syz-executor170 Not tainted 5.12.0-rc4-next-20210324-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
+ red_set_parms include/net/red.h:237 [inline]
+ choke_change.cold+0x3c/0xc8 net/sched/sch_choke.c:414
+ qdisc_create+0x475/0x12f0 net/sched/sch_api.c:1247
+ tc_modify_qdisc+0x4c8/0x1a50 net/sched/sch_api.c:1663
+ rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5553
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:674
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x43f039
+Code: 28 c3 e8 2a 14 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffdfa725168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000400488 RCX: 000000000043f039
+RDX: 0000000000000000 RSI: 0000000020000040 RDI: 0000000000000004
+RBP: 0000000000403020 R08: 0000000000400488 R09: 0000000000400488
+R10: 0000000000400488 R11: 0000000000000246 R12: 00000000004030b0
+R13: 0000000000000000 R14: 00000000004ac018 R15: 0000000000400488
+
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/bcm-phy-lib.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ include/net/red.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/bcm-phy-lib.c b/drivers/net/phy/bcm-phy-lib.c
-index ef6825b30323..b72e11ca974f 100644
---- a/drivers/net/phy/bcm-phy-lib.c
-+++ b/drivers/net/phy/bcm-phy-lib.c
-@@ -328,7 +328,7 @@ EXPORT_SYMBOL_GPL(bcm_phy_enable_apd);
- 
- int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
+diff --git a/include/net/red.h b/include/net/red.h
+index 8fe55b8b2fb8..ff07a7cedf68 100644
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -171,9 +171,9 @@ static inline void red_set_vars(struct red_vars *v)
+ static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog,
+ 				    u8 Scell_log, u8 *stab)
  {
--	int val;
-+	int val, mask = 0;
- 
- 	/* Enable EEE at PHY level */
- 	val = phy_read_mmd(phydev, MDIO_MMD_AN, BRCM_CL45VEN_EEE_CONTROL);
-@@ -347,10 +347,17 @@ int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
- 	if (val < 0)
- 		return val;
- 
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
-+			      phydev->supported))
-+		mask |= MDIO_EEE_1000T;
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT,
-+			      phydev->supported))
-+		mask |= MDIO_EEE_100TX;
-+
- 	if (enable)
--		val |= (MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val |= mask;
- 	else
--		val &= ~(MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val &= ~mask;
- 
- 	phy_write_mmd(phydev, MDIO_MMD_AN, BCM_CL45VEN_EEE_ADV, (u32)val);
- 
+-	if (fls(qth_min) + Wlog > 32)
++	if (fls(qth_min) + Wlog >= 32)
+ 		return false;
+-	if (fls(qth_max) + Wlog > 32)
++	if (fls(qth_max) + Wlog >= 32)
+ 		return false;
+ 	if (Scell_log >= 32)
+ 		return false;
 -- 
 2.30.2
 
