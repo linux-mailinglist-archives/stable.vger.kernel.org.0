@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54F5835B890
+	by mail.lfdr.de (Postfix) with ESMTP id C6E8C35B891
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236613AbhDLCXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59612 "EHLO mail.kernel.org"
+        id S236617AbhDLCXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236617AbhDLCXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 843126120D;
-        Mon, 12 Apr 2021 02:23:17 +0000 (UTC)
+        id S236619AbhDLCXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93B926121D;
+        Mon, 12 Apr 2021 02:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194197;
-        bh=hFJXZFXetVaNr3IZQni1aNDSiiPTUjJob4vHZbFFkTE=;
-        h=From:To:Subject:Date:From;
-        b=vAoS7TzqJ8WhwzJ0PszcmssOYvKS40Ei+YtpyGp4uNUmlpkxKnunMebjuLI/WDeB5
-         Fwnbmudyr1ca8EdEGtXgip0yVou2hvIZVxTVdhxXup8BMUWB42g5hpR+9NA8ahj+YQ
-         GSw/6NthsqRlXfn/gcppmd2+sIqg69thEqFgyy1W/EdqbE1Fr8sjFJ+A6YXm5RQhTK
-         V47tYjNemDEV+VTfZZF/y8s2/6jGZhUibbFve1kgM3KXhi+T8Z2aFUHTGhBN0W1UPW
-         QamaHD3t98+6mFWplENgbDanr5Hz0//uSK+rCwJ2sgCDQ6SD/p59dN+SxlBFVHc9PV
-         ddLHnEeSL/xWg==
+        s=k20201202; t=1618194200;
+        bh=yN5J2zlWLNJY+XH7GHOFptnMhpOaNWDwXRXblxJYwG4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=m2SGTmVHSD00JMnQwLPj0bcvoYDv9/04BlpZnJar2wwRJTRR6wpGLxwybGDKB2Zbo
+         gd3zp2kHoSX0KpfZSY1HoQJUpFMI6Xq6Hw9hZWHkIPX4kw64ypO+f3vvB8lHT0t6lc
+         CDpQy/30UomOyMmECPC95IjTFVPdZq7zr211gj97O5i0QFavonAKfwdKJWhZu6MfYP
+         N4A9SaSuNy+WmK0YqYRvfSblNx2bvccqJN93ldbuYGdkFtjc5fxhAl6NKEN9vIESWX
+         ib/j4XVbkhBBq3CGzQFjdY6N9mUOfPA8TougKUCpB2ntbI/10diZYEbPg0GVuroNPD
+         pmUWr7XiPfKfg==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, steffen.klassert@secunet.com
-Subject: FAILED: Patch "xfrm: Provide private skb extensions for segmented and hw offloaded ESP packets" failed to apply to 4.19-stable tree
-Date:   Sun, 11 Apr 2021 22:23:16 -0400
-Message-Id: <20210412022316.284101-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, lucien.xin@gmail.com
+Cc:     Xiumei Mu <xmu@redhat.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: FAILED: Patch "esp: delete NETIF_F_SCTP_CRC bit from features for esp offload" failed to apply to 4.19-stable tree
+Date:   Sun, 11 Apr 2021 22:23:18 -0400
+Message-Id: <20210412022318.284168-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -47,87 +49,68 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From c7dbf4c08868d9db89b8bfe8f8245ca61b01ed2f Mon Sep 17 00:00:00 2001
-From: Steffen Klassert <steffen.klassert@secunet.com>
-Date: Fri, 26 Mar 2021 09:44:48 +0100
-Subject: [PATCH] xfrm: Provide private skb extensions for segmented and hw
- offloaded ESP packets
+From 154deab6a3ba47792936edf77f2f13a1cbc4351d Mon Sep 17 00:00:00 2001
+From: Xin Long <lucien.xin@gmail.com>
+Date: Fri, 19 Mar 2021 15:35:07 +0800
+Subject: [PATCH] esp: delete NETIF_F_SCTP_CRC bit from features for esp
+ offload
 
-Commit 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec
-crypto offload.") added a XFRM_XMIT flag to avoid duplicate ESP trailer
-insertion on HW offload. This flag is set on the secpath that is shared
-amongst segments. This lead to a situation where some segments are
-not transformed correctly when segmentation happens at layer 3.
+Now in esp4/6_gso_segment(), before calling inner proto .gso_segment,
+NETIF_F_CSUM_MASK bits are deleted, as HW won't be able to do the
+csum for inner proto due to the packet encrypted already.
 
-Fix this by using private skb extensions for segmented and hw offloaded
-ESP packets.
+So the UDP/TCP packet has to do the checksum on its own .gso_segment.
+But SCTP is using CRC checksum, and for that NETIF_F_SCTP_CRC should
+be deleted to make SCTP do the csum in own .gso_segment as well.
 
-Fixes: 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec crypto offload.")
+In Xiumei's testing with SCTP over IPsec/veth, the packets are kept
+dropping due to the wrong CRC checksum.
+
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 ---
- net/ipv4/esp4_offload.c | 11 ++++++++++-
- net/ipv6/esp6_offload.c | 11 ++++++++++-
- net/xfrm/xfrm_device.c  |  2 --
- 3 files changed, 20 insertions(+), 4 deletions(-)
+ net/ipv4/esp4_offload.c | 6 ++++--
+ net/ipv6/esp6_offload.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
-index ed3de486ea34..33687cf58286 100644
+index 601f5fbfc63f..ed3de486ea34 100644
 --- a/net/ipv4/esp4_offload.c
 +++ b/net/ipv4/esp4_offload.c
-@@ -314,8 +314,17 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
- 	ip_hdr(skb)->tot_len = htons(skb->len);
- 	ip_send_check(ip_hdr(skb));
+@@ -217,10 +217,12 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
  
--	if (hw_offload)
-+	if (hw_offload) {
-+		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
-+			return -ENOMEM;
-+
-+		xo = xfrm_offload(skb);
-+		if (!xo)
-+			return -EINVAL;
-+
-+		xo->flags |= XFRM_XMIT;
- 		return 0;
-+	}
+ 	if ((!(skb->dev->gso_partial_features & NETIF_F_HW_ESP) &&
+ 	     !(features & NETIF_F_HW_ESP)) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM) &&
+ 		 !(skb->dev->gso_partial_features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
  
- 	err = esp_output_tail(x, skb, &esp);
- 	if (err)
+ 	xo->flags |= XFRM_GSO_SEGMENT;
+ 
 diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
-index f35203ab39f5..4af56affaafd 100644
+index 1ca516fb30e1..f35203ab39f5 100644
 --- a/net/ipv6/esp6_offload.c
 +++ b/net/ipv6/esp6_offload.c
-@@ -348,8 +348,17 @@ static int esp6_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features
+@@ -254,9 +254,11 @@ static struct sk_buff *esp6_gso_segment(struct sk_buff *skb,
+ 	skb->encap_hdr_csum = 1;
  
- 	ipv6_hdr(skb)->payload_len = htons(len);
+ 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
  
--	if (hw_offload)
-+	if (hw_offload) {
-+		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
-+			return -ENOMEM;
-+
-+		xo = xfrm_offload(skb);
-+		if (!xo)
-+			return -EINVAL;
-+
-+		xo->flags |= XFRM_XMIT;
- 		return 0;
-+	}
- 
- 	err = esp6_output_tail(x, skb, &esp);
- 	if (err)
-diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
-index edf11893dbe8..6d6917b68856 100644
---- a/net/xfrm/xfrm_device.c
-+++ b/net/xfrm/xfrm_device.c
-@@ -134,8 +134,6 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
- 		return skb;
- 	}
- 
--	xo->flags |= XFRM_XMIT;
--
- 	if (skb_is_gso(skb) && unlikely(x->xso.dev != dev)) {
- 		struct sk_buff *segs;
+ 	xo->flags |= XFRM_GSO_SEGMENT;
  
 -- 
 2.30.2
