@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF8435B883
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2BAD35B884
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:22:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236604AbhDLCXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59174 "EHLO mail.kernel.org"
+        id S236605AbhDLCXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235857AbhDLCXD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5241E6120A;
-        Mon, 12 Apr 2021 02:22:46 +0000 (UTC)
+        id S235857AbhDLCXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 859A36120A;
+        Mon, 12 Apr 2021 02:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194166;
-        bh=/pOSav/Qx87F8G3b5+Nn0aPfGMaWVKm9E6tJdpO2CWQ=;
+        s=k20201202; t=1618194169;
+        bh=W30D/kBvJbrJaKXriUvPqBgwdlRPu5605x+r/a0p8Ug=;
         h=From:To:Cc:Subject:Date:From;
-        b=M0w9spxQ+TKaC2DeoBivJkPTGTwoYrp8qI1tQbvyPSumcI7I/Sz31zrCrmn1eWdcG
-         za3UsqdGTvIMhcMlh4sTXeC0N4WGgYdeIjWIqr1jFLNNNGDHDR6kKiQJBEStR2aLLD
-         9y832clr7P1XC+7wEpWWsnB0g40/Wunw69VaI+St4zpofvv0L+S2FTr2uJrYj6d+nH
-         eQy2rcWIkm6aZGmOZmT58rRPw5NuRjdvV4X2FspoutP0kF1SqInQJ1+VY0aIyvWcyi
-         BUh0mPJ3yiJTLV7rQOMuuEFwuIFl9ENU8HrKaJfUr1dsEujRlfYNLPtoh8DIk1yYQD
-         9qD4Nh9xF0bVg==
+        b=C1fqm3t15xJ4GNJOjcbf/tZ7SQEHGWLOz2rZBfYunIdSlleOAV763s6rFnXMm8/oI
+         tx6udXBdIABJGGy6tcgUwUKVIOYoEV9hfzGgz95n2gxgUYm50bSr4pjtpB3WoJBNlE
+         hNWeR9FJ6ShM5rUCGMugXauOLBthEUMXJ/VlSIMsZDu/1tALPWnG1dO/bDfUdEnIF9
+         IFPXeOwyDjLMDN6LZQSRXGG5BtEzphSQSDLsLkTsduInYLGdti2rFUaOYtcyVroah8
+         Rv8R6gXGJ/PFIadFm/oi6s+OVhUeB8FnEQl+asWhpSggOyDIr2NaL1A7fo353/yPU4
+         Ao+2irSARa5uQ==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, elic@nvidia.com
-Cc:     Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Subject: FAILED: Patch "net/mlx5: Fix HW spec violation configuring uplink" failed to apply to 5.4-stable tree
-Date:   Sun, 11 Apr 2021 22:22:45 -0400
-Message-Id: <20210412022245.283209-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, boon.leong.ong@intel.com
+Cc:     Jesper Dangaard Brouer <brouer@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: FAILED: Patch "xdp: fix xdp_return_frame() kernel BUG throw for page_pool memory model" failed to apply to 5.4-stable tree
+Date:   Sun, 11 Apr 2021 22:22:47 -0400
+Message-Id: <20210412022247.283277-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -48,40 +49,49 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1a73704c82ed4ee95532ac04645d02075bd1ce3d Mon Sep 17 00:00:00 2001
-From: Eli Cohen <elic@nvidia.com>
-Date: Wed, 24 Mar 2021 09:46:09 +0200
-Subject: [PATCH] net/mlx5: Fix HW spec violation configuring uplink
+From 622d13694b5f048c01caa7ba548498d9880d4cb0 Mon Sep 17 00:00:00 2001
+From: Ong Boon Leong <boon.leong.ong@intel.com>
+Date: Wed, 31 Mar 2021 21:25:03 +0800
+Subject: [PATCH] xdp: fix xdp_return_frame() kernel BUG throw for page_pool
+ memory model
 
-Make sure to modify uplink port to follow only if the uplink_follow
-capability is set as required by the HW spec. Failure to do so causes
-traffic to the uplink representor net device to cease after switching to
-switchdev mode.
+xdp_return_frame() may be called outside of NAPI context to return
+xdpf back to page_pool. xdp_return_frame() calls __xdp_return() with
+napi_direct = false. For page_pool memory model, __xdp_return() calls
+xdp_return_frame_no_direct() unconditionally and below false negative
+kernel BUG throw happened under preempt-rt build:
 
-Fixes: 7d0314b11cdd ("net/mlx5e: Modify uplink state on interface up/down")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+[  430.450355] BUG: using smp_processor_id() in preemptible [00000000] code: modprobe/3884
+[  430.451678] caller is __xdp_return+0x1ff/0x2e0
+[  430.452111] CPU: 0 PID: 3884 Comm: modprobe Tainted: G     U      E     5.12.0-rc2+ #45
+
+Changes in v2:
+ - This patch fixes the issue by making xdp_return_frame_no_direct() is
+   only called if napi_direct = true, as recommended for better by
+   Jesper Dangaard Brouer. Thanks!
+
+Fixes: 2539650fadbf ("xdp: Helpers for disabling napi_direct of xdp_return_frame")
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/core/xdp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index a132fff7a980..8d39bfee84a9 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -1107,8 +1107,9 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
- 
- 	mlx5e_rep_tc_enable(priv);
- 
--	mlx5_modify_vport_admin_state(mdev, MLX5_VPORT_STATE_OP_MOD_UPLINK,
--				      0, 0, MLX5_VPORT_ADMIN_STATE_AUTO);
-+	if (MLX5_CAP_GEN(mdev, uplink_follow))
-+		mlx5_modify_vport_admin_state(mdev, MLX5_VPORT_STATE_OP_MOD_UPLINK,
-+					      0, 0, MLX5_VPORT_ADMIN_STATE_AUTO);
- 	mlx5_lag_add(mdev, netdev);
- 	priv->events_nb.notifier_call = uplink_rep_async_event;
- 	mlx5_notifier_register(mdev, &priv->events_nb);
+diff --git a/net/core/xdp.c b/net/core/xdp.c
+index 05354976c1fc..858276e72c68 100644
+--- a/net/core/xdp.c
++++ b/net/core/xdp.c
+@@ -350,7 +350,8 @@ static void __xdp_return(void *data, struct xdp_mem_info *mem, bool napi_direct,
+ 		/* mem->id is valid, checked in xdp_rxq_info_reg_mem_model() */
+ 		xa = rhashtable_lookup(mem_id_ht, &mem->id, mem_id_rht_params);
+ 		page = virt_to_head_page(data);
+-		napi_direct &= !xdp_return_frame_no_direct();
++		if (napi_direct && xdp_return_frame_no_direct())
++			napi_direct = false;
+ 		page_pool_put_full_page(xa->page_pool, page, napi_direct);
+ 		rcu_read_unlock();
+ 		break;
 -- 
 2.30.2
 
