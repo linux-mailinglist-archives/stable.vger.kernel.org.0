@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0A335BE5F
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84E135BD61
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238871AbhDLI56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49260 "EHLO mail.kernel.org"
+        id S237900AbhDLIvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238105AbhDLI4F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:56:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C71261249;
-        Mon, 12 Apr 2021 08:55:47 +0000 (UTC)
+        id S238141AbhDLIsa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:48:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBE4261285;
+        Mon, 12 Apr 2021 08:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217747;
-        bh=NRtHKydRuvA7XqixRpGw4jbZ2dyk9afHXFvqaYT6jT4=;
+        s=korg; t=1618217270;
+        bh=h5iLsMHX/+1GYgZX3v3hV2tmd2dMShOSNPCuRfKAkEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9qlL9Zs7leVWrQPkizeIEfB0rZHd4HXnLLgjsPN2TV5+OiYPMoTh0StJjhjEKp9Y
-         EBdwe7a7OE+LmZdpepSnxcpKTV6CfPNhQaymqdzfLOnzL/Sw5Frhpk0fCfPDeKrM0a
-         1y/HU7GS1t3PL9tqfz7oNQYxuA/i7f6hnyRvrjA4=
+        b=B5s/8RQs5eORvrUOSUBXD6ZBnzP6Guy/SgtR/ULwlaIjaC3IXRcp24wRc81ilfE0R
+         fyUt11jbJpxW61q20wJg5Yzt2wzAlN1UrOW6fmmlv6lXoIRUhuw9RmsjTzF41KGiAW
+         XwojcRiw92PRLJXALc4w4UrN5uNQI0Riaxjyt1oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E6=9D=A8=E6=96=87=E9=BE=99=20 ?= <ywltyut@sina.cn>,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
-        <zhouyanjie@wanyeetech.com>, Wolfram Sang <wsa@kernel.org>,
+        stable@vger.kernel.org, Milton Miller <miltonm@us.ibm.com>,
+        Eddie James <eajames@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 129/188] I2C: JZ4780: Fix bug for Ingenic X1000.
+Subject: [PATCH 5.4 065/111] net/ncsi: Avoid channel_monitor hrtimer deadlock
 Date:   Mon, 12 Apr 2021 10:40:43 +0200
-Message-Id: <20210412084017.936466952@linuxfoundation.org>
+Message-Id: <20210412084006.421574017@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+From: Milton Miller <miltonm@us.ibm.com>
 
-[ Upstream commit 942bfbecc0281c75db84f744b9b77b0f2396f484 ]
+[ Upstream commit 03cb4d05b4ea9a3491674ca40952adb708d549fa ]
 
-Only send "X1000_I2C_DC_STOP" when last byte, or it will cause
-error when I2C write operation which should look like this:
+Calling ncsi_stop_channel_monitor from channel_monitor is a guaranteed
+deadlock on SMP because stop calls del_timer_sync on the timer that
+invoked channel_monitor as its timer function.
 
-device_addr + w, reg_addr, data;
+Recognise the inherent race of marking the monitor disabled before
+deleting the timer by just returning if enable was cleared.  After
+a timeout (the default case -- reset to START when response received)
+just mark the monitor.enabled false.
 
-But without this patch, it looks like this:
+If the channel has an entry on the channel_queue list, or if the
+state is not ACTIVE or INACTIVE, then warn and mark the timer stopped
+and don't restart, as the locking is broken somehow.
 
-device_addr + w, reg_addr, device_addr + w, data;
-
-Fixes: 21575a7a8d4c ("I2C: JZ4780: Add support for the X1000.")
-Reported-by: 杨文龙 (Yang Wenlong) <ywltyut@sina.cn>
-Tested-by: 杨文龙 (Yang Wenlong) <ywltyut@sina.cn>
-Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 0795fb2021f0 ("net/ncsi: Stop monitor if channel times out or is inactive")
+Signed-off-by: Milton Miller <miltonm@us.ibm.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-jz4780.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ncsi/ncsi-manage.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-index cb4a25ebb890..2a946c207928 100644
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -526,8 +526,8 @@ static irqreturn_t jz4780_i2c_irq(int irqno, void *dev_id)
- 				i2c_sta = jz4780_i2c_readw(i2c, JZ4780_I2C_STA);
- 				data = *i2c->wbuf;
- 				data &= ~JZ4780_I2C_DC_READ;
--				if ((!i2c->stop_hold) && (i2c->cdata->version >=
--						ID_X1000))
-+				if ((i2c->wt_len == 1) && (!i2c->stop_hold) &&
-+						(i2c->cdata->version >= ID_X1000))
- 					data |= X1000_I2C_DC_STOP;
- 				jz4780_i2c_writew(i2c, JZ4780_I2C_DC, data);
- 				i2c->wbuf++;
+diff --git a/net/ncsi/ncsi-manage.c b/net/ncsi/ncsi-manage.c
+index 4910e6162232..9bd12f7517ed 100644
+--- a/net/ncsi/ncsi-manage.c
++++ b/net/ncsi/ncsi-manage.c
+@@ -103,13 +103,20 @@ static void ncsi_channel_monitor(struct timer_list *t)
+ 	monitor_state = nc->monitor.state;
+ 	spin_unlock_irqrestore(&nc->lock, flags);
+ 
+-	if (!enabled || chained) {
+-		ncsi_stop_channel_monitor(nc);
+-		return;
+-	}
++	if (!enabled)
++		return;		/* expected race disabling timer */
++	if (WARN_ON_ONCE(chained))
++		goto bad_state;
++
+ 	if (state != NCSI_CHANNEL_INACTIVE &&
+ 	    state != NCSI_CHANNEL_ACTIVE) {
+-		ncsi_stop_channel_monitor(nc);
++bad_state:
++		netdev_warn(ndp->ndev.dev,
++			    "Bad NCSI monitor state channel %d 0x%x %s queue\n",
++			    nc->id, state, chained ? "on" : "off");
++		spin_lock_irqsave(&nc->lock, flags);
++		nc->monitor.enabled = false;
++		spin_unlock_irqrestore(&nc->lock, flags);
+ 		return;
+ 	}
+ 
+@@ -134,10 +141,9 @@ static void ncsi_channel_monitor(struct timer_list *t)
+ 		ncsi_report_link(ndp, true);
+ 		ndp->flags |= NCSI_DEV_RESHUFFLE;
+ 
+-		ncsi_stop_channel_monitor(nc);
+-
+ 		ncm = &nc->modes[NCSI_MODE_LINK];
+ 		spin_lock_irqsave(&nc->lock, flags);
++		nc->monitor.enabled = false;
+ 		nc->state = NCSI_CHANNEL_INVISIBLE;
+ 		ncm->data[2] &= ~0x1;
+ 		spin_unlock_irqrestore(&nc->lock, flags);
 -- 
 2.30.2
 
