@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FE6135BE54
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2D235BD7C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238829AbhDLI5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48564 "EHLO mail.kernel.org"
+        id S238282AbhDLIv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239085AbhDLIzm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 784C561243;
-        Mon, 12 Apr 2021 08:55:18 +0000 (UTC)
+        id S238463AbhDLItz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:49:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 474196124C;
+        Mon, 12 Apr 2021 08:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217718;
-        bh=b6jP2esBCvWfvUUmVvrzymXsei9WXhVfRMlVzkY32mw=;
+        s=korg; t=1618217343;
+        bh=v7hwrZQrgSgJF+sX3GEqamI4pj0BSEKYrBZSSqXwnCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fgaXpEiVUNJsApRoRS82ORWBSrHiw2blAUhN2y2ujRL7WUDYTz2u3mIFAkCAnsxU
-         Mlaiizr/Bz1EVyra7X3mappRweQs7KOmaW19LhJb8js69+7uwkGETwMFMt0ZTP4h7p
-         uxJvOoXVk2VSxKXviRRW06bXdOKilOpytSiURBRE=
+        b=zLWJTCsiWP78qipqXT366ZKuBGCvr7zYr03vaqEPFv03U76Y6JRFeiwNLXDoZ7/sI
+         gthYAXcDoYkK4x/TdmiYcYdBxLn89FL6Lk1AgGA0zmwL8SG6hi6cD1CQVLJINZC9/W
+         jtvOKsVfShpxcrieXDy6ZC3qbEfJHor9cWBDoXLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 120/188] gianfar: Handle error code at MAC address change
+Subject: [PATCH 5.4 056/111] hostfs: fix memory handling in follow_link()
 Date:   Mon, 12 Apr 2021 10:40:34 +0200
-Message-Id: <20210412084017.640892289@linuxfoundation.org>
+Message-Id: <20210412084006.133788036@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit bff5b62585123823842833ab20b1c0a7fa437f8c ]
+[ Upstream commit 7f6c411c9b50cfab41cc798e003eff27608c7016 ]
 
-Handle return error code of eth_mac_addr();
+1) argument should not be freed in any case - the caller already has
+it as ->s_fs_info (and uses it a lot afterwards)
+2) allocate readlink buffer with kmalloc() - the caller has no way
+to tell if it's got that (on absolute symlink) or a result of
+kasprintf().  Sure, for SLAB and SLUB kfree() works on results of
+kmem_cache_alloc(), but that's not documented anywhere, might change
+in the future *and* is already not true for SLOB.
 
-Fixes: 3d23a05c75c7 ("gianfar: Enable changing mac addr when if up")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 52b209f7b848 ("get rid of hostfs_read_inode()")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/hostfs/hostfs_kern.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index 4fab2ee5bbf5..e4d9c4c640e5 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -364,7 +364,11 @@ static void gfar_set_mac_for_addr(struct net_device *dev, int num,
+diff --git a/fs/hostfs/hostfs_kern.c b/fs/hostfs/hostfs_kern.c
+index 4f5d857f6ecb..58a972667bf8 100644
+--- a/fs/hostfs/hostfs_kern.c
++++ b/fs/hostfs/hostfs_kern.c
+@@ -142,7 +142,7 @@ static char *follow_link(char *link)
+ 	char *name, *resolved, *end;
+ 	int n;
  
- static int gfar_set_mac_addr(struct net_device *dev, void *p)
- {
--	eth_mac_addr(dev, p);
-+	int ret;
-+
-+	ret = eth_mac_addr(dev, p);
-+	if (ret)
-+		return ret;
+-	name = __getname();
++	name = kmalloc(PATH_MAX, GFP_KERNEL);
+ 	if (!name) {
+ 		n = -ENOMEM;
+ 		goto out_free;
+@@ -171,12 +171,11 @@ static char *follow_link(char *link)
+ 		goto out_free;
+ 	}
  
- 	gfar_set_mac_for_addr(dev, 0, dev->dev_addr);
+-	__putname(name);
+-	kfree(link);
++	kfree(name);
+ 	return resolved;
+ 
+  out_free:
+-	__putname(name);
++	kfree(name);
+ 	return ERR_PTR(n);
+ }
  
 -- 
 2.30.2
