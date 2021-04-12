@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAE035BC79
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5196C35BD59
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237471AbhDLInN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:43:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34616 "EHLO mail.kernel.org"
+        id S237398AbhDLIvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237442AbhDLInH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:43:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44482611F0;
-        Mon, 12 Apr 2021 08:42:49 +0000 (UTC)
+        id S237961AbhDLIrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:47:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BB5261220;
+        Mon, 12 Apr 2021 08:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618216969;
-        bh=m1Qu/d3VE+PUs/5hC3QM8y8vtAZ41DGEltNaVCwXXVI=;
+        s=korg; t=1618217244;
+        bh=DCGLNL5MGQoMwnj+YKTBIU/N7b/v65L1+GoKMYbTwBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlQe8PzsCPwK/xduSU1Toasqvo9cYhnmsiCI3qZWEULX7uP/jJRL4aqoYHnPoc229
-         9VISKrhi43e7dNM4D1hc0WKLt30UZNQlaq/2cepHJ8NZJXmKYFFpTK3G23TGN7uVxj
-         ksyPW59oEem9Jk3t9sHwCvzoc95TqPLq3pCHM7/s=
+        b=GJIKwBLcg0RLQi7fDW6Dk9LZlDD3HFFx8zNVTULTyho5sacQC9MSVU9rXGZilYMX0
+         GWLE00VEITU3mho1fIJmI+BcqvE4gKPDHEwE7+SsVCo8Vg2PtSQEOSlOH3UH35jDnS
+         kVOvXBap1JsJs0QdYVA2e0h3aTlrsqeIavioWJV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 21/66] net-ipv6: bugfix - raw & sctp - switch to ipv6_can_nonlocal_bind()
-Date:   Mon, 12 Apr 2021 10:40:27 +0200
-Message-Id: <20210412083958.815872917@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 050/111] ASoC: SOF: Intel: HDA: fix core status verification
+Date:   Mon, 12 Apr 2021 10:40:28 +0200
+Message-Id: <20210412084005.924638987@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 
-commit 630e4576f83accf90366686f39808d665d8dbecc upstream.
+[ Upstream commit 927280909fa7d8e61596800d82f18047c6cfbbe4 ]
 
-Found by virtue of ipv6 raw sockets not honouring the per-socket
-IP{,V6}_FREEBIND setting.
+When checking for enabled cores it isn't enough to check that
+some of the requested cores are running, we have to check that
+all of them are.
 
-Based on hits found via:
-  git grep '[.]ip_nonlocal_bind'
-We fix both raw ipv6 sockets to honour IP{,V6}_FREEBIND and IP{,V6}_TRANSPARENT,
-and we fix sctp sockets to honour IP{,V6}_TRANSPARENT (they already honoured
-FREEBIND), and not just the ipv6 'ip_nonlocal_bind' sysctl.
-
-The helper is defined as:
-  static inline bool ipv6_can_nonlocal_bind(struct net *net, struct inet_sock *inet) {
-    return net->ipv6.sysctl.ip_nonlocal_bind || inet->freebind || inet->transparent;
-  }
-so this change only widens the accepted opt-outs and is thus a clean bugfix.
-
-I'm not entirely sure what 'fixes' tag to add, since this is AFAICT an ancient bug,
-but IMHO this should be applied to stable kernels as far back as possible.
-As such I'm adding a 'fixes' tag with the commit that originally added the helper,
-which happened in 4.19.  Backporting to older LTS kernels (at least 4.9 and 4.14)
-would presumably require open-coding it or backporting the helper as well.
-
-Other possibly relevant commits:
-  v4.18-rc6-1502-g83ba4645152d net: add helpers checking if socket can be bound to nonlocal address
-  v4.18-rc6-1431-gd0c1f01138c4 net/ipv6: allow any source address for sendmsg pktinfo with ip_nonlocal_bind
-  v4.14-rc5-271-gb71d21c274ef sctp: full support for ipv6 ip_nonlocal_bind & IP_FREEBIND
-  v4.7-rc7-1883-g9b9742022888 sctp: support ipv6 nonlocal bind
-  v4.1-12247-g35a256fee52c ipv6: Nonlocal bind
-
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Fixes: 83ba4645152d ("net: add helpers checking if socket can be bound to nonlocal address")
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 747503b1813a ("ASoC: SOF: Intel: Add Intel specific HDA DSP HW operations")
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210322163728.16616-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/raw.c  |    2 +-
- net/sctp/ipv6.c |    7 +++----
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ sound/soc/sof/intel/hda-dsp.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -303,7 +303,7 @@ static int rawv6_bind(struct sock *sk, s
- 		 */
- 		v4addr = LOOPBACK4_IPV6;
- 		if (!(addr_type & IPV6_ADDR_MULTICAST) &&
--		    !sock_net(sk)->ipv6.sysctl.ip_nonlocal_bind) {
-+		    !ipv6_can_nonlocal_bind(sock_net(sk), inet)) {
- 			err = -EADDRNOTAVAIL;
- 			if (!ipv6_chk_addr(sock_net(sk), &addr->sin6_addr,
- 					   dev, 0)) {
---- a/net/sctp/ipv6.c
-+++ b/net/sctp/ipv6.c
-@@ -655,8 +655,8 @@ static int sctp_v6_available(union sctp_
- 	if (!(type & IPV6_ADDR_UNICAST))
- 		return 0;
+diff --git a/sound/soc/sof/intel/hda-dsp.c b/sound/soc/sof/intel/hda-dsp.c
+index d4c7160717c7..06715b3d8c31 100644
+--- a/sound/soc/sof/intel/hda-dsp.c
++++ b/sound/soc/sof/intel/hda-dsp.c
+@@ -192,10 +192,17 @@ bool hda_dsp_core_is_enabled(struct snd_sof_dev *sdev,
  
--	return sp->inet.freebind || net->ipv6.sysctl.ip_nonlocal_bind ||
--		ipv6_chk_addr(net, in6, NULL, 0);
-+	return ipv6_can_nonlocal_bind(net, &sp->inet) ||
-+	       ipv6_chk_addr(net, in6, NULL, 0);
- }
+ 	val = snd_sof_dsp_read(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPCS);
  
- /* This function checks if the address is a valid address to be used for
-@@ -945,8 +945,7 @@ static int sctp_inet6_bind_verify(struct
- 			net = sock_net(&opt->inet.sk);
- 			rcu_read_lock();
- 			dev = dev_get_by_index_rcu(net, addr->v6.sin6_scope_id);
--			if (!dev || !(opt->inet.freebind ||
--				      net->ipv6.sysctl.ip_nonlocal_bind ||
-+			if (!dev || !(ipv6_can_nonlocal_bind(net, &opt->inet) ||
- 				      ipv6_chk_addr(net, &addr->v6.sin6_addr,
- 						    dev, 0))) {
- 				rcu_read_unlock();
+-	is_enable = (val & HDA_DSP_ADSPCS_CPA_MASK(core_mask)) &&
+-		    (val & HDA_DSP_ADSPCS_SPA_MASK(core_mask)) &&
+-		    !(val & HDA_DSP_ADSPCS_CRST_MASK(core_mask)) &&
+-		    !(val & HDA_DSP_ADSPCS_CSTALL_MASK(core_mask));
++#define MASK_IS_EQUAL(v, m, field) ({	\
++	u32 _m = field(m);		\
++	((v) & _m) == _m;		\
++})
++
++	is_enable = MASK_IS_EQUAL(val, core_mask, HDA_DSP_ADSPCS_CPA_MASK) &&
++		MASK_IS_EQUAL(val, core_mask, HDA_DSP_ADSPCS_SPA_MASK) &&
++		!(val & HDA_DSP_ADSPCS_CRST_MASK(core_mask)) &&
++		!(val & HDA_DSP_ADSPCS_CSTALL_MASK(core_mask));
++
++#undef MASK_IS_EQUAL
+ 
+ 	dev_dbg(sdev->dev, "DSP core(s) enabled? %d : core_mask %x\n",
+ 		is_enable, core_mask);
+-- 
+2.30.2
+
 
 
