@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADE1935BCAA
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 508DD35BD72
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237624AbhDLIo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:44:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36274 "EHLO mail.kernel.org"
+        id S237430AbhDLIvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237638AbhDLIoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:44:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5BCE60241;
-        Mon, 12 Apr 2021 08:43:56 +0000 (UTC)
+        id S238247AbhDLItO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:49:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A77E61241;
+        Mon, 12 Apr 2021 08:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217037;
-        bh=jnUE0CaMOYiyxx0A85k2dEb6Q3912c1bB9IlNE7W4bU=;
+        s=korg; t=1618217300;
+        bh=iGxnNpv4++WZUuVW5sDkCvQl0N9Gzk8S/C2Y6yGd29Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsRCCArY3WWNBNP6ESjNLVQSzKxu9rX7ut4/Bday5zGVXQAgkpd1nN7FJx2+1/K8C
-         ciCFzfTXrJo0CoXnssbhyX2GtbUtAue69aSjJxMRCmb3iqdDpQb1KR+Crof681Ftdv
-         xy1WrnRcMnkFJRRhoBtI8de9SRdCF4oq39SkDkX4=
+        b=nvdGIgmVRije+/zeGYBzOupFkloXmkXYoCKPxptejw+nw8/LYbPbfyV/taYNGlZ54
+         5qg4zStC8q1OmC1NEeIjJ+wqErjf1BhQ59sD52UbU9ORx6TuWJibA90oDx1P/+RPnO
+         1MUlLWN1mIzUQuR2Ev4OnQyXbsCLk6pEl5KPfbOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Venkat Gopalakrishnan <venkatg@codeaurora.org>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 47/66] s390/cpcmd: fix inline assembly register clobbering
-Date:   Mon, 12 Apr 2021 10:40:53 +0200
-Message-Id: <20210412083959.634901673@linuxfoundation.org>
+Subject: [PATCH 5.4 076/111] scsi: ufs: Fix irq return code
+Date:   Mon, 12 Apr 2021 10:40:54 +0200
+Message-Id: <20210412084006.800150512@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +42,342 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Venkat Gopalakrishnan <venkatg@codeaurora.org>
 
-[ Upstream commit 7a2f91441b2c1d81b77c1cd816a4659f4abc9cbe ]
+[ Upstream commit 9333d77573485c827b4c0fc960c840df3e5ce719 ]
 
-Register variables initialized using arithmetic. That leads to
-kasan instrumentaton code corrupting the registers contents.
-Follow GCC guidlines and use temporary variables for assigning
-init values to register variables.
+Return IRQ_HANDLED only if the irq is really handled, this will help in
+catching spurious interrupts that go unhandled.
 
-Fixes: 94c12cc7d196 ("[S390] Inline assembly cleanup.")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Local-Register-Variables.html
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Link: https://lore.kernel.org/r/1573798172-20534-6-git-send-email-cang@codeaurora.org
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Venkat Gopalakrishnan <venkatg@codeaurora.org>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/cpcmd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 134 ++++++++++++++++++++++++++++----------
+ drivers/scsi/ufs/ufshci.h |   2 +-
+ 2 files changed, 100 insertions(+), 36 deletions(-)
 
-diff --git a/arch/s390/kernel/cpcmd.c b/arch/s390/kernel/cpcmd.c
-index af013b4244d3..2da027359798 100644
---- a/arch/s390/kernel/cpcmd.c
-+++ b/arch/s390/kernel/cpcmd.c
-@@ -37,10 +37,12 @@ static int diag8_noresponse(int cmdlen)
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 476ef8044ae5..289edf70ccb9 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -239,7 +239,7 @@ static struct ufs_dev_fix ufs_fixups[] = {
+ 	END_FIX
+ };
  
- static int diag8_response(int cmdlen, char *response, int *rlen)
+-static void ufshcd_tmc_handler(struct ufs_hba *hba);
++static irqreturn_t ufshcd_tmc_handler(struct ufs_hba *hba);
+ static void ufshcd_async_scan(void *data, async_cookie_t cookie);
+ static int ufshcd_reset_and_restore(struct ufs_hba *hba);
+ static int ufshcd_eh_host_reset_handler(struct scsi_cmnd *cmd);
+@@ -4815,19 +4815,29 @@ ufshcd_transfer_rsp_status(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+  * ufshcd_uic_cmd_compl - handle completion of uic command
+  * @hba: per adapter instance
+  * @intr_status: interrupt status generated by the controller
++ *
++ * Returns
++ *  IRQ_HANDLED - If interrupt is valid
++ *  IRQ_NONE    - If invalid interrupt
+  */
+-static void ufshcd_uic_cmd_compl(struct ufs_hba *hba, u32 intr_status)
++static irqreturn_t ufshcd_uic_cmd_compl(struct ufs_hba *hba, u32 intr_status)
  {
-+	unsigned long _cmdlen = cmdlen | 0x40000000L;
-+	unsigned long _rlen = *rlen;
- 	register unsigned long reg2 asm ("2") = (addr_t) cpcmd_buf;
- 	register unsigned long reg3 asm ("3") = (addr_t) response;
--	register unsigned long reg4 asm ("4") = cmdlen | 0x40000000L;
--	register unsigned long reg5 asm ("5") = *rlen;
-+	register unsigned long reg4 asm ("4") = _cmdlen;
-+	register unsigned long reg5 asm ("5") = _rlen;
++	irqreturn_t retval = IRQ_NONE;
++
+ 	if ((intr_status & UIC_COMMAND_COMPL) && hba->active_uic_cmd) {
+ 		hba->active_uic_cmd->argument2 |=
+ 			ufshcd_get_uic_cmd_result(hba);
+ 		hba->active_uic_cmd->argument3 =
+ 			ufshcd_get_dme_attr_val(hba);
+ 		complete(&hba->active_uic_cmd->done);
++		retval = IRQ_HANDLED;
+ 	}
  
- 	asm volatile(
- 		"	diag	%2,%0,0x8\n"
+-	if ((intr_status & UFSHCD_UIC_PWR_MASK) && hba->uic_async_done)
++	if ((intr_status & UFSHCD_UIC_PWR_MASK) && hba->uic_async_done) {
+ 		complete(hba->uic_async_done);
++		retval = IRQ_HANDLED;
++	}
++	return retval;
+ }
+ 
+ /**
+@@ -4883,8 +4893,12 @@ static void __ufshcd_transfer_req_compl(struct ufs_hba *hba,
+ /**
+  * ufshcd_transfer_req_compl - handle SCSI and query command completion
+  * @hba: per adapter instance
++ *
++ * Returns
++ *  IRQ_HANDLED - If interrupt is valid
++ *  IRQ_NONE    - If invalid interrupt
+  */
+-static void ufshcd_transfer_req_compl(struct ufs_hba *hba)
++static irqreturn_t ufshcd_transfer_req_compl(struct ufs_hba *hba)
+ {
+ 	unsigned long completed_reqs;
+ 	u32 tr_doorbell;
+@@ -4903,7 +4917,12 @@ static void ufshcd_transfer_req_compl(struct ufs_hba *hba)
+ 	tr_doorbell = ufshcd_readl(hba, REG_UTP_TRANSFER_REQ_DOOR_BELL);
+ 	completed_reqs = tr_doorbell ^ hba->outstanding_reqs;
+ 
+-	__ufshcd_transfer_req_compl(hba, completed_reqs);
++	if (completed_reqs) {
++		__ufshcd_transfer_req_compl(hba, completed_reqs);
++		return IRQ_HANDLED;
++	} else {
++		return IRQ_NONE;
++	}
+ }
+ 
+ /**
+@@ -5424,61 +5443,77 @@ out:
+ /**
+  * ufshcd_update_uic_error - check and set fatal UIC error flags.
+  * @hba: per-adapter instance
++ *
++ * Returns
++ *  IRQ_HANDLED - If interrupt is valid
++ *  IRQ_NONE    - If invalid interrupt
+  */
+-static void ufshcd_update_uic_error(struct ufs_hba *hba)
++static irqreturn_t ufshcd_update_uic_error(struct ufs_hba *hba)
+ {
+ 	u32 reg;
++	irqreturn_t retval = IRQ_NONE;
+ 
+ 	/* PHY layer lane error */
+ 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_PHY_ADAPTER_LAYER);
+ 	/* Ignore LINERESET indication, as this is not an error */
+ 	if ((reg & UIC_PHY_ADAPTER_LAYER_ERROR) &&
+-			(reg & UIC_PHY_ADAPTER_LAYER_LANE_ERR_MASK)) {
++	    (reg & UIC_PHY_ADAPTER_LAYER_LANE_ERR_MASK)) {
+ 		/*
+ 		 * To know whether this error is fatal or not, DB timeout
+ 		 * must be checked but this error is handled separately.
+ 		 */
+ 		dev_dbg(hba->dev, "%s: UIC Lane error reported\n", __func__);
+ 		ufshcd_update_reg_hist(&hba->ufs_stats.pa_err, reg);
++		retval |= IRQ_HANDLED;
+ 	}
+ 
+ 	/* PA_INIT_ERROR is fatal and needs UIC reset */
+ 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_DATA_LINK_LAYER);
+-	if (reg)
++	if ((reg & UIC_DATA_LINK_LAYER_ERROR) &&
++	    (reg & UIC_DATA_LINK_LAYER_ERROR_CODE_MASK)) {
+ 		ufshcd_update_reg_hist(&hba->ufs_stats.dl_err, reg);
+ 
+-	if (reg & UIC_DATA_LINK_LAYER_ERROR_PA_INIT)
+-		hba->uic_error |= UFSHCD_UIC_DL_PA_INIT_ERROR;
+-	else if (hba->dev_quirks &
+-		   UFS_DEVICE_QUIRK_RECOVERY_FROM_DL_NAC_ERRORS) {
+-		if (reg & UIC_DATA_LINK_LAYER_ERROR_NAC_RECEIVED)
+-			hba->uic_error |=
+-				UFSHCD_UIC_DL_NAC_RECEIVED_ERROR;
+-		else if (reg & UIC_DATA_LINK_LAYER_ERROR_TCx_REPLAY_TIMEOUT)
+-			hba->uic_error |= UFSHCD_UIC_DL_TCx_REPLAY_ERROR;
++		if (reg & UIC_DATA_LINK_LAYER_ERROR_PA_INIT)
++			hba->uic_error |= UFSHCD_UIC_DL_PA_INIT_ERROR;
++		else if (hba->dev_quirks &
++				UFS_DEVICE_QUIRK_RECOVERY_FROM_DL_NAC_ERRORS) {
++			if (reg & UIC_DATA_LINK_LAYER_ERROR_NAC_RECEIVED)
++				hba->uic_error |=
++					UFSHCD_UIC_DL_NAC_RECEIVED_ERROR;
++			else if (reg & UIC_DATA_LINK_LAYER_ERROR_TCx_REPLAY_TIMEOUT)
++				hba->uic_error |= UFSHCD_UIC_DL_TCx_REPLAY_ERROR;
++		}
++		retval |= IRQ_HANDLED;
+ 	}
+ 
+ 	/* UIC NL/TL/DME errors needs software retry */
+ 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_NETWORK_LAYER);
+-	if (reg) {
++	if ((reg & UIC_NETWORK_LAYER_ERROR) &&
++	    (reg & UIC_NETWORK_LAYER_ERROR_CODE_MASK)) {
+ 		ufshcd_update_reg_hist(&hba->ufs_stats.nl_err, reg);
+ 		hba->uic_error |= UFSHCD_UIC_NL_ERROR;
++		retval |= IRQ_HANDLED;
+ 	}
+ 
+ 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_TRANSPORT_LAYER);
+-	if (reg) {
++	if ((reg & UIC_TRANSPORT_LAYER_ERROR) &&
++	    (reg & UIC_TRANSPORT_LAYER_ERROR_CODE_MASK)) {
+ 		ufshcd_update_reg_hist(&hba->ufs_stats.tl_err, reg);
+ 		hba->uic_error |= UFSHCD_UIC_TL_ERROR;
++		retval |= IRQ_HANDLED;
+ 	}
+ 
+ 	reg = ufshcd_readl(hba, REG_UIC_ERROR_CODE_DME);
+-	if (reg) {
++	if ((reg & UIC_DME_ERROR) &&
++	    (reg & UIC_DME_ERROR_CODE_MASK)) {
+ 		ufshcd_update_reg_hist(&hba->ufs_stats.dme_err, reg);
+ 		hba->uic_error |= UFSHCD_UIC_DME_ERROR;
++		retval |= IRQ_HANDLED;
+ 	}
+ 
+ 	dev_dbg(hba->dev, "%s: UIC error flags = 0x%08x\n",
+ 			__func__, hba->uic_error);
++	return retval;
+ }
+ 
+ static bool ufshcd_is_auto_hibern8_error(struct ufs_hba *hba,
+@@ -5502,10 +5537,15 @@ static bool ufshcd_is_auto_hibern8_error(struct ufs_hba *hba,
+ /**
+  * ufshcd_check_errors - Check for errors that need s/w attention
+  * @hba: per-adapter instance
++ *
++ * Returns
++ *  IRQ_HANDLED - If interrupt is valid
++ *  IRQ_NONE    - If invalid interrupt
+  */
+-static void ufshcd_check_errors(struct ufs_hba *hba)
++static irqreturn_t ufshcd_check_errors(struct ufs_hba *hba)
+ {
+ 	bool queue_eh_work = false;
++	irqreturn_t retval = IRQ_NONE;
+ 
+ 	if (hba->errors & INT_FATAL_ERRORS) {
+ 		ufshcd_update_reg_hist(&hba->ufs_stats.fatal_err, hba->errors);
+@@ -5514,7 +5554,7 @@ static void ufshcd_check_errors(struct ufs_hba *hba)
+ 
+ 	if (hba->errors & UIC_ERROR) {
+ 		hba->uic_error = 0;
+-		ufshcd_update_uic_error(hba);
++		retval = ufshcd_update_uic_error(hba);
+ 		if (hba->uic_error)
+ 			queue_eh_work = true;
+ 	}
+@@ -5562,6 +5602,7 @@ static void ufshcd_check_errors(struct ufs_hba *hba)
+ 			}
+ 			schedule_work(&hba->eh_work);
+ 		}
++		retval |= IRQ_HANDLED;
+ 	}
+ 	/*
+ 	 * if (!queue_eh_work) -
+@@ -5569,44 +5610,62 @@ static void ufshcd_check_errors(struct ufs_hba *hba)
+ 	 * itself without s/w intervention or errors that will be
+ 	 * handled by the SCSI core layer.
+ 	 */
++	return retval;
+ }
+ 
+ /**
+  * ufshcd_tmc_handler - handle task management function completion
+  * @hba: per adapter instance
++ *
++ * Returns
++ *  IRQ_HANDLED - If interrupt is valid
++ *  IRQ_NONE    - If invalid interrupt
+  */
+-static void ufshcd_tmc_handler(struct ufs_hba *hba)
++static irqreturn_t ufshcd_tmc_handler(struct ufs_hba *hba)
+ {
+ 	u32 tm_doorbell;
+ 
+ 	tm_doorbell = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
+ 	hba->tm_condition = tm_doorbell ^ hba->outstanding_tasks;
+-	wake_up(&hba->tm_wq);
++	if (hba->tm_condition) {
++		wake_up(&hba->tm_wq);
++		return IRQ_HANDLED;
++	} else {
++		return IRQ_NONE;
++	}
+ }
+ 
+ /**
+  * ufshcd_sl_intr - Interrupt service routine
+  * @hba: per adapter instance
+  * @intr_status: contains interrupts generated by the controller
++ *
++ * Returns
++ *  IRQ_HANDLED - If interrupt is valid
++ *  IRQ_NONE    - If invalid interrupt
+  */
+-static void ufshcd_sl_intr(struct ufs_hba *hba, u32 intr_status)
++static irqreturn_t ufshcd_sl_intr(struct ufs_hba *hba, u32 intr_status)
+ {
++	irqreturn_t retval = IRQ_NONE;
++
+ 	hba->errors = UFSHCD_ERROR_MASK & intr_status;
+ 
+ 	if (ufshcd_is_auto_hibern8_error(hba, intr_status))
+ 		hba->errors |= (UFSHCD_UIC_HIBERN8_MASK & intr_status);
+ 
+ 	if (hba->errors)
+-		ufshcd_check_errors(hba);
++		retval |= ufshcd_check_errors(hba);
+ 
+ 	if (intr_status & UFSHCD_UIC_MASK)
+-		ufshcd_uic_cmd_compl(hba, intr_status);
++		retval |= ufshcd_uic_cmd_compl(hba, intr_status);
+ 
+ 	if (intr_status & UTP_TASK_REQ_COMPL)
+-		ufshcd_tmc_handler(hba);
++		retval |= ufshcd_tmc_handler(hba);
+ 
+ 	if (intr_status & UTP_TRANSFER_REQ_COMPL)
+-		ufshcd_transfer_req_compl(hba);
++		retval |= ufshcd_transfer_req_compl(hba);
++
++	return retval;
+ }
+ 
+ /**
+@@ -5614,8 +5673,9 @@ static void ufshcd_sl_intr(struct ufs_hba *hba, u32 intr_status)
+  * @irq: irq number
+  * @__hba: pointer to adapter instance
+  *
+- * Returns IRQ_HANDLED - If interrupt is valid
+- *		IRQ_NONE - If invalid interrupt
++ * Returns
++ *  IRQ_HANDLED - If interrupt is valid
++ *  IRQ_NONE    - If invalid interrupt
+  */
+ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ {
+@@ -5638,14 +5698,18 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ 			intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
+ 		if (intr_status)
+ 			ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
+-		if (enabled_intr_status) {
+-			ufshcd_sl_intr(hba, enabled_intr_status);
+-			retval = IRQ_HANDLED;
+-		}
++		if (enabled_intr_status)
++			retval |= ufshcd_sl_intr(hba, enabled_intr_status);
+ 
+ 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
+ 	}
+ 
++	if (retval == IRQ_NONE) {
++		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x\n",
++					__func__, intr_status);
++		ufshcd_dump_regs(hba, 0, UFSHCI_REG_SPACE_SIZE, "host_regs: ");
++	}
++
+ 	spin_unlock(hba->host->host_lock);
+ 	return retval;
+ }
+diff --git a/drivers/scsi/ufs/ufshci.h b/drivers/scsi/ufs/ufshci.h
+index dbb75cd28dc8..c2961d37cc1c 100644
+--- a/drivers/scsi/ufs/ufshci.h
++++ b/drivers/scsi/ufs/ufshci.h
+@@ -195,7 +195,7 @@ enum {
+ 
+ /* UECDL - Host UIC Error Code Data Link Layer 3Ch */
+ #define UIC_DATA_LINK_LAYER_ERROR		0x80000000
+-#define UIC_DATA_LINK_LAYER_ERROR_CODE_MASK	0x7FFF
++#define UIC_DATA_LINK_LAYER_ERROR_CODE_MASK	0xFFFF
+ #define UIC_DATA_LINK_LAYER_ERROR_TCX_REP_TIMER_EXP	0x2
+ #define UIC_DATA_LINK_LAYER_ERROR_AFCX_REQ_TIMER_EXP	0x4
+ #define UIC_DATA_LINK_LAYER_ERROR_FCX_PRO_TIMER_EXP	0x8
 -- 
 2.30.2
 
