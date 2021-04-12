@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F5135BC7A
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 013E235BE50
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237455AbhDLInO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34702 "EHLO mail.kernel.org"
+        id S238798AbhDLI5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237461AbhDLInK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:43:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F267D61244;
-        Mon, 12 Apr 2021 08:42:51 +0000 (UTC)
+        id S239032AbhDLIzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0060A61262;
+        Mon, 12 Apr 2021 08:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618216972;
-        bh=nD1XbmUtLI57bRf4xzb+SI/BIIQnh6f3jKjJJIW1DMg=;
+        s=korg; t=1618217702;
+        bh=TilFfatGDQ8WsvWrUqOg9gPOx2fJy+GBEncMx4C+mAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1D6OmBy9+Yv+1g2keQon7PbadRGbbPpQt2pPiLlInfCD4/cDiViD7vJK5Ihi4juuP
-         gwBOG1xq0tsOJXzjvQVpH+trI8t9jz41rUEsC8a4RyUpo9W4woFQsUinz9W1gVtKgo
-         3waVK3GCtoZdGsUbduZRsiXQWTxbFHCErWm+xpJE=
+        b=bT1oInWw3G28zB0jK6v2v8dlz5azJmvsSMZHqSB8u+QASxOBNhGJLReaPCK2H0W+u
+         FgBHNHQk7gpb98CfW1ldBqUVL5AcLuvvVbACWKDa9Mv20kEWvoQF+V/WDVqGn9I2uX
+         MQNuxnsOtRA2OEwBAUvOjS09OU+XMy7JnhXrbpCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 22/66] usbip: add sysfs_lock to synchronize sysfs code paths
-Date:   Mon, 12 Apr 2021 10:40:28 +0200
-Message-Id: <20210412083958.846056989@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 115/188] xfrm: Provide private skb extensions for segmented and hw offloaded ESP packets
+Date:   Mon, 12 Apr 2021 10:40:29 +0200
+Message-Id: <20210412084017.476445404@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,149 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-commit 4e9c93af7279b059faf5bb1897ee90512b258a12 upstream.
+[ Upstream commit c7dbf4c08868d9db89b8bfe8f8245ca61b01ed2f ]
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+Commit 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec
+crypto offload.") added a XFRM_XMIT flag to avoid duplicate ESP trailer
+insertion on HW offload. This flag is set on the secpath that is shared
+amongst segments. This lead to a situation where some segments are
+not transformed correctly when segmentation happens at layer 3.
 
-This problem is common to all drivers while it can be reproduced easily
-in vhci_hcd. Add a sysfs_lock to usbip_device struct to protect the paths.
+Fix this by using private skb extensions for segmented and hw offloaded
+ESP packets.
 
-Use this in vhci_hcd to protect sysfs paths. For a complete fix, usip_host
-and usip-vudc drivers and the event handler will have to use this lock to
-protect the paths. These changes will be done in subsequent patches.
-
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/b6568f7beae702bbc236a545d3c020106ca75eac.1616807117.git.skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec crypto offload.")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/usbip_common.h |    3 +++
- drivers/usb/usbip/vhci_hcd.c     |    1 +
- drivers/usb/usbip/vhci_sysfs.c   |   30 +++++++++++++++++++++++++-----
- 3 files changed, 29 insertions(+), 5 deletions(-)
+ net/ipv4/esp4_offload.c | 11 ++++++++++-
+ net/ipv6/esp6_offload.c | 11 ++++++++++-
+ net/xfrm/xfrm_device.c  |  2 --
+ 3 files changed, 20 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/usbip/usbip_common.h
-+++ b/drivers/usb/usbip/usbip_common.h
-@@ -263,6 +263,9 @@ struct usbip_device {
- 	/* lock for status */
- 	spinlock_t lock;
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index d5c0f5a2a551..5aa7344dbec7 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -314,8 +314,17 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
+ 	ip_hdr(skb)->tot_len = htons(skb->len);
+ 	ip_send_check(ip_hdr(skb));
  
-+	/* mutex for synchronizing sysfs store paths */
-+	struct mutex sysfs_lock;
+-	if (hw_offload)
++	if (hw_offload) {
++		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
++			return -ENOMEM;
 +
- 	int sockfd;
- 	struct socket *tcp_socket;
- 
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -1101,6 +1101,7 @@ static void vhci_device_init(struct vhci
- 	vdev->ud.side   = USBIP_VHCI;
- 	vdev->ud.status = VDEV_ST_NULL;
- 	spin_lock_init(&vdev->ud.lock);
-+	mutex_init(&vdev->ud.sysfs_lock);
- 
- 	INIT_LIST_HEAD(&vdev->priv_rx);
- 	INIT_LIST_HEAD(&vdev->priv_tx);
---- a/drivers/usb/usbip/vhci_sysfs.c
-+++ b/drivers/usb/usbip/vhci_sysfs.c
-@@ -185,6 +185,8 @@ static int vhci_port_disconnect(struct v
- 
- 	usbip_dbg_vhci_sysfs("enter\n");
- 
-+	mutex_lock(&vdev->ud.sysfs_lock);
++		xo = xfrm_offload(skb);
++		if (!xo)
++			return -EINVAL;
 +
- 	/* lock */
- 	spin_lock_irqsave(&vhci->lock, flags);
- 	spin_lock(&vdev->ud.lock);
-@@ -195,6 +197,7 @@ static int vhci_port_disconnect(struct v
- 		/* unlock */
- 		spin_unlock(&vdev->ud.lock);
- 		spin_unlock_irqrestore(&vhci->lock, flags);
-+		mutex_unlock(&vdev->ud.sysfs_lock);
++		xo->flags |= XFRM_XMIT;
+ 		return 0;
++	}
  
- 		return -EINVAL;
- 	}
-@@ -205,6 +208,8 @@ static int vhci_port_disconnect(struct v
+ 	err = esp_output_tail(x, skb, &esp);
+ 	if (err)
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index f35203ab39f5..4af56affaafd 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -348,8 +348,17 @@ static int esp6_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features
  
- 	usbip_event_add(&vdev->ud, VDEV_EVENT_DOWN);
+ 	ipv6_hdr(skb)->payload_len = htons(len);
  
-+	mutex_unlock(&vdev->ud.sysfs_lock);
+-	if (hw_offload)
++	if (hw_offload) {
++		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
++			return -ENOMEM;
 +
- 	return 0;
- }
- 
-@@ -349,30 +354,36 @@ static ssize_t attach_store(struct devic
- 	else
- 		vdev = &vhci->vhci_hcd_hs->vdev[rhport];
- 
-+	mutex_lock(&vdev->ud.sysfs_lock);
++		xo = xfrm_offload(skb);
++		if (!xo)
++			return -EINVAL;
 +
- 	/* Extract socket from fd. */
- 	socket = sockfd_lookup(sockfd, &err);
- 	if (!socket) {
- 		dev_err(dev, "failed to lookup sock");
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
- 	}
- 	if (socket->type != SOCK_STREAM) {
- 		dev_err(dev, "Expecting SOCK_STREAM - found %d",
- 			socket->type);
- 		sockfd_put(socket);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
++		xo->flags |= XFRM_XMIT;
+ 		return 0;
++	}
+ 
+ 	err = esp6_output_tail(x, skb, &esp);
+ 	if (err)
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index edf11893dbe8..6d6917b68856 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -134,8 +134,6 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ 		return skb;
  	}
  
- 	/* create threads before locking */
- 	tcp_rx = kthread_create(vhci_rx_loop, &vdev->ud, "vhci_rx");
- 	if (IS_ERR(tcp_rx)) {
- 		sockfd_put(socket);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
- 	}
- 	tcp_tx = kthread_create(vhci_tx_loop, &vdev->ud, "vhci_tx");
- 	if (IS_ERR(tcp_tx)) {
- 		kthread_stop(tcp_rx);
- 		sockfd_put(socket);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock_mutex;
- 	}
+-	xo->flags |= XFRM_XMIT;
+-
+ 	if (skb_is_gso(skb) && unlikely(x->xso.dev != dev)) {
+ 		struct sk_buff *segs;
  
- 	/* get task structs now */
-@@ -397,7 +408,8 @@ static ssize_t attach_store(struct devic
- 		 * Will be retried from userspace
- 		 * if there's another free port.
- 		 */
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto unlock_mutex;
- 	}
- 
- 	dev_info(dev, "pdev(%u) rhport(%u) sockfd(%d)\n",
-@@ -422,7 +434,15 @@ static ssize_t attach_store(struct devic
- 
- 	rh_port_connect(vdev, speed);
- 
-+	dev_info(dev, "Device attached\n");
-+
-+	mutex_unlock(&vdev->ud.sysfs_lock);
-+
- 	return count;
-+
-+unlock_mutex:
-+	mutex_unlock(&vdev->ud.sysfs_lock);
-+	return err;
- }
- static DEVICE_ATTR_WO(attach);
- 
+-- 
+2.30.2
+
 
 
