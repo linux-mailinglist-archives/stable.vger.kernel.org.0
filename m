@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C8035BD24
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8C335BE6A
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237955AbhDLIsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:48:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
+        id S238600AbhDLI6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:58:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237779AbhDLIq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:46:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 026A561244;
-        Mon, 12 Apr 2021 08:46:37 +0000 (UTC)
+        id S238546AbhDLI42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:56:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 445C461279;
+        Mon, 12 Apr 2021 08:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217198;
-        bh=p2OwqxFHSKfHPF7Uh5dxXGlLivSDO5iVmkwk2ean3h4=;
+        s=korg; t=1618217769;
+        bh=3M81bUulRZ1OJ8K1jzIUjMAQrCb+nJsOaPN0EFVYXos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtxVo/K5tU6u2BZ4SIC+219OlPqqORmcTXh64xFZk98J/heyBsxeN5G3Qo253d3HL
-         baHMp0JFpearccCgGHG7Ap9vUjGwqFlVC+6FwZrXvfwM06d67Hk0xsoycTPEedSCJK
-         JvLnLp2SIZXvPmb9eTmMh27IMJhuBhu87J4GtLx4=
+        b=i79D2BNQO5MhVkkeuyzqcaIoU6wwDWbsIqJ1wXzdiImQ454WXKdeoFvAN8CWnMvIN
+         XIL8wypSzwAO+XT+IPt0OlOJKaBfibI4ZU0xUT2YxwpiN1KjtWfcH1TO67mX7X8Yi+
+         1TG1fd42Dlywfk+qhitlkkA8ui95MDpZ3NehJBjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 039/111] usbip: synchronize event handler with sysfs code paths
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 103/188] ASoC: wm8960: Fix wrong bclk and lrclk with pll enabled for some chips
 Date:   Mon, 12 Apr 2021 10:40:17 +0200
-Message-Id: <20210412084005.559467972@linuxfoundation.org>
+Message-Id: <20210412084017.077179484@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit 363eaa3a450abb4e63bd6e3ad79d1f7a0f717814 upstream.
+[ Upstream commit 16b82e75c15a7dbd564ea3654f3feb61df9e1e6f ]
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+The input MCLK is 12.288MHz, the desired output sysclk is 11.2896MHz
+and sample rate is 44100Hz, with the configuration pllprescale=2,
+postscale=sysclkdiv=1, some chip may have wrong bclk
+and lrclk output with pll enabled in master mode, but with the
+configuration pllprescale=1, postscale=2, the output clock is correct.
 
-Use sysfs_lock to synchronize event handler with sysfs paths
-in usbip drivers.
+>From Datasheet, the PLL performs best when f2 is between
+90MHz and 100MHz when the desired sysclk output is 11.2896MHz
+or 12.288MHz, so sysclkdiv = 2 (f2/8) is the best choice.
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/c5c8723d3f29dfe3d759cfaafa7dd16b0dfe2918.1616807117.git.skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So search available sysclk_divs from 2 to 1 other than from 1 to 2.
+
+Fixes: 84fdc00d519f ("ASoC: codec: wm9860: Refactor PLL out freq search")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/1616150926-22892-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/usbip_event.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/wm8960.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/usbip/usbip_event.c
-+++ b/drivers/usb/usbip/usbip_event.c
-@@ -70,6 +70,7 @@ static void event_handler(struct work_st
- 	while ((ud = get_event()) != NULL) {
- 		usbip_dbg_eh("pending event %lx\n", ud->event);
+diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
+index 660ec46eecf2..ceaf3bbb18e6 100644
+--- a/sound/soc/codecs/wm8960.c
++++ b/sound/soc/codecs/wm8960.c
+@@ -707,7 +707,13 @@ int wm8960_configure_pll(struct snd_soc_component *component, int freq_in,
+ 	best_freq_out = -EINVAL;
+ 	*sysclk_idx = *dac_idx = *bclk_idx = -1;
  
-+		mutex_lock(&ud->sysfs_lock);
- 		/*
- 		 * NOTE: shutdown must come first.
- 		 * Shutdown the device.
-@@ -90,6 +91,7 @@ static void event_handler(struct work_st
- 			ud->eh_ops.unusable(ud);
- 			unset_event(ud, USBIP_EH_UNUSABLE);
- 		}
-+		mutex_unlock(&ud->sysfs_lock);
- 
- 		wake_up(&ud->eh_waitq);
- 	}
+-	for (i = 0; i < ARRAY_SIZE(sysclk_divs); ++i) {
++	/*
++	 * From Datasheet, the PLL performs best when f2 is between
++	 * 90MHz and 100MHz, the desired sysclk output is 11.2896MHz
++	 * or 12.288MHz, then sysclkdiv = 2 is the best choice.
++	 * So search sysclk_divs from 2 to 1 other than from 1 to 2.
++	 */
++	for (i = ARRAY_SIZE(sysclk_divs) - 1; i >= 0; --i) {
+ 		if (sysclk_divs[i] == -1)
+ 			continue;
+ 		for (j = 0; j < ARRAY_SIZE(dac_divs); ++j) {
+-- 
+2.30.2
+
 
 
