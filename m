@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A7735BE10
+	by mail.lfdr.de (Postfix) with ESMTP id 043E135BE0F
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238671AbhDLI4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:56:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47812 "EHLO mail.kernel.org"
+        id S238668AbhDLI4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238827AbhDLIyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238828AbhDLIyx (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 04:54:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94C9E61365;
-        Mon, 12 Apr 2021 08:53:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C66361207;
+        Mon, 12 Apr 2021 08:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217583;
-        bh=pBiuFMJPzf4Rp6C7xa3pnOi72vsJAVTLQTbict89G2Q=;
+        s=korg; t=1618217585;
+        bh=xyAxFKZSjy5vXAvtAiB5JpI+zNWNbXR+rY2tf8f+BY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pe5CsWzp/Oykg3EAWS4aCsHnyMDIrN43ovrhREWcCCAroM8Esw7E5SaTOuidqPgD6
-         5llB4Sc7zIysOcJTm3OBoeQFenKSKZIhgVNvJe3e0VGUcPwS70Kywvtx0gGTjeiP66
-         6KwuyI8OQNi/Tq6HlfUUvrhSt/sH5N0Eb7Fr8KVE=
+        b=J3MfxnIVtRjk2QilDv55GpLBGQP/5wlD+XmEdT347giYNoMmP94j1siLNKP9cR5xY
+         QA50GL3jQjOc98L0vI6Ri0rNI2VdwE7kpwAZlFq80BEkivllI5YYHL3FAMrX5b5SGc
+         Fi8wipd14WzhvQYx3Mwv3oDtMsO7m8BEa3Ouc7Xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 069/188] net-ipv6: bugfix - raw & sctp - switch to ipv6_can_nonlocal_bind()
-Date:   Mon, 12 Apr 2021 10:39:43 +0200
-Message-Id: <20210412084015.950769887@linuxfoundation.org>
+Subject: [PATCH 5.10 070/188] net: let skb_orphan_partial wake-up waiters.
+Date:   Mon, 12 Apr 2021 10:39:44 +0200
+Message-Id: <20210412084015.979712928@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -40,82 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 630e4576f83accf90366686f39808d665d8dbecc upstream.
+commit 9adc89af724f12a03b47099cd943ed54e877cd59 upstream.
 
-Found by virtue of ipv6 raw sockets not honouring the per-socket
-IP{,V6}_FREEBIND setting.
+Currently the mentioned helper can end-up freeing the socket wmem
+without waking-up any processes waiting for more write memory.
 
-Based on hits found via:
-  git grep '[.]ip_nonlocal_bind'
-We fix both raw ipv6 sockets to honour IP{,V6}_FREEBIND and IP{,V6}_TRANSPARENT,
-and we fix sctp sockets to honour IP{,V6}_TRANSPARENT (they already honoured
-FREEBIND), and not just the ipv6 'ip_nonlocal_bind' sysctl.
+If the partially orphaned skb is attached to an UDP (or raw) socket,
+the lack of wake-up can hang the user-space.
 
-The helper is defined as:
-  static inline bool ipv6_can_nonlocal_bind(struct net *net, struct inet_sock *inet) {
-    return net->ipv6.sysctl.ip_nonlocal_bind || inet->freebind || inet->transparent;
-  }
-so this change only widens the accepted opt-outs and is thus a clean bugfix.
+Even for TCP sockets not calling the sk destructor could have bad
+effects on TSQ.
 
-I'm not entirely sure what 'fixes' tag to add, since this is AFAICT an ancient bug,
-but IMHO this should be applied to stable kernels as far back as possible.
-As such I'm adding a 'fixes' tag with the commit that originally added the helper,
-which happened in 4.19.  Backporting to older LTS kernels (at least 4.9 and 4.14)
-would presumably require open-coding it or backporting the helper as well.
+Address the issue using skb_orphan to release the sk wmem before
+setting the new sock_efree destructor. Additionally bundle the
+whole ownership update in a new helper, so that later other
+potential users could avoid duplicate code.
 
-Other possibly relevant commits:
-  v4.18-rc6-1502-g83ba4645152d net: add helpers checking if socket can be bound to nonlocal address
-  v4.18-rc6-1431-gd0c1f01138c4 net/ipv6: allow any source address for sendmsg pktinfo with ip_nonlocal_bind
-  v4.14-rc5-271-gb71d21c274ef sctp: full support for ipv6 ip_nonlocal_bind & IP_FREEBIND
-  v4.7-rc7-1883-g9b9742022888 sctp: support ipv6 nonlocal bind
-  v4.1-12247-g35a256fee52c ipv6: Nonlocal bind
+v1 -> v2:
+ - use skb_orphan() instead of sort of open coding it (Eric)
+ - provide an helper for the ownership change (Eric)
 
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Fixes: 83ba4645152d ("net: add helpers checking if socket can be bound to nonlocal address")
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
+Fixes: f6ba8d33cfbb ("netem: fix skb_orphan_partial()")
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/raw.c  |    2 +-
- net/sctp/ipv6.c |    7 +++----
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ include/net/sock.h |    9 +++++++++
+ net/core/sock.c    |   12 +++---------
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -298,7 +298,7 @@ static int rawv6_bind(struct sock *sk, s
- 		 */
- 		v4addr = LOOPBACK4_IPV6;
- 		if (!(addr_type & IPV6_ADDR_MULTICAST) &&
--		    !sock_net(sk)->ipv6.sysctl.ip_nonlocal_bind) {
-+		    !ipv6_can_nonlocal_bind(sock_net(sk), inet)) {
- 			err = -EADDRNOTAVAIL;
- 			if (!ipv6_chk_addr(sock_net(sk), &addr->sin6_addr,
- 					   dev, 0)) {
---- a/net/sctp/ipv6.c
-+++ b/net/sctp/ipv6.c
-@@ -643,8 +643,8 @@ static int sctp_v6_available(union sctp_
- 	if (!(type & IPV6_ADDR_UNICAST))
- 		return 0;
- 
--	return sp->inet.freebind || net->ipv6.sysctl.ip_nonlocal_bind ||
--		ipv6_chk_addr(net, in6, NULL, 0);
-+	return ipv6_can_nonlocal_bind(net, &sp->inet) ||
-+	       ipv6_chk_addr(net, in6, NULL, 0);
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2197,6 +2197,15 @@ static inline void skb_set_owner_r(struc
+ 	sk_mem_charge(sk, skb->truesize);
  }
  
- /* This function checks if the address is a valid address to be used for
-@@ -933,8 +933,7 @@ static int sctp_inet6_bind_verify(struct
- 			net = sock_net(&opt->inet.sk);
- 			rcu_read_lock();
- 			dev = dev_get_by_index_rcu(net, addr->v6.sin6_scope_id);
--			if (!dev || !(opt->inet.freebind ||
--				      net->ipv6.sysctl.ip_nonlocal_bind ||
-+			if (!dev || !(ipv6_can_nonlocal_bind(net, &opt->inet) ||
- 				      ipv6_chk_addr(net, &addr->v6.sin6_addr,
- 						    dev, 0))) {
- 				rcu_read_unlock();
++static inline void skb_set_owner_sk_safe(struct sk_buff *skb, struct sock *sk)
++{
++	if (sk && refcount_inc_not_zero(&sk->sk_refcnt)) {
++		skb_orphan(skb);
++		skb->destructor = sock_efree;
++		skb->sk = sk;
++	}
++}
++
+ void sk_reset_timer(struct sock *sk, struct timer_list *timer,
+ 		    unsigned long expires);
+ 
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2099,16 +2099,10 @@ void skb_orphan_partial(struct sk_buff *
+ 	if (skb_is_tcp_pure_ack(skb))
+ 		return;
+ 
+-	if (can_skb_orphan_partial(skb)) {
+-		struct sock *sk = skb->sk;
+-
+-		if (refcount_inc_not_zero(&sk->sk_refcnt)) {
+-			WARN_ON(refcount_sub_and_test(skb->truesize, &sk->sk_wmem_alloc));
+-			skb->destructor = sock_efree;
+-		}
+-	} else {
++	if (can_skb_orphan_partial(skb))
++		skb_set_owner_sk_safe(skb, skb->sk);
++	else
+ 		skb_orphan(skb);
+-	}
+ }
+ EXPORT_SYMBOL(skb_orphan_partial);
+ 
 
 
