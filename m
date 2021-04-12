@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3C135B889
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B273135B88A
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236610AbhDLCXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59412 "EHLO mail.kernel.org"
+        id S236611AbhDLCXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236608AbhDLCXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 889186120F;
-        Mon, 12 Apr 2021 02:23:01 +0000 (UTC)
+        id S236608AbhDLCXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1EC26120D;
+        Mon, 12 Apr 2021 02:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194182;
-        bh=F/1qehbeTQ9FMyWP+b2I7kh8gor8lI7M2/T8+rBRT+Q=;
+        s=k20201202; t=1618194184;
+        bh=HvDlUADo7ytrxih9rh1i+Ig1FSjWh/AOcjNDKfdP+Go=;
         h=From:To:Cc:Subject:Date:From;
-        b=pyT7Jtb18jhRMVu0o66388hMlIHeGJYLeXr2gLN/XK20yIkpiUfUK2H0KRftV8Jzt
-         UQDRn5zSjL0m/Xm0tz1R2jC9tCwHyzSbq3ZgDGACbxvux82S9YL6m0mJQwDlJY6NM1
-         vv2ce2cdRN25j/FZn4gCmunNhww9/AIC5b8wnZU0WnrSHFz+WtgE6Ua5vuZHspU2OA
-         i5rHix/eC2sFJPwaNiiK44N0IkyvoHLoSnjKzI/14QlDS7OBC9UMFrkWd7Z656Z+wH
-         vE9GK/947PdKR2c9pOlrCA7WoUDKb4G6pK+jN+49uxR6eJCMQ+k0EPaNpXPxpArqYA
-         JKNhb8/Mcfm5g==
+        b=gyTJFmK5DisD7dlfwE1tsR5/ZqyEh/CbyN2oBLEfq93bEuRuKWz+95AEkW84b/mCE
+         2kZ9btoUNloSEk+/2a6l0xRMU6ilpyBHMXcI4z11Kk0mu2puPXuZqgqykyPZoVV5Q4
+         WtoqhjX1+y+mblcs4vTNAPE2VPg6ueSEXaMh9aBRMVLNDFymF0Qa44JCmqo+GOIH/P
+         WQKANKY1P9gN/BYn00I5OHonSAX7FqfGu9tqno/ZRIr5MEO3zJZqByl9QEc8qDQ8mm
+         PosyLSZhjdWitBUSkeabjUFmV8rg+e76hMPVGLmnOp6okDZAQB2fvBgPilfbZRLu9e
+         8NhUac/LNWX3w==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, huangguangbin2@huawei.com
-Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
+To:     stable@vger.kernel.org, i.maximets@ovn.org
+Cc:     Tonghao Zhang <xiangxia.m.yue@gmail.com>,
         "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "net: hns3: clear VF down state bit before request link status" failed to apply to 4.19-stable tree
-Date:   Sun, 11 Apr 2021 22:23:00 -0400
-Message-Id: <20210412022300.283614-1-sashal@kernel.org>
+Subject: FAILED: Patch "openvswitch: fix send of uninitialized stack memory in ct limit reply" failed to apply to 4.19-stable tree
+Date:   Sun, 11 Apr 2021 22:23:02 -0400
+Message-Id: <20210412022302.283681-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -49,49 +49,46 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From ed7bedd2c3ca040f1e8ea02c6590a93116b1ec78 Mon Sep 17 00:00:00 2001
-From: Guangbin Huang <huangguangbin2@huawei.com>
-Date: Tue, 6 Apr 2021 21:10:43 +0800
-Subject: [PATCH] net: hns3: clear VF down state bit before request link status
+From 4d51419d49930be2701c2633ae271b350397c3ca Mon Sep 17 00:00:00 2001
+From: Ilya Maximets <i.maximets@ovn.org>
+Date: Sun, 4 Apr 2021 19:50:31 +0200
+Subject: [PATCH] openvswitch: fix send of uninitialized stack memory in ct
+ limit reply
 
-Currently, the VF down state bit is cleared after VF sending
-link status request command. There is problem that when VF gets
-link status replied from PF, the down state bit may still set
-as 1. In this case, the link status replied from PF will be
-ignored and always set VF link status to down.
+'struct ovs_zone_limit' has more members than initialized in
+ovs_ct_limit_get_default_limit().  The rest of the memory is a random
+kernel stack content that ends up being sent to userspace.
 
-To fix this problem, clear VF down state bit before VF requests
-link status.
+Fix that by using designated initializer that will clear all
+non-specified fields.
 
-Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Fixes: 11efd5cb04a1 ("openvswitch: Support conntrack zone limit")
+Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
+Acked-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/openvswitch/conntrack.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 700e068764c8..14b83eca0a5e 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2624,14 +2624,14 @@ static int hclgevf_ae_start(struct hnae3_handle *handle)
+diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
+index 71cec03e8612..d217bd91176b 100644
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -2034,10 +2034,10 @@ static int ovs_ct_limit_del_zone_limit(struct nlattr *nla_zone_limit,
+ static int ovs_ct_limit_get_default_limit(struct ovs_ct_limit_info *info,
+ 					  struct sk_buff *reply)
  {
- 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
- 
-+	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
-+
- 	hclgevf_reset_tqp_stats(handle);
- 
- 	hclgevf_request_link_info(hdev);
- 
- 	hclgevf_update_link_mode(hdev);
- 
--	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
+-	struct ovs_zone_limit zone_limit;
 -
- 	return 0;
- }
+-	zone_limit.zone_id = OVS_ZONE_LIMIT_DEFAULT_ZONE;
+-	zone_limit.limit = info->default_limit;
++	struct ovs_zone_limit zone_limit = {
++		.zone_id = OVS_ZONE_LIMIT_DEFAULT_ZONE,
++		.limit   = info->default_limit,
++	};
  
+ 	return nla_put_nohdr(reply, sizeof(zone_limit), &zone_limit);
+ }
 -- 
 2.30.2
 
