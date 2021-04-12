@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1ECA35BDFA
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E367335BDFF
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238431AbhDLI4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45752 "EHLO mail.kernel.org"
+        id S238485AbhDLI4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:56:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238630AbhDLIyP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:54:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4032660241;
-        Mon, 12 Apr 2021 08:52:22 +0000 (UTC)
+        id S238643AbhDLIyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:54:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2E2E61247;
+        Mon, 12 Apr 2021 08:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217542;
-        bh=gUY6h69LFa3h14fNFmzJGG+7FoenSeSx20LWD1kxb3A=;
+        s=korg; t=1618217545;
+        bh=yBZaTr86OwOgcrrKgd9PrgxNtHgFhLVTq8vlOp9NkAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qiZQmSV/NeLs0W2MknqmiD+Ew0o0cGwkWUVhdK7aTuec5kMgKxGqvFNsVgYl+hBAm
-         c83Bl+rx4rOo762ffNlPxn69ALWkbwfQHso1XpSJiprlmmf513EAMqb0PC5AxHp7w6
-         2Rc/0ZihjX38NwszjYHeiu5hCX3iZ18gKcqF6YtA=
+        b=zVWt0CnyvFeXQzBwaTwW/9aCcm2AfnNebOdVDv6zZzLK5ju01i02q+TmgkWdect4Q
+         1MfbMEqLlHTK0MRpAJzxFPFA+afdmcX/AJwqtVUbqyEreh7AlbeWPmaOQrCqBVenLr
+         l2AmsMy4OpC/QpAVPG83iNUhBHwdtxD7KmKn9aW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Marchevsky <davemarchevsky@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.10 051/188] bpf: Refcount task stack in bpf_get_task_stack
-Date:   Mon, 12 Apr 2021 10:39:25 +0200
-Message-Id: <20210412084015.337467830@linuxfoundation.org>
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+        Lorenz Bauer <lmb@cloudflare.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.10 052/188] bpf, sockmap: Fix sk->prot unhash op reset
+Date:   Mon, 12 Apr 2021 10:39:26 +0200
+Message-Id: <20210412084015.375217149@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -40,75 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Marchevsky <davemarchevsky@fb.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-commit 06ab134ce8ecfa5a69e850f88f81c8a4c3fa91df upstream.
+commit 1c84b33101c82683dee8b06761ca1f69e78c8ee7 upstream.
 
-On x86 the struct pt_regs * grabbed by task_pt_regs() points to an
-offset of task->stack. The pt_regs are later dereferenced in
-__bpf_get_stack (e.g. by user_mode() check). This can cause a fault if
-the task in question exits while bpf_get_task_stack is executing, as
-warned by task_stack_page's comment:
+In '4da6a196f93b1' we fixed a potential unhash loop caused when
+a TLS socket in a sockmap was removed from the sockmap. This
+happened because the unhash operation on the TLS ctx continued
+to point at the sockmap implementation of unhash even though the
+psock has already been removed. The sockmap unhash handler when a
+psock is removed does the following,
 
-* When accessing the stack of a non-current task that might exit, use
-* try_get_task_stack() instead.  task_stack_page will return a pointer
-* that could get freed out from under you.
+ void sock_map_unhash(struct sock *sk)
+ {
+	void (*saved_unhash)(struct sock *sk);
+	struct sk_psock *psock;
 
-Taking the comment's advice and using try_get_task_stack() and
-put_task_stack() to hold task->stack refcount, or bail early if it's
-already 0. Incrementing stack_refcount will ensure the task's stack
-sticks around while we're using its data.
+	rcu_read_lock();
+	psock = sk_psock(sk);
+	if (unlikely(!psock)) {
+		rcu_read_unlock();
+		if (sk->sk_prot->unhash)
+			sk->sk_prot->unhash(sk);
+		return;
+	}
+        [...]
+ }
 
-I noticed this bug while testing a bpf task iter similar to
-bpf_iter_task_stack in selftests, except mine grabbed user stack, and
-getting intermittent crashes, which resulted in dumps like:
+The unlikely() case is there to handle the case where psock is detached
+but the proto ops have not been updated yet. But, in the above case
+with TLS and removed psock we never fixed sk_prot->unhash() and unhash()
+points back to sock_map_unhash resulting in a loop. To fix this we added
+this bit of code,
 
-  BUG: unable to handle page fault for address: 0000000000003fe0
-  \#PF: supervisor read access in kernel mode
-  \#PF: error_code(0x0000) - not-present page
-  RIP: 0010:__bpf_get_stack+0xd0/0x230
-  <snip...>
-  Call Trace:
-  bpf_prog_0a2be35c092cb190_get_task_stacks+0x5d/0x3ec
-  bpf_iter_run_prog+0x24/0x81
-  __task_seq_show+0x58/0x80
-  bpf_seq_read+0xf7/0x3d0
-  vfs_read+0x91/0x140
-  ksys_read+0x59/0xd0
-  do_syscall_64+0x48/0x120
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ static inline void sk_psock_restore_proto(struct sock *sk,
+                                          struct sk_psock *psock)
+ {
+       sk->sk_prot->unhash = psock->saved_unhash;
 
-Fixes: fa28dcb82a38 ("bpf: Introduce helper bpf_get_task_stack()")
-Signed-off-by: Dave Marchevsky <davemarchevsky@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20210401000747.3648767-1-davemarchevsky@fb.com
+This will set the sk_prot->unhash back to its saved value. This is the
+correct callback for a TLS socket that has been removed from the sock_map.
+Unfortunately, this also overwrites the unhash pointer for all psocks.
+We effectively break sockmap unhash handling for any future socks.
+Omitting the unhash operation will leave stale entries in the map if
+a socket transition through unhash, but does not do close() op.
+
+To fix set unhash correctly before calling into tls_update. This way the
+TLS enabled socket will point to the saved unhash() handler.
+
+Fixes: 4da6a196f93b1 ("bpf: Sockmap/tls, during free we may call tcp_bpf_unhash() in loop")
+Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reported-by: Lorenz Bauer <lmb@cloudflare.com>
+Suggested-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/161731441904.68884.15593917809745631972.stgit@john-XPS-13-9370
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/stackmap.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ include/linux/skmsg.h |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -662,9 +662,17 @@ const struct bpf_func_proto bpf_get_stac
- BPF_CALL_4(bpf_get_task_stack, struct task_struct *, task, void *, buf,
- 	   u32, size, u64, flags)
+--- a/include/linux/skmsg.h
++++ b/include/linux/skmsg.h
+@@ -349,8 +349,13 @@ static inline void sk_psock_update_proto
+ static inline void sk_psock_restore_proto(struct sock *sk,
+ 					  struct sk_psock *psock)
  {
--	struct pt_regs *regs = task_pt_regs(task);
-+	struct pt_regs *regs;
-+	long res;
- 
--	return __bpf_get_stack(regs, task, NULL, buf, size, flags);
-+	if (!try_get_task_stack(task))
-+		return -EFAULT;
-+
-+	regs = task_pt_regs(task);
-+	res = __bpf_get_stack(regs, task, NULL, buf, size, flags);
-+	put_task_stack(task);
-+
-+	return res;
- }
- 
- BTF_ID_LIST_SINGLE(bpf_get_task_stack_btf_ids, struct, task_struct)
+-	sk->sk_prot->unhash = psock->saved_unhash;
+ 	if (inet_csk_has_ulp(sk)) {
++		/* TLS does not have an unhash proto in SW cases, but we need
++		 * to ensure we stop using the sock_map unhash routine because
++		 * the associated psock is being removed. So use the original
++		 * unhash handler.
++		 */
++		WRITE_ONCE(sk->sk_prot->unhash, psock->saved_unhash);
+ 		tcp_update_ulp(sk, psock->sk_proto, psock->saved_write_space);
+ 	} else {
+ 		sk->sk_write_space = psock->saved_write_space;
 
 
