@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E49B435CB3A
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07CD535CB3C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243543AbhDLQX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:23:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55630 "EHLO mail.kernel.org"
+        id S243558AbhDLQX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243470AbhDLQXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:23:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3691611AD;
-        Mon, 12 Apr 2021 16:23:25 +0000 (UTC)
+        id S243474AbhDLQXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19E3061241;
+        Mon, 12 Apr 2021 16:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244606;
-        bh=hlkyVzL2RHmtnkXH13UHYU9pzLCvo9kPx9lFfTkFKTU=;
+        s=k20201202; t=1618244608;
+        bh=LT19Tsj7rRQqwqIRqGo+4VMJMhxCyuV1B6R8L5c5T+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpRMdT9gvHdm7q4HM7xO9HLMG3xbpzy9agh8bPYmJDXrWxD1L6aOLEkK0UyokJqIR
-         iJf0w/yzUB0SUPJ3enPrz0RblRBenjOVkC3L9L5DTxhj+isZ6MjEZ2iyYlITWGxE3a
-         CyfLpHoiXKAMZO9x4wyGVtfgD7zpFsajAq/UvAo7jOPYSPG6PQUXMa2xyqCh5tlext
-         +JCUNycs3JevxpEFfqjwAKss/ydEUaxRHGWuBuLy657UX7UhumGdjHqaWBEi3u5okY
-         e5vUIZJZ0Fm5tQVM/WF4GrpSKd9fZ/FaUD4pksUhCOpE54S4m2hjZvGXQxtajKkYe/
-         wmAIkc5AWk4fw==
+        b=JMGY+XhIM1TwNGVEVIjvRP1qc/fWrk9DB64BEy01y+IcfkUok5FsZBTnQXjrbTTf5
+         FPFow012kJijFSvtv0fviyMGoLp9If/Bc0tXhIosIWOjr3KxIpyoxCPv5NH0azv2ah
+         q8m64k8TxsXBJz024qjbHwxfGb7qk2QDYWGG4EDsejAFcuKonGos1Z5FL1qhvr9vIQ
+         je3koTv5kO0mrEJfAFI1RUKz3qcq3YoIwts1Q+wIFNDnN/SJ0ChZXgq3zYVYBtoABS
+         xnZswOT4YHVkt04abg0efSQQLZfb/SmNYY8HqohPxQ0mLRAcTcIpmG1QwMM3j1Zle3
+         HEZ4PRvQockgg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Jordan Crouse <jordan@cosmicpenguin.net>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 24/51] drm/msm: Fix a5xx/a6xx timestamps
-Date:   Mon, 12 Apr 2021 12:22:29 -0400
-Message-Id: <20210412162256.313524-24-sashal@kernel.org>
+Cc:     Alexander Shiyan <shc_work@mail.ru>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.11 25/51] ASoC: fsl_esai: Fix TDM slot setup for I2S mode
+Date:   Mon, 12 Apr 2021 12:22:30 -0400
+Message-Id: <20210412162256.313524-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162256.313524-1-sashal@kernel.org>
 References: <20210412162256.313524-1-sashal@kernel.org>
@@ -43,54 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Alexander Shiyan <shc_work@mail.ru>
 
-[ Upstream commit 9fbd3088351b92e8c2cef6e37a39decb12a8d5bb ]
+[ Upstream commit e7a48c710defa0e0fef54d42b7d9e4ab596e2761 ]
 
-They were reading a counter that was configured to ALWAYS_COUNT (ie.
-cycles that the GPU is doing something) rather than ALWAYS_ON.  This
-isn't the thing that userspace is looking for.
+When using the driver in I2S TDM mode, the fsl_esai_startup()
+function rewrites the number of slots previously set by the
+fsl_esai_set_dai_tdm_slot() function to 2.
+To fix this, let's use the saved slot count value or, if TDM
+is not used and the number of slots is not set, the driver will use
+the default value (2), which is set by fsl_esai_probe().
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Acked-by: Jordan Crouse <jordan@cosmicpenguin.net>
-Message-Id: <20210325012358.1759770-2-robdclark@gmail.com>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/20210402081405.9892-1-shc_work@mail.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 4 ++--
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/fsl/fsl_esai.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index 81506d2539b0..15898b9b9ce9 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -1239,8 +1239,8 @@ static int a5xx_pm_suspend(struct msm_gpu *gpu)
+diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
+index 39637ca78cdb..9f5f217a9607 100644
+--- a/sound/soc/fsl/fsl_esai.c
++++ b/sound/soc/fsl/fsl_esai.c
+@@ -524,11 +524,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
+ 				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
+ 				   ESAI_SAICR_SYNC : 0);
  
- static int a5xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
- {
--	*value = gpu_read64(gpu, REG_A5XX_RBBM_PERFCTR_CP_0_LO,
--		REG_A5XX_RBBM_PERFCTR_CP_0_HI);
-+	*value = gpu_read64(gpu, REG_A5XX_RBBM_ALWAYSON_COUNTER_LO,
-+		REG_A5XX_RBBM_ALWAYSON_COUNTER_HI);
+-		/* Set a default slot number -- 2 */
++		/* Set slots count */
+ 		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCCR,
+-				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
++				   ESAI_xCCR_xDC_MASK,
++				   ESAI_xCCR_xDC(esai_priv->slots));
+ 		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCCR,
+-				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
++				   ESAI_xCCR_xDC_MASK,
++				   ESAI_xCCR_xDC(esai_priv->slots));
+ 	}
  
  	return 0;
- }
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index e7a8442b59af..7368dfb40d5f 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1227,8 +1227,8 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
- 	/* Force the GPU power on so we can read this register */
- 	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
- 
--	*value = gpu_read64(gpu, REG_A6XX_RBBM_PERFCTR_CP_0_LO,
--		REG_A6XX_RBBM_PERFCTR_CP_0_HI);
-+	*value = gpu_read64(gpu, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
-+		REG_A6XX_CP_ALWAYS_ON_COUNTER_HI);
- 
- 	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
- 	mutex_unlock(&perfcounter_oob);
 -- 
 2.30.2
 
