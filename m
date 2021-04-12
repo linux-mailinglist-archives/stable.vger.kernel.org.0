@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 752DE35BD13
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C89135BE34
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238042AbhDLIrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38340 "EHLO mail.kernel.org"
+        id S238333AbhDLI5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237931AbhDLIqf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:46:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9097A61249;
-        Mon, 12 Apr 2021 08:46:16 +0000 (UTC)
+        id S238977AbhDLIzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 913296109E;
+        Mon, 12 Apr 2021 08:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217177;
-        bh=PdRofA4xbs04jCkKVLwbmMnho9haWm1MiYUZlij7kTE=;
+        s=korg; t=1618217655;
+        bh=CvVmPVqnJ+w81agaM2fusPVb/ES3z8QArRvyRl+rS8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohHYyaewAsig77nd236kBqxVUl9aSppZoIFoGN5b6j9eGhpFn4Clg6a446U22ks9Y
-         WoAm77aTp9XMKLRNY7U8SlBQSNu93sPTxRXP+JhA6xRupAvpd9jbNhrahG3pexzqYI
-         ZjkjmY5xORaD4kl00PoDBSoe1P5Ab4ZHTQrZywow=
+        b=g5mvJwdoqy5iZzTU1TU+lxkddvzPgikaEYSS0z1LQpAToO9lD/8T/Pn6QKsUcJ/FM
+         8E5QWhacBtAf6iDHPAe2mfo5yK5Az9c9rg34Z0Z769u0ams0P2cW8ESLSLVOwZMsKI
+         gCuugQvQkf9bv4tGPGFns4a2g9t+a/xPcw/3zIV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 031/111] net: sched: sch_teql: fix null-pointer dereference
+        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 095/188] xfrm: Use actual socket sk instead of skb socket for xfrm_output_resume
 Date:   Mon, 12 Apr 2021 10:40:09 +0200
-Message-Id: <20210412084005.276052014@linuxfoundation.org>
+Message-Id: <20210412084016.806638854@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +41,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
 
-commit 1ffbc7ea91606e4abd10eb60de5367f1c86daf5e upstream.
+[ Upstream commit 9ab1265d52314fce1b51e8665ea6dbc9ac1a027c ]
 
-Reproduce:
+A situation can occur where the interface bound to the sk is different
+to the interface bound to the sk attached to the skb. The interface
+bound to the sk is the correct one however this information is lost inside
+xfrm_output2 and instead the sk on the skb is used in xfrm_output_resume
+instead. This assumes that the sk bound interface and the bound interface
+attached to the sk within the skb are the same which can lead to lookup
+failures inside ip_route_me_harder resulting in the packet being dropped.
 
-  modprobe sch_teql
-  tc qdisc add dev teql0 root teql0
+We have an l2tp v3 tunnel with ipsec protection. The tunnel is in the
+global VRF however we have an encapsulated dot1q tunnel interface that
+is within a different VRF. We also have a mangle rule that marks the
+packets causing them to be processed inside ip_route_me_harder.
 
-This leads to (for instance in Centos 7 VM) OOPS:
+Prior to commit 31c70d5956fc ("l2tp: keep original skb ownership") this
+worked fine as the sk attached to the skb was changed from the dot1q
+encapsulated interface to the sk for the tunnel which meant the interface
+bound to the sk and the interface bound to the skb were identical.
+Commit 46d6c5ae953c ("netfilter: use actual socket sk rather than skb sk
+when routing harder") fixed some of these issues however a similar
+problem existed in the xfrm code.
 
-[  532.366633] BUG: unable to handle kernel NULL pointer dereference at 00000000000000a8
-[  532.366733] IP: [<ffffffffc06124a8>] teql_destroy+0x18/0x100 [sch_teql]
-[  532.366825] PGD 80000001376d5067 PUD 137e37067 PMD 0
-[  532.366906] Oops: 0000 [#1] SMP
-[  532.366987] Modules linked in: sch_teql ...
-[  532.367945] CPU: 1 PID: 3026 Comm: tc Kdump: loaded Tainted: G               ------------ T 3.10.0-1062.7.1.el7.x86_64 #1
-[  532.368041] Hardware name: Virtuozzo KVM, BIOS 1.11.0-2.vz7.2 04/01/2014
-[  532.368125] task: ffff8b7d37d31070 ti: ffff8b7c9fdbc000 task.ti: ffff8b7c9fdbc000
-[  532.368224] RIP: 0010:[<ffffffffc06124a8>]  [<ffffffffc06124a8>] teql_destroy+0x18/0x100 [sch_teql]
-[  532.368320] RSP: 0018:ffff8b7c9fdbf8e0  EFLAGS: 00010286
-[  532.368394] RAX: ffffffffc0612490 RBX: ffff8b7cb1565e00 RCX: ffff8b7d35ba2000
-[  532.368476] RDX: ffff8b7d35ba2000 RSI: 0000000000000000 RDI: ffff8b7cb1565e00
-[  532.368557] RBP: ffff8b7c9fdbf8f8 R08: ffff8b7d3fd1f140 R09: ffff8b7d3b001600
-[  532.368638] R10: ffff8b7d3b001600 R11: ffffffff84c7d65b R12: 00000000ffffffd8
-[  532.368719] R13: 0000000000008000 R14: ffff8b7d35ba2000 R15: ffff8b7c9fdbf9a8
-[  532.368800] FS:  00007f6a4e872740(0000) GS:ffff8b7d3fd00000(0000) knlGS:0000000000000000
-[  532.368885] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  532.368961] CR2: 00000000000000a8 CR3: 00000001396ee000 CR4: 00000000000206e0
-[  532.369046] Call Trace:
-[  532.369159]  [<ffffffff84c8192e>] qdisc_create+0x36e/0x450
-[  532.369268]  [<ffffffff846a9b49>] ? ns_capable+0x29/0x50
-[  532.369366]  [<ffffffff849afde2>] ? nla_parse+0x32/0x120
-[  532.369442]  [<ffffffff84c81b4c>] tc_modify_qdisc+0x13c/0x610
-[  532.371508]  [<ffffffff84c693e7>] rtnetlink_rcv_msg+0xa7/0x260
-[  532.372668]  [<ffffffff84907b65>] ? sock_has_perm+0x75/0x90
-[  532.373790]  [<ffffffff84c69340>] ? rtnl_newlink+0x890/0x890
-[  532.374914]  [<ffffffff84c8da7b>] netlink_rcv_skb+0xab/0xc0
-[  532.376055]  [<ffffffff84c63708>] rtnetlink_rcv+0x28/0x30
-[  532.377204]  [<ffffffff84c8d400>] netlink_unicast+0x170/0x210
-[  532.378333]  [<ffffffff84c8d7a8>] netlink_sendmsg+0x308/0x420
-[  532.379465]  [<ffffffff84c2f3a6>] sock_sendmsg+0xb6/0xf0
-[  532.380710]  [<ffffffffc034a56e>] ? __xfs_filemap_fault+0x8e/0x1d0 [xfs]
-[  532.381868]  [<ffffffffc034a75c>] ? xfs_filemap_fault+0x2c/0x30 [xfs]
-[  532.383037]  [<ffffffff847ec23a>] ? __do_fault.isra.61+0x8a/0x100
-[  532.384144]  [<ffffffff84c30269>] ___sys_sendmsg+0x3e9/0x400
-[  532.385268]  [<ffffffff847f3fad>] ? handle_mm_fault+0x39d/0x9b0
-[  532.386387]  [<ffffffff84d88678>] ? __do_page_fault+0x238/0x500
-[  532.387472]  [<ffffffff84c31921>] __sys_sendmsg+0x51/0x90
-[  532.388560]  [<ffffffff84c31972>] SyS_sendmsg+0x12/0x20
-[  532.389636]  [<ffffffff84d8dede>] system_call_fastpath+0x25/0x2a
-[  532.390704]  [<ffffffff84d8de21>] ? system_call_after_swapgs+0xae/0x146
-[  532.391753] Code: 00 00 00 00 00 00 5b 5d c3 66 2e 0f 1f 84 00 00 00 00 00 66 66 66 66 90 55 48 89 e5 41 55 41 54 53 48 8b b7 48 01 00 00 48 89 fb <48> 8b 8e a8 00 00 00 48 85 c9 74 43 48 89 ca eb 0f 0f 1f 80 00
-[  532.394036] RIP  [<ffffffffc06124a8>] teql_destroy+0x18/0x100 [sch_teql]
-[  532.395127]  RSP <ffff8b7c9fdbf8e0>
-[  532.396179] CR2: 00000000000000a8
-
-Null pointer dereference happens on master->slaves dereference in
-teql_destroy() as master is null-pointer.
-
-When qdisc_create() calls teql_qdisc_init() it imediately fails after
-check "if (m->dev == dev)" because both devices are teql0, and it does
-not set qdisc_priv(sch)->m leaving it zero on error path, then
-qdisc_create() imediately calls teql_destroy() which does not expect
-zero master pointer and we get OOPS.
-
-Fixes: 87b60cfacf9f ("net_sched: fix error recovery at qdisc creation")
-Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 31c70d5956fc ("l2tp: keep original skb ownership")
+Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_teql.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/net/xfrm.h     |  2 +-
+ net/ipv4/ah4.c         |  2 +-
+ net/ipv4/esp4.c        |  2 +-
+ net/ipv6/ah6.c         |  2 +-
+ net/ipv6/esp6.c        |  2 +-
+ net/xfrm/xfrm_output.c | 10 +++++-----
+ 6 files changed, 10 insertions(+), 10 deletions(-)
 
---- a/net/sched/sch_teql.c
-+++ b/net/sched/sch_teql.c
-@@ -134,6 +134,9 @@ teql_destroy(struct Qdisc *sch)
- 	struct teql_sched_data *dat = qdisc_priv(sch);
- 	struct teql_master *master = dat->m;
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index b2a06f10b62c..bfbc7810df94 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1557,7 +1557,7 @@ int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
+ int xfrm_trans_queue(struct sk_buff *skb,
+ 		     int (*finish)(struct net *, struct sock *,
+ 				   struct sk_buff *));
+-int xfrm_output_resume(struct sk_buff *skb, int err);
++int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err);
+ int xfrm_output(struct sock *sk, struct sk_buff *skb);
  
-+	if (!master)
-+		return;
-+
- 	prev = master->slaves;
- 	if (prev) {
- 		do {
+ #if IS_ENABLED(CONFIG_NET_PKTGEN)
+diff --git a/net/ipv4/ah4.c b/net/ipv4/ah4.c
+index d99e1be94019..36ed85bf2ad5 100644
+--- a/net/ipv4/ah4.c
++++ b/net/ipv4/ah4.c
+@@ -141,7 +141,7 @@ static void ah_output_done(struct crypto_async_request *base, int err)
+ 	}
+ 
+ 	kfree(AH_SKB_CB(skb)->tmp);
+-	xfrm_output_resume(skb, err);
++	xfrm_output_resume(skb->sk, skb, err);
+ }
+ 
+ static int ah_output(struct xfrm_state *x, struct sk_buff *skb)
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index a3271ec3e162..4b834bbf95e0 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -279,7 +279,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
+ 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
+ 			esp_output_tail_tcp(x, skb);
+ 		else
+-			xfrm_output_resume(skb, err);
++			xfrm_output_resume(skb->sk, skb, err);
+ 	}
+ }
+ 
+diff --git a/net/ipv6/ah6.c b/net/ipv6/ah6.c
+index 440080da805b..080ee7f44c64 100644
+--- a/net/ipv6/ah6.c
++++ b/net/ipv6/ah6.c
+@@ -316,7 +316,7 @@ static void ah6_output_done(struct crypto_async_request *base, int err)
+ 	}
+ 
+ 	kfree(AH_SKB_CB(skb)->tmp);
+-	xfrm_output_resume(skb, err);
++	xfrm_output_resume(skb->sk, skb, err);
+ }
+ 
+ static int ah6_output(struct xfrm_state *x, struct sk_buff *skb)
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 2b804fcebcc6..4071cb7c7a15 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -314,7 +314,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
+ 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
+ 			esp_output_tail_tcp(x, skb);
+ 		else
+-			xfrm_output_resume(skb, err);
++			xfrm_output_resume(skb->sk, skb, err);
+ 	}
+ }
+ 
+diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
+index a7ab19353313..b81ca117dac7 100644
+--- a/net/xfrm/xfrm_output.c
++++ b/net/xfrm/xfrm_output.c
+@@ -503,22 +503,22 @@ out:
+ 	return err;
+ }
+ 
+-int xfrm_output_resume(struct sk_buff *skb, int err)
++int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err)
+ {
+ 	struct net *net = xs_net(skb_dst(skb)->xfrm);
+ 
+ 	while (likely((err = xfrm_output_one(skb, err)) == 0)) {
+ 		nf_reset_ct(skb);
+ 
+-		err = skb_dst(skb)->ops->local_out(net, skb->sk, skb);
++		err = skb_dst(skb)->ops->local_out(net, sk, skb);
+ 		if (unlikely(err != 1))
+ 			goto out;
+ 
+ 		if (!skb_dst(skb)->xfrm)
+-			return dst_output(net, skb->sk, skb);
++			return dst_output(net, sk, skb);
+ 
+ 		err = nf_hook(skb_dst(skb)->ops->family,
+-			      NF_INET_POST_ROUTING, net, skb->sk, skb,
++			      NF_INET_POST_ROUTING, net, sk, skb,
+ 			      NULL, skb_dst(skb)->dev, xfrm_output2);
+ 		if (unlikely(err != 1))
+ 			goto out;
+@@ -534,7 +534,7 @@ EXPORT_SYMBOL_GPL(xfrm_output_resume);
+ 
+ static int xfrm_output2(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
+-	return xfrm_output_resume(skb, 1);
++	return xfrm_output_resume(sk, skb, 1);
+ }
+ 
+ static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb)
+-- 
+2.30.2
+
 
 
