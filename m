@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8602835BE1D
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12BB135BE27
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238099AbhDLI5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44892 "EHLO mail.kernel.org"
+        id S238752AbhDLI5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238877AbhDLIzJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D2976136F;
-        Mon, 12 Apr 2021 08:53:28 +0000 (UTC)
+        id S238945AbhDLIzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0D76127B;
+        Mon, 12 Apr 2021 08:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217609;
-        bh=PdRofA4xbs04jCkKVLwbmMnho9haWm1MiYUZlij7kTE=;
+        s=korg; t=1618217637;
+        bh=mVTSLm6qu1qT6FwrbdJeh+pTTxHBk5FJ828ONmAt9eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13cqWGt/tulpXnVmMFA3By1afKqP/i9LK4Bbyo854GDpbqWUbwQXRTcULhPmJB+1w
-         38qijrJ5JoA8cKstaUIqUTDsegjf56I5kDuSR6RIM8tc765VK/Ldm/z7FmTUJLSUqm
-         jrT23+P7rJ+XiBaBp+NJZgdVyzoqHZz5rq07kiDQ=
+        b=YeFqwjs97T5Yc7JDAXp/xcf+sFzRb+EY/RB/4CDUwksyXEpgkmJKf4+e0omyuTnkW
+         bAnGRJG+CU7eEM509CkMtVM3Y86oA+K6eFmauPpNktkdNR2Qn6hla9mrz6k3xE594c
+         dJttgae94CG7befjpKws2KBwaqnuevQIHrAH0vOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Vlad Buslov <vladbu@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 061/188] net: sched: sch_teql: fix null-pointer dereference
-Date:   Mon, 12 Apr 2021 10:39:35 +0200
-Message-Id: <20210412084015.683548498@linuxfoundation.org>
+Subject: [PATCH 5.10 062/188] net: sched: fix action overwrite reference counting
+Date:   Mon, 12 Apr 2021 10:39:36 +0200
+Message-Id: <20210412084015.723670238@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -41,92 +40,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-commit 1ffbc7ea91606e4abd10eb60de5367f1c86daf5e upstream.
+commit 87c750e8c38bce706eb32e4d8f1e3402f2cebbd4 upstream.
 
-Reproduce:
+Action init code increments reference counter when it changes an action.
+This is the desired behavior for cls API which needs to obtain action
+reference for every classifier that points to action. However, act API just
+needs to change the action and releases the reference before returning.
+This sequence breaks when the requested action doesn't exist, which causes
+act API init code to create new action with specified index, but action is
+still released before returning and is deleted (unless it was referenced
+concurrently by cls API).
 
-  modprobe sch_teql
-  tc qdisc add dev teql0 root teql0
+Reproduction:
 
-This leads to (for instance in Centos 7 VM) OOPS:
+$ sudo tc actions ls action gact
+$ sudo tc actions change action gact drop index 1
+$ sudo tc actions ls action gact
 
-[  532.366633] BUG: unable to handle kernel NULL pointer dereference at 00000000000000a8
-[  532.366733] IP: [<ffffffffc06124a8>] teql_destroy+0x18/0x100 [sch_teql]
-[  532.366825] PGD 80000001376d5067 PUD 137e37067 PMD 0
-[  532.366906] Oops: 0000 [#1] SMP
-[  532.366987] Modules linked in: sch_teql ...
-[  532.367945] CPU: 1 PID: 3026 Comm: tc Kdump: loaded Tainted: G               ------------ T 3.10.0-1062.7.1.el7.x86_64 #1
-[  532.368041] Hardware name: Virtuozzo KVM, BIOS 1.11.0-2.vz7.2 04/01/2014
-[  532.368125] task: ffff8b7d37d31070 ti: ffff8b7c9fdbc000 task.ti: ffff8b7c9fdbc000
-[  532.368224] RIP: 0010:[<ffffffffc06124a8>]  [<ffffffffc06124a8>] teql_destroy+0x18/0x100 [sch_teql]
-[  532.368320] RSP: 0018:ffff8b7c9fdbf8e0  EFLAGS: 00010286
-[  532.368394] RAX: ffffffffc0612490 RBX: ffff8b7cb1565e00 RCX: ffff8b7d35ba2000
-[  532.368476] RDX: ffff8b7d35ba2000 RSI: 0000000000000000 RDI: ffff8b7cb1565e00
-[  532.368557] RBP: ffff8b7c9fdbf8f8 R08: ffff8b7d3fd1f140 R09: ffff8b7d3b001600
-[  532.368638] R10: ffff8b7d3b001600 R11: ffffffff84c7d65b R12: 00000000ffffffd8
-[  532.368719] R13: 0000000000008000 R14: ffff8b7d35ba2000 R15: ffff8b7c9fdbf9a8
-[  532.368800] FS:  00007f6a4e872740(0000) GS:ffff8b7d3fd00000(0000) knlGS:0000000000000000
-[  532.368885] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  532.368961] CR2: 00000000000000a8 CR3: 00000001396ee000 CR4: 00000000000206e0
-[  532.369046] Call Trace:
-[  532.369159]  [<ffffffff84c8192e>] qdisc_create+0x36e/0x450
-[  532.369268]  [<ffffffff846a9b49>] ? ns_capable+0x29/0x50
-[  532.369366]  [<ffffffff849afde2>] ? nla_parse+0x32/0x120
-[  532.369442]  [<ffffffff84c81b4c>] tc_modify_qdisc+0x13c/0x610
-[  532.371508]  [<ffffffff84c693e7>] rtnetlink_rcv_msg+0xa7/0x260
-[  532.372668]  [<ffffffff84907b65>] ? sock_has_perm+0x75/0x90
-[  532.373790]  [<ffffffff84c69340>] ? rtnl_newlink+0x890/0x890
-[  532.374914]  [<ffffffff84c8da7b>] netlink_rcv_skb+0xab/0xc0
-[  532.376055]  [<ffffffff84c63708>] rtnetlink_rcv+0x28/0x30
-[  532.377204]  [<ffffffff84c8d400>] netlink_unicast+0x170/0x210
-[  532.378333]  [<ffffffff84c8d7a8>] netlink_sendmsg+0x308/0x420
-[  532.379465]  [<ffffffff84c2f3a6>] sock_sendmsg+0xb6/0xf0
-[  532.380710]  [<ffffffffc034a56e>] ? __xfs_filemap_fault+0x8e/0x1d0 [xfs]
-[  532.381868]  [<ffffffffc034a75c>] ? xfs_filemap_fault+0x2c/0x30 [xfs]
-[  532.383037]  [<ffffffff847ec23a>] ? __do_fault.isra.61+0x8a/0x100
-[  532.384144]  [<ffffffff84c30269>] ___sys_sendmsg+0x3e9/0x400
-[  532.385268]  [<ffffffff847f3fad>] ? handle_mm_fault+0x39d/0x9b0
-[  532.386387]  [<ffffffff84d88678>] ? __do_page_fault+0x238/0x500
-[  532.387472]  [<ffffffff84c31921>] __sys_sendmsg+0x51/0x90
-[  532.388560]  [<ffffffff84c31972>] SyS_sendmsg+0x12/0x20
-[  532.389636]  [<ffffffff84d8dede>] system_call_fastpath+0x25/0x2a
-[  532.390704]  [<ffffffff84d8de21>] ? system_call_after_swapgs+0xae/0x146
-[  532.391753] Code: 00 00 00 00 00 00 5b 5d c3 66 2e 0f 1f 84 00 00 00 00 00 66 66 66 66 90 55 48 89 e5 41 55 41 54 53 48 8b b7 48 01 00 00 48 89 fb <48> 8b 8e a8 00 00 00 48 85 c9 74 43 48 89 ca eb 0f 0f 1f 80 00
-[  532.394036] RIP  [<ffffffffc06124a8>] teql_destroy+0x18/0x100 [sch_teql]
-[  532.395127]  RSP <ffff8b7c9fdbf8e0>
-[  532.396179] CR2: 00000000000000a8
+Extend tcf_action_init() to accept 'init_res' array and initialize it with
+action->ops->init() result. In tcf_action_add() remove pointers to created
+actions from actions array before passing it to tcf_action_put_many().
 
-Null pointer dereference happens on master->slaves dereference in
-teql_destroy() as master is null-pointer.
-
-When qdisc_create() calls teql_qdisc_init() it imediately fails after
-check "if (m->dev == dev)" because both devices are teql0, and it does
-not set qdisc_priv(sch)->m leaving it zero on error path, then
-qdisc_create() imediately calls teql_destroy() which does not expect
-zero master pointer and we get OOPS.
-
-Fixes: 87b60cfacf9f ("net_sched: fix error recovery at qdisc creation")
-Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Fixes: cae422f379f3 ("net: sched: use reference counting action init")
+Reported-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_teql.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/net/act_api.h |    5 +++--
+ net/sched/act_api.c   |   22 +++++++++++++++-------
+ net/sched/cls_api.c   |    9 +++++----
+ 3 files changed, 23 insertions(+), 13 deletions(-)
 
---- a/net/sched/sch_teql.c
-+++ b/net/sched/sch_teql.c
-@@ -134,6 +134,9 @@ teql_destroy(struct Qdisc *sch)
- 	struct teql_sched_data *dat = qdisc_priv(sch);
- 	struct teql_master *master = dat->m;
+--- a/include/net/act_api.h
++++ b/include/net/act_api.h
+@@ -185,7 +185,7 @@ int tcf_action_exec(struct sk_buff *skb,
+ 		    int nr_actions, struct tcf_result *res);
+ int tcf_action_init(struct net *net, struct tcf_proto *tp, struct nlattr *nla,
+ 		    struct nlattr *est, char *name, int ovr, int bind,
+-		    struct tc_action *actions[], size_t *attr_size,
++		    struct tc_action *actions[], int init_res[], size_t *attr_size,
+ 		    bool rtnl_held, struct netlink_ext_ack *extack);
+ struct tc_action_ops *tc_action_load_ops(char *name, struct nlattr *nla,
+ 					 bool rtnl_held,
+@@ -193,7 +193,8 @@ struct tc_action_ops *tc_action_load_ops
+ struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
+ 				    struct nlattr *nla, struct nlattr *est,
+ 				    char *name, int ovr, int bind,
+-				    struct tc_action_ops *ops, bool rtnl_held,
++				    struct tc_action_ops *a_o, int *init_res,
++				    bool rtnl_held,
+ 				    struct netlink_ext_ack *extack);
+ int tcf_action_dump(struct sk_buff *skb, struct tc_action *actions[], int bind,
+ 		    int ref, bool terse);
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -972,7 +972,8 @@ struct tc_action_ops *tc_action_load_ops
+ struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
+ 				    struct nlattr *nla, struct nlattr *est,
+ 				    char *name, int ovr, int bind,
+-				    struct tc_action_ops *a_o, bool rtnl_held,
++				    struct tc_action_ops *a_o, int *init_res,
++				    bool rtnl_held,
+ 				    struct netlink_ext_ack *extack)
+ {
+ 	struct nla_bitfield32 flags = { 0, 0 };
+@@ -1008,6 +1009,7 @@ struct tc_action *tcf_action_init_1(stru
+ 	}
+ 	if (err < 0)
+ 		goto err_out;
++	*init_res = err;
  
-+	if (!master)
-+		return;
+ 	if (!name && tb[TCA_ACT_COOKIE])
+ 		tcf_set_action_cookie(&a->act_cookie, cookie);
+@@ -1036,7 +1038,7 @@ err_out:
+ 
+ int tcf_action_init(struct net *net, struct tcf_proto *tp, struct nlattr *nla,
+ 		    struct nlattr *est, char *name, int ovr, int bind,
+-		    struct tc_action *actions[], size_t *attr_size,
++		    struct tc_action *actions[], int init_res[], size_t *attr_size,
+ 		    bool rtnl_held, struct netlink_ext_ack *extack)
+ {
+ 	struct tc_action_ops *ops[TCA_ACT_MAX_PRIO] = {};
+@@ -1064,7 +1066,8 @@ int tcf_action_init(struct net *net, str
+ 
+ 	for (i = 1; i <= TCA_ACT_MAX_PRIO && tb[i]; i++) {
+ 		act = tcf_action_init_1(net, tp, tb[i], est, name, ovr, bind,
+-					ops[i - 1], rtnl_held, extack);
++					ops[i - 1], &init_res[i - 1], rtnl_held,
++					extack);
+ 		if (IS_ERR(act)) {
+ 			err = PTR_ERR(act);
+ 			goto err;
+@@ -1477,12 +1480,13 @@ static int tcf_action_add(struct net *ne
+ 			  struct netlink_ext_ack *extack)
+ {
+ 	size_t attr_size = 0;
+-	int loop, ret;
++	int loop, ret, i;
+ 	struct tc_action *actions[TCA_ACT_MAX_PRIO] = {};
++	int init_res[TCA_ACT_MAX_PRIO] = {};
+ 
+ 	for (loop = 0; loop < 10; loop++) {
+ 		ret = tcf_action_init(net, NULL, nla, NULL, NULL, ovr, 0,
+-				      actions, &attr_size, true, extack);
++				      actions, init_res, &attr_size, true, extack);
+ 		if (ret != -EAGAIN)
+ 			break;
+ 	}
+@@ -1490,8 +1494,12 @@ static int tcf_action_add(struct net *ne
+ 	if (ret < 0)
+ 		return ret;
+ 	ret = tcf_add_notify(net, n, actions, portid, attr_size, extack);
+-	if (ovr)
+-		tcf_action_put_many(actions);
 +
- 	prev = master->slaves;
- 	if (prev) {
- 		do {
++	/* only put existing actions */
++	for (i = 0; i < TCA_ACT_MAX_PRIO; i++)
++		if (init_res[i] == ACT_P_CREATED)
++			actions[i] = NULL;
++	tcf_action_put_many(actions);
+ 
+ 	return ret;
+ }
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -3051,6 +3051,7 @@ int tcf_exts_validate(struct net *net, s
+ {
+ #ifdef CONFIG_NET_CLS_ACT
+ 	{
++		int init_res[TCA_ACT_MAX_PRIO] = {};
+ 		struct tc_action *act;
+ 		size_t attr_size = 0;
+ 
+@@ -3062,8 +3063,8 @@ int tcf_exts_validate(struct net *net, s
+ 				return PTR_ERR(a_o);
+ 			act = tcf_action_init_1(net, tp, tb[exts->police],
+ 						rate_tlv, "police", ovr,
+-						TCA_ACT_BIND, a_o, rtnl_held,
+-						extack);
++						TCA_ACT_BIND, a_o, init_res,
++						rtnl_held, extack);
+ 			if (IS_ERR(act)) {
+ 				module_put(a_o->owner);
+ 				return PTR_ERR(act);
+@@ -3078,8 +3079,8 @@ int tcf_exts_validate(struct net *net, s
+ 
+ 			err = tcf_action_init(net, tp, tb[exts->action],
+ 					      rate_tlv, NULL, ovr, TCA_ACT_BIND,
+-					      exts->actions, &attr_size,
+-					      rtnl_held, extack);
++					      exts->actions, init_res,
++					      &attr_size, rtnl_held, extack);
+ 			if (err < 0)
+ 				return err;
+ 			exts->nr_actions = err;
 
 
