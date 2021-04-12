@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F36EC35BD65
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D034435BCA6
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237997AbhDLIvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
+        id S237561AbhDLIoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:44:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238221AbhDLItL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31676611F0;
-        Mon, 12 Apr 2021 08:48:12 +0000 (UTC)
+        id S237582AbhDLIoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:44:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C303761220;
+        Mon, 12 Apr 2021 08:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217292;
-        bh=L4gsoKHDn0DJ3SkURN/gpJ9xRVCzSx/hetyA+zH0/wQ=;
+        s=korg; t=1618217032;
+        bh=VOdPJL46jqFFcSCbPMyh1c978qeo/AG6AEolp7ePXEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8SNJlxRRSai4DTlmjQz3AibcMC1AZ4PipMpEI/flOtxvvKYIOERuTjcbWLt+K1Uf
-         Fi39Y43rgLIRbwVblxatLftgZJAMUQcZ8QXvThONZu1XjidtH5LYioOueH/PtO1Nt7
-         wC9o8mEXAFUo6C05t4EPHy84c5O72Gd7hrdCK7LU=
+        b=E7PcwDsV1weuMXhZAegHBSPjMqsbc6m+Astp2uG6CvRiyy9M0Gl5StR8s10IHHcSp
+         AWhekh0AyOSGF54O4CPRehEeVN+5lAgDfRrCe2rvby2NMmugUi8Ch8hqxjXenHG9kN
+         feowop20kDj3NNZP5LZTIWWguS8qifEZmCr0YDnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
+        Lukasz Bartosik <lb@semihalf.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/111] i40e: Fix display statistics for veb_tc
+Subject: [PATCH 4.19 45/66] clk: fix invalid usage of list cursor in unregister
 Date:   Mon, 12 Apr 2021 10:40:51 +0200
-Message-Id: <20210412084006.700412183@linuxfoundation.org>
+Message-Id: <20210412083959.574106863@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,113 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Lukasz Bartosik <lb@semihalf.com>
 
-[ Upstream commit c3214de929dbf1b7374add8bbed30ce82b197bbb ]
+[ Upstream commit 7045465500e465b09f09d6e5bdc260a9f1aab97b ]
 
-If veb-stats was enabled, the ethtool stats triggered a warning
-due to invalid size: 'unexpected stat size for veb.tc_%u_tx_packets'.
-This was due to an incorrect structure definition for the statistics.
-Structures and functions have been improved in line with requirements
-for the presentation of statistics, in particular for the functions:
-'i40e_add_ethtool_stats' and 'i40e_add_stat_strings'.
+Fix invalid usage of a list_for_each_entry cursor in
+clk_notifier_unregister(). When list is empty or if the list
+is completely traversed (without breaking from the loop on one
+of the entries) then the list cursor does not point to a valid
+entry and therefore should not be used. The patch fixes a logical
+bug that hasn't been seen in pratice however it is analogus
+to the bug fixed in clk_notifier_register().
 
-Fixes: 1510ae0be2a4 ("i40e: convert VEB TC stats to use an i40e_stats array")
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+The issue was dicovered when running 5.12-rc1 kernel on x86_64
+with KASAN enabled:
+BUG: KASAN: global-out-of-bounds in clk_notifier_register+0xab/0x230
+Read of size 8 at addr ffffffffa0d10588 by task swapper/0/1
+
+CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc1 #1
+Hardware name: Google Caroline/Caroline,
+BIOS Google_Caroline.7820.430.0 07/20/2018
+Call Trace:
+ dump_stack+0xee/0x15c
+ print_address_description+0x1e/0x2dc
+ kasan_report+0x188/0x1ce
+ ? clk_notifier_register+0xab/0x230
+ ? clk_prepare_lock+0x15/0x7b
+ ? clk_notifier_register+0xab/0x230
+ clk_notifier_register+0xab/0x230
+ dw8250_probe+0xc01/0x10d4
+ ...
+ Memory state around the buggy address:
+  ffffffffa0d10480: 00 00 00 00 00 03 f9 f9 f9 f9 f9 f9 00 00 00 00
+  ffffffffa0d10500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9
+ >ffffffffa0d10580: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00
+                          ^
+  ffffffffa0d10600: 00 00 00 00 00 00 f9 f9 f9 f9 f9 f9 00 00 00 00
+  ffffffffa0d10680: 00 00 00 00 00 00 00 00 f9 f9 f9 f9 00 00 00 00
+  ==================================================================
+
+Fixes: b2476490ef11 ("clk: introduce the common clock framework")
+Reported-by: Lukasz Majczak <lma@semihalf.com>
+Signed-off-by: Lukasz Bartosik <lb@semihalf.com>
+Link: https://lore.kernel.org/r/20210401225149.18826-2-lb@semihalf.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 52 ++++++++++++++++---
- 1 file changed, 46 insertions(+), 6 deletions(-)
+ drivers/clk/clk.c | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 20562ffd1ab3..b519e5af5ed9 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -232,6 +232,8 @@ static void __i40e_add_stat_strings(u8 **p, const struct i40e_stats stats[],
- 	I40E_STAT(struct i40e_vsi, _name, _stat)
- #define I40E_VEB_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_veb, _name, _stat)
-+#define I40E_VEB_TC_STAT(_name, _stat) \
-+	I40E_STAT(struct i40e_cp_veb_tc_stats, _name, _stat)
- #define I40E_PFC_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_pfc_stats, _name, _stat)
- #define I40E_QUEUE_STAT(_name, _stat) \
-@@ -266,11 +268,18 @@ static const struct i40e_stats i40e_gstrings_veb_stats[] = {
- 	I40E_VEB_STAT("veb.rx_unknown_protocol", stats.rx_unknown_protocol),
- };
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 7bb1c6185f20..3806fd8fef0b 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3665,32 +3665,28 @@ EXPORT_SYMBOL_GPL(clk_notifier_register);
+  */
+ int clk_notifier_unregister(struct clk *clk, struct notifier_block *nb)
+ {
+-	struct clk_notifier *cn = NULL;
+-	int ret = -EINVAL;
++	struct clk_notifier *cn;
++	int ret = -ENOENT;
  
-+struct i40e_cp_veb_tc_stats {
-+	u64 tc_rx_packets;
-+	u64 tc_rx_bytes;
-+	u64 tc_tx_packets;
-+	u64 tc_tx_bytes;
-+};
-+
- static const struct i40e_stats i40e_gstrings_veb_tc_stats[] = {
--	I40E_VEB_STAT("veb.tc_%u_tx_packets", tc_stats.tc_tx_packets),
--	I40E_VEB_STAT("veb.tc_%u_tx_bytes", tc_stats.tc_tx_bytes),
--	I40E_VEB_STAT("veb.tc_%u_rx_packets", tc_stats.tc_rx_packets),
--	I40E_VEB_STAT("veb.tc_%u_rx_bytes", tc_stats.tc_rx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_packets", tc_tx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_bytes", tc_tx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_packets", tc_rx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_bytes", tc_rx_bytes),
- };
+ 	if (!clk || !nb)
+ 		return -EINVAL;
  
- static const struct i40e_stats i40e_gstrings_misc_stats[] = {
-@@ -2213,6 +2222,29 @@ static int i40e_get_sset_count(struct net_device *netdev, int sset)
+ 	clk_prepare_lock();
+ 
+-	list_for_each_entry(cn, &clk_notifier_list, node)
+-		if (cn->clk == clk)
+-			break;
+-
+-	if (cn->clk == clk) {
+-		ret = srcu_notifier_chain_unregister(&cn->notifier_head, nb);
++	list_for_each_entry(cn, &clk_notifier_list, node) {
++		if (cn->clk == clk) {
++			ret = srcu_notifier_chain_unregister(&cn->notifier_head, nb);
+ 
+-		clk->core->notifier_count--;
++			clk->core->notifier_count--;
+ 
+-		/* XXX the notifier code should handle this better */
+-		if (!cn->notifier_head.head) {
+-			srcu_cleanup_notifier_head(&cn->notifier_head);
+-			list_del(&cn->node);
+-			kfree(cn);
++			/* XXX the notifier code should handle this better */
++			if (!cn->notifier_head.head) {
++				srcu_cleanup_notifier_head(&cn->notifier_head);
++				list_del(&cn->node);
++				kfree(cn);
++			}
++			break;
+ 		}
+-
+-	} else {
+-		ret = -ENOENT;
  	}
- }
  
-+/**
-+ * i40e_get_veb_tc_stats - copy VEB TC statistics to formatted structure
-+ * @tc: the TC statistics in VEB structure (veb->tc_stats)
-+ * @i: the index of traffic class in (veb->tc_stats) structure to copy
-+ *
-+ * Copy VEB TC statistics from structure of arrays (veb->tc_stats) to
-+ * one dimensional structure i40e_cp_veb_tc_stats.
-+ * Produce formatted i40e_cp_veb_tc_stats structure of the VEB TC
-+ * statistics for the given TC.
-+ **/
-+static struct i40e_cp_veb_tc_stats
-+i40e_get_veb_tc_stats(struct i40e_veb_tc_stats *tc, unsigned int i)
-+{
-+	struct i40e_cp_veb_tc_stats veb_tc = {
-+		.tc_rx_packets = tc->tc_rx_packets[i],
-+		.tc_rx_bytes = tc->tc_rx_bytes[i],
-+		.tc_tx_packets = tc->tc_tx_packets[i],
-+		.tc_tx_bytes = tc->tc_tx_bytes[i],
-+	};
-+
-+	return veb_tc;
-+}
-+
- /**
-  * i40e_get_pfc_stats - copy HW PFC statistics to formatted structure
-  * @pf: the PF device structure
-@@ -2297,8 +2329,16 @@ static void i40e_get_ethtool_stats(struct net_device *netdev,
- 			       i40e_gstrings_veb_stats);
- 
- 	for (i = 0; i < I40E_MAX_TRAFFIC_CLASS; i++)
--		i40e_add_ethtool_stats(&data, veb_stats ? veb : NULL,
--				       i40e_gstrings_veb_tc_stats);
-+		if (veb_stats) {
-+			struct i40e_cp_veb_tc_stats veb_tc =
-+				i40e_get_veb_tc_stats(&veb->tc_stats, i);
-+
-+			i40e_add_ethtool_stats(&data, &veb_tc,
-+					       i40e_gstrings_veb_tc_stats);
-+		} else {
-+			i40e_add_ethtool_stats(&data, NULL,
-+					       i40e_gstrings_veb_tc_stats);
-+		}
- 
- 	i40e_add_ethtool_stats(&data, pf, i40e_gstrings_stats);
- 
+ 	clk_prepare_unlock();
 -- 
 2.30.2
 
