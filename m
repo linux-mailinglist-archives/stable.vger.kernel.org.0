@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C4D35BE41
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9293435BD3B
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238186AbhDLI5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47810 "EHLO mail.kernel.org"
+        id S238170AbhDLItE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239013AbhDLIzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8696D61284;
-        Mon, 12 Apr 2021 08:54:48 +0000 (UTC)
+        id S237900AbhDLIrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:47:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF24C61246;
+        Mon, 12 Apr 2021 08:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217689;
-        bh=pvuQRS5yNC2F/IfNlFewLUQ5x1zVq6shOC/2QOT+HoE=;
+        s=korg; t=1618217219;
+        bh=kyNMQWNUVWzlRPfJeM+O0r4v4xNKRyFd/vCsPJf4Lz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0gcGOj3yg3YsduI1OAQcZGeACpizMN3V2XJwUt5G2QFBaiIj6ne2VL+eTw7XUo41
-         8RuZt8X5+zbXaQHCDf1B67zx9wW/P/2lPEzmamsP6oZihWU8e4qquxVVJeR8jlMR/R
-         75USu8uKqz28nzHj8f0CIVfKTnGPuL/ghJTUmQ3k=
+        b=S8P6ruSpiOcFRr+FqviIDM88BXsCzMIBtGstNYCcDKEXYySVu4M1/pP3zqcsJk/A0
+         2nF/8bPr3GnX9EzNQTSNZynoOpYuDNOcyPvAObG8nRuuW1jgT5tXBXHMKJS+FlKOz9
+         huU6Oz709DG2KsFsxDTtCCxxLCEzz2DbBzxFdb0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eelco Chaudron <echaudro@redhat.com>,
-        Antoine Tenart <atenart@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 110/188] vxlan: do not modify the shared tunnel info when PMTU triggers an ICMP reply
+Subject: [PATCH 5.4 046/111] regulator: bd9571mwv: Fix AVS and DVFS voltage range
 Date:   Mon, 12 Apr 2021 10:40:24 +0200
-Message-Id: <20210412084017.302398148@linuxfoundation.org>
+Message-Id: <20210412084005.781475135@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 30a93d2b7d5a7cbb53ac19c9364a256d1aa6c08a ]
+[ Upstream commit 3b6e7088afc919f5b52e4d2de8501ad34d35b09b ]
 
-When the interface is part of a bridge or an Open vSwitch port and a
-packet exceed a PMTU estimate, an ICMP reply is sent to the sender. When
-using the external mode (collect metadata) the source and destination
-addresses are reversed, so that Open vSwitch can match the packet
-against an existing (reverse) flow.
+According to Table 30 ("DVFS_MoniVDAC [6:0] Setting Table") in the
+BD9571MWV-M Datasheet Rev. 002, the valid voltage range is 600..1100 mV
+(settings 0x3c..0x6e).  While the lower limit is taken into account (by
+setting regulator_desc.linear_min_sel to 0x3c), the upper limit is not.
 
-But inverting the source and destination addresses in the shared
-ip_tunnel_info will make following packets of the flow to use a wrong
-destination address (packets will be tunnelled to itself), if the flow
-isn't updated. Which happens with Open vSwitch, until the flow times
-out.
+Fix this by reducing regulator_desc.n_voltages from 0x80 to 0x6f.
 
-Fixes this by uncloning the skb's ip_tunnel_info before inverting its
-source and destination addresses, so that the modification will only be
-made for the PTMU packet, not the following ones.
-
-Fixes: fc68c99577cc ("vxlan: Support for PMTU discovery on directly bridged links")
-Tested-by: Eelco Chaudron <echaudro@redhat.com>
-Reviewed-by: Eelco Chaudron <echaudro@redhat.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e85c5a153fe237f2 ("regulator: Add ROHM BD9571MWV-M PMIC regulator driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20210312130242.3390038-2-geert+renesas@glider.be
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/regulator/bd9571mwv-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 50cb8f045a1e..d3b698d9e2e6 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -2724,12 +2724,17 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
- 			goto tx_error;
- 		} else if (err) {
- 			if (info) {
-+				struct ip_tunnel_info *unclone;
- 				struct in_addr src, dst;
+diff --git a/drivers/regulator/bd9571mwv-regulator.c b/drivers/regulator/bd9571mwv-regulator.c
+index e690c2ce5b3c..25e33028871c 100644
+--- a/drivers/regulator/bd9571mwv-regulator.c
++++ b/drivers/regulator/bd9571mwv-regulator.c
+@@ -124,7 +124,7 @@ static const struct regulator_ops vid_ops = {
  
-+				unclone = skb_tunnel_info_unclone(skb);
-+				if (unlikely(!unclone))
-+					goto tx_error;
-+
- 				src = remote_ip.sin.sin_addr;
- 				dst = local_ip.sin.sin_addr;
--				info->key.u.ipv4.src = src.s_addr;
--				info->key.u.ipv4.dst = dst.s_addr;
-+				unclone->key.u.ipv4.src = src.s_addr;
-+				unclone->key.u.ipv4.dst = dst.s_addr;
- 			}
- 			vxlan_encap_bypass(skb, vxlan, vxlan, vni, false);
- 			dst_release(ndst);
-@@ -2780,12 +2785,17 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
- 			goto tx_error;
- 		} else if (err) {
- 			if (info) {
-+				struct ip_tunnel_info *unclone;
- 				struct in6_addr src, dst;
+ static const struct regulator_desc regulators[] = {
+ 	BD9571MWV_REG("VD09", "vd09", VD09, avs_ops, 0, 0x7f,
+-		      0x80, 600000, 10000, 0x3c),
++		      0x6f, 600000, 10000, 0x3c),
+ 	BD9571MWV_REG("VD18", "vd18", VD18, vid_ops, BD9571MWV_VD18_VID, 0xf,
+ 		      16, 1625000, 25000, 0),
+ 	BD9571MWV_REG("VD25", "vd25", VD25, vid_ops, BD9571MWV_VD25_VID, 0xf,
+@@ -133,7 +133,7 @@ static const struct regulator_desc regulators[] = {
+ 		      11, 2800000, 100000, 0),
+ 	BD9571MWV_REG("DVFS", "dvfs", DVFS, reg_ops,
+ 		      BD9571MWV_DVFS_MONIVDAC, 0x7f,
+-		      0x80, 600000, 10000, 0x3c),
++		      0x6f, 600000, 10000, 0x3c),
+ };
  
-+				unclone = skb_tunnel_info_unclone(skb);
-+				if (unlikely(!unclone))
-+					goto tx_error;
-+
- 				src = remote_ip.sin6.sin6_addr;
- 				dst = local_ip.sin6.sin6_addr;
--				info->key.u.ipv6.src = src;
--				info->key.u.ipv6.dst = dst;
-+				unclone->key.u.ipv6.src = src;
-+				unclone->key.u.ipv6.dst = dst;
- 			}
- 
- 			vxlan_encap_bypass(skb, vxlan, vxlan, vni, false);
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.30.2
 
