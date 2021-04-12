@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DF135BEC7
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC26835C089
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238653AbhDLJCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:02:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49930 "EHLO mail.kernel.org"
+        id S240123AbhDLJOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:14:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238875AbhDLI6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:58:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85F046135A;
-        Mon, 12 Apr 2021 08:57:01 +0000 (UTC)
+        id S240817AbhDLJLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:11:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97F5D6135F;
+        Mon, 12 Apr 2021 09:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217822;
-        bh=ykp7PuYI4Bzfb+UQH0Pd005Qqom4Su8fH+JZr+v5R6I=;
+        s=korg; t=1618218399;
+        bh=+LlHeFTlSKoxg7SLOxYTZN1g6Yr01rn4BaEaedPrizY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dc0ZcgWKcVQObqpFIp8+cbhIfW5bQyl2YEqzaBwzBTe0cfF/IYmBpLHwFN8Y1T7wP
-         huIH3gxJAvQuzipF2+3KV0ImDx4hzc0zxm3tocAxHwFYQuDYxQcHdLA9ryStJpHwrw
-         VCHkREZlNhnT07k0lV5ryLJr3wF57PoA36SJ/jms=
+        b=A6Upj1KyJm9/7sTSCMUeUzHVC+Os2nh+9kgZJrxd9pC79ptyxmCX3tmSXJIYkH7CD
+         pG8dckvJCCrgKn3wOB34KUNnooelz3FA1iOC17AHnc1+FY6NktzUOvkze6wYCvX7n0
+         eS7Ul/Geum8EREeJwQb00BIOpPBGelZGYeHt4lJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
+        Lukasz Bartosik <lb@semihalf.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 157/188] net: hns3: clear VF down state bit before request link status
+Subject: [PATCH 5.11 166/210] clk: fix invalid usage of list cursor in register
 Date:   Mon, 12 Apr 2021 10:41:11 +0200
-Message-Id: <20210412084018.847863840@linuxfoundation.org>
+Message-Id: <20210412084021.559500232@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +41,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Lukasz Bartosik <lb@semihalf.com>
 
-[ Upstream commit ed7bedd2c3ca040f1e8ea02c6590a93116b1ec78 ]
+[ Upstream commit 8d3c0c01cb2e36b2bf3c06a82b18b228d0c8f5d0 ]
 
-Currently, the VF down state bit is cleared after VF sending
-link status request command. There is problem that when VF gets
-link status replied from PF, the down state bit may still set
-as 1. In this case, the link status replied from PF will be
-ignored and always set VF link status to down.
+Fix invalid usage of a list_for_each_entry cursor in
+clk_notifier_register(). When list is empty or if the list
+is completely traversed (without breaking from the loop on one
+of the entries) then the list cursor does not point to a valid
+entry and therefore should not be used.
 
-To fix this problem, clear VF down state bit before VF requests
-link status.
+The issue was dicovered when running 5.12-rc1 kernel on x86_64
+with KASAN enabled:
+BUG: KASAN: global-out-of-bounds in clk_notifier_register+0xab/0x230
+Read of size 8 at addr ffffffffa0d10588 by task swapper/0/1
 
-Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc1 #1
+Hardware name: Google Caroline/Caroline,
+BIOS Google_Caroline.7820.430.0 07/20/2018
+Call Trace:
+ dump_stack+0xee/0x15c
+ print_address_description+0x1e/0x2dc
+ kasan_report+0x188/0x1ce
+ ? clk_notifier_register+0xab/0x230
+ ? clk_prepare_lock+0x15/0x7b
+ ? clk_notifier_register+0xab/0x230
+ clk_notifier_register+0xab/0x230
+ dw8250_probe+0xc01/0x10d4
+...
+Memory state around the buggy address:
+ ffffffffa0d10480: 00 00 00 00 00 03 f9 f9 f9 f9 f9 f9 00 00 00 00
+ ffffffffa0d10500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9
+>ffffffffa0d10580: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00
+                      ^
+ ffffffffa0d10600: 00 00 00 00 00 00 f9 f9 f9 f9 f9 f9 00 00 00 00
+ ffffffffa0d10680: 00 00 00 00 00 00 00 00 f9 f9 f9 f9 00 00 00 00
+ ==================================================================
+
+Fixes: b2476490ef11 ("clk: introduce the common clock framework")
+Reported-by: Lukasz Majczak <lma@semihalf.com>
+Signed-off-by: Lukasz Bartosik <lb@semihalf.com>
+Link: https://lore.kernel.org/r/20210401225149.18826-1-lb@semihalf.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/clk.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index dc5d150a9c54..ac6980acb6f0 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2554,14 +2554,14 @@ static int hclgevf_ae_start(struct hnae3_handle *handle)
- {
- 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 8c1d04db990d..e08274020944 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -4336,20 +4336,19 @@ int clk_notifier_register(struct clk *clk, struct notifier_block *nb)
+ 	/* search the list of notifiers for this clk */
+ 	list_for_each_entry(cn, &clk_notifier_list, node)
+ 		if (cn->clk == clk)
+-			break;
++			goto found;
  
-+	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
-+
- 	hclgevf_reset_tqp_stats(handle);
+ 	/* if clk wasn't in the notifier list, allocate new clk_notifier */
+-	if (cn->clk != clk) {
+-		cn = kzalloc(sizeof(*cn), GFP_KERNEL);
+-		if (!cn)
+-			goto out;
++	cn = kzalloc(sizeof(*cn), GFP_KERNEL);
++	if (!cn)
++		goto out;
  
- 	hclgevf_request_link_info(hdev);
+-		cn->clk = clk;
+-		srcu_init_notifier_head(&cn->notifier_head);
++	cn->clk = clk;
++	srcu_init_notifier_head(&cn->notifier_head);
  
- 	hclgevf_update_link_mode(hdev);
+-		list_add(&cn->node, &clk_notifier_list);
+-	}
++	list_add(&cn->node, &clk_notifier_list);
  
--	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
--
- 	return 0;
- }
++found:
+ 	ret = srcu_notifier_chain_register(&cn->notifier_head, nb);
  
+ 	clk->core->notifier_count++;
 -- 
 2.30.2
 
