@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E3A35BD99
+	by mail.lfdr.de (Postfix) with ESMTP id 55B4235BD9A
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237949AbhDLIw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
+        id S238545AbhDLIwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:52:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238697AbhDLIu0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99E3060241;
-        Mon, 12 Apr 2021 08:50:08 +0000 (UTC)
+        id S238708AbhDLIu2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:50:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEEC8611F0;
+        Mon, 12 Apr 2021 08:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217409;
-        bh=vtmMATUhTRbQ5ANUCsfBOEYyu18D0Az7WZPu+cNvztI=;
+        s=korg; t=1618217411;
+        bh=7khwu2IG/1lnTGfD54GNj/hWdGYeQlKlWGEELSEg1Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UF8IFXsuafm/cSqDEbYEtQM44GOWMrtCss11DLQTVxvXVeZ8xTAZzExEP2G/kXGb9
-         OKQpNKOzLVFoMgZDTfKW7avUQAji3Tse0UW78Gi8kouwlBGHz+WsmAhYG1UG6XVNVJ
-         BU2WrM2eSBQd6ZRaWodH5zAVFb9gg9zHfkbZRkzk=
+        b=YKu7emLZspIJwwprmLjfaBGErmE50scgz7uGOzHCxBIDCog4wzA1Aj5A+QJwzuktj
+         Ye6VoWbyyak6LMAA/9Kxh9lYH5LXSVpMuSa2fOaUWCunT6EkoNNHwGgjPOREH0Qt0K
+         vWHiRFvvNtOxgXQjGQ+WwwCXPmYXZ+kZrE0x7Dho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/111] RDMA/addr: Be strict with gid size
-Date:   Mon, 12 Apr 2021 10:41:11 +0200
-Message-Id: <20210412084007.345524174@linuxfoundation.org>
+        stable@vger.kernel.org, William Roche <william.roche@oracle.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 094/111] RAS/CEC: Correct ce_add_elem()s returned values
+Date:   Mon, 12 Apr 2021 10:41:12 +0200
+Message-Id: <20210412084007.383311692@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
 References: <20210412084004.200986670@linuxfoundation.org>
@@ -42,41 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: William Roche <william.roche@oracle.com>
 
-[ Upstream commit d1c803a9ccd7bd3aff5e989ccfb39ed3b799b975 ]
+commit 3a62583c2853b0ab37a57dde79decea210b5fb89 upstream.
 
-The nla_len() is less than or equal to 16.  If it's less than 16 then end
-of the "gid" buffer is uninitialized.
+ce_add_elem() uses different return values to signal a result from
+adding an element to the collector. Commit in Fixes: broke the case
+where the element being added is not found in the array. Correct that.
 
-Fixes: ae43f8286730 ("IB/core: Add IP to GID netlink offload")
-Link: https://lore.kernel.org/r/20210405074434.264221-1-leon@kernel.org
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ [ bp: Rewrite commit message, add kernel-doc comments. ]
+
+Fixes: de0e0624d86f ("RAS/CEC: Check count_threshold unconditionally")
+Signed-off-by: William Roche <william.roche@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/1617722939-29670-1-git-send-email-william.roche@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/addr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/ras/cec.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/addr.c b/drivers/infiniband/core/addr.c
-index 8beed4197e73..c9e63c692b6e 100644
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -76,7 +76,9 @@ static struct workqueue_struct *addr_wq;
+--- a/drivers/ras/cec.c
++++ b/drivers/ras/cec.c
+@@ -309,11 +309,20 @@ static bool sanity_check(struct ce_array
+ 	return ret;
+ }
  
- static const struct nla_policy ib_nl_addr_policy[LS_NLA_TYPE_MAX] = {
- 	[LS_NLA_TYPE_DGID] = {.type = NLA_BINARY,
--		.len = sizeof(struct rdma_nla_ls_gid)},
-+		.len = sizeof(struct rdma_nla_ls_gid),
-+		.validation_type = NLA_VALIDATE_MIN,
-+		.min = sizeof(struct rdma_nla_ls_gid)},
- };
++/**
++ * cec_add_elem - Add an element to the CEC array.
++ * @pfn:	page frame number to insert
++ *
++ * Return values:
++ * - <0:	on error
++ * -  0:	on success
++ * - >0:	when the inserted pfn was offlined
++ */
+ int cec_add_elem(u64 pfn)
+ {
+ 	struct ce_array *ca = &ce_arr;
++	int count, err, ret = 0;
+ 	unsigned int to = 0;
+-	int count, ret = 0;
  
- static inline bool ib_nl_is_good_ip_resp(const struct nlmsghdr *nlh)
--- 
-2.30.2
-
+ 	/*
+ 	 * We can be called very early on the identify_cpu() path where we are
+@@ -330,8 +339,8 @@ int cec_add_elem(u64 pfn)
+ 	if (ca->n == MAX_ELEMS)
+ 		WARN_ON(!del_lru_elem_unlocked(ca));
+ 
+-	ret = find_elem(ca, pfn, &to);
+-	if (ret < 0) {
++	err = find_elem(ca, pfn, &to);
++	if (err < 0) {
+ 		/*
+ 		 * Shift range [to-end] to make room for one more element.
+ 		 */
 
 
