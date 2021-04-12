@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A38C35BE36
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9683735BE40
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238787AbhDLI5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
+        id S238114AbhDLI5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238992AbhDLIzR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F07F96125F;
-        Mon, 12 Apr 2021 08:54:26 +0000 (UTC)
+        id S238991AbhDLIzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6899F6127C;
+        Mon, 12 Apr 2021 08:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217667;
-        bh=PNofxI6sIvCp2AxAW5xCeCO5rACjP1WGLH4QwCCnBPM=;
+        s=korg; t=1618217670;
+        bh=3JY7VKT8a6a4BbePamhmHUVUafGZLQ/YEPIyBb3cFoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/wl0qwPDcnBXMx9oD5hyJCxybshSmkeKcOmvEYU5sIRgadmyCMclaxPFtaNFL3rK
-         2jPDf378vvU0TTU8sJxUI9I9l2WztjqhB3ZRHD0oAO1fy/YuDnmrumQ+NjWOulXxFx
-         bB5bjh9ZT8vKMvyE64zuGzAEU58/GxaV1+ptiNIs=
+        b=WT/EGOhBo66nDbhgUbShZARxNjN8o+95GHMBiZs7PbDL+xB01pPkOYxnpS8KWVD8B
+         Et3UgesuKTbMd4ZaLDa+wH2sFOxcowqlAGftM8WySsqHTzBirJrM9BTEZeFEiaErUp
+         9USC7izSC/KLDJKhkmX7CRFM1mOkJyLZ/BHtw8MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
-        Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 066/188] mac80211: fix time-is-after bug in mlme
-Date:   Mon, 12 Apr 2021 10:39:40 +0200
-Message-Id: <20210412084015.848407820@linuxfoundation.org>
+Subject: [PATCH 5.10 067/188] mac80211: fix TXQ AC confusion
+Date:   Mon, 12 Apr 2021 10:39:41 +0200
+Message-Id: <20210412084015.885740712@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -40,39 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 7d73cd946d4bc7d44cdc5121b1c61d5d71425dea upstream.
+commit 1153a74768a9212daadbb50767aa400bc6a0c9b0 upstream.
 
-The incorrect timeout check caused probing to happen when it did
-not need to happen.  This in turn caused tx performance drop
-for around 5 seconds in ath10k-ct driver.  Possibly that tx drop
-is due to a secondary issue, but fixing the probe to not happen
-when traffic is running fixes the symptom.
+Normally, TXQs have
 
-Signed-off-by: Ben Greear <greearb@candelatech.com>
-Fixes: 9abf4e49830d ("mac80211: optimize station connection monitor")
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20210330230749.14097-1-greearb@candelatech.com
+  txq->tid = tid;
+  txq->ac = ieee80211_ac_from_tid(tid);
+
+However, the special management TXQ actually has
+
+  txq->tid = IEEE80211_NUM_TIDS; // 16
+  txq->ac = IEEE80211_AC_VO;
+
+This makes sense, but ieee80211_ac_from_tid(16) is the same
+as ieee80211_ac_from_tid(0) which is just IEEE80211_AC_BE.
+
+Now, normally this is fine. However, if the netdev queues
+were stopped, then the code in ieee80211_tx_dequeue() will
+propagate the stop from the interface (vif->txqs_stopped[])
+if the AC 2 (ieee80211_ac_from_tid(txq->tid)) is marked as
+stopped. On wake, however, __ieee80211_wake_txqs() will wake
+the TXQ if AC 0 (txq->ac) is woken up.
+
+If a driver stops all queues with ieee80211_stop_tx_queues()
+and then wakes them again with ieee80211_wake_tx_queues(),
+the ieee80211_wake_txqs() tasklet will run to resync queue
+and TXQ state. If all queues were woken, then what'll happen
+is that _ieee80211_wake_txqs() will run in order of HW queues
+0-3, typically (and certainly for iwlwifi) corresponding to
+ACs 0-3, so it'll call __ieee80211_wake_txqs() for each AC in
+order 0-3.
+
+When __ieee80211_wake_txqs() is called for AC 0 (VO) that'll
+wake up the management TXQ (remember its tid is 16), and the
+driver's wake_tx_queue() will be called. That tries to get a
+frame, which will immediately *stop* the TXQ again, because
+now we check against AC 2, and AC 2 hasn't yet been marked as
+woken up again in sdata->vif.txqs_stopped[] since we're only
+in the __ieee80211_wake_txqs() call for AC 0.
+
+Thus, the management TXQ will never be started again.
+
+Fix this by checking txq->ac directly instead of calculating
+the AC as ieee80211_ac_from_tid(txq->tid).
+
+Fixes: adf8ed01e4fd ("mac80211: add an optional TXQ for other PS-buffered frames")
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20210323210500.bf4d50afea4a.I136ffde910486301f8818f5442e3c9bf8670a9c4@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/mlme.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/mac80211/tx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -4660,7 +4660,10 @@ static void ieee80211_sta_conn_mon_timer
- 		timeout = sta->rx_stats.last_rx;
- 	timeout += IEEE80211_CONNECTION_IDLE_TIME;
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -3605,7 +3605,7 @@ begin:
+ 	    test_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags))
+ 		goto out;
  
--	if (time_is_before_jiffies(timeout)) {
-+	/* If timeout is after now, then update timer to fire at
-+	 * the later date, but do not actually probe at this time.
-+	 */
-+	if (time_is_after_jiffies(timeout)) {
- 		mod_timer(&ifmgd->conn_mon_timer, round_jiffies_up(timeout));
- 		return;
+-	if (vif->txqs_stopped[ieee80211_ac_from_tid(txq->tid)]) {
++	if (vif->txqs_stopped[txq->ac]) {
+ 		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags);
+ 		goto out;
  	}
 
 
