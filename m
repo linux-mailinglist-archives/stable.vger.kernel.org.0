@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15A5D35BD02
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE3535BE28
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237858AbhDLIq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38786 "EHLO mail.kernel.org"
+        id S238753AbhDLI5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237739AbhDLIqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:46:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5C5E611F0;
-        Mon, 12 Apr 2021 08:45:52 +0000 (UTC)
+        id S238946AbhDLIzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FA7661221;
+        Mon, 12 Apr 2021 08:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217153;
-        bh=Vwq7OBOcX4w2Lv7VcddRMMu7QdRGViyEXU4JYQjLerI=;
+        s=korg; t=1618217635;
+        bh=HHC+Vx70WmK07pO/01s/3jWLmBZ1GrZvg5t6wOYVdTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufnUAky/+rdjEEgLJpdFkhAt/V0lNumltM400BFkhcFlVUoSVDkTtiWIP2wI22+aT
-         VuXwjRdGNG90Y6mETIg1t8ehZgNTQFcc8+DheKcPO30wZ5GAWTH3+ivizVSfAAY6iQ
-         M8kwguUs3iyqsUxe0uIZT4mOkPg877f3D0LtUues=
+        b=sxiRl6SjNeE2YutwOlndLhlsKnqcUhZLasVwC4oHzbhwVM0z0Vpt45qoK3yAZlbKe
+         /SPqvY+KmopzoB4nEWhoCyXdo0DORDEQ3vfTolw3YXKxu2TJh/wERejyk14mCpXgnG
+         sqELdg517IolzAUs+4HsJhdkvzSVRpzR2sY3NCv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jacek=20Bu=C5=82atek?= <jacekx.bulatek@intel.com>,
-        Haiyue Wang <haiyue.wang@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 023/111] ice: Fix for dereference of NULL pointer
-Date:   Mon, 12 Apr 2021 10:40:01 +0200
-Message-Id: <20210412084005.000554881@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 088/188] KVM: x86/mmu: Ensure TLBs are flushed for TDP MMU during NX zapping
+Date:   Mon, 12 Apr 2021 10:40:02 +0200
+Message-Id: <20210412084016.576312582@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacek Bułatek <jacekx.bulatek@intel.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 7a91d3f02b04b2fb18c2dfa8b6c4e5a40a2753f5 upstream.
+[ Upstream commit 048f49809c526348775425420fb5b8e84fd9a133 ]
 
-Add handling of allocation fault for ice_vsi_list_map_info.
+Honor the "flush needed" return from kvm_tdp_mmu_zap_gfn_range(), which
+does the flush itself if and only if it yields (which it will never do in
+this particular scenario), and otherwise expects the caller to do the
+flush.  If pages are zapped from the TDP MMU but not the legacy MMU, then
+no flush will occur.
 
-Also *fi should not be NULL pointer, it is a reference to raw
-data field, so remove this variable and use the reference
-directly.
-
-Fixes: 9daf8208dd4d ("ice: Add support for switch filter programming")
-Signed-off-by: Jacek Bułatek <jacekx.bulatek@intel.com>
-Co-developed-by: Haiyue Wang <haiyue.wang@intel.com>
-Signed-off-by: Haiyue Wang <haiyue.wang@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 29cf0f5007a2 ("kvm: x86/mmu: NX largepage recovery for TDP MMU")
+Cc: stable@vger.kernel.org
+Cc: Ben Gardon <bgardon@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210325200119.1359384-3-seanjc@google.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_switch.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/x86/kvm/mmu/mmu.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_switch.c
-+++ b/drivers/net/ethernet/intel/ice/ice_switch.c
-@@ -1279,6 +1279,9 @@ ice_add_update_vsi_list(struct ice_hw *h
- 			ice_create_vsi_list_map(hw, &vsi_handle_arr[0], 2,
- 						vsi_list_id);
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index dacbd13d32c6..354f9926a183 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5972,6 +5972,8 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
+ 	struct kvm_mmu_page *sp;
+ 	unsigned int ratio;
+ 	LIST_HEAD(invalid_list);
++	bool flush = false;
++	gfn_t gfn_end;
+ 	ulong to_zap;
  
-+		if (!m_entry->vsi_list_info)
-+			return ICE_ERR_NO_MEMORY;
-+
- 		/* If this entry was large action then the large action needs
- 		 * to be updated to point to FWD to VSI list
- 		 */
-@@ -2266,6 +2269,7 @@ ice_vsi_uses_fltr(struct ice_fltr_mgmt_l
- 	return ((fm_entry->fltr_info.fltr_act == ICE_FWD_TO_VSI &&
- 		 fm_entry->fltr_info.vsi_handle == vsi_handle) ||
- 		(fm_entry->fltr_info.fltr_act == ICE_FWD_TO_VSI_LIST &&
-+		 fm_entry->vsi_list_info &&
- 		 (test_bit(vsi_handle, fm_entry->vsi_list_info->vsi_map))));
- }
+ 	rcu_idx = srcu_read_lock(&kvm->srcu);
+@@ -5993,19 +5995,20 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
+ 				      lpage_disallowed_link);
+ 		WARN_ON_ONCE(!sp->lpage_disallowed);
+ 		if (sp->tdp_mmu_page)
+-			kvm_tdp_mmu_zap_gfn_range(kvm, sp->gfn,
+-				sp->gfn + KVM_PAGES_PER_HPAGE(sp->role.level));
+-		else {
++			gfn_end = sp->gfn + KVM_PAGES_PER_HPAGE(sp->role.level);
++			flush = kvm_tdp_mmu_zap_gfn_range(kvm, sp->gfn, gfn_end);
++		} else {
+ 			kvm_mmu_prepare_zap_page(kvm, sp, &invalid_list);
+ 			WARN_ON_ONCE(sp->lpage_disallowed);
+ 		}
  
-@@ -2338,14 +2342,12 @@ ice_add_to_vsi_fltr_list(struct ice_hw *
- 		return ICE_ERR_PARAM;
- 
- 	list_for_each_entry(fm_entry, lkup_list_head, list_entry) {
--		struct ice_fltr_info *fi;
--
--		fi = &fm_entry->fltr_info;
--		if (!fi || !ice_vsi_uses_fltr(fm_entry, vsi_handle))
-+		if (!ice_vsi_uses_fltr(fm_entry, vsi_handle))
- 			continue;
- 
- 		status = ice_add_entry_to_vsi_fltr_list(hw, vsi_handle,
--							vsi_list_head, fi);
-+							vsi_list_head,
-+							&fm_entry->fltr_info);
- 		if (status)
- 			return status;
+ 		if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
+-			kvm_mmu_commit_zap_page(kvm, &invalid_list);
++			kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
+ 			cond_resched_lock(&kvm->mmu_lock);
++			flush = false;
+ 		}
  	}
+-	kvm_mmu_commit_zap_page(kvm, &invalid_list);
++	kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
+ 
+ 	spin_unlock(&kvm->mmu_lock);
+ 	srcu_read_unlock(&kvm->srcu, rcu_idx);
+-- 
+2.30.2
+
 
 
