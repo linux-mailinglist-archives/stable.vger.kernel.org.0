@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E6F835BD00
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDCCE35BE2A
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237764AbhDLIqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37324 "EHLO mail.kernel.org"
+        id S238783AbhDLI5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237851AbhDLIqI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:46:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 296986109E;
-        Mon, 12 Apr 2021 08:45:49 +0000 (UTC)
+        id S238941AbhDLIzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4982F6137E;
+        Mon, 12 Apr 2021 08:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217150;
-        bh=09ooUlwISxVla7TfWvf2JNWFhCcK81tqCeJIgvfv0gM=;
+        s=korg; t=1618217629;
+        bh=9OZmdO+5++FEOCETLaapv9jX7JCxl1wP21CfSmZC4hU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TuiLERD701IhQ5OnzuZfsa3kbzUGl+cwgANZOx/ch8spTjE4bhnbYP7ORAPQDGoiC
-         lT87eUpVRgPD2LFpfBy1kJJat63SdAqCVoZpZz/mE7a7SPh3rb3EqHi8VcV2RuO/Cm
-         uD4Pe2ojOrrM3Zje/VRFk4RHWjcfdEflI/GG7P7U=
+        b=OoM+joBoSlfohO0PGrHjjR2vvV4g04GDYpOg0olT9L+vfLhtDQHvku7BRvLn/prxa
+         zZd3wjCnk2VPy0ocTYs7gHpC6J9IQShOruixvZYsdIKpoXW1aWS8gTwBzvqtNb09hK
+         YKWnEwESmzBF7MiUAuHj05jY34wtvbpy2YiY/Uuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Pricoco <fabio.pricoco@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 022/111] ice: Increase control queue timeout
+        stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
+        Ben Gardon <bgardon@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 086/188] KVM: x86/mmu: Yield in TDU MMU iter even if no SPTES changed
 Date:   Mon, 12 Apr 2021 10:40:00 +0200
-Message-Id: <20210412084004.961222235@linuxfoundation.org>
+Message-Id: <20210412084016.507386640@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +41,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Pricoco <fabio.pricoco@intel.com>
+From: Ben Gardon <bgardon@google.com>
 
-commit f88c529ac77b3c21819d2cf1dfcfae1937849743 upstream.
+[ Upstream commit 1af4a96025b33587ca953c7ef12a1b20c6e70412 ]
 
-250 msec timeout is insufficient for some AQ commands. Advice from FW
-team was to increase the timeout. Increase to 1 second.
+Given certain conditions, some TDP MMU functions may not yield
+reliably / frequently enough. For example, if a paging structure was
+very large but had few, if any writable entries, wrprot_gfn_range
+could traverse many entries before finding a writable entry and yielding
+because the check for yielding only happens after an SPTE is modified.
 
-Fixes: 7ec59eeac804 ("ice: Add support for control queues")
-Signed-off-by: Fabio Pricoco <fabio.pricoco@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this issue by moving the yield to the beginning of the loop.
+
+Fixes: a6a0b05da9f3 ("kvm: x86/mmu: Support dirty logging for the TDP MMU")
+Reviewed-by: Peter Feiner <pfeiner@google.com>
+Signed-off-by: Ben Gardon <bgardon@google.com>
+
+Message-Id: <20210202185734.1680553-15-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_controlq.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c | 32 ++++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_controlq.h
-+++ b/drivers/net/ethernet/intel/ice/ice_controlq.h
-@@ -31,8 +31,8 @@ enum ice_ctl_q {
- 	ICE_CTL_Q_MAILBOX,
- };
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index f0bc5d3ce3d4..0d17457f1c84 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -462,6 +462,12 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 	bool flush_needed = false;
  
--/* Control Queue timeout settings - max delay 250ms */
--#define ICE_CTL_Q_SQ_CMD_TIMEOUT	2500  /* Count 2500 times */
-+/* Control Queue timeout settings - max delay 1s */
-+#define ICE_CTL_Q_SQ_CMD_TIMEOUT	10000 /* Count 10000 times */
- #define ICE_CTL_Q_SQ_CMD_USEC		100   /* Check every 100usec */
+ 	tdp_root_for_each_pte(iter, root, start, end) {
++		if (can_yield &&
++		    tdp_mmu_iter_cond_resched(kvm, &iter, flush_needed)) {
++			flush_needed = false;
++			continue;
++		}
++
+ 		if (!is_shadow_present_pte(iter.old_spte))
+ 			continue;
  
- struct ice_ctl_q_ring {
+@@ -476,9 +482,7 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 			continue;
+ 
+ 		tdp_mmu_set_spte(kvm, &iter, 0);
+-
+-		flush_needed = !(can_yield &&
+-				 tdp_mmu_iter_cond_resched(kvm, &iter, true));
++		flush_needed = true;
+ 	}
+ 	return flush_needed;
+ }
+@@ -838,6 +842,9 @@ static bool wrprot_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 
+ 	for_each_tdp_pte_min_level(iter, root->spt, root->role.level,
+ 				   min_level, start, end) {
++		if (tdp_mmu_iter_cond_resched(kvm, &iter, false))
++			continue;
++
+ 		if (!is_shadow_present_pte(iter.old_spte) ||
+ 		    !is_last_spte(iter.old_spte, iter.level))
+ 			continue;
+@@ -846,8 +853,6 @@ static bool wrprot_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 
+ 		tdp_mmu_set_spte_no_dirty_log(kvm, &iter, new_spte);
+ 		spte_set = true;
+-
+-		tdp_mmu_iter_cond_resched(kvm, &iter, false);
+ 	}
+ 	return spte_set;
+ }
+@@ -891,6 +896,9 @@ static bool clear_dirty_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 	bool spte_set = false;
+ 
+ 	tdp_root_for_each_leaf_pte(iter, root, start, end) {
++		if (tdp_mmu_iter_cond_resched(kvm, &iter, false))
++			continue;
++
+ 		if (spte_ad_need_write_protect(iter.old_spte)) {
+ 			if (is_writable_pte(iter.old_spte))
+ 				new_spte = iter.old_spte & ~PT_WRITABLE_MASK;
+@@ -905,8 +913,6 @@ static bool clear_dirty_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 
+ 		tdp_mmu_set_spte_no_dirty_log(kvm, &iter, new_spte);
+ 		spte_set = true;
+-
+-		tdp_mmu_iter_cond_resched(kvm, &iter, false);
+ 	}
+ 	return spte_set;
+ }
+@@ -1014,6 +1020,9 @@ static bool set_dirty_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 	bool spte_set = false;
+ 
+ 	tdp_root_for_each_pte(iter, root, start, end) {
++		if (tdp_mmu_iter_cond_resched(kvm, &iter, false))
++			continue;
++
+ 		if (!is_shadow_present_pte(iter.old_spte))
+ 			continue;
+ 
+@@ -1021,8 +1030,6 @@ static bool set_dirty_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
+ 
+ 		tdp_mmu_set_spte(kvm, &iter, new_spte);
+ 		spte_set = true;
+-
+-		tdp_mmu_iter_cond_resched(kvm, &iter, false);
+ 	}
+ 
+ 	return spte_set;
+@@ -1063,6 +1070,11 @@ static void zap_collapsible_spte_range(struct kvm *kvm,
+ 	bool spte_set = false;
+ 
+ 	tdp_root_for_each_pte(iter, root, start, end) {
++		if (tdp_mmu_iter_cond_resched(kvm, &iter, spte_set)) {
++			spte_set = false;
++			continue;
++		}
++
+ 		if (!is_shadow_present_pte(iter.old_spte) ||
+ 		    !is_last_spte(iter.old_spte, iter.level))
+ 			continue;
+@@ -1075,7 +1087,7 @@ static void zap_collapsible_spte_range(struct kvm *kvm,
+ 
+ 		tdp_mmu_set_spte(kvm, &iter, 0);
+ 
+-		spte_set = !tdp_mmu_iter_cond_resched(kvm, &iter, true);
++		spte_set = true;
+ 	}
+ 
+ 	if (spte_set)
+-- 
+2.30.2
+
 
 
