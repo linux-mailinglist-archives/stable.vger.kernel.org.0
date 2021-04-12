@@ -2,199 +2,312 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB4F35B89D
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6CE835B8A7
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236634AbhDLCYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:24:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60040 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236646AbhDLCYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:24:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D16076120D;
-        Mon, 12 Apr 2021 02:23:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194227;
-        bh=UYJ27SRPmHHt7mefeC282RYFgY6CNRSxF5pZaYBDCQ8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=IzuOo0rOKth5InMelM53pEGqlpy8f5ChOUhyXammgOCFBvRHtdgs1J8uaDo3L5x9a
-         cE1PYnzzgpPszvfKlgs5r+9FVQMekfCWzpvlebb2YWo9rGJkmN8h87aJPnUXZpLGjX
-         ETf/GQ1qW2HE09NsKLiEGsQXkHsLfezDq4rd/0OtdLal4Kb9IP2ORQ8YO8rEUgmf0P
-         HkLRGazvDgBPu1BUKVhC6ux2UbcuIzzDYJRvPJiU4riwQqW0W56QK/XhgCjQ/QsWD+
-         fj4S1EuNgOcwS7vo0LLLnHTWAMXAVnFIY41SZTsFXP6F/hEKPxZCM3bj1kDoqkhWqQ
-         r9vjIlEj8Fk/A==
-From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, evan.nimmo@alliedtelesis.co.nz
-Cc:     Steffen Klassert <steffen.klassert@secunet.com>
-Subject: FAILED: Patch "xfrm: Use actual socket sk instead of skb socket for xfrm_output_resume" failed to apply to 4.4-stable tree
-Date:   Sun, 11 Apr 2021 22:23:45 -0400
-Message-Id: <20210412022345.285047-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
+        id S236339AbhDLCbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:31:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38690 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235857AbhDLCbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 22:31:18 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07081C061574
+        for <stable@vger.kernel.org>; Sun, 11 Apr 2021 19:31:01 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id z16so8238259pga.1
+        for <stable@vger.kernel.org>; Sun, 11 Apr 2021 19:31:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JkOUQBkZMfxhvmokzmFEPzotDIf2gk2vuFMUNVHxHJA=;
+        b=HQQ9HSsUmmwLliWQlG0np4nkAHjYLJdkJ0p96HNbgpw1ueY+yrNmgkkLPzo5VT9Vhd
+         o7r2KPqKL+m3fcFW4fYo/iFwjHdtpAlq4TFq8KJeci8nWQi3zTYJGaONvLnoiFg7S3Kv
+         H4vW+NMbR40GTZmI+zV6F8op3weTqQ6/BwdPpYgkA5dVx1FoqJbLRyUcMZIbaYQ24COL
+         vvpOIzD8cM8eCpM4C4zobgtWCp6tInlo/hH713eSx6XADbim8unF3i00lqI2M5lnZ6GR
+         OjGFeWb+oEHXaYoBXJUL7sS7PbTpm8T+8lsjP4bORoDJsVxZ6FwP70LRsDb9zSdYJ4Oc
+         Zjnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JkOUQBkZMfxhvmokzmFEPzotDIf2gk2vuFMUNVHxHJA=;
+        b=fVb5jI89Xa6Bb8fqs1bdOA3lucA3b6S298FaNYRFrymyHlHo1+CsXabQ5kUbfIOax4
+         HrQrHtMJiAhpXCY5kxF1NKbZ8xX/5fO/ubBrMI12F0y63qVqQN+TDOffVDrOsEVzXwqP
+         v2susnEM25Korm0kZHfIIaFjAvZ4SEO1V8AUQ/DmfDAhFSg4+TtlbJOQIm2Hf0qSBdDJ
+         0MFqXMIU/6FzXxK0DlPNt6JjwzZs3VdFFEwXV8BVQXktKBClS8pl3Ori6o9EWSIJW7P9
+         16qSt5vRex9XKPXeIwh057+Z6cWB3KoWFe+nA4sEMgfEuILq4i1bCOqotQyecVTTjs+m
+         xUkg==
+X-Gm-Message-State: AOAM530DIa9YT2GYXtBV2htiiWYoYDRP/evrKYIE6LAf8CJZ9hYr4omo
+        d0y9D9nIsVlCr/y/ZAjow0DPhkzwnQDwMc47
+X-Google-Smtp-Source: ABdhPJzZQQou8xi54DIQaYRjKR1lA5oDuUdkUq5b5EcAYjA8uCYxIgJ50NR06YJ3xu+/0Y721r4zXw==
+X-Received: by 2002:aa7:82ce:0:b029:242:deb4:9442 with SMTP id f14-20020aa782ce0000b0290242deb49442mr21682892pfn.73.1618194660329;
+        Sun, 11 Apr 2021 19:31:00 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v22sm5283277pff.105.2021.04.11.19.30.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 11 Apr 2021 19:30:59 -0700 (PDT)
+Message-ID: <6073b0e3.1c69fb81.ee880.ce1a@mx.google.com>
+Date:   Sun, 11 Apr 2021 19:30:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Patchwork-Hint: ignore
-X-stable: review
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.230-21-gf15b3d72e09db
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 baseline: 138 runs,
+ 6 regressions (v4.14.230-21-gf15b3d72e09db)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+stable-rc/queue/4.14 baseline: 138 runs, 6 regressions (v4.14.230-21-gf15b3=
+d72e09db)
 
-Thanks,
-Sasha
+Regressions Summary
+-------------------
 
------------------- original commit in Linus's tree ------------------
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-From 9ab1265d52314fce1b51e8665ea6dbc9ac1a027c Mon Sep 17 00:00:00 2001
-From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Date: Tue, 2 Mar 2021 08:00:04 +1300
-Subject: [PATCH] xfrm: Use actual socket sk instead of skb socket for
- xfrm_output_resume
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-A situation can occur where the interface bound to the sk is different
-to the interface bound to the sk attached to the skb. The interface
-bound to the sk is the correct one however this information is lost inside
-xfrm_output2 and instead the sk on the skb is used in xfrm_output_resume
-instead. This assumes that the sk bound interface and the bound interface
-attached to the sk within the skb are the same which can lead to lookup
-failures inside ip_route_me_harder resulting in the packet being dropped.
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-We have an l2tp v3 tunnel with ipsec protection. The tunnel is in the
-global VRF however we have an encapsulated dot1q tunnel interface that
-is within a different VRF. We also have a mangle rule that marks the
-packets causing them to be processed inside ip_route_me_harder.
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Prior to commit 31c70d5956fc ("l2tp: keep original skb ownership") this
-worked fine as the sk attached to the skb was changed from the dot1q
-encapsulated interface to the sk for the tunnel which meant the interface
-bound to the sk and the interface bound to the skb were identical.
-Commit 46d6c5ae953c ("netfilter: use actual socket sk rather than skb sk
-when routing harder") fixed some of these issues however a similar
-problem existed in the xfrm code.
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Fixes: 31c70d5956fc ("l2tp: keep original skb ownership")
-Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
----
- include/net/xfrm.h     |  2 +-
- net/ipv4/ah4.c         |  2 +-
- net/ipv4/esp4.c        |  2 +-
- net/ipv6/ah6.c         |  2 +-
- net/ipv6/esp6.c        |  2 +-
- net/xfrm/xfrm_output.c | 10 +++++-----
- 6 files changed, 10 insertions(+), 10 deletions(-)
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index b2a06f10b62c..bfbc7810df94 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1557,7 +1557,7 @@ int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
- int xfrm_trans_queue(struct sk_buff *skb,
- 		     int (*finish)(struct net *, struct sock *,
- 				   struct sk_buff *));
--int xfrm_output_resume(struct sk_buff *skb, int err);
-+int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err);
- int xfrm_output(struct sock *sk, struct sk_buff *skb);
- 
- #if IS_ENABLED(CONFIG_NET_PKTGEN)
-diff --git a/net/ipv4/ah4.c b/net/ipv4/ah4.c
-index d99e1be94019..36ed85bf2ad5 100644
---- a/net/ipv4/ah4.c
-+++ b/net/ipv4/ah4.c
-@@ -141,7 +141,7 @@ static void ah_output_done(struct crypto_async_request *base, int err)
- 	}
- 
- 	kfree(AH_SKB_CB(skb)->tmp);
--	xfrm_output_resume(skb, err);
-+	xfrm_output_resume(skb->sk, skb, err);
- }
- 
- static int ah_output(struct xfrm_state *x, struct sk_buff *skb)
-diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
-index a3271ec3e162..4b834bbf95e0 100644
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -279,7 +279,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
- 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
- 			esp_output_tail_tcp(x, skb);
- 		else
--			xfrm_output_resume(skb, err);
-+			xfrm_output_resume(skb->sk, skb, err);
- 	}
- }
- 
-diff --git a/net/ipv6/ah6.c b/net/ipv6/ah6.c
-index 440080da805b..080ee7f44c64 100644
---- a/net/ipv6/ah6.c
-+++ b/net/ipv6/ah6.c
-@@ -316,7 +316,7 @@ static void ah6_output_done(struct crypto_async_request *base, int err)
- 	}
- 
- 	kfree(AH_SKB_CB(skb)->tmp);
--	xfrm_output_resume(skb, err);
-+	xfrm_output_resume(skb->sk, skb, err);
- }
- 
- static int ah6_output(struct xfrm_state *x, struct sk_buff *skb)
-diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
-index 153ad103ba74..727d791ed5e6 100644
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -314,7 +314,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
- 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
- 			esp_output_tail_tcp(x, skb);
- 		else
--			xfrm_output_resume(skb, err);
-+			xfrm_output_resume(skb->sk, skb, err);
- 	}
- }
- 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index a7ab19353313..b81ca117dac7 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -503,22 +503,22 @@ out:
- 	return err;
- }
- 
--int xfrm_output_resume(struct sk_buff *skb, int err)
-+int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err)
- {
- 	struct net *net = xs_net(skb_dst(skb)->xfrm);
- 
- 	while (likely((err = xfrm_output_one(skb, err)) == 0)) {
- 		nf_reset_ct(skb);
- 
--		err = skb_dst(skb)->ops->local_out(net, skb->sk, skb);
-+		err = skb_dst(skb)->ops->local_out(net, sk, skb);
- 		if (unlikely(err != 1))
- 			goto out;
- 
- 		if (!skb_dst(skb)->xfrm)
--			return dst_output(net, skb->sk, skb);
-+			return dst_output(net, sk, skb);
- 
- 		err = nf_hook(skb_dst(skb)->ops->family,
--			      NF_INET_POST_ROUTING, net, skb->sk, skb,
-+			      NF_INET_POST_ROUTING, net, sk, skb,
- 			      NULL, skb_dst(skb)->dev, xfrm_output2);
- 		if (unlikely(err != 1))
- 			goto out;
-@@ -534,7 +534,7 @@ EXPORT_SYMBOL_GPL(xfrm_output_resume);
- 
- static int xfrm_output2(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
--	return xfrm_output_resume(skb, 1);
-+	return xfrm_output_resume(sk, skb, 1);
- }
- 
- static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb)
--- 
-2.30.2
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.230-21-gf15b3d72e09db/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.230-21-gf15b3d72e09db
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f15b3d72e09dbd92f46b9aa72b566d325718ecfc =
 
 
 
+Test Regressions
+---------------- =
 
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60737930129e4a30e8dac6c6
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60737930129e4a3=
+0e8dac6cd
+        failing since 1 day (last pass: v4.14.230-14-g6c412903bfb3c, first =
+fail: v4.14.230-17-gc57ce7bb4982e)
+        2 lines
+
+    2021-04-11 22:33:16.242000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60737846062f978f61dac6bd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60737846062f978f61dac=
+6be
+        failing since 149 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/607378571bf070522fdac6c0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/607378571bf070522fdac=
+6c1
+        failing since 149 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6073789ec3334b351adac6d7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6073789ec3334b351adac=
+6d8
+        failing since 149 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/607378dff1ce4a4c3fdac6b7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/607378dff1ce4a4c3fdac=
+6b8
+        failing since 149 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/607377e24ed8e047e4dac6b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-21-gf15b3d72e09db/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/607377e24ed8e047e4dac=
+6b2
+        failing since 149 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
