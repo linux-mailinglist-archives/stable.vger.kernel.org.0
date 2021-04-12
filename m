@@ -2,128 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8619135D176
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 21:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4120C35D1A0
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 22:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237848AbhDLTu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 15:50:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40828 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237406AbhDLTu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 15:50:27 -0400
-Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E55EC061574
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 12:50:09 -0700 (PDT)
-Received: by mail-il1-x12b.google.com with SMTP id c3so5987457ils.5
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 12:50:09 -0700 (PDT)
+        id S244338AbhDLUC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 16:02:26 -0400
+Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:25555 "EHLO
+        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237233AbhDLUCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 16:02:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=U8V+SQQ2oxdowqY3VA2h5BAZHsYF3xTADFxaCRfNN2U=;
-        b=AgVvOGCrBuWV7tIznQr5JstSKcSWmaiJTlj+VXDNp12mIGq6MdtxtozdL3eNq1wOnm
-         a8KalA4YC++F7+OqAUG4viRTP7A3CCxRRsGdTOBtQq2Nq6n5ymlHB78yB0NckyFatFpg
-         fXxMzvjECXL/Q7f5jamFYTmFw7o9C9CDaXx3E=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=U8V+SQQ2oxdowqY3VA2h5BAZHsYF3xTADFxaCRfNN2U=;
-        b=FtF2XunQrSiMoQRuaFKlfY9lR/wqFBIIYQHNTlAPQ86uIjTR9567teurrmezm0pstg
-         QjQi7j6L/U9gO76z3dXURhoyPSaD/g2sVL0PlzSM13LygSgcGPgO0F8TMr5fKV/azbPu
-         qG+suNk/Avn3SDqj0ZpbmpLAzrhDkKZL9H5uXHUrXWq2J8FHb2Xe/JBWu8u6B15E0mRz
-         SxPlZyw2yI/RUVc40ea8q2KMRFU+ywHLSgIkJRf0vyVMKSNI/nR6NMzl1SEPtovaSJxb
-         DsnNBtDMXvWtyDls6R0sBoQmEpqThkFE2mp+1Ga2oLCCqo069FW6Nv42qOpDU/pf1m/O
-         eNmg==
-X-Gm-Message-State: AOAM5337xBWPnDjBDB3i2S+jQziHCKz33guQrg9D0B8LAve2Ru+Scr9O
-        0/zCJyiA1kO5Ytr+MXxQGsPGAg==
-X-Google-Smtp-Source: ABdhPJzINtlkSIrjvehiCFFPVdi6AvqWKtRoOcvGek1eq3VBcrUuzTc341d5qACxxnmFIXDnWemXSg==
-X-Received: by 2002:a92:6e0e:: with SMTP id j14mr24207663ilc.90.1618257008866;
-        Mon, 12 Apr 2021 12:50:08 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id f9sm5853015iol.23.2021.04.12.12.50.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Apr 2021 12:50:08 -0700 (PDT)
-Subject: Re: [PATCH] usbip: Fix incorrect double assignment to udc->ud.tcp_rx
-To:     Tom Seewald <tseewald@gmail.com>, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20210412185902.27755-1-tseewald@gmail.com>
- <4fc29f02-2284-70a2-2995-407f5c45b11f@gmail.com>
- <0a4197a2-d417-dca5-20fe-908bb5e76b55@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <108528e1-da05-19c0-a189-4ec4a69166ef@linuxfoundation.org>
-Date:   Mon, 12 Apr 2021 13:50:07 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1618257728; x=1649793728;
+  h=to:cc:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding:subject;
+  bh=fkCCIkqaqJctxZj2GiGjCNjQIx+/CxPQDQlGAO4ey68=;
+  b=a/9y/Ja6Wk5zCjOwKQqodRDcw/btT+MlySE4GdNQcXExif+y4k0t1jj9
+   Bxd63fHKvypldWp3l+jpUz4lauWcbY7zQRw6KsO7abhuaeHdYn2SGzvCs
+   62kcHOW/F5hBEJgc8I7Jhff2Z18kid0ArxXhX6Yjk99bEDZq+6o0RTqeT
+   s=;
+X-IronPort-AV: E=Sophos;i="5.82,216,1613433600"; 
+   d="scan'208";a="127042578"
+Subject: Re: [PATCH 1/2] bpf: fix userspace access for bpf_probe_read{, str}()
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP; 12 Apr 2021 20:02:08 +0000
+Received: from EX13D01EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
+        by email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com (Postfix) with ESMTPS id 34B78A04E0;
+        Mon, 12 Apr 2021 20:02:07 +0000 (UTC)
+Received: from 8c859063385e.ant.amazon.com (10.43.161.102) by
+ EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 12 Apr 2021 20:02:03 +0000
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     Sasha Levin <sashal@kernel.org>, <stable@vger.kernel.org>
+References: <56be4b97-8283-cf09-4dac-46d602cae97c@amazon.com>
+ <358062d4-fdf8-f3da-fd8e-c55cf1a089ec@amazon.com> <YGNeIhMNjQ0RGUGr@sashalap>
+ <b0a5f24a-4e25-53f2-f5fb-e09ac89dc869@amazon.com>
+ <YGg7zApJnXCFNgL4@kroah.com>
+ <655b6f67-787f-80dd-975e-3d1ab87b0c49@amazon.com>
+ <YHGMAxjfn1fKfgGE@kroah.com>
+From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
+Message-ID: <7f022c63-f0d9-cf5d-9330-d8548e4095b4@amazon.com>
+Date:   Mon, 12 Apr 2021 23:01:59 +0300
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
+ Gecko/20100101 Thunderbird/78.9.0
 MIME-Version: 1.0
-In-Reply-To: <0a4197a2-d417-dca5-20fe-908bb5e76b55@linuxfoundation.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <YHGMAxjfn1fKfgGE@kroah.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.43.161.102]
+X-ClientProxiedBy: EX13D44UWC002.ant.amazon.com (10.43.162.169) To
+ EX13D01EUA001.ant.amazon.com (10.43.165.121)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/12/21 1:25 PM, Shuah Khan wrote:
-> On 4/12/21 1:06 PM, Tom Seewald wrote:
->> On 4/12/21 1:59 PM, Tom Seewald wrote:
+
+
+On 10/04/2021 14:29, Greg KH wrote:
+> On Sun, Apr 04, 2021 at 12:13:46PM +0300, Zidenberg, Tsahi wrote:
+>> On 03/04/2021 12:56, Greg KH wrote:
+>>>
+>>> Again that would make things different from Linus's tree, which is what
+>>> we want to avoid if at all possible.
+>>>
+>>> What commits in 5.8 are you talking about here, if the changes are there
+>>> that work here in 5.4, that's fine.
+>> In 5.5 (mostly 6ae08ae3dea2) BPF UAPI was changed, bpf_probe_read was split
+>> into compat (original), user and kernel variants. Compat here just calls the
+>> kernel variant, which means it's still broken.
+> That's not a UAPI change, that does not change the userspace-visable
+> part, right?  Did something change?
+>
+>> In 5.8 (8d92db5c04d10), compat was fixed to call user/kernel variants
+>> according to address in machines where it makes sense, and disabled on other
+>> machines. I am trying to take the fix for machines where it's possible, and
+>> leave other machines untouched.
 >>
->>> commit 9858af27e69247c5d04c3b093190a93ca365f33d upstream.
->>>
->>> Currently udc->ud.tcp_rx is being assigned twice, the second assignment
->>> is incorrect, it should be to udc->ud.tcp_tx instead of rx. Fix this.
->>>
->>> Fixes: 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races 
->>> leading to gpf")
->>> Acked-by: Shuah Khan <skhan@linuxfoundation.org>
->>> Signed-off-by: Colin Ian King <colin.king@canonical.com>
->>> Cc: stable <stable@vger.kernel.org>
->>> Addresses-Coverity: ("Unused value")
->>> Link: 
->>> https://lore.kernel.org/r/20210311104445.7811-1-colin.king@canonical.com
->>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>> Signed-off-by: Tom Seewald <tseewald@gmail.com>
->>> ---
->>>   drivers/usb/usbip/vudc_sysfs.c | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/usb/usbip/vudc_sysfs.c 
->>> b/drivers/usb/usbip/vudc_sysfs.c
->>> index f44d98eeb36a..51cc5258b63e 100644
->>> --- a/drivers/usb/usbip/vudc_sysfs.c
->>> +++ b/drivers/usb/usbip/vudc_sysfs.c
->>> @@ -187,7 +187,7 @@ static ssize_t store_sockfd(struct device *dev,
->>>           udc->ud.tcp_socket = socket;
->>>           udc->ud.tcp_rx = tcp_rx;
->>> -        udc->ud.tcp_rx = tcp_tx;
->>> +        udc->ud.tcp_tx = tcp_tx;
->>>           udc->ud.status = SDEV_ST_USED;
->>>           spin_unlock_irq(&udc->ud.lock);
->> I sent this because I believe this patch needs to be backported to the
->> 4.9.y and 4.14.y stable trees.
->>
-> 
-> Tom,
-> 
-> Correct. This needs proting to 4.14 and 4.9. However, you have to also
-> backport the patch it fixes to 4.14 and 4.9
-> 
-> 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races leading to gpf")
-> 
+>> As I understand it, there are 3 options:
+>> 1)  Implement the same fix as v5.8, while staying with v5.4 code/API.
+>>     That's what my original patch did.
+>> 2)  Import the new 5.5 API + 5.8 fix. It's not trivial to get API-compatibility
+>>     right. Specifically - need to solve skb_output (a7658e1a4164c), another
+>>     entry in the BPF enum, introduced before the new read variants.
+> What "API-compatibility" are you trying for here?  There is no issues
+> with in-kernel changes of apis.
+>
+> What commits exactly does this require?  It is almost always better to
+> keep the same identical patches that are in newer kernels to be
+> backported than to do something different like you are doing in 1).
+> That way any future changes/fixes can easily also be backported.
+> Otherwise it gets harder and harder over time.
+This is how I understand it, please correct me if/where I'm wrong:
 
-Sorry for the noise. I see this patch fro you and that it was pulled in.
+include/uapi/linux/bpf.h is part of the UAPI. Specifically, bpf_func_id
+enum is part of the UAPI. This enum matches function I.D to bpf helper,
+and the indexes are kept constant across kernel versions.
 
-> You can combine the two patches when you backport to 4.14 and 4.9 and
-> add both upstream commits in the change log.
-> 
+Kernel 5.5 added skb_output helper (irrelevant to our fix) to that enum,
+and then added probe_read_{user,kernel}* functions on top of that. Taking
+probe_read_{user,kernel}* from commit 6ae08ae3dea2 itself is changing
+UAPI. The mainline fix in 5.8 (8d92db5c04d10) depends on that UAPI change.
 
-No need to combine. Thanks for backport.
+Appending another function is not a terrrible UAPI change, but to
+keep these functions at the same index as later kernel versions - we'd
+also need to either take skb_output or add a replacement.
 
-thanks,
--- Shuah
 
+Thank you!
+Tsahi.
