@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4E235BE62
+	by mail.lfdr.de (Postfix) with ESMTP id 99A7135BE63
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:58:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238876AbhDLI6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:58:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
+        id S238872AbhDLI6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238484AbhDLI4L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:56:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C25276125F;
-        Mon, 12 Apr 2021 08:55:52 +0000 (UTC)
+        id S238092AbhDLI4N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:56:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 716A16127B;
+        Mon, 12 Apr 2021 08:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217753;
-        bh=J1n92j6obGV3Ki7HcU/Q9lu7KmrSnOZ4jYG/jolQUXM=;
+        s=korg; t=1618217756;
+        bh=amPiYROyG1HCnSZccnfRBhCL98vW6QU/hQL4up/hrCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AX8myyTcDagWvnsPnabN35mJwZOnOtcLYcKIFnc4mnjLrAh2hah4QLlCxgg/AMnO
-         2lQ/qVWfu1lJMClHiPsOr4zNsb68ZKSG0vfLgUtDTirVASD8zZN8aRnbSyJFY6OX+u
-         N5YlhdmTde6rLiQiJjAhWxB9LPURt7bizRSi9NDg=
+        b=TXChfNES7sVkSRvXk5EWMPkbARKgS1EiW4EiCPNXb/6OXIcRBlpMPOpAF+1eHfRjk
+         iTae0MX/Co3rX3UGmfvaEpat6A5GHDUFWu/0xc4oDUTse23qeQvxJzpUChZLVTlMsR
+         3z9B/5LQewAzvMcyjmkE2NwJd7KPvEsUGIUE4mkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ariel Levkovich <lariel@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/188] net/mlx5e: Fix mapping of ct_label zero
-Date:   Mon, 12 Apr 2021 10:40:45 +0200
-Message-Id: <20210412084017.997386500@linuxfoundation.org>
+Subject: [PATCH 5.10 132/188] net/mlx5e: Fix ethtool indication of connector type
+Date:   Mon, 12 Apr 2021 10:40:46 +0200
+Message-Id: <20210412084018.029890092@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -41,128 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ariel Levkovich <lariel@nvidia.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit d24f847e54214049814b9515771622eaab3f42ab ]
+[ Upstream commit 3211434dfe7a66fcf55e43961ea524b78336c04c ]
 
-ct_label 0 is a default label each flow has and therefore
-there can be rules that match on ct_label=0 without a prior
-rule that set the ct_label to this value.
+Use connector_type read from PTYS register when it's valid, based on
+corresponding capability bit.
 
-The ct_label value is not used directly in the HW rules and
-instead it is mapped to some id within a defined range and this
-id is used to set and match the metadata register which carries
-the ct_label.
-
-If we have a rule that matches on ct_label=0, the hw rule will
-perform matching on a value that is != 0 because of the mapping
-from label to id. Since the metadata register default value is
-0 and it was never set before to anything else by an action that
-sets the ct_label, there will always be a mismatch between that
-register and the value in the rule.
-
-To support such rule, a forced mapping of ct_label 0 to id=0
-is done so that it will match the metadata register default
-value of 0.
-
-Fixes: 54b154ecfb8c ("net/mlx5e: CT: Map 128 bits labels to 32 bit map ID")
-Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
+Fixes: 5b4793f81745 ("net/mlx5e: Add support for reading connector type from PTYS")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlx5/core/en/tc_ct.c    | 36 +++++++++++++++----
- 1 file changed, 29 insertions(+), 7 deletions(-)
+ .../ethernet/mellanox/mlx5/core/en_ethtool.c  | 22 +++++++++----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-index b42396df3111..0469f53dfb99 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-@@ -184,6 +184,28 @@ mlx5_tc_ct_entry_has_nat(struct mlx5_ct_entry *entry)
- 	return !!(entry->tuple_nat_node.next);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index bcd05457647e..986f0d86e94d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -744,11 +744,11 @@ static int get_fec_supported_advertised(struct mlx5_core_dev *dev,
+ 	return 0;
  }
  
-+static int
-+mlx5_get_label_mapping(struct mlx5_tc_ct_priv *ct_priv,
-+		       u32 *labels, u32 *id)
-+{
-+	if (!memchr_inv(labels, 0, sizeof(u32) * 4)) {
-+		*id = 0;
-+		return 0;
-+	}
-+
-+	if (mapping_add(ct_priv->labels_mapping, labels, id))
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
-+static void
-+mlx5_put_label_mapping(struct mlx5_tc_ct_priv *ct_priv, u32 id)
-+{
-+	if (id)
-+		mapping_remove(ct_priv->labels_mapping, id);
-+}
-+
- static int
- mlx5_tc_ct_rule_to_tuple(struct mlx5_ct_tuple *tuple, struct flow_rule *rule)
+-static void ptys2ethtool_supported_advertised_port(struct ethtool_link_ksettings *link_ksettings,
+-						   u32 eth_proto_cap,
+-						   u8 connector_type, bool ext)
++static void ptys2ethtool_supported_advertised_port(struct mlx5_core_dev *mdev,
++						   struct ethtool_link_ksettings *link_ksettings,
++						   u32 eth_proto_cap, u8 connector_type)
  {
-@@ -435,7 +457,7 @@ mlx5_tc_ct_entry_del_rule(struct mlx5_tc_ct_priv *ct_priv,
- 	mlx5_tc_rule_delete(netdev_priv(ct_priv->netdev), zone_rule->rule, attr);
- 	mlx5e_mod_hdr_detach(ct_priv->dev,
- 			     ct_priv->mod_hdr_tbl, zone_rule->mh);
--	mapping_remove(ct_priv->labels_mapping, attr->ct_attr.ct_labels_id);
-+	mlx5_put_label_mapping(ct_priv, attr->ct_attr.ct_labels_id);
- 	kfree(attr);
- }
+-	if ((!connector_type && !ext) || connector_type >= MLX5E_CONNECTOR_TYPE_NUMBER) {
++	if (!MLX5_CAP_PCAM_FEATURE(mdev, ptys_connector_type)) {
+ 		if (eth_proto_cap & (MLX5E_PROT_MASK(MLX5E_10GBASE_CR)
+ 				   | MLX5E_PROT_MASK(MLX5E_10GBASE_SR)
+ 				   | MLX5E_PROT_MASK(MLX5E_40GBASE_CR4)
+@@ -884,9 +884,9 @@ static int ptys2connector_type[MLX5E_CONNECTOR_TYPE_NUMBER] = {
+ 		[MLX5E_PORT_OTHER]              = PORT_OTHER,
+ 	};
  
-@@ -638,8 +660,8 @@ mlx5_tc_ct_entry_create_mod_hdr(struct mlx5_tc_ct_priv *ct_priv,
- 	if (!meta)
- 		return -EOPNOTSUPP;
+-static u8 get_connector_port(u32 eth_proto, u8 connector_type, bool ext)
++static u8 get_connector_port(struct mlx5_core_dev *mdev, u32 eth_proto, u8 connector_type)
+ {
+-	if ((connector_type || ext) && connector_type < MLX5E_CONNECTOR_TYPE_NUMBER)
++	if (MLX5_CAP_PCAM_FEATURE(mdev, ptys_connector_type))
+ 		return ptys2connector_type[connector_type];
  
--	err = mapping_add(ct_priv->labels_mapping, meta->ct_metadata.labels,
--			  &attr->ct_attr.ct_labels_id);
-+	err = mlx5_get_label_mapping(ct_priv, meta->ct_metadata.labels,
-+				     &attr->ct_attr.ct_labels_id);
- 	if (err)
- 		return -EOPNOTSUPP;
- 	if (nat) {
-@@ -675,7 +697,7 @@ mlx5_tc_ct_entry_create_mod_hdr(struct mlx5_tc_ct_priv *ct_priv,
+ 	if (eth_proto &
+@@ -987,11 +987,11 @@ int mlx5e_ethtool_get_link_ksettings(struct mlx5e_priv *priv,
+ 			 data_rate_oper, link_ksettings);
  
- err_mapping:
- 	dealloc_mod_hdr_actions(&mod_acts);
--	mapping_remove(ct_priv->labels_mapping, attr->ct_attr.ct_labels_id);
-+	mlx5_put_label_mapping(ct_priv, attr->ct_attr.ct_labels_id);
- 	return err;
- }
+ 	eth_proto_oper = eth_proto_oper ? eth_proto_oper : eth_proto_cap;
+-
+-	link_ksettings->base.port = get_connector_port(eth_proto_oper,
+-						       connector_type, ext);
+-	ptys2ethtool_supported_advertised_port(link_ksettings, eth_proto_admin,
+-					       connector_type, ext);
++	connector_type = connector_type < MLX5E_CONNECTOR_TYPE_NUMBER ?
++			 connector_type : MLX5E_PORT_UNKNOWN;
++	link_ksettings->base.port = get_connector_port(mdev, eth_proto_oper, connector_type);
++	ptys2ethtool_supported_advertised_port(mdev, link_ksettings, eth_proto_admin,
++					       connector_type);
+ 	get_lp_advertising(mdev, eth_proto_lp, link_ksettings);
  
-@@ -743,7 +765,7 @@ mlx5_tc_ct_entry_add_rule(struct mlx5_tc_ct_priv *ct_priv,
- err_rule:
- 	mlx5e_mod_hdr_detach(ct_priv->dev,
- 			     ct_priv->mod_hdr_tbl, zone_rule->mh);
--	mapping_remove(ct_priv->labels_mapping, attr->ct_attr.ct_labels_id);
-+	mlx5_put_label_mapping(ct_priv, attr->ct_attr.ct_labels_id);
- err_mod_hdr:
- 	kfree(attr);
- err_attr:
-@@ -1198,7 +1220,7 @@ void mlx5_tc_ct_match_del(struct mlx5_tc_ct_priv *priv, struct mlx5_ct_attr *ct_
- 	if (!priv || !ct_attr->ct_labels_id)
- 		return;
- 
--	mapping_remove(priv->labels_mapping, ct_attr->ct_labels_id);
-+	mlx5_put_label_mapping(priv, ct_attr->ct_labels_id);
- }
- 
- int
-@@ -1276,7 +1298,7 @@ mlx5_tc_ct_match_add(struct mlx5_tc_ct_priv *priv,
- 		ct_labels[1] = key->ct_labels[1] & mask->ct_labels[1];
- 		ct_labels[2] = key->ct_labels[2] & mask->ct_labels[2];
- 		ct_labels[3] = key->ct_labels[3] & mask->ct_labels[3];
--		if (mapping_add(priv->labels_mapping, ct_labels, &ct_attr->ct_labels_id))
-+		if (mlx5_get_label_mapping(priv, ct_labels, &ct_attr->ct_labels_id))
- 			return -EOPNOTSUPP;
- 		mlx5e_tc_match_to_reg_match(spec, LABELS_TO_REG, ct_attr->ct_labels_id,
- 					    MLX5_CT_LABELS_MASK);
+ 	if (an_status == MLX5_AN_COMPLETE)
 -- 
 2.30.2
 
