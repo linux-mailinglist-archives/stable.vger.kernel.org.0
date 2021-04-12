@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B2135BD57
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8527F35BCFE
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237538AbhDLIvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S237845AbhDLIqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237949AbhDLIrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:47:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62B326125F;
-        Mon, 12 Apr 2021 08:47:19 +0000 (UTC)
+        id S237669AbhDLIqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:46:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EBE461245;
+        Mon, 12 Apr 2021 08:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217239;
-        bh=D/HvxFYjZJ/ANAhaqPehwJ3N5Iqsp0HOSQFW644kqmM=;
+        s=korg; t=1618217148;
+        bh=P2D4o7lv0mWCWb/1eKIOWs4s/G4pPWQFCSABRLLAs4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBIwZLd4vB6Wr+i48t86En8bZtJhLusZH5GSTRjPxIlIitrtEvAKmQ1RnOLdhUzRk
-         GArPqRSh3pDZnx4FRYd325G4HXvxjGf6tNUO+E8vMKyW13PO5FItwansQymjC8LRXo
-         nUN6rUBUAPXR+i5Cl6wyX679HiUOnYyGUG1gg5K8=
+        b=pc4KIDt/V+gMxMJvZgzR86rx7pEe3sIuqXJCUPzHaCaLKU6RF6jdYTsvKHQcNe/y6
+         m1nT9kS00W/I2agqqiLRn+71Ph87nO4Mq92izKxAGpng5iIehqX3iZpvzBkft//zKl
+         o/yxSbik0+PMHRb89KZaikoPNW/jZbUGSsoAqkAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: [PATCH 5.4 020/111] ARM: dts: turris-omnia: configure LED[2]/INTn pin as interrupt pin
-Date:   Mon, 12 Apr 2021 10:39:58 +0200
-Message-Id: <20210412084004.896046541@linuxfoundation.org>
+        syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sven Eckelmann <sven@narfation.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 021/111] batman-adv: initialize "struct batadv_tvlv_tt_vlan_data"->reserved field
+Date:   Mon, 12 Apr 2021 10:39:59 +0200
+Message-Id: <20210412084004.929381077@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
 References: <20210412084004.200986670@linuxfoundation.org>
@@ -43,53 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit a26c56ae67fa9fbb45a8a232dcd7ebaa7af16086 upstream.
+commit 08c27f3322fec11950b8f1384aa0f3b11d028528 upstream.
 
-Use the `marvell,reg-init` DT property to configure the LED[2]/INTn pin
-of the Marvell 88E1514 ethernet PHY on Turris Omnia into interrupt mode.
+KMSAN found uninitialized value at batadv_tt_prepare_tvlv_local_data()
+[1], for commit ced72933a5e8ab52 ("batman-adv: use CRC32C instead of CRC16
+in TT code") inserted 'reserved' field into "struct batadv_tvlv_tt_data"
+and commit 7ea7b4a142758dea ("batman-adv: make the TT CRC logic VLAN
+specific") moved that field to "struct batadv_tvlv_tt_vlan_data" but left
+that field uninitialized.
 
-Without this the pin is by default in LED[2] mode, and the Marvell PHY
-driver configures LED[2] into "On - Link, Blink - Activity" mode.
+[1] https://syzkaller.appspot.com/bug?id=07f3e6dba96f0eb3cabab986adcd8a58b9bdbe9d
 
-This fixes the issue where the pca9538 GPIO/interrupt controller (which
-can't mask interrupts in HW) received too many interrupts and after a
-time started ignoring the interrupt with error message:
-  IRQ 71: nobody cared
-
-There is a work in progress to have the Marvell PHY driver support
-parsing PHY LED nodes from OF and registering the LEDs as Linux LED
-class devices. Once this is done the PHY driver can also automatically
-set the pin into INTn mode if it does not find LED[2] in OF.
-
-Until then, though, we fix this via `marvell,reg-init` DT property.
-
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
-Cc: Uwe Kleine-König <uwe@kleine-koenig.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: <stable@vger.kernel.org>
-Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Reported-by: syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>
+Tested-by: syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: ced72933a5e8ab52 ("batman-adv: use CRC32C instead of CRC16 in TT code")
+Fixes: 7ea7b4a142758dea ("batman-adv: make the TT CRC logic VLAN specific")
+Acked-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/armada-385-turris-omnia.dts |    1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/translation-table.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
-+++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-@@ -236,6 +236,7 @@
- 		status = "okay";
- 		compatible = "ethernet-phy-id0141.0DD1", "ethernet-phy-ieee802.3-c22";
- 		reg = <1>;
-+		marvell,reg-init = <3 18 0 0x4985>;
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -891,6 +891,7 @@ batadv_tt_prepare_tvlv_global_data(struc
+ 	hlist_for_each_entry_rcu(vlan, &orig_node->vlan_list, list) {
+ 		tt_vlan->vid = htons(vlan->vid);
+ 		tt_vlan->crc = htonl(vlan->tt.crc);
++		tt_vlan->reserved = 0;
  
- 		/* irq is connected to &pcawan pin 7 */
- 	};
+ 		tt_vlan++;
+ 	}
+@@ -974,6 +975,7 @@ batadv_tt_prepare_tvlv_local_data(struct
+ 
+ 		tt_vlan->vid = htons(vlan->vid);
+ 		tt_vlan->crc = htonl(vlan->tt.crc);
++		tt_vlan->reserved = 0;
+ 
+ 		tt_vlan++;
+ 	}
 
 
