@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F43035BFC7
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F7635BFC8
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238771AbhDLJGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:06:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54796 "EHLO mail.kernel.org"
+        id S239102AbhDLJGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:06:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239968AbhDLJEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239969AbhDLJEU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:04:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 631B26128B;
-        Mon, 12 Apr 2021 09:01:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A1C861286;
+        Mon, 12 Apr 2021 09:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218112;
-        bh=soO65RWWiAufIVqij2Tf9tJ6jf33ypvx+Bw7cZSUuJg=;
+        s=korg; t=1618218114;
+        bh=ubXmlWW5n9QdI6mRpNp7ZKHoYKW/LfpHrV0fsZbq2k4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJPYcZaHBjfM1SPvX3puXTpxVPnfIfO5D7niABPrMjKldN5ciYhSSYNssIkdjGvc4
-         /Ryr5FbG0jCfLPLSFdJTWlq6/qmeMZvWbRk/JcMuHrmGDuB0SMgGyI1KtdeMKB1shm
-         wVTw5p45X29kF8JOO1n8Wc58oMHe+kRAXdZAHrSY=
+        b=pjd4UrPSylkdApwCYu6ci/aR0IgDBsNLPLvXZzGzlEQwCjF62BVspULgvgk+9ivPw
+         lV7Eh8NEcA22gGIhWrnUy4HCt7M59F2qzd3tSoxXIUmHoW8PzX9aH3shnxyq64Em5p
+         CgAtoZeUpLFTyxJCH4tu7KRqs/DuWCOSi/9VcSn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 075/210] net: hsr: Reset MAC header for Tx path
-Date:   Mon, 12 Apr 2021 10:39:40 +0200
-Message-Id: <20210412084018.519381697@linuxfoundation.org>
+Subject: [PATCH 5.11 076/210] net-ipv6: bugfix - raw & sctp - switch to ipv6_can_nonlocal_bind()
+Date:   Mon, 12 Apr 2021 10:39:41 +0200
+Message-Id: <20210412084018.554395899@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -40,66 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Kanzenbach <kurt@linutronix.de>
+From: Maciej Żenczykowski <maze@google.com>
 
-commit 9d6803921a16f4d768dc41a75375629828f4d91e upstream.
+commit 630e4576f83accf90366686f39808d665d8dbecc upstream.
 
-Reset MAC header in HSR Tx path. This is needed, because direct packet
-transmission, e.g. by specifying PACKET_QDISC_BYPASS does not reset the MAC
-header.
+Found by virtue of ipv6 raw sockets not honouring the per-socket
+IP{,V6}_FREEBIND setting.
 
-This has been observed using the following setup:
+Based on hits found via:
+  git grep '[.]ip_nonlocal_bind'
+We fix both raw ipv6 sockets to honour IP{,V6}_FREEBIND and IP{,V6}_TRANSPARENT,
+and we fix sctp sockets to honour IP{,V6}_TRANSPARENT (they already honoured
+FREEBIND), and not just the ipv6 'ip_nonlocal_bind' sysctl.
 
-|$ ip link add name hsr0 type hsr slave1 lan0 slave2 lan1 supervision 45 version 1
-|$ ifconfig hsr0 up
-|$ ./test hsr0
+The helper is defined as:
+  static inline bool ipv6_can_nonlocal_bind(struct net *net, struct inet_sock *inet) {
+    return net->ipv6.sysctl.ip_nonlocal_bind || inet->freebind || inet->transparent;
+  }
+so this change only widens the accepted opt-outs and is thus a clean bugfix.
 
-The test binary is using mmap'ed sockets and is specifying the
-PACKET_QDISC_BYPASS socket option.
+I'm not entirely sure what 'fixes' tag to add, since this is AFAICT an ancient bug,
+but IMHO this should be applied to stable kernels as far back as possible.
+As such I'm adding a 'fixes' tag with the commit that originally added the helper,
+which happened in 4.19.  Backporting to older LTS kernels (at least 4.9 and 4.14)
+would presumably require open-coding it or backporting the helper as well.
 
-This patch resolves the following warning on a non-patched kernel:
+Other possibly relevant commits:
+  v4.18-rc6-1502-g83ba4645152d net: add helpers checking if socket can be bound to nonlocal address
+  v4.18-rc6-1431-gd0c1f01138c4 net/ipv6: allow any source address for sendmsg pktinfo with ip_nonlocal_bind
+  v4.14-rc5-271-gb71d21c274ef sctp: full support for ipv6 ip_nonlocal_bind & IP_FREEBIND
+  v4.7-rc7-1883-g9b9742022888 sctp: support ipv6 nonlocal bind
+  v4.1-12247-g35a256fee52c ipv6: Nonlocal bind
 
-|[  112.725394] ------------[ cut here ]------------
-|[  112.731418] WARNING: CPU: 1 PID: 257 at net/hsr/hsr_forward.c:560 hsr_forward_skb+0x484/0x568
-|[  112.739962] net/hsr/hsr_forward.c:560: Malformed frame (port_src hsr0)
-
-The warning can be safely removed, because the other call sites of
-hsr_forward_skb() make sure that the skb is prepared correctly.
-
-Fixes: d346a3fae3ff ("packet: introduce PACKET_QDISC_BYPASS socket option")
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Cc: Lorenzo Colitti <lorenzo@google.com>
+Fixes: 83ba4645152d ("net: add helpers checking if socket can be bound to nonlocal address")
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/hsr/hsr_device.c  |    1 +
- net/hsr/hsr_forward.c |    6 ------
- 2 files changed, 1 insertion(+), 6 deletions(-)
+ net/ipv6/raw.c  |    2 +-
+ net/sctp/ipv6.c |    7 +++----
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
---- a/net/hsr/hsr_device.c
-+++ b/net/hsr/hsr_device.c
-@@ -217,6 +217,7 @@ static netdev_tx_t hsr_dev_xmit(struct s
- 	master = hsr_port_get_hsr(hsr, HSR_PT_MASTER);
- 	if (master) {
- 		skb->dev = master->dev;
-+		skb_reset_mac_header(skb);
- 		hsr_forward_skb(skb, master);
- 	} else {
- 		atomic_long_inc(&dev->tx_dropped);
---- a/net/hsr/hsr_forward.c
-+++ b/net/hsr/hsr_forward.c
-@@ -528,12 +528,6 @@ void hsr_forward_skb(struct sk_buff *skb
- {
- 	struct hsr_frame_info frame;
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -298,7 +298,7 @@ static int rawv6_bind(struct sock *sk, s
+ 		 */
+ 		v4addr = LOOPBACK4_IPV6;
+ 		if (!(addr_type & IPV6_ADDR_MULTICAST) &&
+-		    !sock_net(sk)->ipv6.sysctl.ip_nonlocal_bind) {
++		    !ipv6_can_nonlocal_bind(sock_net(sk), inet)) {
+ 			err = -EADDRNOTAVAIL;
+ 			if (!ipv6_chk_addr(sock_net(sk), &addr->sin6_addr,
+ 					   dev, 0)) {
+--- a/net/sctp/ipv6.c
++++ b/net/sctp/ipv6.c
+@@ -664,8 +664,8 @@ static int sctp_v6_available(union sctp_
+ 	if (!(type & IPV6_ADDR_UNICAST))
+ 		return 0;
  
--	if (skb_mac_header(skb) != skb->data) {
--		WARN_ONCE(1, "%s:%d: Malformed frame (port_src %s)\n",
--			  __FILE__, __LINE__, port->dev->name);
--		goto out_drop;
--	}
--
- 	if (fill_frame_info(&frame, skb, port) < 0)
- 		goto out_drop;
+-	return sp->inet.freebind || net->ipv6.sysctl.ip_nonlocal_bind ||
+-		ipv6_chk_addr(net, in6, NULL, 0);
++	return ipv6_can_nonlocal_bind(net, &sp->inet) ||
++	       ipv6_chk_addr(net, in6, NULL, 0);
+ }
  
+ /* This function checks if the address is a valid address to be used for
+@@ -954,8 +954,7 @@ static int sctp_inet6_bind_verify(struct
+ 			net = sock_net(&opt->inet.sk);
+ 			rcu_read_lock();
+ 			dev = dev_get_by_index_rcu(net, addr->v6.sin6_scope_id);
+-			if (!dev || !(opt->inet.freebind ||
+-				      net->ipv6.sysctl.ip_nonlocal_bind ||
++			if (!dev || !(ipv6_can_nonlocal_bind(net, &opt->inet) ||
+ 				      ipv6_chk_addr(net, &addr->v6.sin6_addr,
+ 						    dev, 0))) {
+ 				rcu_read_unlock();
 
 
