@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 180C735C0BD
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C136635C0BC
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241348AbhDLJPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:15:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34520 "EHLO mail.kernel.org"
+        id S241340AbhDLJPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240699AbhDLJKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240702AbhDLJKw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:10:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B17F0613A0;
-        Mon, 12 Apr 2021 09:06:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C504613A1;
+        Mon, 12 Apr 2021 09:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218384;
-        bh=sfhFdS9Q1MWM/QFvieKxTx9T3Fmq0TZMfPpk+tmKXrk=;
+        s=korg; t=1618218386;
+        bh=vzfmAbjUSjumSaENsQ5SfAjPlALE9Mnb4rhh41mrwnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xE/ErS2bpDVXTVlUQQI77suw4OHzSqal04ZNVGJ34dV4Zx619ZA/JT8ClPLwir7y0
-         s2TxA5DN/0BtJ+dzdNERVcvx28uly60tKpTYCDuzyKY4SUsPCBlSxs8T3L2UjOTVhb
-         RLJY5x7RRYh4Jnmkmz70WRaKu+racAPMWNgMbbA4=
+        b=T3XYhzZFXyuh1NdVz/E3lXz9a5SQp6SZJA/p/BS5rwN2PkAoZOP40aKqbdfWjhQQn
+         UgvvqZ/l3aFYw66NPfo9a8Ko9A4lH6KTOr24fmDorItzkuoHl25TyBNzixLgCloaKf
+         xjaTQqCSvoqczfnv8sR7Z2R77+pvdavhxKu7gSNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        stable@vger.kernel.org, Raed Salem <raeds@nvidia.com>,
         Roi Dayan <roid@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 178/210] net/mlx5: Fix HW spec violation configuring uplink
-Date:   Mon, 12 Apr 2021 10:41:23 +0200
-Message-Id: <20210412084021.943972043@linuxfoundation.org>
+Subject: [PATCH 5.11 179/210] net/mlx5: Fix placement of log_max_flow_counter
+Date:   Mon, 12 Apr 2021 10:41:24 +0200
+Message-Id: <20210412084021.974665869@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,40 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Raed Salem <raeds@nvidia.com>
 
-[ Upstream commit 1a73704c82ed4ee95532ac04645d02075bd1ce3d ]
+[ Upstream commit a14587dfc5ad2312dabdd42a610d80ecd0dc8bea ]
 
-Make sure to modify uplink port to follow only if the uplink_follow
-capability is set as required by the HW spec. Failure to do so causes
-traffic to the uplink representor net device to cease after switching to
-switchdev mode.
+The cited commit wrongly placed log_max_flow_counter field of
+mlx5_ifc_flow_table_prop_layout_bits, align it to the HW spec intended
+placement.
 
-Fixes: 7d0314b11cdd ("net/mlx5e: Modify uplink state on interface up/down")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
+Fixes: 16f1c5bb3ed7 ("net/mlx5: Check device capability for maximum flow counters")
+Signed-off-by: Raed Salem <raeds@nvidia.com>
 Reviewed-by: Roi Dayan <roid@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/linux/mlx5/mlx5_ifc.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index f0ceae65f6cf..8afbb485197e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -1103,8 +1103,9 @@ static void mlx5e_uplink_rep_enable(struct mlx5e_priv *priv)
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index 442c0160caab..def58d333357 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -437,11 +437,11 @@ struct mlx5_ifc_flow_table_prop_layout_bits {
+ 	u8         reserved_at_60[0x18];
+ 	u8         log_max_ft_num[0x8];
  
- 	mlx5e_rep_tc_enable(priv);
+-	u8         reserved_at_80[0x18];
++	u8         reserved_at_80[0x10];
++	u8         log_max_flow_counter[0x8];
+ 	u8         log_max_destination[0x8];
  
--	mlx5_modify_vport_admin_state(mdev, MLX5_VPORT_STATE_OP_MOD_UPLINK,
--				      0, 0, MLX5_VPORT_ADMIN_STATE_AUTO);
-+	if (MLX5_CAP_GEN(mdev, uplink_follow))
-+		mlx5_modify_vport_admin_state(mdev, MLX5_VPORT_STATE_OP_MOD_UPLINK,
-+					      0, 0, MLX5_VPORT_ADMIN_STATE_AUTO);
- 	mlx5_lag_add(mdev, netdev);
- 	priv->events_nb.notifier_call = uplink_rep_async_event;
- 	mlx5_notifier_register(mdev, &priv->events_nb);
+-	u8         log_max_flow_counter[0x8];
+-	u8         reserved_at_a8[0x10];
++	u8         reserved_at_a0[0x18];
+ 	u8         log_max_flow[0x8];
+ 
+ 	u8         reserved_at_c0[0x40];
 -- 
 2.30.2
 
