@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E4E435CCEC
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16A7F35CCEE
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245267AbhDLQcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35662 "EHLO mail.kernel.org"
+        id S244405AbhDLQcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245184AbhDLQ3z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:29:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 846CC6135C;
-        Mon, 12 Apr 2021 16:25:54 +0000 (UTC)
+        id S245218AbhDLQ37 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:29:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE89F6137E;
+        Mon, 12 Apr 2021 16:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244755;
-        bh=nkH7xThCyOmnPCpcc/xlAl5WT+HcSRCGoCaTMMxeiEA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HmaMrQ/ohn/mnVLGUxQY+AcaP1Rg6S4+bmy+9+Fl342gUIyM3iHtQIKOMXaCmRyNs
-         A41LSap4Wb+Vw0EiGrlXv3cesyVaHxJZe1y1kv6t49Gu/J/62Uew4Un+maBq/QY7Tq
-         IFKN1FdinYxHaBBAJJwZjofqZOi5zfmoIH6aaLE9mIGJdLlJlz9y6VujZz43sUUX1Q
-         //ST1LGqKbp956/nBRrd/WrTAUunZjrFNaDiqm83hZVNltdy8wAclyPO6NfzUoDCAv
-         A54YgV7z8EHKR0DEQ7COH6X6ZEplvsszYn0eWLsqt4w48KAYxNsTYdyGL83fHyetbd
-         nCnV3rUZ2EGfw==
+        s=k20201202; t=1618244756;
+        bh=KIjlBCnctNqc0Qkw8zC7bGRvsCSFLvIvPjGwR1DxRBA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=kJ9CTBRGJFGMYIAN8eAjbm8yf7lq95n7JhWMY0DobVkjg95GQanBsOPinnnAnoo/0
+         OedH/zk4Yukva8uP/cRYgCsMSLwmUwru0iyejm0jncCAuFTghXECqTAfdfkNoLZgdI
+         QoWJz17Ij9baoZDnF3+b3L2joU4FYcc76iGfIO2es4dEzf3PjJ2K18S1wbM16oDE9A
+         GiCtfW1Jczv3yZzwelbJW7K6wKyaPAz+qNdpV7cidCt9VVuuElD0veUeaYv4aaCV99
+         44Ky/Zlrj8toXMILxrtdpve2xkJPnm8lwT6ubMC0znoGsOcq4bMO0WJrIRd2U2RrPN
+         l9wBHRVCPK+Vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/28] net: ieee802154: nl-mac: fix check on panid
-Date:   Mon, 12 Apr 2021 12:25:26 -0400
-Message-Id: <20210412162553.315227-1-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 02/28] ARM: dts: Drop duplicate sha2md5_fck to fix clk_disable race
+Date:   Mon, 12 Apr 2021 12:25:27 -0400
+Message-Id: <20210412162553.315227-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210412162553.315227-1-sashal@kernel.org>
+References: <20210412162553.315227-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,47 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 6f7f657f24405f426212c09260bf7fe8a52cef33 ]
+[ Upstream commit 140a776833957539c84301dbdb4c3013876de118 ]
 
-This patch fixes a null pointer derefence for panid handle by move the
-check for the netlink variable directly before accessing them.
+We have a duplicate legacy clock defined for sha2md5_fck that can
+sometimes race with clk_disable() with the dts configured clock
+for OMAP4_SHA2MD5_CLKCTRL when unused clocks are disabled during
+boot causing an "Unhandled fault: imprecise external abort".
 
-Reported-by: syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210228151817.95700-4-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl-mac.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/omap44xx-clocks.dtsi | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
-index d3cbb3258718..c0930b9fe848 100644
---- a/net/ieee802154/nl-mac.c
-+++ b/net/ieee802154/nl-mac.c
-@@ -559,9 +559,7 @@ ieee802154_llsec_parse_key_id(struct genl_info *info,
- 	desc->mode = nla_get_u8(info->attrs[IEEE802154_ATTR_LLSEC_KEY_MODE]);
+diff --git a/arch/arm/boot/dts/omap44xx-clocks.dtsi b/arch/arm/boot/dts/omap44xx-clocks.dtsi
+index 279ff2f419df..c654588f9e8c 100644
+--- a/arch/arm/boot/dts/omap44xx-clocks.dtsi
++++ b/arch/arm/boot/dts/omap44xx-clocks.dtsi
+@@ -773,14 +773,6 @@ per_abe_nc_fclk: per_abe_nc_fclk@108 {
+ 		ti,max-div = <2>;
+ 	};
  
- 	if (desc->mode == IEEE802154_SCF_KEY_IMPLICIT) {
--		if (!info->attrs[IEEE802154_ATTR_PAN_ID] &&
--		    !(info->attrs[IEEE802154_ATTR_SHORT_ADDR] ||
--		      info->attrs[IEEE802154_ATTR_HW_ADDR]))
-+		if (!info->attrs[IEEE802154_ATTR_PAN_ID])
- 			return -EINVAL;
- 
- 		desc->device_addr.pan_id = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_PAN_ID]);
-@@ -570,6 +568,9 @@ ieee802154_llsec_parse_key_id(struct genl_info *info,
- 			desc->device_addr.mode = IEEE802154_ADDR_SHORT;
- 			desc->device_addr.short_addr = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_SHORT_ADDR]);
- 		} else {
-+			if (!info->attrs[IEEE802154_ATTR_HW_ADDR])
-+				return -EINVAL;
-+
- 			desc->device_addr.mode = IEEE802154_ADDR_LONG;
- 			desc->device_addr.extended_addr = nla_get_hwaddr(info->attrs[IEEE802154_ATTR_HW_ADDR]);
- 		}
+-	sha2md5_fck: sha2md5_fck@15c8 {
+-		#clock-cells = <0>;
+-		compatible = "ti,gate-clock";
+-		clocks = <&l3_div_ck>;
+-		ti,bit-shift = <1>;
+-		reg = <0x15c8>;
+-	};
+-
+ 	usb_phy_cm_clk32k: usb_phy_cm_clk32k@640 {
+ 		#clock-cells = <0>;
+ 		compatible = "ti,gate-clock";
 -- 
 2.30.2
 
