@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE05B35BE43
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 772ED35BC6B
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:42:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238067AbhDLI5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
+        id S237408AbhDLImy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:42:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239010AbhDLIzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2744D60241;
-        Mon, 12 Apr 2021 08:54:42 +0000 (UTC)
+        id S237382AbhDLImx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:42:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D05E860241;
+        Mon, 12 Apr 2021 08:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217683;
-        bh=nD1wYYd8GyeP2whV1NZOh4o2J55w3Drtk2N/AHn7La4=;
+        s=korg; t=1618216953;
+        bh=VtxEQRiwyuFmL0zhKr8vsmVfpg81OvatR/oQmAt/NcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Gb0UWpLqslT2iUO8ItYgp3ezloraDq9i32LlHmaSkEqSN1/NGjQJk9dZ3vFQit+o
-         HRCoqT9KNnG3NCxMwm4yIftoo1ZWmh6Id61Yq3Mt+f4WqB5OYnev4rXZi0rCmjGiTV
-         8lCuqv4HUaBKzuVc39Ue7aKa629mqexM/AY12ROc=
+        b=Gljduvh1M4lyrx+f+hX+IZkP+XdkXssSI593SOYNkQLx4fi09o+hdxlh2VpMqqXok
+         FIviq9E1E8eaJGPC3SMEq9/peuW0EDiRA0AUHrpcmycZP9AvdXIggBPfoAhHpRz2QT
+         fLvIK60BcN5HkVHZtaCAxFggeEQVTRYSGaoL0wFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 108/188] hostfs: fix memory handling in follow_link()
+        stable@vger.kernel.org,
+        syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sven Eckelmann <sven@narfation.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 16/66] batman-adv: initialize "struct batadv_tvlv_tt_vlan_data"->reserved field
 Date:   Mon, 12 Apr 2021 10:40:22 +0200
-Message-Id: <20210412084017.232221816@linuxfoundation.org>
+Message-Id: <20210412083958.654447823@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 7f6c411c9b50cfab41cc798e003eff27608c7016 ]
+commit 08c27f3322fec11950b8f1384aa0f3b11d028528 upstream.
 
-1) argument should not be freed in any case - the caller already has
-it as ->s_fs_info (and uses it a lot afterwards)
-2) allocate readlink buffer with kmalloc() - the caller has no way
-to tell if it's got that (on absolute symlink) or a result of
-kasprintf().  Sure, for SLAB and SLUB kfree() works on results of
-kmem_cache_alloc(), but that's not documented anywhere, might change
-in the future *and* is already not true for SLOB.
+KMSAN found uninitialized value at batadv_tt_prepare_tvlv_local_data()
+[1], for commit ced72933a5e8ab52 ("batman-adv: use CRC32C instead of CRC16
+in TT code") inserted 'reserved' field into "struct batadv_tvlv_tt_data"
+and commit 7ea7b4a142758dea ("batman-adv: make the TT CRC logic VLAN
+specific") moved that field to "struct batadv_tvlv_tt_vlan_data" but left
+that field uninitialized.
 
-Fixes: 52b209f7b848 ("get rid of hostfs_read_inode()")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://syzkaller.appspot.com/bug?id=07f3e6dba96f0eb3cabab986adcd8a58b9bdbe9d
+
+Reported-by: syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>
+Tested-by: syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: ced72933a5e8ab52 ("batman-adv: use CRC32C instead of CRC16 in TT code")
+Fixes: 7ea7b4a142758dea ("batman-adv: make the TT CRC logic VLAN specific")
+Acked-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hostfs/hostfs_kern.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/batman-adv/translation-table.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/hostfs/hostfs_kern.c b/fs/hostfs/hostfs_kern.c
-index c070c0d8e3e9..d4e360234579 100644
---- a/fs/hostfs/hostfs_kern.c
-+++ b/fs/hostfs/hostfs_kern.c
-@@ -142,7 +142,7 @@ static char *follow_link(char *link)
- 	char *name, *resolved, *end;
- 	int n;
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -904,6 +904,7 @@ batadv_tt_prepare_tvlv_global_data(struc
+ 	hlist_for_each_entry_rcu(vlan, &orig_node->vlan_list, list) {
+ 		tt_vlan->vid = htons(vlan->vid);
+ 		tt_vlan->crc = htonl(vlan->tt.crc);
++		tt_vlan->reserved = 0;
  
--	name = __getname();
-+	name = kmalloc(PATH_MAX, GFP_KERNEL);
- 	if (!name) {
- 		n = -ENOMEM;
- 		goto out_free;
-@@ -171,12 +171,11 @@ static char *follow_link(char *link)
- 		goto out_free;
+ 		tt_vlan++;
  	}
+@@ -987,6 +988,7 @@ batadv_tt_prepare_tvlv_local_data(struct
  
--	__putname(name);
--	kfree(link);
-+	kfree(name);
- 	return resolved;
+ 		tt_vlan->vid = htons(vlan->vid);
+ 		tt_vlan->crc = htonl(vlan->tt.crc);
++		tt_vlan->reserved = 0;
  
-  out_free:
--	__putname(name);
-+	kfree(name);
- 	return ERR_PTR(n);
- }
- 
--- 
-2.30.2
-
+ 		tt_vlan++;
+ 	}
 
 
