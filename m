@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71DCE35BD66
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB4C35BE75
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238100AbhDLIvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
+        id S238933AbhDLI61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:58:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238215AbhDLItK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A937061288;
-        Mon, 12 Apr 2021 08:48:09 +0000 (UTC)
+        id S238108AbhDLI4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:56:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7939761355;
+        Mon, 12 Apr 2021 08:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217290;
-        bh=QwS9Gr7C2v78Zoxj3SMmHfHRt3K2UaOLjyc0YV6CGT0=;
+        s=korg; t=1618217783;
+        bh=7G0J9gmIuJspoIiUIgDw7b+wRAXxVHZNTcHnRHVZlec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUjwxeRuqGfckBycHiY/geT+Ym9QuY6MkqC4RcdcX3X2gqCdCT4GfJQuL3+Kw9kIe
-         YPDpcjq7LiBkI4hoTbqZj1gLzcTo7wDU4oStHG37QY+smVyclVknPg2FM6E/XYYPlM
-         9stCyas6lqTY+AdmJA0sFldITGnetsbe2TwpGxgM=
+        b=p3f/Weg7XYtVOYKHhRh49b+wKqeum/0KssLD8eAOsvvOKY4BArhR8nAfYiSWfRdYi
+         RGLOQ78sIrMori97R1O0JrHJ03zww8pc0udPXkEipmanbynO1U3wZ3NcHmTHFbYafI
+         Swwbl2r7yBthubpvR7abvYQrFKkLZD42oa3lup+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/111] soc/fsl: qbman: fix conflicting alignment attributes
+Subject: [PATCH 5.10 136/188] soc/fsl: qbman: fix conflicting alignment attributes
 Date:   Mon, 12 Apr 2021 10:40:50 +0200
-Message-Id: <20210412084006.668534695@linuxfoundation.org>
+Message-Id: <20210412084018.164719291@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/soc/fsl/qbman/qman.c b/drivers/soc/fsl/qbman/qman.c
-index bf68d86d80ee..95f9e4805245 100644
+index 9888a7061873..feb97470699d 100644
 --- a/drivers/soc/fsl/qbman/qman.c
 +++ b/drivers/soc/fsl/qbman/qman.c
 @@ -186,7 +186,7 @@ struct qm_eqcr_entry {
