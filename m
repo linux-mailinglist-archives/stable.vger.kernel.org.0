@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD4C35BEC2
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF6D735C0A1
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238733AbhDLJB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49694 "EHLO mail.kernel.org"
+        id S241245AbhDLJPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238808AbhDLI5u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:57:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BFD061221;
-        Mon, 12 Apr 2021 08:56:55 +0000 (UTC)
+        id S240985AbhDLJLU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:11:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5B30613A2;
+        Mon, 12 Apr 2021 09:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217816;
-        bh=Gs8Mok6pUNRSTlJ+vELUt1S67amvbgujMW3lkWone0k=;
+        s=korg; t=1618218466;
+        bh=ZC9P+5xP3+OydY9MNJjPYLvj1I9Z6Phlpj5+CuUf/SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zlggXExZGHzgn+zC927W0kBeZHB6FiddxPKZxDKgVVKBVfL2ZYHj35LZ5L3YB2cdp
-         aLZYqvJKRVw+MMfbbyZDXShzxUbTRJq2Bm14DyBHLA2aF43jW1gh9qk1USdWguA5Vo
-         5j9h8r8JzltfO06uudugdVqukL+QxUy/8VDBeZco=
+        b=t5oBdDTMqeaDWCikjmsmK26bp7VQo3iHoqohsyhJCPdez/iiIsJYQHUHGPSZEyS7J
+         1BO5nsMc9qPL3NuAPX1+29UN4Zdqmc94MQo482GS6BGwzjpGqL5RIHsF6LvqpEJ1rh
+         vScuXp85XzgAEzbVzoO5Y44XYypdXspJyMUU1RhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Gerhard Bertelsmann <info@gerhard-bertelsmann.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 155/188] can: mcp251x: fix support for half duplex SPI host controllers
+Subject: [PATCH 5.11 164/210] net: cls_api: Fix uninitialised struct field bo->unlocked_driver_cb
 Date:   Mon, 12 Apr 2021 10:41:09 +0200
-Message-Id: <20210412084018.780508685@linuxfoundation.org>
+Message-Id: <20210412084021.496315714@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,108 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-[ Upstream commit 617085fca6375e2c1667d1fbfc6adc4034c85f04 ]
+[ Upstream commit 990b03b05b2fba79de2a1ee9dc359fc552d95ba6 ]
 
-Some SPI host controllers do not support full-duplex SPI transfers.
+The 'unlocked_driver_cb' struct field in 'bo' is not being initialized
+in tcf_block_offload_init(). The uninitialized 'unlocked_driver_cb'
+will be used when calling unlocked_driver_cb(). So initialize 'bo' to
+zero to avoid the issue.
 
-The function mcp251x_spi_trans() does a full duplex transfer. It is
-used in several places in the driver, where a TX half duplex transfer
-is sufficient.
-
-To fix support for half duplex SPI host controllers, this patch
-introduces a new function mcp251x_spi_write() and changes all callers
-that do a TX half duplex transfer to use mcp251x_spi_write().
-
-Fixes: e0e25001d088 ("can: mcp251x: add support for half duplex controllers")
-Link: https://lore.kernel.org/r/20210330100246.1074375-1-mkl@pengutronix.de
-Cc: Tim Harvey <tharvey@gateworks.com>
-Tested-By: Tim Harvey <tharvey@gateworks.com>
-Reported-by: Gerhard Bertelsmann <info@gerhard-bertelsmann.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: 0fdcf78d5973 ("net: use flow_indr_dev_setup_offload()")
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251x.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ net/sched/cls_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
-index 22d814ae4edc..42c3046fa304 100644
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -314,6 +314,18 @@ static int mcp251x_spi_trans(struct spi_device *spi, int len)
- 	return ret;
- }
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index 87cac07da7c3..b3a2cba130a1 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -646,7 +646,7 @@ static void tc_block_indr_cleanup(struct flow_block_cb *block_cb)
+ 	struct net_device *dev = block_cb->indr.dev;
+ 	struct Qdisc *sch = block_cb->indr.sch;
+ 	struct netlink_ext_ack extack = {};
+-	struct flow_block_offload bo;
++	struct flow_block_offload bo = {};
  
-+static int mcp251x_spi_write(struct spi_device *spi, int len)
-+{
-+	struct mcp251x_priv *priv = spi_get_drvdata(spi);
-+	int ret;
-+
-+	ret = spi_write(spi, priv->spi_tx_buf, len);
-+	if (ret)
-+		dev_err(&spi->dev, "spi write failed: ret = %d\n", ret);
-+
-+	return ret;
-+}
-+
- static u8 mcp251x_read_reg(struct spi_device *spi, u8 reg)
- {
- 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
-@@ -361,7 +373,7 @@ static void mcp251x_write_reg(struct spi_device *spi, u8 reg, u8 val)
- 	priv->spi_tx_buf[1] = reg;
- 	priv->spi_tx_buf[2] = val;
- 
--	mcp251x_spi_trans(spi, 3);
-+	mcp251x_spi_write(spi, 3);
- }
- 
- static void mcp251x_write_2regs(struct spi_device *spi, u8 reg, u8 v1, u8 v2)
-@@ -373,7 +385,7 @@ static void mcp251x_write_2regs(struct spi_device *spi, u8 reg, u8 v1, u8 v2)
- 	priv->spi_tx_buf[2] = v1;
- 	priv->spi_tx_buf[3] = v2;
- 
--	mcp251x_spi_trans(spi, 4);
-+	mcp251x_spi_write(spi, 4);
- }
- 
- static void mcp251x_write_bits(struct spi_device *spi, u8 reg,
-@@ -386,7 +398,7 @@ static void mcp251x_write_bits(struct spi_device *spi, u8 reg,
- 	priv->spi_tx_buf[2] = mask;
- 	priv->spi_tx_buf[3] = val;
- 
--	mcp251x_spi_trans(spi, 4);
-+	mcp251x_spi_write(spi, 4);
- }
- 
- static u8 mcp251x_read_stat(struct spi_device *spi)
-@@ -618,7 +630,7 @@ static void mcp251x_hw_tx_frame(struct spi_device *spi, u8 *buf,
- 					  buf[i]);
- 	} else {
- 		memcpy(priv->spi_tx_buf, buf, TXBDAT_OFF + len);
--		mcp251x_spi_trans(spi, TXBDAT_OFF + len);
-+		mcp251x_spi_write(spi, TXBDAT_OFF + len);
- 	}
- }
- 
-@@ -650,7 +662,7 @@ static void mcp251x_hw_tx(struct spi_device *spi, struct can_frame *frame,
- 
- 	/* use INSTRUCTION_RTS, to avoid "repeated frame problem" */
- 	priv->spi_tx_buf[0] = INSTRUCTION_RTS(1 << tx_buf_idx);
--	mcp251x_spi_trans(priv->spi, 1);
-+	mcp251x_spi_write(priv->spi, 1);
- }
- 
- static void mcp251x_hw_rx_frame(struct spi_device *spi, u8 *buf,
-@@ -888,7 +900,7 @@ static int mcp251x_hw_reset(struct spi_device *spi)
- 	mdelay(MCP251X_OST_DELAY_MS);
- 
- 	priv->spi_tx_buf[0] = INSTRUCTION_RESET;
--	ret = mcp251x_spi_trans(spi, 1);
-+	ret = mcp251x_spi_write(spi, 1);
- 	if (ret)
- 		return ret;
- 
+ 	tcf_block_offload_init(&bo, dev, sch, FLOW_BLOCK_UNBIND,
+ 			       block_cb->indr.binder_type,
 -- 
 2.30.2
 
