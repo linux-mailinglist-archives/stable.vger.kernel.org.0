@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A1F35B894
+	by mail.lfdr.de (Postfix) with ESMTP id 832E335B895
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236624AbhDLCXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59736 "EHLO mail.kernel.org"
+        id S236622AbhDLCXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236622AbhDLCXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 257AF6121E;
-        Mon, 12 Apr 2021 02:23:26 +0000 (UTC)
+        id S236623AbhDLCXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C4826120D;
+        Mon, 12 Apr 2021 02:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194206;
-        bh=pdf6s8qKPJVUK70iiETT7IxPKnYfzv28yMTvUkabAXI=;
+        s=k20201202; t=1618194209;
+        bh=HDjx4KxAiBYeniGXSThyF+IkcqMb8jw3bdTh819I/tg=;
         h=From:To:Cc:Subject:Date:From;
-        b=Z25VDzhMTbMjWk6ORXBzi9XzITIlmYVflMtAqDLeLD4gYXKiSj+UYGse8WdI6cMjy
-         OsB6s0ap5RKunispqlCMzKhN6d995YhUVRGUoYKgYzB7JGNMKV+jlF3hid98TrxIVn
-         X6yghvnpPyR2jWh/Xh1jsZhjY8eyxFpM94MeEmJrtbd4FNOSIZogmJDWcA7L3EQPP2
-         LnB/OKHjzqQVVP1F1TiiyqiKjYhYV9PRJ+UcacY5JZctXzPvxOCKsxP9PFSpUcAkkQ
-         Ly4KVlcUjherVa7/gDsHqBwdqdE7B2zwznDBRlPVQ9g+pBZlz5WZ3ftoDZmCAwmG0f
-         or9g0zfrTzSWQ==
+        b=CvdRCNQ7j7SjbRfL7SGadl78Iz61diUo0kpWdU2vI838qAfFNHOGO02Q5/jFHJG9F
+         kAWr+Im8q2LSJOm2Jb0Of/7XgowtJkbO0sPQfxROysIQ/ck+dPAhTO0oPRmoPVa3Ff
+         mtvqS/RBEsNv3bpZ5OTv9xh/xty8nyfYEeQ36KCsVWaTX6ve1fz9tMXVkBNsC4jau9
+         K0wfsedQ1GP/DYNeemQAzd4+poPxI/A3vEJHib+NAO/YQ66q+TOJ9dA7x1sgh1i3NA
+         GsCn4OVZWUpTE+j1cdPu4gg7WP1NUvItxIBFbxVspdea+kgnGuo64xdiFdGYx8u118
+         N2oH3ExBeAQvg==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, f.fainelli@gmail.com
-Cc:     "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "net: phy: broadcom: Only advertise EEE for supported modes" failed to apply to 4.14-stable tree
-Date:   Sun, 11 Apr 2021 22:23:25 -0400
-Message-Id: <20210412022325.284395-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, mateusz.palczewski@intel.com
+Cc:     Dawid Lukwinski <dawid.lukwinski@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: FAILED: Patch "i40e: Added Asym_Pause to supported link modes" failed to apply to 4.14-stable tree
+Date:   Sun, 11 Apr 2021 22:23:27 -0400
+Message-Id: <20210412022327.284462-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -48,54 +52,39 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From c056d480b40a68f2520ccc156c7fae672d69d57d Mon Sep 17 00:00:00 2001
-From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Tue, 30 Mar 2021 15:00:24 -0700
-Subject: [PATCH] net: phy: broadcom: Only advertise EEE for supported modes
+From 90449e98c265296329446c7abcd2aae3b20c0bc9 Mon Sep 17 00:00:00 2001
+From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Date: Mon, 4 Jan 2021 15:00:02 +0000
+Subject: [PATCH] i40e: Added Asym_Pause to supported link modes
 
-We should not be advertising EEE for modes that we do not support,
-correct that oversight by looking at the PHY device supported linkmodes.
+Add Asym_Pause to supported link modes (it is supported by HW).
+Lack of Asym_Pause in supported modes can cause several problems,
+i.e. it won't be possible to turn the autonegotiation on
+with asymmetric pause settings (i.e. Tx on, Rx off).
 
-Fixes: 99cec8a4dda2 ("net: phy: broadcom: Allow enabling or disabling of EEE")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4e91bcd5d47a ("i40e: Finish implementation of ethtool get settings")
+Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Reviewed-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 ---
- drivers/net/phy/bcm-phy-lib.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/bcm-phy-lib.c b/drivers/net/phy/bcm-phy-lib.c
-index 53282a6d5928..287cccf8f7f4 100644
---- a/drivers/net/phy/bcm-phy-lib.c
-+++ b/drivers/net/phy/bcm-phy-lib.c
-@@ -369,7 +369,7 @@ EXPORT_SYMBOL_GPL(bcm_phy_enable_apd);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index c70dec65a572..2c637a5678b3 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -1101,6 +1101,7 @@ static int i40e_get_link_ksettings(struct net_device *netdev,
  
- int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
- {
--	int val;
-+	int val, mask = 0;
+ 	/* Set flow control settings */
+ 	ethtool_link_ksettings_add_link_mode(ks, supported, Pause);
++	ethtool_link_ksettings_add_link_mode(ks, supported, Asym_Pause);
  
- 	/* Enable EEE at PHY level */
- 	val = phy_read_mmd(phydev, MDIO_MMD_AN, BRCM_CL45VEN_EEE_CONTROL);
-@@ -388,10 +388,17 @@ int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
- 	if (val < 0)
- 		return val;
- 
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
-+			      phydev->supported))
-+		mask |= MDIO_EEE_1000T;
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT,
-+			      phydev->supported))
-+		mask |= MDIO_EEE_100TX;
-+
- 	if (enable)
--		val |= (MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val |= mask;
- 	else
--		val &= ~(MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val &= ~mask;
- 
- 	phy_write_mmd(phydev, MDIO_MMD_AN, BCM_CL45VEN_EEE_ADV, (u32)val);
- 
+ 	switch (hw->fc.requested_mode) {
+ 	case I40E_FC_FULL:
 -- 
 2.30.2
 
