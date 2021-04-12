@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 604EC35BE42
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6802635BC6D
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238241AbhDLI5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47812 "EHLO mail.kernel.org"
+        id S237410AbhDLIm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239011AbhDLIzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C01CE61247;
-        Mon, 12 Apr 2021 08:54:45 +0000 (UTC)
+        id S237301AbhDLImx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:42:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8853A6120F;
+        Mon, 12 Apr 2021 08:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217686;
-        bh=jQBx3/5I1CRRTRDB7nEkFUVk7+XYHv83qCpq3pAo3QQ=;
+        s=korg; t=1618216956;
+        bh=ZVJTi43xZZQqiqy32/vHsa/Tjr08caIXqVoyfcHoo+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0IPL2Ob6ESTM2/F6b/rZ4jZSRAMV2LikA03aNxij7nVEj5tr512RgRbpEdjD76X+
-         B3loWzzfCLu4WFHR0e6OOtb/8EKLbYXjwWSJ1g8R+hEJ/UirMivA57LpM0x7ucK+oK
-         Fg0zVVJ6C7ZIWM0DS5owox8Zw0Jny4smu49pJTDc=
+        b=qhO6vI0rHfNjg38oGG+sIH97WxsEfGpoIVGm1OxAvTSrMM7bdZnyxH0iMFfs288L9
+         yw0uaUv0OWGDylcvD4h8V4HdHr11AOWs6IgBHkdu3UZ19QE4VIAgK1dyWscjHSSiaL
+         AxCqrKv1Ywmcht8zQBmaMjx4IAnM9FLMtv6Ke9Xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 109/188] amd-xgbe: Update DMA coherency values
+        stable@vger.kernel.org, Fabio Pricoco <fabio.pricoco@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 4.19 17/66] ice: Increase control queue timeout
 Date:   Mon, 12 Apr 2021 10:40:23 +0200
-Message-Id: <20210412084017.265139515@linuxfoundation.org>
+Message-Id: <20210412083958.685412029@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Fabio Pricoco <fabio.pricoco@intel.com>
 
-[ Upstream commit d75135082698140a26a56defe1bbc1b06f26a41f ]
+commit f88c529ac77b3c21819d2cf1dfcfae1937849743 upstream.
 
-Based on the IOMMU configuration, the current cache control settings can
-result in possible coherency issues. The hardware team has recommended
-new settings for the PCI device path to eliminate the issue.
+250 msec timeout is insufficient for some AQ commands. Advice from FW
+team was to increase the timeout. Increase to 1 second.
 
-Fixes: 6f595959c095 ("amd-xgbe: Adjust register settings to improve performance")
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7ec59eeac804 ("ice: Add support for control queues")
+Signed-off-by: Fabio Pricoco <fabio.pricoco@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_controlq.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe.h b/drivers/net/ethernet/amd/xgbe/xgbe.h
-index ba8321ec1ee7..3305979a9f7c 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe.h
-@@ -180,9 +180,9 @@
- #define XGBE_DMA_SYS_AWCR	0x30303030
+--- a/drivers/net/ethernet/intel/ice/ice_controlq.h
++++ b/drivers/net/ethernet/intel/ice/ice_controlq.h
+@@ -30,8 +30,8 @@ enum ice_ctl_q {
+ 	ICE_CTL_Q_ADMIN,
+ };
  
- /* DMA cache settings - PCI device */
--#define XGBE_DMA_PCI_ARCR	0x00000003
--#define XGBE_DMA_PCI_AWCR	0x13131313
--#define XGBE_DMA_PCI_AWARCR	0x00000313
-+#define XGBE_DMA_PCI_ARCR	0x000f0f0f
-+#define XGBE_DMA_PCI_AWCR	0x0f0f0f0f
-+#define XGBE_DMA_PCI_AWARCR	0x00000f0f
+-/* Control Queue timeout settings - max delay 250ms */
+-#define ICE_CTL_Q_SQ_CMD_TIMEOUT	2500  /* Count 2500 times */
++/* Control Queue timeout settings - max delay 1s */
++#define ICE_CTL_Q_SQ_CMD_TIMEOUT	10000 /* Count 10000 times */
+ #define ICE_CTL_Q_SQ_CMD_USEC		100   /* Check every 100usec */
  
- /* DMA channel interrupt modes */
- #define XGBE_IRQ_MODE_EDGE	0
--- 
-2.30.2
-
+ struct ice_ctl_q_ring {
 
 
