@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD67E35BF5F
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4CE235BF5D
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237845AbhDLJGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237577AbhDLJGF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Apr 2021 05:06:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54842 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238685AbhDLJCD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238770AbhDLJCD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:02:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AB5361364;
-        Mon, 12 Apr 2021 09:00:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC74561243;
+        Mon, 12 Apr 2021 09:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218036;
-        bh=6WhtDRnOx+luKjdBZddiilI2i56QvlJBe9nqm2P11C8=;
+        s=korg; t=1618218038;
+        bh=rZW8Ft44JBKZuKUdLTyxv5SirE8FlHbAorbJ8S0Px88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTmnjb9YQx3mZsBA7hKJAR1/z/6gFa/XtSxpObX2io+j8Fkcsx8ybH7yjQcERly61
-         Wi5a1K22ivBhnTGcDESSUl20EVFAlmnbIpQpE8GAf8SuFmdNiwEiA4LWT77XTw79D4
-         hwbI6fbb1818XKOt6/Ly5OTH7QeSjYC2S3pjOPos=
+        b=Xuv+iDhfWQqCc926oKBXykY9VCW/BbRe1ZlT2A4/9oA974LgdF54OFhy4nCa6Ok6v
+         eIKJNBBXeIl+/jj60J+g2AsaPc8Us9MZ176IkwJx6PM8HsC+baEc9x5PMc1H0pivCb
+         ppJVWsFKWFd1NZaE4Tq2GwKpJj24yTVlyGAckHlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        stable@vger.kernel.org, Robert Malz <robertx.malz@intel.com>,
         Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.11 046/210] ice: Use port number instead of PF ID for WoL
-Date:   Mon, 12 Apr 2021 10:39:11 +0200
-Message-Id: <20210412084017.542886926@linuxfoundation.org>
+Subject: [PATCH 5.11 047/210] ice: Cleanup fltr list in case of allocation issues
+Date:   Mon, 12 Apr 2021 10:39:12 +0200
+Message-Id: <20210412084017.574330337@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,88 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+From: Robert Malz <robertx.malz@intel.com>
 
-commit 3176551979b92b02756979c0f1e2d03d1fc82b1e upstream.
+commit b7eeb52721fe417730fc5adc5cbeeb5fe349ab26 upstream.
 
-As per the spec, the WoL control word read from the NVM should be
-interpreted as port numbers, and not PF numbers. So when checking
-if WoL supported, use the port number instead of the PF ID.
+When ice_remove_vsi_lkup_fltr is called, by calling
+ice_add_to_vsi_fltr_list local copy of vsi filter list
+is created. If any issues during creation of vsi filter
+list occurs it up for the caller to free already
+allocated memory. This patch ensures proper memory
+deallocation in these cases.
 
-Also, ice_is_wol_supported doesn't really need a pointer to the pf
-struct, but just needs a pointer to the hw instance.
-
-Fixes: 769c500dcc1e ("ice: Add advanced power mgmt for WoL")
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Fixes: 80d144c9ac82 ("ice: Refactor switch rule management structures and functions")
+Signed-off-by: Robert Malz <robertx.malz@intel.com>
 Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h         |    2 +-
- drivers/net/ethernet/intel/ice/ice_ethtool.c |    4 ++--
- drivers/net/ethernet/intel/ice/ice_main.c    |    9 ++++-----
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_switch.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -585,7 +585,7 @@ int ice_schedule_reset(struct ice_pf *pf
- void ice_print_link_msg(struct ice_vsi *vsi, bool isup);
- const char *ice_stat_str(enum ice_status stat_err);
- const char *ice_aq_str(enum ice_aq_err aq_err);
--bool ice_is_wol_supported(struct ice_pf *pf);
-+bool ice_is_wol_supported(struct ice_hw *hw);
- int
- ice_fdir_write_fltr(struct ice_pf *pf, struct ice_fdir_fltr *input, bool add,
- 		    bool is_tun);
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -3472,7 +3472,7 @@ static void ice_get_wol(struct net_devic
- 		netdev_warn(netdev, "Wake on LAN is not supported on this interface!\n");
+--- a/drivers/net/ethernet/intel/ice/ice_switch.c
++++ b/drivers/net/ethernet/intel/ice/ice_switch.c
+@@ -2624,7 +2624,7 @@ ice_remove_vsi_lkup_fltr(struct ice_hw *
+ 					  &remove_list_head);
+ 	mutex_unlock(rule_lock);
+ 	if (status)
+-		return;
++		goto free_fltr_list;
  
- 	/* Get WoL settings based on the HW capability */
--	if (ice_is_wol_supported(pf)) {
-+	if (ice_is_wol_supported(&pf->hw)) {
- 		wol->supported = WAKE_MAGIC;
- 		wol->wolopts = pf->wol_ena ? WAKE_MAGIC : 0;
- 	} else {
-@@ -3492,7 +3492,7 @@ static int ice_set_wol(struct net_device
- 	struct ice_vsi *vsi = np->vsi;
- 	struct ice_pf *pf = vsi->back;
+ 	switch (lkup) {
+ 	case ICE_SW_LKUP_MAC:
+@@ -2647,6 +2647,7 @@ ice_remove_vsi_lkup_fltr(struct ice_hw *
+ 		break;
+ 	}
  
--	if (vsi->type != ICE_VSI_PF || !ice_is_wol_supported(pf))
-+	if (vsi->type != ICE_VSI_PF || !ice_is_wol_supported(&pf->hw))
- 		return -EOPNOTSUPP;
- 
- 	/* only magic packet is supported */
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -3512,15 +3512,14 @@ static int ice_init_interrupt_scheme(str
- }
- 
- /**
-- * ice_is_wol_supported - get NVM state of WoL
-- * @pf: board private structure
-+ * ice_is_wol_supported - check if WoL is supported
-+ * @hw: pointer to hardware info
-  *
-  * Check if WoL is supported based on the HW configuration.
-  * Returns true if NVM supports and enables WoL for this port, false otherwise
-  */
--bool ice_is_wol_supported(struct ice_pf *pf)
-+bool ice_is_wol_supported(struct ice_hw *hw)
- {
--	struct ice_hw *hw = &pf->hw;
- 	u16 wol_ctrl;
- 
- 	/* A bit set to 1 in the NVM Software Reserved Word 2 (WoL control
-@@ -3529,7 +3528,7 @@ bool ice_is_wol_supported(struct ice_pf
- 	if (ice_read_sr_word(hw, ICE_SR_NVM_WOL_CFG, &wol_ctrl))
- 		return false;
- 
--	return !(BIT(hw->pf_id) & wol_ctrl);
-+	return !(BIT(hw->port_info->lport) & wol_ctrl);
- }
- 
- /**
++free_fltr_list:
+ 	list_for_each_entry_safe(fm_entry, tmp, &remove_list_head, list_entry) {
+ 		list_del(&fm_entry->list_entry);
+ 		devm_kfree(ice_hw_to_dev(hw), fm_entry);
 
 
