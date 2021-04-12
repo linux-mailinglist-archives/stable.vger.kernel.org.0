@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E89C35BE23
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B2135BD57
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238378AbhDLI5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45114 "EHLO mail.kernel.org"
+        id S237538AbhDLIvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238894AbhDLIzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D51C861379;
-        Mon, 12 Apr 2021 08:53:43 +0000 (UTC)
+        id S237949AbhDLIrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:47:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62B326125F;
+        Mon, 12 Apr 2021 08:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217624;
-        bh=Imyu3iKBedxNrc5glBzPQhzm0Ygxp41v2Wiv7LUcxDg=;
+        s=korg; t=1618217239;
+        bh=D/HvxFYjZJ/ANAhaqPehwJ3N5Iqsp0HOSQFW644kqmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiIO6w4FATBPmu1kAHrIJp1doPSQLyMqovK6Ta7tOA+6fcLOdRrzIxigTBVRLALd0
-         Ak9GMrg38maVQyshCrEtpl/R4QExX+prMMuBSUqJ6u9vxDok6HTSpohyPJY6P6KIXS
-         oQiaV3zxHHX8hCfhqtfxT3S+FvnVbOxA1Z/vxS1A=
+        b=KBIwZLd4vB6Wr+i48t86En8bZtJhLusZH5GSTRjPxIlIitrtEvAKmQ1RnOLdhUzRk
+         GArPqRSh3pDZnx4FRYd325G4HXvxjGf6tNUO+E8vMKyW13PO5FItwansQymjC8LRXo
+         nUN6rUBUAPXR+i5Cl6wyX679HiUOnYyGUG1gg5K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/188] KVM: x86/mmu: Rename goal_gfn to next_last_level_gfn
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>
+Subject: [PATCH 5.4 020/111] ARM: dts: turris-omnia: configure LED[2]/INTn pin as interrupt pin
 Date:   Mon, 12 Apr 2021 10:39:58 +0200
-Message-Id: <20210412084016.430611452@linuxfoundation.org>
+Message-Id: <20210412084004.896046541@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,114 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 74953d3530280dc53256054e1906f58d07bfba44 ]
+commit a26c56ae67fa9fbb45a8a232dcd7ebaa7af16086 upstream.
 
-The goal_gfn field in tdp_iter can be misleading as it implies that it
-is the iterator's final goal. It is really a target for the lowest gfn
-mapped by the leaf level SPTE the iterator will traverse towards. Change
-the field's name to be more precise.
+Use the `marvell,reg-init` DT property to configure the LED[2]/INTn pin
+of the Marvell 88E1514 ethernet PHY on Turris Omnia into interrupt mode.
 
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20210202185734.1680553-13-bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Without this the pin is by default in LED[2] mode, and the Marvell PHY
+driver configures LED[2] into "On - Link, Blink - Activity" mode.
+
+This fixes the issue where the pca9538 GPIO/interrupt controller (which
+can't mask interrupts in HW) received too many interrupts and after a
+time started ignoring the interrupt with error message:
+  IRQ 71: nobody cared
+
+There is a work in progress to have the Marvell PHY driver support
+parsing PHY LED nodes from OF and registering the LEDs as Linux LED
+class devices. Once this is done the PHY driver can also automatically
+set the pin into INTn mode if it does not find LED[2] in OF.
+
+Until then, though, we fix this via `marvell,reg-init` DT property.
+
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Cc: Uwe Kleine-König <uwe@kleine-koenig.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_iter.c | 20 ++++++++++----------
- arch/x86/kvm/mmu/tdp_iter.h |  4 ++--
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/mmu/tdp_iter.c b/arch/x86/kvm/mmu/tdp_iter.c
-index 87b7e16911db..9917c55b7d24 100644
---- a/arch/x86/kvm/mmu/tdp_iter.c
-+++ b/arch/x86/kvm/mmu/tdp_iter.c
-@@ -22,21 +22,21 @@ static gfn_t round_gfn_for_level(gfn_t gfn, int level)
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -236,6 +236,7 @@
+ 		status = "okay";
+ 		compatible = "ethernet-phy-id0141.0DD1", "ethernet-phy-ieee802.3-c22";
+ 		reg = <1>;
++		marvell,reg-init = <3 18 0 0x4985>;
  
- /*
-  * Sets a TDP iterator to walk a pre-order traversal of the paging structure
-- * rooted at root_pt, starting with the walk to translate goal_gfn.
-+ * rooted at root_pt, starting with the walk to translate next_last_level_gfn.
-  */
- void tdp_iter_start(struct tdp_iter *iter, u64 *root_pt, int root_level,
--		    int min_level, gfn_t goal_gfn)
-+		    int min_level, gfn_t next_last_level_gfn)
- {
- 	WARN_ON(root_level < 1);
- 	WARN_ON(root_level > PT64_ROOT_MAX_LEVEL);
- 
--	iter->goal_gfn = goal_gfn;
-+	iter->next_last_level_gfn = next_last_level_gfn;
- 	iter->root_level = root_level;
- 	iter->min_level = min_level;
- 	iter->level = root_level;
- 	iter->pt_path[iter->level - 1] = root_pt;
- 
--	iter->gfn = round_gfn_for_level(iter->goal_gfn, iter->level);
-+	iter->gfn = round_gfn_for_level(iter->next_last_level_gfn, iter->level);
- 	tdp_iter_refresh_sptep(iter);
- 
- 	iter->valid = true;
-@@ -82,7 +82,7 @@ static bool try_step_down(struct tdp_iter *iter)
- 
- 	iter->level--;
- 	iter->pt_path[iter->level - 1] = child_pt;
--	iter->gfn = round_gfn_for_level(iter->goal_gfn, iter->level);
-+	iter->gfn = round_gfn_for_level(iter->next_last_level_gfn, iter->level);
- 	tdp_iter_refresh_sptep(iter);
- 
- 	return true;
-@@ -106,7 +106,7 @@ static bool try_step_side(struct tdp_iter *iter)
- 		return false;
- 
- 	iter->gfn += KVM_PAGES_PER_HPAGE(iter->level);
--	iter->goal_gfn = iter->gfn;
-+	iter->next_last_level_gfn = iter->gfn;
- 	iter->sptep++;
- 	iter->old_spte = READ_ONCE(*iter->sptep);
- 
-@@ -166,13 +166,13 @@ void tdp_iter_next(struct tdp_iter *iter)
-  */
- void tdp_iter_refresh_walk(struct tdp_iter *iter)
- {
--	gfn_t goal_gfn = iter->goal_gfn;
-+	gfn_t next_last_level_gfn = iter->next_last_level_gfn;
- 
--	if (iter->gfn > goal_gfn)
--		goal_gfn = iter->gfn;
-+	if (iter->gfn > next_last_level_gfn)
-+		next_last_level_gfn = iter->gfn;
- 
- 	tdp_iter_start(iter, iter->pt_path[iter->root_level - 1],
--		       iter->root_level, iter->min_level, goal_gfn);
-+		       iter->root_level, iter->min_level, next_last_level_gfn);
- }
- 
- u64 *tdp_iter_root_pt(struct tdp_iter *iter)
-diff --git a/arch/x86/kvm/mmu/tdp_iter.h b/arch/x86/kvm/mmu/tdp_iter.h
-index 47170d0dc98e..b2dd269c631f 100644
---- a/arch/x86/kvm/mmu/tdp_iter.h
-+++ b/arch/x86/kvm/mmu/tdp_iter.h
-@@ -15,7 +15,7 @@ struct tdp_iter {
- 	 * The iterator will traverse the paging structure towards the mapping
- 	 * for this GFN.
- 	 */
--	gfn_t goal_gfn;
-+	gfn_t next_last_level_gfn;
- 	/* Pointers to the page tables traversed to reach the current SPTE */
- 	u64 *pt_path[PT64_ROOT_MAX_LEVEL];
- 	/* A pointer to the current SPTE */
-@@ -52,7 +52,7 @@ struct tdp_iter {
- u64 *spte_to_child_pt(u64 pte, int level);
- 
- void tdp_iter_start(struct tdp_iter *iter, u64 *root_pt, int root_level,
--		    int min_level, gfn_t goal_gfn);
-+		    int min_level, gfn_t next_last_level_gfn);
- void tdp_iter_next(struct tdp_iter *iter);
- void tdp_iter_refresh_walk(struct tdp_iter *iter);
- u64 *tdp_iter_root_pt(struct tdp_iter *iter);
--- 
-2.30.2
-
+ 		/* irq is connected to &pcawan pin 7 */
+ 	};
 
 
