@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8112435C0C7
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271A935C0A7
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241381AbhDLJQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:16:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34856 "EHLO mail.kernel.org"
+        id S241270AbhDLJPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240910AbhDLJLJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:11:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A76F613BC;
-        Mon, 12 Apr 2021 09:07:26 +0000 (UTC)
+        id S241017AbhDLJLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:11:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FC256137F;
+        Mon, 12 Apr 2021 09:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218447;
-        bh=X/6AAnS8pnH1005x7QL4qJj3fgc/mViyVnx0EKM57QQ=;
+        s=korg; t=1618218490;
+        bh=yW0jIMGPGHRw72K+x/b/Kv8xZLB44grlq2YQLitqU4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AB8KqQYCCgJr8QnRXBDyrwPo4uGf9IlQGYplw4fQZIZyeXqGtikF7gBtM5sse2sNW
-         TpiG3rA3dnsfDok3C2Ot7weKYAINDFtoukqNk+YrllgwsV05TEUwh+F9VYm3mILCY2
-         VLHhF5MXrQJ/+L7ARDDvQBUGqTXWDb35IF1iGPRw=
+        b=kKOjbuFIwfHnkbpUaPAv3wxRDDhabEWuNUored5F1NTpGZZ2j61YxFLItebEIWa39
+         Luv73LKU/LJE7qxQNUo0JYNckxDIDmfte9nALio7RjXABhi95Kih8ZBSQdBQIag71A
+         EF1krNDl8EWKZO0tC2gbID64KYP9GAHAUY8iIiGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
+        stable@vger.kernel.org,
+        syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com,
         Alexander Aring <aahringo@redhat.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 5.11 201/210] net: mac802154: Fix general protection fault
-Date:   Mon, 12 Apr 2021 10:41:46 +0200
-Message-Id: <20210412084022.690380927@linuxfoundation.org>
+Subject: [PATCH 5.11 202/210] net: ieee802154: nl-mac: fix check on panid
+Date:   Mon, 12 Apr 2021 10:41:47 +0200
+Message-Id: <20210412084022.720078212@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,58 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 1165affd484889d4986cf3b724318935a0b120d8 upstream.
+commit 6f7f657f24405f426212c09260bf7fe8a52cef33 upstream.
 
-syzbot found general protection fault in crypto_destroy_tfm()[1].
-It was caused by wrong clean up loop in llsec_key_alloc().
-If one of the tfm array members is in IS_ERR() range it will
-cause general protection fault in clean up function [1].
+This patch fixes a null pointer derefence for panid handle by move the
+check for the netlink variable directly before accessing them.
 
-Call Trace:
- crypto_free_aead include/crypto/aead.h:191 [inline] [1]
- llsec_key_alloc net/mac802154/llsec.c:156 [inline]
- mac802154_llsec_key_add+0x9e0/0xcc0 net/mac802154/llsec.c:249
- ieee802154_add_llsec_key+0x56/0x80 net/mac802154/cfg.c:338
- rdev_add_llsec_key net/ieee802154/rdev-ops.h:260 [inline]
- nl802154_add_llsec_key+0x3d3/0x560 net/ieee802154/nl802154.c:1584
- genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:739
- genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
- genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:800
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
- netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210304152125.1052825-1-paskripkin@gmail.com
+Reported-by: syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210228151817.95700-4-aahringo@redhat.com
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac802154/llsec.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ieee802154/nl-mac.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/mac802154/llsec.c
-+++ b/net/mac802154/llsec.c
-@@ -152,7 +152,7 @@ err_tfm0:
- 	crypto_free_sync_skcipher(key->tfm0);
- err_tfm:
- 	for (i = 0; i < ARRAY_SIZE(key->tfm); i++)
--		if (key->tfm[i])
-+		if (!IS_ERR_OR_NULL(key->tfm[i]))
- 			crypto_free_aead(key->tfm[i]);
+--- a/net/ieee802154/nl-mac.c
++++ b/net/ieee802154/nl-mac.c
+@@ -551,9 +551,7 @@ ieee802154_llsec_parse_key_id(struct gen
+ 	desc->mode = nla_get_u8(info->attrs[IEEE802154_ATTR_LLSEC_KEY_MODE]);
  
- 	kfree_sensitive(key);
+ 	if (desc->mode == IEEE802154_SCF_KEY_IMPLICIT) {
+-		if (!info->attrs[IEEE802154_ATTR_PAN_ID] &&
+-		    !(info->attrs[IEEE802154_ATTR_SHORT_ADDR] ||
+-		      info->attrs[IEEE802154_ATTR_HW_ADDR]))
++		if (!info->attrs[IEEE802154_ATTR_PAN_ID])
+ 			return -EINVAL;
+ 
+ 		desc->device_addr.pan_id = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_PAN_ID]);
+@@ -562,6 +560,9 @@ ieee802154_llsec_parse_key_id(struct gen
+ 			desc->device_addr.mode = IEEE802154_ADDR_SHORT;
+ 			desc->device_addr.short_addr = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_SHORT_ADDR]);
+ 		} else {
++			if (!info->attrs[IEEE802154_ATTR_HW_ADDR])
++				return -EINVAL;
++
+ 			desc->device_addr.mode = IEEE802154_ADDR_LONG;
+ 			desc->device_addr.extended_addr = nla_get_hwaddr(info->attrs[IEEE802154_ATTR_HW_ADDR]);
+ 		}
 
 
