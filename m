@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA70E35BE0A
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A714C35BE0C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238633AbhDLI4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47054 "EHLO mail.kernel.org"
+        id S238648AbhDLI4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:56:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238746AbhDLIyc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:54:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB67061355;
-        Mon, 12 Apr 2021 08:52:47 +0000 (UTC)
+        id S238773AbhDLIyj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:54:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66DBD61262;
+        Mon, 12 Apr 2021 08:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217568;
-        bh=xPMfY9rYYc8/wV1y5ujmto9Q6t0sP9asxpzX3X6uuyQ=;
+        s=korg; t=1618217570;
+        bh=HrXDfkWLAHgBhHLX7G021lONn/NQRWIvuhj/m7t7rMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7RvspYqNKtbTlofxgJMopd4eCYZeyZl4kfB73sR5VdBKWYEDGNE0t4QWGxZyVP6u
-         WlMUUKSaNKAJAWLjBlmjNbE33ogpLB2y5uRHCQ03Uu+L3ZwCR5ClrgM+esq2m9SzA+
-         ZjwwUsvariB4qI/w8D1s3Tz6ppW5RRXdDduPU+aY=
+        b=iujc37XeOK1SsUOa9mvet3S/dEDBF5ObR3tG1spJBZq8aSOXQN2eS/0OtORZx8A1P
+         Hok/HZDXnv7V2N68JLGw+K1B0V9f5yFpcTlSrtiB5SaJSh0t6t0UqQh5jqdQjtrqb0
+         67lpvxbVVi9vMhrxoCkOh4h7QmM9dsDLS7EX+eNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Qiu <jack.qiu@huawei.com>,
-        Jan Kara <jack@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 026/188] fs: direct-io: fix missing sdio->boundary
-Date:   Mon, 12 Apr 2021 10:39:00 +0200
-Message-Id: <20210412084014.523279728@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 027/188] ethtool: fix incorrect datatype in set_eee ops
+Date:   Mon, 12 Apr 2021 10:39:01 +0200
+Message-Id: <20210412084014.553443840@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -41,58 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Qiu <jack.qiu@huawei.com>
+From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
 
-commit df41872b68601059dd4a84858952dcae58acd331 upstream.
+commit 63cf32389925e234d166fb1a336b46de7f846003 upstream.
 
-I encountered a hung task issue, but not a performance one.  I run DIO
-on a device (need lba continuous, for example open channel ssd), maybe
-hungtask in below case:
+The member 'tx_lpi_timer' is defined with __u32 datatype in the ethtool
+header file. Hence, we should use ethnl_update_u32() in set_eee ops.
 
-  DIO:						Checkpoint:
-  get addr A(at boundary), merge into BIO,
-  no submit because boundary missing
-						flush dirty data(get addr A+1), wait IO(A+1)
-						writeback timeout, because DIO(A) didn't submit
-  get addr A+2 fail, because checkpoint is doing
-
-dio_send_cur_page() may clear sdio->boundary, so prevent it from missing
-a boundary.
-
-Link: https://lkml.kernel.org/r/20210322042253.38312-1-jack.qiu@huawei.com
-Fixes: b1058b981272 ("direct-io: submit bio after boundary buffer is added to it")
-Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: fd77be7bd43c ("ethtool: set EEE settings with EEE_SET request")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Cc: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/direct-io.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/ethtool/eee.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/direct-io.c
-+++ b/fs/direct-io.c
-@@ -810,6 +810,7 @@ submit_page_section(struct dio *dio, str
- 		    struct buffer_head *map_bh)
- {
- 	int ret = 0;
-+	int boundary = sdio->boundary;	/* dio_send_cur_page may clear it */
- 
- 	if (dio->op == REQ_OP_WRITE) {
- 		/*
-@@ -848,10 +849,10 @@ submit_page_section(struct dio *dio, str
- 	sdio->cur_page_fs_offset = sdio->block_in_file << sdio->blkbits;
- out:
- 	/*
--	 * If sdio->boundary then we want to schedule the IO now to
-+	 * If boundary then we want to schedule the IO now to
- 	 * avoid metadata seeks.
- 	 */
--	if (sdio->boundary) {
-+	if (boundary) {
- 		ret = dio_send_cur_page(dio, sdio, map_bh);
- 		if (sdio->bio)
- 			dio_bio_submit(dio, sdio);
+--- a/net/ethtool/eee.c
++++ b/net/ethtool/eee.c
+@@ -169,8 +169,8 @@ int ethnl_set_eee(struct sk_buff *skb, s
+ 	ethnl_update_bool32(&eee.eee_enabled, tb[ETHTOOL_A_EEE_ENABLED], &mod);
+ 	ethnl_update_bool32(&eee.tx_lpi_enabled,
+ 			    tb[ETHTOOL_A_EEE_TX_LPI_ENABLED], &mod);
+-	ethnl_update_bool32(&eee.tx_lpi_timer, tb[ETHTOOL_A_EEE_TX_LPI_TIMER],
+-			    &mod);
++	ethnl_update_u32(&eee.tx_lpi_timer, tb[ETHTOOL_A_EEE_TX_LPI_TIMER],
++			 &mod);
+ 	ret = 0;
+ 	if (!mod)
+ 		goto out_ops;
 
 
