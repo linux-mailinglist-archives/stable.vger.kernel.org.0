@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B60A35BEB9
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B085B35C07B
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237435AbhDLJBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
+        id S239902AbhDLJNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:13:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238453AbhDLI5g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:57:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 671066128B;
-        Mon, 12 Apr 2021 08:56:44 +0000 (UTC)
+        id S240472AbhDLJKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:10:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E45461356;
+        Mon, 12 Apr 2021 09:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217804;
-        bh=+UCECUpncEfMy/1V3ZMI3QXIHEZ69bqVfPkaBoiiYmQ=;
+        s=korg; t=1618218344;
+        bh=JNvWAmtHSnkOxNZ4UtEVIm+druCrHLCnIH8U8MUn8zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0GKCl7VhRK8L+EghFj97P5a42/6QGIjRRIh/yuW9tJsaDlsyawHwLn6IG6M2YaKc
-         BkfnWo9xZsfXV4TBvLwS8WBV1ARNTHMZc23yVPzhCArQbanL8mDZZuV5Ah8u76etoX
-         Pu+VqBx7G2TWNhkps0KKrCr1L/hEnT4Vz9eD5DZs=
+        b=O/zEkzXVRatNIc70lPhbrZPSWnPAwAq0PTfhYOMNL3P9oZgJr7O/oFOTDpibXro42
+         TP1I5CAkpXIPa5qhLyyt5zKshLRUkplt6vU8ZWB65ErAOYOKbOAW3NQ4b/3SzrNNPp
+         5HkBDXVOh9qdint/IH4zUCO7nfG2LlGbdBPCe6po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Maximets <i.maximets@ovn.org>,
-        Tonghao Zhang <xiangxia.m.yue@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Kalyan Thota <kalyan_t@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 152/188] openvswitch: fix send of uninitialized stack memory in ct limit reply
+Subject: [PATCH 5.11 161/210] drm/msm/disp/dpu1: program 3d_merge only if block is attached
 Date:   Mon, 12 Apr 2021 10:41:06 +0200
-Message-Id: <20210412084018.673012010@linuxfoundation.org>
+Message-Id: <20210412084021.389542114@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Maximets <i.maximets@ovn.org>
+From: Kalyan Thota <kalyan_t@codeaurora.org>
 
-[ Upstream commit 4d51419d49930be2701c2633ae271b350397c3ca ]
+[ Upstream commit 12aca1ce9ee33af3751aec5e55a5900747cbdd4b ]
 
-'struct ovs_zone_limit' has more members than initialized in
-ovs_ct_limit_get_default_limit().  The rest of the memory is a random
-kernel stack content that ends up being sent to userspace.
+Update the 3d merge as active in the data path only if
+the hw block is selected in the configuration.
 
-Fix that by using designated initializer that will clear all
-non-specified fields.
-
-Fixes: 11efd5cb04a1 ("openvswitch: Support conntrack zone limit")
-Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
-Acked-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: 73bfb790ac78 ("msm:disp:dpu1: setup display datapath for SC7180 target")
+Signed-off-by: Kalyan Thota <kalyan_t@codeaurora.org>
+Message-Id: <1617364493-13518-1-git-send-email-kalyan_t@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/conntrack.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
-index 96a49aa3a128..a11b558813c1 100644
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -2024,10 +2024,10 @@ static int ovs_ct_limit_del_zone_limit(struct nlattr *nla_zone_limit,
- static int ovs_ct_limit_get_default_limit(struct ovs_ct_limit_info *info,
- 					  struct sk_buff *reply)
- {
--	struct ovs_zone_limit zone_limit;
--
--	zone_limit.zone_id = OVS_ZONE_LIMIT_DEFAULT_ZONE;
--	zone_limit.limit = info->default_limit;
-+	struct ovs_zone_limit zone_limit = {
-+		.zone_id = OVS_ZONE_LIMIT_DEFAULT_ZONE,
-+		.limit   = info->default_limit,
-+	};
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
+index 8981cfa9dbc3..92e6f1b94738 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
+@@ -496,7 +496,9 @@ static void dpu_hw_ctl_intf_cfg_v1(struct dpu_hw_ctl *ctx,
  
- 	return nla_put_nohdr(reply, sizeof(zone_limit), &zone_limit);
+ 	DPU_REG_WRITE(c, CTL_TOP, mode_sel);
+ 	DPU_REG_WRITE(c, CTL_INTF_ACTIVE, intf_active);
+-	DPU_REG_WRITE(c, CTL_MERGE_3D_ACTIVE, BIT(cfg->merge_3d - MERGE_3D_0));
++	if (cfg->merge_3d)
++		DPU_REG_WRITE(c, CTL_MERGE_3D_ACTIVE,
++			      BIT(cfg->merge_3d - MERGE_3D_0));
  }
+ 
+ static void dpu_hw_ctl_intf_cfg(struct dpu_hw_ctl *ctx,
 -- 
 2.30.2
 
