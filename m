@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3638235C0C6
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A884635BEC9
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241378AbhDLJP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35772 "EHLO mail.kernel.org"
+        id S238754AbhDLJCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240965AbhDLJLO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:11:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0B04613A3;
-        Mon, 12 Apr 2021 09:07:29 +0000 (UTC)
+        id S238618AbhDLI6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:58:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE73661360;
+        Mon, 12 Apr 2021 08:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218450;
-        bh=DF/lz2vT1oh+WXNnBjaQ+scZsXybX5ZDB1HNslqX6gg=;
+        s=korg; t=1618217830;
+        bh=mihkCc7YF2IU+tlWPGrDUJG6EteBh93IevV7csjBgWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=szh29L16PuZ57xqXl/ki2O9w9cTCTyRsVXfsPn4AUDbrgftZ2veLlwHyeOWuLUTK2
-         w5sPLtX/Has95TmVG+wM7JKnVlcXCugZPEb2T+M/bHdILjgLaj7J5xIfnkGCetIJr/
-         TZk/kYVyJSdReMuoEma/ZG3uJjoqygt8XgFvqOuI=
+        b=O2nz2ZAvK90wGrjg9Va5/Gqv0RZnWSXOb/KmcEN6lYbxtpFPrYVoOyxRjm2XMeikz
+         yVYNE3hIbYfMvnrAiS79NBdK/yJ2YH2uswZWyv2BZYqmxKI5CwwxuS0W7tGyVDfjE5
+         1QCbgJ8UOsb9TygJIF4tmpDRhe1mJ/EIsUQO1bgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 168/210] workqueue: Move the position of debug_work_activate() in __queue_work()
-Date:   Mon, 12 Apr 2021 10:41:13 +0200
-Message-Id: <20210412084021.623305757@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 160/188] net/mlx5: Fix PBMC register mapping
+Date:   Mon, 12 Apr 2021 10:41:14 +0200
+Message-Id: <20210412084018.951583705@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit 0687c66b5f666b5ad433f4e94251590d9bc9d10e ]
+[ Upstream commit 534b1204ca4694db1093b15cf3e79a99fcb6a6da ]
 
-The debug_work_activate() is called on the premise that
-the work can be inserted, because if wq be in WQ_DRAINING
-status, insert work may be failed.
+Add reserved mapping to cover all the register in order to avoid setting
+arbitrary values to newer FW which implements the reserved fields.
 
-Fixes: e41e704bc4f4 ("workqueue: improve destroy_workqueue() debuggability")
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 50b4a3c23646 ("net/mlx5: PPTB and PBMC register firmware command support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 2 +-
+ include/linux/mlx5/mlx5_ifc.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 894bb885b40b..6326a872510b 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -1412,7 +1412,6 @@ static void __queue_work(int cpu, struct workqueue_struct *wq,
- 	 */
- 	lockdep_assert_irqs_disabled();
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index 4b3b2bf83720..cc9ee0776974 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -10058,7 +10058,7 @@ struct mlx5_ifc_pbmc_reg_bits {
  
--	debug_work_activate(work);
+ 	struct mlx5_ifc_bufferx_reg_bits buffer[10];
  
- 	/* if draining, only works from the same workqueue are allowed */
- 	if (unlikely(wq->flags & __WQ_DRAINING) &&
-@@ -1494,6 +1493,7 @@ retry:
- 		worklist = &pwq->delayed_works;
- 	}
+-	u8         reserved_at_2e0[0x40];
++	u8         reserved_at_2e0[0x80];
+ };
  
-+	debug_work_activate(work);
- 	insert_work(pwq, work, worklist, work_flags);
- 
- out:
+ struct mlx5_ifc_qtct_reg_bits {
 -- 
 2.30.2
 
