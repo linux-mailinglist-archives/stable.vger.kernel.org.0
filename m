@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E367335BDFF
+	by mail.lfdr.de (Postfix) with ESMTP id 8E69D35BDFE
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238485AbhDLI4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238457AbhDLI4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Apr 2021 04:56:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238643AbhDLIyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238641AbhDLIyR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 04:54:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2E2E61247;
-        Mon, 12 Apr 2021 08:52:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E8BD61249;
+        Mon, 12 Apr 2021 08:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217545;
-        bh=yBZaTr86OwOgcrrKgd9PrgxNtHgFhLVTq8vlOp9NkAA=;
+        s=korg; t=1618217548;
+        bh=/nZERJHpbCS2/9x9axfPN9D6Maa+awKKzpED7hgcqSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVWt0CnyvFeXQzBwaTwW/9aCcm2AfnNebOdVDv6zZzLK5ju01i02q+TmgkWdect4Q
-         1MfbMEqLlHTK0MRpAJzxFPFA+afdmcX/AJwqtVUbqyEreh7AlbeWPmaOQrCqBVenLr
-         l2AmsMy4OpC/QpAVPG83iNUhBHwdtxD7KmKn9aW0=
+        b=aZFcBNaYU9bhB108421m/Dv4QozaEk0uci83UdPIHrqUN7zQhqUY1h9UZwhnWmvJc
+         1ICjz4xUI9hnpxKQxn3DnMB5dhhCTr1q6pzC74obC3cnkF8IrqyRXYhN7/rz6BY5JA
+         BnFIPB50e2NIgwyChzEq7qK7ftr7HyN7aLvNweHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        Lorenz Bauer <lmb@cloudflare.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
         John Fastabend <john.fastabend@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.10 052/188] bpf, sockmap: Fix sk->prot unhash op reset
-Date:   Mon, 12 Apr 2021 10:39:26 +0200
-Message-Id: <20210412084015.375217149@linuxfoundation.org>
+Subject: [PATCH 5.10 053/188] bpf, sockmap: Fix incorrect fwd_alloc accounting
+Date:   Mon, 12 Apr 2021 10:39:27 +0200
+Message-Id: <20210412084015.413740071@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -43,80 +42,133 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Fastabend <john.fastabend@gmail.com>
 
-commit 1c84b33101c82683dee8b06761ca1f69e78c8ee7 upstream.
+commit 144748eb0c445091466c9b741ebd0bfcc5914f3d upstream.
 
-In '4da6a196f93b1' we fixed a potential unhash loop caused when
-a TLS socket in a sockmap was removed from the sockmap. This
-happened because the unhash operation on the TLS ctx continued
-to point at the sockmap implementation of unhash even though the
-psock has already been removed. The sockmap unhash handler when a
-psock is removed does the following,
+Incorrect accounting fwd_alloc can result in a warning when the socket
+is torn down,
 
- void sock_map_unhash(struct sock *sk)
- {
-	void (*saved_unhash)(struct sock *sk);
-	struct sk_psock *psock;
+ [18455.319240] WARNING: CPU: 0 PID: 24075 at net/core/stream.c:208 sk_stream_kill_queues+0x21f/0x230
+ [...]
+ [18455.319543] Call Trace:
+ [18455.319556]  inet_csk_destroy_sock+0xba/0x1f0
+ [18455.319577]  tcp_rcv_state_process+0x1b4e/0x2380
+ [18455.319593]  ? lock_downgrade+0x3a0/0x3a0
+ [18455.319617]  ? tcp_finish_connect+0x1e0/0x1e0
+ [18455.319631]  ? sk_reset_timer+0x15/0x70
+ [18455.319646]  ? tcp_schedule_loss_probe+0x1b2/0x240
+ [18455.319663]  ? lock_release+0xb2/0x3f0
+ [18455.319676]  ? __release_sock+0x8a/0x1b0
+ [18455.319690]  ? lock_downgrade+0x3a0/0x3a0
+ [18455.319704]  ? lock_release+0x3f0/0x3f0
+ [18455.319717]  ? __tcp_close+0x2c6/0x790
+ [18455.319736]  ? tcp_v4_do_rcv+0x168/0x370
+ [18455.319750]  tcp_v4_do_rcv+0x168/0x370
+ [18455.319767]  __release_sock+0xbc/0x1b0
+ [18455.319785]  __tcp_close+0x2ee/0x790
+ [18455.319805]  tcp_close+0x20/0x80
 
-	rcu_read_lock();
-	psock = sk_psock(sk);
-	if (unlikely(!psock)) {
-		rcu_read_unlock();
-		if (sk->sk_prot->unhash)
-			sk->sk_prot->unhash(sk);
-		return;
-	}
-        [...]
- }
+This currently happens because on redirect case we do skb_set_owner_r()
+with the original sock. This increments the fwd_alloc memory accounting
+on the original sock. Then on redirect we may push this into the queue
+of the psock we are redirecting to. When the skb is flushed from the
+queue we give the memory back to the original sock. The problem is if
+the original sock is destroyed/closed with skbs on another psocks queue
+then the original sock will not have a way to reclaim the memory before
+being destroyed. Then above warning will be thrown
 
-The unlikely() case is there to handle the case where psock is detached
-but the proto ops have not been updated yet. But, in the above case
-with TLS and removed psock we never fixed sk_prot->unhash() and unhash()
-points back to sock_map_unhash resulting in a loop. To fix this we added
-this bit of code,
+  sockA                          sockB
 
- static inline void sk_psock_restore_proto(struct sock *sk,
-                                          struct sk_psock *psock)
- {
-       sk->sk_prot->unhash = psock->saved_unhash;
+  sk_psock_strp_read()
+   sk_psock_verdict_apply()
+     -- SK_REDIRECT --
+     sk_psock_skb_redirect()
+                                skb_queue_tail(psock_other->ingress_skb..)
 
-This will set the sk_prot->unhash back to its saved value. This is the
-correct callback for a TLS socket that has been removed from the sock_map.
-Unfortunately, this also overwrites the unhash pointer for all psocks.
-We effectively break sockmap unhash handling for any future socks.
-Omitting the unhash operation will leave stale entries in the map if
-a socket transition through unhash, but does not do close() op.
+  sk_close()
+   sock_map_unref()
+     sk_psock_put()
+       sk_psock_drop()
+         sk_psock_zap_ingress()
 
-To fix set unhash correctly before calling into tls_update. This way the
-TLS enabled socket will point to the saved unhash() handler.
+At this point we have torn down our own psock, but have the outstanding
+skb in psock_other. Note that SK_PASS doesn't have this problem because
+the sk_psock_drop() logic releases the skb, its still associated with
+our psock.
 
-Fixes: 4da6a196f93b1 ("bpf: Sockmap/tls, during free we may call tcp_bpf_unhash() in loop")
-Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reported-by: Lorenz Bauer <lmb@cloudflare.com>
-Suggested-by: Cong Wang <xiyou.wangcong@gmail.com>
+To resolve lets only account for sockets on the ingress queue that are
+still associated with the current socket. On the redirect case we will
+check memory limits per 6fa9201a89898, but will omit fwd_alloc accounting
+until skb is actually enqueued. When the skb is sent via skb_send_sock_locked
+or received with sk_psock_skb_ingress memory will be claimed on psock_other.
+
+Fixes: 6fa9201a89898 ("bpf, sockmap: Avoid returning unneeded EAGAIN when redirecting to self")
+Reported-by: Andrii Nakryiko <andrii@kernel.org>
 Signed-off-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/161731441904.68884.15593917809745631972.stgit@john-XPS-13-9370
+Link: https://lore.kernel.org/bpf/161731444013.68884.4021114312848535993.stgit@john-XPS-13-9370
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skmsg.h |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/core/skmsg.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -349,8 +349,13 @@ static inline void sk_psock_update_proto
- static inline void sk_psock_restore_proto(struct sock *sk,
- 					  struct sk_psock *psock)
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -488,6 +488,7 @@ static int sk_psock_skb_ingress_self(str
+ 	if (unlikely(!msg))
+ 		return -EAGAIN;
+ 	sk_msg_init(msg);
++	skb_set_owner_r(skb, sk);
+ 	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
+ }
+ 
+@@ -791,7 +792,6 @@ static void sk_psock_tls_verdict_apply(s
  {
--	sk->sk_prot->unhash = psock->saved_unhash;
- 	if (inet_csk_has_ulp(sk)) {
-+		/* TLS does not have an unhash proto in SW cases, but we need
-+		 * to ensure we stop using the sock_map unhash routine because
-+		 * the associated psock is being removed. So use the original
-+		 * unhash handler.
-+		 */
-+		WRITE_ONCE(sk->sk_prot->unhash, psock->saved_unhash);
- 		tcp_update_ulp(sk, psock->sk_proto, psock->saved_write_space);
- 	} else {
- 		sk->sk_write_space = psock->saved_write_space;
+ 	switch (verdict) {
+ 	case __SK_REDIRECT:
+-		skb_set_owner_r(skb, sk);
+ 		sk_psock_skb_redirect(skb);
+ 		break;
+ 	case __SK_PASS:
+@@ -809,10 +809,6 @@ int sk_psock_tls_strp_read(struct sk_pso
+ 	rcu_read_lock();
+ 	prog = READ_ONCE(psock->progs.skb_verdict);
+ 	if (likely(prog)) {
+-		/* We skip full set_owner_r here because if we do a SK_PASS
+-		 * or SK_DROP we can skip skb memory accounting and use the
+-		 * TLS context.
+-		 */
+ 		skb->sk = psock->sk;
+ 		tcp_skb_bpf_redirect_clear(skb);
+ 		ret = sk_psock_bpf_run(psock, prog, skb);
+@@ -881,12 +877,13 @@ static void sk_psock_strp_read(struct st
+ 		kfree_skb(skb);
+ 		goto out;
+ 	}
+-	skb_set_owner_r(skb, sk);
+ 	prog = READ_ONCE(psock->progs.skb_verdict);
+ 	if (likely(prog)) {
++		skb->sk = sk;
+ 		tcp_skb_bpf_redirect_clear(skb);
+ 		ret = sk_psock_bpf_run(psock, prog, skb);
+ 		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
++		skb->sk = NULL;
+ 	}
+ 	sk_psock_verdict_apply(psock, skb, ret);
+ out:
+@@ -957,12 +954,13 @@ static int sk_psock_verdict_recv(read_de
+ 		kfree_skb(skb);
+ 		goto out;
+ 	}
+-	skb_set_owner_r(skb, sk);
+ 	prog = READ_ONCE(psock->progs.skb_verdict);
+ 	if (likely(prog)) {
++		skb->sk = sk;
+ 		tcp_skb_bpf_redirect_clear(skb);
+ 		ret = sk_psock_bpf_run(psock, prog, skb);
+ 		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
++		skb->sk = NULL;
+ 	}
+ 	sk_psock_verdict_apply(psock, skb, ret);
+ out:
 
 
