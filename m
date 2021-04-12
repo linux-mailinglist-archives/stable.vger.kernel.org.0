@@ -2,155 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ADC035D175
+	by mail.lfdr.de (Postfix) with ESMTP id 8619135D176
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 21:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238240AbhDLTtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 15:49:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40566 "EHLO
+        id S237848AbhDLTu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 15:50:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238225AbhDLTtS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 15:49:18 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 657D1C061574
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 12:49:00 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id k25so14702729iob.6
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 12:49:00 -0700 (PDT)
+        with ESMTP id S237406AbhDLTu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 15:50:27 -0400
+Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E55EC061574
+        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 12:50:09 -0700 (PDT)
+Received: by mail-il1-x12b.google.com with SMTP id c3so5987457ils.5
+        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 12:50:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxfoundation.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=LqaUrM55rOrVTq5noqoieWzml4jKDjKEFk4bXFQ2ruc=;
-        b=LkRtq6unHNfx94VvM097vys1ERhIecK0KvnsaJ2ypV+Y2ZKgKBp6SkXyXxS6Ldp8bk
-         UqsyyrcOgU4H8zDsxCJiT/m1S6mCivixJ425C3TAQpgdLHwg+KoRqIoa6lVBKfBex70I
-         bpfb99yK0gbR+RR7ox3udkPVm9DjGqYUFB6YQ=
+        bh=U8V+SQQ2oxdowqY3VA2h5BAZHsYF3xTADFxaCRfNN2U=;
+        b=AgVvOGCrBuWV7tIznQr5JstSKcSWmaiJTlj+VXDNp12mIGq6MdtxtozdL3eNq1wOnm
+         a8KalA4YC++F7+OqAUG4viRTP7A3CCxRRsGdTOBtQq2Nq6n5ymlHB78yB0NckyFatFpg
+         fXxMzvjECXL/Q7f5jamFYTmFw7o9C9CDaXx3E=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=LqaUrM55rOrVTq5noqoieWzml4jKDjKEFk4bXFQ2ruc=;
-        b=S+i9cKNdruELS7FhOj150hP0HSe+tTRfFFm+tLRdifojRmWAFC1+cvpkoeFIwuPenJ
-         Kosv0DaowpTukHOCN4y/fFPK3Q7+zTtuSBgIQxJrcouCIbFXvu0FZEOmVkLXJIzjdug5
-         lS17yKdkCwo1qpXlD0dNo6PcTnBzqfli154Bwhyy8I7RRcV+XwmNTfKWmHjZsCU4hVSB
-         Exle7JGhG6z0bNvmntDi3UNkFQ+k02f76Gdsh2ltRr4AXz3MH+KL1Hqs+9OHbAbjwWA4
-         HCDgd4HTVZxHFimCzkdH2ajdP3+Nvoz1TT8ssFRXZ5REKkE8eUerc69BEsgBFiPDtP9u
-         ++qQ==
-X-Gm-Message-State: AOAM533M+IFMO6RN/Zivn0MQN1uuJD1zd63hs+3qdOVtl7il2jULq+vO
-        488Y4vu+al6jzZSkcQTmr7wcrg==
-X-Google-Smtp-Source: ABdhPJy5ghC3p0bjfCXKH1xrtcKPAry4uyoEk1R65Fu1YQ985J/xVUacyFRcqM/LPaHBQrDSSa4iuw==
-X-Received: by 2002:a05:6638:3826:: with SMTP id i38mr7209551jav.141.1618256939491;
-        Mon, 12 Apr 2021 12:48:59 -0700 (PDT)
+        bh=U8V+SQQ2oxdowqY3VA2h5BAZHsYF3xTADFxaCRfNN2U=;
+        b=FtF2XunQrSiMoQRuaFKlfY9lR/wqFBIIYQHNTlAPQ86uIjTR9567teurrmezm0pstg
+         QjQi7j6L/U9gO76z3dXURhoyPSaD/g2sVL0PlzSM13LygSgcGPgO0F8TMr5fKV/azbPu
+         qG+suNk/Avn3SDqj0ZpbmpLAzrhDkKZL9H5uXHUrXWq2J8FHb2Xe/JBWu8u6B15E0mRz
+         SxPlZyw2yI/RUVc40ea8q2KMRFU+ywHLSgIkJRf0vyVMKSNI/nR6NMzl1SEPtovaSJxb
+         DsnNBtDMXvWtyDls6R0sBoQmEpqThkFE2mp+1Ga2oLCCqo069FW6Nv42qOpDU/pf1m/O
+         eNmg==
+X-Gm-Message-State: AOAM5337xBWPnDjBDB3i2S+jQziHCKz33guQrg9D0B8LAve2Ru+Scr9O
+        0/zCJyiA1kO5Ytr+MXxQGsPGAg==
+X-Google-Smtp-Source: ABdhPJzINtlkSIrjvehiCFFPVdi6AvqWKtRoOcvGek1eq3VBcrUuzTc341d5qACxxnmFIXDnWemXSg==
+X-Received: by 2002:a92:6e0e:: with SMTP id j14mr24207663ilc.90.1618257008866;
+        Mon, 12 Apr 2021 12:50:08 -0700 (PDT)
 Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id o13sm5795811iob.17.2021.04.12.12.48.58
+        by smtp.gmail.com with ESMTPSA id f9sm5853015iol.23.2021.04.12.12.50.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Apr 2021 12:48:59 -0700 (PDT)
-Subject: Re: [PATCH] usbip: fix vudc usbip_sockfd_store races leading to gpf
-To:     tseewald@gmail.com
-Cc:     syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
-        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
-        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        6f17ac98-5b23-3068-b6ec-4911273fe093@linuxfoundation.org
-References: <20210410004930.17411-1-tseewald@gmail.com>
- <3e8c8b04-c558-b7ca-5433-6e2a57ebff27@linuxfoundation.org>
+        Mon, 12 Apr 2021 12:50:08 -0700 (PDT)
+Subject: Re: [PATCH] usbip: Fix incorrect double assignment to udc->ud.tcp_rx
+To:     Tom Seewald <tseewald@gmail.com>, stable@vger.kernel.org
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210412185902.27755-1-tseewald@gmail.com>
+ <4fc29f02-2284-70a2-2995-407f5c45b11f@gmail.com>
+ <0a4197a2-d417-dca5-20fe-908bb5e76b55@linuxfoundation.org>
 From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <7669c42d-5b1f-867f-9a1c-3e5a1077f232@linuxfoundation.org>
-Date:   Mon, 12 Apr 2021 13:48:58 -0600
+Message-ID: <108528e1-da05-19c0-a189-4ec4a69166ef@linuxfoundation.org>
+Date:   Mon, 12 Apr 2021 13:50:07 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <3e8c8b04-c558-b7ca-5433-6e2a57ebff27@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <0a4197a2-d417-dca5-20fe-908bb5e76b55@linuxfoundation.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/12/21 1:33 PM, Shuah Khan wrote:
-> On 4/9/21 6:49 PM, Tom Seewald wrote:
->> [backport of mainline commit 46613c9dfa96 ("usbip: fix vudc
->> usbip_sockfd_store races leading to gpf") to 4.9 and 4.14]
+On 4/12/21 1:25 PM, Shuah Khan wrote:
+> On 4/12/21 1:06 PM, Tom Seewald wrote:
+>> On 4/12/21 1:59 PM, Tom Seewald wrote:
 >>
->> usbip_sockfd_store() is invoked when user requests attach (import)
->> detach (unimport) usb gadget device from usbip host. vhci_hcd sends
->> import request and usbip_sockfd_store() exports the device if it is
->> free for export.
+>>> commit 9858af27e69247c5d04c3b093190a93ca365f33d upstream.
+>>>
+>>> Currently udc->ud.tcp_rx is being assigned twice, the second assignment
+>>> is incorrect, it should be to udc->ud.tcp_tx instead of rx. Fix this.
+>>>
+>>> Fixes: 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races 
+>>> leading to gpf")
+>>> Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+>>> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+>>> Cc: stable <stable@vger.kernel.org>
+>>> Addresses-Coverity: ("Unused value")
+>>> Link: 
+>>> https://lore.kernel.org/r/20210311104445.7811-1-colin.king@canonical.com
+>>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> Signed-off-by: Tom Seewald <tseewald@gmail.com>
+>>> ---
+>>>   drivers/usb/usbip/vudc_sysfs.c | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/usb/usbip/vudc_sysfs.c 
+>>> b/drivers/usb/usbip/vudc_sysfs.c
+>>> index f44d98eeb36a..51cc5258b63e 100644
+>>> --- a/drivers/usb/usbip/vudc_sysfs.c
+>>> +++ b/drivers/usb/usbip/vudc_sysfs.c
+>>> @@ -187,7 +187,7 @@ static ssize_t store_sockfd(struct device *dev,
+>>>           udc->ud.tcp_socket = socket;
+>>>           udc->ud.tcp_rx = tcp_rx;
+>>> -        udc->ud.tcp_rx = tcp_tx;
+>>> +        udc->ud.tcp_tx = tcp_tx;
+>>>           udc->ud.status = SDEV_ST_USED;
+>>>           spin_unlock_irq(&udc->ud.lock);
+>> I sent this because I believe this patch needs to be backported to the
+>> 4.9.y and 4.14.y stable trees.
 >>
->> Export and unexport are governed by local state and shared state
->> - Shared state (usbip device status, sockfd) - sockfd and Device
->> Â Â  status are used to determine if stub should be brought up or shut
->> Â Â  down. Device status is shared between host and client.
->> - Local state (tcp_socket, rx and tx thread task_struct ptrs)
->> Â Â  A valid tcp_socket controls rx and tx thread operations while the
->> Â Â  device is in exported state.
->> - While the device is exported, device status is marked used and socket,
->> Â Â  sockfd, and thread pointers are valid.
->>
->> Export sequence (stub-up) includes validating the socket and creating
->> receive (rx) and transmit (tx) threads to talk to the client to provide
->> access to the exported device. rx and tx threads depends on local and
->> shared state to be correct and in sync.
->>
->> Unexport (stub-down) sequence shuts the socket down and stops the rx and
->> tx threads. Stub-down sequence relies on local and shared states to be
->> in sync.
->>
->> There are races in updating the local and shared status in the current
->> stub-up sequence resulting in crashes. These stem from starting rx and
->> tx threads before local and global state is updated correctly to be in
->> sync.
->>
->> 1. Doesn't handle kthread_create() error and saves invalid ptr in local
->> Â Â Â  state that drives rx and tx threads.
->> 2. Updates tcp_socket and sockfd,Â  starts stub_rx and stub_tx threads
->> Â Â Â  before updating usbip_device status to SDEV_ST_USED. This opens up a
->> Â Â Â  race condition between the threads and usbip_sockfd_store() stub up
->> Â Â Â  and down handling.
->>
->> Fix the above problems:
->> - Stop using kthread_get_run() macro to create/start threads.
->> - Create threads and get task struct reference.
->> - Add kthread_create() failure handling and bail out.
->> - Hold usbip_device lock to update local and shared states after
->> Â Â  creating rx and tx threads.
->> - Update usbip_device status to SDEV_ST_USED.
->> - Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
->> - Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
->> Â Â  and status) is complete.
->>
->> Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
->> kthread_get_run() improper error handling problem and others. This is a
->> hard problem to find and debug since the races aren't seen in a normal
->> case. Fuzzing forces the race window to be small enough for the
->> kthread_get_run() error path bug and starting threads before updating the
->> local and shared state bug in the stub-up sequence.
->>
->> Reported-by: syzbot 
->> <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
->> Reported-by: syzbot 
->> <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
->> Reported-by: syzbot 
->> <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
->> Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
->> Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
->> Cc: stable@vger.kernel.org
 > 
-> Thanks for helping with this backport.
+> Tom,
 > 
-> Please add the stables it fixes here:
-> Cc: stable@vger.kernel.org # 4.14.x # # 4.9.x
+> Correct. This needs proting to 4.14 and 4.9. However, you have to also
+> backport the patch it fixes to 4.14 and 4.9
 > 
-> Combine this patch and the fix for this in the same.
-> 
-> 9858af27e69247c5d04c3b093190a93ca365f33d
-> usbip: Fix incorrect double assignment to udc->ud.tcp_rx
+> 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races leading to gpf")
 > 
 
-Please ignore the suggestion to combine. Greg already pulled
-this patch. Sorry for the noise.
+Sorry for the noise. I see this patch fro you and that it was pulled in.
+
+> You can combine the two patches when you backport to 4.14 and 4.9 and
+> add both upstream commits in the change log.
+> 
+
+No need to combine. Thanks for backport.
 
 thanks,
 -- Shuah
+
