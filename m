@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD2E35BD94
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE1335BCCD
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238475AbhDLIwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42984 "EHLO mail.kernel.org"
+        id S237725AbhDLIpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:45:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238657AbhDLIuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:50:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 447926109E;
-        Mon, 12 Apr 2021 08:50:00 +0000 (UTC)
+        id S237468AbhDLIpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:45:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A883C61241;
+        Mon, 12 Apr 2021 08:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217400;
-        bh=4+ClA8wOFRun7HPBB/E9Gz5nKTQl7aK+eqQ96ydXl34=;
+        s=korg; t=1618217085;
+        bh=6ckTbPMMaDUT4z/zGAWEqSYIUtGsOiCjYlVqascaMcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjj81wSpv4c55vn2LDTby0UQ6eOCVC5M6e0k76BZLmLlAvS0eFYU8eRgeznNGnqBA
-         f8K9JGkWPBKq9nCXCZRt0YwvHUbYAWHnq+hXmavYdmgYLS19d/XbuwcGuV0ixxkXJ7
-         OkoQC5PVCdYf28AQ7mp2lpmi1ezIZoMgqaZW8Iuc=
+        b=KwTYx5MU539MF+H8pM3SN5P4XI+lNUTRAU0JHVyJEAoP9KQZe1uxo+kV5zI111+jG
+         pz/P/23EmvqNFJnQtO9x68v2eFpbO/R6TmF27NEbVChTG6+T7SUfoMbp6YXrjR2r4I
+         Cbj7TcJMJrDpBlk/a6wrXjih0Rj/VbdvU4ehZDx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raed Salem <raeds@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/111] net/mlx5: Fix placement of log_max_flow_counter
-Date:   Mon, 12 Apr 2021 10:41:08 +0200
-Message-Id: <20210412084007.241096063@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.19 63/66] net: ieee802154: forbid monitor for set llsec params
+Date:   Mon, 12 Apr 2021 10:41:09 +0200
+Message-Id: <20210412084000.161986840@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raed Salem <raeds@nvidia.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit a14587dfc5ad2312dabdd42a610d80ecd0dc8bea ]
+commit 88c17855ac4291fb462e13a86b7516773b6c932e upstream.
 
-The cited commit wrongly placed log_max_flow_counter field of
-mlx5_ifc_flow_table_prop_layout_bits, align it to the HW spec intended
-placement.
+This patch forbids to set llsec params for monitor interfaces which we
+don't support yet.
 
-Fixes: 16f1c5bb3ed7 ("net/mlx5: Check device capability for maximum flow counters")
-Signed-off-by: Raed Salem <raeds@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-3-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mlx5/mlx5_ifc.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ieee802154/nl802154.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 75e5a7fe341f..8099517e2e61 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -415,11 +415,11 @@ struct mlx5_ifc_flow_table_prop_layout_bits {
- 	u8         reserved_at_60[0x18];
- 	u8         log_max_ft_num[0x8];
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -1402,6 +1402,9 @@ static int nl802154_set_llsec_params(str
+ 	u32 changed = 0;
+ 	int ret;
  
--	u8         reserved_at_80[0x18];
-+	u8         reserved_at_80[0x10];
-+	u8         log_max_flow_counter[0x8];
- 	u8         log_max_destination[0x8];
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (info->attrs[NL802154_ATTR_SEC_ENABLED]) {
+ 		u8 enabled;
  
--	u8         log_max_flow_counter[0x8];
--	u8         reserved_at_a8[0x10];
-+	u8         reserved_at_a0[0x18];
- 	u8         log_max_flow[0x8];
- 
- 	u8         reserved_at_c0[0x40];
--- 
-2.30.2
-
 
 
