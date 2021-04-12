@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F45C35BE52
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC5635BD7A
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238823AbhDLI5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44692 "EHLO mail.kernel.org"
+        id S238201AbhDLIv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239082AbhDLIzm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3675061207;
-        Mon, 12 Apr 2021 08:55:21 +0000 (UTC)
+        id S238465AbhDLItz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:49:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B3E61245;
+        Mon, 12 Apr 2021 08:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217721;
-        bh=2vlpjWMa4k7gcKDJtUV+aw0btDtN/qb3dbfGmDMAHwI=;
+        s=korg; t=1618217346;
+        bh=e1abmRRKQrNRlJ15b7+d8+mBQEDWGtuiizmhp4eKoIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1K9UYZemAqPmE9qaA/1cyytSA9g+u3+381+nyq77Zl9TDiPEUIdof9erBI+foDLrJ
-         zXT3NFb8CL7JOl3gnf9QwuB6jwE96oZkpOIUbwahFDV2xKuwdYYGwGuKNymRUU6tFc
-         NpfIjogUiVUjln7COONxGTBYabjGLgfSvkZxhoWM=
+        b=MHRAsjUUXWUryKEgKd1dBM/Lthkoda9mqlN98QwJV2w778BpBtRidc+j1WF646bCX
+         YzgAh7q29+K2qaNXVe2IP6vH0/winIf3FWyNH93yp1n12CwiFRej3UvprqL+YAY8MJ
+         HSyjZXoZZcaonJ8ulen/8sKA1D88mGm5709ASvV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
-        Vladimir Oltean <olteanv@gmail.com>,
+        stable@vger.kernel.org,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 121/188] net: dsa: Fix type was not set for devlink port
+Subject: [PATCH 5.4 057/111] amd-xgbe: Update DMA coherency values
 Date:   Mon, 12 Apr 2021 10:40:35 +0200
-Message-Id: <20210412084017.672721816@linuxfoundation.org>
+Message-Id: <20210412084006.164635352@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kochetkov <fido_max@inbox.ru>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-[ Upstream commit fb6ec87f7229b92baa81b35cbc76f2626d5bfadb ]
+[ Upstream commit d75135082698140a26a56defe1bbc1b06f26a41f ]
 
-If PHY is not available on DSA port (described at devicetree but absent or
-failed to detect) then kernel prints warning after 3700 secs:
+Based on the IOMMU configuration, the current cache control settings can
+result in possible coherency issues. The hardware team has recommended
+new settings for the PCI device path to eliminate the issue.
 
-[ 3707.948771] ------------[ cut here ]------------
-[ 3707.948784] Type was not set for devlink port.
-[ 3707.948894] WARNING: CPU: 1 PID: 17 at net/core/devlink.c:8097 0xc083f9d8
-
-We should unregister the devlink port as a user port and
-re-register it as an unused port before executing "continue" in case of
-dsa_port_setup error.
-
-Fixes: 86f8b1c01a0a ("net: dsa: Do not make user port errors fatal")
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Fixes: 6f595959c095 ("amd-xgbe: Adjust register settings to improve performance")
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/dsa2.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/amd/xgbe/xgbe.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
-index a04fd637b4cd..3ada338d7e08 100644
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -533,8 +533,14 @@ static int dsa_tree_setup_switches(struct dsa_switch_tree *dst)
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe.h b/drivers/net/ethernet/amd/xgbe/xgbe.h
+index 47bcbcf58048..0c93a552b921 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe.h
++++ b/drivers/net/ethernet/amd/xgbe/xgbe.h
+@@ -181,9 +181,9 @@
+ #define XGBE_DMA_SYS_AWCR	0x30303030
  
- 	list_for_each_entry(dp, &dst->ports, list) {
- 		err = dsa_port_setup(dp);
--		if (err)
-+		if (err) {
-+			dsa_port_devlink_teardown(dp);
-+			dp->type = DSA_PORT_TYPE_UNUSED;
-+			err = dsa_port_devlink_setup(dp);
-+			if (err)
-+				goto teardown;
- 			continue;
-+		}
- 	}
+ /* DMA cache settings - PCI device */
+-#define XGBE_DMA_PCI_ARCR	0x00000003
+-#define XGBE_DMA_PCI_AWCR	0x13131313
+-#define XGBE_DMA_PCI_AWARCR	0x00000313
++#define XGBE_DMA_PCI_ARCR	0x000f0f0f
++#define XGBE_DMA_PCI_AWCR	0x0f0f0f0f
++#define XGBE_DMA_PCI_AWARCR	0x00000f0f
  
- 	return 0;
+ /* DMA channel interrupt modes */
+ #define XGBE_IRQ_MODE_EDGE	0
 -- 
 2.30.2
 
