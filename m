@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C9335BE29
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15A5D35BD02
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238782AbhDLI5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
+        id S237858AbhDLIq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:46:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238943AbhDLIzO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1064061382;
-        Mon, 12 Apr 2021 08:53:51 +0000 (UTC)
+        id S237739AbhDLIqL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:46:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5C5E611F0;
+        Mon, 12 Apr 2021 08:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217632;
-        bh=dRndkIuhCviCvqzOp6qSR1HuzawgUW4yKCCJUdpawn0=;
+        s=korg; t=1618217153;
+        bh=Vwq7OBOcX4w2Lv7VcddRMMu7QdRGViyEXU4JYQjLerI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HW6m+ooke00b1FB9cGTy1tufTeSW6aECCtUA7Fp1D1d9bNJyYnmiE2h9fJ8W7LrAE
-         K+YXRZMuyFFwqBJdMmdGWVEe8Ho8YXiceQlOuB8C3XECUtdhPd71Rk72eIk7Qvy88C
-         7srXmxGm0hEEL14CpVdWSu3Iwo312pmz+5vXrjEo=
+        b=ufnUAky/+rdjEEgLJpdFkhAt/V0lNumltM400BFkhcFlVUoSVDkTtiWIP2wI22+aT
+         VuXwjRdGNG90Y6mETIg1t8ehZgNTQFcc8+DheKcPO30wZ5GAWTH3+ivizVSfAAY6iQ
+         M8kwguUs3iyqsUxe0uIZT4mOkPg877f3D0LtUues=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 087/188] KVM: x86/mmu: Ensure TLBs are flushed when yielding during GFN range zap
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jacek=20Bu=C5=82atek?= <jacekx.bulatek@intel.com>,
+        Haiyue Wang <haiyue.wang@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.4 023/111] ice: Fix for dereference of NULL pointer
 Date:   Mon, 12 Apr 2021 10:40:01 +0200
-Message-Id: <20210412084016.540606935@linuxfoundation.org>
+Message-Id: <20210412084005.000554881@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,110 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jacek Bułatek <jacekx.bulatek@intel.com>
 
-[ Upstream commit a835429cda91621fca915d80672a157b47738afb ]
+commit 7a91d3f02b04b2fb18c2dfa8b6c4e5a40a2753f5 upstream.
 
-When flushing a range of GFNs across multiple roots, ensure any pending
-flush from a previous root is honored before yielding while walking the
-tables of the current root.
+Add handling of allocation fault for ice_vsi_list_map_info.
 
-Note, kvm_tdp_mmu_zap_gfn_range() now intentionally overwrites its local
-"flush" with the result to avoid redundant flushes.  zap_gfn_range()
-preserves and return the incoming "flush", unless of course the flush was
-performed prior to yielding and no new flush was triggered.
+Also *fi should not be NULL pointer, it is a reference to raw
+data field, so remove this variable and use the reference
+directly.
 
-Fixes: 1af4a96025b3 ("KVM: x86/mmu: Yield in TDU MMU iter even if no SPTES changed")
-Cc: stable@vger.kernel.org
-Reviewed-by: Ben Gardon <bgardon@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210325200119.1359384-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9daf8208dd4d ("ice: Add support for switch filter programming")
+Signed-off-by: Jacek Bułatek <jacekx.bulatek@intel.com>
+Co-developed-by: Haiyue Wang <haiyue.wang@intel.com>
+Signed-off-by: Haiyue Wang <haiyue.wang@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_switch.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index 0d17457f1c84..f534c0a15f2b 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -103,7 +103,7 @@ bool is_tdp_mmu_root(struct kvm *kvm, hpa_t hpa)
- }
+--- a/drivers/net/ethernet/intel/ice/ice_switch.c
++++ b/drivers/net/ethernet/intel/ice/ice_switch.c
+@@ -1279,6 +1279,9 @@ ice_add_update_vsi_list(struct ice_hw *h
+ 			ice_create_vsi_list_map(hw, &vsi_handle_arr[0], 2,
+ 						vsi_list_id);
  
- static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
--			  gfn_t start, gfn_t end, bool can_yield);
-+			  gfn_t start, gfn_t end, bool can_yield, bool flush);
- 
- void kvm_tdp_mmu_free_root(struct kvm *kvm, struct kvm_mmu_page *root)
- {
-@@ -116,7 +116,7 @@ void kvm_tdp_mmu_free_root(struct kvm *kvm, struct kvm_mmu_page *root)
- 
- 	list_del(&root->link);
- 
--	zap_gfn_range(kvm, root, 0, max_gfn, false);
-+	zap_gfn_range(kvm, root, 0, max_gfn, false, false);
- 
- 	free_page((unsigned long)root->spt);
- 	kmem_cache_free(mmu_page_header_cache, root);
-@@ -453,18 +453,19 @@ static inline bool tdp_mmu_iter_cond_resched(struct kvm *kvm,
-  * scheduler needs the CPU or there is contention on the MMU lock. If this
-  * function cannot yield, it will not release the MMU lock or reschedule and
-  * the caller must ensure it does not supply too large a GFN range, or the
-- * operation can cause a soft lockup.
-+ * operation can cause a soft lockup.  Note, in some use cases a flush may be
-+ * required by prior actions.  Ensure the pending flush is performed prior to
-+ * yielding.
-  */
- static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
--			  gfn_t start, gfn_t end, bool can_yield)
-+			  gfn_t start, gfn_t end, bool can_yield, bool flush)
- {
- 	struct tdp_iter iter;
--	bool flush_needed = false;
- 
- 	tdp_root_for_each_pte(iter, root, start, end) {
- 		if (can_yield &&
--		    tdp_mmu_iter_cond_resched(kvm, &iter, flush_needed)) {
--			flush_needed = false;
-+		    tdp_mmu_iter_cond_resched(kvm, &iter, flush)) {
-+			flush = false;
- 			continue;
- 		}
- 
-@@ -482,9 +483,10 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 			continue;
- 
- 		tdp_mmu_set_spte(kvm, &iter, 0);
--		flush_needed = true;
-+		flush = true;
- 	}
--	return flush_needed;
++		if (!m_entry->vsi_list_info)
++			return ICE_ERR_NO_MEMORY;
 +
-+	return flush;
+ 		/* If this entry was large action then the large action needs
+ 		 * to be updated to point to FWD to VSI list
+ 		 */
+@@ -2266,6 +2269,7 @@ ice_vsi_uses_fltr(struct ice_fltr_mgmt_l
+ 	return ((fm_entry->fltr_info.fltr_act == ICE_FWD_TO_VSI &&
+ 		 fm_entry->fltr_info.vsi_handle == vsi_handle) ||
+ 		(fm_entry->fltr_info.fltr_act == ICE_FWD_TO_VSI_LIST &&
++		 fm_entry->vsi_list_info &&
+ 		 (test_bit(vsi_handle, fm_entry->vsi_list_info->vsi_map))));
  }
  
- /*
-@@ -499,7 +501,7 @@ bool kvm_tdp_mmu_zap_gfn_range(struct kvm *kvm, gfn_t start, gfn_t end)
- 	bool flush = false;
+@@ -2338,14 +2342,12 @@ ice_add_to_vsi_fltr_list(struct ice_hw *
+ 		return ICE_ERR_PARAM;
  
- 	for_each_tdp_mmu_root_yield_safe(kvm, root)
--		flush |= zap_gfn_range(kvm, root, start, end, true);
-+		flush = zap_gfn_range(kvm, root, start, end, true, flush);
+ 	list_for_each_entry(fm_entry, lkup_list_head, list_entry) {
+-		struct ice_fltr_info *fi;
+-
+-		fi = &fm_entry->fltr_info;
+-		if (!fi || !ice_vsi_uses_fltr(fm_entry, vsi_handle))
++		if (!ice_vsi_uses_fltr(fm_entry, vsi_handle))
+ 			continue;
  
- 	return flush;
- }
-@@ -691,7 +693,7 @@ static int zap_gfn_range_hva_wrapper(struct kvm *kvm,
- 				     struct kvm_mmu_page *root, gfn_t start,
- 				     gfn_t end, unsigned long unused)
- {
--	return zap_gfn_range(kvm, root, start, end, false);
-+	return zap_gfn_range(kvm, root, start, end, false, false);
- }
- 
- int kvm_tdp_mmu_zap_hva_range(struct kvm *kvm, unsigned long start,
--- 
-2.30.2
-
+ 		status = ice_add_entry_to_vsi_fltr_list(hw, vsi_handle,
+-							vsi_list_head, fi);
++							vsi_list_head,
++							&fm_entry->fltr_info);
+ 		if (status)
+ 			return status;
+ 	}
 
 
