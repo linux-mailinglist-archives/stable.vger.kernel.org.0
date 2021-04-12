@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0E4C35BCFC
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE8135BE15
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237834AbhDLIqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
+        id S237626AbhDLI4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237634AbhDLIp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:45:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 021E76125F;
-        Mon, 12 Apr 2021 08:45:38 +0000 (UTC)
+        id S238846AbhDLIzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 261EA61370;
+        Mon, 12 Apr 2021 08:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217139;
-        bh=Z6ZjAmFkSw+pemnNntJoY6uvYpYx22InNvuUPMQtpMs=;
+        s=korg; t=1618217593;
+        bh=nD1XbmUtLI57bRf4xzb+SI/BIIQnh6f3jKjJJIW1DMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EA2Ml/rMrOMwuHLg46PDTcyK3qpSxJzjcTZZLyvmrAviit7nNUfcjVdw2KBcoRDqE
-         IL69+tl044GAQeDMzWPv4QH8tiCYm7Pz/kn4Jo+FyD8Hc3RMksLLvLVY6sERLDVeI+
-         3fofRltDItY1WL+izlGCgiVyHTTa3Vi6TqE62YzI=
+        b=x/8+U2bzCoHX8sncpe40VutheBz6Q/ecddqCCBKnqODQ+NV1eb1pN73lbpinfXhof
+         1EqM/bp7WEbj4nN9QirQr+V/agh5ni6V2n1TUz1KOMrvYGDO9LHsYyZd4LdsyxLEAE
+         5UEOd5yqdJVBqxrinEIJLMs7RhlPkJaai1uJ6pGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Fancellu <luca.fancellu@arm.com>,
-        Julien Grall <jgrall@amazon.com>, Wei Liu <wei.liu@kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 009/111] xen/evtchn: Change irq_info lock to raw_spinlock_t
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 073/188] usbip: add sysfs_lock to synchronize sysfs code paths
 Date:   Mon, 12 Apr 2021 10:39:47 +0200
-Message-Id: <20210412084004.521866469@linuxfoundation.org>
+Message-Id: <20210412084016.093272343@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +39,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Fancellu <luca.fancellu@arm.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit d120198bd5ff1d41808b6914e1eb89aff937415c upstream.
+commit 4e9c93af7279b059faf5bb1897ee90512b258a12 upstream.
 
-Unmask operation must be called with interrupt disabled,
-on preempt_rt spin_lock_irqsave/spin_unlock_irqrestore
-don't disable/enable interrupts, so use raw_* implementation
-and change lock variable in struct irq_info from spinlock_t
-to raw_spinlock_t
+Fuzzing uncovered race condition between sysfs code paths in usbip
+drivers. Device connect/disconnect code paths initiated through
+sysfs interface are prone to races if disconnect happens during
+connect and vice versa.
+
+This problem is common to all drivers while it can be reproduced easily
+in vhci_hcd. Add a sysfs_lock to usbip_device struct to protect the paths.
+
+Use this in vhci_hcd to protect sysfs paths. For a complete fix, usip_host
+and usip-vudc drivers and the event handler will have to use this lock to
+protect the paths. These changes will be done in subsequent patches.
 
 Cc: stable@vger.kernel.org
-Fixes: 25da4618af24 ("xen/events: don't unmask an event channel when an eoi is pending")
-Signed-off-by: Luca Fancellu <luca.fancellu@arm.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Link: https://lore.kernel.org/r/20210406105105.10141-1-luca.fancellu@arm.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/b6568f7beae702bbc236a545d3c020106ca75eac.1616807117.git.skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_base.c     |   10 +++++-----
- drivers/xen/events/events_internal.h |    2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/usbip/usbip_common.h |    3 +++
+ drivers/usb/usbip/vhci_hcd.c     |    1 +
+ drivers/usb/usbip/vhci_sysfs.c   |   30 +++++++++++++++++++++++++-----
+ 3 files changed, 29 insertions(+), 5 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -222,7 +222,7 @@ static int xen_irq_info_common_setup(str
- 	info->evtchn = evtchn;
- 	info->cpu = cpu;
- 	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
--	spin_lock_init(&info->lock);
-+	raw_spin_lock_init(&info->lock);
+--- a/drivers/usb/usbip/usbip_common.h
++++ b/drivers/usb/usbip/usbip_common.h
+@@ -263,6 +263,9 @@ struct usbip_device {
+ 	/* lock for status */
+ 	spinlock_t lock;
  
- 	ret = set_evtchn_to_irq(evtchn, irq);
- 	if (ret < 0)
-@@ -374,28 +374,28 @@ static void do_mask(struct irq_info *inf
- {
- 	unsigned long flags;
++	/* mutex for synchronizing sysfs store paths */
++	struct mutex sysfs_lock;
++
+ 	int sockfd;
+ 	struct socket *tcp_socket;
  
--	spin_lock_irqsave(&info->lock, flags);
-+	raw_spin_lock_irqsave(&info->lock, flags);
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -1101,6 +1101,7 @@ static void vhci_device_init(struct vhci
+ 	vdev->ud.side   = USBIP_VHCI;
+ 	vdev->ud.status = VDEV_ST_NULL;
+ 	spin_lock_init(&vdev->ud.lock);
++	mutex_init(&vdev->ud.sysfs_lock);
  
- 	if (!info->mask_reason)
- 		mask_evtchn(info->evtchn);
+ 	INIT_LIST_HEAD(&vdev->priv_rx);
+ 	INIT_LIST_HEAD(&vdev->priv_tx);
+--- a/drivers/usb/usbip/vhci_sysfs.c
++++ b/drivers/usb/usbip/vhci_sysfs.c
+@@ -185,6 +185,8 @@ static int vhci_port_disconnect(struct v
  
- 	info->mask_reason |= reason;
+ 	usbip_dbg_vhci_sysfs("enter\n");
  
--	spin_unlock_irqrestore(&info->lock, flags);
-+	raw_spin_unlock_irqrestore(&info->lock, flags);
++	mutex_lock(&vdev->ud.sysfs_lock);
++
+ 	/* lock */
+ 	spin_lock_irqsave(&vhci->lock, flags);
+ 	spin_lock(&vdev->ud.lock);
+@@ -195,6 +197,7 @@ static int vhci_port_disconnect(struct v
+ 		/* unlock */
+ 		spin_unlock(&vdev->ud.lock);
+ 		spin_unlock_irqrestore(&vhci->lock, flags);
++		mutex_unlock(&vdev->ud.sysfs_lock);
+ 
+ 		return -EINVAL;
+ 	}
+@@ -205,6 +208,8 @@ static int vhci_port_disconnect(struct v
+ 
+ 	usbip_event_add(&vdev->ud, VDEV_EVENT_DOWN);
+ 
++	mutex_unlock(&vdev->ud.sysfs_lock);
++
+ 	return 0;
  }
  
- static void do_unmask(struct irq_info *info, u8 reason)
- {
- 	unsigned long flags;
+@@ -349,30 +354,36 @@ static ssize_t attach_store(struct devic
+ 	else
+ 		vdev = &vhci->vhci_hcd_hs->vdev[rhport];
  
--	spin_lock_irqsave(&info->lock, flags);
-+	raw_spin_lock_irqsave(&info->lock, flags);
++	mutex_lock(&vdev->ud.sysfs_lock);
++
+ 	/* Extract socket from fd. */
+ 	socket = sockfd_lookup(sockfd, &err);
+ 	if (!socket) {
+ 		dev_err(dev, "failed to lookup sock");
+-		return -EINVAL;
++		err = -EINVAL;
++		goto unlock_mutex;
+ 	}
+ 	if (socket->type != SOCK_STREAM) {
+ 		dev_err(dev, "Expecting SOCK_STREAM - found %d",
+ 			socket->type);
+ 		sockfd_put(socket);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto unlock_mutex;
+ 	}
  
- 	info->mask_reason &= ~reason;
+ 	/* create threads before locking */
+ 	tcp_rx = kthread_create(vhci_rx_loop, &vdev->ud, "vhci_rx");
+ 	if (IS_ERR(tcp_rx)) {
+ 		sockfd_put(socket);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto unlock_mutex;
+ 	}
+ 	tcp_tx = kthread_create(vhci_tx_loop, &vdev->ud, "vhci_tx");
+ 	if (IS_ERR(tcp_tx)) {
+ 		kthread_stop(tcp_rx);
+ 		sockfd_put(socket);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto unlock_mutex;
+ 	}
  
- 	if (!info->mask_reason)
- 		unmask_evtchn(info->evtchn);
+ 	/* get task structs now */
+@@ -397,7 +408,8 @@ static ssize_t attach_store(struct devic
+ 		 * Will be retried from userspace
+ 		 * if there's another free port.
+ 		 */
+-		return -EBUSY;
++		err = -EBUSY;
++		goto unlock_mutex;
+ 	}
  
--	spin_unlock_irqrestore(&info->lock, flags);
-+	raw_spin_unlock_irqrestore(&info->lock, flags);
+ 	dev_info(dev, "pdev(%u) rhport(%u) sockfd(%d)\n",
+@@ -422,7 +434,15 @@ static ssize_t attach_store(struct devic
+ 
+ 	rh_port_connect(vdev, speed);
+ 
++	dev_info(dev, "Device attached\n");
++
++	mutex_unlock(&vdev->ud.sysfs_lock);
++
+ 	return count;
++
++unlock_mutex:
++	mutex_unlock(&vdev->ud.sysfs_lock);
++	return err;
  }
+ static DEVICE_ATTR_WO(attach);
  
- #ifdef CONFIG_X86
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -45,7 +45,7 @@ struct irq_info {
- 	unsigned short eoi_cpu;	/* EOI must happen on this cpu */
- 	unsigned int irq_epoch;	/* If eoi_cpu valid: irq_epoch of event */
- 	u64 eoi_time;		/* Time in jiffies when to EOI. */
--	spinlock_t lock;
-+	raw_spinlock_t lock;
- 
- 	union {
- 		unsigned short virq;
 
 
