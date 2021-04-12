@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6A435C08B
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E318335BF29
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240261AbhDLJOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:14:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
+        id S239334AbhDLJDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240834AbhDLJLE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:11:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1D7B6138D;
-        Mon, 12 Apr 2021 09:06:51 +0000 (UTC)
+        id S239619AbhDLJA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:00:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1764E61283;
+        Mon, 12 Apr 2021 08:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218412;
-        bh=kKSnLvh6mofkosiUJtsLcHJlJjArCqPSFG3Bic9yWao=;
+        s=korg; t=1618217919;
+        bh=yW0jIMGPGHRw72K+x/b/Kv8xZLB44grlq2YQLitqU4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tI65nBu730SI9+6mLrrLvz0DGHyrBE6MGIToUQ3R+oyJIn9eCtHnBeqwyCtIF5hk8
-         Zo7HpUbQSM9rQvEQbLLK6o4//24Liey5n1x8fQZTX7iCmMeSyYtQL7ufYvt6P4z+6q
-         ouLns2lVuD554kGn99ewmKkNGAzlPRji/CYgvAto=
+        b=PnScBWC9ojGRT4lq2joeQLjFYIQDcFFaZ3zj5GqLYqKYbSrm7FdeB13pNDycNw1hR
+         +ApTNm7USyv4dtHdPwfQ47bCeGMCQfru5A6sMIDSP0swPYqjG07vxCzJ7on4MTq5HB
+         BqAukUUtDTc+LgjQ+Ra4D+ZV7XVzDMDNWrX6P7kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>,
-        Jason Wang <jasowang@redhat.com>, Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 188/210] vdpa/mlx5: should exclude header length and fcs from mtu
-Date:   Mon, 12 Apr 2021 10:41:33 +0200
-Message-Id: <20210412084022.271805489@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 5.10 180/188] net: ieee802154: nl-mac: fix check on panid
+Date:   Mon, 12 Apr 2021 10:41:34 +0200
+Message-Id: <20210412084019.610465063@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Si-Wei Liu <si-wei.liu@oracle.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit d084d996aaf53c0cc583dc75a4fc2a67fe485846 ]
+commit 6f7f657f24405f426212c09260bf7fe8a52cef33 upstream.
 
-When feature VIRTIO_NET_F_MTU is negotiated on mlx5_vdpa,
-22 extra bytes worth of MTU length is shown in guest.
-This is because the mlx5_query_port_max_mtu API returns
-the "hardware" MTU value, which does not just contain the
- Ethernet payload, but includes extra lengths starting
-from the Ethernet header up to the FCS altogether.
+This patch fixes a null pointer derefence for panid handle by move the
+check for the netlink variable directly before accessing them.
 
-Fix the MTU so packets won't get dropped silently.
-
-Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
-Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20210408091047.4269-2-elic@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210228151817.95700-4-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/mlx5/core/mlx5_vdpa.h |  4 ++++
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 15 ++++++++++++++-
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ net/ieee802154/nl-mac.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index 08f742fd2409..b6cc53ba980c 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -4,9 +4,13 @@
- #ifndef __MLX5_VDPA_H__
- #define __MLX5_VDPA_H__
+--- a/net/ieee802154/nl-mac.c
++++ b/net/ieee802154/nl-mac.c
+@@ -551,9 +551,7 @@ ieee802154_llsec_parse_key_id(struct gen
+ 	desc->mode = nla_get_u8(info->attrs[IEEE802154_ATTR_LLSEC_KEY_MODE]);
  
-+#include <linux/etherdevice.h>
-+#include <linux/if_vlan.h>
- #include <linux/vdpa.h>
- #include <linux/mlx5/driver.h>
+ 	if (desc->mode == IEEE802154_SCF_KEY_IMPLICIT) {
+-		if (!info->attrs[IEEE802154_ATTR_PAN_ID] &&
+-		    !(info->attrs[IEEE802154_ATTR_SHORT_ADDR] ||
+-		      info->attrs[IEEE802154_ATTR_HW_ADDR]))
++		if (!info->attrs[IEEE802154_ATTR_PAN_ID])
+ 			return -EINVAL;
  
-+#define MLX5V_ETH_HARD_MTU (ETH_HLEN + VLAN_HLEN + ETH_FCS_LEN)
+ 		desc->device_addr.pan_id = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_PAN_ID]);
+@@ -562,6 +560,9 @@ ieee802154_llsec_parse_key_id(struct gen
+ 			desc->device_addr.mode = IEEE802154_ADDR_SHORT;
+ 			desc->device_addr.short_addr = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_SHORT_ADDR]);
+ 		} else {
++			if (!info->attrs[IEEE802154_ATTR_HW_ADDR])
++				return -EINVAL;
 +
- struct mlx5_vdpa_direct_mr {
- 	u64 start;
- 	u64 end;
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 09158f04fd6e..067c3977ea8e 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1902,6 +1902,19 @@ static const struct vdpa_config_ops mlx5_vdpa_ops = {
- 	.free = mlx5_vdpa_free,
- };
- 
-+static int query_mtu(struct mlx5_core_dev *mdev, u16 *mtu)
-+{
-+	u16 hw_mtu;
-+	int err;
-+
-+	err = mlx5_query_nic_vport_mtu(mdev, &hw_mtu);
-+	if (err)
-+		return err;
-+
-+	*mtu = hw_mtu - MLX5V_ETH_HARD_MTU;
-+	return 0;
-+}
-+
- static int alloc_resources(struct mlx5_vdpa_net *ndev)
- {
- 	struct mlx5_vdpa_net_resources *res = &ndev->res;
-@@ -1987,7 +2000,7 @@ static int mlx5v_probe(struct auxiliary_device *adev,
- 	init_mvqs(ndev);
- 	mutex_init(&ndev->reslock);
- 	config = &ndev->config;
--	err = mlx5_query_nic_vport_mtu(mdev, &ndev->mtu);
-+	err = query_mtu(mdev, &ndev->mtu);
- 	if (err)
- 		goto err_mtu;
- 
--- 
-2.30.2
-
+ 			desc->device_addr.mode = IEEE802154_ADDR_LONG;
+ 			desc->device_addr.extended_addr = nla_get_hwaddr(info->attrs[IEEE802154_ATTR_HW_ADDR]);
+ 		}
 
 
