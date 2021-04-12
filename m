@@ -2,121 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B3235D00B
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 20:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355F135D00F
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 20:11:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241390AbhDLSKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 14:10:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47040 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239584AbhDLSKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 14:10:49 -0400
-Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C27AC061574
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 11:10:31 -0700 (PDT)
-Received: by mail-yb1-xb2f.google.com with SMTP id v3so12825314ybi.1
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 11:10:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mn3OCywDRZkP1D53sggo9Cti3rBzA923j4XafMX45Lk=;
-        b=G79x43s5GSxjpLh78MalK7jRQUDbDKzdM9eK1xy2mjrTmnNckvuSdIMyg9MpBGkRki
-         rcMQZ0vWqPw4ro33zRxIxEL4FLkdEnlCcWCuwFq7SALjygFp0yHULArTuBYuA35D9Av9
-         Fk1OaMzLg64tc+ykhSjHbdjF7utDuDtHBw6o6p7UCZ1Rse3g+ghBsVu+J/Xe9jSbsU+d
-         K29RpE0jzTxQhO/ywSOuQSS04lOXRf6onZRutvX5HHjRX43ltXx/utb6aWXtOcPFYa0o
-         Vw250XqJuxwuY+VXYZnCmRI63rGaMX12E6QQ7gVZ7Wuqtza+taFQ5XWdhdRIhU5E+VHm
-         sOOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mn3OCywDRZkP1D53sggo9Cti3rBzA923j4XafMX45Lk=;
-        b=oaLYntunEQLfECUWMuCDohGxkJzn5LAPLRNLcSpTf8DgzA0HcH2WW6IgLp/rHsbV3i
-         EoTASv8d5SCFDfp/3UcC8pbZxTBY0b/NLOnMvueIjjsdak7DDKY8Nf7mbkKJ65EVf3XQ
-         PkJcf1CAB8X6ypo5A0eGxEIXOw/shFshF80vHzUC128j4a+rhcv9b4KOYUSp/MOY4MC5
-         xBsHG+6Zezmx3XzWUf9sOINVWFk9DTpnuT8/B5R/Ew+babd2T/2OREhHdG7M9tqnjCNN
-         zQe0POBeR48k5FosPGx0L0GKXD3Xfi0Mt8X7snjmVxvhVmNaNkPt/zQNvBsLXEJ9l4nZ
-         wFQg==
-X-Gm-Message-State: AOAM531f3SpfrNPdNZsnF6FQMQJEt7nLIfiyI0ytRBmnHnhcS5G06UJN
-        2hC9Y1ZXhYuZin+DKBvLRwWGNaL3fnrfHFBdOkzw3g==
-X-Google-Smtp-Source: ABdhPJw5ZXnh0jFx+CgXkBBtFHtphcPRkHZ7y4SYY//cqnLLomEbmmlsRyESzfpw9IJ/Q3QqBWK9Ci1HAprLGgPWHFk=
-X-Received: by 2002:a25:58d5:: with SMTP id m204mr40720301ybb.32.1618251030307;
- Mon, 12 Apr 2021 11:10:30 -0700 (PDT)
+        id S240299AbhDLSMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 14:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49486 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238145AbhDLSMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 14:12:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B5F461350;
+        Mon, 12 Apr 2021 18:11:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1618251101;
+        bh=VOjjidsArMWHVu6+STthr6t7XDFmwhg8C/WgwQsOgao=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BD8CFJt8C00PoYjLt7N2KkB6JBZTpdwxyzPxNfePcr3LbO1Y0jL7bLmMlV2aTsD/A
+         GDB8nZl1zlB8yBPixh4it3kxFZST7rxdmvrF5b3xs34fRofNjTnCpcjR1hVESsWmdW
+         grWbk6D99h1SVqfvr9T6nHJ+YK4FymQE6bfj5Anawj97yQn9GKkZgDDTJBWSj3q8wz
+         GaOKFT7cNq0QdOjnnt2/3+AR2ac6VCM2prMoBpAKaOhHR4xBjfKpQcBDEywG/JFJwt
+         9qwTnjWfCjlH9r3Lw7bG10spUmIZNQ3H3yfyq3jbBTy9mW85ynf0aNuEUu9oOm6nwt
+         CmHAc5Xe9M4pw==
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mike Snitzer <snitzer@redhat.com>, kernel-team@android.com
+Cc:     Jaegeuk Kim <jaegeuk@google.com>, stable@vger.kernel.org
+Subject: [PATCH] dm verity: fix not aligned logical block size of RS roots IO
+Date:   Mon, 12 Apr 2021 11:11:23 -0700
+Message-Id: <20210412181123.2550918-1-jaegeuk@kernel.org>
+X-Mailer: git-send-email 2.31.1.295.g9ea45b61b8-goog
 MIME-Version: 1.0
-References: <1618125776191186@kroah.com>
-In-Reply-To: <1618125776191186@kroah.com>
-From:   Saravana Kannan <saravanak@google.com>
-Date:   Mon, 12 Apr 2021 11:09:54 -0700
-Message-ID: <CAGETcx-Xr6ePxeDr4HyH3oX5g+=e0ShqYqO1tHmArFmWzaMbFA@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] driver core: Fix locking bug in" failed to
- apply to 4.19-stable tree
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 11, 2021 at 12:23 AM <gregkh@linuxfoundation.org> wrote:
->
->
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+From: Jaegeuk Kim <jaegeuk@google.com>
 
-I sent a patch that should resolve the conflict for 4.19 and 5.4.
-https://lore.kernel.org/lkml/20210412180907.1980874-1-saravanak@google.com/T/#u
+commit df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to block size")
+made dm_bufio->block_size 1024, if f->roots is 2. But, that gives the below EIO
+if the logical block size of the device is 4096, given v->data_dev_block_bits=12.
 
--Saravana
+E sd 0    : 0:0:0: [sda] tag#30 request not aligned to the logical block size
+E blk_update_request: I/O error, dev sda, sector 10368424 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 0
+E device-mapper: verity-fec: 254:8: FEC 9244672: parity read failed (block 18056): -5
 
->
-> thanks,
->
-> greg k-h
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From eed6e41813deb9ee622cd9242341f21430d7789f Mon Sep 17 00:00:00 2001
-> From: Saravana Kannan <saravanak@google.com>
-> Date: Thu, 1 Apr 2021 21:03:40 -0700
-> Subject: [PATCH] driver core: Fix locking bug in
->  deferred_probe_timeout_work_func()
->
-> list_for_each_entry_safe() is only useful if we are deleting nodes in a
-> linked list within the loop. It doesn't protect against other threads
-> adding/deleting nodes to the list in parallel. We need to grab
-> deferred_probe_mutex when traversing the deferred_probe_pending_list.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 25b4e70dcce9 ("driver core: allow stopping deferred probe after init")
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> Link: https://lore.kernel.org/r/20210402040342.2944858-2-saravanak@google.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->
-> diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-> index e2cf3b29123e..37a5e5f8b221 100644
-> --- a/drivers/base/dd.c
-> +++ b/drivers/base/dd.c
-> @@ -292,14 +292,16 @@ int driver_deferred_probe_check_state(struct device *dev)
->
->  static void deferred_probe_timeout_work_func(struct work_struct *work)
->  {
-> -       struct device_private *private, *p;
-> +       struct device_private *p;
->
->         driver_deferred_probe_timeout = 0;
->         driver_deferred_probe_trigger();
->         flush_work(&deferred_probe_work);
->
-> -       list_for_each_entry_safe(private, p, &deferred_probe_pending_list, deferred_probe)
-> -               dev_info(private->device, "deferred probe pending\n");
-> +       mutex_lock(&deferred_probe_mutex);
-> +       list_for_each_entry(p, &deferred_probe_pending_list, deferred_probe)
-> +               dev_info(p->device, "deferred probe pending\n");
-> +       mutex_unlock(&deferred_probe_mutex);
->         wake_up_all(&probe_timeout_waitqueue);
->  }
->  static DECLARE_DELAYED_WORK(deferred_probe_timeout_work, deferred_probe_timeout_work_func);
->
+Let's use f->roots for dm_bufio iff it's aligned to v->data_dev_block_bits.
+
+Fixes: df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to block size")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jaegeuk Kim <jaegeuk@google.com>
+---
+ drivers/md/dm-verity-fec.c | 11 ++++++++---
+ drivers/md/dm-verity-fec.h |  1 +
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/md/dm-verity-fec.c b/drivers/md/dm-verity-fec.c
+index 66f4c6398f67..cea2b3789736 100644
+--- a/drivers/md/dm-verity-fec.c
++++ b/drivers/md/dm-verity-fec.c
+@@ -65,7 +65,7 @@ static u8 *fec_read_parity(struct dm_verity *v, u64 rsb, int index,
+ 	u8 *res;
+ 
+ 	position = (index + rsb) * v->fec->roots;
+-	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
++	block = div64_u64_rem(position, v->fec->io_size, &rem);
+ 	*offset = (unsigned)rem;
+ 
+ 	res = dm_bufio_read(v->fec->bufio, block, buf);
+@@ -154,7 +154,7 @@ static int fec_decode_bufs(struct dm_verity *v, struct dm_verity_fec_io *fio,
+ 
+ 		/* read the next block when we run out of parity bytes */
+ 		offset += v->fec->roots;
+-		if (offset >= v->fec->roots << SECTOR_SHIFT) {
++		if (offset >= v->fec->io_size) {
+ 			dm_bufio_release(buf);
+ 
+ 			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
+@@ -742,8 +742,13 @@ int verity_fec_ctr(struct dm_verity *v)
+ 		return -E2BIG;
+ 	}
+ 
++	if ((f->roots << SECTOR_SHIFT) & ((1 << v->data_dev_block_bits) - 1))
++		f->io_size = 1 << v->data_dev_block_bits;
++	else
++		f->io_size = v->fec->roots << SECTOR_SHIFT;
++
+ 	f->bufio = dm_bufio_client_create(f->dev->bdev,
+-					  f->roots << SECTOR_SHIFT,
++					  f->io_size,
+ 					  1, 0, NULL, NULL);
+ 	if (IS_ERR(f->bufio)) {
+ 		ti->error = "Cannot initialize FEC bufio client";
+diff --git a/drivers/md/dm-verity-fec.h b/drivers/md/dm-verity-fec.h
+index 42fbd3a7fc9f..3c46c8d61883 100644
+--- a/drivers/md/dm-verity-fec.h
++++ b/drivers/md/dm-verity-fec.h
+@@ -36,6 +36,7 @@ struct dm_verity_fec {
+ 	struct dm_dev *dev;	/* parity data device */
+ 	struct dm_bufio_client *data_bufio;	/* for data dev access */
+ 	struct dm_bufio_client *bufio;		/* for parity data access */
++	size_t io_size;		/* IO size for roots */
+ 	sector_t start;		/* parity data start in blocks */
+ 	sector_t blocks;	/* number of blocks covered */
+ 	sector_t rounds;	/* number of interleaving rounds */
+-- 
+2.31.1.295.g9ea45b61b8-goog
+
