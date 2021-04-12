@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 043A135BC74
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E7135BD50
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237432AbhDLInE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:43:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34352 "EHLO mail.kernel.org"
+        id S237813AbhDLIvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237437AbhDLInD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:43:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 204C061220;
-        Mon, 12 Apr 2021 08:42:40 +0000 (UTC)
+        id S237903AbhDLIrT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:47:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 454C36124A;
+        Mon, 12 Apr 2021 08:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618216961;
-        bh=pXS7HcrEri1qk/T2C4B0R49ir6M9TZCkcZPLOhAro5c=;
+        s=korg; t=1618217221;
+        bh=ZxU4s7HI7eldop9FIWtxryWtK3ah0B1XrF/2c+X6yHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAfXQHCNLanBSOBP4Glt3VgUwi2Mtwo37sHLVfgGUUKcygiJChm5MYbIAGmIETzFF
-         gIEvXwx5Fzr9Mtx65hba+jmNMWdqa9aZQvQdsRuSv8ojj/p3vxiFq3t9tH7NknG1vq
-         2+fKN3avWgmk7ZfNxzHPoh+IjGtXdvjnygO2qUfs=
+        b=tt1B1WkGeuAr3Z1IhiTX7x5tuECqOnsfhvJUU53a4KrydQCfTxtV+VZL+SSGfWuoL
+         3UKNVVhhRcW0lHZUgN9exgYmE/WMJX2GMsvNpKRjmoEik+1o1zYjyATvBMM+s3EgSp
+         Vh3rEkI22ixTTR8EakfX6oA9ujB6egG9K/7Tq2iM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Balazs Nemeth <bnemeth@redhat.com>,
-        Willem de Bruijn <willemb@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 19/66] net: ensure mac header is set in virtio_net_hdr_to_skb()
+        stable@vger.kernel.org,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 047/111] net: xfrm: Localize sequence counter per network namespace
 Date:   Mon, 12 Apr 2021 10:40:25 +0200
-Message-Id: <20210412083958.755739151@linuxfoundation.org>
+Message-Id: <20210412084005.817070193@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +41,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ahmed S. Darwish <a.darwish@linutronix.de>
 
-commit 61431a5907fc36d0738e9a547c7e1556349a03e9 upstream.
+[ Upstream commit e88add19f68191448427a6e4eb059664650a837f ]
 
-Commit 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
-added a call to dev_parse_header_protocol() but mac_header is not yet set.
+A sequence counter write section must be serialized or its internal
+state can get corrupted. The "xfrm_state_hash_generation" seqcount is
+global, but its write serialization lock (net->xfrm.xfrm_state_lock) is
+instantiated per network namespace. The write protection is thus
+insufficient.
 
-This means that eth_hdr() reads complete garbage, and syzbot complained about it [1]
+To provide full protection, localize the sequence counter per network
+namespace instead. This should be safe as both the seqcount read and
+write sections access data exclusively within the network namespace. It
+also lays the foundation for transforming "xfrm_state_hash_generation"
+data type from seqcount_t to seqcount_LOCKNAME_t in further commits.
 
-This patch resets mac_header earlier, to get more coverage about this change.
-
-Audit of virtio_net_hdr_to_skb() callers shows that this change should be safe.
-
-[1]
-
-BUG: KASAN: use-after-free in eth_header_parse_protocol+0xdc/0xe0 net/ethernet/eth.c:282
-Read of size 2 at addr ffff888017a6200b by task syz-executor313/8409
-
-CPU: 1 PID: 8409 Comm: syz-executor313 Not tainted 5.12.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
- eth_header_parse_protocol+0xdc/0xe0 net/ethernet/eth.c:282
- dev_parse_header_protocol include/linux/netdevice.h:3177 [inline]
- virtio_net_hdr_to_skb.constprop.0+0x99d/0xcd0 include/linux/virtio_net.h:83
- packet_snd net/packet/af_packet.c:2994 [inline]
- packet_sendmsg+0x2325/0x52b0 net/packet/af_packet.c:3031
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- sock_no_sendpage+0xf3/0x130 net/core/sock.c:2860
- kernel_sendpage.part.0+0x1ab/0x350 net/socket.c:3631
- kernel_sendpage net/socket.c:3628 [inline]
- sock_sendpage+0xe5/0x140 net/socket.c:947
- pipe_to_sendpage+0x2ad/0x380 fs/splice.c:364
- splice_from_pipe_feed fs/splice.c:418 [inline]
- __splice_from_pipe+0x43e/0x8a0 fs/splice.c:562
- splice_from_pipe fs/splice.c:597 [inline]
- generic_splice_sendpage+0xd4/0x140 fs/splice.c:746
- do_splice_from fs/splice.c:767 [inline]
- do_splice+0xb7e/0x1940 fs/splice.c:1079
- __do_splice+0x134/0x250 fs/splice.c:1144
- __do_sys_splice fs/splice.c:1350 [inline]
- __se_sys_splice fs/splice.c:1332 [inline]
- __x64_sys_splice+0x198/0x250 fs/splice.c:1332
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-
-Fixes: 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Balazs Nemeth <bnemeth@redhat.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b65e3d7be06f ("xfrm: state: add sequence count to detect hash resizes")
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/virtio_net.h |    2 ++
- 1 file changed, 2 insertions(+)
+ include/net/netns/xfrm.h |  4 +++-
+ net/xfrm/xfrm_state.c    | 10 +++++-----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -62,6 +62,8 @@ static inline int virtio_net_hdr_to_skb(
- 			return -EINVAL;
+diff --git a/include/net/netns/xfrm.h b/include/net/netns/xfrm.h
+index 59f45b1e9dac..b59d73d529ba 100644
+--- a/include/net/netns/xfrm.h
++++ b/include/net/netns/xfrm.h
+@@ -72,7 +72,9 @@ struct netns_xfrm {
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	struct dst_ops		xfrm6_dst_ops;
+ #endif
+-	spinlock_t xfrm_state_lock;
++	spinlock_t		xfrm_state_lock;
++	seqcount_t		xfrm_state_hash_generation;
++
+ 	spinlock_t xfrm_policy_lock;
+ 	struct mutex xfrm_cfg_mutex;
+ };
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 61fd0569d393..1423e2b7cb42 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -44,7 +44,6 @@ static void xfrm_state_gc_task(struct work_struct *work);
+  */
+ 
+ static unsigned int xfrm_state_hashmax __read_mostly = 1 * 1024 * 1024;
+-static __read_mostly seqcount_t xfrm_state_hash_generation = SEQCNT_ZERO(xfrm_state_hash_generation);
+ static struct kmem_cache *xfrm_state_cache __ro_after_init;
+ 
+ static DECLARE_WORK(xfrm_state_gc_work, xfrm_state_gc_task);
+@@ -140,7 +139,7 @@ static void xfrm_hash_resize(struct work_struct *work)
  	}
  
-+	skb_reset_mac_header(skb);
-+
- 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
- 		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
- 		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
+ 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
+-	write_seqcount_begin(&xfrm_state_hash_generation);
++	write_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+ 
+ 	nhashmask = (nsize / sizeof(struct hlist_head)) - 1U;
+ 	odst = xfrm_state_deref_prot(net->xfrm.state_bydst, net);
+@@ -156,7 +155,7 @@ static void xfrm_hash_resize(struct work_struct *work)
+ 	rcu_assign_pointer(net->xfrm.state_byspi, nspi);
+ 	net->xfrm.state_hmask = nhashmask;
+ 
+-	write_seqcount_end(&xfrm_state_hash_generation);
++	write_seqcount_end(&net->xfrm.xfrm_state_hash_generation);
+ 	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
+ 
+ 	osize = (ohashmask + 1) * sizeof(struct hlist_head);
+@@ -1058,7 +1057,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 
+ 	to_put = NULL;
+ 
+-	sequence = read_seqcount_begin(&xfrm_state_hash_generation);
++	sequence = read_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+ 
+ 	rcu_read_lock();
+ 	h = xfrm_dst_hash(net, daddr, saddr, tmpl->reqid, encap_family);
+@@ -1171,7 +1170,7 @@ out:
+ 	if (to_put)
+ 		xfrm_state_put(to_put);
+ 
+-	if (read_seqcount_retry(&xfrm_state_hash_generation, sequence)) {
++	if (read_seqcount_retry(&net->xfrm.xfrm_state_hash_generation, sequence)) {
+ 		*err = -EAGAIN;
+ 		if (x) {
+ 			xfrm_state_put(x);
+@@ -2588,6 +2587,7 @@ int __net_init xfrm_state_init(struct net *net)
+ 	net->xfrm.state_num = 0;
+ 	INIT_WORK(&net->xfrm.state_hash_work, xfrm_hash_resize);
+ 	spin_lock_init(&net->xfrm.xfrm_state_lock);
++	seqcount_init(&net->xfrm.xfrm_state_hash_generation);
+ 	return 0;
+ 
+ out_byspi:
+-- 
+2.30.2
+
 
 
