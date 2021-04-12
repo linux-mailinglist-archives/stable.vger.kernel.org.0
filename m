@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAAC35BCE3
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E422C35BE55
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237401AbhDLIqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:46:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36784 "EHLO mail.kernel.org"
+        id S238838AbhDLI5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237743AbhDLIpa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:45:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5A4661241;
-        Mon, 12 Apr 2021 08:45:11 +0000 (UTC)
+        id S239089AbhDLIzn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3A546109E;
+        Mon, 12 Apr 2021 08:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217112;
-        bh=4VVm9y++9rer+i+n8D01n73eXQadiW3fQQ7xMwOaVXA=;
+        s=korg; t=1618217725;
+        bh=FUqgFfApoGjRxHq/MukDYLovoyFVuuo1SNIBrRck7qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nO/XElE2XEdzdTAuaZKGlihomdr693H4zr6zMybqQAQfsSu25eqg2LG+qKtF6Qua5
-         Fsi7+PqHATeiNevXwANQa0dwgO6OtnJQ8ENAgFXUZDu1jeM8FJb/ommGiAIKYNHwEu
-         sKmWGr9vYqHPH/wkt8APqWvlMih6dc6FzAR6mlqM=
+        b=GbjWqJqfMc+avSIkBRolZhxFXu59FLBc/FrMrFuTLFZybVFAcs0hudLs0PCz/4ojn
+         CS7H2gF4heW6Qda4yd2E/KEXBAVQUdKYsDVlfp9vKszd95xVblZf/3jQQnFzAoJ9Zl
+         VHONvlzVAlFGqw5n4vnNK3qQcXfNSX5eVw6QvYxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/66] regulator: bd9571mwv: Fix AVS and DVFS voltage range
+Subject: [PATCH 5.10 122/188] cxgb4: avoid collecting SGE_QBASE regs during traffic
 Date:   Mon, 12 Apr 2021 10:40:36 +0200
-Message-Id: <20210412083959.103109476@linuxfoundation.org>
+Message-Id: <20210412084017.710740793@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit 3b6e7088afc919f5b52e4d2de8501ad34d35b09b ]
+[ Upstream commit 1bfb3dea965ff9f6226fd1709338f227363b6061 ]
 
-According to Table 30 ("DVFS_MoniVDAC [6:0] Setting Table") in the
-BD9571MWV-M Datasheet Rev. 002, the valid voltage range is 600..1100 mV
-(settings 0x3c..0x6e).  While the lower limit is taken into account (by
-setting regulator_desc.linear_min_sel to 0x3c), the upper limit is not.
+Accessing SGE_QBASE_MAP[0-3] and SGE_QBASE_INDEX registers can lead
+to SGE missing doorbells under heavy traffic. So, only collect them
+when adapter is idle. Also update the regdump range to skip collecting
+these registers.
 
-Fix this by reducing regulator_desc.n_voltages from 0x80 to 0x6f.
-
-Fixes: e85c5a153fe237f2 ("regulator: Add ROHM BD9571MWV-M PMIC regulator driver")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20210312130242.3390038-2-geert+renesas@glider.be
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 80a95a80d358 ("cxgb4: collect SGE PF/VF queue map")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/bd9571mwv-regulator.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 23 +++++++++++++++----
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c    |  3 ++-
+ 2 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/regulator/bd9571mwv-regulator.c b/drivers/regulator/bd9571mwv-regulator.c
-index 274c5ed7cd73..713730757b14 100644
---- a/drivers/regulator/bd9571mwv-regulator.c
-+++ b/drivers/regulator/bd9571mwv-regulator.c
-@@ -132,7 +132,7 @@ static struct regulator_ops vid_ops = {
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+index 75474f810249..c5b0e725b238 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -1794,11 +1794,25 @@ int cudbg_collect_sge_indirect(struct cudbg_init *pdbg_init,
+ 	struct cudbg_buffer temp_buff = { 0 };
+ 	struct sge_qbase_reg_field *sge_qbase;
+ 	struct ireg_buf *ch_sge_dbg;
++	u8 padap_running = 0;
+ 	int i, rc;
++	u32 size;
  
- static struct regulator_desc regulators[] = {
- 	BD9571MWV_REG("VD09", "vd09", VD09, avs_ops, 0, 0x7f,
--		      0x80, 600000, 10000, 0x3c),
-+		      0x6f, 600000, 10000, 0x3c),
- 	BD9571MWV_REG("VD18", "vd18", VD18, vid_ops, BD9571MWV_VD18_VID, 0xf,
- 		      16, 1625000, 25000, 0),
- 	BD9571MWV_REG("VD25", "vd25", VD25, vid_ops, BD9571MWV_VD25_VID, 0xf,
-@@ -141,7 +141,7 @@ static struct regulator_desc regulators[] = {
- 		      11, 2800000, 100000, 0),
- 	BD9571MWV_REG("DVFS", "dvfs", DVFS, reg_ops,
- 		      BD9571MWV_DVFS_MONIVDAC, 0x7f,
--		      0x80, 600000, 10000, 0x3c),
-+		      0x6f, 600000, 10000, 0x3c),
- };
+-	rc = cudbg_get_buff(pdbg_init, dbg_buff,
+-			    sizeof(*ch_sge_dbg) * 2 + sizeof(*sge_qbase),
+-			    &temp_buff);
++	/* Accessing SGE_QBASE_MAP[0-3] and SGE_QBASE_INDEX regs can
++	 * lead to SGE missing doorbells under heavy traffic. So, only
++	 * collect them when adapter is idle.
++	 */
++	for_each_port(padap, i) {
++		padap_running = netif_running(padap->port[i]);
++		if (padap_running)
++			break;
++	}
++
++	size = sizeof(*ch_sge_dbg) * 2;
++	if (!padap_running)
++		size += sizeof(*sge_qbase);
++
++	rc = cudbg_get_buff(pdbg_init, dbg_buff, size, &temp_buff);
+ 	if (rc)
+ 		return rc;
  
- #ifdef CONFIG_PM_SLEEP
+@@ -1820,7 +1834,8 @@ int cudbg_collect_sge_indirect(struct cudbg_init *pdbg_init,
+ 		ch_sge_dbg++;
+ 	}
+ 
+-	if (CHELSIO_CHIP_VERSION(padap->params.chip) > CHELSIO_T5) {
++	if (CHELSIO_CHIP_VERSION(padap->params.chip) > CHELSIO_T5 &&
++	    !padap_running) {
+ 		sge_qbase = (struct sge_qbase_reg_field *)ch_sge_dbg;
+ 		/* 1 addr reg SGE_QBASE_INDEX and 4 data reg
+ 		 * SGE_QBASE_MAP[0-3]
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+index 98d01a7497ec..581670dced6e 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+@@ -2090,7 +2090,8 @@ void t4_get_regs(struct adapter *adap, void *buf, size_t buf_size)
+ 		0x1190, 0x1194,
+ 		0x11a0, 0x11a4,
+ 		0x11b0, 0x11b4,
+-		0x11fc, 0x1274,
++		0x11fc, 0x123c,
++		0x1254, 0x1274,
+ 		0x1280, 0x133c,
+ 		0x1800, 0x18fc,
+ 		0x3000, 0x302c,
 -- 
 2.30.2
 
