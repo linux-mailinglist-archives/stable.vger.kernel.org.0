@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B1435BDAC
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A08635BC9C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238250AbhDLIw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40304 "EHLO mail.kernel.org"
+        id S237580AbhDLIoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:44:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238203AbhDLItJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32D1561244;
-        Mon, 12 Apr 2021 08:48:02 +0000 (UTC)
+        id S237103AbhDLIn7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:43:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E363961220;
+        Mon, 12 Apr 2021 08:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217282;
-        bh=MnI+9fE6VTBDu3UKgDD3NzQG18TlUV0nGW52GX46jYA=;
+        s=korg; t=1618217021;
+        bh=gBK3iylDQrckbLEAA2FRdPbgaHvMrUPheHbwqgJW+bY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vcLY7o1uvEcIQl9InQWNQm8I18MLHS6gbOAfvDU6j98VlFNWI4ihch+Cx6hzAB3zE
-         Hzs36FwV7Ym9TEuS86DdEMB7yopJ+mzBXvukE9b2QzLl09cX81MO3WN5AOlyVE5YL8
-         6qFBBvSxvIA3qKh7+/0flf6fqpNQi936kR6cGQi0=
+        b=gRcCwyfb49FN9esW7XMjD795dBpjd3pUt2aUZhrBA75EHIpEeyExtuvaZTWWAElJo
+         2V1PGre8Wzpl1xSjPeF8zwL6J29Ipt5zwht0C/v6s6pL4dNbgNKOp2tfYmsZZfIPpm
+         6qChQp7ZaEXQF3lEbHKP3cKSw75Ce39WP3AkyuvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Eran Ben Elisha <eranbe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Milton Miller <miltonm@us.ibm.com>,
+        Eddie James <eajames@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/111] net/mlx5e: Fix ethtool indication of connector type
+Subject: [PATCH 4.19 41/66] net/ncsi: Avoid channel_monitor hrtimer deadlock
 Date:   Mon, 12 Apr 2021 10:40:47 +0200
-Message-Id: <20210412084006.561907822@linuxfoundation.org>
+Message-Id: <20210412083959.452160115@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Milton Miller <miltonm@us.ibm.com>
 
-[ Upstream commit 3211434dfe7a66fcf55e43961ea524b78336c04c ]
+[ Upstream commit 03cb4d05b4ea9a3491674ca40952adb708d549fa ]
 
-Use connector_type read from PTYS register when it's valid, based on
-corresponding capability bit.
+Calling ncsi_stop_channel_monitor from channel_monitor is a guaranteed
+deadlock on SMP because stop calls del_timer_sync on the timer that
+invoked channel_monitor as its timer function.
 
-Fixes: 5b4793f81745 ("net/mlx5e: Add support for reading connector type from PTYS")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Recognise the inherent race of marking the monitor disabled before
+deleting the timer by just returning if enable was cleared.  After
+a timeout (the default case -- reset to START when response received)
+just mark the monitor.enabled false.
+
+If the channel has an entry on the channel_queue list, or if the
+state is not ACTIVE or INACTIVE, then warn and mark the timer stopped
+and don't restart, as the locking is broken somehow.
+
+Fixes: 0795fb2021f0 ("net/ncsi: Stop monitor if channel times out or is inactive")
+Signed-off-by: Milton Miller <miltonm@us.ibm.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlx5/core/en_ethtool.c  | 22 +++++++++----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ net/ncsi/ncsi-manage.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-index e09b4a96a1d5..e3dc2cbdc9f6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -700,11 +700,11 @@ static int get_fec_supported_advertised(struct mlx5_core_dev *dev,
- 	return 0;
- }
+diff --git a/net/ncsi/ncsi-manage.c b/net/ncsi/ncsi-manage.c
+index f65afa7e7d28..9fd20fa90000 100644
+--- a/net/ncsi/ncsi-manage.c
++++ b/net/ncsi/ncsi-manage.c
+@@ -84,13 +84,20 @@ static void ncsi_channel_monitor(struct timer_list *t)
+ 	monitor_state = nc->monitor.state;
+ 	spin_unlock_irqrestore(&nc->lock, flags);
  
--static void ptys2ethtool_supported_advertised_port(struct ethtool_link_ksettings *link_ksettings,
--						   u32 eth_proto_cap,
--						   u8 connector_type, bool ext)
-+static void ptys2ethtool_supported_advertised_port(struct mlx5_core_dev *mdev,
-+						   struct ethtool_link_ksettings *link_ksettings,
-+						   u32 eth_proto_cap, u8 connector_type)
- {
--	if ((!connector_type && !ext) || connector_type >= MLX5E_CONNECTOR_TYPE_NUMBER) {
-+	if (!MLX5_CAP_PCAM_FEATURE(mdev, ptys_connector_type)) {
- 		if (eth_proto_cap & (MLX5E_PROT_MASK(MLX5E_10GBASE_CR)
- 				   | MLX5E_PROT_MASK(MLX5E_10GBASE_SR)
- 				   | MLX5E_PROT_MASK(MLX5E_40GBASE_CR4)
-@@ -836,9 +836,9 @@ static int ptys2connector_type[MLX5E_CONNECTOR_TYPE_NUMBER] = {
- 		[MLX5E_PORT_OTHER]              = PORT_OTHER,
- 	};
+-	if (!enabled || chained) {
+-		ncsi_stop_channel_monitor(nc);
+-		return;
+-	}
++	if (!enabled)
++		return;		/* expected race disabling timer */
++	if (WARN_ON_ONCE(chained))
++		goto bad_state;
++
+ 	if (state != NCSI_CHANNEL_INACTIVE &&
+ 	    state != NCSI_CHANNEL_ACTIVE) {
+-		ncsi_stop_channel_monitor(nc);
++bad_state:
++		netdev_warn(ndp->ndev.dev,
++			    "Bad NCSI monitor state channel %d 0x%x %s queue\n",
++			    nc->id, state, chained ? "on" : "off");
++		spin_lock_irqsave(&nc->lock, flags);
++		nc->monitor.enabled = false;
++		spin_unlock_irqrestore(&nc->lock, flags);
+ 		return;
+ 	}
  
--static u8 get_connector_port(u32 eth_proto, u8 connector_type, bool ext)
-+static u8 get_connector_port(struct mlx5_core_dev *mdev, u32 eth_proto, u8 connector_type)
- {
--	if ((connector_type || ext) && connector_type < MLX5E_CONNECTOR_TYPE_NUMBER)
-+	if (MLX5_CAP_PCAM_FEATURE(mdev, ptys_connector_type))
- 		return ptys2connector_type[connector_type];
+@@ -117,10 +124,9 @@ static void ncsi_channel_monitor(struct timer_list *t)
+ 			ndp->flags |= NCSI_DEV_RESHUFFLE;
+ 		}
  
- 	if (eth_proto &
-@@ -937,11 +937,11 @@ int mlx5e_ethtool_get_link_ksettings(struct mlx5e_priv *priv,
- 			 link_ksettings);
- 
- 	eth_proto_oper = eth_proto_oper ? eth_proto_oper : eth_proto_cap;
+-		ncsi_stop_channel_monitor(nc);
 -
--	link_ksettings->base.port = get_connector_port(eth_proto_oper,
--						       connector_type, ext);
--	ptys2ethtool_supported_advertised_port(link_ksettings, eth_proto_admin,
--					       connector_type, ext);
-+	connector_type = connector_type < MLX5E_CONNECTOR_TYPE_NUMBER ?
-+			 connector_type : MLX5E_PORT_UNKNOWN;
-+	link_ksettings->base.port = get_connector_port(mdev, eth_proto_oper, connector_type);
-+	ptys2ethtool_supported_advertised_port(mdev, link_ksettings, eth_proto_admin,
-+					       connector_type);
- 	get_lp_advertising(mdev, eth_proto_lp, link_ksettings);
- 
- 	if (an_status == MLX5_AN_COMPLETE)
+ 		ncm = &nc->modes[NCSI_MODE_LINK];
+ 		spin_lock_irqsave(&nc->lock, flags);
++		nc->monitor.enabled = false;
+ 		nc->state = NCSI_CHANNEL_INVISIBLE;
+ 		ncm->data[2] &= ~0x1;
+ 		spin_unlock_irqrestore(&nc->lock, flags);
 -- 
 2.30.2
 
