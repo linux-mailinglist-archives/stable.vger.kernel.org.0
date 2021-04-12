@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BCB735CB74
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8E535CB75
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243899AbhDLQYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55698 "EHLO mail.kernel.org"
+        id S243910AbhDLQYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:24:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243711AbhDLQYN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:24:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CFFC61287;
-        Mon, 12 Apr 2021 16:23:54 +0000 (UTC)
+        id S243721AbhDLQYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:24:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A61256128E;
+        Mon, 12 Apr 2021 16:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244635;
-        bh=FNUg1XRVrOeOXuEXVMppXQbDhVGuqH6mQqna3Sckp14=;
+        s=k20201202; t=1618244636;
+        bh=sTg96g2e+pk9z90fEyiITGgUeD3JA/SrgvhLU3ojrSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvLtEjwfc9pXkWzymVd3UIHgjJ2nSu0ZhkzZiSAEJQeFnH795aQ5P4khRUnENyleG
-         6dzc/gHNO6RW9+d2QfGVdk8geckAAK1XTBZiDR/sthJr9YwyF1j2zoTfVhplgH+S/j
-         c46Zh00VSNQl8Q4J+RRcP7X5cU54XROUVcIr/6euaPTnasHcBqe1as35oTtjXS0obJ
-         astHl+HIIOzB505aXmZuMhcPtXYXXbD1631MMrIHNFFfxn2RNg1a1fB+fWd6KdGo7v
-         sQU3P+Aw/2OniSDtuHrrQW7m3ip3bXJTDVEWsHCtZTspqbvFfT6IAb2Iu7Mjl/Ts83
-         dktyOyDUnoe3g==
+        b=GOl2BO69T+nQzCElLlR4CFgwSEn5HGDVkbCM5z14Gp/rHGwQ6HLLxImJCPepcdGiK
+         hH+vXR+PomZcFA4Wo7dVpk0RdIi6Z9f/xxGNGr9m6Ji5MR6dFgowXLNOj2cISYuZ1w
+         s4ENcIxszl7HCOkvGw5wiBQRd5CkqhjrCfx6J0jb3mySvYAeBlhqvtbBqSLnQdGD1J
+         RJgxtkFZ69FKrMroAH+UBmfhn6E5j6m2LS8K5wz+qcIR7qrjOMEg/uN22PGJu8/D3t
+         QqWX4OFLKHi74jtwe19gxtZQ8X5qpzh7JevCPOiRlEflvF6SduLps26ZRVXKYkmiJe
+         3fmphFkJBTFUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 47/51] drm/amd/display: Add missing mask for DCN3
-Date:   Mon, 12 Apr 2021 12:22:52 -0400
-Message-Id: <20210412162256.313524-47-sashal@kernel.org>
+Cc:     Seevalamuthu Mariappan <seevalam@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 48/51] mac80211: clear sta->fast_rx when STA removed from 4-addr VLAN
+Date:   Mon, 12 Apr 2021 12:22:53 -0400
+Message-Id: <20210412162256.313524-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162256.313524-1-sashal@kernel.org>
 References: <20210412162256.313524-1-sashal@kernel.org>
@@ -44,38 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qingqing Zhuo <qingqing.zhuo@amd.com>
+From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
 
-[ Upstream commit df7232c4c676be29f1cf45058ec156c1183539ff ]
+[ Upstream commit dd0b45538146cb6a54d6da7663b8c3afd16ebcfd ]
 
-[Why]
-DCN3 is not reusing DCN1 mask_sh_list, causing
-SURFACE_FLIP_INT_MASK missing in the mapping.
+In some race conditions, with more clients and traffic configuration,
+below crash is seen when making the interface down. sta->fast_rx wasn't
+cleared when STA gets removed from 4-addr AP_VLAN interface. The crash is
+due to try accessing 4-addr AP_VLAN interface's net_device (fast_rx->dev)
+which has been deleted already.
 
-[How]
-Add the corresponding entry to DCN3 list.
+Resolve this by clearing sta->fast_rx pointer when STA removes
+from a 4-addr VLAN.
 
-Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+[  239.449529] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+[  239.449531] pgd = 80204000
+...
+[  239.481496] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.4.60 #227
+[  239.481591] Hardware name: Generic DT based system
+[  239.487665] task: be05b700 ti: be08e000 task.ti: be08e000
+[  239.492360] PC is at get_rps_cpu+0x2d4/0x31c
+[  239.497823] LR is at 0xbe08fc54
+...
+[  239.778574] [<80739740>] (get_rps_cpu) from [<8073cb10>] (netif_receive_skb_internal+0x8c/0xac)
+[  239.786722] [<8073cb10>] (netif_receive_skb_internal) from [<8073d578>] (napi_gro_receive+0x48/0xc4)
+[  239.795267] [<8073d578>] (napi_gro_receive) from [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames+0xbcc/0x12d4 [mac80211])
+[  239.804776] [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames [mac80211]) from [<c7b84d4c>] (ieee80211_rx_napi+0x7b8/0x8c8 [mac8
+            0211])
+[  239.815857] [<c7b84d4c>] (ieee80211_rx_napi [mac80211]) from [<c7f63d7c>] (ath11k_dp_process_rx+0x7bc/0x8c8 [ath11k])
+[  239.827757] [<c7f63d7c>] (ath11k_dp_process_rx [ath11k]) from [<c7f5b6c4>] (ath11k_dp_service_srng+0x2c0/0x2e0 [ath11k])
+[  239.838484] [<c7f5b6c4>] (ath11k_dp_service_srng [ath11k]) from [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll+0x20/0x84 [ath11k_ahb]
+            )
+[  239.849419] [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll [ath11k_ahb]) from [<8073ce1c>] (net_rx_action+0xe0/0x28c)
+[  239.860945] [<8073ce1c>] (net_rx_action) from [<80324868>] (__do_softirq+0xe4/0x228)
+[  239.871269] [<80324868>] (__do_softirq) from [<80324c48>] (irq_exit+0x98/0x108)
+[  239.879080] [<80324c48>] (irq_exit) from [<8035c59c>] (__handle_domain_irq+0x90/0xb4)
+[  239.886114] [<8035c59c>] (__handle_domain_irq) from [<8030137c>] (gic_handle_irq+0x50/0x94)
+[  239.894100] [<8030137c>] (gic_handle_irq) from [<803024c0>] (__irq_svc+0x40/0x74)
+
+Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+Link: https://lore.kernel.org/r/1616163532-3881-1-git-send-email-seevalam@codeaurora.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h | 1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/cfg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
-index 5fa150f34c60..2e89acf46e54 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
-@@ -133,6 +133,7 @@
- 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_EN, mask_sh),\
- 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_IND_BLK, mask_sh),\
- 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_IND_BLK_C, mask_sh),\
-+	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_FLIP_INTERRUPT, SURFACE_FLIP_INT_MASK, mask_sh),\
- 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, DET_BUF_PLANE1_BASE_ADDRESS, mask_sh),\
- 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CB_B, mask_sh),\
- 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CR_R, mask_sh),\
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 68a0de02b561..860bc35383d5 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1788,8 +1788,10 @@ static int ieee80211_change_station(struct wiphy *wiphy,
+ 		}
+ 
+ 		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
+-		    sta->sdata->u.vlan.sta)
++		    sta->sdata->u.vlan.sta) {
++			ieee80211_clear_fast_rx(sta);
+ 			RCU_INIT_POINTER(sta->sdata->u.vlan.sta, NULL);
++		}
+ 
+ 		if (test_sta_flag(sta, WLAN_STA_AUTHORIZED))
+ 			ieee80211_vif_dec_num_mcast(sta->sdata);
 -- 
 2.30.2
 
