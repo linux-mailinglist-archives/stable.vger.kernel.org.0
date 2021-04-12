@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1684C35C0B7
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E30E935C0AE
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241330AbhDLJPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:15:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35924 "EHLO mail.kernel.org"
+        id S241303AbhDLJPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240631AbhDLJKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42F766134F;
-        Mon, 12 Apr 2021 09:06:05 +0000 (UTC)
+        id S239182AbhDLJJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:09:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FD1561364;
+        Mon, 12 Apr 2021 09:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218365;
-        bh=GDv5pcHZJM8kn6QtWR2T+MtpIy5+uh9hWn5dt9Lxcp8=;
+        s=korg; t=1618218272;
+        bh=2YtwZkEG2boMwy1W31+xk6WUt8COLX2JbtPloelyu3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhy6viJhv+ifIPgvmU/ilo+QZxj0SeRP2G+TLUTSD+auswAXHNjbZeGE+qeQ4eWyC
-         kRulQ/eU4R++UpRaxAq3iEuGd/jA5aomOAWKV25wHLyuvB916pEbXRIPU72OKJJL++
-         0OmgAt8IFVKZNIzohxxsPNxDlNdzaBH2emXPJf58=
+        b=teH/AxuxaX/fA2KzccmIOSxLsIEmy3o/xusRbQXUpGrs5eAqkPzvO0Z1QKTMNYxiw
+         biEpZ2ZMyEWB6WJRr5GipiIffH0YUN0qmquWK8zXHoYRqixhPHdAoHqqI6PM58Ibju
+         TJv8QbVAcRWupm34Za3xekrKOzvX/aeV9dI3xUDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 135/210] net:tipc: Fix a double free in tipc_sk_mcast_rcv
-Date:   Mon, 12 Apr 2021 10:40:40 +0200
-Message-Id: <20210412084020.502236660@linuxfoundation.org>
+Subject: [PATCH 5.11 136/210] ARM: dts: imx6: pbab01: Set vmmc supply for both SD interfaces
+Date:   Mon, 12 Apr 2021 10:40:41 +0200
+Message-Id: <20210412084020.533648472@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -40,42 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Stefan Riedmueller <s.riedmueller@phytec.de>
 
-[ Upstream commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046 ]
+[ Upstream commit f57011e72f5fe0421ec7a812beb1b57bdf4bb47f ]
 
-In the if(skb_peek(arrvq) == skb) branch, it calls __skb_dequeue(arrvq) to get
-the skb by skb = skb_peek(arrvq). Then __skb_dequeue() unlinks the skb from arrvq
-and returns the skb which equals to skb_peek(arrvq). After __skb_dequeue(arrvq)
-finished, the skb is freed by kfree_skb(__skb_dequeue(arrvq)) in the first time.
+Setting the vmmc supplies is crucial since otherwise the supplying
+regulators get disabled and the SD interfaces are no longer powered
+which leads to system failures if the system is booted from that SD
+interface.
 
-Unfortunately, the same skb is freed in the second time by kfree_skb(skb) after
-the branch completed.
-
-My patch removes kfree_skb() in the if(skb_peek(arrvq) == skb) branch, because
-this skb will be freed by kfree_skb(skb) finally.
-
-Fixes: cb1b728096f54 ("tipc: eliminate race condition at multicast reception")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1e44d3f880d5 ("ARM i.MX6Q: dts: Enable I2C1 with EEPROM and PMIC on Phytec phyFLEX-i.MX6 Ouad module")
+Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index cebcc104dc70..022999e0202d 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -1265,7 +1265,7 @@ void tipc_sk_mcast_rcv(struct net *net, struct sk_buff_head *arrvq,
- 		spin_lock_bh(&inputq->lock);
- 		if (skb_peek(arrvq) == skb) {
- 			skb_queue_splice_tail_init(&tmpq, inputq);
--			kfree_skb(__skb_dequeue(arrvq));
-+			__skb_dequeue(arrvq);
- 		}
- 		spin_unlock_bh(&inputq->lock);
- 		__skb_queue_purge(&tmpq);
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index 7a1e53195785..f28a96fcf23e 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -433,6 +433,7 @@
+ 	pinctrl-0 = <&pinctrl_usdhc2>;
+ 	cd-gpios = <&gpio1 4 GPIO_ACTIVE_LOW>;
+ 	wp-gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
++	vmmc-supply = <&vdd_sd1_reg>;
+ 	status = "disabled";
+ };
+ 
+@@ -442,5 +443,6 @@
+ 		     &pinctrl_usdhc3_cdwp>;
+ 	cd-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
+ 	wp-gpios = <&gpio1 29 GPIO_ACTIVE_HIGH>;
++	vmmc-supply = <&vdd_sd0_reg>;
+ 	status = "disabled";
+ };
 -- 
 2.30.2
 
