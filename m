@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F7C35C000
+	by mail.lfdr.de (Postfix) with ESMTP id AB96B35C001
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237036AbhDLJIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:08:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56754 "EHLO mail.kernel.org"
+        id S238828AbhDLJIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:08:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239063AbhDLJG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:06:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 061E56138F;
-        Mon, 12 Apr 2021 09:03:23 +0000 (UTC)
+        id S238627AbhDLJGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:06:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4D9F61398;
+        Mon, 12 Apr 2021 09:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218204;
-        bh=I2RwoqpnOCvj5+XSbO//asF9pP9x+giVGvp0pCfeJnQ=;
+        s=korg; t=1618218207;
+        bh=xbUPT3LN7PVYDuZXEkPkqXWnMHNZf1ODOAMORpEw98E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TM3Vq5TAElDAbXKBH1TpxSacD+rEwHxN0E/HpW0gcgvRKmJ4Ul8e+QcwCHwVuABR/
-         sUAChPn/bS2GaOFjHZm7Ng9Cr8w/ETIN0n6P0tlYd22EIhCYV5PU8KyCvg7hSkQ3jB
-         FGG6IM0P1j/bD5Vccew7I0KfogcX4NydjRM11ENI=
+        b=b52WhsTSlgawwJanqjZdL2TbESLbPvs1BM001yVb1Yw9F5cxzwhuDlbiLAgTmEXGl
+         M6Etz2km/R2ZedwHmZEztjZed9VAsuevuIZNo/r0Yl0U1oBltuBbqAZ08A3CoHhw7M
+         1tGKAP1LGe26wDdXugYdIVKUZsEuR1TcbJD3lXGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 110/210] net: xfrm: Localize sequence counter per network namespace
-Date:   Mon, 12 Apr 2021 10:40:15 +0200
-Message-Id: <20210412084019.673369835@linuxfoundation.org>
+Subject: [PATCH 5.11 111/210] esp: delete NETIF_F_SCTP_CRC bit from features for esp offload
+Date:   Mon, 12 Apr 2021 10:40:16 +0200
+Message-Id: <20210412084019.705727188@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,102 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmed S. Darwish <a.darwish@linutronix.de>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit e88add19f68191448427a6e4eb059664650a837f ]
+[ Upstream commit 154deab6a3ba47792936edf77f2f13a1cbc4351d ]
 
-A sequence counter write section must be serialized or its internal
-state can get corrupted. The "xfrm_state_hash_generation" seqcount is
-global, but its write serialization lock (net->xfrm.xfrm_state_lock) is
-instantiated per network namespace. The write protection is thus
-insufficient.
+Now in esp4/6_gso_segment(), before calling inner proto .gso_segment,
+NETIF_F_CSUM_MASK bits are deleted, as HW won't be able to do the
+csum for inner proto due to the packet encrypted already.
 
-To provide full protection, localize the sequence counter per network
-namespace instead. This should be safe as both the seqcount read and
-write sections access data exclusively within the network namespace. It
-also lays the foundation for transforming "xfrm_state_hash_generation"
-data type from seqcount_t to seqcount_LOCKNAME_t in further commits.
+So the UDP/TCP packet has to do the checksum on its own .gso_segment.
+But SCTP is using CRC checksum, and for that NETIF_F_SCTP_CRC should
+be deleted to make SCTP do the csum in own .gso_segment as well.
 
-Fixes: b65e3d7be06f ("xfrm: state: add sequence count to detect hash resizes")
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+In Xiumei's testing with SCTP over IPsec/veth, the packets are kept
+dropping due to the wrong CRC checksum.
+
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netns/xfrm.h |  4 +++-
- net/xfrm/xfrm_state.c    | 10 +++++-----
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ net/ipv4/esp4_offload.c | 6 ++++--
+ net/ipv6/esp6_offload.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/netns/xfrm.h b/include/net/netns/xfrm.h
-index 59f45b1e9dac..b59d73d529ba 100644
---- a/include/net/netns/xfrm.h
-+++ b/include/net/netns/xfrm.h
-@@ -72,7 +72,9 @@ struct netns_xfrm {
- #if IS_ENABLED(CONFIG_IPV6)
- 	struct dst_ops		xfrm6_dst_ops;
- #endif
--	spinlock_t xfrm_state_lock;
-+	spinlock_t		xfrm_state_lock;
-+	seqcount_t		xfrm_state_hash_generation;
-+
- 	spinlock_t xfrm_policy_lock;
- 	struct mutex xfrm_cfg_mutex;
- };
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index d01ca1a18418..ffd315cff984 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -44,7 +44,6 @@ static void xfrm_state_gc_task(struct work_struct *work);
-  */
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index 5bda5aeda579..d5c0f5a2a551 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -217,10 +217,12 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
  
- static unsigned int xfrm_state_hashmax __read_mostly = 1 * 1024 * 1024;
--static __read_mostly seqcount_t xfrm_state_hash_generation = SEQCNT_ZERO(xfrm_state_hash_generation);
- static struct kmem_cache *xfrm_state_cache __ro_after_init;
+ 	if ((!(skb->dev->gso_partial_features & NETIF_F_HW_ESP) &&
+ 	     !(features & NETIF_F_HW_ESP)) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM) &&
+ 		 !(skb->dev->gso_partial_features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
  
- static DECLARE_WORK(xfrm_state_gc_work, xfrm_state_gc_task);
-@@ -140,7 +139,7 @@ static void xfrm_hash_resize(struct work_struct *work)
- 	}
+ 	xo->flags |= XFRM_GSO_SEGMENT;
  
- 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
--	write_seqcount_begin(&xfrm_state_hash_generation);
-+	write_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 1ca516fb30e1..f35203ab39f5 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -254,9 +254,11 @@ static struct sk_buff *esp6_gso_segment(struct sk_buff *skb,
+ 	skb->encap_hdr_csum = 1;
  
- 	nhashmask = (nsize / sizeof(struct hlist_head)) - 1U;
- 	odst = xfrm_state_deref_prot(net->xfrm.state_bydst, net);
-@@ -156,7 +155,7 @@ static void xfrm_hash_resize(struct work_struct *work)
- 	rcu_assign_pointer(net->xfrm.state_byspi, nspi);
- 	net->xfrm.state_hmask = nhashmask;
+ 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev)
+-		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
++		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
+ 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM))
+-		esp_features = features & ~NETIF_F_CSUM_MASK;
++		esp_features = features & ~(NETIF_F_CSUM_MASK |
++					    NETIF_F_SCTP_CRC);
  
--	write_seqcount_end(&xfrm_state_hash_generation);
-+	write_seqcount_end(&net->xfrm.xfrm_state_hash_generation);
- 	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
+ 	xo->flags |= XFRM_GSO_SEGMENT;
  
- 	osize = (ohashmask + 1) * sizeof(struct hlist_head);
-@@ -1063,7 +1062,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 
- 	to_put = NULL;
- 
--	sequence = read_seqcount_begin(&xfrm_state_hash_generation);
-+	sequence = read_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
- 
- 	rcu_read_lock();
- 	h = xfrm_dst_hash(net, daddr, saddr, tmpl->reqid, encap_family);
-@@ -1176,7 +1175,7 @@ out:
- 	if (to_put)
- 		xfrm_state_put(to_put);
- 
--	if (read_seqcount_retry(&xfrm_state_hash_generation, sequence)) {
-+	if (read_seqcount_retry(&net->xfrm.xfrm_state_hash_generation, sequence)) {
- 		*err = -EAGAIN;
- 		if (x) {
- 			xfrm_state_put(x);
-@@ -2666,6 +2665,7 @@ int __net_init xfrm_state_init(struct net *net)
- 	net->xfrm.state_num = 0;
- 	INIT_WORK(&net->xfrm.state_hash_work, xfrm_hash_resize);
- 	spin_lock_init(&net->xfrm.xfrm_state_lock);
-+	seqcount_init(&net->xfrm.xfrm_state_hash_generation);
- 	return 0;
- 
- out_byspi:
 -- 
 2.30.2
 
