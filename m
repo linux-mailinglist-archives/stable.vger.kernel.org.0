@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0413535BD78
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3FC335BC80
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238235AbhDLIvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40304 "EHLO mail.kernel.org"
+        id S237496AbhDLInW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:43:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238456AbhDLIty (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09BD961249;
-        Mon, 12 Apr 2021 08:48:55 +0000 (UTC)
+        id S237477AbhDLInR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:43:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59DD061244;
+        Mon, 12 Apr 2021 08:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217336;
-        bh=oO/vZf5H/ria+ipOwtOVHMPhH+biXbNImLukg2tidVo=;
+        s=korg; t=1618216979;
+        bh=p2OwqxFHSKfHPF7Uh5dxXGlLivSDO5iVmkwk2ean3h4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlT4ujZeg7AboK/eNI94FZRQqy7vw3hM57mnpdStOpnz+5p5oDCBy5FqQsKQatOMq
-         WUCf1n7oOIKTfVUtIT9Cpu7uU/RjUsS/oAnxh5GXMdgQGI5uw7mgk2KHdfXhd2BG81
-         GmuT7Y+3xjtN5Qx029b0gRVOPL/wRhOfw3LSUnL4=
+        b=T8DuZ+DpCk/C0nyS8x4ucs7oSX73lEVb1Aaz92v2EkYAdcJ88urr02RFWe4AIMo2C
+         RKetnlFN8MaueKN1AHkdhzuLN+E+UKPdm8XpwRujqQO39ccIV2Ft13EmTkL52gZuHM
+         sH0CiHROa1zYpZ+9E7uW/+ZXAaCDG1dvB+PFIiHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dawid Lukwinski <dawid.lukwinski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/111] i40e: Added Asym_Pause to supported link modes
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 25/66] usbip: synchronize event handler with sysfs code paths
 Date:   Mon, 12 Apr 2021 10:40:31 +0200
-Message-Id: <20210412084006.029977550@linuxfoundation.org>
+Message-Id: <20210412083958.938940755@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 90449e98c265296329446c7abcd2aae3b20c0bc9 ]
+commit 363eaa3a450abb4e63bd6e3ad79d1f7a0f717814 upstream.
 
-Add Asym_Pause to supported link modes (it is supported by HW).
-Lack of Asym_Pause in supported modes can cause several problems,
-i.e. it won't be possible to turn the autonegotiation on
-with asymmetric pause settings (i.e. Tx on, Rx off).
+Fuzzing uncovered race condition between sysfs code paths in usbip
+drivers. Device connect/disconnect code paths initiated through
+sysfs interface are prone to races if disconnect happens during
+connect and vice versa.
 
-Fixes: 4e91bcd5d47a ("i40e: Finish implementation of ethtool get settings")
-Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Reviewed-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use sysfs_lock to synchronize event handler with sysfs paths
+in usbip drivers.
+
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/c5c8723d3f29dfe3d759cfaafa7dd16b0dfe2918.1616807117.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/usbip/usbip_event.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 82c62e467870..20562ffd1ab3 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -1098,6 +1098,7 @@ static int i40e_get_link_ksettings(struct net_device *netdev,
+--- a/drivers/usb/usbip/usbip_event.c
++++ b/drivers/usb/usbip/usbip_event.c
+@@ -70,6 +70,7 @@ static void event_handler(struct work_st
+ 	while ((ud = get_event()) != NULL) {
+ 		usbip_dbg_eh("pending event %lx\n", ud->event);
  
- 	/* Set flow control settings */
- 	ethtool_link_ksettings_add_link_mode(ks, supported, Pause);
-+	ethtool_link_ksettings_add_link_mode(ks, supported, Asym_Pause);
++		mutex_lock(&ud->sysfs_lock);
+ 		/*
+ 		 * NOTE: shutdown must come first.
+ 		 * Shutdown the device.
+@@ -90,6 +91,7 @@ static void event_handler(struct work_st
+ 			ud->eh_ops.unusable(ud);
+ 			unset_event(ud, USBIP_EH_UNUSABLE);
+ 		}
++		mutex_unlock(&ud->sysfs_lock);
  
- 	switch (hw->fc.requested_mode) {
- 	case I40E_FC_FULL:
--- 
-2.30.2
-
+ 		wake_up(&ud->eh_waitq);
+ 	}
 
 
