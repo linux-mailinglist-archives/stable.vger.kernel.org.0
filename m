@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9832A35BED4
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B5E35C0C0
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238905AbhDLJCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:02:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51072 "EHLO mail.kernel.org"
+        id S241359AbhDLJPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239123AbhDLI7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:59:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F30561207;
-        Mon, 12 Apr 2021 08:57:29 +0000 (UTC)
+        id S240688AbhDLJKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:10:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24647613A5;
+        Mon, 12 Apr 2021 09:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217849;
-        bh=7qqUKXHjyPAHtVY69D149azJupeQhNFwiZ92L7+KpNo=;
+        s=korg; t=1618218376;
+        bh=MaonFe0P29mlpVyI4IJtLAmzcFhOXzrA9W13F2j3yXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UnNB88mIgl8I5tTkjYjmHmT02Egs/But2cnH9tK3poMC97agZH941NL/u4anpKn0d
-         RAR+VBXvgfVfVHYw1/03fTgq3pcc+FwM8Ttiecl3kMm0+qiWhvepyvFeCUHC7PF7Js
-         IiSw3Gg5IhyWBiYzI25gQ7o84kFOSyKhZ/jcSfxI=
+        b=0YKLeLUlBmawcgDMN/gse3tajqBlKm3TKyPRvqRDOVzY3lbydl9uIfqR/SfwDRV7r
+         h8oSF065gWVaUF/MgW44rD32Q7G88oXBOwiiOwm57uG7InKsZQ+bL9+iuLombDbZFe
+         G2xmhlpmruNppaNM14ywEkkbL8H71nJb/zgQd0io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Elia Devito <eliadevito@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 166/188] RDMA/addr: Be strict with gid size
+Subject: [PATCH 5.11 175/210] platform/x86: intel-hid: Fix spurious wakeups caused by tablet-mode events during suspend
 Date:   Mon, 12 Apr 2021 10:41:20 +0200
-Message-Id: <20210412084019.150344926@linuxfoundation.org>
+Message-Id: <20210412084021.843622620@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d1c803a9ccd7bd3aff5e989ccfb39ed3b799b975 ]
+[ Upstream commit a3790a8a94fc0234c5d38013b48e74ef221ec84c ]
 
-The nla_len() is less than or equal to 16.  If it's less than 16 then end
-of the "gid" buffer is uninitialized.
+Some devices send (duplicate) tablet-mode events when moved around even
+though the mode has not changed; and they do this even when suspended.
 
-Fixes: ae43f8286730 ("IB/core: Add IP to GID netlink offload")
-Link: https://lore.kernel.org/r/20210405074434.264221-1-leon@kernel.org
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Change the tablet-mode event handling when priv->wakeup_mode is set to
+update the switch state in case it changed and then return immediately
+(without calling pm_wakeup_hard_event()) to avoid spurious wakeups.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212537
+Fixes: 537b0dd4729e ("platform/x86: intel-hid: Add support for SW_TABLET_MODE")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Elia Devito <eliadevito@gmail.com>
+Link: https://lore.kernel.org/r/20210404143831.25173-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/addr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/intel-hid.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/core/addr.c b/drivers/infiniband/core/addr.c
-index 0abce004a959..65e3e7df8a4b 100644
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -76,7 +76,9 @@ static struct workqueue_struct *addr_wq;
+diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
+index 57cc92891a57..078648a9201b 100644
+--- a/drivers/platform/x86/intel-hid.c
++++ b/drivers/platform/x86/intel-hid.c
+@@ -483,11 +483,16 @@ static void notify_handler(acpi_handle handle, u32 event, void *context)
+ 			goto wakeup;
  
- static const struct nla_policy ib_nl_addr_policy[LS_NLA_TYPE_MAX] = {
- 	[LS_NLA_TYPE_DGID] = {.type = NLA_BINARY,
--		.len = sizeof(struct rdma_nla_ls_gid)},
-+		.len = sizeof(struct rdma_nla_ls_gid),
-+		.validation_type = NLA_VALIDATE_MIN,
-+		.min = sizeof(struct rdma_nla_ls_gid)},
- };
+ 		/*
+-		 * Switch events will wake the device and report the new switch
+-		 * position to the input subsystem.
++		 * Some devices send (duplicate) tablet-mode events when moved
++		 * around even though the mode has not changed; and they do this
++		 * even when suspended.
++		 * Update the switch state in case it changed and then return
++		 * without waking up to avoid spurious wakeups.
+ 		 */
+-		if (priv->switches && (event == 0xcc || event == 0xcd))
+-			goto wakeup;
++		if (event == 0xcc || event == 0xcd) {
++			report_tablet_mode_event(priv->switches, event);
++			return;
++		}
  
- static inline bool ib_nl_is_good_ip_resp(const struct nlmsghdr *nlh)
+ 		/* Wake up on 5-button array events only. */
+ 		if (event == 0xc0 || !priv->array)
+@@ -501,9 +506,6 @@ static void notify_handler(acpi_handle handle, u32 event, void *context)
+ wakeup:
+ 		pm_wakeup_hard_event(&device->dev);
+ 
+-		if (report_tablet_mode_event(priv->switches, event))
+-			return;
+-
+ 		return;
+ 	}
+ 
 -- 
 2.30.2
 
