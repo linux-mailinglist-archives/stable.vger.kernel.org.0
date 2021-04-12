@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F50635BDAB
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C1E835BCA2
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238145AbhDLIw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40388 "EHLO mail.kernel.org"
+        id S237583AbhDLIoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:44:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238206AbhDLItJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 989FA6128B;
-        Mon, 12 Apr 2021 08:48:04 +0000 (UTC)
+        id S237596AbhDLIoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:44:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FF4261244;
+        Mon, 12 Apr 2021 08:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217285;
-        bh=QlrNwt7mBZFkM7nDbtpyrM7a+yirfKXPrzur1PqaFGw=;
+        s=korg; t=1618217026;
+        bh=sB/h/eSQ2458ajgcns8IhhsiKdJecRZ6yQxCkgNJHw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fva2xskAn/pLYjOEYaZmnnYWpM8GU2byuk3I0Gr9hGIS2foQVLngRDTI9mttJ+05f
-         RcbDN9Yt6lHaW7ugl4SEWVTJtsUWjGVcjoA2fQKTIWU1vqFCYai2VAYj15MvyOLW47
-         B5ERu8jBientpfqP67Q8Xq4M6hiK7+RYeEICgODw=
+        b=F06B+pKWzSkh5B8i3eExBMvbPdtHxtWr3ARiQUq92EnNfNTLk02/AjzCutXFPY+QD
+         Kk3UL2ehlPALvVs6jEPNOP+CjzBH5+vBDJlgLagXYG9IqPmw/MiLdEkfqODtTr8lJE
+         e4iexN4FXFpHaTbG0dcXfbykquqF08woGCK3Ppgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jurgens <danielj@mellanox.com>,
-        Parav Pandit <parav@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/111] net/mlx5: Dont request more than supported EQs
-Date:   Mon, 12 Apr 2021 10:40:48 +0200
-Message-Id: <20210412084006.597751028@linuxfoundation.org>
+Subject: [PATCH 4.19 43/66] soc/fsl: qbman: fix conflicting alignment attributes
+Date:   Mon, 12 Apr 2021 10:40:49 +0200
+Message-Id: <20210412083959.512517999@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jurgens <danielj@mellanox.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit a7b76002ae78cd230ee652ccdfedf21aa94fcecc ]
+[ Upstream commit 040f31196e8b2609613f399793b9225271b79471 ]
 
-Calculating the number of compeltion EQs based on the number of
-available IRQ vectors doesn't work now that all async EQs share one IRQ.
-Thus the max number of EQs can be exceeded on systems with more than
-approximately 256 CPUs. Take this into account when calculating the
-number of available completion EQs.
+When building with W=1, gcc points out that the __packed attribute
+on struct qm_eqcr_entry conflicts with the 8-byte alignment
+attribute on struct qm_fd inside it:
 
-Fixes: 81bfa206032a ("net/mlx5: Use a single IRQ for all async EQs")
-Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+drivers/soc/fsl/qbman/qman.c:189:1: error: alignment 1 of 'struct qm_eqcr_entry' is less than 8 [-Werror=packed-not-aligned]
+
+I assume that the alignment attribute is the correct one, and
+that qm_eqcr_entry cannot actually be unaligned in memory,
+so add the same alignment on the outer struct.
+
+Fixes: c535e923bb97 ("soc/fsl: Introduce DPAA 1.x QMan device driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210323131530.2619900-1-arnd@kernel.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eq.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/soc/fsl/qbman/qman.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eq.c b/drivers/net/ethernet/mellanox/mlx5/core/eq.c
-index 0a20938b4aad..30a2ee3c40a0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eq.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eq.c
-@@ -926,13 +926,24 @@ void mlx5_core_eq_free_irqs(struct mlx5_core_dev *dev)
- 	mutex_unlock(&table->lock);
- }
- 
-+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
-+#define MLX5_MAX_ASYNC_EQS 4
-+#else
-+#define MLX5_MAX_ASYNC_EQS 3
-+#endif
-+
- int mlx5_eq_table_create(struct mlx5_core_dev *dev)
- {
- 	struct mlx5_eq_table *eq_table = dev->priv.eq_table;
-+	int num_eqs = MLX5_CAP_GEN(dev, max_num_eqs) ?
-+		      MLX5_CAP_GEN(dev, max_num_eqs) :
-+		      1 << MLX5_CAP_GEN(dev, log_max_eq);
- 	int err;
- 
- 	eq_table->num_comp_eqs =
--		mlx5_irq_get_num_comp(eq_table->irq_table);
-+		min_t(int,
-+		      mlx5_irq_get_num_comp(eq_table->irq_table),
-+		      num_eqs - MLX5_MAX_ASYNC_EQS);
- 
- 	err = create_async_eqs(dev);
- 	if (err) {
+diff --git a/drivers/soc/fsl/qbman/qman.c b/drivers/soc/fsl/qbman/qman.c
+index a4ac6073c555..d7bf456fd10e 100644
+--- a/drivers/soc/fsl/qbman/qman.c
++++ b/drivers/soc/fsl/qbman/qman.c
+@@ -184,7 +184,7 @@ struct qm_eqcr_entry {
+ 	__be32 tag;
+ 	struct qm_fd fd;
+ 	u8 __reserved3[32];
+-} __packed;
++} __packed __aligned(8);
+ #define QM_EQCR_VERB_VBIT		0x80
+ #define QM_EQCR_VERB_CMD_MASK		0x61	/* but only one value; */
+ #define QM_EQCR_VERB_CMD_ENQUEUE	0x01
 -- 
 2.30.2
 
