@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B329D35CE6B
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B15B35CE6C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244245AbhDLQoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:44:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38772 "EHLO mail.kernel.org"
+        id S245284AbhDLQoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:44:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344076AbhDLQgg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:36:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4BB61381;
-        Mon, 12 Apr 2021 16:27:46 +0000 (UTC)
+        id S244635AbhDLQhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:37:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B60D613E8;
+        Mon, 12 Apr 2021 16:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244867;
-        bh=N6y0vS8nap5fLAM3SCcQMa3bNFJDtzlQRqEbIjrzUuo=;
+        s=k20201202; t=1618244869;
+        bh=XDHwsFDNW9WVpCrF13ZwTyoyVSHLssbVaOVoGAhNrB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qg/4e02gLwDvUIyToSLsyrs6c4kp903FGuLWdB/ReYxMRBTsmXHV8qvx5Zx7pmwtT
-         pRiTOhtsmN7s2waTtS+BivYnwwy9EN6L1o9m0iU01fsOIUj+Y3togM+Lm3hFt7JWQH
-         62j7TYTqWLDzpvdGK+CWcuHQmBP1mN9HpLrNIK7+6QWpa4vVFExc0w/bPP26LdyIXv
-         wdTeBzjhDXanCGX3QuMTgoE0fi1+1Hwq1D44aUaq9sjruHV0cpsX4ZGTCQbGeKQUm7
-         g1NqD3Hf66hQeWvCzoFq10OnddIDCXP4NQeds2pqc0sBXRlOBsDB1EaysosbIaX9U5
-         VxsMLFDWeuCUA==
+        b=U/5/32fPMtj7QHEbf0Db3Vy8PNdzQIfBo1zmP0vqW9L6QNfU/DpvuItQJWxJCF2yp
+         nGXuioVKK0pAu/Jgm9LwacTE2aWOOxlkpKZGT2jiaitlg6DtbRu+gQEsqNZtFXZA4b
+         WDfk1yzHb9CI1j+9/9PgpMCrLWk9PiF1rK1zorDZ2KBpnV0Fvs2Z5DKUa37PmWHF4O
+         yqv0ZkAW7Zuywq1HO3Zh9vrUFsvPj84V38qPTywleILcXsF458Xwe6I42tMeeXya+6
+         as4Li3X2/CVxAtPZ7fkdF5btqHs54Od91wb0wS1kuXjkhJ3cahLyquNBwlZcKBftfH
+         kxam7vNIEuDiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Shiyan <shc_work@mail.ru>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 08/23] ASoC: fsl_esai: Fix TDM slot setup for I2S mode
-Date:   Mon, 12 Apr 2021 12:27:21 -0400
-Message-Id: <20210412162736.316026-8-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 09/23] net: ieee802154: forbid monitor for set llsec params
+Date:   Mon, 12 Apr 2021 12:27:22 -0400
+Message-Id: <20210412162736.316026-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162736.316026-1-sashal@kernel.org>
 References: <20210412162736.316026-1-sashal@kernel.org>
@@ -44,47 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shiyan <shc_work@mail.ru>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit e7a48c710defa0e0fef54d42b7d9e4ab596e2761 ]
+[ Upstream commit 88c17855ac4291fb462e13a86b7516773b6c932e ]
 
-When using the driver in I2S TDM mode, the fsl_esai_startup()
-function rewrites the number of slots previously set by the
-fsl_esai_set_dai_tdm_slot() function to 2.
-To fix this, let's use the saved slot count value or, if TDM
-is not used and the number of slots is not set, the driver will use
-the default value (2), which is set by fsl_esai_probe().
+This patch forbids to set llsec params for monitor interfaces which we
+don't support yet.
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Link: https://lore.kernel.org/r/20210402081405.9892-1-shc_work@mail.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzbot+8b6719da8a04beeafcc3@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-3-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_esai.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/ieee802154/nl802154.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
-index 40075b9afb79..fad711a3f4b4 100644
---- a/sound/soc/fsl/fsl_esai.c
-+++ b/sound/soc/fsl/fsl_esai.c
-@@ -488,11 +488,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
- 				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
- 				   ESAI_SAICR_SYNC : 0);
+diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
+index 16ef0d9f566e..746701424d79 100644
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -1367,6 +1367,9 @@ static int nl802154_set_llsec_params(struct sk_buff *skb,
+ 	u32 changed = 0;
+ 	int ret;
  
--		/* Set a default slot number -- 2 */
-+		/* Set slots count */
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 	}
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (info->attrs[NL802154_ATTR_SEC_ENABLED]) {
+ 		u8 enabled;
  
- 	return 0;
 -- 
 2.30.2
 
