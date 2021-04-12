@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC15235CD84
+	by mail.lfdr.de (Postfix) with ESMTP id 1FEE835CD82
 	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245092AbhDLQhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244780AbhDLQhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Apr 2021 12:37:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37282 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343678AbhDLQfn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:35:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF8BE613E0;
-        Mon, 12 Apr 2021 16:27:05 +0000 (UTC)
+        id S1343702AbhDLQfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:35:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2805E613DB;
+        Mon, 12 Apr 2021 16:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244826;
-        bh=nkH7xThCyOmnPCpcc/xlAl5WT+HcSRCGoCaTMMxeiEA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hJSe1VzuZuuDQTMEQYnNbcoI7jUT1mi2IGPdIHk2+fDvqff+zN3nA10Y1wIgwelIc
-         CDGddMev8TyRCe4GAXHPKHMQcEFe8yyCPFk2agQrsnNhgvceQ6fCOfhdPwSv1InbCa
-         uxvjVAUb8DThIqgsjXuJQhbawdFFZStGEeEhHxRB7tPGGVbVmRmDKNtcrfWktZy9TM
-         cY9yQ1XBlyVV1WOSzinej+PONZkh76Gp2QN/WLEk3SU4FvykVdRdiB/Jua9iWNJUgI
-         Bs352169exinCdcvZytGlD+704QTSSdaPuZmcSyZjlgyz3RHs5NlCfQ0axUPVmPTHw
-         KBAjQlpZvWE3g==
+        s=k20201202; t=1618244827;
+        bh=9b2V3+CRrNAQut/L4vZTItfFISREdW2EYAAO7ZLvY7w=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dHcSiexQ4PubOHbSZo3pUEzMoqTbK4rSF5JYiQPCmbnIp7lUwknAvWQA+wBkYeHrM
+         CvE1oASrn6m0lIquOnI2zbSuybYprgC5NX8UaOJEAgUhjVSCev4gCaCP1mhN1wO5/o
+         uAU7clLoZkPl65ONd8DngFxRVjjRWmMz9WJ+l6AwRfYxCcIh+EVg4c6znFREPhdu11
+         E4Ytm2GScMiXZHGvb8eR+ODQRzMyKyaTd1ZDTw+Z86+d+R/62pXFMVeZHiN5baH4JD
+         hW43kcGyHgR0BnFki7Lh+dYi4xsv1k0rAWdW0k1ez8JVHSlZ++9xqEf94p76V8xYxj
+         BiaB/32wwRQRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 01/23] net: ieee802154: nl-mac: fix check on panid
-Date:   Mon, 12 Apr 2021 12:26:42 -0400
-Message-Id: <20210412162704.315783-1-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 02/23] ARM: dts: Fix moving mmc devices with aliases for omap4 & 5
+Date:   Mon, 12 Apr 2021 12:26:43 -0400
+Message-Id: <20210412162704.315783-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210412162704.315783-1-sashal@kernel.org>
+References: <20210412162704.315783-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,47 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 6f7f657f24405f426212c09260bf7fe8a52cef33 ]
+[ Upstream commit 77335a040178a0456d4eabc8bf17a7ca3ee4a327 ]
 
-This patch fixes a null pointer derefence for panid handle by move the
-check for the netlink variable directly before accessing them.
+Fix moving mmc devices with dts aliases as discussed on the lists.
+Without this we now have internal eMMC mmc1 show up as mmc2 compared
+to the earlier order of devices.
 
-Reported-by: syzbot+d4c07de0144f6f63be3a@syzkaller.appspotmail.com
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210228151817.95700-4-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl-mac.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/omap4.dtsi | 5 +++++
+ arch/arm/boot/dts/omap5.dtsi | 5 +++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
-index d3cbb3258718..c0930b9fe848 100644
---- a/net/ieee802154/nl-mac.c
-+++ b/net/ieee802154/nl-mac.c
-@@ -559,9 +559,7 @@ ieee802154_llsec_parse_key_id(struct genl_info *info,
- 	desc->mode = nla_get_u8(info->attrs[IEEE802154_ATTR_LLSEC_KEY_MODE]);
- 
- 	if (desc->mode == IEEE802154_SCF_KEY_IMPLICIT) {
--		if (!info->attrs[IEEE802154_ATTR_PAN_ID] &&
--		    !(info->attrs[IEEE802154_ATTR_SHORT_ADDR] ||
--		      info->attrs[IEEE802154_ATTR_HW_ADDR]))
-+		if (!info->attrs[IEEE802154_ATTR_PAN_ID])
- 			return -EINVAL;
- 
- 		desc->device_addr.pan_id = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_PAN_ID]);
-@@ -570,6 +568,9 @@ ieee802154_llsec_parse_key_id(struct genl_info *info,
- 			desc->device_addr.mode = IEEE802154_ADDR_SHORT;
- 			desc->device_addr.short_addr = nla_get_shortaddr(info->attrs[IEEE802154_ATTR_SHORT_ADDR]);
- 		} else {
-+			if (!info->attrs[IEEE802154_ATTR_HW_ADDR])
-+				return -EINVAL;
-+
- 			desc->device_addr.mode = IEEE802154_ADDR_LONG;
- 			desc->device_addr.extended_addr = nla_get_hwaddr(info->attrs[IEEE802154_ATTR_HW_ADDR]);
- 		}
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 4d6584f15b17..7e5a09c3d2a6 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -22,6 +22,11 @@ aliases {
+ 		i2c1 = &i2c2;
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index a76266f242a1..586fe60b9921 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -25,6 +25,11 @@ aliases {
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
+ 		i2c4 = &i2c5;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
 -- 
 2.30.2
 
