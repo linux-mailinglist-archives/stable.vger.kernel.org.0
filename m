@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7149F35B886
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E3035B887
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236607AbhDLCXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
+        id S235857AbhDLCXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235857AbhDLCXM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0454F61208;
-        Mon, 12 Apr 2021 02:22:54 +0000 (UTC)
+        id S236608AbhDLCXO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 452536120D;
+        Mon, 12 Apr 2021 02:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194175;
-        bh=s+Kdbp7Q035U4fGFj0LwJ0VXsS3OH88tx5a+XNSUZU8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=RTPWVHnftQcqQtfvXOVOJP7YXrySTltPflmsjeSFjDcG8pGYNS7ld/b+dLht8rhjr
-         R351W8NY+CqRLXmpoFQi7d30Uy+/onQX1wbr2MzRPN9NQW90XO9DJGCi4pmZ0MiHic
-         ZXbUB5GGPaO3kdsLHsb3ZXvNLCRmEk8d6P7hhCZ3DDyFM/FPPU0gJLXlbyDpBTHhGf
-         s9O86ErRshqiLSkDuFzunOqt1a54es4rOyJEXOc4WOTNqd3UxH1BvP/eUl1Cm2auFF
-         hVSDh7B6vYK6rCWwfeiIHVHpXJX1SroCmacbGa5lq7f+Gkb7tLEAHs/NgTBECk7e4Q
-         cE2Jy1yl7EtVg==
+        s=k20201202; t=1618194177;
+        bh=0wn2wFJ9NFS/oQS8VCJGCC8VG3wEQB9XQXNxo6qXQzk=;
+        h=From:To:Subject:Date:From;
+        b=a6FqrzTNc/5ne4+c77FYrITdCcRoIvFs5gh7kOXdka2vXfelivHKeI8EC9i+rhdm0
+         ghM4ty16Gaf9NHzj7tlGPOypEMyBwLgDVqU4KVHkuh89h5Ug7FDj5ADciPvnj7sIYW
+         gwh1yk1Gzl5p3ZKUQ28H8BMSS6nXWYNwdR1QSFGlt19lvjelQSU5EsGdosVnBIPLKJ
+         OTNxb5LQzLB32x4a6gbHPaOtNFKvD7N4n0lrhyMinDW1QiNIjTPx7R7YEWhR3VQ6cZ
+         lsLPRvPlNfnC23PFcVXdRzrjc2834viV76vpMWjAYTAltCoCv47RmmHjNboAEC0/By
+         Thk/qf7J1NmHw==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, idosch@nvidia.com
-Cc:     Petr Machata <petrm@nvidia.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: FAILED: Patch "mlxsw: spectrum: Fix ECN marking in tunnel decapsulation" failed to apply to 5.4-stable tree
-Date:   Sun, 11 Apr 2021 22:22:53 -0400
-Message-Id: <20210412022253.283411-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, steffen.klassert@secunet.com
+Subject: FAILED: Patch "xfrm: Provide private skb extensions for segmented and hw offloaded ESP packets" failed to apply to 5.4-stable tree
+Date:   Sun, 11 Apr 2021 22:22:56 -0400
+Message-Id: <20210412022256.283478-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
 X-stable: review
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -51,118 +47,88 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 66167c310deb4ac1725f81004fb4b504676ad0bf Mon Sep 17 00:00:00 2001
-From: Ido Schimmel <idosch@nvidia.com>
-Date: Mon, 29 Mar 2021 11:29:23 +0300
-Subject: [PATCH] mlxsw: spectrum: Fix ECN marking in tunnel decapsulation
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From c7dbf4c08868d9db89b8bfe8f8245ca61b01ed2f Mon Sep 17 00:00:00 2001
+From: Steffen Klassert <steffen.klassert@secunet.com>
+Date: Fri, 26 Mar 2021 09:44:48 +0100
+Subject: [PATCH] xfrm: Provide private skb extensions for segmented and hw
+ offloaded ESP packets
 
-Cited commit changed the behavior of the software data path with regards
-to the ECN marking of decapsulated packets. However, the commit did not
-change other callers of __INET_ECN_decapsulate(), namely mlxsw. The
-driver is using the function in order to ensure that the hardware and
-software data paths act the same with regards to the ECN marking of
-decapsulated packets.
+Commit 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec
+crypto offload.") added a XFRM_XMIT flag to avoid duplicate ESP trailer
+insertion on HW offload. This flag is set on the secpath that is shared
+amongst segments. This lead to a situation where some segments are
+not transformed correctly when segmentation happens at layer 3.
 
-The discrepancy was uncovered by commit 5aa3c334a449 ("selftests:
-forwarding: vxlan_bridge_1d: Fix vxlan ecn decapsulate value") that
-aligned the selftest to the new behavior. Without this patch the
-selftest passes when used with veth pairs, but fails when used with
-mlxsw netdevs.
+Fix this by using private skb extensions for segmented and hw offloaded
+ESP packets.
 
-Fix this by instructing the device to propagate the ECT(1) mark from the
-outer header to the inner header when the inner header is ECT(0), for
-both NVE and IP-in-IP tunnels.
-
-A helper is added in order not to duplicate the code between both tunnel
-types.
-
-Fixes: b723748750ec ("tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 94579ac3f6d0 ("xfrm: Fix double ESP trailer insertion in IPsec crypto offload.")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.h    | 15 +++++++++++++++
- .../net/ethernet/mellanox/mlxsw/spectrum_ipip.c   |  7 +++----
- .../net/ethernet/mellanox/mlxsw/spectrum_nve.c    |  7 +++----
- 3 files changed, 21 insertions(+), 8 deletions(-)
+ net/ipv4/esp4_offload.c | 11 ++++++++++-
+ net/ipv6/esp6_offload.c | 11 ++++++++++-
+ net/xfrm/xfrm_device.c  |  2 --
+ 3 files changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-index d9d9e1f488f9..ba28ac7e79bc 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-@@ -21,6 +21,7 @@
- #include <net/red.h>
- #include <net/vxlan.h>
- #include <net/flow_offload.h>
-+#include <net/inet_ecn.h>
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index ed3de486ea34..33687cf58286 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -314,8 +314,17 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
+ 	ip_hdr(skb)->tot_len = htons(skb->len);
+ 	ip_send_check(ip_hdr(skb));
  
- #include "port.h"
- #include "core.h"
-@@ -347,6 +348,20 @@ struct mlxsw_sp_port_type_speed_ops {
- 	u32 (*ptys_proto_cap_masked_get)(u32 eth_proto_cap);
- };
- 
-+static inline u8 mlxsw_sp_tunnel_ecn_decap(u8 outer_ecn, u8 inner_ecn,
-+					   bool *trap_en)
-+{
-+	bool set_ce = false;
+-	if (hw_offload)
++	if (hw_offload) {
++		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
++			return -ENOMEM;
 +
-+	*trap_en = !!__INET_ECN_decapsulate(outer_ecn, inner_ecn, &set_ce);
-+	if (set_ce)
-+		return INET_ECN_CE;
-+	else if (outer_ecn == INET_ECN_ECT_1 && inner_ecn == INET_ECN_ECT_0)
-+		return INET_ECN_ECT_1;
-+	else
-+		return inner_ecn;
-+}
++		xo = xfrm_offload(skb);
++		if (!xo)
++			return -EINVAL;
 +
- static inline struct net_device *
- mlxsw_sp_bridge_vxlan_dev_find(struct net_device *br_dev)
- {
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_ipip.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_ipip.c
-index 6ccca39bae84..64a8f838eb53 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_ipip.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_ipip.c
-@@ -335,12 +335,11 @@ static int mlxsw_sp_ipip_ecn_decap_init_one(struct mlxsw_sp *mlxsw_sp,
- 					    u8 inner_ecn, u8 outer_ecn)
- {
- 	char tidem_pl[MLXSW_REG_TIDEM_LEN];
--	bool trap_en, set_ce = false;
- 	u8 new_inner_ecn;
-+	bool trap_en;
++		xo->flags |= XFRM_XMIT;
+ 		return 0;
++	}
  
--	trap_en = __INET_ECN_decapsulate(outer_ecn, inner_ecn, &set_ce);
--	new_inner_ecn = set_ce ? INET_ECN_CE : inner_ecn;
--
-+	new_inner_ecn = mlxsw_sp_tunnel_ecn_decap(outer_ecn, inner_ecn,
-+						  &trap_en);
- 	mlxsw_reg_tidem_pack(tidem_pl, outer_ecn, inner_ecn, new_inner_ecn,
- 			     trap_en, trap_en ? MLXSW_TRAP_ID_DECAP_ECN0 : 0);
- 	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(tidem), tidem_pl);
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c
-index e5ec595593f4..9eba8fa684ae 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c
-@@ -909,12 +909,11 @@ static int __mlxsw_sp_nve_ecn_decap_init(struct mlxsw_sp *mlxsw_sp,
- 					 u8 inner_ecn, u8 outer_ecn)
- {
- 	char tndem_pl[MLXSW_REG_TNDEM_LEN];
--	bool trap_en, set_ce = false;
- 	u8 new_inner_ecn;
-+	bool trap_en;
+ 	err = esp_output_tail(x, skb, &esp);
+ 	if (err)
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index f35203ab39f5..4af56affaafd 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -348,8 +348,17 @@ static int esp6_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features
  
--	trap_en = !!__INET_ECN_decapsulate(outer_ecn, inner_ecn, &set_ce);
--	new_inner_ecn = set_ce ? INET_ECN_CE : inner_ecn;
+ 	ipv6_hdr(skb)->payload_len = htons(len);
+ 
+-	if (hw_offload)
++	if (hw_offload) {
++		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
++			return -ENOMEM;
++
++		xo = xfrm_offload(skb);
++		if (!xo)
++			return -EINVAL;
++
++		xo->flags |= XFRM_XMIT;
+ 		return 0;
++	}
+ 
+ 	err = esp6_output_tail(x, skb, &esp);
+ 	if (err)
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index edf11893dbe8..6d6917b68856 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -134,8 +134,6 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ 		return skb;
+ 	}
+ 
+-	xo->flags |= XFRM_XMIT;
 -
-+	new_inner_ecn = mlxsw_sp_tunnel_ecn_decap(outer_ecn, inner_ecn,
-+						  &trap_en);
- 	mlxsw_reg_tndem_pack(tndem_pl, outer_ecn, inner_ecn, new_inner_ecn,
- 			     trap_en, trap_en ? MLXSW_TRAP_ID_DECAP_ECN0 : 0);
- 	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(tndem), tndem_pl);
+ 	if (skb_is_gso(skb) && unlikely(x->xso.dev != dev)) {
+ 		struct sk_buff *segs;
+ 
 -- 
 2.30.2
 
