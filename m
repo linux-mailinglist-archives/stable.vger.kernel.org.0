@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E01135C083
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3038C35BEC4
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240081AbhDLJOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
+        id S238594AbhDLJB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:01:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240659AbhDLJKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F20CE61350;
-        Mon, 12 Apr 2021 09:06:10 +0000 (UTC)
+        id S238854AbhDLI5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:57:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1E9561284;
+        Mon, 12 Apr 2021 08:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218371;
-        bh=uev2WLtcFgkpCq/ziVOGc/fO0uDbJp084ipDKVJkvas=;
+        s=korg; t=1618217819;
+        bh=3DcSmrsaACPpic4DqciO1xIZX1a5iOCv9d4dHX3jeyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cH19IIHXdmZwNyPnUOio0FIoQYUN6jFuoL7Y8fW0lwmeutzMclfHV5EbI70Z7F2bV
-         Pq906w57xnOQfmi7gB4PF0AyzC1m+PSyDYWM1vvZ4xGmAcctFMrq73SwWLA6aOHFSQ
-         CCMX0xWKlPEvtyLbxDcNM8/wZ2870QfCg73GwjBQ=
+        b=BqoZ4oH6P9bnXZAC+G9j/jLyvfrrWRK9xEJNAMlUtOjT+BB++SNbZq2Y6e1Z8qFNm
+         JEcMMfCx5ERISy1PX/gpowdkrC8SkyeMalSLR6pdrIsDOBAQYCJ58304zwuxWL/SXn
+         nLuXF9vg5wm7+rX9TWcgvJ2SJ4R6MpeGkgzlJ2wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 165/210] net: macb: restore cmp registers on resume path
+Subject: [PATCH 5.10 156/188] tipc: increment the tmp aead refcnt before attaching it
 Date:   Mon, 12 Apr 2021 10:41:10 +0200
-Message-Id: <20210412084021.527085751@linuxfoundation.org>
+Message-Id: <20210412084018.816233010@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit a14d273ba15968495896a38b7b3399dba66d0270 ]
+[ Upstream commit 2a2403ca3add03f542f6b34bef9f74649969b06d ]
 
-Restore CMP screener registers on resume path.
+Li Shuang found a NULL pointer dereference crash in her testing:
 
-Fixes: c1e85c6ce57ef ("net: macb: save/restore the remaining registers and features")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+  [] BUG: unable to handle kernel NULL pointer dereference at 0000000000000020
+  [] RIP: 0010:tipc_crypto_rcv_complete+0xc8/0x7e0 [tipc]
+  [] Call Trace:
+  []  <IRQ>
+  []  tipc_crypto_rcv+0x2d9/0x8f0 [tipc]
+  []  tipc_rcv+0x2fc/0x1120 [tipc]
+  []  tipc_udp_recv+0xc6/0x1e0 [tipc]
+  []  udpv6_queue_rcv_one_skb+0x16a/0x460
+  []  udp6_unicast_rcv_skb.isra.35+0x41/0xa0
+  []  ip6_protocol_deliver_rcu+0x23b/0x4c0
+  []  ip6_input+0x3d/0xb0
+  []  ipv6_rcv+0x395/0x510
+  []  __netif_receive_skb_core+0x5fc/0xc40
+
+This is caused by NULL returned by tipc_aead_get(), and then crashed when
+dereferencing it later in tipc_crypto_rcv_complete(). This might happen
+when tipc_crypto_rcv_complete() is called by two threads at the same time:
+the tmp attached by tipc_crypto_key_attach() in one thread may be released
+by the one attached by that in the other thread.
+
+This patch is to fix it by incrementing the tmp's refcnt before attaching
+it instead of calling tipc_aead_get() after attaching it.
+
+Fixes: fc1b6d6de220 ("tipc: introduce TIPC encryption & authentication")
+Reported-by: Li Shuang <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/tipc/crypto.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 07cdb38e7d11..fbedbceef2d1 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -3235,6 +3235,9 @@ static void gem_prog_cmp_regs(struct macb *bp, struct ethtool_rx_flow_spec *fs)
- 	bool cmp_b = false;
- 	bool cmp_c = false;
+diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
+index 740ab9ae41a6..86eb6d679225 100644
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -1934,12 +1934,13 @@ static void tipc_crypto_rcv_complete(struct net *net, struct tipc_aead *aead,
+ 			goto rcv;
+ 		if (tipc_aead_clone(&tmp, aead) < 0)
+ 			goto rcv;
++		WARN_ON(!refcount_inc_not_zero(&tmp->refcnt));
+ 		if (tipc_crypto_key_attach(rx, tmp, ehdr->tx_key, false) < 0) {
+ 			tipc_aead_free(&tmp->rcu);
+ 			goto rcv;
+ 		}
+ 		tipc_aead_put(aead);
+-		aead = tipc_aead_get(tmp);
++		aead = tmp;
+ 	}
  
-+	if (!macb_is_gem(bp))
-+		return;
-+
- 	tp4sp_v = &(fs->h_u.tcp_ip4_spec);
- 	tp4sp_m = &(fs->m_u.tcp_ip4_spec);
- 
-@@ -3603,6 +3606,7 @@ static void macb_restore_features(struct macb *bp)
- {
- 	struct net_device *netdev = bp->dev;
- 	netdev_features_t features = netdev->features;
-+	struct ethtool_rx_fs_item *item;
- 
- 	/* TX checksum offload */
- 	macb_set_txcsum_feature(bp, features);
-@@ -3611,6 +3615,9 @@ static void macb_restore_features(struct macb *bp)
- 	macb_set_rxcsum_feature(bp, features);
- 
- 	/* RX Flow Filters */
-+	list_for_each_entry(item, &bp->rx_fs_list.list, list)
-+		gem_prog_cmp_regs(bp, &item->fs);
-+
- 	macb_set_rxflow_feature(bp, features);
- }
- 
+ 	if (unlikely(err)) {
 -- 
 2.30.2
 
