@@ -2,93 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9822235CD74
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91A035CD7F
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243846AbhDLQhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36836 "EHLO mail.kernel.org"
+        id S1344083AbhDLQg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245693AbhDLQfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:35:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0B4061363;
-        Mon, 12 Apr 2021 16:26:53 +0000 (UTC)
+        id S244994AbhDLQdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:33:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33331613CF;
+        Mon, 12 Apr 2021 16:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244813;
-        bh=ZAdFpjqXGlMBSS3hY+bf62oct3zQ62S2kRoT445sZvE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=AEBemaRHGlNWZjSG7K5pg7N6EEoz2MG/Aq4dMqNZYi4rdxAfIVdL8CaP9xRsR+oDw
-         52n/OJN75DgDmR+4lbEgJJhO1gQBoFXZh9wtQXcLnABRDwRkAfcsym87Q7Bs1ZrC51
-         /T4fXzRMtD2N9IcUvcoeVWAv7P1ZOh1eiliZwH73tpfhhH1px+sD8x60BDXJduA7Rr
-         eL9VHk3MGuvl4tTgQQFyDs5ZQ/QQuOwwtggduUmUS7r/kfykQ6mFXKplbmRXSCE5g1
-         krSziHLUSe4U9Xtq4J3YTEPa2DeMmRxkf3NaOoJuUBGqXRrM8uu+L1oJx3BaVCJSpA
-         kUKXnoLotpV4Q==
-Received: by pali.im (Postfix)
-        id 5925F687; Mon, 12 Apr 2021 18:26:51 +0200 (CEST)
-From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     Andrew Lunn <andrew@lunn.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH] net: sfp: relax bitrate-derived mode check
-Date:   Mon, 12 Apr 2021 18:26:11 +0200
-Message-Id: <20210412162611.17441-1-pali@kernel.org>
-X-Mailer: git-send-email 2.20.1
+        s=k20201202; t=1618244799;
+        bh=8HpKkNSRru0z8WcDe7S90lfAhdtFVrp/8hrFMhRpK2Y=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CRvmP+zSHkgmswk9ZXjJDHpDsyBD8qkOR1h+n5kmfft0k9anLCxOUj98vBwGwugDI
+         o8X3k+QEbYr8RGN0x/aENiJvz0jc2DzlrZqAySyom7rbYdeLZYcz2+a1nt0Ip2FYa+
+         QI93/oi9leQd7heUsTu+VtOy2a9Z0Rm9+7iud+JL/Z4dgptKRwH5X7NElp3qLBLHSO
+         XuP4gyFGZcV2O8orfk2mvp/FciKKy44oxzErwPwbmZPlXX0n3gmJZz2hlaIj28nZmT
+         eEhJ17ydmribk3NVYy9kAVfojhbd0SFn/WlKxBznjwt/smH8znX3VALyXxztcTEZS1
+         S51wxatEt42WA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+28a246747e0a465127f3@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 06/25] drivers: net: fix memory leak in atusb_probe
+Date:   Mon, 12 Apr 2021 12:26:11 -0400
+Message-Id: <20210412162630.315526-6-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210412162630.315526-1-sashal@kernel.org>
+References: <20210412162630.315526-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 7a77233ec6d114322e2c4f71b4e26dbecd9ea8a7 ]
+[ Upstream commit 6b9fbe16955152626557ec6f439f3407b7769941 ]
 
-Do not check the encoding when deriving 1000BASE-X from the bitrate
-when no other modes are discovered. Some GPON modules (VSOL V2801F
-and CarlitoxxPro CPGOS03-0490 v2.0) indicate NRZ encoding with a
-1200Mbaud bitrate, but should be driven with 1000BASE-X on the host
-side.
+syzbot reported memory leak in atusb_probe()[1].
+The problem was in atusb_alloc_urbs().
+Since urb is anchored, we need to release the reference
+to correctly free the urb
 
-Tested-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+backtrace:
+    [<ffffffff82ba0466>] kmalloc include/linux/slab.h:559 [inline]
+    [<ffffffff82ba0466>] usb_alloc_urb+0x66/0xe0 drivers/usb/core/urb.c:74
+    [<ffffffff82ad3888>] atusb_alloc_urbs drivers/net/ieee802154/atusb.c:362 [inline][2]
+    [<ffffffff82ad3888>] atusb_probe+0x158/0x820 drivers/net/ieee802154/atusb.c:1038 [1]
+
+Reported-by: syzbot+28a246747e0a465127f3@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-Please apply this commit to all stable releases where was already
-backported commit 0d035bed2a4a6c4878518749348be61bf082d12a
-("net: sfp: VSOL V2801F / CarlitoxxPro CPGOS03-0490 v2.0 workaround")
-as it depends on this commit. If I checked it correctly patch should
-go into 5.10 release.
----
- drivers/net/phy/sfp-bus.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/ieee802154/atusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
-index 58014feedf6c..20b91f5dfc6e 100644
---- a/drivers/net/phy/sfp-bus.c
-+++ b/drivers/net/phy/sfp-bus.c
-@@ -334,14 +334,13 @@ void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
+diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
+index 8e2cbc88df98..2c4274453c15 100644
+--- a/drivers/net/ieee802154/atusb.c
++++ b/drivers/net/ieee802154/atusb.c
+@@ -346,6 +346,7 @@ static int atusb_alloc_urbs(struct atusb *atusb, int n)
+ 			return -ENOMEM;
+ 		}
+ 		usb_anchor_urb(urb, &atusb->idle_urbs);
++		usb_free_urb(urb);
+ 		n--;
  	}
- 
- 	/* If we haven't discovered any modes that this module supports, try
--	 * the encoding and bitrate to determine supported modes. Some BiDi
--	 * modules (eg, 1310nm/1550nm) are not 1000BASE-BX compliant due to
--	 * the differing wavelengths, so do not set any transceiver bits.
-+	 * the bitrate to determine supported modes. Some BiDi modules (eg,
-+	 * 1310nm/1550nm) are not 1000BASE-BX compliant due to the differing
-+	 * wavelengths, so do not set any transceiver bits.
- 	 */
- 	if (bitmap_empty(modes, __ETHTOOL_LINK_MODE_MASK_NBITS)) {
--		/* If the encoding and bit rate allows 1000baseX */
--		if (id->base.encoding == SFF8024_ENCODING_8B10B && br_nom &&
--		    br_min <= 1300 && br_max >= 1200)
-+		/* If the bit rate allows 1000baseX */
-+		if (br_nom && br_min <= 1300 && br_max >= 1200)
- 			phylink_set(modes, 1000baseX_Full);
- 	}
- 
+ 	return 0;
 -- 
-2.20.1
+2.30.2
 
