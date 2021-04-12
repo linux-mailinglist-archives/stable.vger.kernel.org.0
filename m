@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC4835BEE5
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8179235BEB2
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239002AbhDLJCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:02:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50004 "EHLO mail.kernel.org"
+        id S239925AbhDLJBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:01:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239230AbhDLI7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:59:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9846D61289;
-        Mon, 12 Apr 2021 08:57:57 +0000 (UTC)
+        id S238651AbhDLI5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:57:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 008B861245;
+        Mon, 12 Apr 2021 08:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217878;
-        bh=IwPyNd0lz068b6JGkwWLSEsRGqdAhyKXBmcl8vnUyDw=;
+        s=korg; t=1618217785;
+        bh=5jq/VTupzktWayWACX7ynJJ/NNjWONeR96Jdv0AxFcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsWMRNszYd1HWzmsHP607H5/VrB2V+ktiUAegRZM9351gjhpbv2L91Gp8+LLG5pNo
-         9YGyhTf4CkMSA4jErXdBzzH+eF4/JtZYlzCo9ZeScWA4katSdgFTo1sBFpb+JjHIQh
-         fW28HN3jlZtBwD9Wj9Og1hFyYSP5L0lkPPhDfmNs=
+        b=Pv20c4LEsj5f76hr8J7VD/6VfiZfD0LkNpq+D5xE+/nodsDdpRGzPqvf/V/5/A5/H
+         vyWcyIJznfNrAB6Pgv5179cQim9+6DYfPlzdjQOOndsaFXHfLYou22tdTFVZRvile2
+         v4f+KCI3pRF2NZieP+NBkx9Pjap4pte3qGbhpFmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 144/188] net: cls_api: Fix uninitialised struct field bo->unlocked_driver_cb
-Date:   Mon, 12 Apr 2021 10:40:58 +0200
-Message-Id: <20210412084018.417258579@linuxfoundation.org>
+Subject: [PATCH 5.10 145/188] net: macb: restore cmp registers on resume path
+Date:   Mon, 12 Apr 2021 10:40:59 +0200
+Message-Id: <20210412084018.448791369@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -40,37 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 990b03b05b2fba79de2a1ee9dc359fc552d95ba6 ]
+[ Upstream commit a14d273ba15968495896a38b7b3399dba66d0270 ]
 
-The 'unlocked_driver_cb' struct field in 'bo' is not being initialized
-in tcf_block_offload_init(). The uninitialized 'unlocked_driver_cb'
-will be used when calling unlocked_driver_cb(). So initialize 'bo' to
-zero to avoid the issue.
+Restore CMP screener registers on resume path.
 
-Addresses-Coverity: ("Uninitialized scalar variable")
-Fixes: 0fdcf78d5973 ("net: use flow_indr_dev_setup_offload()")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Fixes: c1e85c6ce57ef ("net: macb: save/restore the remaining registers and features")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cadence/macb_main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index d48ba4dee9a5..9383dc29ead5 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -646,7 +646,7 @@ static void tc_block_indr_cleanup(struct flow_block_cb *block_cb)
- 	struct net_device *dev = block_cb->indr.dev;
- 	struct Qdisc *sch = block_cb->indr.sch;
- 	struct netlink_ext_ack extack = {};
--	struct flow_block_offload bo;
-+	struct flow_block_offload bo = {};
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 286f0341bdf8..48a6bda2a8cc 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -3111,6 +3111,9 @@ static void gem_prog_cmp_regs(struct macb *bp, struct ethtool_rx_flow_spec *fs)
+ 	bool cmp_b = false;
+ 	bool cmp_c = false;
  
- 	tcf_block_offload_init(&bo, dev, sch, FLOW_BLOCK_UNBIND,
- 			       block_cb->indr.binder_type,
++	if (!macb_is_gem(bp))
++		return;
++
+ 	tp4sp_v = &(fs->h_u.tcp_ip4_spec);
+ 	tp4sp_m = &(fs->m_u.tcp_ip4_spec);
+ 
+@@ -3479,6 +3482,7 @@ static void macb_restore_features(struct macb *bp)
+ {
+ 	struct net_device *netdev = bp->dev;
+ 	netdev_features_t features = netdev->features;
++	struct ethtool_rx_fs_item *item;
+ 
+ 	/* TX checksum offload */
+ 	macb_set_txcsum_feature(bp, features);
+@@ -3487,6 +3491,9 @@ static void macb_restore_features(struct macb *bp)
+ 	macb_set_rxcsum_feature(bp, features);
+ 
+ 	/* RX Flow Filters */
++	list_for_each_entry(item, &bp->rx_fs_list.list, list)
++		gem_prog_cmp_regs(bp, &item->fs);
++
+ 	macb_set_rxflow_feature(bp, features);
+ }
+ 
 -- 
 2.30.2
 
