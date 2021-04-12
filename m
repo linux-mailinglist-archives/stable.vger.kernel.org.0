@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFCA935CB34
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:23:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE57135CB36
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:23:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243452AbhDLQXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:23:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55546 "EHLO mail.kernel.org"
+        id S243462AbhDLQX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243457AbhDLQXl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:23:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16EC160FD7;
-        Mon, 12 Apr 2021 16:23:22 +0000 (UTC)
+        id S243465AbhDLQXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:23:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43E2161287;
+        Mon, 12 Apr 2021 16:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244602;
-        bh=hHIQYb42wdWozvUKH6R1Uzezj7+klWmXY0qSapeadp8=;
+        s=k20201202; t=1618244604;
+        bh=cpZE2tZXcu/4oVkhr39OZMRk74o9l8Lp8DKvAfAS6ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/1pgvglx1vhGGEde5tPQFbQFo6dgK6tl2k6S9BO9U8OksNCfUAFBzfQWlkQ4l1hy
-         B4hADjubx1nj7yRTrGy6dKqtS8ZAW1Sem0mQ+zZOjwPWnHrs7/kDxhflniHevgI0c+
-         KvB40aw5PB9K7qEeewlaVOw2L1CxFzctHryoKnxaRn4/OATkzpmliRYQCngkDhRqVg
-         toMrMFbq4lFYTKXzwfCFnD5AX13fIOBC1lLd6jKmkgClel4Yyo7Xer0vmb5cDcclRS
-         +d04/5YMIakMs8caqYL0L3rU3vFu6e6bQbP/UYlKnoFjexGcLlO13NCmm41/zVl1MN
-         6tJXcfCREEtNg==
+        b=C3cBPdk2Q0dHUKV2+KhDmeTS1wD7hOBG0xO1kokJx8l+6uu9WeNzH2r6XYxO1/Wbn
+         Vspxiqi2fDO8IBaRfsK/OwXcXR7fm3PPXSQ+w+m0ohLOOvNnnw3JIuIBFi3GEWxXGg
+         MCk5OgA6F65iqLoJylc0fO+OqE0abgHMvtoaY0/sij64O2meuPjMTk8McltKrrRs7U
+         Tngi49sXRil8TPHJlpAX9ekc0KRxT2R1UvKQDAlCQBBswPjSu/wxYcs1Agn9e3RIcg
+         HVuIiAUjqJVjdxKYRX7+pe6wN0WNrHanq2FLeM5YLAc+Pq/rZXzwZT2GyvbQ5QxQgJ
+         /vMDNuUgkqrRQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.11 21/51] ARM: omap1: fix building with clang IAS
-Date:   Mon, 12 Apr 2021 12:22:26 -0400
-Message-Id: <20210412162256.313524-21-sashal@kernel.org>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+28a246747e0a465127f3@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 22/51] drivers: net: fix memory leak in atusb_probe
+Date:   Mon, 12 Apr 2021 12:22:27 -0400
+Message-Id: <20210412162256.313524-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162256.313524-1-sashal@kernel.org>
 References: <20210412162256.313524-1-sashal@kernel.org>
@@ -43,54 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 28399a5a6d569c9bdb612345e4933046ca37cde5 ]
+[ Upstream commit 6b9fbe16955152626557ec6f439f3407b7769941 ]
 
-The clang integrated assembler fails to build one file with
-a complex asm instruction:
+syzbot reported memory leak in atusb_probe()[1].
+The problem was in atusb_alloc_urbs().
+Since urb is anchored, we need to release the reference
+to correctly free the urb
 
-arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: error: invalid instruction, any one of the following would fix this:
- mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
- ^
-arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: note: instruction requires: armv6t2
- mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
- ^
-arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: note: instruction requires: thumb2
- mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
- ^
+backtrace:
+    [<ffffffff82ba0466>] kmalloc include/linux/slab.h:559 [inline]
+    [<ffffffff82ba0466>] usb_alloc_urb+0x66/0xe0 drivers/usb/core/urb.c:74
+    [<ffffffff82ad3888>] atusb_alloc_urbs drivers/net/ieee802154/atusb.c:362 [inline][2]
+    [<ffffffff82ad3888>] atusb_probe+0x158/0x820 drivers/net/ieee802154/atusb.c:1038 [1]
 
-The problem is that 'NR_IRQS_LEGACY' is not defined here. Apparently
-gas does not care because we first add and then subtract this number,
-leading to the immediate value to be the same regardless of the
-specific definition of NR_IRQS_LEGACY.
-
-Neither the way that 'gas' just silently builds this file, nor the
-way that clang IAS makes nonsensical suggestions for how to fix it
-is great. Fortunately there is an easy fix, which is to #include
-the header that contains the definition.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210308153430.2530616-1-arnd@kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: syzbot+28a246747e0a465127f3@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/ams-delta-fiq-handler.S | 1 +
+ drivers/net/ieee802154/atusb.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-omap1/ams-delta-fiq-handler.S b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-index 14a6c3eb3298..f745a65d3bd7 100644
---- a/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-+++ b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-@@ -15,6 +15,7 @@
- #include <linux/platform_data/gpio-omap.h>
- 
- #include <asm/assembler.h>
-+#include <asm/irq.h>
- 
- #include "ams-delta-fiq.h"
- #include "board-ams-delta.h"
+diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
+index 0dd0ba915ab9..23ee0b14cbfa 100644
+--- a/drivers/net/ieee802154/atusb.c
++++ b/drivers/net/ieee802154/atusb.c
+@@ -365,6 +365,7 @@ static int atusb_alloc_urbs(struct atusb *atusb, int n)
+ 			return -ENOMEM;
+ 		}
+ 		usb_anchor_urb(urb, &atusb->idle_urbs);
++		usb_free_urb(urb);
+ 		n--;
+ 	}
+ 	return 0;
 -- 
 2.30.2
 
