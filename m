@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3E535BE2E
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A41D835BD0D
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238767AbhDLI5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
+        id S237889AbhDLIrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:47:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238958AbhDLIzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2019761372;
-        Mon, 12 Apr 2021 08:54:06 +0000 (UTC)
+        id S237895AbhDLIqX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:46:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCBBD61246;
+        Mon, 12 Apr 2021 08:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217647;
-        bh=xCaLW7pWK8fjluMP8Qghu2TNDfqCrxyNuRsJ/wYuoD8=;
+        s=korg; t=1618217166;
+        bh=pXS7HcrEri1qk/T2C4B0R49ir6M9TZCkcZPLOhAro5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thJqmEsvNYj/GNIOt5f3tK+p4RCaE1sNLQoA9V7V/Azy93Q8Gm3LGoEKZscNNn6V1
-         RGlPBdf7xTKOZLQgWq4kdm2GPD33n3PdsF7c7qIeUCq3S9mzkPiKAwDyJPumNDuSc3
-         4I3aFcv6Bv0RyZPh4nqCszd7szwJOWPGYChVyMNI=
+        b=JwsztghHIgAvbsSnKoSCX8RR3C+ugUDb7rh1H+vKUHtdIqnOMFWBEidA5TqsNV8ik
+         SBVZxnQkEX5OyvQmuvLRjusSsl7cMxaf7NqFmmNJ7nVol+mivsiBnAzd+/dvIeudZa
+         EuR/3wRz8EQ8fhH5+vbLL+gOYD/cDYYkhO0jvea0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chinh T Cao <chinh.t.cao@intel.com>,
-        Dave Ertman <david.m.ertman@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 092/188] ice: Refactor DCB related variables out of the ice_port_info struct
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Balazs Nemeth <bnemeth@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 028/111] net: ensure mac header is set in virtio_net_hdr_to_skb()
 Date:   Mon, 12 Apr 2021 10:40:06 +0200
-Message-Id: <20210412084016.705076871@linuxfoundation.org>
+Message-Id: <20210412084005.172136699@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,611 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chinh T Cao <chinh.t.cao@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fc2d1165d4a424dd325ae1f45806565350a58013 ]
+commit 61431a5907fc36d0738e9a547c7e1556349a03e9 upstream.
 
-Refactor the DCB related variables out of the ice_port_info_struct. The
-goal is to make the ice_port_info struct cleaner.
+Commit 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
+added a call to dev_parse_header_protocol() but mac_header is not yet set.
 
-Signed-off-by: Chinh T Cao <chinh.t.cao@intel.com>
-Co-developed-by: Dave Ertman <david.m.ertman@intel.com>
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This means that eth_hdr() reads complete garbage, and syzbot complained about it [1]
+
+This patch resets mac_header earlier, to get more coverage about this change.
+
+Audit of virtio_net_hdr_to_skb() callers shows that this change should be safe.
+
+[1]
+
+BUG: KASAN: use-after-free in eth_header_parse_protocol+0xdc/0xe0 net/ethernet/eth.c:282
+Read of size 2 at addr ffff888017a6200b by task syz-executor313/8409
+
+CPU: 1 PID: 8409 Comm: syz-executor313 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:232
+ __kasan_report mm/kasan/report.c:399 [inline]
+ kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
+ eth_header_parse_protocol+0xdc/0xe0 net/ethernet/eth.c:282
+ dev_parse_header_protocol include/linux/netdevice.h:3177 [inline]
+ virtio_net_hdr_to_skb.constprop.0+0x99d/0xcd0 include/linux/virtio_net.h:83
+ packet_snd net/packet/af_packet.c:2994 [inline]
+ packet_sendmsg+0x2325/0x52b0 net/packet/af_packet.c:3031
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:674
+ sock_no_sendpage+0xf3/0x130 net/core/sock.c:2860
+ kernel_sendpage.part.0+0x1ab/0x350 net/socket.c:3631
+ kernel_sendpage net/socket.c:3628 [inline]
+ sock_sendpage+0xe5/0x140 net/socket.c:947
+ pipe_to_sendpage+0x2ad/0x380 fs/splice.c:364
+ splice_from_pipe_feed fs/splice.c:418 [inline]
+ __splice_from_pipe+0x43e/0x8a0 fs/splice.c:562
+ splice_from_pipe fs/splice.c:597 [inline]
+ generic_splice_sendpage+0xd4/0x140 fs/splice.c:746
+ do_splice_from fs/splice.c:767 [inline]
+ do_splice+0xb7e/0x1940 fs/splice.c:1079
+ __do_splice+0x134/0x250 fs/splice.c:1144
+ __do_sys_splice fs/splice.c:1350 [inline]
+ __se_sys_splice fs/splice.c:1332 [inline]
+ __x64_sys_splice+0x198/0x250 fs/splice.c:1332
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+
+Fixes: 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Balazs Nemeth <bnemeth@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_dcb.c     | 40 ++++++++--------
- drivers/net/ethernet/intel/ice/ice_dcb_lib.c | 47 +++++++++---------
- drivers/net/ethernet/intel/ice/ice_dcb_nl.c  | 50 ++++++++++----------
- drivers/net/ethernet/intel/ice/ice_ethtool.c |  4 +-
- drivers/net/ethernet/intel/ice/ice_lib.c     |  2 +-
- drivers/net/ethernet/intel/ice/ice_txrx.c    |  2 +-
- drivers/net/ethernet/intel/ice/ice_type.h    | 16 ++++---
- 7 files changed, 83 insertions(+), 78 deletions(-)
+ include/linux/virtio_net.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_dcb.c b/drivers/net/ethernet/intel/ice/ice_dcb.c
-index 2a3147ee0bbb..e42727941ef5 100644
---- a/drivers/net/ethernet/intel/ice/ice_dcb.c
-+++ b/drivers/net/ethernet/intel/ice/ice_dcb.c
-@@ -850,9 +850,9 @@ ice_get_ieee_or_cee_dcb_cfg(struct ice_port_info *pi, u8 dcbx_mode)
- 		return ICE_ERR_PARAM;
- 
- 	if (dcbx_mode == ICE_DCBX_MODE_IEEE)
--		dcbx_cfg = &pi->local_dcbx_cfg;
-+		dcbx_cfg = &pi->qos_cfg.local_dcbx_cfg;
- 	else if (dcbx_mode == ICE_DCBX_MODE_CEE)
--		dcbx_cfg = &pi->desired_dcbx_cfg;
-+		dcbx_cfg = &pi->qos_cfg.desired_dcbx_cfg;
- 
- 	/* Get Local DCB Config in case of ICE_DCBX_MODE_IEEE
- 	 * or get CEE DCB Desired Config in case of ICE_DCBX_MODE_CEE
-@@ -863,7 +863,7 @@ ice_get_ieee_or_cee_dcb_cfg(struct ice_port_info *pi, u8 dcbx_mode)
- 		goto out;
- 
- 	/* Get Remote DCB Config */
--	dcbx_cfg = &pi->remote_dcbx_cfg;
-+	dcbx_cfg = &pi->qos_cfg.remote_dcbx_cfg;
- 	ret = ice_aq_get_dcb_cfg(pi->hw, ICE_AQ_LLDP_MIB_REMOTE,
- 				 ICE_AQ_LLDP_BRID_TYPE_NEAREST_BRID, dcbx_cfg);
- 	/* Don't treat ENOENT as an error for Remote MIBs */
-@@ -892,14 +892,14 @@ enum ice_status ice_get_dcb_cfg(struct ice_port_info *pi)
- 	ret = ice_aq_get_cee_dcb_cfg(pi->hw, &cee_cfg, NULL);
- 	if (!ret) {
- 		/* CEE mode */
--		dcbx_cfg = &pi->local_dcbx_cfg;
-+		dcbx_cfg = &pi->qos_cfg.local_dcbx_cfg;
- 		dcbx_cfg->dcbx_mode = ICE_DCBX_MODE_CEE;
- 		dcbx_cfg->tlv_status = le32_to_cpu(cee_cfg.tlv_status);
- 		ice_cee_to_dcb_cfg(&cee_cfg, dcbx_cfg);
- 		ret = ice_get_ieee_or_cee_dcb_cfg(pi, ICE_DCBX_MODE_CEE);
- 	} else if (pi->hw->adminq.sq_last_status == ICE_AQ_RC_ENOENT) {
- 		/* CEE mode not enabled try querying IEEE data */
--		dcbx_cfg = &pi->local_dcbx_cfg;
-+		dcbx_cfg = &pi->qos_cfg.local_dcbx_cfg;
- 		dcbx_cfg->dcbx_mode = ICE_DCBX_MODE_IEEE;
- 		ret = ice_get_ieee_or_cee_dcb_cfg(pi, ICE_DCBX_MODE_IEEE);
- 	}
-@@ -916,26 +916,26 @@ enum ice_status ice_get_dcb_cfg(struct ice_port_info *pi)
-  */
- enum ice_status ice_init_dcb(struct ice_hw *hw, bool enable_mib_change)
- {
--	struct ice_port_info *pi = hw->port_info;
-+	struct ice_qos_cfg *qos_cfg = &hw->port_info->qos_cfg;
- 	enum ice_status ret = 0;
- 
- 	if (!hw->func_caps.common_cap.dcb)
- 		return ICE_ERR_NOT_SUPPORTED;
- 
--	pi->is_sw_lldp = true;
-+	qos_cfg->is_sw_lldp = true;
- 
- 	/* Get DCBX status */
--	pi->dcbx_status = ice_get_dcbx_status(hw);
-+	qos_cfg->dcbx_status = ice_get_dcbx_status(hw);
- 
--	if (pi->dcbx_status == ICE_DCBX_STATUS_DONE ||
--	    pi->dcbx_status == ICE_DCBX_STATUS_IN_PROGRESS ||
--	    pi->dcbx_status == ICE_DCBX_STATUS_NOT_STARTED) {
-+	if (qos_cfg->dcbx_status == ICE_DCBX_STATUS_DONE ||
-+	    qos_cfg->dcbx_status == ICE_DCBX_STATUS_IN_PROGRESS ||
-+	    qos_cfg->dcbx_status == ICE_DCBX_STATUS_NOT_STARTED) {
- 		/* Get current DCBX configuration */
--		ret = ice_get_dcb_cfg(pi);
-+		ret = ice_get_dcb_cfg(hw->port_info);
- 		if (ret)
- 			return ret;
--		pi->is_sw_lldp = false;
--	} else if (pi->dcbx_status == ICE_DCBX_STATUS_DIS) {
-+		qos_cfg->is_sw_lldp = false;
-+	} else if (qos_cfg->dcbx_status == ICE_DCBX_STATUS_DIS) {
- 		return ICE_ERR_NOT_READY;
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -62,6 +62,8 @@ static inline int virtio_net_hdr_to_skb(
+ 			return -EINVAL;
  	}
  
-@@ -943,7 +943,7 @@ enum ice_status ice_init_dcb(struct ice_hw *hw, bool enable_mib_change)
- 	if (enable_mib_change) {
- 		ret = ice_aq_cfg_lldp_mib_change(hw, true, NULL);
- 		if (ret)
--			pi->is_sw_lldp = true;
-+			qos_cfg->is_sw_lldp = true;
- 	}
- 
- 	return ret;
-@@ -958,21 +958,21 @@ enum ice_status ice_init_dcb(struct ice_hw *hw, bool enable_mib_change)
-  */
- enum ice_status ice_cfg_lldp_mib_change(struct ice_hw *hw, bool ena_mib)
- {
--	struct ice_port_info *pi = hw->port_info;
-+	struct ice_qos_cfg *qos_cfg = &hw->port_info->qos_cfg;
- 	enum ice_status ret;
- 
- 	if (!hw->func_caps.common_cap.dcb)
- 		return ICE_ERR_NOT_SUPPORTED;
- 
- 	/* Get DCBX status */
--	pi->dcbx_status = ice_get_dcbx_status(hw);
-+	qos_cfg->dcbx_status = ice_get_dcbx_status(hw);
- 
--	if (pi->dcbx_status == ICE_DCBX_STATUS_DIS)
-+	if (qos_cfg->dcbx_status == ICE_DCBX_STATUS_DIS)
- 		return ICE_ERR_NOT_READY;
- 
- 	ret = ice_aq_cfg_lldp_mib_change(hw, ena_mib, NULL);
- 	if (!ret)
--		pi->is_sw_lldp = !ena_mib;
-+		qos_cfg->is_sw_lldp = !ena_mib;
- 
- 	return ret;
- }
-@@ -1270,7 +1270,7 @@ enum ice_status ice_set_dcb_cfg(struct ice_port_info *pi)
- 	hw = pi->hw;
- 
- 	/* update the HW local config */
--	dcbcfg = &pi->local_dcbx_cfg;
-+	dcbcfg = &pi->qos_cfg.local_dcbx_cfg;
- 	/* Allocate the LLDPDU */
- 	lldpmib = devm_kzalloc(ice_hw_to_dev(hw), ICE_LLDPDU_SIZE, GFP_KERNEL);
- 	if (!lldpmib)
-diff --git a/drivers/net/ethernet/intel/ice/ice_dcb_lib.c b/drivers/net/ethernet/intel/ice/ice_dcb_lib.c
-index 36abd6b7280c..1e8f71ffc8ce 100644
---- a/drivers/net/ethernet/intel/ice/ice_dcb_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_dcb_lib.c
-@@ -28,7 +28,7 @@ void ice_vsi_cfg_netdev_tc(struct ice_vsi *vsi, u8 ena_tc)
- 	if (netdev_set_num_tc(netdev, vsi->tc_cfg.numtc))
- 		return;
- 
--	dcbcfg = &pf->hw.port_info->local_dcbx_cfg;
-+	dcbcfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 
- 	ice_for_each_traffic_class(i)
- 		if (vsi->tc_cfg.ena_tc & BIT(i))
-@@ -134,7 +134,7 @@ static u8 ice_dcb_get_mode(struct ice_port_info *port_info, bool host)
- 	else
- 		mode = DCB_CAP_DCBX_LLD_MANAGED;
- 
--	if (port_info->local_dcbx_cfg.dcbx_mode & ICE_DCBX_MODE_CEE)
-+	if (port_info->qos_cfg.local_dcbx_cfg.dcbx_mode & ICE_DCBX_MODE_CEE)
- 		return mode | DCB_CAP_DCBX_VER_CEE;
- 	else
- 		return mode | DCB_CAP_DCBX_VER_IEEE;
-@@ -277,10 +277,10 @@ int ice_pf_dcb_cfg(struct ice_pf *pf, struct ice_dcbx_cfg *new_cfg, bool locked)
- 	int ret = ICE_DCB_NO_HW_CHG;
- 	struct ice_vsi *pf_vsi;
- 
--	curr_cfg = &pf->hw.port_info->local_dcbx_cfg;
-+	curr_cfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 
- 	/* FW does not care if change happened */
--	if (!pf->hw.port_info->is_sw_lldp)
-+	if (!pf->hw.port_info->qos_cfg.is_sw_lldp)
- 		ret = ICE_DCB_HW_CHG_RST;
- 
- 	/* Enable DCB tagging only when more than one TC */
-@@ -327,7 +327,7 @@ int ice_pf_dcb_cfg(struct ice_pf *pf, struct ice_dcbx_cfg *new_cfg, bool locked)
- 	/* Only send new config to HW if we are in SW LLDP mode. Otherwise,
- 	 * the new config came from the HW in the first place.
- 	 */
--	if (pf->hw.port_info->is_sw_lldp) {
-+	if (pf->hw.port_info->qos_cfg.is_sw_lldp) {
- 		ret = ice_set_dcb_cfg(pf->hw.port_info);
- 		if (ret) {
- 			dev_err(dev, "Set DCB Config failed\n");
-@@ -360,7 +360,7 @@ int ice_pf_dcb_cfg(struct ice_pf *pf, struct ice_dcbx_cfg *new_cfg, bool locked)
-  */
- static void ice_cfg_etsrec_defaults(struct ice_port_info *pi)
- {
--	struct ice_dcbx_cfg *dcbcfg = &pi->local_dcbx_cfg;
-+	struct ice_dcbx_cfg *dcbcfg = &pi->qos_cfg.local_dcbx_cfg;
- 	u8 i;
- 
- 	/* Ensure ETS recommended DCB configuration is not already set */
-@@ -446,7 +446,7 @@ void ice_dcb_rebuild(struct ice_pf *pf)
- 
- 	mutex_lock(&pf->tc_mutex);
- 
--	if (!pf->hw.port_info->is_sw_lldp)
-+	if (!pf->hw.port_info->qos_cfg.is_sw_lldp)
- 		ice_cfg_etsrec_defaults(pf->hw.port_info);
- 
- 	ret = ice_set_dcb_cfg(pf->hw.port_info);
-@@ -455,9 +455,9 @@ void ice_dcb_rebuild(struct ice_pf *pf)
- 		goto dcb_error;
- 	}
- 
--	if (!pf->hw.port_info->is_sw_lldp) {
-+	if (!pf->hw.port_info->qos_cfg.is_sw_lldp) {
- 		ret = ice_cfg_lldp_mib_change(&pf->hw, true);
--		if (ret && !pf->hw.port_info->is_sw_lldp) {
-+		if (ret && !pf->hw.port_info->qos_cfg.is_sw_lldp) {
- 			dev_err(dev, "Failed to register for MIB changes\n");
- 			goto dcb_error;
- 		}
-@@ -510,11 +510,12 @@ static int ice_dcb_init_cfg(struct ice_pf *pf, bool locked)
- 	int ret = 0;
- 
- 	pi = pf->hw.port_info;
--	newcfg = kmemdup(&pi->local_dcbx_cfg, sizeof(*newcfg), GFP_KERNEL);
-+	newcfg = kmemdup(&pi->qos_cfg.local_dcbx_cfg, sizeof(*newcfg),
-+			 GFP_KERNEL);
- 	if (!newcfg)
- 		return -ENOMEM;
- 
--	memset(&pi->local_dcbx_cfg, 0, sizeof(*newcfg));
-+	memset(&pi->qos_cfg.local_dcbx_cfg, 0, sizeof(*newcfg));
- 
- 	dev_info(ice_pf_to_dev(pf), "Configuring initial DCB values\n");
- 	if (ice_pf_dcb_cfg(pf, newcfg, locked))
-@@ -545,7 +546,7 @@ static int ice_dcb_sw_dflt_cfg(struct ice_pf *pf, bool ets_willing, bool locked)
- 	if (!dcbcfg)
- 		return -ENOMEM;
- 
--	memset(&pi->local_dcbx_cfg, 0, sizeof(*dcbcfg));
-+	memset(&pi->qos_cfg.local_dcbx_cfg, 0, sizeof(*dcbcfg));
- 
- 	dcbcfg->etscfg.willing = ets_willing ? 1 : 0;
- 	dcbcfg->etscfg.maxtcs = hw->func_caps.common_cap.maxtc;
-@@ -608,7 +609,7 @@ static bool ice_dcb_tc_contig(u8 *prio_table)
-  */
- static int ice_dcb_noncontig_cfg(struct ice_pf *pf)
- {
--	struct ice_dcbx_cfg *dcbcfg = &pf->hw.port_info->local_dcbx_cfg;
-+	struct ice_dcbx_cfg *dcbcfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 	struct device *dev = ice_pf_to_dev(pf);
- 	int ret;
- 
-@@ -638,7 +639,7 @@ static int ice_dcb_noncontig_cfg(struct ice_pf *pf)
-  */
- void ice_pf_dcb_recfg(struct ice_pf *pf)
- {
--	struct ice_dcbx_cfg *dcbcfg = &pf->hw.port_info->local_dcbx_cfg;
-+	struct ice_dcbx_cfg *dcbcfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 	u8 tc_map = 0;
- 	int v, ret;
- 
-@@ -691,7 +692,7 @@ int ice_init_pf_dcb(struct ice_pf *pf, bool locked)
- 	port_info = hw->port_info;
- 
- 	err = ice_init_dcb(hw, false);
--	if (err && !port_info->is_sw_lldp) {
-+	if (err && !port_info->qos_cfg.is_sw_lldp) {
- 		dev_err(dev, "Error initializing DCB %d\n", err);
- 		goto dcb_init_err;
- 	}
-@@ -858,7 +859,7 @@ ice_dcb_process_lldp_set_mib_change(struct ice_pf *pf,
- 		/* Update the remote cached instance and return */
- 		ret = ice_aq_get_dcb_cfg(pi->hw, ICE_AQ_LLDP_MIB_REMOTE,
- 					 ICE_AQ_LLDP_BRID_TYPE_NEAREST_BRID,
--					 &pi->remote_dcbx_cfg);
-+					 &pi->qos_cfg.remote_dcbx_cfg);
- 		if (ret) {
- 			dev_err(dev, "Failed to get remote DCB config\n");
- 			return;
-@@ -868,10 +869,11 @@ ice_dcb_process_lldp_set_mib_change(struct ice_pf *pf,
- 	mutex_lock(&pf->tc_mutex);
- 
- 	/* store the old configuration */
--	tmp_dcbx_cfg = pf->hw.port_info->local_dcbx_cfg;
-+	tmp_dcbx_cfg = pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 
- 	/* Reset the old DCBX configuration data */
--	memset(&pi->local_dcbx_cfg, 0, sizeof(pi->local_dcbx_cfg));
-+	memset(&pi->qos_cfg.local_dcbx_cfg, 0,
-+	       sizeof(pi->qos_cfg.local_dcbx_cfg));
- 
- 	/* Get updated DCBX data from firmware */
- 	ret = ice_get_dcb_cfg(pf->hw.port_info);
-@@ -881,7 +883,8 @@ ice_dcb_process_lldp_set_mib_change(struct ice_pf *pf,
- 	}
- 
- 	/* No change detected in DCBX configs */
--	if (!memcmp(&tmp_dcbx_cfg, &pi->local_dcbx_cfg, sizeof(tmp_dcbx_cfg))) {
-+	if (!memcmp(&tmp_dcbx_cfg, &pi->qos_cfg.local_dcbx_cfg,
-+		    sizeof(tmp_dcbx_cfg))) {
- 		dev_dbg(dev, "No change detected in DCBX configuration.\n");
- 		goto out;
- 	}
-@@ -889,13 +892,13 @@ ice_dcb_process_lldp_set_mib_change(struct ice_pf *pf,
- 	pf->dcbx_cap = ice_dcb_get_mode(pi, false);
- 
- 	need_reconfig = ice_dcb_need_recfg(pf, &tmp_dcbx_cfg,
--					   &pi->local_dcbx_cfg);
--	ice_dcbnl_flush_apps(pf, &tmp_dcbx_cfg, &pi->local_dcbx_cfg);
-+					   &pi->qos_cfg.local_dcbx_cfg);
-+	ice_dcbnl_flush_apps(pf, &tmp_dcbx_cfg, &pi->qos_cfg.local_dcbx_cfg);
- 	if (!need_reconfig)
- 		goto out;
- 
- 	/* Enable DCB tagging only when more than one TC */
--	if (ice_dcb_get_num_tc(&pi->local_dcbx_cfg) > 1) {
-+	if (ice_dcb_get_num_tc(&pi->qos_cfg.local_dcbx_cfg) > 1) {
- 		dev_dbg(dev, "DCB tagging enabled (num TC > 1)\n");
- 		set_bit(ICE_FLAG_DCB_ENA, pf->flags);
- 	} else {
-diff --git a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
-index 162348ef090b..4180f1f35fb8 100644
---- a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
-+++ b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
-@@ -32,12 +32,10 @@ static void ice_dcbnl_devreset(struct net_device *netdev)
- static int ice_dcbnl_getets(struct net_device *netdev, struct ieee_ets *ets)
- {
- 	struct ice_dcbx_cfg *dcbxcfg;
--	struct ice_port_info *pi;
- 	struct ice_pf *pf;
- 
- 	pf = ice_netdev_to_pf(netdev);
--	pi = pf->hw.port_info;
--	dcbxcfg = &pi->local_dcbx_cfg;
-+	dcbxcfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 
- 	ets->willing = dcbxcfg->etscfg.willing;
- 	ets->ets_cap = dcbxcfg->etscfg.maxtcs;
-@@ -72,7 +70,7 @@ static int ice_dcbnl_setets(struct net_device *netdev, struct ieee_ets *ets)
- 	    !(pf->dcbx_cap & DCB_CAP_DCBX_VER_IEEE))
- 		return -EINVAL;
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
- 	mutex_lock(&pf->tc_mutex);
- 
-@@ -157,6 +155,7 @@ static u8 ice_dcbnl_getdcbx(struct net_device *netdev)
- static u8 ice_dcbnl_setdcbx(struct net_device *netdev, u8 mode)
- {
- 	struct ice_pf *pf = ice_netdev_to_pf(netdev);
-+	struct ice_qos_cfg *qos_cfg;
- 
- 	/* if FW LLDP agent is running, DCBNL not allowed to change mode */
- 	if (test_bit(ICE_FLAG_FW_LLDP_AGENT, pf->flags))
-@@ -173,10 +172,11 @@ static u8 ice_dcbnl_setdcbx(struct net_device *netdev, u8 mode)
- 		return ICE_DCB_NO_HW_CHG;
- 
- 	pf->dcbx_cap = mode;
-+	qos_cfg = &pf->hw.port_info->qos_cfg;
- 	if (mode & DCB_CAP_DCBX_VER_CEE)
--		pf->hw.port_info->local_dcbx_cfg.dcbx_mode = ICE_DCBX_MODE_CEE;
-+		qos_cfg->local_dcbx_cfg.dcbx_mode = ICE_DCBX_MODE_CEE;
- 	else
--		pf->hw.port_info->local_dcbx_cfg.dcbx_mode = ICE_DCBX_MODE_IEEE;
-+		qos_cfg->local_dcbx_cfg.dcbx_mode = ICE_DCBX_MODE_IEEE;
- 
- 	dev_info(ice_pf_to_dev(pf), "DCBx mode = 0x%x\n", mode);
- 	return ICE_DCB_HW_CHG_RST;
-@@ -227,7 +227,7 @@ static int ice_dcbnl_getpfc(struct net_device *netdev, struct ieee_pfc *pfc)
- 	struct ice_dcbx_cfg *dcbxcfg;
- 	int i;
- 
--	dcbxcfg = &pi->local_dcbx_cfg;
-+	dcbxcfg = &pi->qos_cfg.local_dcbx_cfg;
- 	pfc->pfc_cap = dcbxcfg->pfc.pfccap;
- 	pfc->pfc_en = dcbxcfg->pfc.pfcena;
- 	pfc->mbc = dcbxcfg->pfc.mbc;
-@@ -258,7 +258,7 @@ static int ice_dcbnl_setpfc(struct net_device *netdev, struct ieee_pfc *pfc)
- 
- 	mutex_lock(&pf->tc_mutex);
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
- 	if (pfc->pfc_cap)
- 		new_cfg->pfc.pfccap = pfc->pfc_cap;
-@@ -295,9 +295,9 @@ ice_dcbnl_get_pfc_cfg(struct net_device *netdev, int prio, u8 *setting)
- 	if (prio >= ICE_MAX_USER_PRIORITY)
- 		return;
- 
--	*setting = (pi->local_dcbx_cfg.pfc.pfcena >> prio) & 0x1;
-+	*setting = (pi->qos_cfg.local_dcbx_cfg.pfc.pfcena >> prio) & 0x1;
- 	dev_dbg(ice_pf_to_dev(pf), "Get PFC Config up=%d, setting=%d, pfcenable=0x%x\n",
--		prio, *setting, pi->local_dcbx_cfg.pfc.pfcena);
-+		prio, *setting, pi->qos_cfg.local_dcbx_cfg.pfc.pfcena);
- }
- 
- /**
-@@ -318,7 +318,7 @@ static void ice_dcbnl_set_pfc_cfg(struct net_device *netdev, int prio, u8 set)
- 	if (prio >= ICE_MAX_USER_PRIORITY)
- 		return;
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
- 	new_cfg->pfc.pfccap = pf->hw.func_caps.common_cap.maxtc;
- 	if (set)
-@@ -340,7 +340,7 @@ static u8 ice_dcbnl_getpfcstate(struct net_device *netdev)
- 	struct ice_port_info *pi = pf->hw.port_info;
- 
- 	/* Return enabled if any UP enabled for PFC */
--	if (pi->local_dcbx_cfg.pfc.pfcena)
-+	if (pi->qos_cfg.local_dcbx_cfg.pfc.pfcena)
- 		return 1;
- 
- 	return 0;
-@@ -380,8 +380,8 @@ static u8 ice_dcbnl_setstate(struct net_device *netdev, u8 state)
- 
- 	if (state) {
- 		set_bit(ICE_FLAG_DCB_ENA, pf->flags);
--		memcpy(&pf->hw.port_info->desired_dcbx_cfg,
--		       &pf->hw.port_info->local_dcbx_cfg,
-+		memcpy(&pf->hw.port_info->qos_cfg.desired_dcbx_cfg,
-+		       &pf->hw.port_info->qos_cfg.local_dcbx_cfg,
- 		       sizeof(struct ice_dcbx_cfg));
- 	} else {
- 		clear_bit(ICE_FLAG_DCB_ENA, pf->flags);
-@@ -415,7 +415,7 @@ ice_dcbnl_get_pg_tc_cfg_tx(struct net_device *netdev, int prio,
- 	if (prio >= ICE_MAX_USER_PRIORITY)
- 		return;
- 
--	*pgid = pi->local_dcbx_cfg.etscfg.prio_table[prio];
-+	*pgid = pi->qos_cfg.local_dcbx_cfg.etscfg.prio_table[prio];
- 	dev_dbg(ice_pf_to_dev(pf), "Get PG config prio=%d tc=%d\n", prio,
- 		*pgid);
- }
-@@ -446,7 +446,7 @@ ice_dcbnl_set_pg_tc_cfg_tx(struct net_device *netdev, int tc,
- 	if (tc >= ICE_MAX_TRAFFIC_CLASS)
- 		return;
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
- 	/* prio_type, bwg_id and bw_pct per UP are not supported */
- 
-@@ -476,7 +476,7 @@ ice_dcbnl_get_pg_bwg_cfg_tx(struct net_device *netdev, int pgid, u8 *bw_pct)
- 	if (pgid >= ICE_MAX_TRAFFIC_CLASS)
- 		return;
- 
--	*bw_pct = pi->local_dcbx_cfg.etscfg.tcbwtable[pgid];
-+	*bw_pct = pi->qos_cfg.local_dcbx_cfg.etscfg.tcbwtable[pgid];
- 	dev_dbg(ice_pf_to_dev(pf), "Get PG BW config tc=%d bw_pct=%d\n",
- 		pgid, *bw_pct);
- }
-@@ -500,7 +500,7 @@ ice_dcbnl_set_pg_bwg_cfg_tx(struct net_device *netdev, int pgid, u8 bw_pct)
- 	if (pgid >= ICE_MAX_TRAFFIC_CLASS)
- 		return;
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
- 	new_cfg->etscfg.tcbwtable[pgid] = bw_pct;
- }
-@@ -530,7 +530,7 @@ ice_dcbnl_get_pg_tc_cfg_rx(struct net_device *netdev, int prio,
- 	if (prio >= ICE_MAX_USER_PRIORITY)
- 		return;
- 
--	*pgid = pi->local_dcbx_cfg.etscfg.prio_table[prio];
-+	*pgid = pi->qos_cfg.local_dcbx_cfg.etscfg.prio_table[prio];
- }
- 
- /**
-@@ -701,9 +701,9 @@ static int ice_dcbnl_setapp(struct net_device *netdev, struct dcb_app *app)
- 
- 	mutex_lock(&pf->tc_mutex);
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
--	old_cfg = &pf->hw.port_info->local_dcbx_cfg;
-+	old_cfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 
- 	if (old_cfg->numapps == ICE_DCBX_MAX_APPS) {
- 		ret = -EINVAL;
-@@ -753,7 +753,7 @@ static int ice_dcbnl_delapp(struct net_device *netdev, struct dcb_app *app)
- 		return -EINVAL;
- 
- 	mutex_lock(&pf->tc_mutex);
--	old_cfg = &pf->hw.port_info->local_dcbx_cfg;
-+	old_cfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
- 
- 	if (old_cfg->numapps <= 1)
- 		goto delapp_out;
-@@ -762,7 +762,7 @@ static int ice_dcbnl_delapp(struct net_device *netdev, struct dcb_app *app)
- 	if (ret)
- 		goto delapp_out;
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
- 	for (i = 1; i < new_cfg->numapps; i++) {
- 		if (app->selector == new_cfg->app[i].selector &&
-@@ -815,7 +815,7 @@ static u8 ice_dcbnl_cee_set_all(struct net_device *netdev)
- 	    !(pf->dcbx_cap & DCB_CAP_DCBX_VER_CEE))
- 		return ICE_DCB_NO_HW_CHG;
- 
--	new_cfg = &pf->hw.port_info->desired_dcbx_cfg;
-+	new_cfg = &pf->hw.port_info->qos_cfg.desired_dcbx_cfg;
- 
- 	mutex_lock(&pf->tc_mutex);
- 
-@@ -886,7 +886,7 @@ void ice_dcbnl_set_all(struct ice_vsi *vsi)
- 	if (!test_bit(ICE_FLAG_DCB_ENA, pf->flags))
- 		return;
- 
--	dcbxcfg = &pi->local_dcbx_cfg;
-+	dcbxcfg = &pi->qos_cfg.local_dcbx_cfg;
- 
- 	for (i = 0; i < dcbxcfg->numapps; i++) {
- 		u8 prio, tc_map;
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index deb62b0c3855..d70573f5072c 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -2986,7 +2986,7 @@ ice_get_pauseparam(struct net_device *netdev, struct ethtool_pauseparam *pause)
- 	pause->rx_pause = 0;
- 	pause->tx_pause = 0;
- 
--	dcbx_cfg = &pi->local_dcbx_cfg;
-+	dcbx_cfg = &pi->qos_cfg.local_dcbx_cfg;
- 
- 	pcaps = kzalloc(sizeof(*pcaps), GFP_KERNEL);
- 	if (!pcaps)
-@@ -3038,7 +3038,7 @@ ice_set_pauseparam(struct net_device *netdev, struct ethtool_pauseparam *pause)
- 
- 	pi = vsi->port_info;
- 	hw_link_info = &pi->phy.link_info;
--	dcbx_cfg = &pi->local_dcbx_cfg;
-+	dcbx_cfg = &pi->qos_cfg.local_dcbx_cfg;
- 	link_up = hw_link_info->link_info & ICE_AQ_LINK_UP;
- 
- 	/* Changing the port's flow control is not supported if this isn't the
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index 3417de29facf..170367eaa95a 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -2078,7 +2078,7 @@ int ice_cfg_vlan_pruning(struct ice_vsi *vsi, bool ena, bool vlan_promisc)
- 
- static void ice_vsi_set_tc_cfg(struct ice_vsi *vsi)
- {
--	struct ice_dcbx_cfg *cfg = &vsi->port_info->local_dcbx_cfg;
-+	struct ice_dcbx_cfg *cfg = &vsi->port_info->qos_cfg.local_dcbx_cfg;
- 
- 	vsi->tc_cfg.ena_tc = ice_dcb_get_ena_tc(cfg);
- 	vsi->tc_cfg.numtc = ice_dcb_get_num_tc(cfg);
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.c b/drivers/net/ethernet/intel/ice/ice_txrx.c
-index af5b7f33db9a..0f2544c420ac 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.c
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.c
-@@ -2421,7 +2421,7 @@ ice_xmit_frame_ring(struct sk_buff *skb, struct ice_ring *tx_ring)
- 	/* allow CONTROL frames egress from main VSI if FW LLDP disabled */
- 	if (unlikely(skb->priority == TC_PRIO_CONTROL &&
- 		     vsi->type == ICE_VSI_PF &&
--		     vsi->port_info->is_sw_lldp))
-+		     vsi->port_info->qos_cfg.is_sw_lldp))
- 		offload.cd_qw1 |= (u64)(ICE_TX_DESC_DTYPE_CTX |
- 					ICE_TX_CTX_DESC_SWTCH_UPLINK <<
- 					ICE_TXD_CTX_QW1_CMD_S);
-diff --git a/drivers/net/ethernet/intel/ice/ice_type.h b/drivers/net/ethernet/intel/ice/ice_type.h
-index 2226a291a394..c09c085f637a 100644
---- a/drivers/net/ethernet/intel/ice/ice_type.h
-+++ b/drivers/net/ethernet/intel/ice/ice_type.h
-@@ -514,6 +514,14 @@ struct ice_dcbx_cfg {
- #define ICE_DCBX_APPS_NON_WILLING	0x1
- };
- 
-+struct ice_qos_cfg {
-+	struct ice_dcbx_cfg local_dcbx_cfg;	/* Oper/Local Cfg */
-+	struct ice_dcbx_cfg desired_dcbx_cfg;	/* CEE Desired Cfg */
-+	struct ice_dcbx_cfg remote_dcbx_cfg;	/* Peer Cfg */
-+	u8 dcbx_status : 3;			/* see ICE_DCBX_STATUS_DIS */
-+	u8 is_sw_lldp : 1;
-+};
++	skb_reset_mac_header(skb);
 +
- struct ice_port_info {
- 	struct ice_sched_node *root;	/* Root Node per Port */
- 	struct ice_hw *hw;		/* back pointer to HW instance */
-@@ -537,13 +545,7 @@ struct ice_port_info {
- 		sib_head[ICE_MAX_TRAFFIC_CLASS][ICE_AQC_TOPO_MAX_LEVEL_NUM];
- 	/* List contain profile ID(s) and other params per layer */
- 	struct list_head rl_prof_list[ICE_AQC_TOPO_MAX_LEVEL_NUM];
--	struct ice_dcbx_cfg local_dcbx_cfg;	/* Oper/Local Cfg */
--	/* DCBX info */
--	struct ice_dcbx_cfg remote_dcbx_cfg;	/* Peer Cfg */
--	struct ice_dcbx_cfg desired_dcbx_cfg;	/* CEE Desired Cfg */
--	/* LLDP/DCBX Status */
--	u8 dcbx_status:3;		/* see ICE_DCBX_STATUS_DIS */
--	u8 is_sw_lldp:1;
-+	struct ice_qos_cfg qos_cfg;
- 	u8 is_vf:1;
- };
- 
--- 
-2.30.2
-
+ 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+ 		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
+ 		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
 
 
