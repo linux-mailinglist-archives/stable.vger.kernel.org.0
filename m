@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07CD535CB3C
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4794935CB3F
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243558AbhDLQX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
+        id S243568AbhDLQYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:24:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243474AbhDLQXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:23:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19E3061241;
-        Mon, 12 Apr 2021 16:23:27 +0000 (UTC)
+        id S243484AbhDLQXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:23:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A9D96128E;
+        Mon, 12 Apr 2021 16:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244608;
-        bh=LT19Tsj7rRQqwqIRqGo+4VMJMhxCyuV1B6R8L5c5T+g=;
+        s=k20201202; t=1618244609;
+        bh=66NdWp2CtQXh24sKJMkxOfxG01+moLWkPVs3IXI9yzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMGY+XhIM1TwNGVEVIjvRP1qc/fWrk9DB64BEy01y+IcfkUok5FsZBTnQXjrbTTf5
-         FPFow012kJijFSvtv0fviyMGoLp9If/Bc0tXhIosIWOjr3KxIpyoxCPv5NH0azv2ah
-         q8m64k8TxsXBJz024qjbHwxfGb7qk2QDYWGG4EDsejAFcuKonGos1Z5FL1qhvr9vIQ
-         je3koTv5kO0mrEJfAFI1RUKz3qcq3YoIwts1Q+wIFNDnN/SJ0ChZXgq3zYVYBtoABS
-         xnZswOT4YHVkt04abg0efSQQLZfb/SmNYY8HqohPxQ0mLRAcTcIpmG1QwMM3j1Zle3
-         HEZ4PRvQockgg==
+        b=Ymxtkrp4sdiJDs8wXZDVj0FCJ8PijQm6GllI40hcBPIYDs8PPEOz3Hi1XgHWHnn3Z
+         cMHyj1uDtl0wnpVgt5lxoZrrvG8oBwS7A5/4oxL36yErsc1rShH+7qZ32APV9VWerb
+         sMELwrPHG6lev9+P4IlPBW+grdNcQw4KOUTqofjIPsGkmySMc0nu42GMM3D2wD8hae
+         s4l2xRga0n7m0M/MBcOd/gWoyFWhUftc0EuqwKdMVJRAyx8prTIqeKM1UROr11liJT
+         OmXadOkHBmNp3d0ZBaR/SDtv4F/GODDoNnoFGuDq1LdqG+hh5wIXolLs73ieLy4Dth
+         mzFH3YH2lXTHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Shiyan <shc_work@mail.ru>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.11 25/51] ASoC: fsl_esai: Fix TDM slot setup for I2S mode
-Date:   Mon, 12 Apr 2021 12:22:30 -0400
-Message-Id: <20210412162256.313524-25-sashal@kernel.org>
+Cc:     Martin Wilck <mwilck@suse.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 26/51] scsi: scsi_transport_srp: Don't block target in SRP_PORT_LOST state
+Date:   Mon, 12 Apr 2021 12:22:31 -0400
+Message-Id: <20210412162256.313524-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162256.313524-1-sashal@kernel.org>
 References: <20210412162256.313524-1-sashal@kernel.org>
@@ -44,47 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shiyan <shc_work@mail.ru>
+From: Martin Wilck <mwilck@suse.com>
 
-[ Upstream commit e7a48c710defa0e0fef54d42b7d9e4ab596e2761 ]
+[ Upstream commit 5cd0f6f57639c5afbb36100c69281fee82c95ee7 ]
 
-When using the driver in I2S TDM mode, the fsl_esai_startup()
-function rewrites the number of slots previously set by the
-fsl_esai_set_dai_tdm_slot() function to 2.
-To fix this, let's use the saved slot count value or, if TDM
-is not used and the number of slots is not set, the driver will use
-the default value (2), which is set by fsl_esai_probe().
+rport_dev_loss_timedout() sets the rport state to SRP_PORT_LOST and the
+SCSI target state to SDEV_TRANSPORT_OFFLINE. If this races with
+srp_reconnect_work(), a warning is printed:
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Link: https://lore.kernel.org/r/20210402081405.9892-1-shc_work@mail.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Mar 27 18:48:07 ictm1604s01h4 kernel: dev_loss_tmo expired for SRP port-18:1 / host18.
+Mar 27 18:48:07 ictm1604s01h4 kernel: ------------[ cut here ]------------
+Mar 27 18:48:07 ictm1604s01h4 kernel: scsi_internal_device_block(18:0:0:100) failed: ret = -22
+Mar 27 18:48:07 ictm1604s01h4 kernel: Call Trace:
+Mar 27 18:48:07 ictm1604s01h4 kernel:  ? scsi_target_unblock+0x50/0x50 [scsi_mod]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  starget_for_each_device+0x80/0xb0 [scsi_mod]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  target_block+0x24/0x30 [scsi_mod]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  device_for_each_child+0x57/0x90
+Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_rport+0xe4/0x230 [scsi_transport_srp]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_work+0x40/0xc0 [scsi_transport_srp]
+
+Avoid this by not trying to block targets for rports in SRP_PORT_LOST
+state.
+
+Link: https://lore.kernel.org/r/20210401091105.8046-1-mwilck@suse.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_esai.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_transport_srp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
-index 39637ca78cdb..9f5f217a9607 100644
---- a/sound/soc/fsl/fsl_esai.c
-+++ b/sound/soc/fsl/fsl_esai.c
-@@ -524,11 +524,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
- 				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
- 				   ESAI_SAICR_SYNC : 0);
- 
--		/* Set a default slot number -- 2 */
-+		/* Set slots count */
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 	}
- 
- 	return 0;
+diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
+index 1e939a2a387f..98a34ed10f1a 100644
+--- a/drivers/scsi/scsi_transport_srp.c
++++ b/drivers/scsi/scsi_transport_srp.c
+@@ -541,7 +541,7 @@ int srp_reconnect_rport(struct srp_rport *rport)
+ 	res = mutex_lock_interruptible(&rport->mutex);
+ 	if (res)
+ 		goto out;
+-	if (rport->state != SRP_RPORT_FAIL_FAST)
++	if (rport->state != SRP_RPORT_FAIL_FAST && rport->state != SRP_RPORT_LOST)
+ 		/*
+ 		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
+ 		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
 -- 
 2.30.2
 
