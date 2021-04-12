@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8BC35CD95
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7BBB35CD98
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244575AbhDLQh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:37:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37282 "EHLO mail.kernel.org"
+        id S244071AbhDLQha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:37:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245004AbhDLQdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:33:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AE9161289;
-        Mon, 12 Apr 2021 16:26:39 +0000 (UTC)
+        id S245024AbhDLQdo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:33:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C61C761382;
+        Mon, 12 Apr 2021 16:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244800;
-        bh=XF0W1zw6r+F5IA4XB/x4MfRBToh8z+eAEiLFBa2hqxU=;
+        s=k20201202; t=1618244801;
+        bh=T2hsz0iNzxTpVAnJMcYS+cEgpIMXBXsh1fhOrLclxag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHSMHsNXqTUf4bpkhMkWk4GQS8d41HuptkfnwNTGUij+Ud+twkiVD92Mn6zAif2rE
-         7/6DvbFFF7APsXXi3DX8Z+GbL4Fs9r0jNptdKYFLFOAQg/SuM7DBG2p30Ytr/vq2Ml
-         uwvUudPLTjgKuBXl901zPHGchS5zTCkwZtv2wA3mI2n/3Y9uB+ZOW9qaeEL28B9BvC
-         di16aeoMlS0m5lhufX43fXsno/+DzS2+c0T0hxqx1hOfKF/DV2T0Bi5hm4/7n4/hv1
-         0/waz143M89DzzMTrz7UHUAx4U7gvSTvkLEMQJFaki5qyWhaJRzLyIiW7XxbdoZ2vt
-         l6uYjJa/aDM3A==
+        b=p+d1KDgLhSz3/B5bbyAog+1Pr+BaUpviL2JZztNOgcpXwaXH7TkeIt0NsSYjqOTnk
+         mCfTdgdGJgpZruTu7+fG/g8MNwVgEuMn74DiP5FJTu2ewvVtThiZdGv6Stmbq8MuIS
+         UGgzjIOhQigPD+5z6GtwS3pK3Xqt7L3fRFOs4+pzr89qtnt3e+KIhgo2NfSx324OmR
+         KBmypP7VZJT2WNqIBE6fwCO3myRNA/GriG/Pf6eOPFLtJj4MPQtDoi7i9Nq09i2ifd
+         YAC+FE8m2R2Em0xJJTk20WJT0PaXpc5RXSF2gAih/8J2R+vm+Jh/Rr5LIz2l0rE35d
+         7kKVgrZSpgG/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+91adee8d9ebb9193d22d@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 07/25] drivers: net: fix memory leak in peak_usb_create_dev
-Date:   Mon, 12 Apr 2021 12:26:12 -0400
-Message-Id: <20210412162630.315526-7-sashal@kernel.org>
+Cc:     Alexander Shiyan <shc_work@mail.ru>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 08/25] ASoC: fsl_esai: Fix TDM slot setup for I2S mode
+Date:   Mon, 12 Apr 2021 12:26:13 -0400
+Message-Id: <20210412162630.315526-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162630.315526-1-sashal@kernel.org>
 References: <20210412162630.315526-1-sashal@kernel.org>
@@ -44,55 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Alexander Shiyan <shc_work@mail.ru>
 
-[ Upstream commit a0b96b4a62745397aee662670cfc2157bac03f55 ]
+[ Upstream commit e7a48c710defa0e0fef54d42b7d9e4ab596e2761 ]
 
-syzbot reported memory leak in peak_usb.
-The problem was in case of failure after calling
-->dev_init()[2] in peak_usb_create_dev()[1]. The data
-allocated int dev_init() wasn't freed, so simple
-->dev_free() call fix this problem.
+When using the driver in I2S TDM mode, the fsl_esai_startup()
+function rewrites the number of slots previously set by the
+fsl_esai_set_dai_tdm_slot() function to 2.
+To fix this, let's use the saved slot count value or, if TDM
+is not used and the number of slots is not set, the driver will use
+the default value (2), which is set by fsl_esai_probe().
 
-backtrace:
-    [<0000000079d6542a>] kmalloc include/linux/slab.h:552 [inline]
-    [<0000000079d6542a>] kzalloc include/linux/slab.h:682 [inline]
-    [<0000000079d6542a>] pcan_usb_fd_init+0x156/0x210 drivers/net/can/usb/peak_usb/pcan_usb_fd.c:868   [2]
-    [<00000000c09f9057>] peak_usb_create_dev drivers/net/can/usb/peak_usb/pcan_usb_core.c:851 [inline] [1]
-    [<00000000c09f9057>] peak_usb_probe+0x389/0x490 drivers/net/can/usb/peak_usb/pcan_usb_core.c:949
-
-Reported-by: syzbot+91adee8d9ebb9193d22d@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/20210402081405.9892-1-shc_work@mail.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/fsl/fsl_esai.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index c9d86d50bf88..3c73eaae5388 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -882,7 +882,7 @@ static int peak_usb_create_dev(const struct peak_usb_adapter *peak_usb_adapter,
- 	if (dev->adapter->dev_set_bus) {
- 		err = dev->adapter->dev_set_bus(dev, 0);
- 		if (err)
--			goto lbl_unregister_candev;
-+			goto adap_dev_free;
+diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
+index 6152ae24772b..3ac87f7843f6 100644
+--- a/sound/soc/fsl/fsl_esai.c
++++ b/sound/soc/fsl/fsl_esai.c
+@@ -494,11 +494,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
+ 				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
+ 				   ESAI_SAICR_SYNC : 0);
+ 
+-		/* Set a default slot number -- 2 */
++		/* Set slots count */
+ 		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCCR,
+-				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
++				   ESAI_xCCR_xDC_MASK,
++				   ESAI_xCCR_xDC(esai_priv->slots));
+ 		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCCR,
+-				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
++				   ESAI_xCCR_xDC_MASK,
++				   ESAI_xCCR_xDC(esai_priv->slots));
  	}
  
- 	/* get device number early */
-@@ -894,6 +894,10 @@ static int peak_usb_create_dev(const struct peak_usb_adapter *peak_usb_adapter,
- 
  	return 0;
- 
-+adap_dev_free:
-+	if (dev->adapter->dev_free)
-+		dev->adapter->dev_free(dev);
-+
- lbl_unregister_candev:
- 	unregister_candev(netdev);
- 
 -- 
 2.30.2
 
