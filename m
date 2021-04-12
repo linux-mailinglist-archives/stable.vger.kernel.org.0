@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4435E35BE25
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9D4635BD55
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238747AbhDLI5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
+        id S237847AbhDLIvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238890AbhDLIzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CA5661371;
-        Mon, 12 Apr 2021 08:53:38 +0000 (UTC)
+        id S238072AbhDLIrc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:47:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E360961263;
+        Mon, 12 Apr 2021 08:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217619;
-        bh=hL28yrMRsRB24o/40aYluezkCGAQvP8h6jL6QnsmLFk=;
+        s=korg; t=1618217234;
+        bh=A6NMrUo9PzqV0g+b+1ZLkVLe2KvddtC4M4PTT5zRk5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVROdIJPmAphJP1R8UwQ4YxmNIGjEabg7lBcDX+UeMMkp6KiBZMZifi7FgI3CPPu7
-         2GAypSrjPbFePXSrDH4VBkXbYixCdHsw8ldfehny8fLKK2rQPOQ86CfDz5S64/JOFF
-         h6shesv6cqaMPLOVocwc7bQSeEkZOlymSD/gPZhs=
+        b=Cv1QkSUzQ8lFr45VAPGAV7GArAkJsp1I0F+igKhB6PsjYYJePayZ+f2y9NKzUjsjo
+         t+w82B4VnfLEKi3Hw1EgyrIvrdEw9BCoBvif2hZhI1j56z9sfWfzol4lzTuSz6vpSq
+         LzcPHNeqVlYBUP7nnr5mTYMWra7qQ5IQCFyuRrpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Feiner <pfeiner@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Gardon <bgardon@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 082/188] KVM: x86/mmu: change TDP MMU yield function returns to match cond_resched
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 018/111] parisc: parisc-agp requires SBA IOMMU driver
 Date:   Mon, 12 Apr 2021 10:39:56 +0200
-Message-Id: <20210412084016.370076281@linuxfoundation.org>
+Message-Id: <20210412084004.830138154@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,112 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit e28a436ca4f65384cceaf3f4da0e00aa74244e6a ]
+commit 9054284e8846b0105aad43a4e7174ca29fffbc44 upstream.
 
-Currently the TDP MMU yield / cond_resched functions either return
-nothing or return true if the TLBs were not flushed. These are confusing
-semantics, especially when making control flow decisions in calling
-functions.
+Add a dependency to the SBA IOMMU driver to avoid:
+ERROR: modpost: "sba_list" [drivers/char/agp/parisc-agp.ko] undefined!
 
-To clean things up, change both functions to have the same
-return value semantics as cond_resched: true if the thread yielded,
-false if it did not. If the function yielded in the _flush_ version,
-then the TLBs will have been flushed.
-
-Reviewed-by: Peter Feiner <pfeiner@google.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20210202185734.1680553-2-bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 39 ++++++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 10 deletions(-)
+ drivers/char/agp/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index ffa0bd0e033f..22efd016f05e 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -405,8 +405,15 @@ static inline void tdp_mmu_set_spte_no_dirty_log(struct kvm *kvm,
- 			 _mmu->shadow_root_level, _start, _end)
+--- a/drivers/char/agp/Kconfig
++++ b/drivers/char/agp/Kconfig
+@@ -125,7 +125,7 @@ config AGP_HP_ZX1
  
- /*
-- * Flush the TLB if the process should drop kvm->mmu_lock.
-- * Return whether the caller still needs to flush the tlb.
-+ * Flush the TLB and yield if the MMU lock is contended or this thread needs to
-+ * return control to the scheduler.
-+ *
-+ * If this function yields, it will also reset the tdp_iter's walk over the
-+ * paging structure and the calling function should allow the iterator to
-+ * continue its traversal from the paging structure root.
-+ *
-+ * Return true if this function yielded, the TLBs were flushed, and the
-+ * iterator's traversal was reset. Return false if a yield was not needed.
-  */
- static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
- {
-@@ -414,18 +421,32 @@ static bool tdp_mmu_iter_flush_cond_resched(struct kvm *kvm, struct tdp_iter *it
- 		kvm_flush_remote_tlbs(kvm);
- 		cond_resched_lock(&kvm->mmu_lock);
- 		tdp_iter_refresh_walk(iter);
--		return false;
--	} else {
- 		return true;
- 	}
-+
-+	return false;
- }
- 
--static void tdp_mmu_iter_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
-+/*
-+ * Yield if the MMU lock is contended or this thread needs to return control
-+ * to the scheduler.
-+ *
-+ * If this function yields, it will also reset the tdp_iter's walk over the
-+ * paging structure and the calling function should allow the iterator to
-+ * continue its traversal from the paging structure root.
-+ *
-+ * Return true if this function yielded and the iterator's traversal was reset.
-+ * Return false if a yield was not needed.
-+ */
-+static bool tdp_mmu_iter_cond_resched(struct kvm *kvm, struct tdp_iter *iter)
- {
- 	if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
- 		cond_resched_lock(&kvm->mmu_lock);
- 		tdp_iter_refresh_walk(iter);
-+		return true;
- 	}
-+
-+	return false;
- }
- 
- /*
-@@ -461,10 +482,8 @@ static bool zap_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 
- 		tdp_mmu_set_spte(kvm, &iter, 0);
- 
--		if (can_yield)
--			flush_needed = tdp_mmu_iter_flush_cond_resched(kvm, &iter);
--		else
--			flush_needed = true;
-+		flush_needed = !can_yield ||
-+			       !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
- 	}
- 	return flush_needed;
- }
-@@ -1061,7 +1080,7 @@ static void zap_collapsible_spte_range(struct kvm *kvm,
- 
- 		tdp_mmu_set_spte(kvm, &iter, 0);
- 
--		spte_set = tdp_mmu_iter_flush_cond_resched(kvm, &iter);
-+		spte_set = !tdp_mmu_iter_flush_cond_resched(kvm, &iter);
- 	}
- 
- 	if (spte_set)
--- 
-2.30.2
-
+ config AGP_PARISC
+ 	tristate "HP Quicksilver AGP support"
+-	depends on AGP && PARISC && 64BIT
++	depends on AGP && PARISC && 64BIT && IOMMU_SBA
+ 	help
+ 	  This option gives you AGP GART support for the HP Quicksilver
+ 	  AGP bus adapter on HP PA-RISC machines (Ok, just on the C8000
 
 
