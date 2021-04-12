@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58A4235BC68
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 218A535BE44
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237381AbhDLImr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:42:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34062 "EHLO mail.kernel.org"
+        id S238267AbhDLI5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237301AbhDLImq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:42:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E0316120F;
-        Mon, 12 Apr 2021 08:42:27 +0000 (UTC)
+        id S239008AbhDLIzV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A59161019;
+        Mon, 12 Apr 2021 08:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618216947;
-        bh=Pssl+L1Ni8KwTl834n12ZJfzUk4qjK5DT37VcSCaQfE=;
+        s=korg; t=1618217681;
+        bh=mHIS/D49/QscuLdBoE+4BuR7o/XM6yigLTtgCcvlugM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uqj6lyl8P53a0NkWxY3nqEylHpKo6+Xkq/ejqQikSMFaH2+sNqWNM5fp1Br6cx3Aa
-         kRnYBqNlu002Oqt8BUZuteAZO9LHilGpPgtmepWIKs0WSsEDw9SoCjkTygUOSzOhAj
-         KjcwO8kHaFrYYqQmwo27WZFRStUp31mW55vqwmYw=
+        b=BiUZyWf72ReocSqCng4oSgJCXw5OGMZGkHpJHN2L43+WSWRs4wwodzzpBwfb3mVkp
+         ezUhOo6UtBN+qUJbfgoB7u0lUNKJlpm0NSaLQ+7QBTvhGA6F80EYCBaRG3jlS74yrC
+         5uxAEGMNmTVnNo8mSqeGbqEoCin1jI2C8MgIvIcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
-        Helge Deller <deller@gmx.de>, Gao Xiang <hsiangkao@redhat.com>
-Subject: [PATCH 4.19 14/66] parisc: avoid a warning on u8 cast for cmpxchg on u8 pointers
-Date:   Mon, 12 Apr 2021 10:40:20 +0200
-Message-Id: <20210412083958.590701378@linuxfoundation.org>
+        stable@vger.kernel.org, Eryk Rybak <eryk.roch.rybak@intel.com>,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 107/188] i40e: Fix kernel oops when i40e driver removes VFs
+Date:   Mon, 12 Apr 2021 10:40:21 +0200
+Message-Id: <20210412084017.201249432@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Eryk Rybak <eryk.roch.rybak@intel.com>
 
-commit 4d752e5af63753ab5140fc282929b98eaa4bd12e upstream.
+[ Upstream commit 347b5650cd158d1d953487cc2bec567af5c5bf96 ]
 
-commit b344d6a83d01 ("parisc: add support for cmpxchg on u8 pointers")
-can generate a sparse warning ("cast truncates bits from constant
-value"), which has been reported several times [1] [2] [3].
+Fix the reason of kernel oops when i40e driver removed VFs.
+Added new __I40E_VFS_RELEASING state to signalize releasing
+process by PF, that it makes possible to exit of reset VF procedure.
+Without this patch, it is possible to suspend the VFs reset by
+releasing VFs resources procedure. Retrying the reset after the
+timeout works on the freed VF memory causing a kernel oops.
 
-The original code worked as expected, but anyway, let silence such
-sparse warning as what others did [4].
-
-[1] https://lore.kernel.org/r/202104061220.nRMBwCXw-lkp@intel.com
-[2] https://lore.kernel.org/r/202012291914.T5Agcn99-lkp@intel.com
-[3] https://lore.kernel.org/r/202008210829.KVwn7Xeh%25lkp@intel.com
-[4] https://lore.kernel.org/r/20210315131512.133720-2-jacopo+renesas@jmondi.org
-Cc: Liam Beguin <liambeguin@gmail.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d43d60e5eb95 ("i40e: ensure reset occurs when disabling VF")
+Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/cmpxchg.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e.h             | 1 +
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 9 +++++++++
+ 2 files changed, 10 insertions(+)
 
---- a/arch/parisc/include/asm/cmpxchg.h
-+++ b/arch/parisc/include/asm/cmpxchg.h
-@@ -72,7 +72,7 @@ __cmpxchg(volatile void *ptr, unsigned l
- #endif
- 	case 4: return __cmpxchg_u32((unsigned int *)ptr,
- 				     (unsigned int)old, (unsigned int)new_);
--	case 1: return __cmpxchg_u8((u8 *)ptr, (u8)old, (u8)new_);
-+	case 1: return __cmpxchg_u8((u8 *)ptr, old & 0xff, new_ & 0xff);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
+index 118473dfdcbd..fe1258778cbc 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -142,6 +142,7 @@ enum i40e_state_t {
+ 	__I40E_VIRTCHNL_OP_PENDING,
+ 	__I40E_RECOVERY_MODE,
+ 	__I40E_VF_RESETS_DISABLED,	/* disable resets during i40e_remove */
++	__I40E_VFS_RELEASING,
+ 	/* This must be last as it determines the size of the BITMAP */
+ 	__I40E_STATE_SIZE__,
+ };
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 3b269c70dcfe..e4f13a49c3df 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -137,6 +137,7 @@ void i40e_vc_notify_vf_reset(struct i40e_vf *vf)
+  **/
+ static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
+ {
++	struct i40e_pf *pf = vf->pf;
+ 	int i;
+ 
+ 	i40e_vc_notify_vf_reset(vf);
+@@ -147,6 +148,11 @@ static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
+ 	 * ensure a reset.
+ 	 */
+ 	for (i = 0; i < 20; i++) {
++		/* If PF is in VFs releasing state reset VF is impossible,
++		 * so leave it.
++		 */
++		if (test_bit(__I40E_VFS_RELEASING, pf->state))
++			return;
+ 		if (i40e_reset_vf(vf, false))
+ 			return;
+ 		usleep_range(10000, 20000);
+@@ -1574,6 +1580,8 @@ void i40e_free_vfs(struct i40e_pf *pf)
+ 
+ 	if (!pf->vf)
+ 		return;
++
++	set_bit(__I40E_VFS_RELEASING, pf->state);
+ 	while (test_and_set_bit(__I40E_VF_DISABLE, pf->state))
+ 		usleep_range(1000, 2000);
+ 
+@@ -1631,6 +1639,7 @@ void i40e_free_vfs(struct i40e_pf *pf)
+ 		}
  	}
- 	__cmpxchg_called_with_bad_pointer();
- 	return old;
+ 	clear_bit(__I40E_VF_DISABLE, pf->state);
++	clear_bit(__I40E_VFS_RELEASING, pf->state);
+ }
+ 
+ #ifdef CONFIG_PCI_IOV
+-- 
+2.30.2
+
 
 
