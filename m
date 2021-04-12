@@ -2,19 +2,19 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4FA235B92C
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 05:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9692B35B92D
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 05:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235366AbhDLD6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 23:58:05 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:51987 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235261AbhDLD6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 23:58:05 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R511e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0UVD5kgn_1618199860;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UVD5kgn_1618199860)
+        id S235386AbhDLD71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 23:59:27 -0400
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:54952 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235261AbhDLD71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Apr 2021 23:59:27 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0UVDAH8A_1618199943;
+Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UVDAH8A_1618199943)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 12 Apr 2021 11:57:46 +0800
+          Mon, 12 Apr 2021 11:59:08 +0800
 From:   Wen Yang <wenyang@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
@@ -26,11 +26,11 @@ Cc:     stable <stable@vger.kernel.org>, Hugh Dickins <hughd@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Chen si <cici.cs@alibaba-inc.com>,
         Baoyou Xie <baoyou.xie@aliyun.com>,
-        Wen Yang <wenyang@linux.alibaba.org>,
+        Wen Yang <wenyang@linux.alibaba.com>,
         Zijiang Huang <zijiang.hzj@alibaba-inc.com>
-Subject: [PATCH 4.9] mm: add cond_resched() in gather_pte_stats()
-Date:   Mon, 12 Apr 2021 11:57:31 +0800
-Message-Id: <20210412035731.82811-1-wenyang@linux.alibaba.com>
+Subject: [RESEND PATCH 4.9] mm: add cond_resched() in gather_pte_stats()
+Date:   Mon, 12 Apr 2021 11:58:57 +0800
+Message-Id: <20210412035857.82868-1-wenyang@linux.alibaba.com>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: <stable@vger.kernel.org> # 4.9.x
 Reported-by: Chen si <cici.cs@alibaba-inc.com>
 Signed-off-by: Baoyou Xie <baoyou.xie@aliyun.com>
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.org>
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 Signed-off-by: Zijiang Huang <zijiang.hzj@alibaba-inc.com>
 ---
  fs/proc/task_mmu.c | 1 +
