@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B4235BD9A
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5818835BCD6
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238545AbhDLIwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:52:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
+        id S237599AbhDLIpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:45:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238708AbhDLIu2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:50:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEEC8611F0;
-        Mon, 12 Apr 2021 08:50:10 +0000 (UTC)
+        id S237703AbhDLIpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:45:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E270461220;
+        Mon, 12 Apr 2021 08:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217411;
-        bh=7khwu2IG/1lnTGfD54GNj/hWdGYeQlKlWGEELSEg1Nc=;
+        s=korg; t=1618217093;
+        bh=Gt20V2s5jj6Up8T6Kx2mBVp/43wT6Z9lSPTgr8Wk9iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKu7emLZspIJwwprmLjfaBGErmE50scgz7uGOzHCxBIDCog4wzA1Aj5A+QJwzuktj
-         Ye6VoWbyyak6LMAA/9Kxh9lYH5LXSVpMuSa2fOaUWCunT6EkoNNHwGgjPOREH0Qt0K
-         vWHiRFvvNtOxgXQjGQ+WwwCXPmYXZ+kZrE0x7Dho=
+        b=su6YiCZEhXlOx4ApCgofCnognUQ4gK9BZZOHBtLNRGPKA/SNFO/diYQnDeZKoirN5
+         jnw42Sk4uM3iWqW/P2x+Dpx6XH911WMmk4gZiF3r8d4M/cJXdfHOo3+AXo9M6vPh1/
+         hX3NMef6HF6TnU2+iAlWFzCYOHn+auSpyiqv/Dpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Roche <william.roche@oracle.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 094/111] RAS/CEC: Correct ce_add_elem()s returned values
+        stable@vger.kernel.org, Salvatore Bonaccorso <carnil@debian.org>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 66/66] Revert "cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath."
 Date:   Mon, 12 Apr 2021 10:41:12 +0200
-Message-Id: <20210412084007.383311692@linuxfoundation.org>
+Message-Id: <20210412084000.268096707@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Roche <william.roche@oracle.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 3a62583c2853b0ab37a57dde79decea210b5fb89 upstream.
+This reverts commit 7496d7034a4e1b715c2baf6fe976bbaf7a361106 which is
+commit a738c93fb1c17e386a09304b517b1c6b2a6a5a8b upstream.
 
-ce_add_elem() uses different return values to signal a result from
-adding an element to the collector. Commit in Fixes: broke the case
-where the element being added is not found in the array. Correct that.
+It is reported to cause problems in older kernels, so revert it for now
+until we can figure it out...
 
- [ bp: Rewrite commit message, add kernel-doc comments. ]
-
-Fixes: de0e0624d86f ("RAS/CEC: Check count_threshold unconditionally")
-Signed-off-by: William Roche <william.roche@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/1617722939-29670-1-git-send-email-william.roche@oracle.com
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Link: https://lore.kernel.org/r/YG7r0UaivWZL762N@eldamar.lan
+Cc: Shyam Prasad N <sprasad@microsoft.com>
+Cc: Aurelien Aptel <aaptel@suse.com>
+Cc: Steve French <stfrench@microsoft.com>
+Cc: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ras/cec.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ fs/cifs/connect.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/ras/cec.c
-+++ b/drivers/ras/cec.c
-@@ -309,11 +309,20 @@ static bool sanity_check(struct ce_array
- 	return ret;
- }
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3882,7 +3882,6 @@ int cifs_setup_cifs_sb(struct smb_vol *p
+ 		cifs_sb->prepath = kstrdup(pvolume_info->prepath, GFP_KERNEL);
+ 		if (cifs_sb->prepath == NULL)
+ 			return -ENOMEM;
+-		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_USE_PREFIX_PATH;
+ 	}
  
-+/**
-+ * cec_add_elem - Add an element to the CEC array.
-+ * @pfn:	page frame number to insert
-+ *
-+ * Return values:
-+ * - <0:	on error
-+ * -  0:	on success
-+ * - >0:	when the inserted pfn was offlined
-+ */
- int cec_add_elem(u64 pfn)
- {
- 	struct ce_array *ca = &ce_arr;
-+	int count, err, ret = 0;
- 	unsigned int to = 0;
--	int count, ret = 0;
- 
- 	/*
- 	 * We can be called very early on the identify_cpu() path where we are
-@@ -330,8 +339,8 @@ int cec_add_elem(u64 pfn)
- 	if (ca->n == MAX_ELEMS)
- 		WARN_ON(!del_lru_elem_unlocked(ca));
- 
--	ret = find_elem(ca, pfn, &to);
--	if (ret < 0) {
-+	err = find_elem(ca, pfn, &to);
-+	if (err < 0) {
- 		/*
- 		 * Shift range [to-end] to make room for one more element.
- 		 */
+ 	return 0;
 
 
