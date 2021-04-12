@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE13A35B88B
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E2B35B88C
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236612AbhDLCXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59478 "EHLO mail.kernel.org"
+        id S236608AbhDLCX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236608AbhDLCXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 314E161210;
-        Mon, 12 Apr 2021 02:23:06 +0000 (UTC)
+        id S236613AbhDLCX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1DC96120F;
+        Mon, 12 Apr 2021 02:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194186;
-        bh=yTRJRkQlYhWH758rCJXeHV4yXsnyTdCfgZn05hC8d8Q=;
+        s=k20201202; t=1618194189;
+        bh=BpH8h+0q2wkhE9iSswcz6U7C6wyAmDd/Xq413d2lcAg=;
         h=From:To:Cc:Subject:Date:From;
-        b=fRR/j1XUAAyIJ+iTaQwpZqVkhHvrrtRiT22iFWdFdPavoAj7d0WEmLyKq0s0c+M5G
-         4g9bBvhxWTTMkmzDKnO7ftY26dBuu9VzHqRYeYg6BdoGdRZr/2ClUTijeP8LeTWQ75
-         ZVvUpOA+S6W30pHJkH3v5M0wmv7V57wPQcXAkwtx85hoSeyH3vIGFEY+pxE3GP6jpe
-         TUIS7VlofTrPbKd5vpyju1BY1viT6x1j4pkWKBASNDaywwUAI4JsbhuS/F8wig0Fuv
-         GVd6ShqtaLMxNSvLO+dwQ7M1H6D4SCAtAgEC5LsHQJ+MiaHYBAXDSk4INuOgIgaL9w
-         hA4BVI21gS5Sw==
+        b=UYU3r2cAqbuFmhBfIyNonORjVXj0G88pW7Hgn0oSskppnkjqToPXQvHIQ5NnW8MMa
+         0yKdZMMsw4Q48MZj5GJydb32SfbfORe6PTTSoJLGMXQLfC013qpMdF9n64UEi6/WXH
+         RyzUKPc8QW7cktloowmaFzkisLfLZTk5IhQFx1/igabJB1pNNTA3r5mhLarZnvGssJ
+         ba56hRCgqOQPoXkhbZZsHjLn0NrG/su8aJ4wnOoYWuFPK+yHzo3BaiUL/AIsEKHwv5
+         IGU12fYMx0ZcxTGHboAwj+2f1n6SQ2IC75neZrrWAhY9tFgR1XGf2MEuQYelhgtM9J
+         g0UV2tIfDNTEg==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, eryk.roch.rybak@intel.com
-Cc:     Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: FAILED: Patch "i40e: Fix display statistics for veb_tc" failed to apply to 4.19-stable tree
-Date:   Sun, 11 Apr 2021 22:23:05 -0400
-Message-Id: <20210412022305.283751-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, boon.leong.ong@intel.com
+Cc:     Jesper Dangaard Brouer <brouer@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: FAILED: Patch "xdp: fix xdp_return_frame() kernel BUG throw for page_pool memory model" failed to apply to 4.19-stable tree
+Date:   Sun, 11 Apr 2021 22:23:07 -0400
+Message-Id: <20210412022307.283818-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -51,113 +49,49 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From c3214de929dbf1b7374add8bbed30ce82b197bbb Mon Sep 17 00:00:00 2001
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
-Date: Tue, 2 Mar 2021 08:46:27 +0100
-Subject: [PATCH] i40e: Fix display statistics for veb_tc
+From 622d13694b5f048c01caa7ba548498d9880d4cb0 Mon Sep 17 00:00:00 2001
+From: Ong Boon Leong <boon.leong.ong@intel.com>
+Date: Wed, 31 Mar 2021 21:25:03 +0800
+Subject: [PATCH] xdp: fix xdp_return_frame() kernel BUG throw for page_pool
+ memory model
 
-If veb-stats was enabled, the ethtool stats triggered a warning
-due to invalid size: 'unexpected stat size for veb.tc_%u_tx_packets'.
-This was due to an incorrect structure definition for the statistics.
-Structures and functions have been improved in line with requirements
-for the presentation of statistics, in particular for the functions:
-'i40e_add_ethtool_stats' and 'i40e_add_stat_strings'.
+xdp_return_frame() may be called outside of NAPI context to return
+xdpf back to page_pool. xdp_return_frame() calls __xdp_return() with
+napi_direct = false. For page_pool memory model, __xdp_return() calls
+xdp_return_frame_no_direct() unconditionally and below false negative
+kernel BUG throw happened under preempt-rt build:
 
-Fixes: 1510ae0be2a4 ("i40e: convert VEB TC stats to use an i40e_stats array")
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+[  430.450355] BUG: using smp_processor_id() in preemptible [00000000] code: modprobe/3884
+[  430.451678] caller is __xdp_return+0x1ff/0x2e0
+[  430.452111] CPU: 0 PID: 3884 Comm: modprobe Tainted: G     U      E     5.12.0-rc2+ #45
+
+Changes in v2:
+ - This patch fixes the issue by making xdp_return_frame_no_direct() is
+   only called if napi_direct = true, as recommended for better by
+   Jesper Dangaard Brouer. Thanks!
+
+Fixes: 2539650fadbf ("xdp: Helpers for disabling napi_direct of xdp_return_frame")
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 52 ++++++++++++++++---
- 1 file changed, 46 insertions(+), 6 deletions(-)
+ net/core/xdp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 2c637a5678b3..96d5202a73e8 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -232,6 +232,8 @@ static void __i40e_add_stat_strings(u8 **p, const struct i40e_stats stats[],
- 	I40E_STAT(struct i40e_vsi, _name, _stat)
- #define I40E_VEB_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_veb, _name, _stat)
-+#define I40E_VEB_TC_STAT(_name, _stat) \
-+	I40E_STAT(struct i40e_cp_veb_tc_stats, _name, _stat)
- #define I40E_PFC_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_pfc_stats, _name, _stat)
- #define I40E_QUEUE_STAT(_name, _stat) \
-@@ -266,11 +268,18 @@ static const struct i40e_stats i40e_gstrings_veb_stats[] = {
- 	I40E_VEB_STAT("veb.rx_unknown_protocol", stats.rx_unknown_protocol),
- };
- 
-+struct i40e_cp_veb_tc_stats {
-+	u64 tc_rx_packets;
-+	u64 tc_rx_bytes;
-+	u64 tc_tx_packets;
-+	u64 tc_tx_bytes;
-+};
-+
- static const struct i40e_stats i40e_gstrings_veb_tc_stats[] = {
--	I40E_VEB_STAT("veb.tc_%u_tx_packets", tc_stats.tc_tx_packets),
--	I40E_VEB_STAT("veb.tc_%u_tx_bytes", tc_stats.tc_tx_bytes),
--	I40E_VEB_STAT("veb.tc_%u_rx_packets", tc_stats.tc_rx_packets),
--	I40E_VEB_STAT("veb.tc_%u_rx_bytes", tc_stats.tc_rx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_packets", tc_tx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_bytes", tc_tx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_packets", tc_rx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_bytes", tc_rx_bytes),
- };
- 
- static const struct i40e_stats i40e_gstrings_misc_stats[] = {
-@@ -2217,6 +2226,29 @@ static int i40e_get_sset_count(struct net_device *netdev, int sset)
- 	}
- }
- 
-+/**
-+ * i40e_get_veb_tc_stats - copy VEB TC statistics to formatted structure
-+ * @tc: the TC statistics in VEB structure (veb->tc_stats)
-+ * @i: the index of traffic class in (veb->tc_stats) structure to copy
-+ *
-+ * Copy VEB TC statistics from structure of arrays (veb->tc_stats) to
-+ * one dimensional structure i40e_cp_veb_tc_stats.
-+ * Produce formatted i40e_cp_veb_tc_stats structure of the VEB TC
-+ * statistics for the given TC.
-+ **/
-+static struct i40e_cp_veb_tc_stats
-+i40e_get_veb_tc_stats(struct i40e_veb_tc_stats *tc, unsigned int i)
-+{
-+	struct i40e_cp_veb_tc_stats veb_tc = {
-+		.tc_rx_packets = tc->tc_rx_packets[i],
-+		.tc_rx_bytes = tc->tc_rx_bytes[i],
-+		.tc_tx_packets = tc->tc_tx_packets[i],
-+		.tc_tx_bytes = tc->tc_tx_bytes[i],
-+	};
-+
-+	return veb_tc;
-+}
-+
- /**
-  * i40e_get_pfc_stats - copy HW PFC statistics to formatted structure
-  * @pf: the PF device structure
-@@ -2301,8 +2333,16 @@ static void i40e_get_ethtool_stats(struct net_device *netdev,
- 			       i40e_gstrings_veb_stats);
- 
- 	for (i = 0; i < I40E_MAX_TRAFFIC_CLASS; i++)
--		i40e_add_ethtool_stats(&data, veb_stats ? veb : NULL,
--				       i40e_gstrings_veb_tc_stats);
-+		if (veb_stats) {
-+			struct i40e_cp_veb_tc_stats veb_tc =
-+				i40e_get_veb_tc_stats(&veb->tc_stats, i);
-+
-+			i40e_add_ethtool_stats(&data, &veb_tc,
-+					       i40e_gstrings_veb_tc_stats);
-+		} else {
-+			i40e_add_ethtool_stats(&data, NULL,
-+					       i40e_gstrings_veb_tc_stats);
-+		}
- 
- 	i40e_add_ethtool_stats(&data, pf, i40e_gstrings_stats);
- 
+diff --git a/net/core/xdp.c b/net/core/xdp.c
+index 05354976c1fc..858276e72c68 100644
+--- a/net/core/xdp.c
++++ b/net/core/xdp.c
+@@ -350,7 +350,8 @@ static void __xdp_return(void *data, struct xdp_mem_info *mem, bool napi_direct,
+ 		/* mem->id is valid, checked in xdp_rxq_info_reg_mem_model() */
+ 		xa = rhashtable_lookup(mem_id_ht, &mem->id, mem_id_rht_params);
+ 		page = virt_to_head_page(data);
+-		napi_direct &= !xdp_return_frame_no_direct();
++		if (napi_direct && xdp_return_frame_no_direct())
++			napi_direct = false;
+ 		page_pool_put_full_page(xa->page_pool, page, napi_direct);
+ 		rcu_read_unlock();
+ 		break;
 -- 
 2.30.2
 
