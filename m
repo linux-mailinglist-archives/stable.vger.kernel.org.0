@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B4F35B888
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3C135B889
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 04:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236609AbhDLCXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Apr 2021 22:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
+        id S236610AbhDLCXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Apr 2021 22:23:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236608AbhDLCXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Apr 2021 22:23:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E046120E;
-        Mon, 12 Apr 2021 02:22:59 +0000 (UTC)
+        id S236608AbhDLCXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Apr 2021 22:23:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 889186120F;
+        Mon, 12 Apr 2021 02:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618194179;
-        bh=r5Pp5vMF3jRTvmUFxQvpbjidG/9lfq3U5nVw6SXn5LY=;
+        s=k20201202; t=1618194182;
+        bh=F/1qehbeTQ9FMyWP+b2I7kh8gor8lI7M2/T8+rBRT+Q=;
         h=From:To:Cc:Subject:Date:From;
-        b=nhGBwcc3Qe6yZSql7odotCJEmrCvG2JndUaFBZ/IxcTHTxbBPkqP2XhxsiblpnIWF
-         ZPreTjuMq4vDXrQcKTPiXnCdVOdGO3GTd6qYFyq5CN0GEnYkW5tB+0yDx61b/g++0V
-         loeFa4WXOyQL3EL7GBoTHTwwRdDg6s/GsSAVSw/uMnygbvb8yE9QYVfmE2xUJeYXdA
-         tH9OTS/w/7rlZsvHNo9GgE1W/PKMqFPSBa2qt+xjVYgvBj/9g2TVYK2OkMKTbKg5/c
-         5oOnExpPPaxaVDyJ0PxCsB36M7ea4RnHHOPNrun6WyOy0+lumZRmPNUXEhTlB2SqRC
-         e5ze/Fa1XCPjQ==
+        b=pyT7Jtb18jhRMVu0o66388hMlIHeGJYLeXr2gLN/XK20yIkpiUfUK2H0KRftV8Jzt
+         UQDRn5zSjL0m/Xm0tz1R2jC9tCwHyzSbq3ZgDGACbxvux82S9YL6m0mJQwDlJY6NM1
+         vv2ce2cdRN25j/FZn4gCmunNhww9/AIC5b8wnZU0WnrSHFz+WtgE6Ua5vuZHspU2OA
+         i5rHix/eC2sFJPwaNiiK44N0IkyvoHLoSnjKzI/14QlDS7OBC9UMFrkWd7Z656Z+wH
+         vE9GK/947PdKR2c9pOlrCA7WoUDKb4G6pK+jN+49uxR6eJCMQ+k0EPaNpXPxpArqYA
+         JKNhb8/Mcfm5g==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, evan.nimmo@alliedtelesis.co.nz
-Cc:     Steffen Klassert <steffen.klassert@secunet.com>
-Subject: FAILED: Patch "xfrm: Use actual socket sk instead of skb socket for xfrm_output_resume" failed to apply to 5.4-stable tree
-Date:   Sun, 11 Apr 2021 22:22:58 -0400
-Message-Id: <20210412022258.283547-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, huangguangbin2@huawei.com
+Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: FAILED: Patch "net: hns3: clear VF down state bit before request link status" failed to apply to 4.19-stable tree
+Date:   Sun, 11 Apr 2021 22:23:00 -0400
+Message-Id: <20210412022300.283614-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -38,7 +39,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -48,150 +49,49 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9ab1265d52314fce1b51e8665ea6dbc9ac1a027c Mon Sep 17 00:00:00 2001
-From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Date: Tue, 2 Mar 2021 08:00:04 +1300
-Subject: [PATCH] xfrm: Use actual socket sk instead of skb socket for
- xfrm_output_resume
+From ed7bedd2c3ca040f1e8ea02c6590a93116b1ec78 Mon Sep 17 00:00:00 2001
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Tue, 6 Apr 2021 21:10:43 +0800
+Subject: [PATCH] net: hns3: clear VF down state bit before request link status
 
-A situation can occur where the interface bound to the sk is different
-to the interface bound to the sk attached to the skb. The interface
-bound to the sk is the correct one however this information is lost inside
-xfrm_output2 and instead the sk on the skb is used in xfrm_output_resume
-instead. This assumes that the sk bound interface and the bound interface
-attached to the sk within the skb are the same which can lead to lookup
-failures inside ip_route_me_harder resulting in the packet being dropped.
+Currently, the VF down state bit is cleared after VF sending
+link status request command. There is problem that when VF gets
+link status replied from PF, the down state bit may still set
+as 1. In this case, the link status replied from PF will be
+ignored and always set VF link status to down.
 
-We have an l2tp v3 tunnel with ipsec protection. The tunnel is in the
-global VRF however we have an encapsulated dot1q tunnel interface that
-is within a different VRF. We also have a mangle rule that marks the
-packets causing them to be processed inside ip_route_me_harder.
+To fix this problem, clear VF down state bit before VF requests
+link status.
 
-Prior to commit 31c70d5956fc ("l2tp: keep original skb ownership") this
-worked fine as the sk attached to the skb was changed from the dot1q
-encapsulated interface to the sk for the tunnel which meant the interface
-bound to the sk and the interface bound to the skb were identical.
-Commit 46d6c5ae953c ("netfilter: use actual socket sk rather than skb sk
-when routing harder") fixed some of these issues however a similar
-problem existed in the xfrm code.
-
-Fixes: 31c70d5956fc ("l2tp: keep original skb ownership")
-Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- include/net/xfrm.h     |  2 +-
- net/ipv4/ah4.c         |  2 +-
- net/ipv4/esp4.c        |  2 +-
- net/ipv6/ah6.c         |  2 +-
- net/ipv6/esp6.c        |  2 +-
- net/xfrm/xfrm_output.c | 10 +++++-----
- 6 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index b2a06f10b62c..bfbc7810df94 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1557,7 +1557,7 @@ int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
- int xfrm_trans_queue(struct sk_buff *skb,
- 		     int (*finish)(struct net *, struct sock *,
- 				   struct sk_buff *));
--int xfrm_output_resume(struct sk_buff *skb, int err);
-+int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err);
- int xfrm_output(struct sock *sk, struct sk_buff *skb);
- 
- #if IS_ENABLED(CONFIG_NET_PKTGEN)
-diff --git a/net/ipv4/ah4.c b/net/ipv4/ah4.c
-index d99e1be94019..36ed85bf2ad5 100644
---- a/net/ipv4/ah4.c
-+++ b/net/ipv4/ah4.c
-@@ -141,7 +141,7 @@ static void ah_output_done(struct crypto_async_request *base, int err)
- 	}
- 
- 	kfree(AH_SKB_CB(skb)->tmp);
--	xfrm_output_resume(skb, err);
-+	xfrm_output_resume(skb->sk, skb, err);
- }
- 
- static int ah_output(struct xfrm_state *x, struct sk_buff *skb)
-diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
-index a3271ec3e162..4b834bbf95e0 100644
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -279,7 +279,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
- 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
- 			esp_output_tail_tcp(x, skb);
- 		else
--			xfrm_output_resume(skb, err);
-+			xfrm_output_resume(skb->sk, skb, err);
- 	}
- }
- 
-diff --git a/net/ipv6/ah6.c b/net/ipv6/ah6.c
-index 440080da805b..080ee7f44c64 100644
---- a/net/ipv6/ah6.c
-+++ b/net/ipv6/ah6.c
-@@ -316,7 +316,7 @@ static void ah6_output_done(struct crypto_async_request *base, int err)
- 	}
- 
- 	kfree(AH_SKB_CB(skb)->tmp);
--	xfrm_output_resume(skb, err);
-+	xfrm_output_resume(skb->sk, skb, err);
- }
- 
- static int ah6_output(struct xfrm_state *x, struct sk_buff *skb)
-diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
-index 153ad103ba74..727d791ed5e6 100644
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -314,7 +314,7 @@ static void esp_output_done(struct crypto_async_request *base, int err)
- 		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
- 			esp_output_tail_tcp(x, skb);
- 		else
--			xfrm_output_resume(skb, err);
-+			xfrm_output_resume(skb->sk, skb, err);
- 	}
- }
- 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index a7ab19353313..b81ca117dac7 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -503,22 +503,22 @@ out:
- 	return err;
- }
- 
--int xfrm_output_resume(struct sk_buff *skb, int err)
-+int xfrm_output_resume(struct sock *sk, struct sk_buff *skb, int err)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 700e068764c8..14b83eca0a5e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2624,14 +2624,14 @@ static int hclgevf_ae_start(struct hnae3_handle *handle)
  {
- 	struct net *net = xs_net(skb_dst(skb)->xfrm);
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
  
- 	while (likely((err = xfrm_output_one(skb, err)) == 0)) {
- 		nf_reset_ct(skb);
++	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
++
+ 	hclgevf_reset_tqp_stats(handle);
  
--		err = skb_dst(skb)->ops->local_out(net, skb->sk, skb);
-+		err = skb_dst(skb)->ops->local_out(net, sk, skb);
- 		if (unlikely(err != 1))
- 			goto out;
+ 	hclgevf_request_link_info(hdev);
  
- 		if (!skb_dst(skb)->xfrm)
--			return dst_output(net, skb->sk, skb);
-+			return dst_output(net, sk, skb);
+ 	hclgevf_update_link_mode(hdev);
  
- 		err = nf_hook(skb_dst(skb)->ops->family,
--			      NF_INET_POST_ROUTING, net, skb->sk, skb,
-+			      NF_INET_POST_ROUTING, net, sk, skb,
- 			      NULL, skb_dst(skb)->dev, xfrm_output2);
- 		if (unlikely(err != 1))
- 			goto out;
-@@ -534,7 +534,7 @@ EXPORT_SYMBOL_GPL(xfrm_output_resume);
- 
- static int xfrm_output2(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
--	return xfrm_output_resume(skb, 1);
-+	return xfrm_output_resume(sk, skb, 1);
+-	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
+-
+ 	return 0;
  }
  
- static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb)
 -- 
 2.30.2
 
