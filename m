@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8179235BEB2
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C80E35C078
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239925AbhDLJBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:01:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48976 "EHLO mail.kernel.org"
+        id S239223AbhDLJNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:13:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238651AbhDLI5E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:57:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 008B861245;
-        Mon, 12 Apr 2021 08:56:24 +0000 (UTC)
+        id S240447AbhDLJKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:10:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 037E561262;
+        Mon, 12 Apr 2021 09:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217785;
-        bh=5jq/VTupzktWayWACX7ynJJ/NNjWONeR96Jdv0AxFcc=;
+        s=korg; t=1618218323;
+        bh=iAZWnZA7BqLxRkTHkezonfcEU90K+fjwvi1PHQyOniE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pv20c4LEsj5f76hr8J7VD/6VfiZfD0LkNpq+D5xE+/nodsDdpRGzPqvf/V/5/A5/H
-         vyWcyIJznfNrAB6Pgv5179cQim9+6DYfPlzdjQOOndsaFXHfLYou22tdTFVZRvile2
-         v4f+KCI3pRF2NZieP+NBkx9Pjap4pte3qGbhpFmo=
+        b=q7zo8CyUgvHeMaqZVy3Ql2Gpmqfke5C1MEJJ9+2Ln3aK5VHqNkguaPmG5RmsQGSVO
+         /48AzQjNqiPLx7n6+ZDs40vfA84/pOXN5ijrzI6c7muoKFHBMjTpxOpSvqqObFregV
+         csW9JsStS+blV3Mv44nP13h+R6MMJLOIqZcJ6USs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Krishna Manikandan <mkrishn@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 145/188] net: macb: restore cmp registers on resume path
+Subject: [PATCH 5.11 154/210] drm/msm: Set drvdata to NULL when msm_drm_init() fails
 Date:   Mon, 12 Apr 2021 10:40:59 +0200
-Message-Id: <20210412084018.448791369@linuxfoundation.org>
+Message-Id: <20210412084021.115588304@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit a14d273ba15968495896a38b7b3399dba66d0270 ]
+[ Upstream commit 5620b135aea49a8f41c86aaecfcb1598a7774121 ]
 
-Restore CMP screener registers on resume path.
+We should set the platform device's driver data to NULL here so that
+code doesn't assume the struct drm_device pointer is valid when it could
+have been destroyed. The lifetime of this pointer is managed by a kref
+but when msm_drm_init() fails we call drm_dev_put() on the pointer which
+will free the pointer's memory. This driver uses the component model, so
+there's sort of two "probes" in this file, one for the platform device
+i.e. msm_pdev_probe() and one for the component i.e. msm_drm_bind(). The
+msm_drm_bind() code is using the platform device's driver data to store
+struct drm_device so the two functions are intertwined.
 
-Fixes: c1e85c6ce57ef ("net: macb: save/restore the remaining registers and features")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This relationship becomes a problem for msm_pdev_shutdown() when it
+tests the NULL-ness of the pointer to see if it should call
+drm_atomic_helper_shutdown(). The NULL test is a proxy check for if the
+pointer has been freed by kref_put(). If the drm_device has been
+destroyed, then we shouldn't call the shutdown helper, and we know that
+is the case if msm_drm_init() failed, therefore set the driver data to
+NULL so that this pointer liveness is tracked properly.
+
+Fixes: 9d5cbf5fe46e ("drm/msm: add shutdown support for display platform_driver")
+Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Krishna Manikandan <mkrishn@codeaurora.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Message-Id: <20210325212822.3663144-1-swboyd@chromium.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/msm/msm_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 286f0341bdf8..48a6bda2a8cc 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -3111,6 +3111,9 @@ static void gem_prog_cmp_regs(struct macb *bp, struct ethtool_rx_flow_spec *fs)
- 	bool cmp_b = false;
- 	bool cmp_c = false;
- 
-+	if (!macb_is_gem(bp))
-+		return;
-+
- 	tp4sp_v = &(fs->h_u.tcp_ip4_spec);
- 	tp4sp_m = &(fs->m_u.tcp_ip4_spec);
- 
-@@ -3479,6 +3482,7 @@ static void macb_restore_features(struct macb *bp)
- {
- 	struct net_device *netdev = bp->dev;
- 	netdev_features_t features = netdev->features;
-+	struct ethtool_rx_fs_item *item;
- 
- 	/* TX checksum offload */
- 	macb_set_txcsum_feature(bp, features);
-@@ -3487,6 +3491,9 @@ static void macb_restore_features(struct macb *bp)
- 	macb_set_rxcsum_feature(bp, features);
- 
- 	/* RX Flow Filters */
-+	list_for_each_entry(item, &bp->rx_fs_list.list, list)
-+		gem_prog_cmp_regs(bp, &item->fs);
-+
- 	macb_set_rxflow_feature(bp, features);
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index a5c6b8c23336..196907689c82 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -570,6 +570,7 @@ err_free_priv:
+ 	kfree(priv);
+ err_put_drm_dev:
+ 	drm_dev_put(ddev);
++	platform_set_drvdata(pdev, NULL);
+ 	return ret;
  }
  
 -- 
