@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2550C35BC95
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC3535BE69
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237546AbhDLIny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:43:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35556 "EHLO mail.kernel.org"
+        id S238603AbhDLI6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:58:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237554AbhDLInr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:43:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F60861241;
-        Mon, 12 Apr 2021 08:43:28 +0000 (UTC)
+        id S238498AbhDLI4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:56:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DA0561261;
+        Mon, 12 Apr 2021 08:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217009;
-        bh=/8jUO7xkaKdefi2LengujBqKyVbjMEW34qTtLHTxNCo=;
+        s=korg; t=1618217767;
+        bh=7RH1ok2hvfmGbJIFz1ZUsEXix6olH5SqdhmzepKwlEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfVSwQdhn2FNIU7eLLLbhFg2KNiDFar/QGQ59+XexVSihnSn3BwVcWfjC8rjdg6Lg
-         7UOmKjnLvqxWGg5hdacf3c/12vqz7zLw+fE59Yj94JiuBYqPXqDxSTOUwP/PBwnmOQ
-         nOgZrszIDRD5bnAlRzto9SBIgkwpwY8Hi772UGbk=
+        b=Ow2WN10cyYNVeF1POKicvdoY+EkxenRTTn0E11E4brQTxp+e2VpUjdKu50oKBe3ji
+         aKuxAeOlZsytMX4mSNLayzD/r9Ls9MsEjDVULZQ8evu6QdhqbPIBWr1BBV+dF4Up24
+         YafMUGbQGwIoEU/emZmPZf+mc/18CnzZFFWiC07k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 09/66] ia64: fix user_stack_pointer() for ptrace()
-Date:   Mon, 12 Apr 2021 10:40:15 +0200
-Message-Id: <20210412083958.439553951@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 102/188] ASoC: SOF: Intel: HDA: fix core status verification
+Date:   Mon, 12 Apr 2021 10:40:16 +0200
+Message-Id: <20210412084017.044364654@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 
-commit 7ad1e366167837daeb93d0bacb57dee820b0b898 upstream.
+[ Upstream commit 927280909fa7d8e61596800d82f18047c6cfbbe4 ]
 
-ia64 has two stacks:
+When checking for enabled cores it isn't enough to check that
+some of the requested cores are running, we have to check that
+all of them are.
 
- - memory stack (or stack), pointed at by by r12
-
- - register backing store (register stack), pointed at by
-   ar.bsp/ar.bspstore with complications around dirty
-   register frame on CPU.
-
-In [1] Dmitry noticed that PTRACE_GET_SYSCALL_INFO returns the register
-stack instead memory stack.
-
-The bug comes from the fact that user_stack_pointer() and
-current_user_stack_pointer() don't return the same register:
-
-  ulong user_stack_pointer(struct pt_regs *regs) { return regs->ar_bspstore; }
-  #define current_user_stack_pointer() (current_pt_regs()->r12)
-
-The change gets both back in sync.
-
-I think ptrace(PTRACE_GET_SYSCALL_INFO) is the only affected user by
-this bug on ia64.
-
-The change fixes 'rt_sigreturn.gen.test' strace test where it was
-observed initially.
-
-Link: https://bugs.gentoo.org/769614 [1]
-Link: https://lkml.kernel.org/r/20210331084447.2561532-1-slyfox@gentoo.org
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Reported-by: Dmitry V. Levin <ldv@altlinux.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 747503b1813a ("ASoC: SOF: Intel: Add Intel specific HDA DSP HW operations")
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210322163728.16616-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/include/asm/ptrace.h |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ sound/soc/sof/intel/hda-dsp.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/arch/ia64/include/asm/ptrace.h
-+++ b/arch/ia64/include/asm/ptrace.h
-@@ -54,8 +54,7 @@
+diff --git a/sound/soc/sof/intel/hda-dsp.c b/sound/soc/sof/intel/hda-dsp.c
+index c731b9bd60b4..85ec4361c8c4 100644
+--- a/sound/soc/sof/intel/hda-dsp.c
++++ b/sound/soc/sof/intel/hda-dsp.c
+@@ -226,10 +226,17 @@ bool hda_dsp_core_is_enabled(struct snd_sof_dev *sdev,
  
- static inline unsigned long user_stack_pointer(struct pt_regs *regs)
- {
--	/* FIXME: should this be bspstore + nr_dirty regs? */
--	return regs->ar_bspstore;
-+	return regs->r12;
- }
+ 	val = snd_sof_dsp_read(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPCS);
  
- static inline int is_syscall_success(struct pt_regs *regs)
-@@ -79,11 +78,6 @@ static inline long regs_return_value(str
- 	unsigned long __ip = instruction_pointer(regs);			\
- 	(__ip & ~3UL) + ((__ip & 3UL) << 2);				\
- })
--/*
-- * Why not default?  Because user_stack_pointer() on ia64 gives register
-- * stack backing store instead...
-- */
--#define current_user_stack_pointer() (current_pt_regs()->r12)
+-	is_enable = (val & HDA_DSP_ADSPCS_CPA_MASK(core_mask)) &&
+-		    (val & HDA_DSP_ADSPCS_SPA_MASK(core_mask)) &&
+-		    !(val & HDA_DSP_ADSPCS_CRST_MASK(core_mask)) &&
+-		    !(val & HDA_DSP_ADSPCS_CSTALL_MASK(core_mask));
++#define MASK_IS_EQUAL(v, m, field) ({	\
++	u32 _m = field(m);		\
++	((v) & _m) == _m;		\
++})
++
++	is_enable = MASK_IS_EQUAL(val, core_mask, HDA_DSP_ADSPCS_CPA_MASK) &&
++		MASK_IS_EQUAL(val, core_mask, HDA_DSP_ADSPCS_SPA_MASK) &&
++		!(val & HDA_DSP_ADSPCS_CRST_MASK(core_mask)) &&
++		!(val & HDA_DSP_ADSPCS_CSTALL_MASK(core_mask));
++
++#undef MASK_IS_EQUAL
  
-   /* given a pointer to a task_struct, return the user's pt_regs */
- # define task_pt_regs(t)		(((struct pt_regs *) ((char *) (t) + IA64_STK_OFFSET)) - 1)
+ 	dev_dbg(sdev->dev, "DSP core(s) enabled? %d : core_mask %x\n",
+ 		is_enable, core_mask);
+-- 
+2.30.2
+
 
 
