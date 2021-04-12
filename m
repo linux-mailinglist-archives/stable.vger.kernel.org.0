@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DE935BE14
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0E4C35BCFC
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238690AbhDLI4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
+        id S237834AbhDLIqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238840AbhDLIy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:54:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7759161369;
-        Mon, 12 Apr 2021 08:53:10 +0000 (UTC)
+        id S237634AbhDLIp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:45:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 021E76125F;
+        Mon, 12 Apr 2021 08:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217591;
-        bh=QV23nfLcDyAHvWzHcAueEE3r3+Nf6a3TBnLb/GZZRiY=;
+        s=korg; t=1618217139;
+        bh=Z6ZjAmFkSw+pemnNntJoY6uvYpYx22InNvuUPMQtpMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nSmznqV2RqJmfMjzy4lKqlvRK+y2y6x/1++9SGUlmkueZz+GmXfDDxfKD2XKOXkSj
-         +v0ZQKAZLL9JQ/x/nHePQ1p2gumQAA2ZSYJZIMAga1iO7ibIXCf4Ma43Z7mKYB6QOM
-         7jvU4Opuwhda6jBIL+VRexCIv9lCtPe8RUdfeYHA=
+        b=EA2Ml/rMrOMwuHLg46PDTcyK3qpSxJzjcTZZLyvmrAviit7nNUfcjVdw2KBcoRDqE
+         IL69+tl044GAQeDMzWPv4QH8tiCYm7Pz/kn4Jo+FyD8Hc3RMksLLvLVY6sERLDVeI+
+         3fofRltDItY1WL+izlGCgiVyHTTa3Vi6TqE62YzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.10 072/188] thunderbolt: Fix off by one in tb_port_find_retimer()
-Date:   Mon, 12 Apr 2021 10:39:46 +0200
-Message-Id: <20210412084016.048474042@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Fancellu <luca.fancellu@arm.com>,
+        Julien Grall <jgrall@amazon.com>, Wei Liu <wei.liu@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.4 009/111] xen/evtchn: Change irq_info lock to raw_spinlock_t
+Date:   Mon, 12 Apr 2021 10:39:47 +0200
+Message-Id: <20210412084004.521866469@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Luca Fancellu <luca.fancellu@arm.com>
 
-commit 08fe7ae1857080f5075df5ac7fef2ecd4e289117 upstream.
+commit d120198bd5ff1d41808b6914e1eb89aff937415c upstream.
 
-This array uses 1-based indexing so it corrupts memory one element
-beyond of the array.  Fix it by making the array one element larger.
+Unmask operation must be called with interrupt disabled,
+on preempt_rt spin_lock_irqsave/spin_unlock_irqrestore
+don't disable/enable interrupts, so use raw_* implementation
+and change lock variable in struct irq_info from spinlock_t
+to raw_spinlock_t
 
-Fixes: dacb12877d92 ("thunderbolt: Add support for on-board retimers")
 Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 25da4618af24 ("xen/events: don't unmask an event channel when an eoi is pending")
+Signed-off-by: Luca Fancellu <luca.fancellu@arm.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/20210406105105.10141-1-luca.fancellu@arm.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/retimer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/events/events_base.c     |   10 +++++-----
+ drivers/xen/events/events_internal.h |    2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/thunderbolt/retimer.c
-+++ b/drivers/thunderbolt/retimer.c
-@@ -406,7 +406,7 @@ static struct tb_retimer *tb_port_find_r
-  */
- int tb_retimer_scan(struct tb_port *port)
- {
--	u32 status[TB_MAX_RETIMER_INDEX] = {};
-+	u32 status[TB_MAX_RETIMER_INDEX + 1] = {};
- 	int ret, i, last_idx = 0;
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -222,7 +222,7 @@ static int xen_irq_info_common_setup(str
+ 	info->evtchn = evtchn;
+ 	info->cpu = cpu;
+ 	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
+-	spin_lock_init(&info->lock);
++	raw_spin_lock_init(&info->lock);
  
- 	if (!port->cap_usb4)
+ 	ret = set_evtchn_to_irq(evtchn, irq);
+ 	if (ret < 0)
+@@ -374,28 +374,28 @@ static void do_mask(struct irq_info *inf
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&info->lock, flags);
++	raw_spin_lock_irqsave(&info->lock, flags);
+ 
+ 	if (!info->mask_reason)
+ 		mask_evtchn(info->evtchn);
+ 
+ 	info->mask_reason |= reason;
+ 
+-	spin_unlock_irqrestore(&info->lock, flags);
++	raw_spin_unlock_irqrestore(&info->lock, flags);
+ }
+ 
+ static void do_unmask(struct irq_info *info, u8 reason)
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&info->lock, flags);
++	raw_spin_lock_irqsave(&info->lock, flags);
+ 
+ 	info->mask_reason &= ~reason;
+ 
+ 	if (!info->mask_reason)
+ 		unmask_evtchn(info->evtchn);
+ 
+-	spin_unlock_irqrestore(&info->lock, flags);
++	raw_spin_unlock_irqrestore(&info->lock, flags);
+ }
+ 
+ #ifdef CONFIG_X86
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -45,7 +45,7 @@ struct irq_info {
+ 	unsigned short eoi_cpu;	/* EOI must happen on this cpu */
+ 	unsigned int irq_epoch;	/* If eoi_cpu valid: irq_epoch of event */
+ 	u64 eoi_time;		/* Time in jiffies when to EOI. */
+-	spinlock_t lock;
++	raw_spinlock_t lock;
+ 
+ 	union {
+ 		unsigned short virq;
 
 
