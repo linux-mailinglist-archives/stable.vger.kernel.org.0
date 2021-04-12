@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC5635BD7A
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3A235BC88
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238201AbhDLIv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
+        id S237529AbhDLIng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:43:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238465AbhDLItz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:49:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B3E61245;
-        Mon, 12 Apr 2021 08:49:05 +0000 (UTC)
+        id S237514AbhDLIn3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:43:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1F32611F0;
+        Mon, 12 Apr 2021 08:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217346;
-        bh=e1abmRRKQrNRlJ15b7+d8+mBQEDWGtuiizmhp4eKoIY=;
+        s=korg; t=1618216990;
+        bh=iUJXmx4n5P1oL4cK38M7geoPVsotHjfKKzyd2moXVoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHRAsjUUXWUryKEgKd1dBM/Lthkoda9mqlN98QwJV2w778BpBtRidc+j1WF646bCX
-         YzgAh7q29+K2qaNXVe2IP6vH0/winIf3FWyNH93yp1n12CwiFRej3UvprqL+YAY8MJ
-         HSyjZXoZZcaonJ8ulen/8sKA1D88mGm5709ASvV4=
+        b=nvyhUP9ZUvzSFjpbc1gT6pzZnzljeNZN7t2LU/UofUybvVvRjTCJgGebRqQrIprIn
+         8DhWHNKdxWH+sMAlrFlmcnqFQcz0mQOe4axb4B+7KWjiWxV4c7dTYrRWWflhH08SXr
+         H2SwTwT4rfktZ3uH6grCUxfRil1w5K0jC21Fcqxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/111] amd-xgbe: Update DMA coherency values
+Subject: [PATCH 4.19 29/66] xfrm: interface: fix ipv4 pmtu check to honor ip header df
 Date:   Mon, 12 Apr 2021 10:40:35 +0200
-Message-Id: <20210412084006.164635352@linuxfoundation.org>
+Message-Id: <20210412083959.074031834@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+References: <20210412083958.129944265@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit d75135082698140a26a56defe1bbc1b06f26a41f ]
+[ Upstream commit 8fc0e3b6a8666d656923d214e4dc791e9a17164a ]
 
-Based on the IOMMU configuration, the current cache control settings can
-result in possible coherency issues. The hardware team has recommended
-new settings for the PCI device path to eliminate the issue.
+Frag needed should only be sent if the header enables DF.
 
-Fixes: 6f595959c095 ("amd-xgbe: Adjust register settings to improve performance")
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This fix allows packets larger than MTU to pass the xfrm interface
+and be fragmented after encapsulation, aligning behavior with
+non-interface xfrm.
+
+Fixes: f203b76d7809 ("xfrm: Add virtual xfrm interfaces")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/xfrm/xfrm_interface.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe.h b/drivers/net/ethernet/amd/xgbe/xgbe.h
-index 47bcbcf58048..0c93a552b921 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe.h
-@@ -181,9 +181,9 @@
- #define XGBE_DMA_SYS_AWCR	0x30303030
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index eae8b9086497..35a020a70985 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -302,6 +302,8 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
  
- /* DMA cache settings - PCI device */
--#define XGBE_DMA_PCI_ARCR	0x00000003
--#define XGBE_DMA_PCI_AWCR	0x13131313
--#define XGBE_DMA_PCI_AWARCR	0x00000313
-+#define XGBE_DMA_PCI_ARCR	0x000f0f0f
-+#define XGBE_DMA_PCI_AWCR	0x0f0f0f0f
-+#define XGBE_DMA_PCI_AWARCR	0x00000f0f
+ 			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+ 		} else {
++			if (!(ip_hdr(skb)->frag_off & htons(IP_DF)))
++				goto xmit;
+ 			icmp_ndo_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
+ 				      htonl(mtu));
+ 		}
+@@ -310,6 +312,7 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
+ 		return -EMSGSIZE;
+ 	}
  
- /* DMA channel interrupt modes */
- #define XGBE_IRQ_MODE_EDGE	0
++xmit:
+ 	xfrmi_scrub_packet(skb, !net_eq(xi->net, dev_net(dev)));
+ 	skb_dst_set(skb, dst);
+ 	skb->dev = tdev;
 -- 
 2.30.2
 
