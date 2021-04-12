@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA15B35BD1C
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E620235BE5B
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237938AbhDLIrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:47:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S238863AbhDLI5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237944AbhDLIqp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:46:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C03C61277;
-        Mon, 12 Apr 2021 08:46:27 +0000 (UTC)
+        id S238568AbhDLIz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA8F161244;
+        Mon, 12 Apr 2021 08:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217187;
-        bh=U+MlsU2lZlh8aZAX434oxPDbvmWbNf+BZ8dLYh0Wy+s=;
+        s=korg; t=1618217739;
+        bh=dp3sJjqaLFb+hTH+4gjTdIJ4GrF/LgqqL1T2O0d3+/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3Uo3YY+tkyRpbhcvZrc3Bw9vxA0Nfj+SHefdliLrPHRk4Iolr7j6DL3oTpMZDIjg
-         jtbSzkU15vNmATn3IZsU3caogMaK0U6WYYB9qfrJe+gR0vYtE+GxcZvuJnLR4kphby
-         52S/DjHdKHggfMzgFMjFewIOZXY+vWrsk7L9yG3o=
+        b=cOClJBnEtQELAzm3arPRHPWqRdzkhgoXMQhcPuvE+kqfJ8MUgyLzcw5cgqnRHc1p5
+         PsjHZjO/+ltDrZYJWZl40rQlp3uYOka78UatSa6vqbcLK/gnNt9ECpsOYzMPzX7l2T
+         cmuYfhskZieqMxEF9km68MJSQbEb/PPY8bWsyu/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 035/111] net: let skb_orphan_partial wake-up waiters.
-Date:   Mon, 12 Apr 2021 10:40:13 +0200
-Message-Id: <20210412084005.421226850@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 100/188] net: xfrm: Localize sequence counter per network namespace
+Date:   Mon, 12 Apr 2021 10:40:14 +0200
+Message-Id: <20210412084016.975473512@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +41,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Ahmed S. Darwish <a.darwish@linutronix.de>
 
-commit 9adc89af724f12a03b47099cd943ed54e877cd59 upstream.
+[ Upstream commit e88add19f68191448427a6e4eb059664650a837f ]
 
-Currently the mentioned helper can end-up freeing the socket wmem
-without waking-up any processes waiting for more write memory.
+A sequence counter write section must be serialized or its internal
+state can get corrupted. The "xfrm_state_hash_generation" seqcount is
+global, but its write serialization lock (net->xfrm.xfrm_state_lock) is
+instantiated per network namespace. The write protection is thus
+insufficient.
 
-If the partially orphaned skb is attached to an UDP (or raw) socket,
-the lack of wake-up can hang the user-space.
+To provide full protection, localize the sequence counter per network
+namespace instead. This should be safe as both the seqcount read and
+write sections access data exclusively within the network namespace. It
+also lays the foundation for transforming "xfrm_state_hash_generation"
+data type from seqcount_t to seqcount_LOCKNAME_t in further commits.
 
-Even for TCP sockets not calling the sk destructor could have bad
-effects on TSQ.
-
-Address the issue using skb_orphan to release the sk wmem before
-setting the new sock_efree destructor. Additionally bundle the
-whole ownership update in a new helper, so that later other
-potential users could avoid duplicate code.
-
-v1 -> v2:
- - use skb_orphan() instead of sort of open coding it (Eric)
- - provide an helper for the ownership change (Eric)
-
-Fixes: f6ba8d33cfbb ("netem: fix skb_orphan_partial()")
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b65e3d7be06f ("xfrm: state: add sequence count to detect hash resizes")
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h |    9 +++++++++
- net/core/sock.c    |   12 +++---------
- 2 files changed, 12 insertions(+), 9 deletions(-)
+ include/net/netns/xfrm.h |  4 +++-
+ net/xfrm/xfrm_state.c    | 10 +++++-----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2150,6 +2150,15 @@ static inline void skb_set_owner_r(struc
- 	sk_mem_charge(sk, skb->truesize);
- }
- 
-+static inline void skb_set_owner_sk_safe(struct sk_buff *skb, struct sock *sk)
-+{
-+	if (sk && refcount_inc_not_zero(&sk->sk_refcnt)) {
-+		skb_orphan(skb);
-+		skb->destructor = sock_efree;
-+		skb->sk = sk;
-+	}
-+}
+diff --git a/include/net/netns/xfrm.h b/include/net/netns/xfrm.h
+index 59f45b1e9dac..b59d73d529ba 100644
+--- a/include/net/netns/xfrm.h
++++ b/include/net/netns/xfrm.h
+@@ -72,7 +72,9 @@ struct netns_xfrm {
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	struct dst_ops		xfrm6_dst_ops;
+ #endif
+-	spinlock_t xfrm_state_lock;
++	spinlock_t		xfrm_state_lock;
++	seqcount_t		xfrm_state_hash_generation;
 +
- void sk_reset_timer(struct sock *sk, struct timer_list *timer,
- 		    unsigned long expires);
+ 	spinlock_t xfrm_policy_lock;
+ 	struct mutex xfrm_cfg_mutex;
+ };
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 2f1517827995..77499abd9f99 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -44,7 +44,6 @@ static void xfrm_state_gc_task(struct work_struct *work);
+  */
  
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2026,16 +2026,10 @@ void skb_orphan_partial(struct sk_buff *
- 	if (skb_is_tcp_pure_ack(skb))
- 		return;
+ static unsigned int xfrm_state_hashmax __read_mostly = 1 * 1024 * 1024;
+-static __read_mostly seqcount_t xfrm_state_hash_generation = SEQCNT_ZERO(xfrm_state_hash_generation);
+ static struct kmem_cache *xfrm_state_cache __ro_after_init;
  
--	if (can_skb_orphan_partial(skb)) {
--		struct sock *sk = skb->sk;
--
--		if (refcount_inc_not_zero(&sk->sk_refcnt)) {
--			WARN_ON(refcount_sub_and_test(skb->truesize, &sk->sk_wmem_alloc));
--			skb->destructor = sock_efree;
--		}
--	} else {
-+	if (can_skb_orphan_partial(skb))
-+		skb_set_owner_sk_safe(skb, skb->sk);
-+	else
- 		skb_orphan(skb);
--	}
- }
- EXPORT_SYMBOL(skb_orphan_partial);
+ static DECLARE_WORK(xfrm_state_gc_work, xfrm_state_gc_task);
+@@ -140,7 +139,7 @@ static void xfrm_hash_resize(struct work_struct *work)
+ 	}
  
+ 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
+-	write_seqcount_begin(&xfrm_state_hash_generation);
++	write_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+ 
+ 	nhashmask = (nsize / sizeof(struct hlist_head)) - 1U;
+ 	odst = xfrm_state_deref_prot(net->xfrm.state_bydst, net);
+@@ -156,7 +155,7 @@ static void xfrm_hash_resize(struct work_struct *work)
+ 	rcu_assign_pointer(net->xfrm.state_byspi, nspi);
+ 	net->xfrm.state_hmask = nhashmask;
+ 
+-	write_seqcount_end(&xfrm_state_hash_generation);
++	write_seqcount_end(&net->xfrm.xfrm_state_hash_generation);
+ 	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
+ 
+ 	osize = (ohashmask + 1) * sizeof(struct hlist_head);
+@@ -1061,7 +1060,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 
+ 	to_put = NULL;
+ 
+-	sequence = read_seqcount_begin(&xfrm_state_hash_generation);
++	sequence = read_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+ 
+ 	rcu_read_lock();
+ 	h = xfrm_dst_hash(net, daddr, saddr, tmpl->reqid, encap_family);
+@@ -1174,7 +1173,7 @@ out:
+ 	if (to_put)
+ 		xfrm_state_put(to_put);
+ 
+-	if (read_seqcount_retry(&xfrm_state_hash_generation, sequence)) {
++	if (read_seqcount_retry(&net->xfrm.xfrm_state_hash_generation, sequence)) {
+ 		*err = -EAGAIN;
+ 		if (x) {
+ 			xfrm_state_put(x);
+@@ -2664,6 +2663,7 @@ int __net_init xfrm_state_init(struct net *net)
+ 	net->xfrm.state_num = 0;
+ 	INIT_WORK(&net->xfrm.state_hash_work, xfrm_hash_resize);
+ 	spin_lock_init(&net->xfrm.xfrm_state_lock);
++	seqcount_init(&net->xfrm.xfrm_state_hash_generation);
+ 	return 0;
+ 
+ out_byspi:
+-- 
+2.30.2
+
 
 
