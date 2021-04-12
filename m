@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52EFA35BF66
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:06:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7CA835BF6A
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:06:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238718AbhDLJGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:06:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
+        id S238748AbhDLJGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238523AbhDLJCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:02:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E44261244;
-        Mon, 12 Apr 2021 09:00:54 +0000 (UTC)
+        id S239006AbhDLJCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:02:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C16E6127B;
+        Mon, 12 Apr 2021 09:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218055;
-        bh=AemVYUQYYDN1IfXCxWkhw0kUVwZhv3Usbs0TOhzwAVE=;
+        s=korg; t=1618218057;
+        bh=rbE1gKqUIkmoKQ7TMI/BKg9sUOTR7TsuwZhTio0Zbf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IA/XCBZjaUta8joQD4Co0PLtD7RfiapYvsxQoL3uicTddhAHG5R+tS6+JdgJUHQFq
-         rt3cidkQvsXhBefvGk3DoT1rul1CPLmPzQ3JXxmxXVa7NVgSG3xXY3+a5aQYOa42nY
-         Oxd+s7hLIVX34aeYWC4bFuHaWXcz9MSfq+kbVSTA=
+        b=wMnyPuwsaDMK2MuC64SUk4O1AEKvdw+uAzX5oBwa7l55mx5x0z1KcbQIu0rlWpw79
+         4+y3hOJbQHZrClf6eX4+qq05akM/pq2CYKQO1bW4BWlNY0anuzwYD2raGdxrv5Wchu
+         QQS96qYUuP6ffiETJljh0pwIllhBp8Z4kmzsao7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.11 019/210] drm/i915: Fix invalid access to ACPI _DSM objects
-Date:   Mon, 12 Apr 2021 10:38:44 +0200
-Message-Id: <20210412084016.652273106@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.11 020/210] ACPI: processor: Fix build when CONFIG_ACPI_PROCESSOR=m
+Date:   Mon, 12 Apr 2021 10:38:45 +0200
+Message-Id: <20210412084016.681016549@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,68 +40,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit b6a37a93c9ac3900987c79b726d0bb3699d8db4e upstream.
+commit fa26d0c778b432d3d9814ea82552e813b33eeb5c upstream.
 
-intel_dsm_platform_mux_info() tries to parse the ACPI package data
-from _DSM for the debug information, but it assumes the fixed format
-without checking what values are stored in the elements actually.
-When an unexpected value is returned from BIOS, it may lead to GPF or
-NULL dereference, as reported recently.
+Commit 8cdddd182bd7 ("ACPI: processor: Fix CPU0 wakeup in
+acpi_idle_play_dead()") tried to fix CPU0 hotplug breakage by copying
+wakeup_cpu0() + start_cpu0() logic from hlt_play_dead()//mwait_play_dead()
+into acpi_idle_play_dead(). The problem is that these functions are not
+exported to modules so when CONFIG_ACPI_PROCESSOR=m build fails.
 
-Add the checks of the contents in the returned values and skip the
-values for invalid cases.
+The issue could've been fixed by exporting both wakeup_cpu0()/start_cpu0()
+(the later from assembly) but it seems putting the whole pattern into a
+new function and exporting it instead is better.
 
-v1->v2: Check the info contents before dereferencing, too
-
-BugLink: http://bugzilla.opensuse.org/show_bug.cgi?id=1184074
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210402082317.871-1-tiwai@suse.de
-(cherry picked from commit 337d7a1621c7f02af867229990ac67c97da1b53a)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 8cdddd182bd7 ("CPI: processor: Fix CPU0 wakeup in acpi_idle_play_dead()")
+Cc: <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_acpi.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/smp.h    |    2 +-
+ arch/x86/kernel/smpboot.c     |   26 ++++++++++++--------------
+ drivers/acpi/processor_idle.c |    4 +---
+ 3 files changed, 14 insertions(+), 18 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_acpi.c
-+++ b/drivers/gpu/drm/i915/display/intel_acpi.c
-@@ -84,13 +84,31 @@ static void intel_dsm_platform_mux_info(
- 		return;
+--- a/arch/x86/include/asm/smp.h
++++ b/arch/x86/include/asm/smp.h
+@@ -132,7 +132,7 @@ void native_play_dead(void);
+ void play_dead_common(void);
+ void wbinvd_on_cpu(int cpu);
+ int wbinvd_on_all_cpus(void);
+-bool wakeup_cpu0(void);
++void cond_wakeup_cpu0(void);
+ 
+ void native_smp_send_reschedule(int cpu);
+ void native_send_call_func_ipi(const struct cpumask *mask);
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -1659,13 +1659,17 @@ void play_dead_common(void)
+ 	local_irq_disable();
+ }
+ 
+-bool wakeup_cpu0(void)
++/**
++ * cond_wakeup_cpu0 - Wake up CPU0 if needed.
++ *
++ * If NMI wants to wake up CPU0, start CPU0.
++ */
++void cond_wakeup_cpu0(void)
+ {
+ 	if (smp_processor_id() == 0 && enable_start_cpu0)
+-		return true;
+-
+-	return false;
++		start_cpu0();
+ }
++EXPORT_SYMBOL_GPL(cond_wakeup_cpu0);
+ 
+ /*
+  * We need to flush the caches before going to sleep, lest we have
+@@ -1734,11 +1738,8 @@ static inline void mwait_play_dead(void)
+ 		__monitor(mwait_ptr, 0, 0);
+ 		mb();
+ 		__mwait(eax, 0);
+-		/*
+-		 * If NMI wants to wake up CPU0, start CPU0.
+-		 */
+-		if (wakeup_cpu0())
+-			start_cpu0();
++
++		cond_wakeup_cpu0();
+ 	}
+ }
+ 
+@@ -1749,11 +1750,8 @@ void hlt_play_dead(void)
+ 
+ 	while (1) {
+ 		native_halt();
+-		/*
+-		 * If NMI wants to wake up CPU0, start CPU0.
+-		 */
+-		if (wakeup_cpu0())
+-			start_cpu0();
++
++		cond_wakeup_cpu0();
+ 	}
+ }
+ 
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -544,9 +544,7 @@ static int acpi_idle_play_dead(struct cp
+ 			return -ENODEV;
+ 
+ #if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
+-		/* If NMI wants to wake up CPU0, start CPU0. */
+-		if (wakeup_cpu0())
+-			start_cpu0();
++		cond_wakeup_cpu0();
+ #endif
  	}
  
-+	if (!pkg->package.count) {
-+		DRM_DEBUG_DRIVER("no connection in _DSM\n");
-+		return;
-+	}
-+
- 	connector_count = &pkg->package.elements[0];
- 	DRM_DEBUG_DRIVER("MUX info connectors: %lld\n",
- 		  (unsigned long long)connector_count->integer.value);
- 	for (i = 1; i < pkg->package.count; i++) {
- 		union acpi_object *obj = &pkg->package.elements[i];
--		union acpi_object *connector_id = &obj->package.elements[0];
--		union acpi_object *info = &obj->package.elements[1];
-+		union acpi_object *connector_id;
-+		union acpi_object *info;
-+
-+		if (obj->type != ACPI_TYPE_PACKAGE || obj->package.count < 2) {
-+			DRM_DEBUG_DRIVER("Invalid object for MUX #%d\n", i);
-+			continue;
-+		}
-+
-+		connector_id = &obj->package.elements[0];
-+		info = &obj->package.elements[1];
-+		if (info->type != ACPI_TYPE_BUFFER || info->buffer.length < 4) {
-+			DRM_DEBUG_DRIVER("Invalid info for MUX obj #%d\n", i);
-+			continue;
-+		}
-+
- 		DRM_DEBUG_DRIVER("Connector id: 0x%016llx\n",
- 			  (unsigned long long)connector_id->integer.value);
- 		DRM_DEBUG_DRIVER("  port id: %s\n",
 
 
