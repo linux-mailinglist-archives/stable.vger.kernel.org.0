@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45B0335CBE7
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F6A35CBEC
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239357AbhDLQZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57438 "EHLO mail.kernel.org"
+        id S244449AbhDLQZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:25:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243927AbhDLQYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:24:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CAC96135C;
-        Mon, 12 Apr 2021 16:24:20 +0000 (UTC)
+        id S243810AbhDLQYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:24:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5950061288;
+        Mon, 12 Apr 2021 16:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244661;
-        bh=gGfp787/qmdbfVUNOVwLZC98q1V8+vZDiG8DwRfu/+Y=;
+        s=k20201202; t=1618244663;
+        bh=hHIQYb42wdWozvUKH6R1Uzezj7+klWmXY0qSapeadp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAb/cXD8gf8o4kbMCAPqL74IjvBUAb2bDN5gCE4Cx+EMyXaWdcK/2hFIQPYNrqFee
-         as1frSnoxFZiwnEb5Xm/JPcEBZQYbdvk4tsLZrBCvNSmzzhsklIkJsfIt5jNnljZbt
-         pgwO3CSF5SO+u2eQWZNwDD79mE8qJ6RB1v31+oR9q+Z3BoifuiZOdHmmPP7yb6NhTx
-         yw8V55DwhENd+mXK636ee2VYIm+vDi7Nh8mUOZmnFqkVNrure8ugAwYkax/143MvR2
-         8c8vG7uKKkDvYQ18ryRu7roEk8i6qN4ohhKitsUtUQcwMo2Alryc6xbUlSuC0RCrBQ
-         BhfPZCENShWgw==
+        b=OGqFORcNoUdFpxh9qWircI7bertpx74a4Ccq1vxg4SBgANOWOoJP63d277K2u5Kfi
+         Mh6+IGRLiWUfRLdME6MdFUFIb1bMYvqAy7YRs6qJLXwpwTCBd1o3gBTXKNSSf4Uz8K
+         4Bzq3kMmO5xCAvo3Vzi3Flj7un5COKTvqAmHgQfihqcKZj4T1orLCSyGztVret/YX8
+         SVWNt8ND5bG38LnvEa9ayu7v7/FIsqvYXRv781lAzkrGxqPOZZZFn5de5Wu1zd2g+c
+         IRI1+msp4nUjBwcerrB/QxAIRpJIX8pDMHBWlZDMFfP9ZijLrJVNe0btpmdFZgxyWq
+         z1ZcMuQBDDFIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Santosh Shilimkar <ssantosh@kernel.org>,
+Cc:     Arnd Bergmann <arnd@arndb.de>, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
         clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.10 16/46] ARM: keystone: fix integer overflow warning
-Date:   Mon, 12 Apr 2021 12:23:31 -0400
-Message-Id: <20210412162401.314035-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 17/46] ARM: omap1: fix building with clang IAS
+Date:   Mon, 12 Apr 2021 12:23:32 -0400
+Message-Id: <20210412162401.314035-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162401.314035-1-sashal@kernel.org>
 References: <20210412162401.314035-1-sashal@kernel.org>
@@ -47,52 +45,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 844b85dda2f569943e1e018fdd63b6f7d1d6f08e ]
+[ Upstream commit 28399a5a6d569c9bdb612345e4933046ca37cde5 ]
 
-clang warns about an impossible condition when building with 32-bit
-phys_addr_t:
+The clang integrated assembler fails to build one file with
+a complex asm instruction:
 
-arch/arm/mach-keystone/keystone.c:79:16: error: result of comparison of constant 51539607551 with expression of type 'phys_addr_t' (aka 'unsigned int') is always false [-Werror,-Wtautological-constant-out-of-range-compare]
-            mem_end   > KEYSTONE_HIGH_PHYS_END) {
-            ~~~~~~~   ^ ~~~~~~~~~~~~~~~~~~~~~~
-arch/arm/mach-keystone/keystone.c:78:16: error: result of comparison of constant 34359738368 with expression of type 'phys_addr_t' (aka 'unsigned int') is always true [-Werror,-Wtautological-constant-out-of-range-compare]
-        if (mem_start < KEYSTONE_HIGH_PHYS_START ||
-            ~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~
+arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: error: invalid instruction, any one of the following would fix this:
+ mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
+ ^
+arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: note: instruction requires: armv6t2
+ mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
+ ^
+arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: note: instruction requires: thumb2
+ mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
+ ^
 
-Change the temporary variable to a fixed-size u64 to avoid the warning.
+The problem is that 'NR_IRQS_LEGACY' is not defined here. Apparently
+gas does not care because we first add and then subtract this number,
+leading to the immediate value to be the same regardless of the
+specific definition of NR_IRQS_LEGACY.
+
+Neither the way that 'gas' just silently builds this file, nor the
+way that clang IAS makes nonsensical suggestions for how to fix it
+is great. Fortunately there is an easy fix, which is to #include
+the header that contains the definition.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
-Link: https://lore.kernel.org/r/20210323131814.2751750-1-arnd@kernel.org'
+Acked-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210308153430.2530616-1-arnd@kernel.org'
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-keystone/keystone.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-omap1/ams-delta-fiq-handler.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-keystone/keystone.c b/arch/arm/mach-keystone/keystone.c
-index 09a65c2dfd73..b8fa01f9516e 100644
---- a/arch/arm/mach-keystone/keystone.c
-+++ b/arch/arm/mach-keystone/keystone.c
-@@ -65,7 +65,7 @@ static void __init keystone_init(void)
- static long long __init keystone_pv_fixup(void)
- {
- 	long long offset;
--	phys_addr_t mem_start, mem_end;
-+	u64 mem_start, mem_end;
+diff --git a/arch/arm/mach-omap1/ams-delta-fiq-handler.S b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
+index 14a6c3eb3298..f745a65d3bd7 100644
+--- a/arch/arm/mach-omap1/ams-delta-fiq-handler.S
++++ b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
+@@ -15,6 +15,7 @@
+ #include <linux/platform_data/gpio-omap.h>
  
- 	mem_start = memblock_start_of_DRAM();
- 	mem_end = memblock_end_of_DRAM();
-@@ -78,7 +78,7 @@ static long long __init keystone_pv_fixup(void)
- 	if (mem_start < KEYSTONE_HIGH_PHYS_START ||
- 	    mem_end   > KEYSTONE_HIGH_PHYS_END) {
- 		pr_crit("Invalid address space for memory (%08llx-%08llx)\n",
--		        (u64)mem_start, (u64)mem_end);
-+		        mem_start, mem_end);
- 		return 0;
- 	}
+ #include <asm/assembler.h>
++#include <asm/irq.h>
  
+ #include "ams-delta-fiq.h"
+ #include "board-ams-delta.h"
 -- 
 2.30.2
 
