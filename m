@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5DF35BF2A
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 620B735BF0D
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239517AbhDLJDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50004 "EHLO mail.kernel.org"
+        id S239273AbhDLJCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239639AbhDLJA7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:00:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D2E761373;
-        Mon, 12 Apr 2021 08:58:49 +0000 (UTC)
+        id S239649AbhDLJBB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:01:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0501761356;
+        Mon, 12 Apr 2021 08:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217930;
-        bh=hgbYQ5L79uypRxxIO2S3Vn64L3Vc1hz9tY8Q2ZyH1nA=;
+        s=korg; t=1618217933;
+        bh=4yMZBZg09kXmZI4rkxQUzw1AjZ2thnr7Fu0KvTSZ1YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDFTqtHzMI8wtohRG2Xcbp3RCP++JiBVaAJNv+EJOVBYn1sLseeWNqQIBqeXldXne
-         dmgsQv1JtbQqCtRoETNpc7AbiXgbMLSLg5MJ8bgKMhL+jBiIOP4S2ImAfhO3LS6m1J
-         vQ6vgPrGY2uiNOLzyvklK+eaE0kufu0XQ6RZzu4Q=
+        b=1YgTGfHlggaYZEVdiMWhe3Hl4D9Xifl4cEFv9N6UVkt3N6vgUr5NWjQkixKhe/5BA
+         cJRw8muraTgrrBjG0gmoElZEtShjh/Jypj/vFQN1tuBJ2WIPoHx2eV72y5cnjqHDoK
+         RF3jvxBStrnSJ+hYGsKnLuqbLpb4x2EBABzjSam0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Xiaoming Ni <nixiaoming@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 010/210] nfc: Avoid endless loops caused by repeated llcp_sock_connect()
-Date:   Mon, 12 Apr 2021 10:38:35 +0200
-Message-Id: <20210412084016.350867779@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.11 011/210] selinux: make nslot handling in avtab more robust
+Date:   Mon, 12 Apr 2021 10:38:36 +0200
+Message-Id: <20210412084016.389293113@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -40,41 +39,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit 4b5db93e7f2afbdfe3b78e37879a85290187e6f1 upstream.
+commit 442dc00f82a9727dc0c48c44f792c168f593c6df upstream.
 
-When sock_wait_state() returns -EINPROGRESS, "sk->sk_state" is
- LLCP_CONNECTING. In this case, llcp_sock_connect() is repeatedly invoked,
- nfc_llcp_sock_link() will add sk to local->connecting_sockets twice.
- sk->sk_node->next will point to itself, that will make an endless loop
- and hang-up the system.
-To fix it, check whether sk->sk_state is LLCP_CONNECTING in
- llcp_sock_connect() to avoid repeated invoking.
+1. Make sure all fileds are initialized in avtab_init().
+2. Slightly refactor avtab_alloc() to use the above fact.
+3. Use h->nslot == 0 as a sentinel in the access functions to prevent
+   dereferencing h->htable when it's not allocated.
 
-Fixes: b4011239a08e ("NFC: llcp: Fix non blocking sockets connections")
-Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Link: https://www.openwall.com/lists/oss-security/2020/11/01/1
-Cc: <stable@vger.kernel.org> #v3.11
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ security/selinux/ss/avtab.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -673,6 +673,10 @@ static int llcp_sock_connect(struct sock
- 		ret = -EISCONN;
- 		goto error;
- 	}
-+	if (sk->sk_state == LLCP_CONNECTING) {
-+		ret = -EINPROGRESS;
-+		goto error;
-+	}
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -109,7 +109,7 @@ static int avtab_insert(struct avtab *h,
+ 	struct avtab_node *prev, *cur, *newnode;
+ 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
  
- 	dev = nfc_get_device(addr->dev_idx);
- 	if (dev == NULL) {
+-	if (!h)
++	if (!h || !h->nslot)
+ 		return -EINVAL;
+ 
+ 	hvalue = avtab_hash(key, h->mask);
+@@ -154,7 +154,7 @@ avtab_insert_nonunique(struct avtab *h,
+ 	struct avtab_node *prev, *cur;
+ 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 
+-	if (!h)
++	if (!h || !h->nslot)
+ 		return NULL;
+ 	hvalue = avtab_hash(key, h->mask);
+ 	for (prev = NULL, cur = h->htable[hvalue];
+@@ -184,7 +184,7 @@ struct avtab_datum *avtab_search(struct
+ 	struct avtab_node *cur;
+ 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 
+-	if (!h)
++	if (!h || !h->nslot)
+ 		return NULL;
+ 
+ 	hvalue = avtab_hash(key, h->mask);
+@@ -220,7 +220,7 @@ avtab_search_node(struct avtab *h, struc
+ 	struct avtab_node *cur;
+ 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 
+-	if (!h)
++	if (!h || !h->nslot)
+ 		return NULL;
+ 
+ 	hvalue = avtab_hash(key, h->mask);
+@@ -295,6 +295,7 @@ void avtab_destroy(struct avtab *h)
+ 	}
+ 	kvfree(h->htable);
+ 	h->htable = NULL;
++	h->nel = 0;
+ 	h->nslot = 0;
+ 	h->mask = 0;
+ }
+@@ -303,14 +304,15 @@ void avtab_init(struct avtab *h)
+ {
+ 	h->htable = NULL;
+ 	h->nel = 0;
++	h->nslot = 0;
++	h->mask = 0;
+ }
+ 
+ int avtab_alloc(struct avtab *h, u32 nrules)
+ {
+-	u32 mask = 0;
+ 	u32 shift = 0;
+ 	u32 work = nrules;
+-	u32 nslot = 0;
++	u32 nslot;
+ 
+ 	if (nrules == 0)
+ 		goto avtab_alloc_out;
+@@ -324,16 +326,15 @@ int avtab_alloc(struct avtab *h, u32 nru
+ 	nslot = 1 << shift;
+ 	if (nslot > MAX_AVTAB_HASH_BUCKETS)
+ 		nslot = MAX_AVTAB_HASH_BUCKETS;
+-	mask = nslot - 1;
+ 
+ 	h->htable = kvcalloc(nslot, sizeof(void *), GFP_KERNEL);
+ 	if (!h->htable)
+ 		return -ENOMEM;
+ 
+- avtab_alloc_out:
+-	h->nel = 0;
+ 	h->nslot = nslot;
+-	h->mask = mask;
++	h->mask = nslot - 1;
++
++avtab_alloc_out:
+ 	pr_debug("SELinux: %d avtab hash slots, %d rules.\n",
+ 	       h->nslot, nrules);
+ 	return 0;
 
 
