@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D67535C08A
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E62435BEFB
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240134AbhDLJOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:14:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
+        id S239167AbhDLJCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240823AbhDLJLE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:11:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C33C96136B;
-        Mon, 12 Apr 2021 09:06:43 +0000 (UTC)
+        id S239577AbhDLJAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:00:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0ADE61366;
+        Mon, 12 Apr 2021 08:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218404;
-        bh=wECuzhbGeXpB+xpAevG1GH75yDW7aMinWPmvCvHmwmo=;
+        s=korg; t=1618217908;
+        bh=6hMHcfNsXegBxvicubT+G0krRqp7yljon99rLrdlMbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzEUjpJTfJTNx90eBtpEC8m3uLccpnZz/rO0zAQKGH/V7K465eziVKE8SNqrs/Nin
-         LTCCpF/rBHyvmoHxL09uJHmzOvdI4Rh9ZdUXCWdCc90gZNdc2zo6vlXg3hix82WqAH
-         E3DB9s+akIfPJzuMZeHG1OhXOb+we2vzwuJRyvSk=
+        b=gFU9egHtTOv3pyMxpDXRCY8fDzWRacpDyh4UGJOxXwefGWqqyX8sQK2EuVFhnlk34
+         wZ6bD7XHsVC6R0CJRrgMZcnhQk/4gC431EUBp+Uqyb2VvRI9/lIhyTRCpbFDRWaenu
+         j/UY4bh7aLj8k4zlr28bjia7IVkAdfC52HbE+4Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 185/210] drm/vc4: crtc: Reduce PV fifo threshold on hvs4
+        stable@vger.kernel.org,
+        syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 176/188] net: tun: set tun->dev->addr_len during TUNSETLINK processing
 Date:   Mon, 12 Apr 2021 10:41:30 +0200
-Message-Id: <20210412084022.163670571@linuxfoundation.org>
+Message-Id: <20210412084019.483778757@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-[ Upstream commit eb9dfdd1ed40357b99a4201c8534c58c562e48c9 ]
+commit cca8ea3b05c972ffb5295367e6c544369b45fbdd upstream.
 
-Experimentally have found PV on hvs4 reports fifo full
-error with expected settings and does not with one less
+When changing type with TUNSETLINK ioctl command, set tun->dev->addr_len
+to match the appropriate type, using new tun_get_addr_len utility function
+which returns appropriate address length for given type. Fixes a
+KMSAN-found uninit-value bug reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=0766d38c656abeace60621896d705743aeefed51
 
-This appears as:
-[drm:drm_atomic_helper_wait_for_flip_done] *ERROR* [CRTC:82:crtc-3] flip_done timed out
-
-with bit 10 of PV_STAT set "HVS driving pixels when the PV FIFO is full"
-
-Fixes: c8b75bca92cb ("drm/vc4: Add KMS support for Raspberry Pi.")
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210318161328.1471556-3-maxime@cerno.tech
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com
+Diagnosed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/net/tun.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index ea710beb8e00..351c601f0ddb 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -210,6 +210,7 @@ static u32 vc4_get_fifo_full_level(struct vc4_crtc *vc4_crtc, u32 format)
- {
- 	const struct vc4_crtc_data *crtc_data = vc4_crtc_to_vc4_crtc_data(vc4_crtc);
- 	const struct vc4_pv_data *pv_data = vc4_crtc_to_vc4_pv_data(vc4_crtc);
-+	struct vc4_dev *vc4 = to_vc4_dev(vc4_crtc->base.dev);
- 	u32 fifo_len_bytes = pv_data->fifo_depth;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -69,6 +69,14 @@
+ #include <linux/bpf.h>
+ #include <linux/bpf_trace.h>
+ #include <linux/mutex.h>
++#include <linux/ieee802154.h>
++#include <linux/if_ltalk.h>
++#include <uapi/linux/if_fddi.h>
++#include <uapi/linux/if_hippi.h>
++#include <uapi/linux/if_fc.h>
++#include <net/ax25.h>
++#include <net/rose.h>
++#include <net/6lowpan.h>
  
- 	/*
-@@ -238,6 +239,22 @@ static u32 vc4_get_fifo_full_level(struct vc4_crtc *vc4_crtc, u32 format)
- 		if (crtc_data->hvs_output == 5)
- 			return 32;
- 
-+		/*
-+		 * It looks like in some situations, we will overflow
-+		 * the PixelValve FIFO (with the bit 10 of PV stat being
-+		 * set) and stall the HVS / PV, eventually resulting in
-+		 * a page flip timeout.
-+		 *
-+		 * Displaying the video overlay during a playback with
-+		 * Kodi on an RPi3 seems to be a great solution with a
-+		 * failure rate around 50%.
-+		 *
-+		 * Removing 1 from the FIFO full level however
-+		 * seems to completely remove that issue.
-+		 */
-+		if (!vc4->hvs->hvs5)
-+			return fifo_len_bytes - 3 * HVS_FIFO_LATENCY_PIX - 1;
-+
- 		return fifo_len_bytes - 3 * HVS_FIFO_LATENCY_PIX;
- 	}
+ #include <linux/uaccess.h>
+ #include <linux/proc_fs.h>
+@@ -2978,6 +2986,45 @@ static int tun_set_ebpf(struct tun_struc
+ 	return __tun_set_ebpf(tun, prog_p, prog);
  }
--- 
-2.30.2
-
+ 
++/* Return correct value for tun->dev->addr_len based on tun->dev->type. */
++static unsigned char tun_get_addr_len(unsigned short type)
++{
++	switch (type) {
++	case ARPHRD_IP6GRE:
++	case ARPHRD_TUNNEL6:
++		return sizeof(struct in6_addr);
++	case ARPHRD_IPGRE:
++	case ARPHRD_TUNNEL:
++	case ARPHRD_SIT:
++		return 4;
++	case ARPHRD_ETHER:
++		return ETH_ALEN;
++	case ARPHRD_IEEE802154:
++	case ARPHRD_IEEE802154_MONITOR:
++		return IEEE802154_EXTENDED_ADDR_LEN;
++	case ARPHRD_PHONET_PIPE:
++	case ARPHRD_PPP:
++	case ARPHRD_NONE:
++		return 0;
++	case ARPHRD_6LOWPAN:
++		return EUI64_ADDR_LEN;
++	case ARPHRD_FDDI:
++		return FDDI_K_ALEN;
++	case ARPHRD_HIPPI:
++		return HIPPI_ALEN;
++	case ARPHRD_IEEE802:
++		return FC_ALEN;
++	case ARPHRD_ROSE:
++		return ROSE_ADDR_LEN;
++	case ARPHRD_NETROM:
++		return AX25_ADDR_LEN;
++	case ARPHRD_LOCALTLK:
++		return LTALK_ALEN;
++	default:
++		return 0;
++	}
++}
++
+ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
+ 			    unsigned long arg, int ifreq_len)
+ {
+@@ -3133,6 +3180,7 @@ static long __tun_chr_ioctl(struct file
+ 			ret = -EBUSY;
+ 		} else {
+ 			tun->dev->type = (int) arg;
++			tun->dev->addr_len = tun_get_addr_len(tun->dev->type);
+ 			netif_info(tun, drv, tun->dev, "linktype set to %d\n",
+ 				   tun->dev->type);
+ 			ret = 0;
 
 
