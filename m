@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9DA35C076
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B72D735BEB7
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239828AbhDLJN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:13:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34456 "EHLO mail.kernel.org"
+        id S238014AbhDLJBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:01:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240446AbhDLJKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 991496127A;
-        Mon, 12 Apr 2021 09:05:25 +0000 (UTC)
+        id S238797AbhDLI5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:57:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FF5361263;
+        Mon, 12 Apr 2021 08:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218326;
-        bh=1uZh46V5N4adN+fqP41ksnzPUDKliYjEvaV1AoFFZ6s=;
+        s=korg; t=1618217791;
+        bh=7uUxMY2b5AUDPx1uRSCv2kK+yJ9drbykL70OGJuMKRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQh3CYu8r/QDgyXFrGLYfNbEMK5gBHoEQ7SY9GWSbrxL41zbpW4nDU9zWt1TptuHs
-         f8YYILMk82uN1S4365N1D4xJjXiEvcEMgB2qdaGiuS3xYuZBXSraHtyOdosvQ2nyo5
-         vPpm6XQZyImsyjF2XTyDsOqOcsnKJz1l4kl9YuHg=
+        b=HefiBEGxbw3w2Z0PHCgEnKKJYnNZALUS1/pETOtUYhIG2bJ8No6o3Kebitc5zi4pz
+         OsAk/6lDwYGlPH2BpwGQy4OXMQx1ljVfBeKtv3ES237gtreMbbS4M5x15dqn/Gcq+j
+         19vKWcM1aJW8xPrQBzirrRUUEZUR8AAMtbG3MVv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Norman Maurer <norman_maurer@apple.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
+        Lukasz Bartosik <lb@semihalf.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 155/210] net: udp: Add support for getsockopt(..., ..., UDP_GRO, ..., ...);
-Date:   Mon, 12 Apr 2021 10:41:00 +0200
-Message-Id: <20210412084021.152574698@linuxfoundation.org>
+Subject: [PATCH 5.10 147/188] clk: fix invalid usage of list cursor in unregister
+Date:   Mon, 12 Apr 2021 10:41:01 +0200
+Message-Id: <20210412084018.511753361@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norman Maurer <norman_maurer@apple.com>
+From: Lukasz Bartosik <lb@semihalf.com>
 
-[ Upstream commit 98184612aca0a9ee42b8eb0262a49900ee9eef0d ]
+[ Upstream commit 7045465500e465b09f09d6e5bdc260a9f1aab97b ]
 
-Support for UDP_GRO was added in the past but the implementation for
-getsockopt was missed which did lead to an error when we tried to
-retrieve the setting for UDP_GRO. This patch adds the missing switch
-case for UDP_GRO
+Fix invalid usage of a list_for_each_entry cursor in
+clk_notifier_unregister(). When list is empty or if the list
+is completely traversed (without breaking from the loop on one
+of the entries) then the list cursor does not point to a valid
+entry and therefore should not be used. The patch fixes a logical
+bug that hasn't been seen in pratice however it is analogus
+to the bug fixed in clk_notifier_register().
 
-Fixes: e20cf8d3f1f7 ("udp: implement GRO for plain UDP sockets.")
-Signed-off-by: Norman Maurer <norman_maurer@apple.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The issue was dicovered when running 5.12-rc1 kernel on x86_64
+with KASAN enabled:
+BUG: KASAN: global-out-of-bounds in clk_notifier_register+0xab/0x230
+Read of size 8 at addr ffffffffa0d10588 by task swapper/0/1
+
+CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc1 #1
+Hardware name: Google Caroline/Caroline,
+BIOS Google_Caroline.7820.430.0 07/20/2018
+Call Trace:
+ dump_stack+0xee/0x15c
+ print_address_description+0x1e/0x2dc
+ kasan_report+0x188/0x1ce
+ ? clk_notifier_register+0xab/0x230
+ ? clk_prepare_lock+0x15/0x7b
+ ? clk_notifier_register+0xab/0x230
+ clk_notifier_register+0xab/0x230
+ dw8250_probe+0xc01/0x10d4
+ ...
+ Memory state around the buggy address:
+  ffffffffa0d10480: 00 00 00 00 00 03 f9 f9 f9 f9 f9 f9 00 00 00 00
+  ffffffffa0d10500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9
+ >ffffffffa0d10580: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00
+                          ^
+  ffffffffa0d10600: 00 00 00 00 00 00 f9 f9 f9 f9 f9 f9 00 00 00 00
+  ffffffffa0d10680: 00 00 00 00 00 00 00 00 f9 f9 f9 f9 00 00 00 00
+  ==================================================================
+
+Fixes: b2476490ef11 ("clk: introduce the common clock framework")
+Reported-by: Lukasz Majczak <lma@semihalf.com>
+Signed-off-by: Lukasz Bartosik <lb@semihalf.com>
+Link: https://lore.kernel.org/r/20210401225149.18826-2-lb@semihalf.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clk/clk.c | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 69ea76578abb..9d2a1a247cec 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -2749,6 +2749,10 @@ int udp_lib_getsockopt(struct sock *sk, int level, int optname,
- 		val = up->gso_size;
- 		break;
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index dae090124263..61c78714c095 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -4299,32 +4299,28 @@ EXPORT_SYMBOL_GPL(clk_notifier_register);
+  */
+ int clk_notifier_unregister(struct clk *clk, struct notifier_block *nb)
+ {
+-	struct clk_notifier *cn = NULL;
+-	int ret = -EINVAL;
++	struct clk_notifier *cn;
++	int ret = -ENOENT;
  
-+	case UDP_GRO:
-+		val = up->gro_enabled;
-+		break;
-+
- 	/* The following two cannot be changed on UDP sockets, the return is
- 	 * always 0 (which corresponds to the full checksum coverage of UDP). */
- 	case UDPLITE_SEND_CSCOV:
+ 	if (!clk || !nb)
+ 		return -EINVAL;
+ 
+ 	clk_prepare_lock();
+ 
+-	list_for_each_entry(cn, &clk_notifier_list, node)
+-		if (cn->clk == clk)
+-			break;
+-
+-	if (cn->clk == clk) {
+-		ret = srcu_notifier_chain_unregister(&cn->notifier_head, nb);
++	list_for_each_entry(cn, &clk_notifier_list, node) {
++		if (cn->clk == clk) {
++			ret = srcu_notifier_chain_unregister(&cn->notifier_head, nb);
+ 
+-		clk->core->notifier_count--;
++			clk->core->notifier_count--;
+ 
+-		/* XXX the notifier code should handle this better */
+-		if (!cn->notifier_head.head) {
+-			srcu_cleanup_notifier_head(&cn->notifier_head);
+-			list_del(&cn->node);
+-			kfree(cn);
++			/* XXX the notifier code should handle this better */
++			if (!cn->notifier_head.head) {
++				srcu_cleanup_notifier_head(&cn->notifier_head);
++				list_del(&cn->node);
++				kfree(cn);
++			}
++			break;
+ 		}
+-
+-	} else {
+-		ret = -ENOENT;
+ 	}
+ 
+ 	clk_prepare_unlock();
 -- 
 2.30.2
 
