@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8F635BE3F
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:57:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30BE35BE12
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237607AbhDLI5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:57:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45114 "EHLO mail.kernel.org"
+        id S238494AbhDLI4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:56:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238996AbhDLIzS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:55:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8F76127A;
-        Mon, 12 Apr 2021 08:54:34 +0000 (UTC)
+        id S238825AbhDLIyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:54:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2407061367;
+        Mon, 12 Apr 2021 08:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217675;
-        bh=uxWhrvLsfG6a1PviJMUvVUC2CajiNLdihXsgRFpzYr8=;
+        s=korg; t=1618217580;
+        bh=z9hS3bVveGJX/A2OUB15HZsBBCNeu6AfwCVs7j2xlhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRKSqDTsIVIs/41uIAoldmB4FvOvRw4xnVNy5LrXabXZXUm6rlOpeN8xHCfNbHZjq
-         vxVkaybEuRM/8GZdib8+Cwx9LZDK/YTWIN1VeLK7HsnO6RmjwcRlo5uOv65pa2yRrg
-         6Azxo0zp1iUQ/Lalj6nU16tc4N3g4cMW05Jr5prs=
+        b=FiwvCHNg+A7B8aQJkbQKb0TcVFP4IpcTF9eU3zyIdYkVh7EsJhN0FgL2hl2eiUSuD
+         PX9LXjL4lEzgRROWnggzRYSMfW64TFv7alwmF36tfrFwGea0KfIc3pN8kD51WDox5E
+         mF6+4KzrmJxy/tKHIDa/Os7Wd9UZ6BlW8IuBCC34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 059/188] i40e: Fix sparse errors in i40e_txrx.c
-Date:   Mon, 12 Apr 2021 10:39:33 +0200
-Message-Id: <20210412084015.613735423@linuxfoundation.org>
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 5.10 060/188] vdpa/mlx5: Fix suspend/resume index restoration
+Date:   Mon, 12 Apr 2021 10:39:34 +0200
+Message-Id: <20210412084015.644834057@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -42,76 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+From: Eli Cohen <elic@nvidia.com>
 
-commit 12738ac4754ec92a6a45bf3677d8da780a1412b3 upstream.
+commit bc04d93ea30a0a8eb2a2648b848cef35d1f6f798 upstream.
 
-Remove error handling through pointers. Instead use plain int
-to return value from i40e_run_xdp(...).
+When we suspend the VM, the VDPA interface will be reset. When the VM is
+resumed again, clear_virtqueues() will clear the available and used
+indices resulting in hardware virqtqueue objects becoming out of sync.
+We can avoid this function alltogether since qemu will clear them if
+required, e.g. when the VM went through a reboot.
 
-Previously:
-- sparse errors were produced during compilation:
-i40e_txrx.c:2338 i40e_run_xdp() error: (-2147483647) too low for ERR_PTR
-i40e_txrx.c:2558 i40e_clean_rx_irq() error: 'skb' dereferencing possible ERR_PTR()
+Moreover, since the hw available and used indices should always be
+identical on query and should be restored to the same value same value
+for virtqueues that complete in order, we set the single value provided
+by set_vq_state(). In get_vq_state() we return the value of hardware
+used index.
 
-- sk_buff* was used to return value, but it has never had valid
-pointer to sk_buff. Returned value was always int handled as
-a pointer.
-
-Fixes: 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
-Fixes: 2e6893123830 ("i40e: split XDP_TX tail and XDP_REDIRECT map flushing")
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: b35ccebe3ef7 ("vdpa/mlx5: Restore the hardware used index after change map")
+Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20210408091047.4269-6-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_txrx.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c |   21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-@@ -2187,8 +2187,7 @@ int i40e_xmit_xdp_tx_ring(struct xdp_buf
-  * @rx_ring: Rx ring being processed
-  * @xdp: XDP buffer containing the frame
-  **/
--static struct sk_buff *i40e_run_xdp(struct i40e_ring *rx_ring,
--				    struct xdp_buff *xdp)
-+static int i40e_run_xdp(struct i40e_ring *rx_ring, struct xdp_buff *xdp)
- {
- 	int err, result = I40E_XDP_PASS;
- 	struct i40e_ring *xdp_ring;
-@@ -2227,7 +2226,7 @@ static struct sk_buff *i40e_run_xdp(stru
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1154,6 +1154,7 @@ static void suspend_vq(struct mlx5_vdpa_
+ 		return;
  	}
- xdp_out:
- 	rcu_read_unlock();
--	return ERR_PTR(-result);
-+	return result;
+ 	mvq->avail_idx = attr.available_index;
++	mvq->used_idx = attr.used_index;
  }
  
- /**
-@@ -2339,6 +2338,7 @@ static int i40e_clean_rx_irq(struct i40e
- 	unsigned int xdp_xmit = 0;
- 	bool failure = false;
- 	struct xdp_buff xdp;
-+	int xdp_res = 0;
+ static void suspend_vqs(struct mlx5_vdpa_net *ndev)
+@@ -1411,6 +1412,7 @@ static int mlx5_vdpa_set_vq_state(struct
+ 		return -EINVAL;
+ 	}
  
- #if (PAGE_SIZE < 8192)
- 	xdp.frame_sz = i40e_rx_frame_truesize(rx_ring, 0);
-@@ -2405,12 +2405,10 @@ static int i40e_clean_rx_irq(struct i40e
- 			/* At larger PAGE_SIZE, frame_sz depend on len size */
- 			xdp.frame_sz = i40e_rx_frame_truesize(rx_ring, size);
- #endif
--			skb = i40e_run_xdp(rx_ring, &xdp);
-+			xdp_res = i40e_run_xdp(rx_ring, &xdp);
- 		}
++	mvq->used_idx = state->avail_index;
+ 	mvq->avail_idx = state->avail_index;
+ 	return 0;
+ }
+@@ -1428,7 +1430,11 @@ static int mlx5_vdpa_get_vq_state(struct
+ 	 * that cares about emulating the index after vq is stopped.
+ 	 */
+ 	if (!mvq->initialized) {
+-		state->avail_index = mvq->avail_idx;
++		/* Firmware returns a wrong value for the available index.
++		 * Since both values should be identical, we take the value of
++		 * used_idx which is reported correctly.
++		 */
++		state->avail_index = mvq->used_idx;
+ 		return 0;
+ 	}
  
--		if (IS_ERR(skb)) {
--			unsigned int xdp_res = -PTR_ERR(skb);
+@@ -1437,7 +1443,7 @@ static int mlx5_vdpa_get_vq_state(struct
+ 		mlx5_vdpa_warn(mvdev, "failed to query virtqueue\n");
+ 		return err;
+ 	}
+-	state->avail_index = attr.available_index;
++	state->avail_index = attr.used_index;
+ 	return 0;
+ }
+ 
+@@ -1525,16 +1531,6 @@ static void teardown_virtqueues(struct m
+ 	}
+ }
+ 
+-static void clear_virtqueues(struct mlx5_vdpa_net *ndev)
+-{
+-	int i;
 -
-+		if (xdp_res) {
- 			if (xdp_res & (I40E_XDP_TX | I40E_XDP_REDIR)) {
- 				xdp_xmit |= xdp_res;
- 				i40e_rx_buffer_flip(rx_ring, rx_buffer, size);
+-	for (i = ndev->mvdev.max_vqs - 1; i >= 0; i--) {
+-		ndev->vqs[i].avail_idx = 0;
+-		ndev->vqs[i].used_idx = 0;
+-	}
+-}
+-
+ /* TODO: cross-endian support */
+ static inline bool mlx5_vdpa_is_little_endian(struct mlx5_vdpa_dev *mvdev)
+ {
+@@ -1770,7 +1766,6 @@ static void mlx5_vdpa_set_status(struct
+ 	if (!status) {
+ 		mlx5_vdpa_info(mvdev, "performing device reset\n");
+ 		teardown_driver(ndev);
+-		clear_virtqueues(ndev);
+ 		mlx5_vdpa_destroy_mr(&ndev->mvdev);
+ 		ndev->mvdev.status = 0;
+ 		ndev->mvdev.mlx_features = 0;
 
 
