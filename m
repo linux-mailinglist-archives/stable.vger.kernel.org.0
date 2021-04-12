@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C780235CBE6
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B0335CBE7
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 18:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244408AbhDLQZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 12:25:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57400 "EHLO mail.kernel.org"
+        id S239357AbhDLQZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 12:25:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243779AbhDLQYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:24:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E30E961373;
-        Mon, 12 Apr 2021 16:24:19 +0000 (UTC)
+        id S243927AbhDLQYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 12:24:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CAC96135C;
+        Mon, 12 Apr 2021 16:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618244660;
-        bh=QXEEnIMFb1usIywqSO4YVq+/fmvHo02LzcJsp6j+few=;
+        s=k20201202; t=1618244661;
+        bh=gGfp787/qmdbfVUNOVwLZC98q1V8+vZDiG8DwRfu/+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRjck42w/zUQYVhLZmImAbFtCrNZBD1W1mj2ttF9+t7/vnMnkLbCwsO+0HPIbykly
-         zVo6IeHcoJOyIWUmDku0ZUBsY9Yb73gtlCZ2rzK25yomZhsN2NsRumB1nECNibF6Zn
-         KDkdIshlremVhmAHgD6F5APooSZVl+r8zImFREROAUEG2XysJ3HCZ259cuwkpjUXbA
-         ArWIZ0MOgXIB7i3GolIb2GyqLuNBDtU8YN5N4kOeQ5SYKIfNbd6cx9I0umwncfNq7p
-         QmwIZOWpmPcX3hBD2UB5sebVpX/wrq0xOGgiX1vnOkt6EwfJqZwfTYYu6O4sfg6VSr
-         k+dxPtROnA54g==
+        b=gAb/cXD8gf8o4kbMCAPqL74IjvBUAb2bDN5gCE4Cx+EMyXaWdcK/2hFIQPYNrqFee
+         as1frSnoxFZiwnEb5Xm/JPcEBZQYbdvk4tsLZrBCvNSmzzhsklIkJsfIt5jNnljZbt
+         pgwO3CSF5SO+u2eQWZNwDD79mE8qJ6RB1v31+oR9q+Z3BoifuiZOdHmmPP7yb6NhTx
+         yw8V55DwhENd+mXK636ee2VYIm+vDi7Nh8mUOZmnFqkVNrure8ugAwYkax/143MvR2
+         8c8vG7uKKkDvYQ18ryRu7roEk8i6qN4ohhKitsUtUQcwMo2Alryc6xbUlSuC0RCrBQ
+         BhfPZCENShWgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tong Zhu <zhutong@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 15/46] neighbour: Disregard DEAD dst in neigh_update
-Date:   Mon, 12 Apr 2021 12:23:30 -0400
-Message-Id: <20210412162401.314035-15-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.10 16/46] ARM: keystone: fix integer overflow warning
+Date:   Mon, 12 Apr 2021 12:23:31 -0400
+Message-Id: <20210412162401.314035-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412162401.314035-1-sashal@kernel.org>
 References: <20210412162401.314035-1-sashal@kernel.org>
@@ -42,49 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhu <zhutong@amazon.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d47ec7a0a7271dda08932d6208e4ab65ab0c987c ]
+[ Upstream commit 844b85dda2f569943e1e018fdd63b6f7d1d6f08e ]
 
-After a short network outage, the dst_entry is timed out and put
-in DST_OBSOLETE_DEAD. We are in this code because arp reply comes
-from this neighbour after network recovers. There is a potential
-race condition that dst_entry is still in DST_OBSOLETE_DEAD.
-With that, another neighbour lookup causes more harm than good.
+clang warns about an impossible condition when building with 32-bit
+phys_addr_t:
 
-In best case all packets in arp_queue are lost. This is
-counterproductive to the original goal of finding a better path
-for those packets.
+arch/arm/mach-keystone/keystone.c:79:16: error: result of comparison of constant 51539607551 with expression of type 'phys_addr_t' (aka 'unsigned int') is always false [-Werror,-Wtautological-constant-out-of-range-compare]
+            mem_end   > KEYSTONE_HIGH_PHYS_END) {
+            ~~~~~~~   ^ ~~~~~~~~~~~~~~~~~~~~~~
+arch/arm/mach-keystone/keystone.c:78:16: error: result of comparison of constant 34359738368 with expression of type 'phys_addr_t' (aka 'unsigned int') is always true [-Werror,-Wtautological-constant-out-of-range-compare]
+        if (mem_start < KEYSTONE_HIGH_PHYS_START ||
+            ~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~
 
-I observed a worst case with 4.x kernel where a dst_entry in
-DST_OBSOLETE_DEAD state is associated with loopback net_device.
-It leads to an ethernet header with all zero addresses.
-A packet with all zero source MAC address is quite deadly with
-mac80211, ath9k and 802.11 block ack.  It fails
-ieee80211_find_sta_by_ifaddr in ath9k (xmit.c). Ath9k flushes tx
-queue (ath_tx_complete_aggr). BAW (block ack window) is not
-updated. BAW logic is damaged and ath9k transmission is disabled.
+Change the temporary variable to a fixed-size u64 to avoid the warning.
 
-Signed-off-by: Tong Zhu <zhutong@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
+Link: https://lore.kernel.org/r/20210323131814.2751750-1-arnd@kernel.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-keystone/keystone.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 2fe4bbb6b80c..8339978d46ff 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1380,7 +1380,7 @@ static int __neigh_update(struct neighbour *neigh, const u8 *lladdr,
- 			 * we can reinject the packet there.
- 			 */
- 			n2 = NULL;
--			if (dst) {
-+			if (dst && dst->obsolete != DST_OBSOLETE_DEAD) {
- 				n2 = dst_neigh_lookup_skb(dst, skb);
- 				if (n2)
- 					n1 = n2;
+diff --git a/arch/arm/mach-keystone/keystone.c b/arch/arm/mach-keystone/keystone.c
+index 09a65c2dfd73..b8fa01f9516e 100644
+--- a/arch/arm/mach-keystone/keystone.c
++++ b/arch/arm/mach-keystone/keystone.c
+@@ -65,7 +65,7 @@ static void __init keystone_init(void)
+ static long long __init keystone_pv_fixup(void)
+ {
+ 	long long offset;
+-	phys_addr_t mem_start, mem_end;
++	u64 mem_start, mem_end;
+ 
+ 	mem_start = memblock_start_of_DRAM();
+ 	mem_end = memblock_end_of_DRAM();
+@@ -78,7 +78,7 @@ static long long __init keystone_pv_fixup(void)
+ 	if (mem_start < KEYSTONE_HIGH_PHYS_START ||
+ 	    mem_end   > KEYSTONE_HIGH_PHYS_END) {
+ 		pr_crit("Invalid address space for memory (%08llx-%08llx)\n",
+-		        (u64)mem_start, (u64)mem_end);
++		        mem_start, mem_end);
+ 		return 0;
+ 	}
+ 
 -- 
 2.30.2
 
