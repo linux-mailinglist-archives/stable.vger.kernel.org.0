@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B668735BCBF
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79AE635BD77
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237444AbhDLIpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:45:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36708 "EHLO mail.kernel.org"
+        id S238224AbhDLIvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237660AbhDLIog (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:44:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C1EE61246;
-        Mon, 12 Apr 2021 08:44:17 +0000 (UTC)
+        id S238386AbhDLIto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:49:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B9196134F;
+        Mon, 12 Apr 2021 08:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217058;
-        bh=yesVKx5eIm8VpwVCsk4m8L6GiNrdiYjn0CcXdfHpZds=;
+        s=korg; t=1618217318;
+        bh=6Fc8ckiUHHGh0g3X7q9XcyLVQovvOE71j30AJIPnx+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIdH2o4Y5H/O40RMn7I5nf+quwPo1sd5e5C9nQiUvYbZ+2xeN9IzXEpi2DHUIbi18
-         KUebNs2+D2kwbgbpXws8bt4pDyv3RrncX5h7cgbtHQEw6FrSeuck7aTKkcZWpdWSbM
-         WkWfnp9S6hUsfpGek3KAaReVLYCOJdRDAqRtw65k=
+        b=BDiVwdgSR2PvXh03qlym3t2Idjy/rNe0DqHuS2uQygDIT3tSQHyMTgHzal4Wbx1+e
+         tpsgSA283e1k+bGVCYIByIGA17MmMysbI9NVwHdDnVY9d1wkIcDF19XZGFvVsTz2VP
+         EJOrd8x91oiQsmjSVFsgnZPjiHVLxYn70UgEmRic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 54/66] net: tun: set tun->dev->addr_len during TUNSETLINK processing
+        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
+        Lukasz Bartosik <lb@semihalf.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 082/111] clk: fix invalid usage of list cursor in register
 Date:   Mon, 12 Apr 2021 10:41:00 +0200
-Message-Id: <20210412083959.874755461@linuxfoundation.org>
+Message-Id: <20210412084006.996685814@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Lukasz Bartosik <lb@semihalf.com>
 
-commit cca8ea3b05c972ffb5295367e6c544369b45fbdd upstream.
+[ Upstream commit 8d3c0c01cb2e36b2bf3c06a82b18b228d0c8f5d0 ]
 
-When changing type with TUNSETLINK ioctl command, set tun->dev->addr_len
-to match the appropriate type, using new tun_get_addr_len utility function
-which returns appropriate address length for given type. Fixes a
-KMSAN-found uninit-value bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=0766d38c656abeace60621896d705743aeefed51
+Fix invalid usage of a list_for_each_entry cursor in
+clk_notifier_register(). When list is empty or if the list
+is completely traversed (without breaking from the loop on one
+of the entries) then the list cursor does not point to a valid
+entry and therefore should not be used.
 
-Reported-by: syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com
-Diagnosed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The issue was dicovered when running 5.12-rc1 kernel on x86_64
+with KASAN enabled:
+BUG: KASAN: global-out-of-bounds in clk_notifier_register+0xab/0x230
+Read of size 8 at addr ffffffffa0d10588 by task swapper/0/1
+
+CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc1 #1
+Hardware name: Google Caroline/Caroline,
+BIOS Google_Caroline.7820.430.0 07/20/2018
+Call Trace:
+ dump_stack+0xee/0x15c
+ print_address_description+0x1e/0x2dc
+ kasan_report+0x188/0x1ce
+ ? clk_notifier_register+0xab/0x230
+ ? clk_prepare_lock+0x15/0x7b
+ ? clk_notifier_register+0xab/0x230
+ clk_notifier_register+0xab/0x230
+ dw8250_probe+0xc01/0x10d4
+...
+Memory state around the buggy address:
+ ffffffffa0d10480: 00 00 00 00 00 03 f9 f9 f9 f9 f9 f9 00 00 00 00
+ ffffffffa0d10500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f9 f9
+>ffffffffa0d10580: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00
+                      ^
+ ffffffffa0d10600: 00 00 00 00 00 00 f9 f9 f9 f9 f9 f9 00 00 00 00
+ ffffffffa0d10680: 00 00 00 00 00 00 00 00 f9 f9 f9 f9 00 00 00 00
+ ==================================================================
+
+Fixes: b2476490ef11 ("clk: introduce the common clock framework")
+Reported-by: Lukasz Majczak <lma@semihalf.com>
+Signed-off-by: Lukasz Bartosik <lb@semihalf.com>
+Link: https://lore.kernel.org/r/20210401225149.18826-1-lb@semihalf.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ drivers/clk/clk.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -77,6 +77,14 @@
- #include <linux/bpf.h>
- #include <linux/bpf_trace.h>
- #include <linux/mutex.h>
-+#include <linux/ieee802154.h>
-+#include <linux/if_ltalk.h>
-+#include <uapi/linux/if_fddi.h>
-+#include <uapi/linux/if_hippi.h>
-+#include <uapi/linux/if_fc.h>
-+#include <net/ax25.h>
-+#include <net/rose.h>
-+#include <net/6lowpan.h>
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 36e9f38a3882..5db91903d02b 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -4151,20 +4151,19 @@ int clk_notifier_register(struct clk *clk, struct notifier_block *nb)
+ 	/* search the list of notifiers for this clk */
+ 	list_for_each_entry(cn, &clk_notifier_list, node)
+ 		if (cn->clk == clk)
+-			break;
++			goto found;
  
- #include <linux/uaccess.h>
- #include <linux/proc_fs.h>
-@@ -2864,6 +2872,45 @@ static int tun_set_ebpf(struct tun_struc
- 	return __tun_set_ebpf(tun, prog_p, prog);
- }
+ 	/* if clk wasn't in the notifier list, allocate new clk_notifier */
+-	if (cn->clk != clk) {
+-		cn = kzalloc(sizeof(*cn), GFP_KERNEL);
+-		if (!cn)
+-			goto out;
++	cn = kzalloc(sizeof(*cn), GFP_KERNEL);
++	if (!cn)
++		goto out;
  
-+/* Return correct value for tun->dev->addr_len based on tun->dev->type. */
-+static unsigned char tun_get_addr_len(unsigned short type)
-+{
-+	switch (type) {
-+	case ARPHRD_IP6GRE:
-+	case ARPHRD_TUNNEL6:
-+		return sizeof(struct in6_addr);
-+	case ARPHRD_IPGRE:
-+	case ARPHRD_TUNNEL:
-+	case ARPHRD_SIT:
-+		return 4;
-+	case ARPHRD_ETHER:
-+		return ETH_ALEN;
-+	case ARPHRD_IEEE802154:
-+	case ARPHRD_IEEE802154_MONITOR:
-+		return IEEE802154_EXTENDED_ADDR_LEN;
-+	case ARPHRD_PHONET_PIPE:
-+	case ARPHRD_PPP:
-+	case ARPHRD_NONE:
-+		return 0;
-+	case ARPHRD_6LOWPAN:
-+		return EUI64_ADDR_LEN;
-+	case ARPHRD_FDDI:
-+		return FDDI_K_ALEN;
-+	case ARPHRD_HIPPI:
-+		return HIPPI_ALEN;
-+	case ARPHRD_IEEE802:
-+		return FC_ALEN;
-+	case ARPHRD_ROSE:
-+		return ROSE_ADDR_LEN;
-+	case ARPHRD_NETROM:
-+		return AX25_ADDR_LEN;
-+	case ARPHRD_LOCALTLK:
-+		return LTALK_ALEN;
-+	default:
-+		return 0;
-+	}
-+}
-+
- static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
- 			    unsigned long arg, int ifreq_len)
- {
-@@ -3018,6 +3065,7 @@ static long __tun_chr_ioctl(struct file
- 			ret = -EBUSY;
- 		} else {
- 			tun->dev->type = (int) arg;
-+			tun->dev->addr_len = tun_get_addr_len(tun->dev->type);
- 			tun_debug(KERN_INFO, tun, "linktype set to %d\n",
- 				  tun->dev->type);
- 			ret = 0;
+-		cn->clk = clk;
+-		srcu_init_notifier_head(&cn->notifier_head);
++	cn->clk = clk;
++	srcu_init_notifier_head(&cn->notifier_head);
+ 
+-		list_add(&cn->node, &clk_notifier_list);
+-	}
++	list_add(&cn->node, &clk_notifier_list);
+ 
++found:
+ 	ret = srcu_notifier_chain_register(&cn->notifier_head, nb);
+ 
+ 	clk->core->notifier_count++;
+-- 
+2.30.2
+
 
 
