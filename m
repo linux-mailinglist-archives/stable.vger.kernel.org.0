@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C8335BEF9
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4785035BEFD
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239157AbhDLJCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49206 "EHLO mail.kernel.org"
+        id S239183AbhDLJCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239569AbhDLJAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:00:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9B1861350;
-        Mon, 12 Apr 2021 08:58:22 +0000 (UTC)
+        id S239576AbhDLJAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:00:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3949C61357;
+        Mon, 12 Apr 2021 08:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217903;
-        bh=+yCGwJ9sliDlgsFC6YZOJuxsNm00XKaueLxP/RY8/4M=;
+        s=korg; t=1618217905;
+        bh=Q+5fEvDj5iAxPrP/ZoaMUXAHNrRsab/qAj7JAHiSKZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOS9HHvB2mqr7FpQpnsxezSpMvpsiWhii3IHXG+BvarfAtsVXZQiC09SK/49jVNcT
-         xvY3Gu/1wxCBYf0bqHMHSrOc306OwA7/NfF1tj7ONiUr+7TW7VHFqzXoQX+NiDZsRX
-         uFiAyDOJcR5z2WJvGb0HU34xFy42i/h4s4ROIFfQ=
+        b=hqjRf7tNz60VKHehGe53t1+pUfbbEGgUnGfSoBcE5E1Ix9hy8u5yToj8bKx7PQPb9
+         btDwBMK3c/CfMK/iykozTW0V1yY0csGN5LU955M2UNfUr3gxXuetu0cqz++jqtMi6+
+         YtybFp56N0dkOt8AYg7PuGCL7uRtHT42aUap3GbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Roman Guskov <rguskov@dh-electronics.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.10 174/188] gpiolib: Read "gpio-line-names" from a firmware node
-Date:   Mon, 12 Apr 2021 10:41:28 +0200
-Message-Id: <20210412084019.413390767@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+5f9392825de654244975@syzkaller.appspotmail.com,
+        Du Cheng <ducheng2@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 175/188] cfg80211: remove WARN_ON() in cfg80211_sme_connect
+Date:   Mon, 12 Apr 2021 10:41:29 +0200
+Message-Id: <20210412084019.450684850@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -41,77 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Du Cheng <ducheng2@gmail.com>
 
-commit b41ba2ec54a70908067034f139aa23d0dd2985ce upstream.
+commit 1b5ab825d9acc0f27d2f25c6252f3526832a9626 upstream.
 
-On STM32MP1, the GPIO banks are subnodes of pin-controller@50002000,
-see arch/arm/boot/dts/stm32mp151.dtsi. The driver for
-pin-controller@50002000 is in drivers/pinctrl/stm32/pinctrl-stm32.c
-and iterates over all of its DT subnodes when registering each GPIO
-bank gpiochip. Each gpiochip has:
+A WARN_ON(wdev->conn) would trigger in cfg80211_sme_connect(), if multiple
+send_msg(NL80211_CMD_CONNECT) system calls are made from the userland, which
+should be anticipated and handled by the wireless driver. Remove this WARN_ON()
+to prevent kernel panic if kernel is configured to "panic_on_warn".
 
-  - gpio_chip.parent = dev,
-    where dev is the device node of the pin controller
-  - gpio_chip.of_node = np,
-    which is the OF node of the GPIO bank
+Bug reported by syzbot.
 
-Therefore, dev_fwnode(chip->parent) != of_fwnode_handle(chip.of_node),
-i.e. pin-controller@50002000 != pin-controller@50002000/gpio@5000*000.
-
-The original code behaved correctly, as it extracted the "gpio-line-names"
-from of_fwnode_handle(chip.of_node) = pin-controller@50002000/gpio@5000*000.
-
-To achieve the same behaviour, read property from the firmware node.
-
-Fixes: 7cba1a4d5e162 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
-Reported-by: Marek Vasut <marex@denx.de>
-Reported-by: Roman Guskov <rguskov@dh-electronics.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reported-by: syzbot+5f9392825de654244975@syzkaller.appspotmail.com
+Signed-off-by: Du Cheng <ducheng2@gmail.com>
+Link: https://lore.kernel.org/r/20210407162756.6101-1-ducheng2@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ net/wireless/sme.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -364,22 +364,18 @@ static int gpiochip_set_desc_names(struc
-  *
-  * Looks for device property "gpio-line-names" and if it exists assigns
-  * GPIO line names for the chip. The memory allocated for the assigned
-- * names belong to the underlying software node and should not be released
-+ * names belong to the underlying firmware node and should not be released
-  * by the caller.
-  */
- static int devprop_gpiochip_set_names(struct gpio_chip *chip)
- {
- 	struct gpio_device *gdev = chip->gpiodev;
--	struct device *dev = chip->parent;
-+	struct fwnode_handle *fwnode = dev_fwnode(&gdev->dev);
- 	const char **names;
- 	int ret, i;
- 	int count;
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -530,7 +530,7 @@ static int cfg80211_sme_connect(struct w
+ 		cfg80211_sme_free(wdev);
+ 	}
  
--	/* GPIO chip may not have a parent device whose properties we inspect. */
--	if (!dev)
--		return 0;
--
--	count = device_property_string_array_count(dev, "gpio-line-names");
-+	count = fwnode_property_string_array_count(fwnode, "gpio-line-names");
- 	if (count < 0)
- 		return 0;
+-	if (WARN_ON(wdev->conn))
++	if (wdev->conn)
+ 		return -EINPROGRESS;
  
-@@ -393,7 +389,7 @@ static int devprop_gpiochip_set_names(st
- 	if (!names)
- 		return -ENOMEM;
- 
--	ret = device_property_read_string_array(dev, "gpio-line-names",
-+	ret = fwnode_property_read_string_array(fwnode, "gpio-line-names",
- 						names, count);
- 	if (ret < 0) {
- 		dev_warn(&gdev->dev, "failed to read GPIO line names\n");
+ 	wdev->conn = kzalloc(sizeof(*wdev->conn), GFP_KERNEL);
 
 
