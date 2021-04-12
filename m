@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE93C35BFDA
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B58CA35BFDC
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236976AbhDLJHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:07:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56770 "EHLO mail.kernel.org"
+        id S239255AbhDLJHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240266AbhDLJF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:05:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DBB361363;
-        Mon, 12 Apr 2021 09:02:35 +0000 (UTC)
+        id S240291AbhDLJFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:05:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACBEA6136B;
+        Mon, 12 Apr 2021 09:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218156;
-        bh=2jwYS1m2BqG0TDY0c5Xs/sHQYKr3UatGNYg7dG0eV9w=;
+        s=korg; t=1618218159;
+        bh=BY7Uk15m7A87xQ8ndux9S94Ac7tSKin6BauCAWL4oaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FsYW/EMvPkLeKgjoi9haHDfif8TkPNwTCZS9vEeI2IXrpLF60wxRJCN4c0gv7l/oE
-         6dXDvbbwOCvLB5FMdUS8WE7w+ioeVIUEBAOmF91nWdJevEpDIxF5g/RX2bkbdiTiSF
-         y4lIuH1VgikchNJslAF6cimJc1aLmSxHoiXl2nVk=
+        b=jjwNiaaHUaeP1r4wixGlAqWHgFa+f9vAVEY1q7B2ztpkOV+Tdl5lM3oCI0SsWU6pB
+         9Dxaj+wc7yxnAS1y18FZcOJT//JTWrBbxo44URdr00rd0lLfhF/QlzWM6Smcujz90p
+         nMLtLHdC/ViAm+dY5G2z9xTJ2t4xSGKbHBx7B4YU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.11 057/210] libbpf: Only create rx and tx XDP rings when necessary
-Date:   Mon, 12 Apr 2021 10:39:22 +0200
-Message-Id: <20210412084017.902195404@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Marchevsky <davemarchevsky@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.11 058/210] bpf: Refcount task stack in bpf_get_task_stack
+Date:   Mon, 12 Apr 2021 10:39:23 +0200
+Message-Id: <20210412084017.932826772@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -39,87 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ciara Loftus <ciara.loftus@intel.com>
+From: Dave Marchevsky <davemarchevsky@fb.com>
 
-commit ca7a83e2487ad0bc9a3e0e7a8645354aa1782f13 upstream.
+commit 06ab134ce8ecfa5a69e850f88f81c8a4c3fa91df upstream.
 
-Prior to this commit xsk_socket__create(_shared) always attempted to create
-the rx and tx rings for the socket. However this causes an issue when the
-socket being setup is that which shares the fd with the UMEM. If a
-previous call to this function failed with this socket after the rings were
-set up, a subsequent call would always fail because the rings are not torn
-down after the first call and when we try to set them up again we encounter
-an error because they already exist. Solve this by remembering whether the
-rings were set up by introducing new bools to struct xsk_umem which
-represent the ring setup status and using them to determine whether or
-not to set up the rings.
+On x86 the struct pt_regs * grabbed by task_pt_regs() points to an
+offset of task->stack. The pt_regs are later dereferenced in
+__bpf_get_stack (e.g. by user_mode() check). This can cause a fault if
+the task in question exits while bpf_get_task_stack is executing, as
+warned by task_stack_page's comment:
 
-Fixes: 1cad07884239 ("libbpf: add support for using AF_XDP sockets")
-Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
+* When accessing the stack of a non-current task that might exit, use
+* try_get_task_stack() instead.  task_stack_page will return a pointer
+* that could get freed out from under you.
+
+Taking the comment's advice and using try_get_task_stack() and
+put_task_stack() to hold task->stack refcount, or bail early if it's
+already 0. Incrementing stack_refcount will ensure the task's stack
+sticks around while we're using its data.
+
+I noticed this bug while testing a bpf task iter similar to
+bpf_iter_task_stack in selftests, except mine grabbed user stack, and
+getting intermittent crashes, which resulted in dumps like:
+
+  BUG: unable to handle page fault for address: 0000000000003fe0
+  \#PF: supervisor read access in kernel mode
+  \#PF: error_code(0x0000) - not-present page
+  RIP: 0010:__bpf_get_stack+0xd0/0x230
+  <snip...>
+  Call Trace:
+  bpf_prog_0a2be35c092cb190_get_task_stacks+0x5d/0x3ec
+  bpf_iter_run_prog+0x24/0x81
+  __task_seq_show+0x58/0x80
+  bpf_seq_read+0xf7/0x3d0
+  vfs_read+0x91/0x140
+  ksys_read+0x59/0xd0
+  do_syscall_64+0x48/0x120
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: fa28dcb82a38 ("bpf: Introduce helper bpf_get_task_stack()")
+Signed-off-by: Dave Marchevsky <davemarchevsky@fb.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210331061218.1647-4-ciara.loftus@intel.com
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20210401000747.3648767-1-davemarchevsky@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/xsk.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ kernel/bpf/stackmap.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -54,6 +54,8 @@ struct xsk_umem {
- 	int fd;
- 	int refcount;
- 	struct list_head ctx_list;
-+	bool rx_ring_setup_done;
-+	bool tx_ring_setup_done;
- };
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -652,9 +652,17 @@ const struct bpf_func_proto bpf_get_stac
+ BPF_CALL_4(bpf_get_task_stack, struct task_struct *, task, void *, buf,
+ 	   u32, size, u64, flags)
+ {
+-	struct pt_regs *regs = task_pt_regs(task);
++	struct pt_regs *regs;
++	long res;
  
- struct xsk_ctx {
-@@ -782,6 +784,7 @@ int xsk_socket__create_shared(struct xsk
- 	struct xsk_ctx *ctx;
- 	int err, ifindex;
- 	bool unmap = umem->fill_save != fill;
-+	bool rx_setup_done = false, tx_setup_done = false;
+-	return __bpf_get_stack(regs, task, NULL, buf, size, flags);
++	if (!try_get_task_stack(task))
++		return -EFAULT;
++
++	regs = task_pt_regs(task);
++	res = __bpf_get_stack(regs, task, NULL, buf, size, flags);
++	put_task_stack(task);
++
++	return res;
+ }
  
- 	if (!umem || !xsk_ptr || !(rx || tx))
- 		return -EFAULT;
-@@ -809,6 +812,8 @@ int xsk_socket__create_shared(struct xsk
- 		}
- 	} else {
- 		xsk->fd = umem->fd;
-+		rx_setup_done = umem->rx_ring_setup_done;
-+		tx_setup_done = umem->tx_ring_setup_done;
- 	}
- 
- 	ctx = xsk_get_ctx(umem, ifindex, queue_id);
-@@ -827,7 +832,7 @@ int xsk_socket__create_shared(struct xsk
- 	}
- 	xsk->ctx = ctx;
- 
--	if (rx) {
-+	if (rx && !rx_setup_done) {
- 		err = setsockopt(xsk->fd, SOL_XDP, XDP_RX_RING,
- 				 &xsk->config.rx_size,
- 				 sizeof(xsk->config.rx_size));
-@@ -835,8 +840,10 @@ int xsk_socket__create_shared(struct xsk
- 			err = -errno;
- 			goto out_put_ctx;
- 		}
-+		if (xsk->fd == umem->fd)
-+			umem->rx_ring_setup_done = true;
- 	}
--	if (tx) {
-+	if (tx && !tx_setup_done) {
- 		err = setsockopt(xsk->fd, SOL_XDP, XDP_TX_RING,
- 				 &xsk->config.tx_size,
- 				 sizeof(xsk->config.tx_size));
-@@ -844,6 +851,8 @@ int xsk_socket__create_shared(struct xsk
- 			err = -errno;
- 			goto out_put_ctx;
- 		}
-+		if (xsk->fd == umem->fd)
-+			umem->rx_ring_setup_done = true;
- 	}
- 
- 	err = xsk_get_mmap_offsets(xsk->fd, &off);
+ BTF_ID_LIST_SINGLE(bpf_get_task_stack_btf_ids, struct, task_struct)
 
 
