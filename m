@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 529EE35BD51
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0CBE35BE1E
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237591AbhDLIvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:51:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38340 "EHLO mail.kernel.org"
+        id S238271AbhDLI5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:57:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238047AbhDLIrY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:47:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 074206124C;
-        Mon, 12 Apr 2021 08:47:05 +0000 (UTC)
+        id S238879AbhDLIzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:55:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E48C6137A;
+        Mon, 12 Apr 2021 08:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217226;
-        bh=2iUfIGXM5vEfOxaYAahgYQr4W9HehDTzGP/q1Qt8J7k=;
+        s=korg; t=1618217611;
+        bh=QDDQMYiPxG+aUyQiCG50hJTNC7dLtm+Oh9GbfPEIuho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEO9LMC07FfGaTVQBo26f6zIAT/+99eYViXS7U0Y+1fE8s6rnJR0dntjx5R8wVsCy
-         qcKxwJZrZ042kvnn9a+iZURiRoOwD/lZZyYuzryYWlpdD1Q/Q+6Rzidunik+XKBAMI
-         sr9M6IkZ082nuWvZaa3iKvcR4mX6iYBA/niTBFLY=
+        b=u0dmi9WSkFMIM8B6PQMCFzZP9XAcBTvfkjmihisfsWqdRkmXk7EZwzc55FAomSMit
+         5IECcGg3sM/9O8DjvcZYQWUIEFV2shb3j6KsdYHMDEl2iSeM9BykFCW5/Ro7jhLhEY
+         i9L4yWC0YB5YFukQgl5kpCz4U7LDrq83QZw7sYdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Greentime Hu <green.hu@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Nick Hu <nickhu@andestech.com>,
-        Vincent Chen <deanbo422@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 015/111] nds32: flush_dcache_page: use page_mapping_file to avoid races with swapoff
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 079/188] scsi: target: iscsi: Fix zero tag inside a trace event
 Date:   Mon, 12 Apr 2021 10:39:53 +0200
-Message-Id: <20210412084004.733578027@linuxfoundation.org>
+Message-Id: <20210412084016.276771321@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-References: <20210412084004.200986670@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-commit a3a8833dffb7e7329c2586b8bfc531adb503f123 upstream.
+commit 0352c3d3959a6cf543075b88c7e662fd3546f12e upstream.
 
-Commit cb9f753a3731 ("mm: fix races between swapoff and flush dcache")
-updated flush_dcache_page implementations on several architectures to
-use page_mapping_file() in order to avoid races between page_mapping()
-and swapoff().
+target_sequencer_start event is triggered inside target_cmd_init_cdb().
+se_cmd.tag is not initialized with ITT at the moment so the event always
+prints zero tag.
 
-This update missed arch/nds32 and there is a possibility of a race
-there.
-
-Replace page_mapping() with page_mapping_file() in nds32 implementation
-of flush_dcache_page().
-
-Link: https://lkml.kernel.org/r/20210330175126.26500-1-rppt@kernel.org
-Fixes: cb9f753a3731 ("mm: fix races between swapoff and flush dcache")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Greentime Hu <green.hu@gmail.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Nick Hu <nickhu@andestech.com>
-Cc: Vincent Chen <deanbo422@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20210403215415.95077-1-r.bolshakov@yadro.com
+Cc: stable@vger.kernel.org # 5.10+
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nds32/mm/cacheflush.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/target/iscsi/iscsi_target.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/nds32/mm/cacheflush.c
-+++ b/arch/nds32/mm/cacheflush.c
-@@ -239,7 +239,7 @@ void flush_dcache_page(struct page *page
- {
- 	struct address_space *mapping;
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -1166,6 +1166,7 @@ int iscsit_setup_scsi_cmd(struct iscsi_c
  
--	mapping = page_mapping(page);
-+	mapping = page_mapping_file(page);
- 	if (mapping && !mapping_mapped(mapping))
- 		set_bit(PG_dcache_dirty, &page->flags);
- 	else {
+ 	target_get_sess_cmd(&cmd->se_cmd, true);
+ 
++	cmd->se_cmd.tag = (__force u32)cmd->init_task_tag;
+ 	cmd->sense_reason = target_cmd_init_cdb(&cmd->se_cmd, hdr->cdb);
+ 	if (cmd->sense_reason) {
+ 		if (cmd->sense_reason == TCM_OUT_OF_RESOURCES) {
+@@ -1180,8 +1181,6 @@ int iscsit_setup_scsi_cmd(struct iscsi_c
+ 	if (cmd->sense_reason)
+ 		goto attach_cmd;
+ 
+-	/* only used for printks or comparing with ->ref_task_tag */
+-	cmd->se_cmd.tag = (__force u32)cmd->init_task_tag;
+ 	cmd->sense_reason = target_cmd_parse_cdb(&cmd->se_cmd);
+ 	if (cmd->sense_reason)
+ 		goto attach_cmd;
 
 
