@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F2B35BED9
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62EE535C0BE
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238955AbhDLJCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:02:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49260 "EHLO mail.kernel.org"
+        id S241351AbhDLJPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239163AbhDLI7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:59:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1120761243;
-        Mon, 12 Apr 2021 08:57:33 +0000 (UTC)
+        id S240694AbhDLJKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:10:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F0AA61363;
+        Mon, 12 Apr 2021 09:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217854;
-        bh=B3Z+kegQ/q0iCRikUQByQLt78kbiA/6W0nX6/k83WJg=;
+        s=korg; t=1618218381;
+        bh=XMiwNQTDOiRTSd56F8WAVOgIVi5fgZLreImXNBJsaWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3ieWZ2RylELCJFgjLQ1RE9+IXNHlRBg99yPOW6cerXZukMwSYBI5YAD0Q5tVKDC6
-         sOGNsiRZbbfvBgoWE6KfP9pLr7mg/h8gqKHdNzTEjxnwEne0Ca++Y+bkNklssNwk5i
-         ATY2m6pIqmwnxoRRMBna/s+1RTt3pZGqHSJwiQN0=
+        b=unES/LWSd7Ax2w4qZfTnEkJkTAIxBLyFUJygDJKvAraqczNmJkaH1c9kM+LrZDvGD
+         /DFgzxhmINXajYLza9+7UDA60cqVlLYvTEw9OW1gf5OQVuJNw/X38tH+W3E6zi3fuP
+         mkPWx4GNWdFVClolLMqrSwljXHgPgko8tpNiGUKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 168/188] vdpa/mlx5: Fix wrong use of bit numbers
+Subject: [PATCH 5.11 177/210] net: hns3: clear VF down state bit before request link status
 Date:   Mon, 12 Apr 2021 10:41:22 +0200
-Message-Id: <20210412084019.220334209@linuxfoundation.org>
+Message-Id: <20210412084021.913427795@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-[ Upstream commit 4b454a82418dd76d8c0590bb3f7a99a63ea57dc5 ]
+[ Upstream commit ed7bedd2c3ca040f1e8ea02c6590a93116b1ec78 ]
 
-VIRTIO_F_VERSION_1 is a bit number. Use BIT_ULL() with mask
-conditionals.
+Currently, the VF down state bit is cleared after VF sending
+link status request command. There is problem that when VF gets
+link status replied from PF, the down state bit may still set
+as 1. In this case, the link status replied from PF will be
+ignored and always set VF link status to down.
 
-Also, in mlx5_vdpa_is_little_endian() use BIT_ULL for consistency with
-the rest of the code.
+To fix this problem, clear VF down state bit before VF requests
+link status.
 
-Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20210408091047.4269-5-elic@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 4 ++--
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 545160ee2a62..65cfbd377130 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -805,7 +805,7 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
- 	MLX5_SET(virtio_q, vq_ctx, event_qpn_or_msix, mvq->fwqp.mqp.qpn);
- 	MLX5_SET(virtio_q, vq_ctx, queue_size, mvq->num_ent);
- 	MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0,
--		 !!(ndev->mvdev.actual_features & VIRTIO_F_VERSION_1));
-+		 !!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_F_VERSION_1)));
- 	MLX5_SET64(virtio_q, vq_ctx, desc_addr, mvq->desc_addr);
- 	MLX5_SET64(virtio_q, vq_ctx, used_addr, mvq->device_addr);
- 	MLX5_SET64(virtio_q, vq_ctx, available_addr, mvq->driver_addr);
-@@ -1535,7 +1535,7 @@ static void teardown_virtqueues(struct mlx5_vdpa_net *ndev)
- static inline bool mlx5_vdpa_is_little_endian(struct mlx5_vdpa_dev *mvdev)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 674b3a22e91f..3bd7bc794677 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2575,14 +2575,14 @@ static int hclgevf_ae_start(struct hnae3_handle *handle)
  {
- 	return virtio_legacy_is_little_endian() ||
--		(mvdev->actual_features & (1ULL << VIRTIO_F_VERSION_1));
-+		(mvdev->actual_features & BIT_ULL(VIRTIO_F_VERSION_1));
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
+ 
++	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
++
+ 	hclgevf_reset_tqp_stats(handle);
+ 
+ 	hclgevf_request_link_info(hdev);
+ 
+ 	hclgevf_update_link_mode(hdev);
+ 
+-	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
+-
+ 	return 0;
  }
  
- static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
 -- 
 2.30.2
 
