@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19F4335C068
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BF4E35C06E
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239626AbhDLJNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:13:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35924 "EHLO mail.kernel.org"
+        id S238646AbhDLJNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:13:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240288AbhDLJKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240307AbhDLJKL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E56DC61371;
-        Mon, 12 Apr 2021 09:05:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98FA361390;
+        Mon, 12 Apr 2021 09:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218312;
-        bh=Jeggk29e+BX4k102ML44+EM0ZUd4BAbW8jKRvvt9JfQ=;
+        s=korg; t=1618218315;
+        bh=bWtIJWzJV7iRmjmXVIM3jac31huCm0fbc3wewGW2BE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TLiCVWaUmi0OmI2DsNSJmXNca1eh1LSHKxwW82Nn8mV59hmRTt6uN0O9LmaWWNXwk
-         Bq/9pLh4JXFrMpD28OpNRFpXhqIsATYdBnIQydcQJ+IRtkevZahmpyQXB2aABRsSzZ
-         +nCiU2DbXiKzL5JTCYhYI9Mo1Gx/RfCnDlZxgYLM=
+        b=Bp7IUbAsTNHwMLr6K9cvVqylQlwxhWwUXcS+o1u0cKC3nfWGdoVB5Mj+PpFE7i6DW
+         J8cvZ6sAS/28e97Rs3dwGCvjoUsnah5LdS1y5QXIDNGjFwVGcZAGwT3GFFtCSDKh9A
+         OYaRpf5E3go44KSkcWIDa5EM9HL8rwi+jOhtRDLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Sreedevi Joshi <sreedevi.joshi@intel.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Kiran Bhandare <kiranx.bhandare@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 150/210] soc/fsl: qbman: fix conflicting alignment attributes
-Date:   Mon, 12 Apr 2021 10:40:55 +0200
-Message-Id: <20210412084020.982510031@linuxfoundation.org>
+Subject: [PATCH 5.11 151/210] i40e: fix receiving of single packets in xsk zero-copy mode
+Date:   Mon, 12 Apr 2021 10:40:56 +0200
+Message-Id: <20210412084021.019967102@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -39,42 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 040f31196e8b2609613f399793b9225271b79471 ]
+[ Upstream commit 528060ef3e1105c5c3eba66ffbfc80e0825e2cce ]
 
-When building with W=1, gcc points out that the __packed attribute
-on struct qm_eqcr_entry conflicts with the 8-byte alignment
-attribute on struct qm_fd inside it:
+Fix so that single packets are received immediately instead of in
+batches of 8. If you sent 1 pps to a system, you received 8 packets
+every 8 seconds instead of 1 packet every second. The problem behind
+this was that the work_done reporting from the Tx part of the driver
+was broken. The work_done reporting in i40e controls not only the
+reporting back to the napi logic but also the setting of the interrupt
+throttling logic. When Tx or Rx reports that it has more to do,
+interrupts are throttled or coalesced and when they both report that
+they are done, interrupts are armed right away. If the wrong work_done
+value is returned, the logic will start to throttle interrupts in a
+situation where it should have just enabled them. This leads to the
+undesired batching behavior seen in user-space.
 
-drivers/soc/fsl/qbman/qman.c:189:1: error: alignment 1 of 'struct qm_eqcr_entry' is less than 8 [-Werror=packed-not-aligned]
+Fix this by returning the correct boolean value from the Tx xsk
+zero-copy path. Return true if there is nothing to do or if we got
+fewer packets to process than we asked for. Return false if we got as
+many packets as the budget since there might be more packets we can
+process.
 
-I assume that the alignment attribute is the correct one, and
-that qm_eqcr_entry cannot actually be unaligned in memory,
-so add the same alignment on the outer struct.
-
-Fixes: c535e923bb97 ("soc/fsl: Introduce DPAA 1.x QMan device driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210323131530.2619900-1-arnd@kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 3106c580fb7c ("i40e: Use batched xsk Tx interfaces to increase performance")
+Reported-by: Sreedevi Joshi <sreedevi.joshi@intel.com>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/qbman/qman.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_xsk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/fsl/qbman/qman.c b/drivers/soc/fsl/qbman/qman.c
-index a1b9be1d105a..fde4edd83c14 100644
---- a/drivers/soc/fsl/qbman/qman.c
-+++ b/drivers/soc/fsl/qbman/qman.c
-@@ -186,7 +186,7 @@ struct qm_eqcr_entry {
- 	__be32 tag;
- 	struct qm_fd fd;
- 	u8 __reserved3[32];
--} __packed;
-+} __packed __aligned(8);
- #define QM_EQCR_VERB_VBIT		0x80
- #define QM_EQCR_VERB_CMD_MASK		0x61	/* but only one value; */
- #define QM_EQCR_VERB_CMD_ENQUEUE	0x01
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+index 37a21fb99922..7949f6b79f92 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+@@ -462,7 +462,7 @@ static bool i40e_xmit_zc(struct i40e_ring *xdp_ring, unsigned int budget)
+ 
+ 	nb_pkts = xsk_tx_peek_release_desc_batch(xdp_ring->xsk_pool, descs, budget);
+ 	if (!nb_pkts)
+-		return false;
++		return true;
+ 
+ 	if (xdp_ring->next_to_use + nb_pkts >= xdp_ring->count) {
+ 		nb_processed = xdp_ring->count - xdp_ring->next_to_use;
+@@ -479,7 +479,7 @@ static bool i40e_xmit_zc(struct i40e_ring *xdp_ring, unsigned int budget)
+ 
+ 	i40e_update_tx_stats(xdp_ring, nb_pkts, total_bytes);
+ 
+-	return true;
++	return nb_pkts < budget;
+ }
+ 
+ /**
 -- 
 2.30.2
 
