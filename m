@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0823C35BEC1
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C11B35C06B
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238720AbhDLJB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49588 "EHLO mail.kernel.org"
+        id S239654AbhDLJNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:13:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238276AbhDLI5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:57:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 677A661352;
-        Mon, 12 Apr 2021 08:56:53 +0000 (UTC)
+        id S240276AbhDLJKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:10:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23CE861357;
+        Mon, 12 Apr 2021 09:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217813;
-        bh=+511sdl679dmSqu6F2ut2LeBb5S4TxJUt0JO6lFb2DI=;
+        s=korg; t=1618218304;
+        bh=XkWQH0JZJaOWxsomESMVOk3wBKLuqadd0bKkF2txe6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jwqc5oCAb+JmuiMqPA5tRU4cWjyHpb8QVb4+la/GdhMXEsDKAhGPO9DS8uLVDlvR3
-         GhLEmK1IIlsXxn4uoBehX/yPW8aqvqJjv/QQKK/JuUJkCAdYXyJQHej3L1Wc90gbWb
-         2WBVQJ/ibkXuuYCBbEWK4Yr+eMSmHCb+1irCqm5E=
+        b=xcS+9625M6J/yk5qNuEj2sNkSgBZfsfhWb3azdjDa6M1wEBClr2SY2T+WUTlq+OKi
+         EF+F2kY3iEFJF82sBJHCsQ3CzdBpj2nuyIA1Dg0yDLGfCS4xS3pPwWC0sBUhXZs/93
+         QBiwpOM+K1tSsLNFVnCBJlmk+nr8bjqv9YEsPtvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 137/188] i40e: Fix display statistics for veb_tc
-Date:   Mon, 12 Apr 2021 10:40:51 +0200
-Message-Id: <20210412084018.196940646@linuxfoundation.org>
+Subject: [PATCH 5.11 147/210] net/mlx5e: Guarantee room for XSK wakeup NOP on async ICOSQ
+Date:   Mon, 12 Apr 2021 10:40:52 +0200
+Message-Id: <20210412084020.889942065@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,113 +41,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-[ Upstream commit c3214de929dbf1b7374add8bbed30ce82b197bbb ]
+[ Upstream commit 3ff3874fa0b261ef74f2bfb008a82ab1601c11eb ]
 
-If veb-stats was enabled, the ethtool stats triggered a warning
-due to invalid size: 'unexpected stat size for veb.tc_%u_tx_packets'.
-This was due to an incorrect structure definition for the statistics.
-Structures and functions have been improved in line with requirements
-for the presentation of statistics, in particular for the functions:
-'i40e_add_ethtool_stats' and 'i40e_add_stat_strings'.
+XSK wakeup flow triggers an IRQ by posting a NOP WQE and hitting
+the doorbell on the async ICOSQ.
+It maintains its state so that it doesn't issue another NOP WQE
+if it has an outstanding one already.
 
-Fixes: 1510ae0be2a4 ("i40e: convert VEB TC stats to use an i40e_stats array")
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+For this flow to work properly, the NOP post must not fail.
+Make sure to reserve room for the NOP WQE in all WQE posts to the
+async ICOSQ.
+
+Fixes: 8d94b590f1e4 ("net/mlx5e: Turn XSK ICOSQ into a general asynchronous one")
+Fixes: 1182f3659357 ("net/mlx5e: kTLS, Add kTLS RX HW offload support")
+Fixes: 0419d8c9d8f8 ("net/mlx5e: kTLS, Add kTLS RX resync support")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 52 ++++++++++++++++---
- 1 file changed, 46 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en.h  |  1 +
+ .../net/ethernet/mellanox/mlx5/core/en/txrx.h |  6 ++++++
+ .../mellanox/mlx5/core/en_accel/ktls_rx.c     | 18 +++++++---------
+ .../net/ethernet/mellanox/mlx5/core/en_main.c | 21 ++++++++++++++++++-
+ 4 files changed, 34 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index a92fac6f1389..849e38be69ff 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -232,6 +232,8 @@ static void __i40e_add_stat_strings(u8 **p, const struct i40e_stats stats[],
- 	I40E_STAT(struct i40e_vsi, _name, _stat)
- #define I40E_VEB_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_veb, _name, _stat)
-+#define I40E_VEB_TC_STAT(_name, _stat) \
-+	I40E_STAT(struct i40e_cp_veb_tc_stats, _name, _stat)
- #define I40E_PFC_STAT(_name, _stat) \
- 	I40E_STAT(struct i40e_pfc_stats, _name, _stat)
- #define I40E_QUEUE_STAT(_name, _stat) \
-@@ -266,11 +268,18 @@ static const struct i40e_stats i40e_gstrings_veb_stats[] = {
- 	I40E_VEB_STAT("veb.rx_unknown_protocol", stats.rx_unknown_protocol),
- };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+index f258f2f9b8cf..9061a30a93bc 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -510,6 +510,7 @@ struct mlx5e_icosq {
+ 	struct mlx5_wq_cyc         wq;
+ 	void __iomem              *uar_map;
+ 	u32                        sqn;
++	u16                        reserved_room;
+ 	unsigned long              state;
  
-+struct i40e_cp_veb_tc_stats {
-+	u64 tc_rx_packets;
-+	u64 tc_rx_bytes;
-+	u64 tc_tx_packets;
-+	u64 tc_tx_bytes;
-+};
-+
- static const struct i40e_stats i40e_gstrings_veb_tc_stats[] = {
--	I40E_VEB_STAT("veb.tc_%u_tx_packets", tc_stats.tc_tx_packets),
--	I40E_VEB_STAT("veb.tc_%u_tx_bytes", tc_stats.tc_tx_bytes),
--	I40E_VEB_STAT("veb.tc_%u_rx_packets", tc_stats.tc_rx_packets),
--	I40E_VEB_STAT("veb.tc_%u_rx_bytes", tc_stats.tc_rx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_packets", tc_tx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_tx_bytes", tc_tx_bytes),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_packets", tc_rx_packets),
-+	I40E_VEB_TC_STAT("veb.tc_%u_rx_bytes", tc_rx_bytes),
- };
- 
- static const struct i40e_stats i40e_gstrings_misc_stats[] = {
-@@ -2217,6 +2226,29 @@ static int i40e_get_sset_count(struct net_device *netdev, int sset)
- 	}
+ 	/* control path */
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+index 4880f2179273..05d673e5289d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+@@ -434,4 +434,10 @@ static inline u16 mlx5e_stop_room_for_wqe(u16 wqe_size)
+ 	return wqe_size * 2 - 1;
  }
  
-+/**
-+ * i40e_get_veb_tc_stats - copy VEB TC statistics to formatted structure
-+ * @tc: the TC statistics in VEB structure (veb->tc_stats)
-+ * @i: the index of traffic class in (veb->tc_stats) structure to copy
-+ *
-+ * Copy VEB TC statistics from structure of arrays (veb->tc_stats) to
-+ * one dimensional structure i40e_cp_veb_tc_stats.
-+ * Produce formatted i40e_cp_veb_tc_stats structure of the VEB TC
-+ * statistics for the given TC.
-+ **/
-+static struct i40e_cp_veb_tc_stats
-+i40e_get_veb_tc_stats(struct i40e_veb_tc_stats *tc, unsigned int i)
++static inline bool mlx5e_icosq_can_post_wqe(struct mlx5e_icosq *sq, u16 wqe_size)
 +{
-+	struct i40e_cp_veb_tc_stats veb_tc = {
-+		.tc_rx_packets = tc->tc_rx_packets[i],
-+		.tc_rx_bytes = tc->tc_rx_bytes[i],
-+		.tc_tx_packets = tc->tc_tx_packets[i],
-+		.tc_tx_bytes = tc->tc_tx_bytes[i],
-+	};
++	u16 room = sq->reserved_room + mlx5e_stop_room_for_wqe(wqe_size);
 +
-+	return veb_tc;
++	return mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, room);
++}
+ #endif
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
+index d06532d0baa4..c0bd4e55ed8c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
+@@ -137,11 +137,10 @@ post_static_params(struct mlx5e_icosq *sq,
+ {
+ 	struct mlx5e_set_tls_static_params_wqe *wqe;
+ 	struct mlx5e_icosq_wqe_info wi;
+-	u16 pi, num_wqebbs, room;
++	u16 pi, num_wqebbs;
+ 
+ 	num_wqebbs = MLX5E_TLS_SET_STATIC_PARAMS_WQEBBS;
+-	room = mlx5e_stop_room_for_wqe(num_wqebbs);
+-	if (unlikely(!mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, room)))
++	if (unlikely(!mlx5e_icosq_can_post_wqe(sq, num_wqebbs)))
+ 		return ERR_PTR(-ENOSPC);
+ 
+ 	pi = mlx5e_icosq_get_next_pi(sq, num_wqebbs);
+@@ -168,11 +167,10 @@ post_progress_params(struct mlx5e_icosq *sq,
+ {
+ 	struct mlx5e_set_tls_progress_params_wqe *wqe;
+ 	struct mlx5e_icosq_wqe_info wi;
+-	u16 pi, num_wqebbs, room;
++	u16 pi, num_wqebbs;
+ 
+ 	num_wqebbs = MLX5E_TLS_SET_PROGRESS_PARAMS_WQEBBS;
+-	room = mlx5e_stop_room_for_wqe(num_wqebbs);
+-	if (unlikely(!mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, room)))
++	if (unlikely(!mlx5e_icosq_can_post_wqe(sq, num_wqebbs)))
+ 		return ERR_PTR(-ENOSPC);
+ 
+ 	pi = mlx5e_icosq_get_next_pi(sq, num_wqebbs);
+@@ -277,17 +275,15 @@ resync_post_get_progress_params(struct mlx5e_icosq *sq,
+ 
+ 	buf->priv_rx = priv_rx;
+ 
+-	BUILD_BUG_ON(MLX5E_KTLS_GET_PROGRESS_WQEBBS != 1);
+-
+ 	spin_lock_bh(&sq->channel->async_icosq_lock);
+ 
+-	if (unlikely(!mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, 1))) {
++	if (unlikely(!mlx5e_icosq_can_post_wqe(sq, MLX5E_KTLS_GET_PROGRESS_WQEBBS))) {
+ 		spin_unlock_bh(&sq->channel->async_icosq_lock);
+ 		err = -ENOSPC;
+ 		goto err_dma_unmap;
+ 	}
+ 
+-	pi = mlx5e_icosq_get_next_pi(sq, 1);
++	pi = mlx5e_icosq_get_next_pi(sq, MLX5E_KTLS_GET_PROGRESS_WQEBBS);
+ 	wqe = MLX5E_TLS_FETCH_GET_PROGRESS_PARAMS_WQE(sq, pi);
+ 
+ #define GET_PSV_DS_CNT (DIV_ROUND_UP(sizeof(*wqe), MLX5_SEND_WQE_DS))
+@@ -307,7 +303,7 @@ resync_post_get_progress_params(struct mlx5e_icosq *sq,
+ 
+ 	wi = (struct mlx5e_icosq_wqe_info) {
+ 		.wqe_type = MLX5E_ICOSQ_WQE_GET_PSV_TLS,
+-		.num_wqebbs = 1,
++		.num_wqebbs = MLX5E_KTLS_GET_PROGRESS_WQEBBS,
+ 		.tls_get_params.buf = buf,
+ 	};
+ 	icosq_fill_wi(sq, pi, &wi);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index b6324d11a008..7bb189e65628 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -1058,6 +1058,7 @@ static int mlx5e_alloc_icosq(struct mlx5e_channel *c,
+ 
+ 	sq->channel   = c;
+ 	sq->uar_map   = mdev->mlx5e_res.bfreg.map;
++	sq->reserved_room = param->stop_room;
+ 
+ 	param->wq.db_numa_node = cpu_to_node(c->cpu);
+ 	err = mlx5_wq_cyc_create(mdev, &param->wq, sqc_wq, wq, &sq->wq_ctrl);
+@@ -2299,6 +2300,24 @@ void mlx5e_build_icosq_param(struct mlx5e_priv *priv,
+ 	mlx5e_build_ico_cq_param(priv, log_wq_size, &param->cqp);
+ }
+ 
++static void mlx5e_build_async_icosq_param(struct mlx5e_priv *priv,
++					  struct mlx5e_params *params,
++					  u8 log_wq_size,
++					  struct mlx5e_sq_param *param)
++{
++	void *sqc = param->sqc;
++	void *wq = MLX5_ADDR_OF(sqc, sqc, wq);
++
++	mlx5e_build_sq_param_common(priv, param);
++
++	/* async_icosq is used by XSK only if xdp_prog is active */
++	if (params->xdp_prog)
++		param->stop_room = mlx5e_stop_room_for_wqe(1); /* for XSK NOP */
++	MLX5_SET(sqc, sqc, reg_umr, MLX5_CAP_ETH(priv->mdev, reg_umr_sq));
++	MLX5_SET(wq, wq, log_wq_sz, log_wq_size);
++	mlx5e_build_ico_cq_param(priv, log_wq_size, &param->cqp);
 +}
 +
- /**
-  * i40e_get_pfc_stats - copy HW PFC statistics to formatted structure
-  * @pf: the PF device structure
-@@ -2301,8 +2333,16 @@ static void i40e_get_ethtool_stats(struct net_device *netdev,
- 			       i40e_gstrings_veb_stats);
+ void mlx5e_build_xdpsq_param(struct mlx5e_priv *priv,
+ 			     struct mlx5e_params *params,
+ 			     struct mlx5e_sq_param *param)
+@@ -2347,7 +2366,7 @@ static void mlx5e_build_channel_param(struct mlx5e_priv *priv,
+ 	mlx5e_build_sq_param(priv, params, &cparam->txq_sq);
+ 	mlx5e_build_xdpsq_param(priv, params, &cparam->xdp_sq);
+ 	mlx5e_build_icosq_param(priv, icosq_log_wq_sz, &cparam->icosq);
+-	mlx5e_build_icosq_param(priv, async_icosq_log_wq_sz, &cparam->async_icosq);
++	mlx5e_build_async_icosq_param(priv, params, async_icosq_log_wq_sz, &cparam->async_icosq);
+ }
  
- 	for (i = 0; i < I40E_MAX_TRAFFIC_CLASS; i++)
--		i40e_add_ethtool_stats(&data, veb_stats ? veb : NULL,
--				       i40e_gstrings_veb_tc_stats);
-+		if (veb_stats) {
-+			struct i40e_cp_veb_tc_stats veb_tc =
-+				i40e_get_veb_tc_stats(&veb->tc_stats, i);
-+
-+			i40e_add_ethtool_stats(&data, &veb_tc,
-+					       i40e_gstrings_veb_tc_stats);
-+		} else {
-+			i40e_add_ethtool_stats(&data, NULL,
-+					       i40e_gstrings_veb_tc_stats);
-+		}
- 
- 	i40e_add_ethtool_stats(&data, pf, i40e_gstrings_stats);
- 
+ int mlx5e_open_channels(struct mlx5e_priv *priv,
 -- 
 2.30.2
 
