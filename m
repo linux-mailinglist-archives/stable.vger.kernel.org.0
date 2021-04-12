@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62EE535C0BE
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 004E435BED5
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241351AbhDLJPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:15:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34454 "EHLO mail.kernel.org"
+        id S238924AbhDLJCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240694AbhDLJKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F0AA61363;
-        Mon, 12 Apr 2021 09:06:20 +0000 (UTC)
+        id S239150AbhDLI7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:59:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DB0C6124C;
+        Mon, 12 Apr 2021 08:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218381;
-        bh=XMiwNQTDOiRTSd56F8WAVOgIVi5fgZLreImXNBJsaWw=;
+        s=korg; t=1618217857;
+        bh=B6lBmkJc9AGNNM626ehx8HKi/VCxD74uQiqmG5rhVgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unES/LWSd7Ax2w4qZfTnEkJkTAIxBLyFUJygDJKvAraqczNmJkaH1c9kM+LrZDvGD
-         /DFgzxhmINXajYLza9+7UDA60cqVlLYvTEw9OW1gf5OQVuJNw/X38tH+W3E6zi3fuP
-         mkPWx4GNWdFVClolLMqrSwljXHgPgko8tpNiGUKs=
+        b=pE/D8pwxSUVj+tGtBQ/J6wJ2oxebkABBoiOcqXPOwHYTeu6Co0iJMRpDwcAbVvOSu
+         STi+fM988PuJ0uLNikiigj5lQ3uks6JkfPGn+i9oLo8h1+aZ9ACFZvv67McvnVaxzz
+         W2KOFvgSCn1sMQksfEz7zPSkq0rEfLcvHxwtp5K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 177/210] net: hns3: clear VF down state bit before request link status
-Date:   Mon, 12 Apr 2021 10:41:22 +0200
-Message-Id: <20210412084021.913427795@linuxfoundation.org>
+        stable@vger.kernel.org, William Roche <william.roche@oracle.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 169/188] RAS/CEC: Correct ce_add_elem()s returned values
+Date:   Mon, 12 Apr 2021 10:41:23 +0200
+Message-Id: <20210412084019.250214213@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: William Roche <william.roche@oracle.com>
 
-[ Upstream commit ed7bedd2c3ca040f1e8ea02c6590a93116b1ec78 ]
+commit 3a62583c2853b0ab37a57dde79decea210b5fb89 upstream.
 
-Currently, the VF down state bit is cleared after VF sending
-link status request command. There is problem that when VF gets
-link status replied from PF, the down state bit may still set
-as 1. In this case, the link status replied from PF will be
-ignored and always set VF link status to down.
+ce_add_elem() uses different return values to signal a result from
+adding an element to the collector. Commit in Fixes: broke the case
+where the element being added is not found in the array. Correct that.
 
-To fix this problem, clear VF down state bit before VF requests
-link status.
+ [ bp: Rewrite commit message, add kernel-doc comments. ]
 
-Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: de0e0624d86f ("RAS/CEC: Check count_threshold unconditionally")
+Signed-off-by: William Roche <william.roche@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/1617722939-29670-1-git-send-email-william.roche@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ras/cec.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 674b3a22e91f..3bd7bc794677 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2575,14 +2575,14 @@ static int hclgevf_ae_start(struct hnae3_handle *handle)
- {
- 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
- 
-+	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
-+
- 	hclgevf_reset_tqp_stats(handle);
- 
- 	hclgevf_request_link_info(hdev);
- 
- 	hclgevf_update_link_mode(hdev);
- 
--	clear_bit(HCLGEVF_STATE_DOWN, &hdev->state);
--
- 	return 0;
+--- a/drivers/ras/cec.c
++++ b/drivers/ras/cec.c
+@@ -309,11 +309,20 @@ static bool sanity_check(struct ce_array
+ 	return ret;
  }
  
--- 
-2.30.2
-
++/**
++ * cec_add_elem - Add an element to the CEC array.
++ * @pfn:	page frame number to insert
++ *
++ * Return values:
++ * - <0:	on error
++ * -  0:	on success
++ * - >0:	when the inserted pfn was offlined
++ */
+ static int cec_add_elem(u64 pfn)
+ {
+ 	struct ce_array *ca = &ce_arr;
++	int count, err, ret = 0;
+ 	unsigned int to = 0;
+-	int count, ret = 0;
+ 
+ 	/*
+ 	 * We can be called very early on the identify_cpu() path where we are
+@@ -330,8 +339,8 @@ static int cec_add_elem(u64 pfn)
+ 	if (ca->n == MAX_ELEMS)
+ 		WARN_ON(!del_lru_elem_unlocked(ca));
+ 
+-	ret = find_elem(ca, pfn, &to);
+-	if (ret < 0) {
++	err = find_elem(ca, pfn, &to);
++	if (err < 0) {
+ 		/*
+ 		 * Shift range [to-end] to make room for one more element.
+ 		 */
 
 
