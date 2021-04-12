@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C11B35C06B
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DE235BED0
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:02:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239654AbhDLJNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
+        id S238831AbhDLJCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240276AbhDLJKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23CE861357;
-        Mon, 12 Apr 2021 09:05:03 +0000 (UTC)
+        id S239097AbhDLI7K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:59:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B82860241;
+        Mon, 12 Apr 2021 08:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218304;
-        bh=XkWQH0JZJaOWxsomESMVOk3wBKLuqadd0bKkF2txe6w=;
+        s=korg; t=1618217844;
+        bh=92/YGSk1CA30vTTNCW71MC/t/TMNmehzgOfEbhnV9pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcS+9625M6J/yk5qNuEj2sNkSgBZfsfhWb3azdjDa6M1wEBClr2SY2T+WUTlq+OKi
-         EF+F2kY3iEFJF82sBJHCsQ3CzdBpj2nuyIA1Dg0yDLGfCS4xS3pPwWC0sBUhXZs/93
-         QBiwpOM+K1tSsLNFVnCBJlmk+nr8bjqv9YEsPtvo=
+        b=U06t3GSRn/kK/TgKzEqQR7JGAn137cbDIHjfkVC2bgFyMDzzL/nXmd2skdN/OoaLW
+         5sd9MsgYi+Bvqyifl1VBaKXlynKPtrvGyY2P8fP9xjQomFv8OU9pai4/aReZBXSJFq
+         yM44fRj/FDDeVzDbBF+DglEnw7itvDI0JsBuO8JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
-        Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Md Haris Iqbal <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Gioh Kim <gi-oh.kim@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 147/210] net/mlx5e: Guarantee room for XSK wakeup NOP on async ICOSQ
+Subject: [PATCH 5.10 138/188] RDMA/rtrs-clt: Close rtrs client conn before destroying rtrs clt session files
 Date:   Mon, 12 Apr 2021 10:40:52 +0200
-Message-Id: <20210412084020.889942065@linuxfoundation.org>
+Message-Id: <20210412084018.227861541@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,167 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@nvidia.com>
+From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
 
-[ Upstream commit 3ff3874fa0b261ef74f2bfb008a82ab1601c11eb ]
+[ Upstream commit 7582207b1059129e59eb92026fca2cfc088a74fc ]
 
-XSK wakeup flow triggers an IRQ by posting a NOP WQE and hitting
-the doorbell on the async ICOSQ.
-It maintains its state so that it doesn't issue another NOP WQE
-if it has an outstanding one already.
+KASAN detected the following BUG:
 
-For this flow to work properly, the NOP post must not fail.
-Make sure to reserve room for the NOP WQE in all WQE posts to the
-async ICOSQ.
+  BUG: KASAN: use-after-free in rtrs_clt_update_wc_stats+0x41/0x100 [rtrs_client]
+  Read of size 8 at addr ffff88bf2fb4adc0 by task swapper/0/0
 
-Fixes: 8d94b590f1e4 ("net/mlx5e: Turn XSK ICOSQ into a general asynchronous one")
-Fixes: 1182f3659357 ("net/mlx5e: kTLS, Add kTLS RX HW offload support")
-Fixes: 0419d8c9d8f8 ("net/mlx5e: kTLS, Add kTLS RX resync support")
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+  CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      5.4.84-pserver #5.4.84-1+feature+linux+5.4.y+dbg+20201216.1319+b6b887b~deb10
+  Hardware name: Supermicro H8QG6/H8QG6, BIOS 3.00       09/04/2012
+  Call Trace:
+   <IRQ>
+   dump_stack+0x96/0xe0
+   print_address_description.constprop.4+0x1f/0x300
+   ? irq_work_claim+0x2e/0x50
+   __kasan_report.cold.8+0x78/0x92
+   ? rtrs_clt_update_wc_stats+0x41/0x100 [rtrs_client]
+   kasan_report+0x10/0x20
+   rtrs_clt_update_wc_stats+0x41/0x100 [rtrs_client]
+   rtrs_clt_rdma_done+0xb1/0x760 [rtrs_client]
+   ? lockdep_hardirqs_on+0x1a8/0x290
+   ? process_io_rsp+0xb0/0xb0 [rtrs_client]
+   ? mlx4_ib_destroy_cq+0x100/0x100 [mlx4_ib]
+   ? add_interrupt_randomness+0x1a2/0x340
+   __ib_process_cq+0x97/0x100 [ib_core]
+   ib_poll_handler+0x41/0xb0 [ib_core]
+   irq_poll_softirq+0xe0/0x260
+   __do_softirq+0x127/0x672
+   irq_exit+0xd1/0xe0
+   do_IRQ+0xa3/0x1d0
+   common_interrupt+0xf/0xf
+   </IRQ>
+  RIP: 0010:cpuidle_enter_state+0xea/0x780
+  Code: 31 ff e8 99 48 47 ff 80 7c 24 08 00 74 12 9c 58 f6 c4 02 0f 85 53 05 00 00 31 ff e8 b0 6f 53 ff e8 ab 4f 5e ff fb 8b 44 24 04 <85> c0 0f 89 f3 01 00 00 48 8d 7b 14 e8 65 1e 77 ff c7 43 14 00 00
+  RSP: 0018:ffffffffab007d58 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffca
+  RAX: 0000000000000002 RBX: ffff88b803d69800 RCX: ffffffffa91a8298
+  RDX: 0000000000000007 RSI: dffffc0000000000 RDI: ffffffffab021414
+  RBP: ffffffffab6329e0 R08: 0000000000000002 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000002
+  R13: 000000bf39d82466 R14: ffffffffab632aa0 R15: ffffffffab632ae0
+   ? lockdep_hardirqs_on+0x1a8/0x290
+   ? cpuidle_enter_state+0xe5/0x780
+   cpuidle_enter+0x3c/0x60
+   do_idle+0x2fb/0x390
+   ? arch_cpu_idle_exit+0x40/0x40
+   ? schedule+0x94/0x120
+   cpu_startup_entry+0x19/0x1b
+   start_kernel+0x5da/0x61b
+   ? thread_stack_cache_init+0x6/0x6
+   ? load_ucode_amd_bsp+0x6f/0xc4
+   ? init_amd_microcode+0xa6/0xa6
+   ? x86_family+0x5/0x20
+   ? load_ucode_bsp+0x182/0x1fd
+   secondary_startup_64+0xa4/0xb0
+
+  Allocated by task 5730:
+   save_stack+0x19/0x80
+   __kasan_kmalloc.constprop.9+0xc1/0xd0
+   kmem_cache_alloc_trace+0x15b/0x350
+   alloc_sess+0xf4/0x570 [rtrs_client]
+   rtrs_clt_open+0x3b4/0x780 [rtrs_client]
+   find_and_get_or_create_sess+0x649/0x9d0 [rnbd_client]
+   rnbd_clt_map_device+0xd7/0xf50 [rnbd_client]
+   rnbd_clt_map_device_store+0x4ee/0x970 [rnbd_client]
+   kernfs_fop_write+0x141/0x240
+   vfs_write+0xf3/0x280
+   ksys_write+0xba/0x150
+   do_syscall_64+0x68/0x270
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+  Freed by task 5822:
+   save_stack+0x19/0x80
+   __kasan_slab_free+0x125/0x170
+   kfree+0xe7/0x3f0
+   kobject_put+0xd3/0x240
+   rtrs_clt_destroy_sess_files+0x3f/0x60 [rtrs_client]
+   rtrs_clt_close+0x3c/0x80 [rtrs_client]
+   close_rtrs+0x45/0x80 [rnbd_client]
+   rnbd_client_exit+0x10f/0x2bd [rnbd_client]
+   __x64_sys_delete_module+0x27b/0x340
+   do_syscall_64+0x68/0x270
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+When rtrs_clt_close is triggered, it iterates over all the present
+rtrs_clt_sess and triggers close on them. However, the call to
+rtrs_clt_destroy_sess_files is done before the rtrs_clt_close_conns. This
+is incorrect since during the initialization phase we allocate
+rtrs_clt_sess first, and then we go ahead and create rtrs_clt_con for it.
+
+If we free the rtrs_clt_sess structure before closing the rtrs_clt_con, it
+may so happen that an inflight IO completion would trigger the function
+rtrs_clt_rdma_done, which would lead to the above UAF case.
+
+Hence close the rtrs_clt_con connections first, and then trigger the
+destruction of session files.
+
+Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
+Link: https://lore.kernel.org/r/20210325153308.1214057-12-gi-oh.kim@ionos.com
+Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h  |  1 +
- .../net/ethernet/mellanox/mlx5/core/en/txrx.h |  6 ++++++
- .../mellanox/mlx5/core/en_accel/ktls_rx.c     | 18 +++++++---------
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 21 ++++++++++++++++++-
- 4 files changed, 34 insertions(+), 12 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index f258f2f9b8cf..9061a30a93bc 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -510,6 +510,7 @@ struct mlx5e_icosq {
- 	struct mlx5_wq_cyc         wq;
- 	void __iomem              *uar_map;
- 	u32                        sqn;
-+	u16                        reserved_room;
- 	unsigned long              state;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index 6eb95e3c4c8a..6ff97fbf8756 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -2739,8 +2739,8 @@ void rtrs_clt_close(struct rtrs_clt *clt)
  
- 	/* control path */
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-index 4880f2179273..05d673e5289d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-@@ -434,4 +434,10 @@ static inline u16 mlx5e_stop_room_for_wqe(u16 wqe_size)
- 	return wqe_size * 2 - 1;
- }
- 
-+static inline bool mlx5e_icosq_can_post_wqe(struct mlx5e_icosq *sq, u16 wqe_size)
-+{
-+	u16 room = sq->reserved_room + mlx5e_stop_room_for_wqe(wqe_size);
-+
-+	return mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, room);
-+}
- #endif
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
-index d06532d0baa4..c0bd4e55ed8c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
-@@ -137,11 +137,10 @@ post_static_params(struct mlx5e_icosq *sq,
- {
- 	struct mlx5e_set_tls_static_params_wqe *wqe;
- 	struct mlx5e_icosq_wqe_info wi;
--	u16 pi, num_wqebbs, room;
-+	u16 pi, num_wqebbs;
- 
- 	num_wqebbs = MLX5E_TLS_SET_STATIC_PARAMS_WQEBBS;
--	room = mlx5e_stop_room_for_wqe(num_wqebbs);
--	if (unlikely(!mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, room)))
-+	if (unlikely(!mlx5e_icosq_can_post_wqe(sq, num_wqebbs)))
- 		return ERR_PTR(-ENOSPC);
- 
- 	pi = mlx5e_icosq_get_next_pi(sq, num_wqebbs);
-@@ -168,11 +167,10 @@ post_progress_params(struct mlx5e_icosq *sq,
- {
- 	struct mlx5e_set_tls_progress_params_wqe *wqe;
- 	struct mlx5e_icosq_wqe_info wi;
--	u16 pi, num_wqebbs, room;
-+	u16 pi, num_wqebbs;
- 
- 	num_wqebbs = MLX5E_TLS_SET_PROGRESS_PARAMS_WQEBBS;
--	room = mlx5e_stop_room_for_wqe(num_wqebbs);
--	if (unlikely(!mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, room)))
-+	if (unlikely(!mlx5e_icosq_can_post_wqe(sq, num_wqebbs)))
- 		return ERR_PTR(-ENOSPC);
- 
- 	pi = mlx5e_icosq_get_next_pi(sq, num_wqebbs);
-@@ -277,17 +275,15 @@ resync_post_get_progress_params(struct mlx5e_icosq *sq,
- 
- 	buf->priv_rx = priv_rx;
- 
--	BUILD_BUG_ON(MLX5E_KTLS_GET_PROGRESS_WQEBBS != 1);
--
- 	spin_lock_bh(&sq->channel->async_icosq_lock);
- 
--	if (unlikely(!mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, 1))) {
-+	if (unlikely(!mlx5e_icosq_can_post_wqe(sq, MLX5E_KTLS_GET_PROGRESS_WQEBBS))) {
- 		spin_unlock_bh(&sq->channel->async_icosq_lock);
- 		err = -ENOSPC;
- 		goto err_dma_unmap;
+ 	/* Now it is safe to iterate over all paths without locks */
+ 	list_for_each_entry_safe(sess, tmp, &clt->paths_list, s.entry) {
+-		rtrs_clt_destroy_sess_files(sess, NULL);
+ 		rtrs_clt_close_conns(sess, true);
++		rtrs_clt_destroy_sess_files(sess, NULL);
+ 		kobject_put(&sess->kobj);
  	}
- 
--	pi = mlx5e_icosq_get_next_pi(sq, 1);
-+	pi = mlx5e_icosq_get_next_pi(sq, MLX5E_KTLS_GET_PROGRESS_WQEBBS);
- 	wqe = MLX5E_TLS_FETCH_GET_PROGRESS_PARAMS_WQE(sq, pi);
- 
- #define GET_PSV_DS_CNT (DIV_ROUND_UP(sizeof(*wqe), MLX5_SEND_WQE_DS))
-@@ -307,7 +303,7 @@ resync_post_get_progress_params(struct mlx5e_icosq *sq,
- 
- 	wi = (struct mlx5e_icosq_wqe_info) {
- 		.wqe_type = MLX5E_ICOSQ_WQE_GET_PSV_TLS,
--		.num_wqebbs = 1,
-+		.num_wqebbs = MLX5E_KTLS_GET_PROGRESS_WQEBBS,
- 		.tls_get_params.buf = buf,
- 	};
- 	icosq_fill_wi(sq, pi, &wi);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index b6324d11a008..7bb189e65628 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -1058,6 +1058,7 @@ static int mlx5e_alloc_icosq(struct mlx5e_channel *c,
- 
- 	sq->channel   = c;
- 	sq->uar_map   = mdev->mlx5e_res.bfreg.map;
-+	sq->reserved_room = param->stop_room;
- 
- 	param->wq.db_numa_node = cpu_to_node(c->cpu);
- 	err = mlx5_wq_cyc_create(mdev, &param->wq, sqc_wq, wq, &sq->wq_ctrl);
-@@ -2299,6 +2300,24 @@ void mlx5e_build_icosq_param(struct mlx5e_priv *priv,
- 	mlx5e_build_ico_cq_param(priv, log_wq_size, &param->cqp);
- }
- 
-+static void mlx5e_build_async_icosq_param(struct mlx5e_priv *priv,
-+					  struct mlx5e_params *params,
-+					  u8 log_wq_size,
-+					  struct mlx5e_sq_param *param)
-+{
-+	void *sqc = param->sqc;
-+	void *wq = MLX5_ADDR_OF(sqc, sqc, wq);
-+
-+	mlx5e_build_sq_param_common(priv, param);
-+
-+	/* async_icosq is used by XSK only if xdp_prog is active */
-+	if (params->xdp_prog)
-+		param->stop_room = mlx5e_stop_room_for_wqe(1); /* for XSK NOP */
-+	MLX5_SET(sqc, sqc, reg_umr, MLX5_CAP_ETH(priv->mdev, reg_umr_sq));
-+	MLX5_SET(wq, wq, log_wq_sz, log_wq_size);
-+	mlx5e_build_ico_cq_param(priv, log_wq_size, &param->cqp);
-+}
-+
- void mlx5e_build_xdpsq_param(struct mlx5e_priv *priv,
- 			     struct mlx5e_params *params,
- 			     struct mlx5e_sq_param *param)
-@@ -2347,7 +2366,7 @@ static void mlx5e_build_channel_param(struct mlx5e_priv *priv,
- 	mlx5e_build_sq_param(priv, params, &cparam->txq_sq);
- 	mlx5e_build_xdpsq_param(priv, params, &cparam->xdp_sq);
- 	mlx5e_build_icosq_param(priv, icosq_log_wq_sz, &cparam->icosq);
--	mlx5e_build_icosq_param(priv, async_icosq_log_wq_sz, &cparam->async_icosq);
-+	mlx5e_build_async_icosq_param(priv, params, async_icosq_log_wq_sz, &cparam->async_icosq);
- }
- 
- int mlx5e_open_channels(struct mlx5e_priv *priv,
+ 	free_clt(clt);
 -- 
 2.30.2
 
