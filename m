@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65EE135BC7C
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 451EB35BD6F
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237467AbhDLInP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:43:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34768 "EHLO mail.kernel.org"
+        id S238052AbhDLIvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:51:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237468AbhDLInM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:43:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BC9661221;
-        Mon, 12 Apr 2021 08:42:54 +0000 (UTC)
+        id S238264AbhDLItS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:49:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC816128A;
+        Mon, 12 Apr 2021 08:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618216975;
-        bh=twMd/l9+ZVWVrcqpegwIwDOMGGwqXLZm1YSBLe5KDio=;
+        s=korg; t=1618217308;
+        bh=4cSzsEVemC/UV8DH69wccv8vc2Pq2VJ3z7LdQ636hWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17K4BTUjWIUDF7BQ2wMbSPUYu2bAMilUCa25cRutLVVdzlhfrZJS7wd2BXNFiGRlA
-         16Ud2TqCI6OIKqQdXHNg83O3FQGSNh//ceVct4/3gS/j38OGLkkf5l6RbrwXTHDt7E
-         g/QjoDrGBH2aCMT1VgS5VD0dRRMEB/7dz9kMcxIE=
+        b=AOpkaG/brn/WPv760Xyis8ffczFmgvALP74M1w5jpKfiZ9es3/tHLrY8iFa3bxpHG
+         LlObIhCYVzos3W6C0QcqsUDXp70VYCeGZwiR9tEh0hTP8cDVRFhJaLk2FarJ9TsdIg
+         uTlKYqgg/3ryojxQb0w8Tu+UEHaf4yVnpqMuKSYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 23/66] usbip: stub-dev synchronize sysfs code paths
-Date:   Mon, 12 Apr 2021 10:40:29 +0200
-Message-Id: <20210412083958.877015954@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 052/111] xfrm: Fix NULL pointer dereference on policy lookup
+Date:   Mon, 12 Apr 2021 10:40:30 +0200
+Message-Id: <20210412084005.999865658@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-commit 9dbf34a834563dada91366c2ac266f32ff34641a upstream.
+[ Upstream commit b1e3a5607034aa0a481c6f69a6893049406665fb ]
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+When xfrm interfaces are used in combination with namespaces
+and ESP offload, we get a dst_entry NULL pointer dereference.
+This is because we don't have a dst_entry attached in the ESP
+offloading case and we need to do a policy lookup before the
+namespace transition.
 
-Use sysfs_lock to protect sysfs paths in stub-dev.
+Fix this by expicit checking of skb_dst(skb) before accessing it.
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/2b182f3561b4a065bf3bf6dce3b0e9944ba17b3f.1616807117.git.skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f203b76d78092 ("xfrm: Add virtual xfrm interfaces")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/stub_dev.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ include/net/xfrm.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/usbip/stub_dev.c
-+++ b/drivers/usb/usbip/stub_dev.c
-@@ -63,6 +63,7 @@ static ssize_t usbip_sockfd_store(struct
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index c00b9ae71ae4..614f19bbad74 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1098,7 +1098,7 @@ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
+ 		return __xfrm_policy_check(sk, ndir, skb, family);
  
- 		dev_info(dev, "stub up\n");
- 
-+		mutex_lock(&sdev->ud.sysfs_lock);
- 		spin_lock_irq(&sdev->ud.lock);
- 
- 		if (sdev->ud.status != SDEV_ST_AVAILABLE) {
-@@ -87,13 +88,13 @@ static ssize_t usbip_sockfd_store(struct
- 		tcp_rx = kthread_create(stub_rx_loop, &sdev->ud, "stub_rx");
- 		if (IS_ERR(tcp_rx)) {
- 			sockfd_put(socket);
--			return -EINVAL;
-+			goto unlock_mutex;
- 		}
- 		tcp_tx = kthread_create(stub_tx_loop, &sdev->ud, "stub_tx");
- 		if (IS_ERR(tcp_tx)) {
- 			kthread_stop(tcp_rx);
- 			sockfd_put(socket);
--			return -EINVAL;
-+			goto unlock_mutex;
- 		}
- 
- 		/* get task structs now */
-@@ -112,6 +113,8 @@ static ssize_t usbip_sockfd_store(struct
- 		wake_up_process(sdev->ud.tcp_rx);
- 		wake_up_process(sdev->ud.tcp_tx);
- 
-+		mutex_unlock(&sdev->ud.sysfs_lock);
-+
- 	} else {
- 		dev_info(dev, "stub down\n");
- 
-@@ -122,6 +125,7 @@ static ssize_t usbip_sockfd_store(struct
- 		spin_unlock_irq(&sdev->ud.lock);
- 
- 		usbip_event_add(&sdev->ud, SDEV_EVENT_DOWN);
-+		mutex_unlock(&sdev->ud.sysfs_lock);
- 	}
- 
- 	return count;
-@@ -130,6 +134,8 @@ sock_err:
- 	sockfd_put(socket);
- err:
- 	spin_unlock_irq(&sdev->ud.lock);
-+unlock_mutex:
-+	mutex_unlock(&sdev->ud.sysfs_lock);
- 	return -EINVAL;
+ 	return	(!net->xfrm.policy_count[dir] && !secpath_exists(skb)) ||
+-		(skb_dst(skb)->flags & DST_NOPOLICY) ||
++		(skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY)) ||
+ 		__xfrm_policy_check(sk, ndir, skb, family);
  }
- static DEVICE_ATTR_WO(usbip_sockfd);
-@@ -295,6 +301,7 @@ static struct stub_device *stub_device_a
- 	sdev->ud.side		= USBIP_STUB;
- 	sdev->ud.status		= SDEV_ST_AVAILABLE;
- 	spin_lock_init(&sdev->ud.lock);
-+	mutex_init(&sdev->ud.sysfs_lock);
- 	sdev->ud.tcp_socket	= NULL;
- 	sdev->ud.sockfd		= -1;
  
+-- 
+2.30.2
+
 
 
