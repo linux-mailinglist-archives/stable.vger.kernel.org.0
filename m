@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0222C35BCD8
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A76F35BDA8
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237711AbhDLIqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:46:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37080 "EHLO mail.kernel.org"
+        id S237870AbhDLIwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:52:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237768AbhDLIpO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:45:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA5206109E;
-        Mon, 12 Apr 2021 08:44:55 +0000 (UTC)
+        id S238121AbhDLIsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:48:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3231A6127C;
+        Mon, 12 Apr 2021 08:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217096;
-        bh=qAE3fJG+cg/JqdB5Q7R+RWJsoeCSXspORQUoNyDSQq4=;
+        s=korg; t=1618217254;
+        bh=li9bBy6bjGQ5TEhHwVVcUCzaNxCJOXIuLHi+2l5xv6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHcpqX01yc4FbSpmTqPH6haB9bLzON1AePKN9opJb7563Ra3jleMM+6YN31BpKO9+
-         kzg9gJXxGNEvw9hlcMiH9liTjAj7fFhnDM4EVldyWS8nBCI5alNrVB5NZ65jFya2za
-         c8W1qmQt6QctjMUWA12+hfAL5elWvRrM5VQur6Tc=
+        b=s3x59S8IYCwqkxnvcvLQgMXJFsgoJBs6je6Yp18W0ZjCgMBcbUjVnZ0TjSafVF0xj
+         zEtdyIFHjf+pwiti95btKa68+9Jpy8PyNvkBtoztN5bLHJfGnClgFEuVF1oI7HenLi
+         DdSxDZdpJpM058/QRwrBUBRAYVsVJGcEg5wdt6XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/66] i40e: Fix kernel oops when i40e driver removes VFs
+Subject: [PATCH 5.4 062/111] cxgb4: avoid collecting SGE_QBASE regs during traffic
 Date:   Mon, 12 Apr 2021 10:40:40 +0200
-Message-Id: <20210412083959.225849856@linuxfoundation.org>
+Message-Id: <20210412084006.330725276@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-References: <20210412083958.129944265@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit 347b5650cd158d1d953487cc2bec567af5c5bf96 ]
+[ Upstream commit 1bfb3dea965ff9f6226fd1709338f227363b6061 ]
 
-Fix the reason of kernel oops when i40e driver removed VFs.
-Added new __I40E_VFS_RELEASING state to signalize releasing
-process by PF, that it makes possible to exit of reset VF procedure.
-Without this patch, it is possible to suspend the VFs reset by
-releasing VFs resources procedure. Retrying the reset after the
-timeout works on the freed VF memory causing a kernel oops.
+Accessing SGE_QBASE_MAP[0-3] and SGE_QBASE_INDEX registers can lead
+to SGE missing doorbells under heavy traffic. So, only collect them
+when adapter is idle. Also update the regdump range to skip collecting
+these registers.
 
-Fixes: d43d60e5eb95 ("i40e: ensure reset occurs when disabling VF")
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 80a95a80d358 ("cxgb4: collect SGE PF/VF queue map")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h             | 1 +
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 9 +++++++++
- 2 files changed, 10 insertions(+)
+ .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 23 +++++++++++++++----
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c    |  3 ++-
+ 2 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
-index 738acba7a9a3..3c921dfc2056 100644
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -149,6 +149,7 @@ enum i40e_state_t {
- 	__I40E_CLIENT_L2_CHANGE,
- 	__I40E_CLIENT_RESET,
- 	__I40E_VF_RESETS_DISABLED,	/* disable resets during i40e_remove */
-+	__I40E_VFS_RELEASING,
- 	/* This must be last as it determines the size of the BITMAP */
- 	__I40E_STATE_SIZE__,
- };
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 5d782148d35f..3c1533c627fd 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -137,6 +137,7 @@ void i40e_vc_notify_vf_reset(struct i40e_vf *vf)
-  **/
- static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
- {
-+	struct i40e_pf *pf = vf->pf;
- 	int i;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+index e26ae298a080..7801425e2726 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -1393,11 +1393,25 @@ int cudbg_collect_sge_indirect(struct cudbg_init *pdbg_init,
+ 	struct cudbg_buffer temp_buff = { 0 };
+ 	struct sge_qbase_reg_field *sge_qbase;
+ 	struct ireg_buf *ch_sge_dbg;
++	u8 padap_running = 0;
+ 	int i, rc;
++	u32 size;
  
- 	i40e_vc_notify_vf_reset(vf);
-@@ -147,6 +148,11 @@ static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
- 	 * ensure a reset.
- 	 */
- 	for (i = 0; i < 20; i++) {
-+		/* If PF is in VFs releasing state reset VF is impossible,
-+		 * so leave it.
-+		 */
-+		if (test_bit(__I40E_VFS_RELEASING, pf->state))
-+			return;
- 		if (i40e_reset_vf(vf, false))
- 			return;
- 		usleep_range(10000, 20000);
-@@ -1381,6 +1387,8 @@ void i40e_free_vfs(struct i40e_pf *pf)
- 
- 	if (!pf->vf)
- 		return;
+-	rc = cudbg_get_buff(pdbg_init, dbg_buff,
+-			    sizeof(*ch_sge_dbg) * 2 + sizeof(*sge_qbase),
+-			    &temp_buff);
++	/* Accessing SGE_QBASE_MAP[0-3] and SGE_QBASE_INDEX regs can
++	 * lead to SGE missing doorbells under heavy traffic. So, only
++	 * collect them when adapter is idle.
++	 */
++	for_each_port(padap, i) {
++		padap_running = netif_running(padap->port[i]);
++		if (padap_running)
++			break;
++	}
 +
-+	set_bit(__I40E_VFS_RELEASING, pf->state);
- 	while (test_and_set_bit(__I40E_VF_DISABLE, pf->state))
- 		usleep_range(1000, 2000);
++	size = sizeof(*ch_sge_dbg) * 2;
++	if (!padap_running)
++		size += sizeof(*sge_qbase);
++
++	rc = cudbg_get_buff(pdbg_init, dbg_buff, size, &temp_buff);
+ 	if (rc)
+ 		return rc;
  
-@@ -1438,6 +1446,7 @@ void i40e_free_vfs(struct i40e_pf *pf)
- 		}
+@@ -1419,7 +1433,8 @@ int cudbg_collect_sge_indirect(struct cudbg_init *pdbg_init,
+ 		ch_sge_dbg++;
  	}
- 	clear_bit(__I40E_VF_DISABLE, pf->state);
-+	clear_bit(__I40E_VFS_RELEASING, pf->state);
- }
  
- #ifdef CONFIG_PCI_IOV
+-	if (CHELSIO_CHIP_VERSION(padap->params.chip) > CHELSIO_T5) {
++	if (CHELSIO_CHIP_VERSION(padap->params.chip) > CHELSIO_T5 &&
++	    !padap_running) {
+ 		sge_qbase = (struct sge_qbase_reg_field *)ch_sge_dbg;
+ 		/* 1 addr reg SGE_QBASE_INDEX and 4 data reg
+ 		 * SGE_QBASE_MAP[0-3]
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+index 588b63473c47..42374859b9d3 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+@@ -2093,7 +2093,8 @@ void t4_get_regs(struct adapter *adap, void *buf, size_t buf_size)
+ 		0x1190, 0x1194,
+ 		0x11a0, 0x11a4,
+ 		0x11b0, 0x11b4,
+-		0x11fc, 0x1274,
++		0x11fc, 0x123c,
++		0x1254, 0x1274,
+ 		0x1280, 0x133c,
+ 		0x1800, 0x18fc,
+ 		0x3000, 0x302c,
 -- 
 2.30.2
 
