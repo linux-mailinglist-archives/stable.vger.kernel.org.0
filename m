@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFDAB35C090
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A77535C092
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240287AbhDLJO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:14:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
+        id S240306AbhDLJOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:14:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240847AbhDLJLF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:11:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BF7361382;
-        Mon, 12 Apr 2021 09:06:59 +0000 (UTC)
+        id S240869AbhDLJLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 05:11:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BAC561379;
+        Mon, 12 Apr 2021 09:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218419;
-        bh=TCXEMikJXcCBZLK2r7i0DQTd1VbXXE3eKIaTzas+/F8=;
+        s=korg; t=1618218422;
+        bh=ycZ+K1QVjJVrFHKx6vy53aD6c9O5+ao7tn+zuFkruNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vx66ERT6MflwknQT98z5fEr70RRwZQGzy9uTsGJ5LBPCHUvkOeYyEz6ZnxQSHHLv7
-         6MRpV5aEVLqYEHUmQTgpExn7RrOfmnOnBMQ5OnXrlDz/n3+IhuHr9Z/BoEx+dkE49O
-         0YIHFnH0+A2i/qqDMu+lewyNqAwG0N7AHkRS+KZM=
+        b=qDcpZb1BC2PX9x5N/tTcWLWwvL7mZuOh/bedjF1etgxi0pFTNL97gwWEOhYM7jEpA
+         JcNMF2SNtGvIAJPQOzF2JXjoO193Imp69XtT/EwPhNfJVOG8L2GqhDp0USWKZUClhR
+         uJr0VpABhDHgCxN19etfaALmq9deW5YxbWkH5NEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.11 191/210] clk: socfpga: fix iomem pointer cast on 64-bit
-Date:   Mon, 12 Apr 2021 10:41:36 +0200
-Message-Id: <20210412084022.380259185@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.11 192/210] lockdep: Address clang -Wformat warning printing for %hd
+Date:   Mon, 12 Apr 2021 10:41:37 +0200
+Message-Id: <20210412084022.410153507@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -41,36 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 2867b9746cef78745c594894aece6f8ef826e0b4 upstream.
+commit 6d48b7912cc72275dc7c59ff961c8bac7ef66a92 upstream.
 
-Pointers should be cast with uintptr_t instead of integer.  This fixes
-warning when compile testing on ARM64:
+Clang doesn't like format strings that truncate a 32-bit
+value to something shorter:
 
-  drivers/clk/socfpga/clk-gate.c: In function ‘socfpga_clk_recalc_rate’:
-  drivers/clk/socfpga/clk-gate.c:102:7: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+  kernel/locking/lockdep.c:709:4: error: format specifies type 'short' but the argument has type 'int' [-Werror,-Wformat]
 
-Fixes: b7cec13f082f ("clk: socfpga: Look for the GPIO_DB_CLK by its offset")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20210314110709.32599-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+In this case, the warning is a slightly questionable, as it could realize
+that both class->wait_type_outer and class->wait_type_inner are in fact
+8-bit struct members, even though the result of the ?: operator becomes an
+'int'.
+
+However, there is really no point in printing the number as a 16-bit
+'short' rather than either an 8-bit or 32-bit number, so just change
+it to a normal %d.
+
+Fixes: de8f5e4f2dc1 ("lockdep: Introduce wait-type checks")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210322115531.3987555-1-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/socfpga/clk-gate.c |    2 +-
+ kernel/locking/lockdep.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/clk/socfpga/clk-gate.c
-+++ b/drivers/clk/socfpga/clk-gate.c
-@@ -99,7 +99,7 @@ static unsigned long socfpga_clk_recalc_
- 		val = readl(socfpgaclk->div_reg) >> socfpgaclk->shift;
- 		val &= GENMASK(socfpgaclk->width - 1, 0);
- 		/* Check for GPIO_DB_CLK by its offset */
--		if ((int) socfpgaclk->div_reg & SOCFPGA_GPIO_DB_CLK_OFFSET)
-+		if ((uintptr_t) socfpgaclk->div_reg & SOCFPGA_GPIO_DB_CLK_OFFSET)
- 			div = val + 1;
- 		else
- 			div = (1 << val);
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -705,7 +705,7 @@ static void print_lock_name(struct lock_
+ 
+ 	printk(KERN_CONT " (");
+ 	__print_lock_name(class);
+-	printk(KERN_CONT "){%s}-{%hd:%hd}", usage,
++	printk(KERN_CONT "){%s}-{%d:%d}", usage,
+ 			class->wait_type_outer ?: class->wait_type_inner,
+ 			class->wait_type_inner);
+ }
 
 
