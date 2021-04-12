@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED99235C074
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 840C535C0B4
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239815AbhDLJNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34520 "EHLO mail.kernel.org"
+        id S241320AbhDLJPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:15:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240453AbhDLJKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240454AbhDLJKS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Apr 2021 05:10:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 905246128B;
-        Mon, 12 Apr 2021 09:05:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B1561285;
+        Mon, 12 Apr 2021 09:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218331;
-        bh=pwwIQR8D40GkFEQd5LY3Sw6sJgXU5bGx6ZgqABUg0mw=;
+        s=korg; t=1618218333;
+        bh=r/X//ApDsyWNF/tt+ADyLbC57YUHIBrmiykx+q5JCmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nwfRPscXFMEFpiZ3ewpIBLMbJrp0IQtlIkrztPnRqK9ddw42HbzaY3XiTEx3RnK8P
-         gWNo8iYO+jYRd7oNlQ6M3uMFqMobcjQQarhYbyAJev8KaIepNVkNpW38u/UOMjYXbM
-         4Ui6bidHhZVpXUKgIyjLeOXfx2IcF6KJttJ5pD64=
+        b=BhlqROOaesFmVfnOSmNt7I2O/1FAax7/nGMhJxLvj6EhVq+Zjyf+7RvYKLNkM6HLi
+         dtn/ORvgHwrY66IAqrAdfF0vl/3+UrnqhVMGrXNyCuVEUTH1DUuhlE2ORE04zw9AA+
+         rGbCr+ZkvAEtFFj+5Zm0hF5eyrWIoVKJOW3gPb/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 156/210] mptcp: forbit mcast-related sockopt on MPTCP sockets
-Date:   Mon, 12 Apr 2021 10:41:01 +0200
-Message-Id: <20210412084021.192097513@linuxfoundation.org>
+Subject: [PATCH 5.11 157/210] mptcp: revert "mptcp: provide subflow aware release function"
+Date:   Mon, 12 Apr 2021 10:41:02 +0200
+Message-Id: <20210412084021.230371028@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
 References: <20210412084016.009884719@linuxfoundation.org>
@@ -43,98 +43,114 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 86581852d7710990d8af9dadfe9a661f0abf2114 ]
+[ Upstream commit 0a3cc57978d1d1448312f8973bd84dca4a71433a ]
 
-Unrolling mcast state at msk dismantel time is bug prone, as
-syzkaller reported:
+This change reverts commit ad98dd37051e ("mptcp: provide subflow aware
+release function"). The latter introduced a deadlock spotted by
+syzkaller and is not needed anymore after the previous commit.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.11.0-syzkaller #0 Not tainted
-------------------------------------------------------
-syz-executor905/8822 is trying to acquire lock:
-ffffffff8d678fe8 (rtnl_mutex){+.+.}-{3:3}, at: ipv6_sock_mc_close+0xd7/0x110 net/ipv6/mcast.c:323
-
-but task is already holding lock:
-ffff888024390120 (sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1600 [inline]
-ffff888024390120 (sk_lock-AF_INET6){+.+.}-{0:0}, at: mptcp6_release+0x57/0x130 net/mptcp/protocol.c:3507
-
-which lock already depends on the new lock.
-
-Instead we can simply forbit any mcast-related setsockopt
-
-Fixes: 717e79c867ca5 ("mptcp: Add setsockopt()/getsockopt() socket operations")
+Fixes: ad98dd37051e ("mptcp: provide subflow aware release function")
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 45 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
+ net/mptcp/protocol.c | 55 ++------------------------------------------
+ 1 file changed, 2 insertions(+), 53 deletions(-)
 
 diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 5932b0ebecc3..de9f2509acbe 100644
+index de9f2509acbe..e337b35a368f 100644
 --- a/net/mptcp/protocol.c
 +++ b/net/mptcp/protocol.c
-@@ -2863,6 +2863,48 @@ static int mptcp_setsockopt_v6(struct mptcp_sock *msk, int optname,
- 	return ret;
+@@ -11,7 +11,6 @@
+ #include <linux/netdevice.h>
+ #include <linux/sched/signal.h>
+ #include <linux/atomic.h>
+-#include <linux/igmp.h>
+ #include <net/sock.h>
+ #include <net/inet_common.h>
+ #include <net/inet_hashtables.h>
+@@ -20,7 +19,6 @@
+ #include <net/tcp_states.h>
+ #if IS_ENABLED(CONFIG_MPTCP_IPV6)
+ #include <net/transp_v6.h>
+-#include <net/addrconf.h>
+ #endif
+ #include <net/mptcp.h>
+ #include <net/xfrm.h>
+@@ -3424,34 +3422,10 @@ static __poll_t mptcp_poll(struct file *file, struct socket *sock,
+ 	return mask;
  }
  
-+static bool mptcp_unsupported(int level, int optname)
-+{
-+	if (level == SOL_IP) {
-+		switch (optname) {
-+		case IP_ADD_MEMBERSHIP:
-+		case IP_ADD_SOURCE_MEMBERSHIP:
-+		case IP_DROP_MEMBERSHIP:
-+		case IP_DROP_SOURCE_MEMBERSHIP:
-+		case IP_BLOCK_SOURCE:
-+		case IP_UNBLOCK_SOURCE:
-+		case MCAST_JOIN_GROUP:
-+		case MCAST_LEAVE_GROUP:
-+		case MCAST_JOIN_SOURCE_GROUP:
-+		case MCAST_LEAVE_SOURCE_GROUP:
-+		case MCAST_BLOCK_SOURCE:
-+		case MCAST_UNBLOCK_SOURCE:
-+		case MCAST_MSFILTER:
-+			return true;
-+		}
-+		return false;
-+	}
-+	if (level == SOL_IPV6) {
-+		switch (optname) {
-+		case IPV6_ADDRFORM:
-+		case IPV6_ADD_MEMBERSHIP:
-+		case IPV6_DROP_MEMBERSHIP:
-+		case IPV6_JOIN_ANYCAST:
-+		case IPV6_LEAVE_ANYCAST:
-+		case MCAST_JOIN_GROUP:
-+		case MCAST_LEAVE_GROUP:
-+		case MCAST_JOIN_SOURCE_GROUP:
-+		case MCAST_LEAVE_SOURCE_GROUP:
-+		case MCAST_BLOCK_SOURCE:
-+		case MCAST_UNBLOCK_SOURCE:
-+		case MCAST_MSFILTER:
-+			return true;
-+		}
-+		return false;
-+	}
-+	return false;
-+}
-+
- static int mptcp_setsockopt(struct sock *sk, int level, int optname,
- 			    sockptr_t optval, unsigned int optlen)
- {
-@@ -2871,6 +2913,9 @@ static int mptcp_setsockopt(struct sock *sk, int level, int optname,
+-static int mptcp_release(struct socket *sock)
+-{
+-	struct mptcp_subflow_context *subflow;
+-	struct sock *sk = sock->sk;
+-	struct mptcp_sock *msk;
+-
+-	if (!sk)
+-		return 0;
+-
+-	lock_sock(sk);
+-
+-	msk = mptcp_sk(sk);
+-
+-	mptcp_for_each_subflow(msk, subflow) {
+-		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+-
+-		ip_mc_drop_socket(ssk);
+-	}
+-
+-	release_sock(sk);
+-
+-	return inet_release(sock);
+-}
+-
+ static const struct proto_ops mptcp_stream_ops = {
+ 	.family		   = PF_INET,
+ 	.owner		   = THIS_MODULE,
+-	.release	   = mptcp_release,
++	.release	   = inet_release,
+ 	.bind		   = mptcp_bind,
+ 	.connect	   = mptcp_stream_connect,
+ 	.socketpair	   = sock_no_socketpair,
+@@ -3498,35 +3472,10 @@ void __init mptcp_proto_init(void)
+ }
  
- 	pr_debug("msk=%p", msk);
- 
-+	if (mptcp_unsupported(level, optname))
-+		return -ENOPROTOOPT;
-+
- 	if (level == SOL_SOCKET)
- 		return mptcp_setsockopt_sol_socket(msk, optname, optval, optlen);
- 
+ #if IS_ENABLED(CONFIG_MPTCP_IPV6)
+-static int mptcp6_release(struct socket *sock)
+-{
+-	struct mptcp_subflow_context *subflow;
+-	struct mptcp_sock *msk;
+-	struct sock *sk = sock->sk;
+-
+-	if (!sk)
+-		return 0;
+-
+-	lock_sock(sk);
+-
+-	msk = mptcp_sk(sk);
+-
+-	mptcp_for_each_subflow(msk, subflow) {
+-		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+-
+-		ip_mc_drop_socket(ssk);
+-		ipv6_sock_mc_close(ssk);
+-		ipv6_sock_ac_close(ssk);
+-	}
+-
+-	release_sock(sk);
+-	return inet6_release(sock);
+-}
+-
+ static const struct proto_ops mptcp_v6_stream_ops = {
+ 	.family		   = PF_INET6,
+ 	.owner		   = THIS_MODULE,
+-	.release	   = mptcp6_release,
++	.release	   = inet6_release,
+ 	.bind		   = mptcp_bind,
+ 	.connect	   = mptcp_stream_connect,
+ 	.socketpair	   = sock_no_socketpair,
 -- 
 2.30.2
 
