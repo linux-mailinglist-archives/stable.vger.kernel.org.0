@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3035835BE66
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:58:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B8D35BD1F
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238889AbhDLI6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:58:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49694 "EHLO mail.kernel.org"
+        id S237820AbhDLIrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:47:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238369AbhDLI4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:56:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EDB86124C;
-        Mon, 12 Apr 2021 08:56:03 +0000 (UTC)
+        id S237960AbhDLIqu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:46:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC0766109E;
+        Mon, 12 Apr 2021 08:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217764;
-        bh=xbUPT3LN7PVYDuZXEkPkqXWnMHNZf1ODOAMORpEw98E=;
+        s=korg; t=1618217193;
+        bh=V3K62p7xASqF4/kcg443c4LGHGZOyzifrcvMHsCyooA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp+KNhsDCzwi/tzVqKULigzcpS65BDiMqtx3002rYiyCGhhY/6EJMaqK1NQmqyCiK
-         93PdzTws7zlzWzMFXVmQnaZotLvv8tCm3gndW8kwepr3vt1r1cLHyATRtDYa6vtqZ+
-         qGQoEKCVafzdbhxsyA1kKiM+LZ1dIzmQnYWIur5M=
+        b=uZLpkXt29/+52qDzzREjhnc2Ry8RHYRU1SJ4LxvF5QfzN0guFjPWUxbiMxxUoXFvi
+         MD0NUco8mH2JauBwmB5ncFeK4gZVXBLeYzwHtHGaIMVpY9fKB24POHun3rmnS2wYgG
+         2c6lPvbIGcZ/8MmZljmCXLgoJKJohuz8ZGytBeMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 101/188] esp: delete NETIF_F_SCTP_CRC bit from features for esp offload
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 037/111] usbip: stub-dev synchronize sysfs code paths
 Date:   Mon, 12 Apr 2021 10:40:15 +0200
-Message-Id: <20210412084017.011504675@linuxfoundation.org>
+Message-Id: <20210412084005.495831126@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
-References: <20210412084013.643370347@linuxfoundation.org>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+References: <20210412084004.200986670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 154deab6a3ba47792936edf77f2f13a1cbc4351d ]
+commit 9dbf34a834563dada91366c2ac266f32ff34641a upstream.
 
-Now in esp4/6_gso_segment(), before calling inner proto .gso_segment,
-NETIF_F_CSUM_MASK bits are deleted, as HW won't be able to do the
-csum for inner proto due to the packet encrypted already.
+Fuzzing uncovered race condition between sysfs code paths in usbip
+drivers. Device connect/disconnect code paths initiated through
+sysfs interface are prone to races if disconnect happens during
+connect and vice versa.
 
-So the UDP/TCP packet has to do the checksum on its own .gso_segment.
-But SCTP is using CRC checksum, and for that NETIF_F_SCTP_CRC should
-be deleted to make SCTP do the csum in own .gso_segment as well.
+Use sysfs_lock to protect sysfs paths in stub-dev.
 
-In Xiumei's testing with SCTP over IPsec/veth, the packets are kept
-dropping due to the wrong CRC checksum.
-
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/2b182f3561b4a065bf3bf6dce3b0e9944ba17b3f.1616807117.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/esp4_offload.c | 6 ++++--
- net/ipv6/esp6_offload.c | 6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/usb/usbip/stub_dev.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
-index 5bda5aeda579..d5c0f5a2a551 100644
---- a/net/ipv4/esp4_offload.c
-+++ b/net/ipv4/esp4_offload.c
-@@ -217,10 +217,12 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -63,6 +63,7 @@ static ssize_t usbip_sockfd_store(struct
  
- 	if ((!(skb->dev->gso_partial_features & NETIF_F_HW_ESP) &&
- 	     !(features & NETIF_F_HW_ESP)) || x->xso.dev != skb->dev)
--		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
-+		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
-+					    NETIF_F_SCTP_CRC);
- 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM) &&
- 		 !(skb->dev->gso_partial_features & NETIF_F_HW_ESP_TX_CSUM))
--		esp_features = features & ~NETIF_F_CSUM_MASK;
-+		esp_features = features & ~(NETIF_F_CSUM_MASK |
-+					    NETIF_F_SCTP_CRC);
+ 		dev_info(dev, "stub up\n");
  
- 	xo->flags |= XFRM_GSO_SEGMENT;
++		mutex_lock(&sdev->ud.sysfs_lock);
+ 		spin_lock_irq(&sdev->ud.lock);
  
-diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
-index 1ca516fb30e1..f35203ab39f5 100644
---- a/net/ipv6/esp6_offload.c
-+++ b/net/ipv6/esp6_offload.c
-@@ -254,9 +254,11 @@ static struct sk_buff *esp6_gso_segment(struct sk_buff *skb,
- 	skb->encap_hdr_csum = 1;
+ 		if (sdev->ud.status != SDEV_ST_AVAILABLE) {
+@@ -87,13 +88,13 @@ static ssize_t usbip_sockfd_store(struct
+ 		tcp_rx = kthread_create(stub_rx_loop, &sdev->ud, "stub_rx");
+ 		if (IS_ERR(tcp_rx)) {
+ 			sockfd_put(socket);
+-			return -EINVAL;
++			goto unlock_mutex;
+ 		}
+ 		tcp_tx = kthread_create(stub_tx_loop, &sdev->ud, "stub_tx");
+ 		if (IS_ERR(tcp_tx)) {
+ 			kthread_stop(tcp_rx);
+ 			sockfd_put(socket);
+-			return -EINVAL;
++			goto unlock_mutex;
+ 		}
  
- 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev)
--		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
-+		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
-+					    NETIF_F_SCTP_CRC);
- 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM))
--		esp_features = features & ~NETIF_F_CSUM_MASK;
-+		esp_features = features & ~(NETIF_F_CSUM_MASK |
-+					    NETIF_F_SCTP_CRC);
+ 		/* get task structs now */
+@@ -112,6 +113,8 @@ static ssize_t usbip_sockfd_store(struct
+ 		wake_up_process(sdev->ud.tcp_rx);
+ 		wake_up_process(sdev->ud.tcp_tx);
  
- 	xo->flags |= XFRM_GSO_SEGMENT;
++		mutex_unlock(&sdev->ud.sysfs_lock);
++
+ 	} else {
+ 		dev_info(dev, "stub down\n");
  
--- 
-2.30.2
-
+@@ -122,6 +125,7 @@ static ssize_t usbip_sockfd_store(struct
+ 		spin_unlock_irq(&sdev->ud.lock);
+ 
+ 		usbip_event_add(&sdev->ud, SDEV_EVENT_DOWN);
++		mutex_unlock(&sdev->ud.sysfs_lock);
+ 	}
+ 
+ 	return count;
+@@ -130,6 +134,8 @@ sock_err:
+ 	sockfd_put(socket);
+ err:
+ 	spin_unlock_irq(&sdev->ud.lock);
++unlock_mutex:
++	mutex_unlock(&sdev->ud.sysfs_lock);
+ 	return -EINVAL;
+ }
+ static DEVICE_ATTR_WO(usbip_sockfd);
+@@ -270,6 +276,7 @@ static struct stub_device *stub_device_a
+ 	sdev->ud.side		= USBIP_STUB;
+ 	sdev->ud.status		= SDEV_ST_AVAILABLE;
+ 	spin_lock_init(&sdev->ud.lock);
++	mutex_init(&sdev->ud.sysfs_lock);
+ 	sdev->ud.tcp_socket	= NULL;
+ 	sdev->ud.sockfd		= -1;
+ 
 
 
