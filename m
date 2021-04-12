@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B07D235BDEF
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85EB235BDF3
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 10:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237515AbhDLI4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 04:56:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
+        id S238197AbhDLI4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 04:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238393AbhDLIx6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 04:53:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C64816128A;
-        Mon, 12 Apr 2021 08:52:00 +0000 (UTC)
+        id S238399AbhDLIx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:53:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0266128C;
+        Mon, 12 Apr 2021 08:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618217521;
-        bh=LoIVIG201NgWMbtMbOxt0eFw+i4Kk2Mnc1xL11C2MQA=;
+        s=korg; t=1618217523;
+        bh=H2kzuYv/RNMpKBK7LVkPYibt8z4fbr0XGHGoAsO/Ofs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lWaBiBw8nFqrog3Q04T5IwmJals4TBdBz7m6DUiKdGPkowCS4D2oyjdwWfSbkDEfC
-         Cd33dpVF56YffvUHVOdNM46ORqIQ5sJE78T8/OoOaxdA4uvZ3gH/18b2rrjFlccFgc
-         CJMPmr+FnhvMNfIN8WWJKRJjJGv4/31O3s/YTj5Q=
+        b=i9uS8MK9tEC0ci6+tc99HEq0leL6SEJYkpAV2dV5efFwrdPqErmX6ETPqm4uIAx09
+         QQtluj4HE3N4xkKCvk1K1GPd1AcVYWAZYQS9rlHxREh1QETjkcLe4FiFPKU/IYXUIo
+         TmmvJo2AgYHHpVsZ1Jj93LprsODv5Kf5ZysHYgwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pedro Tammela <pctammela@mojatatu.com>,
-        Andrii Nakryiko <andrii@kernel.org>
-Subject: [PATCH 5.10 044/188] libbpf: Fix bail out from ringbuf_process_ring() on error
-Date:   Mon, 12 Apr 2021 10:39:18 +0200
-Message-Id: <20210412084015.114772035@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>
+Subject: [PATCH 5.10 045/188] bpf: Enforce that struct_ops programs be GPL-only
+Date:   Mon, 12 Apr 2021 10:39:19 +0200
+Message-Id: <20210412084015.145725629@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
 References: <20210412084013.643370347@linuxfoundation.org>
@@ -39,36 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pedro Tammela <pctammela@gmail.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 6032ebb54c60cae24329f6aba3ce0c1ca8ad6abe upstream.
+commit 12aa8a9467b354ef893ce0fc5719a4de4949a9fb upstream.
 
-The current code bails out with negative and positive returns.
-If the callback returns a positive return code, 'ring_buffer__consume()'
-and 'ring_buffer__poll()' will return a spurious number of records
-consumed, but mostly important will continue the processing loop.
+With the introduction of the struct_ops program type, it became possible to
+implement kernel functionality in BPF, making it viable to use BPF in place
+of a regular kernel module for these particular operations.
 
-This patch makes positive returns from the callback a no-op.
+Thus far, the only user of this mechanism is for implementing TCP
+congestion control algorithms. These are clearly marked as GPL-only when
+implemented as modules (as seen by the use of EXPORT_SYMBOL_GPL for
+tcp_register_congestion_control()), so it seems like an oversight that this
+was not carried over to BPF implementations. Since this is the only user
+of the struct_ops mechanism, just enforcing GPL-only for the struct_ops
+program type seems like the simplest way to fix this.
 
-Fixes: bf99c936f947 ("libbpf: Add BPF ring buffer support")
-Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210325150115.138750-1-pctammela@mojatatu.com
+Fixes: 0baf26b0fcd7 ("bpf: tcp: Support tcp_congestion_ops in bpf")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20210326100314.121853-1-toke@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/ringbuf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/verifier.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/tools/lib/bpf/ringbuf.c
-+++ b/tools/lib/bpf/ringbuf.c
-@@ -227,7 +227,7 @@ static int ringbuf_process_ring(struct r
- 			if ((len & BPF_RINGBUF_DISCARD_BIT) == 0) {
- 				sample = (void *)len_ptr + BPF_RINGBUF_HDR_SZ;
- 				err = r->sample_cb(r->ctx, sample, len);
--				if (err) {
-+				if (err < 0) {
- 					/* update consumer pos and bail out */
- 					smp_store_release(r->consumer_pos,
- 							  cons_pos);
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -11429,6 +11429,11 @@ static int check_struct_ops_btf_id(struc
+ 	u32 btf_id, member_idx;
+ 	const char *mname;
+ 
++	if (!prog->gpl_compatible) {
++		verbose(env, "struct ops programs must have a GPL compatible license\n");
++		return -EINVAL;
++	}
++
+ 	btf_id = prog->aux->attach_btf_id;
+ 	st_ops = bpf_struct_ops_find(btf_id);
+ 	if (!st_ops) {
 
 
