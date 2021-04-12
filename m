@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF4E35C06E
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 858FC35BEE3
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238646AbhDLJNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:13:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
+        id S238993AbhDLJCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240307AbhDLJKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98FA361390;
-        Mon, 12 Apr 2021 09:05:14 +0000 (UTC)
+        id S239213AbhDLI71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61B1261244;
+        Mon, 12 Apr 2021 08:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218315;
-        bh=bWtIJWzJV7iRmjmXVIM3jac31huCm0fbc3wewGW2BE8=;
+        s=korg; t=1618217873;
+        bh=Jd2AWhfXkzVNuGiCaTyWYyBojlL7KDdfAqfNE0XYASY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp7IUbAsTNHwMLr6K9cvVqylQlwxhWwUXcS+o1u0cKC3nfWGdoVB5Mj+PpFE7i6DW
-         J8cvZ6sAS/28e97Rs3dwGCvjoUsnah5LdS1y5QXIDNGjFwVGcZAGwT3GFFtCSDKh9A
-         OYaRpf5E3go44KSkcWIDa5EM9HL8rwi+jOhtRDLM=
+        b=iBzQY2fJUpbC+w3w87b4hHzN0aST+OTdJRx7F9wUTSamhTgv12NjBYj6udA/FZt/O
+         kOb2m+TUHwcenV4Yqx3nAZEARVITzoY1z5/t2VKxPOSZ/TmPNkuYX8HpognOwbhNa7
+         bA9XoSdqvseCsFgK++/kfn6zFxo5L5jKs8fK1anM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sreedevi Joshi <sreedevi.joshi@intel.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Kiran Bhandare <kiranx.bhandare@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 151/210] i40e: fix receiving of single packets in xsk zero-copy mode
+Subject: [PATCH 5.10 142/188] scsi: ufs: core: Fix task management request completion timeout
 Date:   Mon, 12 Apr 2021 10:40:56 +0200
-Message-Id: <20210412084021.019967102@linuxfoundation.org>
+Message-Id: <20210412084018.353268797@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 528060ef3e1105c5c3eba66ffbfc80e0825e2cce ]
+[ Upstream commit 1235fc569e0bf541ddda0a1224d4c6fa6d914890 ]
 
-Fix so that single packets are received immediately instead of in
-batches of 8. If you sent 1 pps to a system, you received 8 packets
-every 8 seconds instead of 1 packet every second. The problem behind
-this was that the work_done reporting from the Tx part of the driver
-was broken. The work_done reporting in i40e controls not only the
-reporting back to the napi logic but also the setting of the interrupt
-throttling logic. When Tx or Rx reports that it has more to do,
-interrupts are throttled or coalesced and when they both report that
-they are done, interrupts are armed right away. If the wrong work_done
-value is returned, the logic will start to throttle interrupts in a
-situation where it should have just enabled them. This leads to the
-undesired batching behavior seen in user-space.
+ufshcd_tmc_handler() calls blk_mq_tagset_busy_iter(fn = ufshcd_compl_tm()),
+but since blk_mq_tagset_busy_iter() only iterates over all reserved tags
+and requests which are not in IDLE state, ufshcd_compl_tm() never gets a
+chance to run. Thus, TMR always ends up with completion timeout. Fix it by
+calling blk_mq_start_request() in __ufshcd_issue_tm_cmd().
 
-Fix this by returning the correct boolean value from the Tx xsk
-zero-copy path. Return true if there is nothing to do or if we got
-fewer packets to process than we asked for. Return false if we got as
-many packets as the budget since there might be more packets we can
-process.
-
-Fixes: 3106c580fb7c ("i40e: Use batched xsk Tx interfaces to increase performance")
-Reported-by: Sreedevi Joshi <sreedevi.joshi@intel.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/1617262750-4864-2-git-send-email-cang@codeaurora.org
+Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_xsk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-index 37a21fb99922..7949f6b79f92 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-@@ -462,7 +462,7 @@ static bool i40e_xmit_zc(struct i40e_ring *xdp_ring, unsigned int budget)
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 97d9d5d99adc..7e1168ee2474 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6274,6 +6274,7 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
  
- 	nb_pkts = xsk_tx_peek_release_desc_batch(xdp_ring->xsk_pool, descs, budget);
- 	if (!nb_pkts)
--		return false;
-+		return true;
+ 	spin_lock_irqsave(host->host_lock, flags);
+ 	task_tag = hba->nutrs + free_slot;
++	blk_mq_start_request(req);
  
- 	if (xdp_ring->next_to_use + nb_pkts >= xdp_ring->count) {
- 		nb_processed = xdp_ring->count - xdp_ring->next_to_use;
-@@ -479,7 +479,7 @@ static bool i40e_xmit_zc(struct i40e_ring *xdp_ring, unsigned int budget)
+ 	treq->req_header.dword_0 |= cpu_to_be32(task_tag);
  
- 	i40e_update_tx_stats(xdp_ring, nb_pkts, total_bytes);
- 
--	return true;
-+	return nb_pkts < budget;
- }
- 
- /**
 -- 
 2.30.2
 
