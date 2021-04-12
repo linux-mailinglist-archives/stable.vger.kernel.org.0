@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A06F35C0C1
-	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B94B835BEDB
+	for <lists+stable@lfdr.de>; Mon, 12 Apr 2021 11:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241362AbhDLJPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 05:15:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34712 "EHLO mail.kernel.org"
+        id S238698AbhDLJCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 05:02:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240708AbhDLJKx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Apr 2021 05:10:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC1E0613A7;
-        Mon, 12 Apr 2021 09:06:28 +0000 (UTC)
+        id S239176AbhDLI7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Apr 2021 04:59:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8562361247;
+        Mon, 12 Apr 2021 08:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618218389;
-        bh=on9LE10NcRX2a3fn8VBAG/aq0VTV1KB3TLpSG7YI/Fo=;
+        s=korg; t=1618217862;
+        bh=ycZ+K1QVjJVrFHKx6vy53aD6c9O5+ao7tn+zuFkruNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NY7iWqYVJY2Zd93+e38/v2a5mQPsq3TX1SsfxKGNeV0KS+VJCzh7NbIH3ccrHj4r1
-         WyMthKQvrneuXMhsGZVD3PySAKLhwafg57Mhd2/hQNwtRp37yzXf+EcCO/1otgioeU
-         fA1P6kZEuXI8pd5uzGYOPZSpYm38LD49j25WpHv4=
+        b=krMagAxSB8toyxdP+zpfbLYgjt1m6gtT3M/gH4ZPJQ2ByYlNSuDEc2dhyE1xwyrTP
+         1d1vRyo6WlNBk6m49xBLcPPeBQ7Q39YFKteI1WJwKBy0z+hs1rWZTC3OS+rfZj4Pw9
+         IL8uZw4BUi2NlSwIlWp/e36ITNryI6rp1pgmDwno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 180/210] net/mlx5: Fix PPLM register mapping
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.10 171/188] lockdep: Address clang -Wformat warning printing for %hd
 Date:   Mon, 12 Apr 2021 10:41:25 +0200
-Message-Id: <20210412084022.005219377@linuxfoundation.org>
+Message-Id: <20210412084019.309502844@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
-References: <20210412084016.009884719@linuxfoundation.org>
+In-Reply-To: <20210412084013.643370347@linuxfoundation.org>
+References: <20210412084013.643370347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit ce28f0fd670ddffcd564ce7119bdefbaf08f02d3 ]
+commit 6d48b7912cc72275dc7c59ff961c8bac7ef66a92 upstream.
 
-Add reserved mapping to cover all the register in order to avoid
-setting arbitrary values to newer FW which implements the reserved
-fields.
+Clang doesn't like format strings that truncate a 32-bit
+value to something shorter:
 
-Fixes: a58837f52d43 ("net/mlx5e: Expose FEC feilds and related capability bit")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  kernel/locking/lockdep.c:709:4: error: format specifies type 'short' but the argument has type 'int' [-Werror,-Wformat]
+
+In this case, the warning is a slightly questionable, as it could realize
+that both class->wait_type_outer and class->wait_type_inner are in fact
+8-bit struct members, even though the result of the ?: operator becomes an
+'int'.
+
+However, there is really no point in printing the number as a 16-bit
+'short' rather than either an 8-bit or 32-bit number, so just change
+it to a normal %d.
+
+Fixes: de8f5e4f2dc1 ("lockdep: Introduce wait-type checks")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210322115531.3987555-1-arnd@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mlx5/mlx5_ifc.h | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/locking/lockdep.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index def58d333357..443dda54d851 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -8769,6 +8769,8 @@ struct mlx5_ifc_pplm_reg_bits {
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -705,7 +705,7 @@ static void print_lock_name(struct lock_
  
- 	u8         fec_override_admin_100g_2x[0x10];
- 	u8         fec_override_admin_50g_1x[0x10];
-+
-+	u8         reserved_at_140[0x140];
- };
- 
- struct mlx5_ifc_ppcnt_reg_bits {
--- 
-2.30.2
-
+ 	printk(KERN_CONT " (");
+ 	__print_lock_name(class);
+-	printk(KERN_CONT "){%s}-{%hd:%hd}", usage,
++	printk(KERN_CONT "){%s}-{%d:%d}", usage,
+ 			class->wait_type_outer ?: class->wait_type_inner,
+ 			class->wait_type_inner);
+ }
 
 
