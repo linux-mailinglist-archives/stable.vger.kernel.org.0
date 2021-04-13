@@ -2,115 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2541835DE62
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 14:12:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A2935DE6E
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 14:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239489AbhDMMM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 08:12:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56910 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345438AbhDMMM1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 08:12:27 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8892AC061574
-        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 05:12:07 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id sd23so16882677ejb.12
-        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 05:12:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=TpxC1qelb9qRujqf8xDlcIHAF8+xB1dypj9reMWQZ4o=;
-        b=QrIoSxI4gJ/KgVGb4hCt1Y4h4rP8zc8j5m9Sz+/eXvN2p7vKPdREwZPBSaUxMsN26x
-         DaeI//cyb3Iu8krLI4pMyrOGe9j3K3i6f+ODoNnCjwl0p6CDJYh/edkLPTVVMAsJcfU9
-         UM7AigVQlZ5dXC4CfhDgrt/pEnC8nJs3K5fUE0g8ToSinapnaUsPSQAABQPU35yFy7NU
-         j1eTXDA6wiyk+D3MpM/aIhep4KZu9JYftozPtBEvYByP1OATA19sz/+gk/eY+hV6xj8e
-         u9+M3O3BxuEq4lGgSc+XuLGb5OJtE5ylh5dwB2eJDwg+n2JNlQFlZpIDl9RdDcHLNBcQ
-         6cBw==
+        id S238768AbhDMMPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 08:15:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:35517 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236988AbhDMMPh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 08:15:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618316117;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=aqf0RiZSoAYfI4s0e2+ZgKSiJco7N8Kba8wSDbcvYCc=;
+        b=TMWLLvIIl04hagtpe6OblGypZQSvWNHooOkG3g/GA6Af1MWHl1a5j+0kzosu/DQFbwuJ1p
+        GYrh8FYbdjdZpXsN+l+NKpN1gq3keBaiyM/UfHXcYmADLJZDkC1h5iqPxQ2KtqgrIlS2Yi
+        9kCUuK73WUyKFOLqz2WLinu9g5OGGGE=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-399-lY-rq-9KM2mLGA7SyGj-CA-1; Tue, 13 Apr 2021 08:15:15 -0400
+X-MC-Unique: lY-rq-9KM2mLGA7SyGj-CA-1
+Received: by mail-ed1-f72.google.com with SMTP id l9-20020a0564021249b02903827849a98dso1150544edw.6
+        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 05:15:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=TpxC1qelb9qRujqf8xDlcIHAF8+xB1dypj9reMWQZ4o=;
-        b=jgoOaAJlQzufixx+qQ6GOGRxIcOzCkwSuGZqrzDpB4XzdrJ+ZVkcRywgULlEbjFQaF
-         R0dD63HRQqYb0amOWYyLOLubH7TVrmjtepnnweZZkjCjd+J5igWnIGzM51aV/ofd4OB1
-         w7tPoqlkmTyeAd6DRWFQ+kuf/4PJgWHJDHXsIEHHiDMTiK+OCqZEitKoaMxwupFNzoOM
-         kj0q1A4JiVHwsNhCCgfwEPm8EovthWJdp6/kP3gmrxVM6BRYPSYz6cL+HENWIpMS5mqf
-         uAfWpJZFgPZKVgKO6kWsCc3wZ/RkFJhnqTb2L+mys5fLEvrD+J5OE7xEhqTpuSrpefOt
-         +y9w==
-X-Gm-Message-State: AOAM5306Ouv2HZ4ZLAPHp5NTV+MDG/E/RKkkrB60pNQfVzL4rTnsCvva
-        Ot3az/kfxvF6akPFohtexhwjGmeK01/JQD5N3HxQBu9cVCCgqBPu
-X-Google-Smtp-Source: ABdhPJwbrrGS9bqSbKtVkoDalVjTu3+jzIs//7ofBI1BPmNlQ6k9MBhRntDFyOnUW0vkvIfkDYAenwI/lVbUaz/Vqu8=
-X-Received: by 2002:a17:906:aecd:: with SMTP id me13mr1459415ejb.324.1618315926291;
- Tue, 13 Apr 2021 05:12:06 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=aqf0RiZSoAYfI4s0e2+ZgKSiJco7N8Kba8wSDbcvYCc=;
+        b=Ku47mlknLFKrh4psyCmuCz9qiARurOz+ZHj/582sitMTQO/9a1FvM1bHKSgzinLnf/
+         M5LULa/vsuHvryS1FrTJfDmHKeyKkhQeQhyzSzs9OLDSECFQcmhIL4RDp3iYNgVM3KGf
+         RIZmY1sxJItBsZVuRTIRohPKtXIbobH1thrBd2d3VilZjI7qHLnapJ14s1XLl8Lo4m2a
+         9/kQMIxVfdSACVpxZgaXAbBB+gaSIP4WCRrU51yMXE5t7azKFqGCrhfJgEijMaMLLnVw
+         tNtL0RzXt0LugoqUEGR7v0rGaNXTCyZ/IU+FUytdY/7UN4YitrQJWjg7w0BFeZxPPphw
+         v9Iw==
+X-Gm-Message-State: AOAM531vRUqRzZ4W3R8whvGRyN66yZgHmdpe+Jj95Y0XbKo/Cm9MG2Jn
+        PutBlryGCUF+9zBKq4rNp8V+8vloRRJW/u1Jy6ZM1sbNbwqXH3iRi5d3S1zqG4xMMbGah+LO0i4
+        E/2FY4ULVQ/fL6qxJ
+X-Received: by 2002:a17:906:3549:: with SMTP id s9mr9309564eja.327.1618316114728;
+        Tue, 13 Apr 2021 05:15:14 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJye3ZXpM2j4/xA1ZsYOu2bEOUbV5nlWPoAJCBVywHcjFdlmDPmkeyBoZhrkjlFGbk70xZ8uSA==
+X-Received: by 2002:a17:906:3549:: with SMTP id s9mr9309548eja.327.1618316114534;
+        Tue, 13 Apr 2021 05:15:14 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id j6sm9057849edw.73.2021.04.13.05.15.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Apr 2021 05:15:13 -0700 (PDT)
+Subject: Re: [PATCH 2/2] KVM: x86: Fix split-irqchip vs interrupt injection
+ window request
+To:     Lai Jiangshan <jiangshanlai+lkml@gmail.com>,
+        Sean Christopherson <seanjc@google.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        Filippo Sironi <sironi@amazon.de>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        "v4.7+" <stable@vger.kernel.org>,
+        Wanpeng Li <wanpengli@tencent.com>
+References: <20201127112114.3219360-1-pbonzini@redhat.com>
+ <20201127112114.3219360-3-pbonzini@redhat.com>
+ <CAJhGHyCdqgtvK98_KieG-8MUfg1Jghd+H99q+FkgL0ZuqnvuAw@mail.gmail.com>
+ <YHS/BxMiO6I1VOEY@google.com>
+ <CAJhGHyAcnwkCfTcnxXcgAHnF=wPbH2EDp7H+e74ce+oNOWJ=_Q@mail.gmail.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <80b013dc-0078-76f4-1299-3cff261ef7d8@redhat.com>
+Date:   Tue, 13 Apr 2021 14:15:12 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Tue, 13 Apr 2021 14:11:54 +0200
-Message-ID: <CADYN=9+JDiZarjWUZKT9P27UgDYfR4afGbH9CMd3jtxQi=8ZyA@mail.gmail.com>
-Subject: backport patches to linux-5.4.y
-To:     linux-stable <stable@vger.kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        acme@redhat.com, ravi.bangoria@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAJhGHyAcnwkCfTcnxXcgAHnF=wPbH2EDp7H+e74ce+oNOWJ=_Q@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On 13/04/21 13:03, Lai Jiangshan wrote:
+> This patch claims that it has a place to
+> stash the IRQ when EFLAGS.IF=0, but inject_pending_event() seams to ignore
+> EFLAGS.IF and queues the IRQ to the guest directly in the first branch
+> of using "kvm_x86_ops.set_irq(vcpu)".
 
-Can these patches be backported to linux-5.4.y, I've tried to build
-perf on arm and it failed without these patches.
-fc8c0a992233 ("perf tools: Use %define api.pure full instead of %pure-parser")
-20befbb10803 ("perf tools: Use %zd for size_t printf formats on 32-bit")
-77d02bd00cea ("perf map: Tighten snprintf() string precision to pass
-gcc check on some 32-bit arches")
+This is only true for pure-userspace irqchip.  For split-irqchip, in 
+which case the "place to stash" the interrupt is 
+vcpu->arch.pending_external_vector.
 
+For pure-userspace irqchip, KVM_INTERRUPT only cares about being able to 
+stash the interrupt in vcpu->arch.interrupt.injected.  It is indeed 
+wrong for userspace to call KVM_INTERRUPT if the vCPU is not ready for 
+interrupt injection, but KVM_INTERRUPT does not return an error.
 
+Ignoring the fact that this would be incorrect use of the API, are you 
+saying that the incorrect injection was not possible before this patch?
 
-Commit fc8c0a992233 ("perf tools: Use %define api.pure full instead of
-%pure-parser") fixes:
+Paolo
 
-util/parse-events.y:1.1-12: warning: deprecated directive:
-'%pure-parser', use '%define api.pure' [-Wdeprecated]
-    1 | %pure-parser
-      | ^~~~~~~~~~~~
-      | %define api.pure
-
-Commit 20befbb10803 ("perf tools: Use %zd for size_t printf formats on
-32-bit") fixes:
-
-In file included from util/session.c:17:
-util/session.c: In function 'perf_session__process_compressed_event':
-util/session.c:91:11: error: format '%ld' expects argument of type
-'long int', but argument 4 has type 'size_t' {aka 'unsigned int'}
-[-Werror=format=]
-   91 |  pr_debug("decomp (B): %ld to %ld\n", src_size, decomp_size);
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~
-util/debug.h:16:21: note: in definition of macro 'pr_fmt'
-   16 | #define pr_fmt(fmt) fmt
-      |                     ^~~
-util/session.c:91:2: note: in expansion of macro 'pr_debug'
-   91 |  pr_debug("decomp (B): %ld to %ld\n", src_size, decomp_size);
-      |  ^~~~~~~~
-
-Commit 77d02bd00cea ("perf map: Tighten snprintf() string precision to
-pass gcc check on some 32-bit arches") fixes:
-
-util/map.c: In function 'map__new':
-util/map.c:125:5: error: '%s' directive output may be truncated
-writing between 1 and 2147483645 bytes into a region of size 4096
-[-Werror=format-truncation=]
-  125 |    "%s/platforms/%s/arch-%s/usr/lib/%s",
-      |     ^~
-In file included from /usr/arm-linux-gnueabihf/include/stdio.h:867,
-                 from util/symbol.h:11,
-                 from util/map.c:2:
-/usr/arm-linux-gnueabihf/include/bits/stdio2.h:67:10: note:
-'__builtin___snprintf_chk' output 32 or more bytes (assuming
-4294967321) into a destination of size 4096
-   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
-      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   68 |        __bos (__s), __fmt, __va_arg_pack ());
-      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Cheers,
-Anders
