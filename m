@@ -2,96 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C783035E4C1
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 19:12:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A7E35E594
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 19:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbhDMRNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 13:13:07 -0400
-Received: from mga09.intel.com ([134.134.136.24]:5325 "EHLO mga09.intel.com"
+        id S1347456AbhDMRvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 13:51:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230074AbhDMRNG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Apr 2021 13:13:06 -0400
-IronPort-SDR: 334a9r7qWr2nFSvRDED3Z/gZhFCe4m5EWvVIuWWh4mTG/7jThTwV2OxYSxecq6KsJkTlpYn8Er
- p8aRcqIh1+PA==
-X-IronPort-AV: E=McAfee;i="6200,9189,9953"; a="194573803"
-X-IronPort-AV: E=Sophos;i="5.82,219,1613462400"; 
-   d="scan'208";a="194573803"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2021 10:12:40 -0700
-IronPort-SDR: BkAUe+MpFzDxyYJeQTIpnGz61Y/DTynrZftNxnCZ+0WvTAG1D5cEa4uz9bnE1LUZGvkorkxzi9
- KEkIA3dTv87g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.82,219,1613462400"; 
-   d="scan'208";a="420860693"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
-  by orsmga007.jf.intel.com with SMTP; 13 Apr 2021 10:12:37 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 13 Apr 2021 20:12:37 +0300
-Date:   Tue, 13 Apr 2021 20:12:37 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Imre Deak <imre.deak@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] drm/i915: Fix modesetting in case of unexpected AUX
- timeouts
-Message-ID: <YHXRBSsBkNXoPIFS@intel.com>
-References: <20210412232413.2755054-1-imre.deak@intel.com>
+        id S1347459AbhDMRvg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Apr 2021 13:51:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64704613BA;
+        Tue, 13 Apr 2021 17:51:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1618336276;
+        bh=STlES+DYVBTDRSumr84y24f4P3BlwSVMYXdmjHd61QI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MJ9AUDisyzbLasohsX+S5wX378EXieWelcxAyTjjUgcZsHFX1kLYT/ahufc5MQg5q
+         DVpU/Vf7wBHA095rTxe2z8Hbxj5/dm/iGjFpMyPDZAqmgGzhgMU+6TwBM7c2FkqSoK
+         JE34CzGrl/SfKBNYu79xIICzDlciBvQaO+zs2jEmkuTm2CXmtJxdNpdOvCQSV4cbcZ
+         h+btmBjWoOWfnF1SFcsE9+WC8GkrcO0GT2HDaKO71oq8kb3FfyAiaAPQ7fxvUwusP3
+         P4pJ6UtsUzkyOVjH4PnHfnQFobXC6Xn1SchNtkelgYe2a1zUSay9sD8JTYaFENRlq3
+         u5gfr6PFsDQyA==
+Date:   Tue, 13 Apr 2021 10:51:14 -0700
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mike Snitzer <snitzer@redhat.com>, kernel-team@android.com,
+        agk@redhat.com, dm-devel@redhat.com
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] dm verity: fix not aligned logical block size of RS
+ roots IO
+Message-ID: <YHXaEiRt8QzX8h9m@google.com>
+References: <20210412181123.2550918-1-jaegeuk@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210412232413.2755054-1-imre.deak@intel.com>
-X-Patchwork-Hint: comment
+In-Reply-To: <20210412181123.2550918-1-jaegeuk@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 13, 2021 at 02:24:12AM +0300, Imre Deak wrote:
-> In case AUX failures happen unexpectedly during a modeset, the driver
-> should still complete the modeset. In particular the driver should
-> perform the link training sequence steps even in case of an AUX failure,
-> as this sequence also includes port initialization steps. Not doing that
-> can leave the port/pipe in a broken state and lead for instance to a
-> flip done timeout.
+On 04/12, Jaegeuk Kim wrote:
+> From: Jaegeuk Kim <jaegeuk@google.com>
 > 
-> Fix this by continuing with link training (in a no-LTTPR mode) if the
-> DPRX DPCD readout failed for some reason at the beginning of link
-> training. After a successful connector detection we already have the
-> DPCD read out and cached, so the failed repeated read for it should not
-> cause a problem. Note that a partial AUX read could in theory partly
-> overwrite the cached DPCD (and return error) but this overwrite should
-> not happen if the returned values are corrupted (due to a timeout or
-> some other IO error).
+> commit df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to block size")
+> made dm_bufio->block_size 1024, if f->roots is 2. But, that gives the below EIO
+> if the logical block size of the device is 4096, given v->data_dev_block_bits=12.
 > 
-> Kudos to Ville to root cause the problem.
+> E sd 0    : 0:0:0: [sda] tag#30 request not aligned to the logical block size
+> E blk_update_request: I/O error, dev sda, sector 10368424 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 0
+> E device-mapper: verity-fec: 254:8: FEC 9244672: parity read failed (block 18056): -5
 > 
-> Fixes: 7dffbdedb96a ("drm/i915: Disable LTTPR support when the DPCD rev < 1.4")
-> References: https://gitlab.freedesktop.org/drm/intel/-/issues/3308
-> Cc: stable@vger.kernel.org # 5.11
-> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Signed-off-by: Imre Deak <imre.deak@intel.com>
-
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-
+> Let's use f->roots for dm_bufio iff it's aligned to v->data_dev_block_bits.
+> 
+> Fixes: df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to block size")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jaegeuk Kim <jaegeuk@google.com>
 > ---
->  drivers/gpu/drm/i915/display/intel_dp_link_training.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  drivers/md/dm-verity-fec.c | 11 ++++++++---
+>  drivers/md/dm-verity-fec.h |  1 +
+>  2 files changed, 9 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> index 5e9c3c74310ca..cbcfb0c4c3708 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-> @@ -882,7 +882,8 @@ void intel_dp_start_link_train(struct intel_dp *intel_dp,
->  	int lttpr_count = intel_dp_init_lttpr_and_dprx_caps(intel_dp);
+> diff --git a/drivers/md/dm-verity-fec.c b/drivers/md/dm-verity-fec.c
+> index 66f4c6398f67..cea2b3789736 100644
+> --- a/drivers/md/dm-verity-fec.c
+> +++ b/drivers/md/dm-verity-fec.c
+> @@ -65,7 +65,7 @@ static u8 *fec_read_parity(struct dm_verity *v, u64 rsb, int index,
+>  	u8 *res;
 >  
->  	if (lttpr_count < 0)
-> -		return;
-> +		/* Still continue with enabling the port and link training. */
-> +		lttpr_count = 0;
+>  	position = (index + rsb) * v->fec->roots;
+> -	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
+> +	block = div64_u64_rem(position, v->fec->io_size, &rem);
+>  	*offset = (unsigned)rem;
 >  
->  	if (!intel_dp_link_train_all_phys(intel_dp, crtc_state, lttpr_count))
->  		intel_dp_schedule_fallback_link_training(intel_dp, crtc_state);
+>  	res = dm_bufio_read(v->fec->bufio, block, buf);
+> @@ -154,7 +154,7 @@ static int fec_decode_bufs(struct dm_verity *v, struct dm_verity_fec_io *fio,
+>  
+>  		/* read the next block when we run out of parity bytes */
+>  		offset += v->fec->roots;
+> -		if (offset >= v->fec->roots << SECTOR_SHIFT) {
+> +		if (offset >= v->fec->io_size) {
+>  			dm_bufio_release(buf);
+>  
+>  			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
+> @@ -742,8 +742,13 @@ int verity_fec_ctr(struct dm_verity *v)
+>  		return -E2BIG;
+>  	}
+>  
+> +	if ((f->roots << SECTOR_SHIFT) & ((1 << v->data_dev_block_bits) - 1))
+> +		f->io_size = 1 << v->data_dev_block_bits;
+> +	else
+> +		f->io_size = v->fec->roots << SECTOR_SHIFT;
+> +
+>  	f->bufio = dm_bufio_client_create(f->dev->bdev,
+> -					  f->roots << SECTOR_SHIFT,
+> +					  f->io_size,
+>  					  1, 0, NULL, NULL);
+>  	if (IS_ERR(f->bufio)) {
+>  		ti->error = "Cannot initialize FEC bufio client";
+> diff --git a/drivers/md/dm-verity-fec.h b/drivers/md/dm-verity-fec.h
+> index 42fbd3a7fc9f..3c46c8d61883 100644
+> --- a/drivers/md/dm-verity-fec.h
+> +++ b/drivers/md/dm-verity-fec.h
+> @@ -36,6 +36,7 @@ struct dm_verity_fec {
+>  	struct dm_dev *dev;	/* parity data device */
+>  	struct dm_bufio_client *data_bufio;	/* for data dev access */
+>  	struct dm_bufio_client *bufio;		/* for parity data access */
+> +	size_t io_size;		/* IO size for roots */
+>  	sector_t start;		/* parity data start in blocks */
+>  	sector_t blocks;	/* number of blocks covered */
+>  	sector_t rounds;	/* number of interleaving rounds */
 > -- 
-> 2.27.0
-
--- 
-Ville Syrjälä
-Intel
+> 2.31.1.295.g9ea45b61b8-goog
