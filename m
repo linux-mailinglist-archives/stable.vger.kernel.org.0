@@ -2,122 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D0B35DDAB
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 13:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41AF235DD50
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 13:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbhDMLZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 07:25:16 -0400
-Received: from bosmailout04.eigbox.net ([66.96.186.4]:44005 "EHLO
-        bosmailout04.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230395AbhDMLZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 07:25:16 -0400
-X-Greylist: delayed 1848 seconds by postgrey-1.27 at vger.kernel.org; Tue, 13 Apr 2021 07:25:15 EDT
-Received: from bosmailscan03.eigbox.net ([10.20.15.3])
-        by bosmailout04.eigbox.net with esmtp (Exim)
-        id 1lWGgK-0002ht-2x
-        for stable@vger.kernel.org; Tue, 13 Apr 2021 06:54:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=allas32u.com; s=dkim; h=Sender:Content-Transfer-Encoding:Content-Type:
-        Message-ID:Reply-To:Subject:To:From:Date:MIME-Version:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=j/2w54k6QiND+xCmDlhOZ4FhmnEVovmAfHp4mNSvZpw=; b=vrZPFySP+3eNipylf2V2d9GQsu
-        Skb+yjn4sUYAIyXFlJgdBtT5ZwTTg6Lu0gsBI0spn38CB6K1bv0PktoHWFs7qUWrRHZK5hIgSvwAK
-        /rXtOG28PzzEjDXllepyYKovA/t5MqDYlmLbS69T8Dr+rqrG8OBjDVB8evn2l+Zb/fPv0ze7Yins1
-        fj6Jx9Lzjcd6or1RVrVw0fuxhCrfxyYGi9ouIkLamuWHL0t0S3+m2yardtVi4EdkCucUScOhkdV7S
-        /EreL6miFRuveeR/Yw1ssKYq6BoFJyYSc1W2/Hj/Liae5f1E7AzdnbmYD+Tz1HJ1ciAHNtd1VXjWf
-        xmV1Nz3Q==;
-Received: from [10.115.3.34] (helo=bosimpout04)
-        by bosmailscan03.eigbox.net with esmtp (Exim)
-        id 1lWGgI-0006JS-I5; Tue, 13 Apr 2021 06:54:06 -0400
-Received: from boswebmail08.eigbox.net ([10.20.16.8])
-        by bosimpout04 with 
-        id sAt12400S0ASFPu01AtuFm; Tue, 13 Apr 2021 06:54:06 -0400
-X-EN-SP-DIR: OUT
-X-EN-SP-SQ: 1
-Received: from [127.0.0.1] (helo=homestead)
-        by boswebmail08.eigbox.net with esmtp (Exim)
-        id 1lWGfw-0005Nw-Ju; Tue, 13 Apr 2021 06:53:44 -0400
-Received: from [41.138.102.229]
- by emailmg.homestead.com
- with HTTP (HTTP/1.1 POST); Tue, 13 Apr 2021 06:53:44 -0400
+        id S1345098AbhDMLDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 07:03:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345186AbhDMLDs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 07:03:48 -0400
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B553C06175F;
+        Tue, 13 Apr 2021 04:03:29 -0700 (PDT)
+Received: by mail-il1-x12d.google.com with SMTP id 7so12042322ilz.0;
+        Tue, 13 Apr 2021 04:03:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SaQgaohvFRse8y7sF4qogtAi4k/YBL2bzDFsmdJBavY=;
+        b=DGpGEmKGP9Wcnn+JS5iPztOqsliXtOJ6fLtlbkr3oUuvarZefDCbhdQMV9rWTlrds6
+         wVHOwrYEI+99+2IGpmIWMLE1wpDIn2CXsqVN03ai7Hr0HO/V+oV8Q9L1lafgVFx2N1Nq
+         Yjp6zRrZh67xGBCgJlAuBnb4BUQzEPlP/ztzsxfRhFa04D9JaACtsymqEWnej2UBjzn0
+         SKzrmYaI1W+LGaLJvxWC2qOpEjrjJXQDccufw9sl37yZexj4AeNZ0gATKYofrkypsGKK
+         N6xL1b4cyfjUWNGopXT6QwjwOkFswUYd1+8eU1ds8KBVb5U2RII2lYVxAvgYYGPh5wXA
+         KuUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SaQgaohvFRse8y7sF4qogtAi4k/YBL2bzDFsmdJBavY=;
+        b=CEMLWsyACSBXDcgdZZsHFI7XkakS9MqfbjgtEKcdTOCh4C+b9za5/Pzx276XdOnSvW
+         oaP+0a0wNsXs8x6GFnmPrMyXcaHlI+Gg0cU170qAyEbKMnpIajoEdiB9aZylVQnk/O/4
+         6shl4mH891G5lSRKjSjbC12wtWGW99Kb3eG7aNUOdImwt916vqOd4I8eCVgCxwfUP2Uh
+         c2apmar3Qx1uTks5+VLZgEIIza27vfdbvVaTmZb9kcZgqbCmUQE/6INEsOJMsHTaaqkI
+         1Foe2VoE/Nu+aldYGdLS8JnxlpXU9dNZpZnmYrwlZLSvelCQmB7yeeu8NdCZ6cmsVXGZ
+         Sk1Q==
+X-Gm-Message-State: AOAM531vF79Cl93KrC/ZGiDzzMirL0GzB58o7yGzVG+Ogx5qqTsJsgf2
+        7rg/l8PpZNeYnHkcxtPBXwlhu/R+JPMJQdrhbuI=
+X-Google-Smtp-Source: ABdhPJx1z9NLxTOUwTs565vCjlORC+kL0RY4GMGpIY2nljUMLDWzexizGFY+fWG/FlfOwOVgOUTLKxemLbute+nsrDk=
+X-Received: by 2002:a92:ac0f:: with SMTP id r15mr27223305ilh.52.1618311808723;
+ Tue, 13 Apr 2021 04:03:28 -0700 (PDT)
 MIME-Version: 1.0
-Date:   Tue, 13 Apr 2021 12:53:44 +0200
-From:   janete Moon <jush3@allas32u.com>
-To:     undisclosed-recipients:;
-Subject: an Orphan needs your help
-Organization: financial institution
-Reply-To: janete.moon20@gmail.com
-Mail-Reply-To: janete.moon20@gmail.com
-Message-ID: <50c7c85c2da6418a6d639c4c796c9705@allas32u.com>
-X-Sender: jush3@allas32u.com
-User-Agent: Roundcube Webmail/1.3.14
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-EN-AuthUser: jush3@allas32u.com
-Sender:  janete Moon <jush3@allas32u.com>
+References: <20201127112114.3219360-1-pbonzini@redhat.com> <20201127112114.3219360-3-pbonzini@redhat.com>
+ <CAJhGHyCdqgtvK98_KieG-8MUfg1Jghd+H99q+FkgL0ZuqnvuAw@mail.gmail.com> <YHS/BxMiO6I1VOEY@google.com>
+In-Reply-To: <YHS/BxMiO6I1VOEY@google.com>
+From:   Lai Jiangshan <jiangshanlai+lkml@gmail.com>
+Date:   Tue, 13 Apr 2021 19:03:17 +0800
+Message-ID: <CAJhGHyAcnwkCfTcnxXcgAHnF=wPbH2EDp7H+e74ce+oNOWJ=_Q@mail.gmail.com>
+Subject: Re: [PATCH 2/2] KVM: x86: Fix split-irqchip vs interrupt injection
+ window request
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        Filippo Sironi <sironi@amazon.de>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        "v4.7+" <stable@vger.kernel.org>,
+        Wanpeng Li <wanpengli@tencent.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Apr 13, 2021 at 5:43 AM Sean Christopherson <seanjc@google.com> wrote:
+>
+> On Fri, Apr 09, 2021, Lai Jiangshan wrote:
+> > On Fri, Nov 27, 2020 at 7:26 PM Paolo Bonzini <pbonzini@redhat.com> wrote:
+> > >
+> > > kvm_cpu_accept_dm_intr and kvm_vcpu_ready_for_interrupt_injection are
+> > > a hodge-podge of conditions, hacked together to get something that
+> > > more or less works.  But what is actually needed is much simpler;
+> > > in both cases the fundamental question is, do we have a place to stash
+> > > an interrupt if userspace does KVM_INTERRUPT?
+> > >
+> > > In userspace irqchip mode, that is !vcpu->arch.interrupt.injected.
+> > > Currently kvm_event_needs_reinjection(vcpu) covers it, but it is
+> > > unnecessarily restrictive.
+> > >
+> > > In split irqchip mode it's a bit more complicated, we need to check
+> > > kvm_apic_accept_pic_intr(vcpu) (the IRQ window exit is basically an INTACK
+> > > cycle and thus requires ExtINTs not to be masked) as well as
+> > > !pending_userspace_extint(vcpu).  However, there is no need to
+> > > check kvm_event_needs_reinjection(vcpu), since split irqchip keeps
+> > > pending ExtINT state separate from event injection state, and checking
+> > > kvm_cpu_has_interrupt(vcpu) is wrong too since ExtINT has higher
+> > > priority than APIC interrupts.  In fact the latter fixes a bug:
+> > > when userspace requests an IRQ window vmexit, an interrupt in the
+> > > local APIC can cause kvm_cpu_has_interrupt() to be true and thus
+> > > kvm_vcpu_ready_for_interrupt_injection() to return false.  When this
+> > > happens, vcpu_run does not exit to userspace but the interrupt window
+> > > vmexits keep occurring.  The VM loops without any hope of making progress.
+> > >
+> > > Once we try to fix these with something like
+> > >
+> > >      return kvm_arch_interrupt_allowed(vcpu) &&
+> > > -        !kvm_cpu_has_interrupt(vcpu) &&
+> > > -        !kvm_event_needs_reinjection(vcpu) &&
+> > > -        kvm_cpu_accept_dm_intr(vcpu);
+> > > +        (!lapic_in_kernel(vcpu)
+> > > +         ? !vcpu->arch.interrupt.injected
+> > > +         : (kvm_apic_accept_pic_intr(vcpu)
+> > > +            && !pending_userspace_extint(v)));
+> > >
+> > > we realize two things.  First, thanks to the previous patch the complex
+> > > conditional can reuse !kvm_cpu_has_extint(vcpu).  Second, the interrupt
+> > > window request in vcpu_enter_guest()
+> > >
+> > >         bool req_int_win =
+> > >                 dm_request_for_irq_injection(vcpu) &&
+> > >                 kvm_cpu_accept_dm_intr(vcpu);
+> > >
+> > > should be kept in sync with kvm_vcpu_ready_for_interrupt_injection():
+> > > it is unnecessary to ask the processor for an interrupt window
+> > > if we would not be able to return to userspace.  Therefore, the
+> > > complex conditional is really the correct implementation of
+> > > kvm_cpu_accept_dm_intr(vcpu).  It all makes sense:
+> > >
+> > > - we can accept an interrupt from userspace if there is a place
+> > >   to stash it (and, for irqchip split, ExtINTs are not masked).
+> > >   Interrupts from userspace _can_ be accepted even if right now
+> > >   EFLAGS.IF=0.
+> >
+> > Hello, Paolo
+> >
+> > If userspace does KVM_INTERRUPT, vcpu->arch.interrupt.injected is
+> > set immediately, and in inject_pending_event(), we have
+> >
+> >         else if (!vcpu->arch.exception.pending) {
+> >                 if (vcpu->arch.nmi_injected) {
+> >                         kvm_x86_ops.set_nmi(vcpu);
+> >                         can_inject = false;
+> >                 } else if (vcpu->arch.interrupt.injected) {
+> >                         kvm_x86_ops.set_irq(vcpu);
+> >                         can_inject = false;
+> >                 }
+> >         }
+> >
+> > I'm curious about that can the kvm_x86_ops.set_irq() here be possible
+> > to queue the irq with EFLAGS.IF=0? If not, which code prevents it?
+>
+> The interrupt is only directly injected if the local APIC is _not_ in-kernel.
+> If userspace is managing the local APIC, my understanding is that userspace is
+> also responsible for honoring EFLAGS.IF, though KVM aids userspace by updating
+> vcpu->run->ready_for_interrupt_injection when exiting to userspace.  When
+> userspace is modeling the local APIC, that resolves to
+> kvm_vcpu_ready_for_interrupt_injection():
+>
+>         return kvm_arch_interrupt_allowed(vcpu) &&
+>                 kvm_cpu_accept_dm_intr(vcpu);
+>
+> where kvm_arch_interrupt_allowed() checks EFLAGS.IF (and an edge case related to
+> nested virtualization).  KVM also captures EFLAGS.IF in vcpu->run->if_flag.
+> For whatever reason, QEMU checks both vcpu->run flags before injecting an IRQ,
+> maybe to handle a case where QEMU itself clears EFLAGS.IF?
 
+If userspace is managing the local APIC, the user VMM would insert IRQ
+when kvm_run->ready_for_interrupt_injection=1 since this flags
+implied EFLAGS.IF before this patch (for example gVisor checks this only
+instead of kvm_run->if_flag).  This patch claims that it has a place to
+stash the IRQ when EFLAGS.IF=0, but inject_pending_event() seams to ignore
+EFLAGS.IF and queues the IRQ to the guest directly in the first branch
+of using "kvm_x86_ops.set_irq(vcpu)".
 
-Hello Friend,
+I have encountered a problem but failed to exactly dissect it with
+some internal code involved.
 
-Greetings and thanks for your reply.
+It is somewhat possible that it has resulted from Li Wanpeng's patch
+(I replied to this patch because this patch relaxes the condition even
+more without reasons for how it suppresses/stashes IRQ to the guest).
 
-I am Janete moon but unfortunately, I 'm now an orphan,the only child 
-and
-Daughter of late Mr and Mrs Joseph moon, from Ivory Coast  Abidjan.
-I know it may have sounded very strange to you on why I contact you as
-you are a complete stranger to me and I must tell you this,
+When a guest APP userspace hits an exception and vmexit and returns to
+the user VMM (gVisor) in conditions combined, and the user VMM wants to
+queue an IRQ to it: It is now EFLAGS.IF=1 and ready_for_interrupt_injection=1
+and user VMM happily queues the IRQ. In inject_pending_event(), the IRQ is
+lower priority and the earlier exception is queued to the guest first.  But
+the IRQ can't be continuously suppressed and it is queued at the beginning
+of the exception handler where EFLAGS.IF=0.
+(Before Li Wanpeng's patch, ready_for_interrupt_injection=0, since
+there is an exception pending)
 
-It will be very difficult for me to get in touch with someone here
-who knows me because of the ugly circumstance that surrounds
-the demise of my lovely parents with whom my future ws looking
-very bright from all looks.
+All above is just my guess.  But I want to know more clues.
+And this patch says:
 
-My uncle conspired with my father's business rivals and poisoned my
-parents during a business lunch hour and their motive for eliminating
-them was to take over their businesses and inherit their wealth. In one 
-of
-their letter's that I stumbled into, they were asking my uncle to give
-them their own part of the deal so While reading that letter,
-I fainted and my uncle came in and caught me with the letter.
-I'm afraid that they might decide to kill me or poison me as they did
-to my parents in order to keep me silent for the evil they did to my
-beloved late parents. For safety, I decided to run away from the house.
-I'm now hiding in a neigbouring country called Burkina Faso.
+ : we can accept an interrupt from userspace if there is a place
+ : to stash it (and, for irqchip split, ExtINTs are not masked).
+ : Interrupts from userspace _can_ be accepted even if right now
+ : EFLAGS.IF=0.
 
-My purpose of contacting you is because I need to come to your country
-secretly so that my uncle will not know my where about. I got 
-information
-from my father before he died in the hospital about the secret fund
-(15.5 Million US Dollars only) he kept in a finance house here in
-Burkina Faso  West Africa.
+So it might help me for analyzing if I knew how this
+behavior is achieved since inject_pending_event() doesn't
+check EFLAGS.IF=0 for the first using "kvm_x86_ops.set_irq(vcpu)".
 
-I have verified this with them before contacting you. I shall require 
-your help
-in transfering this money to your country for investment purpose like 
-buying of
-company shares,Real Estate Investment Trust funds,Jewels or Diamond,
-and to continue my studies from where I stopped as Immediately after the
-transfer I will come to live in your country.
+Thanks
 
-I will give you more information once I hear from you as I am in
-sincere desire of your humble assistance in this regard. Your
-suggestions and ideas will be highly welcomed and I am willing to
-offer you 15% of the total fund once it is transferred to your account
-.
+Lai.
 
-Now permit me to ask these few questions
-
-1. Can you honestly help me from your heart?
-2. Can I completely trust you?
-
-
-Thank you and God bless.
-Yours affectionately
-Miss. Janete moon.
+>
+> > I'm asking about this because I just noticed that interrupt can
+> > be queued when exception pending, and this patch relaxed it even
+> > more.
+> >
+> > Note: interrupt can NOT be queued when exception pending
+> > until 664f8e26b00c7 ("KVM: X86: Fix loss of exception which
+> > has not yet been injected") which I think is dangerous.
