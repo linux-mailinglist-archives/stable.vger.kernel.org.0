@@ -2,145 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1B235E371
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 18:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6BBF35E3DF
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 18:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346781AbhDMQEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 12:04:48 -0400
-Received: from mail-ed1-f51.google.com ([209.85.208.51]:33755 "EHLO
-        mail-ed1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346791AbhDMQEM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 12:04:12 -0400
-Received: by mail-ed1-f51.google.com with SMTP id w18so20091624edc.0
-        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 09:03:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kinvolk.io; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=3FvqmXbTPGrExPdYFPrOm7MfDEznWQ3cYJunL5tX4XI=;
-        b=QnUaa/ObnOTdkd9TXid6IcrAuQRmrpANhQd/Cl/ecdkS4vV8JdhUGaB3TX1BaZEkJl
-         OLPkpNcWWih05sUoZGIts+wX+ho3yP3gfTX24SzZEnp3WBBUiOxgJ7OBlJeQTJ9vufc4
-         EeDy1jwWolYm8HcDn75LtEXjHw3X39ADV84RU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=3FvqmXbTPGrExPdYFPrOm7MfDEznWQ3cYJunL5tX4XI=;
-        b=I6Z92v6zW+/wr9F0BZ5TaKHb1TsfZc8Xvb8F+U+j8EFDZOxgDK8F7LXOLOG6NrzakC
-         nUGqYyCCBegtf0tHtZ4kZTG2mU9c6ilyyvYDM3Dw1+R8QNIoBXJ0c29K8Gq4IeeNgx1X
-         8y013iZScHMM6VO6A6Y80N/nzRfxolCb9FkEPim10FzgODLfsbtKqTfU+zkPp4GmSHZ3
-         cDjJL4nPI+YbOC8nxY39owqsiiwXwluKdfMwZ2yNr+rlef5l08+gZ1HexG7Q5jQZKNaL
-         U07DJfZoj4+3vhMlMDeb3vsCFjahmk3T2BFiMNgKM3VCF8HZcPn3OgfXsjI7j5XlQwB2
-         wScQ==
-X-Gm-Message-State: AOAM530etTLfp2kkOHu8d+KvKqcem6XpYan0piEZp4oWjvxBep2mkWfS
-        2BpnMYd2tM/oK9wJOOo+NlO0Hg==
-X-Google-Smtp-Source: ABdhPJxiZ+44bDa0LRDztD06kkg+VeqXHdVoBjsBPwk4/EjYsZpLyi+eafqUP7UkUkNMecAXtkdv2A==
-X-Received: by 2002:a50:82e5:: with SMTP id 92mr263078edg.141.1618329772096;
-        Tue, 13 Apr 2021 09:02:52 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8109:9880:57f0:ba7c:cdd5:fff7:623c])
-        by smtp.gmail.com with ESMTPSA id gb4sm8162852ejc.122.2021.04.13.09.02.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Apr 2021 09:02:51 -0700 (PDT)
-From:   Rodrigo Campos <rodrigo@kinvolk.io>
-To:     Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Will Drewry <wad@chromium.org>, linux-kernel@vger.kernel.org,
-        containers@lists.linux-foundation.org
-Cc:     Rodrigo Campos <rodrigo@kinvolk.io>,
-        Sargun Dhillon <sargun@sargun.me>,
-        =?UTF-8?q?Mauricio=20V=C3=A1squez=20Bernal?= <mauricio@kinvolk.io>,
-        Alban Crequy <alban@kinvolk.io>, stable@vger.kernel.org
-Subject: [PATCH 1/1] seccomp: Always "goto wait" if the list is empty
-Date:   Tue, 13 Apr 2021 18:01:51 +0200
-Message-Id: <20210413160151.3301-2-rodrigo@kinvolk.io>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210413160151.3301-1-rodrigo@kinvolk.io>
-References: <20210413160151.3301-1-rodrigo@kinvolk.io>
+        id S232174AbhDMQ2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 12:28:06 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:53629 "EHLO
+        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232258AbhDMQ2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 12:28:04 -0400
+Received: from relay9-d.mail.gandi.net (unknown [217.70.183.199])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id E9707D7E76
+        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 16:19:04 +0000 (UTC)
+X-Originating-IP: 90.89.138.59
+Received: from xps13.home (lfbn-tou-1-1325-59.w90-89.abo.wanadoo.fr [90.89.138.59])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 971F2FF80D;
+        Tue, 13 Apr 2021 16:18:42 +0000 (UTC)
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
+        <linux-mtd@lists.infradead.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org
+Subject: [PATCH v3 1/7] mtd: rawnand: cs553x: Fix external use of SW Hamming ECC helper
+Date:   Tue, 13 Apr 2021 18:18:34 +0200
+Message-Id: <20210413161840.345208-2-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210413161840.345208-1-miquel.raynal@bootlin.com>
+References: <20210413161840.345208-1-miquel.raynal@bootlin.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It is possible for the thread with the seccomp filter attached (target)
-to be waken up by an addfd message, but the list be empty. This happens
-when the addfd ioctl on the other side (seccomp agent) is interrupted by
-a signal such as SIGURG. In that case, the target erroneously and
-prematurely returns from the syscall to userspace even though the
-seccomp agent didn't ask for it.
+Since the Hamming software ECC engine has been updated to become a
+proper and independent ECC engine, it is now mandatory to either
+initialize the engine before using any one of his functions or use one
+of the bare helpers which only perform the calculations. As there is no
+actual need for a proper ECC initialization, let's just use the bare
+helper instead of the rawnand one.
 
-This happens in the following scenario:
-
-seccomp_notify_addfd()                                           | seccomp_do_user_notification()
-                                                                 |
-                                                                 |  err = wait_for_completion_interruptible(&n.ready);
- complete(&knotif->ready);                                       |
- ret = wait_for_completion_interruptible(&kaddfd.completion);    |
- // interrupted                                                  |
-                                                                 |
- mutex_lock(&filter->notify_lock);                               |
- list_del(&kaddfd.list);                                         |
- mutex_unlock(&filter->notify_lock);                             |
-                                                                 |  mutex_lock(&match->notify_lock);
-                                                                 |  // This is false, addfd is false
-                                                                 |  if (addfd && n.state != SECCOMP_NOTIFY_REPLIED)
-                                                                 |
-                                                                 |  ret = n.val;
-                                                                 |  err = n.error;
-                                                                 |  flags = n.flags;
-
-So, the process blocked in seccomp_do_user_notification() will see a
-response. As n is 0 initialized and wasn't set, it will see a 0 as
-return value from the syscall.
-
-The seccomp agent, when retrying the interrupted syscall, will see an
-ENOENT error as the notification no longer exists (it was already
-answered by this bug).
-
-This patch fixes the issue by splitting the if in two parts: if we were
-woken up and the state is not replied, we will always do a "goto wait".
-And if that happens and there is an addfd element on the list, we will
-add the fd before "goto wait".
-
-This issue is present since 5.9, when addfd was added.
-
-Fixes: 7cf97b1254550
-Cc: stable@vger.kernel.org # 5.9+
-Signed-off-by: Rodrigo Campos <rodrigo@kinvolk.io>
+Fixes: 90ccf0a0192f ("mtd: nand: ecc-hamming: Rename the exported functions")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- kernel/seccomp.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/mtd/nand/raw/cs553x_nand.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/seccomp.c b/kernel/seccomp.c
-index 63b40d12896b..1b34598f0e07 100644
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -1107,11 +1107,20 @@ static int seccomp_do_user_notification(int this_syscall,
- 	err = wait_for_completion_interruptible(&n.ready);
- 	mutex_lock(&match->notify_lock);
- 	if (err == 0) {
--		/* Check if we were woken up by a addfd message */
--		addfd = list_first_entry_or_null(&n.addfd,
--						 struct seccomp_kaddfd, list);
--		if (addfd && n.state != SECCOMP_NOTIFY_REPLIED) {
--			seccomp_handle_addfd(addfd);
+diff --git a/drivers/mtd/nand/raw/cs553x_nand.c b/drivers/mtd/nand/raw/cs553x_nand.c
+index 6edf78c16fc8..3e41d815d5b0 100644
+--- a/drivers/mtd/nand/raw/cs553x_nand.c
++++ b/drivers/mtd/nand/raw/cs553x_nand.c
+@@ -240,6 +240,15 @@ static int cs_calculate_ecc(struct nand_chip *this, const u_char *dat,
+ 	return 0;
+ }
+ 
++static int cs553x_ecc_correct(struct nand_chip *chip,
++			      unsigned char *buf,
++			      unsigned char *read_ecc,
++			      unsigned char *calc_ecc)
++{
++	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
++				      chip->ecc.size, false);
++}
 +
-+		if (n.state != SECCOMP_NOTIFY_REPLIED) {
-+			/*
-+			 * It is possible to be waken-up by an addfd message but
-+			 * the list be empty. This can happen if the addfd
-+			 * ioctl() is interrupted, as it deletes the element.
-+			 *
-+			 * So, check if indeed there is an element in the list.
-+			 */
-+			addfd = list_first_entry_or_null(&n.addfd,
-+							 struct seccomp_kaddfd, list);
-+			if (addfd)
-+				seccomp_handle_addfd(addfd);
-+
- 			mutex_unlock(&match->notify_lock);
- 			goto wait;
- 		}
+ static struct cs553x_nand_controller *controllers[4];
+ 
+ static int cs553x_attach_chip(struct nand_chip *chip)
+@@ -251,7 +260,7 @@ static int cs553x_attach_chip(struct nand_chip *chip)
+ 	chip->ecc.bytes = 3;
+ 	chip->ecc.hwctl  = cs_enable_hwecc;
+ 	chip->ecc.calculate = cs_calculate_ecc;
+-	chip->ecc.correct  = rawnand_sw_hamming_correct;
++	chip->ecc.correct  = cs553x_ecc_correct;
+ 	chip->ecc.strength = 1;
+ 
+ 	return 0;
 -- 
-2.30.2
+2.27.0
 
