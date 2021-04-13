@@ -2,92 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E288D35DE46
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 14:10:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2541835DE62
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 14:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231259AbhDMMK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 08:10:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47459 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231194AbhDMMK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 08:10:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1618315808;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IejbyFfCDRcQHvrp95I002DIsHzvqj1xPZXqmhdrA0w=;
-        b=KNNvM7UagoEEMvxSGPFVUVAx6iSRUBkSUeYKERY5AvpDzGzoPYm1sCsy/+umhKHm4LurtB
-        4y95VtjQbTkjNwqzH7Mb5QEFg+yYsxdFQ09Gc3OyRfFAxAxkk3rKp1eMsiyeOkmwVfsCnP
-        FWJbEbqP042UKZNh3dFot309eGZHelY=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-248-2NsTvvrWPdS-Tb0HmhV3lA-1; Tue, 13 Apr 2021 08:10:06 -0400
-X-MC-Unique: 2NsTvvrWPdS-Tb0HmhV3lA-1
-Received: by mail-ej1-f72.google.com with SMTP id zj19so2061523ejb.22
-        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 05:10:06 -0700 (PDT)
+        id S239489AbhDMMM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 08:12:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56910 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345438AbhDMMM1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 08:12:27 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8892AC061574
+        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 05:12:07 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id sd23so16882677ejb.12
+        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 05:12:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=TpxC1qelb9qRujqf8xDlcIHAF8+xB1dypj9reMWQZ4o=;
+        b=QrIoSxI4gJ/KgVGb4hCt1Y4h4rP8zc8j5m9Sz+/eXvN2p7vKPdREwZPBSaUxMsN26x
+         DaeI//cyb3Iu8krLI4pMyrOGe9j3K3i6f+ODoNnCjwl0p6CDJYh/edkLPTVVMAsJcfU9
+         UM7AigVQlZ5dXC4CfhDgrt/pEnC8nJs3K5fUE0g8ToSinapnaUsPSQAABQPU35yFy7NU
+         j1eTXDA6wiyk+D3MpM/aIhep4KZu9JYftozPtBEvYByP1OATA19sz/+gk/eY+hV6xj8e
+         u9+M3O3BxuEq4lGgSc+XuLGb5OJtE5ylh5dwB2eJDwg+n2JNlQFlZpIDl9RdDcHLNBcQ
+         6cBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=IejbyFfCDRcQHvrp95I002DIsHzvqj1xPZXqmhdrA0w=;
-        b=gWUN8qcFIw/scr+KFTnBvNsF6joTIgyzx+MlGwlQA71iIbYp7O1yg/Pi77PdXtWOWV
-         5V5oH1dL8cOdsiTm42TI9cGfRB3pMi25FIFa39ScJ9ZF3BDP2PeHjpFCvejuE1DRwJaa
-         O6a8fGHa0MNQrIcs9+ZwVIhNdhMlUl25JFzuHF8FdbfJhaixs5EcC2IGcNHm/I8+M/58
-         Ice/KHbzxTHQqZwDwfveisfvoJl8owwTlu5vqFxyuaf33uJB378JFP19Q0s2NhCT4bri
-         BcKKxd6L4deCQydIaf3dd7cGJtFUfCwlU93SADHqBAdZh/YdU/zYtiV9os3b4PxyMq1t
-         wAJQ==
-X-Gm-Message-State: AOAM5328qVTuljQ7MGFPYr/A3B1F9+LUE9KFcfMaPVoyiCiaV9pPiZ+4
-        tqWi/h3huTRzquuQ+ENLUFdaj+WiGzWFlNc3zP4kNv4Q4uplGSFJABzjzKQzVHoMKuEXPkfEIi1
-        whEroshiMHWYcUPI6
-X-Received: by 2002:a05:6402:4d1:: with SMTP id n17mr33763385edw.118.1618315805188;
-        Tue, 13 Apr 2021 05:10:05 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJycmV2QAbm9DlXfnBjiF9ZhAdQwdu4MVStSRMH+QxWL7LXWAF2rJqHbnqsSyAdHn0tU18Kjeg==
-X-Received: by 2002:a05:6402:4d1:: with SMTP id n17mr33763368edw.118.1618315805046;
-        Tue, 13 Apr 2021 05:10:05 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id r17sm9327924edt.70.2021.04.13.05.10.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 13 Apr 2021 05:10:03 -0700 (PDT)
-Subject: Re: [PATCH 2/2] KVM: x86: Fix split-irqchip vs interrupt injection
- window request
-To:     Sean Christopherson <seanjc@google.com>,
-        Lai Jiangshan <jiangshanlai+lkml@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Filippo Sironi <sironi@amazon.de>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        "v4.7+" <stable@vger.kernel.org>,
-        Wanpeng Li <wanpengli@tencent.com>
-References: <20201127112114.3219360-1-pbonzini@redhat.com>
- <20201127112114.3219360-3-pbonzini@redhat.com>
- <CAJhGHyCdqgtvK98_KieG-8MUfg1Jghd+H99q+FkgL0ZuqnvuAw@mail.gmail.com>
- <YHS/BxMiO6I1VOEY@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <4a9e11b1-9cd6-b9a4-d9ea-f2f4d0983084@redhat.com>
-Date:   Tue, 13 Apr 2021 14:10:02 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=TpxC1qelb9qRujqf8xDlcIHAF8+xB1dypj9reMWQZ4o=;
+        b=jgoOaAJlQzufixx+qQ6GOGRxIcOzCkwSuGZqrzDpB4XzdrJ+ZVkcRywgULlEbjFQaF
+         R0dD63HRQqYb0amOWYyLOLubH7TVrmjtepnnweZZkjCjd+J5igWnIGzM51aV/ofd4OB1
+         w7tPoqlkmTyeAd6DRWFQ+kuf/4PJgWHJDHXsIEHHiDMTiK+OCqZEitKoaMxwupFNzoOM
+         kj0q1A4JiVHwsNhCCgfwEPm8EovthWJdp6/kP3gmrxVM6BRYPSYz6cL+HENWIpMS5mqf
+         uAfWpJZFgPZKVgKO6kWsCc3wZ/RkFJhnqTb2L+mys5fLEvrD+J5OE7xEhqTpuSrpefOt
+         +y9w==
+X-Gm-Message-State: AOAM5306Ouv2HZ4ZLAPHp5NTV+MDG/E/RKkkrB60pNQfVzL4rTnsCvva
+        Ot3az/kfxvF6akPFohtexhwjGmeK01/JQD5N3HxQBu9cVCCgqBPu
+X-Google-Smtp-Source: ABdhPJwbrrGS9bqSbKtVkoDalVjTu3+jzIs//7ofBI1BPmNlQ6k9MBhRntDFyOnUW0vkvIfkDYAenwI/lVbUaz/Vqu8=
+X-Received: by 2002:a17:906:aecd:: with SMTP id me13mr1459415ejb.324.1618315926291;
+ Tue, 13 Apr 2021 05:12:06 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <YHS/BxMiO6I1VOEY@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+From:   Anders Roxell <anders.roxell@linaro.org>
+Date:   Tue, 13 Apr 2021 14:11:54 +0200
+Message-ID: <CADYN=9+JDiZarjWUZKT9P27UgDYfR4afGbH9CMd3jtxQi=8ZyA@mail.gmail.com>
+Subject: backport patches to linux-5.4.y
+To:     linux-stable <stable@vger.kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        acme@redhat.com, ravi.bangoria@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/04/21 23:43, Sean Christopherson wrote:
-> where kvm_arch_interrupt_allowed() checks EFLAGS.IF (and an edge case related to
-> nested virtualization).  KVM also captures EFLAGS.IF in vcpu->run->if_flag.
-> For whatever reason, QEMU checks both vcpu->run flags before injecting an IRQ,
-> maybe to handle a case where QEMU itself clears EFLAGS.IF?
+Hi,
 
-It's mostly obsolete code (that will be deprecated in the next version 
-and removed in about a year) so I wouldn't read much into it.  if_flag 
-itself is obsolete; it is not provided by SEV-ES, and a useless subset 
-of ready_for_interrupt_injection.
+Can these patches be backported to linux-5.4.y, I've tried to build
+perf on arm and it failed without these patches.
+fc8c0a992233 ("perf tools: Use %define api.pure full instead of %pure-parser")
+20befbb10803 ("perf tools: Use %zd for size_t printf formats on 32-bit")
+77d02bd00cea ("perf map: Tighten snprintf() string precision to pass
+gcc check on some 32-bit arches")
 
-Paolo
 
+
+Commit fc8c0a992233 ("perf tools: Use %define api.pure full instead of
+%pure-parser") fixes:
+
+util/parse-events.y:1.1-12: warning: deprecated directive:
+'%pure-parser', use '%define api.pure' [-Wdeprecated]
+    1 | %pure-parser
+      | ^~~~~~~~~~~~
+      | %define api.pure
+
+Commit 20befbb10803 ("perf tools: Use %zd for size_t printf formats on
+32-bit") fixes:
+
+In file included from util/session.c:17:
+util/session.c: In function 'perf_session__process_compressed_event':
+util/session.c:91:11: error: format '%ld' expects argument of type
+'long int', but argument 4 has type 'size_t' {aka 'unsigned int'}
+[-Werror=format=]
+   91 |  pr_debug("decomp (B): %ld to %ld\n", src_size, decomp_size);
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+util/debug.h:16:21: note: in definition of macro 'pr_fmt'
+   16 | #define pr_fmt(fmt) fmt
+      |                     ^~~
+util/session.c:91:2: note: in expansion of macro 'pr_debug'
+   91 |  pr_debug("decomp (B): %ld to %ld\n", src_size, decomp_size);
+      |  ^~~~~~~~
+
+Commit 77d02bd00cea ("perf map: Tighten snprintf() string precision to
+pass gcc check on some 32-bit arches") fixes:
+
+util/map.c: In function 'map__new':
+util/map.c:125:5: error: '%s' directive output may be truncated
+writing between 1 and 2147483645 bytes into a region of size 4096
+[-Werror=format-truncation=]
+  125 |    "%s/platforms/%s/arch-%s/usr/lib/%s",
+      |     ^~
+In file included from /usr/arm-linux-gnueabihf/include/stdio.h:867,
+                 from util/symbol.h:11,
+                 from util/map.c:2:
+/usr/arm-linux-gnueabihf/include/bits/stdio2.h:67:10: note:
+'__builtin___snprintf_chk' output 32 or more bytes (assuming
+4294967321) into a destination of size 4096
+   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   68 |        __bos (__s), __fmt, __va_arg_pack ());
+      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Cheers,
+Anders
