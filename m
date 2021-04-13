@@ -2,206 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41AF235DD50
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 13:03:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECDCB35DDD9
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 13:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345098AbhDMLDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 07:03:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41912 "EHLO
+        id S241478AbhDMLhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 07:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345186AbhDMLDs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 07:03:48 -0400
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B553C06175F;
-        Tue, 13 Apr 2021 04:03:29 -0700 (PDT)
-Received: by mail-il1-x12d.google.com with SMTP id 7so12042322ilz.0;
-        Tue, 13 Apr 2021 04:03:29 -0700 (PDT)
+        with ESMTP id S241052AbhDMLhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 07:37:21 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AB0EC061574;
+        Tue, 13 Apr 2021 04:37:01 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id z24-20020a1cf4180000b029012463a9027fso8552982wma.5;
+        Tue, 13 Apr 2021 04:37:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SaQgaohvFRse8y7sF4qogtAi4k/YBL2bzDFsmdJBavY=;
-        b=DGpGEmKGP9Wcnn+JS5iPztOqsliXtOJ6fLtlbkr3oUuvarZefDCbhdQMV9rWTlrds6
-         wVHOwrYEI+99+2IGpmIWMLE1wpDIn2CXsqVN03ai7Hr0HO/V+oV8Q9L1lafgVFx2N1Nq
-         Yjp6zRrZh67xGBCgJlAuBnb4BUQzEPlP/ztzsxfRhFa04D9JaACtsymqEWnej2UBjzn0
-         SKzrmYaI1W+LGaLJvxWC2qOpEjrjJXQDccufw9sl37yZexj4AeNZ0gATKYofrkypsGKK
-         N6xL1b4cyfjUWNGopXT6QwjwOkFswUYd1+8eU1ds8KBVb5U2RII2lYVxAvgYYGPh5wXA
-         KuUw==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=d8prWghJv+BkiPsQ41cXnPAO/NBhcn05YDXuxcrhtEc=;
+        b=iff6X5Dx5VtccL1uM8p2zLSXcrty+PuUGC7J7z8zXEhInb/+xp6sCmr4WpXqZMvgb8
+         U/sI9sbF3KF8QWGS2ZH58/wbAC/7sFyazmiDGUsMMbiZdsdaQsyFRpSyaG/tncNYD7s3
+         b6F6wj3u3w1W3ik+XIzTB254U47VrGsIrfJCf1oonuFB3mpok5f2SQ1oAuc1yPmn3Ski
+         DYYNM2390gZtJEKQy/7PKGmwKrmIIzmf+Qjm0+BnJb5dxaY9IWr3JG1W0V+CDbW4edn9
+         5m022ytrZ/AQR+nTw4hpDAfaI8luLhP1/kebH6wChvq4bm0gWtj+Dc6Q+lYkhQqBRZyR
+         sW8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SaQgaohvFRse8y7sF4qogtAi4k/YBL2bzDFsmdJBavY=;
-        b=CEMLWsyACSBXDcgdZZsHFI7XkakS9MqfbjgtEKcdTOCh4C+b9za5/Pzx276XdOnSvW
-         oaP+0a0wNsXs8x6GFnmPrMyXcaHlI+Gg0cU170qAyEbKMnpIajoEdiB9aZylVQnk/O/4
-         6shl4mH891G5lSRKjSjbC12wtWGW99Kb3eG7aNUOdImwt916vqOd4I8eCVgCxwfUP2Uh
-         c2apmar3Qx1uTks5+VLZgEIIza27vfdbvVaTmZb9kcZgqbCmUQE/6INEsOJMsHTaaqkI
-         1Foe2VoE/Nu+aldYGdLS8JnxlpXU9dNZpZnmYrwlZLSvelCQmB7yeeu8NdCZ6cmsVXGZ
-         Sk1Q==
-X-Gm-Message-State: AOAM531vF79Cl93KrC/ZGiDzzMirL0GzB58o7yGzVG+Ogx5qqTsJsgf2
-        7rg/l8PpZNeYnHkcxtPBXwlhu/R+JPMJQdrhbuI=
-X-Google-Smtp-Source: ABdhPJx1z9NLxTOUwTs565vCjlORC+kL0RY4GMGpIY2nljUMLDWzexizGFY+fWG/FlfOwOVgOUTLKxemLbute+nsrDk=
-X-Received: by 2002:a92:ac0f:: with SMTP id r15mr27223305ilh.52.1618311808723;
- Tue, 13 Apr 2021 04:03:28 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=d8prWghJv+BkiPsQ41cXnPAO/NBhcn05YDXuxcrhtEc=;
+        b=sLiKxot75Fa85MzK8UaPSyALDS3z9utgozsh1BsdupRKIcRbCmgeOJZ16+hel18qME
+         3Rm95+c5KzJr7Y2AtR84R59jliwmDetnG051buSeXuc6iErYe+kCovzbVn1pOFpiEKlb
+         35kcbKn0yCOjlWn1EoaNowN35JZc6xWl4cCghiRVe9PilXopRCyLF6+daK/Pl/9D4R0d
+         pBRAx6zgHJJ4APmaYSAyEGbPgkkK58tiB0W0xN3mPaMWBm8lERT4QC1hcu0oAEA+aKQ0
+         1LBZGyEcepMrRYVAZNyB+gP+y0iY6HV4xqmLR6WHk8zlve2AHJCwaErpOdqx7G4g1biU
+         vjxQ==
+X-Gm-Message-State: AOAM533geah6i/Obbo163hhDhT+8CLppmlTg1J0A9HbPJcJzxASH9e0R
+        YvC2iClA6ZLl08D3Xeu2ce8=
+X-Google-Smtp-Source: ABdhPJxeKrK3zuVlsI2tuMeQzuZfRj5oEbBzKypg8YvEhMsDsu8BDty5SEpGMzwepcRaCUlSBf8+IA==
+X-Received: by 2002:a1c:7311:: with SMTP id d17mr3559703wmb.183.1618313819915;
+        Tue, 13 Apr 2021 04:36:59 -0700 (PDT)
+Received: from localhost ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id v18sm2141913wmh.28.2021.04.13.04.36.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Apr 2021 04:36:58 -0700 (PDT)
+Date:   Tue, 13 Apr 2021 13:37:38 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        stable@vger.kernel.org,
+        Pekka Paalanen <pekka.paalanen@collabora.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 10/12] drm/tegra: Don't set allow_fb_modifiers explicitly
+Message-ID: <YHWCgpq5fVpSGdSN@orome.fritz.box>
+References: <20210413094904.3736372-1-daniel.vetter@ffwll.ch>
+ <20210413094904.3736372-10-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-References: <20201127112114.3219360-1-pbonzini@redhat.com> <20201127112114.3219360-3-pbonzini@redhat.com>
- <CAJhGHyCdqgtvK98_KieG-8MUfg1Jghd+H99q+FkgL0ZuqnvuAw@mail.gmail.com> <YHS/BxMiO6I1VOEY@google.com>
-In-Reply-To: <YHS/BxMiO6I1VOEY@google.com>
-From:   Lai Jiangshan <jiangshanlai+lkml@gmail.com>
-Date:   Tue, 13 Apr 2021 19:03:17 +0800
-Message-ID: <CAJhGHyAcnwkCfTcnxXcgAHnF=wPbH2EDp7H+e74ce+oNOWJ=_Q@mail.gmail.com>
-Subject: Re: [PATCH 2/2] KVM: x86: Fix split-irqchip vs interrupt injection
- window request
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Filippo Sironi <sironi@amazon.de>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        "v4.7+" <stable@vger.kernel.org>,
-        Wanpeng Li <wanpengli@tencent.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="3zY2OYTARJAQNWvh"
+Content-Disposition: inline
+In-Reply-To: <20210413094904.3736372-10-daniel.vetter@ffwll.ch>
+User-Agent: Mutt/2.0.6 (98f8cb83) (2021-03-06)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 13, 2021 at 5:43 AM Sean Christopherson <seanjc@google.com> wrote:
->
-> On Fri, Apr 09, 2021, Lai Jiangshan wrote:
-> > On Fri, Nov 27, 2020 at 7:26 PM Paolo Bonzini <pbonzini@redhat.com> wrote:
-> > >
-> > > kvm_cpu_accept_dm_intr and kvm_vcpu_ready_for_interrupt_injection are
-> > > a hodge-podge of conditions, hacked together to get something that
-> > > more or less works.  But what is actually needed is much simpler;
-> > > in both cases the fundamental question is, do we have a place to stash
-> > > an interrupt if userspace does KVM_INTERRUPT?
-> > >
-> > > In userspace irqchip mode, that is !vcpu->arch.interrupt.injected.
-> > > Currently kvm_event_needs_reinjection(vcpu) covers it, but it is
-> > > unnecessarily restrictive.
-> > >
-> > > In split irqchip mode it's a bit more complicated, we need to check
-> > > kvm_apic_accept_pic_intr(vcpu) (the IRQ window exit is basically an INTACK
-> > > cycle and thus requires ExtINTs not to be masked) as well as
-> > > !pending_userspace_extint(vcpu).  However, there is no need to
-> > > check kvm_event_needs_reinjection(vcpu), since split irqchip keeps
-> > > pending ExtINT state separate from event injection state, and checking
-> > > kvm_cpu_has_interrupt(vcpu) is wrong too since ExtINT has higher
-> > > priority than APIC interrupts.  In fact the latter fixes a bug:
-> > > when userspace requests an IRQ window vmexit, an interrupt in the
-> > > local APIC can cause kvm_cpu_has_interrupt() to be true and thus
-> > > kvm_vcpu_ready_for_interrupt_injection() to return false.  When this
-> > > happens, vcpu_run does not exit to userspace but the interrupt window
-> > > vmexits keep occurring.  The VM loops without any hope of making progress.
-> > >
-> > > Once we try to fix these with something like
-> > >
-> > >      return kvm_arch_interrupt_allowed(vcpu) &&
-> > > -        !kvm_cpu_has_interrupt(vcpu) &&
-> > > -        !kvm_event_needs_reinjection(vcpu) &&
-> > > -        kvm_cpu_accept_dm_intr(vcpu);
-> > > +        (!lapic_in_kernel(vcpu)
-> > > +         ? !vcpu->arch.interrupt.injected
-> > > +         : (kvm_apic_accept_pic_intr(vcpu)
-> > > +            && !pending_userspace_extint(v)));
-> > >
-> > > we realize two things.  First, thanks to the previous patch the complex
-> > > conditional can reuse !kvm_cpu_has_extint(vcpu).  Second, the interrupt
-> > > window request in vcpu_enter_guest()
-> > >
-> > >         bool req_int_win =
-> > >                 dm_request_for_irq_injection(vcpu) &&
-> > >                 kvm_cpu_accept_dm_intr(vcpu);
-> > >
-> > > should be kept in sync with kvm_vcpu_ready_for_interrupt_injection():
-> > > it is unnecessary to ask the processor for an interrupt window
-> > > if we would not be able to return to userspace.  Therefore, the
-> > > complex conditional is really the correct implementation of
-> > > kvm_cpu_accept_dm_intr(vcpu).  It all makes sense:
-> > >
-> > > - we can accept an interrupt from userspace if there is a place
-> > >   to stash it (and, for irqchip split, ExtINTs are not masked).
-> > >   Interrupts from userspace _can_ be accepted even if right now
-> > >   EFLAGS.IF=0.
-> >
-> > Hello, Paolo
-> >
-> > If userspace does KVM_INTERRUPT, vcpu->arch.interrupt.injected is
-> > set immediately, and in inject_pending_event(), we have
-> >
-> >         else if (!vcpu->arch.exception.pending) {
-> >                 if (vcpu->arch.nmi_injected) {
-> >                         kvm_x86_ops.set_nmi(vcpu);
-> >                         can_inject = false;
-> >                 } else if (vcpu->arch.interrupt.injected) {
-> >                         kvm_x86_ops.set_irq(vcpu);
-> >                         can_inject = false;
-> >                 }
-> >         }
-> >
-> > I'm curious about that can the kvm_x86_ops.set_irq() here be possible
-> > to queue the irq with EFLAGS.IF=0? If not, which code prevents it?
->
-> The interrupt is only directly injected if the local APIC is _not_ in-kernel.
-> If userspace is managing the local APIC, my understanding is that userspace is
-> also responsible for honoring EFLAGS.IF, though KVM aids userspace by updating
-> vcpu->run->ready_for_interrupt_injection when exiting to userspace.  When
-> userspace is modeling the local APIC, that resolves to
-> kvm_vcpu_ready_for_interrupt_injection():
->
->         return kvm_arch_interrupt_allowed(vcpu) &&
->                 kvm_cpu_accept_dm_intr(vcpu);
->
-> where kvm_arch_interrupt_allowed() checks EFLAGS.IF (and an edge case related to
-> nested virtualization).  KVM also captures EFLAGS.IF in vcpu->run->if_flag.
-> For whatever reason, QEMU checks both vcpu->run flags before injecting an IRQ,
-> maybe to handle a case where QEMU itself clears EFLAGS.IF?
 
-If userspace is managing the local APIC, the user VMM would insert IRQ
-when kvm_run->ready_for_interrupt_injection=1 since this flags
-implied EFLAGS.IF before this patch (for example gVisor checks this only
-instead of kvm_run->if_flag).  This patch claims that it has a place to
-stash the IRQ when EFLAGS.IF=0, but inject_pending_event() seams to ignore
-EFLAGS.IF and queues the IRQ to the guest directly in the first branch
-of using "kvm_x86_ops.set_irq(vcpu)".
+--3zY2OYTARJAQNWvh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have encountered a problem but failed to exactly dissect it with
-some internal code involved.
+On Tue, Apr 13, 2021 at 11:49:01AM +0200, Daniel Vetter wrote:
+> Since
+>=20
+> commit 890880ddfdbe256083170866e49c87618b706ac7
+> Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+> Date:   Fri Jan 4 09:56:10 2019 +0100
+>=20
+>     drm: Auto-set allow_fb_modifiers when given modifiers at plane init
+>=20
+> this is done automatically as part of plane init, if drivers set the
+> modifier list correctly. Which is the case here.
+>=20
+> It was slightly inconsistently though, since planes with only linear
+> modifier support haven't listed that explicitly. Fix that, and cc:
+> stable to allow userspace to rely on this. Again don't backport
+> further than where Paul's patch got added.
+>=20
+> Cc: stable@vger.kernel.org # v5.1 +
+> Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Cc: Jonathan Hunter <jonathanh@nvidia.com>
+> Cc: linux-tegra@vger.kernel.org
+> ---
+>  drivers/gpu/drm/tegra/dc.c  | 10 ++++++++--
+>  drivers/gpu/drm/tegra/drm.c |  2 --
+>  2 files changed, 8 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+> index c9385cfd0fc1..f9845a50f866 100644
+> --- a/drivers/gpu/drm/tegra/dc.c
+> +++ b/drivers/gpu/drm/tegra/dc.c
+> @@ -959,6 +959,11 @@ static const struct drm_plane_helper_funcs tegra_cur=
+sor_plane_helper_funcs =3D {
+>  	.atomic_disable =3D tegra_cursor_atomic_disable,
+>  };
+> =20
+> +static const uint64_t linear_modifiers[] =3D {
+> +	DRM_FORMAT_MOD_LINEAR,
+> +	DRM_FORMAT_MOD_INVALID
+> +};
+> +
+>  static struct drm_plane *tegra_dc_cursor_plane_create(struct drm_device =
+*drm,
+>  						      struct tegra_dc *dc)
+>  {
+> @@ -987,7 +992,7 @@ static struct drm_plane *tegra_dc_cursor_plane_create=
+(struct drm_device *drm,
+> =20
+>  	err =3D drm_universal_plane_init(drm, &plane->base, possible_crtcs,
+>  				       &tegra_plane_funcs, formats,
+> -				       num_formats, NULL,
+> +				       num_formats, linear_modifiers,
+>  				       DRM_PLANE_TYPE_CURSOR, NULL);
+>  	if (err < 0) {
+>  		kfree(plane);
+> @@ -1106,7 +1111,8 @@ static struct drm_plane *tegra_dc_overlay_plane_cre=
+ate(struct drm_device *drm,
+> =20
+>  	err =3D drm_universal_plane_init(drm, &plane->base, possible_crtcs,
+>  				       &tegra_plane_funcs, formats,
+> -				       num_formats, NULL, type, NULL);
+> +				       num_formats, linear_modifiers,
+> +				       type, NULL);
 
-It is somewhat possible that it has resulted from Li Wanpeng's patch
-(I replied to this patch because this patch relaxes the condition even
-more without reasons for how it suppresses/stashes IRQ to the guest).
+I think we can do better than linear_modifiers for overlay planes, but
+given that this doesn't change existing behaviour, I'll do that in a
+separate patch.
 
-When a guest APP userspace hits an exception and vmexit and returns to
-the user VMM (gVisor) in conditions combined, and the user VMM wants to
-queue an IRQ to it: It is now EFLAGS.IF=1 and ready_for_interrupt_injection=1
-and user VMM happily queues the IRQ. In inject_pending_event(), the IRQ is
-lower priority and the earlier exception is queued to the guest first.  But
-the IRQ can't be continuously suppressed and it is queued at the beginning
-of the exception handler where EFLAGS.IF=0.
-(Before Li Wanpeng's patch, ready_for_interrupt_injection=0, since
-there is an exception pending)
+Acked-by: Thierry Reding <treding@nvidia.com>
 
-All above is just my guess.  But I want to know more clues.
-And this patch says:
+--3zY2OYTARJAQNWvh
+Content-Type: application/pgp-signature; name="signature.asc"
 
- : we can accept an interrupt from userspace if there is a place
- : to stash it (and, for irqchip split, ExtINTs are not masked).
- : Interrupts from userspace _can_ be accepted even if right now
- : EFLAGS.IF=0.
+-----BEGIN PGP SIGNATURE-----
 
-So it might help me for analyzing if I knew how this
-behavior is achieved since inject_pending_event() doesn't
-check EFLAGS.IF=0 for the first using "kvm_x86_ops.set_irq(vcpu)".
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmB1goAACgkQ3SOs138+
+s6HiPg/9F2IhGz7bj0R3eFPU3cBNVrP3Fi7Q48YLUZofkiN0ka7nGaDGknhgaupF
+bE3N2Yk9Qp+tsN82z3R7PsFfmmPfy3uBKp8lcXV2jMJtb/sqH+JmRZAUl3wzT0qb
+ZwnaBs5xjoPATt8oFC8/8Y1sQ2GW7+6yWCWIaVC8PqiQ5g78L6gsu2N7Ig/rB+P6
+VAI6t1MGjdfiF8lrMF3+kkvbpxrqIybiAHXVhsUxViXH88AWq56lu9LRUWZTk3T9
+eLyBcbyth7XrO4KJOMuOFqXYjPn8f7dKittgCwSacGkItWmQv0+GBrdFeA+i0WZW
+b0SRu1QdGY9ClU0Z+rs9YCRV9P853vCUQs2E6rPEpO9Ul8tP/OKoGu0/DUFV98gJ
+iReAe4bP6CSJN96oJ+FUunvOyJ40gGWToWCmZ37fM1Vt/qH2+LkPAkkbdAPkCqBx
+1frCx2qFhxRNL+laXN7tkkmjg+ZPBqK8VjEQJ+dl5gBQsM8g1o4cliI6KSKgjm4B
+oAArUFz3u9zYzT0sFuqj+lyh9/Tu+gevrUNkcyAkUrngNaEZkCgSL6A6rJLKSOLY
+ZH964cF3UDvzZGwuOaVgR9agCBXh2i/WFa1AtE6HsvB/HELLxg3nUHYe5CBAGrjM
+4BLaGiVxVaYx73qjnaB2LKcqybVO8S+NEP48pWjwnGXz1fu0z/8=
+=0rrw
+-----END PGP SIGNATURE-----
 
-Thanks
-
-Lai.
-
->
-> > I'm asking about this because I just noticed that interrupt can
-> > be queued when exception pending, and this patch relaxed it even
-> > more.
-> >
-> > Note: interrupt can NOT be queued when exception pending
-> > until 664f8e26b00c7 ("KVM: X86: Fix loss of exception which
-> > has not yet been injected") which I think is dangerous.
+--3zY2OYTARJAQNWvh--
