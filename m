@@ -2,84 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D274B35DC3E
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 12:11:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D791335DC7B
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 12:31:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230163AbhDMKLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 06:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229835AbhDMKLd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Apr 2021 06:11:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71BA4613B2;
-        Tue, 13 Apr 2021 10:11:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618308669;
-        bh=/D/oYhNB0J0V0t5MY6qpxHqiR8LW5iJBR05naXme4xc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LnhjtBAmw/hUajpQgwxwyoNef5Rg/zWYFPdcE25qbmfEBHxP6nr3GxxTtRW2oN7wg
-         xBx34SZ3722MvK1R6uSsIoB+0U5KTg2dUbdCTZYjrQdhdaS4JaN5nL0e/BYS1LTHIC
-         ilHHpcTOgn6xbx5ASVJ83OlkrvOF5CL8tkUmJZVM=
-Date:   Tue, 13 Apr 2021 12:11:07 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Prike Liang <Prike.Liang@amd.com>
-Cc:     linux-nvme@lists.infradead.org, kbusch@kernel.org,
-        Chaitanya.Kulkarni@wdc.com, stable@vger.kernel.org,
-        Shyam-sundar.S-k@amd.com, Alexander.Deucher@amd.com
-Subject: Re: [PATCH] nvme: put some AMD PCIE downstream NVME device to simple
- suspend/resume path
-Message-ID: <YHVuOwc4KlF6Qvg7@kroah.com>
-References: <1618308289-12929-1-git-send-email-Prike.Liang@amd.com>
+        id S230088AbhDMKcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 06:32:15 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:16554 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229784AbhDMKcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 06:32:14 -0400
+Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FKMK91jSSzNvQM;
+        Tue, 13 Apr 2021 18:29:01 +0800 (CST)
+Received: from [10.174.178.100] (10.174.178.100) by
+ DGGEMS411-HUB.china.huawei.com (10.3.19.211) with Microsoft SMTP Server id
+ 14.3.498.0; Tue, 13 Apr 2021 18:31:51 +0800
+Subject: Re: [PATCH 5.4 000/111] 5.4.112-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210412084004.200986670@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <61600264-a091-3c0e-5387-93b2c45f642a@huawei.com>
+Date:   Tue, 13 Apr 2021 18:31:51 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1618308289-12929-1-git-send-email-Prike.Liang@amd.com>
+In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.100]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 13, 2021 at 06:04:49PM +0800, Prike Liang wrote:
-> The NVME device pluged in some AMD PCIE root port will resume timeout
-> from s2idle which caused by NVME power CFG lost in the SMU FW restore.
-> This issue can be workaround by using PCIe power set with simple
-> suspend/resume process path instead of APST. In the onwards ASIC will
-> try do the NVME shutdown save and restore in the BIOS and still need PCIe
-> power setting to resume from RTD3 for s2idle.
+
+
+On 2021/4/12 16:39, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.112 release.
+> There are 111 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-> Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-> Cc: <stable@vger.kernel.org> # 5.11+
-> ---
->  drivers/nvme/host/pci.c |  5 +++++
->  drivers/pci/quirks.c    | 10 ++++++++++
->  include/linux/pci.h     |  2 ++
->  3 files changed, 17 insertions(+)
+> Responses should be made by Wed, 14 Apr 2021 08:39:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.112-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Hi,
+Tested on arm64 and x86 for 5.4.112-rc1,
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.112-rc1
+Commit: f9b2de2cddd4601c5d2f2947fc5cebb7dbecd266
+Compiler: gcc version 7.3.0 (GCC)
 
-You are receiving this message because of the following common error(s)
-as indicated below:
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 5264
+passed: 5264
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-- This looks like a new version of a previously submitted patch, but you
-  did not list below the --- line any changes from the previous version.
-  Please read the section entitled "The canonical patch format" in the
-  kernel file, Documentation/SubmittingPatches for what needs to be done
-  here to properly describe this.
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 5264
+passed: 5264
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
 
-thanks,
-
-greg k-h's patch email bot
