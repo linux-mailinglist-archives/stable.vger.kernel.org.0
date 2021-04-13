@@ -2,124 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B50A935D83F
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 08:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6533A35D86E
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 09:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236850AbhDMGwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 02:52:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43184 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236569AbhDMGwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 02:52:38 -0400
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4248EC061574;
-        Mon, 12 Apr 2021 23:52:19 -0700 (PDT)
-Received: by mail-il1-x12d.google.com with SMTP id b17so13239212ilh.6;
-        Mon, 12 Apr 2021 23:52:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M4M2rpCGtRwRg1+8877RTBO/hucYsuldRGZssGiZkFU=;
-        b=GaSOG8KY8ZaZWLXAPHL7vrlSMfr8PXo4xP3uO29spI7irXqCNRyf+p4b4X+96hQ++6
-         C05BWz193nKUehM/+jIYGKjPy1xKu1Q3KjL3Xqeinj/xz7IWAHqlZQXpxqaxnvYzRhqT
-         aGhs3qQkhhMUuc5OMilbvHOK7AuuSHVhSt4l0BRiM4l5+uXGaTzfY+ccIwfabXgKYkK1
-         ZHeZEDtGquWqarzXe7vsxV+iXoVOvG86aeZNDLL5UtJ0YiRZ9w2tEC8mWdChka5sYX7u
-         z70hCoH3+M2mqDKItwT3xagkU7WLz4jfOGVgS+cPMzYNtxV7uDBMuKKggSw+nZ9VAIoN
-         9ISQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=M4M2rpCGtRwRg1+8877RTBO/hucYsuldRGZssGiZkFU=;
-        b=nTMdX45pVsCStOVF0JH4eW/cR2J7B2JvOXbh/z8fhWYusa2oqTdBy42hiIT0tdmNO9
-         bkR5hJ6VLnqVbN3cgDPKxXn5uw97ireOCcow/JtD9g0F8X76s9tUYCKdBCK2yyziB9I2
-         z/EEGZxUb4x8GQO2dyrYAhmH41ylbpmFdzVWtQ2TPbIZY9sY/uVIxswAFLtPxnvQ2kKM
-         rJO7eFXUvvmkkkokdUwFlD/GnGi8wtG93v5SEw2tpUFevhoMyUcNMjEJI2rmKbF/uMl9
-         vRSSL3IbNARjIOWKzaBhHCLomRMtSJ3LuoZjJUjvdnmwpU67AXbaeNrhqSNeqhpNC10A
-         MJkw==
-X-Gm-Message-State: AOAM531ba4pMgs5PHSbP9hVp/tUn3m+/ziAFkA53lyCDVcENpimrMpzS
-        G/C+3wSKxUYjxCy9q6rRvon2F4VRxnXGQNsqJEXjQuEw8vnhhQ==
-X-Google-Smtp-Source: ABdhPJwrHdB4Kty/56ZRa5JOtBSFNPRqlb4H2lwFBOov/5dyFRtZC+Yr1D1fJoECc7QtqzoNu+tm1iTflbWH942Iy+E=
-X-Received: by 2002:a92:cec3:: with SMTP id z3mr9236418ilq.179.1618296738783;
- Mon, 12 Apr 2021 23:52:18 -0700 (PDT)
+        id S236520AbhDMHB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 03:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57358 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236937AbhDMHBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Apr 2021 03:01:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D580661278;
+        Tue, 13 Apr 2021 07:01:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618297263;
+        bh=Yg3OibJmyp93nMd8VQ9jxRe/MSMoNOEUXL9EhUBJod0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=x6gV9yxXzw3kRWNV0aM/+4zhR/wywqcNXBqp0dFwNblqZLn5W+rNwbrRdsU8t/h4Z
+         C7KMZ75IpjbIjgUXm9hua4kfujwMBt9wKTPrA5rU/x6evtdKO1w7VOj5GOAI0Bk9Wn
+         /hAuz4U5+StEapvua+6L67u4CM1meYNtggBrD3vI=
+Date:   Tue, 13 Apr 2021 09:00:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Liang, Prike" <Prike.Liang@amd.com>
+Cc:     Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        "S-k, Shyam-sundar" <Shyam-sundar.S-k@amd.com>
+Subject: Re: [PATCH] nvme: put some AMD PCIE downstream NVME device to simple
+ suspend/resume path
+Message-ID: <YHVBq9VxHkQt18Gy@kroah.com>
+References: <1618294221-11528-1-git-send-email-Prike.Liang@amd.com>
+ <YHU7M7ThQiAsOCSG@kroah.com>
+ <BYAPR12MB3238FAD129CF0E7F0DAAF205FB4F9@BYAPR12MB3238.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-References: <20210307194030.8007-1-ilya.lipnitskiy@gmail.com>
- <20210312151934.GA4209@alpha.franken.de> <CALCv0x1AEZanNsVcNuUrbHuLyWYNegEVuye9Gso-Ou9xX8JEAg@mail.gmail.com>
- <YFGip16ObFp/vOZS@kernel.org> <CALCv0x3sGY8t_NCch7qa6KijoxwvFJJYQEZB5kOMuK35C=c3og@mail.gmail.com>
- <20210406131043.GG9505@alpha.franken.de> <CALCv0x3rZXK2KYM+twkd_3v2bzqrVAXaA2NnaP8AJh76NeME8w@mail.gmail.com>
-In-Reply-To: <CALCv0x3rZXK2KYM+twkd_3v2bzqrVAXaA2NnaP8AJh76NeME8w@mail.gmail.com>
-From:   Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Date:   Mon, 12 Apr 2021 23:52:07 -0700
-Message-ID: <CALCv0x2w41HLRLMXSQcnD624kczRGmuR49KSRSDLm5mqmez6cA@mail.gmail.com>
-Subject: Re: [PATCH] MIPS: fix memory reservation for non-usermem setups
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     Mike Rapoport <rppt@kernel.org>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Jinyang He <hejinyang@loongson.cn>,
-        Youling Tang <tangyouling@loongson.cn>,
-        Tobias Wolf <dev-NTEO@vplace.de>,
-        Marcin Nowakowski <marcin.nowakowski@mips.com>,
-        linux-mips@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BYAPR12MB3238FAD129CF0E7F0DAAF205FB4F9@BYAPR12MB3238.namprd12.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 12, 2021 at 11:45 PM Ilya Lipnitskiy
-<ilya.lipnitskiy@gmail.com> wrote:
->
-> Hi Thomas,
->
-> On Tue, Apr 6, 2021 at 6:18 AM Thomas Bogendoerfer
-> <tsbogend@alpha.franken.de> wrote:
+On Tue, Apr 13, 2021 at 06:44:08AM +0000, Liang, Prike wrote:
+> [AMD Public Use]
+> 
 > >
-> > On Sat, Apr 03, 2021 at 07:02:13PM -0700, Ilya Lipnitskiy wrote:
-> > > Hi Mike,
+> > On Tue, Apr 13, 2021 at 02:10:21PM +0800, Prike Liang wrote:
+> > > The NVME device pluged in some AMD PCIE root port will resume timeout
+> > > from s2idle which caused by NVME power CFG lost in the SMU FW restore.
+> > > This issue can be workaround by using PCIe power set with simple
+> > > suspend/resume process path instead of APST. In the onwards ASIC will
+> > > try do the NVME shutdown save and restore in the BIOS and still need
+> > > PCIe power setting to resume from RTD3 for s2idle.
 > > >
-> > > On Tue, Mar 16, 2021 at 11:33 PM Mike Rapoport <rppt@kernel.org> wrote:
-> > > >
-> > > > Hi Ilya,
-> > > >
-> > > > On Tue, Mar 16, 2021 at 10:10:09PM -0700, Ilya Lipnitskiy wrote:
-> > > > > Hi Thomas,
-> > > > >
-> > > > > On Fri, Mar 12, 2021 at 7:19 AM Thomas Bogendoerfer
-> > > > > <tsbogend@alpha.franken.de> wrote:
-> > > > > >
-> > > > > > On Sun, Mar 07, 2021 at 11:40:30AM -0800, Ilya Lipnitskiy wrote:
-> > > > > > > From: Tobias Wolf <dev-NTEO@vplace.de>
-> > > > > > >
-> > > > > > > Commit 67a3ba25aa95 ("MIPS: Fix incorrect mem=X@Y handling") introduced a new
-> > > > > > > issue for rt288x where "PHYS_OFFSET" is 0x0 but the calculated "ramstart" is
-> > > > > > > not. As the prerequisite of custom memory map has been removed, this results
-> > > > > > > in the full memory range of 0x0 - 0x8000000 to be marked as reserved for this
-> > > > > > > platform.
-> > > > > >
-> > > > > > and where is the problem here ?
-> > > > > Turns out this was already attempted to be upstreamed - not clear why
-> > > > > it wasn't merged. Context:
-> > > > > https://lore.kernel.org/linux-mips/6504517.U6H5IhoIOn@loki/
-> > > > >
-> > > > > I hope the thread above helps you understand the problem.
-> > > >
-> > > > The memory initialization was a bit different then. Do you still see the
-> > > > same problem?
-> > > Thanks for asking. I obtained a RT2880 device and gave it a try. It
-> > > hangs at boot without this patch, however selecting
+> > > Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+> > > Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+> > > Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+> > > Cc: <stable@vger.kernel.org> # 5.11+
+> > > ---
+> > >  drivers/nvme/host/pci.c |  5 +++++
+> > >  drivers/pci/quirks.c    | 11 +++++++++++
+> > >  include/linux/pci.h     |  2 ++
+> > >  include/linux/pci_ids.h |  2 ++
+> > >  4 files changed, 20 insertions(+)
+> > >
+> > > diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c index
+> > > 6bad4d4..dd46d9e 100644
+> > > --- a/drivers/nvme/host/pci.c
+> > > +++ b/drivers/nvme/host/pci.c
+> > > @@ -2832,6 +2832,7 @@ static bool nvme_acpi_storage_d3(struct pci_dev
+> > > *dev)  {
+> > >  struct acpi_device *adev;
+> > >  struct pci_dev *root;
+> > > +struct pci_dev *rdev;
+> > >  acpi_handle handle;
+> > >  acpi_status status;
+> > >  u8 val;
+> > > @@ -2845,6 +2846,10 @@ static bool nvme_acpi_storage_d3(struct
+> > pci_dev *dev)
+> > >  if (!root)
+> > >  return false;
+> > >
+> > > +rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
+> > > +if (rdev->dev_flags &
+> > PCI_DEV_FLAGS_AMD_NVME_SIMPLE_SUSPEND)
+> > > +return NVME_QUIRK_SIMPLE_SUSPEND;
+> > > +
+> > >  adev = ACPI_COMPANION(&root->dev);
+> > >  if (!adev)
+> > >  return false;
+> > > diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c index
+> > > 653660e3..b7e19bb 100644
+> > > --- a/drivers/pci/quirks.c
+> > > +++ b/drivers/pci/quirks.c
+> > > @@ -312,6 +312,17 @@ static void quirk_nopciamd(struct pci_dev *dev)
+> > > }
+> > >  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD,
+> > PCI_DEVICE_ID_AMD_8151_0,quirk_nopciamd);
+> > >
+> > > +static void quirk_amd_nvme_fixup(struct pci_dev *dev) {
+> > > +struct pci_dev *rdev;
+> > > +
+> > > +dev->dev_flags |= PCI_DEV_FLAGS_AMD_NVME_SIMPLE_SUSPEND;
+> > > +pci_info(dev, "AMD simple suspend opt enabled\n");
+> > > +
+> > > +}
+> > > +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD,
+> > PCI_DEVICE_ID_AMD_CZN_RP,
+> > > +quirk_amd_nvme_fixup);
+> > DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD,
+> > > +PCI_DEVICE_ID_AMD_RN_RP, quirk_amd_nvme_fixup);
+> > > +
+> > >  /* Triton requires workarounds to be used by the drivers */  static
+> > > void quirk_triton(struct pci_dev *dev)  { diff --git
+> > > a/include/linux/pci.h b/include/linux/pci.h index 53f4904..a6e1b1b
+> > > 100644
+> > > --- a/include/linux/pci.h
+> > > +++ b/include/linux/pci.h
+> > > @@ -227,6 +227,8 @@ enum pci_dev_flags {
+> > >  PCI_DEV_FLAGS_NO_FLR_RESET = (__force pci_dev_flags_t) (1 << 10),
+> > >  /* Don't use Relaxed Ordering for TLPs directed at this device */
+> > >  PCI_DEV_FLAGS_NO_RELAXED_ORDERING = (__force pci_dev_flags_t)
+> > (1 <<
+> > > 11),
+> > > +/* AMD simple suspend opt quirk */
+> > > +PCI_DEV_FLAGS_AMD_NVME_SIMPLE_SUSPEND = (__force
+> > pci_dev_flags_t) (1
+> > > +<< 12),
+> > >  };
+> > >
+> > >  enum pci_irq_reroute_variant {
+> > > diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h index
+> > > d8156a5..7f6340c 100644
+> > > --- a/include/linux/pci_ids.h
+> > > +++ b/include/linux/pci_ids.h
+> > > @@ -602,6 +602,8 @@
+> > >  #define PCI_DEVICE_ID_AMD_HUDSON2_SMBUS0x780b
+> > >  #define PCI_DEVICE_ID_AMD_HUDSON2_IDE0x780c
+> > >  #define PCI_DEVICE_ID_AMD_KERNCZ_SMBUS  0x790b
+> > > +#define PCI_DEVICE_ID_AMD_CZN_RP0x1630
+> > > +#define PCI_DEVICE_ID_AMD_RN_RP
+> > PCI_DEVICE_ID_AMD_CZN_RP
 > >
-> > can you provide debug logs with memblock=debug for both good and bad
-> > kernels ? I'm curious what's the reason for failing allocation...
-> Sorry for taking a while to respond. See attached.
-> FWIW, it seems these are the lines that stand out in hang.log:
-> [    0.000000] memblock_reserve: [0x00000000-0x07ffffff] setup_arch+0x214/0x5d8
-> [    0.000000] Wasting 1048576 bytes for tracking 32768 unused pages
-> ...
-> [    0.000000]  reserved[0x0]    [0x00000000-0x087137aa], 0x087137ab
-> bytes flags: 0x0
-Just to be clear, good.log is mips-next tip (dbd815c0dcca) and
-hang.log is the same with MIPS_AUTO_PFN_OFFSET _NOT_ selected.
+> > If the pci ids are identical, why do you need different entries for it?
+> > Haven't you above just listed the same thing twice in the quirk entry?
+> >
+> > thanks,
+> >
+> > greg k-h
+> [Prike] Use the different entries for identifying the RN/CZN respectively and that will clearly imply which ASIC need this quirk. Anyway we can use the one DID for RN/CZN to avoid the PCI ID retrieved twice.
 
-Ilya
+But look at this patch, you list the same device ids in a quirk entry
+twice, why???
+
+PCI device ids should be unique per-device, and not shared with
+different names like this.  Also, why even add them to the .h file, you
+did read the top of it, right?
+
+thanks,
+
+greg k-h
