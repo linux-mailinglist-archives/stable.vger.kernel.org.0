@@ -2,94 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D791335DC7B
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 12:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D00A435DC86
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 12:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230088AbhDMKcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 06:32:15 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:16554 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbhDMKcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 06:32:14 -0400
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FKMK91jSSzNvQM;
-        Tue, 13 Apr 2021 18:29:01 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS411-HUB.china.huawei.com (10.3.19.211) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 13 Apr 2021 18:31:51 +0800
-Subject: Re: [PATCH 5.4 000/111] 5.4.112-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
+        id S245476AbhDMKhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 06:37:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245151AbhDMKhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 06:37:20 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE0FC061574;
+        Tue, 13 Apr 2021 03:37:01 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id f12so15962589wro.0;
+        Tue, 13 Apr 2021 03:37:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=xYkMLS3wbgjEUUWQqY7VJ2sWr0LHfQWufcOC/3dXe/U=;
+        b=EtuyufGM2Ne9KAroKcpURinKMCk/3vKJH0H/TYHZ/ml+wCTFmUIqzfAPezRpzb9H/A
+         KcH1hrXbEzzTejZU0vG6dPe76/vqyKfOaujTJhp6odSBQcQscfZzkiJ7PVSt6ILajU6o
+         /Pz0XfHA6pmLTdSRDTnODpSUxddJFaNaBZidweqEpjiBKZ7oo8wE1ZqZ9JtrNO57UTpz
+         DFws5VL2YS21VJYJZaGkVzE3QMziY/3/7WbxzzhIfZAQuJuOCDi/RMenbo1vxrdr1+8p
+         +E7NdQIpxZh4dQ9hm5KzYJKPVATl0UFytwHCy/M7SUsr+tUOaS1YNlKt1rJA/yyJB4jd
+         d+dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=xYkMLS3wbgjEUUWQqY7VJ2sWr0LHfQWufcOC/3dXe/U=;
+        b=VDULaDdxyg6t/VNjJTIuZXXgYqzit97bQWcJThvuGKfb4VPW1fFF4UIJLVh+tSHrhZ
+         7DRf8xGsqDm6KXj9PChyzCIJbXnHE4+/rKIW+yRv7Y1esiSqCNn19AJCX9cTdtgqU62W
+         NrSrmRfWImjrjKssRc+wNBAS1Qkqo9VgsxOx0+KNvFpEtRdKgTWGnnHMOyuKRYG8aPaJ
+         F/j3xArelyzlt9EcphqXgsxS88JbAYcQwszuXlB+14tPHrGOAC4rm6hsOUeK7E9yQBZo
+         ZfAZEvxrvQBb/j1rvvBCaGEe79xH8qtHZG2u654N2mQOUDF7RCUE4KkHlR9cw+eBun53
+         QN1w==
+X-Gm-Message-State: AOAM533riRUxwIIsONDagTqMLeALqxiU5Wd72/v/CueaJGLSLD989gEb
+        Tyg9Rs9W6SqeYND1edtjF976j6g5KTvagw==
+X-Google-Smtp-Source: ABdhPJy8McKHzI+D6Y7WdnOYyTYASh3qpKnk1stvB7BAUAgSEHl3mFM168DspVDbjRbvAmGsVmWoDg==
+X-Received: by 2002:a5d:6443:: with SMTP id d3mr36626509wrw.292.1618310220015;
+        Tue, 13 Apr 2021 03:37:00 -0700 (PDT)
+Received: from debian ([78.40.148.180])
+        by smtp.gmail.com with ESMTPSA id r5sm20235911wrx.87.2021.04.13.03.36.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Apr 2021 03:36:59 -0700 (PDT)
+Date:   Tue, 13 Apr 2021 11:36:57 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.4 097/111] net: sched: bump refcount for new action in
+ ACT replace mode
+Message-ID: <YHV0SagpvPYZznFT@debian>
 References: <20210412084004.200986670@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <61600264-a091-3c0e-5387-93b2c45f642a@huawei.com>
-Date:   Tue, 13 Apr 2021 18:31:51 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+ <20210412084007.483296509@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20210412084004.200986670@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210412084007.483296509@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-
-On 2021/4/12 16:39, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.112 release.
-> There are 111 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Apr 12, 2021 at 10:41:15AM +0200, Greg Kroah-Hartman wrote:
+> From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 > 
-> Responses should be made by Wed, 14 Apr 2021 08:39:44 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.112-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> commit 6855e8213e06efcaf7c02a15e12b1ae64b9a7149 upstream.
 
-Tested on arm64 and x86 for 5.4.112-rc1,
+This has been reverted upstream by:
+4ba86128ba07 ("Revert "net: sched: bump refcount for new action in ACT replace mode"")
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.112-rc1
-Commit: f9b2de2cddd4601c5d2f2947fc5cebb7dbecd266
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 5264
-passed: 5264
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 5264
-passed: 5264
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
-
+--
+Regards
+Sudip
