@@ -2,115 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3278A35D485
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 02:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70ABB35D4DA
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 03:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236758AbhDMAyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Apr 2021 20:54:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50632 "EHLO
+        id S240441AbhDMBdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Apr 2021 21:33:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229488AbhDMAyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 20:54:10 -0400
-Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC5EC061574
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 17:53:50 -0700 (PDT)
-Received: by mail-qt1-x82c.google.com with SMTP id y2so11496601qtw.13
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 17:53:50 -0700 (PDT)
+        with ESMTP id S237080AbhDMBdu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Apr 2021 21:33:50 -0400
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87AADC061574
+        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 18:33:31 -0700 (PDT)
+Received: by mail-io1-xd2c.google.com with SMTP id s16so10187636iog.9
+        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 18:33:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=7+G5ztQszCN2u7CMf/hH/Cu7szVvqC9NSfVBk6tQ/jQ=;
-        b=ne0SSryQdxdO331TAMynBGaxD4dsUab9TbnfkgWxdvJo8HhaZKo49Hp/OnOb4FL0Rp
-         owbtd0Ft56cU3Q51Re7I4pYhmpnIHiOCfQPuS4Nrc4cPgaOzEPsn45yN2+k4CYAAVBMB
-         hxS4WL66W0OIl/XbB/vo0csowdBLxwsWHlPYXj2uFJUuBB1DqB/qmt4NE+3+uqAro1Ce
-         NgWwouEPART/vPZxNJzB71EMaPWBzeHeovU6/qsl+1ivHRau1pOAzPT1DVjgmoXyegPk
-         ZqLaqIE0XxPC2wy5IpPqhCLwxxndheOHDlMRlt5tC1x6Y1SO2KFMUG7IzXya+z+8upmF
-         IbQA==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=1zSwk+CCEogc630LEHl5RvzQDUBmzTV2qxrYb9cB3Hk=;
+        b=B24q9wJST01FRsZsarkzCP1lwZwRPEPqExf6Hu+l/Kd+8WaisnQaG2zYdisMujlv6p
+         iEBaVOeXwEFVP1jH7Rg21zTxYBAQmOie3LIGcikrH3h5CbA4X2ZraHhvETVDtiEs+oTz
+         05OaRttzVMbn9jULtSrdCOCB1AHayAtbKOGrA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7+G5ztQszCN2u7CMf/hH/Cu7szVvqC9NSfVBk6tQ/jQ=;
-        b=Sgkbjb+24o6ibCeQx+CPIsoNOBJHAJhM3e02nuOqrha8uN3NC4/DLIku4mP00+6hzW
-         UbtLURg4pZAbu2FBMCB3vWkdnkkAZ4FpX34JDzq0Cv+P1YtgbeuybmRrlJhBEUfnSfbk
-         CE8QX9ymeiO3fW0tkrMEOWLAphMGccMXmcvLsV5DA9QbYKoC+f4FnoURZ/7H3M1Xohs5
-         8CR25m2tnhthbymjMNi0pVNtibVDcph2CX4vEYIigoOfx8x3GmsnkPyomp6J2C7oliXC
-         HDZNO6zd1RvH/2rs8TXX+bvoZJeGovp5CChCyACTmhPNKlt/wiUuIqDjYZDLHzFrX1Ix
-         jfKw==
-X-Gm-Message-State: AOAM531ccqtRyPWWjqzkbNgU1mya+Qma7KtzOq1/g8etlL7CFtqQOOV9
-        oJlz/etZRfs2MJ1pNqas6p5K/gQdELPuA7fLkr/4vPXUem7Jzg==
-X-Google-Smtp-Source: ABdhPJw1lrRzj9tsypZ8YqAMY91dodrQenT0xfmw5E3znDxT93l6yAvi1fAE+VFLLUlzh/1n6L4fqpt53SYuTtW0+C8=
-X-Received: by 2002:a05:622a:c4:: with SMTP id p4mr27807435qtw.240.1618275230060;
- Mon, 12 Apr 2021 17:53:50 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=1zSwk+CCEogc630LEHl5RvzQDUBmzTV2qxrYb9cB3Hk=;
+        b=dUNZtEB5HFTBD6qp76rVuOGXMLUBEjqD/Ctr2BDbTX6Zx9hN1vzj4tYRRojHty2ixE
+         /npzYB2yUgx/SXU5DcyDFM9gAB6cXQtI0RGDzAI9N2TZ04NFlB9LcWIwuvGNaIiCb54d
+         wq9toX+cBmSg9odFC7/tTbe0x3LANhvznpxuuu/ZniEEH6+O/xpwOXM1td0UZ+A1OTfd
+         M5VF+2KUe/A8V5LK2ptHh8gE4SVmiPcYgfYc6vpMyQdrtbKkdwW6rE/OEEFF3EtyxmXf
+         kTNQEf8/11XmD5Aal6LsTxb440XdC4dYd7+XuD1/p/Zz7wz/MVZ2qdtNx93KsghK1Igh
+         1EOg==
+X-Gm-Message-State: AOAM530GGobItqpq1hN3qRUDZdTJJDZvDBqcT6HmG4CVNklfo17ykh+a
+        05YkQwGqp8yFMeTapvEipxJ6MA==
+X-Google-Smtp-Source: ABdhPJyTolXxo/bbblE34HUnjb7BH2KP2F7vK26sDVYh2nVRsnaWeDarYtarehVPQTIQI1b3deRutg==
+X-Received: by 2002:a02:272d:: with SMTP id g45mr31833069jaa.117.1618277610753;
+        Mon, 12 Apr 2021 18:33:30 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id z12sm6369144ilb.18.2021.04.12.18.33.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 12 Apr 2021 18:33:30 -0700 (PDT)
+Subject: Re: [PATCH 5.11 000/210] 5.11.14-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <bd74f887-f858-e69e-86e1-6104cf95a4ca@linuxfoundation.org>
+Date:   Mon, 12 Apr 2021 19:33:29 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-References: <161821396263.48361.2796709239866588652.stgit@jupiter>
-In-Reply-To: <161821396263.48361.2796709239866588652.stgit@jupiter>
-From:   "Oliver O'Halloran" <oohall@gmail.com>
-Date:   Tue, 13 Apr 2021 10:53:39 +1000
-Message-ID: <CAOSf1CG3oYCnWx+gV3VgYzkQJTvVEeMGDyKjMAQRdH8w23C2QA@mail.gmail.com>
-Subject: Re: [PATCH v2] powerpc/eeh: Fix EEH handling for hugepages in ioremap space.
-To:     Mahesh Salgaonkar <mahesh@linux.ibm.com>
-Cc:     linuxppc-dev <linuxppc-dev@ozlabs.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 12, 2021 at 5:52 PM Mahesh Salgaonkar <mahesh@linux.ibm.com> wrote:
->
-> During the EEH MMIO error checking, the current implementation fails to map
-> the (virtual) MMIO address back to the pci device on radix with hugepage
-> mappings for I/O. This results into failure to dispatch EEH event with no
-> recovery even when EEH capability has been enabled on the device.
->
-> eeh_check_failure(token)                # token = virtual MMIO address
->   addr = eeh_token_to_phys(token);
->   edev = eeh_addr_cache_get_dev(addr);
->   if (!edev)
->         return 0;
->   eeh_dev_check_failure(edev);  <= Dispatch the EEH event
->
-> In case of hugepage mappings, eeh_token_to_phys() has a bug in virt -> phys
-> translation that results in wrong physical address, which is then passed to
-> eeh_addr_cache_get_dev() to match it against cached pci I/O address ranges
-> to get to a PCI device. Hence, it fails to find a match and the EEH event
-> never gets dispatched leaving the device in failed state.
->
-> The commit 33439620680be ("powerpc/eeh: Handle hugepages in ioremap space")
-> introduced following logic to translate virt to phys for hugepage mappings:
->
-> eeh_token_to_phys():
-> +       pa = pte_pfn(*ptep);
-> +
-> +       /* On radix we can do hugepage mappings for io, so handle that */
-> +       if (hugepage_shift) {
-> +               pa <<= hugepage_shift;                  <= This is wrong
-> +               pa |= token & ((1ul << hugepage_shift) - 1);
-> +       }
+On 4/12/21 2:38 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.11.14 release.
+> There are 210 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Apr 2021 08:39:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.14-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-I think I vaguely remember thinking "is this right?" at the time.
-Apparently not!
+Compiled and booted on my test system. No dmesg regressions.
 
-Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-
-It would probably be a good idea to add a debugfs interface to help
-with testing the address translation. Maybe something like:
-
-echo <mmio addr> > /sys/kernel/debug/powerpc/eeh_addr_check
-
-Then in the kernel:
-
-struct resource *r = lookup_resource(mmio_addr);
-void *virt = ioremap_resource(r);
-ret = eeh_check_failure(virt);
-iounmap(virt)
-
-return ret;
-
-A little tedious, but then you can write a selftest :)
-
-Oliver
+thanks,
+-- Shuah
