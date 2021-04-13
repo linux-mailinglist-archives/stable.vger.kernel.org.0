@@ -2,228 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EECBA35D755
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 07:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 706BD35D77A
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 07:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244688AbhDMFl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 01:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56066 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243886AbhDMFl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 01:41:57 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61473C061756
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 22:41:38 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id r12so23949468ejr.5
-        for <stable@vger.kernel.org>; Mon, 12 Apr 2021 22:41:38 -0700 (PDT)
+        id S1344717AbhDMFtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 01:49:00 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:50990 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344700AbhDMFsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 01:48:52 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13D5iIxc053753;
+        Tue, 13 Apr 2021 05:48:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=corp-2020-01-29;
+ bh=5tvwgte5mJiZRE/g1iq/YghMPlCg8ZOqU5IbB7njzSw=;
+ b=fLzmAUa1Ri2GHNUHG3/I/hCRrGz6qKDAfDro+HGBikXb3JaVS8OC+oDvdK/kpXSIqbGD
+ orrfH/ERhdziZGD5PDwE6ZuEAyn8MWsxA9VbgCoK/jo4nWRjj2HMpV6x/IsYikjJRc2R
+ Nw30wDGlyDAr1mfCGAY6/iF+dGuhdfdJrDbYn7ODep4U7bWxm7+C4vFhvqE1anNQxIJ6
+ dWxPGNpIcZs3vjtx+xiL7OTTHaCj9XNnVOGqqLYrzEYaQfZQvzaasmYeKodOD04HOg7+
+ 7hX63tPLF1hm5EsdiU7EAagVduinJS1GnwdZ0WumBIIvFUT09kh2cl/BcQPauT0+J5aU +A== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2130.oracle.com with ESMTP id 37u3erdusx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Apr 2021 05:48:31 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13D5jRk8090719;
+        Tue, 13 Apr 2021 05:48:31 GMT
+Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10lp2104.outbound.protection.outlook.com [104.47.58.104])
+        by userp3020.oracle.com with ESMTP id 37unsrxccu-2
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Apr 2021 05:48:31 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TVrfRYgtP3Y2uhnJX/kKq/UCmd5ET+S+LbCV8YJPLPbPGAyq/fGl/qHmwJop/H28XL8ovCtONesZFRLIyFW/SeL18ip+T3OBVaB2fAX610TX+dx8PVkvCAm60thylz/X394OWcmnXECJn0QQTLVw06j+ImM5E8OMZZ2DrZag9NpFErRv7h+r/rAtrTtyNPwB5M1ES8HMV3qwadYsE7UjUWIQUr/SRcbVqMEafhPM4nunTerdlDv46aPfCrUSfWkvTUYzaxBwLM7Kosc2cI6S/BXTPw3nut5qyjG75fiyWeCIk+qWEEhiuI8TlJBiaBQcpc8s+sogpmuPueEs+tzNbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5tvwgte5mJiZRE/g1iq/YghMPlCg8ZOqU5IbB7njzSw=;
+ b=m5qCzXwsnVYEBcUsywOcNy8w8BkhqgK0HH0R0e4hOmghAE0Odub+v54jW66DQCv2CsKnrgMRqf1Hu1cdQJYH9lg4iM+NA9NRZvam7+0AnHOnqyoDxAUBSXE+OQb6rUVs7e0hOjBAKI+zDX+HBqxpF/YhMvAW7/caZr+EHC8144PKzG8+C+fy67zLoSB4mPL7Mtt4mCOgmFE0cpzdd3kfyY/Y5hnFKUlUl0imgR8Xn1DZFFpZlOJSCCelFEz7VSZCTkwWR2oeKirElFOwNcZ8pPaBM8NhsZ+y9zY/OCEtLZUVV3rVKmpD1jgm8qzh7iy5EH/uyVz7q+SHHl6nxgMvEg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/kMw36zWxGP4H2lobjhMKMAuy6hEt2CpZcO99mt+F8o=;
-        b=AN6wozYrxc2+Z63+sftHerBq0hRnhp0ClLvFmO7LGIZ0Q8TlHVBFqppXhqQm+irYO6
-         wvarjikyVOD4S3YCilLEkAIVIfO75/VQwYoPoigslk0hq26K42RUGtMYT/MUbx+9b6d8
-         dPupPfNZrGZVUCB50KRFW2guUfNASMEv1ujYT6BJ6X/DUbwpJQsgIQ3O68LWiANPNmye
-         S8V3a4ZC6iizcvmDYfIxixpgX/CN4X02mN3EDNCTbNdV6Esl4VbEcAHNHaJZEXdMEUif
-         28ElQNIB2Suj2t+8nt9EX3iLaGfoic96e3kDct0vEHCk7silCfsMa3B6e4y4TabA64KS
-         KFIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/kMw36zWxGP4H2lobjhMKMAuy6hEt2CpZcO99mt+F8o=;
-        b=VsdxmT94QMru6haE1iUr8I7U2pwysP8uiVUW68VFuzJiTkwqrO02x2z+W/SXsoPyGs
-         maq8yRd+TOSDVgN2AbkuOebsigS6O8FLa62dTIicwT3Le8U4JL5UeBVmDTK3SzH1US47
-         8HYn8DRBgu8NbgbbMPq1OCnU3CS/h88CCdLPVuMYg3wP5Ub/bxGP0tcaW51XDKthumpM
-         7Io/WsQCVPQ7UqdpOi37V86G+VopDd1UN9dBK8/hCXaDnboUEz6iVhraVxqcDelCxjfC
-         1RjOd0mMZFr+fadTjViZ/A/goDyAEFsQvOb7UyPm4UdrprPWfEGLVBNXAvo6/HUPS4dq
-         Cvyw==
-X-Gm-Message-State: AOAM5329XC2mgd+kAf7JoxWYcug95WLt08UrENMDEAyh1zy8A1zP2S3H
-        kHdZgBFvGFaDVfcdz/N6I7EPGidsKW9rInuVytMUFw==
-X-Google-Smtp-Source: ABdhPJywywcH3eH6uMLv87dO08x+AXuJH9rMy6Rka+BEXPwvJAoDFlH7QVrVcFP+vUUfTozwZ2U88pdfnxfeiybg/QI=
-X-Received: by 2002:a17:907:98ae:: with SMTP id ju14mr2965643ejc.287.1618292496904;
- Mon, 12 Apr 2021 22:41:36 -0700 (PDT)
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5tvwgte5mJiZRE/g1iq/YghMPlCg8ZOqU5IbB7njzSw=;
+ b=BtUpUb6X88Dd4Xo1j3OShfQO4pdloMMh0UMWkN+9HJu2iYb7goy5D8CaTcoi4JGSSBXyBYSc4y6JaBt1X3pN5K5TS4wBDokjQB/xbRWqDzKksInhNAsHZyuR3m0MD3aQ4bo1hV6b9Zm6goI83KBzClM6vx/6lMwicsWqhdDbLY8=
+Authentication-Results: broadcom.com; dkim=none (message not signed)
+ header.d=none;broadcom.com; dmarc=none action=none header.from=oracle.com;
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
+ by PH0PR10MB4614.namprd10.prod.outlook.com (2603:10b6:510:42::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4020.18; Tue, 13 Apr
+ 2021 05:48:30 +0000
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::9ce3:6a25:939f:c688]) by PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::9ce3:6a25:939f:c688%4]) with mapi id 15.20.4020.022; Tue, 13 Apr 2021
+ 05:48:30 +0000
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        suganath-prabu.subramani@broadcom.com, linux-scsi@vger.kernel.org,
+        stable@vger.kernel.org, sathya.prakash@broadcom.com
+Subject: Re: [PATCH] mpt3sas: Block PCI cfg access from userspace during reset
+Date:   Tue, 13 Apr 2021 01:48:15 -0400
+Message-Id: <161828336217.27813.12188273841667891929.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210330105137.20728-1-sreekanth.reddy@broadcom.com>
+References: <20210330105137.20728-1-sreekanth.reddy@broadcom.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [138.3.201.9]
+X-ClientProxiedBy: BY5PR03CA0008.namprd03.prod.outlook.com
+ (2603:10b6:a03:1e0::18) To PH0PR10MB4759.namprd10.prod.outlook.com
+ (2603:10b6:510:3d::12)
 MIME-Version: 1.0
-References: <20210412083958.129944265@linuxfoundation.org>
-In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 13 Apr 2021 11:11:25 +0530
-Message-ID: <CA+G9fYvTQSAs_UZx1=kbOz23HvNF3GtixH17UpEQFoH0K6Y7uA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/66] 4.19.187-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from ca-mkp.mkp.ca.oracle.com (138.3.201.9) by BY5PR03CA0008.namprd03.prod.outlook.com (2603:10b6:a03:1e0::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4020.16 via Frontend Transport; Tue, 13 Apr 2021 05:48:29 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 68f07e9d-78a8-4359-16b1-08d8fe3fc420
+X-MS-TrafficTypeDiagnostic: PH0PR10MB4614:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <PH0PR10MB4614227EC16BCA9BD1255ED88E4F9@PH0PR10MB4614.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6430;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 6rUisn6TSuf5HdBo6brEtsipbS/DjQlngD5UQo2gWo9D4YCROLKbpn77sw77uEMSkMj2vC5wJxQjuKKLGWb3juUaeHH6gHtMINzdXnMzT6JQ1ktKOCdTy2nSLp0As4q/5ihsq+9QaQAMKol3VmImwOjGyikrbvstvbqNmuSGB60MYL1XozNtmtyZ8Y/Z3YxiwV2vFxA0Jfo7C/LIdIePNvzRPEqEyHEVUv3lCWc0zyYW6ClwC+R7Zm5/VBGV1VUKd1cgOYYVaXG17fHHWnIeyfbaQtmcAmlK9rHYXpwZMZYKAG207Ae1x9PqrxikizfIl9qoaDVUINrUz5hZGUopRjWRjDeAUcsSR1zhjMTc/WzU7DZ7cBKh85RpqWe0qKMZXdBl/vIkPKRK9PO4mahrALe/Qm2PRrPJ2661XInNBWb8v4lM1q9Rvj58e9LDhA2W3PvHQl1ip9BgF0s+/GTliUKr8fsOb2WslMdh953r6HOgWi0ldslZgBmv6rRuk2Q/lOiApQnSUdKaGErBuA/2xty/6TU4VbKY2EcoAr5Gmk5eYx38CDvH/bPedEgH8RDJnoVgs0/mPd4dXNIfwQy5SklXJJwpb4/IKN1bEMf7DGKX+FMllgnQ0RmdUexS65pUCmyUAEajoq25MsWfpCu7awABnkWf5VlqFR539MUw9Blz+IyQo+W2bvmyeagjl54OFi1HbLIS0Olh0BV5FkgxfK/cF+NLH9xopwvBKB1Je4UBSAaLQ4w3gVxrIlPt1C/j
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB4759.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(366004)(136003)(346002)(396003)(39860400002)(966005)(2906002)(6916009)(4744005)(6486002)(4326008)(316002)(478600001)(66946007)(8936002)(38350700002)(83380400001)(66476007)(16526019)(38100700002)(186003)(5660300002)(6666004)(66556008)(26005)(7696005)(956004)(36756003)(86362001)(52116002)(2616005)(103116003)(8676002)(32563001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?emV0VUkwVGZVMTdHZzZ4WG4rOElRS280NFQybG5DL1NEWVBWeWJDQ25pQUhR?=
+ =?utf-8?B?SFdTSElVamNkK3MrZFh3a1BzTDU4T2Y0dGY0MjRZejk1SURHZld3TzlGcStQ?=
+ =?utf-8?B?WGlPRi9ldjZESG5tL09DbjJsMXJ5alo4eFVPRnFrVjJuNEtjMVBKa1ZLTWFa?=
+ =?utf-8?B?bGhKQWtoUnNQaG9NZzZpOEpNMmkydTRuMjJCcEhSaEJoVTFoUzNSTkpIRmlr?=
+ =?utf-8?B?bzBSRitBSzdkT0xpcnBkTm9KL3Fxd3p6WFJuMXB1SC9tWnVrK2hVTG1Uclhk?=
+ =?utf-8?B?NDFZRVJZMTJ2SzIyaTVuYzZFRU5BOWFqVzVtS1VJUDd3VVQwRTVJTTRKRDRl?=
+ =?utf-8?B?MTN1SE0xajhwbGF6Yzl6UlR2c3hzZjNsWHg4blZaN2V2UVdDRFRlcEJtVkFn?=
+ =?utf-8?B?ckUvSWd4QnlRSGRVNE95anVQczlTa3pZZTZXR1ZzV3A2OFlpVTQ2Z3R4ZHNL?=
+ =?utf-8?B?bXh0dDRCNVh6UkJ2bk9RS25lQnJaRTB6RUUrWHhLakIxTjhMMDVqdS9selQv?=
+ =?utf-8?B?U056bitMY0xpa3pjT01pNjdLSXhxdWQ4alQwMDYyVXlvV09UYXBiZHEzZml6?=
+ =?utf-8?B?bXNqNXVWNHM3Wnk5VFJSWDNLTVVDQ2RybC9pTFJYS05SMFpqSkJOWnBYMDJu?=
+ =?utf-8?B?SUplOE5UYVdJSE9pOTB4dlFBcEt5N2tvUm93R1V4K2dCSXpkTFppTmdxQzk5?=
+ =?utf-8?B?MHJkMm1xeXl2WHBlZWh5aENHLytib2Zha000RUgzUERNM1R1S296TWZJamxQ?=
+ =?utf-8?B?WG5aT0JBWHhSZmVnUHNkaGRGY01WcnhpV0NlMFRrajM0R1dVRDNHTlZlM2cz?=
+ =?utf-8?B?VWtlMW8vQ2tRUFhhVm96RklYczRLdnhWeE9sWjBlZjF4ajVrbFl1MEpwN1dT?=
+ =?utf-8?B?dVNQUFFoeHpienRuWG1xR1hmc0c1bmtpdDdMeWFkWU93ZVlRazc0aXVxUExG?=
+ =?utf-8?B?QzBqT3Z6cnNta3VNazdKejVEZGxUSlBGVW4yY2VOdm9ETXZGcHF2RVNycFdw?=
+ =?utf-8?B?cDBTN3MrZFEwdG1ObGRXb21MazJObDBaSUh1U2tNUldEa0U5WE5WMS84UlZE?=
+ =?utf-8?B?WnRYV05uL21LOS9zc2lBSkp0eFpoRDZHYThCL3FDZXpLamFNNXpJSHNXUUFm?=
+ =?utf-8?B?M0kzQnZHVS9UM0lsZlBWTC9nSmkyaEpWQUMrVm1YTzFKUVl3UjZ5OU1lYUJq?=
+ =?utf-8?B?SUNrRzNLMGxzRkZZTTA0ZzdtQ2xvb1lqdzhidjFFMHdZeE5oSURLL0NuQWwx?=
+ =?utf-8?B?anVuYUhQYjNEWkhBbVQxc0lOTERyeWtVQitoR0RoRGhwTjVaNitZdTRVNGVz?=
+ =?utf-8?B?dEZmOFdVTytkbkpkbHBmR3pQeWJQNmRDdXNueG5JMTlBYXF0SjRyeTJpSzIz?=
+ =?utf-8?B?cnd2OFJzRk1mUmZrZkJHQWZSMkM4eGl3dUxZV3dkNVpFREhWRnd4UC9SeHpw?=
+ =?utf-8?B?aEZEaVRJS0txQzhFS0xUcC9xVmo3ZG1DUmdiQXlDWWNrYVo2cnJQOXRrdy9l?=
+ =?utf-8?B?b0hXeUtJUWNVVUpEWjNaRkJJWjRITFI4dFlhbGpheGJPckJOaXFmQ2dvL01T?=
+ =?utf-8?B?dlZLenV3cTlRN2RHeCtHc0lPejg1cVJqck9ucUdhRmUvMENJeHhxRTJiaWhW?=
+ =?utf-8?B?ZjcvdVFraUdEdE5OdWxodWkwQkY4cHdpY2VoRGt4UUprZkFIMmdScWczMmUy?=
+ =?utf-8?B?bE9mV1I2WFNTQkJDeFhEaTNOTjFoemZiMnNSWkJoNDJmUjVtUENETGtuLzNy?=
+ =?utf-8?Q?nQXZ0P1loOoTDGawJJrBr+Gs8jfOokuhCx/dv3Q?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 68f07e9d-78a8-4359-16b1-08d8fe3fc420
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Apr 2021 05:48:30.1628
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: osOlbmupEEdeN8nSRZgxo6ahAeSV4DvVQlCo0zRcw3TQW+lRUiTzYJTLTU+GSZi9uyBLP4LoXobB1oBWlAQWdCSCap9HSE5g5vn5AR3h8Tg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB4614
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9952 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
+ malwarescore=0 suspectscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104130039
+X-Proofpoint-ORIG-GUID: 1jf6oiVuKBya2lUEWIaT1ktDLKaf_-gT
+X-Proofpoint-GUID: 1jf6oiVuKBya2lUEWIaT1ktDLKaf_-gT
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9952 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 clxscore=1015
+ adultscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 spamscore=0
+ impostorscore=0 suspectscore=0 mlxscore=0 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
+ definitions=main-2104130039
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 12 Apr 2021 at 14:13, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.187 release.
-> There are 66 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 14 Apr 2021 08:39:44 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.187-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, 30 Mar 2021 16:21:37 +0530, Sreekanth Reddy wrote:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> While diag reset is in progress, there is short duration where all
+> access to controller's PCI config space from the host needs to be
+> blocked. This is due to a hardware limitation of IOC controllers.
+> 
+> With this patch, driver will block all access to controller's
+> config space from userland applications by calling
+> pci_cfg_access_lock() while diag reset is in progress and
+> unlocking after controller comes back to ready state.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Applied to 5.13/scsi-queue, thanks!
 
-## Build
-* kernel: 4.19.187-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: 85bc28045cdbb9576907965c761445aaece4f5ad
-* git describe: v4.19.186-67-g85bc28045cdb
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.186-67-g85bc28045cdb
+[1/1] mpt3sas: Block PCI cfg access from userspace during reset
+      https://git.kernel.org/mkp/scsi/c/3c8604691d2a
 
-## No regressions (compared to v4.19.185-19-g6aba908ea95f)
-
-## No fixes (compared to v4.19.185-19-g6aba908ea95f)
-
-## Test result summary
- total: 65010, pass: 52744, fail: 1575, skip: 10433, xfail: 258,
-
-## Build Summary
-* arm: 97 total, 96 passed, 1 failed
-* arm64: 25 total, 24 passed, 1 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 15 total, 13 passed, 2 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 39 total, 39 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 2 total, 1 passed, 1 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 15 total, 14 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Martin K. Petersen	Oracle Linux Engineering
