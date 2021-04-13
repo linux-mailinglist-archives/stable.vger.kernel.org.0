@@ -2,144 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 699FD35DBB5
-	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 11:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C66435DC07
+	for <lists+stable@lfdr.de>; Tue, 13 Apr 2021 11:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241199AbhDMJtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 05:49:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53746 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239994AbhDMJtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 05:49:41 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6830C061756
-        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 02:49:20 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id c15so6819839wro.13
-        for <stable@vger.kernel.org>; Tue, 13 Apr 2021 02:49:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=mwq8zywA+ypXJGwthk+aWxfXnXK//R2FzCHadrl6w7g=;
-        b=RPn10Dkle43eKRGbKP8CCEtMoeX3/n5uj11U8rGkJzvHD1odfR7oGBMV5XGkJLeKPb
-         Zo+oNt4m2664SlNFGxo82FN9Bu22db7GwixB7BL73y3xlMj7QS1DaVFEZtPcHS+IWaJF
-         K1/adg7uet8ndzAelP4fG3upxsd1CAyZSwvIw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=mwq8zywA+ypXJGwthk+aWxfXnXK//R2FzCHadrl6w7g=;
-        b=EyoSRqs9S7cWTnLS9oIXJ4E/j7rqdz764gdTjIyIvpREZPYslxdIxV1vcIKtyYesHu
-         /eq1fgdj/mK462SFr4Htvwl3TP8NlW9Zb3PejKgZOwDqJYWQQp6tJ0bBarx7elfVbear
-         TAkwb4waHHS0dXgn7ls5TJxJBk4ltWUky504nV8kdVKVtU6taC0yBvZ5ix3THYNcoho1
-         uIBtx32/T2Rr5oQZKi8spSoNrseLCC8lFxQYlgSmbWUCpO1QWJsZtnglbUP3HyD4EyTI
-         opnv87a3aBSADu0mEsFkaKjmJmuTtQZ6Q332gCYHT53hLj2i16l5otYppITrysIpVHxd
-         7UZw==
-X-Gm-Message-State: AOAM531RV8a7db+NH+cBmQy9YqBvbgHlAfQewVXJeA5g5GaCJP62Uors
-        DxPdCz5xS/IpKfZ+G+VZIcsIyg==
-X-Google-Smtp-Source: ABdhPJxlTrqiBskCjnzrlr2lzj0MoFiML8UzDvveT5cKCCW6RRg7VDInyaCrnkCtopcD1uIeUnQD0g==
-X-Received: by 2002:a5d:6145:: with SMTP id y5mr27967739wrt.27.1618307359464;
-        Tue, 13 Apr 2021 02:49:19 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id 64sm1956458wmz.7.2021.04.13.02.49.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Apr 2021 02:49:19 -0700 (PDT)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     DRI Development <dri-devel@lists.freedesktop.org>
-Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org,
-        Pekka Paalanen <pekka.paalanen@collabora.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH 10/12] drm/tegra: Don't set allow_fb_modifiers explicitly
-Date:   Tue, 13 Apr 2021 11:49:01 +0200
-Message-Id: <20210413094904.3736372-10-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210413094904.3736372-1-daniel.vetter@ffwll.ch>
-References: <20210413094904.3736372-1-daniel.vetter@ffwll.ch>
+        id S230134AbhDMJ7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 05:59:40 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:59517 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229661AbhDMJ7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 05:59:38 -0400
+Received: from xps13.home (lfbn-tou-1-1325-59.w90-89.abo.wanadoo.fr [90.89.138.59])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 0195910000D;
+        Tue, 13 Apr 2021 09:59:16 +0000 (UTC)
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
+        <linux-mtd@lists.infradead.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org,
+        Trevor Woerner <twoerner@gmail.com>
+Subject: [PATCH v2] mtd: rawnand: lpc32xx_slc: Fix external use of SW Hamming ECC helper
+Date:   Tue, 13 Apr 2021 11:59:16 +0200
+Message-Id: <20210413095916.330405-1-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since
+Since the Hamming software ECC engine has been updated to become a
+proper and independent ECC engine, it is now mandatory to either
+initialize the engine before using any one of his functions or use one
+of the bare helpers which only perform the calculations. As there is no
+actual need for a proper ECC initialization, let's just use the bare
+helper instead of the rawnand one.
 
-commit 890880ddfdbe256083170866e49c87618b706ac7
-Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Date:   Fri Jan 4 09:56:10 2019 +0100
-
-    drm: Auto-set allow_fb_modifiers when given modifiers at plane init
-
-this is done automatically as part of plane init, if drivers set the
-modifier list correctly. Which is the case here.
-
-It was slightly inconsistently though, since planes with only linear
-modifier support haven't listed that explicitly. Fix that, and cc:
-stable to allow userspace to rely on this. Again don't backport
-further than where Paul's patch got added.
-
-Cc: stable@vger.kernel.org # v5.1 +
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: linux-tegra@vger.kernel.org
+Fixes: 19b2ce184b9f ("mtd: nand: ecc-hamming: Stop using raw NAND structures")
+Cc: stable@vger.kernel.org
+Reported-by: Trevor Woerner <twoerner@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/gpu/drm/tegra/dc.c  | 10 ++++++++--
- drivers/gpu/drm/tegra/drm.c |  2 --
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/mtd/nand/raw/lpc32xx_slc.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
-index c9385cfd0fc1..f9845a50f866 100644
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -959,6 +959,11 @@ static const struct drm_plane_helper_funcs tegra_cursor_plane_helper_funcs = {
- 	.atomic_disable = tegra_cursor_atomic_disable,
+diff --git a/drivers/mtd/nand/raw/lpc32xx_slc.c b/drivers/mtd/nand/raw/lpc32xx_slc.c
+index 6b7269cfb7d8..65663f5ba54f 100644
+--- a/drivers/mtd/nand/raw/lpc32xx_slc.c
++++ b/drivers/mtd/nand/raw/lpc32xx_slc.c
+@@ -27,6 +27,7 @@
+ #include <linux/of.h>
+ #include <linux/of_gpio.h>
+ #include <linux/mtd/lpc32xx_slc.h>
++#include <linux/mtd/nand-ecc-sw-hamming.h>
+ 
+ #define LPC32XX_MODNAME		"lpc32xx-nand"
+ 
+@@ -344,6 +345,18 @@ static int lpc32xx_nand_ecc_calculate(struct nand_chip *chip,
+ 	return 0;
+ }
+ 
++/*
++ * Corrects the data
++ */
++static int lpc32xx_nand_ecc_correct(struct nand_chip *chip,
++				    unsigned char *buf,
++				    unsigned char *read_ecc,
++				    unsigned char *calc_ecc)
++{
++	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
++				      chip->ecc.size, false);
++}
++
+ /*
+  * Read a single byte from NAND device
+  */
+@@ -802,7 +815,7 @@ static int lpc32xx_nand_attach_chip(struct nand_chip *chip)
+ 	chip->ecc.write_oob = lpc32xx_nand_write_oob_syndrome;
+ 	chip->ecc.read_oob = lpc32xx_nand_read_oob_syndrome;
+ 	chip->ecc.calculate = lpc32xx_nand_ecc_calculate;
+-	chip->ecc.correct = rawnand_sw_hamming_correct;
++	chip->ecc.correct = lpc32xx_nand_ecc_correct;
+ 	chip->ecc.hwctl = lpc32xx_nand_ecc_enable;
+ 
+ 	/*
+@@ -819,8 +832,14 @@ static int lpc32xx_nand_attach_chip(struct nand_chip *chip)
+ 	return 0;
+ }
+ 
++static void lpc32xx_nand_detach_chip(struct nand_chip *chip)
++{
++	rawnand_sw_hamming_cleanup(chip);
++}
++
+ static const struct nand_controller_ops lpc32xx_nand_controller_ops = {
+ 	.attach_chip = lpc32xx_nand_attach_chip,
++	.detach_chip = lpc32xx_nand_detach_chip,
  };
  
-+static const uint64_t linear_modifiers[] = {
-+	DRM_FORMAT_MOD_LINEAR,
-+	DRM_FORMAT_MOD_INVALID
-+};
-+
- static struct drm_plane *tegra_dc_cursor_plane_create(struct drm_device *drm,
- 						      struct tegra_dc *dc)
- {
-@@ -987,7 +992,7 @@ static struct drm_plane *tegra_dc_cursor_plane_create(struct drm_device *drm,
- 
- 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
- 				       &tegra_plane_funcs, formats,
--				       num_formats, NULL,
-+				       num_formats, linear_modifiers,
- 				       DRM_PLANE_TYPE_CURSOR, NULL);
- 	if (err < 0) {
- 		kfree(plane);
-@@ -1106,7 +1111,8 @@ static struct drm_plane *tegra_dc_overlay_plane_create(struct drm_device *drm,
- 
- 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
- 				       &tegra_plane_funcs, formats,
--				       num_formats, NULL, type, NULL);
-+				       num_formats, linear_modifiers,
-+				       type, NULL);
- 	if (err < 0) {
- 		kfree(plane);
- 		return ERR_PTR(err);
-diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
-index 90709c38c993..136fe98f9459 100644
---- a/drivers/gpu/drm/tegra/drm.c
-+++ b/drivers/gpu/drm/tegra/drm.c
-@@ -1125,8 +1125,6 @@ static int host1x_drm_probe(struct host1x_device *dev)
- 	drm->mode_config.max_width = 4096;
- 	drm->mode_config.max_height = 4096;
- 
--	drm->mode_config.allow_fb_modifiers = true;
--
- 	drm->mode_config.normalize_zpos = true;
- 
- 	drm->mode_config.funcs = &tegra_drm_mode_config_funcs;
+ /*
 -- 
-2.31.0
+2.27.0
 
