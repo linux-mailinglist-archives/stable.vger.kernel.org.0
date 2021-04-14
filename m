@@ -2,76 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADBBF35EC09
-	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 06:52:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1192F35EC3E
+	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 07:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243138AbhDNEwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Apr 2021 00:52:35 -0400
-Received: from mga06.intel.com ([134.134.136.31]:49534 "EHLO mga06.intel.com"
+        id S1347380AbhDNFec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Apr 2021 01:34:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230249AbhDNEwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Apr 2021 00:52:34 -0400
-IronPort-SDR: 2qg1xaUUbKJo2YTJYp7WHSh47BaoDiTh/TULRisj6pWdMDVXWn203io8run5nSRs3iKG6BSe05
- P4GJ/7VnQy6A==
-X-IronPort-AV: E=McAfee;i="6200,9189,9953"; a="255883474"
-X-IronPort-AV: E=Sophos;i="5.82,221,1613462400"; 
-   d="scan'208";a="255883474"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2021 21:52:13 -0700
-IronPort-SDR: hD7jZmxvV4oQS+zzYg876CkhM3Jzhj6SACLcZkWLM+ON8C8EIqi1iEETR/3EfYOfWmPoF40MXE
- taL+Tpuf7dyA==
-X-IronPort-AV: E=Sophos;i="5.82,221,1613462400"; 
-   d="scan'208";a="418148853"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.138])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2021 21:52:11 -0700
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org,
-        Tomas Winkler <tomas.winkler@intel.com>, stable@vger.kernel.org
-Subject: [char-misc-next] mei: me: add Alder Lake P device id.
-Date:   Wed, 14 Apr 2021 07:52:00 +0300
-Message-Id: <20210414045200.3498241-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.26.3
+        id S1347335AbhDNFeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Apr 2021 01:34:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C66661244;
+        Wed, 14 Apr 2021 05:34:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618378450;
+        bh=yfGHiPPoMi92sXuj46ELTK/wlCe18PL65yehcTi8xng=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Jnm9GfiKZyeTLf10xt14iYqCD9O0SdUeCXGJwX7vjO9f7PHuc9bquhwOLCDfjH8Md
+         RiZsoQykix2Yh+Z9ANiNQxVI3NEgty4R4UuRTDrG88v9Zz5mwDEJ1QrDVJJSYzikDa
+         GGtSdJqbgZCjxQ3dsxRIH0KYQbUC2Kj141lgX5Jg=
+Date:   Wed, 14 Apr 2021 07:34:08 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Prike Liang <Prike.Liang@amd.com>
+Cc:     linux-nvme@lists.infradead.org, kbusch@kernel.org,
+        Chaitanya.Kulkarni@wdc.com, hch@infradead.org,
+        stable@vger.kernel.org, Shyam-sundar.S-k@amd.com,
+        Alexander.Deucher@amd.com
+Subject: Re: [PATCH 2/2] nvme-pci: add AMD PCIe quirk for suspend/resume
+Message-ID: <YHZ+0M9OW7dpiBKC@kroah.com>
+References: <1618366694-14092-1-git-send-email-Prike.Liang@amd.com>
+ <1618366694-14092-2-git-send-email-Prike.Liang@amd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1618366694-14092-2-git-send-email-Prike.Liang@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add Alder Lake P device ID.
+On Wed, Apr 14, 2021 at 10:18:14AM +0800, Prike Liang wrote:
+> The NVME device pluged in some AMD PCIE root port will resume timeout
+> from s2idle which caused by NVME power CFG lost in the SMU FW restore.
+> This issue can be workaround by using PCIe power set with simple
+> suspend/resume process path instead of APST. In the onwards ASIC will
+> try do the NVME shutdown save and restore in the BIOS and still need
+> PCIe power setting to resume from RTD3 for s2idle.
+> 
+> Update the nvme_acpi_storage_d3() _with previously added quirk.
+> 
+> Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+> [ck: split patches for nvme and pcie]
+> Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+> Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+> Cc: <stable@vger.kernel.org> # 5.11+
+> ---
+>  drivers/nvme/host/pci.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+> index 6bad4d4..dd46d9e 100644
+> --- a/drivers/nvme/host/pci.c
+> +++ b/drivers/nvme/host/pci.c
+> @@ -2832,6 +2832,7 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
+>  {
+>  	struct acpi_device *adev;
+>  	struct pci_dev *root;
+> +	struct pci_dev *rdev;
+>  	acpi_handle handle;
+>  	acpi_status status;
+>  	u8 val;
+> @@ -2845,6 +2846,10 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
+>  	if (!root)
+>  		return false;
+>  
+> +	rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
+> +	if (rdev->dev_flags & PCI_DEV_FLAGS_AMD_NVME_SIMPLE_SUSPEND)
+> +		return NVME_QUIRK_SIMPLE_SUSPEND;
+> +
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
----
- drivers/misc/mei/hw-me-regs.h | 1 +
- drivers/misc/mei/pci-me.c     | 1 +
- 2 files changed, 2 insertions(+)
+You just leaked a reference count :(
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index 14be76d4c2e6..cb34925e10f1 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -105,6 +105,7 @@
- 
- #define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
- #define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
-+#define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
- 
- /*
-  * MEI HW Section
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index a7e179626b63..c3393b383e59 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -111,6 +111,7 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_LP, MEI_ME_PCH15_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
- 
- 	/* required last entry */
- 	{0, }
--- 
-2.26.3
-
+And what if rdev is NULL?
