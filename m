@@ -2,116 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85D9035EE8E
-	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 09:42:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BFCB35EEBD
+	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 09:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348407AbhDNHl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Apr 2021 03:41:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57016 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232504AbhDNHlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Apr 2021 03:41:24 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5CEC061574;
-        Wed, 14 Apr 2021 00:41:02 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id n11-20020a05600c4f8bb029010e5cf86347so2131775wmq.1;
-        Wed, 14 Apr 2021 00:41:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=UasjkY44wWTQTAzdeMirX8rS/dwaZ9OE+lBiPq6Cr+g=;
-        b=I0O0m/PpJM2+gbWKun63C6xLUpVBHog3TYMWxAdrjl+5eiBIiMldsDVpCA5TgV1VnQ
-         LmAe5rNdnplBcnmv6c2rYkieBF/c1I4c8V10rwCWTup7WI/bvmpph6rDRo6Mo7y/VIj7
-         PoQUnFqKSjtsFtmWec8elcA6rvDmSEVvQRo67ajmiF4J1w607P5sK+3wcCk8J7xpl/8B
-         hxbnUzY9nnyDVqaVjUSSOUCwZLDTP8ZxhiWtx5C2Z32nEXFlE9KAc68m4Fs+a+uF/Wsx
-         v9hZPUAHg2RSI55YMbKDFO/58YY6Z/LY5blsF2cVksVnzvAtmnBkQuoRXd7WCjDgO46Y
-         PmYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=UasjkY44wWTQTAzdeMirX8rS/dwaZ9OE+lBiPq6Cr+g=;
-        b=nmDJaYE/i2MKj/3wuyghIlDZxyjUynknhnfr87Yo0Okz5FjnbViGxFEWlY34S/tmyi
-         /oyP9OVW5VL3fM2Y/IbX8FmL8aHsCSmSvZNov00aaNzqZlJ0ARe2T2tuqCR9iwryaFzY
-         QCAm1E5tM45GMuGI0S+EXXF3nJRvQIQFPPlze0rbpk3qbNBQcixS8ikh+6jhHBvsDRjy
-         JkUU60lbskT5yAmZXxZMJawLVKuY6eleQqZkIqRZnXtFqSUQzdKj4tzjMgQ+/R4ROj5c
-         p2yqaMzYvmeWydMnB9sRLy0N8Pvd8b1TMwB0m20ewOcTMDeH2hcwURibYf87vNIUDVEP
-         c5jA==
-X-Gm-Message-State: AOAM532slp1X6eOmaEMUSUF18hmZ2LAU81r7gvP6TwijQidOFtWuO/Xv
-        wrO7X/hsSTbEEtwEuasGZV38o9tSadszhw==
-X-Google-Smtp-Source: ABdhPJzia43nxVw/1gwOley2wfn0MaU9XNSNQw1dvE0FKVMOE/YEUq5BswWdXT4k9r/WQI6kWXHfrA==
-X-Received: by 2002:a1c:7ed3:: with SMTP id z202mr1584591wmc.136.1618386061016;
-        Wed, 14 Apr 2021 00:41:01 -0700 (PDT)
-Received: from ?IPv6:2003:ea:8f38:4600:c95a:c5e7:2490:ebe3? (p200300ea8f384600c95ac5e72490ebe3.dip0.t-ipconnect.de. [2003:ea:8f38:4600:c95a:c5e7:2490:ebe3])
-        by smtp.googlemail.com with ESMTPSA id z16sm5909707wrq.21.2021.04.14.00.40.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Apr 2021 00:41:00 -0700 (PDT)
-From:   Heiner Kallweit <hkallweit1@gmail.com>
-To:     Jakub Kicinski <kuba@kernel.org>,
-        David Miller <davem@davemloft.net>,
-        Realtek linux nic maintainers <nic_swsd@realtek.com>
-Cc:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Roman Mamedov <rm+bko@romanrm.net>
-Subject: [PATCH net] r8169: don't advertise pause in jumbo mode
-Message-ID: <e249e2fb-ba51-a62e-f2e7-5011c3790830@gmail.com>
-Date:   Wed, 14 Apr 2021 09:40:51 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S231630AbhDNHtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Apr 2021 03:49:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36546 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229963AbhDNHtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Apr 2021 03:49:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E23C3613C4;
+        Wed, 14 Apr 2021 07:48:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618386538;
+        bh=vmUTkhJhcxKjbTntrU4ig4GdlaiPtJChHqBeU5k4FXc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PKE3q0Zva8vUkp86YISfX7vX2j/0NfZ7BaapfRbsUtgkiH61urmyP6A1exCr9cKWS
+         Z/UaNexlWkrhmQK9uayvGFFS/9464v9tb8xwW7t8mcS3BZzIIImY8kGN/DI1Kirvrj
+         agG/kyL1yuZEcUDIM0WbSpxOQALQnS+oHBbKZ9Tk=
+Date:   Wed, 14 Apr 2021 09:48:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Liang, Prike" <Prike.Liang@amd.com>
+Cc:     "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+        "kbusch@kernel.org" <kbusch@kernel.org>,
+        "Chaitanya.Kulkarni@wdc.com" <Chaitanya.Kulkarni@wdc.com>,
+        "hch@infradead.org" <hch@infradead.org>,
+        "S-k, Shyam-sundar" <Shyam-sundar.S-k@amd.com>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        "# 5 . 11+" <stable@vger.kernel.org>
+Subject: Re: [PATCH 2/2] nvme-pci: add AMD PCIe quirk for suspend/resume
+Message-ID: <YHaeZ/auMUYGSy1K@kroah.com>
+References: <1618381200-14856-1-git-send-email-Prike.Liang@amd.com>
+ <1618381200-14856-2-git-send-email-Prike.Liang@amd.com>
+ <YHaOJDm3GCZ8baAV@kroah.com>
+ <BYAPR12MB3238544752DD86202469CA1EFB4E9@BYAPR12MB3238.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BYAPR12MB3238544752DD86202469CA1EFB4E9@BYAPR12MB3238.namprd12.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It has been reported [0] that using pause frames in jumbo mode impacts
-performance. There's no available chip documentation, but vendor
-drivers r8168 and r8125 don't advertise pause in jumbo mode. So let's
-do the same, according to Roman it fixes the issue.
+On Wed, Apr 14, 2021 at 07:13:15AM +0000, Liang, Prike wrote:
+> [AMD Public Use]
+> 
+> > From: Greg KH <gregkh@linuxfoundation.org>
+> > Sent: Wednesday, April 14, 2021 2:40 PM
+> > To: Liang, Prike <Prike.Liang@amd.com>
+> > Cc: linux-nvme@lists.infradead.org; kbusch@kernel.org;
+> > Chaitanya.Kulkarni@wdc.com; hch@infradead.org; S-k, Shyam-sundar
+> > <Shyam-sundar.S-k@amd.com>; Deucher, Alexander
+> > <Alexander.Deucher@amd.com>; # 5 . 11+ <stable@vger.kernel.org>
+> > Subject: Re: [PATCH 2/2] nvme-pci: add AMD PCIe quirk for suspend/resume
+> >
+> > On Wed, Apr 14, 2021 at 02:20:00PM +0800, Prike Liang wrote:
+> > > The NVME device pluged in some AMD PCIE root port will resume timeout
+> > > from s2idle which caused by NVME power CFG lost in the SMU FW restore.
+> > > This issue can be workaround by using PCIe power set with simple
+> > > suspend/resume process path instead of APST. In the onwards ASIC will
+> > > try do the NVME shutdown save and restore in the BIOS and still need
+> > > PCIe power setting to resume from RTD3 for s2idle.
+> > >
+> > > Update the nvme_acpi_storage_d3() _with previously added quirk.
+> > >
+> > > Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+> > > [ck: split patches for nvme and pcie]
+> > > Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+> > > Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+> > > Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+> > > Cc: <stable@vger.kernel.org> # 5.11+
+> > > ---
+> > >  drivers/nvme/host/pci.c | 5 +++++
+> > >  1 file changed, 5 insertions(+)
+> > >
+> > > diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c index
+> > > 6bad4d4..5a9a192 100644
+> > > --- a/drivers/nvme/host/pci.c
+> > > +++ b/drivers/nvme/host/pci.c
+> > > @@ -2832,6 +2832,7 @@ static bool nvme_acpi_storage_d3(struct pci_dev
+> > > *dev)  {
+> > >  struct acpi_device *adev;
+> > >  struct pci_dev *root;
+> > > +struct pci_dev *rdev;
+> > >  acpi_handle handle;
+> > >  acpi_status status;
+> > >  u8 val;
+> > > @@ -2845,6 +2846,10 @@ static bool nvme_acpi_storage_d3(struct
+> > pci_dev *dev)
+> > >  if (!root)
+> > >  return false;
+> > >
+> > > +rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
+> > > +if (rdev && (rdev->dev_flags &
+> > PCI_DEV_FLAGS_AMD_NVME_SIMPLE_SUSPEND))
+> > > +return NVME_QUIRK_SIMPLE_SUSPEND;
+> > > +
+> > >  adev = ACPI_COMPANION(&root->dev);
+> > >  if (!adev)
+> > >  return false;
+> > > --
+> > > 2.7.4
+> > >
+> >
+> > This is still broken, why resend it?
+> Sorry can't get how come the reference count leaked, could you help give more detail about this.
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=212617
-
-Fixes: 9cf9b84cc701 ("r8169: make use of phy_set_asym_pause")
-Reported-by: Roman Mamedov <rm+bko@romanrm.net>
-Tested-by: Roman Mamedov <rm+bko@romanrm.net>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-This patch doesn't apply cleanly on some kernel versions, but the needed
-changes are trivial.
----
- drivers/net/ethernet/realtek/r8169_main.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 1b48084f2..7d02bab1c 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -2386,6 +2386,13 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
- 
- 	if (pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
- 		pcie_set_readrq(tp->pci_dev, readrq);
-+
-+	/* Chip doesn't support pause in jumbo mode */
-+	linkmode_mod_bit(ETHTOOL_LINK_MODE_Pause_BIT,
-+			 tp->phydev->advertising, !jumbo);
-+	linkmode_mod_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+			 tp->phydev->advertising, !jumbo);
-+	phy_start_aneg(tp->phydev);
- }
- 
- DECLARE_RTL_COND(rtl_chipcmd_cond)
-@@ -4647,8 +4654,6 @@ static int r8169_phy_connect(struct rtl8169_private *tp)
- 	if (!tp->supports_gmii)
- 		phy_set_max_speed(phydev, SPEED_100);
- 
--	phy_support_asym_pause(phydev);
--
- 	phy_attached_info(phydev);
- 
- 	return 0;
--- 
-2.31.1
+Please read the documentation for the call you are making here.  For
+once, it is actually written down what needs to be done :)
 
