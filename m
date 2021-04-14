@@ -2,106 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B05EE35F4A2
-	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 15:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA81435F4B2
+	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 15:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346907AbhDNNPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Apr 2021 09:15:39 -0400
-Received: from mx2.suse.de ([195.135.220.15]:32792 "EHLO mx2.suse.de"
+        id S1351269AbhDNNVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Apr 2021 09:21:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243246AbhDNNPa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Apr 2021 09:15:30 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B4ABEAE03;
-        Wed, 14 Apr 2021 13:15:08 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 7EB281F2B5F; Wed, 14 Apr 2021 15:15:08 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Eric Whitney <enwlinux@gmail.com>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH v2] ext4: Fix occasional generic/418 failure
-Date:   Wed, 14 Apr 2021 15:14:53 +0200
-Message-Id: <20210414131453.4945-1-jack@suse.cz>
-X-Mailer: git-send-email 2.26.2
+        id S243138AbhDNNU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Apr 2021 09:20:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54791600CD;
+        Wed, 14 Apr 2021 13:20:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618406434;
+        bh=mJPWs+Zsdw7OTFCReHuJcHRdVPjeiPP31wTOdi6CexA=;
+        h=Subject:To:From:Date:From;
+        b=QHqbfk1HavAzea4MtNu2KfYrGufY3zGmrFcLvzMSPJuNFzpTpEfca77cq8v/gwWN0
+         eKNPNa4IqjDfbsTRaCknq06vDemW71hNapjPrQXp7x4EdAk8Wig3RL8vqf8fUR66GW
+         sVzQm5c3DshtS/pWG3I1MaSXk9PeR7zwUOFFMu4A=
+Subject: patch "USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet" added to usb-testing
+To:     kai.heng.feng@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 14 Apr 2021 15:20:24 +0200
+Message-ID: <161840642440101@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Eric has noticed that after pagecache read rework, generic/418 is
-occasionally failing for ext4 when blocksize < pagesize. In fact, the
-pagecache rework just made hard to hit race in ext4 more likely. The
-problem is that since ext4 conversion of direct IO writes to iomap
-framework (commit 378f32bab371), we update inode size after direct IO
-write only after invalidating page cache. Thus if buffered read sneaks
-at unfortunate moment like:
 
-CPU1 - write at offset 1k                       CPU2 - read from offset 0
-iomap_dio_rw(..., IOMAP_DIO_FORCE_WAIT);
-                                                ext4_readpage();
-ext4_handle_inode_extension()
+This is a note to let you know that I've just added the patch titled
 
-the read will zero out tail of the page as it still sees smaller inode
-size and thus page cache becomes inconsistent with on-disk contents with
-all the consequences.
+    USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
 
-Fix the problem by moving inode size update into end_io handler which
-gets called before the page cache is invalidated.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
-Reported-by: Eric Whitney <enwlinux@gmail.com>
-Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 8f23fe35ff1e5491b4d279323a8209a31f03ae65 Mon Sep 17 00:00:00 2001
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Date: Mon, 12 Apr 2021 21:54:53 +0800
+Subject: USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
+
+This is another branded 8153 device that doesn't work well with LPM
+enabled:
+[ 400.597506] r8152 5-1.1:1.0 enx482ae3a2a6f0: Tx status -71
+
+So disable LPM to resolve the issue.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+BugLink: https://bugs.launchpad.net/bugs/1922651
+Link: https://lore.kernel.org/r/20210412135455.791971-1-kai.heng.feng@canonical.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/file.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Eric, can you please try whether this patch fixes the failures you are
-occasionally seeing?
-
-Changes since v1:
-* Rewritten the fix to avoid the need for separate transaction handle for
-  orphan list update
-
-diff --git a/fs/ext4/file.c b/fs/ext4/file.c
-index 194f5d00fa32..be1e80af61be 100644
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -371,15 +371,27 @@ static ssize_t ext4_handle_inode_extension(struct inode *inode, loff_t offset,
- static int ext4_dio_write_end_io(struct kiocb *iocb, ssize_t size,
- 				 int error, unsigned int flags)
- {
--	loff_t offset = iocb->ki_pos;
-+	loff_t pos = iocb->ki_pos;
- 	struct inode *inode = file_inode(iocb->ki_filp);
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 76ac5d6555ae..6114cf83bb44 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -438,6 +438,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
+ 			USB_QUIRK_DISCONNECT_SUSPEND },
  
- 	if (error)
- 		return error;
- 
--	if (size && flags & IOMAP_DIO_UNWRITTEN)
--		return ext4_convert_unwritten_extents(NULL, inode,
--						      offset, size);
-+	if (size && flags & IOMAP_DIO_UNWRITTEN) {
-+		error = ext4_convert_unwritten_extents(NULL, inode, pos, size);
-+		if (error < 0)
-+			return error;
-+	}
-+	/*
-+	 * If we are extending the file, we have to update i_size here before
-+	 * page cache gets invalidated in iomap_dio_rw(). Otherwise racing
-+	 * buffered reads could zero out too much from page cache pages. Update
-+	 * of on-disk size will happen later in ext4_dio_write_iter() where
-+	 * we have enough information to also perform orphan list handling etc.
-+	 */
-+	pos += size;
-+	if (pos > i_size_read(inode))
-+		i_size_write(inode, pos);
- 
- 	return 0;
- }
++	/* Lenovo ThinkPad USB-C Dock Gen2 Ethernet (RTL8153 GigE) */
++	{ USB_DEVICE(0x17ef, 0xa387), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* BUILDWIN Photo Frame */
+ 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =
+ 			USB_QUIRK_HONOR_BNUMINTERFACES },
 -- 
-2.26.2
+2.31.1
+
 
