@@ -2,107 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14ED435EAD6
-	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 04:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF4835EB1C
+	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 04:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346116AbhDNC33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Apr 2021 22:29:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231379AbhDNC33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 22:29:29 -0400
-Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A28B7C061574;
-        Tue, 13 Apr 2021 19:29:07 -0700 (PDT)
-Received: by mail-il1-x12b.google.com with SMTP id 6so15810815ilt.9;
-        Tue, 13 Apr 2021 19:29:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/mn/74iV+6uKnyBOoO1G0wW39k+gcEhhG6w26EMBHjI=;
-        b=IwsSJZfSF8fuOV0GZ4VaaFsmEGRHM0re6fHqpCO639VX+wtTfKVqXgJsPCCJ3qzOTJ
-         l3W4g5hkChtTjNb71xiE6TH8WSSsX7n64pSp+CV5kPYxMmgJy+WLE4glcdZgREb57fsf
-         YahFwyZoj66SlZMOCkynpT42bO+EqfNUelbRQKsv9zmSkT9uqHngreMvy/0a7rpNZSnw
-         60PLyOy6sdG6x6zCmBBx/66Pg2mToyTYNWTfo1PbqrVhco6TZFRLN06wPM/oZFSPWcFf
-         EU+wRCCqCH7u97R6I0+8eYe9Riq4jd5RVCed7vuUhsg1Tq9Q/ywJj/TMUPaNZr69Bm/q
-         ypfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/mn/74iV+6uKnyBOoO1G0wW39k+gcEhhG6w26EMBHjI=;
-        b=Xtk/A8bFydxlAkm+CVogHOpUTJva6jO/jpl0o0iYGjP47Bdu9PO0A5MLuHIyvk6cM+
-         uvmXhzfzqXNqh+95I7v2PL9v+QHL0CgIiy6yUqgZ0NMlUFA6DB0yhxcVuCY2aeuPLyMB
-         m6wTvHmO8o5JlULIvKEZiOnXFxwsflFGPceiwgPsi4lCsrWfUepIW7Tg08MpjIkmPqml
-         0R3II7RS+eAPYtqA43bYXI5GmltqiIC+tQHy4B9eP6R6u8vzI19mxyyogejo8N/19EJp
-         VYi8X/GDrrQM5+yoM8N4JrVIhWfl64akXG+m0Ce8SGneaYQKHyYxTqxCzZxypLm8dNAV
-         D9kQ==
-X-Gm-Message-State: AOAM5317iYTMR7eBdMC0nRLP6bqaoxkqxr4dbP19RWBQL968Ur1ggvds
-        q+u+5JzPvChnTqIbI3+PnplIpUieKwwDsxM4f/s=
-X-Google-Smtp-Source: ABdhPJyYbPrZh+XUB0O5XYeZ3YXbIs9/AkkcO2XBsQEwt3oJR3JA+ouv2Ni6PwKkk1LNGjIghPYnfO+qyXBjYWu3nuY=
-X-Received: by 2002:a05:6e02:1d16:: with SMTP id i22mr4491158ila.164.1618367347159;
- Tue, 13 Apr 2021 19:29:07 -0700 (PDT)
+        id S236780AbhDNCvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Apr 2021 22:51:09 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:16910 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232339AbhDNCvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Apr 2021 22:51:08 -0400
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4FKn3p25SszjZ01;
+        Wed, 14 Apr 2021 10:48:54 +0800 (CST)
+Received: from [10.174.178.100] (10.174.178.100) by
+ DGGEMS409-HUB.china.huawei.com (10.3.19.209) with Microsoft SMTP Server id
+ 14.3.498.0; Wed, 14 Apr 2021 10:50:42 +0800
+Subject: Re: [PATCH 4.19 00/66] 4.19.187-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210412083958.129944265@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <12adb73f-8a22-351a-eed0-be660b768d60@huawei.com>
+Date:   Wed, 14 Apr 2021 10:50:42 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20201127112114.3219360-1-pbonzini@redhat.com> <20201127112114.3219360-3-pbonzini@redhat.com>
- <CAJhGHyCdqgtvK98_KieG-8MUfg1Jghd+H99q+FkgL0ZuqnvuAw@mail.gmail.com>
- <YHS/BxMiO6I1VOEY@google.com> <CAJhGHyAcnwkCfTcnxXcgAHnF=wPbH2EDp7H+e74ce+oNOWJ=_Q@mail.gmail.com>
- <80b013dc-0078-76f4-1299-3cff261ef7d8@redhat.com>
-In-Reply-To: <80b013dc-0078-76f4-1299-3cff261ef7d8@redhat.com>
-From:   Lai Jiangshan <jiangshanlai+lkml@gmail.com>
-Date:   Wed, 14 Apr 2021 10:28:55 +0800
-Message-ID: <CAJhGHyChfXdcAMzzD7P3aC8tnhFW5GvOt88vOY=D3pyb7hgNAA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] KVM: x86: Fix split-irqchip vs interrupt injection
- window request
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Sean Christopherson <seanjc@google.com>,
-        LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Filippo Sironi <sironi@amazon.de>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        "v4.7+" <stable@vger.kernel.org>,
-        Wanpeng Li <wanpengli@tencent.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210412083958.129944265@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.100]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 13, 2021 at 8:15 PM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 13/04/21 13:03, Lai Jiangshan wrote:
-> > This patch claims that it has a place to
-> > stash the IRQ when EFLAGS.IF=0, but inject_pending_event() seams to ignore
-> > EFLAGS.IF and queues the IRQ to the guest directly in the first branch
-> > of using "kvm_x86_ops.set_irq(vcpu)".
->
-> This is only true for pure-userspace irqchip.  For split-irqchip, in
-> which case the "place to stash" the interrupt is
-> vcpu->arch.pending_external_vector.
->
-> For pure-userspace irqchip, KVM_INTERRUPT only cares about being able to
-> stash the interrupt in vcpu->arch.interrupt.injected.  It is indeed
-> wrong for userspace to call KVM_INTERRUPT if the vCPU is not ready for
-> interrupt injection, but KVM_INTERRUPT does not return an error.
 
-Thanks for the reply.
 
-May I ask what is the correct/practical way of using KVM_INTERRUPT ABI
-for pure-userspace irqchip.
+On 2021/4/12 16:40, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.187 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Apr 2021 08:39:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.187-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-gVisor is indeed a pure-userspace irqchip, it will call KVM_INTERRUPT
-when kvm_run->ready_for_interrupt_injection=1 (along with other conditions
-unrelated to our discussion).
+Tested on arm64 and x86 for 4.19.187-rc1,
 
-https://github.com/google/gvisor/blob/a9441aea2780da8c93da1c73da860219f98438de/pkg/sentry/platform/kvm/bluepill_amd64_unsafe.go#L105
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.19.y
+Version: 4.19.187-rc1
+Commit: 85bc28045cdbb9576907965c761445aaece4f5ad
+Compiler: gcc version 7.3.0 (GCC)
 
-if kvm_run->ready_for_interrupt_injection=1 when expection pending or
-EFLAGS.IF=0, it would be unexpected for gVisor.
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 5223
+passed: 5223
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Thanks
-Lai
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 5223
+passed: 5223
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
->
-> Ignoring the fact that this would be incorrect use of the API, are you
-> saying that the incorrect injection was not possible before this patch?
->
-> Paolo
->
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
+
