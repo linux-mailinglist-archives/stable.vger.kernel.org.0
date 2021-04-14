@@ -2,84 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1192F35EC3E
-	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 07:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5C6D35EC41
+	for <lists+stable@lfdr.de>; Wed, 14 Apr 2021 07:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347380AbhDNFec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Apr 2021 01:34:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49536 "EHLO mail.kernel.org"
+        id S231336AbhDNFgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Apr 2021 01:36:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347335AbhDNFeb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Apr 2021 01:34:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C66661244;
-        Wed, 14 Apr 2021 05:34:10 +0000 (UTC)
+        id S230383AbhDNFgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Apr 2021 01:36:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48CF661244;
+        Wed, 14 Apr 2021 05:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618378450;
-        bh=yfGHiPPoMi92sXuj46ELTK/wlCe18PL65yehcTi8xng=;
+        s=korg; t=1618378577;
+        bh=Vj+HP59OMz3KDqYcngvrQ2A9lMs3T43KVgG8tJEsyeg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Jnm9GfiKZyeTLf10xt14iYqCD9O0SdUeCXGJwX7vjO9f7PHuc9bquhwOLCDfjH8Md
-         RiZsoQykix2Yh+Z9ANiNQxVI3NEgty4R4UuRTDrG88v9Zz5mwDEJ1QrDVJJSYzikDa
-         GGtSdJqbgZCjxQ3dsxRIH0KYQbUC2Kj141lgX5Jg=
-Date:   Wed, 14 Apr 2021 07:34:08 +0200
+        b=HdSA141Gz7fxQaYyXhrOoLfaTXoGZWP5AJnaQ6pUBHhcN4CWkPuo2EeE89maXXGXK
+         bF/3ETaztETAJQy9I5yKIjHmNGtuH8M9D/x1FJCPkDVMhRml+q0TZI8ofFnb8/BVf/
+         pwABU/lZPYfVkaYFCE37RTFg9rVT0mMgwxgWbcJQ=
+Date:   Wed, 14 Apr 2021 07:36:15 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Prike Liang <Prike.Liang@amd.com>
-Cc:     linux-nvme@lists.infradead.org, kbusch@kernel.org,
-        Chaitanya.Kulkarni@wdc.com, hch@infradead.org,
-        stable@vger.kernel.org, Shyam-sundar.S-k@amd.com,
-        Alexander.Deucher@amd.com
-Subject: Re: [PATCH 2/2] nvme-pci: add AMD PCIe quirk for suspend/resume
-Message-ID: <YHZ+0M9OW7dpiBKC@kroah.com>
-References: <1618366694-14092-1-git-send-email-Prike.Liang@amd.com>
- <1618366694-14092-2-git-send-email-Prike.Liang@amd.com>
+To:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        "# v4 . 16+" <stable@vger.kernel.org>,
+        Camille Lu <camille.lu@hpe.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>,
+        iommu@lists.linux-foundation.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 5.4 v3 1/1] iommu/vt-d: Fix agaw for a supported 48 bit
+ guest address width
+Message-ID: <YHZ/T9x7Xjf1r6fI@kroah.com>
+References: <20210412202736.70765-1-saeed.mirzamohammadi@oracle.com>
+ <YHVJDM4CXINrO1KE@kroah.com>
+ <0C3869E0-63C9-42D5-AAE2-D9D24011B93E@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1618366694-14092-2-git-send-email-Prike.Liang@amd.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <0C3869E0-63C9-42D5-AAE2-D9D24011B93E@oracle.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 14, 2021 at 10:18:14AM +0800, Prike Liang wrote:
-> The NVME device pluged in some AMD PCIE root port will resume timeout
-> from s2idle which caused by NVME power CFG lost in the SMU FW restore.
-> This issue can be workaround by using PCIe power set with simple
-> suspend/resume process path instead of APST. In the onwards ASIC will
-> try do the NVME shutdown save and restore in the BIOS and still need
-> PCIe power setting to resume from RTD3 for s2idle.
+On Tue, Apr 13, 2021 at 11:05:34AM -0700, Saeed Mirzamohammadi wrote:
+> Hi Greg,
 > 
-> Update the nvme_acpi_storage_d3() _with previously added quirk.
-> 
-> Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-> [ck: split patches for nvme and pcie]
-> Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-> Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-> Cc: <stable@vger.kernel.org> # 5.11+
-> ---
->  drivers/nvme/host/pci.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-> index 6bad4d4..dd46d9e 100644
-> --- a/drivers/nvme/host/pci.c
-> +++ b/drivers/nvme/host/pci.c
-> @@ -2832,6 +2832,7 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
->  {
->  	struct acpi_device *adev;
->  	struct pci_dev *root;
-> +	struct pci_dev *rdev;
->  	acpi_handle handle;
->  	acpi_status status;
->  	u8 val;
-> @@ -2845,6 +2846,10 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
->  	if (!root)
->  		return false;
->  
-> +	rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
-> +	if (rdev->dev_flags & PCI_DEV_FLAGS_AMD_NVME_SIMPLE_SUSPEND)
-> +		return NVME_QUIRK_SIMPLE_SUSPEND;
-> +
+> I don’t have any commit ID since the fix is not in mainline or any Linus’ tree yet. The driver has completely changed for newer stable versions (and also mainline) and the fix only applies for 5.4, 4.19, and 4.14 stable kernels.
 
-You just leaked a reference count :(
+Why can we not just take what is in mainline?
 
-And what if rdev is NULL?
+And if not, then you need to document the heck out of this in the
+changelog text, and get all of the related maintainers in the area to
+sign off on this.  Diverging from Linus's tree creates a big burden over
+time, you have to make this really really obvious why you are doing
+this, and what you are doing here so that everyone agrees with it.
+
+Remember, 90% of all of these types of "do it differently than Linus's
+tree" are buggy and cause problems, be very careful.
+
+Please fix up and resend.
+
+thanks,
+
+greg k-h
