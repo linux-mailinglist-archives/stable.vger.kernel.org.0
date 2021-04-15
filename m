@@ -2,85 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D684E36076A
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 12:46:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5320D3607D6
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 12:58:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232070AbhDOKq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 06:46:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48040 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231829AbhDOKq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 06:46:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F34C260C41;
-        Thu, 15 Apr 2021 10:46:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618483566;
-        bh=h0XJJdaP0ywje2OV4eoBJiqmYkORX2w+OWwLuXNnQIQ=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=HhOtkdL26TjwhsGFlSyI7wmbILoWXA42yfKwy9DkXRqff6mYl82EL+8S9fQoWgB2E
-         4ZOiDwd+3B/EerCPCNwd9lTfRjMndx5ASyIFbKEbTEkwsy0iuMP6ef+1pJdEOmpBC6
-         tDVa5DwoYF5oEmVmD8MV1dM81vquBIeIfrZb/82+gT5KqkNAfHswAbwaH+ZZHqx1Af
-         Bgd2PsxvAA7k7Yk6HIaqODkyj4xQuO61P5TmECpS8o014Ez3M5nuOzxdeS9lh11OCq
-         OLvijmboZZ/tkUHBh9zluCdnI/oP0H45JroBp/oMquZsBWMm3fPiZnEySuFxcNTtBf
-         gvVpDrTf1vQNg==
-From:   Felipe Balbi <balbi@kernel.org>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] usb: dwc3: gadget: Remove FS bInterval_m1 limitation
-In-Reply-To: <5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com>
-References: <c2049798e1bce3ea38ae59dd17bbffb43e78370c.1618447155.git.Thinh.Nguyen@synopsys.com>
- <5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com>
-Date:   Thu, 15 Apr 2021 13:45:59 +0300
-Message-ID: <87eefbomfs.fsf@kernel.org>
+        id S232486AbhDOK7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 06:59:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231919AbhDOK7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 06:59:06 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C88C061574
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 03:58:42 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id x12so15425836ejc.1
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 03:58:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=PXxwCBJdTG5sNp7kazVZnDyiOFVScUSybkI34T0iWR8=;
+        b=aJhu3PEg3As9vjvYFyod90fKPZQ9fegE6JoStrYxBEa0O2pN0qt5+RwjyfOM5EjtY1
+         3JJmdoW7bqZDowPBT7YJKRw9aoSoRPh6tYH5z17rj/7iXQRnFfKsbWeYN1prdk39MeKi
+         B5i43yGGG2rbnIvMUEnNZ7arKyxPnI7+F/cCegQ401B4cwAVxeKq1ig9DweiIpQR5UNF
+         0PGcWcvUQ8hP134Aje2nRhhfYgcngK8tnZpNbET2P/XLj+wcvAPkIMlL1yasg6AwUnSy
+         l1gtRV/s/wYv8M2C2eyGkfN8FpTDRkPI+Kx63Yj027XjxdudPC+T4elda7R6G+QgfMfQ
+         j1NQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=PXxwCBJdTG5sNp7kazVZnDyiOFVScUSybkI34T0iWR8=;
+        b=Xz3RSJJQrerW90RaPLsGz6hHcPmA2HwLJJ6LaUMb3hEcYCqczgBHtSoDcs92k4qTbe
+         RjVpOiW2pZqyDFp02ExVdldM4mZEqplkVvLTXIxJ4J90eQjxAB1d7ic0+yS6DuHFY2Ez
+         uUgrn3QMpVmiuV9P6SIMBl9c77U+fJNayBu4AHYgY7CSwTbNXE59B+/t2oosTLTDyBwT
+         mZOfal1WRiqF/stF9we0QbkXlOFb3893CVWg0aW6xWXh+3o0RqH3nhRzIjwAr3jKfd3K
+         CB5kWGz3YN0rPeJw1DzeJ1bRz4s7tCME6Au3vlyB1ZVnpnycrw7zMiQjMDc0DkpOS7tZ
+         UkDQ==
+X-Gm-Message-State: AOAM530xTuw/Iw8eXzk7y80t8ElPGzYENF7pIp2g/5vKyRd5A3/6HYy0
+        e37qRMYpGciWtMc4KulbV9gkZu2jzy1nruJvtQ==
+X-Google-Smtp-Source: ABdhPJz9Nc5e35r8YqUnRnoeLfFFkUMQMsG5/DnC9VLy4BElufGHP0eHRVDMur7THJtAI6IJSa8N93jQI1tqZ5fIpDw=
+X-Received: by 2002:a17:906:b355:: with SMTP id cd21mr2725293ejb.504.1618484320978;
+ Thu, 15 Apr 2021 03:58:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Received: by 2002:a54:36cc:0:0:0:0:0 with HTTP; Thu, 15 Apr 2021 03:58:40
+ -0700 (PDT)
+Reply-To: barrkouevi@gmail.com
+From:   barrkouvi <amegbokomiherve12@gmail.com>
+Date:   Thu, 15 Apr 2021 10:58:40 +0000
+Message-ID: <CAGL6x8o=iqr_L7Ybxz_fRudp3FG7H+UYEzZb+veuBRfwpu=L0Q@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
-
-> The programming guide incorrectly stated that the DCFG.bInterval_m1 must
-> be set to 0 when operating in fullspeed. There's no such limitation for
-> all IPs. See DWC_usb3x programming guide section 3.2.2.1.
->
-> Cc: <stable@vger.kernel.org>
-> Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_=
-m1")
-> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-
-thanks for updating
-
-Acked-by: Felipe Balbi <balbi@kernel.org>
-
-=2D-=20
-balbi
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAmB4GWcRHGJhbGJpQGtl
-cm5lbC5vcmcACgkQzL64meEamQbZ0w/9GNXw9VAS1OAN0I/At2oen9+YwdC0iirF
-jshGh5/B4n4eU8QSSpy97E0ZItT6WCnJbxVB0Bzr26gSRsGr2GJainCae+Ek0uPg
-Y7W0wHAFLSzRI6/5+PdLCknzfo29Bgh4GkkJtaaf4auZEhwvPzP7l5LWbKyftNBB
-wx+RMssr734Hz/xC+hdQS23oRLt1tB8D28iOYWTaSFyq8D5OofwiYlR7dEFjqsZ1
-/WLhMll2Cz935h++d9lF8ZEvWKXIdNklx3Yf+quJEaFI0HnCBBihAT69sjRWTYiY
-O1IEmaN/ArUPxsJG3w/zX5pPrfzPvJb7PO8z1tHoHHwQiH4Y1yxW3lFoaDwASpsT
-Z3rCX4f5eWl4UNPnreQRbZQEp2DBeynPjIG35qcYtPCuGK+eLeehNcoNqYtReYdN
-CWtKbK8wx56dwLoE1qLdhFmI4RFfxcHQqgPBnmLDBSLVmF0xyok0QIb5KU7eSedS
-HWvwQvRMPBkKc2pP3wIzFz72v+tHCVIWrOfSbSlStyYOCYcpbM2fj4dcP98rlGcz
-Jxw7WPY3rUYBJWbls4z0Fs7Nm0vlbeJ/Dl024bMYYe0saeOxhl70WULkjPuWm2uS
-Gzofd7cLrYE2qWB2iV+AXNgYkDAtdRPppxWgtPp4AdsOyH98fzYTDab5SV1uI8FS
-5hjGmX1hwv0=
-=7ymC
------END PGP SIGNATURE-----
---=-=-=--
+Hi,I have not hear from you,Do you read my message?
