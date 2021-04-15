@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF4A360CFA
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F74360C5B
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234184AbhDOOzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38804 "EHLO mail.kernel.org"
+        id S233817AbhDOOuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:50:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233985AbhDOOy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:54:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 338C9613ED;
-        Thu, 15 Apr 2021 14:53:09 +0000 (UTC)
+        id S233725AbhDOOuF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:50:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30816613C1;
+        Thu, 15 Apr 2021 14:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498389;
-        bh=9gomDYmU/NfEf4VVIGV9GU3X9p8r6Pk543CBJOuuVE4=;
+        s=korg; t=1618498182;
+        bh=K1H/WDsuHcpkW1bvmk3llw5IfZ/OlVUWjq84KZVpwiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJZTW7MlYG1kZBnxLNxLm8DN7bO9FIJQud1kGbCCqTSg3M1xAyoArDi5R3B0NgkGL
-         /BC2LeqbDYdL8lM89f4tcfG6aW79KIUu2KAhIVoG5FDJLofzIKRnCuHqGuxX22wHQ4
-         z67sUgQ7eeLSqc7VX8dc15z7pA3tInfSMMQei7f0=
+        b=ctlt4W5nwMdwGPe5zRboeWUxO//FX6Zqi/kPn//CFDGIEWOKd3c91TdAWyx0QUPMk
+         rIrjZiEX3iP0KNsOkVuRlPZotx655qm5d8Dzue86iA7WlJdxZUrGxLS/PwkJTquoEi
+         0MMGVWYx7d8kJc/FtSd7ndyOQfb7hy4svNWVsx6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 20/68] usbip: synchronize event handler with sysfs code paths
+        stable@vger.kernel.org, Luca Fancellu <luca.fancellu@arm.com>,
+        Julien Grall <jgrall@amazon.com>, Wei Liu <wei.liu@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.4 07/38] xen/evtchn: Change irq_info lock to raw_spinlock_t
 Date:   Thu, 15 Apr 2021 16:47:01 +0200
-Message-Id: <20210415144415.125445245@linuxfoundation.org>
+Message-Id: <20210415144413.589999833@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
-References: <20210415144414.464797272@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Luca Fancellu <luca.fancellu@arm.com>
 
-commit 363eaa3a450abb4e63bd6e3ad79d1f7a0f717814 upstream.
+commit d120198bd5ff1d41808b6914e1eb89aff937415c upstream.
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
-
-Use sysfs_lock to synchronize event handler with sysfs paths
-in usbip drivers.
+Unmask operation must be called with interrupt disabled,
+on preempt_rt spin_lock_irqsave/spin_unlock_irqrestore
+don't disable/enable interrupts, so use raw_* implementation
+and change lock variable in struct irq_info from spinlock_t
+to raw_spinlock_t
 
 Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/c5c8723d3f29dfe3d759cfaafa7dd16b0dfe2918.1616807117.git.skhan@linuxfoundation.org
+Fixes: 25da4618af24 ("xen/events: don't unmask an event channel when an eoi is pending")
+Signed-off-by: Luca Fancellu <luca.fancellu@arm.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/20210406105105.10141-1-luca.fancellu@arm.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/usbip_event.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/xen/events/events_base.c     |   10 +++++-----
+ drivers/xen/events/events_internal.h |    2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/usbip/usbip_event.c
-+++ b/drivers/usb/usbip/usbip_event.c
-@@ -84,6 +84,7 @@ static void event_handler(struct work_st
- 	while ((ud = get_event()) != NULL) {
- 		usbip_dbg_eh("pending event %lx\n", ud->event);
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -222,7 +222,7 @@ static int xen_irq_info_common_setup(str
+ 	info->evtchn = evtchn;
+ 	info->cpu = cpu;
+ 	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
+-	spin_lock_init(&info->lock);
++	raw_spin_lock_init(&info->lock);
  
-+		mutex_lock(&ud->sysfs_lock);
- 		/*
- 		 * NOTE: shutdown must come first.
- 		 * Shutdown the device.
-@@ -104,6 +105,7 @@ static void event_handler(struct work_st
- 			ud->eh_ops.unusable(ud);
- 			unset_event(ud, USBIP_EH_UNUSABLE);
- 		}
-+		mutex_unlock(&ud->sysfs_lock);
+ 	ret = set_evtchn_to_irq(evtchn, irq);
+ 	if (ret < 0)
+@@ -374,28 +374,28 @@ static void do_mask(struct irq_info *inf
+ {
+ 	unsigned long flags;
  
- 		wake_up(&ud->eh_waitq);
- 	}
+-	spin_lock_irqsave(&info->lock, flags);
++	raw_spin_lock_irqsave(&info->lock, flags);
+ 
+ 	if (!info->mask_reason)
+ 		mask_evtchn(info->evtchn);
+ 
+ 	info->mask_reason |= reason;
+ 
+-	spin_unlock_irqrestore(&info->lock, flags);
++	raw_spin_unlock_irqrestore(&info->lock, flags);
+ }
+ 
+ static void do_unmask(struct irq_info *info, u8 reason)
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&info->lock, flags);
++	raw_spin_lock_irqsave(&info->lock, flags);
+ 
+ 	info->mask_reason &= ~reason;
+ 
+ 	if (!info->mask_reason)
+ 		unmask_evtchn(info->evtchn);
+ 
+-	spin_unlock_irqrestore(&info->lock, flags);
++	raw_spin_unlock_irqrestore(&info->lock, flags);
+ }
+ 
+ #ifdef CONFIG_X86
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -47,7 +47,7 @@ struct irq_info {
+ 	unsigned short eoi_cpu;	/* EOI must happen on this cpu */
+ 	unsigned int irq_epoch;	/* If eoi_cpu valid: irq_epoch of event */
+ 	u64 eoi_time;		/* Time in jiffies when to EOI. */
+-	spinlock_t lock;
++	raw_spinlock_t lock;
+ 
+ 	union {
+ 		unsigned short virq;
 
 
