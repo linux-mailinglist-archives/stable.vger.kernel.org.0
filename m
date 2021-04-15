@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 258D7360D35
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE3C360D39
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234273AbhDOO64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
+        id S234228AbhDOO66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:58:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234461AbhDOO4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:56:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24DB7613F4;
-        Thu, 15 Apr 2021 14:54:17 +0000 (UTC)
+        id S234279AbhDOO45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:56:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47BDD613F0;
+        Thu, 15 Apr 2021 14:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498457;
-        bh=Q+5fEvDj5iAxPrP/ZoaMUXAHNrRsab/qAj7JAHiSKZY=;
+        s=korg; t=1618498463;
+        bh=fceXciL6PvyyrhioLAwc2eWDBZoNsqZJ6R6kitxb5gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLE8joFYk5CJj4Eul/PhLexlb6AYyQFxqsrFLi7BhgTYYkKqKwZ+xAPuATwf2A4R3
-         RfbuW6MGsfyB5+A4Te6eP+ygccTp1zraj1hvDuGX3n9mzs/Xv9XktsF0GN194HSA50
-         mcezVI0neyD0zB16O2bDBXvyOsUOcWAra7bBjpe0=
+        b=mO+kfXHlID06mCzLKwMXrMxh7hTdZkTjsmch6U0q2RWQ/tbC1oUk1Vbq4Vkicmz4T
+         1h8Bz4I78JeVH0NXJG2jnz6i/OwgMKKOJPof/bXw/0uJgJyVUeZc1NMC65IlCHHlrQ
+         ogO3ftK1PScxCNK70R/rPL6HI/dYdblliq6aDSik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+5f9392825de654244975@syzkaller.appspotmail.com,
-        Du Cheng <ducheng2@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 46/68] cfg80211: remove WARN_ON() in cfg80211_sme_connect
-Date:   Thu, 15 Apr 2021 16:47:27 +0200
-Message-Id: <20210415144415.977652494@linuxfoundation.org>
+        syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 47/68] net: tun: set tun->dev->addr_len during TUNSETLINK processing
+Date:   Thu, 15 Apr 2021 16:47:28 +0200
+Message-Id: <20210415144416.010370236@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -41,36 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit 1b5ab825d9acc0f27d2f25c6252f3526832a9626 upstream.
+commit cca8ea3b05c972ffb5295367e6c544369b45fbdd upstream.
 
-A WARN_ON(wdev->conn) would trigger in cfg80211_sme_connect(), if multiple
-send_msg(NL80211_CMD_CONNECT) system calls are made from the userland, which
-should be anticipated and handled by the wireless driver. Remove this WARN_ON()
-to prevent kernel panic if kernel is configured to "panic_on_warn".
+When changing type with TUNSETLINK ioctl command, set tun->dev->addr_len
+to match the appropriate type, using new tun_get_addr_len utility function
+which returns appropriate address length for given type. Fixes a
+KMSAN-found uninit-value bug reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=0766d38c656abeace60621896d705743aeefed51
 
-Bug reported by syzbot.
-
-Reported-by: syzbot+5f9392825de654244975@syzkaller.appspotmail.com
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Link: https://lore.kernel.org/r/20210407162756.6101-1-ducheng2@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com
+Diagnosed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/sme.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/tun.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -530,7 +530,7 @@ static int cfg80211_sme_connect(struct w
- 		cfg80211_sme_free(wdev);
- 	}
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -75,6 +75,14 @@
+ #include <linux/skb_array.h>
+ #include <linux/bpf.h>
+ #include <linux/bpf_trace.h>
++#include <linux/ieee802154.h>
++#include <linux/if_ltalk.h>
++#include <uapi/linux/if_fddi.h>
++#include <uapi/linux/if_hippi.h>
++#include <uapi/linux/if_fc.h>
++#include <net/ax25.h>
++#include <net/rose.h>
++#include <net/6lowpan.h>
  
--	if (WARN_ON(wdev->conn))
-+	if (wdev->conn)
- 		return -EINPROGRESS;
+ #include <linux/uaccess.h>
  
- 	wdev->conn = kzalloc(sizeof(*wdev->conn), GFP_KERNEL);
+@@ -2292,6 +2300,45 @@ unlock:
+ 	return ret;
+ }
+ 
++/* Return correct value for tun->dev->addr_len based on tun->dev->type. */
++static unsigned char tun_get_addr_len(unsigned short type)
++{
++	switch (type) {
++	case ARPHRD_IP6GRE:
++	case ARPHRD_TUNNEL6:
++		return sizeof(struct in6_addr);
++	case ARPHRD_IPGRE:
++	case ARPHRD_TUNNEL:
++	case ARPHRD_SIT:
++		return 4;
++	case ARPHRD_ETHER:
++		return ETH_ALEN;
++	case ARPHRD_IEEE802154:
++	case ARPHRD_IEEE802154_MONITOR:
++		return IEEE802154_EXTENDED_ADDR_LEN;
++	case ARPHRD_PHONET_PIPE:
++	case ARPHRD_PPP:
++	case ARPHRD_NONE:
++		return 0;
++	case ARPHRD_6LOWPAN:
++		return EUI64_ADDR_LEN;
++	case ARPHRD_FDDI:
++		return FDDI_K_ALEN;
++	case ARPHRD_HIPPI:
++		return HIPPI_ALEN;
++	case ARPHRD_IEEE802:
++		return FC_ALEN;
++	case ARPHRD_ROSE:
++		return ROSE_ADDR_LEN;
++	case ARPHRD_NETROM:
++		return AX25_ADDR_LEN;
++	case ARPHRD_LOCALTLK:
++		return LTALK_ALEN;
++	default:
++		return 0;
++	}
++}
++
+ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
+ 			    unsigned long arg, int ifreq_len)
+ {
+@@ -2434,6 +2481,7 @@ static long __tun_chr_ioctl(struct file
+ 			ret = -EBUSY;
+ 		} else {
+ 			tun->dev->type = (int) arg;
++			tun->dev->addr_len = tun_get_addr_len(tun->dev->type);
+ 			tun_debug(KERN_INFO, tun, "linktype set to %d\n",
+ 				  tun->dev->type);
+ 			ret = 0;
 
 
