@@ -2,97 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 249AF360CE7
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD22A360CD0
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234309AbhDOOz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40110 "EHLO mail.kernel.org"
+        id S233921AbhDOOyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:54:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234320AbhDOOyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:54:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 246AC613DC;
-        Thu, 15 Apr 2021 14:52:42 +0000 (UTC)
+        id S234169AbhDOOwB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:52:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C258613C5;
+        Thu, 15 Apr 2021 14:51:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498362;
-        bh=7LGMEXUFKP+BATG+mcTiafkkyJfkzAGms4Y68Hgopt0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/y9zcu05Du4jcS666hU4tOb8zeSkhDL8SjNzJCjMIf0NYdATKauOMy6PCUTP5TV/
-         0774Hc2Xy/s6df6a4cSZEweKK9bSwJShvVKADy54DIyeJrs3YFyMyQHZ2t6SyBw/6M
-         csM2Q2cXf3vykg/k0/KXB5vbT/o4x+0yyJ/m+96k=
+        s=korg; t=1618498298;
+        bh=/EvskEqDTdzVWRH0v+TGqZAQKBNjikbVdPsHoHzbLhk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=yP3iEcMBpzEeFUGKg9OqWQg1wHMsrHeHOr//na64N75ov2rYufQw7rTMHpbBnU4ze
+         Y/Sscy13fHojxB+20ZSdN+GJsjUWpnuZqP9dnWw3JeTIrV++jJQVrQI6eEifx1/FHg
+         QRK9/SPoNvjNp7fKlERveiqiPqKI1lQZd4E1UGHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Qiu <jack.qiu@huawei.com>,
-        Jan Kara <jack@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 11/68] fs: direct-io: fix missing sdio->boundary
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.9 00/47] 4.9.267-rc1 review
 Date:   Thu, 15 Apr 2021 16:46:52 +0200
-Message-Id: <20210415144414.837768273@linuxfoundation.org>
+Message-Id: <20210415144413.487943796@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
-References: <20210415144414.464797272@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.267-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.267-rc1
+X-KernelTest-Deadline: 2021-04-17T14:44+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Qiu <jack.qiu@huawei.com>
+This is the start of the stable review cycle for the 4.9.267 release.
+There are 47 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit df41872b68601059dd4a84858952dcae58acd331 upstream.
+Responses should be made by Sat, 17 Apr 2021 14:44:01 +0000.
+Anything received after that time might be too late.
 
-I encountered a hung task issue, but not a performance one.  I run DIO
-on a device (need lba continuous, for example open channel ssd), maybe
-hungtask in below case:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.267-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-  DIO:						Checkpoint:
-  get addr A(at boundary), merge into BIO,
-  no submit because boundary missing
-						flush dirty data(get addr A+1), wait IO(A+1)
-						writeback timeout, because DIO(A) didn't submit
-  get addr A+2 fail, because checkpoint is doing
+thanks,
 
-dio_send_cur_page() may clear sdio->boundary, so prevent it from missing
-a boundary.
+greg k-h
 
-Link: https://lkml.kernel.org/r/20210322042253.38312-1-jack.qiu@huawei.com
-Fixes: b1058b981272 ("direct-io: submit bio after boundary buffer is added to it")
-Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/direct-io.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/fs/direct-io.c
-+++ b/fs/direct-io.c
-@@ -857,6 +857,7 @@ submit_page_section(struct dio *dio, str
- 		    struct buffer_head *map_bh)
- {
- 	int ret = 0;
-+	int boundary = sdio->boundary;	/* dio_send_cur_page may clear it */
- 
- 	if (dio->op == REQ_OP_WRITE) {
- 		/*
-@@ -895,10 +896,10 @@ submit_page_section(struct dio *dio, str
- 	sdio->cur_page_fs_offset = sdio->block_in_file << sdio->blkbits;
- out:
- 	/*
--	 * If sdio->boundary then we want to schedule the IO now to
-+	 * If boundary then we want to schedule the IO now to
- 	 * avoid metadata seeks.
- 	 */
--	if (sdio->boundary) {
-+	if (boundary) {
- 		ret = dio_send_cur_page(dio, sdio, map_bh);
- 		if (sdio->bio)
- 			dio_bio_submit(dio, sdio);
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.267-rc1
+
+Juergen Gross <jgross@suse.com>
+    xen/events: fix setting irq affinity
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    perf map: Tighten snprintf() string precision to pass gcc check on some 32-bit arches
+
+Florian Westphal <fw@strlen.de>
+    netfilter: x_tables: fix compat match/target pad out-of-bound write
+
+Bob Peterson <rpeterso@redhat.com>
+    gfs2: report "already frozen/thawed" errors
+
+Arnd Bergmann <arnd@arndb.de>
+    drm/imx: imx-ldb: fix out of bounds array access warning
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath."
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: stop dump llsec params for monitors
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: forbid monitor for del llsec seclevel
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: forbid monitor for set llsec params
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 del llsec devkey
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 add llsec key
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 del llsec dev
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 del llsec key
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: nl-mac: fix check on panid
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net: mac802154: Fix general protection fault
+
+Pavel Skripkin <paskripkin@gmail.com>
+    drivers: net: fix memory leak in peak_usb_create_dev
+
+Pavel Skripkin <paskripkin@gmail.com>
+    drivers: net: fix memory leak in atusb_probe
+
+Phillip Potter <phil@philpotter.co.uk>
+    net: tun: set tun->dev->addr_len during TUNSETLINK processing
+
+Du Cheng <ducheng2@gmail.com>
+    cfg80211: remove WARN_ON() in cfg80211_sme_connect
+
+Shuah Khan <skhan@linuxfoundation.org>
+    usbip: fix vudc usbip_sockfd_store races leading to gpf
+
+Hugh Dickins <hughd@google.com>
+    mm: add cond_resched() in gather_pte_stats()
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    clk: socfpga: fix iomem pointer cast on 64-bit
+
+Potnuri Bharat Teja <bharat@chelsio.com>
+    RDMA/cxgb4: check for ipv6 address properly while destroying listener
+
+Alexander Gordeev <agordeev@linux.ibm.com>
+    s390/cpcmd: fix inline assembly register clobbering
+
+Zqiang <qiang.zhang@windriver.com>
+    workqueue: Move the position of debug_work_activate() in __queue_work()
+
+Lukasz Bartosik <lb@semihalf.com>
+    clk: fix invalid usage of list cursor in unregister
+
+Arnd Bergmann <arnd@arndb.de>
+    soc/fsl: qbman: fix conflicting alignment attributes
+
+Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+    net:tipc: Fix a double free in tipc_sk_mcast_rcv
+
+Claudiu Manoil <claudiu.manoil@nxp.com>
+    gianfar: Handle error code at MAC address change
+
+Eric Dumazet <edumazet@google.com>
+    sch_red: fix off-by-one checks in red_check_params()
+
+Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+    net: sched: sch_teql: fix null-pointer dereference
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    batman-adv: initialize "struct batadv_tvlv_tt_vlan_data"->reserved field
+
+Gao Xiang <hsiangkao@redhat.com>
+    parisc: avoid a warning on u8 cast for cmpxchg on u8 pointers
+
+Helge Deller <deller@gmx.de>
+    parisc: parisc-agp requires SBA IOMMU driver
+
+Jack Qiu <jack.qiu@huawei.com>
+    fs: direct-io: fix missing sdio->boundary
+
+Wengang Wang <wen.gang.wang@oracle.com>
+    ocfs2: fix deadlock between setattr and dio_end_io_write
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    ia64: fix user_stack_pointer() for ptrace()
+
+Muhammad Usama Anjum <musamaanjum@gmail.com>
+    net: ipv6: check for validity before dereferencing cfg->fc_nlinfo.nlh
+
+Luca Fancellu <luca.fancellu@arm.com>
+    xen/evtchn: Change irq_info lock to raw_spinlock_t
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: Avoid endless loops caused by repeated llcp_sock_connect()
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: fix memory leak in llcp_sock_connect()
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: fix refcount leak in llcp_sock_connect()
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: fix refcount leak in llcp_sock_bind()
+
+Hans de Goede <hdegoede@redhat.com>
+    ASoC: intel: atom: Stop advertising non working S24LE support
+
+Jonas Holmberg <jonashg@axis.com>
+    ALSA: aloop: Fix initialization of controls
+
+Ye Xiang <xiang.ye@intel.com>
+    iio: hid-sensor-prox: Fix scale not correct issue
+
+Nicolas Pitre <nicolas.pitre@linaro.org>
+    ARM: 8723/2: always assume the "unified" syntax for assembly code
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                     |  4 +-
+ arch/arm/Kconfig                             |  7 +--
+ arch/arm/Makefile                            |  6 ++-
+ arch/arm/include/asm/unified.h               | 77 ++--------------------------
+ arch/ia64/include/asm/ptrace.h               |  8 +--
+ arch/parisc/include/asm/cmpxchg.h            |  2 +-
+ arch/s390/kernel/cpcmd.c                     |  6 ++-
+ drivers/char/agp/Kconfig                     |  2 +-
+ drivers/clk/clk.c                            | 30 +++++------
+ drivers/clk/socfpga/clk-gate.c               |  2 +-
+ drivers/gpu/drm/imx/imx-ldb.c                | 10 ++++
+ drivers/iio/light/hid-sensor-prox.c          | 14 ++++-
+ drivers/infiniband/hw/cxgb4/cm.c             |  3 +-
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c |  6 ++-
+ drivers/net/ethernet/freescale/gianfar.c     |  6 ++-
+ drivers/net/ieee802154/atusb.c               |  1 +
+ drivers/net/tun.c                            | 48 +++++++++++++++++
+ drivers/soc/fsl/qbman/qman.c                 |  2 +-
+ drivers/usb/usbip/vudc_sysfs.c               | 42 ++++++++++++---
+ drivers/xen/events/events_base.c             | 14 ++---
+ drivers/xen/events/events_internal.h         |  2 +-
+ fs/cifs/connect.c                            |  1 -
+ fs/direct-io.c                               |  5 +-
+ fs/gfs2/super.c                              | 10 ++--
+ fs/ocfs2/aops.c                              | 11 +---
+ fs/ocfs2/file.c                              |  8 ++-
+ fs/proc/task_mmu.c                           |  1 +
+ include/net/red.h                            |  4 +-
+ kernel/workqueue.c                           |  2 +-
+ net/batman-adv/translation-table.c           |  2 +
+ net/ieee802154/nl-mac.c                      |  7 +--
+ net/ieee802154/nl802154.c                    | 23 +++++++--
+ net/ipv4/netfilter/arp_tables.c              |  2 +
+ net/ipv4/netfilter/ip_tables.c               |  2 +
+ net/ipv6/netfilter/ip6_tables.c              |  2 +
+ net/ipv6/route.c                             |  8 +--
+ net/mac802154/llsec.c                        |  2 +-
+ net/netfilter/x_tables.c                     | 10 +---
+ net/nfc/llcp_sock.c                          | 10 ++++
+ net/sched/sch_teql.c                         |  3 ++
+ net/tipc/socket.c                            |  2 +-
+ net/wireless/sme.c                           |  2 +-
+ sound/drivers/aloop.c                        | 11 ++--
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c |  6 +--
+ tools/perf/util/map.c                        |  7 ++-
+ 45 files changed, 245 insertions(+), 188 deletions(-)
 
 
