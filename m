@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E01360CBA
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C09E2360CBD
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:54:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234007AbhDOOyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:54:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40290 "EHLO mail.kernel.org"
+        id S234116AbhDOOyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:54:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233541AbhDOOwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:52:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DC4C613B7;
-        Thu, 15 Apr 2021 14:51:56 +0000 (UTC)
+        id S233889AbhDOOwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:52:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E8D8613C1;
+        Thu, 15 Apr 2021 14:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498317;
-        bh=qbDjDKn73d1QE2n2oUIySTnqvXEfTVVTbKP2QAHET+U=;
+        s=korg; t=1618498319;
+        bh=NP6z82y8UYkzlwGvlhVl2v3BmtjsrN94IHTrZKg4lEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8E3hMCFZ2JhQyS58kuNq/WNUrjpEeu3qCYvLP4E7cvit1DW6UMe7hr038CtMwP4E
-         00MHMiX5EdyxwzMK/oEEVQbdqW1lOfMQnIBUz5vvL9WfJZD5oa58jhLXMjHaYjDSzB
-         cb9nUWBcoHqX3EHMuOQgBWOqNLF8787II47QD69U=
+        b=YUwNry29cRl6/JDtL7z2LQ6qWd6ZIVkhN7yThXI+/UYRZbpBwgYPpivcVoIpEnVR0
+         9VRxFh2v4VUrZYG7rcEMwL8vObFrU6u0nDFok/rH2YX3lqPJQ+dZWmYtCVVIrTOId2
+         Mit2W+FC6GcRjZJ2NCdzyqwktQIKZEgV5/tVc2QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Salvatore Bonaccorso <carnil@debian.org>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Liu Ying <victor.liu@nxp.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 42/47] Revert "cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath."
-Date:   Thu, 15 Apr 2021 16:47:34 +0200
-Message-Id: <20210415144414.803401748@linuxfoundation.org>
+Subject: [PATCH 4.9 43/47] drm/imx: imx-ldb: fix out of bounds array access warning
+Date:   Thu, 15 Apr 2021 16:47:35 +0200
+Message-Id: <20210415144414.833339007@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
 References: <20210415144413.487943796@linuxfoundation.org>
@@ -42,34 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-This reverts commit 742300e32db00f008e944acafaeba9a12730eff0 which is
-commit a738c93fb1c17e386a09304b517b1c6b2a6a5a8b upstream.
+[ Upstream commit 33ce7f2f95cabb5834cf0906308a5cb6103976da ]
 
-It is reported to cause problems in older kernels, so revert it for now
-until we can figure it out...
+When CONFIG_OF is disabled, building with 'make W=1' produces warnings
+about out of bounds array access:
 
-Reported-by: Salvatore Bonaccorso <carnil@debian.org>
-Link: https://lore.kernel.org/r/YG7r0UaivWZL762N@eldamar.lan
-Cc: Shyam Prasad N <sprasad@microsoft.com>
-Cc: Aurelien Aptel <aaptel@suse.com>
-Cc: Steve French <stfrench@microsoft.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/gpu/drm/imx/imx-ldb.c: In function 'imx_ldb_set_clock.constprop':
+drivers/gpu/drm/imx/imx-ldb.c:186:8: error: array subscript -22 is below array bounds of 'struct clk *[4]' [-Werror=array-bounds]
+
+Add an error check before the index is used, which helps with the
+warning, as well as any possible other error condition that may be
+triggered at runtime.
+
+The warning could be fixed by adding a Kconfig depedency on CONFIG_OF,
+but Liu Ying points out that the driver may hit the out-of-bounds
+problem at runtime anyway.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/imx/imx-ldb.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3488,7 +3488,6 @@ int cifs_setup_cifs_sb(struct smb_vol *p
- 		cifs_sb->prepath = kstrdup(pvolume_info->prepath, GFP_KERNEL);
- 		if (cifs_sb->prepath == NULL)
- 			return -ENOMEM;
--		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_USE_PREFIX_PATH;
- 	}
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 2df407b2b0da..3a9d06de81b4 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -212,6 +212,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
+ 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
  
- 	return 0;
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	drm_panel_prepare(imx_ldb_ch->panel);
+ 
+ 	if (dual) {
+@@ -270,6 +275,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 	u32 bus_format = imx_ldb_ch->bus_format;
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	if (mode->clock > 170000) {
+ 		dev_warn(ldb->dev,
+ 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
+-- 
+2.30.2
+
 
 
