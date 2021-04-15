@@ -2,120 +2,313 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B92F36111A
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 19:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB83D36111E
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 19:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233520AbhDOR2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 13:28:21 -0400
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:32430 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233343AbhDOR2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 13:28:20 -0400
+        id S233395AbhDOR3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 13:29:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233343AbhDOR3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 13:29:35 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F5A1C061574
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 10:29:11 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id d10so17367720pgf.12
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 10:29:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1618507678; x=1650043678;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=h6nyQCQiH/sJBYBieZaGVxNQkuHLEIB52xWGhkpFXi8=;
-  b=mBPlGx6MKbRBes0ySiQOEZ6vtQHNx/hmb2l0u+3uBaDmn0T1tMvIR0k/
-   d9+4VC7CkqXSZHBg63pJqbMRTvjrOH+eBw6c8OxAYfYeuZ5U6c4ACknOd
-   T7xQ11+ViuEhKryLpNTXp4zaVzMO4lK2aApQIquB+vmX9F/KXG/xaCPII
-   A=;
-X-IronPort-AV: E=Sophos;i="5.82,225,1613433600"; 
-   d="scan'208";a="118783787"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-2c-397e131e.us-west-2.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 15 Apr 2021 17:27:57 +0000
-Received: from EX13MTAUWC002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2c-397e131e.us-west-2.amazon.com (Postfix) with ESMTPS id 98A15A258B;
-        Thu, 15 Apr 2021 17:27:54 +0000 (UTC)
-Received: from EX13D02UWC003.ant.amazon.com (10.43.162.199) by
- EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 15 Apr 2021 17:27:52 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (10.43.162.135) by
- EX13D02UWC003.ant.amazon.com (10.43.162.199) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 15 Apr 2021 17:27:52 +0000
-Received: from dev-dsk-alisaidi-i31e-9f3421fe.us-east-1.amazon.com
- (10.200.138.153) by mail-relay.amazon.com (10.43.162.232) with Microsoft SMTP
- Server id 15.0.1497.2 via Frontend Transport; Thu, 15 Apr 2021 17:27:52 +0000
-Received: by dev-dsk-alisaidi-i31e-9f3421fe.us-east-1.amazon.com (Postfix, from userid 5131138)
-        id 27122228E4; Thu, 15 Apr 2021 17:27:51 +0000 (UTC)
-From:   Ali Saidi <alisaidi@amazon.com>
-To:     <linux-kernel@vger.kernel.org>
-CC:     <alisaidi@amazon.com>, <catalin.marinas@arm.com>,
-        <steve.capper@arm.com>, <benh@kernel.crashing.org>,
-        <stable@vger.kernel.org>, Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>
-Subject: [PATCH v2] locking/qrwlock: Fix ordering in queued_write_lock_slowpath
-Date:   Thu, 15 Apr 2021 17:27:11 +0000
-Message-ID: <20210415172711.15480-1-alisaidi@amazon.com>
-X-Mailer: git-send-email 2.24.4.AMZN
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xItT/OZpurtG/uETRGYcOMrcdMj6HzMF3945o6LwUY0=;
+        b=pIlhOb5/5iLrD9bNgCa4ZLFqXMtArlu5DrH2eRt1d6X0cLS98W8qdBxIr9rHt23JiZ
+         yj9BmVOztG0hfObdSam0kIb1pT+G2ClmwSlz/wBAHccKsJXMKHGszhC8VuaQUqwXvNx3
+         6u+TIYYw231KgouHA3arCgFLN4327wE/+aJh2ArNksabRpqX3sgEF/fGCCM001ErzB2E
+         i2pu40S/dAAeEuaTD/bNwJ041Ltp7xyMtct+Da4PaSAP88M5arKa2ZGlLf6akOY5YMbo
+         3I7b1B1baX2qy21YfPVWYHtrMYL+z4t/YoIK6Yeq6ToxiE1OYAoeUAdZj0QeTCqKeXjD
+         Bx3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xItT/OZpurtG/uETRGYcOMrcdMj6HzMF3945o6LwUY0=;
+        b=YRwNwTEzhFNpLZi9qETHfk1z6dExl8y3hMb8q37lQgIOpKhNSJB3N0L9mlWOJjSh0w
+         ZkzT8eyC6KCc/s5+b6E/BHHowwGzCySEqXDbMFFvK420k0SG6xBFIOitv5GSyubkF7tu
+         Hor8jDGOyJyqAAeuS2Lr/tz3GbzjOx6wXo4g6DekFYqdUgGGtsqI8wTJOLtwMUllksGI
+         fHCnkaufFTi8nvyFyVszlgLVg/6RDmVxjMc/vpXmenHyV/wlqN1VjAYXpGWc+jAUyO7A
+         B9izQDM2VqR/gLIpWh4bkooLuR/5qYD9SPf4qPfX4X3f4xJDljOrWMyt3++ABZU0Pc5c
+         VCHg==
+X-Gm-Message-State: AOAM532hECAkDDk6fy2ToIylyhAahhSx51HfJkP0Vzp+zXCmOIKBQsRt
+        Dgkc81+rt4jtPwVCT7hmRE+6P+GMt7GivVno
+X-Google-Smtp-Source: ABdhPJxZpIBKAvTTMcbG7gu7DCo5V2WUY43h5jCsqQQSHZwQuc7q+9D3krKWvH6CfNAHVLvLfIaE2g==
+X-Received: by 2002:a62:ed0f:0:b029:257:7278:e72b with SMTP id u15-20020a62ed0f0000b02902577278e72bmr3827569pfh.17.1618507750552;
+        Thu, 15 Apr 2021 10:29:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j13sm2648464pfn.103.2021.04.15.10.29.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Apr 2021 10:29:10 -0700 (PDT)
+Message-ID: <607877e6.1c69fb81.11fac.77f1@mx.google.com>
+Date:   Thu, 15 Apr 2021 10:29:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.230-65-g464fc98d20c26
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 baseline: 125 runs,
+ 6 regressions (v4.14.230-65-g464fc98d20c26)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While this code is executed with the wait_lock held, a reader can
-acquire the lock without holding wait_lock.  The writer side loops
-checking the value with the atomic_cond_read_acquire(), but only truly
-acquires the lock when the compare-and-exchange is completed
-successfully which isn’t ordered. This exposes the window between the
-acquire and the cmpxchg to an A-B-A problem which allows reads following
-the lock acquisition to observe values speculatively before the write
-lock is truly acquired.
+stable-rc/queue/4.14 baseline: 125 runs, 6 regressions (v4.14.230-65-g464fc=
+98d20c26)
 
-We've seen a problem in epoll where the reader does a xchg while
-holding the read lock, but the writer can see a value change out from under it.
+Regressions Summary
+-------------------
 
-Writer                               | Reader 2
---------------------------------------------------------------------------------
-ep_scan_ready_list()                 |
-|- write_lock_irq()                  |
-    |- queued_write_lock_slowpath()  |
-      |- atomic_cond_read_acquire()  |
-                                     | read_lock_irqsave(&ep->lock, flags);
-   --> (observes value before unlock)|  chain_epi_lockless()
-   |                                 |    epi->next = xchg(&ep->ovflist, epi);
-   |                                 | read_unlock_irqrestore(&ep->lock, flags);
-   |                                 |
-   |     atomic_cmpxchg_relaxed()    |
-   |-- READ_ONCE(ep->ovflist);       |
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+fsl-ls2088a-rdb      | arm64 | lab-nxp       | gcc-8    | defconfig        =
+   | 1          =
 
-A core can order the read of the ovflist ahead of the
-atomic_cmpxchg_relaxed(). Switching the cmpxchg to use acquire semantics
-addresses this issue at which point the atomic_cond_read can be switched
-to use relaxed semantics.
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
 
-Fixes: b519b56e378ee ("locking/qrwlock: Use atomic_cond_read_acquire() when spinning in qrwlock")
-Signed-off-by: Ali Saidi <alisaidi@amazon.com>
-Cc: stable@vger.kernel.org
-Acked-by: Will Deacon <will@kernel.org>
-Tested-by: Steve Capper <steve.capper@arm.com>
-Reviewed-by: Steve Capper <steve.capper@arm.com>
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
 
----
- kernel/locking/qrwlock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
 
-diff --git a/kernel/locking/qrwlock.c b/kernel/locking/qrwlock.c
-index 4786dd271b45..10770f6ac4d9 100644
---- a/kernel/locking/qrwlock.c
-+++ b/kernel/locking/qrwlock.c
-@@ -73,8 +73,8 @@ void queued_write_lock_slowpath(struct qrwlock *lock)
- 
- 	/* When no more readers or writers, set the locked flag */
- 	do {
--		atomic_cond_read_acquire(&lock->cnts, VAL == _QW_WAITING);
--	} while (atomic_cmpxchg_relaxed(&lock->cnts, _QW_WAITING,
-+		atomic_cond_read_relaxed(&lock->cnts, VAL == _QW_WAITING);
-+	} while (atomic_cmpxchg_acquire(&lock->cnts, _QW_WAITING,
- 					_QW_LOCKED) != _QW_WAITING);
- unlock:
- 	arch_spin_unlock(&lock->wait_lock);
--- 
-2.24.4.AMZN
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
 
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.230-65-g464fc98d20c26/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.230-65-g464fc98d20c26
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      464fc98d20c266a94a5e610977e3d402d4637c15 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+fsl-ls2088a-rdb      | arm64 | lab-nxp       | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60784148e75e813713dac6b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60784148e75e813713dac=
+6b2
+        new failure (last pass: v4.14.230-65-ga7caa307037ad) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6078470213e489c985dac6d2
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6078470313e489c=
+985dac6d7
+        failing since 0 day (last pass: v4.14.230-59-gd3bd1bb369814, first =
+fail: v4.14.230-65-ga7caa307037ad)
+        2 lines
+
+    2021-04-15 14:00:31.388000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-04-15 14:00:31.405000+00:00  [   20.660125] <LAVA_SIGNAL_TESTCASE =
+TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60783f292ea3ab65f2dac6c5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60783f292ea3ab65f2dac=
+6c6
+        failing since 152 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60783f3b2ea3ab65f2dac6d5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60783f3b2ea3ab65f2dac=
+6d6
+        failing since 152 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60783f2f491c3cae03dac6e2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60783f2f491c3cae03dac=
+6e3
+        failing since 152 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60783edfdf37cdc3acdac6c6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.230=
+-65-g464fc98d20c26/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60783edfdf37cdc3acdac=
+6c7
+        failing since 152 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
