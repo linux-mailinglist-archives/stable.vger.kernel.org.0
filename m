@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F835360D9F
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD8D360DD9
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234311AbhDOPEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:04:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
+        id S234244AbhDOPGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:06:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235421AbhDOPBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:01:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFCFD613CB;
-        Thu, 15 Apr 2021 14:57:24 +0000 (UTC)
+        id S234766AbhDOPE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:04:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C29D613E7;
+        Thu, 15 Apr 2021 14:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498645;
-        bh=AXAVOkWMP4TJGq/t1me/jBeq5pvaOQy+i2sBDw2TSL8=;
+        s=korg; t=1618498732;
+        bh=lcU4DKczLEKRUAQnyQb4jFFbgCf8JhMH6o2UIlf5vnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kaIOIe/LG1rIp5zHBFnZb4LT3/fKDnxgft+mhWsufYwCjx4tGfYGz/HRaXZxA1366
-         dT0dOJ3WzwLSRdEOV75WBwqs7e26Nl5eUby9xueN9bz0y8MA1xroUjBu0zeYJbI/xW
-         BhUQRWMcR0LeRROPxJYZFROJ8UIMm1Kpk3Q5mJQs=
+        b=geDI7o1MmR72zOjmnTwMt+czu57O/CPqU6JTE2QbV95FODKfgRO/StJCHss63PRdF
+         i8mNtj7gh5HODI2brQnSbRXSmjy5NhxuyEn3ojgITWNzxeORuAbt3uB4UlHm3XZCFS
+         4uRtZQmeZpxXc5g7gm41tE3AbWH+4vuZ7v/9OQiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Liu Ying <victor.liu@nxp.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/25] io_uring: dont mark S_ISBLK async work as unbounded
+Subject: [PATCH 5.11 05/23] drm/imx: imx-ldb: fix out of bounds array access warning
 Date:   Thu, 15 Apr 2021 16:48:12 +0200
-Message-Id: <20210415144413.732165281@linuxfoundation.org>
+Message-Id: <20210415144413.326327979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
-References: <20210415144413.165663182@linuxfoundation.org>
+In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
+References: <20210415144413.146131392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 4b982bd0f383db9132e892c0c5144117359a6289 ]
+[ Upstream commit 33ce7f2f95cabb5834cf0906308a5cb6103976da ]
 
-S_ISBLK is marked as unbounded work for async preparation, because it
-doesn't match S_ISREG. That is incorrect, as any read/write to a block
-device is also a bounded operation. Fix it up and ensure that S_ISBLK
-isn't marked unbounded.
+When CONFIG_OF is disabled, building with 'make W=1' produces warnings
+about out of bounds array access:
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+drivers/gpu/drm/imx/imx-ldb.c: In function 'imx_ldb_set_clock.constprop':
+drivers/gpu/drm/imx/imx-ldb.c:186:8: error: array subscript -22 is below array bounds of 'struct clk *[4]' [-Werror=array-bounds]
+
+Add an error check before the index is used, which helps with the
+warning, as well as any possible other error condition that may be
+triggered at runtime.
+
+The warning could be fixed by adding a Kconfig depedency on CONFIG_OF,
+but Liu Ying points out that the driver may hit the out-of-bounds
+problem at runtime anyway.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/imx/imx-ldb.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0de27e75460d..dc1b0f6fd49b 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1439,7 +1439,7 @@ static void io_prep_async_work(struct io_kiocb *req)
- 	if (req->flags & REQ_F_ISREG) {
- 		if (def->hash_reg_file || (ctx->flags & IORING_SETUP_IOPOLL))
- 			io_wq_hash_work(&req->work, file_inode(req->file));
--	} else {
-+	} else if (!req->file || !S_ISBLK(file_inode(req->file)->i_mode)) {
- 		if (def->unbound_nonreg_file)
- 			req->work.flags |= IO_WQ_WORK_UNBOUND;
- 	}
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 41e2978cb1eb..75036aaa0c63 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -190,6 +190,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
+ 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	drm_panel_prepare(imx_ldb_ch->panel);
+ 
+ 	if (dual) {
+@@ -248,6 +253,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 	u32 bus_format = imx_ldb_ch->bus_format;
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	if (mode->clock > 170000) {
+ 		dev_warn(ldb->dev,
+ 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
 -- 
 2.30.2
 
