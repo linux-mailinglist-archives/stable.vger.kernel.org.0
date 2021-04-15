@@ -2,102 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF08361074
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 18:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D999361092
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 18:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbhDOQxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 12:53:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45286 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232759AbhDOQxd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 12:53:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1618505589;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mOZmiQsPM2z8JFg2yCo7YvOl2YlV7mTl6vjBKTI8sno=;
-        b=HhtQwKvyhgXCxUw07JqyJo+wylupGJ16gKmp5reR1I105IxuELvccysFpBW+jTfcXi7rl1
-        rgqD6/S/k9TDUSdyv3ktDqdpOIdpoRBS/RnCBresriPLGnlVZQBWP++Rr30FiYuhTPCOUv
-        SWRvtBvNAvyvblFvenDqfKmk8zQ2PNE=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-439-6iwxPYD0PaSz-LMSZVhDjA-1; Thu, 15 Apr 2021 12:53:08 -0400
-X-MC-Unique: 6iwxPYD0PaSz-LMSZVhDjA-1
-Received: by mail-qk1-f198.google.com with SMTP id c9so1919946qkm.11
-        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 09:53:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=mOZmiQsPM2z8JFg2yCo7YvOl2YlV7mTl6vjBKTI8sno=;
-        b=O+y6XNC1AsdVhSaE3qIxvtStNCQ+wAoO0fDzEDRiKQkvVK5SJcNqm+0yrf3Sk1heI1
-         EoIycyvHexKkvoPhN+nefdKO5oW6i9pFI8+zb9kHB+5hqpg975n5E3lO0xg9cASXHlDc
-         zMocKY2rx9VamABVW+dydWcEeszjOcjjgd2nF3ZIlWRv3olPETFJJ26JoS9CaB56B57j
-         Sgd29pBFdgBlenP0u3TKQ840gk1QMvGI+XcHS0dcVm83RWv+oJL8yGxPZxE/MkHaU8A6
-         8Q0n7CbDF3GZkXye5apIOfiAvnFkydLHNC9l23MLYoz/N+s9XCswAgTveYoG6nz9p32z
-         ubEQ==
-X-Gm-Message-State: AOAM532pMtdB1+BzO2xhoGILJDU1thqUTtJUcuGn+U7pfr4zrZ8n+CBM
-        KzPJvID6rR+X2cacyxgImhf7VL3zuJyd8gcKO2C9zgqQqqkNsiDwMIqPmLRvdXXG+xkO9pX6xYl
-        LoCWf1jjj8Vn21mjc
-X-Received: by 2002:ae9:eb8a:: with SMTP id b132mr4255232qkg.296.1618505587821;
-        Thu, 15 Apr 2021 09:53:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxrDSSW59HtlgLMvEXKM92wd1+sNACdsKWQFt9qD/GAPiFXLioBFNt+Mx3E93UmMiShqhM9ug==
-X-Received: by 2002:ae9:eb8a:: with SMTP id b132mr4255216qkg.296.1618505587640;
-        Thu, 15 Apr 2021 09:53:07 -0700 (PDT)
-Received: from llong.remote.csb ([2601:191:8500:76c0::cdbc])
-        by smtp.gmail.com with ESMTPSA id i5sm2356913qka.126.2021.04.15.09.53.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 15 Apr 2021 09:53:07 -0700 (PDT)
-From:   Waiman Long <llong@redhat.com>
-X-Google-Original-From: Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH] locking/qrwlock: Fix ordering in
- queued_write_lock_slowpath
-To:     Will Deacon <will@kernel.org>, Ali Saidi <alisaidi@amazon.com>
-Cc:     benh@kernel.crashing.org, boqun.feng@gmail.com,
-        catalin.marinas@arm.com, linux-kernel@vger.kernel.org,
-        mingo@redhat.com, peterz@infradead.org, stable@vger.kernel.org,
-        steve.capper@arm.com
-References: <20210415150228.GA26439@willie-the-truck>
- <20210415162646.9882-1-alisaidi@amazon.com>
- <20210415164525.GC26594@willie-the-truck>
-Message-ID: <c288c94a-a545-492a-79c1-3d741c001504@redhat.com>
-Date:   Thu, 15 Apr 2021 12:53:06 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        id S233343AbhDOQ6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 12:58:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48086 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231549AbhDOQ6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 12:58:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EB1B60231;
+        Thu, 15 Apr 2021 16:57:51 +0000 (UTC)
+Date:   Thu, 15 Apr 2021 17:57:48 +0100
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Sami Tolvanen <samitolvanen@google.com>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Jian Cai <jiancai@google.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Subject: Re: [PATCH] arm64: alternatives: Move length validation in
+ alternative_{insn,endif}
+Message-ID: <20210415165748.GG1015@arm.com>
+References: <20210414000803.662534-1-nathan@kernel.org>
+ <20210415091743.GB1015@arm.com>
+ <YHg+5RSG4XPLlZD8@archlinux-ax161>
+ <20210415140224.GE1015@arm.com>
+ <CABCJKufDUgPSRQi1ZQRk=upNtziKDJ8rTBHgq2oQpPWS=utrvg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210415164525.GC26594@willie-the-truck>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CABCJKufDUgPSRQi1ZQRk=upNtziKDJ8rTBHgq2oQpPWS=utrvg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/15/21 12:45 PM, Will Deacon wrote:
->
->>> With that in mind, it would probably be a good idea to eyeball the qspinlock
->>> slowpath as well, as that uses both atomic_cond_read_acquire() and
->>> atomic_try_cmpxchg_relaxed().
->> It seems plausible that the same thing could occur here in qspinlock:
->>            if ((val & _Q_TAIL_MASK) == tail) {
->>                    if (atomic_try_cmpxchg_relaxed(&lock->val, &val, _Q_LOCKED_VAL))
->>                            goto release; /* No contention */
->>            }
-> Just been thinking about this, but I don't see an issue here because
-> everybody is queuing the same way (i.e. we don't have a mechanism to jump
-> the queue like we do for qrwlock) and the tail portion of the lock word
-> isn't susceptible to ABA. That is, once we're at the head of the queue
-> and we've seen the lock become unlocked via atomic_cond_read_acquire(),
-> then we know we hold it.
->
-> So qspinlock looks fine to me, but I'd obviously value anybody else's
-> opinion on that.
+On Thu, Apr 15, 2021 at 08:50:25AM -0700, Sami Tolvanen wrote:
+> On Thu, Apr 15, 2021 at 7:02 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+> >
+> > On Thu, Apr 15, 2021 at 06:25:57AM -0700, Nathan Chancellor wrote:
+> > > On Thu, Apr 15, 2021 at 10:17:43AM +0100, Catalin Marinas wrote:
+> > > > On Tue, Apr 13, 2021 at 05:08:04PM -0700, Nathan Chancellor wrote:
+> > > > > After commit 2decad92f473 ("arm64: mte: Ensure TIF_MTE_ASYNC_FAULT is
+> > > > > set atomically"), LLVM's integrated assembler fails to build entry.S:
+> > > > >
+> > > > > <instantiation>:5:7: error: expected assembly-time absolute expression
+> > > > >  .org . - (664b-663b) + (662b-661b)
+> > > > >       ^
+> > > > > <instantiation>:6:7: error: expected assembly-time absolute expression
+> > > > >  .org . - (662b-661b) + (664b-663b)
+> > > > >       ^
+> > > >
+> > > > I tried the latest Linus' tree and linux-next (defconfig) with this
+> > > > commit in and I can't get your build error. I used both clang-10 from
+> > > > Debian stable and clang-11 from Debian sid. So, which clang version did
+> > > > you use or which kernel config options?
+> > >
+> > > Interesting, this reproduces for me with LLVM 12 or newer with just
+> > > defconfig.
+> >
+> > It fails for me as well with clang-12. Do you happen to know why it
+> > works fine with previous clang versions?
+> 
+> It looks like CONFIG_ARM64_AS_HAS_MTE is not set when we use the
+> integrated assembler with LLVM 11, and the code that breaks later
+> versions is gated behind CONFIG_ARM64_MTE.
 
-I agree with your assessment of qspinlock. I think qspinlock is fine.
+That explains it, thanks.
 
-Cheers,
-Longman
-
+-- 
+Catalin
