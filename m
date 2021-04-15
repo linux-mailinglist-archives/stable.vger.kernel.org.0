@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F01E360DBF
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0612E360D69
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233683AbhDOPFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48596 "EHLO mail.kernel.org"
+        id S233367AbhDOPCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233903AbhDOPCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:02:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 704B761426;
-        Thu, 15 Apr 2021 14:57:52 +0000 (UTC)
+        id S234752AbhDOO7f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:59:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D58C61400;
+        Thu, 15 Apr 2021 14:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498673;
-        bh=lcU4DKczLEKRUAQnyQb4jFFbgCf8JhMH6o2UIlf5vnM=;
+        s=korg; t=1618498543;
+        bh=Zlzr6/2W0FMvgSiVRcS5cBfjwkkOo+nYlv7TcrxfX/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfvaI9jRWtuh4EtZBKQDtSw/467mo+kKwSto2ZvRktIlqiZrhTz1BsWWPXt4erLuf
-         /1llTmvfCdQlFEA3E3Zm/+qn1Nyg1HkZ30EkF290J4Rd9r91RnDFSaBR6/PEOrO4/t
-         SO3bxVVEPPfmc5Kx5q0LiqC32v+NEvsvIkbOoHqU=
+        b=VBPfllAhBG1f/DVNw4C4S1hhHMqLfSw0+sEF4vcARSvGrUK6gpvtvVlh0majV5LGK
+         RxxTNyCnk7qrgFNuI6G0Ad/AtVqayPHKEpo/vFzHiJx+6594VIA+gYsBU1Tlk4ig4Q
+         iOyec6ptrwvCH1INJtAi7sEV1aTB9/5CWaJfT1YA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Liu Ying <victor.liu@nxp.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 05/25] drm/imx: imx-ldb: fix out of bounds array access warning
+        stable@vger.kernel.org,
+        syzbot+cfc0247ac173f597aaaa@syzkaller.appspotmail.com,
+        Andy Nguyen <theflow@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 10/13] netfilter: x_tables: fix compat match/target pad out-of-bound write
 Date:   Thu, 15 Apr 2021 16:47:59 +0200
-Message-Id: <20210415144413.334856476@linuxfoundation.org>
+Message-Id: <20210415144411.938926747@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
-References: <20210415144413.165663182@linuxfoundation.org>
+In-Reply-To: <20210415144411.596695196@linuxfoundation.org>
+References: <20210415144411.596695196@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +42,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 33ce7f2f95cabb5834cf0906308a5cb6103976da ]
+commit b29c457a6511435960115c0f548c4360d5f4801d upstream.
 
-When CONFIG_OF is disabled, building with 'make W=1' produces warnings
-about out of bounds array access:
+xt_compat_match/target_from_user doesn't check that zeroing the area
+to start of next rule won't write past end of allocated ruleset blob.
 
-drivers/gpu/drm/imx/imx-ldb.c: In function 'imx_ldb_set_clock.constprop':
-drivers/gpu/drm/imx/imx-ldb.c:186:8: error: array subscript -22 is below array bounds of 'struct clk *[4]' [-Werror=array-bounds]
+Remove this code and zero the entire blob beforehand.
 
-Add an error check before the index is used, which helps with the
-warning, as well as any possible other error condition that may be
-triggered at runtime.
-
-The warning could be fixed by adding a Kconfig depedency on CONFIG_OF,
-but Liu Ying points out that the driver may hit the out-of-bounds
-problem at runtime anyway.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Liu Ying <victor.liu@nxp.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+cfc0247ac173f597aaaa@syzkaller.appspotmail.com
+Reported-by: Andy Nguyen <theflow@google.com>
+Fixes: 9fa492cdc160c ("[NETFILTER]: x_tables: simplify compat API")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/imx/imx-ldb.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/ipv4/netfilter/arp_tables.c |    2 ++
+ net/ipv4/netfilter/ip_tables.c  |    2 ++
+ net/ipv6/netfilter/ip6_tables.c |    2 ++
+ net/netfilter/x_tables.c        |   10 ++--------
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
-index 41e2978cb1eb..75036aaa0c63 100644
---- a/drivers/gpu/drm/imx/imx-ldb.c
-+++ b/drivers/gpu/drm/imx/imx-ldb.c
-@@ -190,6 +190,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
- 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
- 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -1195,6 +1195,8 @@ static int translate_compat_table(struct
+ 	if (!newinfo)
+ 		goto out_unlock;
  
-+	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
-+		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
-+		return;
-+	}
++	memset(newinfo->entries, 0, size);
 +
- 	drm_panel_prepare(imx_ldb_ch->panel);
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_ARP_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -1433,6 +1433,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
  
- 	if (dual) {
-@@ -248,6 +253,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
- 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
- 	u32 bus_format = imx_ldb_ch->bus_format;
- 
-+	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
-+		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
-+		return;
-+	}
++	memset(newinfo->entries, 0, size);
 +
- 	if (mode->clock > 170000) {
- 		dev_warn(ldb->dev,
- 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
--- 
-2.30.2
-
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1448,6 +1448,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -738,7 +738,7 @@ void xt_compat_match_from_user(struct xt
+ {
+ 	const struct xt_match *match = m->u.kernel.match;
+ 	struct compat_xt_entry_match *cm = (struct compat_xt_entry_match *)m;
+-	int pad, off = xt_compat_match_offset(match);
++	int off = xt_compat_match_offset(match);
+ 	u_int16_t msize = cm->u.user.match_size;
+ 	char name[sizeof(m->u.user.name)];
+ 
+@@ -748,9 +748,6 @@ void xt_compat_match_from_user(struct xt
+ 		match->compat_from_user(m->data, cm->data);
+ 	else
+ 		memcpy(m->data, cm->data, msize - sizeof(*cm));
+-	pad = XT_ALIGN(match->matchsize) - match->matchsize;
+-	if (pad > 0)
+-		memset(m->data + match->matchsize, 0, pad);
+ 
+ 	msize += off;
+ 	m->u.user.match_size = msize;
+@@ -1121,7 +1118,7 @@ void xt_compat_target_from_user(struct x
+ {
+ 	const struct xt_target *target = t->u.kernel.target;
+ 	struct compat_xt_entry_target *ct = (struct compat_xt_entry_target *)t;
+-	int pad, off = xt_compat_target_offset(target);
++	int off = xt_compat_target_offset(target);
+ 	u_int16_t tsize = ct->u.user.target_size;
+ 	char name[sizeof(t->u.user.name)];
+ 
+@@ -1131,9 +1128,6 @@ void xt_compat_target_from_user(struct x
+ 		target->compat_from_user(t->data, ct->data);
+ 	else
+ 		memcpy(t->data, ct->data, tsize - sizeof(*ct));
+-	pad = XT_ALIGN(target->targetsize) - target->targetsize;
+-	if (pad > 0)
+-		memset(t->data + target->targetsize, 0, pad);
+ 
+ 	tsize += off;
+ 	t->u.user.target_size = tsize;
 
 
