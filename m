@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E3C360D81
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F01E360DBF
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234366AbhDOPDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46150 "EHLO mail.kernel.org"
+        id S233683AbhDOPFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235171AbhDOPA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1951C6044F;
-        Thu, 15 Apr 2021 14:56:31 +0000 (UTC)
+        id S233903AbhDOPCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:02:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 704B761426;
+        Thu, 15 Apr 2021 14:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498592;
-        bh=TXztknuaVtG48pbylDS46y44Jtupw/59hlWRCyx51hY=;
+        s=korg; t=1618498673;
+        bh=lcU4DKczLEKRUAQnyQb4jFFbgCf8JhMH6o2UIlf5vnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEbIGlg80nPXihYPNsIy7nkcemYyxXZWkAS0v9vbfhPexR507gx5Gn/GwwOkFDyKX
-         JF1icvqURHGUq9J0z/CuI+99gmJ42frpzfv7rLvQO1z/a1SfnWoX/i15y5BAAWola8
-         U3ZFnVGzViJJrSaAdYxySkxor/6tinJp2MZXRIVE=
+        b=mfvaI9jRWtuh4EtZBKQDtSw/467mo+kKwSto2ZvRktIlqiZrhTz1BsWWPXt4erLuf
+         /1llTmvfCdQlFEA3E3Zm/+qn1Nyg1HkZ30EkF290J4Rd9r91RnDFSaBR6/PEOrO4/t
+         SO3bxVVEPPfmc5Kx5q0LiqC32v+NEvsvIkbOoHqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Liu Ying <victor.liu@nxp.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/18] drm/tegra: dc: Dont set PLL clock to 0Hz
+Subject: [PATCH 5.10 05/25] drm/imx: imx-ldb: fix out of bounds array access warning
 Date:   Thu, 15 Apr 2021 16:47:59 +0200
-Message-Id: <20210415144413.254896444@linuxfoundation.org>
+Message-Id: <20210415144413.334856476@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit f8fb97c915954fc6de6513cdf277103b5c6df7b3 ]
+[ Upstream commit 33ce7f2f95cabb5834cf0906308a5cb6103976da ]
 
-RGB output doesn't allow to change parent clock rate of the display and
-PCLK rate is set to 0Hz in this case. The tegra_dc_commit_state() shall
-not set the display clock to 0Hz since this change propagates to the
-parent clock. The DISP clock is defined as a NODIV clock by the tegra-clk
-driver and all NODIV clocks use the CLK_SET_RATE_PARENT flag.
+When CONFIG_OF is disabled, building with 'make W=1' produces warnings
+about out of bounds array access:
 
-This bug stayed unnoticed because by default PLLP is used as the parent
-clock for the display controller and PLLP silently skips the erroneous 0Hz
-rate changes because it always has active child clocks that don't permit
-rate changes. The PLLP isn't acceptable for some devices that we want to
-upstream (like Samsung Galaxy Tab and ASUS TF700T) due to a display panel
-clock rate requirements that can't be fulfilled by using PLLP and then the
-bug pops up in this case since parent clock is set to 0Hz, killing the
-display output.
+drivers/gpu/drm/imx/imx-ldb.c: In function 'imx_ldb_set_clock.constprop':
+drivers/gpu/drm/imx/imx-ldb.c:186:8: error: array subscript -22 is below array bounds of 'struct clk *[4]' [-Werror=array-bounds]
 
-Don't touch DC clock if pclk=0 in order to fix the problem.
+Add an error check before the index is used, which helps with the
+warning, as well as any possible other error condition that may be
+triggered at runtime.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+The warning could be fixed by adding a Kconfig depedency on CONFIG_OF,
+but Liu Ying points out that the driver may hit the out-of-bounds
+problem at runtime anyway.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/dc.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/imx/imx-ldb.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
-index fbf57bc3cdab..617cbe468aec 100644
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -1667,6 +1667,11 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
- 			dev_err(dc->dev,
- 				"failed to set clock rate to %lu Hz\n",
- 				state->pclk);
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 41e2978cb1eb..75036aaa0c63 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -190,6 +190,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
+ 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
 +
-+		err = clk_set_rate(dc->clk, state->pclk);
-+		if (err < 0)
-+			dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
-+				dc->clk, state->pclk, err);
- 	}
+ 	drm_panel_prepare(imx_ldb_ch->panel);
  
- 	DRM_DEBUG_KMS("rate: %lu, div: %u\n", clk_get_rate(dc->clk),
-@@ -1677,11 +1682,6 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
- 		value = SHIFT_CLK_DIVIDER(state->div) | PIXEL_CLK_DIVIDER_PCD1;
- 		tegra_dc_writel(dc, value, DC_DISP_DISP_CLOCK_CONTROL);
- 	}
--
--	err = clk_set_rate(dc->clk, state->pclk);
--	if (err < 0)
--		dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
--			dc->clk, state->pclk, err);
- }
+ 	if (dual) {
+@@ -248,6 +253,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 	u32 bus_format = imx_ldb_ch->bus_format;
  
- static void tegra_dc_stop(struct tegra_dc *dc)
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	if (mode->clock > 170000) {
+ 		dev_warn(ldb->dev,
+ 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
 -- 
 2.30.2
 
