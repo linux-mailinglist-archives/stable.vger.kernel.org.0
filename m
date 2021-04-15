@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E128360DD0
+	by mail.lfdr.de (Postfix) with ESMTP id B097F360DD1
 	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234306AbhDOPGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234315AbhDOPGE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 15 Apr 2021 11:06:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47040 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234253AbhDOPDq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:03:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A10F613CC;
-        Thu, 15 Apr 2021 14:58:29 +0000 (UTC)
+        id S232648AbhDOPDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:03:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37E69613EF;
+        Thu, 15 Apr 2021 14:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498710;
-        bh=Zxw97pJcio7RmTcHqGRgmn+grKArC74ekDMz+iVZCnU=;
+        s=korg; t=1618498712;
+        bh=QTHRy0qn11avl2j/plu94sJH14RZCJpjJZGTvzB4E+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZ2D1Y+WUwvevwhaWZiBl4H9JXBBHdYp8YnEFO/89et0yOsqByze3mPGDFipZWlr+
-         fD4z+zucGIEndyXyT0n7/vYlRnKA3elGX/d5Oat4K5FxgAbQ77D+mMQe09gXLXXdFR
-         xdT3UUAfYeHS2MvlDk3iXkUa5grClkjl0YeVc5d0=
+        b=OovAHFsC72ZSn7JBQDyGZz9tEjhtO7zSGLSrHXA5PYp13IydUb+sqfGCzmn1Cb9eG
+         bWombcuoa++U8HuC7TMmMdVQ07Obg1ZXy0mjHUthiUpzNQDC095Q7EqSHWsGIonDuQ
+         YbjSZtZDiboWpBYHQNh3k25Tg1ax1pgVGxMH2ysw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Zihao Yu <yuzihao@ict.ac.cn>,
+        Anup Patel <anup@brainfault.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 18/23] io_uring: dont mark S_ISBLK async work as unbounded
-Date:   Thu, 15 Apr 2021 16:48:25 +0200
-Message-Id: <20210415144413.721678893@linuxfoundation.org>
+Subject: [PATCH 5.11 19/23] riscv,entry: fix misaligned base for excp_vect_table
+Date:   Thu, 15 Apr 2021 16:48:26 +0200
+Message-Id: <20210415144413.750645600@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
 References: <20210415144413.146131392@linuxfoundation.org>
@@ -39,34 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Zihao Yu <yuzihao@ict.ac.cn>
 
-[ Upstream commit 4b982bd0f383db9132e892c0c5144117359a6289 ]
+[ Upstream commit ac8d0b901f0033b783156ab2dc1a0e73ec42409b ]
 
-S_ISBLK is marked as unbounded work for async preparation, because it
-doesn't match S_ISREG. That is incorrect, as any read/write to a block
-device is also a bounded operation. Fix it up and ensure that S_ISBLK
-isn't marked unbounded.
+In RV64, the size of each entry in excp_vect_table is 8 bytes. If the
+base of the table is not 8-byte aligned, loading an entry in the table
+will raise a misaligned exception. Although such exception will be
+handled by opensbi/bbl, this still causes performance degradation.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Zihao Yu <yuzihao@ict.ac.cn>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/entry.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b1b3154c8d50..95b4a89dad4e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1546,7 +1546,7 @@ static void io_prep_async_work(struct io_kiocb *req)
- 	if (req->flags & REQ_F_ISREG) {
- 		if (def->hash_reg_file || (ctx->flags & IORING_SETUP_IOPOLL))
- 			io_wq_hash_work(&req->work, file_inode(req->file));
--	} else {
-+	} else if (!req->file || !S_ISBLK(file_inode(req->file)->i_mode)) {
- 		if (def->unbound_nonreg_file)
- 			req->work.flags |= IO_WQ_WORK_UNBOUND;
- 	}
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 744f3209c48d..76274a4a1d8e 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -447,6 +447,7 @@ ENDPROC(__switch_to)
+ #endif
+ 
+ 	.section ".rodata"
++	.align LGREG
+ 	/* Exception vector table */
+ ENTRY(excp_vect_table)
+ 	RISCV_PTR do_trap_insn_misaligned
 -- 
 2.30.2
 
