@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41429360DBA
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96087360DC7
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbhDOPFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:05:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
+        id S233794AbhDOPFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233817AbhDOPBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:01:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E099961425;
-        Thu, 15 Apr 2021 14:57:44 +0000 (UTC)
+        id S234428AbhDOPDY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:03:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 527FE6142D;
+        Thu, 15 Apr 2021 14:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498665;
-        bh=//Sg7iP9EqLC8q6SY3vcfhwlqo4NGuRXrDmGHHSpab8=;
+        s=korg; t=1618498697;
+        bh=bb6G4/tgL8twi5M/n3KBZaCphx+Z6wDxQSpR+GOAvW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nhil4VKmm1+0UCg6QrGAS/jA5UHKP3J0142h2dKf/3R6Qt6Di4Z7WVAc8r04e/0Q7
-         xq0sTWHX1miilfcNxjwVljxtVBq+emuqA8nKfMvEcPYf9C/ClwcrZto52etUrKC36Z
-         /S++JM3uj8YuR7UYev2Bc0VQZjd42kwYMijkO1ZQ=
+        b=XRvV9Jaekn6v+eC10bRcc7Mo9CgoPEJd1ZPhSuHjfZZE79zFpkOM+BPA4Zt5c7Edg
+         p7bYrlsJQLgMVOt7dzr8rTPwmYAsg7w9Pn1mpEA+l5T4bJTGq3C+T0QA7n8LPjEQRz
+         bTFfe97kzHmIjP23QCVZSs/9lt9Xj2b4YtB68bbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 25/25] xen/events: fix setting irq affinity
-Date:   Thu, 15 Apr 2021 16:48:19 +0200
-Message-Id: <20210415144413.948817193@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Yufen Yu <yuyufen@huawei.com>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 13/23] block: only update parent bi_status when bio fail
+Date:   Thu, 15 Apr 2021 16:48:20 +0200
+Message-Id: <20210415144413.566353243@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
-References: <20210415144413.165663182@linuxfoundation.org>
+In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
+References: <20210415144413.146131392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,47 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-The backport of upstream patch 25da4618af240fbec61 ("xen/events: don't
-unmask an event channel when an eoi is pending") introduced a
-regression for stable kernels 5.10 and older: setting IRQ affinity for
-IRQs related to interdomain events would no longer work, as moving the
-IRQ to its new cpu was not included in the irq_ack callback for those
-events.
+[ Upstream commit 3edf5346e4f2ce2fa0c94651a90a8dda169565ee ]
 
-Fix that by adding the needed call.
+For multiple split bios, if one of the bio is fail, the whole
+should return error to application. But we found there is a race
+between bio_integrity_verify_fn and bio complete, which return
+io success to application after one of the bio fail. The race as
+following:
 
-Note that kernels 5.11 and later don't need the explicit moving of the
-IRQ to the target cpu in the irq_ack callback, due to a rework of the
-affinity setting in kernel 5.11.
+split bio(READ)          kworker
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+nvme_complete_rq
+blk_update_request //split error=0
+  bio_endio
+    bio_integrity_endio
+      queue_work(kintegrityd_wq, &bip->bip_work);
 
+                         bio_integrity_verify_fn
+                         bio_endio //split bio
+                          __bio_chain_endio
+                             if (!parent->bi_status)
+
+                               <interrupt entry>
+                               nvme_irq
+                                 blk_update_request //parent error=7
+                                 req_bio_endio
+                                    bio->bi_status = 7 //parent bio
+                               <interrupt exit>
+
+                               parent->bi_status = 0
+                        parent->bi_end_io() // return bi_status=0
+
+The bio has been split as two: split and parent. When split
+bio completed, it depends on kworker to do endio, while
+bio_integrity_verify_fn have been interrupted by parent bio
+complete irq handler. Then, parent bio->bi_status which have
+been set in irq handler will overwrite by kworker.
+
+In fact, even without the above race, we also need to conside
+the concurrency beteen mulitple split bio complete and update
+the same parent bi_status. Normally, multiple split bios will
+be issued to the same hctx and complete from the same irq
+vector. But if we have updated queue map between multiple split
+bios, these bios may complete on different hw queue and different
+irq vector. Then the concurrency update parent bi_status may
+cause the final status error.
+
+Suggested-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210331115359.1125679-1-yuyufen@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/events/events_base.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/bio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -1809,7 +1809,7 @@ static void lateeoi_ack_dynirq(struct ir
+diff --git a/block/bio.c b/block/bio.c
+index 1f2cc1fbe283..3209d865828a 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -313,7 +313,7 @@ static struct bio *__bio_chain_endio(struct bio *bio)
+ {
+ 	struct bio *parent = bio->bi_private;
  
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		event_handler_exit(info);
-+		ack_dynirq(data);
- 	}
- }
- 
-@@ -1820,7 +1820,7 @@ static void lateeoi_mask_ack_dynirq(stru
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
--		event_handler_exit(info);
-+		ack_dynirq(data);
- 	}
- }
- 
+-	if (!parent->bi_status)
++	if (bio->bi_status && !parent->bi_status)
+ 		parent->bi_status = bio->bi_status;
+ 	bio_put(bio);
+ 	return parent;
+-- 
+2.30.2
+
 
 
