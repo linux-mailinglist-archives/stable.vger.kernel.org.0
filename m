@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925AE360CDD
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0261F360C7A
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234222AbhDOOzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:55:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
+        id S234057AbhDOOvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234280AbhDOOx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:53:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 940456113B;
-        Thu, 15 Apr 2021 14:52:28 +0000 (UTC)
+        id S233955AbhDOOug (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:50:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C5761029;
+        Thu, 15 Apr 2021 14:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498349;
-        bh=adwfwwQMdygbQVB+/u0sDbUshgQoaHvxg2kwUrTHzro=;
+        s=korg; t=1618498213;
+        bh=DfrchYlm/qQHndknXSNXvdeATPlmycX7q6lxTmTxyqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acChM1YBoaEKp2Ee8xqBmKdIZPojrk8Fo5gPDR34xC37AJQfOHAKfXaBXH0XSvxq4
-         XrJF0b3uPp30C1li032cG9dIqo4bFAJIGzswjSnE1COfpNsoMvoDuXzRm8qS/NgqFN
-         O5nOS9z0x+uvPzWakeRrmKwwH8uGWfK4FQy/Fr58=
+        b=qjoBMxfuyxJaZb4SYBDZukEkCj4JD4iSPKN950rkcX3OiyHVgee4ENTX4b9at6obK
+         x6qH3ZDKHdMuTGgD0ez6C9Mmn/m8ORexwIAgl1kPqHZj13Dsj5KzwpYHSPgEVqHUdz
+         I7HdEyvX93phmRW6IN11CRqbG79KS/MHWGbGA0U8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+ac5c11d2959a8b3c4806@syzkaller.appspotmail.com,
+        syzbot+fbf4fc11a819824e027b@syzkaller.appspotmail.com,
         Alexander Aring <aahringo@redhat.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.9 35/47] net: ieee802154: fix nl802154 del llsec key
+Subject: [PATCH 4.4 33/38] net: ieee802154: forbid monitor for del llsec seclevel
 Date:   Thu, 15 Apr 2021 16:47:27 +0200
-Message-Id: <20210415144414.584873414@linuxfoundation.org>
+Message-Id: <20210415144414.416255005@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +43,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-commit 37feaaf5ceb2245e474369312bb7b922ce7bce69 upstream.
+commit 9dde130937e95b72adfae64ab21d6e7e707e2dac upstream.
 
-This patch fixes a nullpointer dereference if NL802154_ATTR_SEC_KEY is
-not set by the user. If this is the case nl802154 will return -EINVAL.
+This patch forbids to del llsec seclevel for monitor interfaces which we
+don't support yet. Otherwise we will access llsec mib which isn't
+initialized for monitors.
 
-Reported-by: syzbot+ac5c11d2959a8b3c4806@syzkaller.appspotmail.com
+Reported-by: syzbot+fbf4fc11a819824e027b@syzkaller.appspotmail.com
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210221174321.14210-1-aahringo@redhat.com
+Link: https://lore.kernel.org/r/20210405003054.256017-15-aahringo@redhat.com
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/nl802154.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ieee802154/nl802154.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
 --- a/net/ieee802154/nl802154.c
 +++ b/net/ieee802154/nl802154.c
-@@ -1627,7 +1627,8 @@ static int nl802154_del_llsec_key(struct
- 	struct nlattr *attrs[NL802154_KEY_ATTR_MAX + 1];
- 	struct ieee802154_llsec_key_id id;
+@@ -2087,6 +2087,9 @@ static int nl802154_del_llsec_seclevel(s
+ 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
+ 	struct ieee802154_llsec_seclevel sl;
  
--	if (nla_parse_nested(attrs, NL802154_KEY_ATTR_MAX,
-+	if (!info->attrs[NL802154_ATTR_SEC_KEY] ||
-+	    nla_parse_nested(attrs, NL802154_KEY_ATTR_MAX,
- 			     info->attrs[NL802154_ATTR_SEC_KEY],
- 			     nl802154_key_policy))
- 		return -EINVAL;
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (!info->attrs[NL802154_ATTR_SEC_LEVEL] ||
+ 	    llsec_parse_seclevel(info->attrs[NL802154_ATTR_SEC_LEVEL],
+ 				 &sl) < 0)
 
 
