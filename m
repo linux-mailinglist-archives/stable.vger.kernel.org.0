@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDECF360D77
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A81360DC6
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234105AbhDOPC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:02:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
+        id S233948AbhDOPFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235073AbhDOPAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EFB261412;
-        Thu, 15 Apr 2021 14:56:17 +0000 (UTC)
+        id S234351AbhDOPDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:03:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F1E061427;
+        Thu, 15 Apr 2021 14:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498577;
-        bh=ff4cqhax3E3hwB+ISw+nXEkNQW0+siOpxAPImNkUF6Q=;
+        s=korg; t=1618498683;
+        bh=lZ+6tZ0WD6uLmynFhUFnXuXQcGjNbd7zoLbJfUlbGqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W8LXC8g7A9Umrm+dVpmcJR7V4EH48yt0ml564Son5qR5PGDr6Fy223+8cdyEuqvQA
-         GhEyBcD9oRastnQcjSmagI3x3TUHWmKz/luoiDKGuKWvLnv+0L30pfNv+G8zRLkFQ0
-         zmAyh2LwW7SUACQcsGGVa4oBAXQzR4MeTy/cqrCs=
+        b=YasPwc8vokfv5URGY7XHoRG02zbI007PDk8vghZP8cNzwTtFemdavAYu+5ZZ6G0KC
+         W3Y+7ixSuXS8MdVMk8HOFgAVJsAK94PwCBP5q39b0fjsAK66IGRlCtFl79wB98qUt+
+         adrcJoAM3PuQpPvtpPUbCbmQp/9TJlCtcwXRNUUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/18] idr test suite: Create anchor before launching throbber
+Subject: [PATCH 5.10 09/25] drm/tegra: dc: Dont set PLL clock to 0Hz
 Date:   Thu, 15 Apr 2021 16:48:03 +0200
-Message-Id: <20210415144413.374056584@linuxfoundation.org>
+Message-Id: <20210415144413.462797391@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 094ffbd1d8eaa27ed426feb8530cb1456348b018 ]
+[ Upstream commit f8fb97c915954fc6de6513cdf277103b5c6df7b3 ]
 
-The throbber could race with creation of the anchor entry and cause the
-IDR to have zero entries in it, which would cause the test to fail.
+RGB output doesn't allow to change parent clock rate of the display and
+PCLK rate is set to 0Hz in this case. The tegra_dc_commit_state() shall
+not set the display clock to 0Hz since this change propagates to the
+parent clock. The DISP clock is defined as a NODIV clock by the tegra-clk
+driver and all NODIV clocks use the CLK_SET_RATE_PARENT flag.
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+This bug stayed unnoticed because by default PLLP is used as the parent
+clock for the display controller and PLLP silently skips the erroneous 0Hz
+rate changes because it always has active child clocks that don't permit
+rate changes. The PLLP isn't acceptable for some devices that we want to
+upstream (like Samsung Galaxy Tab and ASUS TF700T) due to a display panel
+clock rate requirements that can't be fulfilled by using PLLP and then the
+bug pops up in this case since parent clock is set to 0Hz, killing the
+display output.
+
+Don't touch DC clock if pclk=0 in order to fix the problem.
+
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/radix-tree/idr-test.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/tegra/dc.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
-index 4a9b451b7ba0..6ce7460f3c7a 100644
---- a/tools/testing/radix-tree/idr-test.c
-+++ b/tools/testing/radix-tree/idr-test.c
-@@ -301,11 +301,11 @@ void idr_find_test_1(int anchor_id, int throbber_id)
- 	pthread_t throbber;
- 	time_t start = time(NULL);
- 
--	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
--
- 	BUG_ON(idr_alloc(&find_idr, xa_mk_value(anchor_id), anchor_id,
- 				anchor_id + 1, GFP_KERNEL) != anchor_id);
- 
-+	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
+diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+index 3a244ef7f30f..3aa9a7406085 100644
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -1688,6 +1688,11 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 			dev_err(dc->dev,
+ 				"failed to set clock rate to %lu Hz\n",
+ 				state->pclk);
 +
- 	rcu_read_lock();
- 	do {
- 		int id = 0;
++		err = clk_set_rate(dc->clk, state->pclk);
++		if (err < 0)
++			dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
++				dc->clk, state->pclk, err);
+ 	}
+ 
+ 	DRM_DEBUG_KMS("rate: %lu, div: %u\n", clk_get_rate(dc->clk),
+@@ -1698,11 +1703,6 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 		value = SHIFT_CLK_DIVIDER(state->div) | PIXEL_CLK_DIVIDER_PCD1;
+ 		tegra_dc_writel(dc, value, DC_DISP_DISP_CLOCK_CONTROL);
+ 	}
+-
+-	err = clk_set_rate(dc->clk, state->pclk);
+-	if (err < 0)
+-		dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
+-			dc->clk, state->pclk, err);
+ }
+ 
+ static void tegra_dc_stop(struct tegra_dc *dc)
 -- 
 2.30.2
 
