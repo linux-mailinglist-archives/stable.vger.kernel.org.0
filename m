@@ -2,113 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5870A3603DB
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 10:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FBA236042F
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 10:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231309AbhDOIHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 04:07:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38420 "EHLO
+        id S231584AbhDOIWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 04:22:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231241AbhDOIHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 04:07:00 -0400
-Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03741C061574;
-        Thu, 15 Apr 2021 01:06:38 -0700 (PDT)
-Received: by mail-il1-x12a.google.com with SMTP id 6so19441284ilt.9;
-        Thu, 15 Apr 2021 01:06:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xQjML/19fS2KYb4gv13QovtbXXbNQiltUsF/J2T/nMk=;
-        b=VtbzxXkkAQY51C48ZXBSjT+nti+po3LqJUEy1wpMjLi58hxNwIaNtiCA9dv7Nzw9AE
-         WBJMJsjjn/7WmpuXgnXRY89V2hPw8ls7xUGrR3omEi5NpuTAhqcqSfvkFmRGJwELxAnZ
-         kdvS78Dr+GDGPhu45Lc6YPevgqIr0LQKWl2TaVKBLT4+onwEJeRN+nexea2Xn58yBRNj
-         Q9+UO8OTOBod5mgj8l4W2SHZET0jwREFbC92Hpm5Cm7cwhR0KG1lcweSHBs0hZynXjFa
-         RmrCR+UZaKXVHeOXgpI+V98lOOzRaa5OZHXPnOBvgi7RDjXvmts+Ukk93vzQvPs7/Ql3
-         ikBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xQjML/19fS2KYb4gv13QovtbXXbNQiltUsF/J2T/nMk=;
-        b=lAQBm9MFv+1V13jOFzFCq41dR+qMPi4QMeiBWTGlznkTEH7JWInOQpsAuLiVgWMFY5
-         iCCi6BC8vtX+531SzK1dHUJHFYNzz79PaKyDTYbd73PuTWkoagTINiumMHmWx+bh9h4G
-         JFLMzqDelkDKeqpGnNm2cMytaKwgYwgHm2qm6W8PNebSEpkAnNujFEftf4BKgyIECQEP
-         m2RSXBvk1LyVzqcRLZHlhRleLPVsW7vHqi9SglavhcbZntjSaQq9cANA1CJBNfHwdIYW
-         WDU18Oyt8XEWu50hEvxqLV/BsmBTX0puaQZWOPfNkwsYiek1X44iTxo6v6SBbuYmeB9L
-         ce2A==
-X-Gm-Message-State: AOAM531F0FyJpy/rmosIJJh6KNaqaLcTys60h5CiJERdydRySKnfKxnV
-        a9Wy5nsJWuQf1QZOtMHmiXMHoYoLhCX8VNckxNQ=
-X-Google-Smtp-Source: ABdhPJyg0LaNjQ9QuiIOCdf+zmUHw145GSPPkmdZIEUUSfLsySMUTdMHe7e43fw1bqPQ2tUDo71PTwZSHuMv+5HzU14=
-X-Received: by 2002:a05:6e02:1282:: with SMTP id y2mr1862926ilq.308.1618473997519;
- Thu, 15 Apr 2021 01:06:37 -0700 (PDT)
+        with ESMTP id S231518AbhDOIWC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 04:22:02 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6D9C061574
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 01:21:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=mzdZB4W4tK1YoIpVXqrIlcRVaBOWBGFtglH23yBLCYQ=; b=PqxpC1HoBQMfT7UhjbGe6NyvPo
+        NQIo1S+c0inu2jcPBThF7xynKpRd9S+WvWGGEiSzbyo5UXcEawSEDUW+Z0Jy6b5w9TKFUkzr4nMxz
+        ZNpH8FlfQCBwSWkrWl2sxso2IBd61ERyj5kzX/ZdmqXC2lkjxEKjz4OCv6zwmOds8WAI9GaynVOrX
+        qDCf5Lml34Fjlqbh1ega0RUv8VgmWNf+RemIeq0XLvhHFk1vQjJOOqZD9jHPleVOM/3cdpnXkq/y/
+        VX56hlcc3A7TmVYVqycTJbZiwk+MAWnbS6KkCMu3A9ng5yM+xH1RNBDIEubiFWMOM9lLoYtE2P1eP
+        WKygqKpg==;
+Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1lWxFB-008Hiw-Bc; Thu, 15 Apr 2021 08:21:00 +0000
+Date:   Thu, 15 Apr 2021 09:20:57 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Prike Liang <Prike.Liang@amd.com>
+Cc:     linux-nvme@lists.infradead.org, Chaitanya.Kulkarni@wdc.com,
+        gregkh@linuxfoundation.org, hch@infradead.org,
+        stable@vger.kernel.org, Alexander.Deucher@amd.com,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Subject: Re: [PATCH v4 1/2] PCI: add AMD PCIe quirk for nvme shutdown opt
+Message-ID: <20210415082057.GA1973565@infradead.org>
+References: <1618458725-17164-1-git-send-email-Prike.Liang@amd.com>
 MIME-Version: 1.0
-References: <20201127112114.3219360-1-pbonzini@redhat.com> <20201127112114.3219360-3-pbonzini@redhat.com>
- <CAJhGHyCdqgtvK98_KieG-8MUfg1Jghd+H99q+FkgL0ZuqnvuAw@mail.gmail.com>
- <YHS/BxMiO6I1VOEY@google.com> <CAJhGHyAcnwkCfTcnxXcgAHnF=wPbH2EDp7H+e74ce+oNOWJ=_Q@mail.gmail.com>
- <80b013dc-0078-76f4-1299-3cff261ef7d8@redhat.com> <CAJhGHyChfXdcAMzzD7P3aC8tnhFW5GvOt88vOY=D3pyb7hgNAA@mail.gmail.com>
- <6d9dafb1-b8ff-82ef-93dc-da869fe7ba0f@redhat.com> <CAJhGHyA=v_va2QTvo7Ve8JyZO4j5LjiCdB9CLnvRXGwGwa3e+A@mail.gmail.com>
- <5b422691-ffc5-d73a-1bda-f1ee61116756@redhat.com>
-In-Reply-To: <5b422691-ffc5-d73a-1bda-f1ee61116756@redhat.com>
-From:   Lai Jiangshan <jiangshanlai+lkml@gmail.com>
-Date:   Thu, 15 Apr 2021 16:06:26 +0800
-Message-ID: <CAJhGHyAM6e_XW7iTgYZ3CBv_ANUx4cAZh8+Hq7uXyM6OT1Sf8Q@mail.gmail.com>
-Subject: Re: [PATCH 2/2] KVM: x86: Fix split-irqchip vs interrupt injection
- window request
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Sean Christopherson <seanjc@google.com>,
-        LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Filippo Sironi <sironi@amazon.de>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        "v4.7+" <stable@vger.kernel.org>,
-        Wanpeng Li <wanpengli@tencent.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1618458725-17164-1-git-send-email-Prike.Liang@amd.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 15, 2021 at 2:07 PM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 15/04/21 02:59, Lai Jiangshan wrote:
-> > The next call to inject_pending_event() will reach here AT FIRST with
-> > vcpu->arch.exception.injected==false and vcpu->arch.exception.pending==false
-> >
-> >>           ... if (!vcpu->arch.exception.pending) {
-> >>                   if (vcpu->arch.nmi_injected) {
-> >>                           static_call(kvm_x86_set_nmi)(vcpu);
-> >>                           can_inject = false;
-> >>                   } else if (vcpu->arch.interrupt.injected) {
-> >>                           static_call(kvm_x86_set_irq)(vcpu);
-> >>                           can_inject = false;
-> >
-> > And comes here and vcpu->arch.interrupt.injected is true for there is
-> > an interrupt queued by KVM_INTERRUPT for pure user irqchip. It then does
-> > the injection of the interrupt without checking the EFLAGS.IF.
->
-> Ok, understood now.  Yeah, that could be a problem for userspace irqchip
-> so we should switch it to use pending_external_vector instead.  Are you
-> going to write the patch or should I?
->
+A cover letter for the series would be really nice.
 
-I wish you do it.  I haven't figured out how to write a clean test for
-it and confirm it in upstream.  But I will backport your patch and test it.
+On Thu, Apr 15, 2021 at 11:52:04AM +0800, Prike Liang wrote:
+> The NVME device pluged in some AMD PCIE root port will resume timeout
+> from s2idle which caused by NVME power CFG lost in the SMU FW restore.
+> This issue can be workaround by using PCIe power set with simple
+> suspend/resume process path instead of APST. In the onwards ASIC will
+> try do the NVME shutdown save and restore in the BIOS and still need PCIe
+> power setting to resume from RTD3 for s2idle.
+> 
+> In this preparation patch add a PCIe quirk for the AMD.
 
-My fix is changing the behavior back to before 664f8e26b00c7 where
-arch.exception.pending=true would prevent ready_for_interrupt_injection
-to be non-zero.  So that KVM_INTERRUPT maintains the original behavior
-that it can immediately inject IRQ into guests. (Userspace may regret
-an unearthly injected IRQ for it has no right to revise the IRQ or cancel
-it.)  But your fix will unify the behaviors of all kinds of irqchips.
+The above looks very hard to understand to me.  It uses some AMD
+specific terms, and also is overly specific to NVMe.  Any other PCIe
+device not doing a runtime-D3 in these slots will have the same problem.
 
-Thanks
-Lai
+So I think you should generalize the flag name and description to
+describe what broken behavior the AMD root port has here, and only
+cursory refer to drivers that are broken by it.
 
-
-> Thanks!
->
-> Paolo
->
-> > My question is that what stops the next call to inject_pending_event()
-> > to reach here when KVM_INTERRUPT is called with exepction pending.
->
+I'd also much prefer if the flag is used on every pci_dev that is
+affected by the broken behavior rather than requiring another lookup
+in the driver.
