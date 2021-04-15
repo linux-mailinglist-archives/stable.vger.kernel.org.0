@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E70360D8C
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BEF360D98
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233928AbhDOPDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46934 "EHLO mail.kernel.org"
+        id S233792AbhDOPEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235257AbhDOPAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85969613CE;
-        Thu, 15 Apr 2021 14:56:44 +0000 (UTC)
+        id S235373AbhDOPBF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:01:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B2C561416;
+        Thu, 15 Apr 2021 14:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498605;
-        bh=QTvcIRJNKMRiksMR7E7Alj7n1FqbgtDFltF/BrK615k=;
+        s=korg; t=1618498630;
+        bh=HWbejj58m5BIOvjehaem8bi+Di6jcH0gmlRIsQrw0UU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=firVrmHN3G7D4XNv0stuxzighIUEUMisM4s6ojpJBok0sZQaOw0/db+F8Njd/T3+s
-         zUsC3zpX2uv0d3nUWXcEVq1RT/wG5ZqBU4Df0tg2VVP03s7t+xQWOo35e6EyhzoT71
-         BpPacPh/psNpAkqAW7N0g/pixnh9C4tZcoqgop1w=
+        b=WRniV13wtPnE12Wd/xDTqoZFfASkRGWeOzdAo6v3SZeYB9ZvTlTE66ZYqtsXes9vM
+         nQYZ6+/LpbwrzOGWHvRgZFQWOn1UIUH+7VD1d4/Fyg1N1LVS/Rt3e+DBTJ9a8UQZyy
+         HnHXQQMtKFXrSNSoXkYcK+QOb2NoZ6tNqV8Xkvd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+cfc0247ac173f597aaaa@syzkaller.appspotmail.com,
-        Andy Nguyen <theflow@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 13/18] netfilter: x_tables: fix compat match/target pad out-of-bound write
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 12/25] radix tree test suite: Fix compilation
 Date:   Thu, 15 Apr 2021 16:48:06 +0200
-Message-Id: <20210415144413.468212358@linuxfoundation.org>
+Message-Id: <20210415144413.551014173@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,100 +40,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit b29c457a6511435960115c0f548c4360d5f4801d upstream.
+[ Upstream commit 7487de534dcbe143e6f41da751dd3ffcf93b00ee ]
 
-xt_compat_match/target_from_user doesn't check that zeroing the area
-to start of next rule won't write past end of allocated ruleset blob.
+Commit 4bba4c4bb09a added tools/include/linux/compiler_types.h which
+includes linux/compiler-gcc.h.  Unfortunately, we had our own (empty)
+compiler_types.h which overrode the one added by that commit, and
+so we lost the definition of __must_be_array().  Removing our empty
+compiler_types.h fixes the problem and reduces our divergence from the
+rest of the tools.
 
-Remove this code and zero the entire blob beforehand.
-
-Reported-by: syzbot+cfc0247ac173f597aaaa@syzkaller.appspotmail.com
-Reported-by: Andy Nguyen <theflow@google.com>
-Fixes: 9fa492cdc160c ("[NETFILTER]: x_tables: simplify compat API")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/netfilter/arp_tables.c |    2 ++
- net/ipv4/netfilter/ip_tables.c  |    2 ++
- net/ipv6/netfilter/ip6_tables.c |    2 ++
- net/netfilter/x_tables.c        |   10 ++--------
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ tools/testing/radix-tree/linux/compiler_types.h | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ delete mode 100644 tools/testing/radix-tree/linux/compiler_types.h
 
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -1196,6 +1196,8 @@ static int translate_compat_table(struct
- 	if (!newinfo)
- 		goto out_unlock;
- 
-+	memset(newinfo->entries, 0, size);
-+
- 	newinfo->number = compatr->num_entries;
- 	for (i = 0; i < NF_ARP_NUMHOOKS; i++) {
- 		newinfo->hook_entry[i] = compatr->hook_entry[i];
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -1430,6 +1430,8 @@ translate_compat_table(struct net *net,
- 	if (!newinfo)
- 		goto out_unlock;
- 
-+	memset(newinfo->entries, 0, size);
-+
- 	newinfo->number = compatr->num_entries;
- 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
- 		newinfo->hook_entry[i] = compatr->hook_entry[i];
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -1445,6 +1445,8 @@ translate_compat_table(struct net *net,
- 	if (!newinfo)
- 		goto out_unlock;
- 
-+	memset(newinfo->entries, 0, size);
-+
- 	newinfo->number = compatr->num_entries;
- 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
- 		newinfo->hook_entry[i] = compatr->hook_entry[i];
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -733,7 +733,7 @@ void xt_compat_match_from_user(struct xt
- {
- 	const struct xt_match *match = m->u.kernel.match;
- 	struct compat_xt_entry_match *cm = (struct compat_xt_entry_match *)m;
--	int pad, off = xt_compat_match_offset(match);
-+	int off = xt_compat_match_offset(match);
- 	u_int16_t msize = cm->u.user.match_size;
- 	char name[sizeof(m->u.user.name)];
- 
-@@ -743,9 +743,6 @@ void xt_compat_match_from_user(struct xt
- 		match->compat_from_user(m->data, cm->data);
- 	else
- 		memcpy(m->data, cm->data, msize - sizeof(*cm));
--	pad = XT_ALIGN(match->matchsize) - match->matchsize;
--	if (pad > 0)
--		memset(m->data + match->matchsize, 0, pad);
- 
- 	msize += off;
- 	m->u.user.match_size = msize;
-@@ -1116,7 +1113,7 @@ void xt_compat_target_from_user(struct x
- {
- 	const struct xt_target *target = t->u.kernel.target;
- 	struct compat_xt_entry_target *ct = (struct compat_xt_entry_target *)t;
--	int pad, off = xt_compat_target_offset(target);
-+	int off = xt_compat_target_offset(target);
- 	u_int16_t tsize = ct->u.user.target_size;
- 	char name[sizeof(t->u.user.name)];
- 
-@@ -1126,9 +1123,6 @@ void xt_compat_target_from_user(struct x
- 		target->compat_from_user(t->data, ct->data);
- 	else
- 		memcpy(t->data, ct->data, tsize - sizeof(*ct));
--	pad = XT_ALIGN(target->targetsize) - target->targetsize;
--	if (pad > 0)
--		memset(t->data + target->targetsize, 0, pad);
- 
- 	tsize += off;
- 	t->u.user.target_size = tsize;
+diff --git a/tools/testing/radix-tree/linux/compiler_types.h b/tools/testing/radix-tree/linux/compiler_types.h
+deleted file mode 100644
+index e69de29bb2d1..000000000000
+-- 
+2.30.2
+
 
 
