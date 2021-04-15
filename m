@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 432A0360C8C
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54FB0360D09
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233982AbhDOOvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:51:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38742 "EHLO mail.kernel.org"
+        id S234457AbhDOO4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233672AbhDOOvE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:51:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDA13613CD;
-        Thu, 15 Apr 2021 14:50:40 +0000 (UTC)
+        id S234204AbhDOOzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:55:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9363613EB;
+        Thu, 15 Apr 2021 14:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498241;
-        bh=CdFy9NaQLEmg/PUPCmbb3Ug+hSGqUwHXpr81Mm0c7Xs=;
+        s=korg; t=1618498405;
+        bh=f/2zWovTdWw1YiITnl0NVy6h6k/ftA0MY1bRphiYMCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7TZY6NaeSqtPqSHSX7uFj/NS7d1ejFOnKgAnUHv8I/7N50AZQajzmLhcjC6L/fIr
-         okDwEYkj3HixJehJ2M7KDwguATTXFIfrQ09OqnG044iTDGxAeLw2SxA3Df2clBuZuv
-         5/wmC+Seg5xYwrOk/jh5aAB9foiWqdViZKLLzPjA=
+        b=PVTDmtLxTBSV6JeYKbKBwsD4HXJtyYSn6G0EW0HK5BHgyUC6zpOkw0IFDwXsoUVeR
+         F55ZUbXfyqdgOHzM8Awy7VhWLeLWJxW+GuKt49W6mcE0bljcF+d4KpqUfHuzvXZxyC
+         L8pUfUbXeHcFtppKR7OkK5my9i/Vxq6Q7e7iuGeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.9 14/47] parisc: parisc-agp requires SBA IOMMU driver
-Date:   Thu, 15 Apr 2021 16:47:06 +0200
-Message-Id: <20210415144413.926573109@linuxfoundation.org>
+        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/68] gianfar: Handle error code at MAC address change
+Date:   Thu, 15 Apr 2021 16:47:07 +0200
+Message-Id: <20210415144415.316808393@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
+References: <20210415144414.464797272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-commit 9054284e8846b0105aad43a4e7174ca29fffbc44 upstream.
+[ Upstream commit bff5b62585123823842833ab20b1c0a7fa437f8c ]
 
-Add a dependency to the SBA IOMMU driver to avoid:
-ERROR: modpost: "sba_list" [drivers/char/agp/parisc-agp.ko] undefined!
+Handle return error code of eth_mac_addr();
 
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3d23a05c75c7 ("gianfar: Enable changing mac addr when if up")
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/agp/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/gianfar.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/char/agp/Kconfig
-+++ b/drivers/char/agp/Kconfig
-@@ -124,7 +124,7 @@ config AGP_HP_ZX1
+diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
+index b3b7b98eb32c..c89a5a80c9c8 100644
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -485,7 +485,11 @@ static struct net_device_stats *gfar_get_stats(struct net_device *dev)
  
- config AGP_PARISC
- 	tristate "HP Quicksilver AGP support"
--	depends on AGP && PARISC && 64BIT
-+	depends on AGP && PARISC && 64BIT && IOMMU_SBA
- 	help
- 	  This option gives you AGP GART support for the HP Quicksilver
- 	  AGP bus adapter on HP PA-RISC machines (Ok, just on the C8000
+ static int gfar_set_mac_addr(struct net_device *dev, void *p)
+ {
+-	eth_mac_addr(dev, p);
++	int ret;
++
++	ret = eth_mac_addr(dev, p);
++	if (ret)
++		return ret;
+ 
+ 	gfar_set_mac_for_addr(dev, 0, dev->dev_addr);
+ 
+-- 
+2.30.2
+
 
 
