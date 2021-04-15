@@ -2,89 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DB6360398
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 09:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C063603B7
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 09:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231415AbhDOHm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 03:42:26 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:58970 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230090AbhDOHmX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 03:42:23 -0400
-Received: from mailhost.synopsys.com (sv1-mailhost1.synopsys.com [10.205.2.131])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id AD717C063D;
-        Thu, 15 Apr 2021 07:42:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1618472520; bh=1R3A1+CrXL2wZ1Q7bP7xL0OTwOy7UrbMG7yt4dnK+5U=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=DflxfW+SVm2rDF5T5DZEPN6gRjqlVPsW96v7BSNG5cdmFck42pwih+iAMOH5NqiTV
-         AiKWj930BhyDCGI2plWYZnGmiXcgxsaIVIiGl3AhE8oxIH4SZhR9+THY6rE4K4VlTX
-         TmqnnHCyqp7i+lh2S9oYp4rWjYUGwKCwmOozUEWbzpLvHDJOMZ8K7hENylVAcH5SL1
-         l1xy4oTOlP046jpSxBkg8D/w1Rrm30vOd1qYCgr3doGLR0yS1nVWAPpf3Ha242ha8C
-         uLLPyrOCTPtWzbl9P+x0kD1mz5bFY06WkWDMo/XFX3ULI8Df6YzjQqdVgx7fSPCFjm
-         XgejWNwVy03Xg==
-Received: from lab-vbox (unknown [10.205.128.79])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 495A7A005F;
-        Thu, 15 Apr 2021 07:41:59 +0000 (UTC)
-Received: by lab-vbox (sSMTP sendmail emulation); Thu, 15 Apr 2021 00:41:58 -0700
-Date:   Thu, 15 Apr 2021 00:41:58 -0700
-Message-Id: <5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com>
-In-Reply-To: <c2049798e1bce3ea38ae59dd17bbffb43e78370c.1618447155.git.Thinh.Nguyen@synopsys.com>
-References: <c2049798e1bce3ea38ae59dd17bbffb43e78370c.1618447155.git.Thinh.Nguyen@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH v2] usb: dwc3: gadget: Remove FS bInterval_m1 limitation
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>, <stable@vger.kernel.org>
+        id S231389AbhDOHyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 03:54:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51928 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231215AbhDOHyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 03:54:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 182A560FF1;
+        Thu, 15 Apr 2021 07:53:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618473220;
+        bh=wBbsq3BHxR0U3Gvztafs7IZfL5R/LWbYaqcp+rGIddc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=malk0Q1T6WsJdGmTQ+Gw5zh+K+/ylDTnbDHWrX69H83FHQ++xUhrVxEw5CPSnRnv7
+         v8cpu8aRYgth14o97xu1XXnO8qs1mtxGysWR4JKJONnLDnBZLnVPCTphSMCZUx2ndE
+         tlPlYVlT4KTD8Yt+W+Cr8Usl5v8wnzEmieVRpcwY=
+Date:   Thu, 15 Apr 2021 09:53:38 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     Felipe Balbi <balbi@kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        Roger Quadros <rogerq@ti.com>,
+        John Youn <John.Youn@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Wesley Cheng <wcheng@codeaurora.org>,
+        Ferry Toth <fntoth@gmail.com>, Yu Chen <chenyu56@huawei.com>
+Subject: Re: [PATCH] usb: dwc3: core: Do core softreset when switch mode
+Message-ID: <YHfxAnbHNrjSwLE+@kroah.com>
+References: <96c64e6a788552371081f37f544041b7ee046ef5.1618452732.git.Thinh.Nguyen@synopsys.com>
+ <87sg3snk1l.fsf@kernel.org>
+ <c125a30b-edde-8fe5-3370-d9e62a24f7e9@synopsys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c125a30b-edde-8fe5-3370-d9e62a24f7e9@synopsys.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The programming guide incorrectly stated that the DCFG.bInterval_m1 must
-be set to 0 when operating in fullspeed. There's no such limitation for
-all IPs. See DWC_usb3x programming guide section 3.2.2.1.
+On Thu, Apr 15, 2021 at 07:10:34AM +0000, Thinh Nguyen wrote:
+> Felipe Balbi wrote:
+> > 
+> > Hi,
+> > 
+> > Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
+> >> From: Yu Chen <chenyu56@huawei.com>
+> >> From: John Stultz <john.stultz@linaro.org>
+> >>
+> >> According to the programming guide, to switch mode for DRD controller,
+> >> the driver needs to do the following.
+> >>
+> >> To switch from device to host:
+> >> 1. Reset controller with GCTL.CoreSoftReset
+> >> 2. Set GCTL.PrtCapDir(host mode)
+> >> 3. Reset the host with USBCMD.HCRESET
+> >> 4. Then follow up with the initializing host registers sequence
+> >>
+> >> To switch from host to device:
+> >> 1. Reset controller with GCTL.CoreSoftReset
+> >> 2. Set GCTL.PrtCapDir(device mode)
+> >> 3. Reset the device with DCTL.CSftRst
+> >> 4. Then follow up with the initializing registers sequence
+> >>
+> >> Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
+> > 
+> > we're not really missing, it was a deliberate choice :-) The only reason
+> > why we need the soft reset is because host and gadget registers map to
+> > the same physical space within dwc3 core. If we cache and restore the
+> > affected registers, we're good ;-)
+> 
+> It's part of the programming model. I've already discussed with internal
+> RTL designers. This is needed, and I've provided the discussion we had
+> prior also. We have several different devices in the wild that need
+> this. What is the concern?
+> 
+> > 
+> > IMHO, that's a better compromise than doing a full soft reset.
+> > 
+> >> @@ -40,6 +41,8 @@
+> >>  
+> >>  #define DWC3_DEFAULT_AUTOSUSPEND_DELAY	5000 /* ms */
+> >>  
+> >> +static DEFINE_MUTEX(mode_switch_lock);
+> > 
+> > there are several platforms which more than one DWC3 instance. Sure this
+> > won't break on such systems?
+> > 
+> 
+> How? Am I missing something? Please let me know so I can make the change.
 
-Cc: <stable@vger.kernel.org>
-Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1")
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
----
- Changes in v2:
- - Noted programming guide section number
+All data needs to be per-device, not "global for the codebase" like the
+way you declared this lock.
 
- drivers/usb/dwc3/gadget.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+thanks,
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 6227641f2d31..3609311b24f1 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -608,12 +608,14 @@ static int dwc3_gadget_set_ep_config(struct dwc3_ep *dep, unsigned int action)
- 		u8 bInterval_m1;
- 
- 		/*
--		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
--		 * must be set to 0 when the controller operates in full-speed.
-+		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13.
-+		 *
-+		 * NOTE: The programming guide incorrectly stated bInterval_m1
-+		 * must be set to 0 when operating in fullspeed. Internally the
-+		 * controller does not have this limitation. See DWC_usb3x
-+		 * programming guide section 3.2.2.1.
- 		 */
- 		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
--		if (dwc->gadget->speed == USB_SPEED_FULL)
--			bInterval_m1 = 0;
- 
- 		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
- 		    dwc->gadget->speed == USB_SPEED_FULL)
-
-base-commit: 4b853c236c7b5161a2e444bd8b3c76fe5aa5ddcb
--- 
-2.28.0
-
+greg k-h
