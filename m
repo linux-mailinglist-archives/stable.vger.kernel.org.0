@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28ABC360D8A
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F04F360D6C
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233778AbhDOPD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:29 -0400
+        id S234082AbhDOPCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:02:22 -0400
 Received: from mail.kernel.org ([198.145.29.99]:46754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235228AbhDOPAi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF93F613C0;
-        Thu, 15 Apr 2021 14:56:39 +0000 (UTC)
+        id S234867AbhDOPAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:00:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E8F861403;
+        Thu, 15 Apr 2021 14:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498600;
-        bh=dhYxorx/1pSdpYb4mUa+fX1VX6NdweZAjcddJC4Olo4=;
+        s=korg; t=1618498550;
+        bh=9SPFnlefxA4sG0tRri1VW5BiYlozgyxK5kXcLW47EMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CO2DTXonUVANdOFgW92h7TAKFL3EzwTaLN4P2DOf6qySRFwlUVz1eDvaNT0yLqerl
-         527RQtuIZ+KGAitZl36TSqtttpem7BtRQ0jimuJ6+sNKxw+Vmltqjuv9S5bhL/Ulae
-         +G38P1Hl9wD0V/RAfFh9iZyAmjwSZw4n25xROaw8=
+        b=YpChZtd4VNYdzqCNXF2zh2hJlDnNZ53GKjQNVb219ESNw3CKiwV0kcOWmRwMMrX+A
+         CcObSK7iwB7rq09aimanLln/YKTcxWcN2hFYG751YJXsAL49djenwbAryqZLCGDA8J
+         G3okoIkbII/j9ksdmuDMxoOqft3E/eQAjIT+9ElE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris von Recklinghausen <crecklin@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/18] idr test suite: Take RCU read lock in idr_find_test_1
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 13/13] xen/events: fix setting irq affinity
 Date:   Thu, 15 Apr 2021 16:48:02 +0200
-Message-Id: <20210415144413.344891808@linuxfoundation.org>
+Message-Id: <20210415144412.041032644@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144411.596695196@linuxfoundation.org>
+References: <20210415144411.596695196@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +38,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 703586410da69eb40062e64d413ca33bd735917a ]
+The backport of upstream patch 25da4618af240fbec61 ("xen/events: don't
+unmask an event channel when an eoi is pending") introduced a
+regression for stable kernels 5.10 and older: setting IRQ affinity for
+IRQs related to interdomain events would no longer work, as moving the
+IRQ to its new cpu was not included in the irq_ack callback for those
+events.
 
-When run on a single CPU, this test would frequently access already-freed
-memory.  Due to timing, this bug never showed up on multi-CPU tests.
+Fix that by adding the needed call.
 
-Reported-by: Chris von Recklinghausen <crecklin@redhat.com>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that kernels 5.11 and later don't need the explicit moving of the
+IRQ to the target cpu in the irq_ack callback, due to a rework of the
+affinity setting in kernel 5.11.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/testing/radix-tree/idr-test.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/xen/events/events_base.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
-index 44ceff95a9b3..4a9b451b7ba0 100644
---- a/tools/testing/radix-tree/idr-test.c
-+++ b/tools/testing/radix-tree/idr-test.c
-@@ -306,11 +306,15 @@ void idr_find_test_1(int anchor_id, int throbber_id)
- 	BUG_ON(idr_alloc(&find_idr, xa_mk_value(anchor_id), anchor_id,
- 				anchor_id + 1, GFP_KERNEL) != anchor_id);
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1782,7 +1782,7 @@ static void lateeoi_ack_dynirq(struct ir
  
-+	rcu_read_lock();
- 	do {
- 		int id = 0;
- 		void *entry = idr_get_next(&find_idr, &id);
-+		rcu_read_unlock();
- 		BUG_ON(entry != xa_mk_value(id));
-+		rcu_read_lock();
- 	} while (time(NULL) < start + 11);
-+	rcu_read_unlock();
+ 	if (VALID_EVTCHN(evtchn)) {
+ 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
+-		event_handler_exit(info);
++		ack_dynirq(data);
+ 	}
+ }
  
- 	pthread_join(throbber, NULL);
+@@ -1793,7 +1793,7 @@ static void lateeoi_mask_ack_dynirq(stru
  
--- 
-2.30.2
-
+ 	if (VALID_EVTCHN(evtchn)) {
+ 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
+-		event_handler_exit(info);
++		ack_dynirq(data);
+ 	}
+ }
+ 
 
 
