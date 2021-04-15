@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 095B0360D90
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38802360DD2
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233672AbhDOPDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47036 "EHLO mail.kernel.org"
+        id S234337AbhDOPGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:06:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235283AbhDOPAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AEC861413;
-        Thu, 15 Apr 2021 14:56:52 +0000 (UTC)
+        id S232819AbhDOPDy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:03:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9C48613F0;
+        Thu, 15 Apr 2021 14:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498612;
-        bh=JYbPFh3lp5ERhDKix2I+37lp8fwHCqgN1JP4dPScbT0=;
+        s=korg; t=1618498715;
+        bh=IEtWHw7bJb9vjJoLGg1W3RkS+VuGnWdJ2aCrDqR6WrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7o1iFvhLPmZOM0xcnRbmlG5m2bpsgWay6nb4VidE4E/txzGvYWMaaOQHa36U8iTi
-         2Wh1OEPuc5eYIvfgoLtw55XeLGLjO1EBYqG2HuBdrY/aVJC3yGNfx6HAg0wkjhEw6k
-         N/X9zyjdUKm6GSmTs5EppQYSVdlrzO2k54BMF2sQ=
+        b=NsVPbOrUGx0qBs5OIK/L191rYnKmjAgHSqOq1lCbr6h7kaWe1xaP6IKC2Q5T27d0G
+         n4OxEK6kavGzMSavJokZBD5YW+CqLAoLmF1uhCDyhDtRIalVgZ+lTD+kTzClrsEfT1
+         vkNcRqIfPqJHEpGKcHwrqPG4ZFGYrXNnrrrYPXh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 5.4 16/18] perf tools: Use %zd for size_t printf formats on 32-bit
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Andrew Price <anprice@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 02/23] gfs2: Flag a withdraw if init_threads() fails
 Date:   Thu, 15 Apr 2021 16:48:09 +0200
-Message-Id: <20210415144413.558004725@linuxfoundation.org>
+Message-Id: <20210415144413.230205223@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
+References: <20210415144413.146131392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Andrew Price <anprice@redhat.com>
 
-commit 20befbb1080307e70c7893ef9840d32e3ef8ac45 upstream.
+[ Upstream commit 62dd0f98a0e5668424270b47a0c2e973795faba7 ]
 
-A couple of trivial fixes for using %zd for size_t in the code
-supporting the ZSTD compression library.
+Interrupting mount with ^C quickly enough can cause the kthread_run()
+calls in gfs2's init_threads() to fail and the error path leads to a
+deadlock on the s_umount rwsem. The abridged chain of events is:
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200820212501.24421-1-chris@chris-wilson.co.uk
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  [mount path]
+  get_tree_bdev()
+    sget_fc()
+      alloc_super()
+        down_write_nested(&s->s_umount, SINGLE_DEPTH_NESTING); [acquired]
+    gfs2_fill_super()
+      gfs2_make_fs_rw()
+        init_threads()
+          kthread_run()
+            ( Interrupted )
+      [Error path]
+      gfs2_gl_hash_clear()
+        flush_workqueue(glock_workqueue)
+          wait_for_completion()
+
+  [workqueue context]
+  glock_work_func()
+    run_queue()
+      do_xmote()
+        freeze_go_sync()
+          freeze_super()
+            down_write(&sb->s_umount) [deadlock]
+
+In freeze_go_sync() there is a gfs2_withdrawn() check that we can use to
+make sure freeze_super() is not called in the error path, so add a
+gfs2_withdraw_delayed() call when init_threads() fails.
+
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=212231
+
+Reported-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c |    2 +-
- tools/perf/util/zstd.c    |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/gfs2/super.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -88,7 +88,7 @@ static int perf_session__process_compres
- 		session->decomp_last = decomp;
- 	}
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 754ea2a137b4..34ca312457a6 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -169,8 +169,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	int error;
  
--	pr_debug("decomp (B): %ld to %ld\n", src_size, decomp_size);
-+	pr_debug("decomp (B): %zd to %zd\n", src_size, decomp_size);
+ 	error = init_threads(sdp);
+-	if (error)
++	if (error) {
++		gfs2_withdraw_delayed(sdp);
+ 		return error;
++	}
  
- 	return 0;
- }
---- a/tools/perf/util/zstd.c
-+++ b/tools/perf/util/zstd.c
-@@ -99,7 +99,7 @@ size_t zstd_decompress_stream(struct zst
- 	while (input.pos < input.size) {
- 		ret = ZSTD_decompressStream(data->dstream, &output, &input);
- 		if (ZSTD_isError(ret)) {
--			pr_err("failed to decompress (B): %ld -> %ld, dst_size %ld : %s\n",
-+			pr_err("failed to decompress (B): %zd -> %zd, dst_size %zd : %s\n",
- 			       src_size, output.size, dst_size, ZSTD_getErrorName(ret));
- 			break;
- 		}
+ 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+ 	if (gfs2_withdrawn(sdp)) {
+-- 
+2.30.2
+
 
 
