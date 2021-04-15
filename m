@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39260360D61
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14799360D37
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232993AbhDOPCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:02:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45796 "EHLO mail.kernel.org"
+        id S233597AbhDOO65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234665AbhDOO7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:59:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0172F613DE;
-        Thu, 15 Apr 2021 14:55:27 +0000 (UTC)
+        id S234216AbhDOO4y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:56:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94741613FA;
+        Thu, 15 Apr 2021 14:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498528;
-        bh=Jbn7iv7/HPe6bumukrYZ9n19q3MIUGzcH0B6N3cT+2Y=;
+        s=korg; t=1618498460;
+        bh=LqWR8r/QDnwCdOh6F0uCLuPVg/GVc7ojEUh/8VymQws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUEIEVzrXs8Sc0OghHoBHR2DlDQtEsZzToQXDE5X4tKL/wLAJ9qFhsGHbYjGmEHmD
-         CRGE0i0kd8pr0jqsZ6yUtNXGVO7rO26av2iAp51iLKfKNMwfWrhmLf5179CSb6Glc2
-         ZFOWT3eOHn0SHGSLsghv53a5W/LfdT0+bCI87zbo=
+        b=2MVr1NxXMZjwzQ8ryhFVJiQlHmpjFsOsJeLUwrfjKJrGhKIMTp+yKU86wlHd/Kjs+
+         Z/3BQuFaMwwYPJMrmpyLu6Ls17Q+KmcXaUmNCuOe5KE57lDeMfQqYlkyvyZuvz85dl
+         jqORxhd+gHpaM62xXttgLtPe/rx+YYp35PlG+yt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        stable@vger.kernel.org, Milton Miller <miltonm@us.ibm.com>,
+        Eddie James <eajames@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/68] net:tipc: Fix a double free in tipc_sk_mcast_rcv
-Date:   Thu, 15 Apr 2021 16:47:08 +0200
-Message-Id: <20210415144415.354074761@linuxfoundation.org>
+Subject: [PATCH 4.14 29/68] net/ncsi: Avoid channel_monitor hrtimer deadlock
+Date:   Thu, 15 Apr 2021 16:47:10 +0200
+Message-Id: <20210415144415.419775111@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -40,42 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Milton Miller <miltonm@us.ibm.com>
 
-[ Upstream commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046 ]
+[ Upstream commit 03cb4d05b4ea9a3491674ca40952adb708d549fa ]
 
-In the if(skb_peek(arrvq) == skb) branch, it calls __skb_dequeue(arrvq) to get
-the skb by skb = skb_peek(arrvq). Then __skb_dequeue() unlinks the skb from arrvq
-and returns the skb which equals to skb_peek(arrvq). After __skb_dequeue(arrvq)
-finished, the skb is freed by kfree_skb(__skb_dequeue(arrvq)) in the first time.
+Calling ncsi_stop_channel_monitor from channel_monitor is a guaranteed
+deadlock on SMP because stop calls del_timer_sync on the timer that
+invoked channel_monitor as its timer function.
 
-Unfortunately, the same skb is freed in the second time by kfree_skb(skb) after
-the branch completed.
+Recognise the inherent race of marking the monitor disabled before
+deleting the timer by just returning if enable was cleared.  After
+a timeout (the default case -- reset to START when response received)
+just mark the monitor.enabled false.
 
-My patch removes kfree_skb() in the if(skb_peek(arrvq) == skb) branch, because
-this skb will be freed by kfree_skb(skb) finally.
+If the channel has an entry on the channel_queue list, or if the
+state is not ACTIVE or INACTIVE, then warn and mark the timer stopped
+and don't restart, as the locking is broken somehow.
 
-Fixes: cb1b728096f54 ("tipc: eliminate race condition at multicast reception")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Fixes: 0795fb2021f0 ("net/ncsi: Stop monitor if channel times out or is inactive")
+Signed-off-by: Milton Miller <miltonm@us.ibm.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ncsi/ncsi-manage.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 44ede9ab7898..6fd5e1a7a336 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -840,7 +840,7 @@ void tipc_sk_mcast_rcv(struct net *net, struct sk_buff_head *arrvq,
- 		spin_lock_bh(&inputq->lock);
- 		if (skb_peek(arrvq) == skb) {
- 			skb_queue_splice_tail_init(&tmpq, inputq);
--			kfree_skb(__skb_dequeue(arrvq));
-+			__skb_dequeue(arrvq);
+diff --git a/net/ncsi/ncsi-manage.c b/net/ncsi/ncsi-manage.c
+index 28c42b22b748..6b7f9e1f64d3 100644
+--- a/net/ncsi/ncsi-manage.c
++++ b/net/ncsi/ncsi-manage.c
+@@ -203,13 +203,20 @@ static void ncsi_channel_monitor(unsigned long data)
+ 	monitor_state = nc->monitor.state;
+ 	spin_unlock_irqrestore(&nc->lock, flags);
+ 
+-	if (!enabled || chained) {
+-		ncsi_stop_channel_monitor(nc);
+-		return;
+-	}
++	if (!enabled)
++		return;		/* expected race disabling timer */
++	if (WARN_ON_ONCE(chained))
++		goto bad_state;
++
+ 	if (state != NCSI_CHANNEL_INACTIVE &&
+ 	    state != NCSI_CHANNEL_ACTIVE) {
+-		ncsi_stop_channel_monitor(nc);
++bad_state:
++		netdev_warn(ndp->ndev.dev,
++			    "Bad NCSI monitor state channel %d 0x%x %s queue\n",
++			    nc->id, state, chained ? "on" : "off");
++		spin_lock_irqsave(&nc->lock, flags);
++		nc->monitor.enabled = false;
++		spin_unlock_irqrestore(&nc->lock, flags);
+ 		return;
+ 	}
+ 
+@@ -234,10 +241,9 @@ static void ncsi_channel_monitor(unsigned long data)
+ 			ndp->flags |= NCSI_DEV_RESHUFFLE;
  		}
- 		spin_unlock_bh(&inputq->lock);
- 		__skb_queue_purge(&tmpq);
+ 
+-		ncsi_stop_channel_monitor(nc);
+-
+ 		ncm = &nc->modes[NCSI_MODE_LINK];
+ 		spin_lock_irqsave(&nc->lock, flags);
++		nc->monitor.enabled = false;
+ 		nc->state = NCSI_CHANNEL_INVISIBLE;
+ 		ncm->data[2] &= ~0x1;
+ 		spin_unlock_irqrestore(&nc->lock, flags);
 -- 
 2.30.2
 
