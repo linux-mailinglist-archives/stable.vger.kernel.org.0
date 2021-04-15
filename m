@@ -2,84 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C0036122D
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 20:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF1C361232
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 20:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234565AbhDOSev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 14:34:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42298 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234598AbhDOSev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 14:34:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 280D6611CD;
-        Thu, 15 Apr 2021 18:34:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618511667;
-        bh=DIjc359eJQvUuEAXonYp4ayJobMO/jbmR85gSygggvg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFf1N+RAHcgMOxD7jOIxal/ixnnS9l8SrlF482aXeUDCq6/ssN2O1HVN9d3H6l77q
-         IH3i1gCkMqiix+Bpi/LuoeJ3teu0jkl/GTuDODfgUZCsFtYfRXBZ+uDb8JSDwtD5j3
-         WlGqlbjoy9D8EJQcRNHOlyiyI/u5lqt6tL8mTKRQcnguBA88fhaHUOoaoE9ie7xptm
-         d8zncHj/UbVZyKSVIxz3jJVUpeZrDh3xY+9ikVWKy5yLh2nbYrYxzkE2LxWtl6uB3Q
-         fze2RyRxGVXNOQPexxf30iInvksiop9UOO5kzg4UU8Va9B3h6VI0nybNmCYp0yIMZ7
-         kPaxQZW3hjZQg==
-From:   Mark Brown <broonie@kernel.org>
-To:     Lukasz Majczak <lma@semihalf.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Harsha Priya <harshapriya.n@intel.com>,
-        Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
-Cc:     Mark Brown <broonie@kernel.org>, stable@vger.kernel.org,
-        alsa-devel@alsa-project.org, upstream@semihalf.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] ASoC: Intel: kbl_da7219_max98927: Fix kabylake_ssp_fixup function
-Date:   Thu, 15 Apr 2021 19:33:46 +0100
-Message-Id: <161851148785.23061.12027153189842499464.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210415124347.475432-1-lma@semihalf.com>
-References: <20210415124347.475432-1-lma@semihalf.com>
+        id S234204AbhDOSgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 14:36:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233052AbhDOSgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 14:36:51 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86CB7C061574;
+        Thu, 15 Apr 2021 11:36:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:MIME-Version
+        :Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=+ozdJAHrKCbNr61OMEyduXyBZabavgrro2YmmDxy4mo=; b=Wdonrjmm3K+kii/7uHvDoH+ir8
+        bRxQOpr3kv8CrbwKPw4A6OOwGZRsKs9KynCJqdVXCyHNy8TJd1guMqOJRllpQSE1kXBMOeHchwLyy
+        94sTZdTluYVqnuwjhCEt8d1nwHYzMHBCC4sFFbTwoVox414X5HcLSsdL1MuukzfX+wMpmK7xXvxpU
+        d0PNAzO+mYg4YummUPH+4WK9oAtLajuQ2VyCM8JxFXpxhOuk5P5V0N71FDaHce5J4HqZrAIo6SvYX
+        6BPeS42kdbIwO+Z06BlpMi1gqZAPOn6gjA4tGZLV2b3mR+ybz3yblVT5URV16Xff/Ipdqs6BCzo3r
+        U62lNT7A==;
+Received: from [2601:1c0:6280:3f0::df68] (helo=smtpauth.infradead.org)
+        by desiato.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lX6qm-00H0k3-B5; Thu, 15 Apr 2021 18:36:24 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Xin Ji <xji@analogixsemi.com>, Sam Ravnborg <sam@ravnborg.org>,
+        dri-devel@lists.freedesktop.org,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>, stable@vger.kernel.org
+Subject: [PATCH -next] drm: bridge: fix ANX7625 use of mipi_dsi_() functions
+Date:   Thu, 15 Apr 2021 11:36:19 -0700
+Message-Id: <20210415183619.1431-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 15 Apr 2021 14:43:47 +0200, Lukasz Majczak wrote:
-> kabylake_ssp_fixup function uses snd_soc_dpcm to identify the
-> codecs DAIs. The HW parameters are changed based on the codec DAI of the
-> stream. The earlier approach to get snd_soc_dpcm was using container_of()
-> macro on snd_pcm_hw_params.
-> 
-> The structures have been modified over time and snd_soc_dpcm does not have
-> snd_pcm_hw_params as a reference but as a copy. This causes the current
-> driver to crash when used.
-> 
-> [...]
+The Analogix DRM ANX7625 bridge driver uses mips_dsi_() function
+interfaces so it should select DRM_MIPI_DSI to prevent build errors.
 
-Applied to
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
+ERROR: modpost: "mipi_dsi_attach" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
+ERROR: modpost: "mipi_dsi_device_register_full" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
+ERROR: modpost: "of_find_mipi_dsi_host_by_node" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
+ERROR: modpost: "mipi_dsi_device_unregister" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
+ERROR: modpost: "mipi_dsi_detach" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
 
-Thanks!
 
-[1/1] ASoC: Intel: kbl_da7219_max98927: Fix kabylake_ssp_fixup function
-      commit: a523ef731ac6674dc07574f31bf44cc5bfa14e4d
+Fixes: 8bdfc5dae4e3 ("drm/bridge: anx7625: Add anx7625 MIPI DSI/DPI to DP")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Xin Ji <xji@analogixsemi.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: dri-devel@lists.freedesktop.org
+Cc: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Robert Foss <robert.foss@linaro.org>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/bridge/analogix/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
+--- linux-next-20210414.orig/drivers/gpu/drm/bridge/analogix/Kconfig
++++ linux-next-20210414/drivers/gpu/drm/bridge/analogix/Kconfig
+@@ -30,6 +30,7 @@ config DRM_ANALOGIX_ANX7625
+ 	tristate "Analogix Anx7625 MIPI to DP interface support"
+ 	depends on DRM
+ 	depends on OF
++	select DRM_MIPI_DSI
+ 	help
+ 	  ANX7625 is an ultra-low power 4K mobile HD transmitter
+ 	  designed for portable devices. It converts MIPI/DPI to
