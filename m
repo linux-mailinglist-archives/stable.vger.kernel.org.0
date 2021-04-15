@@ -2,124 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A273360864
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 13:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A74B93608CE
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 14:04:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232369AbhDOLjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 07:39:47 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37304 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230190AbhDOLjq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 07:39:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id C2FE3AE56;
-        Thu, 15 Apr 2021 11:39:22 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 8D1D41F2B65; Thu, 15 Apr 2021 13:39:22 +0200 (CEST)
-Date:   Thu, 15 Apr 2021 13:39:22 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Dave Chinner <david@fromorbit.com>
-Cc:     Jan Kara <jack@suse.cz>, Ted Tso <tytso@mit.edu>,
-        linux-ext4@vger.kernel.org, Eric Whitney <enwlinux@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] ext4: Fix occasional generic/418 failure
-Message-ID: <20210415113922.GC25217@quack2.suse.cz>
-References: <20210414131453.4945-1-jack@suse.cz>
- <20210415024724.GV1990290@dread.disaster.area>
+        id S232816AbhDOME0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 08:04:26 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:59446 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232796AbhDOMEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 08:04:25 -0400
+Date:   Thu, 15 Apr 2021 12:04:01 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1618488242;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HjW+fGapdaU/U7cAdKjWGX9kgg5+XP8t8iSoVF1oxc8=;
+        b=Iff7JdEf0Id0S6CIX/5SVKyk2PAS/KHd0HBH/8BuchsKy2e4JXwFCkdrP/hVLxtC6m99nc
+        FjbNQa76evJjqSkwFDpidZ+B+dQDd+p2f0K20NkgV0MVvKlaZWZ1qEO2+nlOGIEfMeJEuZ
+        pu2X/o9aZiqIHZYvDVxtKWvx7hlNew9vtTTQl/qnQGBEgUpGlGUNDPu3GBFu6fgubfF7Ga
+        qCu4AWo5tbNvwqZFZCt51ir7KwY7uCA4b/krTgVtvyRqXQevnwgAj5Rox0666xIhVmI+CJ
+        3XnXCuquYc0Iv0x558pSzoU49OYPMJLvEV6IKcqIxbSGjpEy5TRpxRthqwGaAg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1618488242;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HjW+fGapdaU/U7cAdKjWGX9kgg5+XP8t8iSoVF1oxc8=;
+        b=vJ8g/sz3eK09LTCIvfRXjxZdRd8UDI9lLx7XlEmO90DUXXz/VsB1aWWQigDS1oKxY3naG6
+        DgAHHEred1eUHTBQ==
+From:   "thermal-bot for brian-sy yang" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-pm@vger.kernel.org
+To:     linux-pm@vger.kernel.org
+Subject: [thermal: thermal/next] thermal/drivers/cpufreq_cooling: Fix slab OOB issue
+Cc:     "brian-sy yang" <brian-sy.yang@mediatek.com>,
+        Michael Kao <michael.kao@mediatek.com>,
+        Lukasz Luba <lukasz.luba@arm.com>, stable@vger.kernel.org,
+        #v5.7@tip-bot2.tec.linutronix.de,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        rui.zhang@intel.com, amitk@kernel.org
+In-Reply-To: <20201229050831.19493-1-michael.kao@mediatek.com>
+References: <20201229050831.19493-1-michael.kao@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210415024724.GV1990290@dread.disaster.area>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Message-ID: <161848824126.29796.11373237838275688493.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 15-04-21 12:47:24, Dave Chinner wrote:
-> On Wed, Apr 14, 2021 at 03:14:53PM +0200, Jan Kara wrote:
-> > Eric has noticed that after pagecache read rework, generic/418 is
-> > occasionally failing for ext4 when blocksize < pagesize. In fact, the
-> > pagecache rework just made hard to hit race in ext4 more likely. The
-> > problem is that since ext4 conversion of direct IO writes to iomap
-> > framework (commit 378f32bab371), we update inode size after direct IO
-> > write only after invalidating page cache. Thus if buffered read sneaks
-> > at unfortunate moment like:
-> > 
-> > CPU1 - write at offset 1k                       CPU2 - read from offset 0
-> > iomap_dio_rw(..., IOMAP_DIO_FORCE_WAIT);
-> >                                                 ext4_readpage();
-> > ext4_handle_inode_extension()
-> > 
-> > the read will zero out tail of the page as it still sees smaller inode
-> > size and thus page cache becomes inconsistent with on-disk contents with
-> > all the consequences.
-> > 
-> > Fix the problem by moving inode size update into end_io handler which
-> > gets called before the page cache is invalidated.
-> > 
-> > Reported-by: Eric Whitney <enwlinux@gmail.com>
-> > Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
-> > CC: stable@vger.kernel.org
-> > Signed-off-by: Jan Kara <jack@suse.cz>
-> > ---
-> >  fs/ext4/file.c | 20 ++++++++++++++++----
-> >  1 file changed, 16 insertions(+), 4 deletions(-)
-> > 
-> > Eric, can you please try whether this patch fixes the failures you are
-> > occasionally seeing?
-> > 
-> > Changes since v1:
-> > * Rewritten the fix to avoid the need for separate transaction handle for
-> >   orphan list update
-> > 
-> > diff --git a/fs/ext4/file.c b/fs/ext4/file.c
-> > index 194f5d00fa32..be1e80af61be 100644
-> > --- a/fs/ext4/file.c
-> > +++ b/fs/ext4/file.c
-> > @@ -371,15 +371,27 @@ static ssize_t ext4_handle_inode_extension(struct inode *inode, loff_t offset,
-> >  static int ext4_dio_write_end_io(struct kiocb *iocb, ssize_t size,
-> >  				 int error, unsigned int flags)
-> >  {
-> > -	loff_t offset = iocb->ki_pos;
-> > +	loff_t pos = iocb->ki_pos;
-> >  	struct inode *inode = file_inode(iocb->ki_filp);
-> >  
-> >  	if (error)
-> >  		return error;
-> >  
-> > -	if (size && flags & IOMAP_DIO_UNWRITTEN)
-> > -		return ext4_convert_unwritten_extents(NULL, inode,
-> > -						      offset, size);
-> > +	if (size && flags & IOMAP_DIO_UNWRITTEN) {
-> > +		error = ext4_convert_unwritten_extents(NULL, inode, pos, size);
-> > +		if (error < 0)
-> > +			return error;
-> > +	}
-> > +	/*
-> > +	 * If we are extending the file, we have to update i_size here before
-> > +	 * page cache gets invalidated in iomap_dio_rw(). Otherwise racing
-> > +	 * buffered reads could zero out too much from page cache pages. Update
-> > +	 * of on-disk size will happen later in ext4_dio_write_iter() where
-> > +	 * we have enough information to also perform orphan list handling etc.
-> > +	 */
-> > +	pos += size;
-> > +	if (pos > i_size_read(inode))
-> > +		i_size_write(inode, pos);
-> 
-> Might be worth explaining why this doesn't require locking to
-> prevent racing completions from updating the inode size and
-> potentially losing an EOF update. I know why but it might not be so
-> obvious to others (DIO extending writes are serialised
-> at submission in ext4) but it's probably worth having a comment
-> similar to the one in xfs_dio_write_end_io() that explains why XFS
-> needs locking.
+The following commit has been merged into the thermal/next branch of thermal:
 
-Good idea. There's also the somewhat subtle reason why this completion for
-non-extending write cannot race with truncate and falsely seeing pos >
-i_size. I've added comments explaining that.
+Commit-ID:     34ab17cc6c2c1ac93d7e5d53bb972df9a968f085
+Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git//34ab17cc6c2c1ac93d7e5d53bb972df9a968f085
+Author:        brian-sy yang <brian-sy.yang@mediatek.com>
+AuthorDate:    Tue, 29 Dec 2020 13:08:31 +08:00
+Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
+CommitterDate: Thu, 15 Apr 2021 13:21:42 +02:00
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+thermal/drivers/cpufreq_cooling: Fix slab OOB issue
+
+Slab OOB issue is scanned by KASAN in cpu_power_to_freq().
+If power is limited below the power of OPP0 in EM table,
+it will cause slab out-of-bound issue with negative array
+index.
+
+Return the lowest frequency if limited power cannot found
+a suitable OPP in EM table to fix this issue.
+
+Backtrace:
+[<ffffffd02d2a37f0>] die+0x104/0x5ac
+[<ffffffd02d2a5630>] bug_handler+0x64/0xd0
+[<ffffffd02d288ce4>] brk_handler+0x160/0x258
+[<ffffffd02d281e5c>] do_debug_exception+0x248/0x3f0
+[<ffffffd02d284488>] el1_dbg+0x14/0xbc
+[<ffffffd02d75d1d4>] __kasan_report+0x1dc/0x1e0
+[<ffffffd02d75c2e0>] kasan_report+0x10/0x20
+[<ffffffd02d75def8>] __asan_report_load8_noabort+0x18/0x28
+[<ffffffd02e6fce5c>] cpufreq_power2state+0x180/0x43c
+[<ffffffd02e6ead80>] power_actor_set_power+0x114/0x1d4
+[<ffffffd02e6fac24>] allocate_power+0xaec/0xde0
+[<ffffffd02e6f9f80>] power_allocator_throttle+0x3ec/0x5a4
+[<ffffffd02e6ea888>] handle_thermal_trip+0x160/0x294
+[<ffffffd02e6edd08>] thermal_zone_device_check+0xe4/0x154
+[<ffffffd02d351cb4>] process_one_work+0x5e4/0xe28
+[<ffffffd02d352f44>] worker_thread+0xa4c/0xfac
+[<ffffffd02d360124>] kthread+0x33c/0x358
+[<ffffffd02d289940>] ret_from_fork+0xc/0x18
+
+Fixes: 371a3bc79c11b ("thermal/drivers/cpufreq_cooling: Fix wrong frequency converted from power")
+Signed-off-by: brian-sy yang <brian-sy.yang@mediatek.com>
+Signed-off-by: Michael Kao <michael.kao@mediatek.com>
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+Cc: stable@vger.kernel.org #v5.7
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20201229050831.19493-1-michael.kao@mediatek.com
+---
+ drivers/thermal/cpufreq_cooling.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
+index f3d3084..eeb4e4b 100644
+--- a/drivers/thermal/cpufreq_cooling.c
++++ b/drivers/thermal/cpufreq_cooling.c
+@@ -116,7 +116,7 @@ static u32 cpu_power_to_freq(struct cpufreq_cooling_device *cpufreq_cdev,
+ {
+ 	int i;
+ 
+-	for (i = cpufreq_cdev->max_level; i >= 0; i--) {
++	for (i = cpufreq_cdev->max_level; i > 0; i--) {
+ 		if (power >= cpufreq_cdev->em->table[i].power)
+ 			break;
+ 	}
