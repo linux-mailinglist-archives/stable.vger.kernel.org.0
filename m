@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2DF0360DC8
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B17360DC9
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233493AbhDOPF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:05:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48936 "EHLO mail.kernel.org"
+        id S233913AbhDOPF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234419AbhDOPDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:03:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96308613D0;
-        Thu, 15 Apr 2021 14:58:12 +0000 (UTC)
+        id S234416AbhDOPDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:03:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1EAD61428;
+        Thu, 15 Apr 2021 14:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498693;
-        bh=hZaut/XJ3BAQas+BQW8JkOE5/rywcPBslHBMjj9DkLE=;
+        s=korg; t=1618498695;
+        bh=HWbejj58m5BIOvjehaem8bi+Di6jcH0gmlRIsQrw0UU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyejUaU+wNR5xe6k7jw7tNVrbycZcrX3S1VpmOTWA2YEpRgoE1M/SHZ74pPvTpAZJ
-         14UtgUKqvPqgUYbfqplWN7/ujpRANUoTgdBNdf64+FT/GCGmO0410IGUI87I4fNFtE
-         EhzJwLRr4+BCvt9BoedxekAtUfLbOb0oQqoucBv4=
+        b=OD85bTl2aKkNiMXXt5ekI8a82tiN+BU0btgWH7rgg2sr1jdiMa8ipi3K+m28Y7LP1
+         a+06ELZzD8WMhFtV/m+h+Mtsr9V/v/+PRSNHs5wNb2cSt/OQZ4Bww3Gwbtlbo/7sDq
+         PIRW7u1loWCEGJI4gdZg7dErdZg6S3FZtOd69B28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zi Yan <ziy@nvidia.com>,
+        stable@vger.kernel.org,
         "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 11/23] XArray: Fix splitting to non-zero orders
-Date:   Thu, 15 Apr 2021 16:48:18 +0200
-Message-Id: <20210415144413.508495936@linuxfoundation.org>
+Subject: [PATCH 5.11 12/23] radix tree test suite: Fix compilation
+Date:   Thu, 15 Apr 2021 16:48:19 +0200
+Message-Id: <20210415144413.537807651@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
 References: <20210415144413.146131392@linuxfoundation.org>
@@ -42,101 +42,25 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 3012110d71f41410932924e1d188f9eb57f1f824 ]
+[ Upstream commit 7487de534dcbe143e6f41da751dd3ffcf93b00ee ]
 
-Splitting an order-4 entry into order-2 entries would leave the array
-containing pointers to 000040008000c000 instead of 000044448888cccc.
-This is a one-character fix, but enhance the test suite to check this
-case.
+Commit 4bba4c4bb09a added tools/include/linux/compiler_types.h which
+includes linux/compiler-gcc.h.  Unfortunately, we had our own (empty)
+compiler_types.h which overrode the one added by that commit, and
+so we lost the definition of __must_be_array().  Removing our empty
+compiler_types.h fixes the problem and reduces our divergence from the
+rest of the tools.
 
-Reported-by: Zi Yan <ziy@nvidia.com>
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_xarray.c | 26 ++++++++++++++------------
- lib/xarray.c      |  4 ++--
- 2 files changed, 16 insertions(+), 14 deletions(-)
+ tools/testing/radix-tree/linux/compiler_types.h | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ delete mode 100644 tools/testing/radix-tree/linux/compiler_types.h
 
-diff --git a/lib/test_xarray.c b/lib/test_xarray.c
-index 8294f43f4981..8b1c318189ce 100644
---- a/lib/test_xarray.c
-+++ b/lib/test_xarray.c
-@@ -1530,24 +1530,24 @@ static noinline void check_store_range(struct xarray *xa)
- 
- #ifdef CONFIG_XARRAY_MULTI
- static void check_split_1(struct xarray *xa, unsigned long index,
--							unsigned int order)
-+				unsigned int order, unsigned int new_order)
- {
--	XA_STATE(xas, xa, index);
--	void *entry;
--	unsigned int i = 0;
-+	XA_STATE_ORDER(xas, xa, index, new_order);
-+	unsigned int i;
- 
- 	xa_store_order(xa, index, order, xa, GFP_KERNEL);
- 
- 	xas_split_alloc(&xas, xa, order, GFP_KERNEL);
- 	xas_lock(&xas);
- 	xas_split(&xas, xa, order);
-+	for (i = 0; i < (1 << order); i += (1 << new_order))
-+		__xa_store(xa, index + i, xa_mk_index(index + i), 0);
- 	xas_unlock(&xas);
- 
--	xa_for_each(xa, index, entry) {
--		XA_BUG_ON(xa, entry != xa);
--		i++;
-+	for (i = 0; i < (1 << order); i++) {
-+		unsigned int val = index + (i & ~((1 << new_order) - 1));
-+		XA_BUG_ON(xa, xa_load(xa, index + i) != xa_mk_index(val));
- 	}
--	XA_BUG_ON(xa, i != 1 << order);
- 
- 	xa_set_mark(xa, index, XA_MARK_0);
- 	XA_BUG_ON(xa, !xa_get_mark(xa, index, XA_MARK_0));
-@@ -1557,14 +1557,16 @@ static void check_split_1(struct xarray *xa, unsigned long index,
- 
- static noinline void check_split(struct xarray *xa)
- {
--	unsigned int order;
-+	unsigned int order, new_order;
- 
- 	XA_BUG_ON(xa, !xa_empty(xa));
- 
- 	for (order = 1; order < 2 * XA_CHUNK_SHIFT; order++) {
--		check_split_1(xa, 0, order);
--		check_split_1(xa, 1UL << order, order);
--		check_split_1(xa, 3UL << order, order);
-+		for (new_order = 0; new_order < order; new_order++) {
-+			check_split_1(xa, 0, order, new_order);
-+			check_split_1(xa, 1UL << order, order, new_order);
-+			check_split_1(xa, 3UL << order, order, new_order);
-+		}
- 	}
- }
- #else
-diff --git a/lib/xarray.c b/lib/xarray.c
-index 5fa51614802a..ed775dee1074 100644
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -1011,7 +1011,7 @@ void xas_split_alloc(struct xa_state *xas, void *entry, unsigned int order,
- 
- 	do {
- 		unsigned int i;
--		void *sibling;
-+		void *sibling = NULL;
- 		struct xa_node *node;
- 
- 		node = kmem_cache_alloc(radix_tree_node_cachep, gfp);
-@@ -1021,7 +1021,7 @@ void xas_split_alloc(struct xa_state *xas, void *entry, unsigned int order,
- 		for (i = 0; i < XA_CHUNK_SIZE; i++) {
- 			if ((i & mask) == 0) {
- 				RCU_INIT_POINTER(node->slots[i], entry);
--				sibling = xa_mk_sibling(0);
-+				sibling = xa_mk_sibling(i);
- 			} else {
- 				RCU_INIT_POINTER(node->slots[i], sibling);
- 			}
+diff --git a/tools/testing/radix-tree/linux/compiler_types.h b/tools/testing/radix-tree/linux/compiler_types.h
+deleted file mode 100644
+index e69de29bb2d1..000000000000
 -- 
 2.30.2
 
