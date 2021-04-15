@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE391360CB2
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55EC2360C58
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234137AbhDOOxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:53:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
+        id S233895AbhDOOuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:50:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233869AbhDOOvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:51:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9EE4613CE;
-        Thu, 15 Apr 2021 14:51:29 +0000 (UTC)
+        id S233786AbhDOOuA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:50:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73A326137D;
+        Thu, 15 Apr 2021 14:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498290;
-        bh=fS+acfzHDpcFBoB9lxUE8LdI66SI5ldM2rL2MT5kA+M=;
+        s=korg; t=1618498177;
+        bh=81t4OGQ95M/SSGCQ/HhEOqWh2evErBTASNTw8IAe/78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HVVwpYIf4wxBt1IV3jYB5l0S3alyAvlxQi5/bGalBP5zi6a7nWuMp9+YzafB21vPt
-         VaGxmPggFhblqdyAGng28mB8iKKDdjcSXf7Cx4W4DxPAhNnM133cpe5j8mlBMWt9ku
-         uVM4SzkZ685jxNCDaQokN2UR6kd1fduFvJaMG1N8=
+        b=KJqiQiVQoLrGOkR2otnnnTEcDymn+KzRcjXoc5PcrjLzO2M4m/YmdfmL07MTksZwO
+         yijPueLr7T3LFQQPwto6FU/TNwilFJM6UcmSknrm5BeEpsXBs3Jk1nLXHL7cxq9eN+
+         +SdQJVloIQ4Xwggqk+V6SxDbJDhudkbksGCWIzdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
         Xiaoming Ni <nixiaoming@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 07/47] nfc: fix memory leak in llcp_sock_connect()
+Subject: [PATCH 4.4 05/38] nfc: fix memory leak in llcp_sock_connect()
 Date:   Thu, 15 Apr 2021 16:46:59 +0200
-Message-Id: <20210415144413.716748940@linuxfoundation.org>
+Message-Id: <20210415144413.529292544@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,7 +64,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/nfc/llcp_sock.c
 +++ b/net/nfc/llcp_sock.c
-@@ -757,6 +757,8 @@ sock_unlink:
+@@ -751,6 +751,8 @@ sock_unlink:
  	nfc_llcp_local_put(llcp_sock->local);
  
  	nfc_llcp_sock_unlink(&local->connecting_sockets, sk);
