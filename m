@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8452C360C66
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D69360CB8
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233367AbhDOOup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37562 "EHLO mail.kernel.org"
+        id S233935AbhDOOyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233832AbhDOOuX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:50:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1382613C1;
-        Thu, 15 Apr 2021 14:49:59 +0000 (UTC)
+        id S233597AbhDOOwO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:52:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7ED2613CB;
+        Thu, 15 Apr 2021 14:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498200;
-        bh=wzIs9vcjyy0Sc2OSjsCFuqrnklXkzob8Zt1K4g0ociE=;
+        s=korg; t=1618498311;
+        bh=An3o1657eqWgfjRCA59yDM6qIlxeuVQVe7A2S3mFIq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3UK2n8KFGOweJCadGF/v05rjZDWrRz8gGXn2LGeJCJhUTUj70Nom4PlH4rJ/YV9I
-         2qGxwUeEOgpLQ1gh0+mQlsS+63fHyh+rANCH59xI/dgEU/J5y15OjWi4BEKTcxVDtd
-         SCMwsX5p4cNMueByUcR4A83PfFNbVns3LFQimJe0=
+        b=gUfVR/n5/H2ubuy5riOK0PS4ANfIzSA9oRC6YJhd07HtMb13wgh9GvW7QuLxIsYUK
+         Qppc/+X3kt26WsFLsEOfUBhVFCL7S/3oBEY0hxopbjiE11iAyBqofZyv5NzjiVZ8MA
+         eTZVYzU5uEANsxYUioHgrLkdJFsEyuf8CzCpEaa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.4 38/38] xen/events: fix setting irq affinity
+        stable@vger.kernel.org,
+        syzbot+fbf4fc11a819824e027b@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.9 40/47] net: ieee802154: forbid monitor for del llsec seclevel
 Date:   Thu, 15 Apr 2021 16:47:32 +0200
-Message-Id: <20210415144414.582375199@linuxfoundation.org>
+Message-Id: <20210415144414.737250522@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
-References: <20210415144413.352638802@linuxfoundation.org>
+In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
+References: <20210415144413.487943796@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,47 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-The backport of upstream patch 25da4618af240fbec61 ("xen/events: don't
-unmask an event channel when an eoi is pending") introduced a
-regression for stable kernels 5.10 and older: setting IRQ affinity for
-IRQs related to interdomain events would no longer work, as moving the
-IRQ to its new cpu was not included in the irq_ack callback for those
-events.
+commit 9dde130937e95b72adfae64ab21d6e7e707e2dac upstream.
 
-Fix that by adding the needed call.
+This patch forbids to del llsec seclevel for monitor interfaces which we
+don't support yet. Otherwise we will access llsec mib which isn't
+initialized for monitors.
 
-Note that kernels 5.11 and later don't need the explicit moving of the
-IRQ to the target cpu in the irq_ack callback, due to a rework of the
-affinity setting in kernel 5.11.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: syzbot+fbf4fc11a819824e027b@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-15-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/xen/events/events_base.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ieee802154/nl802154.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -1779,7 +1779,7 @@ static void lateeoi_ack_dynirq(struct ir
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -2137,6 +2137,9 @@ static int nl802154_del_llsec_seclevel(s
+ 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
+ 	struct ieee802154_llsec_seclevel sl;
  
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		event_handler_exit(info);
-+		ack_dynirq(data);
- 	}
- }
- 
-@@ -1790,7 +1790,7 @@ static void lateeoi_mask_ack_dynirq(stru
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
--		event_handler_exit(info);
-+		ack_dynirq(data);
- 	}
- }
- 
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (!info->attrs[NL802154_ATTR_SEC_LEVEL] ||
+ 	    llsec_parse_seclevel(info->attrs[NL802154_ATTR_SEC_LEVEL],
+ 				 &sl) < 0)
 
 
