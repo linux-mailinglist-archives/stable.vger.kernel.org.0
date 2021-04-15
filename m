@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38802360DD2
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A0F4360D91
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234337AbhDOPGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:06:05 -0400
+        id S234192AbhDOPDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:03:43 -0400
 Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232819AbhDOPDy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:03:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9C48613F0;
-        Thu, 15 Apr 2021 14:58:34 +0000 (UTC)
+        id S235290AbhDOPAn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:00:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0094661415;
+        Thu, 15 Apr 2021 14:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498715;
-        bh=IEtWHw7bJb9vjJoLGg1W3RkS+VuGnWdJ2aCrDqR6WrE=;
+        s=korg; t=1618498615;
+        bh=FEqHoQtogVPYM8qIKYv+FB0duB3s1p0ZSpZOhi3Roso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsVPbOrUGx0qBs5OIK/L191rYnKmjAgHSqOq1lCbr6h7kaWe1xaP6IKC2Q5T27d0G
-         n4OxEK6kavGzMSavJokZBD5YW+CqLAoLmF1uhCDyhDtRIalVgZ+lTD+kTzClrsEfT1
-         vkNcRqIfPqJHEpGKcHwrqPG4ZFGYrXNnrrrYPXh0=
+        b=woy/iZ5jVQfz17sajcT6vX8yJFg1usQa6HjFFmctjfoYopZNmQzgK36aS80eno5Wy
+         WnpexJ63uHYAqrduL9xdaBI0XjZN6XIHpFRl107cSL2vzHmtTgLVylTj0QkH459jqX
+         wYHaxwM09T9Ptqc5mFADYiZa6uxuGTY5n1A0s8GU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Andrew Price <anprice@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 02/23] gfs2: Flag a withdraw if init_threads() fails
-Date:   Thu, 15 Apr 2021 16:48:09 +0200
-Message-Id: <20210415144413.230205223@linuxfoundation.org>
+        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 5.4 17/18] perf map: Tighten snprintf() string precision to pass gcc check on some 32-bit arches
+Date:   Thu, 15 Apr 2021 16:48:10 +0200
+Message-Id: <20210415144413.595477250@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
-References: <20210415144413.146131392@linuxfoundation.org>
+In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
+References: <20210415144413.055232956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Price <anprice@redhat.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 62dd0f98a0e5668424270b47a0c2e973795faba7 ]
+commit 77d02bd00cea9f1a87afe58113fa75b983d6c23a upstream.
 
-Interrupting mount with ^C quickly enough can cause the kthread_run()
-calls in gfs2's init_threads() to fail and the error path leads to a
-deadlock on the s_umount rwsem. The abridged chain of events is:
+Noticed on a debian:experimental mips and mipsel cross build build
+environment:
 
-  [mount path]
-  get_tree_bdev()
-    sget_fc()
-      alloc_super()
-        down_write_nested(&s->s_umount, SINGLE_DEPTH_NESTING); [acquired]
-    gfs2_fill_super()
-      gfs2_make_fs_rw()
-        init_threads()
-          kthread_run()
-            ( Interrupted )
-      [Error path]
-      gfs2_gl_hash_clear()
-        flush_workqueue(glock_workqueue)
-          wait_for_completion()
+  perfbuilder@ec265a086e9b:~$ mips-linux-gnu-gcc --version | head -1
+  mips-linux-gnu-gcc (Debian 10.2.1-3) 10.2.1 20201224
+  perfbuilder@ec265a086e9b:~$
 
-  [workqueue context]
-  glock_work_func()
-    run_queue()
-      do_xmote()
-        freeze_go_sync()
-          freeze_super()
-            down_write(&sb->s_umount) [deadlock]
+    CC       /tmp/build/perf/util/map.o
+  util/map.c: In function 'map__new':
+  util/map.c:109:5: error: '%s' directive output may be truncated writing between 1 and 2147483645 bytes into a region of size 4096 [-Werror=format-truncation=]
+    109 |    "%s/platforms/%s/arch-%s/usr/lib/%s",
+        |     ^~
+  In file included from /usr/mips-linux-gnu/include/stdio.h:867,
+                   from util/symbol.h:11,
+                   from util/map.c:2:
+  /usr/mips-linux-gnu/include/bits/stdio2.h:67:10: note: '__builtin___snprintf_chk' output 32 or more bytes (assuming 4294967321) into a destination of size 4096
+     67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     68 |        __bos (__s), __fmt, __va_arg_pack ());
+        |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cc1: all warnings being treated as errors
 
-In freeze_go_sync() there is a gfs2_withdrawn() check that we can use to
-make sure freeze_super() is not called in the error path, so add a
-gfs2_withdraw_delayed() call when init_threads() fails.
+Since we have the lenghts for what lands in that place, use it to give
+the compiler more info and make it happy.
 
-Ref: https://bugzilla.kernel.org/show_bug.cgi?id=212231
-
-Reported-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/super.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/util/map.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 754ea2a137b4..34ca312457a6 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -169,8 +169,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
- 	int error;
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -93,8 +93,7 @@ static inline bool replace_android_lib(c
+ 	if (!strncmp(filename, "/system/lib/", 12)) {
+ 		char *ndk, *app;
+ 		const char *arch;
+-		size_t ndk_length;
+-		size_t app_length;
++		int ndk_length, app_length;
  
- 	error = init_threads(sdp);
--	if (error)
-+	if (error) {
-+		gfs2_withdraw_delayed(sdp);
- 		return error;
-+	}
+ 		ndk = getenv("NDK_ROOT");
+ 		app = getenv("APP_PLATFORM");
+@@ -122,8 +121,8 @@ static inline bool replace_android_lib(c
+ 		if (new_length > PATH_MAX)
+ 			return false;
+ 		snprintf(newfilename, new_length,
+-			"%s/platforms/%s/arch-%s/usr/lib/%s",
+-			ndk, app, arch, libname);
++			"%.*s/platforms/%.*s/arch-%s/usr/lib/%s",
++			ndk_length, ndk, app_length, app, arch, libname);
  
- 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
- 	if (gfs2_withdrawn(sdp)) {
--- 
-2.30.2
-
+ 		return true;
+ 	}
 
 
