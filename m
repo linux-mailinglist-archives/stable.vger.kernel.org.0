@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54FB0360D09
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:56:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31FD6360C8E
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234457AbhDOO4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
+        id S233595AbhDOOvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:51:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234204AbhDOOzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:55:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9363613EB;
-        Thu, 15 Apr 2021 14:53:24 +0000 (UTC)
+        id S233948AbhDOOvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:51:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 844CC613C3;
+        Thu, 15 Apr 2021 14:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498405;
-        bh=f/2zWovTdWw1YiITnl0NVy6h6k/ftA0MY1bRphiYMCE=;
+        s=korg; t=1618498244;
+        bh=7gOT+euCVm7O7XlWbv/g4fgdzJgd7Y8iqX0HZT1O+14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PVTDmtLxTBSV6JeYKbKBwsD4HXJtyYSn6G0EW0HK5BHgyUC6zpOkw0IFDwXsoUVeR
-         F55ZUbXfyqdgOHzM8Awy7VhWLeLWJxW+GuKt49W6mcE0bljcF+d4KpqUfHuzvXZxyC
-         L8pUfUbXeHcFtppKR7OkK5my9i/Vxq6Q7e7iuGeI=
+        b=tzLijPWxuVazA6Lactn7spz/eFeHQkMoEcAJ+CrXNHvnpuO+qIcWRiEMODgZmOiqj
+         80CGNA7/a5PcGiCFMikAw1Uek7ST+Q7lmH8ZUdnTdPbgqjv4fLLdptdOYCfor5X/xE
+         8BtcIQ3JZTtEa3EIcTIpojU3ge9pah6UyjKOjnsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/68] gianfar: Handle error code at MAC address change
+        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
+        Helge Deller <deller@gmx.de>, Gao Xiang <hsiangkao@redhat.com>
+Subject: [PATCH 4.9 15/47] parisc: avoid a warning on u8 cast for cmpxchg on u8 pointers
 Date:   Thu, 15 Apr 2021 16:47:07 +0200
-Message-Id: <20210415144415.316808393@linuxfoundation.org>
+Message-Id: <20210415144413.954642795@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
-References: <20210415144414.464797272@linuxfoundation.org>
+In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
+References: <20210415144413.487943796@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-[ Upstream commit bff5b62585123823842833ab20b1c0a7fa437f8c ]
+commit 4d752e5af63753ab5140fc282929b98eaa4bd12e upstream.
 
-Handle return error code of eth_mac_addr();
+commit b344d6a83d01 ("parisc: add support for cmpxchg on u8 pointers")
+can generate a sparse warning ("cast truncates bits from constant
+value"), which has been reported several times [1] [2] [3].
 
-Fixes: 3d23a05c75c7 ("gianfar: Enable changing mac addr when if up")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The original code worked as expected, but anyway, let silence such
+sparse warning as what others did [4].
+
+[1] https://lore.kernel.org/r/202104061220.nRMBwCXw-lkp@intel.com
+[2] https://lore.kernel.org/r/202012291914.T5Agcn99-lkp@intel.com
+[3] https://lore.kernel.org/r/202008210829.KVwn7Xeh%25lkp@intel.com
+[4] https://lore.kernel.org/r/20210315131512.133720-2-jacopo+renesas@jmondi.org
+Cc: Liam Beguin <liambeguin@gmail.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org # v5.8+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/parisc/include/asm/cmpxchg.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index b3b7b98eb32c..c89a5a80c9c8 100644
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -485,7 +485,11 @@ static struct net_device_stats *gfar_get_stats(struct net_device *dev)
- 
- static int gfar_set_mac_addr(struct net_device *dev, void *p)
- {
--	eth_mac_addr(dev, p);
-+	int ret;
-+
-+	ret = eth_mac_addr(dev, p);
-+	if (ret)
-+		return ret;
- 
- 	gfar_set_mac_for_addr(dev, 0, dev->dev_addr);
- 
--- 
-2.30.2
-
+--- a/arch/parisc/include/asm/cmpxchg.h
++++ b/arch/parisc/include/asm/cmpxchg.h
+@@ -71,7 +71,7 @@ __cmpxchg(volatile void *ptr, unsigned l
+ #endif
+ 	case 4: return __cmpxchg_u32((unsigned int *)ptr,
+ 				     (unsigned int)old, (unsigned int)new_);
+-	case 1: return __cmpxchg_u8((u8 *)ptr, (u8)old, (u8)new_);
++	case 1: return __cmpxchg_u8((u8 *)ptr, old & 0xff, new_ & 0xff);
+ 	}
+ 	__cmpxchg_called_with_bad_pointer();
+ 	return old;
 
 
