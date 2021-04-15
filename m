@@ -2,150 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50887360BBF
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37902360BC2
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233201AbhDOOZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:25:11 -0400
-Received: from mga17.intel.com ([192.55.52.151]:62920 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230056AbhDOOZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:25:10 -0400
-IronPort-SDR: TdxjJHzQITVLo5uBwxZtafqy8hTojAzqkFJBj9d1oxpcWrYRI7wj24QHYB98UhP1dYDVHHqiET
- rC0Yw6IT/V7Q==
-X-IronPort-AV: E=McAfee;i="6200,9189,9955"; a="174966822"
-X-IronPort-AV: E=Sophos;i="5.82,225,1613462400"; 
-   d="scan'208";a="174966822"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2021 07:24:47 -0700
-IronPort-SDR: pKDKQflmVg1fjr500lbZygAhcwhvaDcQaREdvysUl4WeM6ChjHgiUhoUT4ljOeQBl2hJZ5fzGO
- VJ6yiDlb2oSg==
-X-IronPort-AV: E=Sophos;i="5.82,225,1613462400"; 
-   d="scan'208";a="452932231"
-Received: from allanagx-mobl.amr.corp.intel.com (HELO [10.213.172.37]) ([10.213.172.37])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2021 07:24:47 -0700
-Subject: Re: [PATCH v1] ASoC: Intel: kbl_da7219_max98927: Fix
- kabylake_ssp_fixup function
-To:     Lukasz Majczak <lma@semihalf.com>, Mark Brown <broonie@kernel.org>,
-        Harsha Priya <harshapriya.n@intel.com>,
-        Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
-Cc:     upstream@semihalf.com, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20210415124347.475432-1-lma@semihalf.com>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <a4c8f5d0-5bc1-1b7e-c7a5-731c9f6f7951@linux.intel.com>
-Date:   Thu, 15 Apr 2021 09:24:45 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S233346AbhDOO0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:26:46 -0400
+Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:8912 "EHLO
+        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230056AbhDOO0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 10:26:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1618496783; x=1650032783;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=IYYHQjQUEYAY07onLm8+SW69KoZR6LGzsTny098YXCM=;
+  b=pkywBVSSCtzez1EwimJgHNgqqyUseCYCUr2FgrOofQdfsBYBpZUSHMZY
+   J/0rss4MsxurG6wYT2euQxNcZNwY2GOHQftiy2epJ+3pCB38pU0yKlDJQ
+   okTstUqtUdYQgkJR3crt7VSL8y5sgHpeEjjBVgWdYuJxj+K7Xic3vnokG
+   Q=;
+X-IronPort-AV: E=Sophos;i="5.82,225,1613433600"; 
+   d="scan'208";a="107687805"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-303d0b0e.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 15 Apr 2021 14:26:22 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-1e-303d0b0e.us-east-1.amazon.com (Postfix) with ESMTPS id C7BC0A1E7F;
+        Thu, 15 Apr 2021 14:26:18 +0000 (UTC)
+Received: from EX13D02UWB002.ant.amazon.com (10.43.161.160) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Thu, 15 Apr 2021 14:26:17 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (10.43.161.207) by
+ EX13D02UWB002.ant.amazon.com (10.43.161.160) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Thu, 15 Apr 2021 14:26:17 +0000
+Received: from dev-dsk-alisaidi-i31e-9f3421fe.us-east-1.amazon.com
+ (10.200.138.153) by mail-relay.amazon.com (10.43.161.249) with Microsoft SMTP
+ Server id 15.0.1497.2 via Frontend Transport; Thu, 15 Apr 2021 14:26:17 +0000
+Received: by dev-dsk-alisaidi-i31e-9f3421fe.us-east-1.amazon.com (Postfix, from userid 5131138)
+        id 65A02228E4; Thu, 15 Apr 2021 14:26:17 +0000 (UTC)
+From:   Ali Saidi <alisaidi@amazon.com>
+To:     <linux-kernel@vger.kernel.org>
+CC:     <alisaidi@amazon.com>, <catalin.marinas@arm.com>,
+        <steve.capper@arm.com>, <benh@kernel.crashing.org>,
+        <stable@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Boqun Feng <boqun.feng@gmail.com>
+Subject: [PATCH] locking/qrwlock: Fix ordering in queued_write_lock_slowpath
+Date:   Thu, 15 Apr 2021 14:25:52 +0000
+Message-ID: <20210415142552.30916-1-alisaidi@amazon.com>
+X-Mailer: git-send-email 2.24.4.AMZN
 MIME-Version: 1.0
-In-Reply-To: <20210415124347.475432-1-lma@semihalf.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+While this code is executed with the wait_lock held, a reader can
+acquire the lock without holding wait_lock.  The writer side loops
+checking the value with the atomic_cond_read_acquire(), but only truly
+acquires the lock when the compare-and-exchange is completed
+successfully which isn’t ordered. The other atomic operations from this
+point are release-ordered and thus reads after the lock acquisition can
+be completed before the lock is truly acquired which violates the
+guarantees the lock should be making.
 
+Fixes: b519b56e378ee ("locking/qrwlock: Use atomic_cond_read_acquire() when spinning in qrwloc")
+Signed-off-by: Ali Saidi <alisaidi@amazon.com>
+Cc: stable@vger.kernel.org
+---
+ kernel/locking/qrwlock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-On 4/15/21 7:43 AM, Lukasz Majczak wrote:
-> kabylake_ssp_fixup function uses snd_soc_dpcm to identify the
-> codecs DAIs. The HW parameters are changed based on the codec DAI of the
-> stream. The earlier approach to get snd_soc_dpcm was using container_of()
-> macro on snd_pcm_hw_params.
-> 
-> The structures have been modified over time and snd_soc_dpcm does not have
-> snd_pcm_hw_params as a reference but as a copy. This causes the current
-> driver to crash when used.
-> 
-> This patch changes the way snd_soc_dpcm is extracted. snd_soc_pcm_runtime
-> holds 2 dpcm instances (one for playback and one for capture). 2 codecs
-> on the SSP are dmic (capture) and speakers (playback). Based on the
-> stream direction, snd_soc_dpcm is extracted from snd_soc_pcm_runtime.
-> 
-> Tested for all use cases of the driver.
-> Based on similar fix in kbl_rt5663_rt5514_max98927.c
-> from Harsha Priya <harshapriya.n@intel.com> and
-> Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
-> 
-> Cc: <stable@vger.kernel.org> # 5.4+
-> Signed-off-by: Lukasz Majczak <lma@semihalf.com>
-> ---
-> Hi,
-> This is basically a cherry-pick of this change:
-> https://patchwork.kernel.org/project/alsa-devel/patch/1595432147-11166-1-git-send-email-harshapriya.n@intel.com/
-> just applied to the kbl_da7219_max98927.
-> Best regards,
-> Lukasz
+diff --git a/kernel/locking/qrwlock.c b/kernel/locking/qrwlock.c
+index 4786dd271b45..10770f6ac4d9 100644
+--- a/kernel/locking/qrwlock.c
++++ b/kernel/locking/qrwlock.c
+@@ -73,8 +73,8 @@ void queued_write_lock_slowpath(struct qrwlock *lock)
+ 
+ 	/* When no more readers or writers, set the locked flag */
+ 	do {
+-		atomic_cond_read_acquire(&lock->cnts, VAL == _QW_WAITING);
+-	} while (atomic_cmpxchg_relaxed(&lock->cnts, _QW_WAITING,
++		atomic_cond_read_relaxed(&lock->cnts, VAL == _QW_WAITING);
++	} while (atomic_cmpxchg_acquire(&lock->cnts, _QW_WAITING,
+ 					_QW_LOCKED) != _QW_WAITING);
+ unlock:
+ 	arch_spin_unlock(&lock->wait_lock);
+-- 
+2.24.4.AMZN
 
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-
-> 
->   sound/soc/intel/boards/kbl_da7219_max98927.c | 38 +++++++++++++++-----
->   1 file changed, 30 insertions(+), 8 deletions(-)
-> 
-> diff --git a/sound/soc/intel/boards/kbl_da7219_max98927.c b/sound/soc/intel/boards/kbl_da7219_max98927.c
-> index 9dfe5bd9180d..4b7b4a044f81 100644
-> --- a/sound/soc/intel/boards/kbl_da7219_max98927.c
-> +++ b/sound/soc/intel/boards/kbl_da7219_max98927.c
-> @@ -284,11 +284,33 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
->   	struct snd_interval *chan = hw_param_interval(params,
->   			SNDRV_PCM_HW_PARAM_CHANNELS);
->   	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-> -	struct snd_soc_dpcm *dpcm = container_of(
-> -			params, struct snd_soc_dpcm, hw_params);
-> -	struct snd_soc_dai_link *fe_dai_link = dpcm->fe->dai_link;
-> -	struct snd_soc_dai_link *be_dai_link = dpcm->be->dai_link;
-> +	struct snd_soc_dpcm *dpcm, *rtd_dpcm = NULL;
->   
-> +	/*
-> +	 * The following loop will be called only for playback stream
-> +	 * In this platform, there is only one playback device on every SSP
-> +	 */
-> +	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_PLAYBACK, dpcm) {
-> +		rtd_dpcm = dpcm;
-> +		break;
-> +	}
-> +
-> +	/*
-> +	 * This following loop will be called only for capture stream
-> +	 * In this platform, there is only one capture device on every SSP
-> +	 */
-> +	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_CAPTURE, dpcm) {
-> +		rtd_dpcm = dpcm;
-> +		break;
-> +	}
-> +
-> +	if (!rtd_dpcm)
-> +		return -EINVAL;
-> +
-> +	/*
-> +	 * The above 2 loops are mutually exclusive based on the stream direction,
-> +	 * thus rtd_dpcm variable will never be overwritten
-> +	 */
->   	/*
->   	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE,
->   	 * where as kblda7219m98927 & kblmax98927 supports S16_LE by default.
-> @@ -311,9 +333,9 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
->   	/*
->   	 * The ADSP will convert the FE rate to 48k, stereo, 24 bit
->   	 */
-> -	if (!strcmp(fe_dai_link->name, "Kbl Audio Port") ||
-> -	    !strcmp(fe_dai_link->name, "Kbl Audio Headset Playback") ||
-> -	    !strcmp(fe_dai_link->name, "Kbl Audio Capture Port")) {
-> +	if (!strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Port") ||
-> +	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Headset Playback") ||
-> +	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Capture Port")) {
->   		rate->min = rate->max = 48000;
->   		chan->min = chan->max = 2;
->   		snd_mask_none(fmt);
-> @@ -324,7 +346,7 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
->   	 * The speaker on the SSP0 supports S16_LE and not S24_LE.
->   	 * thus changing the mask here
->   	 */
-> -	if (!strcmp(be_dai_link->name, "SSP0-Codec"))
-> +	if (!strcmp(rtd_dpcm->be->dai_link->name, "SSP0-Codec"))
->   		snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S16_LE);
->   
->   	return 0;
-> 
