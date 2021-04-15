@@ -2,96 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 592C4360B27
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 15:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 855C6360B28
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 15:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232004AbhDON6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 09:58:00 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46961 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231549AbhDON57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 09:57:59 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 88B1E5C0194;
-        Thu, 15 Apr 2021 09:57:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Thu, 15 Apr 2021 09:57:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=jfSg5duuUTsC7Zu0OFnc3g37Jmr
-        ZtyX1JeECNWT8APg=; b=eJw02QP5SgDmfUXxhsua6b3XvtLIq9aVxluANpWttRs
-        Z7V1t9B6eqcN/B4gD7Uq7tF176lw3J7A1glyl/dKHqij09uXsqfN9ArvCYgqEHMi
-        Kc+76/HlA7wk0JauDvco/5pFhAaJHEsTMSqbmMqDVss4NKwmp+5iu0Jj243E1iJO
-        IL1BiBWftqpIlHEmPPyJN7pL8k3h6UUZNIUMNm4RRW4bwrQcbfkP3HuJb59EP0+J
-        p//23UO7Izc6+mnpIz4mwHlNhjjj0goUzZnVqt9BgHgdfUu1W8GZatA/RYNzuOQD
-        afEYvkEafvGinyJRI95BXl0k3FClWkqgbsSH9Nilq7Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=jfSg5d
-        uuUTsC7Zu0OFnc3g37JmrZtyX1JeECNWT8APg=; b=BDVbxagipk3EkwKdf9ucJr
-        Xntythxjk2r4IBWfDCPtIvH1WjOhQIaeho9jGjss8za7zhY9PmSML1QEoKhUl1+K
-        mKla9G+IPbm4JF2c9GnOrvrzmbPYIVN7mo5Rf7cym5ILXtzd3nXN/pJhE+Vw52gA
-        UyFMx6CEgzKZC9DWrm4zmxoJ6TIo1Y+BuiZDmYXrZ5uRDZk3iqkP8wqAra/q6KSx
-        3xJeTJfz47d+YY19kSLUfWsflelQ+USAN+AwJUdWTZa86sej/26vWdG7+mUJCDbU
-        JMTEzIbfRsKENN9qMTVSmoTj0i4SrYYRylPUlFrTGpvKmDflN+Okx6OFNqLjEDmQ
-        ==
-X-ME-Sender: <xms:T0Z4YBRnKDhOmXcowo_JglIbZz22p8nU99lcIQKp3weLGch7F8fykg>
-    <xme:T0Z4YKz3NdyTsu5b-6LeyzoRb-NOvdmqycCF9yQkj1RwIsIC4HiDkz4ot12S5Ib8F
-    2njL7ujF8apqA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelfedgjeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:T0Z4YG1Ub7HDFpw-MSJ_PQn6GD0aB3SQqlPTXR1RnjyhSdMT7BifJg>
-    <xmx:T0Z4YJBMoDFFTT_GzQw7P0IsLVs2twWbjPGmDO96yKKRAZVOnH7MrQ>
-    <xmx:T0Z4YKi9DdfzYbcKBRn4tzZgx68s2kJinVXFpN2Z_ODJo3uu-Ibajg>
-    <xmx:UEZ4YNvXo7_PRAacA12fLSOkT1IwBBUjRWux3Z7jSiyh1h7BFT95xA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id ADEC0240057;
-        Thu, 15 Apr 2021 09:57:35 -0400 (EDT)
-Date:   Thu, 15 Apr 2021 15:57:33 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH] xen/events: fix setting irq affinity
-Message-ID: <YHhGTZFXzPg+FaEq@kroah.com>
-References: <20210412062845.13946-1-jgross@suse.com>
+        id S232767AbhDON6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 09:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231549AbhDON6H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 09:58:07 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF02C061574
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 06:57:43 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id x12so16237561ejc.1
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 06:57:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=E0B6LJ9MQlxo3iqh798Y3fz6SwUA0hzfEWerzCi9sQc=;
+        b=DUylb96v09JJTOWaj8YJHjxZ4PLlF1AMpKWlB4UrMpLJxgmgzwbQvl2QuMYXSoCSzI
+         CchgEhbAGA3Jo50Rv+WQh9B16SUsRNU5TFxmvPiwb5O4FNZ+mgL1ejBEcMckbWShqd0K
+         7sJLbFRXwwQN5nTd27bQVuBlbAYWGpbb+ynwMothsEXC8IhpEH75fXtLSTcWj5aGAVxK
+         IwB2hcATmYQNCwxsOdu27YzNlBh3Fi7MIT8fnK+xWDVfra3JSEp8ER4EyU463bcydbRD
+         pTKepMUM3gUWLx5ndRpEhzj/FTxf+J0xQc8lBI3VsmnDr9YBWO+6QprXoVATPjadjqGo
+         ZOHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=E0B6LJ9MQlxo3iqh798Y3fz6SwUA0hzfEWerzCi9sQc=;
+        b=o35mb9kfGsuYHxkku+9RGdMdqdX029t/wi9KJfifcSZ4zLqPlkruqNzkYhOBqR/ab4
+         BuHUIdVFItvU6CJa2rSi8QdMrafFyKapY/c0dzWfCaKwmNgooqYFWBwr/B2Wrc/Sp+Ab
+         lUKghS2o5n/YIe6vZIiVU2f1qWd+dyD85Hk8wVMDids0StYP5tB+qzQ4jrS6jgQTazBf
+         WZeL6xsilHVzvC7BsQwfOmF+EG4PwyWrXm02kI6nCDZMYhejeEgPodXnOO6VfcKmmv2N
+         YlYVZtl05rmTk5Po5QZldq7GHqn5SFWAifJ13Ex9DL6bq7MDohNsXhpFnXYfeJmUexlO
+         cwpw==
+X-Gm-Message-State: AOAM530qTKpAHsDL1o9YcoywF7JE4a1ttyH77dUPj6QBfV0tFQ0m7puo
+        RS3w4oTRhQK3eB8+N90qh+Q=
+X-Google-Smtp-Source: ABdhPJyeo1QN487ijdeN+PrDWuuB1Tih5EyXXZ50dAHOQQI7awqk2jAo+s8Y8GuEHkCtzTuEfWmezQ==
+X-Received: by 2002:a17:906:5490:: with SMTP id r16mr3710449ejo.352.1618495062229;
+        Thu, 15 Apr 2021 06:57:42 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id u13sm2106085ejn.59.2021.04.15.06.57.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Apr 2021 06:57:41 -0700 (PDT)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Thu, 15 Apr 2021 15:57:40 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        NeilBrown <neil@brown.name>,
+        George Hilliard <thirtythreeforty@gmail.com>,
+        Christian =?iso-8859-1?Q?L=FCtke-Stetzkamp?= <christian@lkamp.de>,
+        Nishad Kamdar <nishadkamdar@gmail.com>,
+        Sergej Perschin <ser.perschin@gmail.com>,
+        John Crispin <blogic@openwrt.org>
+Subject: Re: "Backport" of 441bf7332d55 ("staging: m57621-mmc: delete driver
+ from the tree.") as well for older stable series still supported?
+Message-ID: <YHhGVJTBHx55SYYi@eldamar.lan>
+References: <YHdGBm2WHb5I8FFW@eldamar.lan>
+ <YHgIEbn1UqhXHdzr@kroah.com>
+ <YHghlaftXxH49lUy@sashalap>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210412062845.13946-1-jgross@suse.com>
+In-Reply-To: <YHghlaftXxH49lUy@sashalap>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 12, 2021 at 08:28:45AM +0200, Juergen Gross wrote:
-> The backport of upstream patch 25da4618af240fbec61 ("xen/events: don't
-> unmask an event channel when an eoi is pending") introduced a
-> regression for stable kernels 5.10 and older: setting IRQ affinity for
-> IRQs related to interdomain events would no longer work, as moving the
-> IRQ to its new cpu was not included in the irq_ack callback for those
-> events.
-> 
-> Fix that by adding the needed call.
-> 
-> Note that kernels 5.11 and later don't need the explicit moving of the
-> IRQ to the target cpu in the irq_ack callback, due to a rework of the
-> affinity setting in kernel 5.11.
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
-> This patch should be applied to all stable kernel branches up to
-> (including) linux-5.10.y, where upstream patch 25da4618af240fbec61 has
-> been added.
+Hi,
 
-Now queued up, thanks.
+On Thu, Apr 15, 2021 at 07:20:53AM -0400, Sasha Levin wrote:
+> On Thu, Apr 15, 2021 at 11:32:01AM +0200, Greg Kroah-Hartman wrote:
+> > On Wed, Apr 14, 2021 at 09:44:06PM +0200, Salvatore Bonaccorso wrote:
+> > > Hi Greg, Sasha, all,
+> > > 
+> > > Prompted by https://bugs.debian.org/986949 it looks that files with
+> > > prolematic license are present in stable series in
+> > > drivers/staging/mt7621-mmc/ prior to 441bf7332d55 ("staging:
+> > > m57621-mmc: delete driver from the tree.") where those were removed in
+> > > 5.2-rc1.
+> > > 
+> > > As the license text at it is presented is problematic at best, would
+> > > this removal make sense as well in the current other stable series
+> > > which contain it? The files goes back to it's addition in 4.17-rc1.
+> > > 
+> > > So it would remain v4.19.y where the files should/can be removed as
+> > > well from the staging area?
+> > 
+> > Yeah, it is odd, and we probably should not continue to distribute new
+> > updates with it in the tree.
+> > 
+> > As the commit does not backport cleanly, can you provide a working
+> > backport that I can apply?
+> 
+> I killed it :) Thanks for the heads up!
 
-greg k-h
+Thank you Sasha and Greg!
+
+Salvatore
