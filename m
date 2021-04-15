@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE204360D34
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC6E360D3A
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233849AbhDOO6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:58:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
+        id S234198AbhDOO67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234054AbhDOO4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:56:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EBB2613CC;
-        Thu, 15 Apr 2021 14:54:11 +0000 (UTC)
+        id S234150AbhDOO4y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:56:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 526DD613EF;
+        Thu, 15 Apr 2021 14:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498452;
-        bh=WImxm+L67djzkCODFyDJCCYW+d+2+GVvnM5OQuTTJLE=;
+        s=korg; t=1618498454;
+        bh=HPtoD8rfV4PdfEQYtYjkcpDbED7Bggou9Nnlh/4moUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3cTRDnGsEnnNT6KOYkdIBgpA6JRxKN2pde0x+9NevOcQ5K2wpJG0GYsiJ9N0yBzc
-         XzOceJ1v91DvZtOjd2GBUM08LygH0AHU6jEm27PjHGfBjepfR5F3yEV8Rn4vHd3xps
-         ypKb6vGrOJ2nLIttDijCv9/5+3uFJh4T64OuluJw=
+        b=nEI0ihwRRZeEw3R1QsmmuDr6J3ugwymsGwj5rbskJGeQYEKWUKBcXr9iOEISfqWeV
+         4LVhMLgy939BuRohJah6fViMSTUJW2RdB7O3Uw4r/lZo9y9KDQZMY6bYvMMBJKNcaF
+         O5qgPlKgI8UHjhPsdeH3sO1Oh4dJh1Bjz3D8RG3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Samuel Mendoza-Jonas <sam@mendozajonas.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 44/68] net/ncsi: Avoid GFP_KERNEL in response handler
-Date:   Thu, 15 Apr 2021 16:47:25 +0200
-Message-Id: <20210415144415.914840835@linuxfoundation.org>
+        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
+        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
+        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Tom Seewald <tseewald@gmail.com>
+Subject: [PATCH 4.14 45/68] usbip: fix vudc usbip_sockfd_store races leading to gpf
+Date:   Thu, 15 Apr 2021 16:47:26 +0200
+Message-Id: <20210415144415.946778464@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -41,73 +44,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Mendoza-Jonas <sam@mendozajonas.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit b0949618826cbb64e9ba764bdd52aa14eaf5073d upstream.
+commit 46613c9dfa964c0c60b5385dbdf5aaa18be52a9c upstream.
 
-ncsi_rsp_handler_gc() allocates the filter arrays using GFP_KERNEL in
-softirq context, causing the below backtrace. This allocation is only a
-few dozen bytes during probing so allocate with GFP_ATOMIC instead.
+usbip_sockfd_store() is invoked when user requests attach (import)
+detach (unimport) usb gadget device from usbip host. vhci_hcd sends
+import request and usbip_sockfd_store() exports the device if it is
+free for export.
 
-[   42.813372] BUG: sleeping function called from invalid context at mm/slab.h:416
-[   42.820900] in_atomic(): 1, irqs_disabled(): 0, pid: 213, name: kworker/0:1
-[   42.827893] INFO: lockdep is turned off.
-[   42.832023] CPU: 0 PID: 213 Comm: kworker/0:1 Tainted: G        W       4.13.16-01441-gad99b38 #65
-[   42.841007] Hardware name: Generic DT based system
-[   42.845966] Workqueue: events ncsi_dev_work
-[   42.850251] [<8010a494>] (unwind_backtrace) from [<80107510>] (show_stack+0x20/0x24)
-[   42.858046] [<80107510>] (show_stack) from [<80612770>] (dump_stack+0x20/0x28)
-[   42.865309] [<80612770>] (dump_stack) from [<80148248>] (___might_sleep+0x230/0x2b0)
-[   42.873241] [<80148248>] (___might_sleep) from [<80148334>] (__might_sleep+0x6c/0xac)
-[   42.881129] [<80148334>] (__might_sleep) from [<80240d6c>] (__kmalloc+0x210/0x2fc)
-[   42.888737] [<80240d6c>] (__kmalloc) from [<8060ad54>] (ncsi_rsp_handler_gc+0xd0/0x170)
-[   42.896770] [<8060ad54>] (ncsi_rsp_handler_gc) from [<8060b454>] (ncsi_rcv_rsp+0x16c/0x1d4)
-[   42.905314] [<8060b454>] (ncsi_rcv_rsp) from [<804d86c8>] (__netif_receive_skb_core+0x3c8/0xb50)
-[   42.914158] [<804d86c8>] (__netif_receive_skb_core) from [<804d96cc>] (__netif_receive_skb+0x20/0x7c)
-[   42.923420] [<804d96cc>] (__netif_receive_skb) from [<804de4b0>] (netif_receive_skb_internal+0x78/0x6a4)
-[   42.932931] [<804de4b0>] (netif_receive_skb_internal) from [<804df980>] (netif_receive_skb+0x78/0x158)
-[   42.942292] [<804df980>] (netif_receive_skb) from [<8042f204>] (ftgmac100_poll+0x43c/0x4e8)
-[   42.950855] [<8042f204>] (ftgmac100_poll) from [<804e094c>] (net_rx_action+0x278/0x4c4)
-[   42.958918] [<804e094c>] (net_rx_action) from [<801016a8>] (__do_softirq+0xe0/0x4c4)
-[   42.966716] [<801016a8>] (__do_softirq) from [<8011cd9c>] (do_softirq.part.4+0x50/0x78)
-[   42.974756] [<8011cd9c>] (do_softirq.part.4) from [<8011cebc>] (__local_bh_enable_ip+0xf8/0x11c)
-[   42.983579] [<8011cebc>] (__local_bh_enable_ip) from [<804dde08>] (__dev_queue_xmit+0x260/0x890)
-[   42.992392] [<804dde08>] (__dev_queue_xmit) from [<804df1f0>] (dev_queue_xmit+0x1c/0x20)
-[   43.000689] [<804df1f0>] (dev_queue_xmit) from [<806099c0>] (ncsi_xmit_cmd+0x1c0/0x244)
-[   43.008763] [<806099c0>] (ncsi_xmit_cmd) from [<8060dc14>] (ncsi_dev_work+0x2e0/0x4c8)
-[   43.016725] [<8060dc14>] (ncsi_dev_work) from [<80133dfc>] (process_one_work+0x214/0x6f8)
-[   43.024940] [<80133dfc>] (process_one_work) from [<80134328>] (worker_thread+0x48/0x558)
-[   43.033070] [<80134328>] (worker_thread) from [<8013ba80>] (kthread+0x130/0x174)
-[   43.040506] [<8013ba80>] (kthread) from [<80102950>] (ret_from_fork+0x14/0x24)
+Export and unexport are governed by local state and shared state
+- Shared state (usbip device status, sockfd) - sockfd and Device
+  status are used to determine if stub should be brought up or shut
+  down. Device status is shared between host and client.
+- Local state (tcp_socket, rx and tx thread task_struct ptrs)
+  A valid tcp_socket controls rx and tx thread operations while the
+  device is in exported state.
+- While the device is exported, device status is marked used and socket,
+  sockfd, and thread pointers are valid.
 
-Fixes: 062b3e1b6d4f ("net/ncsi: Refactor MAC, VLAN filters")
-Signed-off-by: Samuel Mendoza-Jonas <sam@mendozajonas.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Export sequence (stub-up) includes validating the socket and creating
+receive (rx) and transmit (tx) threads to talk to the client to provide
+access to the exported device. rx and tx threads depends on local and
+shared state to be correct and in sync.
+
+Unexport (stub-down) sequence shuts the socket down and stops the rx and
+tx threads. Stub-down sequence relies on local and shared states to be
+in sync.
+
+There are races in updating the local and shared status in the current
+stub-up sequence resulting in crashes. These stem from starting rx and
+tx threads before local and global state is updated correctly to be in
+sync.
+
+1. Doesn't handle kthread_create() error and saves invalid ptr in local
+   state that drives rx and tx threads.
+2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
+   before updating usbip_device status to SDEV_ST_USED. This opens up a
+   race condition between the threads and usbip_sockfd_store() stub up
+   and down handling.
+
+Fix the above problems:
+- Stop using kthread_get_run() macro to create/start threads.
+- Create threads and get task struct reference.
+- Add kthread_create() failure handling and bail out.
+- Hold usbip_device lock to update local and shared states after
+  creating rx and tx threads.
+- Update usbip_device status to SDEV_ST_USED.
+- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
+- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
+  and status) is complete.
+
+Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
+kthread_get_run() improper error handling problem and others. This is a
+hard problem to find and debug since the races aren't seen in a normal
+case. Fuzzing forces the race window to be small enough for the
+kthread_get_run() error path bug and starting threads before updating the
+local and shared state bug in the stub-up sequence.
+
+Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/b1c08b983ffa185449c9f0f7d1021dc8c8454b60.1615171203.git.skhan@linuxfoundation.org
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ncsi/ncsi-rsp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/usbip/vudc_sysfs.c |   42 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 34 insertions(+), 8 deletions(-)
 
---- a/net/ncsi/ncsi-rsp.c
-+++ b/net/ncsi/ncsi-rsp.c
-@@ -651,7 +651,7 @@ static int ncsi_rsp_handler_gc(struct nc
- 				      NCSI_CAP_VLAN_MASK;
+--- a/drivers/usb/usbip/vudc_sysfs.c
++++ b/drivers/usb/usbip/vudc_sysfs.c
+@@ -103,8 +103,9 @@ unlock:
+ }
+ static BIN_ATTR_RO(dev_desc, sizeof(struct usb_device_descriptor));
  
- 	size = (rsp->uc_cnt + rsp->mc_cnt + rsp->mixed_cnt) * ETH_ALEN;
--	nc->mac_filter.addrs = kzalloc(size, GFP_KERNEL);
-+	nc->mac_filter.addrs = kzalloc(size, GFP_ATOMIC);
- 	if (!nc->mac_filter.addrs)
- 		return -ENOMEM;
- 	nc->mac_filter.n_uc = rsp->uc_cnt;
-@@ -660,7 +660,7 @@ static int ncsi_rsp_handler_gc(struct nc
+-static ssize_t store_sockfd(struct device *dev, struct device_attribute *attr,
+-		     const char *in, size_t count)
++static ssize_t store_sockfd(struct device *dev,
++				 struct device_attribute *attr,
++				 const char *in, size_t count)
+ {
+ 	struct vudc *udc = (struct vudc *) dev_get_drvdata(dev);
+ 	int rv;
+@@ -113,6 +114,8 @@ static ssize_t store_sockfd(struct devic
+ 	struct socket *socket;
+ 	unsigned long flags;
+ 	int ret;
++	struct task_struct *tcp_rx = NULL;
++	struct task_struct *tcp_tx = NULL;
  
- 	nc->vlan_filter.vids = kcalloc(rsp->vlan_cnt,
- 				       sizeof(*nc->vlan_filter.vids),
--				       GFP_KERNEL);
-+				       GFP_ATOMIC);
- 	if (!nc->vlan_filter.vids)
- 		return -ENOMEM;
- 	/* Set VLAN filters active so they are cleared in the first
+ 	rv = kstrtoint(in, 0, &sockfd);
+ 	if (rv != 0)
+@@ -158,24 +161,47 @@ static ssize_t store_sockfd(struct devic
+ 			goto sock_err;
+ 		}
+ 
+-		udc->ud.tcp_socket = socket;
+-
++		/* unlock and create threads and get tasks */
+ 		spin_unlock_irq(&udc->ud.lock);
+ 		spin_unlock_irqrestore(&udc->lock, flags);
+ 
+-		udc->ud.tcp_rx = kthread_get_run(&v_rx_loop,
+-						    &udc->ud, "vudc_rx");
+-		udc->ud.tcp_tx = kthread_get_run(&v_tx_loop,
+-						    &udc->ud, "vudc_tx");
++		tcp_rx = kthread_create(&v_rx_loop, &udc->ud, "vudc_rx");
++		if (IS_ERR(tcp_rx)) {
++			sockfd_put(socket);
++			return -EINVAL;
++		}
++		tcp_tx = kthread_create(&v_tx_loop, &udc->ud, "vudc_tx");
++		if (IS_ERR(tcp_tx)) {
++			kthread_stop(tcp_rx);
++			sockfd_put(socket);
++			return -EINVAL;
++		}
++
++		/* get task structs now */
++		get_task_struct(tcp_rx);
++		get_task_struct(tcp_tx);
+ 
++		/* lock and update udc->ud state */
+ 		spin_lock_irqsave(&udc->lock, flags);
+ 		spin_lock_irq(&udc->ud.lock);
++
++		udc->ud.tcp_socket = socket;
++		udc->ud.tcp_rx = tcp_rx;
++		udc->ud.tcp_rx = tcp_tx;
+ 		udc->ud.status = SDEV_ST_USED;
++
+ 		spin_unlock_irq(&udc->ud.lock);
+ 
+ 		do_gettimeofday(&udc->start_time);
+ 		v_start_timer(udc);
+ 		udc->connected = 1;
++
++		spin_unlock_irqrestore(&udc->lock, flags);
++
++		wake_up_process(udc->ud.tcp_rx);
++		wake_up_process(udc->ud.tcp_tx);
++		return count;
++
+ 	} else {
+ 		if (!udc->connected) {
+ 			dev_err(dev, "Device not connected");
 
 
