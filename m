@@ -2,186 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B47A35FFF4
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 04:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2466E36001B
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 04:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229736AbhDOCX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Apr 2021 22:23:56 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:47226 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229646AbhDOCXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Apr 2021 22:23:53 -0400
-Received: from mailhost.synopsys.com (sv1-mailhost1.synopsys.com [10.205.2.131])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id B4903C0562;
-        Thu, 15 Apr 2021 02:23:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1618453398; bh=RaUK/KJznydQREyHTPtE+LPWuoJujAsugtAVDFiu5QM=;
-        h=Date:From:Subject:To:Cc:From;
-        b=Fi3vSDsr6m+JHPG2Ri9OGU5wwwVMcYQ0vTxglGjH29iUqpzd38BBebD7KQPxYeE9j
-         bpkiRIrpdXwb3VgvbReTzcb6kDLgWxBgxz8NjeluGYD6cB3Sp/4841BwkoyaxALanQ
-         uCifMMM758w51/tAEyhw81Ezgo/zL1Vv2/7YhEAWDKlGKMe3QsvSNbMOHOTgVaPpr2
-         5AP2qosb2WQHBpPAdRI1O+E3t8Pd0h1CQXCQviz5jRGnpdxfA8koOS4E+ckgyjqBsQ
-         Ia6qUoCB6KhNZIUJvWLAXfzKjyUhVNPttQrP91TetWGZ5H5QrrCDw0ddy8GHsWEPMJ
-         YLyd6Rh0ovMNw==
-Received: from lab-vbox (unknown [10.205.129.137])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 424F7A005E;
-        Thu, 15 Apr 2021 02:23:14 +0000 (UTC)
-Received: by lab-vbox (sSMTP sendmail emulation); Wed, 14 Apr 2021 19:23:14 -0700
-Date:   Wed, 14 Apr 2021 19:23:14 -0700
-Message-Id: <96c64e6a788552371081f37f544041b7ee046ef5.1618452732.git.Thinh.Nguyen@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH] usb: dwc3: core: Do core softreset when switch mode
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, Roger Quadros <rogerq@ti.com>
-Cc:     John Youn <John.Youn@synopsys.com>, <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Ferry Toth <fntoth@gmail.com>, Yu Chen <chenyu56@huawei.com>
+        id S229616AbhDOCrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Apr 2021 22:47:52 -0400
+Received: from mail104.syd.optusnet.com.au ([211.29.132.246]:38463 "EHLO
+        mail104.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229475AbhDOCrv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Apr 2021 22:47:51 -0400
+Received: from dread.disaster.area (pa49-181-239-12.pa.nsw.optusnet.com.au [49.181.239.12])
+        by mail104.syd.optusnet.com.au (Postfix) with ESMTPS id 9234282FB37;
+        Thu, 15 Apr 2021 12:47:27 +1000 (AEST)
+Received: from dave by dread.disaster.area with local (Exim 4.92.3)
+        (envelope-from <david@fromorbit.com>)
+        id 1lWs2O-008X2l-84; Thu, 15 Apr 2021 12:47:24 +1000
+Date:   Thu, 15 Apr 2021 12:47:24 +1000
+From:   Dave Chinner <david@fromorbit.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Ted Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
+        Eric Whitney <enwlinux@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] ext4: Fix occasional generic/418 failure
+Message-ID: <20210415024724.GV1990290@dread.disaster.area>
+References: <20210414131453.4945-1-jack@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210414131453.4945-1-jack@suse.cz>
+X-Optus-CM-Score: 0
+X-Optus-CM-Analysis: v=2.3 cv=Tu+Yewfh c=1 sm=1 tr=0 cx=a_idp_f
+        a=gO82wUwQTSpaJfP49aMSow==:117 a=gO82wUwQTSpaJfP49aMSow==:17
+        a=kj9zAlcOel0A:10 a=3YhXtTcJ-WEA:10 a=pGLkceISAAAA:8 a=VwQbUJbxAAAA:8
+        a=7-415B0cAAAA:8 a=gV7zzQzcnHcuDfqADMcA:9 a=CjuIK1q_8ugA:10
+        a=HUqATDVKn4QA:10 a=AjGcO6oz07-iQ99wixmX:22 a=biEYGPWJfzWAr4FL6Ov7:22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Chen <chenyu56@huawei.com>
-From: John Stultz <john.stultz@linaro.org>
+On Wed, Apr 14, 2021 at 03:14:53PM +0200, Jan Kara wrote:
+> Eric has noticed that after pagecache read rework, generic/418 is
+> occasionally failing for ext4 when blocksize < pagesize. In fact, the
+> pagecache rework just made hard to hit race in ext4 more likely. The
+> problem is that since ext4 conversion of direct IO writes to iomap
+> framework (commit 378f32bab371), we update inode size after direct IO
+> write only after invalidating page cache. Thus if buffered read sneaks
+> at unfortunate moment like:
+> 
+> CPU1 - write at offset 1k                       CPU2 - read from offset 0
+> iomap_dio_rw(..., IOMAP_DIO_FORCE_WAIT);
+>                                                 ext4_readpage();
+> ext4_handle_inode_extension()
+> 
+> the read will zero out tail of the page as it still sees smaller inode
+> size and thus page cache becomes inconsistent with on-disk contents with
+> all the consequences.
+> 
+> Fix the problem by moving inode size update into end_io handler which
+> gets called before the page cache is invalidated.
+> 
+> Reported-by: Eric Whitney <enwlinux@gmail.com>
+> Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jan Kara <jack@suse.cz>
+> ---
+>  fs/ext4/file.c | 20 ++++++++++++++++----
+>  1 file changed, 16 insertions(+), 4 deletions(-)
+> 
+> Eric, can you please try whether this patch fixes the failures you are
+> occasionally seeing?
+> 
+> Changes since v1:
+> * Rewritten the fix to avoid the need for separate transaction handle for
+>   orphan list update
+> 
+> diff --git a/fs/ext4/file.c b/fs/ext4/file.c
+> index 194f5d00fa32..be1e80af61be 100644
+> --- a/fs/ext4/file.c
+> +++ b/fs/ext4/file.c
+> @@ -371,15 +371,27 @@ static ssize_t ext4_handle_inode_extension(struct inode *inode, loff_t offset,
+>  static int ext4_dio_write_end_io(struct kiocb *iocb, ssize_t size,
+>  				 int error, unsigned int flags)
+>  {
+> -	loff_t offset = iocb->ki_pos;
+> +	loff_t pos = iocb->ki_pos;
+>  	struct inode *inode = file_inode(iocb->ki_filp);
+>  
+>  	if (error)
+>  		return error;
+>  
+> -	if (size && flags & IOMAP_DIO_UNWRITTEN)
+> -		return ext4_convert_unwritten_extents(NULL, inode,
+> -						      offset, size);
+> +	if (size && flags & IOMAP_DIO_UNWRITTEN) {
+> +		error = ext4_convert_unwritten_extents(NULL, inode, pos, size);
+> +		if (error < 0)
+> +			return error;
+> +	}
+> +	/*
+> +	 * If we are extending the file, we have to update i_size here before
+> +	 * page cache gets invalidated in iomap_dio_rw(). Otherwise racing
+> +	 * buffered reads could zero out too much from page cache pages. Update
+> +	 * of on-disk size will happen later in ext4_dio_write_iter() where
+> +	 * we have enough information to also perform orphan list handling etc.
+> +	 */
+> +	pos += size;
+> +	if (pos > i_size_read(inode))
+> +		i_size_write(inode, pos);
 
-According to the programming guide, to switch mode for DRD controller,
-the driver needs to do the following.
+Might be worth explaining why this doesn't require locking to
+prevent racing completions from updating the inode size and
+potentially losing an EOF update. I know why but it might not be so
+obvious to others (DIO extending writes are serialised
+at submission in ext4) but it's probably worth having a comment
+similar to the one in xfs_dio_write_end_io() that explains why XFS
+needs locking.
 
-To switch from device to host:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(host mode)
-3. Reset the host with USBCMD.HCRESET
-4. Then follow up with the initializing host registers sequence
+Cheers,
 
-To switch from host to device:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(device mode)
-3. Reset the device with DCTL.CSftRst
-4. Then follow up with the initializing registers sequence
-
-Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
-switching from host to device. John Stult reported a lockup issue seen
-with HiKey960 platform without these steps[1]. Similar issue is observed
-with Ferry's testing platform[2].
-
-So, apply the required steps along with some fixes to Yu Chen's and John
-Stultz's version. The main fixes to their versions are the missing wait
-for clocks synchronization before clearing GCTL.CoreSoftReset and only
-apply DCTL.CSftRst when switching from host to device.
-
-[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
-[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
-
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ferry Toth <fntoth@gmail.com>
-Cc: Wesley Cheng <wcheng@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Signed-off-by: Yu Chen <chenyu56@huawei.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
----
-Note:
-Only some basic mode switching tests were done using our HAPS platform. It'd
-be great if we can have some "Tested-by" with some real hardwares. Thanks.
-
- drivers/usb/dwc3/core.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
-
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 5c25e6a72dbd..4ac2895331b7 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -14,6 +14,7 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/interrupt.h>
-@@ -40,6 +41,8 @@
- 
- #define DWC3_DEFAULT_AUTOSUSPEND_DELAY	5000 /* ms */
- 
-+static DEFINE_MUTEX(mode_switch_lock);
-+
- /**
-  * dwc3_get_dr_mode - Validates and sets dr_mode
-  * @dwc: pointer to our context structure
-@@ -114,13 +117,20 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
- 	dwc->current_dr_role = mode;
- }
- 
-+static int dwc3_core_soft_reset(struct dwc3 *dwc);
-+
- static void __dwc3_set_mode(struct work_struct *work)
- {
- 	struct dwc3 *dwc = work_to_dwc(work);
- 	unsigned long flags;
-+	unsigned int hw_mode;
- 	int ret;
- 	u32 reg;
- 
-+	mutex_lock(&mode_switch_lock);
-+
-+	hw_mode = DWC3_GHWPARAMS0_MODE(dwc->hwparams.hwparams0);
-+
- 	pm_runtime_get_sync(dwc->dev);
- 
- 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
-@@ -154,6 +164,24 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		break;
- 	}
- 
-+	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg |= DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+
-+		/*
-+		 * Wait for internal clocks to synchronized. DWC_usb31 and
-+		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
-+		 * keep it consistent across different IPs, let's wait up to
-+		 * 100ms before clearing GCTL.CORESOFTRESET.
-+		 */
-+		msleep(100);
-+
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg &= ~DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+	}
-+
- 	spin_lock_irqsave(&dwc->lock, flags);
- 
- 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-@@ -178,6 +206,9 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		}
- 		break;
- 	case DWC3_GCTL_PRTCAP_DEVICE:
-+		if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD)
-+			dwc3_core_soft_reset(dwc);
-+
- 		dwc3_event_buffers_setup(dwc);
- 
- 		if (dwc->usb2_phy)
-@@ -200,6 +231,7 @@ static void __dwc3_set_mode(struct work_struct *work)
- out:
- 	pm_runtime_mark_last_busy(dwc->dev);
- 	pm_runtime_put_autosuspend(dwc->dev);
-+	mutex_unlock(&mode_switch_lock);
- }
- 
- void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
-
-base-commit: 4b853c236c7b5161a2e444bd8b3c76fe5aa5ddcb
+Dave.
 -- 
-2.28.0
-
+Dave Chinner
+david@fromorbit.com
