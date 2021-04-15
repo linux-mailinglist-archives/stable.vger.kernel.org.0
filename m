@@ -2,135 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53568361324
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 21:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2804361320
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 21:52:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234959AbhDOTxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 15:53:05 -0400
-Received: from mta-02.yadro.com ([89.207.88.252]:38384 "EHLO mta-01.yadro.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S234654AbhDOTxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 15:53:05 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mta-01.yadro.com (Postfix) with ESMTP id 9C0BE41390;
-        Thu, 15 Apr 2021 19:52:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
-        content-type:content-type:content-transfer-encoding:mime-version
-        :references:in-reply-to:x-mailer:message-id:date:date:subject
-        :subject:from:from:received:received:received; s=mta-01; t=
-        1618516359; x=1620330760; bh=+DgJ3q4Twfj1gAmBeLPaVUPy5XJqwxFcGZA
-        9mV9fccc=; b=Kur+oh87Z31kJGgNKYcqMThPYgH/+Kfe78Jj795GJTSUzKhey7H
-        CWWqchyIwg4CJkgXKCo7eBx5B6rd4X08BtCO6T5Eab0IhK8E739ax3BzaWzHsdPd
-        1keOmxR9VxrbL5cMtvZOspAbGCJF6a6Jdx8/nf5C8EjeE3Lov6qJgdBI=
-X-Virus-Scanned: amavisd-new at yadro.com
-Received: from mta-01.yadro.com ([127.0.0.1])
-        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id BcOF62v0pEV6; Thu, 15 Apr 2021 22:52:39 +0300 (MSK)
-Received: from T-EXCH-03.corp.yadro.com (t-exch-03.corp.yadro.com [172.17.100.103])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mta-01.yadro.com (Postfix) with ESMTPS id F41BE4138F;
-        Thu, 15 Apr 2021 22:52:38 +0300 (MSK)
-Received: from localhost (172.17.204.113) by T-EXCH-03.corp.yadro.com
- (172.17.100.103) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id 15.1.669.32; Thu, 15
- Apr 2021 22:52:38 +0300
-From:   Anastasia Kovaleva <a.kovaleva@yadro.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, <stable@vger.kernel.org>
-CC:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        <linux-scsi@vger.kernel.org>,
-        <GR-QLogic-Storage-Upstream@marvell.com>,
-        <kernel-team@lists.ubuntu.com>, <linux@yadro.com>,
-        Arun Easi <aeasi@marvell.com>,
-        "Ewan D . Milne" <emilne@redhat.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        Anastasia Kovaleva <a.kovaleva@yadro.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>
-Subject: [PATCH for-5.4 2/2] scsi: qla2xxx: Fix device connect issues in P2P configuration
-Date:   Thu, 15 Apr 2021 22:51:44 +0300
-Message-ID: <20210415195144.91903-3-a.kovaleva@yadro.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210415195144.91903-1-a.kovaleva@yadro.com>
-References: <20210415195144.91903-1-a.kovaleva@yadro.com>
+        id S234659AbhDOTw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 15:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234654AbhDOTw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 15:52:28 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36FA8C061574
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 12:52:04 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id g35so17598086pgg.9
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 12:52:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3XBRVEyRB+3uxwFnXBd8rwgyNc8WgQAzJgNKEqrTdm8=;
+        b=kcbMBhdgYIp4ecTddrow4HGldZXWgoSt9QpKP8Fl6MiGzZ2ZEDGEIQJMDKTsVinSjg
+         kg+DzVctd0qsjfYAw7JGqTTj8Cat10HuQFn+6ofIawV2en3NIiySh+MMJgWVkmNPTU9P
+         ZAN44/iea9TDB233Nv4W91gJOFRjHrG0hbz4sJ6FwZag/JtV2ipGm8sMiK0cFHFvZD5n
+         UBnayYQE1nFYvxh3L+17nxqZ9kCz20oVvPEScLtFrTATpgIQowtNQsx+XNl3bfNehlHZ
+         FPL6otDu2ms/nuzti+FfLJzQes91lsraV9hYqLNmBOrFmUhNUUVS1ctN7TIe1VZxAJCM
+         BauQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3XBRVEyRB+3uxwFnXBd8rwgyNc8WgQAzJgNKEqrTdm8=;
+        b=uG/wWKsrpDf4uYv0tV3e1vDUTZKdvjtzpG1J45cdk5ZIeuVE0p4+aiUPTmz0csLis6
+         7Da5YkHfUlltevqO8gjSDX9agfQS6yt5gs3hn8F/WF4c/lMzsquN9PWbgwiXYiadE4oB
+         //clmQCIx6uo9DOD3i99ILu5YMKrQDba5MOOk7WL6WFo6Ujdqmb9EtKtAb2BBF+FkYuL
+         izfYvw0rg0zWwm6zcFsEIWfFLSJ22ai/TJ2lYkUoPYEiWK8nIyiTU1OpqLo9u9dSfBWm
+         IEoTTK0txRzko9PI+Ze0R+0YDDGOPw8qrk5CFzyO6z1hbSXvFs8FvMVvLrxcG2FTq0qt
+         42qQ==
+X-Gm-Message-State: AOAM530n1xkHHAKD1rTdXND5/zKfqDi8ZlGENMCtVo7M1QchCJGynis7
+        +Z1COpvGVhKek/Gknk8i74tQZZ9e2Vo/N0wR
+X-Google-Smtp-Source: ABdhPJyCsirvZ/YJS4idiZ21ZoRD80WTNgQ2Rp+d7Gc5iTA9O2IkNXdN8i8Ycp7sHW0zuqHi41Zr2A==
+X-Received: by 2002:a63:e64b:: with SMTP id p11mr4887577pgj.10.1618516323557;
+        Thu, 15 Apr 2021 12:52:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o23sm3159848pgm.74.2021.04.15.12.52.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Apr 2021 12:52:03 -0700 (PDT)
+Message-ID: <60789963.1c69fb81.ae953.9555@mx.google.com>
+Date:   Thu, 15 Apr 2021 12:52:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [172.17.204.113]
-X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
- T-EXCH-03.corp.yadro.com (172.17.100.103)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.30-25-g6d12651b9a74d
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 154 runs,
+ 1 regressions (v5.10.30-25-g6d12651b9a74d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+stable-rc/queue/5.10 baseline: 154 runs, 1 regressions (v5.10.30-25-g6d1265=
+1b9a74d)
 
-[ Upstream commit 65e9200938052ce90f24421bb057e1be1d6147c7 ]
+Regressions Summary
+-------------------
 
-P2P needs to take the alternate plogi route.
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-Link: https://lore.kernel.org/r/20191105150657.8092-8-hmadhani@marvell.com
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[yadro: otherwise PRLI doesn't happen in N2N topology]
-Signed-off-by: Anastasia Kovaleva <a.kovaleva@yadro.com>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
----
- drivers/scsi/qla2xxx/qla_gbl.h  | 1 +
- drivers/scsi/qla2xxx/qla_init.c | 9 +++++++++
- drivers/scsi/qla2xxx/qla_iocb.c | 5 ++---
- 3 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gbl.h b/drivers/scsi/qla2xxx/qla_gbl.h
-index d11416dcee4e..5b163ad85c34 100644
---- a/drivers/scsi/qla2xxx/qla_gbl.h
-+++ b/drivers/scsi/qla2xxx/qla_gbl.h
-@@ -917,4 +917,5 @@ int qla2x00_set_data_rate(scsi_qla_host_t *vha, uint16_t mode);
- 
- /* nvme.c */
- void qla_nvme_unregister_remote_port(struct fc_port *fcport);
-+void qla_handle_els_plogi_done(scsi_qla_host_t *vha, struct event_arg *ea);
- #endif /* _QLA_GBL_H */
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index bdc46e6c3de8..6d5953c529cd 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1756,6 +1756,15 @@ void qla24xx_handle_relogin_event(scsi_qla_host_t *vha,
- 	qla24xx_fcport_handle_login(vha, fcport);
- }
- 
-+void qla_handle_els_plogi_done(scsi_qla_host_t *vha,
-+				      struct event_arg *ea)
-+{
-+	ql_dbg(ql_dbg_disc, vha, 0x2118,
-+	    "%s %d %8phC post PRLI\n",
-+	    __func__, __LINE__, ea->fcport->port_name);
-+	qla24xx_post_prli_work(vha, ea->fcport);
-+}
-+
- /*
-  * RSCN(s) came in for this fcport, but the RSCN(s) was not able
-  * to be consumed by the fcport
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index aed4ce66e6cf..53ccbd6b71ed 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -2769,9 +2769,8 @@ static void qla2x00_els_dcmd2_sp_done(srb_t *sp, int res)
- 		case CS_COMPLETE:
- 			memset(&ea, 0, sizeof(ea));
- 			ea.fcport = fcport;
--			ea.data[0] = MBS_COMMAND_COMPLETE;
--			ea.sp = sp;
--			qla24xx_handle_plogi_done_event(vha, &ea);
-+			ea.rc = res;
-+			qla_handle_els_plogi_done(vha, &ea);
- 			break;
- 
- 		case CS_IOCB_ERROR:
--- 
-2.30.2
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.30-25-g6d12651b9a74d/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.30-25-g6d12651b9a74d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6d12651b9a74d8a93fd38a9f6aeae85e2c75536c =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6078616faec40787fcdac6db
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.30-=
+25-g6d12651b9a74d/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.30-=
+25-g6d12651b9a74d/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6078616faec40787fcdac=
+6dc
+        failing since 3 days (last pass: v5.10.29-90-g9311ebab1b30e, first =
+fail: v5.10.29-93-g05a9d4973d3b9) =
+
+ =20
