@@ -2,101 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFF9360264
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 08:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C82CF3602C6
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 08:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229937AbhDOGaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 02:30:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33642 "EHLO mail.kernel.org"
+        id S230264AbhDOG4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 02:56:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229503AbhDOGaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 02:30:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5077E610E6;
-        Thu, 15 Apr 2021 06:29:49 +0000 (UTC)
+        id S230124AbhDOG4J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 02:56:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6909761154;
+        Thu, 15 Apr 2021 06:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618468190;
-        bh=3A32B+gZv0zuuoI1QYyb0Ju4ttAEz+Z30b2UWx7sLHQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nW1eT1knhuE/j19o/RX8RbKIQAuTcJITT3YC+TQYH7wPW4NVdXjqm6y3Yur6nVD+9
-         CI5aVlJVTlIf45+GMecqzz9vQLlwe5CIboaakLZLHjfFmlHuSc/7GizkoDCzHfhV0S
-         AYplWgCetgpmGSuI62CCjf53b84cpbmbfnNw+EfQ=
-Date:   Thu, 15 Apr 2021 08:29:45 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Prike Liang <Prike.Liang@amd.com>
-Cc:     linux-nvme@lists.infradead.org, Chaitanya.Kulkarni@wdc.com,
-        hch@infradead.org, stable@vger.kernel.org,
-        Alexander.Deucher@amd.com,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Subject: Re: [PATCH v4 2/2] nvme-pci: add AMD PCIe quirk for suspend/resume
-Message-ID: <YHfdWYY3QSjIM2lT@kroah.com>
-References: <1618458725-17164-1-git-send-email-Prike.Liang@amd.com>
- <1618458725-17164-2-git-send-email-Prike.Liang@amd.com>
+        s=korg; t=1618469746;
+        bh=pkunuDTJO2VhEgjvNDv+mu8EXIUUZCIayJydjv0HUj0=;
+        h=Subject:To:From:Date:From;
+        b=Pekp3fDGcEOqdePovdfOxaFXWQbGxa4QBUQIMnzRnYjo7U2pftpNKfy2zZjfjlAqo
+         mJXvLOKsFkvi7wQaDAcBPpcba8+PzWaWTna/tOco/dZZydMVTkNtmFwlAAsVLiqb1K
+         9exvaVGJf8TYmh+T0KA4JnM9oILRNQKKXRLG7gHc=
+Subject: patch "USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet" added to usb-next
+To:     kai.heng.feng@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 15 Apr 2021 08:55:40 +0200
+Message-ID: <1618469740223199@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1618458725-17164-2-git-send-email-Prike.Liang@amd.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 15, 2021 at 11:52:05AM +0800, Prike Liang wrote:
-> The NVME device pluged in some AMD PCIE root port will resume timeout
-> from s2idle which caused by NVME power CFG lost in the SMU FW restore.
-> This issue can be workaround by using PCIe power set with simple
-> suspend/resume process path instead of APST. In the onwards ASIC will
-> try do the NVME shutdown save and restore in the BIOS and still need
-> PCIe power setting to resume from RTD3 for s2idle.
-> 
-> Update the nvme_acpi_storage_d3() _with previously added quirk.
-> 
-> Cc: <stable@vger.kernel.org> # 5.11+
-> Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-> [ck: split patches for nvme and pcie]
-> Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-> 
-> Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-You don't sign off and review a patch.  And you do not put a blank line
-between them, this should all be one chunk of text.
+This is a note to let you know that I've just added the patch titled
+
+    USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
 
 
+From 8f23fe35ff1e5491b4d279323a8209a31f03ae65 Mon Sep 17 00:00:00 2001
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Date: Mon, 12 Apr 2021 21:54:53 +0800
+Subject: USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
 
-> ---
-> Changes in v2:
-> Fix the patch format and check chip root complex DID instead of PCIe RP
-> to avoid the storage device plugged in internal PCIe RP by USB adaptor.
-> 
-> Changes in v3:
-> According to Christoph Hellwig do NVME PCIe related identify opt better
-> in PCIe quirk driver rather than in NVME module.
-> 
-> Changes in v4:
-> Split the fix to PCIe and NVMe part and then call the pci_dev_put() put
-> the device reference count and finally refine the commit info.
-> ---
->  drivers/nvme/host/pci.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-> index 6bad4d4..ce9f42b 100644
-> --- a/drivers/nvme/host/pci.c
-> +++ b/drivers/nvme/host/pci.c
-> @@ -2832,6 +2832,7 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
->  {
->  	struct acpi_device *adev;
->  	struct pci_dev *root;
-> +	struct pci_dev *rdev;
->  	acpi_handle handle;
->  	acpi_status status;
->  	u8 val;
-> @@ -2845,6 +2846,12 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
->  	if (!root)
->  		return false;
->  
-> +	rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
+This is another branded 8153 device that doesn't work well with LPM
+enabled:
+[ 400.597506] r8152 5-1.1:1.0 enx482ae3a2a6f0: Tx status -71
 
-Please look at the root bus for the specific device, do not assume that
-you are only on this specific bus.
+So disable LPM to resolve the issue.
 
-greg k-h
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+BugLink: https://bugs.launchpad.net/bugs/1922651
+Link: https://lore.kernel.org/r/20210412135455.791971-1-kai.heng.feng@canonical.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 76ac5d6555ae..6114cf83bb44 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -438,6 +438,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
+ 			USB_QUIRK_DISCONNECT_SUSPEND },
+ 
++	/* Lenovo ThinkPad USB-C Dock Gen2 Ethernet (RTL8153 GigE) */
++	{ USB_DEVICE(0x17ef, 0xa387), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* BUILDWIN Photo Frame */
+ 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =
+ 			USB_QUIRK_HONOR_BNUMINTERFACES },
+-- 
+2.31.1
+
+
