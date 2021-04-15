@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14799360D37
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 566C9360D4E
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233597AbhDOO65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:58:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
+        id S234323AbhDOPBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:01:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234216AbhDOO4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:56:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94741613FA;
-        Thu, 15 Apr 2021 14:54:19 +0000 (UTC)
+        id S234424AbhDOO5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:57:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A2726113B;
+        Thu, 15 Apr 2021 14:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498460;
-        bh=LqWR8r/QDnwCdOh6F0uCLuPVg/GVc7ojEUh/8VymQws=;
+        s=korg; t=1618498490;
+        bh=yZ/1+PDdmK/8qy3NWGvkLT7ZEYhImdVj7J4PbJkz87s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2MVr1NxXMZjwzQ8ryhFVJiQlHmpjFsOsJeLUwrfjKJrGhKIMTp+yKU86wlHd/Kjs+
-         Z/3BQuFaMwwYPJMrmpyLu6Ls17Q+KmcXaUmNCuOe5KE57lDeMfQqYlkyvyZuvz85dl
-         jqORxhd+gHpaM62xXttgLtPe/rx+YYp35PlG+yt4=
+        b=vi/Bki6JLd4G/DeRraJPdvEsSqSMVk1rbYkpfbyFaII9w33b0obtBFXsAVd4DC63E
+         LnkGDwv/aoPaLM0MRM2RVyUUQ3223nwgPvYnvZHzGNZgDkptF/7XECwqWDGM7gebpC
+         469OQZOerDWufseWGtkEvB0U+nZvs/JOxY9Sggno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Milton Miller <miltonm@us.ibm.com>,
-        Eddie James <eajames@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        alsa-devel@alsa-project.org, Bastian Germann <bage@linutronix.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/68] net/ncsi: Avoid channel_monitor hrtimer deadlock
-Date:   Thu, 15 Apr 2021 16:47:10 +0200
-Message-Id: <20210415144415.419775111@linuxfoundation.org>
+Subject: [PATCH 4.14 30/68] ASoC: sunxi: sun4i-codec: fill ASoC card owner
+Date:   Thu, 15 Apr 2021 16:47:11 +0200
+Message-Id: <20210415144415.449714640@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -41,74 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Milton Miller <miltonm@us.ibm.com>
+From: Bastian Germann <bage@linutronix.de>
 
-[ Upstream commit 03cb4d05b4ea9a3491674ca40952adb708d549fa ]
+[ Upstream commit 7c0d6e482062eb5c06ecccfab340abc523bdca00 ]
 
-Calling ncsi_stop_channel_monitor from channel_monitor is a guaranteed
-deadlock on SMP because stop calls del_timer_sync on the timer that
-invoked channel_monitor as its timer function.
+card->owner is a required property and since commit 81033c6b584b ("ALSA:
+core: Warn on empty module") a warning is issued if it is empty. Add it.
+This fixes following warning observed on Lamobo R1:
 
-Recognise the inherent race of marking the monitor disabled before
-deleting the timer by just returning if enable was cleared.  After
-a timeout (the default case -- reset to START when response received)
-just mark the monitor.enabled false.
+WARNING: CPU: 1 PID: 190 at sound/core/init.c:207 snd_card_new+0x430/0x480 [snd]
+Modules linked in: sun4i_codec(E+) sun4i_backend(E+) snd_soc_core(E) ...
+CPU: 1 PID: 190 Comm: systemd-udevd Tainted: G         C  E     5.10.0-1-armmp #1 Debian 5.10.4-1
+Hardware name: Allwinner sun7i (A20) Family
+Call trace:
+ (snd_card_new [snd])
+ (snd_soc_bind_card [snd_soc_core])
+ (snd_soc_register_card [snd_soc_core])
+ (sun4i_codec_probe [sun4i_codec])
 
-If the channel has an entry on the channel_queue list, or if the
-state is not ACTIVE or INACTIVE, then warn and mark the timer stopped
-and don't restart, as the locking is broken somehow.
-
-Fixes: 0795fb2021f0 ("net/ncsi: Stop monitor if channel times out or is inactive")
-Signed-off-by: Milton Miller <miltonm@us.ibm.com>
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 45fb6b6f2aa3 ("ASoC: sunxi: add support for the on-chip codec on early Allwinner SoCs")
+Related: commit 3c27ea23ffb4 ("ASoC: qcom: Set card->owner to avoid warnings")
+Related: commit ec653df2a0cb ("drm/vc4/vc4_hdmi: fill ASoC card owner")
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: alsa-devel@alsa-project.org
+Signed-off-by: Bastian Germann <bage@linutronix.de>
+Link: https://lore.kernel.org/r/20210331151843.30583-1-bage@linutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ncsi/ncsi-manage.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ sound/soc/sunxi/sun4i-codec.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/ncsi/ncsi-manage.c b/net/ncsi/ncsi-manage.c
-index 28c42b22b748..6b7f9e1f64d3 100644
---- a/net/ncsi/ncsi-manage.c
-+++ b/net/ncsi/ncsi-manage.c
-@@ -203,13 +203,20 @@ static void ncsi_channel_monitor(unsigned long data)
- 	monitor_state = nc->monitor.state;
- 	spin_unlock_irqrestore(&nc->lock, flags);
+diff --git a/sound/soc/sunxi/sun4i-codec.c b/sound/soc/sunxi/sun4i-codec.c
+index baa9007464ed..700779ca82d0 100644
+--- a/sound/soc/sunxi/sun4i-codec.c
++++ b/sound/soc/sunxi/sun4i-codec.c
+@@ -1199,6 +1199,7 @@ static struct snd_soc_card *sun4i_codec_create_card(struct device *dev)
+ 		return ERR_PTR(-ENOMEM);
  
--	if (!enabled || chained) {
--		ncsi_stop_channel_monitor(nc);
--		return;
--	}
-+	if (!enabled)
-+		return;		/* expected race disabling timer */
-+	if (WARN_ON_ONCE(chained))
-+		goto bad_state;
-+
- 	if (state != NCSI_CHANNEL_INACTIVE &&
- 	    state != NCSI_CHANNEL_ACTIVE) {
--		ncsi_stop_channel_monitor(nc);
-+bad_state:
-+		netdev_warn(ndp->ndev.dev,
-+			    "Bad NCSI monitor state channel %d 0x%x %s queue\n",
-+			    nc->id, state, chained ? "on" : "off");
-+		spin_lock_irqsave(&nc->lock, flags);
-+		nc->monitor.enabled = false;
-+		spin_unlock_irqrestore(&nc->lock, flags);
- 		return;
- 	}
+ 	card->dev		= dev;
++	card->owner		= THIS_MODULE;
+ 	card->name		= "sun4i-codec";
+ 	card->dapm_widgets	= sun4i_codec_card_dapm_widgets;
+ 	card->num_dapm_widgets	= ARRAY_SIZE(sun4i_codec_card_dapm_widgets);
+@@ -1231,6 +1232,7 @@ static struct snd_soc_card *sun6i_codec_create_card(struct device *dev)
+ 		return ERR_PTR(-ENOMEM);
  
-@@ -234,10 +241,9 @@ static void ncsi_channel_monitor(unsigned long data)
- 			ndp->flags |= NCSI_DEV_RESHUFFLE;
- 		}
+ 	card->dev		= dev;
++	card->owner		= THIS_MODULE;
+ 	card->name		= "A31 Audio Codec";
+ 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
+ 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
+@@ -1284,6 +1286,7 @@ static struct snd_soc_card *sun8i_a23_codec_create_card(struct device *dev)
+ 		return ERR_PTR(-ENOMEM);
  
--		ncsi_stop_channel_monitor(nc);
--
- 		ncm = &nc->modes[NCSI_MODE_LINK];
- 		spin_lock_irqsave(&nc->lock, flags);
-+		nc->monitor.enabled = false;
- 		nc->state = NCSI_CHANNEL_INVISIBLE;
- 		ncm->data[2] &= ~0x1;
- 		spin_unlock_irqrestore(&nc->lock, flags);
+ 	card->dev		= dev;
++	card->owner		= THIS_MODULE;
+ 	card->name		= "A23 Audio Codec";
+ 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
+ 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
+@@ -1322,6 +1325,7 @@ static struct snd_soc_card *sun8i_h3_codec_create_card(struct device *dev)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	card->dev		= dev;
++	card->owner		= THIS_MODULE;
+ 	card->name		= "H3 Audio Codec";
+ 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
+ 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
+@@ -1360,6 +1364,7 @@ static struct snd_soc_card *sun8i_v3s_codec_create_card(struct device *dev)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	card->dev		= dev;
++	card->owner		= THIS_MODULE;
+ 	card->name		= "V3s Audio Codec";
+ 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
+ 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
 -- 
 2.30.2
 
