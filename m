@@ -2,216 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 206CF360B99
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50887360BBF
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbhDOOPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230056AbhDOOPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 10:15:17 -0400
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD50AC061574;
-        Thu, 15 Apr 2021 07:14:53 -0700 (PDT)
-Received: by mail-qt1-x833.google.com with SMTP id t11so9675639qtr.8;
-        Thu, 15 Apr 2021 07:14:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=PcMlPklfCvlm1Cok3Oiv8mr5HJURs6hqGUuWf6zfFdU=;
-        b=rRmTL4IW87YHajh31Ayidt359X7o7Wt4BL3NeZedUHouii/pMjqAOflYQLX7Uaphj1
-         bfKhvKNFFnZ8eB6dOKTJjZ0CyOPI89IBJsSyoXDIqgxnooqC6EIF9LMV+7YUSNNS5AEK
-         4gYZeK1TJEkSGCkyVVuq++U7dm+UJ+JzkhFyka6XvaIopYWCMCvtjxPlZuTCH4kCcbyX
-         Uyt10LzDHeRxciZiIaH0YjQ1l3lt0dYAw3arVF4xj/JMOznk8pW3U8k9IKrfbwF1eh7V
-         j6AJTFjjdMLiV0bPs/mchHciMxI20+1j3amM3/0eMz5NjjYgXkw7pG5LsMHtk05nF2J2
-         gr0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PcMlPklfCvlm1Cok3Oiv8mr5HJURs6hqGUuWf6zfFdU=;
-        b=OHsFE24YIRer8fUoFHWAcfJQ2yacdTuOoP/TfjYvbkykPYhqJHiqETg119nyCFDh/l
-         ch0gqjgCxNM8hZ3uznyIqojmiEFFhyDwza5BvVuyOPWDh2SWSVTdZZeTKlwxBh0HnaRh
-         Ia5XSoX47shexCoMxkief2uch3ysB1nHxeGmB6nDQcj+kplFcoA+6DFVeseK/oCEgD5A
-         8pXn9Mv56lkluCmk6qn3XyoWE3NF71CYK4cR0aNx2xXsZhki3RWNpAkBZrALpvcIhTVi
-         J4ikoqYP/RRq5OIN8P0Mv/PvTq+knBuKrej1kRRKNLPm790tSnwLCIDn7wXZABODD/xL
-         dzxg==
-X-Gm-Message-State: AOAM531QsmPpIDFz4Dw8gToyLetqDjuQdCmAZSX0A1pdmGm1kf9U4hW1
-        UWXB24da8iIENdkJ/ZZacuiP2xLKSMM=
-X-Google-Smtp-Source: ABdhPJzeS8ODMoVcB2Td1qmFvzli4Qu6qiuqsm8yD/MVv9hQxKPCm02OK7atVsv3hVZ3kWH8oFEqog==
-X-Received: by 2002:a05:622a:170e:: with SMTP id h14mr3129505qtk.287.1618496092890;
-        Thu, 15 Apr 2021 07:14:52 -0700 (PDT)
-Received: from localhost.localdomain (c-73-60-226-25.hsd1.nh.comcast.net. [73.60.226.25])
-        by smtp.gmail.com with ESMTPSA id q198sm2076083qke.3.2021.04.15.07.14.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Apr 2021 07:14:52 -0700 (PDT)
-Date:   Thu, 15 Apr 2021 10:14:50 -0400
-From:   Eric Whitney <enwlinux@gmail.com>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Ted Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
-        Eric Whitney <enwlinux@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] ext4: Fix occasional generic/418 failure
-Message-ID: <20210415141450.GA12301@localhost.localdomain>
-References: <20210414131453.4945-1-jack@suse.cz>
+        id S233201AbhDOOZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:25:11 -0400
+Received: from mga17.intel.com ([192.55.52.151]:62920 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230056AbhDOOZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:25:10 -0400
+IronPort-SDR: TdxjJHzQITVLo5uBwxZtafqy8hTojAzqkFJBj9d1oxpcWrYRI7wj24QHYB98UhP1dYDVHHqiET
+ rC0Yw6IT/V7Q==
+X-IronPort-AV: E=McAfee;i="6200,9189,9955"; a="174966822"
+X-IronPort-AV: E=Sophos;i="5.82,225,1613462400"; 
+   d="scan'208";a="174966822"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2021 07:24:47 -0700
+IronPort-SDR: pKDKQflmVg1fjr500lbZygAhcwhvaDcQaREdvysUl4WeM6ChjHgiUhoUT4ljOeQBl2hJZ5fzGO
+ VJ6yiDlb2oSg==
+X-IronPort-AV: E=Sophos;i="5.82,225,1613462400"; 
+   d="scan'208";a="452932231"
+Received: from allanagx-mobl.amr.corp.intel.com (HELO [10.213.172.37]) ([10.213.172.37])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2021 07:24:47 -0700
+Subject: Re: [PATCH v1] ASoC: Intel: kbl_da7219_max98927: Fix
+ kabylake_ssp_fixup function
+To:     Lukasz Majczak <lma@semihalf.com>, Mark Brown <broonie@kernel.org>,
+        Harsha Priya <harshapriya.n@intel.com>,
+        Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
+Cc:     upstream@semihalf.com, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20210415124347.475432-1-lma@semihalf.com>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <a4c8f5d0-5bc1-1b7e-c7a5-731c9f6f7951@linux.intel.com>
+Date:   Thu, 15 Apr 2021 09:24:45 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210414131453.4945-1-jack@suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210415124347.475432-1-lma@semihalf.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* Jan Kara <jack@suse.cz>:
-> Eric has noticed that after pagecache read rework, generic/418 is
-> occasionally failing for ext4 when blocksize < pagesize. In fact, the
-> pagecache rework just made hard to hit race in ext4 more likely. The
-> problem is that since ext4 conversion of direct IO writes to iomap
-> framework (commit 378f32bab371), we update inode size after direct IO
-> write only after invalidating page cache. Thus if buffered read sneaks
-> at unfortunate moment like:
+
+
+On 4/15/21 7:43 AM, Lukasz Majczak wrote:
+> kabylake_ssp_fixup function uses snd_soc_dpcm to identify the
+> codecs DAIs. The HW parameters are changed based on the codec DAI of the
+> stream. The earlier approach to get snd_soc_dpcm was using container_of()
+> macro on snd_pcm_hw_params.
 > 
-> CPU1 - write at offset 1k                       CPU2 - read from offset 0
-> iomap_dio_rw(..., IOMAP_DIO_FORCE_WAIT);
->                                                 ext4_readpage();
-> ext4_handle_inode_extension()
+> The structures have been modified over time and snd_soc_dpcm does not have
+> snd_pcm_hw_params as a reference but as a copy. This causes the current
+> driver to crash when used.
 > 
-> the read will zero out tail of the page as it still sees smaller inode
-> size and thus page cache becomes inconsistent with on-disk contents with
-> all the consequences.
+> This patch changes the way snd_soc_dpcm is extracted. snd_soc_pcm_runtime
+> holds 2 dpcm instances (one for playback and one for capture). 2 codecs
+> on the SSP are dmic (capture) and speakers (playback). Based on the
+> stream direction, snd_soc_dpcm is extracted from snd_soc_pcm_runtime.
 > 
-> Fix the problem by moving inode size update into end_io handler which
-> gets called before the page cache is invalidated.
+> Tested for all use cases of the driver.
+> Based on similar fix in kbl_rt5663_rt5514_max98927.c
+> from Harsha Priya <harshapriya.n@intel.com> and
+> Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
 > 
-> Reported-by: Eric Whitney <enwlinux@gmail.com>
-> Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
-> CC: stable@vger.kernel.org
-> Signed-off-by: Jan Kara <jack@suse.cz>
+> Cc: <stable@vger.kernel.org> # 5.4+
+> Signed-off-by: Lukasz Majczak <lma@semihalf.com>
 > ---
->  fs/ext4/file.c | 20 ++++++++++++++++----
->  1 file changed, 16 insertions(+), 4 deletions(-)
+> Hi,
+> This is basically a cherry-pick of this change:
+> https://patchwork.kernel.org/project/alsa-devel/patch/1595432147-11166-1-git-send-email-harshapriya.n@intel.com/
+> just applied to the kbl_da7219_max98927.
+> Best regards,
+> Lukasz
+
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+
 > 
-> Eric, can you please try whether this patch fixes the failures you are
-> occasionally seeing?
+>   sound/soc/intel/boards/kbl_da7219_max98927.c | 38 +++++++++++++++-----
+>   1 file changed, 30 insertions(+), 8 deletions(-)
 > 
-
-I applied this patch to 5.12-rc7 and ran tests on two different sets of
-hardware using kvm-xfstests.
-
-5000 runs of generic/418 passed on the 1k test configuration without
-incident.  On an unmodified -rc7 kernel, I'm typically getting 100-200 failures
-for that many runs.  So, that looks good.
-
-After running through all the appliance's test configurations with the
-patched kernel, I did see one unexpected failure of generic/068 on
-data=journal due to a burst of kernel warnings.  Unexpected means I haven't
-seen this failure in recent memory on upstream -rc* regression runs.  A
-10 run attempt to reproduce the failure failed to do so.  An instance of the
-warning follows.
-
-Thanks,
-Eric
-
-[35456.178585] WARNING: CPU: 1 PID: 22225 at fs/ext4/ext4_jbd2.c:75 ext4_journal_check_start+0x4c/0x90
-[35456.180802] Modules linked in:
-[35456.181554] CPU: 1 PID: 22225 Comm: kworker/u4:0 Not tainted 5.12.0-rc7+ #2
-[35456.183169] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-[35456.185030] Workqueue: writeback wb_workfn (flush-254:32)
-[35456.186290] RIP: 0010:ext4_journal_check_start+0x4c/0x90
-[35456.187540] Code: e1 02 75 24 f6 43 50 01 75 54 83 bb 20 03 00 00 04 74 17 48 8b 92 70 03 00 00 31 c0 48 85 d2 74 07 8b 02 83 e0 02 75 06 5b c3 <0f> 0b eb e5 44 8b 42 08 68 11 23 0f 82 48 89 df 45 31 c9 b9 01 00
-[35456.190939] RSP: 0018:ffffc90004167850 EFLAGS: 00010246
-[35456.191845] RAX: 00000000fffffffb RBX: ffff888009f76000 RCX: 0000000000000000
-[35456.193668] RDX: ffff888009f73000 RSI: ffffffff8235dd60 RDI: ffff888009f76000
-[35456.195461] RBP: 0000000000000009 R08: 0000000000000000 R09: ffffffff813c9fd8
-[35456.197365] R10: 0000000000000000 R11: 000000000002f6b8 R12: 0000000000000000
-[35456.199276] R13: 0000000000000008 R14: 0000000000000002 R15: 0000000000000771
-[35456.201080] FS:  0000000000000000(0000) GS:ffff88807dd00000(0000) knlGS:0000000000000000
-[35456.202513] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[35456.203521] CR2: 00007f30cf413000 CR3: 0000000001c04006 CR4: 0000000000370ee0
-[35456.205554] Call Trace:
-[35456.206275]  __ext4_journal_start_sb+0x118/0x180
-[35456.207568]  ext4_writepage+0x368/0x740
-[35456.209077]  ? _raw_spin_unlock_irqrestore+0x30/0x40
-[35456.210638]  ? page_mkclean+0x6e/0xc0
-[35456.211899]  ? lock_is_held_type+0x99/0x100
-[35456.213341]  __writepage+0x19/0x70
-[35456.214614]  write_cache_pages+0x1a6/0x470
-[35456.216026]  ? __wb_calc_thresh+0xd0/0xd0
-[35456.217617]  generic_writepages+0x59/0x90
-[35456.219119]  ? lock_is_held_type+0x99/0x100
-[35456.220673]  ? do_writepages+0x41/0xd0
-[35456.222038]  ? do_writepages+0x41/0xd0
-[35456.223341]  ext4_writepages+0xc40/0x1080
-[35456.224750]  ? __lock_acquire+0x3d5/0x2380
-[35456.226175]  ? __lock_acquire+0x3d5/0x2380
-[35456.227586]  ? do_writepages+0x41/0xd0
-[35456.228563]  ? __ext4_mark_inode_dirty+0x280/0x280
-[35456.230308]  do_writepages+0x41/0xd0
-[35456.231540]  ? lock_is_held_type+0x99/0x100
-[35456.233032]  __writeback_single_inode+0x58/0x530
-[35456.234542]  writeback_sb_inodes+0x204/0x4d0
-[35456.235995]  wb_writeback+0x107/0x430
-[35456.237489]  wb_workfn+0xb5/0x5f0
-[35456.238645]  ? lock_acquire+0xb5/0x380
-[35456.240026]  ? process_one_work+0x223/0x5d0
-[35456.241522]  ? lock_is_held_type+0x99/0x100
-[35456.243139]  process_one_work+0x2a5/0x5d0
-[35456.244615]  ? process_one_work+0x5d0/0x5d0
-[35456.246108]  worker_thread+0x2d/0x3c0
-[35456.247429]  ? process_one_work+0x5d0/0x5d0
-[35456.248926]  kthread+0x127/0x140
-[35456.250090]  ? kthread_park+0x80/0x80
-[35456.251379]  ret_from_fork+0x22/0x30
-[35456.252559] irq event stamp: 4858465
-[35456.253785] hardirqs last  enabled at (4858473): [<ffffffff8115ddee>] console_unlock+0x36e/0x550
-[35456.256235] hardirqs last disabled at (4858482): [<ffffffff8115de77>] console_unlock+0x3f7/0x550
-[35456.259117] softirqs last  enabled at (4858496): [<ffffffff81c00303>] __do_softirq+0x303/0x41a
-[35456.261485] softirqs last disabled at (4858491): [<ffffffff810ecade>] irq_exit_rcu+0xae/0xb0
-[35456.263742] ---[ end trace ea82423dcfaf8730 ]---
-
-
-> Changes since v1:
-> * Rewritten the fix to avoid the need for separate transaction handle for
->   orphan list update
-> 
-> diff --git a/fs/ext4/file.c b/fs/ext4/file.c
-> index 194f5d00fa32..be1e80af61be 100644
-> --- a/fs/ext4/file.c
-> +++ b/fs/ext4/file.c
-> @@ -371,15 +371,27 @@ static ssize_t ext4_handle_inode_extension(struct inode *inode, loff_t offset,
->  static int ext4_dio_write_end_io(struct kiocb *iocb, ssize_t size,
->  				 int error, unsigned int flags)
->  {
-> -	loff_t offset = iocb->ki_pos;
-> +	loff_t pos = iocb->ki_pos;
->  	struct inode *inode = file_inode(iocb->ki_filp);
->  
->  	if (error)
->  		return error;
->  
-> -	if (size && flags & IOMAP_DIO_UNWRITTEN)
-> -		return ext4_convert_unwritten_extents(NULL, inode,
-> -						      offset, size);
-> +	if (size && flags & IOMAP_DIO_UNWRITTEN) {
-> +		error = ext4_convert_unwritten_extents(NULL, inode, pos, size);
-> +		if (error < 0)
-> +			return error;
-> +	}
+> diff --git a/sound/soc/intel/boards/kbl_da7219_max98927.c b/sound/soc/intel/boards/kbl_da7219_max98927.c
+> index 9dfe5bd9180d..4b7b4a044f81 100644
+> --- a/sound/soc/intel/boards/kbl_da7219_max98927.c
+> +++ b/sound/soc/intel/boards/kbl_da7219_max98927.c
+> @@ -284,11 +284,33 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
+>   	struct snd_interval *chan = hw_param_interval(params,
+>   			SNDRV_PCM_HW_PARAM_CHANNELS);
+>   	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+> -	struct snd_soc_dpcm *dpcm = container_of(
+> -			params, struct snd_soc_dpcm, hw_params);
+> -	struct snd_soc_dai_link *fe_dai_link = dpcm->fe->dai_link;
+> -	struct snd_soc_dai_link *be_dai_link = dpcm->be->dai_link;
+> +	struct snd_soc_dpcm *dpcm, *rtd_dpcm = NULL;
+>   
 > +	/*
-> +	 * If we are extending the file, we have to update i_size here before
-> +	 * page cache gets invalidated in iomap_dio_rw(). Otherwise racing
-> +	 * buffered reads could zero out too much from page cache pages. Update
-> +	 * of on-disk size will happen later in ext4_dio_write_iter() where
-> +	 * we have enough information to also perform orphan list handling etc.
+> +	 * The following loop will be called only for playback stream
+> +	 * In this platform, there is only one playback device on every SSP
 > +	 */
-> +	pos += size;
-> +	if (pos > i_size_read(inode))
-> +		i_size_write(inode, pos);
->  
->  	return 0;
->  }
-> -- 
-> 2.26.2
+> +	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_PLAYBACK, dpcm) {
+> +		rtd_dpcm = dpcm;
+> +		break;
+> +	}
+> +
+> +	/*
+> +	 * This following loop will be called only for capture stream
+> +	 * In this platform, there is only one capture device on every SSP
+> +	 */
+> +	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_CAPTURE, dpcm) {
+> +		rtd_dpcm = dpcm;
+> +		break;
+> +	}
+> +
+> +	if (!rtd_dpcm)
+> +		return -EINVAL;
+> +
+> +	/*
+> +	 * The above 2 loops are mutually exclusive based on the stream direction,
+> +	 * thus rtd_dpcm variable will never be overwritten
+> +	 */
+>   	/*
+>   	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE,
+>   	 * where as kblda7219m98927 & kblmax98927 supports S16_LE by default.
+> @@ -311,9 +333,9 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
+>   	/*
+>   	 * The ADSP will convert the FE rate to 48k, stereo, 24 bit
+>   	 */
+> -	if (!strcmp(fe_dai_link->name, "Kbl Audio Port") ||
+> -	    !strcmp(fe_dai_link->name, "Kbl Audio Headset Playback") ||
+> -	    !strcmp(fe_dai_link->name, "Kbl Audio Capture Port")) {
+> +	if (!strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Port") ||
+> +	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Headset Playback") ||
+> +	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Capture Port")) {
+>   		rate->min = rate->max = 48000;
+>   		chan->min = chan->max = 2;
+>   		snd_mask_none(fmt);
+> @@ -324,7 +346,7 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
+>   	 * The speaker on the SSP0 supports S16_LE and not S24_LE.
+>   	 * thus changing the mask here
+>   	 */
+> -	if (!strcmp(be_dai_link->name, "SSP0-Codec"))
+> +	if (!strcmp(rtd_dpcm->be->dai_link->name, "SSP0-Codec"))
+>   		snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S16_LE);
+>   
+>   	return 0;
 > 
