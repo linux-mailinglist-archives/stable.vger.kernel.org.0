@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE3C360D39
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 295AA360D3C
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234228AbhDOO66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:58:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
+        id S234557AbhDOO7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:59:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234279AbhDOO45 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:56:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47BDD613F0;
-        Thu, 15 Apr 2021 14:54:22 +0000 (UTC)
+        id S234479AbhDOO5D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:57:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2522B613F9;
+        Thu, 15 Apr 2021 14:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498463;
-        bh=fceXciL6PvyyrhioLAwc2eWDBZoNsqZJ6R6kitxb5gw=;
+        s=korg; t=1618498465;
+        bh=S2qjbVHgh/TjslxsBJJACph8xd5d8B1SD1EwugYyOCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mO+kfXHlID06mCzLKwMXrMxh7hTdZkTjsmch6U0q2RWQ/tbC1oUk1Vbq4Vkicmz4T
-         1h8Bz4I78JeVH0NXJG2jnz6i/OwgMKKOJPof/bXw/0uJgJyVUeZc1NMC65IlCHHlrQ
-         ogO3ftK1PScxCNK70R/rPL6HI/dYdblliq6aDSik=
+        b=oQTv5bWaJWupWKrGy8XlAgVvb8v69agG7GHCVYkUEt5Duf/P6+ltBQ0YnqRQWtBFM
+         xL5HlrTTzi0H3EMsiauirRJmyHYz3N7bjfp70+M8HZwXX7e6BcxAhNcg3+tA3gSvwq
+         WCYZr0rXcGKW/KUvIiSaIBes1U/BnHDJvVROhlkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Eric Dumazet <edumazet@google.com>,
+        syzbot+28a246747e0a465127f3@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 47/68] net: tun: set tun->dev->addr_len during TUNSETLINK processing
-Date:   Thu, 15 Apr 2021 16:47:28 +0200
-Message-Id: <20210415144416.010370236@linuxfoundation.org>
+Subject: [PATCH 4.14 48/68] drivers: net: fix memory leak in atusb_probe
+Date:   Thu, 15 Apr 2021 16:47:29 +0200
+Message-Id: <20210415144416.041559091@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -42,96 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit cca8ea3b05c972ffb5295367e6c544369b45fbdd upstream.
+commit 6b9fbe16955152626557ec6f439f3407b7769941 upstream.
 
-When changing type with TUNSETLINK ioctl command, set tun->dev->addr_len
-to match the appropriate type, using new tun_get_addr_len utility function
-which returns appropriate address length for given type. Fixes a
-KMSAN-found uninit-value bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=0766d38c656abeace60621896d705743aeefed51
+syzbot reported memory leak in atusb_probe()[1].
+The problem was in atusb_alloc_urbs().
+Since urb is anchored, we need to release the reference
+to correctly free the urb
 
-Reported-by: syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com
-Diagnosed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+backtrace:
+    [<ffffffff82ba0466>] kmalloc include/linux/slab.h:559 [inline]
+    [<ffffffff82ba0466>] usb_alloc_urb+0x66/0xe0 drivers/usb/core/urb.c:74
+    [<ffffffff82ad3888>] atusb_alloc_urbs drivers/net/ieee802154/atusb.c:362 [inline][2]
+    [<ffffffff82ad3888>] atusb_probe+0x158/0x820 drivers/net/ieee802154/atusb.c:1038 [1]
+
+Reported-by: syzbot+28a246747e0a465127f3@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ drivers/net/ieee802154/atusb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -75,6 +75,14 @@
- #include <linux/skb_array.h>
- #include <linux/bpf.h>
- #include <linux/bpf_trace.h>
-+#include <linux/ieee802154.h>
-+#include <linux/if_ltalk.h>
-+#include <uapi/linux/if_fddi.h>
-+#include <uapi/linux/if_hippi.h>
-+#include <uapi/linux/if_fc.h>
-+#include <net/ax25.h>
-+#include <net/rose.h>
-+#include <net/6lowpan.h>
- 
- #include <linux/uaccess.h>
- 
-@@ -2292,6 +2300,45 @@ unlock:
- 	return ret;
- }
- 
-+/* Return correct value for tun->dev->addr_len based on tun->dev->type. */
-+static unsigned char tun_get_addr_len(unsigned short type)
-+{
-+	switch (type) {
-+	case ARPHRD_IP6GRE:
-+	case ARPHRD_TUNNEL6:
-+		return sizeof(struct in6_addr);
-+	case ARPHRD_IPGRE:
-+	case ARPHRD_TUNNEL:
-+	case ARPHRD_SIT:
-+		return 4;
-+	case ARPHRD_ETHER:
-+		return ETH_ALEN;
-+	case ARPHRD_IEEE802154:
-+	case ARPHRD_IEEE802154_MONITOR:
-+		return IEEE802154_EXTENDED_ADDR_LEN;
-+	case ARPHRD_PHONET_PIPE:
-+	case ARPHRD_PPP:
-+	case ARPHRD_NONE:
-+		return 0;
-+	case ARPHRD_6LOWPAN:
-+		return EUI64_ADDR_LEN;
-+	case ARPHRD_FDDI:
-+		return FDDI_K_ALEN;
-+	case ARPHRD_HIPPI:
-+		return HIPPI_ALEN;
-+	case ARPHRD_IEEE802:
-+		return FC_ALEN;
-+	case ARPHRD_ROSE:
-+		return ROSE_ADDR_LEN;
-+	case ARPHRD_NETROM:
-+		return AX25_ADDR_LEN;
-+	case ARPHRD_LOCALTLK:
-+		return LTALK_ALEN;
-+	default:
-+		return 0;
-+	}
-+}
-+
- static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
- 			    unsigned long arg, int ifreq_len)
- {
-@@ -2434,6 +2481,7 @@ static long __tun_chr_ioctl(struct file
- 			ret = -EBUSY;
- 		} else {
- 			tun->dev->type = (int) arg;
-+			tun->dev->addr_len = tun_get_addr_len(tun->dev->type);
- 			tun_debug(KERN_INFO, tun, "linktype set to %d\n",
- 				  tun->dev->type);
- 			ret = 0;
+--- a/drivers/net/ieee802154/atusb.c
++++ b/drivers/net/ieee802154/atusb.c
+@@ -346,6 +346,7 @@ static int atusb_alloc_urbs(struct atusb
+ 			return -ENOMEM;
+ 		}
+ 		usb_anchor_urb(urb, &atusb->idle_urbs);
++		usb_free_urb(urb);
+ 		n--;
+ 	}
+ 	return 0;
 
 
