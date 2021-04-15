@@ -2,214 +2,310 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BABD836102E
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 18:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82492361030
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 18:30:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233977AbhDOQaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 12:30:19 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:53102 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233919AbhDOQaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 12:30:17 -0400
-Received: from mailhost.synopsys.com (sv2-mailhost1.synopsys.com [10.205.2.133])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id A45B2C0152;
-        Thu, 15 Apr 2021 16:29:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1618504193; bh=qkhVVwMrFBD67vOr4UAxMhO+J38XneFNIhYe00sArPk=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=LT6NYOrl6EolHWHIqlmXah2jmrKtES8cUD7ZGb/DtVACnwSQR5DMFJYhcncrYyae8
-         x7xsQvktBKoD81NtJiAmPESBKE+iLm4rttEKh1vXfsPSU1UXGGn8F/9wUVlpsR7UYO
-         rGQMbunC8yPIx94aNmVysk5EFEoxDh5rc54u39P8iSZYgnySLMpzHl9gsrs53lRIMX
-         y17Y26NFJso6l+7NT2czKsHhXWZgMYMyD+SCEMOzTCi6PH1AZJS6oEOA3SZLl+rOF1
-         KKzav5NAE6QKdRoRtaViS0VsCqkGDneTlrN4EJw+Y/PrJuBfHDUZyobyGgsr8YrolO
-         TqSgp+mpzGLcg==
-Received: from lab-vbox (unknown [10.205.132.22])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 35405A0096;
-        Thu, 15 Apr 2021 16:29:49 +0000 (UTC)
-Received: by lab-vbox (sSMTP sendmail emulation); Thu, 15 Apr 2021 09:29:49 -0700
-Date:   Thu, 15 Apr 2021 09:29:49 -0700
-Message-Id: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
-In-Reply-To: <96c64e6a788552371081f37f544041b7ee046ef5.1618452732.git.Thinh.Nguyen@synopsys.com>
-References: <96c64e6a788552371081f37f544041b7ee046ef5.1618452732.git.Thinh.Nguyen@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH v2] usb: dwc3: core: Do core softreset when switch mode
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, Roger Quadros <rogerq@ti.com>
-Cc:     John Youn <John.Youn@synopsys.com>, <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Ferry Toth <fntoth@gmail.com>, Yu Chen <chenyu56@huawei.com>
+        id S232752AbhDOQao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 12:30:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37116 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231137AbhDOQan (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 12:30:43 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF33C061574
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 09:30:19 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id s14so7539845pjl.5
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 09:30:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EEKWkbWLNJUVOYioP6MlUktSWrId6n1rTeL7w+7CSNY=;
+        b=SdjjKGNszEnIZ0jE7mVZ5W3OZGQzYhYYq8DWHzR2Hx6T6RvRr7+kmVEDyCO83rZOk0
+         V0pd87gZbjM7sf3e/tLq6UaW8iYK7RGDQlxTEMjpKL1aiZwmpcgdrJfyfvehZupkMPLn
+         4PFq1JtDUmtNgbmj/IbH5c2Lcg4/rkFGCtVWYxNQMBQboA3KP9MaiHLrs+ZRzhKVsbbu
+         t2aUFq+GlOklSYK2Ucd6hlS0aXvaa9n0Rl7rBLd7Wmhb2m4yln1NAnKXsF0eDGfQmr6i
+         YTy/vHO1xzo9VtuR6o1QyOGQ3q9r2Vrkwc2oGO00EGRGEriVi0gBA6QLWt7Eh8Y6KbKw
+         ih5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EEKWkbWLNJUVOYioP6MlUktSWrId6n1rTeL7w+7CSNY=;
+        b=t0Nn6rfvhgu4iz5H1R5eZQo6LsfjsAIyiZ4eyeu3nMrId908wzPKp6KZMvfMsTlvvy
+         y9gIstV7lhqTtNTv9smIrbjlUHwGUmRcs3VLcP9mK3EPfR4mtrl1b/9refk6LGSlEc7Y
+         k6QZB5S6s0rn2EQ3jDtnv7TeGWRCu/vZo5Q7KLGl7jl+WE1ZK6tgXxDAzZUrw5fCf57T
+         nRF/VKvckjHaNAIZu5AKgi1BKTIID2ZVHJZKZfRgUWyDcKV9GwYTCueXJoF+C+Al8Tnc
+         NmHNK6IiLKkaT03sow13whHET7S6cSQnm0GFhUbFQdx8JfMHQIhMMfU4YOPj5vpdGuR5
+         yK8w==
+X-Gm-Message-State: AOAM532vyLzC5YcloqIzgGF41hRgw08bcK2Ea5yhS3v1Zhiw3SWg9wLo
+        ulUqKY9Ipz6Y7JeiAYbm+NA+fM6G28FTwiRm
+X-Google-Smtp-Source: ABdhPJxXt/0GPKv/FVa9ENStrO66DJyBWj/uUZZizjLh7g9lT/UAmg7cksQ7OqkEeyN+hQXpcvrYWw==
+X-Received: by 2002:a17:90b:714:: with SMTP id s20mr4827132pjz.62.1618504219310;
+        Thu, 15 Apr 2021 09:30:19 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mu6sm2856711pjb.35.2021.04.15.09.30.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Apr 2021 09:30:19 -0700 (PDT)
+Message-ID: <60786a1b.1c69fb81.ef23a.7eac@mx.google.com>
+Date:   Thu, 15 Apr 2021 09:30:19 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.266-44-gd938d15b3cf13
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 baseline: 105 runs,
+ 6 regressions (v4.9.266-44-gd938d15b3cf13)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Chen <chenyu56@huawei.com>
-From: John Stultz <john.stultz@linaro.org>
+stable-rc/queue/4.9 baseline: 105 runs, 6 regressions (v4.9.266-44-gd938d15=
+b3cf13)
 
-According to the programming guide, to switch mode for DRD controller,
-the driver needs to do the following.
+Regressions Summary
+-------------------
 
-To switch from device to host:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(host mode)
-3. Reset the host with USBCMD.HCRESET
-4. Then follow up with the initializing host registers sequence
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
 
-To switch from host to device:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(device mode)
-3. Reset the device with DCTL.CSftRst
-4. Then follow up with the initializing registers sequence
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
 
-Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
-switching from host to device. John Stult reported a lockup issue seen
-with HiKey960 platform without these steps[1]. Similar issue is observed
-with Ferry's testing platform[2].
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
 
-So, apply the required steps along with some fixes to Yu Chen's and John
-Stultz's version. The main fixes to their versions are the missing wait
-for clocks synchronization before clearing GCTL.CoreSoftReset and only
-apply DCTL.CSftRst when switching from host to device.
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
 
-[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
-[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
 
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ferry Toth <fntoth@gmail.com>
-Cc: Wesley Cheng <wcheng@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Signed-off-by: Yu Chen <chenyu56@huawei.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
----
-Changes in v2:
-- Initialize mutex per device and not as global mutex.
-- Add additional checks for DRD only mode
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
 
- drivers/usb/dwc3/core.c | 34 ++++++++++++++++++++++++++++++++++
- drivers/usb/dwc3/core.h |  5 +++++
- 2 files changed, 39 insertions(+)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 5c25e6a72dbd..8eb6242e6bce 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -114,13 +114,24 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
- 	dwc->current_dr_role = mode;
- }
- 
-+static int dwc3_core_soft_reset(struct dwc3 *dwc);
-+
- static void __dwc3_set_mode(struct work_struct *work)
- {
- 	struct dwc3 *dwc = work_to_dwc(work);
- 	unsigned long flags;
-+	unsigned int hw_mode;
-+	bool otg_enabled = false;
- 	int ret;
- 	u32 reg;
- 
-+	mutex_lock(&dwc->mutex);
-+
-+	hw_mode = DWC3_GHWPARAMS0_MODE(dwc->hwparams.hwparams0);
-+	if (DWC3_VER_IS_PRIOR(DWC3, 330A) &&
-+	    (dwc->hwparams.hwparams6 & DWC3_GHWPARAMS6_SRPSUPPORT))
-+		otg_enabled = true;
-+
- 	pm_runtime_get_sync(dwc->dev);
- 
- 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
-@@ -154,6 +165,24 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		break;
- 	}
- 
-+	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD && !otg_enabled) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg |= DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+
-+		/*
-+		 * Wait for internal clocks to synchronized. DWC_usb31 and
-+		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
-+		 * keep it consistent across different IPs, let's wait up to
-+		 * 100ms before clearing GCTL.CORESOFTRESET.
-+		 */
-+		msleep(100);
-+
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg &= ~DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+	}
-+
- 	spin_lock_irqsave(&dwc->lock, flags);
- 
- 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-@@ -178,6 +207,9 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		}
- 		break;
- 	case DWC3_GCTL_PRTCAP_DEVICE:
-+		if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD && !otg_enabled)
-+			dwc3_core_soft_reset(dwc);
-+
- 		dwc3_event_buffers_setup(dwc);
- 
- 		if (dwc->usb2_phy)
-@@ -200,6 +232,7 @@ static void __dwc3_set_mode(struct work_struct *work)
- out:
- 	pm_runtime_mark_last_busy(dwc->dev);
- 	pm_runtime_put_autosuspend(dwc->dev);
-+	mutex_unlock(&dwc->mutex);
- }
- 
- void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
-@@ -1553,6 +1586,7 @@ static int dwc3_probe(struct platform_device *pdev)
- 	dwc3_cache_hwparams(dwc);
- 
- 	spin_lock_init(&dwc->lock);
-+	mutex_init(&dwc->mutex);
- 
- 	pm_runtime_set_active(dev);
- 	pm_runtime_use_autosuspend(dev);
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 695ff2d791e4..7e3afa5378e8 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -13,6 +13,7 @@
- 
- #include <linux/device.h>
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/ioport.h>
- #include <linux/list.h>
- #include <linux/bitops.h>
-@@ -947,6 +948,7 @@ struct dwc3_scratchpad_array {
-  * @scratch_addr: dma address of scratchbuf
-  * @ep0_in_setup: one control transfer is completed and enter setup phase
-  * @lock: for synchronizing
-+ * @mutex: for mode switching
-  * @dev: pointer to our struct device
-  * @sysdev: pointer to the DMA-capable device
-  * @xhci: pointer to our xHCI child
-@@ -1088,6 +1090,9 @@ struct dwc3 {
- 	/* device lock */
- 	spinlock_t		lock;
- 
-+	/* mode switching lock */
-+	struct mutex		mutex;
-+
- 	struct device		*dev;
- 	struct device		*sysdev;
- 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.266-44-gd938d15b3cf13/plan/baseline/
 
-base-commit: 4b853c236c7b5161a2e444bd8b3c76fe5aa5ddcb
--- 
-2.28.0
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.266-44-gd938d15b3cf13
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d938d15b3cf135e030fd8a383d08f2d2fee9574f =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/607836d1b7423939e8dac6e9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/607836d1b7423939e8dac=
+6ea
+        new failure (last pass: v4.9.266-44-g7c3ef782e2f1f) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/607838690dd907f529dac6b1
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/607838690dd907f=
+529dac6b6
+        new failure (last pass: v4.9.266-44-g7c3ef782e2f1f)
+        2 lines
+
+    2021-04-15 12:58:13.580000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6078380ea448f6cff4dac6b4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6078380ea448f6cff4dac=
+6b5
+        failing since 152 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6078381d5bf3a863badac6ca
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6078381d5bf3a863badac=
+6cb
+        failing since 152 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6078380ddefd954e6cdac737
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6078380ddefd954e6cdac=
+738
+        failing since 152 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6078384c18d2be328cdac6e2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.266-4=
+4-gd938d15b3cf13/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6078384c18d2be328cdac=
+6e3
+        failing since 152 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
