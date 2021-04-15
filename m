@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF10360C4E
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:50:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6A4360CC2
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233773AbhDOOt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:49:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
+        id S234034AbhDOOyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:54:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233747AbhDOOtw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:49:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BA75613C3;
-        Thu, 15 Apr 2021 14:49:29 +0000 (UTC)
+        id S234133AbhDOOwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:52:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 083A4613D0;
+        Thu, 15 Apr 2021 14:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498170;
-        bh=iZjowC2CRvrD+FlGm3LXrYZWdumE3CSKrtm4XT3I9gE=;
+        s=korg; t=1618498330;
+        bh=De9Bgla1KxE85ImPrHWA6wq2xSUN6YEMp5673MG5zx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVwoyh220uHNLjPNGXyUwf0+/Q9wiOwKxVlXrZ8x0u6l/ZbzmaCp+2zNKAdPKLCvv
-         wcv/q3VdvAezwA8+VXQvhs3j//5mRVvUf2OEEzmN7Wm/M1jVGd0cRIa5U+Md9HZs9O
-         QMfrHRQhEyF2YhL44YhQevWt2wTM3QSiUS2E6Mf8=
+        b=qW/omg/1diVm5fUb5QuCO/5EfVzSn9OyIe2egrx09VguabKY4LAfASEFJYpo8wldX
+         PWPDhj4tzFSnOLe2K60ctP4HWxxhiDJ30BIi9d24PtIpp/XOroe5mwpdf1goRUY56L
+         8QSbKXMIGwqh7IJWmrYJ+E/T6+TTa75AFvE7wyyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.4 26/38] net: mac802154: Fix general protection fault
-Date:   Thu, 15 Apr 2021 16:47:20 +0200
-Message-Id: <20210415144414.180039833@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+5f9392825de654244975@syzkaller.appspotmail.com,
+        Du Cheng <ducheng2@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 29/47] cfg80211: remove WARN_ON() in cfg80211_sme_connect
+Date:   Thu, 15 Apr 2021 16:47:21 +0200
+Message-Id: <20210415144414.399241841@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
-References: <20210415144413.352638802@linuxfoundation.org>
+In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
+References: <20210415144413.487943796@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Du Cheng <ducheng2@gmail.com>
 
-commit 1165affd484889d4986cf3b724318935a0b120d8 upstream.
+commit 1b5ab825d9acc0f27d2f25c6252f3526832a9626 upstream.
 
-syzbot found general protection fault in crypto_destroy_tfm()[1].
-It was caused by wrong clean up loop in llsec_key_alloc().
-If one of the tfm array members is in IS_ERR() range it will
-cause general protection fault in clean up function [1].
+A WARN_ON(wdev->conn) would trigger in cfg80211_sme_connect(), if multiple
+send_msg(NL80211_CMD_CONNECT) system calls are made from the userland, which
+should be anticipated and handled by the wireless driver. Remove this WARN_ON()
+to prevent kernel panic if kernel is configured to "panic_on_warn".
 
-Call Trace:
- crypto_free_aead include/crypto/aead.h:191 [inline] [1]
- llsec_key_alloc net/mac802154/llsec.c:156 [inline]
- mac802154_llsec_key_add+0x9e0/0xcc0 net/mac802154/llsec.c:249
- ieee802154_add_llsec_key+0x56/0x80 net/mac802154/cfg.c:338
- rdev_add_llsec_key net/ieee802154/rdev-ops.h:260 [inline]
- nl802154_add_llsec_key+0x3d3/0x560 net/ieee802154/nl802154.c:1584
- genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:739
- genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
- genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:800
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
- netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Bug reported by syzbot.
 
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210304152125.1052825-1-paskripkin@gmail.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Reported-by: syzbot+5f9392825de654244975@syzkaller.appspotmail.com
+Signed-off-by: Du Cheng <ducheng2@gmail.com>
+Link: https://lore.kernel.org/r/20210407162756.6101-1-ducheng2@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac802154/llsec.c |    2 +-
+ net/wireless/sme.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac802154/llsec.c
-+++ b/net/mac802154/llsec.c
-@@ -158,7 +158,7 @@ err_tfm0:
- 	crypto_free_blkcipher(key->tfm0);
- err_tfm:
- 	for (i = 0; i < ARRAY_SIZE(key->tfm); i++)
--		if (key->tfm[i])
-+		if (!IS_ERR_OR_NULL(key->tfm[i]))
- 			crypto_free_aead(key->tfm[i]);
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -512,7 +512,7 @@ static int cfg80211_sme_connect(struct w
+ 		cfg80211_sme_free(wdev);
+ 	}
  
- 	kzfree(key);
+-	if (WARN_ON(wdev->conn))
++	if (wdev->conn)
+ 		return -EINPROGRESS;
+ 
+ 	wdev->conn = kzalloc(sizeof(*wdev->conn), GFP_KERNEL);
 
 
