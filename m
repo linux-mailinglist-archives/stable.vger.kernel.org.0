@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 341FF360C8A
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06EB7360C31
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:49:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbhDOOvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:51:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38004 "EHLO mail.kernel.org"
+        id S233600AbhDOOtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:49:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234046AbhDOOvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:51:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 940F3613BA;
-        Thu, 15 Apr 2021 14:50:37 +0000 (UTC)
+        id S233598AbhDOOtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:49:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8575B613B4;
+        Thu, 15 Apr 2021 14:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498238;
-        bh=4lJThul/wz5GfpjV0ZclYVjx+hQZYcext+kvej/pxVg=;
+        s=korg; t=1618498129;
+        bh=Ha1dcDSF7tKe9v3gXZlvuq1L7QJIY3DMSxeU79wxe5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tPNTpWuBI6XPjChpVol2JnMj2SQo1EmnyddJ9ipzNqii8JKpwTOxdyQ5eb3Mt9Ty
-         NcKkLWpYEtOk33HeBEabYjURXbMDTjXKq8Kirj3+Sq+V5VAglWOPJlaPG/8CDO4GDE
-         wZC9QeUEMJauOtpE3Usi97DNRl8KfZVCqEN96wx0=
+        b=bJSpJOlV5pGAfHbF1gv2qXuHO4smL+vgBoQE1Z71gCrke5rPmiD/AaU8G8DJxPmuR
+         TLzWd0BBm7+49Y7zm/cb3+S43qz48hQWr0fHxXdyGxlnKEW4nhrNrFEN6E62DilBPC
+         t9yT60iNBNCqqdGgO1P9bqM0cVrufO2igREr/dTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Qiu <jack.qiu@huawei.com>,
-        Jan Kara <jack@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 13/47] fs: direct-io: fix missing sdio->boundary
-Date:   Thu, 15 Apr 2021 16:47:05 +0200
-Message-Id: <20210415144413.897424022@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sven Eckelmann <sven@narfation.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 12/38] batman-adv: initialize "struct batadv_tvlv_tt_vlan_data"->reserved field
+Date:   Thu, 15 Apr 2021 16:47:06 +0200
+Message-Id: <20210415144413.742350731@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Qiu <jack.qiu@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit df41872b68601059dd4a84858952dcae58acd331 upstream.
+commit 08c27f3322fec11950b8f1384aa0f3b11d028528 upstream.
 
-I encountered a hung task issue, but not a performance one.  I run DIO
-on a device (need lba continuous, for example open channel ssd), maybe
-hungtask in below case:
+KMSAN found uninitialized value at batadv_tt_prepare_tvlv_local_data()
+[1], for commit ced72933a5e8ab52 ("batman-adv: use CRC32C instead of CRC16
+in TT code") inserted 'reserved' field into "struct batadv_tvlv_tt_data"
+and commit 7ea7b4a142758dea ("batman-adv: make the TT CRC logic VLAN
+specific") moved that field to "struct batadv_tvlv_tt_vlan_data" but left
+that field uninitialized.
 
-  DIO:						Checkpoint:
-  get addr A(at boundary), merge into BIO,
-  no submit because boundary missing
-						flush dirty data(get addr A+1), wait IO(A+1)
-						writeback timeout, because DIO(A) didn't submit
-  get addr A+2 fail, because checkpoint is doing
+[1] https://syzkaller.appspot.com/bug?id=07f3e6dba96f0eb3cabab986adcd8a58b9bdbe9d
 
-dio_send_cur_page() may clear sdio->boundary, so prevent it from missing
-a boundary.
-
-Link: https://lkml.kernel.org/r/20210322042253.38312-1-jack.qiu@huawei.com
-Fixes: b1058b981272 ("direct-io: submit bio after boundary buffer is added to it")
-Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>
+Tested-by: syzbot <syzbot+50ee810676e6a089487b@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: ced72933a5e8ab52 ("batman-adv: use CRC32C instead of CRC16 in TT code")
+Fixes: 7ea7b4a142758dea ("batman-adv: make the TT CRC logic VLAN specific")
+Acked-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/direct-io.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/batman-adv/translation-table.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/direct-io.c
-+++ b/fs/direct-io.c
-@@ -793,6 +793,7 @@ submit_page_section(struct dio *dio, str
- 		    struct buffer_head *map_bh)
- {
- 	int ret = 0;
-+	int boundary = sdio->boundary;	/* dio_send_cur_page may clear it */
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -871,6 +871,7 @@ batadv_tt_prepare_tvlv_local_data(struct
  
- 	if (dio->op == REQ_OP_WRITE) {
- 		/*
-@@ -831,10 +832,10 @@ submit_page_section(struct dio *dio, str
- 	sdio->cur_page_fs_offset = sdio->block_in_file << sdio->blkbits;
- out:
- 	/*
--	 * If sdio->boundary then we want to schedule the IO now to
-+	 * If boundary then we want to schedule the IO now to
- 	 * avoid metadata seeks.
- 	 */
--	if (sdio->boundary) {
-+	if (boundary) {
- 		ret = dio_send_cur_page(dio, sdio, map_bh);
- 		if (sdio->bio)
- 			dio_bio_submit(dio, sdio);
+ 		tt_vlan->vid = htons(vlan->vid);
+ 		tt_vlan->crc = htonl(vlan->tt.crc);
++		tt_vlan->reserved = 0;
+ 
+ 		tt_vlan++;
+ 	}
 
 
