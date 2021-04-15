@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B693360CA4
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54706360C49
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233582AbhDOOwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S233595AbhDOOtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:49:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233943AbhDOOvi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:51:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0613F613BA;
-        Thu, 15 Apr 2021 14:51:13 +0000 (UTC)
+        id S233753AbhDOOto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:49:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C68613BA;
+        Thu, 15 Apr 2021 14:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498274;
-        bh=1XVwQV5TweGZisvRlVWPua+P13jqAujffcD8f+mkDJI=;
+        s=korg; t=1618498161;
+        bh=lVWsah9atAHAu568W2G9A2G5z8pjuYC90AG4B0tra20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CSLt6v8i1MGsjD0Ax693N6mgYJcy4Qc3uElJFF69Wva0cTontIaVDfmN8gILmXzHX
-         5MiS+FQpQHKtFi8PmNBMW8LOyWfJMaOqXJcnFoP71EgMawbcYKhNSY4U/ZFLNKS//a
-         hLp0yFJH9d2dprk+X+npagJ7lVTcJTvVVmftzDMs=
+        b=MgdcG+JZdCZ13A09C+S2sdSieuxTjK/VYYlVA//36BVpAd601MPxEPrUgO/kdUcqt
+         pvpxfJ3A+K2F5SzHi1xkHilyd4eKXubU3y0WSy8q//pRbAzuHqKJLlgOvldE88JQij
+         etPwz9+imz6YcvtHFcbc8aJ6yrTMUz5Xx1o0QdwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 25/47] RDMA/cxgb4: check for ipv6 address properly while destroying listener
+        stable@vger.kernel.org,
+        syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 23/38] net: tun: set tun->dev->addr_len during TUNSETLINK processing
 Date:   Thu, 15 Apr 2021 16:47:17 +0200
-Message-Id: <20210415144414.265088216@linuxfoundation.org>
+Message-Id: <20210415144414.088107507@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Potnuri Bharat Teja <bharat@chelsio.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-[ Upstream commit 603c4690b01aaffe3a6c3605a429f6dac39852ae ]
+commit cca8ea3b05c972ffb5295367e6c544369b45fbdd upstream.
 
-ipv6 bit is wrongly set by the below which causes fatal adapter lookup
-engine errors for ipv4 connections while destroying a listener.  Fix it to
-properly check the local address for ipv6.
+When changing type with TUNSETLINK ioctl command, set tun->dev->addr_len
+to match the appropriate type, using new tun_get_addr_len utility function
+which returns appropriate address length for given type. Fixes a
+KMSAN-found uninit-value bug reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=0766d38c656abeace60621896d705743aeefed51
 
-Fixes: 3408be145a5d ("RDMA/cxgb4: Fix adapter LE hash errors while destroying ipv6 listening server")
-Link: https://lore.kernel.org/r/20210331135715.30072-1-bharat@chelsio.com
-Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+001516d86dbe88862cec@syzkaller.appspotmail.com
+Diagnosed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/tun.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 8bd062635399..ed4397c3af1a 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -3478,7 +3478,8 @@ int c4iw_destroy_listen(struct iw_cm_id *cm_id)
- 		c4iw_init_wr_wait(&ep->com.wr_wait);
- 		err = cxgb4_remove_server(
- 				ep->com.dev->rdev.lldi.ports[0], ep->stid,
--				ep->com.dev->rdev.lldi.rxq_ids[0], true);
-+				ep->com.dev->rdev.lldi.rxq_ids[0],
-+				ep->com.local_addr.ss_family == AF_INET6);
- 		if (err)
- 			goto done;
- 		err = c4iw_wait_for_reply(&ep->com.dev->rdev, &ep->com.wr_wait,
--- 
-2.30.2
-
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -71,6 +71,14 @@
+ #include <net/sock.h>
+ #include <linux/seq_file.h>
+ #include <linux/uio.h>
++#include <linux/ieee802154.h>
++#include <linux/if_ltalk.h>
++#include <uapi/linux/if_fddi.h>
++#include <uapi/linux/if_hippi.h>
++#include <uapi/linux/if_fc.h>
++#include <net/ax25.h>
++#include <net/rose.h>
++#include <net/6lowpan.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -1888,6 +1896,45 @@ unlock:
+ 	return ret;
+ }
+ 
++/* Return correct value for tun->dev->addr_len based on tun->dev->type. */
++static unsigned char tun_get_addr_len(unsigned short type)
++{
++	switch (type) {
++	case ARPHRD_IP6GRE:
++	case ARPHRD_TUNNEL6:
++		return sizeof(struct in6_addr);
++	case ARPHRD_IPGRE:
++	case ARPHRD_TUNNEL:
++	case ARPHRD_SIT:
++		return 4;
++	case ARPHRD_ETHER:
++		return ETH_ALEN;
++	case ARPHRD_IEEE802154:
++	case ARPHRD_IEEE802154_MONITOR:
++		return IEEE802154_EXTENDED_ADDR_LEN;
++	case ARPHRD_PHONET_PIPE:
++	case ARPHRD_PPP:
++	case ARPHRD_NONE:
++		return 0;
++	case ARPHRD_6LOWPAN:
++		return EUI64_ADDR_LEN;
++	case ARPHRD_FDDI:
++		return FDDI_K_ALEN;
++	case ARPHRD_HIPPI:
++		return HIPPI_ALEN;
++	case ARPHRD_IEEE802:
++		return FC_ALEN;
++	case ARPHRD_ROSE:
++		return ROSE_ADDR_LEN;
++	case ARPHRD_NETROM:
++		return AX25_ADDR_LEN;
++	case ARPHRD_LOCALTLK:
++		return LTALK_ALEN;
++	default:
++		return 0;
++	}
++}
++
+ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
+ 			    unsigned long arg, int ifreq_len)
+ {
+@@ -2026,6 +2073,7 @@ static long __tun_chr_ioctl(struct file
+ 			ret = -EBUSY;
+ 		} else {
+ 			tun->dev->type = (int) arg;
++			tun->dev->addr_len = tun_get_addr_len(tun->dev->type);
+ 			tun_debug(KERN_INFO, tun, "linktype set to %d\n",
+ 				  tun->dev->type);
+ 			ret = 0;
 
 
