@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9382F360CEE
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5A3360CA7
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234354AbhDOOzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:55:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40290 "EHLO mail.kernel.org"
+        id S234232AbhDOOwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:52:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234352AbhDOOyK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:54:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F53C613DE;
-        Thu, 15 Apr 2021 14:52:50 +0000 (UTC)
+        id S233606AbhDOOvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:51:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 447E8613CC;
+        Thu, 15 Apr 2021 14:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498371;
-        bh=fjkXNWadS5+P5/xjRpVbXjAnw5PR00c3UoX5kZ7axDE=;
+        s=korg; t=1618498279;
+        bh=YUQgMlSEgtepU4She17fz62miPfplCtk5J0gCXpJpcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T22FATBEoXViCR38gi0ICBxapF7sDmYbgtZqkwrzHuTtZ8ibgp8+w3leCD6o7CwIQ
-         zth6ZK9C/xG1VBTRzNVI0/FPNCL5n7nzE4+IXR7/PsEe9XkcqP1mcENDkwQ7C93YzP
-         R/5+nVrgBPF0YGBVh649GvkVJpsmPzmIk+C22NQE=
+        b=aQF12Ya8CzngWyeES57IaKJSDSkfU8qyn9szlI+OjCaKRRkivsUc49qSPJzXA9Auu
+         IlRZzQ/kZXLePdVfa2d/UByJR0I60jXEUQsLKlDE7dlXmvgkyIUTOLbw1KBG7CAO6x
+         aA3XaH7izPxl5Wplg7b8nOz+VkAQYHEiWUrgxfvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: [PATCH 4.14 14/68] ARM: dts: turris-omnia: configure LED[2]/INTn pin as interrupt pin
+        stable@vger.kernel.org, Jonas Holmberg <jonashg@axis.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 03/47] ALSA: aloop: Fix initialization of controls
 Date:   Thu, 15 Apr 2021 16:46:55 +0200
-Message-Id: <20210415144414.936192266@linuxfoundation.org>
+Message-Id: <20210415144413.593823596@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
-References: <20210415144414.464797272@linuxfoundation.org>
+In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
+References: <20210415144413.487943796@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Jonas Holmberg <jonashg@axis.com>
 
-commit a26c56ae67fa9fbb45a8a232dcd7ebaa7af16086 upstream.
+commit 168632a495f49f33a18c2d502fc249d7610375e9 upstream.
 
-Use the `marvell,reg-init` DT property to configure the LED[2]/INTn pin
-of the Marvell 88E1514 ethernet PHY on Turris Omnia into interrupt mode.
+Add a control to the card before copying the id so that the numid field
+is initialized in the copy. Otherwise the numid field of active_id,
+format_id, rate_id and channels_id will be the same (0) and
+snd_ctl_notify() will not queue the events properly.
 
-Without this the pin is by default in LED[2] mode, and the Marvell PHY
-driver configures LED[2] into "On - Link, Blink - Activity" mode.
-
-This fixes the issue where the pca9538 GPIO/interrupt controller (which
-can't mask interrupts in HW) received too many interrupts and after a
-time started ignoring the interrupt with error message:
-  IRQ 71: nobody cared
-
-There is a work in progress to have the Marvell PHY driver support
-parsing PHY LED nodes from OF and registering the LEDs as Linux LED
-class devices. Once this is done the PHY driver can also automatically
-set the pin into INTn mode if it does not find LED[2] in OF.
-
-Until then, though, we fix this via `marvell,reg-init` DT property.
-
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
-Cc: Uwe Kleine-König <uwe@kleine-koenig.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Jonas Holmberg <jonashg@axis.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
 Cc: <stable@vger.kernel.org>
-Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20210407075428.2666787-1-jonashg@axis.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/armada-385-turris-omnia.dts |    1 +
- 1 file changed, 1 insertion(+)
+ sound/drivers/aloop.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
-+++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-@@ -269,6 +269,7 @@
- 		status = "okay";
- 		compatible = "ethernet-phy-id0141.0DD1", "ethernet-phy-ieee802.3-c22";
- 		reg = <1>;
-+		marvell,reg-init = <3 18 0 0x4985>;
- 
- 		/* irq is connected to &pcawan pin 7 */
- 	};
+--- a/sound/drivers/aloop.c
++++ b/sound/drivers/aloop.c
+@@ -1062,6 +1062,14 @@ static int loopback_mixer_new(struct loo
+ 					return -ENOMEM;
+ 				kctl->id.device = dev;
+ 				kctl->id.subdevice = substr;
++
++				/* Add the control before copying the id so that
++				 * the numid field of the id is set in the copy.
++				 */
++				err = snd_ctl_add(card, kctl);
++				if (err < 0)
++					return err;
++
+ 				switch (idx) {
+ 				case ACTIVE_IDX:
+ 					setup->active_id = kctl->id;
+@@ -1078,9 +1086,6 @@ static int loopback_mixer_new(struct loo
+ 				default:
+ 					break;
+ 				}
+-				err = snd_ctl_add(card, kctl);
+-				if (err < 0)
+-					return err;
+ 			}
+ 		}
+ 	}
 
 
