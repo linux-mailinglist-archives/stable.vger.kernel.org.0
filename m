@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B17360DC9
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41429360DBA
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbhDOPF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:05:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
+        id S233617AbhDOPFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234416AbhDOPDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:03:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1EAD61428;
-        Thu, 15 Apr 2021 14:58:14 +0000 (UTC)
+        id S233817AbhDOPBx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:01:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E099961425;
+        Thu, 15 Apr 2021 14:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498695;
-        bh=HWbejj58m5BIOvjehaem8bi+Di6jcH0gmlRIsQrw0UU=;
+        s=korg; t=1618498665;
+        bh=//Sg7iP9EqLC8q6SY3vcfhwlqo4NGuRXrDmGHHSpab8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OD85bTl2aKkNiMXXt5ekI8a82tiN+BU0btgWH7rgg2sr1jdiMa8ipi3K+m28Y7LP1
-         a+06ELZzD8WMhFtV/m+h+Mtsr9V/v/+PRSNHs5wNb2cSt/OQZ4Bww3Gwbtlbo/7sDq
-         PIRW7u1loWCEGJI4gdZg7dErdZg6S3FZtOd69B28=
+        b=Nhil4VKmm1+0UCg6QrGAS/jA5UHKP3J0142h2dKf/3R6Qt6Di4Z7WVAc8r04e/0Q7
+         xq0sTWHX1miilfcNxjwVljxtVBq+emuqA8nKfMvEcPYf9C/ClwcrZto52etUrKC36Z
+         /S++JM3uj8YuR7UYev2Bc0VQZjd42kwYMijkO1ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 12/23] radix tree test suite: Fix compilation
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 25/25] xen/events: fix setting irq affinity
 Date:   Thu, 15 Apr 2021 16:48:19 +0200
-Message-Id: <20210415144413.537807651@linuxfoundation.org>
+Message-Id: <20210415144413.948817193@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
-References: <20210415144413.146131392@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,29 +38,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 7487de534dcbe143e6f41da751dd3ffcf93b00ee ]
+The backport of upstream patch 25da4618af240fbec61 ("xen/events: don't
+unmask an event channel when an eoi is pending") introduced a
+regression for stable kernels 5.10 and older: setting IRQ affinity for
+IRQs related to interdomain events would no longer work, as moving the
+IRQ to its new cpu was not included in the irq_ack callback for those
+events.
 
-Commit 4bba4c4bb09a added tools/include/linux/compiler_types.h which
-includes linux/compiler-gcc.h.  Unfortunately, we had our own (empty)
-compiler_types.h which overrode the one added by that commit, and
-so we lost the definition of __must_be_array().  Removing our empty
-compiler_types.h fixes the problem and reduces our divergence from the
-rest of the tools.
+Fix that by adding the needed call.
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that kernels 5.11 and later don't need the explicit moving of the
+IRQ to the target cpu in the irq_ack callback, due to a rework of the
+affinity setting in kernel 5.11.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/testing/radix-tree/linux/compiler_types.h | 0
- 1 file changed, 0 insertions(+), 0 deletions(-)
- delete mode 100644 tools/testing/radix-tree/linux/compiler_types.h
+ drivers/xen/events/events_base.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/radix-tree/linux/compiler_types.h b/tools/testing/radix-tree/linux/compiler_types.h
-deleted file mode 100644
-index e69de29bb2d1..000000000000
--- 
-2.30.2
-
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1809,7 +1809,7 @@ static void lateeoi_ack_dynirq(struct ir
+ 
+ 	if (VALID_EVTCHN(evtchn)) {
+ 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
+-		event_handler_exit(info);
++		ack_dynirq(data);
+ 	}
+ }
+ 
+@@ -1820,7 +1820,7 @@ static void lateeoi_mask_ack_dynirq(stru
+ 
+ 	if (VALID_EVTCHN(evtchn)) {
+ 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
+-		event_handler_exit(info);
++		ack_dynirq(data);
+ 	}
+ }
+ 
 
 
