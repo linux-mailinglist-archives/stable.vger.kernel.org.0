@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7107C360D84
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28ABC360D8A
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233680AbhDOPDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46222 "EHLO mail.kernel.org"
+        id S233778AbhDOPD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:03:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235188AbhDOPA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BD28613B4;
-        Thu, 15 Apr 2021 14:56:37 +0000 (UTC)
+        id S235228AbhDOPAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:00:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF93F613C0;
+        Thu, 15 Apr 2021 14:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498598;
-        bh=A+agapKun2YtQuk0lHEgnbTeI1CbbZ89Ds1z3HMaOKo=;
+        s=korg; t=1618498600;
+        bh=dhYxorx/1pSdpYb4mUa+fX1VX6NdweZAjcddJC4Olo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsmAxF1UTYcNHQ9rji9jqYKc8OMtl+stYqFzTbcb4gZN+Tme8SP34liKibuvMVmg2
-         JntSNSyLMBFz+1D/XifEC/3k+n2zFY3RVKwmHk+lWLGzZY85PYdG1uHtzARUMTpQz4
-         1Sfy9OOVC6GakRkLwFxfVfdufW9eNA3o57JiKwsE=
+        b=CO2DTXonUVANdOFgW92h7TAKFL3EzwTaLN4P2DOf6qySRFwlUVz1eDvaNT0yLqerl
+         527RQtuIZ+KGAitZl36TSqtttpem7BtRQ0jimuJ6+sNKxw+Vmltqjuv9S5bhL/Ulae
+         +G38P1Hl9wD0V/RAfFh9iZyAmjwSZw4n25xROaw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Chris von Recklinghausen <crecklin@redhat.com>,
         "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/18] radix tree test suite: Register the main thread with the RCU library
-Date:   Thu, 15 Apr 2021 16:48:01 +0200
-Message-Id: <20210415144413.315313016@linuxfoundation.org>
+Subject: [PATCH 5.4 09/18] idr test suite: Take RCU read lock in idr_find_test_1
+Date:   Thu, 15 Apr 2021 16:48:02 +0200
+Message-Id: <20210415144413.344891808@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
 References: <20210415144413.055232956@linuxfoundation.org>
@@ -43,73 +43,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 1bb4bd266cf39fd2fa711f2d265c558b92df1119 ]
+[ Upstream commit 703586410da69eb40062e64d413ca33bd735917a ]
 
-Several test runners register individual worker threads with the
-RCU library, but neglect to register the main thread, which can lead
-to objects being freed while the main thread is in what appears to be
-an RCU critical section.
+When run on a single CPU, this test would frequently access already-freed
+memory.  Due to timing, this bug never showed up on multi-CPU tests.
 
 Reported-by: Chris von Recklinghausen <crecklin@redhat.com>
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/radix-tree/idr-test.c   | 2 ++
- tools/testing/radix-tree/multiorder.c | 2 ++
- tools/testing/radix-tree/xarray.c     | 2 ++
- 3 files changed, 6 insertions(+)
+ tools/testing/radix-tree/idr-test.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
-index 3b796dd5e577..44ceff95a9b3 100644
+index 44ceff95a9b3..4a9b451b7ba0 100644
 --- a/tools/testing/radix-tree/idr-test.c
 +++ b/tools/testing/radix-tree/idr-test.c
-@@ -577,6 +577,7 @@ void ida_tests(void)
+@@ -306,11 +306,15 @@ void idr_find_test_1(int anchor_id, int throbber_id)
+ 	BUG_ON(idr_alloc(&find_idr, xa_mk_value(anchor_id), anchor_id,
+ 				anchor_id + 1, GFP_KERNEL) != anchor_id);
  
- int __weak main(void)
- {
-+	rcu_register_thread();
- 	radix_tree_init();
- 	idr_checks();
- 	ida_tests();
-@@ -584,5 +585,6 @@ int __weak main(void)
- 	rcu_barrier();
- 	if (nr_allocated)
- 		printf("nr_allocated = %d\n", nr_allocated);
-+	rcu_unregister_thread();
- 	return 0;
- }
-diff --git a/tools/testing/radix-tree/multiorder.c b/tools/testing/radix-tree/multiorder.c
-index 9eae0fb5a67d..e00520cc6349 100644
---- a/tools/testing/radix-tree/multiorder.c
-+++ b/tools/testing/radix-tree/multiorder.c
-@@ -224,7 +224,9 @@ void multiorder_checks(void)
++	rcu_read_lock();
+ 	do {
+ 		int id = 0;
+ 		void *entry = idr_get_next(&find_idr, &id);
++		rcu_read_unlock();
+ 		BUG_ON(entry != xa_mk_value(id));
++		rcu_read_lock();
+ 	} while (time(NULL) < start + 11);
++	rcu_read_unlock();
  
- int __weak main(void)
- {
-+	rcu_register_thread();
- 	radix_tree_init();
- 	multiorder_checks();
-+	rcu_unregister_thread();
- 	return 0;
- }
-diff --git a/tools/testing/radix-tree/xarray.c b/tools/testing/radix-tree/xarray.c
-index e61e43efe463..f20e12cbbfd4 100644
---- a/tools/testing/radix-tree/xarray.c
-+++ b/tools/testing/radix-tree/xarray.c
-@@ -25,11 +25,13 @@ void xarray_tests(void)
+ 	pthread_join(throbber, NULL);
  
- int __weak main(void)
- {
-+	rcu_register_thread();
- 	radix_tree_init();
- 	xarray_tests();
- 	radix_tree_cpu_dead(1);
- 	rcu_barrier();
- 	if (nr_allocated)
- 		printf("nr_allocated = %d\n", nr_allocated);
-+	rcu_unregister_thread();
- 	return 0;
- }
 -- 
 2.30.2
 
