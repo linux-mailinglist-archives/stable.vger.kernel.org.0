@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82039360CE5
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 249AF360CE7
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234290AbhDOOzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:55:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40052 "EHLO mail.kernel.org"
+        id S234309AbhDOOz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234305AbhDOOyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:54:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F362613D9;
-        Thu, 15 Apr 2021 14:52:39 +0000 (UTC)
+        id S234320AbhDOOyF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:54:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 246AC613DC;
+        Thu, 15 Apr 2021 14:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498360;
-        bh=6vBQKWHittce1I4577K5jVk+Ks9bGENSPcvt5jJL5wk=;
+        s=korg; t=1618498362;
+        bh=7LGMEXUFKP+BATG+mcTiafkkyJfkzAGms4Y68Hgopt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QE1pf1Fvb5Ph/bt4DhCZJyoaIvsMfbsLzm2t1K6YhONorKZ9pO6M9E03R9fLieMQb
-         4c1G/ukeQmYKYCIE4+QaBtvywTMZXwfI8ENCjP8l/Mu9RqNfDdHNnR3HeqAKebhBO4
-         I0SDEHvDY5jPteelvNvLQVKaTy6bCcbWowN/cPO4=
+        b=p/y9zcu05Du4jcS666hU4tOb8zeSkhDL8SjNzJCjMIf0NYdATKauOMy6PCUTP5TV/
+         0774Hc2Xy/s6df6a4cSZEweKK9bSwJShvVKADy54DIyeJrs3YFyMyQHZ2t6SyBw/6M
+         csM2Q2cXf3vykg/k0/KXB5vbT/o4x+0yyJ/m+96k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wengang Wang <wen.gang.wang@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        stable@vger.kernel.org, Jack Qiu <jack.qiu@huawei.com>,
+        Jan Kara <jack@suse.cz>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 10/68] ocfs2: fix deadlock between setattr and dio_end_io_write
-Date:   Thu, 15 Apr 2021 16:46:51 +0200
-Message-Id: <20210415144414.806572127@linuxfoundation.org>
+Subject: [PATCH 4.14 11/68] fs: direct-io: fix missing sdio->boundary
+Date:   Thu, 15 Apr 2021 16:46:52 +0200
+Message-Id: <20210415144414.837768273@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -46,148 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wengang Wang <wen.gang.wang@oracle.com>
+From: Jack Qiu <jack.qiu@huawei.com>
 
-commit 90bd070aae6c4fb5d302f9c4b9c88be60c8197ec upstream.
+commit df41872b68601059dd4a84858952dcae58acd331 upstream.
 
-The following deadlock is detected:
+I encountered a hung task issue, but not a performance one.  I run DIO
+on a device (need lba continuous, for example open channel ssd), maybe
+hungtask in below case:
 
-  truncate -> setattr path is waiting for pending direct IO to be done (inode->i_dio_count become zero) with inode->i_rwsem held (down_write).
+  DIO:						Checkpoint:
+  get addr A(at boundary), merge into BIO,
+  no submit because boundary missing
+						flush dirty data(get addr A+1), wait IO(A+1)
+						writeback timeout, because DIO(A) didn't submit
+  get addr A+2 fail, because checkpoint is doing
 
-  PID: 14827  TASK: ffff881686a9af80  CPU: 20  COMMAND: "ora_p005_hrltd9"
-   #0  __schedule at ffffffff818667cc
-   #1  schedule at ffffffff81866de6
-   #2  inode_dio_wait at ffffffff812a2d04
-   #3  ocfs2_setattr at ffffffffc05f322e [ocfs2]
-   #4  notify_change at ffffffff812a5a09
-   #5  do_truncate at ffffffff812808f5
-   #6  do_sys_ftruncate.constprop.18 at ffffffff81280cf2
-   #7  sys_ftruncate at ffffffff81280d8e
-   #8  do_syscall_64 at ffffffff81003949
-   #9  entry_SYSCALL_64_after_hwframe at ffffffff81a001ad
+dio_send_cur_page() may clear sdio->boundary, so prevent it from missing
+a boundary.
 
-dio completion path is going to complete one direct IO (decrement
-inode->i_dio_count), but before that it hung at locking inode->i_rwsem:
-
-   #0  __schedule+700 at ffffffff818667cc
-   #1  schedule+54 at ffffffff81866de6
-   #2  rwsem_down_write_failed+536 at ffffffff8186aa28
-   #3  call_rwsem_down_write_failed+23 at ffffffff8185a1b7
-   #4  down_write+45 at ffffffff81869c9d
-   #5  ocfs2_dio_end_io_write+180 at ffffffffc05d5444 [ocfs2]
-   #6  ocfs2_dio_end_io+85 at ffffffffc05d5a85 [ocfs2]
-   #7  dio_complete+140 at ffffffff812c873c
-   #8  dio_aio_complete_work+25 at ffffffff812c89f9
-   #9  process_one_work+361 at ffffffff810b1889
-  #10  worker_thread+77 at ffffffff810b233d
-  #11  kthread+261 at ffffffff810b7fd5
-  #12  ret_from_fork+62 at ffffffff81a0035e
-
-Thus above forms ABBA deadlock.  The same deadlock was mentioned in
-upstream commit 28f5a8a7c033 ("ocfs2: should wait dio before inode lock
-in ocfs2_setattr()").  It seems that that commit only removed the
-cluster lock (the victim of above dead lock) from the ABBA deadlock
-party.
-
-End-user visible effects: Process hang in truncate -> ocfs2_setattr path
-and other processes hang at ocfs2_dio_end_io_write path.
-
-This is to fix the deadlock itself.  It removes inode_lock() call from
-dio completion path to remove the deadlock and add ip_alloc_sem lock in
-setattr path to synchronize the inode modifications.
-
-[wen.gang.wang@oracle.com: remove the "had_alloc_lock" as suggested]
-  Link: https://lkml.kernel.org/r/20210402171344.1605-1-wen.gang.wang@oracle.com
-
-Link: https://lkml.kernel.org/r/20210331203654.3911-1-wen.gang.wang@oracle.com
-Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+Link: https://lkml.kernel.org/r/20210322042253.38312-1-jack.qiu@huawei.com
+Fixes: b1058b981272 ("direct-io: submit bio after boundary buffer is added to it")
+Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/aops.c |   11 +----------
- fs/ocfs2/file.c |    8 ++++++--
- 2 files changed, 7 insertions(+), 12 deletions(-)
+ fs/direct-io.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -2309,7 +2309,7 @@ static int ocfs2_dio_end_io_write(struct
- 	struct ocfs2_alloc_context *meta_ac = NULL;
- 	handle_t *handle = NULL;
- 	loff_t end = offset + bytes;
--	int ret = 0, credits = 0, locked = 0;
-+	int ret = 0, credits = 0;
+--- a/fs/direct-io.c
++++ b/fs/direct-io.c
+@@ -857,6 +857,7 @@ submit_page_section(struct dio *dio, str
+ 		    struct buffer_head *map_bh)
+ {
+ 	int ret = 0;
++	int boundary = sdio->boundary;	/* dio_send_cur_page may clear it */
  
- 	ocfs2_init_dealloc_ctxt(&dealloc);
- 
-@@ -2320,13 +2320,6 @@ static int ocfs2_dio_end_io_write(struct
- 	    !dwc->dw_orphaned)
- 		goto out;
- 
--	/* ocfs2_file_write_iter will get i_mutex, so we need not lock if we
--	 * are in that context. */
--	if (dwc->dw_writer_pid != task_pid_nr(current)) {
--		inode_lock(inode);
--		locked = 1;
--	}
--
- 	ret = ocfs2_inode_lock(inode, &di_bh, 1);
- 	if (ret < 0) {
- 		mlog_errno(ret);
-@@ -2401,8 +2394,6 @@ out:
- 	if (meta_ac)
- 		ocfs2_free_alloc_context(meta_ac);
- 	ocfs2_run_deallocs(osb, &dealloc);
--	if (locked)
--		inode_unlock(inode);
- 	ocfs2_dio_free_write_ctx(inode, dwc);
- 
- 	return ret;
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1250,22 +1250,24 @@ int ocfs2_setattr(struct dentry *dentry,
- 				goto bail_unlock;
- 			}
- 		}
-+		down_write(&OCFS2_I(inode)->ip_alloc_sem);
- 		handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS +
- 					   2 * ocfs2_quota_trans_credits(sb));
- 		if (IS_ERR(handle)) {
- 			status = PTR_ERR(handle);
- 			mlog_errno(status);
--			goto bail_unlock;
-+			goto bail_unlock_alloc;
- 		}
- 		status = __dquot_transfer(inode, transfer_to);
- 		if (status < 0)
- 			goto bail_commit;
- 	} else {
-+		down_write(&OCFS2_I(inode)->ip_alloc_sem);
- 		handle = ocfs2_start_trans(osb, OCFS2_INODE_UPDATE_CREDITS);
- 		if (IS_ERR(handle)) {
- 			status = PTR_ERR(handle);
- 			mlog_errno(status);
--			goto bail_unlock;
-+			goto bail_unlock_alloc;
- 		}
- 	}
- 
-@@ -1278,6 +1280,8 @@ int ocfs2_setattr(struct dentry *dentry,
- 
- bail_commit:
- 	ocfs2_commit_trans(osb, handle);
-+bail_unlock_alloc:
-+	up_write(&OCFS2_I(inode)->ip_alloc_sem);
- bail_unlock:
- 	if (status && inode_locked) {
- 		ocfs2_inode_unlock_tracker(inode, 1, &oh, had_lock);
+ 	if (dio->op == REQ_OP_WRITE) {
+ 		/*
+@@ -895,10 +896,10 @@ submit_page_section(struct dio *dio, str
+ 	sdio->cur_page_fs_offset = sdio->block_in_file << sdio->blkbits;
+ out:
+ 	/*
+-	 * If sdio->boundary then we want to schedule the IO now to
++	 * If boundary then we want to schedule the IO now to
+ 	 * avoid metadata seeks.
+ 	 */
+-	if (sdio->boundary) {
++	if (boundary) {
+ 		ret = dio_send_cur_page(dio, sdio, map_bh);
+ 		if (sdio->bio)
+ 			dio_bio_submit(dio, sdio);
 
 
