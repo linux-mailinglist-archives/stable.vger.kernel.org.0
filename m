@@ -2,145 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6FEF36101D
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 18:27:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B79361025
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 18:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232913AbhDOQ1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 12:27:25 -0400
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:12821 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230056AbhDOQ1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 12:27:25 -0400
+        id S231726AbhDOQ2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 12:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231549AbhDOQ2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 12:28:46 -0400
+Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A46C061574
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 09:28:21 -0700 (PDT)
+Received: by mail-oi1-x232.google.com with SMTP id m13so24818856oiw.13
+        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 09:28:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1618504022; x=1650040022;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=ANBROxhu8Np9A9YcKnmE/yil0tSOexHbBm1e0G7E1i8=;
-  b=nxscYFCo04BJ+VDk6xGIhhXA5ocnwFH9Z77oaqgdWLKZK2oZiLJcTcSK
-   jF1L3okzG+BRgwoHYe9EclTqj01XTpD7TN+I+reUy6B9eKYSBq3MqG1wK
-   a55nuMzsZF412zXuS02DN7xRI9kQDKwgPomJqusYP2y3ioXTQDn1Ia+yq
-   c=;
-X-IronPort-AV: E=Sophos;i="5.82,225,1613433600"; 
-   d="scan'208";a="118764277"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-2a-6e2fc477.us-west-2.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 15 Apr 2021 16:27:02 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-2a-6e2fc477.us-west-2.amazon.com (Postfix) with ESMTPS id 1EB7CA1E4D;
-        Thu, 15 Apr 2021 16:27:01 +0000 (UTC)
-Received: from EX13D02UWB001.ant.amazon.com (10.43.161.240) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 15 Apr 2021 16:27:00 +0000
-Received: from EX13MTAUEB002.ant.amazon.com (10.43.60.12) by
- EX13D02UWB001.ant.amazon.com (10.43.161.240) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 15 Apr 2021 16:27:00 +0000
-Received: from dev-dsk-alisaidi-i31e-9f3421fe.us-east-1.amazon.com
- (10.200.138.153) by mail-relay.amazon.com (10.43.60.234) with Microsoft SMTP
- Server id 15.0.1497.2 via Frontend Transport; Thu, 15 Apr 2021 16:26:59 +0000
-Received: by dev-dsk-alisaidi-i31e-9f3421fe.us-east-1.amazon.com (Postfix, from userid 5131138)
-        id E0F5225852; Thu, 15 Apr 2021 16:26:59 +0000 (UTC)
-From:   Ali Saidi <alisaidi@amazon.com>
-To:     <will@kernel.org>
-CC:     <alisaidi@amazon.com>, <benh@kernel.crashing.org>,
-        <boqun.feng@gmail.com>, <catalin.marinas@arm.com>,
-        <linux-kernel@vger.kernel.org>, <longman@redhat.com>,
-        <mingo@redhat.com>, <peterz@infradead.org>,
-        <stable@vger.kernel.org>, <steve.capper@arm.com>
-Subject: Re: [PATCH] locking/qrwlock: Fix ordering in queued_write_lock_slowpath
-Date:   Thu, 15 Apr 2021 16:26:46 +0000
-Message-ID: <20210415162646.9882-1-alisaidi@amazon.com>
-X-Mailer: git-send-email 2.24.4.AMZN
-In-Reply-To: <20210415150228.GA26439@willie-the-truck>
-References: <20210415150228.GA26439@willie-the-truck>
+        d=gmail.com; s=20161025;
+        h=sender:to:from:subject:autocrypt:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=rq/5REptID3Oog1LqichHaKPzucR5OdsGLOYn6dvv3o=;
+        b=EPiVrLgLWaXiiTt6Iiak+hs6VrL7JH0joK898QQgqA+iDgzV8bAT9LacLi1WAmDNYD
+         dWva3RqTN4auqp8Z8dYeJYuC9Xfp3KqcHR93GQxHWnYrkD3HHVEXz/b166HGf7h/JKc8
+         XiSAtwtEGFMTNlk2bOEH7ZyXhVcuW02wRGxsvOKXMaqzDYaPDQXUz0LAz8RFbNjieT81
+         5YhWmzSiuz1Ja2X6l5ke9Ny/sjSQodUn5J9XqH8hMxNoApgmSllQVWl7QMzwC0Q7f8+D
+         GlYr3jGBf6EAdwv6AhCsoMfHXpCJ4Gv48GPqF2vqEAaFC5wUMajLdYmhNAO1HLo6Z9I2
+         Q+1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:to:from:subject:autocrypt:message-id:date
+         :user-agent:mime-version:content-language:content-transfer-encoding;
+        bh=rq/5REptID3Oog1LqichHaKPzucR5OdsGLOYn6dvv3o=;
+        b=OU2UTGd3nLj1wbt5WTC0FPQPY4ZA4JeDDwxHS0IEeToZO5hxwYvhjVmV/nczbzdZww
+         C9DELAM+Ki8dX/yApDE0kf6Kd9KGqOqgC0lQi9y72ot1e8RvpfGXq88xGVQgzzFY/pC1
+         0bZaTJ6fqBCo3NOuY+rPTWOCVV40iLu8LT3TW/H1NtBGQ7x32oc1VO8KSwvrLweZojyc
+         km2FDIlgss+C2WJLVc8sfJELsnLhhvxMg1LR4ESP86vLYzYZLtYn1qNFQfDEZEkd/pF6
+         sQg/HN7HXzqwClkyN/0A3s4rR5nAiw1A65VaLti9K9BZVHBx8bcj9BScptNtWIU/sLoQ
+         t+pA==
+X-Gm-Message-State: AOAM533NzniThe0pf4MmkxKS9TJbelL4Qzez64GqQd4PamEx3QnDDoUo
+        x5FpHIK5QjYRHzV4dezDdZY=
+X-Google-Smtp-Source: ABdhPJx+c7RuUGp+6oLRVmlizPMRW/FtS5ktuEF4hBpQ9/nEjTHjiG5kZA7Q7pN3uKzgBXZQX99GnQ==
+X-Received: by 2002:a05:6808:68a:: with SMTP id k10mr3113768oig.120.1618504101131;
+        Thu, 15 Apr 2021 09:28:21 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id g84sm720612oia.45.2021.04.15.09.28.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Apr 2021 09:28:17 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: netfilter/x_tables patches for v4.4.y..v4.14.y
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <1780f159-140b-231f-8af5-ccec049dc8b0@roeck-us.net>
+Date:   Thu, 15 Apr 2021 09:28:15 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-On Thu, 15 Apr 2021 16:02:29 +0100, Will Deacon wrote:
-> On Thu, Apr 15, 2021 at 02:25:52PM +0000, Ali Saidi wrote:
-> > While this code is executed with the wait_lock held, a reader can
-> > acquire the lock without holding wait_lock.  The writer side loops
-> > checking the value with the atomic_cond_read_acquire(), but only truly
-> > acquires the lock when the compare-and-exchange is completed
-> > successfully which isn’t ordered. The other atomic operations from this
-> > point are release-ordered and thus reads after the lock acquisition can
-> > be completed before the lock is truly acquired which violates the
-> > guarantees the lock should be making.
-> 
-> I think it would be worth spelling this out with an example. The issue
-> appears to be a concurrent reader in interrupt context taking and releasing
-> the lock in the window where the writer has returned from the
-> atomic_cond_read_acquire() but has not yet performed the cmpxchg(). Loads
-> can be speculated during this time, but the A-B-A of the lock word
-> from _QW_WAITING to (_QW_WAITING | _QR_BIAS) and back to _QW_WAITING allows
-> the atomic_cmpxchg_relaxed() to succeed. Is that right?
+please consider applying the following two patches to v4.4.y, v4.9.y, and v4.14.y
 
-You're right. What we're seeing is an A-B-A problem that can allow 
-atomic_cond_read_acquire() to succeed and before the cmpxchg succeeds a reader
-performs an A-B-A on the lock which allows the core to observe a read that
-follows the cmpxchg ahead of the cmpxchg succeeding. 
+80055dab5de0 ("netfilter: x_tables: make xt_replace_table wait until old rules are not used anymore")
+175e476b8cdf ("netfilter: x_tables: Use correct memory barriers.")
 
-We've seen a problem in epoll where the reader does a xchg while
-holding the read lock, but the writer can see a value change out from under it. 
+to fix CVE-2021-29650 in those branches.
 
-Writer                               | Reader 2
---------------------------------------------------------------------------------
-ep_scan_ready_list()                 |
-|- write_lock_irq()                  |
-    |- queued_write_lock_slowpath()  |
-      |- atomic_cond_read_acquire()  |
-                                     | read_lock_irqsave(&ep->lock, flags);
-                                     | chain_epi_lockless()
-                                     |    epi->next = xchg(&ep->ovflist, epi);
-                                     | read_unlock_irqrestore(&ep->lock, flags);
-                                     |       
-         atomic_cmpxchg_relaxed()    |
-  READ_ONCE(ep->ovflist);    
-
-> 
-> With that in mind, it would probably be a good idea to eyeball the qspinlock
-> slowpath as well, as that uses both atomic_cond_read_acquire() and
-> atomic_try_cmpxchg_relaxed().
-
-It seems plausible that the same thing could occur here in qspinlock:
-          if ((val & _Q_TAIL_MASK) == tail) {
-                  if (atomic_try_cmpxchg_relaxed(&lock->val, &val, _Q_LOCKED_VAL))
-                          goto release; /* No contention */
-          }
-
-> 
-> > Fixes: b519b56e378ee ("locking/qrwlock: Use atomic_cond_read_acquire() when spinning in qrwloc")
-
-Ack, will fix. 
-
-> Typo in the quoted subject ('qrwloc').
-> 
-> > Signed-off-by: Ali Saidi <alisaidi@amazon.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  kernel/locking/qrwlock.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/kernel/locking/qrwlock.c b/kernel/locking/qrwlock.c
-> > index 4786dd271b45..10770f6ac4d9 100644
-> > --- a/kernel/locking/qrwlock.c
-> > +++ b/kernel/locking/qrwlock.c
-> > @@ -73,8 +73,8 @@ void queued_write_lock_slowpath(struct qrwlock *lock)
-> >  
-> >  	/* When no more readers or writers, set the locked flag */
-> >  	do {
-> > -		atomic_cond_read_acquire(&lock->cnts, VAL == _QW_WAITING);
-> > -	} while (atomic_cmpxchg_relaxed(&lock->cnts, _QW_WAITING,
-> > +		atomic_cond_read_relaxed(&lock->cnts, VAL == _QW_WAITING);
-> > +	} while (atomic_cmpxchg_acquire(&lock->cnts, _QW_WAITING,
-> >  					_QW_LOCKED) != _QW_WAITING);
-> 
-> Patch looks good, so with an updated message:
-> 
-> Acked-by: Will Deacon <will@kernel.org>
-> 
-> Will
+Thanks,
+Guenter
