@@ -2,58 +2,361 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5320D3607D6
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 12:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 323A6360826
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 13:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232486AbhDOK7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 06:59:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231919AbhDOK7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 06:59:06 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C88C061574
-        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 03:58:42 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id x12so15425836ejc.1
-        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 03:58:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=PXxwCBJdTG5sNp7kazVZnDyiOFVScUSybkI34T0iWR8=;
-        b=aJhu3PEg3As9vjvYFyod90fKPZQ9fegE6JoStrYxBEa0O2pN0qt5+RwjyfOM5EjtY1
-         3JJmdoW7bqZDowPBT7YJKRw9aoSoRPh6tYH5z17rj/7iXQRnFfKsbWeYN1prdk39MeKi
-         B5i43yGGG2rbnIvMUEnNZ7arKyxPnI7+F/cCegQ401B4cwAVxeKq1ig9DweiIpQR5UNF
-         0PGcWcvUQ8hP134Aje2nRhhfYgcngK8tnZpNbET2P/XLj+wcvAPkIMlL1yasg6AwUnSy
-         l1gtRV/s/wYv8M2C2eyGkfN8FpTDRkPI+Kx63Yj027XjxdudPC+T4elda7R6G+QgfMfQ
-         j1NQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=PXxwCBJdTG5sNp7kazVZnDyiOFVScUSybkI34T0iWR8=;
-        b=Xz3RSJJQrerW90RaPLsGz6hHcPmA2HwLJJ6LaUMb3hEcYCqczgBHtSoDcs92k4qTbe
-         RjVpOiW2pZqyDFp02ExVdldM4mZEqplkVvLTXIxJ4J90eQjxAB1d7ic0+yS6DuHFY2Ez
-         uUgrn3QMpVmiuV9P6SIMBl9c77U+fJNayBu4AHYgY7CSwTbNXE59B+/t2oosTLTDyBwT
-         mZOfal1WRiqF/stF9we0QbkXlOFb3893CVWg0aW6xWXh+3o0RqH3nhRzIjwAr3jKfd3K
-         CB5kWGz3YN0rPeJw1DzeJ1bRz4s7tCME6Au3vlyB1ZVnpnycrw7zMiQjMDc0DkpOS7tZ
-         UkDQ==
-X-Gm-Message-State: AOAM530xTuw/Iw8eXzk7y80t8ElPGzYENF7pIp2g/5vKyRd5A3/6HYy0
-        e37qRMYpGciWtMc4KulbV9gkZu2jzy1nruJvtQ==
-X-Google-Smtp-Source: ABdhPJz9Nc5e35r8YqUnRnoeLfFFkUMQMsG5/DnC9VLy4BElufGHP0eHRVDMur7THJtAI6IJSa8N93jQI1tqZ5fIpDw=
-X-Received: by 2002:a17:906:b355:: with SMTP id cd21mr2725293ejb.504.1618484320978;
- Thu, 15 Apr 2021 03:58:40 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a54:36cc:0:0:0:0:0 with HTTP; Thu, 15 Apr 2021 03:58:40
- -0700 (PDT)
-Reply-To: barrkouevi@gmail.com
-From:   barrkouvi <amegbokomiherve12@gmail.com>
-Date:   Thu, 15 Apr 2021 10:58:40 +0000
-Message-ID: <CAGL6x8o=iqr_L7Ybxz_fRudp3FG7H+UYEzZb+veuBRfwpu=L0Q@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S231531AbhDOLVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 07:21:51 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:37654 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230056AbhDOLVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 07:21:51 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1lX03q-009bsE-5b; Thu, 15 Apr 2021 11:21:26 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Thu, 15 Apr 2021 11:18:09 +0000
+Subject: [git:media_tree/master] media: v4l2-ctrls: fix reference to freed memory
+To:     linuxtv-commits@linuxtv.org
+Cc:     Alexandre Courbot <acourbot@chromium.org>, stable@vger.kernel.org,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1lX03q-009bsE-5b@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,I have not hear from you,Do you read my message?
+This is an automatic generated email to let you know that the following patch were queued:
+
+Subject: media: v4l2-ctrls: fix reference to freed memory
+Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Date:    Mon Apr 12 13:51:23 2021 +0200
+
+When controls are used together with the Request API, then for
+each request a v4l2_ctrl_handler struct is allocated. This contains
+the controls that can be set in a request. If a control is *not* set in
+the request, then the value used in the most recent previous request
+must be used, or the current value if it is not found in any outstanding
+requests.
+
+The framework tried to find such a previous request and it would set
+the 'req' pointer in struct v4l2_ctrl_ref to the v4l2_ctrl_ref of the
+control in such a previous request. So far, so good. However, when that
+previous request was applied to the hardware, returned to userspace, and
+then userspace would re-init or free that request, any 'ref' pointer in
+still-queued requests would suddenly point to freed memory.
+
+This was not noticed before since the drivers that use this expected
+that each request would always have the controls set, so there was
+never any need to find a control in older requests. This requirement
+was relaxed, and now this bug surfaced.
+
+It was also made worse by changeset
+2fae4d6aabc8 ("media: v4l2-ctrls: v4l2_ctrl_request_complete() should always set ref->req")
+which increased the chance of this happening.
+
+The use of the 'req' pointer in v4l2_ctrl_ref was very fragile, so
+drop this entirely. Instead add a valid_p_req bool to indicate that
+p_req contains a valid value for this control. And if it is false,
+then just use the current value of the control.
+
+Note that VIDIOC_G_EXT_CTRLS will always return -EACCES when attempting
+to get a control from a request until the request is completed. And in
+that case, all controls in the request will have the control value set
+(i.e. valid_p_req is true). This means that the whole 'find the most
+recent previous request containing a control' idea is pointless, and
+the code can be simplified considerably.
+
+The v4l2_g_ext_ctrls_common() function was refactored a bit to make
+it more understandable. It also avoids updating volatile controls
+in a completed request since that was already done when the request
+was completed.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 2fae4d6aabc8 ("media: v4l2-ctrls: v4l2_ctrl_request_complete() should always set ref->req")
+Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
+Cc: <stable@vger.kernel.org>      # for v5.9 and up
+Tested-by: Alexandre Courbot <acourbot@chromium.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/v4l2-core/v4l2-ctrls.c | 137 ++++++++++++++++-------------------
+ include/media/v4l2-ctrls.h           |  12 +--
+ 2 files changed, 70 insertions(+), 79 deletions(-)
+
+---
+
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
+index c7bcc5c25771..0d7fe1bd975a 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -2504,7 +2504,16 @@ static void new_to_req(struct v4l2_ctrl_ref *ref)
+ 	if (!ref)
+ 		return;
+ 	ptr_to_ptr(ref->ctrl, ref->ctrl->p_new, ref->p_req);
+-	ref->req = ref;
++	ref->valid_p_req = true;
++}
++
++/* Copy the current value to the request value */
++static void cur_to_req(struct v4l2_ctrl_ref *ref)
++{
++	if (!ref)
++		return;
++	ptr_to_ptr(ref->ctrl, ref->ctrl->p_cur, ref->p_req);
++	ref->valid_p_req = true;
+ }
+ 
+ /* Copy the request value to the new value */
+@@ -2512,8 +2521,8 @@ static void req_to_new(struct v4l2_ctrl_ref *ref)
+ {
+ 	if (!ref)
+ 		return;
+-	if (ref->req)
+-		ptr_to_ptr(ref->ctrl, ref->req->p_req, ref->ctrl->p_new);
++	if (ref->valid_p_req)
++		ptr_to_ptr(ref->ctrl, ref->p_req, ref->ctrl->p_new);
+ 	else
+ 		ptr_to_ptr(ref->ctrl, ref->ctrl->p_cur, ref->ctrl->p_new);
+ }
+@@ -3694,39 +3703,8 @@ static void v4l2_ctrl_request_queue(struct media_request_object *obj)
+ 	struct v4l2_ctrl_handler *hdl =
+ 		container_of(obj, struct v4l2_ctrl_handler, req_obj);
+ 	struct v4l2_ctrl_handler *main_hdl = obj->priv;
+-	struct v4l2_ctrl_handler *prev_hdl = NULL;
+-	struct v4l2_ctrl_ref *ref_ctrl, *ref_ctrl_prev = NULL;
+ 
+ 	mutex_lock(main_hdl->lock);
+-	if (list_empty(&main_hdl->requests_queued))
+-		goto queue;
+-
+-	prev_hdl = list_last_entry(&main_hdl->requests_queued,
+-				   struct v4l2_ctrl_handler, requests_queued);
+-	/*
+-	 * Note: prev_hdl and hdl must contain the same list of control
+-	 * references, so if any differences are detected then that is a
+-	 * driver bug and the WARN_ON is triggered.
+-	 */
+-	mutex_lock(prev_hdl->lock);
+-	ref_ctrl_prev = list_first_entry(&prev_hdl->ctrl_refs,
+-					 struct v4l2_ctrl_ref, node);
+-	list_for_each_entry(ref_ctrl, &hdl->ctrl_refs, node) {
+-		if (ref_ctrl->req)
+-			continue;
+-		while (ref_ctrl_prev->ctrl->id < ref_ctrl->ctrl->id) {
+-			/* Should never happen, but just in case... */
+-			if (list_is_last(&ref_ctrl_prev->node,
+-					 &prev_hdl->ctrl_refs))
+-				break;
+-			ref_ctrl_prev = list_next_entry(ref_ctrl_prev, node);
+-		}
+-		if (WARN_ON(ref_ctrl_prev->ctrl->id != ref_ctrl->ctrl->id))
+-			break;
+-		ref_ctrl->req = ref_ctrl_prev->req;
+-	}
+-	mutex_unlock(prev_hdl->lock);
+-queue:
+ 	list_add_tail(&hdl->requests_queued, &main_hdl->requests_queued);
+ 	hdl->request_is_queued = true;
+ 	mutex_unlock(main_hdl->lock);
+@@ -3783,7 +3761,7 @@ v4l2_ctrl_request_hdl_ctrl_find(struct v4l2_ctrl_handler *hdl, u32 id)
+ {
+ 	struct v4l2_ctrl_ref *ref = find_ref_lock(hdl, id);
+ 
+-	return (ref && ref->req == ref) ? ref->ctrl : NULL;
++	return (ref && ref->valid_p_req) ? ref->ctrl : NULL;
+ }
+ EXPORT_SYMBOL_GPL(v4l2_ctrl_request_hdl_ctrl_find);
+ 
+@@ -3972,7 +3950,13 @@ static int class_check(struct v4l2_ctrl_handler *hdl, u32 which)
+ 	return find_ref_lock(hdl, which | 1) ? 0 : -EINVAL;
+ }
+ 
+-/* Get extended controls. Allocates the helpers array if needed. */
++/*
++ * Get extended controls. Allocates the helpers array if needed.
++ *
++ * Note that v4l2_g_ext_ctrls_common() with 'which' set to
++ * V4L2_CTRL_WHICH_REQUEST_VAL is only called if the request was
++ * completed, and in that case valid_p_req is true for all controls.
++ */
+ static int v4l2_g_ext_ctrls_common(struct v4l2_ctrl_handler *hdl,
+ 				   struct v4l2_ext_controls *cs,
+ 				   struct video_device *vdev)
+@@ -3981,9 +3965,10 @@ static int v4l2_g_ext_ctrls_common(struct v4l2_ctrl_handler *hdl,
+ 	struct v4l2_ctrl_helper *helpers = helper;
+ 	int ret;
+ 	int i, j;
+-	bool def_value;
++	bool is_default, is_request;
+ 
+-	def_value = (cs->which == V4L2_CTRL_WHICH_DEF_VAL);
++	is_default = (cs->which == V4L2_CTRL_WHICH_DEF_VAL);
++	is_request = (cs->which == V4L2_CTRL_WHICH_REQUEST_VAL);
+ 
+ 	cs->error_idx = cs->count;
+ 	cs->which = V4L2_CTRL_ID2WHICH(cs->which);
+@@ -4009,11 +3994,9 @@ static int v4l2_g_ext_ctrls_common(struct v4l2_ctrl_handler *hdl,
+ 			ret = -EACCES;
+ 
+ 	for (i = 0; !ret && i < cs->count; i++) {
+-		int (*ctrl_to_user)(struct v4l2_ext_control *c,
+-				    struct v4l2_ctrl *ctrl);
+ 		struct v4l2_ctrl *master;
+-
+-		ctrl_to_user = def_value ? def_to_user : cur_to_user;
++		bool is_volatile = false;
++		u32 idx = i;
+ 
+ 		if (helpers[i].mref == NULL)
+ 			continue;
+@@ -4023,31 +4006,48 @@ static int v4l2_g_ext_ctrls_common(struct v4l2_ctrl_handler *hdl,
+ 
+ 		v4l2_ctrl_lock(master);
+ 
+-		/* g_volatile_ctrl will update the new control values */
+-		if (!def_value &&
++		/*
++		 * g_volatile_ctrl will update the new control values.
++		 * This makes no sense for V4L2_CTRL_WHICH_DEF_VAL and
++		 * V4L2_CTRL_WHICH_REQUEST_VAL. In the case of requests
++		 * it is v4l2_ctrl_request_complete() that copies the
++		 * volatile controls at the time of request completion
++		 * to the request, so you don't want to do that again.
++		 */
++		if (!is_default && !is_request &&
+ 		    ((master->flags & V4L2_CTRL_FLAG_VOLATILE) ||
+ 		    (master->has_volatiles && !is_cur_manual(master)))) {
+ 			for (j = 0; j < master->ncontrols; j++)
+ 				cur_to_new(master->cluster[j]);
+ 			ret = call_op(master, g_volatile_ctrl);
+-			ctrl_to_user = new_to_user;
++			is_volatile = true;
+ 		}
+-		/* If OK, then copy the current (for non-volatile controls)
+-		   or the new (for volatile controls) control values to the
+-		   caller */
+-		if (!ret) {
+-			u32 idx = i;
+ 
+-			do {
+-				if (helpers[idx].ref->req)
+-					ret = req_to_user(cs->controls + idx,
+-						helpers[idx].ref->req);
+-				else
+-					ret = ctrl_to_user(cs->controls + idx,
+-						helpers[idx].ref->ctrl);
+-				idx = helpers[idx].next;
+-			} while (!ret && idx);
++		if (ret) {
++			v4l2_ctrl_unlock(master);
++			break;
+ 		}
++
++		/*
++		 * Copy the default value (if is_default is true), the
++		 * request value (if is_request is true and p_req is valid),
++		 * the new volatile value (if is_volatile is true) or the
++		 * current value.
++		 */
++		do {
++			struct v4l2_ctrl_ref *ref = helpers[idx].ref;
++
++			if (is_default)
++				ret = def_to_user(cs->controls + idx, ref->ctrl);
++			else if (is_request && ref->valid_p_req)
++				ret = req_to_user(cs->controls + idx, ref);
++			else if (is_volatile)
++				ret = new_to_user(cs->controls + idx, ref->ctrl);
++			else
++				ret = cur_to_user(cs->controls + idx, ref->ctrl);
++			idx = helpers[idx].next;
++		} while (!ret && idx);
++
+ 		v4l2_ctrl_unlock(master);
+ 	}
+ 
+@@ -4690,8 +4690,6 @@ void v4l2_ctrl_request_complete(struct media_request *req,
+ 		unsigned int i;
+ 
+ 		if (ctrl->flags & V4L2_CTRL_FLAG_VOLATILE) {
+-			ref->req = ref;
+-
+ 			v4l2_ctrl_lock(master);
+ 			/* g_volatile_ctrl will update the current control values */
+ 			for (i = 0; i < master->ncontrols; i++)
+@@ -4701,21 +4699,12 @@ void v4l2_ctrl_request_complete(struct media_request *req,
+ 			v4l2_ctrl_unlock(master);
+ 			continue;
+ 		}
+-		if (ref->req == ref)
++		if (ref->valid_p_req)
+ 			continue;
+ 
++		/* Copy the current control value into the request */
+ 		v4l2_ctrl_lock(ctrl);
+-		if (ref->req) {
+-			ptr_to_ptr(ctrl, ref->req->p_req, ref->p_req);
+-		} else {
+-			ptr_to_ptr(ctrl, ctrl->p_cur, ref->p_req);
+-			/*
+-			 * Set ref->req to ensure that when userspace wants to
+-			 * obtain the controls of this request it will take
+-			 * this value and not the current value of the control.
+-			 */
+-			ref->req = ref;
+-		}
++		cur_to_req(ref);
+ 		v4l2_ctrl_unlock(ctrl);
+ 	}
+ 
+@@ -4779,7 +4768,7 @@ int v4l2_ctrl_request_setup(struct media_request *req,
+ 				struct v4l2_ctrl_ref *r =
+ 					find_ref(hdl, master->cluster[i]->id);
+ 
+-				if (r->req && r == r->req) {
++				if (r->valid_p_req) {
+ 					have_new_data = true;
+ 					break;
+ 				}
+diff --git a/include/media/v4l2-ctrls.h b/include/media/v4l2-ctrls.h
+index c1d20bd8f25f..a5953b812878 100644
+--- a/include/media/v4l2-ctrls.h
++++ b/include/media/v4l2-ctrls.h
+@@ -304,12 +304,14 @@ struct v4l2_ctrl {
+  *		the control has been applied. This prevents applying controls
+  *		from a cluster with multiple controls twice (when the first
+  *		control of a cluster is applied, they all are).
+- * @req:	If set, this refers to another request that sets this control.
++ * @valid_p_req: If set, then p_req contains the control value for the request.
+  * @p_req:	If the control handler containing this control reference
+  *		is bound to a media request, then this points to the
+- *		value of the control that should be applied when the request
++ *		value of the control that must be applied when the request
+  *		is executed, or to the value of the control at the time
+- *		that the request was completed.
++ *		that the request was completed. If @valid_p_req is false,
++ *		then this control was never set for this request and the
++ *		control will not be updated when this request is applied.
+  *
+  * Each control handler has a list of these refs. The list_head is used to
+  * keep a sorted-by-control-ID list of all controls, while the next pointer
+@@ -322,7 +324,7 @@ struct v4l2_ctrl_ref {
+ 	struct v4l2_ctrl_helper *helper;
+ 	bool from_other_dev;
+ 	bool req_done;
+-	struct v4l2_ctrl_ref *req;
++	bool valid_p_req;
+ 	union v4l2_ctrl_ptr p_req;
+ };
+ 
+@@ -349,7 +351,7 @@ struct v4l2_ctrl_ref {
+  * @error:	The error code of the first failed control addition.
+  * @request_is_queued: True if the request was queued.
+  * @requests:	List to keep track of open control handler request objects.
+- *		For the parent control handler (@req_obj.req == NULL) this
++ *		For the parent control handler (@req_obj.ops == NULL) this
+  *		is the list header. When the parent control handler is
+  *		removed, it has to unbind and put all these requests since
+  *		they refer to the parent.
