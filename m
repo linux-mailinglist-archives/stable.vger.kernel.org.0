@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D109C360D03
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD37F360C89
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234101AbhDOO4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39614 "EHLO mail.kernel.org"
+        id S234023AbhDOOve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:51:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233928AbhDOOzB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:55:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0B31613BB;
-        Thu, 15 Apr 2021 14:53:11 +0000 (UTC)
+        id S234018AbhDOOux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:50:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64878613CC;
+        Thu, 15 Apr 2021 14:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498392;
-        bh=V9xvxP8k/XmODRuncv6XiR6jQXqFGYWEuL2cNPrhvuM=;
+        s=korg; t=1618498230;
+        bh=oNJ7nW236P+gK/BfG289r6FyJMKBLvxHsPXI/q0g6+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovnL2+DOeW1hsDGwcF/lJgjsEuAhDUlk0NmfkiOTJvB3trjTGaj8lWc+HmpDmD1XZ
-         Wws/Vp/6YL8mEoG2nxMp9DA8jHflhAyEJgvK1nFwc82hPlNwoSQUjXMuE/Mna/EvmD
-         Ne7dQajAlKB0o/FHznqzNYDdM0GHTpw7dppXavzw=
+        b=YDu9OJqQOyFbUxAFebt70Yr5zhAXousxTxGpAL2iEc+DrrU6yDrq6V3+7UYNKqP0U
+         h5Jd496+m+KjhmOmJX2OEt3Fyk+aIvc0Ml2dxKiS9iIcOj7fY/KCka420+ovCz5m1P
+         dVTUTkHQJEFIjEF7oyMCFNvthQQfG0uC/qQpLlZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Klaus Kudielka <klaus.kudielka@gmail.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, stable@kernel.org
-Subject: [PATCH 4.14 21/68] i2c: turn recovery error on init to debug
+        stable@vger.kernel.org,
+        Muhammad Usama Anjum <musamaanjum@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 10/47] net: ipv6: check for validity before dereferencing cfg->fc_nlinfo.nlh
 Date:   Thu, 15 Apr 2021 16:47:02 +0200
-Message-Id: <20210415144415.157036767@linuxfoundation.org>
+Message-Id: <20210415144413.806295129@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
-References: <20210415144414.464797272@linuxfoundation.org>
+In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
+References: <20210415144413.487943796@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Muhammad Usama Anjum <musamaanjum@gmail.com>
 
-commit e409a6a3e0690efdef9b8a96197bc61ff117cfaf upstream.
+commit 864db232dc7036aa2de19749c3d5be0143b24f8f upstream.
 
-In some configurations, recovery is optional. So, don't throw an error
-when it is not used because e.g. pinctrl settings for recovery are not
-provided. Reword the message and make it debug output.
+nlh is being checked for validtity two times when it is dereferenced in
+this function. Check for validity again when updating the flags through
+nlh pointer to make the dereferencing safe.
 
-Reported-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Cc: stable@kernel.org
+CC: <stable@vger.kernel.org>
+Addresses-Coverity: ("NULL pointer dereference")
+Signed-off-by: Muhammad Usama Anjum <musamaanjum@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/i2c-core-base.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/ipv6/route.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -262,13 +262,14 @@ EXPORT_SYMBOL_GPL(i2c_recover_bus);
- static void i2c_init_recovery(struct i2c_adapter *adap)
- {
- 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
--	char *err_str;
-+	char *err_str, *err_level = KERN_ERR;
- 
- 	if (!bri)
- 		return;
- 
- 	if (!bri->recover_bus) {
--		err_str = "no recover_bus() found";
-+		err_str = "no suitable method provided";
-+		err_level = KERN_DEBUG;
- 		goto err;
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -3069,9 +3069,11 @@ static int ip6_route_multipath_add(struc
+ 		 * nexthops have been replaced by first new, the rest should
+ 		 * be added to it.
+ 		 */
+-		cfg->fc_nlinfo.nlh->nlmsg_flags &= ~(NLM_F_EXCL |
+-						     NLM_F_REPLACE);
+-		cfg->fc_nlinfo.nlh->nlmsg_flags |= NLM_F_CREATE;
++		if (cfg->fc_nlinfo.nlh) {
++			cfg->fc_nlinfo.nlh->nlmsg_flags &= ~(NLM_F_EXCL |
++							     NLM_F_REPLACE);
++			cfg->fc_nlinfo.nlh->nlmsg_flags |= NLM_F_CREATE;
++		}
+ 		nhn++;
  	}
- 
-@@ -296,7 +297,7 @@ static void i2c_init_recovery(struct i2c
- 
- 	return;
-  err:
--	dev_err(&adap->dev, "Not using recovery: %s\n", err_str);
-+	dev_printk(err_level, &adap->dev, "Not using recovery: %s\n", err_str);
- 	adap->bus_recovery_info = NULL;
- }
  
 
 
