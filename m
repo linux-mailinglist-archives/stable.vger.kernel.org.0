@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 566C9360D4E
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D14360D59
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234323AbhDOPBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:01:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46044 "EHLO mail.kernel.org"
+        id S233595AbhDOPBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:01:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234424AbhDOO5r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:57:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A2726113B;
-        Thu, 15 Apr 2021 14:54:49 +0000 (UTC)
+        id S234188AbhDOO6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:58:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CD26613FE;
+        Thu, 15 Apr 2021 14:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498490;
-        bh=yZ/1+PDdmK/8qy3NWGvkLT7ZEYhImdVj7J4PbJkz87s=;
+        s=korg; t=1618498512;
+        bh=6Ro7vwzqqxZY/PWxXq5M3aRhNH45iD2+F06MDjfDxrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vi/Bki6JLd4G/DeRraJPdvEsSqSMVk1rbYkpfbyFaII9w33b0obtBFXsAVd4DC63E
-         LnkGDwv/aoPaLM0MRM2RVyUUQ3223nwgPvYnvZHzGNZgDkptF/7XECwqWDGM7gebpC
-         469OQZOerDWufseWGtkEvB0U+nZvs/JOxY9Sggno=
+        b=osPaB9hKYsDQlmWgBC+LES7BlP72WCbjxx/rB/Uq8u3CiFclCxeV0Xt3qw7BRLZKr
+         jZXdYapGTo9QqJ5y6ndcSJ/7iG57j5dI1fvmLWADOKxLl0pd/q6xdoqhFt/buX8LoX
+         qafbOfkUU5F0eGvNHy4etWXhEwlQbs/pOIcV4tyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        alsa-devel@alsa-project.org, Bastian Germann <bage@linutronix.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/68] ASoC: sunxi: sun4i-codec: fill ASoC card owner
-Date:   Thu, 15 Apr 2021 16:47:11 +0200
-Message-Id: <20210415144415.449714640@linuxfoundation.org>
+Subject: [PATCH 4.14 31/68] soc/fsl: qbman: fix conflicting alignment attributes
+Date:   Thu, 15 Apr 2021 16:47:12 +0200
+Message-Id: <20210415144415.483068975@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -41,81 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bastian Germann <bage@linutronix.de>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 7c0d6e482062eb5c06ecccfab340abc523bdca00 ]
+[ Upstream commit 040f31196e8b2609613f399793b9225271b79471 ]
 
-card->owner is a required property and since commit 81033c6b584b ("ALSA:
-core: Warn on empty module") a warning is issued if it is empty. Add it.
-This fixes following warning observed on Lamobo R1:
+When building with W=1, gcc points out that the __packed attribute
+on struct qm_eqcr_entry conflicts with the 8-byte alignment
+attribute on struct qm_fd inside it:
 
-WARNING: CPU: 1 PID: 190 at sound/core/init.c:207 snd_card_new+0x430/0x480 [snd]
-Modules linked in: sun4i_codec(E+) sun4i_backend(E+) snd_soc_core(E) ...
-CPU: 1 PID: 190 Comm: systemd-udevd Tainted: G         C  E     5.10.0-1-armmp #1 Debian 5.10.4-1
-Hardware name: Allwinner sun7i (A20) Family
-Call trace:
- (snd_card_new [snd])
- (snd_soc_bind_card [snd_soc_core])
- (snd_soc_register_card [snd_soc_core])
- (sun4i_codec_probe [sun4i_codec])
+drivers/soc/fsl/qbman/qman.c:189:1: error: alignment 1 of 'struct qm_eqcr_entry' is less than 8 [-Werror=packed-not-aligned]
 
-Fixes: 45fb6b6f2aa3 ("ASoC: sunxi: add support for the on-chip codec on early Allwinner SoCs")
-Related: commit 3c27ea23ffb4 ("ASoC: qcom: Set card->owner to avoid warnings")
-Related: commit ec653df2a0cb ("drm/vc4/vc4_hdmi: fill ASoC card owner")
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: alsa-devel@alsa-project.org
-Signed-off-by: Bastian Germann <bage@linutronix.de>
-Link: https://lore.kernel.org/r/20210331151843.30583-1-bage@linutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+I assume that the alignment attribute is the correct one, and
+that qm_eqcr_entry cannot actually be unaligned in memory,
+so add the same alignment on the outer struct.
+
+Fixes: c535e923bb97 ("soc/fsl: Introduce DPAA 1.x QMan device driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210323131530.2619900-1-arnd@kernel.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sunxi/sun4i-codec.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/soc/fsl/qbman/qman.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sunxi/sun4i-codec.c b/sound/soc/sunxi/sun4i-codec.c
-index baa9007464ed..700779ca82d0 100644
---- a/sound/soc/sunxi/sun4i-codec.c
-+++ b/sound/soc/sunxi/sun4i-codec.c
-@@ -1199,6 +1199,7 @@ static struct snd_soc_card *sun4i_codec_create_card(struct device *dev)
- 		return ERR_PTR(-ENOMEM);
- 
- 	card->dev		= dev;
-+	card->owner		= THIS_MODULE;
- 	card->name		= "sun4i-codec";
- 	card->dapm_widgets	= sun4i_codec_card_dapm_widgets;
- 	card->num_dapm_widgets	= ARRAY_SIZE(sun4i_codec_card_dapm_widgets);
-@@ -1231,6 +1232,7 @@ static struct snd_soc_card *sun6i_codec_create_card(struct device *dev)
- 		return ERR_PTR(-ENOMEM);
- 
- 	card->dev		= dev;
-+	card->owner		= THIS_MODULE;
- 	card->name		= "A31 Audio Codec";
- 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
- 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
-@@ -1284,6 +1286,7 @@ static struct snd_soc_card *sun8i_a23_codec_create_card(struct device *dev)
- 		return ERR_PTR(-ENOMEM);
- 
- 	card->dev		= dev;
-+	card->owner		= THIS_MODULE;
- 	card->name		= "A23 Audio Codec";
- 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
- 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
-@@ -1322,6 +1325,7 @@ static struct snd_soc_card *sun8i_h3_codec_create_card(struct device *dev)
- 		return ERR_PTR(-ENOMEM);
- 
- 	card->dev		= dev;
-+	card->owner		= THIS_MODULE;
- 	card->name		= "H3 Audio Codec";
- 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
- 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
-@@ -1360,6 +1364,7 @@ static struct snd_soc_card *sun8i_v3s_codec_create_card(struct device *dev)
- 		return ERR_PTR(-ENOMEM);
- 
- 	card->dev		= dev;
-+	card->owner		= THIS_MODULE;
- 	card->name		= "V3s Audio Codec";
- 	card->dapm_widgets	= sun6i_codec_card_dapm_widgets;
- 	card->num_dapm_widgets	= ARRAY_SIZE(sun6i_codec_card_dapm_widgets);
+diff --git a/drivers/soc/fsl/qbman/qman.c b/drivers/soc/fsl/qbman/qman.c
+index 90892a360c61..06b6d7afc567 100644
+--- a/drivers/soc/fsl/qbman/qman.c
++++ b/drivers/soc/fsl/qbman/qman.c
+@@ -146,7 +146,7 @@ struct qm_eqcr_entry {
+ 	__be32 tag;
+ 	struct qm_fd fd;
+ 	u8 __reserved3[32];
+-} __packed;
++} __packed __aligned(8);
+ #define QM_EQCR_VERB_VBIT		0x80
+ #define QM_EQCR_VERB_CMD_MASK		0x61	/* but only one value; */
+ #define QM_EQCR_VERB_CMD_ENQUEUE	0x01
 -- 
 2.30.2
 
