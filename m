@@ -2,106 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDF536024F
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 08:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAFF9360264
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 08:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229841AbhDOGZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 02:25:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60788 "EHLO mail.kernel.org"
+        id S229937AbhDOGaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 02:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229731AbhDOGZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 02:25:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 945CE613EA;
-        Thu, 15 Apr 2021 06:25:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618467919;
-        bh=9gbCNiJ92z/+9kYkiggvzRQxzeus7PbgRPq40BEqOoY=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=XdfLDdmQi6axTBoWN8YZX/j0rzlIKOT6r35CB0JfRA1tOPaCO3EQyAi3tHBVB0Dgk
-         Ev8xcjd1Bx3CWNRzG4Do4PAbziQW9tah8boo33KSpJmVNAMajxELdOsypsuAarNIWU
-         fcDnqI9pkJGDvscRqb7VvTXdkWru4kiEZHcdaf6NUNS0i5vPt9AtunwNClFOIok5sx
-         zGq/s9MbK4qWwYHmFUBVelyn3PZfc/I2ZD/F4WrNWCgiKFJfALcq1b+GPxScKt/7Fz
-         D5cXZJNFvi3XVB9MHtAHsa4BwJ/gY5/NR6By10sxGcqjv4HXDuZzn1QQQenug8b04G
-         NLL0wf3thVt4Q==
-From:   Felipe Balbi <balbi@kernel.org>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: dwc3: gadget: Remove FS bInterval_m1 limitation
-In-Reply-To: <c2049798e1bce3ea38ae59dd17bbffb43e78370c.1618447155.git.Thinh.Nguyen@synopsys.com>
-References: <c2049798e1bce3ea38ae59dd17bbffb43e78370c.1618447155.git.Thinh.Nguyen@synopsys.com>
-Date:   Thu, 15 Apr 2021 09:25:13 +0300
-Message-ID: <87pmywnjxy.fsf@kernel.org>
+        id S229503AbhDOGaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 02:30:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5077E610E6;
+        Thu, 15 Apr 2021 06:29:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618468190;
+        bh=3A32B+gZv0zuuoI1QYyb0Ju4ttAEz+Z30b2UWx7sLHQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nW1eT1knhuE/j19o/RX8RbKIQAuTcJITT3YC+TQYH7wPW4NVdXjqm6y3Yur6nVD+9
+         CI5aVlJVTlIf45+GMecqzz9vQLlwe5CIboaakLZLHjfFmlHuSc/7GizkoDCzHfhV0S
+         AYplWgCetgpmGSuI62CCjf53b84cpbmbfnNw+EfQ=
+Date:   Thu, 15 Apr 2021 08:29:45 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Prike Liang <Prike.Liang@amd.com>
+Cc:     linux-nvme@lists.infradead.org, Chaitanya.Kulkarni@wdc.com,
+        hch@infradead.org, stable@vger.kernel.org,
+        Alexander.Deucher@amd.com,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Subject: Re: [PATCH v4 2/2] nvme-pci: add AMD PCIe quirk for suspend/resume
+Message-ID: <YHfdWYY3QSjIM2lT@kroah.com>
+References: <1618458725-17164-1-git-send-email-Prike.Liang@amd.com>
+ <1618458725-17164-2-git-send-email-Prike.Liang@amd.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1618458725-17164-2-git-send-email-Prike.Liang@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, Apr 15, 2021 at 11:52:05AM +0800, Prike Liang wrote:
+> The NVME device pluged in some AMD PCIE root port will resume timeout
+> from s2idle which caused by NVME power CFG lost in the SMU FW restore.
+> This issue can be workaround by using PCIe power set with simple
+> suspend/resume process path instead of APST. In the onwards ASIC will
+> try do the NVME shutdown save and restore in the BIOS and still need
+> PCIe power setting to resume from RTD3 for s2idle.
+> 
+> Update the nvme_acpi_storage_d3() _with previously added quirk.
+> 
+> Cc: <stable@vger.kernel.org> # 5.11+
+> Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+> [ck: split patches for nvme and pcie]
+> Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+> 
+> Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+
+You don't sign off and review a patch.  And you do not put a blank line
+between them, this should all be one chunk of text.
 
 
-Hi,
 
-Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
-> The programming guide incorrectly stated that the DCFG.bInterval_m1 must
-> be set to 0 when operating in fullspeed. There's no such limitation for
-> all IPs.
-
-do we have an updated Databook correcting this statement?
-
-> Cc: <stable@vger.kernel.org>
-> Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_=
-m1")
-> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 > ---
->  drivers/usb/dwc3/gadget.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> index 6227641f2d31..d87a29bd7d9b 100644
-> --- a/drivers/usb/dwc3/gadget.c
-> +++ b/drivers/usb/dwc3/gadget.c
-> @@ -608,12 +608,13 @@ static int dwc3_gadget_set_ep_config(struct dwc3_ep=
- *dep, unsigned int action)
->  		u8 bInterval_m1;
->=20=20
->  		/*
-> -		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
-> -		 * must be set to 0 when the controller operates in full-speed.
-> +		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13.
-> +		 *
-> +		 * NOTE: The programming guide incorrectly stated bInterval_m1
-> +		 * must be set to 0 when operating in fullspeed. Internally the
-> +		 * controller does not have this limitation.
+> Changes in v2:
+> Fix the patch format and check chip root complex DID instead of PCIe RP
+> to avoid the storage device plugged in internal PCIe RP by USB adaptor.
+> 
+> Changes in v3:
+> According to Christoph Hellwig do NVME PCIe related identify opt better
+> in PCIe quirk driver rather than in NVME module.
+> 
+> Changes in v4:
+> Split the fix to PCIe and NVMe part and then call the pci_dev_put() put
+> the device reference count and finally refine the commit info.
+> ---
+>  drivers/nvme/host/pci.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+> index 6bad4d4..ce9f42b 100644
+> --- a/drivers/nvme/host/pci.c
+> +++ b/drivers/nvme/host/pci.c
+> @@ -2832,6 +2832,7 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
+>  {
+>  	struct acpi_device *adev;
+>  	struct pci_dev *root;
+> +	struct pci_dev *rdev;
+>  	acpi_handle handle;
+>  	acpi_status status;
+>  	u8 val;
+> @@ -2845,6 +2846,12 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
+>  	if (!root)
+>  		return false;
+>  
+> +	rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
 
-might be a good idea to refer to the section in this comment ;-)
+Please look at the root bus for the specific device, do not assume that
+you are only on this specific bus.
 
-=2D-=20
-balbi
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAmB33EkRHGJhbGJpQGtl
-cm5lbC5vcmcACgkQzL64meEamQbslQ/+NGpas9VP0Mr7mZkkMeCIHmDexAP61hoR
-33n1/rPKnU8Mfk1NcKbNi4iEFwqgdtqjfnHt+GA3MJF1wgkqLoY54DubKoWVEzGW
-SWXHjfgj5pDp5i58AJHbEHfldNdR2BzuCrFwAhg9bMtwuOi5etQlJRtCjSBbcrsa
-RVtyWO9+6jQZkvN66YQrX4noenV/1T0ZmuMQTdlf959XbJFtj13IICqvEwdSEYU1
-3H88OGvmymGnqXqV4K+m5D+6XRmSIs8EkppVHYdsRVX4aN8qIa+w3rHJJSqmeF85
-b4zLjRQYvspismnnhw5Xw9m+iRHFqLG+FOAeU9LOffvnZJYJfBkrDWxzi5D1rG3P
-ApXh0QfdMLxH6VuyYcTjuQqQuammiXnZpFPJVByJ+STdUeMto7MZum2n1HXgNpph
-ihYiUZ/fvmhHksHdDm/bUBXGxIC8Skz2/QoLnX5JnGirZohPNl7wUv0QJEDeRHS7
-uopzqyH4cd0BSoo3bkN4jXstoflbiPz2Y04yoZJZb8RNYiScXf39UdpXCj+e1OLw
-NCxTNF/4BsbN0wLdn3/cM9/cK2nrNenkiN4xLLpVigqQI1jqaSuKlqjWeJY2IYw+
-A2KXqg3l38kWs/QPa8tqpll1twRsR8yNrMDi06eYtWXw7qij2YYBiao70T4D1Cni
-HgmVl+W4YSs=
-=62MQ
------END PGP SIGNATURE-----
---=-=-=--
+greg k-h
