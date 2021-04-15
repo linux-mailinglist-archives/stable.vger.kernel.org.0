@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0DD360D79
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8629360DB3
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234318AbhDOPDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
+        id S233675AbhDOPF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235104AbhDOPAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 374896140A;
-        Thu, 15 Apr 2021 14:56:22 +0000 (UTC)
+        id S234221AbhDOPB1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:01:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4095613CF;
+        Thu, 15 Apr 2021 14:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498583;
-        bh=mIpMHbgtarwGrt6vg+yVjTI4jWbgZVAP5Q+APwJgb44=;
+        s=korg; t=1618498650;
+        bh=hYo45/K5k5JyentpGHqkeTjJxnhdksr8oqUsJWKSy8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlMPwM6Qn5OxbvZuj9b9eCARZ0cXQsCrTh/dsBZbjZbfYN3UI1hSxidXpWs+NRWU6
-         gGFlzL0YWTEx49fSy2VxJlknNocGomGQSCAPkL1ZyS3Q+dq+8D7CV9dZ3qpM+Oqv9B
-         fgVhab8oRlyvlinklbxkTf9wlzBof/Q6qqcKNw6o=
+        b=JJNLAmDiR2LW3Yirvc9IveBdhGdXUBcWN4Hm0m/hWw8/coMwDtI1a52aDSHEdW4g2
+         KaHDetaBfxC9EtKsXnV9JZ5hD6lvF9GBRndUKvRcMt9s6/bNf/XdrNID6KT76mW4oE
+         AgBZUeUsWs6i21l+ijulqO3znWNyViwoZbT6wQDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/18] KVM: arm64: Hide system instruction access to Trace registers
-Date:   Thu, 15 Apr 2021 16:47:55 +0200
-Message-Id: <20210415144413.132401786@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Andrew Price <anprice@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 02/25] gfs2: Flag a withdraw if init_threads() fails
+Date:   Thu, 15 Apr 2021 16:47:56 +0200
+Message-Id: <20210415144413.242862151@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Andrew Price <anprice@redhat.com>
 
-[ Upstream commit 1d676673d665fd2162e7e466dcfbe5373bfdb73e ]
+[ Upstream commit 62dd0f98a0e5668424270b47a0c2e973795faba7 ]
 
-Currently we advertise the ID_AA6DFR0_EL1.TRACEVER for the guest,
-when the trace register accesses are trapped (CPTR_EL2.TTA == 1).
-So, the guest will get an undefined instruction, if trusts the
-ID registers and access one of the trace registers.
-Lets be nice to the guest and hide the feature to avoid
-unexpected behavior.
+Interrupting mount with ^C quickly enough can cause the kthread_run()
+calls in gfs2's init_threads() to fail and the error path leads to a
+deadlock on the s_umount rwsem. The abridged chain of events is:
 
-Even though this can be done at KVM sysreg emulation layer,
-we do this by removing the TRACEVER from the sanitised feature
-register field. This is fine as long as the ETM drivers
-can handle the individual trace units separately, even
-when there are differences among the CPUs.
+  [mount path]
+  get_tree_bdev()
+    sget_fc()
+      alloc_super()
+        down_write_nested(&s->s_umount, SINGLE_DEPTH_NESTING); [acquired]
+    gfs2_fill_super()
+      gfs2_make_fs_rw()
+        init_threads()
+          kthread_run()
+            ( Interrupted )
+      [Error path]
+      gfs2_gl_hash_clear()
+        flush_workqueue(glock_workqueue)
+          wait_for_completion()
 
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210323120647.454211-2-suzuki.poulose@arm.com
+  [workqueue context]
+  glock_work_func()
+    run_queue()
+      do_xmote()
+        freeze_go_sync()
+          freeze_super()
+            down_write(&sb->s_umount) [deadlock]
+
+In freeze_go_sync() there is a gfs2_withdrawn() check that we can use to
+make sure freeze_super() is not called in the error path, so add a
+gfs2_withdraw_delayed() call when init_threads() fails.
+
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=212231
+
+Reported-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/gfs2/super.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 79caab15ccbf..acdef8d76c64 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -277,7 +277,6 @@ static const struct arm64_ftr_bits ftr_id_aa64dfr0[] = {
- 	 * of support.
- 	 */
- 	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_EXACT, ID_AA64DFR0_PMUVER_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64DFR0_TRACEVER_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64DFR0_DEBUGVER_SHIFT, 4, 0x6),
- 	ARM64_FTR_END,
- };
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index ddd40c96f7a2..0581612dd91e 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -169,8 +169,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	int error;
+ 
+ 	error = init_threads(sdp);
+-	if (error)
++	if (error) {
++		gfs2_withdraw_delayed(sdp);
+ 		return error;
++	}
+ 
+ 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+ 	if (gfs2_withdrawn(sdp)) {
 -- 
 2.30.2
 
