@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2428360CDA
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4364F360C70
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234192AbhDOOzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:55:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38990 "EHLO mail.kernel.org"
+        id S233633AbhDOOvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234100AbhDOOxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:53:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71216613D2;
-        Thu, 15 Apr 2021 14:52:20 +0000 (UTC)
+        id S233921AbhDOOu2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:50:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E55EC613E0;
+        Thu, 15 Apr 2021 14:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498341;
-        bh=YMJmvRqgAKFXe1O9FeTzS3jyLzAr4vpLmIwa9vaGvOQ=;
+        s=korg; t=1618498205;
+        bh=F0q2b5Et1V+3J0UHCzUiBJ2GNKY5/run3Ud4Ho7pUE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaZF0HmLgNYcV/1vp02TZycTYETW8GkYngp/k+JeNPB9xF/RFtb+6Hk3zNyRWCr56
-         udS9p4uxML9nsKk94wAiN9UNsw1R7V4CorcMW+NzsCBBEiRGtsIfT89vhDLuQPRHSf
-         NatyTD4nt4YIQ6B9EG/Oc6M4Ksg2YKbn6B+5qhT4=
+        b=zPmEpGMtxMWa6vORNXGrtF6PKMZuKjs1eZfdHU6VXWdXnj961VzTaMaZs5lpNqVxa
+         s7+IfcPZAVmM0pdpJ53Q94Pd5oV4Bra9ajb2y9XJ4Z7qmqzQ/EEGAT3wJCSGpYWcM0
+         T9K0FIa2imC5dngOnx741TivQFMOkYsXcrOuD5LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+91adee8d9ebb9193d22d@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 32/47] drivers: net: fix memory leak in peak_usb_create_dev
+        syzbot+ce4e062c2d51977ddc50@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.4 30/38] net: ieee802154: fix nl802154 add llsec key
 Date:   Thu, 15 Apr 2021 16:47:24 +0200
-Message-Id: <20210415144414.497577693@linuxfoundation.org>
+Message-Id: <20210415144414.316505085@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit a0b96b4a62745397aee662670cfc2157bac03f55 upstream.
+commit 20d5fe2d7103f5c43ad11a3d6d259e9d61165c35 upstream.
 
-syzbot reported memory leak in peak_usb.
-The problem was in case of failure after calling
-->dev_init()[2] in peak_usb_create_dev()[1]. The data
-allocated int dev_init() wasn't freed, so simple
-->dev_free() call fix this problem.
+This patch fixes a nullpointer dereference if NL802154_ATTR_SEC_KEY is
+not set by the user. If this is the case nl802154 will return -EINVAL.
 
-backtrace:
-    [<0000000079d6542a>] kmalloc include/linux/slab.h:552 [inline]
-    [<0000000079d6542a>] kzalloc include/linux/slab.h:682 [inline]
-    [<0000000079d6542a>] pcan_usb_fd_init+0x156/0x210 drivers/net/can/usb/peak_usb/pcan_usb_fd.c:868   [2]
-    [<00000000c09f9057>] peak_usb_create_dev drivers/net/can/usb/peak_usb/pcan_usb_core.c:851 [inline] [1]
-    [<00000000c09f9057>] peak_usb_probe+0x389/0x490 drivers/net/can/usb/peak_usb/pcan_usb_core.c:949
-
-Reported-by: syzbot+91adee8d9ebb9193d22d@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+ce4e062c2d51977ddc50@syzkaller.appspotmail.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210221174321.14210-3-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/ieee802154/nl802154.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -880,7 +880,7 @@ static int peak_usb_create_dev(const str
- 	if (dev->adapter->dev_set_bus) {
- 		err = dev->adapter->dev_set_bus(dev, 0);
- 		if (err)
--			goto lbl_unregister_candev;
-+			goto adap_dev_free;
- 	}
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -1527,7 +1527,8 @@ static int nl802154_add_llsec_key(struct
+ 	struct ieee802154_llsec_key_id id = { };
+ 	u32 commands[NL802154_CMD_FRAME_NR_IDS / 32] = { };
  
- 	/* get device number early */
-@@ -892,6 +892,10 @@ static int peak_usb_create_dev(const str
- 
- 	return 0;
- 
-+adap_dev_free:
-+	if (dev->adapter->dev_free)
-+		dev->adapter->dev_free(dev);
-+
- lbl_unregister_candev:
- 	unregister_candev(netdev);
- 
+-	if (nla_parse_nested(attrs, NL802154_KEY_ATTR_MAX,
++	if (!info->attrs[NL802154_ATTR_SEC_KEY] ||
++	    nla_parse_nested(attrs, NL802154_KEY_ATTR_MAX,
+ 			     info->attrs[NL802154_ATTR_SEC_KEY],
+ 			     nl802154_key_policy))
+ 		return -EINVAL;
 
 
