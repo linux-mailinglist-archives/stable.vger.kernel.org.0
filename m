@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9AD360D0D
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 341FF360C8A
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234219AbhDOO4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
+        id S234121AbhDOOvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:51:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234221AbhDOOzL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:55:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02A38613E3;
-        Thu, 15 Apr 2021 14:53:18 +0000 (UTC)
+        id S234046AbhDOOvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:51:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 940F3613BA;
+        Thu, 15 Apr 2021 14:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498399;
-        bh=RpUGMDUiqPmS91MBGeZluG4lrVX1QxlKXrNE7ooFDt0=;
+        s=korg; t=1618498238;
+        bh=4lJThul/wz5GfpjV0ZclYVjx+hQZYcext+kvej/pxVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxvFtbBDsqRA0nQy/6XmDj1W+D30eM6fptPLJJQEWmY0G88iU2aDAU40pbzWITHHG
-         kI+vjsZy+TNuHvUOSdGULYiNEnuj2fNqxxozXMydHYS+uGN93hHGENuvVUv06b0iQt
-         ysvDqRNLJvGGZC+ABqIMa/F80Hrd1VZFSDodlvwM=
+        b=1tPNTpWuBI6XPjChpVol2JnMj2SQo1EmnyddJ9ipzNqii8JKpwTOxdyQ5eb3Mt9Ty
+         NcKkLWpYEtOk33HeBEabYjURXbMDTjXKq8Kirj3+Sq+V5VAglWOPJlaPG/8CDO4GDE
+         wZC9QeUEMJauOtpE3Usi97DNRl8KfZVCqEN96wx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/68] amd-xgbe: Update DMA coherency values
+        stable@vger.kernel.org, Jack Qiu <jack.qiu@huawei.com>,
+        Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 13/47] fs: direct-io: fix missing sdio->boundary
 Date:   Thu, 15 Apr 2021 16:47:05 +0200
-Message-Id: <20210415144415.254388131@linuxfoundation.org>
+Message-Id: <20210415144413.897424022@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
-References: <20210415144414.464797272@linuxfoundation.org>
+In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
+References: <20210415144413.487943796@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Jack Qiu <jack.qiu@huawei.com>
 
-[ Upstream commit d75135082698140a26a56defe1bbc1b06f26a41f ]
+commit df41872b68601059dd4a84858952dcae58acd331 upstream.
 
-Based on the IOMMU configuration, the current cache control settings can
-result in possible coherency issues. The hardware team has recommended
-new settings for the PCI device path to eliminate the issue.
+I encountered a hung task issue, but not a performance one.  I run DIO
+on a device (need lba continuous, for example open channel ssd), maybe
+hungtask in below case:
 
-Fixes: 6f595959c095 ("amd-xgbe: Adjust register settings to improve performance")
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  DIO:						Checkpoint:
+  get addr A(at boundary), merge into BIO,
+  no submit because boundary missing
+						flush dirty data(get addr A+1), wait IO(A+1)
+						writeback timeout, because DIO(A) didn't submit
+  get addr A+2 fail, because checkpoint is doing
+
+dio_send_cur_page() may clear sdio->boundary, so prevent it from missing
+a boundary.
+
+Link: https://lkml.kernel.org/r/20210322042253.38312-1-jack.qiu@huawei.com
+Fixes: b1058b981272 ("direct-io: submit bio after boundary buffer is added to it")
+Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/direct-io.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe.h b/drivers/net/ethernet/amd/xgbe/xgbe.h
-index 95d4b56448c6..cd0459b0055b 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe.h
-@@ -176,9 +176,9 @@
- #define XGBE_DMA_SYS_AWCR	0x30303030
+--- a/fs/direct-io.c
++++ b/fs/direct-io.c
+@@ -793,6 +793,7 @@ submit_page_section(struct dio *dio, str
+ 		    struct buffer_head *map_bh)
+ {
+ 	int ret = 0;
++	int boundary = sdio->boundary;	/* dio_send_cur_page may clear it */
  
- /* DMA cache settings - PCI device */
--#define XGBE_DMA_PCI_ARCR	0x00000003
--#define XGBE_DMA_PCI_AWCR	0x13131313
--#define XGBE_DMA_PCI_AWARCR	0x00000313
-+#define XGBE_DMA_PCI_ARCR	0x000f0f0f
-+#define XGBE_DMA_PCI_AWCR	0x0f0f0f0f
-+#define XGBE_DMA_PCI_AWARCR	0x00000f0f
- 
- /* DMA channel interrupt modes */
- #define XGBE_IRQ_MODE_EDGE	0
--- 
-2.30.2
-
+ 	if (dio->op == REQ_OP_WRITE) {
+ 		/*
+@@ -831,10 +832,10 @@ submit_page_section(struct dio *dio, str
+ 	sdio->cur_page_fs_offset = sdio->block_in_file << sdio->blkbits;
+ out:
+ 	/*
+-	 * If sdio->boundary then we want to schedule the IO now to
++	 * If boundary then we want to schedule the IO now to
+ 	 * avoid metadata seeks.
+ 	 */
+-	if (sdio->boundary) {
++	if (boundary) {
+ 		ret = dio_send_cur_page(dio, sdio, map_bh);
+ 		if (sdio->bio)
+ 			dio_bio_submit(dio, sdio);
 
 
