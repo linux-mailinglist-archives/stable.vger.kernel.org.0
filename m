@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8176360D25
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF10360C4E
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234407AbhDOO5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:57:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S233773AbhDOOt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:49:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233906AbhDOOzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:55:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B53AD613B7;
-        Thu, 15 Apr 2021 14:53:57 +0000 (UTC)
+        id S233747AbhDOOtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:49:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BA75613C3;
+        Thu, 15 Apr 2021 14:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498438;
-        bh=kbFwtFEh//YvyBN7dfsrfNYpnD3Pij9751BCXfFasNk=;
+        s=korg; t=1618498170;
+        bh=iZjowC2CRvrD+FlGm3LXrYZWdumE3CSKrtm4XT3I9gE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y1whxzd5lyxVMPDIVTUKYmts91rzvLc1N0vDaIunlnGFi9msZ6LQ3pc6OcOhLr/xt
-         dN8t2f/APLgHKEMsYdwXJITy5Ow7ERc6V/e+eJGrGyl/670J1+uRjdqtQjnllFybZh
-         E+KOXcrCKsQMRa2EN++XhhCWJAEdt+n2tOmeJfjw=
+        b=mVwoyh220uHNLjPNGXyUwf0+/Q9wiOwKxVlXrZ8x0u6l/ZbzmaCp+2zNKAdPKLCvv
+         wcv/q3VdvAezwA8+VXQvhs3j//5mRVvUf2OEEzmN7Wm/M1jVGd0cRIa5U+Md9HZs9O
+         QMfrHRQhEyF2YhL44YhQevWt2wTM3QSiUS2E6Mf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 39/68] net/ncsi: Make local function ncsi_get_filter() static
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.4 26/38] net: mac802154: Fix general protection fault
 Date:   Thu, 15 Apr 2021 16:47:20 +0200
-Message-Id: <20210415144415.747698821@linuxfoundation.org>
+Message-Id: <20210415144414.180039833@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
-References: <20210415144414.464797272@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 5a6d80034471d4407052c4bf3758071df5cadf33 upstream.
+commit 1165affd484889d4986cf3b724318935a0b120d8 upstream.
 
-Fixes the following sparse warnings:
+syzbot found general protection fault in crypto_destroy_tfm()[1].
+It was caused by wrong clean up loop in llsec_key_alloc().
+If one of the tfm array members is in IS_ERR() range it will
+cause general protection fault in clean up function [1].
 
-net/ncsi/ncsi-manage.c:41:5: warning:
- symbol 'ncsi_get_filter' was not declared. Should it be static?
+Call Trace:
+ crypto_free_aead include/crypto/aead.h:191 [inline] [1]
+ llsec_key_alloc net/mac802154/llsec.c:156 [inline]
+ mac802154_llsec_key_add+0x9e0/0xcc0 net/mac802154/llsec.c:249
+ ieee802154_add_llsec_key+0x56/0x80 net/mac802154/cfg.c:338
+ rdev_add_llsec_key net/ieee802154/rdev-ops.h:260 [inline]
+ nl802154_add_llsec_key+0x3d3/0x560 net/ieee802154/nl802154.c:1584
+ genl_family_rcv_msg_doit+0x228/0x320 net/netlink/genetlink.c:739
+ genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+ genl_rcv_msg+0x328/0x580 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:674
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210304152125.1052825-1-paskripkin@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ncsi/ncsi-manage.c |    2 +-
+ net/mac802154/llsec.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ncsi/ncsi-manage.c
-+++ b/net/ncsi/ncsi-manage.c
-@@ -38,7 +38,7 @@ static inline int ncsi_filter_size(int t
- 	return sizes[table];
- }
+--- a/net/mac802154/llsec.c
++++ b/net/mac802154/llsec.c
+@@ -158,7 +158,7 @@ err_tfm0:
+ 	crypto_free_blkcipher(key->tfm0);
+ err_tfm:
+ 	for (i = 0; i < ARRAY_SIZE(key->tfm); i++)
+-		if (key->tfm[i])
++		if (!IS_ERR_OR_NULL(key->tfm[i]))
+ 			crypto_free_aead(key->tfm[i]);
  
--u32 *ncsi_get_filter(struct ncsi_channel *nc, int table, int index)
-+static u32 *ncsi_get_filter(struct ncsi_channel *nc, int table, int index)
- {
- 	struct ncsi_channel_filter *ncf;
- 	int size;
+ 	kzfree(key);
 
 
