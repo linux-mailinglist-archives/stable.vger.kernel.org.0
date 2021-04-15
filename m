@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0F4360D91
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70234360DA1
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234192AbhDOPDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
+        id S234143AbhDOPEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:04:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235290AbhDOPAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0094661415;
-        Thu, 15 Apr 2021 14:56:54 +0000 (UTC)
+        id S235390AbhDOPBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:01:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12F98613BA;
+        Thu, 15 Apr 2021 14:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498615;
-        bh=FEqHoQtogVPYM8qIKYv+FB0duB3s1p0ZSpZOhi3Roso=;
+        s=korg; t=1618498639;
+        bh=ff4cqhax3E3hwB+ISw+nXEkNQW0+siOpxAPImNkUF6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=woy/iZ5jVQfz17sajcT6vX8yJFg1usQa6HjFFmctjfoYopZNmQzgK36aS80eno5Wy
-         WnpexJ63uHYAqrduL9xdaBI0XjZN6XIHpFRl107cSL2vzHmtTgLVylTj0QkH459jqX
-         wYHaxwM09T9Ptqc5mFADYiZa6uxuGTY5n1A0s8GU=
+        b=X9o12ohK0CocBsYG1HWx1u9hU2HbyWKKKc/lhjmytGSneQId1S7W8pN16fJ3Y/flL
+         ZvS6n9OUeG8Tzu5mMeSvnx3/njrRVQMv2/DWurxdCezibVro7r3CqDo339zD50EkTh
+         nthpWhgM8Fzk64SbXtwQhVgum+b/yYxIPVMx8Iwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 5.4 17/18] perf map: Tighten snprintf() string precision to pass gcc check on some 32-bit arches
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 16/25] idr test suite: Create anchor before launching throbber
 Date:   Thu, 15 Apr 2021 16:48:10 +0200
-Message-Id: <20210415144413.595477250@linuxfoundation.org>
+Message-Id: <20210415144413.670873097@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 77d02bd00cea9f1a87afe58113fa75b983d6c23a upstream.
+[ Upstream commit 094ffbd1d8eaa27ed426feb8530cb1456348b018 ]
 
-Noticed on a debian:experimental mips and mipsel cross build build
-environment:
+The throbber could race with creation of the anchor entry and cause the
+IDR to have zero entries in it, which would cause the test to fail.
 
-  perfbuilder@ec265a086e9b:~$ mips-linux-gnu-gcc --version | head -1
-  mips-linux-gnu-gcc (Debian 10.2.1-3) 10.2.1 20201224
-  perfbuilder@ec265a086e9b:~$
-
-    CC       /tmp/build/perf/util/map.o
-  util/map.c: In function 'map__new':
-  util/map.c:109:5: error: '%s' directive output may be truncated writing between 1 and 2147483645 bytes into a region of size 4096 [-Werror=format-truncation=]
-    109 |    "%s/platforms/%s/arch-%s/usr/lib/%s",
-        |     ^~
-  In file included from /usr/mips-linux-gnu/include/stdio.h:867,
-                   from util/symbol.h:11,
-                   from util/map.c:2:
-  /usr/mips-linux-gnu/include/bits/stdio2.h:67:10: note: '__builtin___snprintf_chk' output 32 or more bytes (assuming 4294967321) into a destination of size 4096
-     67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
-        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     68 |        __bos (__s), __fmt, __va_arg_pack ());
-        |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cc1: all warnings being treated as errors
-
-Since we have the lenghts for what lands in that place, use it to give
-the compiler more info and make it happy.
-
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/map.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ tools/testing/radix-tree/idr-test.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -93,8 +93,7 @@ static inline bool replace_android_lib(c
- 	if (!strncmp(filename, "/system/lib/", 12)) {
- 		char *ndk, *app;
- 		const char *arch;
--		size_t ndk_length;
--		size_t app_length;
-+		int ndk_length, app_length;
+diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
+index 4a9b451b7ba0..6ce7460f3c7a 100644
+--- a/tools/testing/radix-tree/idr-test.c
++++ b/tools/testing/radix-tree/idr-test.c
+@@ -301,11 +301,11 @@ void idr_find_test_1(int anchor_id, int throbber_id)
+ 	pthread_t throbber;
+ 	time_t start = time(NULL);
  
- 		ndk = getenv("NDK_ROOT");
- 		app = getenv("APP_PLATFORM");
-@@ -122,8 +121,8 @@ static inline bool replace_android_lib(c
- 		if (new_length > PATH_MAX)
- 			return false;
- 		snprintf(newfilename, new_length,
--			"%s/platforms/%s/arch-%s/usr/lib/%s",
--			ndk, app, arch, libname);
-+			"%.*s/platforms/%.*s/arch-%s/usr/lib/%s",
-+			ndk_length, ndk, app_length, app, arch, libname);
+-	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
+-
+ 	BUG_ON(idr_alloc(&find_idr, xa_mk_value(anchor_id), anchor_id,
+ 				anchor_id + 1, GFP_KERNEL) != anchor_id);
  
- 		return true;
- 	}
++	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
++
+ 	rcu_read_lock();
+ 	do {
+ 		int id = 0;
+-- 
+2.30.2
+
 
 
