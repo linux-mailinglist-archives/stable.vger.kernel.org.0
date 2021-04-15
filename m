@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B28D2360D82
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A03360DC0
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234393AbhDOPDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
+        id S234190AbhDOPFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235176AbhDOPA1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:00:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92F5961152;
-        Thu, 15 Apr 2021 14:56:34 +0000 (UTC)
+        id S234234AbhDOPC6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:02:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 383806141F;
+        Thu, 15 Apr 2021 14:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498595;
-        bh=8dX0nKeBPMPFDBL15Iezv+br/Y1ueaIaFrJnbJY55H4=;
+        s=korg; t=1618498675;
+        bh=0tqqrg5SxBnAodsMUL9L2jGPSa47lkhstrn2nGqA+MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t8FdTdxt2soWilI8K0MDWRpZdHzG09ZCq+2X1ISCABzExZ1guGPzI8N/3+Az43j+k
-         erT+3B9bm2j8XPWE0W4p1lpV6Ey+H1x7lw22RwpmvTdx70epqR0cFpqYpod53IMsJr
-         4bil05uuB+90E9Ja83383sKw2Sg7kdcYx4zYUJNc=
+        b=zQNf9X981QUpXmqkPdhuLO9kF+xpYmlnGlVEbUEU2mXz9GDMnqLfBQhSDRhQNapZ8
+         NOX38VnNjZ9nq3uLhCsulQ10gGk2UUxeJbnNxrmIJo4kfUaVmnJ7l8x00Smvk9e+W1
+         G2KOd3MwOd+UIn2Y/AUFvv345KSI2UlABbsav0UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-        Yufen Yu <yuyufen@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/18] block: only update parent bi_status when bio fail
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 06/25] gfs2: report "already frozen/thawed" errors
 Date:   Thu, 15 Apr 2021 16:48:00 +0200
-Message-Id: <20210415144413.285069290@linuxfoundation.org>
+Message-Id: <20210415144413.368809955@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
-References: <20210415144413.055232956@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 3edf5346e4f2ce2fa0c94651a90a8dda169565ee ]
+[ Upstream commit ff132c5f93c06bd4432bbab5c369e468653bdec4 ]
 
-For multiple split bios, if one of the bio is fail, the whole
-should return error to application. But we found there is a race
-between bio_integrity_verify_fn and bio complete, which return
-io success to application after one of the bio fail. The race as
-following:
+Before this patch, gfs2's freeze function failed to report an error
+when the target file system was already frozen as it should (and as
+generic vfs function freeze_super does. Similarly, gfs2's thaw function
+failed to report an error when trying to thaw a file system that is not
+frozen, as vfs function thaw_super does. The errors were checked, but
+it always returned a 0 return code.
 
-split bio(READ)          kworker
+This patch adds the missing error return codes to gfs2 freeze and thaw.
 
-nvme_complete_rq
-blk_update_request //split error=0
-  bio_endio
-    bio_integrity_endio
-      queue_work(kintegrityd_wq, &bip->bip_work);
-
-                         bio_integrity_verify_fn
-                         bio_endio //split bio
-                          __bio_chain_endio
-                             if (!parent->bi_status)
-
-                               <interrupt entry>
-                               nvme_irq
-                                 blk_update_request //parent error=7
-                                 req_bio_endio
-                                    bio->bi_status = 7 //parent bio
-                               <interrupt exit>
-
-                               parent->bi_status = 0
-                        parent->bi_end_io() // return bi_status=0
-
-The bio has been split as two: split and parent. When split
-bio completed, it depends on kworker to do endio, while
-bio_integrity_verify_fn have been interrupted by parent bio
-complete irq handler. Then, parent bio->bi_status which have
-been set in irq handler will overwrite by kworker.
-
-In fact, even without the above race, we also need to conside
-the concurrency beteen mulitple split bio complete and update
-the same parent bi_status. Normally, multiple split bios will
-be issued to the same hctx and complete from the same irq
-vector. But if we have updated queue map between multiple split
-bios, these bios may complete on different hw queue and different
-irq vector. Then the concurrency update parent bi_status may
-cause the final status error.
-
-Suggested-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210331115359.1125679-1-yuyufen@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/super.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 24704bc2ad6f..cb38d6f3acce 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -305,7 +305,7 @@ static struct bio *__bio_chain_endio(struct bio *bio)
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 0581612dd91e..077dc8c035a8 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -769,11 +769,13 @@ void gfs2_freeze_func(struct work_struct *work)
+ static int gfs2_freeze(struct super_block *sb)
  {
- 	struct bio *parent = bio->bi_private;
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
+-	int error = 0;
++	int error;
  
--	if (!parent->bi_status)
-+	if (bio->bi_status && !parent->bi_status)
- 		parent->bi_status = bio->bi_status;
- 	bio_put(bio);
- 	return parent;
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN)
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN) {
++		error = -EBUSY;
+ 		goto out;
++	}
+ 
+ 	for (;;) {
+ 		if (gfs2_withdrawn(sdp)) {
+@@ -814,10 +816,10 @@ static int gfs2_unfreeze(struct super_block *sb)
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
+ 
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-        if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
+ 	    !gfs2_holder_initialized(&sdp->sd_freeze_gh)) {
+ 		mutex_unlock(&sdp->sd_freeze_mutex);
+-                return 0;
++		return -EINVAL;
+ 	}
+ 
+ 	gfs2_freeze_unlock(&sdp->sd_freeze_gh);
 -- 
 2.30.2
 
