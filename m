@@ -2,69 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FBA236042F
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 10:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE22360454
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 10:34:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231584AbhDOIWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 04:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231518AbhDOIWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 04:22:02 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6D9C061574
-        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 01:21:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=mzdZB4W4tK1YoIpVXqrIlcRVaBOWBGFtglH23yBLCYQ=; b=PqxpC1HoBQMfT7UhjbGe6NyvPo
-        NQIo1S+c0inu2jcPBThF7xynKpRd9S+WvWGGEiSzbyo5UXcEawSEDUW+Z0Jy6b5w9TKFUkzr4nMxz
-        ZNpH8FlfQCBwSWkrWl2sxso2IBd61ERyj5kzX/ZdmqXC2lkjxEKjz4OCv6zwmOds8WAI9GaynVOrX
-        qDCf5Lml34Fjlqbh1ega0RUv8VgmWNf+RemIeq0XLvhHFk1vQjJOOqZD9jHPleVOM/3cdpnXkq/y/
-        VX56hlcc3A7TmVYVqycTJbZiwk+MAWnbS6KkCMu3A9ng5yM+xH1RNBDIEubiFWMOM9lLoYtE2P1eP
-        WKygqKpg==;
-Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lWxFB-008Hiw-Bc; Thu, 15 Apr 2021 08:21:00 +0000
-Date:   Thu, 15 Apr 2021 09:20:57 +0100
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Prike Liang <Prike.Liang@amd.com>
-Cc:     linux-nvme@lists.infradead.org, Chaitanya.Kulkarni@wdc.com,
-        gregkh@linuxfoundation.org, hch@infradead.org,
-        stable@vger.kernel.org, Alexander.Deucher@amd.com,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Subject: Re: [PATCH v4 1/2] PCI: add AMD PCIe quirk for nvme shutdown opt
-Message-ID: <20210415082057.GA1973565@infradead.org>
-References: <1618458725-17164-1-git-send-email-Prike.Liang@amd.com>
+        id S231388AbhDOIeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 04:34:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32998 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231266AbhDOIeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 04:34:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A42E611AD;
+        Thu, 15 Apr 2021 08:34:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618475641;
+        bh=S89n7qBTKenHgdqyxgoCMWaiVL66C5C1uivQ2rdCtAY=;
+        h=Subject:To:From:Date:From;
+        b=aGMzC7Tsc0U7dX/6j2tZ901U4PsHIfBe95JmVB4m3b/l9Df/uU/Q8Snwyd3gg83yg
+         Jn2V7cXuePGlUeCkAcSm06qOktW6IG7jpzzKPOgug9Vq3w2+ruoXxALGXV2EyW8q5P
+         K4ZlXSrnW9v2V44116Eo/1v/uZuyK2bawQpq77hE=
+Subject: patch "intel_th: pci: Add Rocket Lake CPU support" added to char-misc-testing
+To:     alexander.shishkin@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 15 Apr 2021 10:33:47 +0200
+Message-ID: <161847562797123@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1618458725-17164-1-git-send-email-Prike.Liang@amd.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A cover letter for the series would be really nice.
 
-On Thu, Apr 15, 2021 at 11:52:04AM +0800, Prike Liang wrote:
-> The NVME device pluged in some AMD PCIE root port will resume timeout
-> from s2idle which caused by NVME power CFG lost in the SMU FW restore.
-> This issue can be workaround by using PCIe power set with simple
-> suspend/resume process path instead of APST. In the onwards ASIC will
-> try do the NVME shutdown save and restore in the BIOS and still need PCIe
-> power setting to resume from RTD3 for s2idle.
-> 
-> In this preparation patch add a PCIe quirk for the AMD.
+This is a note to let you know that I've just added the patch titled
 
-The above looks very hard to understand to me.  It uses some AMD
-specific terms, and also is overly specific to NVMe.  Any other PCIe
-device not doing a runtime-D3 in these slots will have the same problem.
+    intel_th: pci: Add Rocket Lake CPU support
 
-So I think you should generalize the flag name and description to
-describe what broken behavior the AMD root port has here, and only
-cursory refer to drivers that are broken by it.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
 
-I'd also much prefer if the flag is used on every pci_dev that is
-affected by the broken behavior rather than requiring another lookup
-in the driver.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From ccb40fec8018dbdbed03ea44b14203989eca0976 Mon Sep 17 00:00:00 2001
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Date: Wed, 14 Apr 2021 20:12:50 +0300
+Subject: intel_th: pci: Add Rocket Lake CPU support
+
+This adds support for the Trace Hub in Rocket Lake CPUs.
+
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@vger.kernel.org> # v4.14+
+Link: https://lore.kernel.org/r/20210414171251.14672-7-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hwtracing/intel_th/pci.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
+index 759994055cb4..a756c995fc7a 100644
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -278,6 +278,11 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x466f),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
++	{
++		/* Rocket Lake CPU */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c19),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
+ 	{ 0 },
+ };
+ 
+-- 
+2.31.1
+
+
