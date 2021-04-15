@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5A3360CA7
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3A2360C2A
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234232AbhDOOwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:52:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39522 "EHLO mail.kernel.org"
+        id S233286AbhDOOtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233606AbhDOOvm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:51:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 447E8613CC;
-        Thu, 15 Apr 2021 14:51:19 +0000 (UTC)
+        id S232767AbhDOOtE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:49:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88EEE6137D;
+        Thu, 15 Apr 2021 14:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498279;
-        bh=YUQgMlSEgtepU4She17fz62miPfplCtk5J0gCXpJpcs=;
+        s=korg; t=1618498121;
+        bh=Cl7ZrAP3yiXg+iRi11uR14V76FtA/bB7uBrf4q6kP/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQF12Ya8CzngWyeES57IaKJSDSkfU8qyn9szlI+OjCaKRRkivsUc49qSPJzXA9Auu
-         IlRZzQ/kZXLePdVfa2d/UByJR0I60jXEUQsLKlDE7dlXmvgkyIUTOLbw1KBG7CAO6x
-         aA3XaH7izPxl5Wplg7b8nOz+VkAQYHEiWUrgxfvQ=
+        b=QDAnYIoOOlCFptFmDNiEgIy4LqXKxiE5Vr49do0K6jDM0vrWwvBglB5JSNfQH2WYp
+         eoy6/YJNWqFIQDUL6kVqbOjR0L0pmhVOegi/uelSMUc8gbeuWiNK12r0wRRdd9mSrV
+         D7p+wY4ESyXgREx1+4vC0XFpYe2/JSIY8UFBb/YY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Holmberg <jonashg@axis.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 03/47] ALSA: aloop: Fix initialization of controls
+        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 01/38] iio: hid-sensor-prox: Fix scale not correct issue
 Date:   Thu, 15 Apr 2021 16:46:55 +0200
-Message-Id: <20210415144413.593823596@linuxfoundation.org>
+Message-Id: <20210415144413.407579678@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+In-Reply-To: <20210415144413.352638802@linuxfoundation.org>
+References: <20210415144413.352638802@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,51 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Holmberg <jonashg@axis.com>
+From: Ye Xiang <xiang.ye@intel.com>
 
-commit 168632a495f49f33a18c2d502fc249d7610375e9 upstream.
+commit d68c592e02f6f49a88e705f13dfc1883432cf300 upstream
 
-Add a control to the card before copying the id so that the numid field
-is initialized in the copy. Otherwise the numid field of active_id,
-format_id, rate_id and channels_id will be the same (0) and
-snd_ctl_notify() will not queue the events properly.
+Currently, the proxy sensor scale is zero because it just return the
+exponent directly. To fix this issue, this patch use
+hid_sensor_format_scale to process the scale first then return the
+output.
 
-Signed-off-by: Jonas Holmberg <jonashg@axis.com>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210407075428.2666787-1-jonashg@axis.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/drivers/aloop.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/iio/light/hid-sensor-prox.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/sound/drivers/aloop.c
-+++ b/sound/drivers/aloop.c
-@@ -1062,6 +1062,14 @@ static int loopback_mixer_new(struct loo
- 					return -ENOMEM;
- 				kctl->id.device = dev;
- 				kctl->id.subdevice = substr;
-+
-+				/* Add the control before copying the id so that
-+				 * the numid field of the id is set in the copy.
-+				 */
-+				err = snd_ctl_add(card, kctl);
-+				if (err < 0)
-+					return err;
-+
- 				switch (idx) {
- 				case ACTIVE_IDX:
- 					setup->active_id = kctl->id;
-@@ -1078,9 +1086,6 @@ static int loopback_mixer_new(struct loo
- 				default:
- 					break;
- 				}
--				err = snd_ctl_add(card, kctl);
--				if (err < 0)
--					return err;
- 			}
- 		}
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -37,6 +37,9 @@ struct prox_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info prox_attr;
+ 	u32 human_presence;
++	int scale_pre_decml;
++	int scale_post_decml;
++	int scale_precision;
+ };
+ 
+ /* Channel definitions */
+@@ -105,8 +108,9 @@ static int prox_read_raw(struct iio_dev
+ 		ret_type = IIO_VAL_INT;
+ 		break;
+ 	case IIO_CHAN_INFO_SCALE:
+-		*val = prox_state->prox_attr.units;
+-		ret_type = IIO_VAL_INT;
++		*val = prox_state->scale_pre_decml;
++		*val2 = prox_state->scale_post_decml;
++		ret_type = prox_state->scale_precision;
+ 		break;
+ 	case IIO_CHAN_INFO_OFFSET:
+ 		*val = hid_sensor_convert_exponent(
+@@ -240,6 +244,12 @@ static int prox_parse_report(struct plat
+ 			st->common_attributes.sensitivity.index,
+ 			st->common_attributes.sensitivity.report_id);
  	}
++
++	st->scale_precision = hid_sensor_format_scale(
++				hsdev->usage,
++				&st->prox_attr,
++				&st->scale_pre_decml, &st->scale_post_decml);
++
+ 	return ret;
+ }
+ 
 
 
