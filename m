@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 226BC360DE0
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC6D360DB7
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234605AbhDOPGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:06:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48936 "EHLO mail.kernel.org"
+        id S233974AbhDOPFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235291AbhDOPFC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:05:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CA69613D5;
-        Thu, 15 Apr 2021 14:59:01 +0000 (UTC)
+        id S233905AbhDOPBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:01:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D51C36141C;
+        Thu, 15 Apr 2021 14:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498741;
-        bh=8xO/cEt6QtVIp3eUU5Pg8GYK7mK+IxgT5Gx/DrAEV6Y=;
+        s=korg; t=1618498657;
+        bh=q+3hsxCREjU5gbs99CyxzJjEAajNjc0NDEIHHluz71U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxeyWHIXnO0Bw9tRB9Ue5MkVhdOcPJ9Lvm98qSAQ5JDm8ZNFdlw6b/YnM2SQ3qiBG
-         iJwE0vBm2iX531wzC3QvBZQnc4OhBfbN5rLShtjsiQ+fbOPg8TWUgXeEospsrlV6Qa
-         CZIm9UnU9qz6CMJ3FM6ykkIlB/+6Iu3FO/wt4gzQ=
+        b=G4grSMrk5BGuEpUX3UNlts6cr+ANikhN+dxxgGDQVD3tdkkgN3y7KJHJCOnhN7ooG
+         Vin9Pa1Jj+SnotrP3VYDcvANR+ZUv9kJnfApVZG+79hkvwQQEE5RLDWmo7nk7ilI0Q
+         5IbOs6b3yxUE5YfExBxTn3wMxYxacz9zE8S8fsaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 09/23] drm/tegra: dc: Dont set PLL clock to 0Hz
+        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 5.10 22/25] perf map: Tighten snprintf() string precision to pass gcc check on some 32-bit arches
 Date:   Thu, 15 Apr 2021 16:48:16 +0200
-Message-Id: <20210415144413.444081503@linuxfoundation.org>
+Message-Id: <20210415144413.853858326@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
-References: <20210415144413.146131392@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit f8fb97c915954fc6de6513cdf277103b5c6df7b3 ]
+commit 77d02bd00cea9f1a87afe58113fa75b983d6c23a upstream.
 
-RGB output doesn't allow to change parent clock rate of the display and
-PCLK rate is set to 0Hz in this case. The tegra_dc_commit_state() shall
-not set the display clock to 0Hz since this change propagates to the
-parent clock. The DISP clock is defined as a NODIV clock by the tegra-clk
-driver and all NODIV clocks use the CLK_SET_RATE_PARENT flag.
+Noticed on a debian:experimental mips and mipsel cross build build
+environment:
 
-This bug stayed unnoticed because by default PLLP is used as the parent
-clock for the display controller and PLLP silently skips the erroneous 0Hz
-rate changes because it always has active child clocks that don't permit
-rate changes. The PLLP isn't acceptable for some devices that we want to
-upstream (like Samsung Galaxy Tab and ASUS TF700T) due to a display panel
-clock rate requirements that can't be fulfilled by using PLLP and then the
-bug pops up in this case since parent clock is set to 0Hz, killing the
-display output.
+  perfbuilder@ec265a086e9b:~$ mips-linux-gnu-gcc --version | head -1
+  mips-linux-gnu-gcc (Debian 10.2.1-3) 10.2.1 20201224
+  perfbuilder@ec265a086e9b:~$
 
-Don't touch DC clock if pclk=0 in order to fix the problem.
+    CC       /tmp/build/perf/util/map.o
+  util/map.c: In function 'map__new':
+  util/map.c:109:5: error: '%s' directive output may be truncated writing between 1 and 2147483645 bytes into a region of size 4096 [-Werror=format-truncation=]
+    109 |    "%s/platforms/%s/arch-%s/usr/lib/%s",
+        |     ^~
+  In file included from /usr/mips-linux-gnu/include/stdio.h:867,
+                   from util/symbol.h:11,
+                   from util/map.c:2:
+  /usr/mips-linux-gnu/include/bits/stdio2.h:67:10: note: '__builtin___snprintf_chk' output 32 or more bytes (assuming 4294967321) into a destination of size 4096
+     67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     68 |        __bos (__s), __fmt, __va_arg_pack ());
+        |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cc1: all warnings being treated as errors
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since we have the lenghts for what lands in that place, use it to give
+the compiler more info and make it happy.
+
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/tegra/dc.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ tools/perf/util/map.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
-index 8eeef5017826..134986dc2783 100644
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -1688,6 +1688,11 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
- 			dev_err(dc->dev,
- 				"failed to set clock rate to %lu Hz\n",
- 				state->pclk);
-+
-+		err = clk_set_rate(dc->clk, state->pclk);
-+		if (err < 0)
-+			dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
-+				dc->clk, state->pclk, err);
- 	}
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -77,8 +77,7 @@ static inline bool replace_android_lib(c
+ 	if (strstarts(filename, "/system/lib/")) {
+ 		char *ndk, *app;
+ 		const char *arch;
+-		size_t ndk_length;
+-		size_t app_length;
++		int ndk_length, app_length;
  
- 	DRM_DEBUG_KMS("rate: %lu, div: %u\n", clk_get_rate(dc->clk),
-@@ -1698,11 +1703,6 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
- 		value = SHIFT_CLK_DIVIDER(state->div) | PIXEL_CLK_DIVIDER_PCD1;
- 		tegra_dc_writel(dc, value, DC_DISP_DISP_CLOCK_CONTROL);
- 	}
--
--	err = clk_set_rate(dc->clk, state->pclk);
--	if (err < 0)
--		dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
--			dc->clk, state->pclk, err);
- }
+ 		ndk = getenv("NDK_ROOT");
+ 		app = getenv("APP_PLATFORM");
+@@ -106,8 +105,8 @@ static inline bool replace_android_lib(c
+ 		if (new_length > PATH_MAX)
+ 			return false;
+ 		snprintf(newfilename, new_length,
+-			"%s/platforms/%s/arch-%s/usr/lib/%s",
+-			ndk, app, arch, libname);
++			"%.*s/platforms/%.*s/arch-%s/usr/lib/%s",
++			ndk_length, ndk, app_length, app, arch, libname);
  
- static void tegra_dc_stop(struct tegra_dc *dc)
--- 
-2.30.2
-
+ 		return true;
+ 	}
 
 
