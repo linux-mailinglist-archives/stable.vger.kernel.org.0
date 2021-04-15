@@ -2,223 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A63B2360C86
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B08D360C61
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233628AbhDOOva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:51:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38482 "EHLO mail.kernel.org"
+        id S233944AbhDOOue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234001AbhDOOuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6923613C1;
-        Thu, 15 Apr 2021 14:50:26 +0000 (UTC)
+        id S233885AbhDOOuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:50:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99F2161029;
+        Thu, 15 Apr 2021 14:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498227;
-        bh=57WHWjYDiOPBNbghh3Hb162OU6dJWOiyqNw2VCAoxa0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7SU7/TuXy+zI5L/uM2Xa4ZgeNDtl4Z7cKgPqVf4/FsTtSF2rQ57KgUhLfgvXYYzf
-         KU83peT8Hz86vD47ph3yZM+V3Xj0XbrR5pDOCEVeYaUGsfbeSfY9wyTnRbo89JNOR1
-         fKgiMnnReo24QEfhhcuXbjJiykh7iqeH6msmoEOM=
+        s=korg; t=1618498192;
+        bh=On8gxsRNXG+M/Bo2bTgICwAH/A7/BTLFkEcNVJ+9V8Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=T6WxdbrHS8wd6JTbxIEQGcc3tmLqC9yRJe0RVfM7+Z2O5xz3sEZa4h3BX6Rgs6zL4
+         JhdGywf0oaYY9UZG8TIWHDqrIhcKMgRVc0QAHYLsASidWe/TzZkMvE164RlaLwUwZH
+         nSwQiM7pqYjKX3sUscsXSUoeqCfIrzry5WjvKl2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Nicolas Pitre <nico@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.9 01/47] ARM: 8723/2: always assume the "unified" syntax for assembly code
-Date:   Thu, 15 Apr 2021 16:46:53 +0200
-Message-Id: <20210415144413.534624232@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/38] 4.4.267-rc1 review
+Date:   Thu, 15 Apr 2021 16:46:54 +0200
+Message-Id: <20210415144413.352638802@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.487943796@linuxfoundation.org>
-References: <20210415144413.487943796@linuxfoundation.org>
+MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.267-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.267-rc1
+X-KernelTest-Deadline: 2021-04-17T14:44+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Pitre <nicolas.pitre@linaro.org>
+This is the start of the stable review cycle for the 4.4.267 release.
+There are 38 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 75fea300d73ae5b18957949a53ec770daaeb6fc2 upstream.
+Responses should be made by Sat, 17 Apr 2021 14:44:01 +0000.
+Anything received after that time might be too late.
 
-The GNU assembler has implemented the "unified syntax" parsing since
-2005. This "unified" syntax is required when the kernel is built in
-Thumb2 mode. However the "unified" syntax is a mixed bag of features,
-including not requiring a `#' prefix with immediate operands. This leads
-to situations where some code builds just fine in Thumb2 mode and fails
-to build in ARM mode if that prefix is missing. This behavior
-discrepancy makes build tests less valuable, forcing both ARM and Thumb2
-builds for proper coverage.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.267-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-Let's "fix" this issue by always using the "unified" syntax for both ARM
-and Thumb2 mode. Given that the documented minimum binutils version that
-properly builds the kernel is version 2.20 released in 2010, we can
-assume that any toolchain capable of building the latest kernel is also
-"unified syntax" capable.
+thanks,
 
-Whith this, a bunch of macros used to mask some differences between both
-syntaxes can be removed, with the side effect of making LTO easier.
+greg k-h
 
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Nicolas Pitre <nico@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-[nathan: Resolve small conflict on 4.9 due to a lack of 494609701e06a]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+-------------
+Pseudo-Shortlog of commits:
 
----
- arch/arm/Kconfig               |    7 ---
- arch/arm/Makefile              |    6 ++-
- arch/arm/include/asm/unified.h |   77 +----------------------------------------
- 3 files changed, 8 insertions(+), 82 deletions(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.267-rc1
 
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1546,12 +1546,10 @@ config THUMB2_KERNEL
- 	depends on (CPU_V7 || CPU_V7M) && !CPU_V6 && !CPU_V6K
- 	default y if CPU_THUMBONLY
- 	select AEABI
--	select ARM_ASM_UNIFIED
- 	select ARM_UNWIND
- 	help
- 	  By enabling this option, the kernel will be compiled in
--	  Thumb-2 mode. A compiler/assembler that understand the unified
--	  ARM-Thumb syntax is needed.
-+	  Thumb-2 mode.
- 
- 	  If unsure, say N.
- 
-@@ -1586,9 +1584,6 @@ config THUMB2_AVOID_R_ARM_THM_JUMP11
- 
- 	  Unless you are sure your tools don't have this problem, say Y.
- 
--config ARM_ASM_UNIFIED
--	bool
--
- config ARM_PATCH_IDIV
- 	bool "Runtime patch udiv/sdiv instructions into __aeabi_{u}idiv()"
- 	depends on CPU_32v7 && !XIP_KERNEL
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -113,9 +113,11 @@ ifeq ($(CONFIG_ARM_UNWIND),y)
- CFLAGS_ABI	+=-funwind-tables
- endif
- 
-+# Accept old syntax despite ".syntax unified"
-+AFLAGS_NOWARN	:=$(call as-option,-Wa$(comma)-mno-warn-deprecated,-Wa$(comma)-W)
-+
- ifeq ($(CONFIG_THUMB2_KERNEL),y)
- AFLAGS_AUTOIT	:=$(call as-option,-Wa$(comma)-mimplicit-it=always,-Wa$(comma)-mauto-it)
--AFLAGS_NOWARN	:=$(call as-option,-Wa$(comma)-mno-warn-deprecated,-Wa$(comma)-W)
- CFLAGS_ISA	:=-mthumb $(AFLAGS_AUTOIT) $(AFLAGS_NOWARN)
- AFLAGS_ISA	:=$(CFLAGS_ISA) -Wa$(comma)-mthumb
- # Work around buggy relocation from gas if requested:
-@@ -123,7 +125,7 @@ ifeq ($(CONFIG_THUMB2_AVOID_R_ARM_THM_JU
- CFLAGS_MODULE	+=-fno-optimize-sibling-calls
- endif
- else
--CFLAGS_ISA	:=$(call cc-option,-marm,)
-+CFLAGS_ISA	:=$(call cc-option,-marm,) $(AFLAGS_NOWARN)
- AFLAGS_ISA	:=$(CFLAGS_ISA)
- endif
- 
---- a/arch/arm/include/asm/unified.h
-+++ b/arch/arm/include/asm/unified.h
-@@ -20,8 +20,10 @@
- #ifndef __ASM_UNIFIED_H
- #define __ASM_UNIFIED_H
- 
--#if defined(__ASSEMBLY__) && defined(CONFIG_ARM_ASM_UNIFIED)
-+#if defined(__ASSEMBLY__)
- 	.syntax unified
-+#else
-+__asm__(".syntax unified");
- #endif
- 
- #ifdef CONFIG_CPU_V7M
-@@ -64,77 +66,4 @@
- 
- #endif	/* CONFIG_THUMB2_KERNEL */
- 
--#ifndef CONFIG_ARM_ASM_UNIFIED
--
--/*
-- * If the unified assembly syntax isn't used (in ARM mode), these
-- * macros expand to an empty string
-- */
--#ifdef __ASSEMBLY__
--	.macro	it, cond
--	.endm
--	.macro	itt, cond
--	.endm
--	.macro	ite, cond
--	.endm
--	.macro	ittt, cond
--	.endm
--	.macro	itte, cond
--	.endm
--	.macro	itet, cond
--	.endm
--	.macro	itee, cond
--	.endm
--	.macro	itttt, cond
--	.endm
--	.macro	ittte, cond
--	.endm
--	.macro	ittet, cond
--	.endm
--	.macro	ittee, cond
--	.endm
--	.macro	itett, cond
--	.endm
--	.macro	itete, cond
--	.endm
--	.macro	iteet, cond
--	.endm
--	.macro	iteee, cond
--	.endm
--#else	/* !__ASSEMBLY__ */
--__asm__(
--"	.macro	it, cond\n"
--"	.endm\n"
--"	.macro	itt, cond\n"
--"	.endm\n"
--"	.macro	ite, cond\n"
--"	.endm\n"
--"	.macro	ittt, cond\n"
--"	.endm\n"
--"	.macro	itte, cond\n"
--"	.endm\n"
--"	.macro	itet, cond\n"
--"	.endm\n"
--"	.macro	itee, cond\n"
--"	.endm\n"
--"	.macro	itttt, cond\n"
--"	.endm\n"
--"	.macro	ittte, cond\n"
--"	.endm\n"
--"	.macro	ittet, cond\n"
--"	.endm\n"
--"	.macro	ittee, cond\n"
--"	.endm\n"
--"	.macro	itett, cond\n"
--"	.endm\n"
--"	.macro	itete, cond\n"
--"	.endm\n"
--"	.macro	iteet, cond\n"
--"	.endm\n"
--"	.macro	iteee, cond\n"
--"	.endm\n");
--#endif	/* __ASSEMBLY__ */
--
--#endif	/* CONFIG_ARM_ASM_UNIFIED */
--
- #endif	/* !__ASM_UNIFIED_H */
+Juergen Gross <jgross@suse.com>
+    xen/events: fix setting irq affinity
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    perf map: Tighten snprintf() string precision to pass gcc check on some 32-bit arches
+
+Florian Westphal <fw@strlen.de>
+    netfilter: x_tables: fix compat match/target pad out-of-bound write
+
+Arnd Bergmann <arnd@arndb.de>
+    drm/imx: imx-ldb: fix out of bounds array access warning
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: stop dump llsec params for monitors
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: forbid monitor for del llsec seclevel
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: forbid monitor for set llsec params
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 del llsec devkey
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 add llsec key
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 del llsec dev
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: fix nl802154 del llsec key
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: nl-mac: fix check on panid
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net: mac802154: Fix general protection fault
+
+Pavel Skripkin <paskripkin@gmail.com>
+    drivers: net: fix memory leak in peak_usb_create_dev
+
+Pavel Skripkin <paskripkin@gmail.com>
+    drivers: net: fix memory leak in atusb_probe
+
+Phillip Potter <phil@philpotter.co.uk>
+    net: tun: set tun->dev->addr_len during TUNSETLINK processing
+
+Du Cheng <ducheng2@gmail.com>
+    cfg80211: remove WARN_ON() in cfg80211_sme_connect
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    clk: socfpga: fix iomem pointer cast on 64-bit
+
+Potnuri Bharat Teja <bharat@chelsio.com>
+    RDMA/cxgb4: check for ipv6 address properly while destroying listener
+
+Alexander Gordeev <agordeev@linux.ibm.com>
+    s390/cpcmd: fix inline assembly register clobbering
+
+Zqiang <qiang.zhang@windriver.com>
+    workqueue: Move the position of debug_work_activate() in __queue_work()
+
+Lukasz Bartosik <lb@semihalf.com>
+    clk: fix invalid usage of list cursor in unregister
+
+Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+    net:tipc: Fix a double free in tipc_sk_mcast_rcv
+
+Claudiu Manoil <claudiu.manoil@nxp.com>
+    gianfar: Handle error code at MAC address change
+
+Eric Dumazet <edumazet@google.com>
+    sch_red: fix off-by-one checks in red_check_params()
+
+Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+    net: sched: sch_teql: fix null-pointer dereference
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    batman-adv: initialize "struct batadv_tvlv_tt_vlan_data"->reserved field
+
+Helge Deller <deller@gmx.de>
+    parisc: parisc-agp requires SBA IOMMU driver
+
+Jack Qiu <jack.qiu@huawei.com>
+    fs: direct-io: fix missing sdio->boundary
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    ia64: fix user_stack_pointer() for ptrace()
+
+Muhammad Usama Anjum <musamaanjum@gmail.com>
+    net: ipv6: check for validity before dereferencing cfg->fc_nlinfo.nlh
+
+Luca Fancellu <luca.fancellu@arm.com>
+    xen/evtchn: Change irq_info lock to raw_spinlock_t
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: Avoid endless loops caused by repeated llcp_sock_connect()
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: fix memory leak in llcp_sock_connect()
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: fix refcount leak in llcp_sock_connect()
+
+Xiaoming Ni <nixiaoming@huawei.com>
+    nfc: fix refcount leak in llcp_sock_bind()
+
+Jonas Holmberg <jonashg@axis.com>
+    ALSA: aloop: Fix initialization of controls
+
+Ye Xiang <xiang.ye@intel.com>
+    iio: hid-sensor-prox: Fix scale not correct issue
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                     |  4 +--
+ arch/ia64/include/asm/ptrace.h               |  8 +----
+ arch/s390/kernel/cpcmd.c                     |  6 ++--
+ drivers/char/agp/Kconfig                     |  2 +-
+ drivers/clk/clk.c                            | 30 ++++++++---------
+ drivers/clk/socfpga/clk-gate.c               |  2 +-
+ drivers/gpu/drm/imx/imx-ldb.c                | 10 ++++++
+ drivers/iio/light/hid-sensor-prox.c          | 14 ++++++--
+ drivers/infiniband/hw/cxgb4/cm.c             |  3 +-
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c |  6 +++-
+ drivers/net/ethernet/freescale/gianfar.c     |  6 +++-
+ drivers/net/ieee802154/atusb.c               |  1 +
+ drivers/net/tun.c                            | 48 ++++++++++++++++++++++++++++
+ drivers/xen/events/events_base.c             | 14 ++++----
+ drivers/xen/events/events_internal.h         |  2 +-
+ fs/direct-io.c                               |  5 +--
+ include/net/red.h                            |  4 +--
+ kernel/workqueue.c                           |  2 +-
+ net/batman-adv/translation-table.c           |  1 +
+ net/ieee802154/nl-mac.c                      |  7 ++--
+ net/ieee802154/nl802154.c                    | 23 ++++++++++---
+ net/ipv4/netfilter/arp_tables.c              |  2 ++
+ net/ipv4/netfilter/ip_tables.c               |  2 ++
+ net/ipv6/netfilter/ip6_tables.c              |  2 ++
+ net/ipv6/route.c                             |  8 +++--
+ net/mac802154/llsec.c                        |  2 +-
+ net/netfilter/x_tables.c                     | 10 ++----
+ net/nfc/llcp_sock.c                          | 10 ++++++
+ net/sched/sch_teql.c                         |  3 ++
+ net/tipc/socket.c                            |  2 +-
+ net/wireless/sme.c                           |  2 +-
+ sound/drivers/aloop.c                        | 11 +++++--
+ tools/perf/util/map.c                        |  7 ++--
+ 33 files changed, 183 insertions(+), 76 deletions(-)
 
 
