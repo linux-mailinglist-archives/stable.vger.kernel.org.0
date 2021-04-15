@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6355B360D67
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:02:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89410360D87
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:03:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233914AbhDOPCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
+        id S234430AbhDOPDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:03:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234701AbhDOO7b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:59:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C40D7613EE;
-        Thu, 15 Apr 2021 14:55:37 +0000 (UTC)
+        id S234673AbhDOO7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:59:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B329613DB;
+        Thu, 15 Apr 2021 14:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498538;
-        bh=D+TMlE0bVfus2t30ciHyN6PfYXCRJH+fAQ9WU9+t1hM=;
+        s=korg; t=1618498531;
+        bh=2RDvRzFB8/9CSr6n3vC2zhtNefxZoqBHVoDjP5UIPdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DEcIaL1tNDWXvNTM41CeEIn/S63+6+XCpmfml4/HpAPp4LdAcsk6kP45RmL8zLInb
-         xN1l18nYT+yt3UOraNDDM4Rf8AlTDw1Mc6M5MJl4P58n/VOXE8tPC68567DK28iSEq
-         MueI1ZeMxECI6exN1XxskMZvNCBaYO8Jd9HX7C18=
+        b=DJUHsjGTQ4mibBsYByR5olsB0es54lmjlioJ/i9azl6RiYmdtOwuTtlBgv3r+Yhmc
+         nuTCv1gzEpoYkptFinv659t0y/DsL5vDOHdsz2Ov+3acwo1uywi8PvGTVX6JWScXc2
+         UAH9BqiO3XLtWgDOX03AAzvpYr7EKmB8ob5y04ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 65/68] net: phy: broadcom: Only advertise EEE for supported modes
-Date:   Thu, 15 Apr 2021 16:47:46 +0200
-Message-Id: <20210415144416.609781223@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+cfc0247ac173f597aaaa@syzkaller.appspotmail.com,
+        Andy Nguyen <theflow@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 66/68] netfilter: x_tables: fix compat match/target pad out-of-bound write
+Date:   Thu, 15 Apr 2021 16:47:47 +0200
+Message-Id: <20210415144416.641430305@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -40,55 +42,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit c056d480b40a68f2520ccc156c7fae672d69d57d upstream
+commit b29c457a6511435960115c0f548c4360d5f4801d upstream.
 
-We should not be advertising EEE for modes that we do not support,
-correct that oversight by looking at the PHY device supported linkmodes.
+xt_compat_match/target_from_user doesn't check that zeroing the area
+to start of next rule won't write past end of allocated ruleset blob.
 
-Fixes: 99cec8a4dda2 ("net: phy: broadcom: Allow enabling or disabling of EEE")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Remove this code and zero the entire blob beforehand.
+
+Reported-by: syzbot+cfc0247ac173f597aaaa@syzkaller.appspotmail.com
+Reported-by: Andy Nguyen <theflow@google.com>
+Fixes: 9fa492cdc160c ("[NETFILTER]: x_tables: simplify compat API")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/bcm-phy-lib.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ net/ipv4/netfilter/arp_tables.c |    2 ++
+ net/ipv4/netfilter/ip_tables.c  |    2 ++
+ net/ipv6/netfilter/ip6_tables.c |    2 ++
+ net/netfilter/x_tables.c        |   10 ++--------
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/phy/bcm-phy-lib.c b/drivers/net/phy/bcm-phy-lib.c
-index d5e0833d69b9..66e4ef8ed345 100644
---- a/drivers/net/phy/bcm-phy-lib.c
-+++ b/drivers/net/phy/bcm-phy-lib.c
-@@ -198,7 +198,7 @@ EXPORT_SYMBOL_GPL(bcm_phy_enable_apd);
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -1196,6 +1196,8 @@ static int translate_compat_table(struct
+ 	if (!newinfo)
+ 		goto out_unlock;
  
- int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
- {
--	int val;
-+	int val, mask = 0;
- 
- 	/* Enable EEE at PHY level */
- 	val = phy_read_mmd(phydev, MDIO_MMD_AN, BRCM_CL45VEN_EEE_CONTROL);
-@@ -217,10 +217,15 @@ int bcm_phy_set_eee(struct phy_device *phydev, bool enable)
- 	if (val < 0)
- 		return val;
- 
-+	if (phydev->supported & SUPPORTED_1000baseT_Full)
-+		mask |= MDIO_EEE_1000T;
-+	if (phydev->supported & SUPPORTED_100baseT_Full)
-+		mask |= MDIO_EEE_100TX;
++	memset(newinfo->entries, 0, size);
 +
- 	if (enable)
--		val |= (MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val |= mask;
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_ARP_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -1432,6 +1432,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1449,6 +1449,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -638,7 +638,7 @@ void xt_compat_match_from_user(struct xt
+ {
+ 	const struct xt_match *match = m->u.kernel.match;
+ 	struct compat_xt_entry_match *cm = (struct compat_xt_entry_match *)m;
+-	int pad, off = xt_compat_match_offset(match);
++	int off = xt_compat_match_offset(match);
+ 	u_int16_t msize = cm->u.user.match_size;
+ 	char name[sizeof(m->u.user.name)];
+ 
+@@ -648,9 +648,6 @@ void xt_compat_match_from_user(struct xt
+ 		match->compat_from_user(m->data, cm->data);
  	else
--		val &= ~(MDIO_EEE_100TX | MDIO_EEE_1000T);
-+		val &= ~mask;
+ 		memcpy(m->data, cm->data, msize - sizeof(*cm));
+-	pad = XT_ALIGN(match->matchsize) - match->matchsize;
+-	if (pad > 0)
+-		memset(m->data + match->matchsize, 0, pad);
  
- 	phy_write_mmd(phydev, MDIO_MMD_AN, BCM_CL45VEN_EEE_ADV, (u32)val);
+ 	msize += off;
+ 	m->u.user.match_size = msize;
+@@ -993,7 +990,7 @@ void xt_compat_target_from_user(struct x
+ {
+ 	const struct xt_target *target = t->u.kernel.target;
+ 	struct compat_xt_entry_target *ct = (struct compat_xt_entry_target *)t;
+-	int pad, off = xt_compat_target_offset(target);
++	int off = xt_compat_target_offset(target);
+ 	u_int16_t tsize = ct->u.user.target_size;
+ 	char name[sizeof(t->u.user.name)];
  
--- 
-2.30.2
-
+@@ -1003,9 +1000,6 @@ void xt_compat_target_from_user(struct x
+ 		target->compat_from_user(t->data, ct->data);
+ 	else
+ 		memcpy(t->data, ct->data, tsize - sizeof(*ct));
+-	pad = XT_ALIGN(target->targetsize) - target->targetsize;
+-	if (pad > 0)
+-		memset(t->data + target->targetsize, 0, pad);
+ 
+ 	tsize += off;
+ 	t->u.user.target_size = tsize;
 
 
