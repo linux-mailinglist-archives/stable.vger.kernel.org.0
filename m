@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5900D360DDE
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E94AC360DB9
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 17:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234464AbhDOPGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 11:06:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48886 "EHLO mail.kernel.org"
+        id S234078AbhDOPFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 11:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234359AbhDOPDH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 11:03:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3430261420;
-        Thu, 15 Apr 2021 14:58:10 +0000 (UTC)
+        id S233681AbhDOPBu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 11:01:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A2F56141E;
+        Thu, 15 Apr 2021 14:57:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498690;
-        bh=KiRO2M5P4mOboiQ2OeqLUThTGmklM83OiWk9WfyDFAU=;
+        s=korg; t=1618498663;
+        bh=Wr0mAqzuayHfsB4hc1QbyERS7Jdho/MmBrqo3CX1o08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvlG3pBs2yNEJ96A5CTzfdkqhHzSEwp2fby126bsy5XBvlP1Mwyb0vPsaPlCvDyob
-         KAeNWTSYvN4XdB0KmWu0pla+O/RAfaXOfNmzwXrrtvH9ejKeVzbU7QEiZnrpCaRKqC
-         gzSClMUKGOvWSXzLpURKIZa1psOEXkw0VYrbZPLY=
+        b=2AoBeYQ0vjEwt1UE0+55iw6t4XHRIyR7NfZipknmM7g62ybTfWnddLLclGj/Q7HIx
+         DnQQ3jcrf1TfaQYQFWW+mpC+gjnPJqyKQ5uUGEyz677wZYwdr8KbDgYSR17b1Rif+G
+         P5Sp+vOGgEUOfsrydRIl4EZG9FwtOR46QgVOhjTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 10/23] gpu: host1x: Use different lock classes for each client
-Date:   Thu, 15 Apr 2021 16:48:17 +0200
-Message-Id: <20210415144413.477722805@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.10 24/25] net: sfp: cope with SFPs that set both LOS normal and LOS inverted
+Date:   Thu, 15 Apr 2021 16:48:18 +0200
+Message-Id: <20210415144413.917036542@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210415144413.146131392@linuxfoundation.org>
-References: <20210415144413.146131392@linuxfoundation.org>
+In-Reply-To: <20210415144413.165663182@linuxfoundation.org>
+References: <20210415144413.165663182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Perttunen <mperttunen@nvidia.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit a24f98176d1efae2c37d3438c57a624d530d9c33 ]
+commit 624407d2cf14ff58e53bf4b2af9595c4f21d606e upstream.
 
-To avoid false lockdep warnings, give each client lock a different
-lock class, passed from the initialization site by macro.
+The SFP MSA defines two option bits in byte 65 to indicate how the
+Rx_LOS signal on SFP pin 8 behaves:
 
-Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+bit 2 - Loss of Signal implemented, signal inverted from standard
+        definition in SFP MSA (often called "Signal Detect").
+bit 1 - Loss of Signal implemented, signal as defined in SFP MSA
+        (often called "Rx_LOS").
+
+Clearly, setting both bits results in a meaningless situation: it would
+mean that LOS is implemented in both the normal sense (1 = signal loss)
+and inverted sense (0 = signal loss).
+
+Unfortunately, there are modules out there which set both bits, which
+will be initially interpret as "inverted" sense, and then, if the LOS
+signal changes state, we will toggle between LINK_UP and WAIT_LOS
+states.
+
+Change our LOS handling to give well defined behaviour: only interpret
+these bits as meaningful if exactly one is set, otherwise treat it as
+if LOS is not implemented.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/E1kyYQa-0004iR-CU@rmk-PC.armlinux.org.uk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Pali Rohár <pali@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/host1x/bus.c | 10 ++++++----
- include/linux/host1x.h   |  9 ++++++++-
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/net/phy/sfp.c |   36 ++++++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
-index 347fb962b6c9..68a766ff0e9d 100644
---- a/drivers/gpu/host1x/bus.c
-+++ b/drivers/gpu/host1x/bus.c
-@@ -705,8 +705,9 @@ void host1x_driver_unregister(struct host1x_driver *driver)
- EXPORT_SYMBOL(host1x_driver_unregister);
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -1501,15 +1501,19 @@ static void sfp_sm_link_down(struct sfp
  
- /**
-- * host1x_client_register() - register a host1x client
-+ * __host1x_client_register() - register a host1x client
-  * @client: host1x client
-+ * @key: lock class key for the client-specific mutex
-  *
-  * Registers a host1x client with each host1x controller instance. Note that
-  * each client will only match their parent host1x controller and will only be
-@@ -715,13 +716,14 @@ EXPORT_SYMBOL(host1x_driver_unregister);
-  * device and call host1x_device_init(), which will in turn call each client's
-  * &host1x_client_ops.init implementation.
-  */
--int host1x_client_register(struct host1x_client *client)
-+int __host1x_client_register(struct host1x_client *client,
-+			     struct lock_class_key *key)
+ static void sfp_sm_link_check_los(struct sfp *sfp)
  {
- 	struct host1x *host1x;
- 	int err;
+-	unsigned int los = sfp->state & SFP_F_LOS;
++	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
++	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
++	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
++	bool los = false;
  
- 	INIT_LIST_HEAD(&client->list);
--	mutex_init(&client->lock);
-+	__mutex_init(&client->lock, "host1x client lock", key);
- 	client->usecount = 0;
+ 	/* If neither SFP_OPTIONS_LOS_INVERTED nor SFP_OPTIONS_LOS_NORMAL
+-	 * are set, we assume that no LOS signal is available.
++	 * are set, we assume that no LOS signal is available. If both are
++	 * set, we assume LOS is not implemented (and is meaningless.)
+ 	 */
+-	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED))
+-		los ^= SFP_F_LOS;
+-	else if (!(sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL)))
+-		los = 0;
++	if (los_options == los_inverted)
++		los = !(sfp->state & SFP_F_LOS);
++	else if (los_options == los_normal)
++		los = !!(sfp->state & SFP_F_LOS);
  
- 	mutex_lock(&devices_lock);
-@@ -742,7 +744,7 @@ int host1x_client_register(struct host1x_client *client)
+ 	if (los)
+ 		sfp_sm_next(sfp, SFP_S_WAIT_LOS, 0);
+@@ -1519,18 +1523,22 @@ static void sfp_sm_link_check_los(struct
  
- 	return 0;
- }
--EXPORT_SYMBOL(host1x_client_register);
-+EXPORT_SYMBOL(__host1x_client_register);
- 
- /**
-  * host1x_client_unregister() - unregister a host1x client
-diff --git a/include/linux/host1x.h b/include/linux/host1x.h
-index ce59a6a6a008..9eb77c87a83b 100644
---- a/include/linux/host1x.h
-+++ b/include/linux/host1x.h
-@@ -320,7 +320,14 @@ static inline struct host1x_device *to_host1x_device(struct device *dev)
- int host1x_device_init(struct host1x_device *device);
- int host1x_device_exit(struct host1x_device *device);
- 
--int host1x_client_register(struct host1x_client *client);
-+int __host1x_client_register(struct host1x_client *client,
-+			     struct lock_class_key *key);
-+#define host1x_client_register(class) \
-+	({ \
-+		static struct lock_class_key __key; \
-+		__host1x_client_register(class, &__key); \
-+	})
+ static bool sfp_los_event_active(struct sfp *sfp, unsigned int event)
+ {
+-	return (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED) &&
+-		event == SFP_E_LOS_LOW) ||
+-	       (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL) &&
+-		event == SFP_E_LOS_HIGH);
++	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
++	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
++	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
 +
- int host1x_client_unregister(struct host1x_client *client);
++	return (los_options == los_inverted && event == SFP_E_LOS_LOW) ||
++	       (los_options == los_normal && event == SFP_E_LOS_HIGH);
+ }
  
- int host1x_client_suspend(struct host1x_client *client);
--- 
-2.30.2
-
+ static bool sfp_los_event_inactive(struct sfp *sfp, unsigned int event)
+ {
+-	return (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED) &&
+-		event == SFP_E_LOS_HIGH) ||
+-	       (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL) &&
+-		event == SFP_E_LOS_LOW);
++	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
++	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
++	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
++
++	return (los_options == los_inverted && event == SFP_E_LOS_HIGH) ||
++	       (los_options == los_normal && event == SFP_E_LOS_LOW);
+ }
+ 
+ static void sfp_sm_fault(struct sfp *sfp, unsigned int next_state, bool warn)
 
 
