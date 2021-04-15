@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F30360D16
-	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E342A360D18
+	for <lists+stable@lfdr.de>; Thu, 15 Apr 2021 16:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234289AbhDOO5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 10:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40110 "EHLO mail.kernel.org"
+        id S234305AbhDOO5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 10:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234314AbhDOOz1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Apr 2021 10:55:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7E9D613B0;
-        Thu, 15 Apr 2021 14:53:35 +0000 (UTC)
+        id S234308AbhDOOzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Apr 2021 10:55:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99AEA61131;
+        Thu, 15 Apr 2021 14:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618498416;
-        bh=LPCc3SaUB74MGUxRAR8xu6fOe+80qMQfGcaCZcghCB8=;
+        s=korg; t=1618498419;
+        bh=brFnIPqAHwYG2ybqBxYwi7CWMPnNC7uaIPnIVWj1R6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTGbwHleHwLxlc4putHICV9CE274r1wp1yM0/2+p8gL+wftMxnYWTYPgSIDL4aeLr
-         1QkxhkxzP5sMob2LzFmr2ULC9ZfDxjCCNSecI4DNfV0TfdeCJu1soqU1tupJgqx4oT
-         XZd6vnkiWxKBNPv6cU5PhL6SgqoEJCnl0348Ach4=
+        b=WRxvI70HW4TeOMhd6QZNVh987NYSaGKTSj2A2TwZFv5cULh/LFqM6ePPfDYWmPmtz
+         IvKCienqbyZkakAABGnf88SFUAP3IUaP1YBrxaWzcQwgeAQbtgApjJR91PpkGntoOV
+         yviZimHXl09N3pG26D+AX9SQEmdExKeFgleDQlL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Xiaoming Ni <nixiaoming@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 06/68] nfc: Avoid endless loops caused by repeated llcp_sock_connect()
-Date:   Thu, 15 Apr 2021 16:46:47 +0200
-Message-Id: <20210415144414.666102284@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Fancellu <luca.fancellu@arm.com>,
+        Julien Grall <jgrall@amazon.com>, Wei Liu <wei.liu@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.14 07/68] xen/evtchn: Change irq_info lock to raw_spinlock_t
+Date:   Thu, 15 Apr 2021 16:46:48 +0200
+Message-Id: <20210415144414.706499891@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415144414.464797272@linuxfoundation.org>
 References: <20210415144414.464797272@linuxfoundation.org>
@@ -40,41 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
+From: Luca Fancellu <luca.fancellu@arm.com>
 
-commit 4b5db93e7f2afbdfe3b78e37879a85290187e6f1 upstream.
+commit d120198bd5ff1d41808b6914e1eb89aff937415c upstream.
 
-When sock_wait_state() returns -EINPROGRESS, "sk->sk_state" is
- LLCP_CONNECTING. In this case, llcp_sock_connect() is repeatedly invoked,
- nfc_llcp_sock_link() will add sk to local->connecting_sockets twice.
- sk->sk_node->next will point to itself, that will make an endless loop
- and hang-up the system.
-To fix it, check whether sk->sk_state is LLCP_CONNECTING in
- llcp_sock_connect() to avoid repeated invoking.
+Unmask operation must be called with interrupt disabled,
+on preempt_rt spin_lock_irqsave/spin_unlock_irqrestore
+don't disable/enable interrupts, so use raw_* implementation
+and change lock variable in struct irq_info from spinlock_t
+to raw_spinlock_t
 
-Fixes: b4011239a08e ("NFC: llcp: Fix non blocking sockets connections")
-Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Link: https://www.openwall.com/lists/oss-security/2020/11/01/1
-Cc: <stable@vger.kernel.org> #v3.11
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 25da4618af24 ("xen/events: don't unmask an event channel when an eoi is pending")
+Signed-off-by: Luca Fancellu <luca.fancellu@arm.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/20210406105105.10141-1-luca.fancellu@arm.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/xen/events/events_base.c     |   10 +++++-----
+ drivers/xen/events/events_internal.h |    2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -686,6 +686,10 @@ static int llcp_sock_connect(struct sock
- 		ret = -EISCONN;
- 		goto error;
- 	}
-+	if (sk->sk_state == LLCP_CONNECTING) {
-+		ret = -EINPROGRESS;
-+		goto error;
-+	}
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -221,7 +221,7 @@ static int xen_irq_info_common_setup(str
+ 	info->evtchn = evtchn;
+ 	info->cpu = cpu;
+ 	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
+-	spin_lock_init(&info->lock);
++	raw_spin_lock_init(&info->lock);
  
- 	dev = nfc_get_device(addr->dev_idx);
- 	if (dev == NULL) {
+ 	ret = set_evtchn_to_irq(evtchn, irq);
+ 	if (ret < 0)
+@@ -373,28 +373,28 @@ static void do_mask(struct irq_info *inf
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&info->lock, flags);
++	raw_spin_lock_irqsave(&info->lock, flags);
+ 
+ 	if (!info->mask_reason)
+ 		mask_evtchn(info->evtchn);
+ 
+ 	info->mask_reason |= reason;
+ 
+-	spin_unlock_irqrestore(&info->lock, flags);
++	raw_spin_unlock_irqrestore(&info->lock, flags);
+ }
+ 
+ static void do_unmask(struct irq_info *info, u8 reason)
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&info->lock, flags);
++	raw_spin_lock_irqsave(&info->lock, flags);
+ 
+ 	info->mask_reason &= ~reason;
+ 
+ 	if (!info->mask_reason)
+ 		unmask_evtchn(info->evtchn);
+ 
+-	spin_unlock_irqrestore(&info->lock, flags);
++	raw_spin_unlock_irqrestore(&info->lock, flags);
+ }
+ 
+ #ifdef CONFIG_X86
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -47,7 +47,7 @@ struct irq_info {
+ 	unsigned short eoi_cpu;	/* EOI must happen on this cpu */
+ 	unsigned int irq_epoch;	/* If eoi_cpu valid: irq_epoch of event */
+ 	u64 eoi_time;		/* Time in jiffies when to EOI. */
+-	spinlock_t lock;
++	raw_spinlock_t lock;
+ 
+ 	union {
+ 		unsigned short virq;
 
 
