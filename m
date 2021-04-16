@@ -2,102 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E659362A8B
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 23:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A26362B97
+	for <lists+stable@lfdr.de>; Sat, 17 Apr 2021 00:46:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244605AbhDPVqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 17:46:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55978 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244999AbhDPVqN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 17:46:13 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33394C061756
-        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 14:45:48 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id a21so16214814oib.10
-        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 14:45:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=1YHh7U8wc7ySKZsKh9AlRP2v/SqTpovhR3D9kMn9/X4=;
-        b=YzyOyTtbrYnGkN7p/9o6umk6pvHYqsWUaalKUyFq37t2YTZVcW5i73ANjgL84rze37
-         Os8xdKq6yu/pkG8vbivhc2Q4M2uYEPUdc48cRiBJrEgWhiFbRKno0+I08wbVGzRIjYhh
-         /mGFJyfl2At4sqe+0+zUAMuWZnI/3kH8txYv8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=1YHh7U8wc7ySKZsKh9AlRP2v/SqTpovhR3D9kMn9/X4=;
-        b=HESxczVMSIkSeyB+QI1L/CYJ/kRl+v5b4g7/b50WH59PzQzdTi1+Px/xWBUGDOTWfr
-         XlDw9vGKtO1jzkEVl6nWYUZ9TmgrYphQEQEIAob+6zg4ujx2IUIrro+1PbB3aq3P+7w7
-         aVLQsC4zeqSfKFjL50nx1l/y2k/YJ/DpKRnY6tI6JAkExvaKI32nvnCxCGI3sCBJIBPy
-         jEWfGaZs0jZCuD6w9YUKPk7GpT0XQci0evaWQJK5Eb6KMnJeWAdiGjn84OIS05QdlRcF
-         i/9ha8BuAQirMoNKlq2F/X+/QabW60Egj2Bj8LL2buROYxYaqebY1iSLR4Ul8O/rSOtp
-         kG0w==
-X-Gm-Message-State: AOAM5326fcd57K0larmviKB0UMqqDj7NiqTTSnU3DdC4j0KY1FhR/wjr
-        /d8zINRrGHwyZP+An1J0R6vkIA==
-X-Google-Smtp-Source: ABdhPJy15FhD+EKJbGGsKHCJeKawdrGmV+iepZkbUlCBSo+30P/KHU7Iz/gHfyGkjdb6pvzt1R7N5w==
-X-Received: by 2002:aca:ad52:: with SMTP id w79mr7921076oie.148.1618609547637;
-        Fri, 16 Apr 2021 14:45:47 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id 38sm1641300oth.14.2021.04.16.14.45.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 16 Apr 2021 14:45:47 -0700 (PDT)
-Subject: Re: [PATCH 4/4] usbip: synchronize event handler with sysfs code
- paths
-To:     Tom Seewald <tseewald@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20210416205319.14075-1-tseewald@gmail.com>
- <20210416205319.14075-4-tseewald@gmail.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <a2609fc2-2435-f948-668c-1da10e544c10@linuxfoundation.org>
-Date:   Fri, 16 Apr 2021 15:45:46 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
-MIME-Version: 1.0
-In-Reply-To: <20210416205319.14075-4-tseewald@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S234857AbhDPWq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 18:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234777AbhDPWq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Apr 2021 18:46:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12A0C613C7;
+        Fri, 16 Apr 2021 22:46:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1618613161;
+        bh=WAOAQ6XvczA7sjtD0lPCQZienaTsMEECXLTnvS+CJFE=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=tGpOrNl7fUzQabqZ7XUdq09TyqSYmM/LZcy2ASqoy6rBIj3wrenpaBdIlsCHdWGDc
+         hWqb+EJvvZaLSfdpI6BQpEyTe18a4aIIPTxTRC3uxXh8AtiShLBdDRbPFZhTmsn1jn
+         Ty083/WUO6FtbYLwTGKALILYaBe2MQfQCM9KUp2g=
+Date:   Fri, 16 Apr 2021 15:46:00 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, andreyknvl@google.com, arnd@arndb.de,
+        dvyukov@google.com, glider@google.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, natechancellor@gmail.com,
+        ryabinin.a.a@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, walter-zh.wu@mediatek.com
+Subject:  [patch 03/12] kasan: remove redundant config option
+Message-ID: <20210416224600.pSV4PKn9p%akpm@linux-foundation.org>
+In-Reply-To: <20210416154523.3f9794326e8e1db549873cf8@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/16/21 2:53 PM, Tom Seewald wrote:
-> From: Shuah Khan <skhan@linuxfoundation.org>
-> 
-> commit 363eaa3a450abb4e63bd6e3ad79d1f7a0f717814 upstream.
-> 
-> Fuzzing uncovered race condition between sysfs code paths in usbip
-> drivers. Device connect/disconnect code paths initiated through
-> sysfs interface are prone to races if disconnect happens during
-> connect and vice versa.
-> 
-> Use sysfs_lock to synchronize event handler with sysfs paths
-> in usbip drivers.
-> 
-> Cc: stable@vger.kernel.org # 4.9.x
-> Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-> Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-> Link: https://lore.kernel.org/r/c5c8723d3f29dfe3d759cfaafa7dd16b0dfe2918.1616807117.git.skhan@linuxfoundation.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Tom Seewald <tseewald@gmail.com>
-> ---
->   drivers/usb/usbip/usbip_event.c | 2 ++
->   1 file changed, 2 insertions(+)
-> 
+From: Walter Wu <walter-zh.wu@mediatek.com>
+Subject: kasan: remove redundant config option
 
-Thank you for the backport.
+CONFIG_KASAN_STACK and CONFIG_KASAN_STACK_ENABLE both enable KASAN stack
+instrumentation, but we should only need one config, so that we remove
+CONFIG_KASAN_STACK_ENABLE and make CONFIG_KASAN_STACK workable.  see [1].
 
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+When enable KASAN stack instrumentation, then for gcc we could do no
+prompt and default value y, and for clang prompt and default value n.
 
-Greg, please pick this up for 4.9.x
+This patch fixes the following compilation warning:
 
-thanks,
--- Shuah
+include/linux/kasan.h:333:30: warning: 'CONFIG_KASAN_STACK' is not defined, evaluates to 0 [-Wundef]
+
+[1]: https://bugzilla.kernel.org/show_bug.cgi?id=210221
+
+[akpm@linux-foundation.org: fix merge snafu]
+Link: https://lkml.kernel.org/r/20210226012531.29231-1-walter-zh.wu@mediatek.com
+Fixes: d9b571c885a8 ("kasan: fix KASAN_STACK dependency for HW_TAGS")
+Signed-off-by: Walter Wu <walter-zh.wu@mediatek.com>
+Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ arch/arm64/kernel/sleep.S        |    2 +-
+ arch/x86/kernel/acpi/wakeup_64.S |    2 +-
+ include/linux/kasan.h            |    2 +-
+ lib/Kconfig.kasan                |    9 ++-------
+ mm/kasan/common.c                |    2 +-
+ mm/kasan/kasan.h                 |    2 +-
+ mm/kasan/report_generic.c        |    2 +-
+ scripts/Makefile.kasan           |   10 ++++++++--
+ security/Kconfig.hardening       |    4 ++--
+ 9 files changed, 18 insertions(+), 17 deletions(-)
+
+--- a/arch/arm64/kernel/sleep.S~kasan-remove-redundant-config-option
++++ a/arch/arm64/kernel/sleep.S
+@@ -134,7 +134,7 @@ SYM_FUNC_START(_cpu_resume)
+ 	 */
+ 	bl	cpu_do_resume
+ 
+-#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
+ 	mov	x0, sp
+ 	bl	kasan_unpoison_task_stack_below
+ #endif
+--- a/arch/x86/kernel/acpi/wakeup_64.S~kasan-remove-redundant-config-option
++++ a/arch/x86/kernel/acpi/wakeup_64.S
+@@ -115,7 +115,7 @@ SYM_FUNC_START(do_suspend_lowlevel)
+ 	movq	pt_regs_r14(%rax), %r14
+ 	movq	pt_regs_r15(%rax), %r15
+ 
+-#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
+ 	/*
+ 	 * The suspend path may have poisoned some areas deeper in the stack,
+ 	 * which we now need to unpoison.
+--- a/include/linux/kasan.h~kasan-remove-redundant-config-option
++++ a/include/linux/kasan.h
+@@ -330,7 +330,7 @@ static inline bool kasan_check_byte(cons
+ 
+ #endif /* CONFIG_KASAN */
+ 
+-#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
+ void kasan_unpoison_task_stack(struct task_struct *task);
+ #else
+ static inline void kasan_unpoison_task_stack(struct task_struct *task) {}
+--- a/lib/Kconfig.kasan~kasan-remove-redundant-config-option
++++ a/lib/Kconfig.kasan
+@@ -138,9 +138,10 @@ config KASAN_INLINE
+ 
+ endchoice
+ 
+-config KASAN_STACK_ENABLE
++config KASAN_STACK
+ 	bool "Enable stack instrumentation (unsafe)" if CC_IS_CLANG && !COMPILE_TEST
+ 	depends on KASAN_GENERIC || KASAN_SW_TAGS
++	default y if CC_IS_GCC
+ 	help
+ 	  The LLVM stack address sanitizer has a know problem that
+ 	  causes excessive stack usage in a lot of functions, see
+@@ -154,12 +155,6 @@ config KASAN_STACK_ENABLE
+ 	  CONFIG_COMPILE_TEST.	On gcc it is assumed to always be safe
+ 	  to use and enabled by default.
+ 
+-config KASAN_STACK
+-	int
+-	depends on KASAN_GENERIC || KASAN_SW_TAGS
+-	default 1 if KASAN_STACK_ENABLE || CC_IS_GCC
+-	default 0
+-
+ config KASAN_SW_TAGS_IDENTIFY
+ 	bool "Enable memory corruption identification"
+ 	depends on KASAN_SW_TAGS
+--- a/mm/kasan/common.c~kasan-remove-redundant-config-option
++++ a/mm/kasan/common.c
+@@ -63,7 +63,7 @@ void __kasan_unpoison_range(const void *
+ 	kasan_unpoison(address, size);
+ }
+ 
+-#if CONFIG_KASAN_STACK
++#ifdef CONFIG_KASAN_STACK
+ /* Unpoison the entire stack for a task. */
+ void kasan_unpoison_task_stack(struct task_struct *task)
+ {
+--- a/mm/kasan/kasan.h~kasan-remove-redundant-config-option
++++ a/mm/kasan/kasan.h
+@@ -231,7 +231,7 @@ void *kasan_find_first_bad_addr(void *ad
+ const char *kasan_get_bug_type(struct kasan_access_info *info);
+ void kasan_metadata_fetch_row(char *buffer, void *row);
+ 
+-#if defined(CONFIG_KASAN_GENERIC) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN_GENERIC) && defined(CONFIG_KASAN_STACK)
+ void kasan_print_address_stack_frame(const void *addr);
+ #else
+ static inline void kasan_print_address_stack_frame(const void *addr) { }
+--- a/mm/kasan/report_generic.c~kasan-remove-redundant-config-option
++++ a/mm/kasan/report_generic.c
+@@ -128,7 +128,7 @@ void kasan_metadata_fetch_row(char *buff
+ 	memcpy(buffer, kasan_mem_to_shadow(row), META_BYTES_PER_ROW);
+ }
+ 
+-#if CONFIG_KASAN_STACK
++#ifdef CONFIG_KASAN_STACK
+ static bool __must_check tokenize_frame_descr(const char **frame_descr,
+ 					      char *token, size_t max_tok_len,
+ 					      unsigned long *value)
+--- a/scripts/Makefile.kasan~kasan-remove-redundant-config-option
++++ a/scripts/Makefile.kasan
+@@ -4,6 +4,12 @@ KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SH
+ 
+ cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
+ 
++ifdef CONFIG_KASAN_STACK
++	stack_enable := 1
++else
++	stack_enable := 0
++endif
++
+ ifdef CONFIG_KASAN_GENERIC
+ 
+ ifdef CONFIG_KASAN_INLINE
+@@ -27,7 +33,7 @@ else
+ 	CFLAGS_KASAN := $(CFLAGS_KASAN_SHADOW) \
+ 	 $(call cc-param,asan-globals=1) \
+ 	 $(call cc-param,asan-instrumentation-with-call-threshold=$(call_threshold)) \
+-	 $(call cc-param,asan-stack=$(CONFIG_KASAN_STACK)) \
++	 $(call cc-param,asan-stack=$(stack_enable)) \
+ 	 $(call cc-param,asan-instrument-allocas=1)
+ endif
+ 
+@@ -42,7 +48,7 @@ else
+ endif
+ 
+ CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
+-		$(call cc-param,hwasan-instrument-stack=$(CONFIG_KASAN_STACK)) \
++		$(call cc-param,hwasan-instrument-stack=$(stack_enable)) \
+ 		$(call cc-param,hwasan-use-short-granules=0) \
+ 		$(instrumentation_flags)
+ 
+--- a/security/Kconfig.hardening~kasan-remove-redundant-config-option
++++ a/security/Kconfig.hardening
+@@ -64,7 +64,7 @@ choice
+ 	config GCC_PLUGIN_STRUCTLEAK_BYREF
+ 		bool "zero-init structs passed by reference (strong)"
+ 		depends on GCC_PLUGINS
+-		depends on !(KASAN && KASAN_STACK=1)
++		depends on !(KASAN && KASAN_STACK)
+ 		select GCC_PLUGIN_STRUCTLEAK
+ 		help
+ 		  Zero-initialize any structures on the stack that may
+@@ -82,7 +82,7 @@ choice
+ 	config GCC_PLUGIN_STRUCTLEAK_BYREF_ALL
+ 		bool "zero-init anything passed by reference (very strong)"
+ 		depends on GCC_PLUGINS
+-		depends on !(KASAN && KASAN_STACK=1)
++		depends on !(KASAN && KASAN_STACK)
+ 		select GCC_PLUGIN_STRUCTLEAK
+ 		help
+ 		  Zero-initialize any stack variables that may be passed
+_
