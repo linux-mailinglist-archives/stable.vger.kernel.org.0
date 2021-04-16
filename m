@@ -2,152 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D333D3628D8
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 21:44:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC6D03628BE
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 21:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242760AbhDPTpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 15:45:09 -0400
-Received: from mailout.easymail.ca ([64.68.200.34]:55850 "EHLO
-        mailout.easymail.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235907AbhDPTpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 15:45:09 -0400
-X-Greylist: delayed 596 seconds by postgrey-1.27 at vger.kernel.org; Fri, 16 Apr 2021 15:45:08 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mailout.easymail.ca (Postfix) with ESMTP id BDED6C0DBE;
-        Fri, 16 Apr 2021 19:34:46 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at emo04-pco.easydns.vpn
-Received: from mailout.easymail.ca ([127.0.0.1])
-        by localhost (emo04-pco.easydns.vpn [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id I4-BX4Tq3JuR; Fri, 16 Apr 2021 19:34:46 +0000 (UTC)
-Received: from mail.gonehiking.org (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        by mailout.easymail.ca (Postfix) with ESMTPA id 1B44BC270A;
-        Fri, 16 Apr 2021 19:34:37 +0000 (UTC)
-Received: from [192.168.1.4] (internal [192.168.1.4])
-        by mail.gonehiking.org (Postfix) with ESMTP id C5BE23EE4F;
-        Fri, 16 Apr 2021 13:34:36 -0600 (MDT)
-Subject: Re: [PATCH 1/5] scsi: BusLogic: Fix missing `pr_cont' use
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     Christoph Hellwig <hch@lst.de>, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <alpine.DEB.2.21.2104141244520.44318@angie.orcam.me.uk>
- <alpine.DEB.2.21.2104141419040.44318@angie.orcam.me.uk>
-From:   Khalid Aziz <khalid@gonehiking.org>
-Message-ID: <98a2ab05-e566-41f3-74b4-8b54563f4ae3@gonehiking.org>
-Date:   Fri, 16 Apr 2021 13:34:36 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S234898AbhDPTjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 15:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56452 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236021AbhDPTjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 15:39:35 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03BBAC061756
+        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 12:39:06 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id n8so46558241lfh.1
+        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 12:39:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=a5bSORGkB+4sOSDlbG0QBhoLiar3A6Hf9oRh/5+9RR0=;
+        b=rlq5x4iVPdZwyLylfCSNLIcnsW+s2lyHhqZ00X5nq6jQBqX7F7D0pAGeZLERuelZ3Z
+         Z7Hhey54gSfMsQKDUGrq9iM3vq/50mOUlvoxhLYhpmbaQyoYM4+VT3agV0P1pivA7Mi2
+         duSIV1nG6RL5Tvv1n88bzP/0Y0gMYxUqtqlvpURVXy+UxpIm37+g8QdR6c9o19RZPDNA
+         Mfec1CQBRG89PrGnl6G0i9b/dFewUpEVhJ9McYv+EQyFvt4NZkHRdW4XuzF1HTqvRX52
+         MkyqGXuf2rPlKsx4mLLeJv2uiaV9bsPkimARdkDBSNeDJxWi6MrHuhKsuGsLmwcg+/jc
+         aNYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=a5bSORGkB+4sOSDlbG0QBhoLiar3A6Hf9oRh/5+9RR0=;
+        b=siPYf2/0zQ28tSv5qtW0OOU721z3xOjotMDaOksmzk5Qq2l+ZectuozlX+ToqZH+fq
+         HGbvYKrJM6Aq0ODXy45fdYMIJ3wRgbDohOi7Zy87RnhyIf/dkqNW2pya9xDz7qWhfjEg
+         qXdh5eveop7Qycf3llRG2T6hAaHHFgQAmXd3Zh4G1qztr67+nJmnYUSdyYou/OyE0Wtq
+         j2KMRSJgtEChInyzt7b9UpR5/Kbf6R9MMeEFDSJDow5UlP4d4kseOPda6WFwj/dGkiyx
+         57LBwkfJol0Q68gOB0rlvtbcjANnfsfEQC2t/7Z5EOj1T+2tXYlODKDseIlLz/P8cRYL
+         S9bg==
+X-Gm-Message-State: AOAM533zKFI3w3rjFAXBnvLjckXoIuxrtP/AqKcxfqC468gv6iOo9WVG
+        Q9YzLVmheyQ1tlZvSC4a7f9CDgf68uNIP360SKO1pg==
+X-Google-Smtp-Source: ABdhPJwGuD2X+jasq9CekyPtz3NabVLrt6m35n2VwzK5MIL41IM2TYc2mzopTSq8PF41o2zD6ka6YJQPDNlP9bxNK/I=
+X-Received: by 2002:a05:6512:11cc:: with SMTP id h12mr3960009lfr.567.1618601945471;
+ Fri, 16 Apr 2021 12:39:05 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.21.2104141419040.44318@angie.orcam.me.uk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
+ <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
+ <87zgxymrph.fsf@kernel.org>
+In-Reply-To: <87zgxymrph.fsf@kernel.org>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Fri, 16 Apr 2021 12:38:51 -0700
+Message-ID: <CALAqxLUQn+m_JsjVrMSDc+Z=Ezo3jDD1e22ey7SZsruoEfQLjg@mail.gmail.com>
+Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
+To:     Felipe Balbi <balbi@kernel.org>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux USB List <linux-usb@vger.kernel.org>,
+        John Youn <John.Youn@synopsys.com>,
+        stable <stable@vger.kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Wesley Cheng <wcheng@codeaurora.org>,
+        Ferry Toth <fntoth@gmail.com>, Yu Chen <chenyu56@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/14/21 4:39 PM, Maciej W. Rozycki wrote:
-> Update BusLogic driver's messaging system to use `pr_cont' for 
-> continuation lines, bringing messy output:
-> 
-> pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
-> scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
-> scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-> scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-> scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
-> scsi0:   PCI Bus: 0, Device: 19, Address:
-> 0xE0012000,
-> Host Adapter SCSI ID: 7
-> scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
-> scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
-> scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-> scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
-> scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
-> scsi0:   Tagged Queue Depth:
-> Automatic
-> , Untagged Queue Depth: 3
-> scsi0:   SCSI Bus Termination: Both Enabled
-> , SCAM: Disabled
-> 
-> scsi0: *** BusLogic BT-958 Initialized Successfully ***
-> scsi host0: BusLogic BT-958
-> 
-> back to order:
-> 
-> pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
-> scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
-> scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-> scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-> scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
-> scsi0:   PCI Bus: 0, Device: 19, Address: 0xE0012000, Host Adapter SCSI ID: 7
-> scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
-> scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
-> scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-> scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
-> scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
-> scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
-> scsi0:   SCSI Bus Termination: Both Enabled, SCAM: Disabled
-> scsi0: *** BusLogic BT-958 Initialized Successfully ***
-> scsi host0: BusLogic BT-958
-> 
-> Also diagnostic output such as with the `BusLogic=TraceConfiguration' 
-> parameter is affected and becomes vertical and therefore hard to read.  
-> This has now been corrected, e.g.:
-> 
-> pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
-> blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
-> blogic_cmd(95) Status = 28: (Modify I/O Address)
-> blogic_cmd(91) Status = 30:  1 ==>  1: 01
-> blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
-> blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
-> scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
-> scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-> blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
-> blogic_cmd(0B) Status = 30:  3 ==>  3: 00 08 07
-> blogic_cmd(0D) Status = 30: 34 ==> 34: 03 01 07 04 00 00 00 00 00 00 00 00 00 00 00 00 FF 42 44 46 FF 00 00 00 00 00 00 00 00 00 FF 00 FF 00
-> blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
-> blogic_cmd(84) Status = 30:  1 ==>  1: 37
-> blogic_cmd(8B) Status = 30:  5 ==>  5: 39 35 38 20 20
-> blogic_cmd(85) Status = 30:  1 ==>  1: 42
-> blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
-> blogic_cmd(91) Status = 30: 64 ==> 64: 41 46 3E 20 39 35 38 20 20 00 C4 00 04 01 07 2F 07 04 35 FF FF FF FF FF FF FF FF FF FF 01 00 FE FF 08 FF FF 00 00 00 00 00 00 00 01 00 01 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 FC
-> scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-> 
-> etc.
-> 
-> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-> Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
-> Cc: stable@vger.kernel.org # v4.9+
-> ---
->  drivers/scsi/BusLogic.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> linux-buslogic-pr-cont.diff
-> Index: linux-macro-ide/drivers/scsi/BusLogic.c
-> ===================================================================
-> --- linux-macro-ide.orig/drivers/scsi/BusLogic.c
-> +++ linux-macro-ide/drivers/scsi/BusLogic.c
-> @@ -3603,7 +3603,7 @@ static void blogic_msg(enum blogic_msgle
->  			if (buf[0] != '\n' || len > 1)
->  				printk("%sscsi%d: %s", blogic_msglevelmap[msglevel], adapter->host_no, buf);
->  		} else
-> -			printk("%s", buf);
-> +			pr_cont("%s", buf);
->  	} else {
->  		if (begin) {
->  			if (adapter != NULL && adapter->adapter_initd)
-> @@ -3611,7 +3611,7 @@ static void blogic_msg(enum blogic_msgle
->  			else
->  				printk("%s%s", blogic_msglevelmap[msglevel], buf);
->  		} else
-> -			printk("%s", buf);
-> +			pr_cont("%s", buf);
->  	}
->  	begin = (buf[len - 1] == '\n');
->  }
-> 
+On Fri, Apr 16, 2021 at 3:47 AM Felipe Balbi <balbi@kernel.org> wrote:
+>
+>
+> Hi,
+>
+> Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
+>
+> > From: Yu Chen <chenyu56@huawei.com>
+> > From: John Stultz <john.stultz@linaro.org>
+> >
+> > According to the programming guide, to switch mode for DRD controller,
+> > the driver needs to do the following.
+> >
+> > To switch from device to host:
+> > 1. Reset controller with GCTL.CoreSoftReset
+> > 2. Set GCTL.PrtCapDir(host mode)
+> > 3. Reset the host with USBCMD.HCRESET
+> > 4. Then follow up with the initializing host registers sequence
+> >
+> > To switch from host to device:
+> > 1. Reset controller with GCTL.CoreSoftReset
+> > 2. Set GCTL.PrtCapDir(device mode)
+> > 3. Reset the device with DCTL.CSftRst
+> > 4. Then follow up with the initializing registers sequence
+> >
+> > Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
+> > switching from host to device. John Stult reported a lockup issue seen
+> > with HiKey960 platform without these steps[1]. Similar issue is observed
+> > with Ferry's testing platform[2].
+> >
+> > So, apply the required steps along with some fixes to Yu Chen's and John
+> > Stultz's version. The main fixes to their versions are the missing wait
+> > for clocks synchronization before clearing GCTL.CoreSoftReset and only
+> > apply DCTL.CSftRst when switching from host to device.
+> >
+> > [1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
+> > [2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
+> >
+> > Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+> > Cc: Ferry Toth <fntoth@gmail.com>
+> > Cc: Wesley Cheng <wcheng@codeaurora.org>
+> > Cc: <stable@vger.kernel.org>
+> > Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+> > Signed-off-by: Yu Chen <chenyu56@huawei.com>
+> > Signed-off-by: John Stultz <john.stultz@linaro.org>
+> > Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+>
+> I still have concerns about the soft reset, but I won't block you guys
+> from fixing Hikey's problem :-)
+>
+> The only thing I would like to confirm is that this has been verified
+> with hundreds of swaps happening as quickly as possible. DWC3 should
+> still be functional after several hundred swaps.
+>
+> Can someone confirm this is the case? (I'm assuming this can be
+> scripted)
 
-Looks good.
+I unfortunately don't have an easy way to automate the switching right
+off. But I'll try to hack up the mux switch driver to provide an
+interface we can script against.
 
-Acked-by: Khalid Aziz <khalid@gonehiking.org>
+thanks
+-john
