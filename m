@@ -2,129 +2,520 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1A23624E2
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 18:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 167D63624E8
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 18:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238753AbhDPQAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 12:00:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34068 "EHLO mail.kernel.org"
+        id S238987AbhDPQBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 12:01:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238620AbhDPQAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 12:00:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 286516137D;
-        Fri, 16 Apr 2021 16:00:06 +0000 (UTC)
+        id S238666AbhDPQAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Apr 2021 12:00:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2DBB6113D;
+        Fri, 16 Apr 2021 16:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618588807;
-        bh=8MwsR3r0G8gU+SLOs1HEzMeA1n52GmyZuwKM4i1FRA0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=GJ/UJuguv69nvHnU21QXtOlVGmNK5QJmyzP+moEle3fnHnjjVc2Zr8asTl4gm0rP5
-         zK18XwMPg5SVmtziiu21N9j9RWddBdsdKGeAPuEYfRuErVNcMhoCQRGTZEnSGYJqq9
-         en0XrLnaAawUwWT+gFREcS1T5/R4cAFNS6lCWp/g=
+        s=korg; t=1618588813;
+        bh=HTRnBoUTMK/mBk4zhJZpgT47QvqoLlNJKTqMHSsfYG4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RqIK7bcjATFdMwGfz1fIdXUp7qTDK/urZjKUXCMYTeBCTaGlyRiACZax6IswwWza8
+         sW1nt+J4kMmAvS58/HuiGUnRUgOKPAuLBeV2gx/I78PCZzrdC9J2K0CgPIrclvCB3U
+         oa1shF8hseD7KieldfdLkNMrYzn+qhoaLD8wmdNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.4.113
-Date:   Fri, 16 Apr 2021 18:00:03 +0200
-Message-Id: <1618588804136248@kroah.com>
+Subject: Re: Linux 5.4.113
+Date:   Fri, 16 Apr 2021 18:00:04 +0200
+Message-Id: <1618588804205196@kroah.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <1618588804136248@kroah.com>
+References: <1618588804136248@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.4.113 kernel.
-
-All users of the 5.4 kernel series must upgrade.
-
-The updated 5.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                              |    2 +-
- arch/arm64/include/asm/kvm_arm.h      |    1 +
- arch/arm64/kernel/cpufeature.c        |    1 -
- arch/arm64/kvm/debug.c                |    2 ++
- arch/riscv/kernel/entry.S             |    1 +
- block/bio.c                           |    2 +-
- drivers/base/dd.c                     |    8 +++++---
- drivers/gpu/drm/imx/imx-ldb.c         |   10 ++++++++++
- drivers/gpu/drm/tegra/dc.c            |   10 +++++-----
- drivers/interconnect/core.c           |    2 ++
- drivers/xen/events/events_base.c      |    4 ++--
- fs/block_dev.c                        |    4 ++++
- fs/gfs2/super.c                       |   10 ++++++----
- net/ipv4/netfilter/arp_tables.c       |    2 ++
- net/ipv4/netfilter/ip_tables.c        |    2 ++
- net/ipv6/netfilter/ip6_tables.c       |    2 ++
- net/netfilter/x_tables.c              |   10 ++--------
- tools/perf/util/expr.y                |    3 ++-
- tools/perf/util/map.c                 |    7 +++----
- tools/perf/util/parse-events.y        |    2 +-
- tools/perf/util/session.c             |    2 +-
- tools/perf/util/zstd.c                |    2 +-
- tools/testing/radix-tree/idr-test.c   |   10 ++++++++--
- tools/testing/radix-tree/multiorder.c |    2 ++
- tools/testing/radix-tree/xarray.c     |    2 ++
- 25 files changed, 68 insertions(+), 35 deletions(-)
-
-Arnaldo Carvalho de Melo (1):
-      perf map: Tighten snprintf() string precision to pass gcc check on some 32-bit arches
-
-Arnd Bergmann (1):
-      drm/imx: imx-ldb: fix out of bounds array access warning
-
-Bob Peterson (1):
-      gfs2: report "already frozen/thawed" errors
-
-Chris Wilson (1):
-      perf tools: Use %zd for size_t printf formats on 32-bit
-
-Dmitry Osipenko (1):
-      drm/tegra: dc: Don't set PLL clock to 0Hz
-
-Florian Westphal (1):
-      netfilter: x_tables: fix compat match/target pad out-of-bound write
-
-Greg Kroah-Hartman (1):
-      Linux 5.4.113
-
-Jia-Ju Bai (1):
-      interconnect: core: fix error return code of icc_link_destroy()
-
-Jiri Olsa (1):
-      perf tools: Use %define api.pure full instead of %pure-parser
-
-Juergen Gross (1):
-      xen/events: fix setting irq affinity
-
-Matthew Wilcox (Oracle) (3):
-      radix tree test suite: Register the main thread with the RCU library
-      idr test suite: Take RCU read lock in idr_find_test_1
-      idr test suite: Create anchor before launching throbber
-
-Pavel Begunkov (1):
-      block: don't ignore REQ_NOWAIT for direct IO
-
-Saravana Kannan (1):
-      driver core: Fix locking bug in deferred_probe_timeout_work_func()
-
-Suzuki K Poulose (2):
-      KVM: arm64: Hide system instruction access to Trace registers
-      KVM: arm64: Disable guest access to trace filter controls
-
-Yufen Yu (1):
-      block: only update parent bi_status when bio fail
-
-Zihao Yu (1):
-      riscv,entry: fix misaligned base for excp_vect_table
-
+diff --git a/Makefile b/Makefile
+index ba8ee5e80662..7fe00a93c870 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 4
+-SUBLEVEL = 112
++SUBLEVEL = 113
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/arch/arm64/include/asm/kvm_arm.h b/arch/arm64/include/asm/kvm_arm.h
+index a4ffd9b55e72..9be64c0ad31f 100644
+--- a/arch/arm64/include/asm/kvm_arm.h
++++ b/arch/arm64/include/asm/kvm_arm.h
+@@ -276,6 +276,7 @@
+ #define CPTR_EL2_DEFAULT	CPTR_EL2_RES1
+ 
+ /* Hyp Debug Configuration Register bits */
++#define MDCR_EL2_TTRF		(1 << 19)
+ #define MDCR_EL2_TPMS		(1 << 14)
+ #define MDCR_EL2_E2PB_MASK	(UL(0x3))
+ #define MDCR_EL2_E2PB_SHIFT	(UL(12))
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 79caab15ccbf..acdef8d76c64 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -277,7 +277,6 @@ static const struct arm64_ftr_bits ftr_id_aa64dfr0[] = {
+ 	 * of support.
+ 	 */
+ 	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_EXACT, ID_AA64DFR0_PMUVER_SHIFT, 4, 0),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64DFR0_TRACEVER_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64DFR0_DEBUGVER_SHIFT, 4, 0x6),
+ 	ARM64_FTR_END,
+ };
+diff --git a/arch/arm64/kvm/debug.c b/arch/arm64/kvm/debug.c
+index 7a7e425616b5..dbc890511631 100644
+--- a/arch/arm64/kvm/debug.c
++++ b/arch/arm64/kvm/debug.c
+@@ -89,6 +89,7 @@ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu)
+  *  - Debug ROM Address (MDCR_EL2_TDRA)
+  *  - OS related registers (MDCR_EL2_TDOSA)
+  *  - Statistical profiler (MDCR_EL2_TPMS/MDCR_EL2_E2PB)
++ *  - Self-hosted Trace Filter controls (MDCR_EL2_TTRF)
+  *
+  * Additionally, KVM only traps guest accesses to the debug registers if
+  * the guest is not actively using them (see the KVM_ARM64_DEBUG_DIRTY
+@@ -112,6 +113,7 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.mdcr_el2 = __this_cpu_read(mdcr_el2) & MDCR_EL2_HPMN_MASK;
+ 	vcpu->arch.mdcr_el2 |= (MDCR_EL2_TPM |
+ 				MDCR_EL2_TPMS |
++				MDCR_EL2_TTRF |
+ 				MDCR_EL2_TPMCR |
+ 				MDCR_EL2_TDRA |
+ 				MDCR_EL2_TDOSA);
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 8ca479831142..9c87ae77ad5d 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -387,6 +387,7 @@ ENTRY(__switch_to)
+ ENDPROC(__switch_to)
+ 
+ 	.section ".rodata"
++	.align LGREG
+ 	/* Exception vector table */
+ ENTRY(excp_vect_table)
+ 	RISCV_PTR do_trap_insn_misaligned
+diff --git a/block/bio.c b/block/bio.c
+index 24704bc2ad6f..cb38d6f3acce 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -305,7 +305,7 @@ static struct bio *__bio_chain_endio(struct bio *bio)
+ {
+ 	struct bio *parent = bio->bi_private;
+ 
+-	if (!parent->bi_status)
++	if (bio->bi_status && !parent->bi_status)
+ 		parent->bi_status = bio->bi_status;
+ 	bio_put(bio);
+ 	return parent;
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 32823f36cffd..cf7e5b4afc1b 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -300,14 +300,16 @@ int driver_deferred_probe_check_state_continue(struct device *dev)
+ 
+ static void deferred_probe_timeout_work_func(struct work_struct *work)
+ {
+-	struct device_private *private, *p;
++	struct device_private *p;
+ 
+ 	deferred_probe_timeout = 0;
+ 	driver_deferred_probe_trigger();
+ 	flush_work(&deferred_probe_work);
+ 
+-	list_for_each_entry_safe(private, p, &deferred_probe_pending_list, deferred_probe)
+-		dev_info(private->device, "deferred probe pending");
++	mutex_lock(&deferred_probe_mutex);
++	list_for_each_entry(p, &deferred_probe_pending_list, deferred_probe)
++		dev_info(p->device, "deferred probe pending\n");
++	mutex_unlock(&deferred_probe_mutex);
+ }
+ static DECLARE_DELAYED_WORK(deferred_probe_timeout_work, deferred_probe_timeout_work_func);
+ 
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index d6629fc869f3..116473c2360a 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -197,6 +197,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
+ 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	drm_panel_prepare(imx_ldb_ch->panel);
+ 
+ 	if (dual) {
+@@ -255,6 +260,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 	u32 bus_format = imx_ldb_ch->bus_format;
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	if (mode->clock > 170000) {
+ 		dev_warn(ldb->dev,
+ 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
+diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+index fbf57bc3cdab..617cbe468aec 100644
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -1667,6 +1667,11 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 			dev_err(dc->dev,
+ 				"failed to set clock rate to %lu Hz\n",
+ 				state->pclk);
++
++		err = clk_set_rate(dc->clk, state->pclk);
++		if (err < 0)
++			dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
++				dc->clk, state->pclk, err);
+ 	}
+ 
+ 	DRM_DEBUG_KMS("rate: %lu, div: %u\n", clk_get_rate(dc->clk),
+@@ -1677,11 +1682,6 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 		value = SHIFT_CLK_DIVIDER(state->div) | PIXEL_CLK_DIVIDER_PCD1;
+ 		tegra_dc_writel(dc, value, DC_DISP_DISP_CLOCK_CONTROL);
+ 	}
+-
+-	err = clk_set_rate(dc->clk, state->pclk);
+-	if (err < 0)
+-		dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
+-			dc->clk, state->pclk, err);
+ }
+ 
+ static void tegra_dc_stop(struct tegra_dc *dc)
+diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
+index c498796adc07..e579b3633a84 100644
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -704,6 +704,8 @@ int icc_link_destroy(struct icc_node *src, struct icc_node *dst)
+ 		       GFP_KERNEL);
+ 	if (new)
+ 		src->links = new;
++	else
++		ret = -ENOMEM;
+ 
+ out:
+ 	mutex_unlock(&icc_lock);
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 883abc46da6e..9cc77f039779 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1783,7 +1783,7 @@ static void lateeoi_ack_dynirq(struct irq_data *data)
+ 
+ 	if (VALID_EVTCHN(evtchn)) {
+ 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
+-		event_handler_exit(info);
++		ack_dynirq(data);
+ 	}
+ }
+ 
+@@ -1794,7 +1794,7 @@ static void lateeoi_mask_ack_dynirq(struct irq_data *data)
+ 
+ 	if (VALID_EVTCHN(evtchn)) {
+ 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
+-		event_handler_exit(info);
++		ack_dynirq(data);
+ 	}
+ }
+ 
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 79272cdbe827..bd93563477a4 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -246,6 +246,8 @@ __blkdev_direct_IO_simple(struct kiocb *iocb, struct iov_iter *iter,
+ 		bio.bi_opf = dio_bio_write_op(iocb);
+ 		task_io_account_write(ret);
+ 	}
++	if (iocb->ki_flags & IOCB_NOWAIT)
++		bio.bi_opf |= REQ_NOWAIT;
+ 	if (iocb->ki_flags & IOCB_HIPRI)
+ 		bio_set_polled(&bio, iocb);
+ 
+@@ -399,6 +401,8 @@ __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter, int nr_pages)
+ 			bio->bi_opf = dio_bio_write_op(iocb);
+ 			task_io_account_write(bio->bi_iter.bi_size);
+ 		}
++		if (iocb->ki_flags & IOCB_NOWAIT)
++			bio->bi_opf |= REQ_NOWAIT;
+ 
+ 		dio->size += bio->bi_iter.bi_size;
+ 		pos += bio->bi_iter.bi_size;
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 50c925d9c610..9c593fd50c6a 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -757,11 +757,13 @@ void gfs2_freeze_func(struct work_struct *work)
+ static int gfs2_freeze(struct super_block *sb)
+ {
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
+-	int error = 0;
++	int error;
+ 
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN)
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN) {
++		error = -EBUSY;
+ 		goto out;
++	}
+ 
+ 	if (test_bit(SDF_WITHDRAWN, &sdp->sd_flags)) {
+ 		error = -EINVAL;
+@@ -798,10 +800,10 @@ static int gfs2_unfreeze(struct super_block *sb)
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
+ 
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-        if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
+ 	    !gfs2_holder_initialized(&sdp->sd_freeze_gh)) {
+ 		mutex_unlock(&sdp->sd_freeze_mutex);
+-                return 0;
++		return -EINVAL;
+ 	}
+ 
+ 	gfs2_glock_dq_uninit(&sdp->sd_freeze_gh);
+diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
+index f1f78a742b36..dc7dac676415 100644
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -1196,6 +1196,8 @@ static int translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_ARP_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index 10b91ebdf213..0076449eea35 100644
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -1430,6 +1430,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index c973ace208c5..8bb543b0e775 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1445,6 +1445,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 5c35d64d1f34..9cfee6664040 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -733,7 +733,7 @@ void xt_compat_match_from_user(struct xt_entry_match *m, void **dstptr,
+ {
+ 	const struct xt_match *match = m->u.kernel.match;
+ 	struct compat_xt_entry_match *cm = (struct compat_xt_entry_match *)m;
+-	int pad, off = xt_compat_match_offset(match);
++	int off = xt_compat_match_offset(match);
+ 	u_int16_t msize = cm->u.user.match_size;
+ 	char name[sizeof(m->u.user.name)];
+ 
+@@ -743,9 +743,6 @@ void xt_compat_match_from_user(struct xt_entry_match *m, void **dstptr,
+ 		match->compat_from_user(m->data, cm->data);
+ 	else
+ 		memcpy(m->data, cm->data, msize - sizeof(*cm));
+-	pad = XT_ALIGN(match->matchsize) - match->matchsize;
+-	if (pad > 0)
+-		memset(m->data + match->matchsize, 0, pad);
+ 
+ 	msize += off;
+ 	m->u.user.match_size = msize;
+@@ -1116,7 +1113,7 @@ void xt_compat_target_from_user(struct xt_entry_target *t, void **dstptr,
+ {
+ 	const struct xt_target *target = t->u.kernel.target;
+ 	struct compat_xt_entry_target *ct = (struct compat_xt_entry_target *)t;
+-	int pad, off = xt_compat_target_offset(target);
++	int off = xt_compat_target_offset(target);
+ 	u_int16_t tsize = ct->u.user.target_size;
+ 	char name[sizeof(t->u.user.name)];
+ 
+@@ -1126,9 +1123,6 @@ void xt_compat_target_from_user(struct xt_entry_target *t, void **dstptr,
+ 		target->compat_from_user(t->data, ct->data);
+ 	else
+ 		memcpy(t->data, ct->data, tsize - sizeof(*ct));
+-	pad = XT_ALIGN(target->targetsize) - target->targetsize;
+-	if (pad > 0)
+-		memset(t->data + target->targetsize, 0, pad);
+ 
+ 	tsize += off;
+ 	t->u.user.target_size = tsize;
+diff --git a/tools/perf/util/expr.y b/tools/perf/util/expr.y
+index f9a20a39b64a..7d226241f1d7 100644
+--- a/tools/perf/util/expr.y
++++ b/tools/perf/util/expr.y
+@@ -12,7 +12,8 @@
+ #define MAXIDLEN 256
+ %}
+ 
+-%pure-parser
++%define api.pure full
++
+ %parse-param { double *final_val }
+ %parse-param { struct parse_ctx *ctx }
+ %parse-param { const char **pp }
+diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
+index 4b07b1cc22dc..571e99c908a0 100644
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -93,8 +93,7 @@ static inline bool replace_android_lib(const char *filename, char *newfilename)
+ 	if (!strncmp(filename, "/system/lib/", 12)) {
+ 		char *ndk, *app;
+ 		const char *arch;
+-		size_t ndk_length;
+-		size_t app_length;
++		int ndk_length, app_length;
+ 
+ 		ndk = getenv("NDK_ROOT");
+ 		app = getenv("APP_PLATFORM");
+@@ -122,8 +121,8 @@ static inline bool replace_android_lib(const char *filename, char *newfilename)
+ 		if (new_length > PATH_MAX)
+ 			return false;
+ 		snprintf(newfilename, new_length,
+-			"%s/platforms/%s/arch-%s/usr/lib/%s",
+-			ndk, app, arch, libname);
++			"%.*s/platforms/%.*s/arch-%s/usr/lib/%s",
++			ndk_length, ndk, app_length, app, arch, libname);
+ 
+ 		return true;
+ 	}
+diff --git a/tools/perf/util/parse-events.y b/tools/perf/util/parse-events.y
+index 48126ae4cd13..776d77093a19 100644
+--- a/tools/perf/util/parse-events.y
++++ b/tools/perf/util/parse-events.y
+@@ -1,4 +1,4 @@
+-%pure-parser
++%define api.pure full
+ %parse-param {void *_parse_state}
+ %parse-param {void *scanner}
+ %lex-param {void* scanner}
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index b21a4b1918db..56f3039fe2a7 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -88,7 +88,7 @@ static int perf_session__process_compressed_event(struct perf_session *session,
+ 		session->decomp_last = decomp;
+ 	}
+ 
+-	pr_debug("decomp (B): %ld to %ld\n", src_size, decomp_size);
++	pr_debug("decomp (B): %zd to %zd\n", src_size, decomp_size);
+ 
+ 	return 0;
+ }
+diff --git a/tools/perf/util/zstd.c b/tools/perf/util/zstd.c
+index d2202392ffdb..48dd2b018c47 100644
+--- a/tools/perf/util/zstd.c
++++ b/tools/perf/util/zstd.c
+@@ -99,7 +99,7 @@ size_t zstd_decompress_stream(struct zstd_data *data, void *src, size_t src_size
+ 	while (input.pos < input.size) {
+ 		ret = ZSTD_decompressStream(data->dstream, &output, &input);
+ 		if (ZSTD_isError(ret)) {
+-			pr_err("failed to decompress (B): %ld -> %ld, dst_size %ld : %s\n",
++			pr_err("failed to decompress (B): %zd -> %zd, dst_size %zd : %s\n",
+ 			       src_size, output.size, dst_size, ZSTD_getErrorName(ret));
+ 			break;
+ 		}
+diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
+index 3b796dd5e577..6ce7460f3c7a 100644
+--- a/tools/testing/radix-tree/idr-test.c
++++ b/tools/testing/radix-tree/idr-test.c
+@@ -301,16 +301,20 @@ void idr_find_test_1(int anchor_id, int throbber_id)
+ 	pthread_t throbber;
+ 	time_t start = time(NULL);
+ 
+-	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
+-
+ 	BUG_ON(idr_alloc(&find_idr, xa_mk_value(anchor_id), anchor_id,
+ 				anchor_id + 1, GFP_KERNEL) != anchor_id);
+ 
++	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
++
++	rcu_read_lock();
+ 	do {
+ 		int id = 0;
+ 		void *entry = idr_get_next(&find_idr, &id);
++		rcu_read_unlock();
+ 		BUG_ON(entry != xa_mk_value(id));
++		rcu_read_lock();
+ 	} while (time(NULL) < start + 11);
++	rcu_read_unlock();
+ 
+ 	pthread_join(throbber, NULL);
+ 
+@@ -577,6 +581,7 @@ void ida_tests(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	idr_checks();
+ 	ida_tests();
+@@ -584,5 +589,6 @@ int __weak main(void)
+ 	rcu_barrier();
+ 	if (nr_allocated)
+ 		printf("nr_allocated = %d\n", nr_allocated);
++	rcu_unregister_thread();
+ 	return 0;
+ }
+diff --git a/tools/testing/radix-tree/multiorder.c b/tools/testing/radix-tree/multiorder.c
+index 9eae0fb5a67d..e00520cc6349 100644
+--- a/tools/testing/radix-tree/multiorder.c
++++ b/tools/testing/radix-tree/multiorder.c
+@@ -224,7 +224,9 @@ void multiorder_checks(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	multiorder_checks();
++	rcu_unregister_thread();
+ 	return 0;
+ }
+diff --git a/tools/testing/radix-tree/xarray.c b/tools/testing/radix-tree/xarray.c
+index e61e43efe463..f20e12cbbfd4 100644
+--- a/tools/testing/radix-tree/xarray.c
++++ b/tools/testing/radix-tree/xarray.c
+@@ -25,11 +25,13 @@ void xarray_tests(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	xarray_tests();
+ 	radix_tree_cpu_dead(1);
+ 	rcu_barrier();
+ 	if (nr_allocated)
+ 		printf("nr_allocated = %d\n", nr_allocated);
++	rcu_unregister_thread();
+ 	return 0;
+ }
