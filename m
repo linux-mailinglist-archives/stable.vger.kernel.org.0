@@ -2,67 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 740323624BC
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 17:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BC333624CA
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 17:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235865AbhDPP5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 11:57:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60988 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235897AbhDPP5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 11:57:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08876610CE;
-        Fri, 16 Apr 2021 15:56:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618588619;
-        bh=O00x3WoqG//kJyJftw2hAUxtBiQzR9vHjG/0/3YXKms=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rHLk2Akxo47x+91d0TfZb0S1U/YqkzBuF73V2AwBIjNZHypJdB9AxKNAapAWaN32Y
-         Q2Avy28W2Hb0W4fITujfO6nshCdrn05cBOxHdvbhHDvrPmoq7l4RooAnXjLxLbFMc3
-         UXuS2TYzWUa3vHCSnlw234UVFsjOkyCvpuTZ/6wYRmAgdSy3iS1O2rUAdrxydZsyg1
-         mPL51E1M7zjBRhevWKevMhPZdjLmpohmzO+dRRXNJ7eqn3frHRi1AkdIBEgKSxBeor
-         1KOtqGigdIyCuVEwaDQX14fnIVQyEG6f3RtLhd1nVGl06SqocmQhzpKQDQCLn6X0KC
-         7q9YYG5pJpVCQ==
-Date:   Sat, 17 Apr 2021 00:56:53 +0900
-From:   Keith Busch <kbusch@kernel.org>
-To:     Prike Liang <Prike.Liang@amd.com>
-Cc:     linux-nvme@lists.infradead.org, hch@infradead.org,
-        Chaitanya.Kulkarni@wdc.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, Alexander.Deucher@amd.com,
-        Shyam-sundar.S-k@amd.com
-Subject: Re: [PATCH v5 1/2] PCI: add AMD PCIe quirk for nvme shutdown opt
-Message-ID: <20210416155653.GA31818@redsun51.ssa.fujisawa.hgst.com>
-References: <1618556075-24589-1-git-send-email-Prike.Liang@amd.com>
- <1618556075-24589-2-git-send-email-Prike.Liang@amd.com>
+        id S237946AbhDPP7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 11:59:35 -0400
+Received: from angie.orcam.me.uk ([157.25.102.26]:39020 "EHLO
+        angie.orcam.me.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236485AbhDPP7e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 11:59:34 -0400
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id 669D492009C; Fri, 16 Apr 2021 17:59:08 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id 5FA6392009B;
+        Fri, 16 Apr 2021 17:59:08 +0200 (CEST)
+Date:   Fri, 16 Apr 2021 17:59:08 +0200 (CEST)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
+To:     Huacai Chen <chenhuacai@kernel.org>
+cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] MIPS: Remove unused and erroneous div64.h
+In-Reply-To: <CAAhV-H7fPhA+vKNAYNdVsjZkU75CaVv2btpwRYh9E4XcX9h14A@mail.gmail.com>
+Message-ID: <alpine.DEB.2.21.2104161722050.44318@angie.orcam.me.uk>
+References: <20210412033451.215379-1-chenhuacai@loongson.cn> <alpine.DEB.2.21.2104121604150.65251@angie.orcam.me.uk> <CAAhV-H7fPhA+vKNAYNdVsjZkU75CaVv2btpwRYh9E4XcX9h14A@mail.gmail.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1618556075-24589-2-git-send-email-Prike.Liang@amd.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 16, 2021 at 02:54:34PM +0800, Prike Liang wrote:
-> In the NVMe controller default suspend-resume seems only save/restore the
-> NVMe link state by APST opt and the NVMe remains in D0 during this time.
-> Then the NVMe device will be shutdown by SMU firmware in the s2idle entry
-> and then will lost the NVMe power context during s2idle resume.Finally,
-> the NVMe command queue request will be processed abnormally and result
-> in access timeout.This issue can be settled by using PCIe power set with
-> simple suspend-resume process path instead of APST get/set opt.
-> 
-> In this patch prepare a PCIe RC bus flag to identify the platform whether
-> need the quirk.
-> 
-> Cc: <stable@vger.kernel.org> # 5.11+
-> Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-> [ck: split patches for nvme and pcie]
-> Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-> Signed-off-by: Keith Busch <kbusch@kernel.org>
+On Thu, 15 Apr 2021, Huacai Chen wrote:
 
-Just a "Suggested-by:" from me is fine. I'm glad you were able to
-confirm this is successful, so I can add my Ack as well
+> >  I think this is a weak argument for removal, isn't it?
+> Yes ,it is weak, but I'm not able to fix it, could you please help me?
 
-Acked-by: Keith Busch <kbusch@kernel.org>
+ First of all you need to assign the quotient to `*n' rather than `__n', 
+which is a temporary only.  Otherwise it's discarded, so no surprise the 
+piece does not work.
+
+ Also this piece assumes the quotient will fit in 32 bits (which should be 
+obvious from the name and data type of the relevant temporary if not the 
+asm itself), which is what the initial division of the high part was for 
+before commit c21004cd5b4c and which the `do_div' wrapper does not arrange 
+for.  Said commit is really broken indeed as it mustn't have dropped the 
+initial division and instead it should have only amended the asm for the 
+removal of the `h' constraint (easy fix).
+
+  Maciej
