@@ -2,225 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A26362B97
-	for <lists+stable@lfdr.de>; Sat, 17 Apr 2021 00:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3BC362BE4
+	for <lists+stable@lfdr.de>; Sat, 17 Apr 2021 01:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234857AbhDPWq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 18:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234777AbhDPWq0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 18:46:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12A0C613C7;
-        Fri, 16 Apr 2021 22:46:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1618613161;
-        bh=WAOAQ6XvczA7sjtD0lPCQZienaTsMEECXLTnvS+CJFE=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=tGpOrNl7fUzQabqZ7XUdq09TyqSYmM/LZcy2ASqoy6rBIj3wrenpaBdIlsCHdWGDc
-         hWqb+EJvvZaLSfdpI6BQpEyTe18a4aIIPTxTRC3uxXh8AtiShLBdDRbPFZhTmsn1jn
-         Ty083/WUO6FtbYLwTGKALILYaBe2MQfQCM9KUp2g=
-Date:   Fri, 16 Apr 2021 15:46:00 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, andreyknvl@google.com, arnd@arndb.de,
-        dvyukov@google.com, glider@google.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, natechancellor@gmail.com,
-        ryabinin.a.a@gmail.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, walter-zh.wu@mediatek.com
-Subject:  [patch 03/12] kasan: remove redundant config option
-Message-ID: <20210416224600.pSV4PKn9p%akpm@linux-foundation.org>
-In-Reply-To: <20210416154523.3f9794326e8e1db549873cf8@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S234965AbhDPXYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 19:24:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49208 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234941AbhDPXYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 19:24:12 -0400
+Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA22C061756
+        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 16:23:45 -0700 (PDT)
+Received: by mail-qv1-xf49.google.com with SMTP id w3-20020a05621412e3b029019a7b97dd69so5178503qvv.14
+        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 16:23:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:cc;
+        bh=DVncHoPx5+EyUufkGwgaIquQ4C3Uhbgcu8/fDiLmXpU=;
+        b=o/UXDDFc9FYZj9YyDM3cIDhO1QRS3vvJjip5B7ugMfyGEo/zyvMjiZcTxz/PN+S3Gb
+         +7/GjcY5Y5aJYO82ZJ7SPD1PK7UWvfR1pFeTicvyreqTYOtoBzOt/XOhG0H7xF8UyVje
+         LG8ZREvaXgrorm4+3mOaOPldP0QcN307vBw2aR/e+rxzMDsp7B3N35o8CIUspY9h+/fA
+         SrbVf4lzPxMwuJYyhCJiSHEUV4Kz6sXx/S8htvgawvdh5kWc1qjBR67v8qvpb7g8ho1+
+         F08h611JPuQzXCHTgHG/QNm3sPp5L0yVpczYu9eJx0uIm/G8bA9qutVLiPiFAuAi/mSM
+         BFGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:cc;
+        bh=DVncHoPx5+EyUufkGwgaIquQ4C3Uhbgcu8/fDiLmXpU=;
+        b=ZyjIWsP7f3MJpr2YM4lFgujryaJRzUgTGFo0nrKD/6p9pWXcuTBW58oSEXmTs8K9/L
+         PPffoLNnWdUCiZNlCgWMgnNaZtWtNFvajUABtRx3dnpBnZYPRJn8mcpTYMRNZraMzqAG
+         wsNn3l5OHIrlj4qAAQTG7pWaouQygJBr9DYvx/sE38rVMJsttieRIuhNhiUbr/C0iXbY
+         pdqrnGuFiRAQL8N6ElHC3ITduiEWeENxVx+KJNXlhdgDAUGpVNDLit8+s94Ij+SXpciD
+         +6FewRb7ap7f1NTmsLzrRFL1MJhIQ4ppSF6U3na6vka1cl2iqLAMxCEJ7OR0vkLef58z
+         Blag==
+X-Gm-Message-State: AOAM532psHaqlLC/vSjQ3TnKhbkA0xIsEo9Sb5AZm7h42Rd9CdHiumSK
+        Qy3kbpHbSMEKELAYCQtQT/qjxgaqfOnqbEbA6ho82ApresggiY2Qm4Z2xGbCdmt0gMRKeuAr38K
+        /Hr93tC4K+Xh9a2FkOWuc9BDGzZlL8u1ZjV+HuFhAGarDU6aLb9SmlDgvCFj1iDPQ
+X-Google-Smtp-Source: ABdhPJwJxehnHbNtxsD0d2q2fZxAAC4XTR7QeHRMNRnbUsoOFnaHHFlFFVcG2QaBGrVd8u2xGfWV7gMpFQwA
+X-Received: from jiancai.svl.corp.google.com ([2620:15c:2ce:0:a547:67f6:5e32:5814])
+ (user=jiancai job=sendgmr) by 2002:ad4:4e02:: with SMTP id
+ dl2mr11045753qvb.27.1618615424541; Fri, 16 Apr 2021 16:23:44 -0700 (PDT)
+Date:   Fri, 16 Apr 2021 16:23:41 -0700
+In-Reply-To: <20210416203522.2397801-1-jiancai@google.com>
+Message-Id: <20210416232341.2421342-1-jiancai@google.com>
+Mime-Version: 1.0
+References: <20210416203522.2397801-1-jiancai@google.com>
+X-Mailer: git-send-email 2.31.1.368.gbe11c130af-goog
+Subject: [PATCH v3] arm64: vdso: remove commas between macro name and arguments
+From:   Jian Cai <jiancai@google.com>
+Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        sashal@kernel.org, ndesaulniers@google.com,
+        natechancellor@gmail.com, manojgupta@google.com,
+        llozano@google.com, clang-built-linux@googlegroups.com,
+        Jian Cai <jiancai@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Walter Wu <walter-zh.wu@mediatek.com>
-Subject: kasan: remove redundant config option
+LLVM's integrated assembler does not support using commas separating
+the name and arguments in .macro. However, only spaces are used in the
+manual page. This replaces commas between macro names and the subsequent
+arguments with space in calls to clock_gettime_return to make it
+compatible with IAS.
 
-CONFIG_KASAN_STACK and CONFIG_KASAN_STACK_ENABLE both enable KASAN stack
-instrumentation, but we should only need one config, so that we remove
-CONFIG_KASAN_STACK_ENABLE and make CONFIG_KASAN_STACK workable.  see [1].
+Link:
+https://sourceware.org/binutils/docs/as/Macro.html#Macro
+https://github.com/ClangBuiltLinux/linux/issues/1349
 
-When enable KASAN stack instrumentation, then for gcc we could do no
-prompt and default value y, and for clang prompt and default value n.
-
-This patch fixes the following compilation warning:
-
-include/linux/kasan.h:333:30: warning: 'CONFIG_KASAN_STACK' is not defined, evaluates to 0 [-Wundef]
-
-[1]: https://bugzilla.kernel.org/show_bug.cgi?id=210221
-
-[akpm@linux-foundation.org: fix merge snafu]
-Link: https://lkml.kernel.org/r/20210226012531.29231-1-walter-zh.wu@mediatek.com
-Fixes: d9b571c885a8 ("kasan: fix KASAN_STACK dependency for HW_TAGS")
-Signed-off-by: Walter Wu <walter-zh.wu@mediatek.com>
-Suggested-by: Dmitry Vyukov <dvyukov@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Jian Cai <jiancai@google.com>
 ---
 
- arch/arm64/kernel/sleep.S        |    2 +-
- arch/x86/kernel/acpi/wakeup_64.S |    2 +-
- include/linux/kasan.h            |    2 +-
- lib/Kconfig.kasan                |    9 ++-------
- mm/kasan/common.c                |    2 +-
- mm/kasan/kasan.h                 |    2 +-
- mm/kasan/report_generic.c        |    2 +-
- scripts/Makefile.kasan           |   10 ++++++++--
- security/Kconfig.hardening       |    4 ++--
- 9 files changed, 18 insertions(+), 17 deletions(-)
+Changes v1 -> v2:
+  Keep the comma in the macro definition to be consistent with other
+  definitions.
 
---- a/arch/arm64/kernel/sleep.S~kasan-remove-redundant-config-option
-+++ a/arch/arm64/kernel/sleep.S
-@@ -134,7 +134,7 @@ SYM_FUNC_START(_cpu_resume)
- 	 */
- 	bl	cpu_do_resume
+Changes v2 -> v3:
+  Edit tags.
+
+ arch/arm64/kernel/vdso/gettimeofday.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/kernel/vdso/gettimeofday.S b/arch/arm64/kernel/vdso/gettimeofday.S
+index 856fee6d3512..b6faf8b5d1fe 100644
+--- a/arch/arm64/kernel/vdso/gettimeofday.S
++++ b/arch/arm64/kernel/vdso/gettimeofday.S
+@@ -227,7 +227,7 @@ realtime:
+ 	seqcnt_check fail=realtime
+ 	get_ts_realtime res_sec=x10, res_nsec=x11, \
+ 		clock_nsec=x15, xtime_sec=x13, xtime_nsec=x14, nsec_to_sec=x9
+-	clock_gettime_return, shift=1
++	clock_gettime_return shift=1
  
--#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
-+#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
- 	mov	x0, sp
- 	bl	kasan_unpoison_task_stack_below
- #endif
---- a/arch/x86/kernel/acpi/wakeup_64.S~kasan-remove-redundant-config-option
-+++ a/arch/x86/kernel/acpi/wakeup_64.S
-@@ -115,7 +115,7 @@ SYM_FUNC_START(do_suspend_lowlevel)
- 	movq	pt_regs_r14(%rax), %r14
- 	movq	pt_regs_r15(%rax), %r15
+ 	ALIGN
+ monotonic:
+@@ -250,7 +250,7 @@ monotonic:
+ 		clock_nsec=x15, xtime_sec=x13, xtime_nsec=x14, nsec_to_sec=x9
  
--#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
-+#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
- 	/*
- 	 * The suspend path may have poisoned some areas deeper in the stack,
- 	 * which we now need to unpoison.
---- a/include/linux/kasan.h~kasan-remove-redundant-config-option
-+++ a/include/linux/kasan.h
-@@ -330,7 +330,7 @@ static inline bool kasan_check_byte(cons
+ 	add_ts sec=x10, nsec=x11, ts_sec=x3, ts_nsec=x4, nsec_to_sec=x9
+-	clock_gettime_return, shift=1
++	clock_gettime_return shift=1
  
- #endif /* CONFIG_KASAN */
+ 	ALIGN
+ monotonic_raw:
+@@ -271,7 +271,7 @@ monotonic_raw:
+ 		clock_nsec=x15, nsec_to_sec=x9
  
--#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
-+#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
- void kasan_unpoison_task_stack(struct task_struct *task);
- #else
- static inline void kasan_unpoison_task_stack(struct task_struct *task) {}
---- a/lib/Kconfig.kasan~kasan-remove-redundant-config-option
-+++ a/lib/Kconfig.kasan
-@@ -138,9 +138,10 @@ config KASAN_INLINE
+ 	add_ts sec=x10, nsec=x11, ts_sec=x13, ts_nsec=x14, nsec_to_sec=x9
+-	clock_gettime_return, shift=1
++	clock_gettime_return shift=1
  
- endchoice
- 
--config KASAN_STACK_ENABLE
-+config KASAN_STACK
- 	bool "Enable stack instrumentation (unsafe)" if CC_IS_CLANG && !COMPILE_TEST
- 	depends on KASAN_GENERIC || KASAN_SW_TAGS
-+	default y if CC_IS_GCC
- 	help
- 	  The LLVM stack address sanitizer has a know problem that
- 	  causes excessive stack usage in a lot of functions, see
-@@ -154,12 +155,6 @@ config KASAN_STACK_ENABLE
- 	  CONFIG_COMPILE_TEST.	On gcc it is assumed to always be safe
- 	  to use and enabled by default.
- 
--config KASAN_STACK
--	int
--	depends on KASAN_GENERIC || KASAN_SW_TAGS
--	default 1 if KASAN_STACK_ENABLE || CC_IS_GCC
--	default 0
--
- config KASAN_SW_TAGS_IDENTIFY
- 	bool "Enable memory corruption identification"
- 	depends on KASAN_SW_TAGS
---- a/mm/kasan/common.c~kasan-remove-redundant-config-option
-+++ a/mm/kasan/common.c
-@@ -63,7 +63,7 @@ void __kasan_unpoison_range(const void *
- 	kasan_unpoison(address, size);
- }
- 
--#if CONFIG_KASAN_STACK
-+#ifdef CONFIG_KASAN_STACK
- /* Unpoison the entire stack for a task. */
- void kasan_unpoison_task_stack(struct task_struct *task)
- {
---- a/mm/kasan/kasan.h~kasan-remove-redundant-config-option
-+++ a/mm/kasan/kasan.h
-@@ -231,7 +231,7 @@ void *kasan_find_first_bad_addr(void *ad
- const char *kasan_get_bug_type(struct kasan_access_info *info);
- void kasan_metadata_fetch_row(char *buffer, void *row);
- 
--#if defined(CONFIG_KASAN_GENERIC) && CONFIG_KASAN_STACK
-+#if defined(CONFIG_KASAN_GENERIC) && defined(CONFIG_KASAN_STACK)
- void kasan_print_address_stack_frame(const void *addr);
- #else
- static inline void kasan_print_address_stack_frame(const void *addr) { }
---- a/mm/kasan/report_generic.c~kasan-remove-redundant-config-option
-+++ a/mm/kasan/report_generic.c
-@@ -128,7 +128,7 @@ void kasan_metadata_fetch_row(char *buff
- 	memcpy(buffer, kasan_mem_to_shadow(row), META_BYTES_PER_ROW);
- }
- 
--#if CONFIG_KASAN_STACK
-+#ifdef CONFIG_KASAN_STACK
- static bool __must_check tokenize_frame_descr(const char **frame_descr,
- 					      char *token, size_t max_tok_len,
- 					      unsigned long *value)
---- a/scripts/Makefile.kasan~kasan-remove-redundant-config-option
-+++ a/scripts/Makefile.kasan
-@@ -4,6 +4,12 @@ KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SH
- 
- cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
- 
-+ifdef CONFIG_KASAN_STACK
-+	stack_enable := 1
-+else
-+	stack_enable := 0
-+endif
-+
- ifdef CONFIG_KASAN_GENERIC
- 
- ifdef CONFIG_KASAN_INLINE
-@@ -27,7 +33,7 @@ else
- 	CFLAGS_KASAN := $(CFLAGS_KASAN_SHADOW) \
- 	 $(call cc-param,asan-globals=1) \
- 	 $(call cc-param,asan-instrumentation-with-call-threshold=$(call_threshold)) \
--	 $(call cc-param,asan-stack=$(CONFIG_KASAN_STACK)) \
-+	 $(call cc-param,asan-stack=$(stack_enable)) \
- 	 $(call cc-param,asan-instrument-allocas=1)
- endif
- 
-@@ -42,7 +48,7 @@ else
- endif
- 
- CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
--		$(call cc-param,hwasan-instrument-stack=$(CONFIG_KASAN_STACK)) \
-+		$(call cc-param,hwasan-instrument-stack=$(stack_enable)) \
- 		$(call cc-param,hwasan-use-short-granules=0) \
- 		$(instrumentation_flags)
- 
---- a/security/Kconfig.hardening~kasan-remove-redundant-config-option
-+++ a/security/Kconfig.hardening
-@@ -64,7 +64,7 @@ choice
- 	config GCC_PLUGIN_STRUCTLEAK_BYREF
- 		bool "zero-init structs passed by reference (strong)"
- 		depends on GCC_PLUGINS
--		depends on !(KASAN && KASAN_STACK=1)
-+		depends on !(KASAN && KASAN_STACK)
- 		select GCC_PLUGIN_STRUCTLEAK
- 		help
- 		  Zero-initialize any structures on the stack that may
-@@ -82,7 +82,7 @@ choice
- 	config GCC_PLUGIN_STRUCTLEAK_BYREF_ALL
- 		bool "zero-init anything passed by reference (very strong)"
- 		depends on GCC_PLUGINS
--		depends on !(KASAN && KASAN_STACK=1)
-+		depends on !(KASAN && KASAN_STACK)
- 		select GCC_PLUGIN_STRUCTLEAK
- 		help
- 		  Zero-initialize any stack variables that may be passed
-_
+ 	ALIGN
+ realtime_coarse:
+-- 
+2.31.1.368.gbe11c130af-goog
+
