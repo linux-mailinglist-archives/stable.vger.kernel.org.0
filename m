@@ -2,67 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9676362185
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 15:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ED7636219F
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 16:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235745AbhDPNzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 09:55:06 -0400
-Received: from lists.nic.cz ([217.31.204.67]:42124 "EHLO mail.nic.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235464AbhDPNzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 09:55:05 -0400
-Received: from dellmb (unknown [IPv6:2001:1488:fffe:6:be02:5020:4be2:aff5])
-        by mail.nic.cz (Postfix) with ESMTPSA id EB5D41409FC;
-        Fri, 16 Apr 2021 15:54:39 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nic.cz; s=default;
-        t=1618581280; bh=3zLHGzqpXiOFijTJd2eKBv8+LmxOxZvIGjl2GPyBxrw=;
-        h=Date:From:To;
-        b=jFMbcYHztMPfNJ90M41/vHcqBqFD53GdHRJ+BSbImb1zfob0iD5pqYKjznQg1oSqX
-         efC+0dI02L8hIRmWNMT1g8vQvREy8JeIkSZVJKjtScIR5ZEGTdRgr4knBHqK4fzzsY
-         STp+R9PA9NvxASxaFEx5dhoEjzGUJAgQlhCNoEo0=
-Date:   Fri, 16 Apr 2021 15:54:00 +0200
-From:   Marek =?UTF-8?B?QmVow7pu?= <marek.behun@nic.cz>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>,
-        linux-pci@vger.kernel.org,
-        =?UTF-8?B?UsO2dHRp?= 
-        <espressobinboardarmbiantempmailaddress@posteo.de>,
-        Pali =?UTF-8?B?Um9o?= =?UTF-8?B?w6Fy?= <pali@kernel.org>,
-        stable@vger.kernel.org, Zachary Zhang <zhangzg@marvell.com>
-Subject: Re: [PATCH] PCI: Add Max Payload Size quirk for ASMedia ASM1062
- SATA controller
-Message-ID: <20210416155400.695f7629@dellmb>
-In-Reply-To: <20210317224549.GA93134@bjorn-Precision-5520>
-References: <20210317115924.31885-1-kabel@kernel.org>
-        <20210317224549.GA93134@bjorn-Precision-5520>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S235865AbhDPODV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 10:03:21 -0400
+Received: from smtprelay0216.hostedemail.com ([216.40.44.216]:52770 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S235824AbhDPODP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 10:03:15 -0400
+Received: from omf19.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay08.hostedemail.com (Postfix) with ESMTP id 356B6182CCCA1;
+        Fri, 16 Apr 2021 14:02:50 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf19.hostedemail.com (Postfix) with ESMTPA id D5D6120D76C;
+        Fri, 16 Apr 2021 14:02:48 +0000 (UTC)
+Message-ID: <86c10671ff86f96004a6d6c3c08aed3e27d58d0a.camel@perches.com>
+Subject: Re: [PATCH 1/5] scsi: BusLogic: Fix missing `pr_cont' use
+From:   Joe Perches <joe@perches.com>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     Khalid Aziz <khalid@gonehiking.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, linux-scsi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date:   Fri, 16 Apr 2021 07:02:47 -0700
+In-Reply-To: <alpine.DEB.2.21.2104161224300.44318@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2104141244520.44318@angie.orcam.me.uk>
+         <alpine.DEB.2.21.2104141419040.44318@angie.orcam.me.uk>
+         <787aae5540612555a8bf92de2083c8fa74e52ce9.camel@perches.com>
+         <alpine.DEB.2.21.2104161224300.44318@angie.orcam.me.uk>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.38.1-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-100.0 required=5.9 tests=SHORTCIRCUIT,
-        USER_IN_WELCOMELIST,USER_IN_WHITELIST shortcircuit=ham
-        autolearn=disabled version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.nic.cz
-X-Virus-Scanned: clamav-milter 0.102.2 at mail
-X-Virus-Status: Clean
+X-Rspamd-Queue-Id: D5D6120D76C
+X-Spam-Status: No, score=0.10
+X-Stat-Signature: s5wmbjk659h7mg5jhu5mqrfpt8wgj5fh
+X-Rspamd-Server: rspamout01
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX1+mUWFAJ6U9If9DlEQENf8WjP/qF4VZsrM=
+X-HE-Tag: 1618581768-795146
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 17 Mar 2021 17:45:49 -0500
-Bjorn Helgaas <helgaas@kernel.org> wrote:
+On Fri, 2021-04-16 at 12:48 +0200, Maciej W. Rozycki wrote:
+> I'm not sure if that complex message 
+> routing via `blogic_msg' is worth having even, rather than calling 
+> `printk' or suitable variants directly.
 
-> Can you please open a report at bugzilla.kernel.org and attach the
-> complete "sudo lspci -vv" output for both systems?  I think it's OK to
-> collect these with the patch applied; we should still be able to see
-> the information we use to compute the MPS values.  But please include
-> the CONFIG_PCIE_BUS_* settings and any "pcie_bus_*" kernel command
-> line arguments.
+It's to allow the message content to be added to the internal
+	&adapter->msgbuf[adapter->msgbuflen]
+with strcpy for later use with blogic_show_info()/seq_write.
 
-Bjorn, I have submitted a report on bugzilla 
 
-https://bugzilla.kernel.org/show_bug.cgi?id=212695
 
-is this enough?
-
-Marek
