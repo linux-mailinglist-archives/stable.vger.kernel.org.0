@@ -2,144 +2,773 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B124D3624ED
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 18:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6653624EE
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 18:00:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239295AbhDPQBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 12:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34174 "EHLO mail.kernel.org"
+        id S238690AbhDPQBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 12:01:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238434AbhDPQAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 12:00:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08F296124B;
-        Fri, 16 Apr 2021 16:00:16 +0000 (UTC)
+        id S238703AbhDPQAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Apr 2021 12:00:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D82C261222;
+        Fri, 16 Apr 2021 16:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618588817;
-        bh=KvY5zBufE2U23DpSM6M5ZofVXtrCxICzoEgmFqQS7y0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hoYi2gjvo7S8HPOVL4c2hnhAKh4bAK8dCsd27fUD2JozGsYTitkKalZJVR9cR6Nrv
-         m0RqQom6EB71pA+Qs9+lYxDMRibAkCq7+HgMEsfk69iJvdKjUpYsytZSRNIGjhLuXI
-         Y/N+Rkzmdarej6Yw/PIDj8gnmUKVt0TeEva7aiOA=
+        s=korg; t=1618588821;
+        bh=Ksjnogezqvm5ZF6le0Yl5vCDVhShiqmCiB84unl36Os=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=hJGoLFbCIOpJ4bhXnbk4LNKkr52dlpE/8H3tCZtNUDFuXwtEXo2CfHrgYYAdeSoBG
+         kc2Mj6KyC+JmciCl3g6YM1Ma5eLJypwo5/1oqtheYzZa9YWRnLl7YhNcUgv6GVyLJD
+         GsCYCBAhuNVog6+9ufP+0d7ONtyYcVAjCEWJArg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.11.15
-Date:   Fri, 16 Apr 2021 18:00:14 +0200
-Message-Id: <1618588814229120@kroah.com>
+Subject: Re: Linux 5.11.15
+Date:   Fri, 16 Apr 2021 18:00:15 +0200
+Message-Id: <161858881441184@kroah.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <1618588814229120@kroah.com>
+References: <1618588814229120@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.11.15 kernel.
-
-All users of the 5.11 kernel series must upgrade.
-
-The updated 5.11.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.11.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                              |    2 -
- arch/arm64/include/asm/kvm_arm.h      |    1 
- arch/arm64/kernel/cpufeature.c        |    1 
- arch/arm64/kvm/debug.c                |    2 +
- arch/riscv/kernel/entry.S             |    1 
- block/bio.c                           |    2 -
- drivers/block/null_blk/main.c         |   26 +++++++++++++++++++-----
- drivers/block/null_blk/null_blk.h     |    1 
- drivers/gpu/drm/imx/imx-ldb.c         |   10 +++++++++
- drivers/gpu/drm/tegra/dc.c            |   10 ++++-----
- drivers/gpu/host1x/bus.c              |   10 +++++----
- drivers/interconnect/core.c           |    2 +
- drivers/net/phy/sfp.c                 |   36 ++++++++++++++++++++--------------
- fs/block_dev.c                        |    4 +++
- fs/gfs2/super.c                       |   14 ++++++++-----
- fs/io_uring.c                         |    2 -
- include/linux/host1x.h                |    9 +++++++-
- kernel/trace/ftrace.c                 |    9 +++++---
- lib/test_xarray.c                     |   26 +++++++++++++-----------
- lib/xarray.c                          |    4 +--
- net/ipv4/netfilter/arp_tables.c       |    2 +
- net/ipv4/netfilter/ip_tables.c        |    2 +
- net/ipv6/netfilter/ip6_tables.c       |    2 +
- net/netfilter/x_tables.c              |   10 +--------
- tools/kvm/kvm_stat/kvm_stat.service   |    1 
- tools/perf/util/map.c                 |    7 ++----
- tools/testing/radix-tree/idr-test.c   |   10 +++++++--
- tools/testing/radix-tree/multiorder.c |    2 +
- tools/testing/radix-tree/xarray.c     |    2 +
- 29 files changed, 141 insertions(+), 69 deletions(-)
-
-Andrew Price (1):
-      gfs2: Flag a withdraw if init_threads() fails
-
-Arnaldo Carvalho de Melo (1):
-      perf map: Tighten snprintf() string precision to pass gcc check on some 32-bit arches
-
-Arnd Bergmann (1):
-      drm/imx: imx-ldb: fix out of bounds array access warning
-
-Bob Peterson (1):
-      gfs2: report "already frozen/thawed" errors
-
-Damien Le Moal (1):
-      null_blk: fix command timeout completion handling
-
-Dmitry Osipenko (1):
-      drm/tegra: dc: Don't set PLL clock to 0Hz
-
-Florian Westphal (1):
-      netfilter: x_tables: fix compat match/target pad out-of-bound write
-
-Greg Kroah-Hartman (1):
-      Linux 5.11.15
-
-Jens Axboe (1):
-      io_uring: don't mark S_ISBLK async work as unbounded
-
-Jia-Ju Bai (1):
-      interconnect: core: fix error return code of icc_link_destroy()
-
-Matthew Wilcox (Oracle) (5):
-      XArray: Fix splitting to non-zero orders
-      radix tree test suite: Fix compilation
-      radix tree test suite: Register the main thread with the RCU library
-      idr test suite: Take RCU read lock in idr_find_test_1
-      idr test suite: Create anchor before launching throbber
-
-Mikko Perttunen (1):
-      gpu: host1x: Use different lock classes for each client
-
-Pavel Begunkov (1):
-      block: don't ignore REQ_NOWAIT for direct IO
-
-Russell King (1):
-      net: sfp: cope with SFPs that set both LOS normal and LOS inverted
-
-Stefan Raspl (1):
-      tools/kvm_stat: Add restart delay
-
-Steven Rostedt (VMware) (1):
-      ftrace: Check if pages were allocated before calling free_pages()
-
-Suzuki K Poulose (2):
-      KVM: arm64: Hide system instruction access to Trace registers
-      KVM: arm64: Disable guest access to trace filter controls
-
-Yufen Yu (1):
-      block: only update parent bi_status when bio fail
-
-Zihao Yu (1):
-      riscv,entry: fix misaligned base for excp_vect_table
-
+diff --git a/Makefile b/Makefile
+index 9116941553b8..bcd8764fead9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 11
+-SUBLEVEL = 14
++SUBLEVEL = 15
+ EXTRAVERSION =
+ NAME = 💕 Valentine's Day Edition 💕
+ 
+diff --git a/arch/arm64/include/asm/kvm_arm.h b/arch/arm64/include/asm/kvm_arm.h
+index 4e90c2debf70..94d4025acc0b 100644
+--- a/arch/arm64/include/asm/kvm_arm.h
++++ b/arch/arm64/include/asm/kvm_arm.h
+@@ -278,6 +278,7 @@
+ #define CPTR_EL2_DEFAULT	CPTR_EL2_RES1
+ 
+ /* Hyp Debug Configuration Register bits */
++#define MDCR_EL2_TTRF		(1 << 19)
+ #define MDCR_EL2_TPMS		(1 << 14)
+ #define MDCR_EL2_E2PB_MASK	(UL(0x3))
+ #define MDCR_EL2_E2PB_SHIFT	(UL(12))
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index b1f7bfadab9f..be6014fe5c3e 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -380,7 +380,6 @@ static const struct arm64_ftr_bits ftr_id_aa64dfr0[] = {
+ 	 * of support.
+ 	 */
+ 	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_EXACT, ID_AA64DFR0_PMUVER_SHIFT, 4, 0),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64DFR0_TRACEVER_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64DFR0_DEBUGVER_SHIFT, 4, 0x6),
+ 	ARM64_FTR_END,
+ };
+diff --git a/arch/arm64/kvm/debug.c b/arch/arm64/kvm/debug.c
+index 7a7e425616b5..dbc890511631 100644
+--- a/arch/arm64/kvm/debug.c
++++ b/arch/arm64/kvm/debug.c
+@@ -89,6 +89,7 @@ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu)
+  *  - Debug ROM Address (MDCR_EL2_TDRA)
+  *  - OS related registers (MDCR_EL2_TDOSA)
+  *  - Statistical profiler (MDCR_EL2_TPMS/MDCR_EL2_E2PB)
++ *  - Self-hosted Trace Filter controls (MDCR_EL2_TTRF)
+  *
+  * Additionally, KVM only traps guest accesses to the debug registers if
+  * the guest is not actively using them (see the KVM_ARM64_DEBUG_DIRTY
+@@ -112,6 +113,7 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.mdcr_el2 = __this_cpu_read(mdcr_el2) & MDCR_EL2_HPMN_MASK;
+ 	vcpu->arch.mdcr_el2 |= (MDCR_EL2_TPM |
+ 				MDCR_EL2_TPMS |
++				MDCR_EL2_TTRF |
+ 				MDCR_EL2_TPMCR |
+ 				MDCR_EL2_TDRA |
+ 				MDCR_EL2_TDOSA);
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 744f3209c48d..76274a4a1d8e 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -447,6 +447,7 @@ ENDPROC(__switch_to)
+ #endif
+ 
+ 	.section ".rodata"
++	.align LGREG
+ 	/* Exception vector table */
+ ENTRY(excp_vect_table)
+ 	RISCV_PTR do_trap_insn_misaligned
+diff --git a/block/bio.c b/block/bio.c
+index 1f2cc1fbe283..3209d865828a 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -313,7 +313,7 @@ static struct bio *__bio_chain_endio(struct bio *bio)
+ {
+ 	struct bio *parent = bio->bi_private;
+ 
+-	if (!parent->bi_status)
++	if (bio->bi_status && !parent->bi_status)
+ 		parent->bi_status = bio->bi_status;
+ 	bio_put(bio);
+ 	return parent;
+diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
+index 5357c3a4a36f..4f6af7a5921e 100644
+--- a/drivers/block/null_blk/main.c
++++ b/drivers/block/null_blk/main.c
+@@ -1369,10 +1369,13 @@ static blk_status_t null_handle_cmd(struct nullb_cmd *cmd, sector_t sector,
+ 	}
+ 
+ 	if (dev->zoned)
+-		cmd->error = null_process_zoned_cmd(cmd, op,
+-						    sector, nr_sectors);
++		sts = null_process_zoned_cmd(cmd, op, sector, nr_sectors);
+ 	else
+-		cmd->error = null_process_cmd(cmd, op, sector, nr_sectors);
++		sts = null_process_cmd(cmd, op, sector, nr_sectors);
++
++	/* Do not overwrite errors (e.g. timeout errors) */
++	if (cmd->error == BLK_STS_OK)
++		cmd->error = sts;
+ 
+ out:
+ 	nullb_complete_cmd(cmd);
+@@ -1451,8 +1454,20 @@ static bool should_requeue_request(struct request *rq)
+ 
+ static enum blk_eh_timer_return null_timeout_rq(struct request *rq, bool res)
+ {
++	struct nullb_cmd *cmd = blk_mq_rq_to_pdu(rq);
++
+ 	pr_info("rq %p timed out\n", rq);
+-	blk_mq_complete_request(rq);
++
++	/*
++	 * If the device is marked as blocking (i.e. memory backed or zoned
++	 * device), the submission path may be blocked waiting for resources
++	 * and cause real timeouts. For these real timeouts, the submission
++	 * path will complete the request using blk_mq_complete_request().
++	 * Only fake timeouts need to execute blk_mq_complete_request() here.
++	 */
++	cmd->error = BLK_STS_TIMEOUT;
++	if (cmd->fake_timeout)
++		blk_mq_complete_request(rq);
+ 	return BLK_EH_DONE;
+ }
+ 
+@@ -1473,6 +1488,7 @@ static blk_status_t null_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	cmd->rq = bd->rq;
+ 	cmd->error = BLK_STS_OK;
+ 	cmd->nq = nq;
++	cmd->fake_timeout = should_timeout_request(bd->rq);
+ 
+ 	blk_mq_start_request(bd->rq);
+ 
+@@ -1489,7 +1505,7 @@ static blk_status_t null_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 			return BLK_STS_OK;
+ 		}
+ 	}
+-	if (should_timeout_request(bd->rq))
++	if (cmd->fake_timeout)
+ 		return BLK_STS_OK;
+ 
+ 	return null_handle_cmd(cmd, sector, nr_sectors, req_op(bd->rq));
+diff --git a/drivers/block/null_blk/null_blk.h b/drivers/block/null_blk/null_blk.h
+index 83504f3cc9d6..4876d5adb12d 100644
+--- a/drivers/block/null_blk/null_blk.h
++++ b/drivers/block/null_blk/null_blk.h
+@@ -22,6 +22,7 @@ struct nullb_cmd {
+ 	blk_status_t error;
+ 	struct nullb_queue *nq;
+ 	struct hrtimer timer;
++	bool fake_timeout;
+ };
+ 
+ struct nullb_queue {
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 41e2978cb1eb..75036aaa0c63 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -190,6 +190,11 @@ static void imx_ldb_encoder_enable(struct drm_encoder *encoder)
+ 	int dual = ldb->ldb_ctrl & LDB_SPLIT_MODE_EN;
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	drm_panel_prepare(imx_ldb_ch->panel);
+ 
+ 	if (dual) {
+@@ -248,6 +253,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 	int mux = drm_of_encoder_active_port_id(imx_ldb_ch->child, encoder);
+ 	u32 bus_format = imx_ldb_ch->bus_format;
+ 
++	if (mux < 0 || mux >= ARRAY_SIZE(ldb->clk_sel)) {
++		dev_warn(ldb->dev, "%s: invalid mux %d\n", __func__, mux);
++		return;
++	}
++
+ 	if (mode->clock > 170000) {
+ 		dev_warn(ldb->dev,
+ 			 "%s: mode exceeds 170 MHz pixel clock\n", __func__);
+diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+index 8eeef5017826..134986dc2783 100644
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -1688,6 +1688,11 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 			dev_err(dc->dev,
+ 				"failed to set clock rate to %lu Hz\n",
+ 				state->pclk);
++
++		err = clk_set_rate(dc->clk, state->pclk);
++		if (err < 0)
++			dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
++				dc->clk, state->pclk, err);
+ 	}
+ 
+ 	DRM_DEBUG_KMS("rate: %lu, div: %u\n", clk_get_rate(dc->clk),
+@@ -1698,11 +1703,6 @@ static void tegra_dc_commit_state(struct tegra_dc *dc,
+ 		value = SHIFT_CLK_DIVIDER(state->div) | PIXEL_CLK_DIVIDER_PCD1;
+ 		tegra_dc_writel(dc, value, DC_DISP_DISP_CLOCK_CONTROL);
+ 	}
+-
+-	err = clk_set_rate(dc->clk, state->pclk);
+-	if (err < 0)
+-		dev_err(dc->dev, "failed to set clock %pC to %lu Hz: %d\n",
+-			dc->clk, state->pclk, err);
+ }
+ 
+ static void tegra_dc_stop(struct tegra_dc *dc)
+diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
+index 347fb962b6c9..68a766ff0e9d 100644
+--- a/drivers/gpu/host1x/bus.c
++++ b/drivers/gpu/host1x/bus.c
+@@ -705,8 +705,9 @@ void host1x_driver_unregister(struct host1x_driver *driver)
+ EXPORT_SYMBOL(host1x_driver_unregister);
+ 
+ /**
+- * host1x_client_register() - register a host1x client
++ * __host1x_client_register() - register a host1x client
+  * @client: host1x client
++ * @key: lock class key for the client-specific mutex
+  *
+  * Registers a host1x client with each host1x controller instance. Note that
+  * each client will only match their parent host1x controller and will only be
+@@ -715,13 +716,14 @@ EXPORT_SYMBOL(host1x_driver_unregister);
+  * device and call host1x_device_init(), which will in turn call each client's
+  * &host1x_client_ops.init implementation.
+  */
+-int host1x_client_register(struct host1x_client *client)
++int __host1x_client_register(struct host1x_client *client,
++			     struct lock_class_key *key)
+ {
+ 	struct host1x *host1x;
+ 	int err;
+ 
+ 	INIT_LIST_HEAD(&client->list);
+-	mutex_init(&client->lock);
++	__mutex_init(&client->lock, "host1x client lock", key);
+ 	client->usecount = 0;
+ 
+ 	mutex_lock(&devices_lock);
+@@ -742,7 +744,7 @@ int host1x_client_register(struct host1x_client *client)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL(host1x_client_register);
++EXPORT_SYMBOL(__host1x_client_register);
+ 
+ /**
+  * host1x_client_unregister() - unregister a host1x client
+diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
+index 5ad519c9f239..8a1e70e00876 100644
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -942,6 +942,8 @@ int icc_link_destroy(struct icc_node *src, struct icc_node *dst)
+ 		       GFP_KERNEL);
+ 	if (new)
+ 		src->links = new;
++	else
++		ret = -ENOMEM;
+ 
+ out:
+ 	mutex_unlock(&icc_lock);
+diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+index 7a680b5177f5..2fff62695455 100644
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -1501,15 +1501,19 @@ static void sfp_sm_link_down(struct sfp *sfp)
+ 
+ static void sfp_sm_link_check_los(struct sfp *sfp)
+ {
+-	unsigned int los = sfp->state & SFP_F_LOS;
++	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
++	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
++	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
++	bool los = false;
+ 
+ 	/* If neither SFP_OPTIONS_LOS_INVERTED nor SFP_OPTIONS_LOS_NORMAL
+-	 * are set, we assume that no LOS signal is available.
++	 * are set, we assume that no LOS signal is available. If both are
++	 * set, we assume LOS is not implemented (and is meaningless.)
+ 	 */
+-	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED))
+-		los ^= SFP_F_LOS;
+-	else if (!(sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL)))
+-		los = 0;
++	if (los_options == los_inverted)
++		los = !(sfp->state & SFP_F_LOS);
++	else if (los_options == los_normal)
++		los = !!(sfp->state & SFP_F_LOS);
+ 
+ 	if (los)
+ 		sfp_sm_next(sfp, SFP_S_WAIT_LOS, 0);
+@@ -1519,18 +1523,22 @@ static void sfp_sm_link_check_los(struct sfp *sfp)
+ 
+ static bool sfp_los_event_active(struct sfp *sfp, unsigned int event)
+ {
+-	return (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED) &&
+-		event == SFP_E_LOS_LOW) ||
+-	       (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL) &&
+-		event == SFP_E_LOS_HIGH);
++	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
++	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
++	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
++
++	return (los_options == los_inverted && event == SFP_E_LOS_LOW) ||
++	       (los_options == los_normal && event == SFP_E_LOS_HIGH);
+ }
+ 
+ static bool sfp_los_event_inactive(struct sfp *sfp, unsigned int event)
+ {
+-	return (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_INVERTED) &&
+-		event == SFP_E_LOS_HIGH) ||
+-	       (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_LOS_NORMAL) &&
+-		event == SFP_E_LOS_LOW);
++	const __be16 los_inverted = cpu_to_be16(SFP_OPTIONS_LOS_INVERTED);
++	const __be16 los_normal = cpu_to_be16(SFP_OPTIONS_LOS_NORMAL);
++	__be16 los_options = sfp->id.ext.options & (los_inverted | los_normal);
++
++	return (los_options == los_inverted && event == SFP_E_LOS_HIGH) ||
++	       (los_options == los_normal && event == SFP_E_LOS_LOW);
+ }
+ 
+ static void sfp_sm_fault(struct sfp *sfp, unsigned int next_state, bool warn)
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 85500e2400cf..b988f78ad4b7 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -276,6 +276,8 @@ __blkdev_direct_IO_simple(struct kiocb *iocb, struct iov_iter *iter,
+ 		bio.bi_opf = dio_bio_write_op(iocb);
+ 		task_io_account_write(ret);
+ 	}
++	if (iocb->ki_flags & IOCB_NOWAIT)
++		bio.bi_opf |= REQ_NOWAIT;
+ 	if (iocb->ki_flags & IOCB_HIPRI)
+ 		bio_set_polled(&bio, iocb);
+ 
+@@ -429,6 +431,8 @@ __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter, int nr_pages)
+ 			bio->bi_opf = dio_bio_write_op(iocb);
+ 			task_io_account_write(bio->bi_iter.bi_size);
+ 		}
++		if (iocb->ki_flags & IOCB_NOWAIT)
++			bio->bi_opf |= REQ_NOWAIT;
+ 
+ 		dio->size += bio->bi_iter.bi_size;
+ 		pos += bio->bi_iter.bi_size;
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 754ea2a137b4..223ebd6b1b8d 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -169,8 +169,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	int error;
+ 
+ 	error = init_threads(sdp);
+-	if (error)
++	if (error) {
++		gfs2_withdraw_delayed(sdp);
+ 		return error;
++	}
+ 
+ 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+ 	if (gfs2_withdrawn(sdp)) {
+@@ -765,11 +767,13 @@ void gfs2_freeze_func(struct work_struct *work)
+ static int gfs2_freeze(struct super_block *sb)
+ {
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
+-	int error = 0;
++	int error;
+ 
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN)
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_UNFROZEN) {
++		error = -EBUSY;
+ 		goto out;
++	}
+ 
+ 	for (;;) {
+ 		if (gfs2_withdrawn(sdp)) {
+@@ -810,10 +814,10 @@ static int gfs2_unfreeze(struct super_block *sb)
+ 	struct gfs2_sbd *sdp = sb->s_fs_info;
+ 
+ 	mutex_lock(&sdp->sd_freeze_mutex);
+-        if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
++	if (atomic_read(&sdp->sd_freeze_state) != SFS_FROZEN ||
+ 	    !gfs2_holder_initialized(&sdp->sd_freeze_gh)) {
+ 		mutex_unlock(&sdp->sd_freeze_mutex);
+-                return 0;
++		return -EINVAL;
+ 	}
+ 
+ 	gfs2_freeze_unlock(&sdp->sd_freeze_gh);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index b1b3154c8d50..95b4a89dad4e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1546,7 +1546,7 @@ static void io_prep_async_work(struct io_kiocb *req)
+ 	if (req->flags & REQ_F_ISREG) {
+ 		if (def->hash_reg_file || (ctx->flags & IORING_SETUP_IOPOLL))
+ 			io_wq_hash_work(&req->work, file_inode(req->file));
+-	} else {
++	} else if (!req->file || !S_ISBLK(file_inode(req->file)->i_mode)) {
+ 		if (def->unbound_nonreg_file)
+ 			req->work.flags |= IO_WQ_WORK_UNBOUND;
+ 	}
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index ce59a6a6a008..9eb77c87a83b 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -320,7 +320,14 @@ static inline struct host1x_device *to_host1x_device(struct device *dev)
+ int host1x_device_init(struct host1x_device *device);
+ int host1x_device_exit(struct host1x_device *device);
+ 
+-int host1x_client_register(struct host1x_client *client);
++int __host1x_client_register(struct host1x_client *client,
++			     struct lock_class_key *key);
++#define host1x_client_register(class) \
++	({ \
++		static struct lock_class_key __key; \
++		__host1x_client_register(class, &__key); \
++	})
++
+ int host1x_client_unregister(struct host1x_client *client);
+ 
+ int host1x_client_suspend(struct host1x_client *client);
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index b7e29db127fa..3ba52d4e1314 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -3231,7 +3231,8 @@ ftrace_allocate_pages(unsigned long num_to_init)
+ 	pg = start_pg;
+ 	while (pg) {
+ 		order = get_count_order(pg->size / ENTRIES_PER_PAGE);
+-		free_pages((unsigned long)pg->records, order);
++		if (order >= 0)
++			free_pages((unsigned long)pg->records, order);
+ 		start_pg = pg->next;
+ 		kfree(pg);
+ 		pg = start_pg;
+@@ -6451,7 +6452,8 @@ void ftrace_release_mod(struct module *mod)
+ 		clear_mod_from_hashes(pg);
+ 
+ 		order = get_count_order(pg->size / ENTRIES_PER_PAGE);
+-		free_pages((unsigned long)pg->records, order);
++		if (order >= 0)
++			free_pages((unsigned long)pg->records, order);
+ 		tmp_page = pg->next;
+ 		kfree(pg);
+ 		ftrace_number_of_pages -= 1 << order;
+@@ -6811,7 +6813,8 @@ void ftrace_free_mem(struct module *mod, void *start_ptr, void *end_ptr)
+ 		if (!pg->index) {
+ 			*last_pg = pg->next;
+ 			order = get_count_order(pg->size / ENTRIES_PER_PAGE);
+-			free_pages((unsigned long)pg->records, order);
++			if (order >= 0)
++				free_pages((unsigned long)pg->records, order);
+ 			ftrace_number_of_pages -= 1 << order;
+ 			ftrace_number_of_groups--;
+ 			kfree(pg);
+diff --git a/lib/test_xarray.c b/lib/test_xarray.c
+index 8294f43f4981..8b1c318189ce 100644
+--- a/lib/test_xarray.c
++++ b/lib/test_xarray.c
+@@ -1530,24 +1530,24 @@ static noinline void check_store_range(struct xarray *xa)
+ 
+ #ifdef CONFIG_XARRAY_MULTI
+ static void check_split_1(struct xarray *xa, unsigned long index,
+-							unsigned int order)
++				unsigned int order, unsigned int new_order)
+ {
+-	XA_STATE(xas, xa, index);
+-	void *entry;
+-	unsigned int i = 0;
++	XA_STATE_ORDER(xas, xa, index, new_order);
++	unsigned int i;
+ 
+ 	xa_store_order(xa, index, order, xa, GFP_KERNEL);
+ 
+ 	xas_split_alloc(&xas, xa, order, GFP_KERNEL);
+ 	xas_lock(&xas);
+ 	xas_split(&xas, xa, order);
++	for (i = 0; i < (1 << order); i += (1 << new_order))
++		__xa_store(xa, index + i, xa_mk_index(index + i), 0);
+ 	xas_unlock(&xas);
+ 
+-	xa_for_each(xa, index, entry) {
+-		XA_BUG_ON(xa, entry != xa);
+-		i++;
++	for (i = 0; i < (1 << order); i++) {
++		unsigned int val = index + (i & ~((1 << new_order) - 1));
++		XA_BUG_ON(xa, xa_load(xa, index + i) != xa_mk_index(val));
+ 	}
+-	XA_BUG_ON(xa, i != 1 << order);
+ 
+ 	xa_set_mark(xa, index, XA_MARK_0);
+ 	XA_BUG_ON(xa, !xa_get_mark(xa, index, XA_MARK_0));
+@@ -1557,14 +1557,16 @@ static void check_split_1(struct xarray *xa, unsigned long index,
+ 
+ static noinline void check_split(struct xarray *xa)
+ {
+-	unsigned int order;
++	unsigned int order, new_order;
+ 
+ 	XA_BUG_ON(xa, !xa_empty(xa));
+ 
+ 	for (order = 1; order < 2 * XA_CHUNK_SHIFT; order++) {
+-		check_split_1(xa, 0, order);
+-		check_split_1(xa, 1UL << order, order);
+-		check_split_1(xa, 3UL << order, order);
++		for (new_order = 0; new_order < order; new_order++) {
++			check_split_1(xa, 0, order, new_order);
++			check_split_1(xa, 1UL << order, order, new_order);
++			check_split_1(xa, 3UL << order, order, new_order);
++		}
+ 	}
+ }
+ #else
+diff --git a/lib/xarray.c b/lib/xarray.c
+index 5fa51614802a..ed775dee1074 100644
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -1011,7 +1011,7 @@ void xas_split_alloc(struct xa_state *xas, void *entry, unsigned int order,
+ 
+ 	do {
+ 		unsigned int i;
+-		void *sibling;
++		void *sibling = NULL;
+ 		struct xa_node *node;
+ 
+ 		node = kmem_cache_alloc(radix_tree_node_cachep, gfp);
+@@ -1021,7 +1021,7 @@ void xas_split_alloc(struct xa_state *xas, void *entry, unsigned int order,
+ 		for (i = 0; i < XA_CHUNK_SIZE; i++) {
+ 			if ((i & mask) == 0) {
+ 				RCU_INIT_POINTER(node->slots[i], entry);
+-				sibling = xa_mk_sibling(0);
++				sibling = xa_mk_sibling(i);
+ 			} else {
+ 				RCU_INIT_POINTER(node->slots[i], sibling);
+ 			}
+diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
+index d1e04d2b5170..e0093411d85d 100644
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -1193,6 +1193,8 @@ static int translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_ARP_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index f15bc21d7301..f77ea0dbe656 100644
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -1428,6 +1428,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index 2e2119bfcf13..eb2b5404806c 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1443,6 +1443,8 @@ translate_compat_table(struct net *net,
+ 	if (!newinfo)
+ 		goto out_unlock;
+ 
++	memset(newinfo->entries, 0, size);
++
+ 	newinfo->number = compatr->num_entries;
+ 	for (i = 0; i < NF_INET_NUMHOOKS; i++) {
+ 		newinfo->hook_entry[i] = compatr->hook_entry[i];
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 6bd31a7a27fc..92e9d4ebc5e8 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -733,7 +733,7 @@ void xt_compat_match_from_user(struct xt_entry_match *m, void **dstptr,
+ {
+ 	const struct xt_match *match = m->u.kernel.match;
+ 	struct compat_xt_entry_match *cm = (struct compat_xt_entry_match *)m;
+-	int pad, off = xt_compat_match_offset(match);
++	int off = xt_compat_match_offset(match);
+ 	u_int16_t msize = cm->u.user.match_size;
+ 	char name[sizeof(m->u.user.name)];
+ 
+@@ -743,9 +743,6 @@ void xt_compat_match_from_user(struct xt_entry_match *m, void **dstptr,
+ 		match->compat_from_user(m->data, cm->data);
+ 	else
+ 		memcpy(m->data, cm->data, msize - sizeof(*cm));
+-	pad = XT_ALIGN(match->matchsize) - match->matchsize;
+-	if (pad > 0)
+-		memset(m->data + match->matchsize, 0, pad);
+ 
+ 	msize += off;
+ 	m->u.user.match_size = msize;
+@@ -1116,7 +1113,7 @@ void xt_compat_target_from_user(struct xt_entry_target *t, void **dstptr,
+ {
+ 	const struct xt_target *target = t->u.kernel.target;
+ 	struct compat_xt_entry_target *ct = (struct compat_xt_entry_target *)t;
+-	int pad, off = xt_compat_target_offset(target);
++	int off = xt_compat_target_offset(target);
+ 	u_int16_t tsize = ct->u.user.target_size;
+ 	char name[sizeof(t->u.user.name)];
+ 
+@@ -1126,9 +1123,6 @@ void xt_compat_target_from_user(struct xt_entry_target *t, void **dstptr,
+ 		target->compat_from_user(t->data, ct->data);
+ 	else
+ 		memcpy(t->data, ct->data, tsize - sizeof(*ct));
+-	pad = XT_ALIGN(target->targetsize) - target->targetsize;
+-	if (pad > 0)
+-		memset(t->data + target->targetsize, 0, pad);
+ 
+ 	tsize += off;
+ 	t->u.user.target_size = tsize;
+diff --git a/tools/kvm/kvm_stat/kvm_stat.service b/tools/kvm/kvm_stat/kvm_stat.service
+index 71aabaffe779..8f13b843d5b4 100644
+--- a/tools/kvm/kvm_stat/kvm_stat.service
++++ b/tools/kvm/kvm_stat/kvm_stat.service
+@@ -9,6 +9,7 @@ Type=simple
+ ExecStart=/usr/bin/kvm_stat -dtcz -s 10 -L /var/log/kvm_stat.csv
+ ExecReload=/bin/kill -HUP $MAINPID
+ Restart=always
++RestartSec=60s
+ SyslogIdentifier=kvm_stat
+ SyslogLevel=debug
+ 
+diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
+index f44ede437dc7..e2537d5acab0 100644
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -77,8 +77,7 @@ static inline bool replace_android_lib(const char *filename, char *newfilename)
+ 	if (strstarts(filename, "/system/lib/")) {
+ 		char *ndk, *app;
+ 		const char *arch;
+-		size_t ndk_length;
+-		size_t app_length;
++		int ndk_length, app_length;
+ 
+ 		ndk = getenv("NDK_ROOT");
+ 		app = getenv("APP_PLATFORM");
+@@ -106,8 +105,8 @@ static inline bool replace_android_lib(const char *filename, char *newfilename)
+ 		if (new_length > PATH_MAX)
+ 			return false;
+ 		snprintf(newfilename, new_length,
+-			"%s/platforms/%s/arch-%s/usr/lib/%s",
+-			ndk, app, arch, libname);
++			"%.*s/platforms/%.*s/arch-%s/usr/lib/%s",
++			ndk_length, ndk, app_length, app, arch, libname);
+ 
+ 		return true;
+ 	}
+diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
+index 3b796dd5e577..6ce7460f3c7a 100644
+--- a/tools/testing/radix-tree/idr-test.c
++++ b/tools/testing/radix-tree/idr-test.c
+@@ -301,16 +301,20 @@ void idr_find_test_1(int anchor_id, int throbber_id)
+ 	pthread_t throbber;
+ 	time_t start = time(NULL);
+ 
+-	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
+-
+ 	BUG_ON(idr_alloc(&find_idr, xa_mk_value(anchor_id), anchor_id,
+ 				anchor_id + 1, GFP_KERNEL) != anchor_id);
+ 
++	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
++
++	rcu_read_lock();
+ 	do {
+ 		int id = 0;
+ 		void *entry = idr_get_next(&find_idr, &id);
++		rcu_read_unlock();
+ 		BUG_ON(entry != xa_mk_value(id));
++		rcu_read_lock();
+ 	} while (time(NULL) < start + 11);
++	rcu_read_unlock();
+ 
+ 	pthread_join(throbber, NULL);
+ 
+@@ -577,6 +581,7 @@ void ida_tests(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	idr_checks();
+ 	ida_tests();
+@@ -584,5 +589,6 @@ int __weak main(void)
+ 	rcu_barrier();
+ 	if (nr_allocated)
+ 		printf("nr_allocated = %d\n", nr_allocated);
++	rcu_unregister_thread();
+ 	return 0;
+ }
+diff --git a/tools/testing/radix-tree/linux/compiler_types.h b/tools/testing/radix-tree/linux/compiler_types.h
+deleted file mode 100644
+index e69de29bb2d1..000000000000
+diff --git a/tools/testing/radix-tree/multiorder.c b/tools/testing/radix-tree/multiorder.c
+index 9eae0fb5a67d..e00520cc6349 100644
+--- a/tools/testing/radix-tree/multiorder.c
++++ b/tools/testing/radix-tree/multiorder.c
+@@ -224,7 +224,9 @@ void multiorder_checks(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	multiorder_checks();
++	rcu_unregister_thread();
+ 	return 0;
+ }
+diff --git a/tools/testing/radix-tree/xarray.c b/tools/testing/radix-tree/xarray.c
+index e61e43efe463..f20e12cbbfd4 100644
+--- a/tools/testing/radix-tree/xarray.c
++++ b/tools/testing/radix-tree/xarray.c
+@@ -25,11 +25,13 @@ void xarray_tests(void)
+ 
+ int __weak main(void)
+ {
++	rcu_register_thread();
+ 	radix_tree_init();
+ 	xarray_tests();
+ 	radix_tree_cpu_dead(1);
+ 	rcu_barrier();
+ 	if (nr_allocated)
+ 		printf("nr_allocated = %d\n", nr_allocated);
++	rcu_unregister_thread();
+ 	return 0;
+ }
