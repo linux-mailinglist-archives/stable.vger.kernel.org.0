@@ -2,152 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5CCE361E1C
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 12:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79387361E35
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 12:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238711AbhDPKlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 06:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48848 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229502AbhDPKla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 06:41:30 -0400
-Received: from ozlabs.org (ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F284AC061574;
-        Fri, 16 Apr 2021 03:41:04 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4FMCRd1BPDz9sVv;
-        Fri, 16 Apr 2021 20:41:01 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1618569661;
-        bh=SeOzQ9Fg9C2zAMuj8cY5McP+aFk25PiM311deR2n+II=;
+        id S242104AbhDPKrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 06:47:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35312 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242101AbhDPKry (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Apr 2021 06:47:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33DE961103;
+        Fri, 16 Apr 2021 10:47:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1618570050;
+        bh=od1tl7oKpVX/MGO4p0AhDkV0ESsHKL9wHzJMSSEZtLk=;
         h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=dlrfmoa66rjbsgjm/6d63tAsvauWz+/zCQSBCnuup3KRzbygxslVoQS9YLGzEmxCp
-         BlmJROc2q2TCvBVUIsPXowKqD3tb+ePzQL27V3dkPyfXbwzb78UU1jdjd137lpsvKm
-         KRliFf+AabCTWYguQlPH0zI4TXJyjldAKamw26SoqGPY25rAGdtoTIaVkio+4Uf4L1
-         SEAb53oUP9Z4uROoJLiyxDIETXgY4VU69wU0ZSnGCG4nWNO75litn3pAbksUGbd/82
-         gAnYfZRakpES4+dl5kRnYehiwK32L5HnaGG6PdUlZ0kv9Tk4UjgZL+TxjgXEcebnmo
-         67fGXanIuuK6g==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Tony Ambardar <tony.ambardar@gmail.com>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        LKML <linux-kernel@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>, Rosen Penev <rosenp@gmail.com>
-Subject: Re: [PATCH v3] powerpc: fix EDEADLOCK redefinition error in
- uapi/asm/errno.h
-In-Reply-To: <CAPGftE-Q+Q479j7SikDBQLiM+VKbpXpRYnTeEJeAHeZrh_Ok2A@mail.gmail.com>
-References: <20200917000757.1232850-1-Tony.Ambardar@gmail.com>
- <20200917135437.1238787-1-Tony.Ambardar@gmail.com>
- <CAPGftE-Q+Q479j7SikDBQLiM+VKbpXpRYnTeEJeAHeZrh_Ok2A@mail.gmail.com>
-Date:   Fri, 16 Apr 2021 20:41:00 +1000
-Message-ID: <87r1jaeclf.fsf@mpe.ellerman.id.au>
+        b=TItS6HfKYpavIh/cZNuV/Cf9SdibI9PL9tlvdaoCRdMFXMY9n4xZTu57TiOmJr89c
+         FhgQeGvmikXT/ycxdqfPCpNXgPAleEioIS9EdiWEWduMRjnqMaQKevA/oKnacAE3vX
+         3LqqzpFvQr31YeYNFerYEkId3nVMY8XfMng0I0K+blKFjelq1HStEHrBhceE3wWNAK
+         ppD/CuGxwdgsg4k+ltLTyZDpBoEAkvDYBOjk++xKxXJzA8Z2f8bKOIQcoErGNzZn82
+         79JquGXDOgnK0OXdclEmdw9AVUu5MwWv1vtT8gXnYDc89c8aXtZbdem1lhVgbBoYtG
+         Y5lVQEOAsvzwQ==
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Wesley Cheng <wcheng@codeaurora.org>,
+        Ferry Toth <fntoth@gmail.com>, Yu Chen <chenyu56@huawei.com>
+Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
+In-Reply-To: <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
+References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
+ <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
+Date:   Fri, 16 Apr 2021 13:47:22 +0300
+Message-ID: <87zgxymrph.fsf@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tony Ambardar <tony.ambardar@gmail.com> writes:
-> Hello Michael,
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+
+Hi,
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
+
+> From: Yu Chen <chenyu56@huawei.com>
+> From: John Stultz <john.stultz@linaro.org>
 >
-> The latest version of this patch addressed all feedback I'm aware of
-> when submitted last September, and I've seen no further comments from
-> reviewers since then.
+> According to the programming guide, to switch mode for DRD controller,
+> the driver needs to do the following.
 >
-> Could you please let me know where this stands and if anything further
-> is needed?
+> To switch from device to host:
+> 1. Reset controller with GCTL.CoreSoftReset
+> 2. Set GCTL.PrtCapDir(host mode)
+> 3. Reset the host with USBCMD.HCRESET
+> 4. Then follow up with the initializing host registers sequence
+>
+> To switch from host to device:
+> 1. Reset controller with GCTL.CoreSoftReset
+> 2. Set GCTL.PrtCapDir(device mode)
+> 3. Reset the device with DCTL.CSftRst
+> 4. Then follow up with the initializing registers sequence
+>
+> Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
+> switching from host to device. John Stult reported a lockup issue seen
+> with HiKey960 platform without these steps[1]. Similar issue is observed
+> with Ferry's testing platform[2].
+>
+> So, apply the required steps along with some fixes to Yu Chen's and John
+> Stultz's version. The main fixes to their versions are the missing wait
+> for clocks synchronization before clearing GCTL.CoreSoftReset and only
+> apply DCTL.CSftRst when switching from host to device.
+>
+> [1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@=
+linaro.org/
+> [2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f=
+1@gmail.com/
+>
+> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Cc: Ferry Toth <fntoth@gmail.com>
+> Cc: Wesley Cheng <wcheng@codeaurora.org>
+> Cc: <stable@vger.kernel.org>
+> Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly=
+")
+> Signed-off-by: Yu Chen <chenyu56@huawei.com>
+> Signed-off-by: John Stultz <john.stultz@linaro.org>
+> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-Sorry, it's still sitting in my inbox :/
+I still have concerns about the soft reset, but I won't block you guys
+from fixing Hikey's problem :-)
 
-I was going to reply to suggest we split the tools change out. The
-headers under tools are usually updated by another maintainer, I think
-it might even be scripted.
+The only thing I would like to confirm is that this has been verified
+with hundreds of swaps happening as quickly as possible. DWC3 should
+still be functional after several hundred swaps.
 
-Anyway I've applied your patch and done that (dropped the change to
-tools/.../errno.h), which should also mean the stable backport is more
-likely to work automatically.
+Can someone confirm this is the case? (I'm assuming this can be
+scripted)
 
-It will hit mainline in v5.13-rc1 and then be backported to the stable
-trees.
+=2D-=20
+balbi
 
-I don't think you actually need the tools version of the header updated
-to fix your bug? In which case we can probably just wait for it to be
-updated automatically when the tools headers are sync'ed with the kernel
-versions.
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-cheers
+-----BEGIN PGP SIGNATURE-----
 
-
-> On Thu, 17 Sept 2020 at 06:54, Tony Ambardar <tony.ambardar@gmail.com> wrote:
->>
->> A few archs like powerpc have different errno.h values for macros
->> EDEADLOCK and EDEADLK. In code including both libc and linux versions of
->> errno.h, this can result in multiple definitions of EDEADLOCK in the
->> include chain. Definitions to the same value (e.g. seen with mips) do
->> not raise warnings, but on powerpc there are redefinitions changing the
->> value, which raise warnings and errors (if using "-Werror").
->>
->> Guard against these redefinitions to avoid build errors like the following,
->> first seen cross-compiling libbpf v5.8.9 for powerpc using GCC 8.4.0 with
->> musl 1.1.24:
->>
->>   In file included from ../../arch/powerpc/include/uapi/asm/errno.h:5,
->>                    from ../../include/linux/err.h:8,
->>                    from libbpf.c:29:
->>   ../../include/uapi/asm-generic/errno.h:40: error: "EDEADLOCK" redefined [-Werror]
->>    #define EDEADLOCK EDEADLK
->>
->>   In file included from toolchain-powerpc_8540_gcc-8.4.0_musl/include/errno.h:10,
->>                    from libbpf.c:26:
->>   toolchain-powerpc_8540_gcc-8.4.0_musl/include/bits/errno.h:58: note: this is the location of the previous definition
->>    #define EDEADLOCK       58
->>
->>   cc1: all warnings being treated as errors
->>
->> CC: Stable <stable@vger.kernel.org>
->> Reported-by: Rosen Penev <rosenp@gmail.com>
->> Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
->> ---
->> v1 -> v2:
->>  * clean up commit description formatting
->>
->> v2 -> v3: (per Michael Ellerman)
->>  * drop indeterminate 'Fixes' tags, request stable backports instead
->> ---
->>  arch/powerpc/include/uapi/asm/errno.h       | 1 +
->>  tools/arch/powerpc/include/uapi/asm/errno.h | 1 +
->>  2 files changed, 2 insertions(+)
->>
->> diff --git a/arch/powerpc/include/uapi/asm/errno.h b/arch/powerpc/include/uapi/asm/errno.h
->> index cc79856896a1..4ba87de32be0 100644
->> --- a/arch/powerpc/include/uapi/asm/errno.h
->> +++ b/arch/powerpc/include/uapi/asm/errno.h
->> @@ -2,6 +2,7 @@
->>  #ifndef _ASM_POWERPC_ERRNO_H
->>  #define _ASM_POWERPC_ERRNO_H
->>
->> +#undef EDEADLOCK
->>  #include <asm-generic/errno.h>
->>
->>  #undef EDEADLOCK
->> diff --git a/tools/arch/powerpc/include/uapi/asm/errno.h b/tools/arch/powerpc/include/uapi/asm/errno.h
->> index cc79856896a1..4ba87de32be0 100644
->> --- a/tools/arch/powerpc/include/uapi/asm/errno.h
->> +++ b/tools/arch/powerpc/include/uapi/asm/errno.h
->> @@ -2,6 +2,7 @@
->>  #ifndef _ASM_POWERPC_ERRNO_H
->>  #define _ASM_POWERPC_ERRNO_H
->>
->> +#undef EDEADLOCK
->>  #include <asm-generic/errno.h>
->>
->>  #undef EDEADLOCK
->> --
->> 2.25.1
->>
+iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAmB5azoRHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzL64meEamQbTqBAAwJa0+SiYQL4Cbfy6TY99murao5mbPn/A
+bI+Ufn/HmXT/FrpwmVeFGb0xeKg+EjXsdyp1QGKKNMqHQ0vwCDxEDeIAazh/2+3f
+x1XeNTBwSAd6KgdUwqaIDQtUhHoZKP8TSRSL0zokZamYDkpUbv84A2w+fUQuDToP
+tTecb+i9iS0bs5NEgF9e/GvDBWHF2i087tn0BDcm9LCqd34yDGOaLfySBMhBuG3h
+N+q+xVo1zAALHwqGFxYvGqUzybMt2U9YEE3CaN8DHZPOQs/2UFdvlg6Hi/RdrOb+
+4bH1PzcjJIQ9lFF/0i8zJCVBK8LW5wElSN/g05wja2RyioqTnrEwvob/3yesjl5J
+TRR8VZZIPShgRZFtoWSTvLRL86bKJoXCaKVh41sXkbIPhyNzZTf2T06NjvERNwYY
+AK7y9M3cZm44IDytI8WPcWZx5io6aoEw8VqQbYor7GTecdE9vKteBVaxwlBVDIzZ
+K1GoPEJfy8oU8Akr5jS/p8la+di/wjHGplv/hTuOHXwkSz6WJzE5HQw0jzK5PDk6
+kUhfEKo/BokRWIIFbTqjxU5MUla4UcyFo3hfgFYBOGM0QGOlHSJgJW3wcxuXpKwO
++2X1a+0L/wY0pt2d4NbEYaezqGeFyY6nPRZJSDBUWchdxmeFQj1NXe4x5UYrMlb8
+w0/4kYvWosw=
+=33Vg
+-----END PGP SIGNATURE-----
+--=-=-=--
