@@ -2,111 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC1D361D1D
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 12:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6FC0361D07
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 12:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241350AbhDPJVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 05:21:11 -0400
-Received: from smtp.radex.nl ([178.250.146.7]:60680 "EHLO radex-web.radex.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238823AbhDPJVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 05:21:10 -0400
-Received: from [192.168.1.158] (cust-178-250-146-69.breedbanddelft.nl [178.250.146.69])
-        by radex-web.radex.nl (Postfix) with ESMTPS id D9EE0240A8;
-        Fri, 16 Apr 2021 11:10:55 +0200 (CEST)
-From:   Ferry Toth <fntoth@gmail.com>
-Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-To:     John Stultz <john.stultz@linaro.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        John Youn <John.Youn@synopsys.com>,
-        stable <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Yu Chen <chenyu56@huawei.com>
-References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
- <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
- <CALAqxLW9d-jWC4qyfWvTQAYT-V7W19tFY+v3pzCE_QHfNYeYTg@mail.gmail.com>
- <CALAqxLX0b=uZ4JQX1h5PLRUq+B05wWOt2=QSO_QoO8rdMWgp=w@mail.gmail.com>
-Message-ID: <b0b99566-a5d3-5c16-d9b1-0f743f3a6a55@gmail.com>
-Date:   Fri, 16 Apr 2021 11:10:55 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S241568AbhDPJOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 05:14:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58004 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235020AbhDPJOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 05:14:52 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F749C061756
+        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 02:14:27 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id f29so18802688pgm.8
+        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 02:14:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=8lDqc+TYkF9pP4uENPMPvtRZ1G1LiLYNI2+86HjZ3j4=;
+        b=U+Nll+6qi9gighJPhyw/5xmLkh+myCNJH8LtUaH/kjyn353iLZcEsskXL8ml4YkRCj
+         w2wFm+i7gUrXuZmdZzZC2sqDLSpE77zRvujOHMSkdw2nShClvTHA5armSVUD562+D9Ii
+         l4JA3AFw9hBT/VExwC/ZpUrAFOE879pIA1spaev+ejW78F1zmBCEeQy/PMbCiyJmb4Gr
+         i6zy9UktR8oOzfzDR8lQzHeHGmOYPSvaou142xr3LNWoc0n3toZ/atbibpnkc1Jn5l/V
+         gTMGR100per33u3NDA4xgQAwqcjH7a2DoNp6GJ6y5jprwfswVP4TXWRoJ25rXHaqe8qd
+         YkXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=8lDqc+TYkF9pP4uENPMPvtRZ1G1LiLYNI2+86HjZ3j4=;
+        b=jTjQvb2KuItog+ZGCium/WAXABXWrKbJMSGN3jA+RBDRyk9OPtwPVO7rjL6AxPPqCH
+         Ip0mCkHj0bNP3j3ShfbKGj1wM2xRqNgxkccfqq4aXQKaxtsCFumi2EMFE2uq7fQF7v1o
+         MiFEBSSNj6G0G/1FLQK998bqiEej3biFe75quRVVqygfgiWo6S67EFNji21dTaFO8uDJ
+         H4ec5+7pbkLxhYRkFRuArLLv0rKQtTOSMkFt8GpXZSybM3hHSCM+/cZEqQY0NWb6bNqx
+         YTQ2GHQmayHQgufkMwPecyyYTO0B56eAw4XWtXSp3kPfMj4y+hVh8tEWg47LJHS9CDJo
+         LDpg==
+X-Gm-Message-State: AOAM531yxTzahtXAVd4UsFZI49bk1oa8ogRo4xwr4vnoEMvD8EvJU1o/
+        +h5HFJ9Zyvk0upjkcC2ce1YsBBjJ2rgbHPZ8stqJlA==
+X-Google-Smtp-Source: ABdhPJxSkqkrwhYv5hXxKmkv9csB4kg1BQcPtIeGKgQQAuzgS5nXWtbBRz4tpaSCZ+S/3OLaNgRMLjfA4wRpQnPUF7M=
+X-Received: by 2002:aa7:9d8e:0:b029:258:aaea:7000 with SMTP id
+ f14-20020aa79d8e0000b0290258aaea7000mr4986162pfq.39.1618564466665; Fri, 16
+ Apr 2021 02:14:26 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CALAqxLX0b=uZ4JQX1h5PLRUq+B05wWOt2=QSO_QoO8rdMWgp=w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+References: <20210415183639.1487-1-rdunlap@infradead.org> <CABkfQAGfaxQJ4xdMpJk3CO-VZueM11BBUR-YpAQ8v0-wvwAheg@mail.gmail.com>
+In-Reply-To: <CABkfQAGfaxQJ4xdMpJk3CO-VZueM11BBUR-YpAQ8v0-wvwAheg@mail.gmail.com>
+From:   Robert Foss <robert.foss@linaro.org>
+Date:   Fri, 16 Apr 2021 11:14:15 +0200
+Message-ID: <CAG3jFyuty4pVzd+6+tFgKtmAE06dOtz1AwnZRefQD9F7bvbKGQ@mail.gmail.com>
+Subject: Re: [PATCH -next] drm: bridge: fix LONTIUM use of mipi_dsi_() functions
+To:     Adrien Grassein <adrien.grassein@gmail.com>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+Merged for 5.13 in drm-misc-next-fixes
 
-Op 16-04-2021 om 05:28 schreef John Stultz:
-> On Thu, Apr 15, 2021 at 5:12 PM John Stultz<john.stultz@linaro.org>  wrote:
->> On Thu, Apr 15, 2021 at 3:20 PM Thinh Nguyen<Thinh.Nguyen@synopsys.com>  wrote:
->>> From: Yu Chen<chenyu56@huawei.com>
->>> From: John Stultz<john.stultz@linaro.org>
->>>
->>> According to the programming guide, to switch mode for DRD controller,
->>> the driver needs to do the following.
->>>
->>> To switch from device to host:
->>> 1. Reset controller with GCTL.CoreSoftReset
->>> 2. Set GCTL.PrtCapDir(host mode)
->>> 3. Reset the host with USBCMD.HCRESET
->>> 4. Then follow up with the initializing host registers sequence
->>>
->>> To switch from host to device:
->>> 1. Reset controller with GCTL.CoreSoftReset
->>> 2. Set GCTL.PrtCapDir(device mode)
->>> 3. Reset the device with DCTL.CSftRst
->>> 4. Then follow up with the initializing registers sequence
->>>
->>> Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
->>> switching from host to device. John Stult reported a lockup issue seen
->>> with HiKey960 platform without these steps[1]. Similar issue is observed
->>> with Ferry's testing platform[2].
->>>
->>> So, apply the required steps along with some fixes to Yu Chen's and John
->>> Stultz's version. The main fixes to their versions are the missing wait
->>> for clocks synchronization before clearing GCTL.CoreSoftReset and only
->>> apply DCTL.CSftRst when switching from host to device.
->>>
->>> [1]https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
->>> [2]https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
->>>
->>> Cc: Andy Shevchenko<andy.shevchenko@gmail.com>
->>> Cc: Ferry Toth<fntoth@gmail.com>
->>> Cc: Wesley Cheng<wcheng@codeaurora.org>
->>> Cc:<stable@vger.kernel.org>
->>> Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
->>> Signed-off-by: Yu Chen<chenyu56@huawei.com>
->>> Signed-off-by: John Stultz<john.stultz@linaro.org>
->>> Signed-off-by: Thinh Nguyen<Thinh.Nguyen@synopsys.com>
->>> ---
->>> Changes in v3:
->>> - Check if the desired mode is OTG, then keep the old flow
->>> - Remove condition for OTG support only since the device can still be
->>>    configured DRD host/device mode only
->>> - Remove redundant hw_mode check since __dwc3_set_mode() only applies when
->>>    hw_mode is DRD
->>> Changes in v2:
->>> - Initialize mutex per device and not as global mutex.
->>> - Add additional checks for DRD only mode
->>>
->> I've not been able to test all the different modes on HiKey960 yet,
->> but with this patch we avoid the !COREIDLE hangs that we see
->> frequently on bootup, so it looks pretty good to me.  I'll get back to
->> you tonight when I can put hands on the board to test the gadget to
->> host switching to make sure all is well (I really don't expect any
->> issues, but just want to be sure).
-> Ok, got a chance to test the mode switching and everything is looking good.
-I expect to be able to test this weekend on my platform.
-> Tested-by: John Stultz<john.stultz@linaro.org>
+On Thu, 15 Apr 2021 at 21:36, Adrien Grassein <adrien.grassein@gmail.com> w=
+rote:
 >
-> Thanks again for continuing to push this!
-> -john
+> Reviewed-by: Adren Grassein <adrien.grassein@gmail.com>
+>
+> Le jeu. 15 avr. 2021 =C3=A0 20:36, Randy Dunlap <rdunlap@infradead.org> a=
+ =C3=A9crit :
+> >
+> > The Lontium DRM bridge drivers use mipi_dsi_() function interfaces so
+> > they need to select DRM_MIPI_DSI to prevent build errors.
+> >
+> > ERROR: modpost: "mipi_dsi_attach" [drivers/gpu/drm/bridge/lontium-lt961=
+1uxc.ko] undefined!
+> > ERROR: modpost: "mipi_dsi_device_register_full" [drivers/gpu/drm/bridge=
+/lontium-lt9611uxc.ko] undefined!
+> > ERROR: modpost: "of_find_mipi_dsi_host_by_node" [drivers/gpu/drm/bridge=
+/lontium-lt9611uxc.ko] undefined!
+> > ERROR: modpost: "mipi_dsi_device_unregister" [drivers/gpu/drm/bridge/lo=
+ntium-lt9611uxc.ko] undefined!
+> > ERROR: modpost: "mipi_dsi_detach" [drivers/gpu/drm/bridge/lontium-lt961=
+1uxc.ko] undefined!
+> > ERROR: modpost: "mipi_dsi_attach" [drivers/gpu/drm/bridge/lontium-lt961=
+1.ko] undefined!
+> > ERROR: modpost: "mipi_dsi_device_register_full" [drivers/gpu/drm/bridge=
+/lontium-lt9611.ko] undefined!
+> > ERROR: modpost: "of_find_mipi_dsi_host_by_node" [drivers/gpu/drm/bridge=
+/lontium-lt9611.ko] undefined!
+> > ERROR: modpost: "mipi_dsi_device_unregister" [drivers/gpu/drm/bridge/lo=
+ntium-lt9611.ko] undefined!
+> > ERROR: modpost: "mipi_dsi_detach" [drivers/gpu/drm/bridge/lontium-lt961=
+1.ko] undefined!
+> > WARNING: modpost: suppressed 5 unresolved symbol warnings because there=
+ were too many)
+> >
+> > Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
+> > Fixes: 0cbbd5b1a012 ("drm: bridge: add support for lontium LT9611UXC br=
+idge")
+> > Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge"=
+)
+> > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> > Cc: Sam Ravnborg <sam@ravnborg.org>
+> > Cc: Vinod Koul <vkoul@kernel.org>
+> > Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+> > Cc: Adrien Grassein <adrien.grassein@gmail.com>
+> > Cc: Andrzej Hajda <a.hajda@samsung.com>
+> > Cc: Neil Armstrong <narmstrong@baylibre.com>
+> > Cc: Robert Foss <robert.foss@linaro.org>
+> > Cc: dri-devel@lists.freedesktop.org
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  drivers/gpu/drm/bridge/Kconfig |    3 +++
+> >  1 file changed, 3 insertions(+)
+> >
+> > --- linux-next-20210414.orig/drivers/gpu/drm/bridge/Kconfig
+> > +++ linux-next-20210414/drivers/gpu/drm/bridge/Kconfig
+> > @@ -66,6 +66,7 @@ config DRM_LONTIUM_LT8912B
+> >         depends on OF
+> >         select DRM_PANEL_BRIDGE
+> >         select DRM_KMS_HELPER
+> > +       select DRM_MIPI_DSI
+> >         select REGMAP_I2C
+> >         help
+> >           Driver for Lontium LT8912B DSI to HDMI bridge
+> > @@ -81,6 +82,7 @@ config DRM_LONTIUM_LT9611
+> >         depends on OF
+> >         select DRM_PANEL_BRIDGE
+> >         select DRM_KMS_HELPER
+> > +       select DRM_MIPI_DSI
+> >         select REGMAP_I2C
+> >         help
+> >           Driver for Lontium LT9611 DSI to HDMI bridge
+> > @@ -94,6 +96,7 @@ config DRM_LONTIUM_LT9611UXC
+> >         depends on OF
+> >         select DRM_PANEL_BRIDGE
+> >         select DRM_KMS_HELPER
+> > +       select DRM_MIPI_DSI
+> >         select REGMAP_I2C
+> >         help
+> >           Driver for Lontium LT9611UXC DSI to HDMI bridge
