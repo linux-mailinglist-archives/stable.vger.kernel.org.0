@@ -2,128 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBDD3616B3
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 02:12:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 815343616E2
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 02:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235138AbhDPANG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 20:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53124 "EHLO
+        id S237016AbhDPAqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 20:46:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234764AbhDPANG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 20:13:06 -0400
-Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 636B2C061756
-        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 17:12:42 -0700 (PDT)
-Received: by mail-lj1-x22e.google.com with SMTP id z8so29090461ljm.12
-        for <stable@vger.kernel.org>; Thu, 15 Apr 2021 17:12:42 -0700 (PDT)
+        with ESMTP id S234971AbhDPAqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 20:46:16 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 071DFC061574;
+        Thu, 15 Apr 2021 17:45:53 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id d10so18072653pgf.12;
+        Thu, 15 Apr 2021 17:45:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=r8GkCrbv/zYPRVaSFtl6H/BFwmBvL0ol3pcK113pi4U=;
-        b=mRZhaeKKPrNjSKqWxKsNS+xCLa6R792rtfZKlDYqSBPGlgKe23wDw00iv1/lCtnxV3
-         wRYCXySwOTi3vSSq0Zezz8BS7d+zcEWzsLV44l6k+JKacFZRN4PTQumOn3zuo8UdL2MA
-         EBM9k31pTC/g7Y/7K0Af+ryb9nkE+yRosWPHUiDwQeHxrm9hG+HWe9MUrIGRRAtVKroB
-         0O53v1GmygPxqewZJozQQRg186jYq4V0O3XlM3Pn+H1gqivzLZa5bPm+iCyVqYkQ3GOh
-         Undn3Ug3hZ6eX3HmVt9gsJoQJjf8UDwNFC6I1E1z+rkYBHju+8Nf1mFUBI3dLhENvqej
-         K+6Q==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=dmjEQ+PcDryFW3YWt0Nhzw/ZkwBEiKeND45E4thTri8=;
+        b=W+Aan76L1WsDfJ/uIE17T94rf7YSuy2Ed5TaXBfsKbDp2/XQjqvmS+hKNbQF/dYjkm
+         PXtL2NN0gcEeGJEWnJtsQEwOT6HxnCwFw9rEdYgMS0yb7e394WBlhYL8yJjkTQ4lmy86
+         IpwenrqTvKYng0IgmusLN/j9JgFHqBMuPEB5uyfOWkQNbkKKu11NrtU6Ylkdv6cU8owK
+         5WrcDtTuHBKRlohy+yV8YQ28tgnYdx0sDa2DQu+LVM01n1kcdDP114IU3mKoN749xZNG
+         l6DzWe92sqSJewnzHs4DMXAZBTsl9YF0fI8Ch7LaOfwcS+lCDgTTNCiuiLMLIS1rtErt
+         AQbA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=r8GkCrbv/zYPRVaSFtl6H/BFwmBvL0ol3pcK113pi4U=;
-        b=Sm9aUvihQLjak1W/2SAllwDkVNZ7xwXaSLxhIwd7yyIEEivb0GrahcpW23+Y2kVtam
-         yq4zsoYXqMCx1HamIt/lvM1goOJ22x4tlhInOqn8osamr/C2g2KetiyjK2L8oYq7z+8i
-         w8GflBI2/2brjDIbqkOEkpj/dK9uPTj1wtD2j3HRl+fIZ+dYXrXXFIJn3k5NVUY1KLi7
-         O6qib1KfQknxAhqi9SssqBIKHsAUWuycWd92XCyD51kxDY7TdH+us+Cwqvl42J+iZZGS
-         Jr/hSDt5k3tGYJUn73PKPZvhhxz6tvTVLTAOsbH1R+HBeboYId7zEQKnT6HTToUgXAlQ
-         kLuw==
-X-Gm-Message-State: AOAM532DisUWlsF23G+xplk1+ziZ+TIUgSn0GIDw7TbFKmbWeCNWGFrW
-        39k7ipi3JGA0JoEOkfZifcWlzMLASO5b8jo2HMwtBA==
-X-Google-Smtp-Source: ABdhPJxgTh1PQWkLqJ7g4FXETP5TGGKrGJedsy/dUmG0HnDn0PKcwTcV9ZUN1A2BuC92IvEPYlRwIcb0a0QMukiLM/c=
-X-Received: by 2002:a2e:9d88:: with SMTP id c8mr1005964ljj.257.1618531960777;
- Thu, 15 Apr 2021 17:12:40 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=dmjEQ+PcDryFW3YWt0Nhzw/ZkwBEiKeND45E4thTri8=;
+        b=IF7zPdkl6ZV52VRZ6rZ80+njJz5XtB7trHXygrGs/SvsqMcRHR19EDXtMcM8fpJxcp
+         0k6hw0Ftr8uprGpvRSOqR+ZwFA52cPw6oJsxMzC9RkASlaqY+C6RrOmGdJP9TXBjv3d4
+         72DhdOdux8vOizctIyHAHDMndw/IfzLXPfX6PdtbqBhDZj8tATw12TYGemR9o2FTQH1j
+         xUo8inGZZWG4luvixLGGvCHpzuKVeqL6H80QQu43tTBY8onPa+6rVyLDPzA36yJw/Xzs
+         8/jL2nbXOrl6U2fn8gmGmlgbGSnP2jtqJbEGQ+8jf1aZYvzThh+r+vFCnlj7QhhIIev5
+         7cig==
+X-Gm-Message-State: AOAM532RXF70o5WelsFNiPeiB63rf1naFzLfcfDiYWI+jzipA5bfLU2G
+        eJ9zLztFz9DiQ8RaWO5gXzxKCg6c5V8=
+X-Google-Smtp-Source: ABdhPJxuF8dOrIh8sHvI9reuorYiCIa02BDGIgbniCCO9RshC7YM9uG4HIUozoJkLqnq+4ZjNCJ6yQ==
+X-Received: by 2002:a05:6a00:2ce:b029:246:f904:a94 with SMTP id b14-20020a056a0002ceb0290246f9040a94mr5482236pft.56.1618533952065;
+        Thu, 15 Apr 2021 17:45:52 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id a9sm3048521pfo.186.2021.04.15.17.45.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Apr 2021 17:45:51 -0700 (PDT)
+Subject: Re: [PATCH 5.4 00/18] 5.4.113-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210415144413.055232956@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <4a6c389e-7780-2710-15cf-a037d2b4d48c@gmail.com>
+Date:   Thu, 15 Apr 2021 17:45:43 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.9.0
 MIME-Version: 1.0
-References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
- <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
-In-Reply-To: <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
-From:   John Stultz <john.stultz@linaro.org>
-Date:   Thu, 15 Apr 2021 17:12:28 -0700
-Message-ID: <CALAqxLW9d-jWC4qyfWvTQAYT-V7W19tFY+v3pzCE_QHfNYeYTg@mail.gmail.com>
-Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        John Youn <John.Youn@synopsys.com>,
-        stable <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Ferry Toth <fntoth@gmail.com>, Yu Chen <chenyu56@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210415144413.055232956@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 15, 2021 at 3:20 PM Thinh Nguyen <Thinh.Nguyen@synopsys.com> wrote:
->
-> From: Yu Chen <chenyu56@huawei.com>
-> From: John Stultz <john.stultz@linaro.org>
->
-> According to the programming guide, to switch mode for DRD controller,
-> the driver needs to do the following.
->
-> To switch from device to host:
-> 1. Reset controller with GCTL.CoreSoftReset
-> 2. Set GCTL.PrtCapDir(host mode)
-> 3. Reset the host with USBCMD.HCRESET
-> 4. Then follow up with the initializing host registers sequence
->
-> To switch from host to device:
-> 1. Reset controller with GCTL.CoreSoftReset
-> 2. Set GCTL.PrtCapDir(device mode)
-> 3. Reset the device with DCTL.CSftRst
-> 4. Then follow up with the initializing registers sequence
->
-> Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
-> switching from host to device. John Stult reported a lockup issue seen
-> with HiKey960 platform without these steps[1]. Similar issue is observed
-> with Ferry's testing platform[2].
->
-> So, apply the required steps along with some fixes to Yu Chen's and John
-> Stultz's version. The main fixes to their versions are the missing wait
-> for clocks synchronization before clearing GCTL.CoreSoftReset and only
-> apply DCTL.CSftRst when switching from host to device.
->
-> [1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
-> [2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
->
-> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Cc: Ferry Toth <fntoth@gmail.com>
-> Cc: Wesley Cheng <wcheng@codeaurora.org>
-> Cc: <stable@vger.kernel.org>
-> Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-> Signed-off-by: Yu Chen <chenyu56@huawei.com>
-> Signed-off-by: John Stultz <john.stultz@linaro.org>
-> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-> ---
-> Changes in v3:
-> - Check if the desired mode is OTG, then keep the old flow
-> - Remove condition for OTG support only since the device can still be
->   configured DRD host/device mode only
-> - Remove redundant hw_mode check since __dwc3_set_mode() only applies when
->   hw_mode is DRD
-> Changes in v2:
-> - Initialize mutex per device and not as global mutex.
-> - Add additional checks for DRD only mode
->
 
-I've not been able to test all the different modes on HiKey960 yet,
-but with this patch we avoid the !COREIDLE hangs that we see
-frequently on bootup, so it looks pretty good to me.  I'll get back to
-you tonight when I can put hands on the board to test the gadget to
-host switching to make sure all is well (I really don't expect any
-issues, but just want to be sure).
 
-thanks
--john
+On 4/15/2021 7:47 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.113 release.
+> There are 18 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 17 Apr 2021 14:44:01 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.113-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
