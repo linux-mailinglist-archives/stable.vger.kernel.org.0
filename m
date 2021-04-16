@@ -2,141 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B4C7362552
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 18:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FDA7362585
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 18:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240407AbhDPQOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 12:14:46 -0400
-Received: from out28-193.mail.aliyun.com ([115.124.28.193]:33305 "EHLO
-        out28-193.mail.aliyun.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239976AbhDPQOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 12:14:44 -0400
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.1276163|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0547366-0.000210722-0.945053;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047203;MF=zhouyanjie@wanyeetech.com;NM=1;PH=DS;RN=16;RT=16;SR=0;TI=SMTPD_---.K.1zIuN_1618589646;
-Received: from zhouyanjie-virtual-machine.localdomain(mailfrom:zhouyanjie@wanyeetech.com fp:SMTPD_---.K.1zIuN_1618589646)
-          by smtp.aliyun-inc.com(10.147.42.197);
-          Sat, 17 Apr 2021 00:14:13 +0800
-From:   =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20=28Zhou=20Yanjie=29?= 
-        <zhouyanjie@wanyeetech.com>
-To:     linus.walleij@linaro.org, robh+dt@kernel.org, paul@crapouillou.net
-Cc:     linux-gpio@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        hns@goldelico.com, paul@boddie.org.uk, andy.shevchenko@gmail.com,
-        dongsheng.qiu@ingenic.com, aric.pzqi@ingenic.com,
-        rick.tyliu@ingenic.com, sernia.zhou@foxmail.com,
-        siyanteng@loongson.cn, stable@vger.kernel.org
-Subject: [PATCH v5 02/11] pinctrl: Ingenic: Add support for read the pin configuration of X1830.
-Date:   Sat, 17 Apr 2021 00:13:56 +0800
-Message-Id: <1618589645-96504-3-git-send-email-zhouyanjie@wanyeetech.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1618589645-96504-1-git-send-email-zhouyanjie@wanyeetech.com>
-References: <1618589645-96504-1-git-send-email-zhouyanjie@wanyeetech.com>
+        id S240410AbhDPQQC convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 16 Apr 2021 12:16:02 -0400
+Received: from [183.90.58.236] ([183.90.58.236]:41970 "EHLO ns1.zackeruz.tk"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S241358AbhDPQP5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Apr 2021 12:15:57 -0400
+Received: from johnlewis.co.uk (unknown [192.168.20.1])
+        by ns1.zackeruz.tk (Postfix) with ESMTPSA id ECDD684720D
+        for <stable@vger.kernel.org>; Sat, 17 Apr 2021 00:15:29 +0800 (+08)
+Reply-To: robturner.procurement@johnlewis-trade.com, rob76295@gmail.com
+From:   John Lewis Partnersip <robert-turner42@johnlewis.co.uk>
+To:     stable@vger.kernel.org
+Subject: 4/16/21 Order Inquiry  [JL] 
+Date:   16 Apr 2021 16:15:26 +0000
+Message-ID: <20210416114651.286D6B5333D5F212@johnlewis.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add X1830 support in "ingenic_pinconf_get()", so that it can read the
-configuration of X1830 SoC correctly.
+Dear stable
 
-Fixes: d7da2a1e4e08 ("pinctrl: Ingenic: Add pinctrl driver for X1830.")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
----
+The famous brand John Lewis Partnership, is UK's largest multi-
+channel retailer with over 126 shops and multiple expansion in 
+Africa furnished by European/Asian/American products. We are 
+sourcing
+new products to attract new customers and also retain our 
+existing ones, create new partnerships with companies dealing 
+with different kinds of goods globally.
 
-Notes:
-    v2:
-    New patch.
-    
-    v2->v3:
-    1.Add fixes tag.
-    2.Adjust the code, simplify the ingenic_pinconf_get() function.
-    
-    v3->v4:
-    1.Add parentheses around the '%' to make it more obvious.
-    2.Add Cc: <stable@vger.kernel.org>.
-    3.Add Andy Shevchenko's Reviewed-by.
-    4.Add Paul Cercueil's Reviewed-by.
-    
-    v4->v5:
-    No change.
+Your company's products are of interest to our market as we have 
+an amazing market for your products.
 
- drivers/pinctrl/pinctrl-ingenic.c | 40 ++++++++++++++++++++++++++++++---------
- 1 file changed, 31 insertions(+), 9 deletions(-)
+Provide us your current catalog through email to review more. We 
+hope to be able to order with you and start a long-term friendly,
+respectable and solid business partnership. Please we would 
+appreciate it if you could send us your stock availability via 
+email if any.
 
-diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
-index 05dfa0a..3de0f76 100644
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -2109,26 +2109,48 @@ static int ingenic_pinconf_get(struct pinctrl_dev *pctldev,
- 	enum pin_config_param param = pinconf_to_config_param(*config);
- 	unsigned int idx = pin % PINS_PER_GPIO_CHIP;
- 	unsigned int offt = pin / PINS_PER_GPIO_CHIP;
--	bool pull;
-+	unsigned int bias;
-+	bool pull, pullup, pulldown;
- 
--	if (jzpc->info->version >= ID_JZ4770)
--		pull = !ingenic_get_pin_config(jzpc, pin, JZ4770_GPIO_PEN);
--	else
--		pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
-+	if (jzpc->info->version >= ID_X1830) {
-+		unsigned int half = PINS_PER_GPIO_CHIP / 2;
-+		unsigned int idxh = (pin % half) * 2;
-+
-+		if (idx < half)
-+			regmap_read(jzpc->map, offt * jzpc->info->reg_offset +
-+					X1830_GPIO_PEL, &bias);
-+		else
-+			regmap_read(jzpc->map, offt * jzpc->info->reg_offset +
-+					X1830_GPIO_PEH, &bias);
-+
-+		bias = (bias >> idxh) & (GPIO_PULL_UP | GPIO_PULL_DOWN);
-+
-+		pullup = (bias == GPIO_PULL_UP) && (jzpc->info->pull_ups[offt] & BIT(idx));
-+		pulldown = (bias == GPIO_PULL_DOWN) && (jzpc->info->pull_downs[offt] & BIT(idx));
-+
-+	} else {
-+		if (jzpc->info->version >= ID_JZ4770)
-+			pull = !ingenic_get_pin_config(jzpc, pin, JZ4770_GPIO_PEN);
-+		else
-+			pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
-+
-+		pullup = pull && (jzpc->info->pull_ups[offt] & BIT(idx));
-+		pulldown = pull && (jzpc->info->pull_downs[offt] & BIT(idx));
-+	}
- 
- 	switch (param) {
- 	case PIN_CONFIG_BIAS_DISABLE:
--		if (pull)
-+		if (pullup || pulldown)
- 			return -EINVAL;
- 		break;
- 
- 	case PIN_CONFIG_BIAS_PULL_UP:
--		if (!pull || !(jzpc->info->pull_ups[offt] & BIT(idx)))
-+		if (!pullup)
- 			return -EINVAL;
- 		break;
- 
- 	case PIN_CONFIG_BIAS_PULL_DOWN:
--		if (!pull || !(jzpc->info->pull_downs[offt] & BIT(idx)))
-+		if (!pulldown)
- 			return -EINVAL;
- 		break;
- 
-@@ -2146,7 +2168,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
- 	if (jzpc->info->version >= ID_X1830) {
- 		unsigned int idx = pin % PINS_PER_GPIO_CHIP;
- 		unsigned int half = PINS_PER_GPIO_CHIP / 2;
--		unsigned int idxh = pin % half * 2;
-+		unsigned int idxh = (pin % half) * 2;
- 		unsigned int offt = pin / PINS_PER_GPIO_CHIP;
- 
- 		if (idx < half) {
--- 
-2.7.4
+Our payment terms are 15 days net in Europe, 30 days Net in UK 
+and 30 days net in Asia/USA as we operate with over 5297 
+suppliers around the globe for the past 50 years now. For 
+immediate response Send your reply to 
+robturner.procurement@johnlewis-trade.com for us to be able to 
+treat with care and urgency.
 
+On behalf of our entire team, we wish you a fruitful 2021. 
+
+Best Regards
+
+Rob Turner
+Head Of Procurement Operations
+John Lewis Partnership.
+robturner.procurement@johnlewis-trade.com
+Tel: +44-7451-274090
+WhatsApp: +447497483925
+www.johnlewis.com
+REGISTERED OFFICE: 171 VICTORIA STREET, LONDON SW1E 5NN  
