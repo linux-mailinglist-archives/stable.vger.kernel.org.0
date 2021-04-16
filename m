@@ -2,87 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1216536231A
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 16:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F713623A5
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 17:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245041AbhDPOq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 10:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36180 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244605AbhDPOq1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 10:46:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 795AC610FC;
-        Fri, 16 Apr 2021 14:46:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618584362;
-        bh=qpm8MHd3hC7x4V+sHrNbEegZYfAuyfhVcaQke9j+V4w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=emeqpdgMpiXTBNBcX+7GWIkt6+uwu9f/LSuSpAsfeu5lI4+6Wx9eqv7xDr/sugXm4
-         9gQFCnBEFdx2WjeZstLIUwzu9C4AUvzT8jXoMKBcWxVu4NOHencpiPlj2TQVWOMZQ8
-         zajt5y1otU6cSmsw0wCRanjuxVJkkeQ/KmqoQWQt9tg0AhRqbOEpJw6YzivV4pnsHa
-         G1NNIOYnOF5ehTftC/lHlWuza/TcGW0umzXHCmLSoXAwOvzo7Q9quHYQoNi6twAymg
-         WV5bHRUXKMplB5dNaZs3q7s4s9MewkyLo9zS2y0KnKO9M8Z1Qh5HePT7EfUh3j0dlp
-         6CdVXgRcZM6FQ==
-Received: from johan by xi.lan with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1lXPjO-0006fq-1A; Fri, 16 Apr 2021 16:46:02 +0200
-Date:   Fri, 16 Apr 2021 16:46:02 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     dillon min <dillon.minfei@gmail.com>
-Cc:     Alexandre TORGUE <alexandre.torgue@st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Erwan Le Ray <erwan.leray@foss.st.com>,
-        Gerald Baeza <gerald.baeza@st.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/3] serial: stm32: fix threaded interrupt handling
-Message-ID: <YHmjKhH7xWz0BxEv@hovoldconsulting.com>
-References: <20210416140557.25177-1-johan@kernel.org>
- <20210416140557.25177-3-johan@kernel.org>
- <CAL9mu0KwgOFQfa8ft4rB6+F=KLd1gZLYDvwpAW72zPAFntehVw@mail.gmail.com>
+        id S245504AbhDPPQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 11:16:47 -0400
+Received: from smtprelay0213.hostedemail.com ([216.40.44.213]:48228 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S244671AbhDPPOl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 11:14:41 -0400
+Received: from omf09.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay08.hostedemail.com (Postfix) with ESMTP id 1E7E7182CED5B;
+        Fri, 16 Apr 2021 15:12:05 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf09.hostedemail.com (Postfix) with ESMTPA id 9F81C1E04DB;
+        Fri, 16 Apr 2021 15:12:03 +0000 (UTC)
+Message-ID: <9e5a552b8b1f65af3eb4d2371a19c33d97f642d0.camel@perches.com>
+Subject: Re: [PATCH 1/5] scsi: BusLogic: Fix missing `pr_cont' use
+From:   Joe Perches <joe@perches.com>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     Khalid Aziz <khalid@gonehiking.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, linux-scsi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date:   Fri, 16 Apr 2021 08:12:01 -0700
+In-Reply-To: <alpine.DEB.2.21.2104161627130.44318@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2104141244520.44318@angie.orcam.me.uk>
+          <alpine.DEB.2.21.2104141419040.44318@angie.orcam.me.uk>
+          <787aae5540612555a8bf92de2083c8fa74e52ce9.camel@perches.com>
+          <alpine.DEB.2.21.2104161224300.44318@angie.orcam.me.uk>
+         <86c10671ff86f96004a6d6c3c08aed3e27d58d0a.camel@perches.com>
+         <alpine.DEB.2.21.2104161627130.44318@angie.orcam.me.uk>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.38.1-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAL9mu0KwgOFQfa8ft4rB6+F=KLd1gZLYDvwpAW72zPAFntehVw@mail.gmail.com>
+X-Rspamd-Queue-Id: 9F81C1E04DB
+X-Spam-Status: No, score=0.10
+X-Stat-Signature: s9mxuosraujha4i8xyc6wiu14nyngk5u
+X-Rspamd-Server: rspamout01
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX18h5DhmD5kG2CH6aqwm9teq+oQ9Oz950oY=
+X-HE-Tag: 1618585923-648852
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 16, 2021 at 10:35:25PM +0800, dillon min wrote:
-> Hi Johan
+On Fri, 2021-04-16 at 16:28 +0200, Maciej W. Rozycki wrote:
+> On Fri, 16 Apr 2021, Joe Perches wrote:
 > 
-> Thanks for share your patch.
+> > > I'm not sure if that complex message 
+> > > routing via `blogic_msg' is worth having even, rather than calling 
+> > > `printk' or suitable variants directly.
+> > 
+> > It's to allow the message content to be added to the internal
+> > 	&adapter->msgbuf[adapter->msgbuflen]
+> > with strcpy for later use with blogic_show_info()/seq_write.
 > 
-> Johan Hovold <johan@kernel.org>于2021年4月16日 周五22:11写道：
-> 
-> > When DMA is enabled the receive handler runs in a threaded handler, but
-> > the primary handler up until very recently neither disabled interrupts
-> > in the device or used IRQF_ONESHOT. This would lead to a deadlock if an
-> > interrupt comes in while the threaded receive handler is running under
-> > the port lock.
-> >
-> Greg told me there was a patch fixed this case. In case hard irq &
-> threaded_fn both offered. The local_irq_save() will be executed before call
-> driver’s threaded handler.
-> 
-> Post the original mail from Greg
-> 
-> Please see 81e2073c175b ("genirq: Disable interrupts for force threaded
-> handlers") for when threaded irq handlers have irqs disabled, isn't that
-> the case you are trying to "protect" from here?
-> 
-> Why is the "threaded" flag used at all?  The driver should not care.
-> 
-> Also see 9baedb7baeda ("serial: imx: drop workaround for forced irq
-> threading") in linux-next for an example of how this was fixed up in a
-> serial driver.
+> �I know, but it's not clear to me if it's worth it (a potential buffer 
+> overrun there too, BTW).
 
-Neither of these commits are (directly) related to the problem this
-patch addresses (they are about force-threaded handlers, this is about a
-normal threaded handler which run with interrupts enabled).
+It's seq_ output so it's nominally an ABI.
+But then again, I don't use this at all so I don't care much either.
 
-Johan
+It's also odd/bad form that one output KERN_<level> does not match
+its blogic_<level> (blogic_info is emitted at KERN_NOTICE)
+
+
+
