@@ -2,159 +2,1168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5FB361761
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 04:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D0DC361764
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 04:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237820AbhDPCG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Apr 2021 22:06:57 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:49464 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236754AbhDPCG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 22:06:56 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13G23vro098691;
-        Fri, 16 Apr 2021 02:06:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : message-id : references : date : in-reply-to : content-type :
- mime-version; s=corp-2020-01-29;
- bh=+K5wNG3CkYZ3MqPRfsN15ktvV1jh2qB5PPIWYV8C3JQ=;
- b=XMxpwcY/yZbFDgaXok9LufgUwwceVUSBG4HC1IhiLF+LSO6iibJOQgErw8Zo3rUdRLtW
- dl2SHllhyvrarBssjTr9bJGVxX/U81t2hwPqARt8sc7X/a4By8SE7pieu/UuvkLLAPbi
- 3H+y3Mp9fB29rTc5HRJIUuJeEmnTjfe5VtbfpVuy5YOKxOyfc74jEsQRzDNWD7+6nqeO
- QdSuhBlkDMeKe0kk6/uJag/OoD0/O1shXcZHq1Dx4HXQAwdK5j9TCHtzjZGF6OIxwzlS
- bvcKiNgAGSuftIe+TF64xtpKSyovxRcpGwrSzGEFXus8CpT9w+CB60oSYDARBEO/eR3E lA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2130.oracle.com with ESMTP id 37u3erqpfv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 16 Apr 2021 02:06:28 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13G25nqs037121;
-        Fri, 16 Apr 2021 02:06:27 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2040.outbound.protection.outlook.com [104.47.66.40])
-        by aserp3020.oracle.com with ESMTP id 37unx3sqey-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 16 Apr 2021 02:06:27 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WE214qnTsfy1w/FbEnNo365jOxLxZCeJRpdvdPnXIWkzzoNKjWlM2blDj93rCaAh922LbLa6KdmaUva05JCiYiDExF5ZBtvwFkwKBTG1zMxZTy++o12b0GFO9U+F4clwVhMCkGgpJHbQF0s67relEfhNoyMA5xXbYaGgzFK39Em/KFFIXRasTpP/wPkq3EL3QGUda2Uocr0avH0rZzSi9Ycmmcjxq0ZmWuubai4QCfo5zvYoDRR5AulYsNqgRCJL/mUKC1+ZXemw3jmM0yYXJPmH9XR6gXxngnOfySlSGV0ELWOatXUuwhpTSu/YiOqmin9mes3t17IbK101utfCWw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+K5wNG3CkYZ3MqPRfsN15ktvV1jh2qB5PPIWYV8C3JQ=;
- b=Z4hLqBjYtiCm6RxWwT8RIkAVHguDmlEw3BWzZAkNaHHT0hLIwPz3hUCIvQSX9gc2n3JnJ+K8/KKXKikbzgcxdyBvjoM4rbY02Z5TBQh1GUu4PE+KghvLdMzjxblZWmbmZFC5eWG3WgM7lRcV4HmMohUDct96QpNWnspaBEQKZ7/9IeYh7jL2Lrp2gwJ/hneUP+ckI5bbWV7WUJvffg7Y3NaniUkOmVqnQBDUwQ2DvXABqoPNYEOF3CbMlIV7oCbf1dRs/VQB5fuJ3jK3FVTXZHxHHJf+EttZwzHiN4qbqZcSlqO9g2Rm41xhmchCyOC5wiIe7iuSxYDOmGJ1ENeBzw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+K5wNG3CkYZ3MqPRfsN15ktvV1jh2qB5PPIWYV8C3JQ=;
- b=HpUgdEWSXNw91J+5ooqiupO1pAxQovpjgyG0lvDya3kst2sJQYMKvdYicWY+lDLPf+eEUVXdKKr5voC6jENyVkPCjPy9xXQrcDuFh948Y5f9WUAeV7JCO5LF4MRhp69p1cf9OgXdQE9kVHUNXrM+21SdsNUWIvq4esIujsyV0sE=
-Authentication-Results: yadro.com; dkim=none (message not signed)
- header.d=none;yadro.com; dmarc=none action=none header.from=oracle.com;
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
- by PH0PR10MB4519.namprd10.prod.outlook.com (2603:10b6:510:37::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4020.18; Fri, 16 Apr
- 2021 02:06:25 +0000
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::9ce3:6a25:939f:c688]) by PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::9ce3:6a25:939f:c688%4]) with mapi id 15.20.4042.018; Fri, 16 Apr 2021
- 02:06:25 +0000
-To:     Roman Bolshakov <r.bolshakov@yadro.com>
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        <linux-scsi@vger.kernel.org>, <linux@yadro.com>,
-        <GR-QLogic-Storage-Upstream@marvell.com>,
-        Daniel Wagner <daniel.wagner@suse.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>, <stable@vger.kernel.org>,
-        Aleksandr Volkov <a.y.volkov@yadro.com>,
-        Aleksandr Miloserdov <a.miloserdov@yadro.com>
-Subject: Re: [PATCH] scsi: qla2xxx: Reserve extra IRQ vectors
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <yq17dl30yr0.fsf@ca-mkp.ca.oracle.com>
-References: <20210412165740.39318-1-r.bolshakov@yadro.com>
-Date:   Thu, 15 Apr 2021 22:06:22 -0400
-In-Reply-To: <20210412165740.39318-1-r.bolshakov@yadro.com> (Roman Bolshakov's
-        message of "Mon, 12 Apr 2021 19:57:40 +0300")
-Content-Type: text/plain
-X-Originating-IP: [138.3.200.58]
-X-ClientProxiedBy: SN4PR0501CA0024.namprd05.prod.outlook.com
- (2603:10b6:803:40::37) To PH0PR10MB4759.namprd10.prod.outlook.com
- (2603:10b6:510:3d::12)
+        id S238039AbhDPCJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Apr 2021 22:09:18 -0400
+Received: from smtprelay0079.hostedemail.com ([216.40.44.79]:36308 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S235058AbhDPCJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Apr 2021 22:09:18 -0400
+Received: from omf03.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay08.hostedemail.com (Postfix) with ESMTP id 3D0EB182CED5B;
+        Fri, 16 Apr 2021 02:08:53 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf03.hostedemail.com (Postfix) with ESMTPA id B91E313D98;
+        Fri, 16 Apr 2021 02:08:51 +0000 (UTC)
+Message-ID: <787aae5540612555a8bf92de2083c8fa74e52ce9.camel@perches.com>
+Subject: Re: [PATCH 1/5] scsi: BusLogic: Fix missing `pr_cont' use
+From:   Joe Perches <joe@perches.com>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Khalid Aziz <khalid@gonehiking.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc:     Christoph Hellwig <hch@lst.de>, linux-scsi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date:   Thu, 15 Apr 2021 19:08:50 -0700
+In-Reply-To: <alpine.DEB.2.21.2104141419040.44318@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2104141244520.44318@angie.orcam.me.uk>
+         <alpine.DEB.2.21.2104141419040.44318@angie.orcam.me.uk>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.38.1-1 
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from ca-mkp.ca.oracle.com (138.3.200.58) by SN4PR0501CA0024.namprd05.prod.outlook.com (2603:10b6:803:40::37) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.6 via Frontend Transport; Fri, 16 Apr 2021 02:06:24 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 95263124-adef-4a02-15a8-08d9007c3d24
-X-MS-TrafficTypeDiagnostic: PH0PR10MB4519:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <PH0PR10MB451966556B97A14863274E8D8E4C9@PH0PR10MB4519.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5236;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: il8hoi34BjKd94Y/UqwIr671pZ4VKSQGaJ2ULYchY6E7EHs2w7mc0mdrem/GdQ5dy063pZnn33E83icY29rxM5vNDkJp77kxWMXvxRhiAjjZbpUlRmUjVDFrQYn8pc4HRzVYg0Eplf2TEeDM9YAAzl6ZlLDZHJL41sPswcjKCeknOKHH90rrIqAkHGhQNdxBYaJHV+017c8DnLyV/WO91W9M9LGmFzhwn93hj8MDI++8psqg7FaOE+TCNcoaSKUczLwjThQ5gsPSC+wmSlIRMTe+GA53fVFVyV4s+m1hbTfqYin8brRdT6k55G+YPjl4kABkuG/22slfo61TN4d0P1mf7nmbmDKKseAqTajKpnIYuAMB0myOA8wrG5F3LWYXG0am2q4prHJSBQl+uROC6bkhrkcC2eRUUpLZfh+tNQNpn49XCfz0+WfzVA+d9fJo3vVZURrJNXKM0E4Seel5r3Qwr5W9A/vPPoSxIGKLDwAMM/jRVVDh2sr0jIWuJzDDGbfwPB9z38kChlY0ic5QwhUMhNTUU9/VKP0Qp//KdgLWSWlzT8+zfspJ+j6a+4eurh0PTZhPd4xix3EbNMLWmqPMp2suEu7zE+4LmJExeCgFkEYreOAsSZBgUQudEtOfWv5nao0c7TwTbPEghTzrkSp/a4eH3n/5G9W8IP1O1OE=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB4759.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(136003)(346002)(39860400002)(366004)(396003)(2906002)(86362001)(66476007)(66946007)(6916009)(8936002)(956004)(36916002)(8676002)(38100700002)(55016002)(4326008)(7696005)(186003)(52116002)(558084003)(38350700002)(7416002)(83380400001)(26005)(54906003)(478600001)(16526019)(5660300002)(316002)(66556008);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?OB9O5Hxt1XYiPs25HoRPDQMn4TuzUYp++RK4sg+VXbL2a82FnD7STxuFM7St?=
- =?us-ascii?Q?5zooUowpVEnR2TC1s61dzhkAdSfuTfd9Y8iVjsC3x6l6CNvZOd2U9jvCjgD8?=
- =?us-ascii?Q?LcQPOVSUVyo+etvEQ5SBnL2JBWFBY9K1YMwnVrTxbTb0hKv1g4/5lrCksEv6?=
- =?us-ascii?Q?0pfJkZ9/JJF9v1Eo5rWCMTXxK4dBpK0kwWVhk7y++lW6qInVf/ZiO0D85iYA?=
- =?us-ascii?Q?sL3F758CYwV5bQUysjGsG7T5Ud6pggckb1u2eDcH9FDMaiM5+f9gZZnotGu9?=
- =?us-ascii?Q?OTy1YKrhYflvzPgucvO53qM+cKoogwLRRLw0RfwDIi4+dA5HzAaZvtCwuUoS?=
- =?us-ascii?Q?HOg7nPirQQBh/jAKaEr5kmXS4lBuvvGQ05jUjHvz4o4SnyI84z2xtMM2xoBY?=
- =?us-ascii?Q?UkPc6X4CDt+jc2ZA1kKVZUf+fpnhDQdxDBpl95caBCFN4cgaeBGhaUXnXWAP?=
- =?us-ascii?Q?3lABHyQqQ8AbSdc3QPMnn9ashQKJCHshCtes1ccARtYzb3zekAaUk/AKsLC5?=
- =?us-ascii?Q?efcKMEX4FJBSslPLPa15dsbgB4PQ4xeuWpwyQCS3AJ+SvDB7INW6QVZ5cLDL?=
- =?us-ascii?Q?S48+TMQAzRwgF7J+VZK/9SZLvZ2gHyTA7NM7zPPbSdYzeZcZohIH/WsH0xcq?=
- =?us-ascii?Q?NvblK3Tz3wRq5B61dGVWUpG0x5Kc190NluummjpCsGCmrKocTGxut7wugbBa?=
- =?us-ascii?Q?nLPOwXa4HsZlXDd+hpVjn1sTeUOqxRn2nkuXb9vg1xf8T6pMnihU6VVqe2mQ?=
- =?us-ascii?Q?fGMWYeDXH6/JzUQFm5Gyv9e7uXfWshCnVzSEQ+KFfaAHr74tnvH0afPUp3sr?=
- =?us-ascii?Q?YJcZnJRt1kB1r4cOQHeItr4rjY+9Hf5k1lln12evA4rGRSsUai7jOxavIhWi?=
- =?us-ascii?Q?PWzfAoiqDvzSjE6zHs0xsp9OI7NqhQqnuUevi5hAM0yrzzZtwC4F4A5NCBQ1?=
- =?us-ascii?Q?SON2fsCnwrYitVQzvmI9Bopk3t/00aKTpYFFfdBlBR47GQESxxspnydIYocm?=
- =?us-ascii?Q?d2dxqjeqwwrNagNdiQipEbXbWGuu294rmQD7to4y9GJjSVa6hP3W4A1g4cKH?=
- =?us-ascii?Q?UK4cOtI6W3eQgoSW187F7G2zCM6svMr/0b+lL9NbDKAVpBuQ7ZnvHIKo/sOw?=
- =?us-ascii?Q?mJXBM0cbih731fL7DI0bp+M6Pg8Tiv5Y62OSlSKtLP9lBUWg+f/EdW3sxd7G?=
- =?us-ascii?Q?UJqysbzAwb3J0Aqr5zOE9B9p6csECY2gkwTFZpfWq6TnRv1zqNO/EM20kut5?=
- =?us-ascii?Q?x4sEz4brqjTuX1U04kNdbzycHB/qcnp0+bYUHl+3fI8taVxCy/XhseE8l5ud?=
- =?us-ascii?Q?fGeMy8NOLh0St9wDV8N4JSoT?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 95263124-adef-4a02-15a8-08d9007c3d24
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Apr 2021 02:06:25.2162
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: YR1/vP5Zef0kN17qvCyPeddEbJTjtB8CGBplde7jX3M9ynj8cagOqDoeF3JYxdoQt8UlQ+ihUHuzom7GfCrun4nryfaJlUT22fDwQ/ZxAgU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB4519
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9955 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 suspectscore=0
- mlxscore=0 malwarescore=0 adultscore=0 bulkscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104160015
-X-Proofpoint-ORIG-GUID: hOYE4uWwvKNkvpsl7tz_T3GCqAKPjdeh
-X-Proofpoint-GUID: hOYE4uWwvKNkvpsl7tz_T3GCqAKPjdeh
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9955 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 clxscore=1011
- adultscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 spamscore=0
- impostorscore=0 suspectscore=0 mlxscore=0 phishscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
- definitions=main-2104160015
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=0.10
+X-Rspamd-Server: rspamout02
+X-Stat-Signature: a1tyb8onihxs5subpczm398qsppeyajw
+X-Rspamd-Queue-Id: B91E313D98
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX1+/lI/QaWPhd90tYymlrPDN6Zc/O91KnaE=
+X-HE-Tag: 1618538931-184611
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 2021-04-15 at 00:39 +0200, Maciej W. Rozycki wrote:
+> Update BusLogic driver's messaging system to use `pr_cont' for 
+> continuation lines, bringing messy output:
+> 
+> pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+> scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+> scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+> scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+> scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
+> scsi0:   PCI Bus: 0, Device: 19, Address:
+> 0xE0012000,
+> Host Adapter SCSI ID: 7
+> scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
+> scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
+> scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+> scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
+> scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
+> scsi0:   Tagged Queue Depth:
+> Automatic
+> , Untagged Queue Depth: 3
+> scsi0:   SCSI Bus Termination: Both Enabled
+> , SCAM: Disabled
+> 
+> scsi0: *** BusLogic BT-958 Initialized Successfully ***
+> scsi host0: BusLogic BT-958
+> 
+> back to order:
+> 
+> pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+> scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+> scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+> scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+> scsi0:   Firmware Version: 5.07B, I/O Address: 0x7000, IRQ Channel: 17/Level
+> scsi0:   PCI Bus: 0, Device: 19, Address: 0xE0012000, Host Adapter SCSI ID: 7
+> scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
+> scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
+> scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+> scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
+> scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
+> scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
+> scsi0:   SCSI Bus Termination: Both Enabled, SCAM: Disabled
+> scsi0: *** BusLogic BT-958 Initialized Successfully ***
+> scsi host0: BusLogic BT-958
+> 
+> Also diagnostic output such as with the `BusLogic=TraceConfiguration' 
+> parameter is affected and becomes vertical and therefore hard to read.  
+> This has now been corrected, e.g.:
+> 
+> pci 0000:00:13.0: PCI->APIC IRQ transform: INT A -> IRQ 17
+> blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
+> blogic_cmd(95) Status = 28: (Modify I/O Address)
+> blogic_cmd(91) Status = 30:  1 ==>  1: 01
+> blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
+> blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
+> scsi: ***** BusLogic SCSI Driver Version 2.1.17 of 12 September 2013 *****
+> scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+> blogic_cmd(04) Status = 30:  4 ==>  4: 41 41 35 30
+> blogic_cmd(0B) Status = 30:  3 ==>  3: 00 08 07
+> blogic_cmd(0D) Status = 30: 34 ==> 34: 03 01 07 04 00 00 00 00 00 00 00 00 00 00 00 00 FF 42 44 46 FF 00 00 00 00 00 00 00 00 00 FF 00 FF 00
+> blogic_cmd(8D) Status = 30: 14 ==> 14: 45 DC 00 20 00 00 00 00 00 40 30 37 42 1D
+> blogic_cmd(84) Status = 30:  1 ==>  1: 37
+> blogic_cmd(8B) Status = 30:  5 ==>  5: 39 35 38 20 20
+> blogic_cmd(85) Status = 30:  1 ==>  1: 42
+> blogic_cmd(86) Status = 30:  4 ==>  4: FF 05 93 00
+> blogic_cmd(91) Status = 30: 64 ==> 64: 41 46 3E 20 39 35 38 20 20 00 C4 00 04 01 07 2F 07 04 35 FF FF FF FF FF FF FF FF FF FF 01 00 FE FF 08 FF FF 00 00 00 00 00 00 00 01 00 01 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 FC
+> scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+> 
+> etc.
 
-Roman,
+In patch 2, vscnprintf should probably be used to make sure it's
+0 terminated.
 
-> Commit a6dcfe08487e ("scsi: qla2xxx: Limit interrupt vectors to number
-> of CPUs") lowers the number of allocated MSI-X vectors to the number
-> of CPUs.
+And while it's a lot more code, I'd prefer a solution that looks more
+like the other commonly used kernel logging extension mechanisms
+where adapter is placed before the format, ... in the argument list.
 
-Applied to 5.13/scsi-staging, thanks!
+Today it's:
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+void blogic_msg(enum, fmt, adapter, ...);
+
+without the __printf marking so there is one format/arg mismatch.
+
+fyi: in the suggested patch below it's
+-			blogic_info("BIOS Address: 0x%lX, ", adapter,
+-					adapter->bios_addr);
++			blogic_cont(adapter, "BIOS Address: 0x%X, ",
++				    adapter->bios_addr);
+
+I'd prefer
+__printf(3, 4)
+void blogic_msg(enum, adapter, fmt, ...)
+
+(or maybe void blogic_msg(adapter, enum, fmt, ...))
+
+And there's a simple addition of a blogic_cont macro and extension
+to blogic_msg to simplify the logic and obviousness of the logging
+extension lines too.
+
+I suggest this done with coccinelle and a little typing:
+---
+ drivers/scsi/BusLogic.c | 496 +++++++++++++++++++++++++++++++-----------------
+ drivers/scsi/BusLogic.h |  32 ++--
+ 2 files changed, 341 insertions(+), 187 deletions(-)
+
+diff --git a/drivers/scsi/BusLogic.c b/drivers/scsi/BusLogic.c
+index ccb061ab0a0a..7a52371b5ab6 100644
+--- a/drivers/scsi/BusLogic.c
++++ b/drivers/scsi/BusLogic.c
+@@ -134,8 +134,10 @@ static char *blogic_cmd_failure_reason;
+ 
+ static void blogic_announce_drvr(struct blogic_adapter *adapter)
+ {
+-	blogic_announce("***** BusLogic SCSI Driver Version " blogic_drvr_version " of " blogic_drvr_date " *****\n", adapter);
+-	blogic_announce("Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>\n", adapter);
++	blogic_announce(adapter,
++			"***** BusLogic SCSI Driver Version " blogic_drvr_version " of " blogic_drvr_date " *****\n");
++	blogic_announce(adapter,
++			"Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>\n");
+ }
+ 
+ 
+@@ -198,8 +200,7 @@ static bool __init blogic_create_initccbs(struct blogic_adapter *adapter)
+ 		blk_pointer = dma_alloc_coherent(&adapter->pci_device->dev,
+ 				blk_size, &blkp, GFP_KERNEL);
+ 		if (blk_pointer == NULL) {
+-			blogic_err("UNABLE TO ALLOCATE CCB GROUP - DETACHING\n",
+-					adapter);
++			blogic_err(adapter, "UNABLE TO ALLOCATE CCB GROUP - DETACHING\n");
+ 			return false;
+ 		}
+ 		blogic_init_ccbs(adapter, blk_pointer, blk_size, blkp);
+@@ -259,10 +260,13 @@ static void blogic_create_addlccbs(struct blogic_adapter *adapter,
+ 	}
+ 	if (adapter->alloc_ccbs > prev_alloc) {
+ 		if (print_success)
+-			blogic_notice("Allocated %d additional CCBs (total now %d)\n", adapter, adapter->alloc_ccbs - prev_alloc, adapter->alloc_ccbs);
++			blogic_notice(adapter,
++				      "Allocated %d additional CCBs (total now %d)\n",
++				      adapter->alloc_ccbs - prev_alloc,
++				      adapter->alloc_ccbs);
+ 		return;
+ 	}
+-	blogic_notice("Failed to allocate additional CCBs\n", adapter);
++	blogic_notice(adapter, "Failed to allocate additional CCBs\n");
+ 	if (adapter->drvr_qdepth > adapter->alloc_ccbs - adapter->tgt_count) {
+ 		adapter->drvr_qdepth = adapter->alloc_ccbs - adapter->tgt_count;
+ 		adapter->scsi_host->can_queue = adapter->drvr_qdepth;
+@@ -441,7 +445,9 @@ static int blogic_cmd(struct blogic_adapter *adapter, enum blogic_opcode opcode,
+ 			goto done;
+ 		}
+ 		if (blogic_global_options.trace_config)
+-			blogic_notice("blogic_cmd(%02X) Status = %02X: (Modify I/O Address)\n", adapter, opcode, statusreg.all);
++			blogic_notice(adapter,
++				      "blogic_cmd(%02X) Status = %02X: (Modify I/O Address)\n",
++				      opcode, statusreg.all);
+ 		result = 0;
+ 		goto done;
+ 	}
+@@ -499,15 +505,16 @@ static int blogic_cmd(struct blogic_adapter *adapter, enum blogic_opcode opcode,
+ 	 */
+ 	if (blogic_global_options.trace_config) {
+ 		int i;
+-		blogic_notice("blogic_cmd(%02X) Status = %02X: %2d ==> %2d:",
+-				adapter, opcode, statusreg.all, replylen,
++		blogic_notice(adapter,
++			      "blogic_cmd(%02X) Status = %02X: %2d ==> %2d:",
++			      opcode, statusreg.all, replylen,
+ 				reply_b);
+ 		if (replylen > reply_b)
+ 			replylen = reply_b;
+ 		for (i = 0; i < replylen; i++)
+-			blogic_notice(" %02X", adapter,
+-					((unsigned char *) reply)[i]);
+-		blogic_notice("\n", adapter);
++			blogic_cont(adapter, " %02X",
++				    ((unsigned char *)reply)[i]);
++		blogic_cont(adapter, "\n");
+ 	}
+ 	/*
+ 	   Process Command Invalid conditions.
+@@ -717,23 +724,37 @@ static int __init blogic_init_mm_probeinfo(struct blogic_adapter *adapter)
+ 		pci_addr = base_addr1 = pci_resource_start(pci_device, 1);
+ 
+ 		if (pci_resource_flags(pci_device, 0) & IORESOURCE_MEM) {
+-			blogic_err("BusLogic: Base Address0 0x%lX not I/O for MultiMaster Host Adapter\n", NULL, base_addr0);
+-			blogic_err("at PCI Bus %d Device %d I/O Address 0x%lX\n", NULL, bus, device, io_addr);
++			blogic_err(NULL,
++				   "BusLogic: Base Address0 0x%lX not I/O for MultiMaster Host Adapter\n",
++				   base_addr0);
++			blogic_err(NULL,
++				   "at PCI Bus %d Device %d I/O Address 0x%lX\n",
++				   bus, device, io_addr);
+ 			continue;
+ 		}
+ 		if (pci_resource_flags(pci_device, 1) & IORESOURCE_IO) {
+-			blogic_err("BusLogic: Base Address1 0x%lX not Memory for MultiMaster Host Adapter\n", NULL, base_addr1);
+-			blogic_err("at PCI Bus %d Device %d PCI Address 0x%lX\n", NULL, bus, device, pci_addr);
++			blogic_err(NULL,
++				   "BusLogic: Base Address1 0x%lX not Memory for MultiMaster Host Adapter\n",
++				   base_addr1);
++			blogic_err(NULL,
++				   "at PCI Bus %d Device %d PCI Address 0x%lX\n",
++				   bus, device, pci_addr);
+ 			continue;
+ 		}
+ 		if (irq_ch == 0) {
+-			blogic_err("BusLogic: IRQ Channel %d invalid for MultiMaster Host Adapter\n", NULL, irq_ch);
+-			blogic_err("at PCI Bus %d Device %d I/O Address 0x%lX\n", NULL, bus, device, io_addr);
++			blogic_err(NULL,
++				   "BusLogic: IRQ Channel %d invalid for MultiMaster Host Adapter\n",
++				   irq_ch);
++			blogic_err(NULL,
++				   "at PCI Bus %d Device %d I/O Address 0x%lX\n",
++				   bus, device, io_addr);
+ 			continue;
+ 		}
+ 		if (blogic_global_options.trace_probe) {
+-			blogic_notice("BusLogic: PCI MultiMaster Host Adapter detected at\n", NULL);
+-			blogic_notice("BusLogic: PCI Bus %d Device %d I/O Address 0x%lX PCI Address 0x%lX\n", NULL, bus, device, io_addr, pci_addr);
++			blogic_notice(NULL, "BusLogic: PCI MultiMaster Host Adapter detected at\n");
++			blogic_notice(NULL,
++				      "BusLogic: PCI Bus %d Device %d I/O Address 0x%lX PCI Address 0x%lX\n",
++				      bus, device, io_addr, pci_addr);
+ 		}
+ 		/*
+ 		   Issue the Inquire PCI Host Adapter Information command to determine
+@@ -819,7 +840,7 @@ static int __init blogic_init_mm_probeinfo(struct blogic_adapter *adapter)
+ 			nonpr_mmcount++;
+ 			mmcount++;
+ 		} else
+-			blogic_warn("BusLogic: Too many Host Adapters detected\n", NULL);
++			blogic_warn(NULL, "BusLogic: Too many Host Adapters detected\n");
+ 	}
+ 	/*
+ 	   If the AutoSCSI "Use Bus And Device # For PCI Scanning Seq."
+@@ -957,23 +978,37 @@ static int __init blogic_init_fp_probeinfo(struct blogic_adapter *adapter)
+ 		pci_addr = base_addr1 = pci_resource_start(pci_device, 1);
+ #ifdef CONFIG_SCSI_FLASHPOINT
+ 		if (pci_resource_flags(pci_device, 0) & IORESOURCE_MEM) {
+-			blogic_err("BusLogic: Base Address0 0x%lX not I/O for FlashPoint Host Adapter\n", NULL, base_addr0);
+-			blogic_err("at PCI Bus %d Device %d I/O Address 0x%lX\n", NULL, bus, device, io_addr);
++			blogic_err(NULL,
++				   "BusLogic: Base Address0 0x%lX not I/O for FlashPoint Host Adapter\n",
++				   base_addr0);
++			blogic_err(NULL,
++				   "at PCI Bus %d Device %d I/O Address 0x%lX\n",
++				   bus, device, io_addr);
+ 			continue;
+ 		}
+ 		if (pci_resource_flags(pci_device, 1) & IORESOURCE_IO) {
+-			blogic_err("BusLogic: Base Address1 0x%lX not Memory for FlashPoint Host Adapter\n", NULL, base_addr1);
+-			blogic_err("at PCI Bus %d Device %d PCI Address 0x%lX\n", NULL, bus, device, pci_addr);
++			blogic_err(NULL,
++				   "BusLogic: Base Address1 0x%lX not Memory for FlashPoint Host Adapter\n",
++				   base_addr1);
++			blogic_err(NULL,
++				   "at PCI Bus %d Device %d PCI Address 0x%lX\n",
++				   bus, device, pci_addr);
+ 			continue;
+ 		}
+ 		if (irq_ch == 0) {
+-			blogic_err("BusLogic: IRQ Channel %d invalid for FlashPoint Host Adapter\n", NULL, irq_ch);
+-			blogic_err("at PCI Bus %d Device %d I/O Address 0x%lX\n", NULL, bus, device, io_addr);
++			blogic_err(NULL,
++				   "BusLogic: IRQ Channel %d invalid for FlashPoint Host Adapter\n",
++				   irq_ch);
++			blogic_err(NULL,
++				   "at PCI Bus %d Device %d I/O Address 0x%lX\n",
++				   bus, device, io_addr);
+ 			continue;
+ 		}
+ 		if (blogic_global_options.trace_probe) {
+-			blogic_notice("BusLogic: FlashPoint Host Adapter detected at\n", NULL);
+-			blogic_notice("BusLogic: PCI Bus %d Device %d I/O Address 0x%lX PCI Address 0x%lX\n", NULL, bus, device, io_addr, pci_addr);
++			blogic_notice(NULL, "BusLogic: FlashPoint Host Adapter detected at\n");
++			blogic_notice(NULL,
++				      "BusLogic: PCI Bus %d Device %d I/O Address 0x%lX PCI Address 0x%lX\n",
++				      bus, device, io_addr, pci_addr);
+ 		}
+ 		if (blogic_probeinfo_count < BLOGIC_MAX_ADAPTERS) {
+ 			struct blogic_probeinfo *probeinfo =
+@@ -988,11 +1023,15 @@ static int __init blogic_init_fp_probeinfo(struct blogic_adapter *adapter)
+ 			probeinfo->pci_device = pci_dev_get(pci_device);
+ 			fpcount++;
+ 		} else
+-			blogic_warn("BusLogic: Too many Host Adapters detected\n", NULL);
++			blogic_warn(NULL, "BusLogic: Too many Host Adapters detected\n");
+ #else
+-		blogic_err("BusLogic: FlashPoint Host Adapter detected at PCI Bus %d Device %d\n", NULL, bus, device);
+-		blogic_err("BusLogic: I/O Address 0x%lX PCI Address 0x%lX, irq %d, but FlashPoint\n", NULL, io_addr, pci_addr, irq_ch);
+-		blogic_err("BusLogic: support was omitted in this kernel configuration.\n", NULL);
++		blogic_err(NULL,
++			   "BusLogic: FlashPoint Host Adapter detected at PCI Bus %d Device %d\n",
++			   bus, device);
++		blogic_err(NULL,
++			   "BusLogic: I/O Address 0x%lX PCI Address 0x%lX, irq %d, but FlashPoint\n",
++			   io_addr, pci_addr, irq_ch);
++		blogic_err("BusLogic: support was omitted in this kernel configuration\n", NULL);
+ #endif
+ 	}
+ 	/*
+@@ -1098,15 +1137,19 @@ static bool blogic_failure(struct blogic_adapter *adapter, char *msg)
+ {
+ 	blogic_announce_drvr(adapter);
+ 	if (adapter->adapter_bus_type == BLOGIC_PCI_BUS) {
+-		blogic_err("While configuring BusLogic PCI Host Adapter at\n",
+-				adapter);
+-		blogic_err("Bus %d Device %d I/O Address 0x%lX PCI Address 0x%lX:\n", adapter, adapter->bus, adapter->dev, adapter->io_addr, adapter->pci_addr);
++		blogic_err(adapter, "While configuring BusLogic PCI Host Adapter at\n");
++		blogic_err(adapter,
++			   "Bus %d Device %d I/O Address 0x%lX PCI Address 0x%lX:\n",
++			   adapter->bus, adapter->dev, adapter->io_addr,
++			   adapter->pci_addr);
+ 	} else
+-		blogic_err("While configuring BusLogic Host Adapter at I/O Address 0x%lX:\n", adapter, adapter->io_addr);
+-	blogic_err("%s FAILED - DETACHING\n", adapter, msg);
++		blogic_err(adapter,
++			   "While configuring BusLogic Host Adapter at I/O Address 0x%lX:\n",
++			   adapter->io_addr);
++	blogic_err(adapter, "%s FAILED - DETACHING\n", msg);
+ 	if (blogic_cmd_failure_reason != NULL)
+-		blogic_err("ADDITIONAL FAILURE INFO - %s\n", adapter,
+-				blogic_cmd_failure_reason);
++		blogic_err(adapter, "ADDITIONAL FAILURE INFO - %s\n",
++			   blogic_cmd_failure_reason);
+ 	return false;
+ }
+ 
+@@ -1130,13 +1173,20 @@ static bool __init blogic_probe(struct blogic_adapter *adapter)
+ 		fpinfo->present = false;
+ 		if (!(FlashPoint_ProbeHostAdapter(fpinfo) == 0 &&
+ 					fpinfo->present)) {
+-			blogic_err("BusLogic: FlashPoint Host Adapter detected at PCI Bus %d Device %d\n", adapter, adapter->bus, adapter->dev);
+-			blogic_err("BusLogic: I/O Address 0x%lX PCI Address 0x%lX, but FlashPoint\n", adapter, adapter->io_addr, adapter->pci_addr);
+-			blogic_err("BusLogic: Probe Function failed to validate it.\n", adapter);
++			blogic_err(adapter,
++				   "BusLogic: FlashPoint Host Adapter detected at PCI Bus %d Device %d\n",
++				   adapter->bus, adapter->dev);
++			blogic_err(adapter,
++				   "BusLogic: I/O Address 0x%lX PCI Address 0x%lX, but FlashPoint\n",
++				   adapter->io_addr, adapter->pci_addr);
++			blogic_err(adapter,
++				   "BusLogic: Probe Function failed to validate it\n");
+ 			return false;
+ 		}
+ 		if (blogic_global_options.trace_probe)
+-			blogic_notice("BusLogic_Probe(0x%lX): FlashPoint Found\n", adapter, adapter->io_addr);
++			blogic_notice(adapter,
++				      "BusLogic_Probe(0x%lX): FlashPoint Found\n",
++				      adapter->io_addr);
+ 		/*
+ 		   Indicate the Host Adapter Probe completed successfully.
+ 		 */
+@@ -1153,7 +1203,10 @@ static bool __init blogic_probe(struct blogic_adapter *adapter)
+ 	intreg.all = blogic_rdint(adapter);
+ 	georeg.all = blogic_rdgeom(adapter);
+ 	if (blogic_global_options.trace_probe)
+-		blogic_notice("BusLogic_Probe(0x%lX): Status 0x%02X, Interrupt 0x%02X, Geometry 0x%02X\n", adapter, adapter->io_addr, statusreg.all, intreg.all, georeg.all);
++		blogic_notice(adapter,
++			      "BusLogic_Probe(0x%lX): Status 0x%02X, Interrupt 0x%02X, Geometry 0x%02X\n",
++			      adapter->io_addr, statusreg.all, intreg.all,
++			      georeg.all);
+ 	if (statusreg.all == 0 || statusreg.sr.diag_active ||
+ 			statusreg.sr.cmd_param_busy || statusreg.sr.rsvd ||
+ 			statusreg.sr.cmd_invalid || intreg.ir.rsvd != 0)
+@@ -1232,7 +1285,9 @@ static bool blogic_hwreset(struct blogic_adapter *adapter, bool hard_reset)
+ 		udelay(100);
+ 	}
+ 	if (blogic_global_options.trace_hw_reset)
+-		blogic_notice("BusLogic_HardwareReset(0x%lX): Diagnostic Active, Status 0x%02X\n", adapter, adapter->io_addr, statusreg.all);
++		blogic_notice(adapter,
++			      "BusLogic_HardwareReset(0x%lX): Diagnostic Active, Status 0x%02X\n",
++			      adapter->io_addr, statusreg.all);
+ 	if (timeout < 0)
+ 		return false;
+ 	/*
+@@ -1252,7 +1307,9 @@ static bool blogic_hwreset(struct blogic_adapter *adapter, bool hard_reset)
+ 		udelay(100);
+ 	}
+ 	if (blogic_global_options.trace_hw_reset)
+-		blogic_notice("BusLogic_HardwareReset(0x%lX): Diagnostic Completed, Status 0x%02X\n", adapter, adapter->io_addr, statusreg.all);
++		blogic_notice(adapter,
++			      "BusLogic_HardwareReset(0x%lX): Diagnostic Completed, Status 0x%02X\n",
++			      adapter->io_addr, statusreg.all);
+ 	if (timeout < 0)
+ 		return false;
+ 	/*
+@@ -1268,7 +1325,9 @@ static bool blogic_hwreset(struct blogic_adapter *adapter, bool hard_reset)
+ 		udelay(100);
+ 	}
+ 	if (blogic_global_options.trace_hw_reset)
+-		blogic_notice("BusLogic_HardwareReset(0x%lX): Host Adapter Ready, Status 0x%02X\n", adapter, adapter->io_addr, statusreg.all);
++		blogic_notice(adapter,
++			      "BusLogic_HardwareReset(0x%lX): Host Adapter Ready, Status 0x%02X\n",
++			      adapter->io_addr, statusreg.all);
+ 	if (timeout < 0)
+ 		return false;
+ 	/*
+@@ -1280,11 +1339,11 @@ static bool blogic_hwreset(struct blogic_adapter *adapter, bool hard_reset)
+ 	if (statusreg.sr.diag_failed || !statusreg.sr.adapter_ready) {
+ 		blogic_cmd_failure_reason = NULL;
+ 		blogic_failure(adapter, "HARD RESET DIAGNOSTICS");
+-		blogic_err("HOST ADAPTER STATUS REGISTER = %02X\n", adapter,
+-				statusreg.all);
++		blogic_err(adapter, "HOST ADAPTER STATUS REGISTER = %02X\n",
++			   statusreg.all);
+ 		if (statusreg.sr.datain_ready)
+-			blogic_err("HOST ADAPTER ERROR CODE = %d\n", adapter,
+-					blogic_rddatain(adapter));
++			blogic_err(adapter, "HOST ADAPTER ERROR CODE = %d\n",
++				   blogic_rddatain(adapter));
+ 		return false;
+ 	}
+ 	/*
+@@ -1324,9 +1383,10 @@ static bool __init blogic_checkadapter(struct blogic_adapter *adapter)
+ 	   Provide tracing information if requested and return.
+ 	 */
+ 	if (blogic_global_options.trace_probe)
+-		blogic_notice("BusLogic_Check(0x%lX): MultiMaster %s\n", adapter,
+-				adapter->io_addr,
+-				(result ? "Found" : "Not Found"));
++		blogic_notice(adapter,
++			      "BusLogic_Check(0x%lX): MultiMaster %s\n",
++			      adapter->io_addr,
++			      (result ? "Found" : "Not Found"));
+ 	return result;
+ }
+ 
+@@ -1836,30 +1896,40 @@ static bool __init blogic_reportconfig(struct blogic_adapter *adapter)
+ 	char *tagq_msg = tagq_str;
+ 	int tgt_id;
+ 
+-	blogic_info("Configuring BusLogic Model %s %s%s%s%s SCSI Host Adapter\n", adapter, adapter->model, blogic_adapter_busnames[adapter->adapter_bus_type], (adapter->wide ? " Wide" : ""), (adapter->differential ? " Differential" : ""), (adapter->ultra ? " Ultra" : ""));
+-	blogic_info("  Firmware Version: %s, I/O Address: 0x%lX, IRQ Channel: %d/%s\n", adapter, adapter->fw_ver, adapter->io_addr, adapter->irq_ch, (adapter->level_int ? "Level" : "Edge"));
++	blogic_info(adapter,
++		    "Configuring BusLogic Model %s %s%s%s%s SCSI Host Adapter\n",
++		    adapter->model,
++		    blogic_adapter_busnames[adapter->adapter_bus_type],
++		    (adapter->wide ? " Wide" : ""),
++		    (adapter->differential ? " Differential" : ""),
++		    (adapter->ultra ? " Ultra" : ""));
++	blogic_info(adapter,
++		    "  Firmware Version: %s, I/O Address: 0x%lX, IRQ Channel: %d/%s\n",
++		    adapter->fw_ver, adapter->io_addr, adapter->irq_ch,
++		    (adapter->level_int ? "Level" : "Edge"));
+ 	if (adapter->adapter_bus_type != BLOGIC_PCI_BUS) {
+-		blogic_info("  DMA Channel: ", adapter);
++		blogic_info(adapter, "  DMA Channel: ");
+ 		if (adapter->dma_ch > 0)
+-			blogic_info("%d, ", adapter, adapter->dma_ch);
++			blogic_cont(adapter, "%d, ", adapter->dma_ch);
+ 		else
+-			blogic_info("None, ", adapter);
++			blogic_cont(adapter, "None, ");
+ 		if (adapter->bios_addr > 0)
+-			blogic_info("BIOS Address: 0x%lX, ", adapter,
+-					adapter->bios_addr);
++			blogic_cont(adapter, "BIOS Address: 0x%X, ",
++				    adapter->bios_addr);
+ 		else
+-			blogic_info("BIOS Address: None, ", adapter);
++			blogic_cont(adapter, "BIOS Address: None, ");
+ 	} else {
+-		blogic_info("  PCI Bus: %d, Device: %d, Address: ", adapter,
+-				adapter->bus, adapter->dev);
++		blogic_cont(adapter, "  PCI Bus: %d, Device: %d, Address: ",
++			    adapter->bus, adapter->dev);
+ 		if (adapter->pci_addr > 0)
+-			blogic_info("0x%lX, ", adapter, adapter->pci_addr);
++			blogic_cont(adapter, "0x%lX, ", adapter->pci_addr);
+ 		else
+-			blogic_info("Unassigned, ", adapter);
++			blogic_cont(adapter, "Unassigned, ");
+ 	}
+-	blogic_info("Host Adapter SCSI ID: %d\n", adapter, adapter->scsi_id);
+-	blogic_info("  Parity Checking: %s, Extended Translation: %s\n",
+-			adapter, (adapter->parity ? "Enabled" : "Disabled"),
++	blogic_cont(adapter, "Host Adapter SCSI ID: %d\n", adapter->scsi_id);
++	blogic_info(adapter,
++		    "  Parity Checking: %s, Extended Translation: %s\n",
++			(adapter->parity ? "Enabled" : "Disabled"),
+ 			(adapter->ext_trans_enable ? "Enabled" : "Disabled"));
+ 	alltgt_mask &= ~(1 << adapter->scsi_id);
+ 	sync_ok = adapter->sync_ok & alltgt_mask;
+@@ -1928,16 +1998,25 @@ static bool __init blogic_reportconfig(struct blogic_adapter *adapter)
+ 		tagq_str[adapter->scsi_id] = '#';
+ 		tagq_str[adapter->maxdev] = '\0';
+ 	}
+-	blogic_info("  Synchronous Negotiation: %s, Wide Negotiation: %s\n",
+-			adapter, syncmsg, widemsg);
+-	blogic_info("  Disconnect/Reconnect: %s, Tagged Queuing: %s\n", adapter,
+-			discon_msg, tagq_msg);
++	blogic_info(adapter,
++		    "  Synchronous Negotiation: %s, Wide Negotiation: %s\n",
++		    syncmsg, widemsg);
++	blogic_info(adapter,
++		    "  Disconnect/Reconnect: %s, Tagged Queuing: %s\n",
++		    discon_msg, tagq_msg);
+ 	if (blogic_multimaster_type(adapter)) {
+-		blogic_info("  Scatter/Gather Limit: %d of %d segments, Mailboxes: %d\n", adapter, adapter->drvr_sglimit, adapter->adapter_sglimit, adapter->mbox_count);
+-		blogic_info("  Driver Queue Depth: %d, Host Adapter Queue Depth: %d\n", adapter, adapter->drvr_qdepth, adapter->adapter_qdepth);
++		blogic_info(adapter,
++			    "  Scatter/Gather Limit: %d of %d segments, Mailboxes: %d\n",
++			    adapter->drvr_sglimit, adapter->adapter_sglimit,
++			    adapter->mbox_count);
++		blogic_info(adapter,
++			    "  Driver Queue Depth: %d, Host Adapter Queue Depth: %d\n",
++			    adapter->drvr_qdepth, adapter->adapter_qdepth);
+ 	} else
+-		blogic_info("  Driver Queue Depth: %d, Scatter/Gather Limit: %d segments\n", adapter, adapter->drvr_qdepth, adapter->drvr_sglimit);
+-	blogic_info("  Tagged Queue Depth: ", adapter);
++		blogic_info(adapter,
++			    "  Driver Queue Depth: %d, Scatter/Gather Limit: %d segments\n",
++			    adapter->drvr_qdepth, adapter->drvr_sglimit);
++	blogic_info(adapter, "  Tagged Queue Depth: ");
+ 	common_tagq_depth = true;
+ 	for (tgt_id = 1; tgt_id < adapter->maxdev; tgt_id++)
+ 		if (adapter->qdepth[tgt_id] != adapter->qdepth[0]) {
+@@ -1946,24 +2025,28 @@ static bool __init blogic_reportconfig(struct blogic_adapter *adapter)
+ 		}
+ 	if (common_tagq_depth) {
+ 		if (adapter->qdepth[0] > 0)
+-			blogic_info("%d", adapter, adapter->qdepth[0]);
++			blogic_cont(adapter, "%d", adapter->qdepth[0]);
+ 		else
+-			blogic_info("Automatic", adapter);
++			blogic_cont(adapter, "Automatic");
+ 	} else
+-		blogic_info("Individual", adapter);
+-	blogic_info(", Untagged Queue Depth: %d\n", adapter,
+-			adapter->untag_qdepth);
++		blogic_cont(adapter, "Individual");
++	blogic_cont(adapter, ", Untagged Queue Depth: %d\n",
++		    adapter->untag_qdepth);
+ 	if (adapter->terminfo_valid) {
+ 		if (adapter->wide)
+-			blogic_info("  SCSI Bus Termination: %s", adapter,
+-				(adapter->low_term ? (adapter->high_term ? "Both Enabled" : "Low Enabled") : (adapter->high_term ? "High Enabled" : "Both Disabled")));
++			blogic_info(adapter, "  SCSI Bus Termination: %s",
++				    (adapter->low_term
++				     ? (adapter->high_term ? "Both Enabled" : "Low Enabled")
++				     : (adapter->high_term ? "High Enabled" : "Both Disabled")));
+ 		else
+-			blogic_info("  SCSI Bus Termination: %s", adapter,
+-				(adapter->low_term ? "Enabled" : "Disabled"));
++			blogic_info(adapter, "  SCSI Bus Termination: %s",
++				    (adapter->low_term ? "Enabled" : "Disabled"));
+ 		if (adapter->scam)
+-			blogic_info(", SCAM: %s", adapter,
+-				(adapter->scam_enabled ? (adapter->scam_lev2 ? "Enabled, Level 2" : "Enabled, Level 1") : "Disabled"));
+-		blogic_info("\n", adapter);
++			blogic_cont(adapter, ", SCAM: %s",
++				    (adapter->scam_enabled
++				     ? (adapter->scam_lev2 ? "Enabled, Level 2" : "Enabled, Level 1")
++				     : "Disabled"));
++		blogic_cont(adapter, "\n");
+ 	}
+ 	/*
+ 	   Indicate reporting the Host Adapter configuration completed
+@@ -1981,8 +2064,8 @@ static bool __init blogic_reportconfig(struct blogic_adapter *adapter)
+ static bool __init blogic_getres(struct blogic_adapter *adapter)
+ {
+ 	if (adapter->irq_ch == 0) {
+-		blogic_err("NO LEGAL INTERRUPT CHANNEL ASSIGNED - DETACHING\n",
+-				adapter);
++		blogic_err(adapter,
++			   "NO LEGAL INTERRUPT CHANNEL ASSIGNED - DETACHING\n");
+ 		return false;
+ 	}
+ 	/*
+@@ -1990,8 +2073,9 @@ static bool __init blogic_getres(struct blogic_adapter *adapter)
+ 	 */
+ 	if (request_irq(adapter->irq_ch, blogic_inthandler, IRQF_SHARED,
+ 				adapter->full_model, adapter) < 0) {
+-		blogic_err("UNABLE TO ACQUIRE IRQ CHANNEL %d - DETACHING\n",
+-				adapter, adapter->irq_ch);
++		blogic_err(adapter,
++			   "UNABLE TO ACQUIRE IRQ CHANNEL %d - DETACHING\n",
++			   adapter->irq_ch);
+ 		return false;
+ 	}
+ 	adapter->irq_acquired = true;
+@@ -2000,7 +2084,9 @@ static bool __init blogic_getres(struct blogic_adapter *adapter)
+ 	 */
+ 	if (adapter->dma_ch > 0) {
+ 		if (request_dma(adapter->dma_ch, adapter->full_model) < 0) {
+-			blogic_err("UNABLE TO ACQUIRE DMA CHANNEL %d - DETACHING\n", adapter, adapter->dma_ch);
++			blogic_err(adapter,
++				   "UNABLE TO ACQUIRE DMA CHANNEL %d - DETACHING\n",
++				   adapter->dma_ch);
+ 			return false;
+ 		}
+ 		set_dma_mode(adapter->dma_ch, DMA_MODE_CASCADE);
+@@ -2148,12 +2234,12 @@ static bool blogic_initadapter(struct blogic_adapter *adapter)
+ 	 */
+ done:
+ 	if (!adapter->adapter_initd) {
+-		blogic_info("*** %s Initialized Successfully ***\n", adapter,
+-				adapter->full_model);
+-		blogic_info("\n", adapter);
++		blogic_info(adapter, "*** %s Initialized Successfully ***\n",
++			    adapter->full_model);
++		blogic_info(adapter, "\n");
+ 	} else
+-		blogic_warn("*** %s Initialized Successfully ***\n", adapter,
+-				adapter->full_model);
++		blogic_warn(adapter, "*** %s Initialized Successfully ***\n",
++			    adapter->full_model);
+ 	adapter->adapter_initd = true;
+ 
+ 	/*
+@@ -2365,15 +2451,16 @@ static int __init blogic_init(void)
+ 	    kcalloc(BLOGIC_MAX_ADAPTERS, sizeof(struct blogic_probeinfo),
+ 			    GFP_KERNEL);
+ 	if (blogic_probeinfo_list == NULL) {
+-		blogic_err("BusLogic: Unable to allocate Probe Info List\n",
+-				NULL);
++		blogic_err(NULL,
++			   "BusLogic: Unable to allocate Probe Info List\n");
+ 		return -ENOMEM;
+ 	}
+ 
+ 	adapter = kzalloc(sizeof(struct blogic_adapter), GFP_KERNEL);
+ 	if (adapter == NULL) {
+ 		kfree(blogic_probeinfo_list);
+-		blogic_err("BusLogic: Unable to allocate Prototype Host Adapter\n", NULL);
++		blogic_err(NULL,
++			   "BusLogic: Unable to allocate Prototype Host Adapter\n");
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -2633,8 +2720,9 @@ static int blogic_resultcode(struct blogic_adapter *adapter,
+ 	case BLOGIC_INVALID_OUTBOX_CODE:
+ 	case BLOGIC_INVALID_CMD_CODE:
+ 	case BLOGIC_BAD_CMD_PARAM:
+-		blogic_warn("BusLogic Driver Protocol Error 0x%02X\n",
+-				adapter, adapter_status);
++		blogic_warn(adapter,
++			    "BusLogic Driver Protocol Error 0x%02X\n",
++			    adapter_status);
+ 		fallthrough;
+ 	case BLOGIC_DATA_UNDERRUN:
+ 	case BLOGIC_DATA_OVERRUN:
+@@ -2659,8 +2747,8 @@ static int blogic_resultcode(struct blogic_adapter *adapter,
+ 		hoststatus = DID_RESET;
+ 		break;
+ 	default:
+-		blogic_warn("Unknown Host Adapter Status 0x%02X\n", adapter,
+-				adapter_status);
++		blogic_warn(adapter, "Unknown Host Adapter Status 0x%02X\n",
++			    adapter_status);
+ 		hoststatus = DID_ERROR;
+ 		break;
+ 	}
+@@ -2718,7 +2806,9 @@ static void blogic_scan_inbox(struct blogic_adapter *adapter)
+ 				   then there is most likely a bug in
+ 				   the Host Adapter firmware.
+ 				 */
+-				blogic_warn("Illegal CCB #%ld status %d in Incoming Mailbox\n", adapter, ccb->serial, ccb->status);
++				blogic_warn(adapter,
++					    "Illegal CCB #%ld status %d in Incoming Mailbox\n",
++					    ccb->serial, ccb->status);
+ 			}
+ 		}
+ 		next_inbox->comp_code = BLOGIC_INBOX_FREE;
+@@ -2753,7 +2843,9 @@ static void blogic_process_ccbs(struct blogic_adapter *adapter)
+ 		if (ccb->opcode == BLOGIC_BDR) {
+ 			int tgt_id = ccb->tgt_id;
+ 
+-			blogic_warn("Bus Device Reset CCB #%ld to Target %d Completed\n", adapter, ccb->serial, tgt_id);
++			blogic_warn(adapter,
++				    "Bus Device Reset CCB #%ld to Target %d Completed\n",
++				    ccb->serial, tgt_id);
+ 			blogic_inc_count(&adapter->tgt_stats[tgt_id].bdr_done);
+ 			adapter->tgt_flags[tgt_id].tagq_active = false;
+ 			adapter->cmds_since_rst[tgt_id] = 0;
+@@ -2806,7 +2898,9 @@ static void blogic_process_ccbs(struct blogic_adapter *adapter)
+ 			case BLOGIC_INBOX_FREE:
+ 			case BLOGIC_CMD_NOTFOUND:
+ 			case BLOGIC_INVALID_CCB:
+-				blogic_warn("CCB #%ld to Target %d Impossible State\n", adapter, ccb->serial, ccb->tgt_id);
++				blogic_warn(adapter,
++					    "CCB #%ld to Target %d Impossible State\n",
++					    ccb->serial, ccb->tgt_id);
+ 				break;
+ 			case BLOGIC_CMD_COMPLETE_GOOD:
+ 				adapter->tgt_stats[ccb->tgt_id]
+@@ -2816,8 +2910,9 @@ static void blogic_process_ccbs(struct blogic_adapter *adapter)
+ 				command->result = DID_OK << 16;
+ 				break;
+ 			case BLOGIC_CMD_ABORT_BY_HOST:
+-				blogic_warn("CCB #%ld to Target %d Aborted\n",
+-					adapter, ccb->serial, ccb->tgt_id);
++				blogic_warn(adapter,
++					    "CCB #%ld to Target %d Aborted\n",
++					    ccb->serial, ccb->tgt_id);
+ 				blogic_inc_count(&adapter->tgt_stats[ccb->tgt_id].aborts_done);
+ 				command->result = DID_ABORT << 16;
+ 				break;
+@@ -2829,16 +2924,26 @@ static void blogic_process_ccbs(struct blogic_adapter *adapter)
+ 					    .cmds_complete++;
+ 					if (blogic_global_options.trace_err) {
+ 						int i;
+-						blogic_notice("CCB #%ld Target %d: Result %X Host "
+-								"Adapter Status %02X Target Status %02X\n", adapter, ccb->serial, ccb->tgt_id, command->result, ccb->adapter_status, ccb->tgt_status);
+-						blogic_notice("CDB   ", adapter);
++						blogic_notice(adapter,
++							      "CCB #%ld Target %d: Result %X Host Adapter Status %02X Target Status %02X\n",
++							      ccb->serial,
++							      ccb->tgt_id,
++							      command->result,
++							      ccb->adapter_status,
++							      ccb->tgt_status);
++						blogic_notice(adapter,
++							      "CDB   ");
+ 						for (i = 0; i < ccb->cdblen; i++)
+-							blogic_notice(" %02X", adapter, ccb->cdb[i]);
+-						blogic_notice("\n", adapter);
+-						blogic_notice("Sense ", adapter);
++							blogic_cont(adapter,
++								    " %02X",
++								    ccb->cdb[i]);
++						blogic_cont(adapter, "\n");
++						blogic_notice(adapter, "Sense ");
+ 						for (i = 0; i < ccb->sense_datalen; i++)
+-							blogic_notice(" %02X", adapter, command->sense_buffer[i]);
+-						blogic_notice("\n", adapter);
++							blogic_cont(adapter,
++								    " %02X",
++								    command->sense_buffer[i]);
++						blogic_cont(adapter, "\n");
+ 					}
+ 				}
+ 				break;
+@@ -2925,7 +3030,8 @@ static irqreturn_t blogic_inthandler(int irq_ch, void *devid)
+ 				adapter->adapter_extreset = true;
+ 				break;
+ 			case FPOINT_INTERN_ERR:
+-				blogic_warn("Internal FlashPoint Error detected - Resetting Host Adapter\n", adapter);
++				blogic_warn(adapter,
++					    "Internal FlashPoint Error detected - Resetting Host Adapter\n");
+ 				adapter->adapter_intern_err = true;
+ 				break;
+ 			}
+@@ -2939,12 +3045,16 @@ static irqreturn_t blogic_inthandler(int irq_ch, void *devid)
+ 	   Reset the Host Adapter if requested.
+ 	 */
+ 	if (adapter->adapter_extreset) {
+-		blogic_warn("Resetting %s due to External SCSI Bus Reset\n", adapter, adapter->full_model);
++		blogic_warn(adapter,
++			    "Resetting %s due to External SCSI Bus Reset\n",
++			    adapter->full_model);
+ 		blogic_inc_count(&adapter->ext_resets);
+ 		blogic_resetadapter(adapter, false);
+ 		adapter->adapter_extreset = false;
+ 	} else if (adapter->adapter_intern_err) {
+-		blogic_warn("Resetting %s due to Host Adapter Internal Error\n", adapter, adapter->full_model);
++		blogic_warn(adapter,
++			    "Resetting %s due to Host Adapter Internal Error\n",
++			    adapter->full_model);
+ 		blogic_inc_count(&adapter->adapter_intern_errors);
+ 		blogic_resetadapter(adapter, true);
+ 		adapter->adapter_intern_err = false;
+@@ -3142,8 +3252,9 @@ static int blogic_qcmd_lck(struct scsi_cmnd *command,
+ 			&& tgt_flags->tagq_ok &&
+ 			(adapter->tagq_ok & (1 << tgt_id))) {
+ 		tgt_flags->tagq_active = true;
+-		blogic_notice("Tagged Queuing now active for Target %d\n",
+-					adapter, tgt_id);
++		blogic_notice(adapter,
++			      "Tagged Queuing now active for Target %d\n",
++			      tgt_id);
+ 	}
+ 	if (tgt_flags->tagq_active) {
+ 		enum blogic_queuetag queuetag = BLOGIC_SIMPLETAG;
+@@ -3184,8 +3295,8 @@ static int blogic_qcmd_lck(struct scsi_cmnd *command,
+ 				command->sense_buffer, ccb->sense_datalen,
+ 				DMA_FROM_DEVICE);
+ 	if (dma_mapping_error(&adapter->pci_device->dev, sense_buf)) {
+-		blogic_err("DMA mapping for sense data buffer failed\n",
+-				adapter);
++		blogic_err(adapter,
++			   "DMA mapping for sense data buffer failed\n");
+ 		blogic_dealloc_ccb(ccb, 0);
+ 		return SCSI_MLQUEUE_HOST_BUSY;
+ 	}
+@@ -3204,12 +3315,12 @@ static int blogic_qcmd_lck(struct scsi_cmnd *command,
+ 		 */
+ 		if (!blogic_write_outbox(adapter, BLOGIC_MBOX_START, ccb)) {
+ 			spin_unlock_irq(adapter->scsi_host->host_lock);
+-			blogic_warn("Unable to write Outgoing Mailbox - Pausing for 1 second\n", adapter);
++			blogic_warn(adapter, "Unable to write Outgoing Mailbox - Pausing for 1 second\n");
+ 			blogic_delay(1);
+ 			spin_lock_irq(adapter->scsi_host->host_lock);
+ 			if (!blogic_write_outbox(adapter, BLOGIC_MBOX_START,
+ 						ccb)) {
+-				blogic_warn("Still unable to write Outgoing Mailbox - Host Adapter Dead?\n", adapter);
++				blogic_warn(adapter, "Still unable to write Outgoing Mailbox - Host Adapter Dead?\n");
+ 				blogic_dealloc_ccb(ccb, 1);
+ 				command->result = DID_ERROR << 16;
+ 				command->scsi_done(command);
+@@ -3259,13 +3370,16 @@ static int blogic_abort(struct scsi_cmnd *command)
+ 		if (ccb->command == command)
+ 			break;
+ 	if (ccb == NULL) {
+-		blogic_warn("Unable to Abort Command to Target %d - No CCB Found\n", adapter, tgt_id);
++		blogic_warn(adapter, "Unable to Abort Command to Target %d - No CCB Found\n",
++			    tgt_id);
+ 		return SUCCESS;
+ 	} else if (ccb->status == BLOGIC_CCB_COMPLETE) {
+-		blogic_warn("Unable to Abort Command to Target %d - CCB Completed\n", adapter, tgt_id);
++		blogic_warn(adapter, "Unable to Abort Command to Target %d - CCB Completed\n",
++			    tgt_id);
+ 		return SUCCESS;
+ 	} else if (ccb->status == BLOGIC_CCB_RESET) {
+-		blogic_warn("Unable to Abort Command to Target %d - CCB Reset\n", adapter, tgt_id);
++		blogic_warn(adapter, "Unable to Abort Command to Target %d - CCB Reset\n",
++			    tgt_id);
+ 		return SUCCESS;
+ 	}
+ 	if (blogic_multimaster_type(adapter)) {
+@@ -3283,16 +3397,18 @@ static int blogic_abort(struct scsi_cmnd *command)
+ 		 */
+ 		if (adapter->tgt_flags[tgt_id].tagq_active &&
+ 				adapter->fw_ver[0] < '5') {
+-			blogic_warn("Unable to Abort CCB #%ld to Target %d - Abort Tag Not Supported\n", adapter, ccb->serial, tgt_id);
++			blogic_warn(adapter, "Unable to Abort CCB #%ld to Target %d - Abort Tag Not Supported\n",
++				    ccb->serial, tgt_id);
+ 			return FAILURE;
+ 		} else if (blogic_write_outbox(adapter, BLOGIC_MBOX_ABORT,
+ 					ccb)) {
+-			blogic_warn("Aborting CCB #%ld to Target %d\n",
+-					adapter, ccb->serial, tgt_id);
++			blogic_warn(adapter, "Aborting CCB #%ld to Target %d\n",
++				    ccb->serial, tgt_id);
+ 			blogic_inc_count(&adapter->tgt_stats[tgt_id].aborts_tried);
+ 			return SUCCESS;
+ 		} else {
+-			blogic_warn("Unable to Abort CCB #%ld to Target %d - No Outgoing Mailboxes\n", adapter, ccb->serial, tgt_id);
++			blogic_warn(adapter, "Unable to Abort CCB #%ld to Target %d - No Outgoing Mailboxes\n",
++				    ccb->serial, tgt_id);
+ 			return FAILURE;
+ 		}
+ 	} else {
+@@ -3300,8 +3416,8 @@ static int blogic_abort(struct scsi_cmnd *command)
+ 		   Call the FlashPoint SCCB Manager to abort execution of
+ 		   the CCB.
+ 		 */
+-		blogic_warn("Aborting CCB #%ld to Target %d\n", adapter,
+-				ccb->serial, tgt_id);
++		blogic_warn(adapter, "Aborting CCB #%ld to Target %d\n",
++			    ccb->serial, tgt_id);
+ 		blogic_inc_count(&adapter->tgt_stats[tgt_id].aborts_tried);
+ 		FlashPoint_AbortCCB(adapter->cardhandle, ccb);
+ 		/*
+@@ -3333,8 +3449,8 @@ static int blogic_resetadapter(struct blogic_adapter *adapter, bool hard_reset)
+ 
+ 	if (!(blogic_hwreset(adapter, hard_reset) &&
+ 				blogic_initadapter(adapter))) {
+-		blogic_err("Resetting %s Failed\n", adapter,
+-						adapter->full_model);
++		blogic_err(adapter, "Resetting %s Failed\n",
++			   adapter->full_model);
+ 		return FAILURE;
+ 	}
+ 
+@@ -3443,10 +3559,15 @@ static int blogic_diskparam(struct scsi_device *sdev, struct block_device *dev,
+ 		diskparam->cylinders = (unsigned long) capacity / (diskparam->heads * diskparam->sectors);
+ 		if (part_no < 4 && part_end_sector == diskparam->sectors) {
+ 			if (diskparam->cylinders != saved_cyl)
+-				blogic_warn("Adopting Geometry %d/%d from Partition Table\n", adapter, diskparam->heads, diskparam->sectors);
++				blogic_warn(adapter,
++					    "Adopting Geometry %d/%d from Partition Table\n",
++					    diskparam->heads,
++					    diskparam->sectors);
+ 		} else if (part_end_head > 0 || part_end_sector > 0) {
+-			blogic_warn("Warning: Partition Table appears to have Geometry %d/%d which is\n", adapter, part_end_head + 1, part_end_sector);
+-			blogic_warn("not compatible with current BusLogic Host Adapter Geometry %d/%d\n", adapter, diskparam->heads, diskparam->sectors);
++			blogic_warn(adapter,
++				    "Warning: Partition Table appears to have Geometry %d/%d which is not compatible with current BusLogic Host Adapter Geometry %d/%d\n",
++				    part_end_head + 1, part_end_sector,
++				    diskparam->heads, diskparam->sectors);
+ 		}
+ 	}
+ 	kfree(buf);
+@@ -3571,6 +3692,7 @@ Target	Requested Completed  Requested Completed  Requested Completed\n\
+ 	}
+ 	seq_printf(m, "\nExternal Host Adapter Resets: %d\n", adapter->ext_resets);
+ 	seq_printf(m, "Host Adapter Internal Errors: %d\n", adapter->adapter_intern_errors);
++
+ 	return 0;
+ }
+ 
+@@ -3579,41 +3701,51 @@ Target	Requested Completed  Requested Completed  Requested Completed\n\
+   blogic_msg prints Driver Messages.
+ */
+ 
+-static void blogic_msg(enum blogic_msglevel msglevel, char *fmt,
+-			struct blogic_adapter *adapter, ...)
++static void blogic_msg(enum blogic_msglevel msglevel,
++		       struct blogic_adapter *adapter, const char *fmt, ...)
+ {
+ 	static char buf[BLOGIC_LINEBUF_SIZE];
+-	static bool begin = true;
+ 	va_list args;
+ 	int len = 0;
++	const char *kern_level = blogic_msglevelmap[msglevel];
+ 
+-	va_start(args, adapter);
+-	len = vsprintf(buf, fmt, args);
++	va_start(args, fmt);
++	len = vscnprintf(buf, sizeof(buf), fmt, args);
+ 	va_end(args);
+-	if (msglevel == BLOGIC_ANNOUNCE_LEVEL) {
++
++	switch (msglevel) {
++	case BLOGIC_ANNOUNCE_LEVEL: {
+ 		static int msglines = 0;
++
+ 		strcpy(&adapter->msgbuf[adapter->msgbuflen], buf);
+ 		adapter->msgbuflen += len;
+ 		if (++msglines <= 2)
+-			printk("%sscsi: %s", blogic_msglevelmap[msglevel], buf);
+-	} else if (msglevel == BLOGIC_INFO_LEVEL) {
++			printk("%sscsi: %s", kern_level, buf);
++		break;
++	}
++
++	case BLOGIC_INFO_LEVEL:
+ 		strcpy(&adapter->msgbuf[adapter->msgbuflen], buf);
+ 		adapter->msgbuflen += len;
+-		if (begin) {
+-			if (buf[0] != '\n' || len > 1)
+-				printk("%sscsi%d: %s", blogic_msglevelmap[msglevel], adapter->host_no, buf);
+-		} else
+-			printk("%s", buf);
+-	} else {
+-		if (begin) {
+-			if (adapter != NULL && adapter->adapter_initd)
+-				printk("%sscsi%d: %s", blogic_msglevelmap[msglevel], adapter->host_no, buf);
+-			else
+-				printk("%s%s", blogic_msglevelmap[msglevel], buf);
+-		} else
+-			printk("%s", buf);
++		if (buf[0] != '\n' || len > 1)
++			printk("%sscsi%d: %s",
++			       kern_level, adapter->host_no, buf);
++		break;
++
++	case BLOGIC_CONT_LEVEL:
++		strcpy(&adapter->msgbuf[adapter->msgbuflen], buf);
++		adapter->msgbuflen += len;
++		printk("%s%s", kern_level, buf);
++		break;
++
++	default:
++		if (adapter && adapter->adapter_initd)
++			printk("%sscsi%d: %s",
++			       kern_level, adapter->host_no, buf);
++		else
++			printk("%s%s", kern_level, buf);
++		break;
+ 	}
+-	begin = (buf[len - 1] == '\n');
+ }
+ 
+ 
+@@ -3691,7 +3823,9 @@ static int __init blogic_parseopts(char *options)
+ 					blogic_probe_options.probe134 = true;
+ 					break;
+ 				default:
+-					blogic_err("BusLogic: Invalid Driver Options (invalid I/O Address 0x%lX)\n", NULL, io_addr);
++					blogic_err(NULL,
++						   "BusLogic: Invalid Driver Options (invalid I/O Address 0x%lX)\n",
++						   io_addr);
+ 					return 0;
+ 				}
+ 			} else if (blogic_parse(&options, "NoProbeISA"))
+@@ -3712,7 +3846,9 @@ static int __init blogic_parseopts(char *options)
+ 				for (tgt_id = 0; tgt_id < BLOGIC_MAXDEV; tgt_id++) {
+ 					unsigned short qdepth = simple_strtoul(options, &options, 0);
+ 					if (qdepth > BLOGIC_MAX_TAG_DEPTH) {
+-						blogic_err("BusLogic: Invalid Driver Options (invalid Queue Depth %d)\n", NULL, qdepth);
++						blogic_err(NULL,
++							   "BusLogic: Invalid Driver Options (invalid Queue Depth %d)\n",
++							   qdepth);
+ 						return 0;
+ 					}
+ 					drvr_opts->qdepth[tgt_id] = qdepth;
+@@ -3721,12 +3857,16 @@ static int __init blogic_parseopts(char *options)
+ 					else if (*options == ']')
+ 						break;
+ 					else {
+-						blogic_err("BusLogic: Invalid Driver Options (',' or ']' expected at '%s')\n", NULL, options);
++						blogic_err(NULL,
++							   "BusLogic: Invalid Driver Options (',' or ']' expected at '%s')\n",
++							   options);
+ 						return 0;
+ 					}
+ 				}
+ 				if (*options != ']') {
+-					blogic_err("BusLogic: Invalid Driver Options (']' expected at '%s')\n", NULL, options);
++					blogic_err(NULL,
++						   "BusLogic: Invalid Driver Options (']' expected at '%s')\n",
++						   options);
+ 					return 0;
+ 				} else
+ 					options++;
+@@ -3734,7 +3874,9 @@ static int __init blogic_parseopts(char *options)
+ 				unsigned short qdepth = simple_strtoul(options, &options, 0);
+ 				if (qdepth == 0 ||
+ 						qdepth > BLOGIC_MAX_TAG_DEPTH) {
+-					blogic_err("BusLogic: Invalid Driver Options (invalid Queue Depth %d)\n", NULL, qdepth);
++					blogic_err(NULL,
++						   "BusLogic: Invalid Driver Options (invalid Queue Depth %d)\n",
++						   qdepth);
+ 					return 0;
+ 				}
+ 				drvr_opts->common_qdepth = qdepth;
+@@ -3780,7 +3922,9 @@ static int __init blogic_parseopts(char *options)
+ 				unsigned short bus_settle_time =
+ 					simple_strtoul(options, &options, 0);
+ 				if (bus_settle_time > 5 * 60) {
+-					blogic_err("BusLogic: Invalid Driver Options (invalid Bus Settle Time %d)\n", NULL, bus_settle_time);
++					blogic_err(NULL,
++						   "BusLogic: Invalid Driver Options (invalid Bus Settle Time %d)\n",
++						   bus_settle_time);
+ 					return 0;
+ 				}
+ 				drvr_opts->bus_settle_time = bus_settle_time;
+@@ -3805,14 +3949,17 @@ static int __init blogic_parseopts(char *options)
+ 			if (*options == ',')
+ 				options++;
+ 			else if (*options != ';' && *options != '\0') {
+-				blogic_err("BusLogic: Unexpected Driver Option '%s' ignored\n", NULL, options);
++				blogic_err(NULL,
++					   "BusLogic: Unexpected Driver Option '%s' ignored\n",
++					   options);
+ 				*options = '\0';
+ 			}
+ 		}
+ 		if (!(blogic_drvr_options_count == 0 ||
+ 			blogic_probeinfo_count == 0 ||
+ 			blogic_drvr_options_count == blogic_probeinfo_count)) {
+-			blogic_err("BusLogic: Invalid Driver Options (all or no I/O Addresses must be specified)\n", NULL);
++			blogic_err(NULL,
++				   "BusLogic: Invalid Driver Options (all or no I/O Addresses must be specified)\n");
+ 			return 0;
+ 		}
+ 		/*
+@@ -3866,7 +4013,8 @@ static int __init blogic_setup(char *str)
+ 	(void) get_options(str, ARRAY_SIZE(ints), ints);
+ 
+ 	if (ints[0] != 0) {
+-		blogic_err("BusLogic: Obsolete Command Line Entry Format Ignored\n", NULL);
++		blogic_err(NULL,
++			   "BusLogic: Obsolete Command Line Entry Format Ignored\n");
+ 		return 0;
+ 	}
+ 	if (str == NULL || *str == '\0')
+diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
+index 6182cc8a0344..42333fba6005 100644
+--- a/drivers/scsi/BusLogic.h
++++ b/drivers/scsi/BusLogic.h
+@@ -108,30 +108,34 @@ enum blogic_msglevel {
+ 	BLOGIC_INFO_LEVEL = 1,
+ 	BLOGIC_NOTICE_LEVEL = 2,
+ 	BLOGIC_WARN_LEVEL = 3,
+-	BLOGIC_ERR_LEVEL = 4
++	BLOGIC_ERR_LEVEL = 4,
++	BLOGIC_CONT_LEVEL = 5,
+ };
+ 
+-static char *blogic_msglevelmap[] = { KERN_NOTICE, KERN_NOTICE, KERN_NOTICE, KERN_WARNING, KERN_ERR };
++static char *blogic_msglevelmap[] = { KERN_NOTICE, KERN_NOTICE, KERN_NOTICE, KERN_WARNING, KERN_ERR, KERN_CONT };
+ 
+ 
+ /*
+   Define Driver Message macros.
+ */
+ 
+-#define blogic_announce(format, args...) \
+-	blogic_msg(BLOGIC_ANNOUNCE_LEVEL, format, ##args)
++#define blogic_announce(adapter, fmt, ...)				\
++	blogic_msg(BLOGIC_ANNOUNCE_LEVEL, adapter, fmt, ##__VA_ARGS__)
+ 
+-#define blogic_info(format, args...) \
+-	blogic_msg(BLOGIC_INFO_LEVEL, format, ##args)
++#define blogic_cont(adapter, fmt, ...)					\
++	blogic_msg(BLOGIC_CONT_LEVEL, adapter, fmt, ##__VA_ARGS__)
+ 
+-#define blogic_notice(format, args...) \
+-	blogic_msg(BLOGIC_NOTICE_LEVEL, format, ##args)
++#define blogic_info(adapter, fmt, ...)					\
++	blogic_msg(BLOGIC_INFO_LEVEL, adapter, fmt, ##__VA_ARGS__)
+ 
+-#define blogic_warn(format, args...) \
+-	blogic_msg(BLOGIC_WARN_LEVEL, format, ##args)
++#define blogic_notice(adapter, fmt, ...)				\
++	blogic_msg(BLOGIC_NOTICE_LEVEL, adapter, fmt, ##__VA_ARGS__)
+ 
+-#define blogic_err(format, args...) \
+-	blogic_msg(BLOGIC_ERR_LEVEL, format, ##args)
++#define blogic_warn(adapter, fmt, ...)					\
++	blogic_msg(BLOGIC_WARN_LEVEL, adapter, fmt, ##__VA_ARGS__)
++
++#define blogic_err(adapter, fmt, ...)					\
++	blogic_msg(BLOGIC_ERR_LEVEL, adapter, fmt, ##__VA_ARGS__)
+ 
+ 
+ /*
+@@ -1289,7 +1293,9 @@ static int blogic_slaveconfig(struct scsi_device *);
+ static void blogic_qcompleted_ccb(struct blogic_ccb *);
+ static irqreturn_t blogic_inthandler(int, void *);
+ static int blogic_resetadapter(struct blogic_adapter *, bool hard_reset);
+-static void blogic_msg(enum blogic_msglevel, char *, struct blogic_adapter *, ...);
++__printf(3, 4)
++static void blogic_msg(enum blogic_msglevel, struct blogic_adapter *adapter,
++		       const char *fmt, ...);
+ static int __init blogic_setup(char *);
+ 
+ #endif				/* _BUSLOGIC_H */
+
