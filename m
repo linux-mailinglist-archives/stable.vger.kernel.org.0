@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2C636194E
+	by mail.lfdr.de (Postfix) with ESMTP id 75EC236194F
 	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 07:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237350AbhDPF2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 01:28:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43168 "EHLO mail.kernel.org"
+        id S238323AbhDPF2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 01:28:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237117AbhDPF2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Apr 2021 01:28:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD06261029;
-        Fri, 16 Apr 2021 05:28:11 +0000 (UTC)
+        id S238005AbhDPF2v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Apr 2021 01:28:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A276861029;
+        Fri, 16 Apr 2021 05:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618550892;
-        bh=ZNVEiUNY3G1HKZ+8cY4mTLdrkV9IlRGrExyKHUm/VH8=;
+        s=korg; t=1618550906;
+        bh=A8UKT38JO3JxtiF9TUjJX1rbmmG65Kka58IJB8GvKjo=;
         h=Subject:To:From:Date:From;
-        b=jXEI88U+kkHvrRunpFrefE0Uwxi3bm0S2i6PvVmW56Z4PM/eY60aVutF58abKg7ED
-         Lcma3kts6drcNAEpd3nEPlh6rdHq8kuzev9TR/neH0cZj16Dvte5kftlLeXJJpOoKx
-         SqdD+1zQMl2qQwSfsv5l2QcZK9w9tDVmfjeaiOSU=
-Subject: patch "intel_th: pci: Add Rocket Lake CPU support" added to char-misc-next
-To:     alexander.shishkin@linux.intel.com,
-        andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=GxeH+rxaSBAo0XYTg2ykV5/v2aPQgbeoIHISyWdQnXPUNUue6pqZmO3SnvVcewR53
+         yPmHnw6sEpq8nFHJKc0eOuFIeEkeoFRON8WFdqKSAdZhYVbpHD58VY2SC0ed5Kwjna
+         DaBLL8HgaYnHAgCTkP2WXMZaCmGMTq6JOnMAmSso=
+Subject: patch "software node: Allow node addition to already existing device" added to driver-core-next
+To:     heikki.krogerus@linux.intel.com, gregkh@linuxfoundation.org,
+        pierre-louis.bossart@linux.intel.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 16 Apr 2021 07:27:53 +0200
-Message-ID: <1618550873228164@kroah.com>
+Date:   Fri, 16 Apr 2021 07:28:20 +0200
+Message-ID: <161855090062194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,11 +36,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    intel_th: pci: Add Rocket Lake CPU support
+    software node: Allow node addition to already existing device
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -52,37 +51,49 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 9f7f2a5e01ab4ee56b6d9c0572536fe5fd56e376 Mon Sep 17 00:00:00 2001
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Date: Wed, 14 Apr 2021 20:12:50 +0300
-Subject: intel_th: pci: Add Rocket Lake CPU support
+From b622b24519f5b008f6d4e20e5675eaffa8fbd87b Mon Sep 17 00:00:00 2001
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Date: Wed, 14 Apr 2021 10:54:38 +0300
+Subject: software node: Allow node addition to already existing device
 
-This adds support for the Trace Hub in Rocket Lake CPUs.
+If the node is added to an already exiting device, the node
+needs to be also linked to the device separately.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable <stable@vger.kernel.org> # v4.14+
-Link: https://lore.kernel.org/r/20210414171251.14672-7-alexander.shishkin@linux.intel.com
+This will make sure the reference count is kept in balance
+also when the node is injected to a device afterwards.
+
+Fixes: e68d0119e328 ("software node: Introduce device_add_software_node()")
+Reported-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210414075438.64547-1-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/intel_th/pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/base/swnode.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
-index 759994055cb4..a756c995fc7a 100644
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -278,6 +278,11 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x466f),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
-+	{
-+		/* Rocket Lake CPU */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c19),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
- 	{ 0 },
- };
+diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
+index 740333629b42..3cc11b813f28 100644
+--- a/drivers/base/swnode.c
++++ b/drivers/base/swnode.c
+@@ -1045,6 +1045,7 @@ int device_add_software_node(struct device *dev, const struct software_node *nod
+ 	}
+ 
+ 	set_secondary_fwnode(dev, &swnode->fwnode);
++	software_node_notify(dev, KOBJ_ADD);
+ 
+ 	return 0;
+ }
+@@ -1118,8 +1119,8 @@ int software_node_notify(struct device *dev, unsigned long action)
+ 
+ 	switch (action) {
+ 	case KOBJ_ADD:
+-		ret = sysfs_create_link(&dev->kobj, &swnode->kobj,
+-					"software_node");
++		ret = sysfs_create_link_nowarn(&dev->kobj, &swnode->kobj,
++					       "software_node");
+ 		if (ret)
+ 			break;
  
 -- 
 2.31.1
