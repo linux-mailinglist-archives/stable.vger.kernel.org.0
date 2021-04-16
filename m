@@ -2,127 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C13A1361C97
-	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 11:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC1D361D1D
+	for <lists+stable@lfdr.de>; Fri, 16 Apr 2021 12:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235180AbhDPI6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 04:58:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54450 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235020AbhDPI6h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 04:58:37 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D86BC061574
-        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 01:58:13 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id ot17-20020a17090b3b51b0290109c9ac3c34so15979993pjb.4
-        for <stable@vger.kernel.org>; Fri, 16 Apr 2021 01:58:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kChM0WU72QL8/jjRvPSowj0vlhv2c4cuGVKkPIZr0X0=;
-        b=TmsuqqvewQkBBrVcU0mEsPjFtjaksdke44iBZB/1jEhSf6T7HtqOqV2tUnReGEVJwH
-         0F1lk/RbHX6syrikaMtpY7mfalDOtM5KC7l6sRpnh7k4omh3vl2myM6c02QLbFQV36i2
-         JzH8nEc7WUv7UPkTnB21muRrPkJzNqs1Kv70bbCZn+4rc/ECA/pEDFU6zI/vu1ek6cgH
-         10PZA9+cVZCKKq+ye7X1EEltxI/eztEyx7mJQvDTa0hsYzLtvTAmR87ZULR6nOTOgtFy
-         2WozR1BlJOYeg0Wuln+uij9TWqL9bw2hmY/X+YBeECUEEv30BE4GTOclIlo3N5k6hvlZ
-         NTzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kChM0WU72QL8/jjRvPSowj0vlhv2c4cuGVKkPIZr0X0=;
-        b=AGD8OfnyaD71Ah4+wQEFQCw4XcICcbpmGhfsHk8cvDjVaNVXc7rfeHqj3NwPZpO+Pk
-         X00U9BT0q0vN/mKtXqCokoW53YFC7ABUVxjY5oxZwcUX0cujHLqwqMK5P3FIT2oYzvGY
-         m792ApzxcwZM5UmusbTwFVyr/s2cTdcqC6QAIRrod0knu/Kpy56Clc7B8zDLvHQxiQNy
-         Tsbz9a+W8qSq5TZLNQBC67IpVo1iMUUcnlxcec7KMkriQCdsNMUPbLStWPUgPZWQx1T1
-         RE1LmnlE7SOxrVl2JFLbV9uzK8nAjH/iBCPLNOFrxElKofHcDpD+hsGrszoP6jw65Q3H
-         Hbrw==
-X-Gm-Message-State: AOAM531G+blyFgrFjOdDB1TJQJk0Sr3E/anhMeoE1ggOrQZjnOYUoJw0
-        FDnPaUpJ8CCzPshCr/B5EgcZOhwDasrGRgRr
-X-Google-Smtp-Source: ABdhPJxTB0/PYedeKZLDuyQrced3/TlFmE8hFSGQyNO67QVjNWsJTqslEfEyj7kpNmujRwwJirYipw==
-X-Received: by 2002:a17:90b:344f:: with SMTP id lj15mr8650184pjb.211.1618563492371;
-        Fri, 16 Apr 2021 01:58:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q1sm4462593pgf.20.2021.04.16.01.58.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Apr 2021 01:58:12 -0700 (PDT)
-Message-ID: <607951a4.1c69fb81.c65e7.d45a@mx.google.com>
-Date:   Fri, 16 Apr 2021 01:58:12 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S241350AbhDPJVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Apr 2021 05:21:11 -0400
+Received: from smtp.radex.nl ([178.250.146.7]:60680 "EHLO radex-web.radex.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238823AbhDPJVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Apr 2021 05:21:10 -0400
+Received: from [192.168.1.158] (cust-178-250-146-69.breedbanddelft.nl [178.250.146.69])
+        by radex-web.radex.nl (Postfix) with ESMTPS id D9EE0240A8;
+        Fri, 16 Apr 2021 11:10:55 +0200 (CEST)
+From:   Ferry Toth <fntoth@gmail.com>
+Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
+To:     John Stultz <john.stultz@linaro.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux USB List <linux-usb@vger.kernel.org>,
+        John Youn <John.Youn@synopsys.com>,
+        stable <stable@vger.kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Wesley Cheng <wcheng@codeaurora.org>,
+        Yu Chen <chenyu56@huawei.com>
+References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
+ <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
+ <CALAqxLW9d-jWC4qyfWvTQAYT-V7W19tFY+v3pzCE_QHfNYeYTg@mail.gmail.com>
+ <CALAqxLX0b=uZ4JQX1h5PLRUq+B05wWOt2=QSO_QoO8rdMWgp=w@mail.gmail.com>
+Message-ID: <b0b99566-a5d3-5c16-d9b1-0f743f3a6a55@gmail.com>
+Date:   Fri, 16 Apr 2021 11:10:55 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.112-18-g135e49f438685
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 111 runs,
- 1 regressions (v5.4.112-18-g135e49f438685)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <CALAqxLX0b=uZ4JQX1h5PLRUq+B05wWOt2=QSO_QoO8rdMWgp=w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 111 runs, 1 regressions (v5.4.112-18-g135e49f=
-438685)
+Hi
 
-Regressions Summary
--------------------
-
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.112-18-g135e49f438685/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.112-18-g135e49f438685
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      135e49f438685aed7583812735dcc62e3c1d1638 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60791609f712b39e3adac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.112-1=
-8-g135e49f438685/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.112-1=
-8-g135e49f438685/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60791609f712b39e3adac=
-6b2
-        new failure (last pass: v5.4.112-18-g320071e1e0e1) =
-
- =20
+Op 16-04-2021 om 05:28 schreef John Stultz:
+> On Thu, Apr 15, 2021 at 5:12 PM John Stultz<john.stultz@linaro.org>  wrote:
+>> On Thu, Apr 15, 2021 at 3:20 PM Thinh Nguyen<Thinh.Nguyen@synopsys.com>  wrote:
+>>> From: Yu Chen<chenyu56@huawei.com>
+>>> From: John Stultz<john.stultz@linaro.org>
+>>>
+>>> According to the programming guide, to switch mode for DRD controller,
+>>> the driver needs to do the following.
+>>>
+>>> To switch from device to host:
+>>> 1. Reset controller with GCTL.CoreSoftReset
+>>> 2. Set GCTL.PrtCapDir(host mode)
+>>> 3. Reset the host with USBCMD.HCRESET
+>>> 4. Then follow up with the initializing host registers sequence
+>>>
+>>> To switch from host to device:
+>>> 1. Reset controller with GCTL.CoreSoftReset
+>>> 2. Set GCTL.PrtCapDir(device mode)
+>>> 3. Reset the device with DCTL.CSftRst
+>>> 4. Then follow up with the initializing registers sequence
+>>>
+>>> Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
+>>> switching from host to device. John Stult reported a lockup issue seen
+>>> with HiKey960 platform without these steps[1]. Similar issue is observed
+>>> with Ferry's testing platform[2].
+>>>
+>>> So, apply the required steps along with some fixes to Yu Chen's and John
+>>> Stultz's version. The main fixes to their versions are the missing wait
+>>> for clocks synchronization before clearing GCTL.CoreSoftReset and only
+>>> apply DCTL.CSftRst when switching from host to device.
+>>>
+>>> [1]https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
+>>> [2]https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
+>>>
+>>> Cc: Andy Shevchenko<andy.shevchenko@gmail.com>
+>>> Cc: Ferry Toth<fntoth@gmail.com>
+>>> Cc: Wesley Cheng<wcheng@codeaurora.org>
+>>> Cc:<stable@vger.kernel.org>
+>>> Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+>>> Signed-off-by: Yu Chen<chenyu56@huawei.com>
+>>> Signed-off-by: John Stultz<john.stultz@linaro.org>
+>>> Signed-off-by: Thinh Nguyen<Thinh.Nguyen@synopsys.com>
+>>> ---
+>>> Changes in v3:
+>>> - Check if the desired mode is OTG, then keep the old flow
+>>> - Remove condition for OTG support only since the device can still be
+>>>    configured DRD host/device mode only
+>>> - Remove redundant hw_mode check since __dwc3_set_mode() only applies when
+>>>    hw_mode is DRD
+>>> Changes in v2:
+>>> - Initialize mutex per device and not as global mutex.
+>>> - Add additional checks for DRD only mode
+>>>
+>> I've not been able to test all the different modes on HiKey960 yet,
+>> but with this patch we avoid the !COREIDLE hangs that we see
+>> frequently on bootup, so it looks pretty good to me.  I'll get back to
+>> you tonight when I can put hands on the board to test the gadget to
+>> host switching to make sure all is well (I really don't expect any
+>> issues, but just want to be sure).
+> Ok, got a chance to test the mode switching and everything is looking good.
+I expect to be able to test this weekend on my platform.
+> Tested-by: John Stultz<john.stultz@linaro.org>
+>
+> Thanks again for continuing to push this!
+> -john
