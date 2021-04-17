@@ -2,231 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 835CA362F72
-	for <lists+stable@lfdr.de>; Sat, 17 Apr 2021 13:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93014362FA3
+	for <lists+stable@lfdr.de>; Sat, 17 Apr 2021 13:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230510AbhDQLIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Apr 2021 07:08:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59912 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231387AbhDQLIh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Apr 2021 07:08:37 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3101C061574
-        for <stable@vger.kernel.org>; Sat, 17 Apr 2021 04:08:10 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id i190so20020900pfc.12
-        for <stable@vger.kernel.org>; Sat, 17 Apr 2021 04:08:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RQAgr53mMEe86loT8HpcqnoND36NPHUfCudVze74+QM=;
-        b=MOqsF32IF5jCDvz/BfCKJ0wOaF5Wcbyruiw3chANsyM5X1KArsKx4OhoSxCblVtMH1
-         sVEkbuo5A2eMdZ4CJBsrefM7zHAqA1pHmKa+8Ldvjd6Ng7wApyzRSoFPMyh2RpzcQcDK
-         ZNgQB/c3oh8MFwj7GiEy2aNDYxMhv7qB9CD8ZYSOclAeZGC+1tTAu1po0kvU7rWwjSYL
-         kNP3oKcOPhwVkLfvqqgHlPd7ugajT4tPFDvCKUXAQ8PQyRvE91qE/bBWZpQip+6hdrNC
-         H6KwSPAGnWlyB8mstZbrcsUom/aT3BPZkBMBLrH8geLO9EeTA7OORE4diP9a0lhFTDOW
-         OjUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RQAgr53mMEe86loT8HpcqnoND36NPHUfCudVze74+QM=;
-        b=cybfzX+Ms8ItrCn4MuXQyj4i0U0BRko/X+Wa4ICDA0ynyVFuMf2nAXZp7E0+ehJ5hL
-         szcshuKSzRdEbss2iN7jaY0b9lz9NpXrKHDOnLtcpJsK/YCegQmknFJoqu1qHDJdAc/R
-         0Qz31N3i1QupKsadNk4iki0XvC661VPc1clT7gT13/9jcpN8hMubMIKFe9xl9O6v+vd2
-         iykM73zvKGfT58ZTYYjDcYXed0KZW24ehz0jgWC2x9jqIPAXI318Ghps4x2V6q3JYfWK
-         hfr6UIqxgNj4YNZM+8nNCSRnR45ipq+3MNe10Ozbm6VrvY2hlN6vl4z6F+EGBnO/qvUi
-         p80w==
-X-Gm-Message-State: AOAM530YdGlwtJYbsiW8ZwpT9P/fAXzQBySjVcMIezbDsphgAQI9zop7
-        JeoZ0IMRHiLHnu9WhS8bbNx0IbABaSNLxeIR
-X-Google-Smtp-Source: ABdhPJwSY20NHpGObLT8owY0DWIi6Vs0JezTegyBrj2Qxg53a0LZjTH9KGr+eh2W2nq5fpyBt630qw==
-X-Received: by 2002:a63:4ca:: with SMTP id 193mr3239492pge.86.1618657690376;
-        Sat, 17 Apr 2021 04:08:10 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 63sm398375pfx.202.2021.04.17.04.08.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Apr 2021 04:08:10 -0700 (PDT)
-Message-ID: <607ac19a.1c69fb81.36aa2.09ef@mx.google.com>
-Date:   Sat, 17 Apr 2021 04:08:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236187AbhDQLj7 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 17 Apr 2021 07:39:59 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:56945 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236078AbhDQLj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Apr 2021 07:39:58 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-286-5uilHBoVOxeAFJZU7Wda9w-1; Sat, 17 Apr 2021 12:39:29 +0100
+X-MC-Unique: 5uilHBoVOxeAFJZU7Wda9w-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.2; Sat, 17 Apr 2021 12:39:29 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.015; Sat, 17 Apr 2021 12:39:29 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "'Maciej W. Rozycki'" <macro@orcam.me.uk>,
+        Joe Perches <joe@perches.com>
+CC:     Khalid Aziz <khalid@gonehiking.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 1/5] scsi: BusLogic: Fix missing `pr_cont' use
+Thread-Topic: [PATCH 1/5] scsi: BusLogic: Fix missing `pr_cont' use
+Thread-Index: AQHXMq4Y+WsIhBBiNEu36L38d+a4baq4klBA
+Date:   Sat, 17 Apr 2021 11:39:28 +0000
+Message-ID: <6679310a77984cc0af9f48f5616b840c@AcuMS.aculab.com>
+References: <alpine.DEB.2.21.2104141244520.44318@angie.orcam.me.uk>
+  <alpine.DEB.2.21.2104141419040.44318@angie.orcam.me.uk>
+ <787aae5540612555a8bf92de2083c8fa74e52ce9.camel@perches.com>
+ <alpine.DEB.2.21.2104161224300.44318@angie.orcam.me.uk>
+In-Reply-To: <alpine.DEB.2.21.2104161224300.44318@angie.orcam.me.uk>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.113
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y baseline: 149 runs, 4 regressions (v5.4.113)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 149 runs, 4 regressions (v5.4.113)
+From: Maciej W. Rozycki
+> Sent: 16 April 2021 11:49
+> 
+> On Thu, 15 Apr 2021, Joe Perches wrote:
+> 
+> > In patch 2, vscnprintf should probably be used to make sure it's
+> > 0 terminated.
+> 
+>  Why?  C99 has this[1]:
+> 
+> "The vsnprintf function is equivalent to snprintf, with the variable
+> argument list replaced by arg, which shall have been initialized by the
+> va_start macro (and possibly subsequent va_arg calls)."
 
-Regressions Summary
--------------------
+vscnprintf() is normally the function you want (not vsnprintf())
+because the return value is the number of characters actually
+put into the buffer, not the number that would have been written
+had the buffer been long enough.
+Return values larger than the buffer size are almost never
+allowed for - and are probably a set of 'buffer overflow' bugs.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+While probably justified by saying that it lets you malloc()
+a big enough buffer and try again, the return value is almost
+certainly just historic.
 
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
+The original sprintf() libc code allocated a FILE structure on
+stack set to fully-buffered with the current buffer pointer set
+to the caller's buffer and a buffer length of MAXINT.
+It then just called vprintf() to do the work.
 
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+snprintf() was done the same way, except the buffer length was
+set and the 'write character' (or 'flush buffer') function
+intercepted to avoid writes beyond the buffer end.
+(Possibly by re-routing the writes to a global buffer.)
+The return value from vprintf() gets returned to the user.
 
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+The Unix versions have always '\0' terminated the buffer.
+Only Microsoft has ever released an snprintf() that doesn't
+'\0' terminate the output - another source of bugs.
 
+Personally I think bounded string functions should
+return the buffer size on overflow.
+This means sequences of:
+	offset += xxx(buf + offset, sizeof buf - offset, ...);
+are safe and the overflow can be detected right at the end.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.113/plan/baseline/
+	David
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.113
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ab3bed80f9d34641966eaa329fc7b296a21dab07 =
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/607a8d1fbfb13906b6dac6b2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/607a8d1fbfb13906b6dac=
-6b3
-        failing since 153 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/607a8cf6ab6b3e61b4dac6ce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/607a8cf6ab6b3e61b4dac=
-6cf
-        failing since 153 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/607a8ce4ab6b3e61b4dac6b1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/607a8ce4ab6b3e61b4dac=
-6b2
-        failing since 153 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/607a8c934560b276f1dac6d6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.113=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/607a8c934560b276f1dac=
-6d7
-        failing since 153 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =20
