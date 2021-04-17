@@ -2,247 +2,257 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB7F362CD9
-	for <lists+stable@lfdr.de>; Sat, 17 Apr 2021 04:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C266362DE7
+	for <lists+stable@lfdr.de>; Sat, 17 Apr 2021 07:38:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233892AbhDQC2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Apr 2021 22:28:22 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:45480 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231997AbhDQC2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Apr 2021 22:28:22 -0400
-Received: from mailhost.synopsys.com (sv2-mailhost2.synopsys.com [10.205.2.134])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 8D9A6C0085;
-        Sat, 17 Apr 2021 02:27:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1618626476; bh=r+34E2mJ9zJT+EY4ffHlt8zhggatuE/Hj/qfhVfr2W8=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=k58Lt0aniUk1sXruBHQQlJZp2LabKymfU1bjO2QHpiCz/+PlurEA6SBjvvX5Ser0y
-         fCQl/ujrbqnGHcXSi+ttibAXBbuYoZQait5cSbqYLSaEZ74sA+C4LCB3r6qr20elPx
-         e1USqIiKeA0hLy06pQhxJW/wE+1ShX3aQdPteewLngo8ph2UI0z5FCcNx1OhXBCI3h
-         jFGDSw1nIE8dseooIY2Z2lmAqmx5mEv45w/uec0a9U4DQvMbW6w/aWiZkNw9lq/NjV
-         L4gTbiLGFpw3w9SxOPAfhUvf48wqD+H5zvDeGyRwggMwvb6snxukvoqr2mzp4Wi1hp
-         WIVX6IsQ8sVKg==
-Received: from o365relay-in.synopsys.com (sv2-o365relay1.synopsys.com [10.202.1.137])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 74ADAA00A8;
-        Sat, 17 Apr 2021 02:27:54 +0000 (UTC)
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2174.outbound.protection.outlook.com [104.47.55.174])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client CN "mail.protection.outlook.com", Issuer "DigiCert Cloud Services CA-1" (verified OK))
-        by o365relay-in.synopsys.com (Postfix) with ESMTPS id 32709400CB;
-        Sat, 17 Apr 2021 02:27:53 +0000 (UTC)
-Authentication-Results: o365relay-in.synopsys.com; dmarc=pass (p=reject dis=none) header.from=synopsys.com
-Authentication-Results: o365relay-in.synopsys.com; spf=pass smtp.mailfrom=thinhn@synopsys.com
-Authentication-Results: o365relay-in.synopsys.com;
-        dkim=pass (1024-bit key; unprotected) header.d=synopsys.com header.i=@synopsys.com header.b="vjRh3O2R";
-        dkim-atps=neutral
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QirkMUyJzB1tklzcs69KIVmSIrASCz07RlOck09WEkzRAghZ99GpJPHPyS2fiW6LxOaLbPA8Bxagoqbw6iUjFBsvCuiZWAFSch5Bnd5q/oBpmixN0u78yN+MIftIAaaA0vDSkfLo5oPfSh4lh1OW5uaC95nVSG7LyIHe4bXnjTaEOx1KBX9gtr/3jebdLvgRQimO4GX3kro72Bs3dpNee3r26kDp3AVU5mffEe2tyLV6PgMnF/j2/A6N8vehnVNB1tPtj0jqRhZ4mqm6w6GetDE0nqls2wdTFRCca0zJ0UTLvlQStOcfy8wd2OtC1CQ56B7LfjSBHw1ecEeH95mfIA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=r+34E2mJ9zJT+EY4ffHlt8zhggatuE/Hj/qfhVfr2W8=;
- b=AKHJB4nC4T5QSDlrVdEsWf3NDRy9zVfZlqc0myNLIjFOVoDbmZuzNzek+wxrPW9RID2KRTDbeK5Dw4QYaee1ptHNpg5j4i+dNLFzl3b6tTEaCMXjz0peOQjqKVEmeZlXXzeusXLMXBaH9Ic7jeXIG3hP0cP+/s+OScjNbatO7SQ0Zq2ZVtj1HCfZzpOzEnjbMHIPed+ye1LCP7IvIClWUz5FwBCmenqsvbuGJam1lDw/j7v2BPVkLDHnILNnOyy9kTjXvuom7VqeoL/CjaLxNwAiDWWzXqFvoE+TgCYSqhohL6TL/3AveO3RTniPcitUR2tyZ16Hr4FoYS8AihDrDw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
- dkim=pass header.d=synopsys.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=r+34E2mJ9zJT+EY4ffHlt8zhggatuE/Hj/qfhVfr2W8=;
- b=vjRh3O2Rj1HB6LdJ+7gg868chKwD0Ey5NkhjDIWoSrkdM7WQC/xBhExTgzM0aJFTPSylVs8SNuHtnewX1N1SHhkAC4B4eCk1Mh9fDVGCswhZytexedibt9zRZlSe6niajkxBk19U421wcPKe40ES/8qOp76AQBv2xIfv5MoI0t0=
-Received: from BYAPR12MB4791.namprd12.prod.outlook.com (2603:10b6:a03:10a::12)
- by BYAPR12MB2904.namprd12.prod.outlook.com (2603:10b6:a03:137::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3999.32; Sat, 17 Apr
- 2021 02:27:50 +0000
-Received: from BYAPR12MB4791.namprd12.prod.outlook.com
- ([fe80::7c97:6a33:14c4:dd8c]) by BYAPR12MB4791.namprd12.prod.outlook.com
- ([fe80::7c97:6a33:14c4:dd8c%6]) with mapi id 15.20.4042.020; Sat, 17 Apr 2021
- 02:27:50 +0000
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-To:     Ferry Toth <fntoth@gmail.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        John Stultz <john.stultz@linaro.org>
-CC:     John Youn <John.Youn@synopsys.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Yu Chen <chenyu56@huawei.com>, Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
-Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-Thread-Topic: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-Thread-Index: AQHXMkWV7LsE5m94VkyJIYRuvRhHs6q2J2QAgAF/xoCAAFbPgA==
-Date:   Sat, 17 Apr 2021 02:27:50 +0000
-Message-ID: <1c1d8e4a-c495-4d51-b125-c3909a3bdb44@synopsys.com>
-References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
- <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
- <d053b843-2308-6b42-e7ff-3dc6e33e5c7d@synopsys.com>
- <0882cfae-4708-a67a-f112-c1eb0c7e6f51@gmail.com>
-In-Reply-To: <0882cfae-4708-a67a-f112-c1eb0c7e6f51@gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
-authentication-results: gmail.com; dkim=none (message not signed)
- header.d=none;gmail.com; dmarc=none action=none header.from=synopsys.com;
-x-originating-ip: [98.248.94.126]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ac8f4921-b8e0-40ea-a18f-08d9014865aa
-x-ms-traffictypediagnostic: BYAPR12MB2904:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BYAPR12MB29048E6C239460B1DA3DCF3DAA4B9@BYAPR12MB2904.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: I0dUgorM1M6AbhZ/6f4dAG45YyDsEbuijBaCuDKNyOJjWEQkK/2rfwpKkPvdmcemculhSkHshicOC07riR9+/oyu25CXPxggL2SJ4WskxqB62eAfWrjvG+6Q3K7KqBT1zyaSo6EQHuWBX3VTNKe6cU9sGUl+ljx2XMVfKAPctDXIXOg2bs7t98Su6ZPchZwj7gZzSNTY2lOaA1y6U5QN+HOg/5LIyKeyto8iJbRHZj42+Ccm+rRC6fENOo1Swlqbk/AKG2HY8uSzQnUzuhifmgsFU2E7g4uZ4njpH+70l0MmipZLbW5NYdGy/G0k71qrBugiKbXoZAr6aXFsF9LZRZvsLPXpDTBH5VMyJZ7AGvfj6SUiBrJBmGCnkZ566OuCdoIxygMYT+HhIk1jN7qfu7PdOoZC6CuxKXomLFgxU3668UsiCYjRa9cZAu0sH97v6oc3WzGfenuzYJJcpettiWPhne4ArvMHc89BSz+eljMm4/7DNjBEUSV7tgAUxoCtn9nrDCtK6xIfqVpUIPoxYEmEBpUJZnBywgDAsDRZGCiSIHhS7Y2C/qeyyoQKoIDBlrdoCNtyaH1i7L8TU9VMuIO9sQTsCPiiEfvhMcURxLnYCjne51cBg2IHERF9aQwbPcuPEHU81pSaKmXafBsPa7g6EPHNCwWrn2pkQt0KgzAYoEKRjTHY+b9GWguHmJsgZ94ovb22q/B/6nxMsSI1X0W894PGWRZGOPTls1S102SBuZcp2mHTnsc+0138ebAEKxSs2323ekBXlbNLM+UMgw==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB4791.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(346002)(396003)(376002)(366004)(39860400002)(136003)(2616005)(5660300002)(76116006)(966005)(26005)(64756008)(66946007)(38100700002)(31686004)(31696002)(2906002)(66476007)(4326008)(478600001)(110136005)(6506007)(66446008)(71200400001)(122000001)(6486002)(83380400001)(6512007)(316002)(8936002)(66556008)(86362001)(54906003)(36756003)(186003)(8676002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: =?utf-8?B?anRubGRtNnU4aWcyVzBsd2ZiK0JSbTBjMEVLai8ydzA0TENsSzFCdm1Tcnp6?=
- =?utf-8?B?U214Q0ttS1liUlh6eXFSR3hqY0NmQVNzc0QyWDNselFYK0lOWjdzNU5qRDNY?=
- =?utf-8?B?K3NEREYwbnZpbVhtTUtjaG9RZGlQVFpHNHZTbmptYlZNQVhzSWltT0c5UjF0?=
- =?utf-8?B?L1NaT3JXSTVUWU5QV2xrbTVFblIxZzRzc3lSdEdhM0pGL1dQanVBTjd3STFw?=
- =?utf-8?B?YndTb1JoUGdrRG41NmsxK21zQ0xuV0h4ZStyY0dFSC9GUmM2SWhqNG1ueEJx?=
- =?utf-8?B?WEE5VW5VMTdYeHJMbUF5QmdwTm9PeWt1S2lqVmtHNC9GdWU5ak9OdWY1OTlX?=
- =?utf-8?B?SG42S2c1MzdVcWdqQ1N4MlB4aG51cnA2NTJVOFBxbncyNUllcWdFZlpQSDUx?=
- =?utf-8?B?OWw3ZGR6eUJMbXJ3YW1iNUJDNzJpRDZVaURnL0FuZE9zZ3UzRnlPYll5aG9I?=
- =?utf-8?B?WUgrdkduRGJDYXNPcVBRMDFRckhHOG1GdFJNRzduZk1udnBIVXlZbHE3YjVI?=
- =?utf-8?B?dU16UjlPdU1tdFB0STVERkxUdGxibTk4UU1xR1FzSXVXdTBTVG5RY092djhw?=
- =?utf-8?B?cFMvRjRuaE1YT0VMYkZQL2NjS1RzbEc2MDRwUHk4bi9lM1VNeEFDY2xkV095?=
- =?utf-8?B?WmU4UUlQMDArZ0crS1BvZ1FtaXBLeGtlV0wrcGtuOFljYkdhMGpMZ2dCNWZr?=
- =?utf-8?B?QWlaYjRVTVRQR0VuUTZrNWsrOEwrWGdvK1dBc0NNTzVoeFgwOVR4QSsvclNR?=
- =?utf-8?B?M2NYMGZ2aVVleHQxUTZqcUdnUFdRYnlzaTdYQjlBcHpGSm1RSFhvbjZCK0Z1?=
- =?utf-8?B?S1FUV3RYM0d2T2NCL2ZUc3NWNzBqbjJPRmdRbWJadmF5TGlaQU9PVFZBUDZ5?=
- =?utf-8?B?c3BwK2ZLRklzeC81cWp0amxPVlcwWnRNMnVMZzcwaDFzQlIzLzB5QTZtVzQ2?=
- =?utf-8?B?ZW92b3VkOUJKeGJBalZCcXZGdEZkSXZBSVZaUVJoaW5SNkF6eW9uYWV6ZjQ2?=
- =?utf-8?B?OE15Y0dhY0ZOTHNndHZLYnJlcm9QVzc2Umx3aytnSkx5SVN3azRUaVdLditS?=
- =?utf-8?B?ZXgxTHlRVnNocXlFcnJ5bGtUWjkzL1crYTE1YWJpZGlCQUV1NkR0dURvYk1u?=
- =?utf-8?B?dk9WeTk5YUZaRFlZZk5vL3JLYjMzT0RSdGZVOXVrOGRmYVpiV3hjRm9uNmEr?=
- =?utf-8?B?K3BKamdRTWlzNHFHK0VPVUpSbUp6SytUdUg2MkdhUm9pVkdoelNMODUrTDlr?=
- =?utf-8?B?OGFYUFJ5YmF5dTFVSkJxQUxERVo4Snk5UTlkV0h6Q2ExOEJiSkpoMHFSM0d1?=
- =?utf-8?B?Q01IZkVFcXc5VHlDZ09JMHZKL0xTZlh5NS9hZnRMNG9uZm9iTWFSVTdKcUZR?=
- =?utf-8?B?cG5UckdFTThwUkN3SlVLSitXcjU2bjk2VFZxZVduNUNyZ0lBYjdPZTBkZ0ha?=
- =?utf-8?B?VURIcElZeE82TTdsYTloTnJ2TGo4Y1RjblNiY0cvMzQ3NGFRZG1NakFzV0ZX?=
- =?utf-8?B?bE9xaG1xalVMQWN1WGQzUzVSUW5TNERMd01BY3VpUGE1czlJU0NibnRHd1ZZ?=
- =?utf-8?B?eUJxTlIzQVhQNDgwbC9zYW1BVEhrUG5vTFNUanZXN2t0bFlxbkMvcTVKRWpn?=
- =?utf-8?B?VkpVQmQ5eVhDM1lIai8ybDJINGM4c21SMkxmL2Q0ODFpQkJDTHdFQnVVbUEz?=
- =?utf-8?B?NUt5Nkk0RGZXbytpMHBYVlpCK0s5SFp2WWRCQmJ5bjNjbzVMZ01aZ0J3YWRy?=
- =?utf-8?Q?BBRHTlLHvprW7/JoH+FLC3+Lps9r17hEiRPZDoT?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <194889D09B55F24094E3FC7AB6D4A3D3@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S229870AbhDQFi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Apr 2021 01:38:56 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55832 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229614AbhDQFir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Apr 2021 01:38:47 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13H5Y5cI159372;
+        Sat, 17 Apr 2021 01:38:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=O1IUq7X26PWRAdpYIy72iYDYjuX2w4Yg6d77bmK0WFU=;
+ b=lJEBR2aoyCgs3wV2rkqW5x1fPPwoBybtJCqx1AV8DdPWWhysodO73moeV/useu9wJpQ3
+ KQHg0sYIVIsV33LfZO190rh8CL4ijgwo7ecjpGVTg+s8b2BNstUanHB/Jsw9wevAfBKS
+ +rYXvcVEPcMthe3+Q0hh1NJPRnNDTkXStBWwQqGbQmlzo74j0r/SJOpTlC6EPcvNYtIU
+ WP0yUkRtS99tUKjGzqWeQUonRZumHvKFPh7g6L+FV3AsINxBdtfYCt8JYdVmVsTpvimW
+ M30cFBh1ZKljJ7h49wNfxnzF7t8BcCq8JqXFTor+kAqxG0N6GfLj3ggI7FB+5ZFNXSYl VA== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37yehg5guh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 17 Apr 2021 01:38:14 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13H5YNVl020498;
+        Sat, 17 Apr 2021 05:38:13 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 37ypxhg23x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 17 Apr 2021 05:38:12 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13H5cAIC29491584
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 17 Apr 2021 05:38:10 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ECCD511C050;
+        Sat, 17 Apr 2021 05:38:09 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3EC3E11C04C;
+        Sat, 17 Apr 2021 05:38:08 +0000 (GMT)
+Received: from sjain014.ibmuc.com (unknown [9.85.91.163])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Sat, 17 Apr 2021 05:38:08 +0000 (GMT)
+From:   Sourabh Jain <sourabhjain@linux.ibm.com>
+To:     mpe@ellerman.id.au
+Cc:     hbathini@linux.ibm.com, mahesh@linux.vnet.ibm.com,
+        bauerman@linux.ibm.com, linuxppc-dev@ozlabs.org,
+        stable@vger.kernel.org, Sourabh Jain <sourabhjain@linux.ibm.com>
+Subject: [PATCH v3] powerpc/kexec_file: use current CPU info while setting up FDT
+Date:   Sat, 17 Apr 2021 11:08:05 +0530
+Message-Id: <20210417053805.800907-1-sourabhjain@linux.ibm.com>
+X-Mailer: git-send-email 2.26.3
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: C36PGGozJTjqmaOfZM6A_0aukXt5ZrSu
+X-Proofpoint-ORIG-GUID: C36PGGozJTjqmaOfZM6A_0aukXt5ZrSu
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-OriginatorOrg: synopsys.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB4791.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ac8f4921-b8e0-40ea-a18f-08d9014865aa
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2021 02:27:50.3090
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: QRdDHUbjxYPXyW3dZiaYc9UguJjbEGaCloTrPLUBdX/gTZW+y0/nNtYFpF9Qzm2vUCKSZnsE+/dC9M4CYZ7T+Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB2904
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-17_03:2021-04-16,2021-04-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 lowpriorityscore=0 bulkscore=0 suspectscore=0
+ impostorscore=0 spamscore=0 mlxlogscore=999 phishscore=0 malwarescore=0
+ mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104170037
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RmVycnkgVG90aCB3cm90ZToNCj4gSGkNCj4gDQo+IE9wIDE2LTA0LTIwMjEgb20gMDA6MjMgc2No
-cmVlZiBUaGluaCBOZ3V5ZW46DQo+PiBUaGluaCBOZ3V5ZW4gd3JvdGU6DQo+Pj4gRnJvbTogWXUg
-Q2hlbiA8Y2hlbnl1NTZAaHVhd2VpLmNvbT4NCj4+PiBGcm9tOiBKb2huIFN0dWx0eiA8am9obi5z
-dHVsdHpAbGluYXJvLm9yZz4NCj4+Pg0KPj4+IEFjY29yZGluZyB0byB0aGUgcHJvZ3JhbW1pbmcg
-Z3VpZGUsIHRvIHN3aXRjaCBtb2RlIGZvciBEUkQgY29udHJvbGxlciwNCj4+PiB0aGUgZHJpdmVy
-IG5lZWRzIHRvIGRvIHRoZSBmb2xsb3dpbmcuDQo+Pj4NCj4+PiBUbyBzd2l0Y2ggZnJvbSBkZXZp
-Y2UgdG8gaG9zdDoNCj4+PiAxLiBSZXNldCBjb250cm9sbGVyIHdpdGggR0NUTC5Db3JlU29mdFJl
-c2V0DQo+Pj4gMi4gU2V0IEdDVEwuUHJ0Q2FwRGlyKGhvc3QgbW9kZSkNCj4+PiAzLiBSZXNldCB0
-aGUgaG9zdCB3aXRoIFVTQkNNRC5IQ1JFU0VUDQo+Pj4gNC4gVGhlbiBmb2xsb3cgdXAgd2l0aCB0
-aGUgaW5pdGlhbGl6aW5nIGhvc3QgcmVnaXN0ZXJzIHNlcXVlbmNlDQo+Pj4NCj4+PiBUbyBzd2l0
-Y2ggZnJvbSBob3N0IHRvIGRldmljZToNCj4+PiAxLiBSZXNldCBjb250cm9sbGVyIHdpdGggR0NU
-TC5Db3JlU29mdFJlc2V0DQo+Pj4gMi4gU2V0IEdDVEwuUHJ0Q2FwRGlyKGRldmljZSBtb2RlKQ0K
-Pj4+IDMuIFJlc2V0IHRoZSBkZXZpY2Ugd2l0aCBEQ1RMLkNTZnRSc3QNCj4+PiA0LiBUaGVuIGZv
-bGxvdyB1cCB3aXRoIHRoZSBpbml0aWFsaXppbmcgcmVnaXN0ZXJzIHNlcXVlbmNlDQo+Pj4NCj4+
-PiBDdXJyZW50bHkgd2UncmUgbWlzc2luZyBzdGVwIDEpIHRvIGRvIEdDVEwuQ29yZVNvZnRSZXNl
-dCBhbmQgc3RlcCAzKSBvZg0KPj4+IHN3aXRjaGluZyBmcm9tIGhvc3QgdG8gZGV2aWNlLiBKb2hu
-IFN0dWx0IHJlcG9ydGVkIGEgbG9ja3VwIGlzc3VlIHNlZW4NCj4+PiB3aXRoIEhpS2V5OTYwIHBs
-YXRmb3JtIHdpdGhvdXQgdGhlc2Ugc3RlcHNbMV0uIFNpbWlsYXIgaXNzdWUgaXMgb2JzZXJ2ZWQN
-Cj4+PiB3aXRoIEZlcnJ5J3MgdGVzdGluZyBwbGF0Zm9ybVsyXS4NCj4+Pg0KPj4+IFNvLCBhcHBs
-eSB0aGUgcmVxdWlyZWQgc3RlcHMgYWxvbmcgd2l0aCBzb21lIGZpeGVzIHRvIFl1IENoZW4ncyBh
-bmQgSm9obg0KPj4+IFN0dWx0eidzIHZlcnNpb24uIFRoZSBtYWluIGZpeGVzIHRvIHRoZWlyIHZl
-cnNpb25zIGFyZSB0aGUgbWlzc2luZyB3YWl0DQo+Pj4gZm9yIGNsb2NrcyBzeW5jaHJvbml6YXRp
-b24gYmVmb3JlIGNsZWFyaW5nIEdDVEwuQ29yZVNvZnRSZXNldCBhbmQgb25seQ0KPj4+IGFwcGx5
-IERDVEwuQ1NmdFJzdCB3aGVuIHN3aXRjaGluZyBmcm9tIGhvc3QgdG8gZGV2aWNlLg0KPj4+DQo+
-Pj4gWzFdDQo+Pj4gaHR0cHM6Ly91cmxkZWZlbnNlLmNvbS92My9fX2h0dHBzOi8vbG9yZS5rZXJu
-ZWwub3JnL2xpbnV4LXVzYi8yMDIxMDEwODAxNTExNS4yNzkyMC0xLWpvaG4uc3R1bHR6QGxpbmFy
-by5vcmcvX187ISFBNEYyUjlHX3BnIVBXOUpiczR3djRhX3pLR2daSE4wRllySXBmZWNQWDBPdXE5
-VjNkMTZZei05LUdTSHFaV3NmQkFGLVdrZXFMaHpONGkzJA0KPj4+DQo+Pj4gWzJdDQo+Pj4gaHR0
-cHM6Ly91cmxkZWZlbnNlLmNvbS92My9fX2h0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2xpbnV4LXVz
-Yi8wYmE3YTZiYS1lNmE3LTljZDQtMDY5NS02NGZjOTI3ZTAxZjFAZ21haWwuY29tL19fOyEhQTRG
-MlI5R19wZyFQVzlKYnM0d3Y0YV96S0dnWkhOMEZZcklwZmVjUFgwT3VxOVYzZDE2WXotOS1HU0hx
-WldzZkJBRi1Xa2VxR2VaU3R0NCQNCj4+Pg0KPj4+DQo+Pj4gQ2M6IEFuZHkgU2hldmNoZW5rbyA8
-YW5keS5zaGV2Y2hlbmtvQGdtYWlsLmNvbT4NCj4+PiBDYzogRmVycnkgVG90aCA8Zm50b3RoQGdt
-YWlsLmNvbT4NCj4+PiBDYzogV2VzbGV5IENoZW5nIDx3Y2hlbmdAY29kZWF1cm9yYS5vcmc+DQo+
-Pj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPj4+IEZpeGVzOiA0MWNlMTQ1NmUxZGIg
-KCJ1c2I6IGR3YzM6IGNvcmU6IG1ha2UgZHdjM19zZXRfbW9kZSgpIHdvcmsNCj4+PiBwcm9wZXJs
-eSIpDQo+Pj4gU2lnbmVkLW9mZi1ieTogWXUgQ2hlbiA8Y2hlbnl1NTZAaHVhd2VpLmNvbT4NCj4+
-PiBTaWduZWQtb2ZmLWJ5OiBKb2huIFN0dWx0eiA8am9obi5zdHVsdHpAbGluYXJvLm9yZz4NCj4+
-PiBTaWduZWQtb2ZmLWJ5OiBUaGluaCBOZ3V5ZW4gPFRoaW5oLk5ndXllbkBzeW5vcHN5cy5jb20+
-DQo+Pj4gLS0tDQo+Pj4gQ2hhbmdlcyBpbiB2MzoNCj4+PiAtIENoZWNrIGlmIHRoZSBkZXNpcmVk
-IG1vZGUgaXMgT1RHLCB0aGVuIGtlZXAgdGhlIG9sZCBmbG93DQo+Pj4gLSBSZW1vdmUgY29uZGl0
-aW9uIGZvciBPVEcgc3VwcG9ydCBvbmx5IHNpbmNlIHRoZSBkZXZpY2UgY2FuIHN0aWxsIGJlDQo+
-Pj4gwqDCoCBjb25maWd1cmVkIERSRCBob3N0L2RldmljZSBtb2RlIG9ubHkNCj4+PiAtIFJlbW92
-ZSByZWR1bmRhbnQgaHdfbW9kZSBjaGVjayBzaW5jZSBfX2R3YzNfc2V0X21vZGUoKSBvbmx5IGFw
-cGxpZXMNCj4+PiB3aGVuDQo+Pj4gwqDCoCBod19tb2RlIGlzIERSRA0KPj4+IENoYW5nZXMgaW4g
-djI6DQo+Pj4gLSBJbml0aWFsaXplIG11dGV4IHBlciBkZXZpY2UgYW5kIG5vdCBhcyBnbG9iYWwg
-bXV0ZXguDQo+Pj4gLSBBZGQgYWRkaXRpb25hbCBjaGVja3MgZm9yIERSRCBvbmx5IG1vZGUNCj4+
-Pg0KPj4+IMKgIGRyaXZlcnMvdXNiL2R3YzMvY29yZS5jIHwgMjcgKysrKysrKysrKysrKysrKysr
-KysrKysrKysrDQo+Pj4gwqAgZHJpdmVycy91c2IvZHdjMy9jb3JlLmggfMKgIDUgKysrKysNCj4+
-PiDCoCAyIGZpbGVzIGNoYW5nZWQsIDMyIGluc2VydGlvbnMoKykNCj4+Pg0KPj4gSGkgSm9obiwN
-Cj4+DQo+PiBJZiBwb3NzaWJsZSwgY2FuIHlvdSBydW4gYSB0ZXN0IHdpdGggdGhpcyB2ZXJzaW9u
-IG9uIHlvdXIgcGxhdGZvcm0/DQo+Pg0KPj4gVGhhbmtzLA0KPj4gVGhpbmgNCj4+DQo+IEkgdGVz
-dGVkIHRoaXMgb24gZWRpc29uLWFyZHVpbm8gd2l0aCB0aGlzIHBhdGNoIG9uIHRvcCBvZiB1c2It
-bmV4dA0KPiAoNS4xMi1yYzcgKyAiaW5jcmVhc2UgQkVTTCBiYXNlbGluZSB0byA2IiB0byBwcmV2
-ZW50IHRocm90dGxpbmciKS4NCj4gDQo+IE9uIHRoaXMgcGxhdGZvcm0gdGhlcmUgaXMgYSBwaHlz
-aWNhbCBzd2l0Y2ggdG8gc3dpdGNoIHJvbGVzLiBXaXRoIHRoaXMNCj4gcGF0Y2ggSSBmaW5kOg0K
-PiANCj4gLSBzd2l0Y2ggdG8gaG9zdCBtb2RlIGFsd2F5cyB3b3JrcyBmaW5lDQo+IA0KPiAtIHN3
-aXRjaCB0byBnYWRnZXQgbW9kZSBJIG5lZWQgdG8gZmxpcCB0aGUgc3dpdGNoIDN4IChnYWRnZXQt
-aG9zdC1nYWRnZXQpLg0KPiANCj4gQW4gZXJyb3IgbWVzc2FnZSBhcHBlYXJzIG9uIHRoZSBnYWRn
-ZXQgc2lkZSAiZHdjMyBkd2MzLjAuYXV0bzogdGltZWQgb3V0DQo+IHdhaXRpbmcgZm9yIFNFVFVQ
-IHBoYXNlIiBhcHBlYXJzLCBidXQgdGhlbiB0aGUgZGV2aWNlIGNvbm5lY3RzIHRvIG15IFBDLA0K
-PiBubyB0aHJvdHRsaW5nLg0KPiANCj4gLSBhbHRlcm5hdGl2ZWx5IEkgY2FuIHN3aXRjaCB0byBn
-YWRnZXQgMXggYW5kIHRoZW4gdW5wbHVnL3JlcGx1ZyB0aGUgY2FibGUuDQo+IA0KPiBObyBlcnJv
-ciBtZXNzYWdlIGFuZCBjb25uZWN0cyBmaW5lLg0KPiANCj4gLSBpZiBJIGZsaXAgdGhlIHN3aXRj
-aCBvbmx5IG9uY2UsIG9uIHRoZSBQQyBzaWRlIEkgZ2V0Og0KPiANCj4gwqAga2VybmVsOiB1c2Ig
-MS01OiBuZXcgaGlnaC1zcGVlZCBVU0IgZGV2aWNlIG51bWJlciAxOCB1c2luZyB4aGNpX2hjZA0K
-PiDCoCBrZXJuZWw6IHVzYiAxLTU6IE5ldyBVU0IgZGV2aWNlIGZvdW5kLCBpZFZlbmRvcj0xZDZi
-LA0KPiDCoCBpZFByb2R1Y3Q9MDEwNCwgYmNkRGV2aWNlPSAxLjAwIGtlcm5lbDogdXNiIDEtNTog
-TmV3IFVTQiBkZXZpY2UNCj4gwqAgc3RyaW5nczogTWZyPTEsIFByb2R1Y3Q9MiwgU2VyaWFsTnVt
-YmVyPTMga2VybmVsOiB1c2IgMS01OiBQcm9kdWN0Og0KPiDCoCBVU0JBcm1vcnkgR2FkZ2V0IGtl
-cm5lbDogdXNiIDEtNTogTWFudWZhY3R1cmVyOiBVU0JBcm1vcnkga2VybmVsOg0KPiDCoCB1c2Ig
-MS01OiBTZXJpYWxOdW1iZXI6IDAxMjM0NTY3ODlhYmNkZWYga2VybmVsOiB1c2IgMS01OiBjYW4n
-dCBzZXQNCj4gwqAgY29uZmlnICMxLCBlcnJvciAtMTEwDQoNClRoZSBkZXZpY2UgZmFpbGVkIGF0
-IHNldF9jb25maWd1cmF0aW9uKCkgcmVxdWVzdCBhbmQgdGltZWQgb3V0LiBJdA0KcHJvYmFibHkg
-dGltZWQgb3V0IGZyb20gdGhlIHN0YXR1cyBzdGFnZSBsb29raW5nIGF0IHRoZSBkZXZpY2UgZXJy
-IHByaW50Lg0KDQo+IA0KPiBUaGVuIGlmIEkgd2FpdCBsb25nIGVub3VnaCBvbiB0aGUgZ2FkZ2V0
-IHNpZGUgSSBnZXQ6DQo+IA0KPiDCoCByb290QHl1bmE6fiMgaWZjb25maWcNCj4gDQo+IMKgIHVz
-YjA6IGZsYWdzPS0yODYwNTxVUCxCUk9BRENBU1QsUlVOTklORyxNVUxUSUNBU1QsRFlOQU1JQz4g
-bXR1IDE1MDANCj4gwqAgaW5ldCAxNjkuMjU0LjExOS4yMzkgbmV0bWFzayAyNTUuMjU1LjAuMCBi
-cm9hZGNhc3QgMTY5LjI1NC4yNTUuMjU1DQo+IMKgIGluZXQ2IGZlODA6OmE4YmI6Y2NmZjpmZWRk
-OmVlZjEgcHJlZml4bGVuIDY0IHNjb3BlaWQgMHgyMDxsaW5rPg0KPiDCoCBldGhlciBhYTpiYjpj
-YzpkZDplZTpmMSB0eHF1ZXVlbGVuIDEwMDAgKEV0aGVybmV0KSBSWCBwYWNrZXRzIDQ5MDQyNA0K
-PiDCoCBieXRlcyA3MzUxNDY1NzggKDcwMS4wIE1pQikgUlggZXJyb3JzIDAgZHJvcHBlZCAxOTEg
-b3ZlcnJ1bnMgMCBmcmFtZQ0KPiDCoCAwIFRYIHBhY2tldHMgMzUyNzkgYnl0ZXMgMjUzMjc0NiAo
-Mi40IE1pQikgVFggZXJyb3JzIDAgZHJvcHBlZCAwDQo+IMKgIG92ZXJydW5zIDAgY2FycmllciAw
-IGNvbGxpc2lvbnMgMA0KPiANCj4gKGNvcnJlY3Qgd291bGQgYmU6IGluZXQgMTAuNDIuMC4yMjEg
-bmV0bWFzayAyNTUuMjU1LjI1NS4wIGJyb2FkY2FzdA0KPiAxMC40Mi4wLjI1NSkNCj4gDQo+IFNv
-IG11Y2ggaW1wcm92ZWQgbm93LCBidXQgaXQgc2VlbXMgSSBhbSBzdGlsbCBtaXNzaW5nIHNvbWV0
-aGluZyBvbiBwbHVnLg0KPiANCg0KVGhhdCdzIGdyZWF0ISBXZSBjYW4gbG9vayBhdCBpdCBmdXJ0
-aGVyLiBDYW4geW91IGNhcHR1cmUgdGhlIHRyYWNlcG9pbnRzDQpvZiB0aGUgaXNzdWUuIEFsc28s
-IGNhbiB5b3UgdHJ5IHdpdGggbWFzc19zdG9yYWdlIGdhZGdldCB0byBzZWUgaWYgdGhlDQpyZXN1
-bHQgaXMgdGhlIHNhbWU/DQoNClRoYW5rcywNClRoaW5oDQo=
+kexec_file_load uses initial_boot_params in setting up the device-tree
+for the kernel to be loaded. Though initial_boot_params holds info
+about CPUs at the time of boot, it doesn't account for hot added CPUs.
+
+So, kexec'ing with kexec_file_load syscall would leave the kexec'ed
+kernel with inaccurate CPU info. Also, if kdump kernel is loaded with
+kexec_file_load syscall and the system crashes on a hot added CPU,
+capture kernel hangs failing to identify the boot CPU.
+
+ Kernel panic - not syncing: sysrq triggered crash
+ CPU: 24 PID: 6065 Comm: echo Kdump: loaded Not tainted 5.12.0-rc5upstream #54
+ Call Trace:
+ [c0000000e590fac0] [c0000000007b2400] dump_stack+0xc4/0x114 (unreliable)
+ [c0000000e590fb00] [c000000000145290] panic+0x16c/0x41c
+ [c0000000e590fba0] [c0000000008892e0] sysrq_handle_crash+0x30/0x40
+ [c0000000e590fc00] [c000000000889cdc] __handle_sysrq+0xcc/0x1f0
+ [c0000000e590fca0] [c00000000088a538] write_sysrq_trigger+0xd8/0x178
+ [c0000000e590fce0] [c0000000005e9b7c] proc_reg_write+0x10c/0x1b0
+ [c0000000e590fd10] [c0000000004f26d0] vfs_write+0xf0/0x330
+ [c0000000e590fd60] [c0000000004f2aec] ksys_write+0x7c/0x140
+ [c0000000e590fdb0] [c000000000031ee0] system_call_exception+0x150/0x290
+ [c0000000e590fe10] [c00000000000ca5c] system_call_common+0xec/0x278
+ --- interrupt: c00 at 0x7fff905b9664
+ NIP:  00007fff905b9664 LR: 00007fff905320c4 CTR: 0000000000000000
+ REGS: c0000000e590fe80 TRAP: 0c00   Not tainted  (5.12.0-rc5upstream)
+ MSR:  800000000280f033 <SF,VEC,VSX,EE,PR,FP,ME,IR,DR,RI,LE>  CR: 28000242
+       XER: 00000000
+ IRQMASK: 0
+ GPR00: 0000000000000004 00007ffff5fedf30 00007fff906a7300 0000000000000001
+ GPR04: 000001002a7355b0 0000000000000002 0000000000000001 00007ffff5fef616
+ GPR08: 0000000000000001 0000000000000000 0000000000000000 0000000000000000
+ GPR12: 0000000000000000 00007fff9073a160 0000000000000000 0000000000000000
+ GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+ GPR20: 0000000000000000 00007fff906a4ee0 0000000000000002 0000000000000001
+ GPR24: 00007fff906a0898 0000000000000000 0000000000000002 000001002a7355b0
+ GPR28: 0000000000000002 00007fff906a1790 000001002a7355b0 0000000000000002
+ NIP [00007fff905b9664] 0x7fff905b9664
+ LR [00007fff905320c4] 0x7fff905320c4
+ --- interrupt: c00
+
+To avoid this from happening, extract current CPU info from of_root
+device node and use it for setting up the fdt in kexec_file_load case.
+
+Fixes: 6ecd0163d360 ("powerpc/kexec_file: Add appropriate regions for memory reserve map")
+
+Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+---
+ arch/powerpc/kexec/file_load_64.c | 98 +++++++++++++++++++++++++++++++
+ 1 file changed, 98 insertions(+)
+
+ ---
+Changelog:
+
+v1 -> v2
+  - fdt should be updated regardless of kexec type
+  - updated commit message and title
+
+v2 -> v3
+  - Fixed warnings reported by patchwork
+    (https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20210416124658.718860-1-sourabhjain@linux.ibm.com/)
+     - argument aligned to open parenthesis
+     - declared add_node_prop and update_cpus_node function static
+ ---
+
+diff --git a/arch/powerpc/kexec/file_load_64.c b/arch/powerpc/kexec/file_load_64.c
+index 02b9e4d0dc40..878f8297fbed 100644
+--- a/arch/powerpc/kexec/file_load_64.c
++++ b/arch/powerpc/kexec/file_load_64.c
+@@ -960,6 +960,99 @@ unsigned int kexec_fdt_totalsize_ppc64(struct kimage *image)
+ 	return fdt_size;
+ }
+ 
++/**
++ * add_node_prop - Read property from device node structure and add
++ *			them to fdt.
++ * @fdt:		Flattened device tree of the kernel
++ * @node_offset:	offset of the node to add a property at
++ * np:			device node pointer
++ *
++ * Returns 0 on success, negative errno on error.
++ */
++static int add_node_prop(void *fdt, int node_offset, const struct device_node *np)
++{
++	int ret = 0;
++	struct property *pp;
++	unsigned long flags;
++
++	if (!np)
++		return -EINVAL;
++
++	raw_spin_lock_irqsave(&devtree_lock, flags);
++	for (pp = np->properties; pp; pp = pp->next) {
++		ret = fdt_setprop(fdt, node_offset, pp->name,
++				  pp->value, pp->length);
++		if (ret < 0) {
++			pr_err("Unable to add %s property: %s\n",
++			       pp->name, fdt_strerror(ret));
++			goto out;
++		}
++	}
++out:
++	raw_spin_unlock_irqrestore(&devtree_lock, flags);
++	return ret;
++}
++
++/**
++ * update_cpus_node - Update cpus node of flattened device-tree using of_root
++ *			device node.
++ * @fdt:		Flattened device tree of the kernel.
++ *
++ * Returns 0 on success, negative errno on error.
++ */
++static int update_cpus_node(void *fdt)
++{
++	struct device_node *cpus_node, *dn;
++	int cpus_offset, cpus_subnode_off, ret = 0;
++
++	cpus_offset = fdt_path_offset(fdt, "/cpus");
++	if (cpus_offset == -FDT_ERR_NOTFOUND || cpus_offset > 0) {
++		if (cpus_offset > 0) {
++			ret = fdt_del_node(fdt, cpus_offset);
++			if (ret < 0) {
++				pr_err("Error deleting /cpus node: %s\n",
++				       fdt_strerror(ret));
++				return -EINVAL;
++			}
++		}
++
++		/* Add cpus node to fdt */
++		cpus_offset = fdt_add_subnode(fdt, fdt_path_offset(fdt, "/"),
++					      "cpus");
++		if (cpus_offset < 0) {
++			pr_err("Error creating /cpus node: %s\n",
++			       fdt_strerror(cpus_offset));
++			return -EINVAL;
++		}
++
++		/* Add cpus node properties */
++		cpus_node = of_find_node_by_path("/cpus");
++		ret = add_node_prop(fdt, cpus_offset, cpus_node);
++		if (ret < 0)
++			return ret;
++
++		/* Loop through all subnodes of cpus and add them to fdt */
++		for_each_node_by_type(dn, "cpu") {
++			cpus_subnode_off = fdt_add_subnode(fdt,
++							   cpus_offset,
++							   dn->full_name);
++			if (cpus_subnode_off < 0) {
++				pr_err("Unable to add %s subnode: %s\n",
++				       dn->full_name, fdt_strerror(cpus_subnode_off));
++				return cpus_subnode_off;
++			}
++			ret = add_node_prop(fdt, cpus_subnode_off, dn);
++			if (ret < 0)
++				return ret;
++		}
++	} else if (cpus_offset < 0) {
++		pr_err("Malformed device tree: error reading /cpus node: %s\n",
++		       fdt_strerror(cpus_offset));
++	}
++
++	return ret;
++}
++
+ /**
+  * setup_new_fdt_ppc64 - Update the flattend device-tree of the kernel
+  *                       being loaded.
+@@ -1020,6 +1113,11 @@ int setup_new_fdt_ppc64(const struct kimage *image, void *fdt,
+ 		}
+ 	}
+ 
++	/* Update cpus nodes information to account hotplug CPUs. */
++	ret =  update_cpus_node(fdt);
++	if (ret < 0)
++		return ret;
++
+ 	/* Update memory reserve map */
+ 	ret = get_reserved_memory_ranges(&rmem);
+ 	if (ret)
+-- 
+2.26.3
+
