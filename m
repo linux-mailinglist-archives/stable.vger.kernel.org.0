@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F40536356C
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 15:14:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628E436357B
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 15:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229682AbhDRNO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 09:14:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36320 "EHLO mail.kernel.org"
+        id S229681AbhDRNUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 09:20:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229671AbhDRNO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Apr 2021 09:14:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 819556108C;
-        Sun, 18 Apr 2021 13:14:00 +0000 (UTC)
+        id S229671AbhDRNUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Apr 2021 09:20:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8B876109F;
+        Sun, 18 Apr 2021 13:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618751640;
-        bh=4K/rhV9NVvOKQgUExmMOnvuVu9WaUtAjrCxUlVovb7k=;
+        s=k20201202; t=1618751984;
+        bh=4DUEAi/IR1fyTdCQruenqxybZgMbZpKUQ7iEef+JMc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neEw+w+PqdBy8l1bvkSWCjkKZ53vLp3aEbTRRymIrNhI88HO4v505WhdegD2Zqpk3
-         U5O4/f+Xt1IlepUGmfLmhRlpN2nnx3D3DamgtRBgIrKeWK83LVhDb5BLJ/Q0vWtQI+
-         jgvJFaSVf+DFkGfzJ1GRPKj1kzPhsJnZrzm026DDy+gIqnMvsbsY3lqR2IcXfQ1FII
-         +wtNqDizgNbO+ezwzpySsKMFwwacuIVT7e0ZAC4vjkkMeqptCSIX5VwbwhFXvyt3s7
-         pteUSsvEOAWXTBROHvIe/MDUBiKiluvDHEamKyOInWYCg7ZdgSZX0uSGwSRAbCsXBz
-         I8JX+elYm/lTw==
+        b=ZN+5iR2+hYYBMeDG7oP6BHFFhtNvMhrwGcCznq2hyeW0CWOrGF7qCBixncw8ev+uG
+         HYUHJHPLVtFNnf0rcxQyjuJR1NKlkdkg4hk2SwRUqE9PTm9ZAqRrDIN//gESpDe5gT
+         avelpeGFJwm1Mdhfp8B5mkMpHbvn+wzdj/caZjoc9ap6lKJ9o68A5F+LurTdol2uke
+         IpE4KCmDfK/suyV2Imsdbjfu61pcRcUnxzfsmGw99QpL+NaM+Ex3y3Vmg+LhtFKXxP
+         zUZYVgkisLOQrsEBQsNoChKmyzPqRr8+CwjHGOQcRK+w23ajS1Vg28p2y1liaiEQ7m
+         JEn7geoL/IjFA==
 Received: by pali.im (Postfix)
-        id 3608ABD5; Sun, 18 Apr 2021 15:13:58 +0200 (CEST)
+        id 45685BD5; Sun, 18 Apr 2021 15:19:41 +0200 (CEST)
 From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     andrew@lunn.ch, davem@davemloft.net, kabel@kernel.org,
         gregkh@linuxfoundation.org
 Subject: [PATCH] net: phy: marvell: fix detection of PHY on Topaz switches
-Date:   Sun, 18 Apr 2021 15:13:44 +0200
-Message-Id: <20210418131344.21024-1-pali@kernel.org>
+Date:   Sun, 18 Apr 2021 15:19:37 +0200
+Message-Id: <20210418131937.21368-1-pali@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <16187482432842@kroah.com> <161874858144103@kroah.com>
-References: <16187482432842@kroah.com> <161874858144103@kroah.com>
+In-Reply-To: <161874824218780@kroah.com>
+References: <161874824218780@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -76,20 +76,20 @@ Fixes: fee2d546414d ("net: phy: marvell: mv88e6390 temperature sensor reading")
 Reviewed-by: Marek Behún <kabel@kernel.org>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-[pali: Backported to 5.4 version]
+[pali: Backported to 4.19 version]
 ---
-This patch is backported to 5.4 version. Tested on Turris Mox with Topaz switch.
+This patch is backported to 4.19 version. Compile-tested only.
 ---
  drivers/net/dsa/mv88e6xxx/chip.c | 30 +++++++++++++-----------------
- drivers/net/phy/marvell.c        | 29 ++++++++++++++++++++++++++---
+ drivers/net/phy/marvell.c        | 28 +++++++++++++++++++++++++---
  include/linux/marvell_phy.h      |  5 +++--
- 3 files changed, 42 insertions(+), 22 deletions(-)
+ 3 files changed, 41 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 1af09fd3fed1..446eb06e50b4 100644
+index e04b7fa068af..67c0ad3b8079 100644
 --- a/drivers/net/dsa/mv88e6xxx/chip.c
 +++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2766,10 +2766,17 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
+@@ -2634,10 +2634,17 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
  	return err;
  }
  
@@ -107,9 +107,9 @@ index 1af09fd3fed1..446eb06e50b4 100644
  	u16 val;
  	int err;
  
-@@ -2780,23 +2787,12 @@ static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
+@@ -2648,23 +2655,12 @@ static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
  	err = chip->info->ops->phy_read(chip, bus, phy, reg, &val);
- 	mv88e6xxx_reg_unlock(chip);
+ 	mutex_unlock(&chip->reg_lock);
  
 -	if (reg == MII_PHYSID2) {
 -		/* Some internal PHYs don't have a model number. */
@@ -138,10 +138,10 @@ index 1af09fd3fed1..446eb06e50b4 100644
  
  	return err ? err : val;
 diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
-index 91cf1d167263..9dbe625ad447 100644
+index bb6107f3b947..832a401c5fa5 100644
 --- a/drivers/net/phy/marvell.c
 +++ b/drivers/net/phy/marvell.c
-@@ -2401,9 +2401,31 @@ static struct phy_driver marvell_drivers[] = {
+@@ -2329,9 +2329,30 @@ static struct phy_driver marvell_drivers[] = {
  		.get_stats = marvell_get_stats,
  	},
  	{
@@ -150,7 +150,8 @@ index 91cf1d167263..9dbe625ad447 100644
  		.phy_id_mask = MARVELL_PHY_ID_MASK,
 -		.name = "Marvell 88E6390",
 +		.name = "Marvell 88E6341 Family",
-+		/* PHY_GBIT_FEATURES */
++		.features = PHY_GBIT_FEATURES,
++		.flags = PHY_HAS_INTERRUPT,
 +		.probe = m88e1510_probe,
 +		.config_init = &marvell_config_init,
 +		.config_aneg = &m88e6390_config_aneg,
@@ -165,17 +166,15 @@ index 91cf1d167263..9dbe625ad447 100644
 +		.get_sset_count = marvell_get_sset_count,
 +		.get_strings = marvell_get_strings,
 +		.get_stats = marvell_get_stats,
-+		.get_tunable = m88e1540_get_tunable,
-+		.set_tunable = m88e1540_set_tunable,
 +	},
 +	{
 +		.phy_id = MARVELL_PHY_ID_88E6390_FAMILY,
 +		.phy_id_mask = MARVELL_PHY_ID_MASK,
 +		.name = "Marvell 88E6390 Family",
- 		/* PHY_GBIT_FEATURES */
+ 		.features = PHY_GBIT_FEATURES,
+ 		.flags = PHY_HAS_INTERRUPT,
  		.probe = m88e6390_probe,
- 		.config_init = &marvell_config_init,
-@@ -2441,7 +2463,8 @@ static struct mdio_device_id __maybe_unused marvell_tbl[] = {
+@@ -2368,7 +2389,8 @@ static struct mdio_device_id __maybe_unused marvell_tbl[] = {
  	{ MARVELL_PHY_ID_88E1540, MARVELL_PHY_ID_MASK },
  	{ MARVELL_PHY_ID_88E1545, MARVELL_PHY_ID_MASK },
  	{ MARVELL_PHY_ID_88E3016, MARVELL_PHY_ID_MASK },
@@ -186,12 +185,12 @@ index 91cf1d167263..9dbe625ad447 100644
  };
  
 diff --git a/include/linux/marvell_phy.h b/include/linux/marvell_phy.h
-index af6b11d4d673..1847a0784243 100644
+index 1eb6f244588d..9a488497ebc2 100644
 --- a/include/linux/marvell_phy.h
 +++ b/include/linux/marvell_phy.h
-@@ -23,11 +23,12 @@
- #define MARVELL_PHY_ID_88X3310		0x002b09a0
- #define MARVELL_PHY_ID_88E2110		0x002b09b0
+@@ -21,11 +21,12 @@
+ #define MARVELL_PHY_ID_88E1545		0x01410ea0
+ #define MARVELL_PHY_ID_88E3016		0x01410e60
  
 -/* The MV88e6390 Ethernet switch contains embedded PHYs. These PHYs do
 +/* These Ethernet switch families contain embedded PHYs, but they do
