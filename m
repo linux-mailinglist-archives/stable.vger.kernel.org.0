@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C88E936350E
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 14:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D92C36350F
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 14:16:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231166AbhDRMQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 08:16:23 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:56449 "EHLO
+        id S230320AbhDRMRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 08:17:16 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:43007 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230413AbhDRMQX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 08:16:23 -0400
+        by vger.kernel.org with ESMTP id S230096AbhDRMRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 08:17:16 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 449CF1AE6;
-        Sun, 18 Apr 2021 08:15:54 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 18 Apr 2021 08:15:54 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id C890E1AF6;
+        Sun, 18 Apr 2021 08:16:47 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 18 Apr 2021 08:16:48 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gExMNe
-        1xH36A2o50Hs56kgP4+GS+8I71iEUOVuNVuHQ=; b=uJLap3U5pY1dgGohk4wLMa
-        zeA+IzDBaypLrJzG9o9H5MyreO4JySYPNogkpX4CCoq2fMn1sLdmXVB07b0cAz4X
-        pLdOQp3yw0OTSr+VEkr6ubZ3m9MRrxuJ7t189wDf7QmhEFZXgojcXRgGm4kC4BYp
-        qbWL8qTuyS9tyAr0v/8gpm6ntckyECO181nTAKrjFFZjJntWG6IzWeMJK/3MIov8
-        kTmtn8jwXJL6ShH6q2vm5qcZ6eRl60TR1V99B6qhnmpGRlwj2JtolpbGPShl+0fC
-        2fRUzUe51yQlKKfEwybPnAju5zZSx0y3J1jCskNLFuCtU7XAb5xpkN7m60UF6XlQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=wk3v0j
+        H2LYAxR23rdcMxFEcb7cxJL2vOmQV59wvCQGE=; b=GBEg+kufgDStDs0ygzMW3L
+        JjU/nXOeAIF0OU+l3Pb1JDPLizVcLDZJhdS/7lUFBSa9hKlG4eYQIkzf6tnOiBdI
+        QhuhhTF4dD6K9ryfVTUwpgbrtoA7sl1yjQzc2O1MVpUhz8ugRL9SzLrSiMj42Nm5
+        K6z+XwITfXpFcFeE1s/67Q1oAYe0foFDsbZOR3mIhKDiKWzwe7AN8qxePIDMf3pS
+        ixgIkg6RNHGYCVxlPbqNZ55R9p3qY9qdHvHr76dXEsVtVRJRzVattmzk6lw77Sa0
+        SCa4cXk2/anTCVEFYh3GwFOu+Dj+Vd05WGtElod2qorMCQwxEqtKdjQz+X8Nu+LA
         ==
-X-ME-Sender: <xms:-SJ8YFMhI8kifQQpKf5rEDpMsYfr_8m1B0Knw3PNZgGl6yIBszsh8Q>
-    <xme:-SJ8YH_eXy7jxtVIU7IOgOv5ZAs9y_05u-vWhuRty7U-TNtGT4erOLBL_tBkHn90y
-    izNp5BE5Tncsg>
+X-ME-Sender: <xms:LyN8YD3LhNhhHKA9JUuEUiSg9keH7Qtp-VxiENRFgPTluPz-uF5Mqw>
+    <xme:LyN8YCFzVQkeQh9XkNlQriLY5y9GLEtJ2b0ODrLel6D_K8GZi5ZOVDnk-VP60_04g
+    kxE2dUxXHStXw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelkedgkeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:-SJ8YEQuLBcdIxfofYapsXaajl7CJ9utuk-IYTKFUo1NLSHeFEe3VA>
-    <xmx:-SJ8YBs39HJr2yaqQdMFNWFdMjGGAikGknDs2Ox1JD_1gUwy5pCL3Q>
-    <xmx:-SJ8YNd8pc7wEmYZAqu_4CE1nSj6mRJi6ZHR324QAnweYdlnaiEoyg>
-    <xmx:-SJ8YNlPj4Egf2BKpstkSv0-SGAiu3HCqt6Me53D86UAftCXzywh0JosM2A>
+X-ME-Proxy: <xmx:LyN8YD4DnnbsO7ieKxmFUNIjOSgiRkEAmQAOQ9wseuwtknsPlP567g>
+    <xmx:LyN8YI2BPH4jH8mZayNflx1xB6oDhecsX10kfnrqE043ovWBOj53fQ>
+    <xmx:LyN8YGGbZwyCbIGGKJVkMix_RKs1YJDO5FT2eFbvynj3v2JI7rK2ag>
+    <xmx:LyN8YBMKpZCfOU6mDgmgRcGjspIRgRoI1P7VwffzcTwnmY3Lt-QH3duVevE>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 904D624005C;
-        Sun, 18 Apr 2021 08:15:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] netfilter: arp_tables: add pre_exit hook for table unregister" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 219911080057;
+        Sun, 18 Apr 2021 08:16:47 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] netfilter: arp_tables: add pre_exit hook for table unregister" failed to apply to 4.19-stable tree
 To:     fw@strlen.de, pablo@netfilter.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 18 Apr 2021 14:15:44 +0200
-Message-ID: <16187481444165@kroah.com>
+Date:   Sun, 18 Apr 2021 14:16:45 +0200
+Message-ID: <1618748205173166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
