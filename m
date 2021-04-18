@@ -2,64 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D2A36351B
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 14:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F9336351D
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 14:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231311AbhDRMWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 08:22:05 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:37949 "EHLO
+        id S230413AbhDRMXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 08:23:34 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:39697 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230441AbhDRMWF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 08:22:05 -0400
+        by vger.kernel.org with ESMTP id S230096AbhDRMXe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 08:23:34 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id F11FB1A99;
-        Sun, 18 Apr 2021 08:21:36 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id EF4AE1B2B;
+        Sun, 18 Apr 2021 08:23:05 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 18 Apr 2021 08:21:37 -0400
+  by compute4.internal (MEProxy); Sun, 18 Apr 2021 08:23:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/3QsSu
-        xZ5NTdnmYBDbSxLQfoyw1zpi3hFr9yy+NZgZg=; b=DPl/Mt3kn+o4ZCMW1KD8v0
-        vJEz++gndj5vaH1m6j/lwwm0R4dTQvhPetwqCcmXmbrvGxrtaCOxKWMlntIOr/1B
-        LQcXGcrndHLkSjZJlfctMKeBZAY1QgulOHG4vdYcb6+IW/LcoIaQLfzRYlcKLE6G
-        9HawNSryOPAsQHYgcYEpPUhQo60ldQQvLfsaBUz+v9idzeE1xCxM/pY2qoZ2ialf
-        U+mt1GroZFx0nGjAKXzOriFl3JMn8k6xic95BhKweJQxn+BhQWEFCBDtWBxQ86nF
-        7EA3MJVFAzRFmhBEP/xUmidos+kvx88GRhKTLJ4tWNjUXd83DoGQ4TrhTCfDZhTQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PsAhQK
+        B/lAfCcHBC9cZFMPCuGcv0XKMGJt6sER/CTvw=; b=uRoJ90c7SitMuByGi6tdLU
+        /4czOlx6barmLSEC1zwhZyGea4gz4rHVrQl2gWVR1LeZlvr+pIgzRZj6ysTEJXaZ
+        ByApEf3QnIjp3F/i/DpWVOykokgjFCJOb+opgB1j010ZPId/On8DxUYbBvt+gKoq
+        U/sWJ/LYjmiUA0jvSPlJmT6Lol59E7AM9Z4Wu4TVHY8vfwtduJYesIYT8F1ww/LP
+        2kiM1FpxCutQ1o7KJitlq8o5EOU2QYtHp5ZxmagWbgMHaJELKkP99fVbfod2zSiV
+        PbNhm8jlOHgumzYhw0rQ64JwNQ0HczYGy04PQ8WXaKRBRou0jy90csQji0xjqmSw
         ==
-X-ME-Sender: <xms:UCR8YPoCJddyMRzeuJ0xSgfpYxPGayWKxvws9yvxg94TgS_x0QIphQ>
-    <xme:UCR8YJr83K2iBMX8h3AvZv8EH7l2nvUHK6IjzyLJc7B0zlsfwIs-07HKW0VUf7sFz
-    -eI6YH1ypVWtQ>
+X-ME-Sender: <xms:qCR8YFyo7UcLcYFItaEugKLrCpf5hsBJoT7h1LN3OWAmjTxDJ5LHSw>
+    <xme:qCR8YFRzOWona5Of5Roy3YnnecgMUFFNS-ARdi2yvNnKbz9UTeEG7a5xLTTxUnM-n
+    MmzdGYby4CbWQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelkedgkeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:UCR8YMNBYvOk9qlF8xap4k3bLvYSMEI3CbhkF4sLJHCfOOCsoay8bg>
-    <xmx:UCR8YC6ekuZ_N0N9VKrCEE3e93LTTmFS1-ZF3OkzLfA3ZBhy_kddiA>
-    <xmx:UCR8YO5xNtl46U2tnl3B4cJypqMBmdM_4t5TFcX8PviwExoP7H9MKw>
-    <xmx:UCR8YEQBIlPtMs86NTD8KNgTPSnJ8YzgPw5Vip10Jxf3DZhKYgM1WpaGPs4>
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepudelhfdvueehvdeftedvffeitedvhfehffdvgfegge
+    fhtdetgedvgeeugfehfffgnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:qCR8YPXq4_hVI7okdcu8knVViJiyj49x7pANTsYa--dWuuAICLDDpA>
+    <xmx:qCR8YHiU4hKNGc-cReHU7qjrhseN83VoeGiUGi25qE4JKBtmCqsF4Q>
+    <xmx:qCR8YHDLwMZalVQKCrhCtGOhe4K76AKKJoI4ORRo3W-xSzQLKhak5A>
+    <xmx:qSR8YKPWLxGO7MXMpPqz4YVicVmENhY81TVxmWAlAIz7DyLb1twMIlUcR-E>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3F851240057;
-        Sun, 18 Apr 2021 08:21:36 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bpf: Use correct permission flag for mixed signed bounds" failed to apply to 5.10-stable tree
-To:     daniel@iogearbox.net, ast@kernel.org, john.fastabend@gmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id BA35724005B;
+        Sun, 18 Apr 2021 08:23:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: phy: marvell: fix detection of PHY on Topaz switches" failed to apply to 5.4-stable tree
+To:     pali@kernel.org, andrew@lunn.ch, davem@davemloft.net,
+        kabel@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 18 Apr 2021 14:21:26 +0200
-Message-ID: <1618748486233102@kroah.com>
+Date:   Sun, 18 Apr 2021 14:23:01 +0200
+Message-ID: <161874858144103@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,32 +71,167 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9601148392520e2e134936e76788fc2a6371e7be Mon Sep 17 00:00:00 2001
-From: Daniel Borkmann <daniel@iogearbox.net>
-Date: Tue, 23 Mar 2021 08:32:59 +0100
-Subject: [PATCH] bpf: Use correct permission flag for mixed signed bounds
- arithmetic
+From 1fe976d308acb6374c899a4ee8025a0a016e453e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Date: Mon, 12 Apr 2021 18:57:39 +0200
+Subject: [PATCH] net: phy: marvell: fix detection of PHY on Topaz switches
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-We forbid adding unknown scalars with mixed signed bounds due to the
-spectre v1 masking mitigation. Hence this also needs bypass_spec_v1
-flag instead of allow_ptr_leaks.
+Since commit fee2d546414d ("net: phy: marvell: mv88e6390 temperature
+sensor reading"), Linux reports the temperature of Topaz hwmon as
+constant -75°C.
 
-Fixes: 2c78ee898d8f ("bpf: Implement CAP_BPF")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+This is because switches from the Topaz family (88E6141 / 88E6341) have
+the address of the temperature sensor register different from Peridot.
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 3a738724a380..2ede4b850230 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6085,7 +6085,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 			dst, reg_type_str[ptr_reg->type]);
- 		return -EACCES;
- 	case PTR_TO_MAP_VALUE:
--		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
-+		if (!env->env->bypass_spec_v1 && !known && (smin_val < 0) != (smax_val < 0)) {
- 			verbose(env, "R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
- 				off_reg == dst_reg ? dst : src);
- 			return -EACCES;
+This address is instead compatible with 88E1510 PHYs, as was used for
+Topaz before the above mentioned commit.
+
+Create a new mapping table between switch family and PHY ID for families
+which don't have a model number. And define PHY IDs for Topaz and Peridot
+families.
+
+Create a new PHY ID and a new PHY driver for Topaz's internal PHY.
+The only difference from Peridot's PHY driver is the HWMON probing
+method.
+
+Prior this change Topaz's internal PHY is detected by kernel as:
+
+  PHY [...] driver [Marvell 88E6390] (irq=63)
+
+And afterwards as:
+
+  PHY [...] driver [Marvell 88E6341 Family] (irq=63)
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+BugLink: https://github.com/globalscaletechnologies/linux/issues/1
+Fixes: fee2d546414d ("net: phy: marvell: mv88e6390 temperature sensor reading")
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 903d619e08ed..e08bf9377140 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3026,10 +3026,17 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
+ 	return err;
+ }
+ 
++/* prod_id for switch families which do not have a PHY model number */
++static const u16 family_prod_id_table[] = {
++	[MV88E6XXX_FAMILY_6341] = MV88E6XXX_PORT_SWITCH_ID_PROD_6341,
++	[MV88E6XXX_FAMILY_6390] = MV88E6XXX_PORT_SWITCH_ID_PROD_6390,
++};
++
+ static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
+ {
+ 	struct mv88e6xxx_mdio_bus *mdio_bus = bus->priv;
+ 	struct mv88e6xxx_chip *chip = mdio_bus->chip;
++	u16 prod_id;
+ 	u16 val;
+ 	int err;
+ 
+@@ -3040,23 +3047,12 @@ static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
+ 	err = chip->info->ops->phy_read(chip, bus, phy, reg, &val);
+ 	mv88e6xxx_reg_unlock(chip);
+ 
+-	if (reg == MII_PHYSID2) {
+-		/* Some internal PHYs don't have a model number. */
+-		if (chip->info->family != MV88E6XXX_FAMILY_6165)
+-			/* Then there is the 6165 family. It gets is
+-			 * PHYs correct. But it can also have two
+-			 * SERDES interfaces in the PHY address
+-			 * space. And these don't have a model
+-			 * number. But they are not PHYs, so we don't
+-			 * want to give them something a PHY driver
+-			 * will recognise.
+-			 *
+-			 * Use the mv88e6390 family model number
+-			 * instead, for anything which really could be
+-			 * a PHY,
+-			 */
+-			if (!(val & 0x3f0))
+-				val |= MV88E6XXX_PORT_SWITCH_ID_PROD_6390 >> 4;
++	/* Some internal PHYs don't have a model number. */
++	if (reg == MII_PHYSID2 && !(val & 0x3f0) &&
++	    chip->info->family < ARRAY_SIZE(family_prod_id_table)) {
++		prod_id = family_prod_id_table[chip->info->family];
++		if (prod_id)
++			val |= prod_id >> 4;
+ 	}
+ 
+ 	return err ? err : val;
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index e26a5d663f8a..8018ddf7f316 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -3021,9 +3021,34 @@ static struct phy_driver marvell_drivers[] = {
+ 		.get_stats = marvell_get_stats,
+ 	},
+ 	{
+-		.phy_id = MARVELL_PHY_ID_88E6390,
++		.phy_id = MARVELL_PHY_ID_88E6341_FAMILY,
+ 		.phy_id_mask = MARVELL_PHY_ID_MASK,
+-		.name = "Marvell 88E6390",
++		.name = "Marvell 88E6341 Family",
++		/* PHY_GBIT_FEATURES */
++		.flags = PHY_POLL_CABLE_TEST,
++		.probe = m88e1510_probe,
++		.config_init = marvell_config_init,
++		.config_aneg = m88e6390_config_aneg,
++		.read_status = marvell_read_status,
++		.config_intr = marvell_config_intr,
++		.handle_interrupt = marvell_handle_interrupt,
++		.resume = genphy_resume,
++		.suspend = genphy_suspend,
++		.read_page = marvell_read_page,
++		.write_page = marvell_write_page,
++		.get_sset_count = marvell_get_sset_count,
++		.get_strings = marvell_get_strings,
++		.get_stats = marvell_get_stats,
++		.get_tunable = m88e1540_get_tunable,
++		.set_tunable = m88e1540_set_tunable,
++		.cable_test_start = marvell_vct7_cable_test_start,
++		.cable_test_tdr_start = marvell_vct5_cable_test_tdr_start,
++		.cable_test_get_status = marvell_vct7_cable_test_get_status,
++	},
++	{
++		.phy_id = MARVELL_PHY_ID_88E6390_FAMILY,
++		.phy_id_mask = MARVELL_PHY_ID_MASK,
++		.name = "Marvell 88E6390 Family",
+ 		/* PHY_GBIT_FEATURES */
+ 		.flags = PHY_POLL_CABLE_TEST,
+ 		.probe = m88e6390_probe,
+@@ -3107,7 +3132,8 @@ static struct mdio_device_id __maybe_unused marvell_tbl[] = {
+ 	{ MARVELL_PHY_ID_88E1540, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E1545, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E3016, MARVELL_PHY_ID_MASK },
+-	{ MARVELL_PHY_ID_88E6390, MARVELL_PHY_ID_MASK },
++	{ MARVELL_PHY_ID_88E6341_FAMILY, MARVELL_PHY_ID_MASK },
++	{ MARVELL_PHY_ID_88E6390_FAMILY, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E1340S, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E1548P, MARVELL_PHY_ID_MASK },
+ 	{ }
+diff --git a/include/linux/marvell_phy.h b/include/linux/marvell_phy.h
+index 52b1610eae68..c544b70dfbd2 100644
+--- a/include/linux/marvell_phy.h
++++ b/include/linux/marvell_phy.h
+@@ -28,11 +28,12 @@
+ /* Marvel 88E1111 in Finisar SFP module with modified PHY ID */
+ #define MARVELL_PHY_ID_88E1111_FINISAR	0x01ff0cc0
+ 
+-/* The MV88e6390 Ethernet switch contains embedded PHYs. These PHYs do
++/* These Ethernet switch families contain embedded PHYs, but they do
+  * not have a model ID. So the switch driver traps reads to the ID2
+  * register and returns the switch family ID
+  */
+-#define MARVELL_PHY_ID_88E6390		0x01410f90
++#define MARVELL_PHY_ID_88E6341_FAMILY	0x01410f41
++#define MARVELL_PHY_ID_88E6390_FAMILY	0x01410f90
+ 
+ #define MARVELL_PHY_FAMILY_ID(id)	((id) >> 4)
+ 
 
