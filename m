@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F9336351D
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 14:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9BB736353B
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 14:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbhDRMXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 08:23:34 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:39697 "EHLO
+        id S236876AbhDRMas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 08:30:48 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:59953 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230096AbhDRMXe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 08:23:34 -0400
+        by vger.kernel.org with ESMTP id S235413AbhDRMar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 08:30:47 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id EF4AE1B2B;
-        Sun, 18 Apr 2021 08:23:05 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 18 Apr 2021 08:23:06 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id BECEC1B8C;
+        Sun, 18 Apr 2021 08:30:18 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 18 Apr 2021 08:30:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PsAhQK
-        B/lAfCcHBC9cZFMPCuGcv0XKMGJt6sER/CTvw=; b=uRoJ90c7SitMuByGi6tdLU
-        /4czOlx6barmLSEC1zwhZyGea4gz4rHVrQl2gWVR1LeZlvr+pIgzRZj6ysTEJXaZ
-        ByApEf3QnIjp3F/i/DpWVOykokgjFCJOb+opgB1j010ZPId/On8DxUYbBvt+gKoq
-        U/sWJ/LYjmiUA0jvSPlJmT6Lol59E7AM9Z4Wu4TVHY8vfwtduJYesIYT8F1ww/LP
-        2kiM1FpxCutQ1o7KJitlq8o5EOU2QYtHp5ZxmagWbgMHaJELKkP99fVbfod2zSiV
-        PbNhm8jlOHgumzYhw0rQ64JwNQ0HczYGy04PQ8WXaKRBRou0jy90csQji0xjqmSw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7fSf0h
+        M7j3GTip+SBhYeq2h4Ym+eVC3vDrDtL960VXI=; b=hGiVmB4MgWVTV9JKd6+U9Y
+        myVqkUuUSzeCvr0euMAN8DrbXYFd/Jlo6iTaj8+Jr/8QM0BCNL57IODWDIxCYz0u
+        1D6p319VRcYWlT8UrcF8lwKl1hJBuLq1XVXKr9cD58Xwxrt9obNMyvfA+OeTdiPN
+        qXlZK1QvXXfglBOqh2Kay1qnt+2TMN846h4CAXep1Rl0Sym7e43sXaBE1TVSWSvh
+        LUfl3gmty5EkKKyXP+KuRgWVIzIvjwma4gnJwwM8RSXVXucAQOQh0wyP1VnN14Ru
+        IgH+U+YhjpgkyhRsen9+5zB8YQEZx3wX03MxWDoZOWiAdChdpQ80m2uOheJ3QdxA
         ==
-X-ME-Sender: <xms:qCR8YFyo7UcLcYFItaEugKLrCpf5hsBJoT7h1LN3OWAmjTxDJ5LHSw>
-    <xme:qCR8YFRzOWona5Of5Roy3YnnecgMUFFNS-ARdi2yvNnKbz9UTeEG7a5xLTTxUnM-n
-    MmzdGYby4CbWQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelkedgkeeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:WSZ8YDr8Mv8Jj1Str_k-98YTSYZ9BLGngk2JMkPly7puSUQZq8RFIQ>
+    <xme:WSZ8YNqcv5ATTAIF4DHaDSqkupJss5EzOuv2lnPOugfL1pjU4qu9AhcUJyCmb6QQg
+    EboJvDTG97rvQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelkedgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepudelhfdvueehvdeftedvffeitedvhfehffdvgfegge
-    fhtdetgedvgeeugfehfffgnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:qCR8YPXq4_hVI7okdcu8knVViJiyj49x7pANTsYa--dWuuAICLDDpA>
-    <xmx:qCR8YHiU4hKNGc-cReHU7qjrhseN83VoeGiUGi25qE4JKBtmCqsF4Q>
-    <xmx:qCR8YHDLwMZalVQKCrhCtGOhe4K76AKKJoI4ORRo3W-xSzQLKhak5A>
-    <xmx:qSR8YKPWLxGO7MXMpPqz4YVicVmENhY81TVxmWAlAIz7DyLb1twMIlUcR-E>
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:WSZ8YAP92WSW8GsoCPJzdiUHN8k0xIj5vYLUUFtleQhTpdKFNqMUig>
+    <xmx:WSZ8YG7YyOdwIAGHXmWFRrsBkK3AtHiipiLig3i3BKqSeUbfDVj_NQ>
+    <xmx:WSZ8YC6_okjqCaq2a-0wRREo7Z2gv4DPft49jfmFQGlZneyMNIsOxg>
+    <xmx:WiZ8YN1M9kNyKehY4_614Q1Wy_vdFK8FlG96_sdP9xYfIy56VpyccelVxik>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BA35724005B;
-        Sun, 18 Apr 2021 08:23:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] net: phy: marvell: fix detection of PHY on Topaz switches" failed to apply to 5.4-stable tree
-To:     pali@kernel.org, andrew@lunn.ch, davem@davemloft.net,
-        kabel@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5B141108005F;
+        Sun, 18 Apr 2021 08:30:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] gro: ensure frag0 meets IP header alignment" failed to apply to 4.4-stable tree
+To:     edumazet@google.com, davem@davemloft.net, jasowang@redhat.com,
+        linux@roeck-us.net, mst@redhat.com, xuanzhuo@linux.alibaba.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 18 Apr 2021 14:23:01 +0200
-Message-ID: <161874858144103@kroah.com>
+Date:   Sun, 18 Apr 2021 14:30:15 +0200
+Message-ID: <1618749015243120@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,167 +71,53 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1fe976d308acb6374c899a4ee8025a0a016e453e Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Mon, 12 Apr 2021 18:57:39 +0200
-Subject: [PATCH] net: phy: marvell: fix detection of PHY on Topaz switches
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 38ec4944b593fd90c5ef42aaaa53e66ae5769d04 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Tue, 13 Apr 2021 05:41:35 -0700
+Subject: [PATCH] gro: ensure frag0 meets IP header alignment
 
-Since commit fee2d546414d ("net: phy: marvell: mv88e6390 temperature
-sensor reading"), Linux reports the temperature of Topaz hwmon as
-constant -75°C.
+After commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Guenter Roeck reported one failure in his tests using sh architecture.
 
-This is because switches from the Topaz family (88E6141 / 88E6341) have
-the address of the temperature sensor register different from Peridot.
+After much debugging, we have been able to spot silent unaligned accesses
+in inet_gro_receive()
 
-This address is instead compatible with 88E1510 PHYs, as was used for
-Topaz before the above mentioned commit.
+The issue at hand is that upper networking stacks assume their header
+is word-aligned. Low level drivers are supposed to reserve NET_IP_ALIGN
+bytes before the Ethernet header to make that happen.
 
-Create a new mapping table between switch family and PHY ID for families
-which don't have a model number. And define PHY IDs for Topaz and Peridot
-families.
+This patch hardens skb_gro_reset_offset() to not allow frag0 fast-path
+if the fragment is not properly aligned.
 
-Create a new PHY ID and a new PHY driver for Topaz's internal PHY.
-The only difference from Peridot's PHY driver is the HWMON probing
-method.
+Some arches like x86, arm64 and powerpc do not care and define NET_IP_ALIGN
+as 0, this extra check will be a NOP for them.
 
-Prior this change Topaz's internal PHY is detected by kernel as:
+Note that if frag0 is not used, GRO will call pskb_may_pull()
+as many times as needed to pull network and transport headers.
 
-  PHY [...] driver [Marvell 88E6390] (irq=63)
-
-And afterwards as:
-
-  PHY [...] driver [Marvell 88E6341 Family] (irq=63)
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-BugLink: https://github.com/globalscaletechnologies/linux/issues/1
-Fixes: fee2d546414d ("net: phy: marvell: mv88e6390 temperature sensor reading")
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Fixes: 78a478d0efd9 ("gro: Inline skb_gro_header and cache frag0 virtual address")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 903d619e08ed..e08bf9377140 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -3026,10 +3026,17 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
- 	return err;
- }
+diff --git a/net/core/dev.c b/net/core/dev.c
+index af8c1ea040b9..1f79b9aa9a3f 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5924,7 +5924,8 @@ static void skb_gro_reset_offset(struct sk_buff *skb)
+ 	NAPI_GRO_CB(skb)->frag0_len = 0;
  
-+/* prod_id for switch families which do not have a PHY model number */
-+static const u16 family_prod_id_table[] = {
-+	[MV88E6XXX_FAMILY_6341] = MV88E6XXX_PORT_SWITCH_ID_PROD_6341,
-+	[MV88E6XXX_FAMILY_6390] = MV88E6XXX_PORT_SWITCH_ID_PROD_6390,
-+};
-+
- static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
- {
- 	struct mv88e6xxx_mdio_bus *mdio_bus = bus->priv;
- 	struct mv88e6xxx_chip *chip = mdio_bus->chip;
-+	u16 prod_id;
- 	u16 val;
- 	int err;
- 
-@@ -3040,23 +3047,12 @@ static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
- 	err = chip->info->ops->phy_read(chip, bus, phy, reg, &val);
- 	mv88e6xxx_reg_unlock(chip);
- 
--	if (reg == MII_PHYSID2) {
--		/* Some internal PHYs don't have a model number. */
--		if (chip->info->family != MV88E6XXX_FAMILY_6165)
--			/* Then there is the 6165 family. It gets is
--			 * PHYs correct. But it can also have two
--			 * SERDES interfaces in the PHY address
--			 * space. And these don't have a model
--			 * number. But they are not PHYs, so we don't
--			 * want to give them something a PHY driver
--			 * will recognise.
--			 *
--			 * Use the mv88e6390 family model number
--			 * instead, for anything which really could be
--			 * a PHY,
--			 */
--			if (!(val & 0x3f0))
--				val |= MV88E6XXX_PORT_SWITCH_ID_PROD_6390 >> 4;
-+	/* Some internal PHYs don't have a model number. */
-+	if (reg == MII_PHYSID2 && !(val & 0x3f0) &&
-+	    chip->info->family < ARRAY_SIZE(family_prod_id_table)) {
-+		prod_id = family_prod_id_table[chip->info->family];
-+		if (prod_id)
-+			val |= prod_id >> 4;
- 	}
- 
- 	return err ? err : val;
-diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
-index e26a5d663f8a..8018ddf7f316 100644
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -3021,9 +3021,34 @@ static struct phy_driver marvell_drivers[] = {
- 		.get_stats = marvell_get_stats,
- 	},
- 	{
--		.phy_id = MARVELL_PHY_ID_88E6390,
-+		.phy_id = MARVELL_PHY_ID_88E6341_FAMILY,
- 		.phy_id_mask = MARVELL_PHY_ID_MASK,
--		.name = "Marvell 88E6390",
-+		.name = "Marvell 88E6341 Family",
-+		/* PHY_GBIT_FEATURES */
-+		.flags = PHY_POLL_CABLE_TEST,
-+		.probe = m88e1510_probe,
-+		.config_init = marvell_config_init,
-+		.config_aneg = m88e6390_config_aneg,
-+		.read_status = marvell_read_status,
-+		.config_intr = marvell_config_intr,
-+		.handle_interrupt = marvell_handle_interrupt,
-+		.resume = genphy_resume,
-+		.suspend = genphy_suspend,
-+		.read_page = marvell_read_page,
-+		.write_page = marvell_write_page,
-+		.get_sset_count = marvell_get_sset_count,
-+		.get_strings = marvell_get_strings,
-+		.get_stats = marvell_get_stats,
-+		.get_tunable = m88e1540_get_tunable,
-+		.set_tunable = m88e1540_set_tunable,
-+		.cable_test_start = marvell_vct7_cable_test_start,
-+		.cable_test_tdr_start = marvell_vct5_cable_test_tdr_start,
-+		.cable_test_get_status = marvell_vct7_cable_test_get_status,
-+	},
-+	{
-+		.phy_id = MARVELL_PHY_ID_88E6390_FAMILY,
-+		.phy_id_mask = MARVELL_PHY_ID_MASK,
-+		.name = "Marvell 88E6390 Family",
- 		/* PHY_GBIT_FEATURES */
- 		.flags = PHY_POLL_CABLE_TEST,
- 		.probe = m88e6390_probe,
-@@ -3107,7 +3132,8 @@ static struct mdio_device_id __maybe_unused marvell_tbl[] = {
- 	{ MARVELL_PHY_ID_88E1540, MARVELL_PHY_ID_MASK },
- 	{ MARVELL_PHY_ID_88E1545, MARVELL_PHY_ID_MASK },
- 	{ MARVELL_PHY_ID_88E3016, MARVELL_PHY_ID_MASK },
--	{ MARVELL_PHY_ID_88E6390, MARVELL_PHY_ID_MASK },
-+	{ MARVELL_PHY_ID_88E6341_FAMILY, MARVELL_PHY_ID_MASK },
-+	{ MARVELL_PHY_ID_88E6390_FAMILY, MARVELL_PHY_ID_MASK },
- 	{ MARVELL_PHY_ID_88E1340S, MARVELL_PHY_ID_MASK },
- 	{ MARVELL_PHY_ID_88E1548P, MARVELL_PHY_ID_MASK },
- 	{ }
-diff --git a/include/linux/marvell_phy.h b/include/linux/marvell_phy.h
-index 52b1610eae68..c544b70dfbd2 100644
---- a/include/linux/marvell_phy.h
-+++ b/include/linux/marvell_phy.h
-@@ -28,11 +28,12 @@
- /* Marvel 88E1111 in Finisar SFP module with modified PHY ID */
- #define MARVELL_PHY_ID_88E1111_FINISAR	0x01ff0cc0
- 
--/* The MV88e6390 Ethernet switch contains embedded PHYs. These PHYs do
-+/* These Ethernet switch families contain embedded PHYs, but they do
-  * not have a model ID. So the switch driver traps reads to the ID2
-  * register and returns the switch family ID
-  */
--#define MARVELL_PHY_ID_88E6390		0x01410f90
-+#define MARVELL_PHY_ID_88E6341_FAMILY	0x01410f41
-+#define MARVELL_PHY_ID_88E6390_FAMILY	0x01410f90
- 
- #define MARVELL_PHY_FAMILY_ID(id)	((id) >> 4)
- 
+ 	if (!skb_headlen(skb) && pinfo->nr_frags &&
+-	    !PageHighMem(skb_frag_page(frag0))) {
++	    !PageHighMem(skb_frag_page(frag0)) &&
++	    (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
+ 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
+ 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
+ 						    skb_frag_size(frag0),
 
