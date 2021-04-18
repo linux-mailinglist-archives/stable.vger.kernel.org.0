@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A11363673
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 17:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B17363674
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 17:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230028AbhDRPz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 11:55:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
+        id S231807AbhDRPz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 11:55:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229986AbhDRPzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 11:55:25 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE48C06174A
-        for <stable@vger.kernel.org>; Sun, 18 Apr 2021 08:54:57 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id k26so15027356wrc.8
-        for <stable@vger.kernel.org>; Sun, 18 Apr 2021 08:54:57 -0700 (PDT)
+        with ESMTP id S229986AbhDRPz3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 11:55:29 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1646C06174A
+        for <stable@vger.kernel.org>; Sun, 18 Apr 2021 08:55:00 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id w7-20020a1cdf070000b0290125f388fb34so16662389wmg.0
+        for <stable@vger.kernel.org>; Sun, 18 Apr 2021 08:55:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:references:from:message-id:date:user-agent:mime-version
          :in-reply-to:content-language:content-transfer-encoding;
-        bh=f1PlMPsr9PHx0ISqLspjpBduoOPJgN+P14YU+oWF1FE=;
-        b=ZM2bW9ynRBywCc/VneHYy6eYyaaCai+W3otO6aZn7WePzsv4vlqw/atyBq8t2LDE+a
-         5ebvgITdeVSpWO2SY7jW+0ROB7HPbojIqYKJBAmy8TOhC3ejPIZI3e6ASsb29iKtoCOr
-         doU7Oxg7u0gvFfo0cEgRn+/Nds4Z+oYIrP/Ehn6NINx4OuOy8x82G+Eaoh2gizRKnSYp
-         ZLJrMBilSBy8QKMkV8sM1N6JVlWety/t51DgfeunJcLV47SLg/iycEon28BQ1zk5bS1Z
-         HcSPpFcV6LA6KFUGqZVAKsyOLH7j8tSrB6IZ+t0anyZnSxxf4LdmxPQj7ZQv5YJ4hyWA
-         mu7A==
+        bh=udfyM9jO4qcDe2GCf/YfVNqqUAm/mkGEHypOUOGcgl8=;
+        b=NN/33uy8aCRlIlNgNrFh5j8WQG0hhrDvit9VXeGpVVv3hxH5/i+cy57f99yGZhu1L9
+         mlj3xxi5H6kAv78gs3+e/z+pwVDYjWonGN7gSABIKImaQWPKcZGJKWUYC25Tp8Nhyy2L
+         AEUvla/V8/RJ6CTNmnkB4hc6opTl3rSg77QHVtF5JyMPQ5f3pKCq+gxE3UiE77BRt+O5
+         CrIXGnwSKc5SJQg34gcG2L6MrRydvWHvMu02ktZo0tG9c66vq3b7DeJr/DvToPFUYoIQ
+         Z39XCssVDapyY6k7PeXBJ5RbGkJRy8ffE2b0oW/cPfhF00yxGmr77tXNiLYGjazR1B5x
+         gzKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=f1PlMPsr9PHx0ISqLspjpBduoOPJgN+P14YU+oWF1FE=;
-        b=jqZTw9vMxo2pUldqjM4bJj1F4AJNjgKdq2fcWlarsj7J84Nxcvk+z0IG4JIQ3p8Ghq
-         lZmSgfS7OawndmWTOPOXjKDUXtOAMg+XFZkOGtgaqfFkM+9djJ+d7VjKJ/BjLPYse2A5
-         RUemwN5IPsEPyruwDii065E32cmCMCK6CBGJAum5eTLo24684J/EY1GLauE5pvV3enQM
-         xYnpQtGJP7c2P37IooHtvoRIXotLJro7xHFm4EV76TOQXtR4SQp5+X+uXIkMZUk2lkwG
-         jYz1iw7L0iem28oEf66Pte8Z4oKCyEeqIiay5rTULn2igcIE7e3NvZughymJvmyjhXP7
-         inGw==
-X-Gm-Message-State: AOAM533bqtXtrEkzqwPwmw2eJ0M3xpccrUpUPHpxZ6ClIsz4e9amQUo3
-        cWMDHmfBA5Bq77VBre5yr7fJk+a0NPr9GA==
-X-Google-Smtp-Source: ABdhPJxe/8nFQntRzIfdxU+pB5o+tb8PBa325+fNjmLSgD18ey+jkf0LHfp3hqvR8AS6dSP/qR9J8A==
-X-Received: by 2002:a05:6000:190:: with SMTP id p16mr9882715wrx.334.1618761296024;
-        Sun, 18 Apr 2021 08:54:56 -0700 (PDT)
+        bh=udfyM9jO4qcDe2GCf/YfVNqqUAm/mkGEHypOUOGcgl8=;
+        b=ifJC+TVZE4hhDcqqiFLRjWAmEosqKmxgn7SB+2vVhy/ICVHE1WYmX1yI1H47zzilbK
+         /tJZbVwlvq6GWFmpfy41fdPXmdk1HNGPq0+VW6+1X5gS1zCU9ekGo657+9e93pKKIu4X
+         b/reT8Q0g3DkdoXqnzFu4A0tRzMbDzWZ7oMiOpm6qTEknt8FCr2mM18TZKcjPEo0Nsxp
+         txui/45q8zhgqM3zp8ho25T7KKTZ5IHmcDtm98PpfVpDCMUE/DhSOXOO4MJLz+s2kgm+
+         minrjAu+KDyuoucjJp2oIhywqklrLLq+jQmm1r7egZsIuYBPQQESo9TSWqVuD4NQEi2w
+         wuhQ==
+X-Gm-Message-State: AOAM533dLHnJlN3TycSS2ORzr8v/Uj4nJj/dQVKHEpTNz+7U9PyrhPcl
+        NSxGX4mrvRa2V2AYzzrq2gXA8EwTd1dIjw==
+X-Google-Smtp-Source: ABdhPJy1aTjWIh8jh1zkjN8XElUmikFhbPKH6t9A2/kNsL/A8/3Ih7S1cxtHZTYZEY2y2jxDLKkBSA==
+X-Received: by 2002:a05:600c:2f9a:: with SMTP id t26mr1347276wmn.20.1618761299373;
+        Sun, 18 Apr 2021 08:54:59 -0700 (PDT)
 Received: from ?IPv6:2003:ea:8f38:4600:7049:2393:32ac:d22c? (p200300ea8f3846007049239332acd22c.dip0.t-ipconnect.de. [2003:ea:8f38:4600:7049:2393:32ac:d22c])
-        by smtp.googlemail.com with ESMTPSA id a72sm16242080wme.29.2021.04.18.08.54.53
+        by smtp.googlemail.com with ESMTPSA id q20sm36780807wmq.2.2021.04.18.08.54.56
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 18 Apr 2021 08:54:55 -0700 (PDT)
+        Sun, 18 Apr 2021 08:54:59 -0700 (PDT)
 Subject: Re: FAILED: patch "[PATCH] r8169: don't advertise pause in jumbo
- mode" failed to apply to 5.11-stable tree
+ mode" failed to apply to 5.10-stable tree
 To:     stable@vger.kernel.org
-References: <16187421903184@kroah.com>
+References: <161874219017114@kroah.com>
 From:   Heiner Kallweit <hkallweit1@gmail.com>
-Message-ID: <3c3c598d-f611-ff01-1597-bc06373b9d6c@gmail.com>
-Date:   Sun, 18 Apr 2021 17:54:19 +0200
+Message-ID: <c4028e4f-6901-f5f5-a213-4435243f1058@gmail.com>
+Date:   Sun, 18 Apr 2021 17:54:41 +0200
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.9.1
 MIME-Version: 1.0
-In-Reply-To: <16187421903184@kroah.com>
+In-Reply-To: <161874219017114@kroah.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -69,7 +69,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 On 18.04.2021 12:36, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 5.11-stable tree.
+> The patch below does not apply to the 5.10-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
