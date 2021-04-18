@@ -2,113 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7AD363627
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 16:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C7F363672
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 17:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230294AbhDROsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 10:48:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48564 "EHLO
+        id S231341AbhDRPzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 11:55:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229995AbhDROr7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 10:47:59 -0400
-Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489ABC06174A;
-        Sun, 18 Apr 2021 07:47:31 -0700 (PDT)
-Received: by mail-ot1-x332.google.com with SMTP id o13-20020a9d404d0000b029028e0a0ae6b4so11153812oti.10;
-        Sun, 18 Apr 2021 07:47:31 -0700 (PDT)
+        with ESMTP id S229986AbhDRPzX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 11:55:23 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 404C6C06174A
+        for <stable@vger.kernel.org>; Sun, 18 Apr 2021 08:54:55 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id e7so22470899wrs.11
+        for <stable@vger.kernel.org>; Sun, 18 Apr 2021 08:54:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ywAWzjBuB7SBRfV7jQ7uOvrJs1PtdRwoYc2ALtF/tEI=;
-        b=UM1ikJYhkwyxWdPDiE5uRnL8MvTn/DeFnBb3Vf2+xpF6dyfClbc5pu0n9lwiyjHJuM
-         sDIpBZHb4eD2bNUrBaeF2WYXKuNp7b2+YGYF3x+6BOCEBO9r9bns8i07oO2rRsDhpT4z
-         QaLaPWXyCjieB71NF9Qetaeqz3pq4X9JFTh2+ZCvP6ycx67rc09gDR5GAApCiCfEiuM1
-         tlAr6OVjFiVazvuHb/6DynDdsvLvF1HisQeySkgyEXUb+y+QFi6DqeO3WpU0W1JVNkjh
-         PxxfAw6cCKeMmypV6O7b1a/buaME37u0IBCgpHpHgzY3yDTuw1bOA6qTITku1Z1P4pdw
-         qvkw==
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=K7A3vzERnjukwCTQIXPbLyi+Jl6mxYCKR0t8RMaFcsk=;
+        b=ptKzsWOQWqkwa5CpT61WctKG4x1u0ELfQFBIRNPNaZjKOPes38N+uFvrFVQos57qjS
+         7WffqnCvbOkgnRoAAiQU17AaMBMpXmehJz1h/3OMqGB1B7DHTWSGQUGhaLadkgab/zkQ
+         djBJjOWVTalviWcpB6wmVus9Efqp3q6Zbw7DgItRpiSIzE5VA/MHOwF8RK0SwEoOPIKe
+         reGQxgIaGrUHc5hd+2R2Eh2m4ownnC7Un3OEFJDVOe7Qxu1cmWAk6l64uO4i5zCr+Mp1
+         UdsuK9Oi0i2GmtV9S9L/cYLcYdhDZvFOKp2N45PQ6IlA7ymmQwnU2Xz2SmaKuts5xhV3
+         LqrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ywAWzjBuB7SBRfV7jQ7uOvrJs1PtdRwoYc2ALtF/tEI=;
-        b=a9iOO8ZN72fIozYvm/tZB54oKmHOcnGvdA5MD/55ot1adHveBTRcGRorSZbN7Hj5Zq
-         97JTNTcJGl+EJ1FRhIDfL6AVhlbDsLMaPEjutaFgapkzGxCxzvJ5kX0vP0P2k37VWMLx
-         OWp8feggk/3tOvv4NTL0RxJLhyfTkFkdGuXF3BKd6hqQlZiDHoBhGoBcgA9sarKA2Zz6
-         FVWzdOeyYO3BrciOTP76S47Zj2LP7f+PJvLsPBgc09GCq08IgM4BYCsiecsT/8O/+Xn6
-         nv/be+Tf1kqMfFbsij7yMKunppxVW9+MSldhdzV8PQuodloydTiVg3KhL/owCzY8OGbm
-         LHdw==
-X-Gm-Message-State: AOAM53059PNNhPM1mkfP8E52Ka1vKUFYNktG2F6Wl33Muxys4s/f+EF+
-        NMXwVqd7KdtbauLZVy+EPuj9g8OSuBRh3rGzoVerROX5c9PDpw==
-X-Google-Smtp-Source: ABdhPJwCyg6Wj/fAOO+ha5il4h8JeU1mA2fe92BODRlrnLGytb8jgnzO3ElI0IsC/X8N6Q8fj07SOH/ZPxBhBl2w7bM=
-X-Received: by 2002:a05:6830:1411:: with SMTP id v17mr11719713otp.87.1618757250650;
- Sun, 18 Apr 2021 07:47:30 -0700 (PDT)
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=K7A3vzERnjukwCTQIXPbLyi+Jl6mxYCKR0t8RMaFcsk=;
+        b=Cg+wVNwFysdwbxrQJqQnX8P4X/OJrVXVRy+OhpqaPqzek4Nuln4qApo9eRCHPNl4ZS
+         M8Oem4a1TX8hxT7XjvvJVKXGknQ1+M/vjwD8xo4RRRhfbErgj0YINxtNzZhNK/kUI5T/
+         996s5/L2CqAFttZwLg8J70Q1o5oBPmDQk3uUq08BjA8pKBCVrSEXlPboUmuo1j6SqmKY
+         us8aIYK1v0Jq0PivumV41xYgFRrSAc7kmxi5xvmV+55Wt6xGJAlbXRzvnHMCZp6Wy0y5
+         kavhGyuq8VtjDNBS+dYuTq6wEIcrHRvwP5icCZ9KOP29rBD4T8dJ0rMpMiWcYKdR1l+0
+         aDcQ==
+X-Gm-Message-State: AOAM532Q0VFhSSiKT2YVTSopDV8n4+aifHFYdnSj2K3jwFHR1VCQXUA7
+        ETZbcx8MwO3kt4iNhALXiQ+DIzxf1g9Akw==
+X-Google-Smtp-Source: ABdhPJx/HUdP92R1EnqjKMJd2Nkpgz+gm6a/22nbe1JuLt7JduNExas5lEVrgmsIEcTy6kXVGQttSA==
+X-Received: by 2002:a5d:4b8e:: with SMTP id b14mr9545234wrt.86.1618761292545;
+        Sun, 18 Apr 2021 08:54:52 -0700 (PDT)
+Received: from ?IPv6:2003:ea:8f38:4600:7049:2393:32ac:d22c? (p200300ea8f3846007049239332acd22c.dip0.t-ipconnect.de. [2003:ea:8f38:4600:7049:2393:32ac:d22c])
+        by smtp.googlemail.com with ESMTPSA id x8sm18924495wru.70.2021.04.18.08.54.49
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 18 Apr 2021 08:54:51 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] r8169: don't advertise pause in jumbo
+ mode" failed to apply to 5.4-stable tree
+To:     stable@vger.kernel.org
+References: <161874218928233@kroah.com>
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+Message-ID: <476069fb-8a0f-bd52-3f8e-5fbf6e0fab17@gmail.com>
+Date:   Sun, 18 Apr 2021 17:53:31 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-References: <1618749928154136@kroah.com>
-In-Reply-To: <1618749928154136@kroah.com>
-From:   Jonathon Reinhart <jonathon.reinhart@gmail.com>
-Date:   Sun, 18 Apr 2021 10:47:04 -0400
-Message-ID: <CAPFHKzdKcVDDERr8pmd=65Tf=tWNh_bKar9OLQd0oS2YBVu80Q@mail.gmail.com>
-Subject: Re: Patch "net: Make tcp_allowed_congestion_control readonly in
- non-init netns" has been added to the 5.10-stable tree
-To:     gregkh@linuxfoundation.org
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <161874218928233@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 18, 2021 at 8:46 AM <gregkh@linuxfoundation.org> wrote:
->
->
-> This is a note to let you know that I've just added the patch titled
->
->     net: Make tcp_allowed_congestion_control readonly in non-init netns
->
-> to the 5.10-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
->
-> The filename of the patch is:
->      net-make-tcp_allowed_congestion_control-readonly-in-non-init-netns.patch
-> and it can be found in the queue-5.10 subdirectory.
->
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
->
->
-> From 97684f0970f6e112926de631fdd98d9693c7e5c1 Mon Sep 17 00:00:00 2001
-> From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
-> Date: Tue, 13 Apr 2021 03:08:48 -0400
-> Subject: net: Make tcp_allowed_congestion_control readonly in non-init netns
->
-> From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
->
-> commit 97684f0970f6e112926de631fdd98d9693c7e5c1 upstream.
+On 18.04.2021 12:36, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+>>From 453a77894efa4d9b6ef9644d74b9419c47ac427c Mon Sep 17 00:00:00 2001
+> From: Heiner Kallweit <hkallweit1@gmail.com>
+> Date: Wed, 14 Apr 2021 10:47:10 +0200
+> Subject: [PATCH] r8169: don't advertise pause in jumbo mode
+> 
+> It has been reported [0] that using pause frames in jumbo mode impacts
+> performance. There's no available chip documentation, but vendor
+> drivers r8168 and r8125 don't advertise pause in jumbo mode. So let's
+> do the same, according to Roman it fixes the issue.
+> 
+> [0] https://bugzilla.kernel.org/show_bug.cgi?id=212617
+> 
+> Fixes: 9cf9b84cc701 ("r8169: make use of phy_set_asym_pause")
+> Reported-by: Roman Mamedov <rm+bko@romanrm.net>
+> Tested-by: Roman Mamedov <rm+bko@romanrm.net>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> 
+> diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+> index 581a92fc3292..1df2c002c9f6 100644
+> --- a/drivers/net/ethernet/realtek/r8169_main.c
+> +++ b/drivers/net/ethernet/realtek/r8169_main.c
+> @@ -2350,6 +2350,13 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
+>  
+>  	if (pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
+>  		pcie_set_readrq(tp->pci_dev, readrq);
+> +
+> +	/* Chip doesn't support pause in jumbo mode */
+> +	linkmode_mod_bit(ETHTOOL_LINK_MODE_Pause_BIT,
+> +			 tp->phydev->advertising, !jumbo);
+> +	linkmode_mod_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
+> +			 tp->phydev->advertising, !jumbo);
+> +	phy_start_aneg(tp->phydev);
+>  }
+>  
+>  DECLARE_RTL_COND(rtl_chipcmd_cond)
+> @@ -4630,8 +4637,6 @@ static int r8169_phy_connect(struct rtl8169_private *tp)
+>  	if (!tp->supports_gmii)
+>  		phy_set_max_speed(phydev, SPEED_100);
+>  
+> -	phy_support_asym_pause(phydev);
+> -
+>  	phy_attached_info(phydev);
+>  
+>  	return 0;
+> 
 
-Hi Greg,
+>From 90501465d4f9be209587047db1560a310a9fce1b Mon Sep 17 00:00:00 2001
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Date: Sun, 18 Apr 2021 17:42:13 +0200
+Subject: [PATCH] r8169: don't advertise pause in jumbo mode
 
-Thanks for picking this into the stable trees.
+It has been reported [0] that using pause frames in jumbo mode impacts
+performance. There's no available chip documentation, but vendor
+drivers r8168 and r8125 don't advertise pause in jumbo mode. So let's
+do the same, according to Roman it fixes the issue.
 
-There's an earlier, somewhat related fix, which is only on net-next:
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=212617
 
-2671fa4dc010 ("netfilter: conntrack: Make global sysctls readonly in
-non-init netns")
+Fixes: 9cf9b84cc701 ("r8169: make use of phy_set_asym_pause")
+Reported-by: Roman Mamedov <rm+bko@romanrm.net>
+Tested-by: Roman Mamedov <rm+bko@romanrm.net>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/net/ethernet/realtek/r8169_main.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-That probably could have been on "net", but it followed this other
-commit which was not strictly a bug-fix. It's additional logic to
-detect bugs like the former:
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 1e8244ec5b33..d61fb63da340 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -4175,6 +4175,13 @@ static void rtl_jumbo_config(struct rtl8169_private *tp, int mtu)
+ 		rtl_hw_jumbo_enable(tp);
+ 	else
+ 		rtl_hw_jumbo_disable(tp);
++
++	/* Chip doesn't support pause in jumbo mode */
++	linkmode_mod_bit(ETHTOOL_LINK_MODE_Pause_BIT,
++			 tp->phydev->advertising, mtu <= ETH_DATA_LEN);
++	linkmode_mod_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
++			 tp->phydev->advertising, mtu <= ETH_DATA_LEN);
++	phy_start_aneg(tp->phydev);
+ }
+ 
+ DECLARE_RTL_COND(rtl_chipcmd_cond)
+@@ -6366,8 +6373,6 @@ static int r8169_phy_connect(struct rtl8169_private *tp)
+ 	if (!tp->supports_gmii)
+ 		phy_set_max_speed(phydev, SPEED_100);
+ 
+-	phy_support_asym_pause(phydev);
+-
+ 	phy_attached_info(phydev);
+ 
+ 	return 0;
+-- 
+2.31.1
 
-31c4d2f160eb ("net: Ensure net namespace isolation of sysctls")
-
-Here's the series on Patchwork:
-https://patchwork.kernel.org/project/netdevbpf/cover/20210412042453.32168-1-Jonathon.Reinhart@gmail.com/
-
-I'm not yet sure where the threshold is for inclusion into "net" or
-"stable". Could you please take a look and see if the first (or both)
-of these should be included into the stable trees? If so, please feel
-free to pick them yourself, or let me know which patches I should send
-to "stable".
-
-Thanks!
-Jonathon Reinhart
