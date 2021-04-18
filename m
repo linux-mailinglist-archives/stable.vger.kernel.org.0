@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9CAC3634A3
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 12:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2977E3634A4
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 12:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbhDRKhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 06:37:08 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:50903 "EHLO
+        id S229671AbhDRKhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 06:37:11 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:44591 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229564AbhDRKhI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 06:37:08 -0400
+        by vger.kernel.org with ESMTP id S229564AbhDRKhK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 06:37:10 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 358891940273;
-        Sun, 18 Apr 2021 06:36:40 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 18 Apr 2021 06:36:40 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 73BCA19401B0;
+        Sun, 18 Apr 2021 06:36:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 18 Apr 2021 06:36:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Pl1mXA
-        cPi1yRU71a7LFEYfYpczL3kXcaETRvMvJAK5M=; b=M7arqI5MQoQOP9xT87eUpF
-        5VD4G9hyIjA2rbQZJ9S+JTSXcJjnjvyCGXGRniI4XHYnQKu/NST7M1bTMNCVjSFF
-        8L+elN9TUsspNxLVtn0t4B6lf0mu0dpYq+tU8GTtrBsZxDZDviyhRpKvwqiJ66Ex
-        AfHGiDXiJu2dYiulKKnhhtMFHPrQBfVRYY0lS6useWwJH/SN3H5TtrILMfs9x++I
-        qmHhF8C71XNuJ6zVqvQP3nZ0C68s68PmFFaYh8RDPJ0OVnYr5ca8u70/dPpXbjKD
-        oZO3GXhpTfs7V+T5dtzHV5a7GDLs8gWc4qOtPPttICK6a6I56nBWEQz7dCqtL6Jg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=U4pNl1
+        DxuHDXozegg7acci2K9YUTwsFCB9gM0ghWMgQ=; b=lhMDAZujf01C4HmR/cmy0V
+        oN3bYTPf3cXhLptNmVbjpIAU2bAeS7PYrFz2Zxs9pbwzBWSC07w5yqi3kq5AvPKh
+        m3rrfC7l1XAkDE4YWAeZsDoL4kzo8nFdB1k8V80qQkrXHUCUV1eIfBX6rFunqdaj
+        ZVgPZ78Z+qRFL4MdBmjQ562oN2MozHIKA6IarYgH/H92IEpC/NDP5jpeBfY/u7fn
+        zl1ggGhB5MDSF9b5eQF9fV+JPQ+Ok5R/WAKyJcQlVhLrre/1EQsggx8xvMaohG9u
+        OfjfP8m9QI8TC3F+q3QyRAj5uaanR1IJJhde48YCD8GcEeEixPKFGoiiPVcz/idQ
         ==
-X-ME-Sender: <xms:uAt8YBQmaJgp6fqDFwIF5CPJLrPsJlWVjhKMC6cK_OpHC5ZYjH5pWw>
-    <xme:uAt8YKxK9DDYhISBl1azoW4KEJKybxCGabYWhD-ZIuQMPwtOMfg1HN_eu2aeCu5fk
-    pdDWJ8uFUkfvA>
+X-ME-Sender: <xms:ugt8YKKAnRegVfhK_kg6WD_MDvxLStSZoMieevTXRESCBJ0mxTLFww>
+    <xme:ugt8YCJt7-jooWiIQVOHPHQmgUl-YDuSdToM-xJudTWfHDaFmuaYClJ3tQ5Urttx4
+    RtqVxCgdrO3Ug>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelkedgieehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelkedgieehucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:uAt8YG2rCknQLWAq-LBQo8wjb7XoEC3ygweNVkFDxriZc_Ofn8XY3A>
-    <xmx:uAt8YJBX7oJUraymgrxkLLKllcAiHmZVFbAB9uj4vQArASjaHI_WZQ>
-    <xmx:uAt8YKhsKrfBIth6Yo0Wslw3xM1vt-la6Ub_rRmylhHBcx2uAy_a6A>
-    <xmx:uAt8YObEQhwTehLqQZpQ_aeBqFLWGRT8M69kUAVYyz7UV1zd6w-hHA>
+X-ME-Proxy: <xmx:ugt8YKtbtljgLFsXUEVuA0tUOEPajk3iaEXX1Y2ao892rASSk2oP5Q>
+    <xmx:ugt8YPYViKzTeHV7q9feoT48dQvtBf9MwDPLjp8HlIZof1jOq0wGnA>
+    <xmx:ugt8YBYiuIgetkq8GXidmQYFN65O5LXIHI9MenCHNFRK6GY-6jFBpw>
+    <xmx:ugt8YAyqE9UZawC9ILZPwQgw9-gyj0vWtqD0yZNvMWgHYQcCrnBoxA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D0E9E108005F;
-        Sun, 18 Apr 2021 06:36:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] r8169: don't advertise pause in jumbo mode" failed to apply to 5.11-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id EC6D3240054;
+        Sun, 18 Apr 2021 06:36:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] r8169: don't advertise pause in jumbo mode" failed to apply to 5.10-stable tree
 To:     hkallweit1@gmail.com, davem@davemloft.net, rm+bko@romanrm.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 18 Apr 2021 12:36:30 +0200
-Message-ID: <16187421903184@kroah.com>
+Message-ID: <161874219017114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
