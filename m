@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2977E3634A4
-	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 12:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA12E3634A6
+	for <lists+stable@lfdr.de>; Sun, 18 Apr 2021 12:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbhDRKhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Apr 2021 06:37:11 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:44591 "EHLO
+        id S229574AbhDRKho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Apr 2021 06:37:44 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:40917 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229564AbhDRKhK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 06:37:10 -0400
+        by vger.kernel.org with ESMTP id S229652AbhDRKhm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Apr 2021 06:37:42 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 73BCA19401B0;
-        Sun, 18 Apr 2021 06:36:42 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1713519401B0;
+        Sun, 18 Apr 2021 06:37:14 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 18 Apr 2021 06:36:42 -0400
+  by compute4.internal (MEProxy); Sun, 18 Apr 2021 06:37:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=U4pNl1
-        DxuHDXozegg7acci2K9YUTwsFCB9gM0ghWMgQ=; b=lhMDAZujf01C4HmR/cmy0V
-        oN3bYTPf3cXhLptNmVbjpIAU2bAeS7PYrFz2Zxs9pbwzBWSC07w5yqi3kq5AvPKh
-        m3rrfC7l1XAkDE4YWAeZsDoL4kzo8nFdB1k8V80qQkrXHUCUV1eIfBX6rFunqdaj
-        ZVgPZ78Z+qRFL4MdBmjQ562oN2MozHIKA6IarYgH/H92IEpC/NDP5jpeBfY/u7fn
-        zl1ggGhB5MDSF9b5eQF9fV+JPQ+Ok5R/WAKyJcQlVhLrre/1EQsggx8xvMaohG9u
-        OfjfP8m9QI8TC3F+q3QyRAj5uaanR1IJJhde48YCD8GcEeEixPKFGoiiPVcz/idQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ehVAGD
+        oxV9h4KqpthjqiRwGuJyuH+zKN5lIF4obGdDM=; b=DWr+B9SkStnVmuVMw4jFz/
+        apB7zqXKQvyvPgX2N2WfpUXSLyVj0dbXKhrxNE+uuydVnL/Cdzzi4r7aCCGM57UW
+        tEviF1hZZYkcvyL8+ixYO9iMtvwSVvJa1xQ2ZYb6fQLI6YdowYC9At51uMDynm/R
+        0lK60svTESPdJVNTAajRymVA0Tuy/oojOuxs+uYSgofpRlMTzp4suxlFI7yasNyD
+        JfS7l4nKEDhu/TIRI6ijZSWWiu9gxwcHYgIOIJ/HEk9aeWDk/Ayx83p5znAg1Li3
+        C3MMDAqjo6B7Dr1siXv/MU7nWyEekv+hvSHIJYiRFwZ1UjbKq5Mc1qeMI2rYN5MQ
         ==
-X-ME-Sender: <xms:ugt8YKKAnRegVfhK_kg6WD_MDvxLStSZoMieevTXRESCBJ0mxTLFww>
-    <xme:ugt8YCJt7-jooWiIQVOHPHQmgUl-YDuSdToM-xJudTWfHDaFmuaYClJ3tQ5Urttx4
-    RtqVxCgdrO3Ug>
+X-ME-Sender: <xms:2Qt8YN_S5slTNTAsWFcKpgPlLkHBUhZ4scmsngQgvuUDVuchZov52w>
+    <xme:2Qt8YBs_RmjO8xpkVWQIqZojYa1SG4VpLVz0nuIsx4NnDauIMsBvXvWUkebcMGr6Y
+    4d1PFRs1Jibcg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudelkedgieehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:ugt8YKtbtljgLFsXUEVuA0tUOEPajk3iaEXX1Y2ao892rASSk2oP5Q>
-    <xmx:ugt8YPYViKzTeHV7q9feoT48dQvtBf9MwDPLjp8HlIZof1jOq0wGnA>
-    <xmx:ugt8YBYiuIgetkq8GXidmQYFN65O5LXIHI9MenCHNFRK6GY-6jFBpw>
-    <xmx:ugt8YAyqE9UZawC9ILZPwQgw9-gyj0vWtqD0yZNvMWgHYQcCrnBoxA>
+    gheqnecuggftrfgrthhtvghrnheptdeihedtieehudfgffdtgeevveegfeeffffgffegtd
+    ehtdeukeekgeffhfffffefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpvghnthhr
+    hidrshgsnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptd
+    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:2Qt8YLB43xABlqeb0yX8yw9veBUOHCmvMBjexoXo74bb7-lygG43pQ>
+    <xmx:2Qt8YBfvtxyLcfC85c_fcKM-zeCQFXb1mSKRVFp6Vh8F2I326U4CIA>
+    <xmx:2Qt8YCM7lxIjMcROcZgXT1vhrpt-SpOmQV5lIP0VS-XXZphL-Mqijw>
+    <xmx:2gt8YLZpE1nQeteyAY8pOVfzqf6PjHg-ZKcqn_Le8XO9ESXrrwoDZA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EC6D3240054;
-        Sun, 18 Apr 2021 06:36:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] r8169: don't advertise pause in jumbo mode" failed to apply to 5.10-stable tree
-To:     hkallweit1@gmail.com, davem@davemloft.net, rm+bko@romanrm.net
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7D479240057;
+        Sun, 18 Apr 2021 06:37:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: mte: Ensure TIF_MTE_ASYNC_FAULT is set atomically" failed to apply to 5.10-stable tree
+To:     catalin.marinas@arm.com, mark.rutland@arm.com,
+        stable@vger.kernel.org, vincenzo.frascino@arm.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 18 Apr 2021 12:36:30 +0200
-Message-ID: <161874219017114@kroah.com>
+Date:   Sun, 18 Apr 2021 12:37:12 +0200
+Message-ID: <161874223215712@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,50 +71,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 453a77894efa4d9b6ef9644d74b9419c47ac427c Mon Sep 17 00:00:00 2001
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Date: Wed, 14 Apr 2021 10:47:10 +0200
-Subject: [PATCH] r8169: don't advertise pause in jumbo mode
+From 2decad92f4731fac9755a083fcfefa66edb7d67d Mon Sep 17 00:00:00 2001
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Fri, 9 Apr 2021 18:37:10 +0100
+Subject: [PATCH] arm64: mte: Ensure TIF_MTE_ASYNC_FAULT is set atomically
 
-It has been reported [0] that using pause frames in jumbo mode impacts
-performance. There's no available chip documentation, but vendor
-drivers r8168 and r8125 don't advertise pause in jumbo mode. So let's
-do the same, according to Roman it fixes the issue.
+The entry from EL0 code checks the TFSRE0_EL1 register for any
+asynchronous tag check faults in user space and sets the
+TIF_MTE_ASYNC_FAULT flag. This is not done atomically, potentially
+racing with another CPU calling set_tsk_thread_flag().
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=212617
+Replace the non-atomic ORR+STR with an STSET instruction. While STSET
+requires ARMv8.1 and an assembler that understands LSE atomics, the MTE
+feature is part of ARMv8.5 and already requires an updated assembler.
 
-Fixes: 9cf9b84cc701 ("r8169: make use of phy_set_asym_pause")
-Reported-by: Roman Mamedov <rm+bko@romanrm.net>
-Tested-by: Roman Mamedov <rm+bko@romanrm.net>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 637ec831ea4f ("arm64: mte: Handle synchronous and asynchronous tag check faults")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Reported-by: Will Deacon <will@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20210409173710.18582-1-catalin.marinas@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 581a92fc3292..1df2c002c9f6 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -2350,6 +2350,13 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index e4e1b6550115..dfdc3e0af5e1 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1406,10 +1406,13 @@ config ARM64_PAN
+ config AS_HAS_LDAPR
+ 	def_bool $(as-instr,.arch_extension rcpc)
  
- 	if (pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
- 		pcie_set_readrq(tp->pci_dev, readrq);
++config AS_HAS_LSE_ATOMICS
++	def_bool $(as-instr,.arch_extension lse)
 +
-+	/* Chip doesn't support pause in jumbo mode */
-+	linkmode_mod_bit(ETHTOOL_LINK_MODE_Pause_BIT,
-+			 tp->phydev->advertising, !jumbo);
-+	linkmode_mod_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+			 tp->phydev->advertising, !jumbo);
-+	phy_start_aneg(tp->phydev);
- }
+ config ARM64_LSE_ATOMICS
+ 	bool
+ 	default ARM64_USE_LSE_ATOMICS
+-	depends on $(as-instr,.arch_extension lse)
++	depends on AS_HAS_LSE_ATOMICS
  
- DECLARE_RTL_COND(rtl_chipcmd_cond)
-@@ -4630,8 +4637,6 @@ static int r8169_phy_connect(struct rtl8169_private *tp)
- 	if (!tp->supports_gmii)
- 		phy_set_max_speed(phydev, SPEED_100);
+ config ARM64_USE_LSE_ATOMICS
+ 	bool "Atomic instructions"
+@@ -1666,6 +1669,7 @@ config ARM64_MTE
+ 	default y
+ 	depends on ARM64_AS_HAS_MTE && ARM64_TAGGED_ADDR_ABI
+ 	depends on AS_HAS_ARMV8_5
++	depends on AS_HAS_LSE_ATOMICS
+ 	# Required for tag checking in the uaccess routines
+ 	depends on ARM64_PAN
+ 	select ARCH_USES_HIGH_VMA_FLAGS
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index a31a0a713c85..6acfc5e6b5e0 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -148,16 +148,18 @@ alternative_cb_end
+ 	.endm
  
--	phy_support_asym_pause(phydev);
--
- 	phy_attached_info(phydev);
+ 	/* Check for MTE asynchronous tag check faults */
+-	.macro check_mte_async_tcf, flgs, tmp
++	.macro check_mte_async_tcf, tmp, ti_flags
+ #ifdef CONFIG_ARM64_MTE
++	.arch_extension lse
+ alternative_if_not ARM64_MTE
+ 	b	1f
+ alternative_else_nop_endif
+ 	mrs_s	\tmp, SYS_TFSRE0_EL1
+ 	tbz	\tmp, #SYS_TFSR_EL1_TF0_SHIFT, 1f
+ 	/* Asynchronous TCF occurred for TTBR0 access, set the TI flag */
+-	orr	\flgs, \flgs, #_TIF_MTE_ASYNC_FAULT
+-	str	\flgs, [tsk, #TSK_TI_FLAGS]
++	mov	\tmp, #_TIF_MTE_ASYNC_FAULT
++	add	\ti_flags, tsk, #TSK_TI_FLAGS
++	stset	\tmp, [\ti_flags]
+ 	msr_s	SYS_TFSRE0_EL1, xzr
+ 1:
+ #endif
+@@ -244,7 +246,7 @@ alternative_else_nop_endif
+ 	disable_step_tsk x19, x20
  
- 	return 0;
+ 	/* Check for asynchronous tag check faults in user space */
+-	check_mte_async_tcf x19, x22
++	check_mte_async_tcf x22, x23
+ 	apply_ssbd 1, x22, x23
+ 
+ 	ptrauth_keys_install_kernel tsk, x20, x22, x23
 
