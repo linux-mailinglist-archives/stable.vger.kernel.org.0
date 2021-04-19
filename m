@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 889FF3643A8
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:31:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1CDE3643A6
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240318AbhDSNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
+        id S240712AbhDSNVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240319AbhDSNSk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:18:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 402E3613AE;
-        Mon, 19 Apr 2021 13:14:56 +0000 (UTC)
+        id S240702AbhDSNSm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:18:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06845613FB;
+        Mon, 19 Apr 2021 13:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838096;
-        bh=V0Puj16SlsSi5HANTTkJlOgF7jgTlei0Jan14hcPh0Q=;
+        s=korg; t=1618838099;
+        bh=N0Ugq0o3pQAuduongTIeizdD/oz1VyPo6r7AfmJ3Uho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dl/GiE5VFDLeuMZFPSedt+XZO2JfhsOfb7E8Ezmm2VIHPYIZAk2pdNuJRiwrqWqb/
-         YlvzjqBHYzWMK6N9o61ENbqVJg+vcCERFzEdwDCPoHjT4vwIA/h1NRu0TRYNnRO5Tn
-         EjxwnifBas1Ry/kBZTTgt5hLb0pZW1JUmP1OGaJA=
+        b=xfphp8EdUKHoprpxA0MRrZDf+jfLSo7F8jabq/3NrIS8drZKRv3ev8kL7yw+aAq8P
+         mMupmGyCnKj5iEJlJdPevAuQpajuVvTz/jBf7vKPP33yhLS4rLw8QFKfEiULu32ZsT
+         eKjO4GCzk9X6iku/6EUBenGQZjPkEFpX2HSpZN/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikhil Rao <nikhil.rao@intel.com>,
+        stable@vger.kernel.org, Lucas Van <lucas.van@intel.com>,
         Dave Jiang <dave.jiang@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/103] dmaengine: idxd: fix delta_rec and crc size field for completion record
-Date:   Mon, 19 Apr 2021 15:05:17 +0200
-Message-Id: <20210419130528.002297684@linuxfoundation.org>
+Subject: [PATCH 5.10 007/103] dmaengine: idxd: fix opcap sysfs attribute output
+Date:   Mon, 19 Apr 2021 15:05:18 +0200
+Message-Id: <20210419130528.041395384@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -42,36 +42,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 4ac823e9cd85f66da274c951d21bf9f6b714b729 ]
+[ Upstream commit ea6a5735d2a61b938a302eb3629272342a9e7c46 ]
 
-The delta_rec_size and crc_val in the completion record should
-be 32bits and not 16bits.
+The operation capability register is 256bits. The current output only
+prints out the first 64bits. Fix to output the entire 256bits. The current
+code omits operation caps from IAX devices.
 
-Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
-Reported-by: Nikhil Rao <nikhil.rao@intel.com>
+Fixes: c52ca478233c ("dmaengine: idxd: add configuration component of driver")
+Reported-by: Lucas Van <lucas.van@intel.com>
 Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/161645618572.2003490.14466173451736323035.stgit@djiang5-desk3.ch.intel.com
+Link: https://lore.kernel.org/r/161645624963.2003736.829798666998490151.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/idxd.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/idxd/sysfs.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/idxd.h b/include/uapi/linux/idxd.h
-index fdcdfe414223..9d9ecc0f4c38 100644
---- a/include/uapi/linux/idxd.h
-+++ b/include/uapi/linux/idxd.h
-@@ -187,8 +187,8 @@ struct dsa_completion_record {
- 			uint32_t	rsvd2:8;
- 		};
+diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
+index fb97c9f319a5..b3ab86ced355 100644
+--- a/drivers/dma/idxd/sysfs.c
++++ b/drivers/dma/idxd/sysfs.c
+@@ -1259,8 +1259,14 @@ static ssize_t op_cap_show(struct device *dev,
+ {
+ 	struct idxd_device *idxd =
+ 		container_of(dev, struct idxd_device, conf_dev);
++	int i, rc = 0;
++
++	for (i = 0; i < 4; i++)
++		rc += sysfs_emit_at(buf, rc, "%#llx ", idxd->hw.opcap.bits[i]);
  
--		uint16_t	delta_rec_size;
--		uint16_t	crc_val;
-+		uint32_t	delta_rec_size;
-+		uint32_t	crc_val;
+-	return sprintf(buf, "%#llx\n", idxd->hw.opcap.bits[0]);
++	rc--;
++	rc += sysfs_emit_at(buf, rc, "\n");
++	return rc;
+ }
+ static DEVICE_ATTR_RO(op_cap);
  
- 		/* DIF check & strip */
- 		struct {
 -- 
 2.30.2
 
