@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E904F36426F
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB6A7364274
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239411AbhDSNIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:08:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43444 "EHLO mail.kernel.org"
+        id S237685AbhDSNJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:09:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239416AbhDSNIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:08:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B273F6127C;
-        Mon, 19 Apr 2021 13:08:09 +0000 (UTC)
+        id S239447AbhDSNI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:08:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBA0261288;
+        Mon, 19 Apr 2021 13:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837690;
-        bh=5vSnftBv7TEoHBYxI8JgxnbeUIjXD2E0W4N0IsgOYck=;
+        s=korg; t=1618837704;
+        bh=echiII9LJeo6bGJlWY8pdQulXOUmVokpdL0zV8SpY3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPY4oVZuwCRSl/1x0ABlfzlOvE+llhN1g67iLMw6gOkgcaAme/MLyE2q4HDfo3odv
-         oJdwoaXIqWvdMzeyfCWlljrAvVxE0h/y3s7jmB/tuKVk77OuCXQSuR9jMq+FKvAsiq
-         8DwKd26cGJo9IAHRwmLvTuGwDBf+BbuCLv5pyFfM=
+        b=cND7J/hWnjy7vPw/FXqjaMzlpg+pVuMVcg/+Xk98550LUW2fwWB2SJmY4y8JHivTZ
+         npynaGlKMKJ0uD2Cjl50HotJgTTDpyilJOyPTIfWrtINyyluo3knwcKZoNjRzPA8w6
+         EUM6LxjZfEiftlfSUZUq3ZD6pmUOVo2C1bFZmkMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Neumann <mail@richard-neumann.de>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 002/122] AMD_SFH: Add sensor_mask module parameter
-Date:   Mon, 19 Apr 2021 15:04:42 +0200
-Message-Id: <20210419130530.257445795@linuxfoundation.org>
+Subject: [PATCH 5.11 003/122] AMD_SFH: Add DMI quirk table for BIOS-es which dont set the activestatus bits
+Date:   Mon, 19 Apr 2021 15:04:43 +0200
+Message-Id: <20210419130530.287313574@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -42,62 +41,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 952f7d10c6b1685c6700fb24cf4ecbcf26ede77e ]
+[ Upstream commit 25615e454a0ec198254f17d2ed79b607cb755d0e ]
 
-Add a sensor_mask module parameter which can be used to override the
-sensor-mask read from the activestatus bits of the AMD_P2C_MSG3
-registers. Some BIOS-es do not program the activestatus bits, leading
-to the AMD-SFH driver not registering any HID devices even though the
-laptop in question does actually have sensors.
+Some BIOS-es do not initialize the activestatus bits of the AMD_P2C_MSG3
+register. This cause the AMD_SFH driver to not register any sensors even
+though the laptops in question do have sensors.
 
-While at it also fix the wrong indentation of the MAGNO_EN define.
+Add a DMI quirk-table for specifying sensor-mask overrides based on
+DMI match, to make the sensors work OOTB on these laptop models.
 
 BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199715
 BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1651886
 Fixes: 4f567b9f8141 ("SFH: PCIe driver to add support of AMD sensor fusion hub")
-Suggested-by: Richard Neumann <mail@richard-neumann.de>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Acked-by: Sandeep Singh <sandeep.singh@amd.com
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
 diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index f3cdb4ea33da..ab0a9443e252 100644
+index ab0a9443e252..ddecc84fd6f0 100644
 --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
 +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -22,9 +22,13 @@
+@@ -10,6 +10,7 @@
+ #include <linux/bitops.h>
+ #include <linux/delay.h>
+ #include <linux/dma-mapping.h>
++#include <linux/dmi.h>
+ #include <linux/interrupt.h>
+ #include <linux/io-64-nonatomic-lo-hi.h>
+ #include <linux/module.h>
+@@ -77,11 +78,34 @@ void amd_stop_all_sensors(struct amd_mp2_dev *privdata)
+ 	writel(cmd_base.ul, privdata->mmio + AMD_C2P_MSG0);
+ }
  
- #define ACEL_EN		BIT(0)
- #define GYRO_EN		BIT(1)
--#define MAGNO_EN		BIT(2)
-+#define MAGNO_EN	BIT(2)
- #define ALS_EN		BIT(19)
- 
-+static int sensor_mask_override = -1;
-+module_param_named(sensor_mask, sensor_mask_override, int, 0444);
-+MODULE_PARM_DESC(sensor_mask, "override the detected sensors mask");
++static const struct dmi_system_id dmi_sensor_mask_overrides[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP ENVY x360 Convertible 13-ag0xxx"),
++		},
++		.driver_data = (void *)(ACEL_EN | MAGNO_EN),
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP ENVY x360 Convertible 15-cp0xxx"),
++		},
++		.driver_data = (void *)(ACEL_EN | MAGNO_EN),
++	},
++	{ }
++};
 +
- void amd_start_sensor(struct amd_mp2_dev *privdata, struct amd_mp2_sensor_info info)
+ int amd_mp2_get_sensor_num(struct amd_mp2_dev *privdata, u8 *sensor_id)
  {
- 	union sfh_cmd_param cmd_param;
-@@ -78,8 +82,12 @@ int amd_mp2_get_sensor_num(struct amd_mp2_dev *privdata, u8 *sensor_id)
  	int activestatus, num_of_sensors = 0;
++	const struct dmi_system_id *dmi_id;
  	u32 activecontrolstatus;
  
--	activecontrolstatus = readl(privdata->mmio + AMD_P2C_MSG3);
--	activestatus = activecontrolstatus >> 4;
-+	if (sensor_mask_override >= 0) {
-+		activestatus = sensor_mask_override;
-+	} else {
-+		activecontrolstatus = readl(privdata->mmio + AMD_P2C_MSG3);
-+		activestatus = activecontrolstatus >> 4;
++	if (sensor_mask_override == -1) {
++		dmi_id = dmi_first_match(dmi_sensor_mask_overrides);
++		if (dmi_id)
++			sensor_mask_override = (long)dmi_id->driver_data;
 +	}
- 
- 	if (ACEL_EN  & activestatus)
- 		sensor_id[num_of_sensors++] = accel_idx;
++
+ 	if (sensor_mask_override >= 0) {
+ 		activestatus = sensor_mask_override;
+ 	} else {
 -- 
 2.30.2
 
