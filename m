@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9FB43642C2
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC8D3642C4
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239660AbhDSNLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
+        id S239569AbhDSNLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:11:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239570AbhDSNKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:10:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 335806128C;
-        Mon, 19 Apr 2021 13:10:08 +0000 (UTC)
+        id S239777AbhDSNKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:10:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D574361369;
+        Mon, 19 Apr 2021 13:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837808;
-        bh=IgI4zozI+D92Ifo00TD20wheW8iwvsLj3PA/KWEXrn4=;
+        s=korg; t=1618837811;
+        bh=07fyHfePTqcu7mwntv5Jqbrm3xdWsZ0mEzRb0oiV66E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCmOZ7CTrBDmvu8w/S/6UmyMx6+vuawQlIkbaHFd4uioncAbJwiO5s37U+0+Nl/vg
-         PrbRSpzipYFcmgOhfY6OU3cQhUjtOxsI49u69MxMrpPWY+1e8willjv/SjQa2ZwQTo
-         4zlcqTerJgRPipIOHdNjuLJTJAK+lu2AI9TGNiJ4=
+        b=ZK8rzpo7B2YM/WsYXI8cr7HBL7H7RI5piiIiQ6t5XaOCC/nrviw3Ec+36/d77z0zX
+         6J2oRtkP37GqJq2yemm+I8Ixov6BbqCo5qzq1h10APIqKYDlJ9onrALvO2C86G3ggD
+         l6Y1oFWwJc9jTEKl6Ze+e3Z4J82TbE1zhyELxykg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 060/122] readdir: make sure to verify directory entry for legacy interfaces too
-Date:   Mon, 19 Apr 2021 15:05:40 +0200
-Message-Id: <20210419130532.219682227@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.11 061/122] drm/i915: Dont zero out the Y planes watermarks
+Date:   Mon, 19 Apr 2021 15:05:41 +0200
+Message-Id: <20210419130532.250125690@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -39,73 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 0c93ac69407d63a85be0129aa55ffaec27ffebd3 upstream.
+commit bf52dc49ba0101f648b4c3ea26b812061406b0d4 upstream.
 
-This does the directory entry name verification for the legacy
-"fillonedir" (and compat) interface that goes all the way back to the
-dark ages before we had a proper dirent, and the readdir() system call
-returned just a single entry at a time.
+Don't zero out the watermarks for the Y plane since we've already
+computed them when computing the UV plane's watermarks (since the
+UV plane always appears before ethe Y plane when iterating through
+the planes).
 
-Nobody should use this interface unless you still have binaries from
-1991, but let's do it right.
+This leads to allocating no DDB for the Y plane since .min_ddb_alloc
+also gets zeroed. And that of course leads to underruns when scanning
+out planar formats.
 
-This came up during discussions about unsafe_copy_to_user() and proper
-checking of all the inputs to it, as the networking layer is looking to
-use it in a few new places.  So let's make sure the _old_ users do it
-all right and proper, before we add new ones.
-
-See also commit 8a23eb804ca4 ("Make filldir[64]() verify the directory
-entry filename is valid") which did the proper modern interfaces that
-people actually use. It had a note:
-
-    Note that I didn't bother adding the checks to any legacy interfaces
-    that nobody uses.
-
-which this now corrects.  Note that we really don't care about POSIX and
-the presense of '/' in a directory entry, but verify_dirent_name() also
-ends up doing the proper name length verification which is what the
-input checking discussion was about.
-
-[ Another option would be to remove the support for this particular very
-  old interface: any binaries that use it are likely a.out binaries, and
-  they will no longer run anyway since we removed a.out binftm support
-  in commit eac616557050 ("x86: Deprecate a.out support").
-
-  But I'm not sure which came first: getdents() or ELF support, so let's
-  pretend somebody might still have a working binary that uses the
-  legacy readdir() case.. ]
-
-Link: https://lore.kernel.org/lkml/CAHk-=wjbvzCAhAtvG0d81W5o0-KT5PPTHhfJ5ieDFq+bGtgOYg@mail.gmail.com/
-Acked-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Fixes: dbf71381d733 ("drm/i915: Nuke intel_atomic_crtc_state_for_each_plane_state() from skl+ wm code")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210327005945.4929-1-ville.syrjala@linux.intel.com
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+(cherry picked from commit f99b805fb9413ff007ca0b6add871737664117dd)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/readdir.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/i915/intel_pm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -150,6 +150,9 @@ static int fillonedir(struct dir_context
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -5539,12 +5539,12 @@ static int icl_build_plane_wm(struct int
+ 	struct skl_plane_wm *wm = &crtc_state->wm.skl.raw.planes[plane_id];
+ 	int ret;
  
- 	if (buf->result)
- 		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
-@@ -405,6 +408,9 @@ static int compat_fillonedir(struct dir_
+-	memset(wm, 0, sizeof(*wm));
+-
+ 	/* Watermarks calculated in master */
+ 	if (plane_state->planar_slave)
+ 		return 0;
  
- 	if (buf->result)
- 		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
++	memset(wm, 0, sizeof(*wm));
++
+ 	if (plane_state->planar_linked_plane) {
+ 		const struct drm_framebuffer *fb = plane_state->hw.fb;
+ 		enum plane_id y_plane_id = plane_state->planar_linked_plane->id;
 
 
