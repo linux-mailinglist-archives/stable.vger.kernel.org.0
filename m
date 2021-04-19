@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D88364398
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C93D36430F
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239596AbhDSNVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
+        id S232302AbhDSNOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:14:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239302AbhDSNSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:18:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27BA8613F8;
-        Mon, 19 Apr 2021 13:14:38 +0000 (UTC)
+        id S239273AbhDSNMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:12:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A217C6113C;
+        Mon, 19 Apr 2021 13:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838079;
-        bh=zN8TzTFZEtlp8APpXXQ1DedqGSNq9udAusLxKlxoU1s=;
+        s=korg; t=1618837894;
+        bh=m83Jsjv1frtpyFiCelm+5L0QoMSJo7QdUF1BOkmsDbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tq0kVZmmDO1d5UbiihnnX/Qz0WGRidfT0Ef3jjNPnE4pudKzG/5pjI9/Apo4s6OMd
-         ItOTfRvSL3iphdKn2xdD1HR1tuu0j+hEw/2VWOKCRdvBubrBtepBqHEpqFz/HXia9F
-         5yeqbT80RICfDt17L0Lgh27BJIg3pB2X/xYvFLWU=
+        b=mLAVCISeacqYJv5UsDNPey/QLLIEtNBLX4Y1qQYVohIUMqJ1W/bp7a2oOLZtewn6R
+         NN78bGC51tAPehvOC78qslQSHK8qMbAZYJlhFDOUmuKqXUaSLtppbybVCAV8EBtrAD
+         C6iQ7uelFruW0lpbM0XcjuvFVoDyV12T6KzEqy90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 034/103] net: ieee802154: forbid monitor for add llsec dev
+        stable@vger.kernel.org, "Christian A. Ehrhardt" <lk@c--e.de>,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 5.11 065/122] vfio/pci: Add missing range check in vfio_pci_mmap
 Date:   Mon, 19 Apr 2021 15:05:45 +0200
-Message-Id: <20210419130528.974933399@linuxfoundation.org>
+Message-Id: <20210419130532.389134520@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
+References: <20210419130530.166331793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Christian A. Ehrhardt <lk@c--e.de>
 
-[ Upstream commit 5303f956b05a2886ff42890908156afaec0f95ac ]
+commit 909290786ea335366e21d7f1ed5812b90f2f0a92 upstream.
 
-This patch forbids to add llsec dev for monitor interfaces which we
-don't support yet. Otherwise we will access llsec mib which isn't
-initialized for monitors.
+When mmaping an extra device region verify that the region index
+derived from the mmap offset is valid.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-8-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a15b1883fee1 ("vfio_pci: Allow mapping extra regions")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian A. Ehrhardt <lk@c--e.de>
+Message-Id: <20210412214124.GA241759@lisa.in-ulm.de>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/nl802154.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/vfio/pci/vfio_pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index 8a9019aa00c3..c8576dc0686d 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1768,6 +1768,9 @@ static int nl802154_add_llsec_dev(struct sk_buff *skb, struct genl_info *info)
- 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
- 	struct ieee802154_llsec_device dev_desc;
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1658,6 +1658,8 @@ static int vfio_pci_mmap(void *device_da
  
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
-+		return -EOPNOTSUPP;
-+
- 	if (ieee802154_llsec_parse_device(info->attrs[NL802154_ATTR_SEC_DEVICE],
- 					  &dev_desc) < 0)
+ 	index = vma->vm_pgoff >> (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT);
+ 
++	if (index >= VFIO_PCI_NUM_REGIONS + vdev->num_regions)
++		return -EINVAL;
+ 	if (vma->vm_end < vma->vm_start)
  		return -EINVAL;
--- 
-2.30.2
-
+ 	if ((vma->vm_flags & VM_SHARED) == 0)
+@@ -1666,7 +1668,7 @@ static int vfio_pci_mmap(void *device_da
+ 		int regnum = index - VFIO_PCI_NUM_REGIONS;
+ 		struct vfio_pci_region *region = vdev->region + regnum;
+ 
+-		if (region && region->ops && region->ops->mmap &&
++		if (region->ops && region->ops->mmap &&
+ 		    (region->flags & VFIO_REGION_INFO_FLAG_MMAP))
+ 			return region->ops->mmap(vdev, region, vma);
+ 		return -EINVAL;
 
 
