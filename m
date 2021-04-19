@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8478E364321
+	by mail.lfdr.de (Postfix) with ESMTP id 0C766364320
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238730AbhDSNOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:14:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47840 "EHLO mail.kernel.org"
+        id S239547AbhDSNOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240241AbhDSNNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:13:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 161BC61370;
-        Mon, 19 Apr 2021 13:12:10 +0000 (UTC)
+        id S240236AbhDSNNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:13:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F2661369;
+        Mon, 19 Apr 2021 13:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837931;
-        bh=d+KVnw4YIxML2Sk5qNBKDa0fq9K7zHCqTDPm4mZhs7U=;
+        s=korg; t=1618837934;
+        bh=dAF5/SqOJKnqmlYgI+dE0TsDA1M5hV6EL+szpzELn/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DE37pzn9ejbUwFj8FFmHJwUfpQ01lRypShvTuxpHIE9mvtpotZXwh9RlVTXJTIg4X
-         Xn0hYB40+smhXsFlAS1h60CmQLO9S/84FORzGbutOj4+7ElhCnPrljbWI/v3SDxj/W
-         Z5bM0ILDr9Ok7fZ5FFSGFHjI+PbZSp0yOCgwoRNg=
+        b=n7UaDEDbAjpZ9UhABgg9S4KUhmqT/sdUoXqzh3+Ltyedqdr2mfzCUg95quw7BkGtc
+         nk6+g7dBA0D7aliiiG7+M4ii42AdkqY/bx4gw1T8kyfAXr8prtAy0/7Bravn1Rb987
+         fxNPev5k0dvICHFLljYg+rPeRL/z33KlVNv4btb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongxin Liu <yongxin.liu@windriver.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.11 070/122] ixgbe: fix unbalanced device enable/disable in suspend/resume
-Date:   Mon, 19 Apr 2021 15:05:50 +0200
-Message-Id: <20210419130532.556066298@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.11 071/122] netfilter: flowtable: fix NAT IPv6 offload mangling
+Date:   Mon, 19 Apr 2021 15:05:51 +0200
+Message-Id: <20210419130532.585353172@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -40,57 +38,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongxin Liu <yongxin.liu@windriver.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit debb9df311582c83fe369baa35fa4b92e8a9c58a upstream.
+commit 0e07e25b481aa021e4b48085ecb8a049e9614510 upstream.
 
-pci_disable_device() called in __ixgbe_shutdown() decreases
-dev->enable_cnt by 1. pci_enable_device_mem() which increases
-dev->enable_cnt by 1, was removed from ixgbe_resume() in commit
-6f82b2558735 ("ixgbe: use generic power management"). This caused
-unbalanced increase/decrease. So add pci_enable_device_mem() back.
+Fix out-of-bound access in the address array.
 
-Fix the following call trace.
-
-  ixgbe 0000:17:00.1: disabling already-disabled device
-  Call Trace:
-   __ixgbe_shutdown+0x10a/0x1e0 [ixgbe]
-   ixgbe_suspend+0x32/0x70 [ixgbe]
-   pci_pm_suspend+0x87/0x160
-   ? pci_pm_freeze+0xd0/0xd0
-   dpm_run_callback+0x42/0x170
-   __device_suspend+0x114/0x460
-   async_suspend+0x1f/0xa0
-   async_run_entry_fn+0x3c/0xf0
-   process_one_work+0x1dd/0x410
-   worker_thread+0x34/0x3f0
-   ? cancel_delayed_work+0x90/0x90
-   kthread+0x14c/0x170
-   ? kthread_park+0x90/0x90
-   ret_from_fork+0x1f/0x30
-
-Fixes: 6f82b2558735 ("ixgbe: use generic power management")
-Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 5c27d8d76ce8 ("netfilter: nf_flow_table_offload: add IPv6 support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/netfilter/nf_flow_table_offload.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -6903,6 +6903,11 @@ static int __maybe_unused ixgbe_resume(s
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -305,12 +305,12 @@ static void flow_offload_ipv6_mangle(str
+ 				     const __be32 *addr, const __be32 *mask)
+ {
+ 	struct flow_action_entry *entry;
+-	int i;
++	int i, j;
  
- 	adapter->hw.hw_addr = adapter->io_addr;
+-	for (i = 0; i < sizeof(struct in6_addr) / sizeof(u32); i += sizeof(u32)) {
++	for (i = 0, j = 0; i < sizeof(struct in6_addr) / sizeof(u32); i += sizeof(u32), j++) {
+ 		entry = flow_action_entry_next(flow_rule);
+ 		flow_offload_mangle(entry, FLOW_ACT_MANGLE_HDR_TYPE_IP6,
+-				    offset + i, &addr[i], mask);
++				    offset + i, &addr[j], mask);
+ 	}
+ }
  
-+	err = pci_enable_device_mem(pdev);
-+	if (err) {
-+		e_dev_err("Cannot enable PCI device from suspend\n");
-+		return err;
-+	}
- 	smp_mb__before_atomic();
- 	clear_bit(__IXGBE_DISABLED, &adapter->state);
- 	pci_set_master(pdev);
 
 
