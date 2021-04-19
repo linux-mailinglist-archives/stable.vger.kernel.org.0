@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7AD83643D4
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69939364419
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240746AbhDSNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56986 "EHLO mail.kernel.org"
+        id S242173AbhDSNZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:25:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241411AbhDSNUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:20:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5B68613D0;
-        Mon, 19 Apr 2021 13:16:37 +0000 (UTC)
+        id S239806AbhDSNXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D99D36140F;
+        Mon, 19 Apr 2021 13:18:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838198;
-        bh=ApGNo6D8yr0HZwEQcva912dzC25IbHBL+pwMRahzdCk=;
+        s=korg; t=1618838336;
+        bh=eVJTdSXp52+ov1WizSm1cTPnEm1uWgn2xymq+IvtMkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikvARjaDFo3s3VtshOLKq8MBx/UpcgyOnHYesauDxwF8Wu06SjP0yXiwByE2jPvie
-         YQ/HEsDUhnty3SDYONvm7aIprFPGj1Qxg0wq+xxchbs8uTTUR1n/1AmUPCIrAmvffI
-         kb6h9TokupTUdGfYzauYkru/ep72ow6UTRRo979o=
+        b=DvpjwYKqNPQBYqIguEu05RJ1SFpJQ2zjBG0Gk9dz6dnZhMMXmssdOMG7oj9B/pjVA
+         xQvBg+91D3VVbAAEw28M7PQSt7/S1wMwD5qpEP9J+/YVEIJtxZfrupDmVvr6jPuc4H
+         N4FZzaZXxhfIE7PXkaSFvbhcd2MyE16ZeJqCR4LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/103] mac80211: clear sta->fast_rx when STA removed from 4-addr VLAN
+Subject: [PATCH 5.4 04/73] scsi: qla2xxx: Fix device connect issues in P2P configuration
 Date:   Mon, 19 Apr 2021 15:05:55 +0200
-Message-Id: <20210419130529.333045805@linuxfoundation.org>
+Message-Id: <20210419130523.947276247@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
+References: <20210419130523.802169214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit dd0b45538146cb6a54d6da7663b8c3afd16ebcfd ]
+[ Upstream commit 65e9200938052ce90f24421bb057e1be1d6147c7 ]
 
-In some race conditions, with more clients and traffic configuration,
-below crash is seen when making the interface down. sta->fast_rx wasn't
-cleared when STA gets removed from 4-addr AP_VLAN interface. The crash is
-due to try accessing 4-addr AP_VLAN interface's net_device (fast_rx->dev)
-which has been deleted already.
+P2P needs to take the alternate plogi route.
 
-Resolve this by clearing sta->fast_rx pointer when STA removes
-from a 4-addr VLAN.
-
-[  239.449529] Unable to handle kernel NULL pointer dereference at virtual address 00000004
-[  239.449531] pgd = 80204000
-...
-[  239.481496] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.4.60 #227
-[  239.481591] Hardware name: Generic DT based system
-[  239.487665] task: be05b700 ti: be08e000 task.ti: be08e000
-[  239.492360] PC is at get_rps_cpu+0x2d4/0x31c
-[  239.497823] LR is at 0xbe08fc54
-...
-[  239.778574] [<80739740>] (get_rps_cpu) from [<8073cb10>] (netif_receive_skb_internal+0x8c/0xac)
-[  239.786722] [<8073cb10>] (netif_receive_skb_internal) from [<8073d578>] (napi_gro_receive+0x48/0xc4)
-[  239.795267] [<8073d578>] (napi_gro_receive) from [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames+0xbcc/0x12d4 [mac80211])
-[  239.804776] [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames [mac80211]) from [<c7b84d4c>] (ieee80211_rx_napi+0x7b8/0x8c8 [mac8
-            0211])
-[  239.815857] [<c7b84d4c>] (ieee80211_rx_napi [mac80211]) from [<c7f63d7c>] (ath11k_dp_process_rx+0x7bc/0x8c8 [ath11k])
-[  239.827757] [<c7f63d7c>] (ath11k_dp_process_rx [ath11k]) from [<c7f5b6c4>] (ath11k_dp_service_srng+0x2c0/0x2e0 [ath11k])
-[  239.838484] [<c7f5b6c4>] (ath11k_dp_service_srng [ath11k]) from [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll+0x20/0x84 [ath11k_ahb]
-            )
-[  239.849419] [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll [ath11k_ahb]) from [<8073ce1c>] (net_rx_action+0xe0/0x28c)
-[  239.860945] [<8073ce1c>] (net_rx_action) from [<80324868>] (__do_softirq+0xe4/0x228)
-[  239.871269] [<80324868>] (__do_softirq) from [<80324c48>] (irq_exit+0x98/0x108)
-[  239.879080] [<80324c48>] (irq_exit) from [<8035c59c>] (__handle_domain_irq+0x90/0xb4)
-[  239.886114] [<8035c59c>] (__handle_domain_irq) from [<8030137c>] (gic_handle_irq+0x50/0x94)
-[  239.894100] [<8030137c>] (gic_handle_irq) from [<803024c0>] (__irq_svc+0x40/0x74)
-
-Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
-Link: https://lore.kernel.org/r/1616163532-3881-1-git-send-email-seevalam@codeaurora.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20191105150657.8092-8-hmadhani@marvell.com
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_gbl.h  | 1 +
+ drivers/scsi/qla2xxx/qla_init.c | 9 +++++++++
+ drivers/scsi/qla2xxx/qla_iocb.c | 5 ++---
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 2bf6271d9e3f..6a96deded763 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1789,8 +1789,10 @@ static int ieee80211_change_station(struct wiphy *wiphy,
- 		}
+diff --git a/drivers/scsi/qla2xxx/qla_gbl.h b/drivers/scsi/qla2xxx/qla_gbl.h
+index d11416dcee4e..5b163ad85c34 100644
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -917,4 +917,5 @@ int qla2x00_set_data_rate(scsi_qla_host_t *vha, uint16_t mode);
  
- 		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
--		    sta->sdata->u.vlan.sta)
-+		    sta->sdata->u.vlan.sta) {
-+			ieee80211_clear_fast_rx(sta);
- 			RCU_INIT_POINTER(sta->sdata->u.vlan.sta, NULL);
-+		}
+ /* nvme.c */
+ void qla_nvme_unregister_remote_port(struct fc_port *fcport);
++void qla_handle_els_plogi_done(scsi_qla_host_t *vha, struct event_arg *ea);
+ #endif /* _QLA_GBL_H */
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index bc7460da394f..633317651138 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1738,6 +1738,15 @@ void qla24xx_handle_relogin_event(scsi_qla_host_t *vha,
+ 	qla24xx_fcport_handle_login(vha, fcport);
+ }
  
- 		if (test_sta_flag(sta, WLAN_STA_AUTHORIZED))
- 			ieee80211_vif_dec_num_mcast(sta->sdata);
++void qla_handle_els_plogi_done(scsi_qla_host_t *vha,
++				      struct event_arg *ea)
++{
++	ql_dbg(ql_dbg_disc, vha, 0x2118,
++	    "%s %d %8phC post PRLI\n",
++	    __func__, __LINE__, ea->fcport->port_name);
++	qla24xx_post_prli_work(vha, ea->fcport);
++}
++
+ /*
+  * RSCN(s) came in for this fcport, but the RSCN(s) was not able
+  * to be consumed by the fcport
+diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
+index 2e272fc858ed..c0720c8e2f6d 100644
+--- a/drivers/scsi/qla2xxx/qla_iocb.c
++++ b/drivers/scsi/qla2xxx/qla_iocb.c
+@@ -2769,9 +2769,8 @@ static void qla2x00_els_dcmd2_sp_done(srb_t *sp, int res)
+ 		case CS_COMPLETE:
+ 			memset(&ea, 0, sizeof(ea));
+ 			ea.fcport = fcport;
+-			ea.data[0] = MBS_COMMAND_COMPLETE;
+-			ea.sp = sp;
+-			qla24xx_handle_plogi_done_event(vha, &ea);
++			ea.rc = res;
++			qla_handle_els_plogi_done(vha, &ea);
+ 			break;
+ 		case CS_IOCB_ERROR:
+ 			switch (fw_status[1]) {
 -- 
 2.30.2
 
