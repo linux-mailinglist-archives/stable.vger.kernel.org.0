@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D268364353
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF61364354
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240029AbhDSNRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240235AbhDSNRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Apr 2021 09:17:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239963AbhDSNPG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:15:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47C28613D0;
-        Mon, 19 Apr 2021 13:13:15 +0000 (UTC)
+        id S240233AbhDSNPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:15:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D079D613D2;
+        Mon, 19 Apr 2021 13:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837995;
-        bh=4Or+Yz6kO6pQb6f3i72UkcxlXMLm4CCQkvwij02cVAA=;
+        s=korg; t=1618837998;
+        bh=NBsJ+wVHbhl8jABuRW1CmUiNr4KdoBx5iL1Vsid6tJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5hLYp0MR8CdjVb6Dn0WaYD0yTPzrky9qXxLeU3mSHv7lLFWEX/KmFCaqnOdcS5Me
-         bkNwebAhq44QYO4E8wZZE2bofLxRuLRmAVvbfKGR1RYTbMnGsGNao1rHF/VoHSWJy+
-         rlaZfp3ntBLPV5pzMNzTdy6JagUp+yGJKdtGj1LM=
+        b=BNL2j6NVTurA6z7tn21xA7RmWYX8L2/FJpz/MDcFniXMAVORINAI/pn7MIGvt5gBI
+         S++OoBsUUZCbxxWSJBiLZfObQWGW73Qpjbo3oMfyKDRQz26/Qq9tOCUok1TroQCCV2
+         uywKZnQbhKL6smUKIXJRyXri2iaikRZdlVC4k3Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashley <contact@victorianfox.com>,
-        Andre Przywara <andre.przywara@arm.com>,
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 108/122] arm64: dts: allwinner: Fix SD card CD GPIO for SOPine systems
-Date:   Mon, 19 Apr 2021 15:06:28 +0200
-Message-Id: <20210419130533.828249431@linuxfoundation.org>
+Subject: [PATCH 5.11 109/122] arm64: dts: allwinner: h6: beelink-gs1: Remove ext. 32 kHz osc reference
+Date:   Mon, 19 Apr 2021 15:06:29 +0200
+Message-Id: <20210419130533.867718888@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,59 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit 3dd4ce4185df6798dcdcc3669bddb35899d7d5e1 ]
+[ Upstream commit 7a2f6e69e9c1060a7a09c1f8322ccb8d942b3078 ]
 
-Commit 941432d00768 ("arm64: dts: allwinner: Drop non-removable from
-SoPine/LTS SD card") enabled the card detect GPIO for the SOPine module,
-along the way with the Pine64-LTS, which share the same base .dtsi.
+Although every Beelink GS1 seems to have external 32768 Hz oscillator,
+it works only on one from four tested. There are more reports of RTC
+issues elsewhere, like Armbian forum.
 
-However while both boards indeed have a working CD GPIO on PF6, the
-polarity is different: the SOPine modules uses a "push-pull" socket,
-which has an active-high switch, while the Pine64-LTS use the more
-traditional push-push socket and the common active-low switch.
+One Beelink GS1 owner read RTC osc status register on Android which
+shipped with the box. Reported value indicated problems with external
+oscillator.
 
-Fix the polarity in the sopine.dtsi, and overwrite it in the LTS
-board .dts, to make the SD card work again on systems using SOPine
-modules.
+In order to fix RTC and related issues (HDMI-CEC and suspend/resume with
+Crust) on all boards, switch to internal oscillator.
 
-Fixes: 941432d00768 ("arm64: dts: allwinner: Drop non-removable from SoPine/LTS SD card")
-Reported-by: Ashley <contact@victorianfox.com>
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Fixes: 32507b868119 ("arm64: dts: allwinner: h6: Move ext. oscillator to board DTs")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Tested-by: Clément Péron <peron.clem@gmail.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210316144219.5973-1-andre.przywara@arm.com
+Link: https://lore.kernel.org/r/20210330184218.279738-1-jernej.skrabec@siol.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts | 4 ++++
- arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi    | 2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts
-index 302e24be0a31..a1f621b388fe 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts
-@@ -8,3 +8,7 @@
- 	compatible = "pine64,pine64-lts", "allwinner,sun50i-r18",
- 		     "allwinner,sun50i-a64";
- };
-+
-+&mmc0 {
-+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 push-push switch */
-+};
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
-index 3402cec87035..df62044ff7a7 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
-@@ -34,7 +34,7 @@
- 	vmmc-supply = <&reg_dcdc1>;
- 	disable-wp;
- 	bus-width = <4>;
--	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
-+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>; /* PF6 push-pull switch */
- 	status = "okay";
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
+index 7c9dbde645b5..e8163c572dab 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
+@@ -289,10 +289,6 @@
+ 	vcc-pm-supply = <&reg_aldo1>;
  };
  
+-&rtc {
+-	clocks = <&ext_osc32k>;
+-};
+-
+ &spdif {
+ 	status = "okay";
+ };
 -- 
 2.30.2
 
