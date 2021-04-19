@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C77D364437
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 463673643DB
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240642AbhDSNZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
+        id S239898AbhDSNWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242000AbhDSNZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:25:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D1161370;
-        Mon, 19 Apr 2021 13:19:59 +0000 (UTC)
+        id S241471AbhDSNUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5C0A613FA;
+        Mon, 19 Apr 2021 13:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838400;
-        bh=tGk4CSXuQa2/ZRK8TSBTf+Hnqgwk9HV17o8vQ4NhOh8=;
+        s=korg; t=1618838221;
+        bh=iZf7ClmEIC7bmKfIrlNMIND01K7HbcjvZy41yZ6C9n0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRIXlKUoglkv7RKwBZ1IDWkbhbuz/ZYDRICnfav1P3E5KDJw7oqpXFvl7HOBMbyQI
-         9YTIRQnR7V54AXtG//KZDynETRGLpsN/jRWx8daBCZ0rCaM6FgW+o6XTQZmksLLUjR
-         EsQV1yTx1EYOr3jm6gKRaemWlI6FSQucL4I2Ew9A=
+        b=R4qNn94y0iOKg0beg69IgetAnKMyZ0jwsJbL2jl/jYweDg7aWFceThNqyVEXL0SEB
+         IWJMkPhnC05u8IoqbNqDFHDRGRje59nYlGIHp2KLU7vkJN7tX2H+/pws0Z9vDb+Uwz
+         4mBNxmSJKaENgHZIKjvjgRGrqbTWvPqeU5xy4lUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.4 46/73] arm64: alternatives: Move length validation in alternative_{insn, endif}
-Date:   Mon, 19 Apr 2021 15:06:37 +0200
-Message-Id: <20210419130525.320683439@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 087/103] ARM: 9069/1: NOMMU: Fix conversion for_each_membock() to for_each_mem_range()
+Date:   Mon, 19 Apr 2021 15:06:38 +0200
+Message-Id: <20210419130530.790986558@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-References: <20210419130523.802169214@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,74 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-commit 22315a2296f4c251fa92aec45fbbae37e9301b6c upstream.
+[ Upstream commit 45c2f70cba3a7eff34574103b2e2b901a5f771aa ]
 
-After commit 2decad92f473 ("arm64: mte: Ensure TIF_MTE_ASYNC_FAULT is
-set atomically"), LLVM's integrated assembler fails to build entry.S:
+for_each_mem_range() uses a loop variable, yet looking into code it is
+not just iteration counter but more complex entity which encodes
+information about memblock. Thus condition i == 0 looks fragile.
+Indeed, it broke boot of R-class platforms since it never took i == 0
+path (due to i was set to 1). Fix that with restoring original flag
+check.
 
-<instantiation>:5:7: error: expected assembly-time absolute expression
- .org . - (664b-663b) + (662b-661b)
-      ^
-<instantiation>:6:7: error: expected assembly-time absolute expression
- .org . - (662b-661b) + (664b-663b)
-      ^
-
-The root cause is LLVM's assembler has a one-pass design, meaning it
-cannot figure out these instruction lengths when the .org directive is
-outside of the subsection that they are in, which was changed by the
-.arch_extension directive added in the above commit.
-
-Apply the same fix from commit 966a0acce2fc ("arm64/alternatives: move
-length validation inside the subsection") to the alternative_endif
-macro, shuffling the .org directives so that the length validation
-happen will always happen in the same subsections. alternative_insn has
-not shown any issue yet but it appears that it could have the same issue
-in the future so just preemptively change it.
-
-Fixes: f7b93d42945c ("arm64/alternatives: use subsections for replacement sequences")
-Cc: <stable@vger.kernel.org> # 5.8.x
-Link: https://github.com/ClangBuiltLinux/linux/issues/1347
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20210414000803.662534-1-nathan@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/alternative.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/mm/pmsa-v7.c | 4 +++-
+ arch/arm/mm/pmsa-v8.c | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -119,9 +119,9 @@ static inline void apply_alternatives_mo
- 	.popsection
- 	.subsection 1
- 663:	\insn2
--664:	.previous
--	.org	. - (664b-663b) + (662b-661b)
-+664:	.org	. - (664b-663b) + (662b-661b)
- 	.org	. - (662b-661b) + (664b-663b)
-+	.previous
- 	.endif
- .endm
+diff --git a/arch/arm/mm/pmsa-v7.c b/arch/arm/mm/pmsa-v7.c
+index 88950e41a3a9..59d916ccdf25 100644
+--- a/arch/arm/mm/pmsa-v7.c
++++ b/arch/arm/mm/pmsa-v7.c
+@@ -235,6 +235,7 @@ void __init pmsav7_adjust_lowmem_bounds(void)
+ 	phys_addr_t mem_end;
+ 	phys_addr_t reg_start, reg_end;
+ 	unsigned int mem_max_regions;
++	bool first = true;
+ 	int num;
+ 	u64 i;
  
-@@ -191,11 +191,11 @@ static inline void apply_alternatives_mo
-  */
- .macro alternative_endif
- 664:
-+	.org	. - (664b-663b) + (662b-661b)
-+	.org	. - (662b-661b) + (664b-663b)
- 	.if .Lasm_alt_mode==0
- 	.previous
- 	.endif
--	.org	. - (664b-663b) + (662b-661b)
--	.org	. - (662b-661b) + (664b-663b)
- .endm
+@@ -263,7 +264,7 @@ void __init pmsav7_adjust_lowmem_bounds(void)
+ #endif
  
- /*
+ 	for_each_mem_range(i, &reg_start, &reg_end) {
+-		if (i == 0) {
++		if (first) {
+ 			phys_addr_t phys_offset = PHYS_OFFSET;
+ 
+ 			/*
+@@ -275,6 +276,7 @@ void __init pmsav7_adjust_lowmem_bounds(void)
+ 			mem_start = reg_start;
+ 			mem_end = reg_end;
+ 			specified_mem_size = mem_end - mem_start;
++			first = false;
+ 		} else {
+ 			/*
+ 			 * memblock auto merges contiguous blocks, remove
+diff --git a/arch/arm/mm/pmsa-v8.c b/arch/arm/mm/pmsa-v8.c
+index 2de019f7503e..8359748a19a1 100644
+--- a/arch/arm/mm/pmsa-v8.c
++++ b/arch/arm/mm/pmsa-v8.c
+@@ -95,10 +95,11 @@ void __init pmsav8_adjust_lowmem_bounds(void)
+ {
+ 	phys_addr_t mem_end;
+ 	phys_addr_t reg_start, reg_end;
++	bool first = true;
+ 	u64 i;
+ 
+ 	for_each_mem_range(i, &reg_start, &reg_end) {
+-		if (i == 0) {
++		if (first) {
+ 			phys_addr_t phys_offset = PHYS_OFFSET;
+ 
+ 			/*
+@@ -107,6 +108,7 @@ void __init pmsav8_adjust_lowmem_bounds(void)
+ 			if (reg_start != phys_offset)
+ 				panic("First memory bank must be contiguous from PHYS_OFFSET");
+ 			mem_end = reg_end;
++			first = false;
+ 		} else {
+ 			/*
+ 			 * memblock auto merges contiguous blocks, remove
+-- 
+2.30.2
+
 
 
