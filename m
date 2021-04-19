@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF7F364341
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAFC4364344
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240500AbhDSNQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
+        id S239959AbhDSNQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:16:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240484AbhDSNOQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:14:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65DCB613C9;
-        Mon, 19 Apr 2021 13:12:47 +0000 (UTC)
+        id S240516AbhDSNOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:14:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3D1361279;
+        Mon, 19 Apr 2021 13:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837967;
-        bh=Byr+fhg5Lf5vgurkOuCBRAGK4/82Kv6/CDnJUn53+ek=;
+        s=korg; t=1618837973;
+        bh=3b+Y7cFWgp1hYms4/0uPBvwYE/FJ6c5yt0A0q+yGaYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ejth4XGbNE8dw0/l6YeKBoQewJAbJPjRm16zyY1THDq/MnMdgO94qKnwb0KTZbcwo
-         LKkJM5O8Y89AaQzwhQsHZHPlLXRe6WssFIb0jjwbkPHs7ltT7BHapaSxGCqQyrKfJs
-         mOs0Wx+xsjO8ZrTFWgkiVuKPZr01NRb95RrzFH0k=
+        b=edbFDvxSvrjNuuNEtOvG0Voeih5ZAK1vS42xB4raUdNUw/TU90UaGn8aJX6xBK0Rh
+         39jXwP044l7RgLXJbwfnhT91AxMuiI5eCphN82sBIWvDpZ7vCbCv6fwMnThQg7nSeq
+         nhzR/zndrVk009kH8ozW7lETFJeG7l6lvEA6zdRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fredrik Strupe <fredrik@strupe.net>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.11 119/122] ARM: 9071/1: uprobes: Dont hook on thumb instructions
-Date:   Mon, 19 Apr 2021 15:06:39 +0200
-Message-Id: <20210419130534.209813854@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.11 120/122] bpf: Rework ptr_limit into alu_limit and add common error path
+Date:   Mon, 19 Apr 2021 15:06:40 +0200
+Message-Id: <20210419130534.239476955@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -39,48 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Strupe <fredrik@strupe.net>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit d2f7eca60b29006285d57c7035539e33300e89e5 upstream.
+commit b658bbb844e28f1862867f37e8ca11a8e2aa94a3 upstream.
 
-Since uprobes is not supported for thumb, check that the thumb bit is
-not set when matching the uprobes instruction hooks.
+Small refactor with no semantic changes in order to consolidate the max
+ptr_limit boundary check.
 
-The Arm UDF instructions used for uprobes triggering
-(UPROBE_SWBP_ARM_INSN and UPROBE_SS_ARM_INSN) coincidentally share the
-same encoding as a pair of unallocated 32-bit thumb instructions (not
-UDF) when the condition code is 0b1111 (0xf). This in effect makes it
-possible to trigger the uprobes functionality from thumb, and at that
-using two unallocated instructions which are not permanently undefined.
-
-Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
-Cc: stable@vger.kernel.org
-Fixes: c7edc9e326d5 ("ARM: add uprobes support")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/probes/uprobes/core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/arch/arm/probes/uprobes/core.c
-+++ b/arch/arm/probes/uprobes/core.c
-@@ -204,7 +204,7 @@ unsigned long uprobe_get_swbp_addr(struc
- static struct undef_hook uprobes_arm_break_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SWBP_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
-@@ -212,7 +212,7 @@ static struct undef_hook uprobes_arm_bre
- static struct undef_hook uprobes_arm_ss_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SS_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5386,12 +5386,12 @@ static struct bpf_insn_aux_data *cur_aux
+ 
+ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
+ 			      const struct bpf_reg_state *off_reg,
+-			      u32 *ptr_limit, u8 opcode)
++			      u32 *alu_limit, u8 opcode)
+ {
+ 	bool off_is_neg = off_reg->smin_value < 0;
+ 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
+ 			    (opcode == BPF_SUB && !off_is_neg);
+-	u32 off, max;
++	u32 off, max = 0, ptr_limit = 0;
+ 
+ 	if (!tnum_is_const(off_reg->var_off) &&
+ 	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
+@@ -5408,22 +5408,27 @@ static int retrieve_ptr_limit(const stru
+ 		 */
+ 		off = ptr_reg->off + ptr_reg->var_off.value;
+ 		if (mask_to_left)
+-			*ptr_limit = MAX_BPF_STACK + off;
++			ptr_limit = MAX_BPF_STACK + off;
+ 		else
+-			*ptr_limit = -off - 1;
+-		return *ptr_limit >= max ? -ERANGE : 0;
++			ptr_limit = -off - 1;
++		break;
+ 	case PTR_TO_MAP_VALUE:
+ 		max = ptr_reg->map_ptr->value_size;
+ 		if (mask_to_left) {
+-			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
++			ptr_limit = ptr_reg->umax_value + ptr_reg->off;
+ 		} else {
+ 			off = ptr_reg->smin_value + ptr_reg->off;
+-			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
++			ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
+ 		}
+-		return *ptr_limit >= max ? -ERANGE : 0;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
++
++	if (ptr_limit >= max)
++		return -ERANGE;
++	*alu_limit = ptr_limit;
++	return 0;
+ }
+ 
+ static bool can_skip_alu_sanitation(const struct bpf_verifier_env *env,
 
 
