@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A2C0364BDA
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9323A364BD8
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242965AbhDSUqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54616 "EHLO mail.kernel.org"
+        id S242959AbhDSUqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242752AbhDSUp2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242753AbhDSUp2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 16:45:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 794E0613EE;
-        Mon, 19 Apr 2021 20:44:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3258F613B0;
+        Mon, 19 Apr 2021 20:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865093;
-        bh=8ebH80wLSzpKsXllnqDHsURT7pA6qJAmK3LBb8kMWVo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCs6xrThBDCP+eIB6Ah4hlbVQCTWQK7o31mo6WZxkV/5OaV6TEGbA4Z6k6GxCm/Zn
-         eh+63TaF6ex0Vh9DM5d4XWOFc5s5QU+cGlPoMT+MM1fshsjVmD6GkbVmCf+KVIBj0d
-         naWnQw0T3jhRagC0HxIagryq4UTn5X2ioGz6/FGIR/haVazXpy8X2hwhsgabsXi3Jc
-         30z7i+7zMI732ykiubp3xtiNsi9zjc4CJwI3lCn150/CBTWBJsjq4i2BH8I7H3WwEb
-         UXTAbGn/2oUNsSNSMOfUqRF70O8Jp+vff8S6OynpaeSgb1xvGrdHUGSX7njtN5+umu
-         3ISNp2ijtBBng==
+        s=k20201202; t=1618865097;
+        bh=HYKxwTLN0oShRRBPQB5BGy/UE/OCRiHE9AFP81f2wH8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UOqSlCMIL2fseHOBfER5lqxZbe67IrBEnijNF3UxRLlHtANt64WuyLswGCMJUq2qw
+         0dAvxEBHGC++DNoPfEEsbdZ/CtljhCRJHZ4pZ7J2ddjuIFmZ4jmKN54GDudqR/azb4
+         RBaNldERFfYcRcgzz5E++/JTcSIGx6wxttcZTZQKICSh43PNnxYfO/X8PQMDef6ar2
+         y5CbvvBuIneOKw7gX89N7MUjcLKn1dvhIISWdoYrzsKzvEu8+iVMBPoozXtpPcex0x
+         QW2MsEDy6yd+nIXlR8Al+SlTntc72ah4pAhMEumK+RXUtRIvV34IF4jKrO/SRstdlF
+         IoMJHWUQ8NlCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 21/21] readdir: make sure to verify directory entry for legacy interfaces too
-Date:   Mon, 19 Apr 2021 16:44:19 -0400
-Message-Id: <20210419204420.6375-21-sashal@kernel.org>
+Cc:     Shou-Chieh Hsu <shouchieh@chromium.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/14] HID: google: add don USB id
+Date:   Mon, 19 Apr 2021 16:44:41 -0400
+Message-Id: <20210419204454.6601-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210419204420.6375-1-sashal@kernel.org>
-References: <20210419204420.6375-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,76 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Shou-Chieh Hsu <shouchieh@chromium.org>
 
-[ Upstream commit 0c93ac69407d63a85be0129aa55ffaec27ffebd3 ]
+[ Upstream commit 36b87cf302a4f13f8b4344bcf98f67405a145e2f ]
 
-This does the directory entry name verification for the legacy
-"fillonedir" (and compat) interface that goes all the way back to the
-dark ages before we had a proper dirent, and the readdir() system call
-returned just a single entry at a time.
+Add 1 additional hammer-like device.
 
-Nobody should use this interface unless you still have binaries from
-1991, but let's do it right.
-
-This came up during discussions about unsafe_copy_to_user() and proper
-checking of all the inputs to it, as the networking layer is looking to
-use it in a few new places.  So let's make sure the _old_ users do it
-all right and proper, before we add new ones.
-
-See also commit 8a23eb804ca4 ("Make filldir[64]() verify the directory
-entry filename is valid") which did the proper modern interfaces that
-people actually use. It had a note:
-
-    Note that I didn't bother adding the checks to any legacy interfaces
-    that nobody uses.
-
-which this now corrects.  Note that we really don't care about POSIX and
-the presense of '/' in a directory entry, but verify_dirent_name() also
-ends up doing the proper name length verification which is what the
-input checking discussion was about.
-
-[ Another option would be to remove the support for this particular very
-  old interface: any binaries that use it are likely a.out binaries, and
-  they will no longer run anyway since we removed a.out binftm support
-  in commit eac616557050 ("x86: Deprecate a.out support").
-
-  But I'm not sure which came first: getdents() or ELF support, so let's
-  pretend somebody might still have a working binary that uses the
-  legacy readdir() case.. ]
-
-Link: https://lore.kernel.org/lkml/CAHk-=wjbvzCAhAtvG0d81W5o0-KT5PPTHhfJ5ieDFq+bGtgOYg@mail.gmail.com/
-Acked-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Shou-Chieh Hsu <shouchieh@chromium.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/readdir.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-google-hammer.c | 2 ++
+ drivers/hid/hid-ids.h           | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/fs/readdir.c b/fs/readdir.c
-index 19434b3c982c..09e8ed7d4161 100644
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -150,6 +150,9 @@ static int fillonedir(struct dir_context *ctx, const char *name, int namlen,
+diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+index aeb351658ad3..505ed76a830e 100644
+--- a/drivers/hid/hid-google-hammer.c
++++ b/drivers/hid/hid-google-hammer.c
+@@ -467,6 +467,8 @@ static int hammer_probe(struct hid_device *hdev,
  
- 	if (buf->result)
- 		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
-@@ -405,6 +408,9 @@ static int compat_fillonedir(struct dir_context *ctx, const char *name,
  
- 	if (buf->result)
- 		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
+ static const struct hid_device_id hammer_devices[] = {
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_DON) },
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d004f5645b30..d9e8105045a6 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -488,6 +488,7 @@
+ #define USB_DEVICE_ID_GOOGLE_MASTERBALL	0x503c
+ #define USB_DEVICE_ID_GOOGLE_MAGNEMITE	0x503d
+ #define USB_DEVICE_ID_GOOGLE_MOONBALL	0x5044
++#define USB_DEVICE_ID_GOOGLE_DON	0x5050
+ 
+ #define USB_VENDOR_ID_GOTOP		0x08f2
+ #define USB_DEVICE_ID_SUPER_Q2		0x007f
 -- 
 2.30.2
 
