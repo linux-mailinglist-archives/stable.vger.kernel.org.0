@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE427364465
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B91C1364467
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242307AbhDSN1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:27:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
+        id S241891AbhDSN1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:27:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241398AbhDSN0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:26:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB297613DF;
-        Mon, 19 Apr 2021 13:21:03 +0000 (UTC)
+        id S241423AbhDSN0E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:26:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63BB1613CA;
+        Mon, 19 Apr 2021 13:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838464;
-        bh=WnwJlpTPvQ4AGW02zmaBdxzt6+vlUYAFhBdxZNAS1C0=;
+        s=korg; t=1618838467;
+        bh=DERe9YU3KMQ17ohkh7gbEFWk5650v1Wu0vRJR7dsS5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLWH8kbLNxXnYyatwZ8kOZPRXSD6yDDQTz+pa4GyfGYycL2RaKHKGh+J3UPkeXs74
-         UGMvviG3SrCRA++95k4giiECX/o0md+FofWXqZG5do0yb9gaoH7bUK7BGTIgSVaetZ
-         NL+6vkR3A4ZUynnSuNl2YB40e98y0V1li2wPAU10=
+        b=t0p9x1YW+QXZv/09G/L+xDlex3weqGnWDlbtLrkWxgh2iJZLmfaCz/mF0AfZ0oeu/
+         Pj3HQeyDUHR37Wb89yeOyZlQk7oCuEDqeAudoZ9l/zNrTz/plvSi7xZ3RDWC2fTZVd
+         mQbdAV65wjv7962yDOQrqigHer+hiYfaGDEMKLCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Roman Mamedov <rm+bko@romanrm.net>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 70/73] r8169: tweak max read request size for newer chips also in jumbo mtu mode
-Date:   Mon, 19 Apr 2021 15:07:01 +0200
-Message-Id: <20210419130526.097293952@linuxfoundation.org>
+Subject: [PATCH 5.4 71/73] r8169: dont advertise pause in jumbo mode
+Date:   Mon, 19 Apr 2021 15:07:02 +0200
+Message-Id: <20210419130526.128554617@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
 References: <20210419130523.802169214@linuxfoundation.org>
@@ -42,59 +43,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 5e00e16cb98935bcf06f51931876d898c226f65c ]
+[ Upstream commit 453a77894efa4d9b6ef9644d74b9419c47ac427c ]
 
-So far we don't increase the max read request size if we switch to
-jumbo mode before bringing up the interface for the first time.
-Let's change this.
+It has been reported [0] that using pause frames in jumbo mode impacts
+performance. There's no available chip documentation, but vendor
+drivers r8168 and r8125 don't advertise pause in jumbo mode. So let's
+do the same, according to Roman it fixes the issue.
 
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=212617
+
+Fixes: 9cf9b84cc701 ("r8169: make use of phy_set_asym_pause")
+Reported-by: Roman Mamedov <rm+bko@romanrm.net>
+Tested-by: Roman Mamedov <rm+bko@romanrm.net>
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 1352dd0b69e9..4e4953b1433a 100644
+index 4e4953b1433a..8ff178fc2670 100644
 --- a/drivers/net/ethernet/realtek/r8169_main.c
 +++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4096,13 +4096,14 @@ static void r8168b_1_hw_jumbo_disable(struct rtl8169_private *tp)
- static void rtl_jumbo_config(struct rtl8169_private *tp)
- {
- 	bool jumbo = tp->dev->mtu > ETH_DATA_LEN;
-+	int readrq = 4096;
+@@ -4138,6 +4138,13 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
  
- 	rtl_unlock_config_regs(tp);
- 	switch (tp->mac_version) {
- 	case RTL_GIGA_MAC_VER_12:
- 	case RTL_GIGA_MAC_VER_17:
- 		if (jumbo) {
--			pcie_set_readrq(tp->pci_dev, 512);
-+			readrq = 512;
- 			r8168b_1_hw_jumbo_enable(tp);
- 		} else {
- 			r8168b_1_hw_jumbo_disable(tp);
-@@ -4110,7 +4111,7 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
- 		break;
- 	case RTL_GIGA_MAC_VER_18 ... RTL_GIGA_MAC_VER_26:
- 		if (jumbo) {
--			pcie_set_readrq(tp->pci_dev, 512);
-+			readrq = 512;
- 			r8168c_hw_jumbo_enable(tp);
- 		} else {
- 			r8168c_hw_jumbo_disable(tp);
-@@ -4135,8 +4136,8 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
- 	}
- 	rtl_lock_config_regs(tp);
- 
--	if (!jumbo && pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
--		pcie_set_readrq(tp->pci_dev, 4096);
-+	if (pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
-+		pcie_set_readrq(tp->pci_dev, readrq);
+ 	if (pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
+ 		pcie_set_readrq(tp->pci_dev, readrq);
++
++	/* Chip doesn't support pause in jumbo mode */
++	linkmode_mod_bit(ETHTOOL_LINK_MODE_Pause_BIT,
++			 tp->phydev->advertising, !jumbo);
++	linkmode_mod_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
++			 tp->phydev->advertising, !jumbo);
++	phy_start_aneg(tp->phydev);
  }
  
  DECLARE_RTL_COND(rtl_chipcmd_cond)
+@@ -6314,8 +6321,6 @@ static int r8169_phy_connect(struct rtl8169_private *tp)
+ 	if (!tp->supports_gmii)
+ 		phy_set_max_speed(phydev, SPEED_100);
+ 
+-	phy_support_asym_pause(phydev);
+-
+ 	phy_attached_info(phydev);
+ 
+ 	return 0;
 -- 
 2.30.2
 
