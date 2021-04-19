@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19626364B5A
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0023364B5E
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242281AbhDSUoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242296AbhDSUoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Apr 2021 16:44:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53768 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242247AbhDSUoX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:44:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0797461369;
-        Mon, 19 Apr 2021 20:43:51 +0000 (UTC)
+        id S242263AbhDSUoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:44:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 706E7613B0;
+        Mon, 19 Apr 2021 20:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865032;
-        bh=fLGDTO4vZkaAfbFcATg/22G+9ZUgFi8xRlu4Z6L0ViQ=;
+        s=k20201202; t=1618865034;
+        bh=Pcw49y1E0fdtvfEUzDApg+mSF6Eqc3PK/dvzuvX2dm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVBM4lXDR+8lWY5rD7s8abE43vkM0aZnihlDtZMYnUeVyhAsFHCmPW01XG59gsz0p
-         E3hEzlSMuLOnfcMU9xXi20FiWXX1vuw1spliVnlhCPOaviPCQy6oi+1WMomnE2oJl5
-         SUYVtyucRrMYXsMdz2xnpD7Kkcybhk+EMkPfXm8Efangafqna4Cjlw7Cp2yOcZ8/a4
-         lG8XIUQ09GB0FfGH9rh+iU3t1zNBagJ4yTpOTJK5klnTmO0bsDF9VlGbUpxgDoKQVE
-         iI7jLKAfSYDYZp8qTdtofcFEahWeZorS1vd6DCnrhzDhOVIsuh7MydLSfWGbxHVB1x
-         tyA9PXeg4uf1w==
+        b=ejgs4JOdjCYpJjOsZFJrH8Z9EqT0L097caFmLNcbY94W/BYGZTeCtwc7e0Kcj1F5+
+         JP0n5zgPXIaJpwMvRC2RG4evpjZRpWFx6WUTQyjQZvbYJWybSNtDJGOfvkhxfjRY1/
+         ucT3k9f9Dy5LSj9rVeh0jd3R/QdcKp20W2j8AlHOpznOmXdIRI4WD4WMsxJGEZO+JV
+         +AlCG1UPvBBtTdgtTZMui77o2RyOl0q/GRraUWHy0wBSgtxeYDuFCNYtbX32t8Wd9x
+         c4s65qeoSolCtOkB5Fmh6/ZiWcDwI0nqjDm6XxXcWvpwesS6E8xj891FI+KAi32aqT
+         BveTRwVfUpBqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shawn Guo <shawn.guo@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 06/23] soc: qcom: geni: shield geni_icc_get() for ACPI boot
-Date:   Mon, 19 Apr 2021 16:43:25 -0400
-Message-Id: <20210419204343.6134-6-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.11 07/23] dmaengine: xilinx: dpdma: Fix descriptor issuing on video group
+Date:   Mon, 19 Apr 2021 16:43:26 -0400
+Message-Id: <20210419204343.6134-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204343.6134-1-sashal@kernel.org>
 References: <20210419204343.6134-1-sashal@kernel.org>
@@ -42,40 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 0c9fdcdba68208270ae85d39600ea97da1718344 ]
+[ Upstream commit 1cbd44666216278bbb6a55bcb6b9283702171c77 ]
 
-Currently, GENI devices like i2c-qcom-geni fails to probe in ACPI boot,
-if interconnect support is enabled.  That's because interconnect driver
-only supports DT right now.  As interconnect is not necessarily required
-for basic function of GENI devices, let's shield geni_icc_get() call,
-and then all other ICC calls become nop due to NULL icc_path, so that
-GENI devices keep working for ACPI boot.
+When multiple channels are part of a video group, the transfer is
+triggered only when all channels in the group are ready. The logic to do
+so is incorrect, as it causes the descriptors for all channels but the
+last one in a group to not being pushed to the hardware. Fix it.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Link: https://lore.kernel.org/r/20210114112928.11368-1-shawn.guo@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/20210307040629.29308-2-laurent.pinchart@ideasonboard.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/qcom-geni-se.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/xilinx/xilinx_dpdma.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-index 1fd29f93ff6d..5bdfb1565c14 100644
---- a/drivers/soc/qcom/qcom-geni-se.c
-+++ b/drivers/soc/qcom/qcom-geni-se.c
-@@ -756,6 +756,9 @@ int geni_icc_get(struct geni_se *se, const char *icc_ddr)
- 	int i, err;
- 	const char *icc_names[] = {"qup-core", "qup-config", icc_ddr};
+diff --git a/drivers/dma/xilinx/xilinx_dpdma.c b/drivers/dma/xilinx/xilinx_dpdma.c
+index 55df63dead8d..d504112c609e 100644
+--- a/drivers/dma/xilinx/xilinx_dpdma.c
++++ b/drivers/dma/xilinx/xilinx_dpdma.c
+@@ -839,6 +839,7 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 	struct xilinx_dpdma_tx_desc *desc;
+ 	struct virt_dma_desc *vdesc;
+ 	u32 reg, channels;
++	bool first_frame;
  
-+	if (has_acpi_companion(se->dev))
-+		return 0;
+ 	lockdep_assert_held(&chan->lock);
+ 
+@@ -852,14 +853,6 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 		chan->running = true;
+ 	}
+ 
+-	if (chan->video_group)
+-		channels = xilinx_dpdma_chan_video_group_ready(chan);
+-	else
+-		channels = BIT(chan->id);
+-
+-	if (!channels)
+-		return;
+-
+ 	vdesc = vchan_next_desc(&chan->vchan);
+ 	if (!vdesc)
+ 		return;
+@@ -884,13 +877,26 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 			    FIELD_PREP(XILINX_DPDMA_CH_DESC_START_ADDRE_MASK,
+ 				       upper_32_bits(sw_desc->dma_addr)));
+ 
+-	if (chan->first_frame)
++	first_frame = chan->first_frame;
++	chan->first_frame = false;
 +
- 	for (i = 0; i < ARRAY_SIZE(se->icc_paths); i++) {
- 		if (!icc_names[i])
- 			continue;
++	if (chan->video_group) {
++		channels = xilinx_dpdma_chan_video_group_ready(chan);
++		/*
++		 * Trigger the transfer only when all channels in the group are
++		 * ready.
++		 */
++		if (!channels)
++			return;
++	} else {
++		channels = BIT(chan->id);
++	}
++
++	if (first_frame)
+ 		reg = XILINX_DPDMA_GBL_TRIG_MASK(channels);
+ 	else
+ 		reg = XILINX_DPDMA_GBL_RETRIG_MASK(channels);
+ 
+-	chan->first_frame = false;
+-
+ 	dpdma_write(xdev->reg, XILINX_DPDMA_GBL, reg);
+ }
+ 
 -- 
 2.30.2
 
