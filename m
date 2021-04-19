@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF61364354
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25C3F364329
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240235AbhDSNRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:17:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46768 "EHLO mail.kernel.org"
+        id S239657AbhDSNPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240233AbhDSNPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:15:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D079D613D2;
-        Mon, 19 Apr 2021 13:13:17 +0000 (UTC)
+        id S232708AbhDSNNb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:13:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24598613AA;
+        Mon, 19 Apr 2021 13:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837998;
-        bh=NBsJ+wVHbhl8jABuRW1CmUiNr4KdoBx5iL1Vsid6tJE=;
+        s=korg; t=1618837942;
+        bh=rg+48AuTfEeC+1tn2s9/csU+dEnrG6AGPzLEy59Ofrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BNL2j6NVTurA6z7tn21xA7RmWYX8L2/FJpz/MDcFniXMAVORINAI/pn7MIGvt5gBI
-         S++OoBsUUZCbxxWSJBiLZfObQWGW73Qpjbo3oMfyKDRQz26/Qq9tOCUok1TroQCCV2
-         uywKZnQbhKL6smUKIXJRyXri2iaikRZdlVC4k3Ow=
+        b=DjzK7qd2MaJJKX9qgegGQKI2Rxz5jlpLfvC4lz7hhd8TJbcG/3P723BWreZ7SKSWU
+         u8z6Cw8YCuE7uVDMXBQXWrk1FycjG6jGeu8uD7v8hLM735qbslG3exMiBm9gfeMQds
+         XPxYfz4cDeg8Bu1vT9tbWHu6ZL0q2AyzHPkkk1CE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 109/122] arm64: dts: allwinner: h6: beelink-gs1: Remove ext. 32 kHz osc reference
-Date:   Mon, 19 Apr 2021 15:06:29 +0200
-Message-Id: <20210419130533.867718888@linuxfoundation.org>
+Subject: [PATCH 5.11 110/122] bpf: Use correct permission flag for mixed signed bounds arithmetic
+Date:   Mon, 19 Apr 2021 15:06:30 +0200
+Message-Id: <20210419130533.898366719@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,46 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 7a2f6e69e9c1060a7a09c1f8322ccb8d942b3078 ]
+[ Upstream commit 9601148392520e2e134936e76788fc2a6371e7be ]
 
-Although every Beelink GS1 seems to have external 32768 Hz oscillator,
-it works only on one from four tested. There are more reports of RTC
-issues elsewhere, like Armbian forum.
+We forbid adding unknown scalars with mixed signed bounds due to the
+spectre v1 masking mitigation. Hence this also needs bypass_spec_v1
+flag instead of allow_ptr_leaks.
 
-One Beelink GS1 owner read RTC osc status register on Android which
-shipped with the box. Reported value indicated problems with external
-oscillator.
-
-In order to fix RTC and related issues (HDMI-CEC and suspend/resume with
-Crust) on all boards, switch to internal oscillator.
-
-Fixes: 32507b868119 ("arm64: dts: allwinner: h6: Move ext. oscillator to board DTs")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Tested-by: Clément Péron <peron.clem@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210330184218.279738-1-jernej.skrabec@siol.net
+Fixes: 2c78ee898d8f ("bpf: Implement CAP_BPF")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts | 4 ----
- 1 file changed, 4 deletions(-)
+ kernel/bpf/verifier.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
-index 7c9dbde645b5..e8163c572dab 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
-@@ -289,10 +289,6 @@
- 	vcc-pm-supply = <&reg_aldo1>;
- };
- 
--&rtc {
--	clocks = <&ext_osc32k>;
--};
--
- &spdif {
- 	status = "okay";
- };
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 36b81975d9cd..b654174619e5 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5578,7 +5578,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
+ 			dst, reg_type_str[ptr_reg->type]);
+ 		return -EACCES;
+ 	case PTR_TO_MAP_VALUE:
+-		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
++		if (!env->env->bypass_spec_v1 && !known && (smin_val < 0) != (smax_val < 0)) {
+ 			verbose(env, "R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
+ 				off_reg == dst_reg ? dst : src);
+ 			return -EACCES;
 -- 
 2.30.2
 
