@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF98E364BBF
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46CC7364BC0
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242829AbhDSUqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240321AbhDSUqT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Apr 2021 16:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239839AbhDSUpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240352AbhDSUpS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 16:45:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0771F613C7;
-        Mon, 19 Apr 2021 20:44:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 735CF613B8;
+        Mon, 19 Apr 2021 20:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865076;
-        bh=/MryeiTXYPA/GZQ2I/xwcA7zqnRSNepmGJPr4dTkBoI=;
+        s=k20201202; t=1618865078;
+        bh=6kyVlTTcQvm60muHEDHx+81IPWmlevGExB5GYk3nMuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnG555YWAM/wO2PedfqY9x/JPBwHqDWi7Xg7/Qla9tJzeqMkyr6mJS2yB3rsywBo+
-         3dJQ7FcLMdRUoGMNypumId7sZ1zQn5fRaDouq+rd48PEQwY610oug+oLgs4wwmJ44q
-         XHHGH/iRVJuMJp09P3HQFjur/Ko5/rGItQ5pB+GM1Wgcq3PIwxRj0Jri/Scc6tyYac
-         rGjUYzkZ1jvLGfkEFWiw24pW65lQQcl2APrdBdz/7YFWI0cnPcFjqxZb4JrVhE2+y/
-         kCpixGDXXvKPYbpFymI443wHpVphEkSkpfOqPKdrJMvMB3xPTeY4fmkECasstf9kqu
-         sTOwo0TVpb+dg==
+        b=CaG85hAuYw6bdrY5vk7P1+SPuRiqNksH7qJRxioSYvKEangx86aZA/Wwyaeiq2d/3
+         88TcUDIBmCml1QIp+G5Ajn1RlC6nGHH+TBHsY/QsJkRiVKLHMtIWlgbprqM931g0vH
+         74/la0sFtXlXmUmIvrRdQrRtFkInUv39UuwX+CQyzMa1uGMqecn22EgWgC9K/bO53p
+         kVpPhe1i6WMwk2VIczl1jGWwUIjVz+74wCJmH27PZb+fwLG1PxGnd+yNki8abCoijA
+         CjbivXfd6zly6kNEUO0xwnIQ53l46Syzz+SXoic2mGyDNdZsrfg/mMGEj6ednpfr0w
+         wDjGU3ObTGu9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 11/21] s390/entry: save the caller of psw_idle
-Date:   Mon, 19 Apr 2021 16:44:09 -0400
-Message-Id: <20210419204420.6375-11-sashal@kernel.org>
+Cc:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 12/21] arm64: kprobes: Restore local irqflag if kprobes is cancelled
+Date:   Mon, 19 Apr 2021 16:44:10 -0400
+Message-Id: <20210419204420.6375-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204420.6375-1-sashal@kernel.org>
 References: <20210419204420.6375-1-sashal@kernel.org>
@@ -43,60 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit a994eddb947ea9ebb7b14d9a1267001699f0a136 ]
+[ Upstream commit 738fa58ee1328481d1d7889e7c430b3401c571b9 ]
 
-Currently psw_idle does not allocate a stack frame and does not
-save its r14 and r15 into the save area. Even though this is valid from
-call ABI point of view, because psw_idle does not make any calls
-explicitly, in reality psw_idle is an entry point for controlled
-transition into serving interrupts. So, in practice, psw_idle stack
-frame is analyzed during stack unwinding. Depending on build options
-that r14 slot in the save area of psw_idle might either contain a value
-saved by previous sibling call or complete garbage.
+If instruction being single stepped caused a page fault, the kprobes
+is cancelled to let the page fault handler continue as a normal page
+fault. But the local irqflags are disabled so cpu will restore pstate
+with DAIF masked. After pagefault is serviced, the kprobes is
+triggerred again, we overwrite the saved_irqflag by calling
+kprobes_save_local_irqflag(). NOTE, DAIF is masked in this new saved
+irqflag. After kprobes is serviced, the cpu pstate is retored with
+DAIF masked.
 
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x8 <-- pt_regs
- ([task    0000038000003dd8] 0x0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
+This patch is inspired by one patch for riscv from Liao Chang.
 
-So, to make a stacktrace nicer and actually point for the real caller of
-psw_idle in this frequently occurring case, make psw_idle save its r14.
-
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x6 <-- pt_regs
- ([task    0000038000003dd8] arch_cpu_idle+0x3c/0xd0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
-
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20210412174101.6bfb0594@xhacker.debian
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/entry.S | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/probes/kprobes.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 71203324ff42..81c458e996d9 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -994,6 +994,7 @@ ENDPROC(ext_int_handler)
-  * Load idle PSW.
-  */
- ENTRY(psw_idle)
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)
- 	stg	%r3,__SF_EMPTY(%r15)
- 	larl	%r1,.Lpsw_idle_exit
- 	stg	%r1,__SF_EMPTY+8(%r15)
+diff --git a/arch/arm64/kernel/probes/kprobes.c b/arch/arm64/kernel/probes/kprobes.c
+index f11a1a1f7026..798c3e78b84b 100644
+--- a/arch/arm64/kernel/probes/kprobes.c
++++ b/arch/arm64/kernel/probes/kprobes.c
+@@ -286,10 +286,12 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, unsigned int fsr)
+ 		if (!instruction_pointer(regs))
+ 			BUG();
+ 
+-		if (kcb->kprobe_status == KPROBE_REENTER)
++		if (kcb->kprobe_status == KPROBE_REENTER) {
+ 			restore_previous_kprobe(kcb);
+-		else
++		} else {
++			kprobes_restore_local_irqflag(kcb, regs);
+ 			reset_current_kprobe();
++		}
+ 
+ 		break;
+ 	case KPROBE_HIT_ACTIVE:
 -- 
 2.30.2
 
