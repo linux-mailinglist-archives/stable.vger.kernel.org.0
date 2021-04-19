@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12DF3643EC
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E07364453
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240996AbhDSNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:23:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56986 "EHLO mail.kernel.org"
+        id S242089AbhDSN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240664AbhDSNVA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:21:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 308D2613F7;
-        Mon, 19 Apr 2021 13:17:34 +0000 (UTC)
+        id S242140AbhDSNZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:25:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96D5261027;
+        Mon, 19 Apr 2021 13:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838255;
-        bh=UMriKm81P/67QXxaKl0Vg7J5ff/ci0TXWFpSSlR5OeA=;
+        s=korg; t=1618838436;
+        bh=IYOK17ITSDAPu/km3oXXYCpxT2U4rijXptNM3uQNDrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBpdYqDV6E9YloYrhutS108eLg/P5zNaBHHSsOA3nGERRCImOEWenov+ZzZu5uAQp
-         wFsfrHoGwERjyRzuRTvg/cq5ra+NrZj6hCfTiUwPOZacyXcckkgEp/pRdFp1PNoj3E
-         iIeHcQWWW5tTV/xtPAG0RWAzW9F15yifnMW111C8=
+        b=Lr4+CYZPOctPorPIGjCtRzMb/Y6DalmFB6mhC5ijDgsE0fUmbQrj6bUlLiIxiGPBs
+         uyMJk6p2fAtMDkkgCy88suDQcf6Zie+5SF4tFfDtuQO6kis3na6UEGKqfL7ZOUsm/v
+         C0rRH2YSU88v6cWcPrWHKNOnHnhjvL2GBXsBCxLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 098/103] bpf: Move off_reg into sanitize_ptr_alu
+        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 58/73] net: ip6_tunnel: Unregister catch-all devices
 Date:   Mon, 19 Apr 2021 15:06:49 +0200
-Message-Id: <20210419130531.152446942@linuxfoundation.org>
+Message-Id: <20210419130525.712288199@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
+References: <20210419130523.802169214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Hristo Venev <hristo@venev.name>
 
-[ Upstream commit 6f55b2f2a1178856c19bbce2f71449926e731914 ]
+commit 941ea91e87a6e879ed82dad4949f6234f2702bec upstream.
 
-Small refactor to drag off_reg into sanitize_ptr_alu(), so we later on can
-use off_reg for generalizing some of the checks for all pointer types.
+Similarly to the sit case, we need to remove the tunnels with no
+addresses that have been moved to another network namespace.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0bd8762824e73 ("ip6tnl: add x-netns support")
+Signed-off-by: Hristo Venev <hristo@venev.name>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ net/ipv6/ip6_tunnel.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index a2a74b7ed2c6..6b562828dd49 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5407,11 +5407,12 @@ static int sanitize_val_alu(struct bpf_verifier_env *env,
- static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 			    struct bpf_insn *insn,
- 			    const struct bpf_reg_state *ptr_reg,
--			    struct bpf_reg_state *dst_reg,
--			    bool off_is_neg)
-+			    const struct bpf_reg_state *off_reg,
-+			    struct bpf_reg_state *dst_reg)
- {
- 	struct bpf_verifier_state *vstate = env->cur_state;
- 	struct bpf_insn_aux_data *aux = cur_aux(env);
-+	bool off_is_neg = off_reg->smin_value < 0;
- 	bool ptr_is_dst_reg = ptr_reg == dst_reg;
- 	u8 opcode = BPF_OP(insn->code);
- 	u32 alu_state, alu_limit;
-@@ -5546,7 +5547,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 
- 	switch (opcode) {
- 	case BPF_ADD:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
-+		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
- 		if (ret < 0) {
- 			verbose(env, "R%d tried to add from different maps, paths, or prohibited types\n", dst);
- 			return ret;
-@@ -5601,7 +5602,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -2217,6 +2217,16 @@ static void __net_exit ip6_tnl_destroy_t
+ 			t = rtnl_dereference(t->next);
  		}
- 		break;
- 	case BPF_SUB:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
-+		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
- 		if (ret < 0) {
- 			verbose(env, "R%d tried to sub from different maps, paths, or prohibited types\n", dst);
- 			return ret;
--- 
-2.30.2
-
+ 	}
++
++	t = rtnl_dereference(ip6n->tnls_wc[0]);
++	while (t) {
++		/* If dev is in the same netns, it has already
++		 * been added to the list by the previous loop.
++		 */
++		if (!net_eq(dev_net(t->dev), net))
++			unregister_netdevice_queue(t->dev, list);
++		t = rtnl_dereference(t->next);
++	}
+ }
+ 
+ static int __net_init ip6_tnl_init_net(struct net *net)
 
 
