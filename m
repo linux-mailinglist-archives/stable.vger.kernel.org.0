@@ -2,99 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F8CB364C92
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34320364CD0
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 23:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239746AbhDSUw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59618 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240996AbhDSUuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:50:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79124613F0;
-        Mon, 19 Apr 2021 20:46:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865180;
-        bh=HGKoeYccslyDMJAjKQum+MqK9xLjwCuOgVCaBy/LkXk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JHfWns41RShimJLHieBA5JN730VZFkBTzn4FslZg+xByqb/wq/HHghUq7MMoGBoAs
-         K3cHTnjyHnqBPRbxJM5jFjvcNWEeLehv6CM9CfyDyPZ4PlKDprONfOa+7BQkwj7Xko
-         so9RbAwhjgPnXtUYMsKdEQSyAoiwIcB5KAJU7bgcz2bkmqF9na9cgpx+MAmVcfuOOh
-         wUMeYaV6yaDRBoQN/dRTmF2qbQIERyXosPK/lPVs1QHEaoOHkjcziG5QJJ6ufWa5OR
-         pTxS6YJRQUFngNFIEOG+BrWg67YH61HpdRIXl1T4gTg9QC3iZLzlDoS8TxbemMTBAA
-         gYMYeqagxmJmw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 7/7] ia64: tools: remove duplicate definition of ia64_mf() on ia64
-Date:   Mon, 19 Apr 2021 16:46:08 -0400
-Message-Id: <20210419204608.7191-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210419204608.7191-1-sashal@kernel.org>
-References: <20210419204608.7191-1-sashal@kernel.org>
+        id S230430AbhDSVIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 17:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229718AbhDSVIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 17:08:11 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4C6EC06174A;
+        Mon, 19 Apr 2021 14:07:41 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id e8-20020a17090a7288b029014e51f5a6baso14114703pjg.2;
+        Mon, 19 Apr 2021 14:07:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Y8JIYaQXesJ/FSlE2RZj4qiVby5imoQPp64AtT50fD4=;
+        b=CRk0h/csD26RwKwKeA5HSOJekF+hylcD5yMMtU2NbFWTQvOaKVBvEU6m18uZ/ccdYE
+         Ga44+kWZWt8JOLWV0ach/f89Oe4JH76Q8w/jkYoLdiQM3k9unVhNJoqQJGo7gxXOcDn4
+         tn1oHYOtDLUjLj9O9wZL/HIXU9OJ8A38TA7V+G/3vQkNa/dDJkk3xRY567y1tShYvOiM
+         EzpuzstFVbgPdyQx+mcrOIRb/1IlU6pLhr4l/Zehva2pcD8DEsM9ycigb9/xTJgO0cTt
+         M+DvyPLrpyMk5tGsmO4Sg7j/Ca9T0zRdusnzxRJCybpHVRudU2R5V2n0nT0MsifbihMA
+         5c9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Y8JIYaQXesJ/FSlE2RZj4qiVby5imoQPp64AtT50fD4=;
+        b=EADq2mvVgL+TTHgGQjRbMRKcPF7ts8zo5HinfPKGZ2WhdZUf72lo8EEU8z/VRITi2n
+         Ub9N2E0li69ixsRGfK+vj6ue4R0wFQpFfEFzj/Ago/USt8nHnBXEZcz/WK+b9u5ABUFA
+         MTWbfMZ61NQ42JGl/o9VyWM6/E8t7BVH0NG9caxsZiMFZNzOU2MSgm+EMOl6xzFhtlSw
+         BO4SM6r/2p+0hkgkTEn8mTnIrVh7ZDLB6JR8Blp5FlhKbGuVLOjCxCMnyD58keOrRSi6
+         8rBnpdOtHPtiK99TXJ0+fQKZrWAlT8wYsrD0YK3+QCCyk0q7o10RbgQgWs316vZNRAWr
+         qC+A==
+X-Gm-Message-State: AOAM531dsG/5xjj3IbfcdLengLzHDl8MqYXHm4VXvtT6oGrQVP/PfTFK
+        aRaDd9f8j7gFcVCEuyv6NlF+W+zlDHE=
+X-Google-Smtp-Source: ABdhPJxStt5AiMvqBuYNGbjsh8Idvcawv1saDuzFD9NavXzqi8mLWNSIYtMYi2LntvsZk+vlS0aHOw==
+X-Received: by 2002:a17:90a:c984:: with SMTP id w4mr1091371pjt.110.1618866460942;
+        Mon, 19 Apr 2021 14:07:40 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id f135sm13235266pfa.102.2021.04.19.14.07.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Apr 2021 14:07:40 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/103] 5.10.32-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210419130527.791982064@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <dcf6134c-9a67-cc1d-c8bc-75178557296b@gmail.com>
+Date:   Mon, 19 Apr 2021 14:07:38 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.9.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
 
-The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
-already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
-failing to build:
+On 4/19/2021 6:05 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.32 release.
+> There are 103 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 21 Apr 2021 13:05:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.32-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
-  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
-                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
-                   from libbpf.c:37:
-  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
-     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
-        |
-  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
-                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
-                   from /usr/include/linux/swab.h:8,
-                   from /usr/include/linux/byteorder/little_endian.h:13,
-                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
-                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
-                   from libbpf.c:36:
-  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
-    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
-        |
-  cc1: all warnings being treated as errors
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
-
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- tools/arch/ia64/include/asm/barrier.h | 3 ---
- 1 file changed, 3 deletions(-)
-
-diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
-index e4422b4b634e..94ae4a333a35 100644
---- a/tools/arch/ia64/include/asm/barrier.h
-+++ b/tools/arch/ia64/include/asm/barrier.h
-@@ -38,9 +38,6 @@
-  * sequential memory pages only.
-  */
- 
--/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
--#define ia64_mf()       asm volatile ("mf" ::: "memory")
--
- #define mb()		ia64_mf()
- #define rmb()		mb()
- #define wmb()		mb()
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.30.2
-
+Florian
