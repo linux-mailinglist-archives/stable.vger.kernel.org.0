@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 240E3364B90
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38AA5364B93
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242658AbhDSUpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:45:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54408 "EHLO mail.kernel.org"
+        id S242677AbhDSUpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:45:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242494AbhDSUop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:44:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6471613BC;
-        Mon, 19 Apr 2021 20:44:13 +0000 (UTC)
+        id S242516AbhDSUoq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:44:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47E6C613C9;
+        Mon, 19 Apr 2021 20:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865054;
-        bh=IyKqONnImUAeSz7aWX3Pqd1vd62ZQLva34AJ5eh4Hx4=;
+        s=k20201202; t=1618865056;
+        bh=x2n7AHMk4xuQM/Nj3J0Y6kw8h5pEDWqP9+6+2bmkT/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YuytxyVW/olFi4hNH6mcHqkstqwQA+gK8s3fUHPQRTTc+LJX6b83s44AHCaJOpqPa
-         qu9iuEh+TvEI07xP2j5OUFzTYopXIAlmyvCQXWpAASkmO/fi3P45vIfJ0C+Vsc7+bw
-         oe0FDlWPuruA9dH5jLzeJA1atFhruTJsYYKhO9m9p6Yv7tk/GWjCWOLyeoiaF4SfFb
-         rglZxT8PMapIFTOJA8zeyF/9rtcIJoPLFVFO/Cgd4Q4VlshHZSpeLZXecjLLVjBza0
-         jQLvhceaNfLl1v6w1d5+9lqY6wrf8m6+UnNcGo7jgIkz//cRRf8JGYu6c2894VcAsc
-         dYDXlU2kZj1tQ==
+        b=Ie712FMUwc4UZgo28WsYxgaSvaCpWK8E5nOqH6QPxWgEtSexUVSw4f2pfaCWfjbzO
+         T0W13KBJz7NxgGr1Elb/OYu3Gq/xGBGx/X2PQcpdkSKzlg6xaPBxUiS3ymzgniZChU
+         tkU38SCYmW+cmC+GSas2T4umxvP+E52nz9nzdIM6gGE91rCVmTXfvnw2c8KtiLAn4T
+         A5tlGjVdec5QsHMQKtzBm7uGkm0wA91ItvBF7YJs0O9Dcx6lvp9HtcScO8RxLo1/cz
+         c41PTnlUbbycI6BQa8rlLGiQt/qBaPGJ941uYcIELmzVcLzMpRbNSmJaO4YK8YjZvT
+         D2Oz2p9N7q6kg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Mike Rapoport <rppt@kernel.org>,
+Cc:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 20/23] ia64: fix discontig.c section mismatches
-Date:   Mon, 19 Apr 2021 16:43:39 -0400
-Message-Id: <20210419204343.6134-20-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 21/23] ia64: tools: remove duplicate definition of ia64_mf() on ia64
+Date:   Mon, 19 Apr 2021 16:43:40 -0400
+Message-Id: <20210419204343.6134-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204343.6134-1-sashal@kernel.org>
 References: <20210419204343.6134-1-sashal@kernel.org>
@@ -44,71 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-[ Upstream commit e2af9da4f867a1a54f1252bf3abc1a5c63951778 ]
+[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
 
-Fix IA64 discontig.c Section mismatch warnings.
+The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
+already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
+failing to build:
 
-When CONFIG_SPARSEMEM=y and CONFIG_MEMORY_HOTPLUG=y, the functions
-computer_pernodesize() and scatter_node_data() should not be marked as
-__meminit because they are needed after init, on any memory hotplug
-event.  Also, early_nr_cpus_node() is called by compute_pernodesize(),
-so early_nr_cpus_node() cannot be __meminit either.
+    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
+  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
+                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
+                   from libbpf.c:37:
+  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
+     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
+        |
+  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
+                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
+                   from /usr/include/linux/swab.h:8,
+                   from /usr/include/linux/byteorder/little_endian.h:13,
+                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
+                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
+                   from libbpf.c:36:
+  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
+    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
+        |
+  cc1: all warnings being treated as errors
 
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1612): Section mismatch in reference from the function arch_alloc_nodedata() to the function .meminit.text:compute_pernodesize()
-  The function arch_alloc_nodedata() references the function __meminit compute_pernodesize().
-  This is often because arch_alloc_nodedata lacks a __meminit annotation or the annotation of compute_pernodesize is wrong.
+Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
 
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1692): Section mismatch in reference from the function arch_refresh_nodedata() to the function .meminit.text:scatter_node_data()
-  The function arch_refresh_nodedata() references the function __meminit scatter_node_data().
-  This is often because arch_refresh_nodedata lacks a __meminit annotation or the annotation of scatter_node_data is wrong.
-
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1502): Section mismatch in reference from the function compute_pernodesize() to the function .meminit.text:early_nr_cpus_node()
-  The function compute_pernodesize() references the function __meminit early_nr_cpus_node().
-  This is often because compute_pernodesize lacks a __meminit annotation or the annotation of early_nr_cpus_node is wrong.
-
-Link: https://lkml.kernel.org/r/20210411001201.3069-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Mike Rapoport <rppt@kernel.org>
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/mm/discontig.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/arch/ia64/include/asm/barrier.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
-index c7311131156e..ba3edb8a04b1 100644
---- a/arch/ia64/mm/discontig.c
-+++ b/arch/ia64/mm/discontig.c
-@@ -94,7 +94,7 @@ static int __init build_node_maps(unsigned long start, unsigned long len,
-  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
-  * called yet.  Note that node 0 will also count all non-existent cpus.
+diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
+index 4d471d9511a5..6fffe5682713 100644
+--- a/tools/arch/ia64/include/asm/barrier.h
++++ b/tools/arch/ia64/include/asm/barrier.h
+@@ -39,9 +39,6 @@
+  * sequential memory pages only.
   */
--static int __meminit early_nr_cpus_node(int node)
-+static int early_nr_cpus_node(int node)
- {
- 	int cpu, n = 0;
  
-@@ -109,7 +109,7 @@ static int __meminit early_nr_cpus_node(int node)
-  * compute_pernodesize - compute size of pernode data
-  * @node: the node id.
-  */
--static unsigned long __meminit compute_pernodesize(int node)
-+static unsigned long compute_pernodesize(int node)
- {
- 	unsigned long pernodesize = 0, cpus;
- 
-@@ -366,7 +366,7 @@ static void __init reserve_pernode_space(void)
- 	}
- }
- 
--static void __meminit scatter_node_data(void)
-+static void scatter_node_data(void)
- {
- 	pg_data_t **dst;
- 	int node;
+-/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
+-#define ia64_mf()       asm volatile ("mf" ::: "memory")
+-
+ #define mb()		ia64_mf()
+ #define rmb()		mb()
+ #define wmb()		mb()
 -- 
 2.30.2
 
