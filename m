@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88BE0364382
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0283642B7
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240094AbhDSNS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
+        id S239563AbhDSNLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:11:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240724AbhDSNRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:17:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7623D613B8;
-        Mon, 19 Apr 2021 13:14:14 +0000 (UTC)
+        id S239753AbhDSNKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:10:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0FA361285;
+        Mon, 19 Apr 2021 13:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838055;
-        bh=QtCHTSR+ZAyQMyUzkaxUYRpKoNCc5fua7BthqIaxfLM=;
+        s=korg; t=1618837800;
+        bh=0DKbLwpRtrE8G4XtVlLlfF7mDlBZ8+CTdiglRTavET0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xByOGnEvsh0Cramtwj4e29OemgH2jV5LWzUkmMlt4GDQnctRTqOR6cluGTo0mXvsK
-         e3TLt7yL+F5X+SH8AmuPi/0NMlEnfqPDwrAhhN6F+F4ckylWFd/HBJEpWukU3SUJYW
-         uNnScNlXQ203pTUkN9ejJYKseYiL2GiGfDmZ46as=
+        b=OGKH6KDWtnivt2u3GTjqpaA2Bip+1bmDdxAq/f/ov8pwt/KVfI9y/1i3tcNnJUytv
+         qFYsPuDMWUxPFn9nBZG5mnZKBsG2/AnuZbK618Ek76XdVdVX+zFwsjd5oQoadnUCNG
+         S8LpmTdXSwhht8DNzzUHuTcYBtMwUueJOiohE648=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Jordan Crouse <jordan@cosmicpenguin.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 026/103] drm/msm: Fix a5xx/a6xx timestamps
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.11 057/122] Input: i8042 - fix Pegatron C15B ID entry
 Date:   Mon, 19 Apr 2021 15:05:37 +0200
-Message-Id: <20210419130528.693436372@linuxfoundation.org>
+Message-Id: <20210419130532.123205886@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
+References: <20210419130530.166331793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 9fbd3088351b92e8c2cef6e37a39decb12a8d5bb ]
+commit daa58c8eec0a65ac8e2e77ff3ea8a233d8eec954 upstream.
 
-They were reading a counter that was configured to ALWAYS_COUNT (ie.
-cycles that the GPU is doing something) rather than ALWAYS_ON.  This
-isn't the thing that userspace is looking for.
+The Zenbook Flip entry that was added overwrites a previous one
+because of a typo:
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Acked-by: Jordan Crouse <jordan@cosmicpenguin.net>
-Message-Id: <20210325012358.1759770-2-robdclark@gmail.com>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In file included from drivers/input/serio/i8042.h:23,
+                 from drivers/input/serio/i8042.c:131:
+drivers/input/serio/i8042-x86ia64io.h:591:28: error: initialized field overwritten [-Werror=override-init]
+  591 |                 .matches = {
+      |                            ^
+drivers/input/serio/i8042-x86ia64io.h:591:28: note: (near initialization for 'i8042_dmi_noselftest_table[0].matches')
+
+Add the missing separator between the two.
+
+Fixes: b5d6e7ab7fe7 ("Input: i8042 - add ASUS Zenbook Flip to noselftest list")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+Link: https://lore.kernel.org/r/20210323130623.2302402-1-arnd@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 4 ++--
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index 5e11cdb207d8..0ca7e53db112 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -1240,8 +1240,8 @@ static int a5xx_pm_suspend(struct msm_gpu *gpu)
- 
- static int a5xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
- {
--	*value = gpu_read64(gpu, REG_A5XX_RBBM_PERFCTR_CP_0_LO,
--		REG_A5XX_RBBM_PERFCTR_CP_0_HI);
-+	*value = gpu_read64(gpu, REG_A5XX_RBBM_ALWAYSON_COUNTER_LO,
-+		REG_A5XX_RBBM_ALWAYSON_COUNTER_HI);
- 
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 83b50f6d6bb7..722c2fe3bfd5 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1073,8 +1073,8 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
- 	/* Force the GPU power on so we can read this register */
- 	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
- 
--	*value = gpu_read64(gpu, REG_A6XX_RBBM_PERFCTR_CP_0_LO,
--		REG_A6XX_RBBM_PERFCTR_CP_0_HI);
-+	*value = gpu_read64(gpu, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
-+		REG_A6XX_CP_ALWAYS_ON_COUNTER_HI);
- 
- 	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
- 	mutex_unlock(&perfcounter_oob);
--- 
-2.30.2
-
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -588,6 +588,7 @@ static const struct dmi_system_id i8042_
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+ 		},
++	}, {
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
 
 
