@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55CE836442E
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2FC3643B6
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240803AbhDSNZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:25:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
+        id S240763AbhDSNVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240984AbhDSNXG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:23:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74AC56135F;
-        Mon, 19 Apr 2021 13:18:38 +0000 (UTC)
+        id S241154AbhDSNUC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7345E613E2;
+        Mon, 19 Apr 2021 13:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838319;
-        bh=HNztpqO9dHFStsQuB67uf7n+hO6/spYKdUoEVkhnPQI=;
+        s=korg; t=1618838144;
+        bh=dAF5/SqOJKnqmlYgI+dE0TsDA1M5hV6EL+szpzELn/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqDlcDGk5BuhmIq3HD17YnG1IZOl8rWJIau7Ey0QPYz6a/ieYP8//GWVebkRNFl8N
-         oaBjfXOAqW5kazsY+G2fOBUlAXfjOLyErC8x3eCTomE5GuMxM/FBuG+ZtZnpf+uv7f
-         5FnlBx4Ts1XeYRabdh3f7paorA1Z1PEWtmPkiucM=
+        b=0S82r/YzbbXP2rej74QIvGjw2NsA006n4WWDYmpO4qruuMg1Hvv6HxgzckVu6+rMw
+         S+hCjeVsxcko5Wgo4ZRbQtT6W3ZgJHvw4cgmGaZtElgGj01DAEnFiGSrJ+5yhbvvUT
+         YL9oqAnW87oU/nY6ohs4NlIpIghYkhoAo7za0T10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhu <zhutong@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/73] neighbour: Disregard DEAD dst in neigh_update
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 058/103] netfilter: flowtable: fix NAT IPv6 offload mangling
 Date:   Mon, 19 Apr 2021 15:06:09 +0200
-Message-Id: <20210419130524.412396745@linuxfoundation.org>
+Message-Id: <20210419130529.798526389@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-References: <20210419130523.802169214@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +38,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhu <zhutong@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit d47ec7a0a7271dda08932d6208e4ab65ab0c987c ]
+commit 0e07e25b481aa021e4b48085ecb8a049e9614510 upstream.
 
-After a short network outage, the dst_entry is timed out and put
-in DST_OBSOLETE_DEAD. We are in this code because arp reply comes
-from this neighbour after network recovers. There is a potential
-race condition that dst_entry is still in DST_OBSOLETE_DEAD.
-With that, another neighbour lookup causes more harm than good.
+Fix out-of-bound access in the address array.
 
-In best case all packets in arp_queue are lost. This is
-counterproductive to the original goal of finding a better path
-for those packets.
-
-I observed a worst case with 4.x kernel where a dst_entry in
-DST_OBSOLETE_DEAD state is associated with loopback net_device.
-It leads to an ethernet header with all zero addresses.
-A packet with all zero source MAC address is quite deadly with
-mac80211, ath9k and 802.11 block ack.  It fails
-ieee80211_find_sta_by_ifaddr in ath9k (xmit.c). Ath9k flushes tx
-queue (ath_tx_complete_aggr). BAW (block ack window) is not
-updated. BAW logic is damaged and ath9k transmission is disabled.
-
-Signed-off-by: Tong Zhu <zhutong@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5c27d8d76ce8 ("netfilter: nf_flow_table_offload: add IPv6 support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_flow_table_offload.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 7080d708b7d0..6635b83113f8 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1379,7 +1379,7 @@ static int __neigh_update(struct neighbour *neigh, const u8 *lladdr,
- 			 * we can reinject the packet there.
- 			 */
- 			n2 = NULL;
--			if (dst) {
-+			if (dst && dst->obsolete != DST_OBSOLETE_DEAD) {
- 				n2 = dst_neigh_lookup_skb(dst, skb);
- 				if (n2)
- 					n1 = n2;
--- 
-2.30.2
-
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -305,12 +305,12 @@ static void flow_offload_ipv6_mangle(str
+ 				     const __be32 *addr, const __be32 *mask)
+ {
+ 	struct flow_action_entry *entry;
+-	int i;
++	int i, j;
+ 
+-	for (i = 0; i < sizeof(struct in6_addr) / sizeof(u32); i += sizeof(u32)) {
++	for (i = 0, j = 0; i < sizeof(struct in6_addr) / sizeof(u32); i += sizeof(u32), j++) {
+ 		entry = flow_action_entry_next(flow_rule);
+ 		flow_offload_mangle(entry, FLOW_ACT_MANGLE_HDR_TYPE_IP6,
+-				    offset + i, &addr[i], mask);
++				    offset + i, &addr[j], mask);
+ 	}
+ }
+ 
 
 
