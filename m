@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C60A364460
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19FF2364461
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241883AbhDSN1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241970AbhDSN1J (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Apr 2021 09:27:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34380 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241915AbhDSNYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:24:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 320B1613AE;
-        Mon, 19 Apr 2021 13:19:48 +0000 (UTC)
+        id S241969AbhDSNY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:24:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 060A2613C5;
+        Mon, 19 Apr 2021 13:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838388;
-        bh=5x1SmBefa/kSnntTEvpcxavC7fKBCuwyfcpGWdvwOgU=;
+        s=korg; t=1618838391;
+        bh=/0EFt+oC5nkaqB0I+I0+gOt65NBd30fm8mGLACfO6o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QXbKZtg33F38HP4/arXwAGj24i5xn+YC/QZL60zuJkcoTB8GMU+tVuu1SBz9HPmA7
-         hrk556T341JFrxhpIeAAusBBPIgzTvU5vMvULmbPGcnTdnYGfN81PxYEdpIWsANELe
-         tRNgCOv5ArMRLI6ZZbacGXBmhZlq20fGEXP14TWI=
+        b=mOdZXxEdd4WNw+fG2eDE2asKuYhSU9A4UehnW/vKnfcd83yCNUaOtIW3mdfyijll6
+         zpI1gFWIL3dAu1iE6gD1gWatVOu3TiiWb9SrezDDb+Yu8ti67wrzFASyAJiciPbNJg
+         ypS2QGFP/efIyPSox0aLvVzgjH2ocLZ11tVCu4I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
-        Jason Gerecke <Jason.Gerecke@wacom.com>,
-        Juan Garrido <Juan.Garrido@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 42/73] HID: wacom: set EV_KEY and EV_ABS only for non-HID_GENERIC type of devices
-Date:   Mon, 19 Apr 2021 15:06:33 +0200
-Message-Id: <20210419130525.189166497@linuxfoundation.org>
+        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@google.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 43/73] dm verity fec: fix misaligned RS roots IO
+Date:   Mon, 19 Apr 2021 15:06:34 +0200
+Message-Id: <20210419130525.219106285@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
 References: <20210419130523.802169214@linuxfoundation.org>
@@ -41,65 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping Cheng <pinglinux@gmail.com>
+From: Jaegeuk Kim <jaegeuk@google.com>
 
-commit 276559d8d02c2709281578976ca2f53bc62063d4 upstream.
+commit 8ca7cab82bda4eb0b8064befeeeaa38106cac637 upstream.
 
-Valid HID_GENERIC type of devices set EV_KEY and EV_ABS by wacom_map_usage.
-When *_input_capabilities are reached, those devices should already have
-their proper EV_* set. EV_KEY and EV_ABS only need to be set for
-non-HID_GENERIC type of devices in *_input_capabilities.
+commit df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to
+block size") introduced the possibility for misaligned roots IO
+relative to the underlying device's logical block size. E.g. Android's
+default RS roots=2 results in dm_bufio->block_size=1024, which causes
+the following EIO if the logical block size of the device is 4096,
+given v->data_dev_block_bits=12:
 
-Devices that don't support HID descitoprs will pass back to hid-input for
-registration without being accidentally rejected by the introduction of
-patch: "Input: refuse to register absolute devices without absinfo"
+E sd 0    : 0:0:0: [sda] tag#30 request not aligned to the logical block size
+E blk_update_request: I/O error, dev sda, sector 10368424 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 0
+E device-mapper: verity-fec: 254:8: FEC 9244672: parity read failed (block 18056): -5
 
-Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices without absinfo")
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <Jason.Gerecke@wacom.com>
-Tested-by: Juan Garrido <Juan.Garrido@wacom.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fix this by onlu using f->roots for dm_bufio blocksize IFF it is
+aligned to v->data_dev_block_bits.
+
+Fixes: df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to block size")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jaegeuk Kim <jaegeuk@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_wac.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/md/dm-verity-fec.c |   11 ++++++++---
+ drivers/md/dm-verity-fec.h |    1 +
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3574,8 +3574,6 @@ int wacom_setup_pen_input_capabilities(s
- {
- 	struct wacom_features *features = &wacom_wac->features;
+--- a/drivers/md/dm-verity-fec.c
++++ b/drivers/md/dm-verity-fec.c
+@@ -65,7 +65,7 @@ static u8 *fec_read_parity(struct dm_ver
+ 	u8 *res;
  
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
- 		return -ENODEV;
+ 	position = (index + rsb) * v->fec->roots;
+-	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
++	block = div64_u64_rem(position, v->fec->io_size, &rem);
+ 	*offset = (unsigned)rem;
  
-@@ -3590,6 +3588,7 @@ int wacom_setup_pen_input_capabilities(s
- 		return 0;
+ 	res = dm_bufio_read(v->fec->bufio, block, buf);
+@@ -154,7 +154,7 @@ static int fec_decode_bufs(struct dm_ver
+ 
+ 		/* read the next block when we run out of parity bytes */
+ 		offset += v->fec->roots;
+-		if (offset >= v->fec->roots << SECTOR_SHIFT) {
++		if (offset >= v->fec->io_size) {
+ 			dm_bufio_release(buf);
+ 
+ 			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
+@@ -742,8 +742,13 @@ int verity_fec_ctr(struct dm_verity *v)
+ 		return -E2BIG;
  	}
  
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(ABS_MISC, input_dev->absbit);
- 
-@@ -3742,8 +3741,6 @@ int wacom_setup_touch_input_capabilities
- {
- 	struct wacom_features *features = &wacom_wac->features;
- 
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
- 		return -ENODEV;
- 
-@@ -3756,6 +3753,7 @@ int wacom_setup_touch_input_capabilities
- 		/* setup has already been done */
- 		return 0;
- 
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 
- 	if (features->touch_max == 1) {
++	if ((f->roots << SECTOR_SHIFT) & ((1 << v->data_dev_block_bits) - 1))
++		f->io_size = 1 << v->data_dev_block_bits;
++	else
++		f->io_size = v->fec->roots << SECTOR_SHIFT;
++
+ 	f->bufio = dm_bufio_client_create(f->dev->bdev,
+-					  f->roots << SECTOR_SHIFT,
++					  f->io_size,
+ 					  1, 0, NULL, NULL);
+ 	if (IS_ERR(f->bufio)) {
+ 		ti->error = "Cannot initialize FEC bufio client";
+--- a/drivers/md/dm-verity-fec.h
++++ b/drivers/md/dm-verity-fec.h
+@@ -36,6 +36,7 @@ struct dm_verity_fec {
+ 	struct dm_dev *dev;	/* parity data device */
+ 	struct dm_bufio_client *data_bufio;	/* for data dev access */
+ 	struct dm_bufio_client *bufio;		/* for parity data access */
++	size_t io_size;		/* IO size for roots */
+ 	sector_t start;		/* parity data start in blocks */
+ 	sector_t blocks;	/* number of blocks covered */
+ 	sector_t rounds;	/* number of interleaving rounds */
 
 
