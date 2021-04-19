@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2EE3642EB
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5C723642EF
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240109AbhDSNMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
+        id S240131AbhDSNMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:12:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232708AbhDSNLX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:11:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B245361369;
-        Mon, 19 Apr 2021 13:10:51 +0000 (UTC)
+        id S239855AbhDSNLZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:11:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EDA661370;
+        Mon, 19 Apr 2021 13:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837852;
-        bh=cTv/+ObGpid6q5PCgrkMLnY1hD7lfOHQmZ+Pxd2mqtA=;
+        s=korg; t=1618837855;
+        bh=xojuARV/qa1HClD2K8G1H1ETWj7RW1lKGmzJGcWugqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bD9G3r0gxXyaj0x6eBtqVdCCy1bHYjm7UhlUC0l17kRytCfURtgcyWmQt0GndfFOI
-         eu9F+PrPt12IcdbuYWWXyOtsR527Du2jS6d82rT2a2wXWaXKXyfG/xoTQPKX4SyLfL
-         qfiby+qCTTlxESGOjSTMjjg6H6jK9KU+zRQzKl3s=
+        b=PfeZ6com2RYrDvTBp241/gwxRgjUe9cnpmm7Hvh/eXkMevN6D6n6u/ye47wkFe1oQ
+         3qwUOXmEEoXYeE3w3DzSXx9Ns/+F2wJnl9XGgbArVN+FYy+TuXTR8+nprT/QA/QBUR
+         zTiUPHSX4h5PD6RRWiVF34eDal7sXkXQxWbJVBU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.11 078/122] drm/i915/display/vlv_dsi: Do not skip panel_pwr_cycle_delay when disabling the panel
-Date:   Mon, 19 Apr 2021 15:05:58 +0200
-Message-Id: <20210419130532.821962952@linuxfoundation.org>
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 079/122] net: macb: fix the restore of cmp registers
+Date:   Mon, 19 Apr 2021 15:05:59 +0200
+Message-Id: <20210419130532.853558454@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -42,63 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit aee6f25e9c911323aa89a200e1bb160c1613ed3d upstream.
+commit a714e27ea8bdee2b238748029d31472d0a65b611 upstream.
 
-After the recently added commit fe0f1e3bfdfe ("drm/i915: Shut down
-displays gracefully on reboot"), the DSI panel on a Cherry Trail based
-Predia Basic tablet would no longer properly light up after reboot.
+Commit a14d273ba159 ("net: macb: restore cmp registers on resume path")
+introduces the restore of CMP registers on resume path. In case the IP
+doesn't support type 2 screeners (zero on DCFG8 register) the
+struct macb::rx_fs_list::list is not initialized and thus the
+list_for_each_entry(item, &bp->rx_fs_list.list, list) loop introduced in
+commit a14d273ba159 ("net: macb: restore cmp registers on resume path")
+will access an uninitialized list leading to crash. Thus, initialize
+the struct macb::rx_fs_list::list without taking into account if the
+IP supports type 2 screeners or not.
 
-I've managed to reproduce this without rebooting by doing:
-chvt 3; echo 1 > /sys/class/graphics/fb0/blank;\
-echo 0 > /sys/class/graphics/fb0/blank
-
-Which rapidly turns the panel off and back on again.
-
-The vlv_dsi.c code uses an intel_dsi_msleep() helper for the various delays
-used for panel on/off, since starting with MIPI-sequences version >= 3 the
-delays are already included inside the MIPI-sequences.
-
-The problems exposed by the "Shut down displays gracefully on reboot"
-change, show that using this helper for the panel_pwr_cycle_delay is
-not the right thing to do. This has not been noticed until now because
-normally the panel never is cycled off and directly on again in quick
-succession.
-
-Change the msleep for the panel_pwr_cycle_delay to a normal msleep()
-call to avoid the panel staying black after a quick off + on cycle.
-
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Fixes: fe0f1e3bfdfe ("drm/i915: Shut down displays gracefully on reboot")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210325114823.44922-1-hdegoede@redhat.com
-(cherry picked from commit 2878b29fc25a0dac0e1c6c94177f07c7f94240f0)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: a14d273ba159 ("net: macb: restore cmp registers on resume path")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/vlv_dsi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/vlv_dsi.c
-+++ b/drivers/gpu/drm/i915/display/vlv_dsi.c
-@@ -992,14 +992,14 @@ static void intel_dsi_post_disable(struc
- 	 * FIXME As we do with eDP, just make a note of the time here
- 	 * and perform the wait before the next panel power on.
- 	 */
--	intel_dsi_msleep(intel_dsi, intel_dsi->panel_pwr_cycle_delay);
-+	msleep(intel_dsi->panel_pwr_cycle_delay);
- }
- 
- static void intel_dsi_shutdown(struct intel_encoder *encoder)
- {
- 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
- 
--	intel_dsi_msleep(intel_dsi, intel_dsi->panel_pwr_cycle_delay);
-+	msleep(intel_dsi->panel_pwr_cycle_delay);
- }
- 
- static bool intel_dsi_get_hw_state(struct intel_encoder *encoder,
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -3914,6 +3914,7 @@ static int macb_init(struct platform_dev
+ 	reg = gem_readl(bp, DCFG8);
+ 	bp->max_tuples = min((GEM_BFEXT(SCR2CMP, reg) / 3),
+ 			GEM_BFEXT(T2SCR, reg));
++	INIT_LIST_HEAD(&bp->rx_fs_list.list);
+ 	if (bp->max_tuples > 0) {
+ 		/* also needs one ethtype match to check IPv4 */
+ 		if (GEM_BFEXT(SCR2ETH, reg) > 0) {
+@@ -3924,7 +3925,6 @@ static int macb_init(struct platform_dev
+ 			/* Filtering is supported in hw but don't enable it in kernel now */
+ 			dev->hw_features |= NETIF_F_NTUPLE;
+ 			/* init Rx flow definitions */
+-			INIT_LIST_HEAD(&bp->rx_fs_list.list);
+ 			bp->rx_fs_list.count = 0;
+ 			spin_lock_init(&bp->rx_fs_lock);
+ 		} else
 
 
