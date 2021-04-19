@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 735FC3642A5
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E398C364379
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239743AbhDSNKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:10:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45650 "EHLO mail.kernel.org"
+        id S240603AbhDSNSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:18:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239302AbhDSNKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:10:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9E086135F;
-        Mon, 19 Apr 2021 13:09:45 +0000 (UTC)
+        id S240715AbhDSNQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:16:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35575613AB;
+        Mon, 19 Apr 2021 13:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837786;
-        bh=AkIks0oqHhkdF+z6ehOanHRJwZy6mXz2P5PImIEaNsg=;
+        s=korg; t=1618838043;
+        bh=/9IyQacGTGb/SudmTn/8o4W+MLVXiEg2d8hWfT5mr3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJMmtBt5eiC8eopNo05Q+4rWhvr57b0/mwZwSifiiyRioL5KbqN1TZtWvBYkGzjOc
-         NCKEs6/o2NzHh4i0YxZCZyqU1h/MBmfX9VVNkiNRnhUr/3VNMF6LeBSyIYGhbDwxjK
-         P3A7wamxd6cU826k86qk31BtDk2skITL5pKinp9I=
+        b=sfRlCA58WddmPWGNiFfXKD1POoBQEbmkja1yRkRbi9PeyJDA/VQhDRdMAlm2XmftV
+         rrwrDehYmhOda6F8yfTjDQgHY9/FYl+FK+Kz3NGEyEuHbu5ktrW/lyauQyLDuOG3ud
+         8rAM3/tYbYhBwPVD6U9pncPh6ZJnVq7AM4khgwJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "A. Cody Schuffelen" <schuffelen@google.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 053/122] virt_wifi: Return micros for BSS TSF values
+Subject: [PATCH 5.10 022/103] gpu/xen: Fix a use after free in xen_drm_drv_init
 Date:   Mon, 19 Apr 2021 15:05:33 +0200
-Message-Id: <20210419130531.983476483@linuxfoundation.org>
+Message-Id: <20210419130528.554526710@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
-References: <20210419130530.166331793@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: A. Cody Schuffelen <schuffelen@google.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit b57aa17f07c9270e576ef7df09f142978b5a75f0 ]
+[ Upstream commit 52762efa2b256ed1c5274e5177cbd52ee11a2f6a ]
 
-cfg80211_inform_bss expects to receive a TSF value, but is given the
-time since boot in nanoseconds. TSF values are expected to be at
-microsecond scale rather than nanosecond scale.
+In function displback_changed, has the call chain
+displback_connect(front_info)->xen_drm_drv_init(front_info).
+We can see that drm_info is assigned to front_info->drm_info
+and drm_info is freed in fail branch in xen_drm_drv_init().
 
-Signed-off-by: A. Cody Schuffelen <schuffelen@google.com>
-Link: https://lore.kernel.org/r/20210318200419.1421034-1-schuffelen@google.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Later displback_disconnect(front_info) is called and it calls
+xen_drm_drv_fini(front_info) cause a use after free by
+drm_info = front_info->drm_info statement.
+
+My patch has done two things. First fixes the fail label which
+drm_info = kzalloc() failed and still free the drm_info.
+Second sets front_info->drm_info to NULL to avoid uaf.
+
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210323014656.10068-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/virt_wifi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/xen/xen_drm_front.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/virt_wifi.c b/drivers/net/wireless/virt_wifi.c
-index c878097f0dda..1df959532c7d 100644
---- a/drivers/net/wireless/virt_wifi.c
-+++ b/drivers/net/wireless/virt_wifi.c
-@@ -12,6 +12,7 @@
- #include <net/cfg80211.h>
- #include <net/rtnetlink.h>
- #include <linux/etherdevice.h>
-+#include <linux/math64.h>
- #include <linux/module.h>
+diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
+index cc93a8c9547b..8ea91542b567 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front.c
++++ b/drivers/gpu/drm/xen/xen_drm_front.c
+@@ -531,7 +531,7 @@ static int xen_drm_drv_init(struct xen_drm_front_info *front_info)
+ 	drm_dev = drm_dev_alloc(&xen_drm_driver, dev);
+ 	if (IS_ERR(drm_dev)) {
+ 		ret = PTR_ERR(drm_dev);
+-		goto fail;
++		goto fail_dev;
+ 	}
  
- static struct wiphy *common_wiphy;
-@@ -168,11 +169,11 @@ static void virt_wifi_scan_result(struct work_struct *work)
- 			     scan_result.work);
- 	struct wiphy *wiphy = priv_to_wiphy(priv);
- 	struct cfg80211_scan_info scan_info = { .aborted = false };
-+	u64 tsf = div_u64(ktime_get_boottime_ns(), 1000);
+ 	drm_info->drm_dev = drm_dev;
+@@ -561,8 +561,10 @@ fail_modeset:
+ 	drm_kms_helper_poll_fini(drm_dev);
+ 	drm_mode_config_cleanup(drm_dev);
+ 	drm_dev_put(drm_dev);
+-fail:
++fail_dev:
+ 	kfree(drm_info);
++	front_info->drm_info = NULL;
++fail:
+ 	return ret;
+ }
  
- 	informed_bss = cfg80211_inform_bss(wiphy, &channel_5ghz,
- 					   CFG80211_BSS_FTYPE_PRESP,
--					   fake_router_bssid,
--					   ktime_get_boottime_ns(),
-+					   fake_router_bssid, tsf,
- 					   WLAN_CAPABILITY_ESS, 0,
- 					   (void *)&ssid, sizeof(ssid),
- 					   DBM_TO_MBM(-50), GFP_KERNEL);
 -- 
 2.30.2
 
