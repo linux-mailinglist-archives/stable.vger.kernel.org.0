@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B6C364383
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88BE0364382
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:20:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239982AbhDSNTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:19:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55300 "EHLO mail.kernel.org"
+        id S240094AbhDSNS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:18:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240387AbhDSNRJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240724AbhDSNRJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 09:17:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C852D613D3;
-        Mon, 19 Apr 2021 13:14:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7623D613B8;
+        Mon, 19 Apr 2021 13:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838052;
-        bh=hHIQYb42wdWozvUKH6R1Uzezj7+klWmXY0qSapeadp8=;
+        s=korg; t=1618838055;
+        bh=QtCHTSR+ZAyQMyUzkaxUYRpKoNCc5fua7BthqIaxfLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5XOWI4NPnyTcQBthAATyVaEB0Iy34LlJ4QthFHHArofZK83raShCwL6ppYkmn98B
-         L9S8ILykkdtenKSuS7mRLi/6L2qRaXDpNBz/qZqyk9ipB48YgMFyycNFvH76UT59D5
-         NjeWspqcScRfa4PBenUnZ+HezpZy6n1YDsZHC+bU=
+        b=xByOGnEvsh0Cramtwj4e29OemgH2jV5LWzUkmMlt4GDQnctRTqOR6cluGTo0mXvsK
+         e3TLt7yL+F5X+SH8AmuPi/0NMlEnfqPDwrAhhN6F+F4ckylWFd/HBJEpWukU3SUJYW
+         uNnScNlXQ203pTUkN9ejJYKseYiL2GiGfDmZ46as=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Jordan Crouse <jordan@cosmicpenguin.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/103] ARM: omap1: fix building with clang IAS
-Date:   Mon, 19 Apr 2021 15:05:36 +0200
-Message-Id: <20210419130528.663557263@linuxfoundation.org>
+Subject: [PATCH 5.10 026/103] drm/msm: Fix a5xx/a6xx timestamps
+Date:   Mon, 19 Apr 2021 15:05:37 +0200
+Message-Id: <20210419130528.693436372@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -40,54 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 28399a5a6d569c9bdb612345e4933046ca37cde5 ]
+[ Upstream commit 9fbd3088351b92e8c2cef6e37a39decb12a8d5bb ]
 
-The clang integrated assembler fails to build one file with
-a complex asm instruction:
+They were reading a counter that was configured to ALWAYS_COUNT (ie.
+cycles that the GPU is doing something) rather than ALWAYS_ON.  This
+isn't the thing that userspace is looking for.
 
-arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: error: invalid instruction, any one of the following would fix this:
- mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
- ^
-arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: note: instruction requires: armv6t2
- mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
- ^
-arch/arm/mach-omap1/ams-delta-fiq-handler.S:249:2: note: instruction requires: thumb2
- mov r10, #(1 << (((NR_IRQS_LEGACY + 12) - NR_IRQS_LEGACY) % 32)) @ set deferred_fiq bit
- ^
-
-The problem is that 'NR_IRQS_LEGACY' is not defined here. Apparently
-gas does not care because we first add and then subtract this number,
-leading to the immediate value to be the same regardless of the
-specific definition of NR_IRQS_LEGACY.
-
-Neither the way that 'gas' just silently builds this file, nor the
-way that clang IAS makes nonsensical suggestions for how to fix it
-is great. Fortunately there is an easy fix, which is to #include
-the header that contains the definition.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210308153430.2530616-1-arnd@kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Acked-by: Jordan Crouse <jordan@cosmicpenguin.net>
+Message-Id: <20210325012358.1759770-2-robdclark@gmail.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/ams-delta-fiq-handler.S | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 4 ++--
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/mach-omap1/ams-delta-fiq-handler.S b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-index 14a6c3eb3298..f745a65d3bd7 100644
---- a/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-+++ b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-@@ -15,6 +15,7 @@
- #include <linux/platform_data/gpio-omap.h>
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index 5e11cdb207d8..0ca7e53db112 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -1240,8 +1240,8 @@ static int a5xx_pm_suspend(struct msm_gpu *gpu)
  
- #include <asm/assembler.h>
-+#include <asm/irq.h>
+ static int a5xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
+ {
+-	*value = gpu_read64(gpu, REG_A5XX_RBBM_PERFCTR_CP_0_LO,
+-		REG_A5XX_RBBM_PERFCTR_CP_0_HI);
++	*value = gpu_read64(gpu, REG_A5XX_RBBM_ALWAYSON_COUNTER_LO,
++		REG_A5XX_RBBM_ALWAYSON_COUNTER_HI);
  
- #include "ams-delta-fiq.h"
- #include "board-ams-delta.h"
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 83b50f6d6bb7..722c2fe3bfd5 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1073,8 +1073,8 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
+ 	/* Force the GPU power on so we can read this register */
+ 	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
+ 
+-	*value = gpu_read64(gpu, REG_A6XX_RBBM_PERFCTR_CP_0_LO,
+-		REG_A6XX_RBBM_PERFCTR_CP_0_HI);
++	*value = gpu_read64(gpu, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
++		REG_A6XX_CP_ALWAYS_ON_COUNTER_HI);
+ 
+ 	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
+ 	mutex_unlock(&perfcounter_oob);
 -- 
 2.30.2
 
