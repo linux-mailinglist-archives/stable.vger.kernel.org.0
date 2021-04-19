@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 592933642AC
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9FC3642B2
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239593AbhDSNKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:10:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44836 "EHLO mail.kernel.org"
+        id S239493AbhDSNLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239475AbhDSNKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:10:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7720061363;
-        Mon, 19 Apr 2021 13:09:54 +0000 (UTC)
+        id S238447AbhDSNK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:10:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E4AA61246;
+        Mon, 19 Apr 2021 13:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837795;
-        bh=T1VWr/2m9l5xuVZvb7EOY9BTzVMWLpLFCQa6PAYODKo=;
+        s=korg; t=1618837797;
+        bh=+aeO+f+Y2ffOCXajMAx0E9n74vMRNP/r8MCf0cTWVPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SjIW3cpHNbs9KcvcjpESDHuwWBZKHG+9MEurfaBXF+zVraU0H51fh3MybYhwS4LBd
-         HxDDCWNI3N/dmzNM7lq62caCj03QJxtftQWXU8MOfZhsggnlnkHj1oXKuwT0p9hUJC
-         w3EFjPnsUjXBDEFb7g3SBKJrB/Ct+rJ4Aji1qBJc=
+        b=vWY9UmBsFJtCH5CAKV+SrQXgFt58kO6/1BmEHxq6heir6QcUpvFlWF3B+b2rBp0kD
+         kqKnAkAXzgXPiCqQGuugLh/miW1wJ7BsX9Bx3TEYQ8cKL4VBhwlp2WSXAXW/IvTkPR
+         oFlWZHeBfa86NgWXEJ9JoQQW8Q5HMHAyukMIIlT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 055/122] net/sctp: fix race condition in sctp_destroy_sock
-Date:   Mon, 19 Apr 2021 15:05:35 +0200
-Message-Id: <20210419130532.056208486@linuxfoundation.org>
+        stable@vger.kernel.org, Caleb Connolly <caleb@connolly.tech>,
+        Andi Shyti <andi@etezian.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.11 056/122] Input: s6sy761 - fix coordinate read bit shift
+Date:   Mon, 19 Apr 2021 15:05:36 +0200
+Message-Id: <20210419130532.092640083@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,80 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Or Cohen <orcohen@paloaltonetworks.com>
+From: Caleb Connolly <caleb@connolly.tech>
 
-commit b166a20b07382b8bc1dcee2a448715c9c2c81b5b upstream.
+commit 30b3f68715595dee7fe4d9bd91a2252c3becdf0a upstream.
 
-If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
-held and sp->do_auto_asconf is true, then an element is removed
-from the auto_asconf_splist without any proper locking.
+The touch coordinate register contains the following:
 
-This can happen in the following functions:
-1. In sctp_accept, if sctp_sock_migrate fails.
-2. In inet_create or inet6_create, if there is a bpf program
-   attached to BPF_CGROUP_INET_SOCK_CREATE which denies
-   creation of the sctp socket.
+        byte 3             byte 2             byte 1
++--------+--------+ +-----------------+ +-----------------+
+|        |        | |                 | |                 |
+| X[3:0] | Y[3:0] | |     Y[11:4]     | |     X[11:4]     |
+|        |        | |                 | |                 |
++--------+--------+ +-----------------+ +-----------------+
 
-The bug is fixed by acquiring addr_wq_lock in sctp_destroy_sock
-instead of sctp_close.
+Bytes 2 and 1 need to be shifted left by 4 bits, the least significant
+nibble of each is stored in byte 3. Currently they are only
+being shifted by 3 causing the reported coordinates to be incorrect.
 
-This addresses CVE-2021-23133.
+This matches downstream examples, and has been confirmed on my
+device (OnePlus 7 Pro).
 
-Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
-Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0145a7141e59 ("Input: add support for the Samsung S6SY761 touchscreen")
+Signed-off-by: Caleb Connolly <caleb@connolly.tech>
+Reviewed-by: Andi Shyti <andi@etezian.org>
+Link: https://lore.kernel.org/r/20210305185710.225168-1-caleb@connolly.tech
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/s6sy761.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1520,11 +1520,9 @@ static void sctp_close(struct sock *sk,
+--- a/drivers/input/touchscreen/s6sy761.c
++++ b/drivers/input/touchscreen/s6sy761.c
+@@ -145,8 +145,8 @@ static void s6sy761_report_coordinates(s
+ 	u8 major = event[4];
+ 	u8 minor = event[5];
+ 	u8 z = event[6] & S6SY761_MASK_Z;
+-	u16 x = (event[1] << 3) | ((event[3] & S6SY761_MASK_X) >> 4);
+-	u16 y = (event[2] << 3) | (event[3] & S6SY761_MASK_Y);
++	u16 x = (event[1] << 4) | ((event[3] & S6SY761_MASK_X) >> 4);
++	u16 y = (event[2] << 4) | (event[3] & S6SY761_MASK_Y);
  
- 	/* Supposedly, no process has access to the socket, but
- 	 * the net layers still may.
--	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
--	 * held and that should be grabbed before socket lock.
- 	 */
--	spin_lock_bh(&net->sctp.addr_wq_lock);
--	bh_lock_sock_nested(sk);
-+	local_bh_disable();
-+	bh_lock_sock(sk);
+ 	input_mt_slot(sdata->input, tid);
  
- 	/* Hold the sock, since sk_common_release() will put sock_put()
- 	 * and we have just a little more cleanup.
-@@ -1533,7 +1531,7 @@ static void sctp_close(struct sock *sk,
- 	sk_common_release(sk);
- 
- 	bh_unlock_sock(sk);
--	spin_unlock_bh(&net->sctp.addr_wq_lock);
-+	local_bh_enable();
- 
- 	sock_put(sk);
- 
-@@ -4993,9 +4991,6 @@ static int sctp_init_sock(struct sock *s
- 	sk_sockets_allocated_inc(sk);
- 	sock_prot_inuse_add(net, sk->sk_prot, 1);
- 
--	/* Nothing can fail after this block, otherwise
--	 * sctp_destroy_sock() will be called without addr_wq_lock held
--	 */
- 	if (net->sctp.default_auto_asconf) {
- 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_add_tail(&sp->auto_asconf_list,
-@@ -5030,7 +5025,9 @@ static void sctp_destroy_sock(struct soc
- 
- 	if (sp->do_auto_asconf) {
- 		sp->do_auto_asconf = 0;
-+		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_del(&sp->auto_asconf_list);
-+		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 	}
- 	sctp_endpoint_free(sp->ep);
- 	local_bh_disable();
 
 
