@@ -2,244 +2,346 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF88364AC5
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 21:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D83364B09
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:15:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241684AbhDSTuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 15:50:04 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:43726 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239346AbhDSTuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 15:50:00 -0400
-Received: from mailhost.synopsys.com (badc-mailhost1.synopsys.com [10.192.0.17])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 6825B40131;
-        Mon, 19 Apr 2021 19:49:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1618861768; bh=Cx3q6RbrOkvBIxwzVWXJ1Q7bm3jjvnd3FqM4PwXiYhI=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=DmzTD07EOPTJi3RqwPOZb8h2jbRnJkjv9zzzx4Ib2SPq2J6r3W2WgtrohrgmdtFia
-         GkgRDhc5/X2+cA34AEBhDB8/Z8EbxVAMgbRSbHYeuVcF8KYaxcqyF4x7mZ72Zsak6B
-         sc8/4HzP7A/mXTPSDV2AL+sn2lzW44/1CuQh1DvSG93lZ8e7Yl4i7AN5IY+9icay/q
-         +tHMBmKWLKbapkOYO1bWCGkNJS5awLoSxXL+uwtXnAPvEEHdOpjTHUSR1Ut5VX/Nd9
-         mBjt/dBZUP0J14Tfufq7Epo+9zHnnB3QI82vGmuAigcWrp5mC5CpnG9jZsyqtLIuqJ
-         e8W28RuJnOtEw==
-Received: from o365relay-in.synopsys.com (sv2-o365relay3.synopsys.com [10.202.1.139])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 4074DA0071;
-        Mon, 19 Apr 2021 19:49:26 +0000 (UTC)
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11lp2171.outbound.protection.outlook.com [104.47.56.171])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client CN "mail.protection.outlook.com", Issuer "DigiCert Cloud Services CA-1" (verified OK))
-        by o365relay-in.synopsys.com (Postfix) with ESMTPS id 996EC4013F;
-        Mon, 19 Apr 2021 19:49:25 +0000 (UTC)
-Authentication-Results: o365relay-in.synopsys.com; dmarc=pass (p=reject dis=none) header.from=synopsys.com
-Authentication-Results: o365relay-in.synopsys.com; spf=pass smtp.mailfrom=thinhn@synopsys.com
-Authentication-Results: o365relay-in.synopsys.com;
-        dkim=pass (1024-bit key; unprotected) header.d=synopsys.com header.i=@synopsys.com header.b="sl4dbNQg";
-        dkim-atps=neutral
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NKZGDjJ0b0WhbIUqj1zRdkZIE2nsZ3nXs8zcJdq6iQqVJyRwLsvHDn/SFvxarSkeoUZJ+2f3kWnKdX9OyQnMnWL+Szdunt46f/o1q3Bk9QjJvfNNBQcTL1ge5EQDOIP7qdiRNzbDQPsa7CTRFD+2bms8DOSLpAFShDWsLrx/nRcNgQH9X3ojJQPt6WKxfwAIRaM2Vv18XHFaEwYS1+qnqyYN32U4hy73JfOtqLk18wCVU1/N6WkjF0ZGCC7Thgwe7ymPLHHCqwi5VCFl3lW3yAfMoPU6qw0thQv/6v0knUUN+2frAC9TK06oDHMUI+aMDSAK8BFF05wSpx84t+7OQg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Cx3q6RbrOkvBIxwzVWXJ1Q7bm3jjvnd3FqM4PwXiYhI=;
- b=OIe3yjPj3ghtvByEJzfYttSOJCEznPok3uZPS1BXVlP4Kl55KtwXV5Rk8ANCGvcNOpOR8qFohB9CnO27m4Oh/hnCeFqGw07oqhvJjz/5th+xzBsEuT0n2wlD71bo+Z0Ad0x80ah4UIXGsGLariAD2DUmjSMWKHFFhqWy8MKjHg1IEoNJlNxh81leQdwwmfqbkzUbUFMhpNkrU/VtCpVy/bMv6T456j5EMG82BfW7oRT+l145ivWKgkQGxW+f/lz7rT6/X6EzZuV8x7CvbnpZNwPduJJ1NIUYS5Yn4j4V2L+PjF2E6ZmovhKPv469kjJBo7Tum3B0a1HTrjae0W3wQw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
- dkim=pass header.d=synopsys.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Cx3q6RbrOkvBIxwzVWXJ1Q7bm3jjvnd3FqM4PwXiYhI=;
- b=sl4dbNQgE+BqxQC2bk2xJPfbVRM11ZtAKYvX12C5ZxRVzd20qIj+yF/agbdva2NgLckYJ/nTXdjzPFSexJg2/f3S4T86nPrkw6Eu2zZU+7ozwGHP+IAF06knhyQdImpbngebZgxOHlJWWPw8QHQbFImlOQorXTxp9XZRrBfUc44=
-Received: from BYAPR12MB4791.namprd12.prod.outlook.com (2603:10b6:a03:10a::12)
- by BY5PR12MB4050.namprd12.prod.outlook.com (2603:10b6:a03:207::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4042.16; Mon, 19 Apr
- 2021 19:49:23 +0000
-Received: from BYAPR12MB4791.namprd12.prod.outlook.com
- ([fe80::7c97:6a33:14c4:dd8c]) by BYAPR12MB4791.namprd12.prod.outlook.com
- ([fe80::7c97:6a33:14c4:dd8c%6]) with mapi id 15.20.4042.024; Mon, 19 Apr 2021
- 19:49:23 +0000
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-To:     Felipe Balbi <balbi@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        John Youn <John.Youn@synopsys.com>,
-        stable <stable@vger.kernel.org>,
+        id S232344AbhDSUQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:16:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38326 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230213AbhDSUQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 16:16:09 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7F45C06174A;
+        Mon, 19 Apr 2021 13:15:37 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id n2so54857748ejy.7;
+        Mon, 19 Apr 2021 13:15:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=WqB829/0qV363BBqrKfPvSS3HBrKDo+ax3K9iEsahyc=;
+        b=sa6YopQZZbGyGtJ+gD2UEHyRQoVUzdq1A8vbVPZtzdrpiazUqPiuZNDC/3tjOhE4gA
+         jKwveMOG2erHOxaJ2lw6MU/2/jWQ5QP/VyA5ceJrssiTxR/3tSh+3OkmDsfRStOUFaIq
+         Jf0Ym2Wc0102VC3FcNS74YNfpU289+yNoKxmvFJhXF0Ag/9Qbzdzg6PQHx5lSb+Qr2IO
+         1PJnEZxYXDYSrdZald7N0ZbSQlxc+tA+6LY5GSrM540sCrSgIfrRgsx2RnMxD2XnupMW
+         7NHKaF0KAAST2QKCGas0ooFBwKTXc4W3vyAMq5WeTuqIxjRTbTsEy1LfIPhlkMGV5/y5
+         yIxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=WqB829/0qV363BBqrKfPvSS3HBrKDo+ax3K9iEsahyc=;
+        b=Iv0B+7EfyaGckFrVTafxA0GuZxs5km6eToF9Ijc0pFz2rv8lt9C9Jz1EafoiU9/Fa/
+         GrwJsRVea73CDL9as8MtbaZxXhz2c7PA3GcvsUXjEJgls/ZCRD6UW//i6HxHSVq0euS0
+         sn9agACrLzvlYWY+38s0OFBS3EpMqcqWnSWPsbNewUP1CKfaSZGyu4Y9+AJsvl/b+who
+         qyItwGlD4+ewiVEqeVUIWcqnG4P58l6STDdi77uCg+qdDR3BJf8B1COGx5iuDX1L+JUC
+         YxFrPzD7QedebYXolZxFsMwWDghnS0kTXUwZ1Ow9Z10PyHNU5yiwOYG/BUeRiXvdrD0f
+         Jpxg==
+X-Gm-Message-State: AOAM531yENREWvfCrCqqh+Y4oE2yF49jOvpTnCafgtEFUiIvW/maVWIp
+        DgsMDZeN90MDw9hDGYKwCSagj+OddBSwyw==
+X-Google-Smtp-Source: ABdhPJzMTPW5TEHrRsXLpNH1wqfx7/KznBu3w9sFRsgtVpl9YoUTdvghkyQtC88aXPitz6aiT/EbQQ==
+X-Received: by 2002:a17:906:7206:: with SMTP id m6mr24003266ejk.281.1618863336429;
+        Mon, 19 Apr 2021 13:15:36 -0700 (PDT)
+Received: from ?IPv6:2001:981:6fec:1:c5ff:9fd6:3e2f:f252? ([2001:981:6fec:1:c5ff:9fd6:3e2f:f252])
+        by smtp.gmail.com with ESMTPSA id r19sm10800734ejr.55.2021.04.19.13.15.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Apr 2021 13:15:35 -0700 (PDT)
+Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        John Stultz <john.stultz@linaro.org>
+Cc:     John Youn <John.Youn@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Wesley Cheng <wcheng@codeaurora.org>,
-        Ferry Toth <fntoth@gmail.com>, Yu Chen <chenyu56@huawei.com>
-Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-Thread-Topic: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-Thread-Index: AQHXMkWV7LsE5m94VkyJIYRuvRhHs6q29zcAgACUfoCAAALsAIAAFgQAgACbnICABAVlAA==
-Date:   Mon, 19 Apr 2021 19:49:23 +0000
-Message-ID: <f3b7cb62-9365-f276-c862-2b42466c265e@synopsys.com>
+        Yu Chen <chenyu56@huawei.com>, Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
 References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
  <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
- <87zgxymrph.fsf@kernel.org>
- <CALAqxLUQn+m_JsjVrMSDc+Z=Ezo3jDD1e22ey7SZsruoEfQLjg@mail.gmail.com>
- <2a990344-8d57-2ab5-b5c5-3e6b43698f93@synopsys.com>
- <CALAqxLUgKsJS5Hy=N1KDNP7+v1Y0TxW19m9iD0S4ySq-5qhgjQ@mail.gmail.com>
- <87k0p1mnr4.fsf@kernel.org>
-In-Reply-To: <87k0p1mnr4.fsf@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
-authentication-results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=synopsys.com;
-x-originating-ip: [98.248.94.126]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 9e061f60-0372-4646-a671-08d9036c3b0f
-x-ms-traffictypediagnostic: BY5PR12MB4050:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BY5PR12MB405000C5F6E2F23CEA243C09AA499@BY5PR12MB4050.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: mBY0XBdgQhKlIdyiYsgUa0AywwFbWMrIZa3tBHhtJ6icGSPSvkalW1WN48hbMhMiw901COtEFtog4BXFsESaJvJnwR8NtMkoHsP1sJdjg/JGFWj0SVF/+Oh+S5SK5yh8RhrESNI7iOeKGTojA74TK4Z4f53OC/gZRnUM6zVv/JvCJX5uBMqfeBY5Q6Y4cSz6Psek1SQSV4Ch4XQomMUdCzrydTwRW7VPge5Tfi3SqzyhN70VtMr2qJggXUGQXBl6sqlA4QEqW1sfWwk3DfMwCM1SgNGcl9gTb80Qm2jKRHt1DfElZQ3tq6Q4aIEbYJOFfWkzbmmQff/XGfqYxFnDNa1cKI5eV8E30GGCR60/NKur7JZA5G5WST8mgrPk7YUAPy1Z2HEaaUiPy2PaH2GHfvNimQ6tMoN3t+pUIoM9+0nBd34B9tBBscpr51a4MEgWFgXxiwasllfopj9GxxJOKkpz/jo1y/dsf//lXOT7k+su3o9DhJQRbyWF4PTxv9y7f5iXQcxdI6VuAOgEAeIgZTRLLxTg5W9Yw8JK6OCT8Ix5PDOHvqqVOWpBOIhWoeqMapwCr+Zi86EplI1wgwRGtXZb1N8zzEx4Od53kQv2fexMjx4rVy89jykRIOORhXAO7RlwU0i5B8zHbzjrxK4hXZ5eF9Dnsvz+84ekZioQGxDpv4T3Gt4iPVkwImenEWCdsvmQImg8kbW5eqAidvjimG5xJqfceWAIOq3UGvnRyk0S6wdmfehjtnASWaMOPzGqO5MaasENKFroIX3cc/L3mQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB4791.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(396003)(39860400002)(346002)(136003)(376002)(5660300002)(6512007)(6486002)(36756003)(2616005)(31686004)(66446008)(6506007)(53546011)(86362001)(83380400001)(4326008)(54906003)(64756008)(8676002)(66556008)(478600001)(122000001)(66476007)(71200400001)(966005)(76116006)(38100700002)(26005)(66946007)(2906002)(186003)(110136005)(8936002)(316002)(31696002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: =?utf-8?B?Vjc1eis2YzVralJtQk1QUm9MNkdVeGNNZVMwekxTZ3ArUmRXbStnblJjZHNB?=
- =?utf-8?B?MWF1ZzZSV3BmRzUyUURTWUtXOVQrTmwrRVR4THNuakNRNkhWQ3F2amtqTHhT?=
- =?utf-8?B?bXl6T3dEY3BUTnFzWW5KOWo1MXNYL3NHa1hvWTg3UUJzcUZGQ1RYS09zTW4x?=
- =?utf-8?B?Ri9EZ0hYamhFMHY4TjZmNG1Ib1Rud04zOTNBZmM4amtMWklFZkpHSm5LUUVY?=
- =?utf-8?B?YVd2QjNMcFhJclE3cXBXWVR5bHRPN2RmWkgvVnFna3lVdmNuWFZFZnV0UFQ2?=
- =?utf-8?B?V1VYQTNJOFJNYnNMUXVNZDJlWlVNZHNud0F5dDAzaklidytjZ200Q2I0UlNO?=
- =?utf-8?B?TVVFRUVZVC9xa3dVLzkzTkVSMTJkVGtZekQzZjVCZHExbkpDZU5YbjkvVk9C?=
- =?utf-8?B?RHArVmhYQUhqRVB1VG1IMG5EOHJnbTEwQkdPTXl6UittcERsTkRycHZ1WWlp?=
- =?utf-8?B?TityMks4UHNTNU9zQUxMc1hFbmlCRmJBN2JTSTg4UlQwc2hWVjEyWkZ0dk52?=
- =?utf-8?B?aytUMWNJSXVUVlBMTVVJRWU1QmplaEpIUERTRkMxaGx1ZmJja0VicERkQU9X?=
- =?utf-8?B?cFFUY0IzdFI4cDZPNHZvMGlaUUhydWgyS3ltUmdaWTJ0azdLVDJ0VHcveVdw?=
- =?utf-8?B?bmYxT0FsaGErTk1OaEFrdlJ5dkI4WGpDNG9CM09PZ1pjNlFYRVB1VmJLQzFn?=
- =?utf-8?B?MlpvRThwT2t4R0llS3VyRThvVm1MdFRxY0x6dE5GbFFSNWRveXpiVW5Cbkdh?=
- =?utf-8?B?bnZ1VmtPL2NXRW8xMWhGclE0ZGFEOUt2V084VEF4cGxPdVRFbldCWmZtUW5F?=
- =?utf-8?B?aXgrcjBkZkhoUmQ5NU9pTGhiajAvWTV0VS9YVDJ4SVgwd1JXWUIyRlNTRjRQ?=
- =?utf-8?B?UU5QeTM2N3NvcjBRY0ZxYitQTkhiYzdtVWZBU2dQT0xxenVyMlhNejYrQjFB?=
- =?utf-8?B?ZG91SEJaRG90MmliVGFYQlFIaWxLL0F2Rmo0bGZpQkdzS3ZrWUU4TVowUUF0?=
- =?utf-8?B?UW5wbVdCMHd6VVpJcEsvejhOV0JIUHlwWEM4QnhrTWFLbnhDdUpxeXdEaHBU?=
- =?utf-8?B?b3IzNmZXOEVETWRCUGhqNUZ4OGFOVVJBNHEwNE04Qmgxd1lNcWFSTGlKY3N2?=
- =?utf-8?B?QlJmcUtmM0ozeUxBNGtiNXg1bzNRd29WQjJQamVQVHFTOUJ5TW50VnNQWGV4?=
- =?utf-8?B?NStSMGlZQUVyRWs2ZTBiSFRlU25OQXN1QldmOU5kWVpvb0VrMzNPQTJZWU1V?=
- =?utf-8?B?T3gwc1FMSEREOTVnaStrRWRpdW9RSUhZMStaS2ZJOUU4ZGZjQXRCdGJDQyti?=
- =?utf-8?B?RlVrQkhoRXlvM2hIY04wOVEvVExvQ2dvVHZTblk0bDhVUTZzRERIcWFUUG5x?=
- =?utf-8?B?TzRmQXhCUnNPVCtPK3F1Vk80UklIcDZrQTlmTC9BWVFsYnpjMTRZQXQxOWUw?=
- =?utf-8?B?aGhYcnE1T2J3YU1LM1UzcWZ4cURvcjdKd1NNYXZva3M0c0VpczkyellaVGNB?=
- =?utf-8?B?SEJQazdRdnJ1Sk9iYXQ3UzRMWkF1QTVHZ1NUTll2Z0I0M1FaWVhxdVRQZHpw?=
- =?utf-8?B?WTloaWNvMHJ0UG40VVFtbnJoRFVBY1pQRnVqaFFoYW1BN2JEQWNybk1LM0xp?=
- =?utf-8?B?TFpYTnBBQ0t0cXlaZW5LbUowb2pHZXBXTUwvUmhsbVlnL1VRbUNtRmY0RzVV?=
- =?utf-8?B?QVRBU3psWElzTWNKYmtBVGFGVlNKZVJUSVZzTVo1cCtGYTJ3UDNETVZEejh5?=
- =?utf-8?Q?mz/kWTJbDnLo7XeTheN0q4LFbekaQo3muXiuD/H?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <C660CFA0C584A54CA59049E73FBE9ADD@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <d053b843-2308-6b42-e7ff-3dc6e33e5c7d@synopsys.com>
+ <0882cfae-4708-a67a-f112-c1eb0c7e6f51@gmail.com>
+ <1c1d8e4a-c495-4d51-b125-c3909a3bdb44@synopsys.com>
+ <db5849f7-ba31-8b18-ebb5-f27c4e36de28@gmail.com>
+ <09755742-c73b-f737-01c1-8ecd309de551@gmail.com>
+ <4a1245e3-023c-ec69-2ead-dacf5560ff9f@synopsys.com>
+From:   Ferry Toth <fntoth@gmail.com>
+Message-ID: <109affec-2e0c-0882-4514-8cab72eec85b@gmail.com>
+Date:   Mon, 19 Apr 2021 22:15:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-X-OriginatorOrg: synopsys.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB4791.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9e061f60-0372-4646-a671-08d9036c3b0f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Apr 2021 19:49:23.0309
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Ky1Fg85K2je1D7jsvct+BZjPCeYw6Iwgo6IXNk2Rt5j3GVqP6UTqgJ9rVLJZ5gn8z7Wcu1MGAkVPa/DFH3VwuA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4050
+In-Reply-To: <4a1245e3-023c-ec69-2ead-dacf5560ff9f@synopsys.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RmVsaXBlIEJhbGJpIHdyb3RlOg0KPiANCj4gSGksDQo+IA0KPiBKb2huIFN0dWx0eiA8am9obi5z
-dHVsdHpAbGluYXJvLm9yZz4gd3JpdGVzOg0KPj4gT24gRnJpLCBBcHIgMTYsIDIwMjEgYXQgMTI6
-NDkgUE0gVGhpbmggTmd1eWVuIDxUaGluaC5OZ3V5ZW5Ac3lub3BzeXMuY29tPiB3cm90ZToNCj4+
-Pg0KPj4+IEpvaG4gU3R1bHR6IHdyb3RlOg0KPj4+PiBPbiBGcmksIEFwciAxNiwgMjAyMSBhdCAz
-OjQ3IEFNIEZlbGlwZSBCYWxiaSA8YmFsYmlAa2VybmVsLm9yZz4gd3JvdGU6DQo+Pj4+Pg0KPj4+
-Pj4NCj4+Pj4+IEhpLA0KPj4+Pj4NCj4+Pj4+IFRoaW5oIE5ndXllbiA8VGhpbmguTmd1eWVuQHN5
-bm9wc3lzLmNvbT4gd3JpdGVzOg0KPj4+Pj4NCj4+Pj4+PiBGcm9tOiBZdSBDaGVuIDxjaGVueXU1
-NkBodWF3ZWkuY29tPg0KPj4+Pj4+IEZyb206IEpvaG4gU3R1bHR6IDxqb2huLnN0dWx0ekBsaW5h
-cm8ub3JnPg0KPj4+Pj4+DQo+Pj4+Pj4gQWNjb3JkaW5nIHRvIHRoZSBwcm9ncmFtbWluZyBndWlk
-ZSwgdG8gc3dpdGNoIG1vZGUgZm9yIERSRCBjb250cm9sbGVyLA0KPj4+Pj4+IHRoZSBkcml2ZXIg
-bmVlZHMgdG8gZG8gdGhlIGZvbGxvd2luZy4NCj4+Pj4+Pg0KPj4+Pj4+IFRvIHN3aXRjaCBmcm9t
-IGRldmljZSB0byBob3N0Og0KPj4+Pj4+IDEuIFJlc2V0IGNvbnRyb2xsZXIgd2l0aCBHQ1RMLkNv
-cmVTb2Z0UmVzZXQNCj4+Pj4+PiAyLiBTZXQgR0NUTC5QcnRDYXBEaXIoaG9zdCBtb2RlKQ0KPj4+
-Pj4+IDMuIFJlc2V0IHRoZSBob3N0IHdpdGggVVNCQ01ELkhDUkVTRVQNCj4+Pj4+PiA0LiBUaGVu
-IGZvbGxvdyB1cCB3aXRoIHRoZSBpbml0aWFsaXppbmcgaG9zdCByZWdpc3RlcnMgc2VxdWVuY2UN
-Cj4+Pj4+Pg0KPj4+Pj4+IFRvIHN3aXRjaCBmcm9tIGhvc3QgdG8gZGV2aWNlOg0KPj4+Pj4+IDEu
-IFJlc2V0IGNvbnRyb2xsZXIgd2l0aCBHQ1RMLkNvcmVTb2Z0UmVzZXQNCj4+Pj4+PiAyLiBTZXQg
-R0NUTC5QcnRDYXBEaXIoZGV2aWNlIG1vZGUpDQo+Pj4+Pj4gMy4gUmVzZXQgdGhlIGRldmljZSB3
-aXRoIERDVEwuQ1NmdFJzdA0KPj4+Pj4+IDQuIFRoZW4gZm9sbG93IHVwIHdpdGggdGhlIGluaXRp
-YWxpemluZyByZWdpc3RlcnMgc2VxdWVuY2UNCj4+Pj4+Pg0KPj4+Pj4+IEN1cnJlbnRseSB3ZSdy
-ZSBtaXNzaW5nIHN0ZXAgMSkgdG8gZG8gR0NUTC5Db3JlU29mdFJlc2V0IGFuZCBzdGVwIDMpIG9m
-DQo+Pj4+Pj4gc3dpdGNoaW5nIGZyb20gaG9zdCB0byBkZXZpY2UuIEpvaG4gU3R1bHQgcmVwb3J0
-ZWQgYSBsb2NrdXAgaXNzdWUgc2Vlbg0KPj4+Pj4+IHdpdGggSGlLZXk5NjAgcGxhdGZvcm0gd2l0
-aG91dCB0aGVzZSBzdGVwc1sxXS4gU2ltaWxhciBpc3N1ZSBpcyBvYnNlcnZlZA0KPj4+Pj4+IHdp
-dGggRmVycnkncyB0ZXN0aW5nIHBsYXRmb3JtWzJdLg0KPj4+Pj4+DQo+Pj4+Pj4gU28sIGFwcGx5
-IHRoZSByZXF1aXJlZCBzdGVwcyBhbG9uZyB3aXRoIHNvbWUgZml4ZXMgdG8gWXUgQ2hlbidzIGFu
-ZCBKb2huDQo+Pj4+Pj4gU3R1bHR6J3MgdmVyc2lvbi4gVGhlIG1haW4gZml4ZXMgdG8gdGhlaXIg
-dmVyc2lvbnMgYXJlIHRoZSBtaXNzaW5nIHdhaXQNCj4+Pj4+PiBmb3IgY2xvY2tzIHN5bmNocm9u
-aXphdGlvbiBiZWZvcmUgY2xlYXJpbmcgR0NUTC5Db3JlU29mdFJlc2V0IGFuZCBvbmx5DQo+Pj4+
-Pj4gYXBwbHkgRENUTC5DU2Z0UnN0IHdoZW4gc3dpdGNoaW5nIGZyb20gaG9zdCB0byBkZXZpY2Uu
-DQo+Pj4+Pj4NCj4+Pj4+PiBbMV0gaHR0cHM6Ly91cmxkZWZlbnNlLmNvbS92My9fX2h0dHBzOi8v
-bG9yZS5rZXJuZWwub3JnL2xpbnV4LXVzYi8yMDIxMDEwODAxNTExNS4yNzkyMC0xLWpvaG4uc3R1
-bHR6QGxpbmFyby5vcmcvX187ISFBNEYyUjlHX3BnIUw0VExiMjVOa3EwREYycXJDUFdXMTNQVXE0
-aWRoRG41UVNaaGd2blZBeTd3SmlZRk9TU291U3B0d285bk96SWRQRDRqJA0KPj4+Pj4+IFsyXSBo
-dHRwczovL3VybGRlZmVuc2UuY29tL3YzL19faHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGludXgt
-dXNiLzBiYTdhNmJhLWU2YTctOWNkNC0wNjk1LTY0ZmM5MjdlMDFmMUBnbWFpbC5jb20vX187ISFB
-NEYyUjlHX3BnIUw0VExiMjVOa3EwREYycXJDUFdXMTNQVXE0aWRoRG41UVNaaGd2blZBeTd3SmlZ
-Rk9TU291U3B0d285bk8yMVZUOHE3JA0KPj4+Pj4+DQo+Pj4+Pj4gQ2M6IEFuZHkgU2hldmNoZW5r
-byA8YW5keS5zaGV2Y2hlbmtvQGdtYWlsLmNvbT4NCj4+Pj4+PiBDYzogRmVycnkgVG90aCA8Zm50
-b3RoQGdtYWlsLmNvbT4NCj4+Pj4+PiBDYzogV2VzbGV5IENoZW5nIDx3Y2hlbmdAY29kZWF1cm9y
-YS5vcmc+DQo+Pj4+Pj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPj4+Pj4+IEZpeGVz
-OiA0MWNlMTQ1NmUxZGIgKCJ1c2I6IGR3YzM6IGNvcmU6IG1ha2UgZHdjM19zZXRfbW9kZSgpIHdv
-cmsgcHJvcGVybHkiKQ0KPj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFl1IENoZW4gPGNoZW55dTU2QGh1
-YXdlaS5jb20+DQo+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogSm9obiBTdHVsdHogPGpvaG4uc3R1bHR6
-QGxpbmFyby5vcmc+DQo+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogVGhpbmggTmd1eWVuIDxUaGluaC5O
-Z3V5ZW5Ac3lub3BzeXMuY29tPg0KPj4+Pj4NCj4+Pj4+IEkgc3RpbGwgaGF2ZSBjb25jZXJucyBh
-Ym91dCB0aGUgc29mdCByZXNldCwgYnV0IEkgd29uJ3QgYmxvY2sgeW91IGd1eXMNCj4+Pj4+IGZy
-b20gZml4aW5nIEhpa2V5J3MgcHJvYmxlbSA6LSkNCj4+Pj4+DQo+Pj4+PiBUaGUgb25seSB0aGlu
-ZyBJIHdvdWxkIGxpa2UgdG8gY29uZmlybSBpcyB0aGF0IHRoaXMgaGFzIGJlZW4gdmVyaWZpZWQN
-Cj4+Pj4+IHdpdGggaHVuZHJlZHMgb2Ygc3dhcHMgaGFwcGVuaW5nIGFzIHF1aWNrbHkgYXMgcG9z
-c2libGUuIERXQzMgc2hvdWxkDQo+Pj4+PiBzdGlsbCBiZSBmdW5jdGlvbmFsIGFmdGVyIHNldmVy
-YWwgaHVuZHJlZCBzd2Fwcy4NCj4+Pj4+DQo+Pj4+PiBDYW4gc29tZW9uZSBjb25maXJtIHRoaXMg
-aXMgdGhlIGNhc2U/IChJJ20gYXNzdW1pbmcgdGhpcyBjYW4gYmUNCj4+Pj4+IHNjcmlwdGVkKQ0K
-Pj4+Pg0KPj4+PiBJIHVuZm9ydHVuYXRlbHkgZG9uJ3QgaGF2ZSBhbiBlYXN5IHdheSB0byBhdXRv
-bWF0ZSB0aGUgc3dpdGNoaW5nIHJpZ2h0DQo+Pj4+IG9mZi4gQnV0IEknbGwgdHJ5IHRvIGhhY2sg
-dXAgdGhlIG11eCBzd2l0Y2ggZHJpdmVyIHRvIHByb3ZpZGUgYW4NCj4+Pj4gaW50ZXJmYWNlIHdl
-IGNhbiBzY3JpcHQgYWdhaW5zdC4NCj4+Pj4NCj4+Pg0KPj4+IEZZSSwgeW91IGNhbiBkbyB0aGUg
-Zm9sbG93aW5nOg0KPj4+DQo+Pj4gMSkgRW5hYmxlICJ1c2Itcm9sZS1zd2l0Y2giIERUIHByb3Bl
-cnR5IGlmIG5vdCBhbHJlYWR5IGRvbmUgc28NCj4+PiAyKSBBZGQgdXNlcnNwYWNlIGNvbnRyb2w6
-DQo+Pj4NCj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy91c2IvZHdjMy9kcmQuYyBiL2RyaXZlcnMv
-dXNiL2R3YzMvZHJkLmMNCj4+PiBpbmRleCBlMmI2OGJiNzcwZDEuLmIyMDNlM2Q4NzI5MSAxMDA2
-NDQNCj4+PiAtLS0gYS9kcml2ZXJzL3VzYi9kd2MzL2RyZC5jDQo+Pj4gKysrIGIvZHJpdmVycy91
-c2IvZHdjMy9kcmQuYw0KPj4+IEBAIC01NTUsNiArNTU1LDcgQEAgc3RhdGljIGludCBkd2MzX3Nl
-dHVwX3JvbGVfc3dpdGNoKHN0cnVjdCBkd2MzICpkd2MpDQo+Pj4gICAgICAgICAgICAgICAgIG1v
-ZGUgPSBEV0MzX0dDVExfUFJUQ0FQX0RFVklDRTsNCj4+PiAgICAgICAgIH0NCj4+Pg0KPj4+ICsg
-ICAgICAgZHdjM19yb2xlX3N3aXRjaC5hbGxvd191c2Vyc3BhY2VfY29udHJvbCA9IHRydWU7DQo+
-Pj4gICAgICAgICBkd2MzX3JvbGVfc3dpdGNoLmZ3bm9kZSA9IGRldl9md25vZGUoZHdjLT5kZXYp
-Ow0KPj4+ICAgICAgICAgZHdjM19yb2xlX3N3aXRjaC5zZXQgPSBkd2MzX3VzYl9yb2xlX3N3aXRj
-aF9zZXQ7DQo+Pj4gICAgICAgICBkd2MzX3JvbGVfc3dpdGNoLmdldCA9IGR3YzNfdXNiX3JvbGVf
-c3dpdGNoX2dldDsNCj4+Pg0KPj4+IDMpIFdyaXRlIGEgc2NyaXB0IHRvIGRvIHRoZSBmb2xsb3dp
-bmc6DQo+Pj4NCj4+PiAjIGVjaG8gaG9zdCA+IC9zeXMvY2xhc3MvdXNiX3JvbGUvPFVEQz4vcm9s
-ZQ0KPj4+DQo+Pj4gYW5kDQo+Pj4NCj4+PiAjIGVjaG8gZGV2aWNlID4gL3N5cy9jbGFzcy91c2Jf
-cm9sZS88VURDPi9yb2xlDQo+Pg0KPj4gVGhhbmtzIHNvIG11Y2ggZm9yIHRoaXMuIFNvIEkgcmFu
-IGJvdGggb2YgdGhvc2UgY29tbWFuZHMgaW4gYSB3aGlsZQ0KPj4gbG9vcCBmb3IgYXdoaWxlIGFu
-ZCBkaWRuJ3Qgc2VlIGFueSB0cm91YmxlLg0KPj4NCj4+IEhpS2V5OTYwIGlzIGludGVyZXN0aW5n
-IGFzIHdlbGwgYmVjYXVzZSB3ZSBoYXZlIGEgbXV4IHN3aXRjaCwgd2hpY2ggaXMNCj4+IHNvcnQg
-b2YgYW4gaW50ZXJtZWRpYXJ5IHJvbGwgc3dpdGNoZXIgKGl0IGdldHMgdGhlIHJvbGUgc3dpdGNo
-IHNpZ25hbA0KPj4gZnJvbSB0aGUgdGNwY2lfcnQxNzExaCwgdHdlYWtzIHNvbWUgZ3Bpb3MgYW5k
-IHRoZW4gc2lnbmFscyB0aGUgZHdjMykuDQo+PiBTbyBJIGFsc28gZGlkIHRoZSBhYm92ZSB0d2Vh
-a3MgdG8gdGhlIG11eC1zd2l0Y2ggYW5kIGhhZCBpdCBzd2l0Y2hpbmcNCj4+IGJldHdlZW4gZGV2
-aWNlL25vbmUgYW5kIHZhbGlkYXRlZCB0aGUgb25ib2FyZCBodWIgY2FtZSB1cCBhbmQgZG93bg0K
-Pj4gYWxvbmcgd2l0aCB0aGUgZHdjMyBjb3JlLg0KPj4NCj4+IEV2ZXJ5dGhpbmcgc3RpbGwgbG9v
-a3MgZ29vZCBoZXJlLg0KPiANCj4gU291bmRzIGdvb2QsIGhhcHB5IHRvIHNlZSBzbyBtYW55IHBs
-YXRmb3JtcyBzdXBwb3J0ZWQgYnkgVGhpbmgncw0KPiBjaGFuZ2UuIFRoYW5rcyBmb3IgZG9pbmcg
-dGhpcyB3b3JrLCBUaGluaCA6LSkNCj4gDQoNClRoYW5rcyBmb3IgdGhlIHJldmlldyBGZWxpcGUg
-OikNCg0KVGhpbmgNCg==
+Hi
+
+Op 19-04-2021 om 01:03 schreef Thinh Nguyen:
+> Ferry Toth wrote:
+>> Hi
+>>
+>> Op 17-04-2021 om 16:22 schreef Ferry Toth:
+>>> Hi
+>>>
+>>> Op 17-04-2021 om 04:27 schreef Thinh Nguyen:
+>>>> Ferry Toth wrote:
+>>>>> Hi
+>>>>>
+>>>>> Op 16-04-2021 om 00:23 schreef Thinh Nguyen:
+>>>>>> Thinh Nguyen wrote:
+>>>>>>> From: Yu Chen <chenyu56@huawei.com>
+>>>>>>> From: John Stultz <john.stultz@linaro.org>
+>>>>>>>
+>>>>>>> According to the programming guide, to switch mode for DRD
+>>>>>>> controller,
+>>>>>>> the driver needs to do the following.
+>>>>>>>
+>>>>>>> To switch from device to host:
+>>>>>>> 1. Reset controller with GCTL.CoreSoftReset
+>>>>>>> 2. Set GCTL.PrtCapDir(host mode)
+>>>>>>> 3. Reset the host with USBCMD.HCRESET
+>>>>>>> 4. Then follow up with the initializing host registers sequence
+>>>>>>>
+>>>>>>> To switch from host to device:
+>>>>>>> 1. Reset controller with GCTL.CoreSoftReset
+>>>>>>> 2. Set GCTL.PrtCapDir(device mode)
+>>>>>>> 3. Reset the device with DCTL.CSftRst
+>>>>>>> 4. Then follow up with the initializing registers sequence
+>>>>>>>
+>>>>>>> Currently we're missing step 1) to do GCTL.CoreSoftReset and step
+>>>>>>> 3) of
+>>>>>>> switching from host to device. John Stult reported a lockup issue
+>>>>>>> seen
+>>>>>>> with HiKey960 platform without these steps[1]. Similar issue is
+>>>>>>> observed
+>>>>>>> with Ferry's testing platform[2].
+>>>>>>>
+>>>>>>> So, apply the required steps along with some fixes to Yu Chen's
+>>>>>>> and John
+>>>>>>> Stultz's version. The main fixes to their versions are the missing
+>>>>>>> wait
+>>>>>>> for clocks synchronization before clearing GCTL.CoreSoftReset and
+>>>>>>> only
+>>>>>>> apply DCTL.CSftRst when switching from host to device.
+>>>>>>>
+>>>>>>> [1]
+>>>>>>> https://urldefense.com/v3/__https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/__;!!A4F2R9G_pg!PW9Jbs4wv4a_zKGgZHN0FYrIpfecPX0Ouq9V3d16Yz-9-GSHqZWsfBAF-WkeqLhzN4i3$
+>>>>>>>
+>>>>>>>
+>>>>>>> [2]
+>>>>>>> https://urldefense.com/v3/__https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/__;!!A4F2R9G_pg!PW9Jbs4wv4a_zKGgZHN0FYrIpfecPX0Ouq9V3d16Yz-9-GSHqZWsfBAF-WkeqGeZStt4$
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+>>>>>>> Cc: Ferry Toth <fntoth@gmail.com>
+>>>>>>> Cc: Wesley Cheng <wcheng@codeaurora.org>
+>>>>>>> Cc: <stable@vger.kernel.org>
+>>>>>>> Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work
+>>>>>>> properly")
+>>>>>>> Signed-off-by: Yu Chen <chenyu56@huawei.com>
+>>>>>>> Signed-off-by: John Stultz <john.stultz@linaro.org>
+>>>>>>> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+>>>>>>> ---
+>>>>>>> Changes in v3:
+>>>>>>> - Check if the desired mode is OTG, then keep the old flow
+>>>>>>> - Remove condition for OTG support only since the device can still be
+>>>>>>>      configured DRD host/device mode only
+>>>>>>> - Remove redundant hw_mode check since __dwc3_set_mode() only applies
+>>>>>>> when
+>>>>>>>      hw_mode is DRD
+>>>>>>> Changes in v2:
+>>>>>>> - Initialize mutex per device and not as global mutex.
+>>>>>>> - Add additional checks for DRD only mode
+>>>>>>>
+>>>>>>>     drivers/usb/dwc3/core.c | 27 +++++++++++++++++++++++++++
+>>>>>>>     drivers/usb/dwc3/core.h |  5 +++++
+>>>>>>>     2 files changed, 32 insertions(+)
+>>>>>>>
+>>>>>> Hi John,
+>>>>>>
+>>>>>> If possible, can you run a test with this version on your platform?
+>>>>>>
+>>>>>> Thanks,
+>>>>>> Thinh
+>>>>>>
+>>>>> I tested this on edison-arduino with this patch on top of usb-next
+>>>>> (5.12-rc7 + "increase BESL baseline to 6" to prevent throttling").
+>>>>>
+>>>>> On this platform there is a physical switch to switch roles. With this
+>>>>> patch I find:
+>>>>>
+>>>>> - switch to host mode always works fine
+>>>>>
+>>>>> - switch to gadget mode I need to flip the switch 3x
+>>>>> (gadget-host-gadget).
+>>>>>
+>>>>> An error message appears on the gadget side "dwc3 dwc3.0.auto: timed
+>>>>> out
+>>>>> waiting for SETUP phase" appears, but then the device connects to my
+>>>>> PC,
+>>>>> no throttling.
+>>>>>
+>>>>> - alternatively I can switch to gadget 1x and then unplug/replug the
+>>>>> cable.
+>>>>>
+>>>>> No error message and connects fine.
+>>>>>
+>>>>> - if I flip the switch only once, on the PC side I get:
+>>>>>
+>>>>>     kernel: usb 1-5: new high-speed USB device number 18 usingxhci_hcd
+>>>>>     kernel: usb 1-5: New USB device found, idVendor=1d6b,
+>>>>>     idProduct=0104, bcdDevice= 1.00 kernel: usb 1-5: New USB device
+>>>>>     strings: Mfr=1, Product=2, SerialNumber=3 kernel: usb 1-5: Product:
+>>>>>     USBArmory Gadget kernel: usb 1-5: Manufacturer: USBArmory kernel:
+>>>>>     usb 1-5: SerialNumber: 0123456789abcdef kernel: usb 1-5: can't set
+>>>>>     config #1, error -110
+>>>> The device failed at set_configuration() request and timed out. It
+>>>> probably timed out from the status stage looking at the device err
+>>>> print.
+>>>>
+>>>>> Then if I wait long enough on the gadget side I get:
+>>>>>
+>>>>>     root@yuna:~# ifconfig
+>>>>>
+>>>>>     usb0: flags=-28605<UP,BROADCAST,RUNNING,MULTICAST,DYNAMIC> mtu 1500
+>>>>>     inet 169.254.119.239 netmask 255.255.0.0 broadcast 169.254.255.255
+>>>>>     inet6 fe80::a8bb:ccff:fedd:eef1 prefixlen 64 scopeid 0x20<link>
+>>>>>     ether aa:bb:cc:dd:ee:f1 txqueuelen 1000 (Ethernet) RX packets 490424
+>>>>>     bytes 735146578 (701.0 MiB) RX errors 0 dropped 191 overruns 0 frame
+>>>>>     0 TX packets 35279 bytes 2532746 (2.4 MiB) TX errors 0 dropped 0
+>>>>>     overruns 0 carrier 0 collisions 0
+>>>>>
+>>>>> (correct would be: inet 10.42.0.221 netmask 255.255.255.0 broadcast
+>>>>> 10.42.0.255)
+>>>>>
+>>>>> So much improved now, but it seems I am still missing something on
+>>>>> plug.
+>>>>>
+>>>> That's great! We can look at it further. Can you capture the tracepoints
+>>>> of the issue. Also, can you try with mass_storage gadget to see if the
+>>>> result is the same?
+>>> I have already gser, eem, mass_storage and uac2 combo. When eem fails,
+>>> the mass_storage and uac2 don't appear (on KDE you get all kind of
+>>> popups when they appear).
+>>>
+>>> So either all works, or all fails.
+>>>
+>>> I'll trace this later today.
+>> Trace capturing switch from host-> gadget  here
+>> https://urldefense.com/v3/__https://github.com/andy-shev/linux/files/6329600/5.12-rc7*2Busb-next.zip__;JQ!!A4F2R9G_pg!Oa6XGH3IqY3wwG5KK4FwPuNA0m3q5bRj7N6vdP-y4sAY6mya-96J90NJ0tJnXLOiNwGT$
+>>
+>> (Issue history:
+>> https://urldefense.com/v3/__https://github.com/andy-shev/linux/issues/31__;!!A4F2R9G_pg!Oa6XGH3IqY3wwG5KK4FwPuNA0m3q5bRj7N6vdP-y4sAY6mya-96J90NJ0tJnXNc7KgAw$
+>> )
+>>
+>> On the PC side this resulted to:
+>>
+>> apr 17 18:17:44 delfion kernel: usb 1-5: new high-speed USB device
+>> number 12 using xhci_hcd
+>> apr 17 18:17:44 delfion kernel: usb 1-5: New USB device found,
+>> idVendor=1d6b, idProduct=0104, bcdDevice= 1.00
+>> apr 17 18:17:44 delfion kernel: usb 1-5: New USB device strings: Mfr=1,
+>> Product=2, SerialNumber=3
+>> apr 17 18:17:44 delfion kernel: usb 1-5: Product: USBArmory Gadget
+>> apr 17 18:17:44 delfion kernel: usb 1-5: Manufacturer: USBArmory
+>> apr 17 18:17:44 delfion kernel: usb 1-5: SerialNumber: 0123456789abcdef
+>> apr 17 18:17:49 delfion kernel: usb 1-5: can't set config #1, error -110
+>>
+>>
+>> Thanks for all your help!
+>>
+> Looks like it's LPM related again. To confirm, try this:
+> Disable LPM with this property "snps,usb2-gadget-lpm-disable"
+> (Note that it's not the same as "snps,dis_enblslpm_quirk")
+
+Yes, I confirm this helps.
+
+Note: on startup I was in host mode, with gadget cable plugged. The 
+first switch to gadget didn't work, all subsequent switches did work, as 
+well as unplug/plug the cable.
+
+> Make sure that your testing kernel has this patch [1]
+> 475e8be53d04 ("usb: dwc3: gadget: Check for disabled LPM quirk")
+>
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git/commit/?h=usb-next&id=475e8be53d0496f9bc6159f4abb3ff5f9b90e8de
+>
+>
+> The failure you saw was probably due the gadget function attempting
+> to start a delayed status stage of the SET_CONFIGURATION request.
+> By this time, the host already put the device in low power.
+>
+> The START_TRANSFER command needs to be executed while the device
+> is on "ON" state (or U0 if eSS). We shouldn't use dwc->link_state
+> to check for link state because we only enable link state change
+> interrupt for some controller versions.
+>
+> Once you confirms disabling LPM works, try this fix:
+>
+> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> index 6227641f2d31..06cdec79244e 100644
+> --- a/drivers/usb/dwc3/gadget.c
+> +++ b/drivers/usb/dwc3/gadget.c
+> @@ -309,10 +309,14 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned int cmd,
+>   
+>          if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
+>                  int             needs_wakeup;
+> +               u8              link_state;
+>   
+> -               needs_wakeup = (dwc->link_state == DWC3_LINK_STATE_U1 ||
+> -                               dwc->link_state == DWC3_LINK_STATE_U2 ||
+> -                               dwc->link_state == DWC3_LINK_STATE_U3);
+> +               reg = dwc3_readl(dwc->regs, DWC3_DSTS);
+> +               link_state = DWC3_DSTS_USBLNKST(reg);
+> +
+> +               needs_wakeup = (link_state == DWC3_LINK_STATE_U1 ||
+> +                               link_state == DWC3_LINK_STATE_U2 ||
+> +                               link_state == DWC3_LINK_STATE_U3);
+>   
+>                  if (unlikely(needs_wakeup)) {
+>                          ret = __dwc3_gadget_wakeup(dwc);
+> @@ -1989,6 +1993,8 @@ static int __dwc3_gadget_wakeup(struct dwc3 *dwc)
+>          case DWC3_LINK_STATE_RESET:
+>          case DWC3_LINK_STATE_RX_DET:    /* in HS, means Early Suspend */
+>          case DWC3_LINK_STATE_U3:        /* in HS, means SUSPEND */
+> +       case DWC3_LINK_STATE_U2:        /* in HS, means Sleep (L1) */
+> +       case DWC3_LINK_STATE_U1:
+>          case DWC3_LINK_STATE_RESUME:
+>                  break;
+>          default:
+>
+Same (good) result as with "snps,usb2-gadget-lpm-disable". Including 
+first switch from host->gadget not working.
+
+After a 2 - 4 minutes the connection is dropped and reconnected.
+
+On the gadget end journal shows:
+
+Apr 19 22:08:42 yuna systemd-networkd[507]: usb0: Lost carrier
+Apr 19 22:08:42 yuna systemd-journald[417]: Forwarding to syslog missed 
+1 messages.
+Apr 19 22:08:42 yuna systemd-timesyncd[469]: No network connectivity, 
+watching for changes.
+Apr 19 22:08:42 yuna kernel: IPv6: ADDRCONF(NETDEV_CHANGE): usb0: link 
+becomes ready
+Apr 19 22:08:42 yuna kernel[480]: [  624.382929] IPv6: 
+ADDRCONF(NETDEV_CHANGE): usb0: link becomes ready
+Apr 19 22:08:42 yuna systemd-networkd[507]: usb0: Gained carrier
+Apr 19 22:08:44 yuna systemd-networkd[507]: usb0: Gained IPv6LL
+Apr 19 22:08:44 yuna systemd-timesyncd[469]: Network configuration 
+changed, trying to establish connection.
+Apr 19 22:08:57 yuna systemd-timesyncd[469]: Initial synchronization to 
+time server 216.239.35.8:123 (time3.google.com).
+
+So, drops and immediately reconnects.
+
+>
+>
+> BR,
+> Thinh
