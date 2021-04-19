@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AEAF3643D0
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4963643C6
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241158AbhDSNVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56310 "EHLO mail.kernel.org"
+        id S240858AbhDSNVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241330AbhDSNU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3072613CE;
-        Mon, 19 Apr 2021 13:16:18 +0000 (UTC)
+        id S241359AbhDSNU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5723C613E8;
+        Mon, 19 Apr 2021 13:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838179;
-        bh=uTn/P7ShC6ybQpeMSlQSWl7Llh9H4+W/oEmmZDnLqy8=;
+        s=korg; t=1618838181;
+        bh=fN2mtwZZeJajqB6xdE9xvau7nZPC4vSVWR80iu+0jww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qg/EOPOIDgJjEjXs6WEKn3USFxJKLXLEpQCrbo+zxQ7Nv0pfKLFO/dwUWIQhvtJHA
-         0VzMqg+NnphQYlRVG7mNfeSqkuNIv7ZFDlHuq3jDWvjZOrEDW68rsXcMWUxX4B0Q/t
-         JoAtFxpXJHPlPNm/EDjwwLAOxp4TmzAQR+wUgkrs=
+        b=Ny+ekhAydZ6PKlwJfnegT+xPXjhRjvtjU++rbzqydNlTE647EN6yhW+L0Cz/UFssi
+         Eydx45e/jI+CPBcsh+oCfJZAqY3oJJQHxLfrDK44Fm3i4KCE6e6O9S+kz85XUAudul
+         uWj9XoXQGX0NLg4R7o54gRbLX21uWt68sIgZdR+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 070/103] net: sit: Unregister catch-all devices
-Date:   Mon, 19 Apr 2021 15:06:21 +0200
-Message-Id: <20210419130530.225054740@linuxfoundation.org>
+Subject: [PATCH 5.10 071/103] net: ip6_tunnel: Unregister catch-all devices
+Date:   Mon, 19 Apr 2021 15:06:22 +0200
+Message-Id: <20210419130530.255356635@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -41,47 +41,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hristo Venev <hristo@venev.name>
 
-commit 610f8c0fc8d46e0933955ce13af3d64484a4630a upstream.
+commit 941ea91e87a6e879ed82dad4949f6234f2702bec upstream.
 
-A sit interface created without a local or a remote address is linked
-into the `sit_net::tunnels_wc` list of its original namespace. When
-deleting a network namespace, delete the devices that have been moved.
+Similarly to the sit case, we need to remove the tunnels with no
+addresses that have been moved to another network namespace.
 
-The following script triggers a null pointer dereference if devices
-linked in a deleted `sit_net` remain:
-
-    for i in `seq 1 30`; do
-        ip netns add ns-test
-        ip netns exec ns-test ip link add dev veth0 type veth peer veth1
-        ip netns exec ns-test ip link add dev sit$i type sit dev veth0
-        ip netns exec ns-test ip link set dev sit$i netns $$
-        ip netns del ns-test
-    done
-    for i in `seq 1 30`; do
-        ip link del dev sit$i
-    done
-
-Fixes: 5e6700b3bf98f ("sit: add support of x-netns")
+Fixes: 0bd8762824e73 ("ip6tnl: add x-netns support")
 Signed-off-by: Hristo Venev <hristo@venev.name>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_tunnel.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1867,9 +1867,9 @@ static void __net_exit sit_destroy_tunne
- 		if (dev->rtnl_link_ops == &sit_link_ops)
- 			unregister_netdevice_queue(dev, head);
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -2275,6 +2275,16 @@ static void __net_exit ip6_tnl_destroy_t
+ 			t = rtnl_dereference(t->next);
+ 		}
+ 	}
++
++	t = rtnl_dereference(ip6n->tnls_wc[0]);
++	while (t) {
++		/* If dev is in the same netns, it has already
++		 * been added to the list by the previous loop.
++		 */
++		if (!net_eq(dev_net(t->dev), net))
++			unregister_netdevice_queue(t->dev, list);
++		t = rtnl_dereference(t->next);
++	}
+ }
  
--	for (prio = 1; prio < 4; prio++) {
-+	for (prio = 0; prio < 4; prio++) {
- 		int h;
--		for (h = 0; h < IP6_SIT_HASH_SIZE; h++) {
-+		for (h = 0; h < (prio ? IP6_SIT_HASH_SIZE : 1); h++) {
- 			struct ip_tunnel *t;
- 
- 			t = rtnl_dereference(sitn->tunnels[prio][h]);
+ static int __net_init ip6_tnl_init_net(struct net *net)
 
 
